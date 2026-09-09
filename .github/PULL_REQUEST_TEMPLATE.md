@@ -2,12 +2,6 @@
 
 Describe the content or tooling change and the consuming project(s).
 
-## Rights and provenance
-
-- [ ] I reviewed the rights for every added or changed asset.
-- [ ] I updated `PROVENANCE.md` for each content batch.
-- [ ] I preserved all required third-party license and attribution notices.
-
 ## Content integrity
 
 - [ ] `pwsh ./tools/Test-Repository.ps1` passes locally.
