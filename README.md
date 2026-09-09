@@ -29,8 +29,7 @@ Windows users may instead run `Verify.cmd`, `BuildTlk.cmd`, and `BuildHaks.cmd`.
 2. Create a top-level directory with that exact name and place only packable NWN resources directly
    inside it. Subdirectories are not supported.
 3. Add the matching entry to `hakbuilder.json`.
-4. Add the content batch's rights and attribution record to `PROVENANCE.md`.
-5. Run `pwsh ./tools/Test-Repository.ps1 -AllPacks`.
+4. Run `pwsh ./tools/Test-Repository.ps1 -AllPacks`.
 
 Useful categories include `srn_2da`, `srn_ui`, `srn_shader`, `srn_palette`, `srn_sound`,
 `srn_music`, `srn_load`, `srn_portrait`, `srn_fx`, `srn_creature`, `srn_item`, `srn_weapon`,
