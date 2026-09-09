@@ -1,0 +1,11 @@
+/output/
+/.tools/
+/.tmp/
+*.tmp
+*.bak
+*.hak
+*.tlk
+!srn_tlk/*.tlk.json
+.DS_Store
+Thumbs.db
+desktop.ini

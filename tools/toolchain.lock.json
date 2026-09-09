@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "name": "neverwinter.nim",
+  "sourceRepository": "https://github.com/niv/neverwinter.nim",
+  "license": "MIT",
+  "releaseTag": "2.1.2",
+  "commit": "07a475d974c9d2a350d9386f60826b1151b3f71a",
+  "platforms": {
+    "windows-x64": {
+      "fileName": "neverwinter-x86_64-windows.zip",
+      "url": "https://github.com/niv/neverwinter.nim/releases/download/2.1.2/neverwinter-x86_64-windows.zip",
+      "sha256": "b00501cc57adc63392f17d460d712edcdcbe35cb37f7d7257ab23806ed86aed1",
+      "executables": {
+        "erf": "nwn_erf.exe",
+        "tlk": "nwn_tlk.exe"
+      }
+    },
+    "linux-x64": {
+      "fileName": "neverwinter-x86_64-linux-gnu.zip",
+      "url": "https://github.com/niv/neverwinter.nim/releases/download/2.1.2/neverwinter-x86_64-linux-gnu.zip",
+      "sha256": "f9cc2e50fbe6f750954d11b824434a92b12913cc0a3442e95dcc5eefd4ddc387",
+      "executables": {
+        "erf": "nwn_erf",
+        "tlk": "nwn_tlk"
+      }
+    }
+  }
+}

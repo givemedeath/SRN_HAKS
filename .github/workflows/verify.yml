@@ -1,0 +1,48 @@
+name: Verify
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Repository verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: false
+      - name: Cache verified tool archive and extraction
+        uses: actions/cache@v4
+        with:
+          path: .tools
+          key: neverwinter-nim-2.1.2-linux-gnu-x64-f9cc2e50
+      - name: Verify repository
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:BASE_SHA) -or $env:BASE_SHA -match '^0+$') {
+            ./tools/Test-Repository.ps1 -AllPacks *>&1 | Tee-Object -FilePath verify.log
+          }
+          else {
+            ./tools/Test-Repository.ps1 -ChangedSince $env:BASE_SHA *>&1 | Tee-Object -FilePath verify.log
+          }
+      - name: Upload compact verification log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-log
+          path: verify.log
+          if-no-files-found: ignore
+          retention-days: 7

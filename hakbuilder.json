@@ -1,0 +1,7 @@
+{
+  "TlkPath": "./output/srn.tlk",
+  "TlkSource": "./srn_tlk/srn.tlk.json",
+  "OutputPath": "./output/",
+  "HakList": [],
+  "ExpectedOverrides": []
+}

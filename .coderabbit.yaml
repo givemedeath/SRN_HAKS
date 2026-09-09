@@ -1,0 +1,19 @@
+language: en-US
+reviews:
+  profile: assertive
+  high_level_summary: true
+  poem: false
+  path_filters:
+    - "!output/**"
+    - "!.tools/**"
+  path_instructions:
+    - path: "srn_*/**"
+      instructions: >-
+        Check ResRef stems for lowercase ASCII and a 16-character maximum, confirm
+        provenance coverage, and flag unexplained cross-HAK duplicates.
+    - path: "srn_tlk/**"
+      instructions: >-
+        Treat allocated StrRef IDs as permanent. Flag renumbering, reuse, deletion,
+        duplicate IDs, or allocation edits that do not keep both JSON files aligned.
+chat:
+  auto_reply: true
