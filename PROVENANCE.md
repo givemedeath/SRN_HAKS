@@ -1,8 +1,7 @@
 # Content Provenance
 
-Every content batch must be recorded here before its files are merged. Record the source project and
-immutable revision, creator or rightsholder, license or permission evidence, public-redistribution
-decision, attribution text, affected HAKs, and reviewer/date. No license found means do not copy.
+Exceptions must be recorded here before it merges. Record the hak category and asset filename and
+contributor.
 
 ## Size exceptions
 
