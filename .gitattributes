@@ -3,7 +3,7 @@
 *.ps1 text eol=lf
 *.json text eol=lf
 *.md text eol=lf
-*.2da text eol=lf
+*.2da text eol=lf whitespace=-trailing-space
 *.set text eol=lf
 *.mtr text eol=lf
 *.txi text eol=lf whitespace=-trailing-space
