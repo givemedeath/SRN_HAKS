@@ -79,6 +79,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_tfb01",
+      "Path": "./srn_t_tfb01/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_skybox",
       "Path": "./srn_skybox/",
       "CompileModels": false
