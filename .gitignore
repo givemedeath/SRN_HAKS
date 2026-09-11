@@ -1,6 +1,7 @@
 /output/
 /.tools/
 /.tmp/
+/.quarantine/
 *.tmp
 *.bak
 *.hak

@@ -14,3 +14,13 @@ licensed, Copyright 2018 Bernhard Stoeckner and contributors. The downloaded arc
 its complete license notice remains inside the verified extracted archive.
 
 Source: https://github.com/niv/neverwinter.nim
+## MDRNEE/D20 Modern candidate content
+
+The repository working tree may contain curated subsets of `mdrnee_tile.hak` and
+`mdrnee_audio.hak`. Original
+contributor credits are preserved in `PROVENANCE.md` and the import report. The source archive and
+upstream Git repository do not contain a standalone license file. Reuse is under the operator-reviewed
+D20 Modern Haks Version 2.2 Neverwinter Vault permission: the content is free/open when the consuming
+project is also open, and contributor acknowledgement is requested. The curated assets retain those
+terms and are not covered by this repository's default PolyForm license. The audio archive lacks
+per-track rights metadata; see `PROVENANCE.md` for the unresolved redistribution warning.

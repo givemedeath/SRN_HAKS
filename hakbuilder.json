@@ -2,6 +2,127 @@
   "TlkPath": "./output/srn.tlk",
   "TlkSource": "./srn_tlk/srn.tlk.json",
   "OutputPath": "./output/",
-  "HakList": [],
+  "HakList": [
+    {
+      "Name": "srn_t_common",
+      "Path": "./srn_t_common/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_net01",
+      "Path": "./srn_t_net01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_tbx78",
+      "Path": "./srn_t_tbx78/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_tjsb0",
+      "Path": "./srn_t_tjsb0/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_vac01",
+      "Path": "./srn_t_vac01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_door",
+      "Path": "./srn_door/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_2da",
+      "Path": "./srn_2da/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_dgt04",
+      "Path": "./srn_t_dgt04/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_fcx01",
+      "Path": "./srn_t_fcx01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_fifi",
+      "Path": "./srn_t_fifi/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_flow_pa",
+      "Path": "./srn_t_flow_pa/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_nac01",
+      "Path": "./srn_t_nac01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_shp02",
+      "Path": "./srn_t_shp02/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_sjm01",
+      "Path": "./srn_t_sjm01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_srt04",
+      "Path": "./srn_t_srt04/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_tfb01",
+      "Path": "./srn_t_tfb01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_udp1",
+      "Path": "./srn_t_udp1/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_udp2",
+      "Path": "./srn_t_udp2/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_vmp01",
+      "Path": "./srn_t_vmp01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_vmr01",
+      "Path": "./srn_t_vmr01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_t_zsf01",
+      "Path": "./srn_t_zsf01/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_skybox",
+      "Path": "./srn_skybox/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_music",
+      "Path": "./srn_music/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_sound",
+      "Path": "./srn_sound/",
+      "CompileModels": false
+    }
+  ],
   "ExpectedOverrides": []
 }
