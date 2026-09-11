@@ -1,0 +1,7 @@
+// Renderhint
+renderhint NormalAndSpecMapped
+
+// Textures
+texture0 m3_BMT_V13_d
+texture1 BiomassT_Volume13_copy000_nmap
+texture2 BiomassT_Volume13_copy000_gloss

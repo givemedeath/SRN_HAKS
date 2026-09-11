@@ -1,0 +1,10 @@
+node dummy le5_pwk_use01
+  parent m3_ba_bottle5_pwk
+  position  0.00000 -0.06182  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy le5_pwk_use02
+  parent m3_ba_bottle5_pwk
+  position  0.00000  0.07438  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

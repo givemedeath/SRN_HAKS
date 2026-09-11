@@ -1,0 +1,10 @@
+node dummy p53_pwk_use01
+  parent m3_a153_pwk
+  position -0.03964  0.02035  0.83240
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p53_pwk_use02
+  parent m3_a153_pwk
+  position  0.02882  0.03421  0.81122
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

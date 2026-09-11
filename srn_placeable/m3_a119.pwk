@@ -1,0 +1,10 @@
+node dummy p19_pwk_use01
+  parent m3_a119_pwk
+  position  0.00722 -0.02787  0.10381
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p19_pwk_use02
+  parent m3_a119_pwk
+  position  0.01261  0.02406  0.15004
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
