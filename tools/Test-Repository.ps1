@@ -102,7 +102,7 @@ foreach ($name in $registeredNames) {
     $identities = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     foreach ($file in $files) {
         if ($file.Name -cne $file.Name.ToLowerInvariant()) { Add-ValidationError "Resource '$name/$($file.Name)' must be lowercase." }
-        if ($file.BaseName -cnotmatch '^[a-z0-9_]{1,16}$') { Add-ValidationError "Resource stem '$name/$($file.BaseName)' must match [a-z0-9_]{1,16}." }
+        if ($file.BaseName -cnotmatch '^[a-z0-9_-]{1,16}$') { Add-ValidationError "Resource stem '$name/$($file.BaseName)' must match [a-z0-9_-]{1,16}." }
         if ([string]::IsNullOrWhiteSpace($file.Extension)) { Add-ValidationError "Resource '$name/$($file.Name)' has no extension." }
         $identity = $file.Name.ToLowerInvariant()
         if (-not $identities.Add($identity)) { Add-ValidationError "HAK '$name' has a case-insensitive duplicate resource '$identity'." }
@@ -131,7 +131,7 @@ $declaredOverrides = @{}
 foreach ($override in @($configuration.ExpectedOverrides)) {
     $resource = ([string]$override.Resource).ToLowerInvariant()
     $providers = @($override.Packs | ForEach-Object { [string]$_ } | Sort-Object -Unique)
-    if ($resource -cnotmatch '^[a-z0-9_]{1,16}\.[a-z0-9_]+$') { Add-ValidationError "Invalid ExpectedOverrides resource '$resource'." }
+    if ($resource -cnotmatch '^[a-z0-9_-]{1,16}\.[a-z0-9_]+$') { Add-ValidationError "Invalid ExpectedOverrides resource '$resource'." }
     if ($providers.Count -lt 2) { Add-ValidationError "Expected override '$resource' must name at least two packs." }
     foreach ($provider in $providers) {
         if (-not $packByName.ContainsKey($provider)) { Add-ValidationError "Expected override '$resource' references unknown pack '$provider'." }
@@ -169,7 +169,14 @@ try {
     $ids = [System.Collections.Generic.HashSet[int64]]::new()
     foreach ($entry in $allocations) {
         $id = [int64]$entry.id
-        if (-not $keys.Add([string]$entry.key)) { Add-ValidationError "Duplicate TLK allocation key '$($entry.key)'." }
+        $entryKeys = @([string]$entry.key)
+        if ($entry.PSObject.Properties.Name -contains 'aliases') { $entryKeys += @($entry.aliases) }
+        foreach ($entryKey in $entryKeys) {
+            if ([string]$entryKey -cnotmatch '^[a-z0-9]+(?:[._-][a-z0-9]+)*$') {
+                Add-ValidationError "TLK allocation '$($entry.key)' has invalid key or alias '$entryKey'."
+            }
+            if (-not $keys.Add([string]$entryKey)) { Add-ValidationError "Duplicate TLK allocation key or alias '$entryKey'." }
+        }
         if (-not $ids.Add($id)) { Add-ValidationError "Duplicate TLK allocation ID '$id'." }
         if ([string]$entry.owner -notin @('shared', 'SR_NWN', 'SRN_NWN')) { Add-ValidationError "TLK allocation '$($entry.key)' has invalid owner '$($entry.owner)'." }
         if ([string]$entry.status -notin @('active', 'retired')) { Add-ValidationError "TLK allocation '$($entry.key)' has invalid status '$($entry.status)'." }
