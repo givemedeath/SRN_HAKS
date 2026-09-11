@@ -4,7 +4,7 @@
 *.json text eol=lf
 *.md text eol=lf
 *.2da text eol=lf whitespace=-trailing-space
-*.set text eol=lf
+*.set text eol=lf whitespace=-trailing-space
 *.mtr text eol=lf
 *.txi text eol=lf whitespace=-trailing-space
 *.ini text eol=lf
