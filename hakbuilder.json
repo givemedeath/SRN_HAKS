@@ -14,6 +14,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_tbx78",
+      "Path": "./srn_t_tbx78/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_door",
       "Path": "./srn_door/",
       "CompileModels": false
