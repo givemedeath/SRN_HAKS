@@ -84,6 +84,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_udp1",
+      "Path": "./srn_t_udp1/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_skybox",
       "Path": "./srn_skybox/",
       "CompileModels": false
