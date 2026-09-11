@@ -1,0 +1,10 @@
+ 
+renderhint NormalAndSpecMapped
+ 
+// Textures 
+texture0 m3_frhyd01_d
+texture1 m3_frhyd01_n
+texture2 m3_frhyd01_s
+texture3 null
+texture4 null
+texture5 null

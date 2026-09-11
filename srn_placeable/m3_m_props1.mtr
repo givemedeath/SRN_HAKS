@@ -1,0 +1,10 @@
+ 
+renderhint NormalAndSpecMapped
+ 
+// Textures 
+texture0 m3_m_props1_d
+texture1 m3_m_props1_n
+texture2 m3_m_props1_s
+texture3 m3_m_props1_r
+texture4 null
+texture5 null

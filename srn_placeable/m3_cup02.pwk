@@ -1,0 +1,10 @@
+node dummy p02_pwk_use01
+  parent SM_Cup_02_pwk
+  position  0.00000 -0.02865  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p02_pwk_use02
+  parent SM_Cup_02_pwk
+  position  0.00000  0.03101  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
