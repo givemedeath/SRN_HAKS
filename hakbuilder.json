@@ -22,6 +22,11 @@
       "Name": "srn_skybox",
       "Path": "./srn_skybox/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_music",
+      "Path": "./srn_music/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": []
