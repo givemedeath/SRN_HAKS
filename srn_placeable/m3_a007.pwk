@@ -1,0 +1,10 @@
+node dummy p07_pwk_use01
+  parent m3_a007_pwk
+  position -0.09846 -0.10756  0.06301
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p07_pwk_use02
+  parent m3_a007_pwk
+  position  0.09155 -0.10711  0.06601
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
