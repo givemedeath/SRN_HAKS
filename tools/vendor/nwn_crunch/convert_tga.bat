@@ -1,4 +1,4 @@
-@ECHO off 
+@ECHO off
 SETLOCAL EnableExtensions EnableDelayedExpansion
 SET "parent_dir=%~dp0"
 if not exist out mkdir out
