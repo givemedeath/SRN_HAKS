@@ -69,6 +69,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_sjm01",
+      "Path": "./srn_t_sjm01/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_skybox",
       "Path": "./srn_skybox/",
       "CompileModels": false
