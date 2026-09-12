@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "name": "mdrnee_tile",
+  "reportStem": "mdrnee_tile",
+  "expectedSha256": "B52CFAA8823826B1262AB19836D66C0DD04797AC2DD02ED9C03FE37309C59F44",
+  "expectedResourceCount": 14992,
+  "baseline": { "fileVersion": "89.8193.37-17", "dataBuild": "r1284" },
+  "promotedTilesets": ["dgt04", "fcx01", "fifi", "flow_pa", "nac01", "net01", "shp02", "sjm01", "srt04", "tbx78", "tfb01", "tjsb0", "udp1", "udp2", "vac01", "vmp01", "vmr01", "zsf01"],
+  "preserveRawSets": [],
+  "packNames": {
+    "dgt04": "srn_t_dgt04", "fcx01": "srn_t_fcx01", "fifi": "srn_t_fifi", "flow_pa": "srn_t_flow_pa",
+    "nac01": "srn_t_nac01", "net01": "srn_t_net01", "shp02": "srn_t_shp02", "sjm01": "srn_t_sjm01",
+    "srt04": "srn_t_srt04", "tbx78": "srn_t_tbx78", "tfb01": "srn_t_tfb01", "tjsb0": "srn_t_tjsb0",
+    "udp1": "srn_t_udp1", "udp2": "srn_t_udp2", "vac01": "srn_t_vac01", "vmp01": "srn_t_vmp01",
+    "vmr01": "srn_t_vmr01", "zsf01": "srn_t_zsf01"
+  },
+  "paletteFiles": {
+    "dgt04": ["dgt04palstd.itp"], "fcx01": ["fcx01pal.itp", "fcx01palstd.itp"], "fifi": ["fifipalstd.itp"],
+    "flow_pa": ["flow_parkpalstd.itp"], "nac01": ["nac01palstd.itp"], "net01": ["net01palstd.itp"],
+    "shp02": ["shp02pal.itp", "shp02palstd.itp"], "sjm01": ["sjm01palstd.itp"], "srt04": ["srt04palstd.itp"],
+    "tbx78": ["tbx78palstd.itp"], "tfb01": ["tfb01pal.itp", "tfb01palstd.itp"],
+    "tjsb0": ["tjsb0pal.itp", "tjsb0palstd.itp"], "udp1": ["udp1palstd.itp"], "udp2": ["udp2palstd.itp"],
+    "vac01": ["vac01pal.itp", "vac01palstd.itp"], "vmp01": ["vmp01pal.itp", "vmp01palstd.itp"],
+    "vmr01": ["vmr01pal.itp", "vmr01palstd.itp"], "zsf01": ["zsf01palstd.itp"]
+  },
+  "lightmapPrefixes": { "sjm01": ["mijm01"], "tbx78": ["mi_tbx78"], "tjsb0": ["mijsb0"] },
+  "resourcePrefixes": {
+    "dgt04": ["dgt04", "dgt05", "midg04", "midg05"],
+    "fcx01": ["fcx01", "fci01", "cor01", "mi_fcx01", "mi_fci01", "mi_cor01"],
+    "fifi": ["fifi"],
+    "flow_pa": ["flw01"],
+    "nac01": ["nac01", "mi_nac01", "mi_nar01"],
+    "net01": ["net01"],
+    "shp02": ["shp02", "shp04", "mi_shp02", "mi_shp04"],
+    "sjm01": ["sjm01", "sjm02", "mijm01"],
+    "srt04": ["srt04"],
+    "tbx78": ["tbx78", "mi_tbx78"],
+    "tfb01": ["tfb01", "mi_tfb01", "mi_tfb_"],
+    "tjsb0": ["tjsb0", "mijsb0"],
+    "udp1": ["udp1", "mi_udp1"],
+    "udp2": ["udp2", "mi_udp2"],
+    "vac01": ["vac01"],
+    "vmp01": ["vmp01", "mvp01"],
+    "vmr01": ["vmr01", "mird01", "mird02", "mird04"],
+    "zsf01": ["zsf01", "mi_zsf01"]
+  },
+  "promotedEdges": ["dgt04_edge.2da", "fcx01_edge.2da", "shp02_edge.2da", "tbx78_edge.2da", "tjsb0_edge.2da", "udp1_edge.2da", "udp2_edge.2da", "vac01_edge.2da", "vmp01_edge.2da", "vmr01_edge.2da", "zsf01_edge.2da"],
+  "deferredCompleteEdges": [],
+  "edgesWithKnownAssetGaps": ["dgt04_edge.2da", "udp1_edge.2da", "udp2_edge.2da", "vmr01_edge.2da", "zsf01_edge.2da"],
+  "edgeModelExperiments": [
+    {
+      "tileset": "udp2",
+      "resource": "udp2_edge.2da",
+      "activate": false,
+      "tokenRemaps": [
+        { "source": "Study", "target": "Office_Alum" }
+      ],
+      "modelRemaps": [
+        { "source": "gi_z01_01", "target": "udp2_z01_01" },
+        { "source": "gi_z01_02", "target": "udp2_z01_02" },
+        { "source": "gi_z01_03", "target": "udp2_z01_03" },
+        { "source": "gi_z01_04", "target": "udp2_z01_04" },
+        { "source": "gi_z01_05", "target": "udp2_z01_05" },
+        { "source": "gi_z01_06", "target": "udp2_z01_06" },
+        { "source": "gi_z01_07", "target": "udp2_z01_07" },
+        { "source": "gi_z01_08", "target": "udp2_z01_08" },
+        { "source": "gi_z01_09", "target": "udp2_z01_09" },
+        { "source": "gi_z02_01", "target": "udp2_z02_01" },
+        { "source": "gi_z02_02", "target": "udp2_z02_02" },
+        { "source": "gi_z02_03", "target": "udp2_z02_03" },
+        { "source": "gi_z02_04", "target": "udp2_z02_04" },
+        { "source": "gi_z02_05", "target": "udp2_z02_05" },
+        { "source": "gi_z02_06", "target": "udp2_z02_06" },
+        { "source": "gi_z02_07", "target": "udp2_z02_07" },
+        { "source": "gi_z03_01", "target": "udp2_z03_01" }
+      ]
+    }
+  ],
+  "customDoorRows": [
+    { "sourceRow": 117, "targetRow": 117, "tileset": "srt04" },
+    { "sourceRow": 146, "targetRow": 146, "tileset": "tbx78" },
+    { "sourceRow": 239, "targetRow": 260, "tileset": "fcx01" },
+    { "sourceRow": 240, "targetRow": 261, "tileset": "fcx01" },
+    { "sourceRow": 241, "targetRow": 263, "tileset": "sjm01" },
+    { "sourceRow": 242, "targetRow": 264, "tileset": "sjm01" },
+    { "sourceRow": 243, "targetRow": 262, "tileset": "vmr01" },
+    { "sourceRow": 244, "targetRow": 244, "tileset": "vmr01" },
+    { "sourceRow": 245, "targetRow": 245, "tileset": "vmr01" },
+    { "sourceRow": 246, "targetRow": 246, "tileset": "vmr01" },
+    { "sourceRow": 247, "targetRow": 247, "tileset": "vmr01" },
+    { "sourceRow": 248, "targetRow": 248, "tileset": "vmr01" },
+    { "sourceRow": 249, "targetRow": 249, "tileset": "vmr01" },
+    { "sourceRow": 250, "targetRow": 250, "tileset": "vmp01" },
+    { "sourceRow": 251, "targetRow": 251, "tileset": "vmp01" },
+    { "sourceRow": 252, "targetRow": 252, "tileset": "vmp01" },
+    { "sourceRow": 253, "targetRow": 253, "tileset": "vmp01" },
+    { "sourceRow": 254, "targetRow": 254, "tileset": "vmp01" },
+    { "sourceRow": 255, "targetRow": 265, "tileset": "vmp01" }
+  ],
+  "futureDoorRows": [
+    { "sourceRow": 239, "targetRow": 260, "tileset": "fcx01" },
+    { "sourceRow": 240, "targetRow": 261, "tileset": "fcx01" },
+    { "sourceRow": 109, "targetRow": 263, "tileset": "sjm01" },
+    { "sourceRow": 110, "targetRow": 264, "tileset": "sjm01" },
+    { "sourceRow": 243, "targetRow": 262, "tileset": "vmr01" }
+  ],
+  "candidateDoorRows": [
+    { "sourceRow": 117, "targetRow": 117, "tileset": "srt04" },
+    { "sourceRow": 146, "targetRow": 146, "tileset": "tbx78" },
+    { "sourceRow": 239, "targetRow": 260, "tileset": "fcx01" },
+    { "sourceRow": 240, "targetRow": 261, "tileset": "fcx01" },
+    { "sourceRow": 241, "targetRow": 263, "tileset": "sjm01" },
+    { "sourceRow": 242, "targetRow": 264, "tileset": "sjm01" },
+    { "sourceRow": 243, "targetRow": 262, "tileset": "vmr01" },
+    { "sourceRow": 244, "targetRow": 244, "tileset": "vmr01" },
+    { "sourceRow": 245, "targetRow": 245, "tileset": "vmr01" },
+    { "sourceRow": 246, "targetRow": 246, "tileset": "vmr01" },
+    { "sourceRow": 247, "targetRow": 247, "tileset": "vmr01" },
+    { "sourceRow": 248, "targetRow": 248, "tileset": "vmr01" },
+    { "sourceRow": 249, "targetRow": 249, "tileset": "vmr01" },
+    { "sourceRow": 250, "targetRow": 250, "tileset": "vmp01" },
+    { "sourceRow": 251, "targetRow": 251, "tileset": "vmp01" },
+    { "sourceRow": 252, "targetRow": 252, "tileset": "vmp01" },
+    { "sourceRow": 253, "targetRow": 253, "tileset": "vmp01" },
+    { "sourceRow": 254, "targetRow": 254, "tileset": "vmp01" },
+    { "sourceRow": 255, "targetRow": 265, "tileset": "vmp01" }
+  ],
+  "genericDoorMerge": {
+    "resource": "genericdoors.2da",
+    "outputPack": "srn_2da",
+    "assetPack": "srn_door",
+    "allocationStart": 1000,
+    "excludedSourceRows": [103],
+    "sourceRowTokenOverrides": [
+      { "sourceRow": 21, "oldToken": "16777560", "newToken": "1678190", "expectedOccurrences": 1 }
+    ],
+    "expectedAddedRows": 93
+  },
+  "skyboxMerge": {
+    "resource": "skyboxes.2da",
+    "outputPack": "srn_2da",
+    "rows": [
+      { "sourceRow": 7, "targetRow": 7 },
+      { "sourceRow": 8, "targetRow": 8 },
+      { "sourceRow": 9, "targetRow": 9 },
+      { "sourceRow": 10, "targetRow": 10 },
+      { "sourceRow": 11, "targetRow": 11 },
+      { "sourceRow": 12, "targetRow": 12 },
+      { "sourceRow": 13, "targetRow": 13 },
+      { "sourceRow": 14, "targetRow": 14 },
+      { "sourceRow": 15, "targetRow": 15 }
+    ]
+  },
+  "indexedResourceTableMerges": [
+    {
+      "resource": "ambientmusic.2da",
+      "outputPack": "srn_2da",
+      "sourceRowRanges": ["190-194", "201-337"],
+      "rowMappings": [],
+      "sourceRowTokenOverrides": [
+        { "sourceRow": 206, "oldToken": "mus_sbat_f_rave", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 207, "oldToken": "mus_sbat_f_st_3", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 208, "oldToken": "mus_sbat_f_tech1", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 209, "oldToken": "mus_sbat_f_tech2", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 210, "oldToken": "mus_sbat_f_tense", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 266, "oldToken": "mus_sbat_f_st_1", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 267, "oldToken": "mus_sbat_f_st_2", "newToken": "****", "expectedOccurrences": 1 }
+      ],
+      "expectedAddedRows": 142
+    },
+    {
+      "resource": "ambientsound.2da",
+      "outputPack": "srn_2da",
+      "sourceRowRanges": [],
+      "rowMappings": [
+        { "sourceRow": 201, "targetRow": 204 },
+        { "sourceRow": 202, "targetRow": 205 },
+        { "sourceRow": 204, "targetRow": 207 },
+        { "sourceRow": 205, "targetRow": 208 },
+        { "sourceRow": 206, "targetRow": 209 }
+      ],
+      "expectedAddedRows": 5
+    }
+  ],
+  "stringRefRemaps": [
+    { "resource": "ambientsound.2da", "sourceGameStrRef": 16777490, "key": "mdrnee.ambientsound.modern_city_day", "expectedOccurrences": 1 },
+    { "resource": "ambientsound.2da", "sourceGameStrRef": 16777491, "key": "mdrnee.ambientsound.modern_office", "expectedOccurrences": 1 },
+    { "resource": "ambientsound.2da", "sourceGameStrRef": 16777492, "key": "mdrnee.ambientsound.modern_computer_room", "expectedOccurrences": 1 },
+    { "resource": "ambientsound.2da", "sourceGameStrRef": 16777494, "key": "mdrnee.ambientsound.modern_war", "expectedOccurrences": 1 },
+    { "resource": "ambientsound.2da", "sourceGameStrRef": 16777495, "key": "mdrnee.ambientsound.modern_gang_war", "expectedOccurrences": 1 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777557, "key": "mdrnee.genericdoor.bay_garage", "expectedOccurrences": 10 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777558, "key": "mdrnee.genericdoor.sliding_glass", "expectedOccurrences": 3 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777559, "key": "mdrnee.genericdoor.elevator", "expectedOccurrences": 4 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777560, "key": "mdrnee.genericdoor.wood_glass_reflect", "expectedOccurrences": 6 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777561, "key": "mdrnee.genericdoor.manhole", "expectedOccurrences": 2 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 1678190, "key": "mdrnee.doortype.glass_window", "expectedOccurrences": 1 },
+    { "resource": "doortypes.2da", "sourceGameStrRef": 1678190, "key": "mdrnee.doortype.glass_window", "expectedOccurrences": 1 }
+  ],
+  "promoteRecommendedPacks": ["srn_door", "srn_skybox"],
+  "excludedBaseResources": ["black.dds", "black.tga", "tin01_bed02.dds", "tin01_bed02.tga"],
+  "registerPacks": ["srn_t_common", "srn_t_dgt04", "srn_t_fcx01", "srn_t_fifi", "srn_t_flow_pa", "srn_t_nac01", "srn_t_net01", "srn_t_shp02", "srn_t_sjm01", "srn_t_srt04", "srn_t_tbx78", "srn_t_tfb01", "srn_t_tjsb0", "srn_t_udp1", "srn_t_udp2", "srn_t_vac01", "srn_t_vmp01", "srn_t_vmr01", "srn_t_zsf01", "srn_door", "srn_skybox", "srn_music", "srn_sound", "srn_2da"],
+  "reportNotes": [
+    "Five source edge tables contain 48 missing model identities. UDP2's optional remap remains quarantined because Toolset testing confirmed its Wall-first terrain workflow without the remap.",
+    "All 18 tilesets are treated as established working content. UDP2 uses the count-normalized SET for a new controlled test: comparison with a Toolset-created area showed that the generated fixture used a group tile instead of the tileset's blank Wall filler tile.",
+    "The 142 music registrations backed by mdrnee_audio retain source rows 190-194 and 201-337. Five landed modern ambient loops move to blank EE rows 204-205 and 207-209; the oversized bar/club loop and its target row 206 remain deferred. Generic doors use EE user rows 1000 onward, and source skybox rows 7-15 extend the pinned EE baseline.",
+    "Door remaps are 239→260, 240→261, 243→262, 241→263, 242→264, and 255→265. The final three register the otherwise dormant SJM01 dome/gate and VMP01 wall-gate doors.",
+    "Generic-door source row 21 is assigned the dedicated Glass Window TLK entry instead of inheriting the source row's Wood Glass Reflect string.",
+    "Seven ambient-music rows have unavailable optional battle stingers cleared while retaining their available main tracks.",
+    "The companion manifest records every resource and its recommended landing."
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "profile": "mdrnee_tile",
+  "profileSha256": "CF327E5292B0EB20D3CD5C718C53BE12EBDE2F76D2B427CF5F83F19BA93FA6BB",
+  "sourceSha256": "B52CFAA8823826B1262AB19836D66C0DD04797AC2DD02ED9C03FE37309C59F44",
+  "generatedAtUtc": "2026-09-11T04:04:36.9227763Z",
+  "remaps": [
+    {
+      "table": "genericdoors.2da",
+      "key": "mdrnee.genericdoor.bay_garage",
+      "sourceGameStrRef": 16777557,
+      "targetGameStrRef": 16777221,
+      "occurrences": 10,
+      "text": "Bay Door/GarageDoor"
+    },
+    {
+      "table": "genericdoors.2da",
+      "key": "mdrnee.genericdoor.sliding_glass",
+      "sourceGameStrRef": 16777558,
+      "targetGameStrRef": 16777222,
+      "occurrences": 3,
+      "text": "Sliding Glass Doors"
+    },
+    {
+      "table": "genericdoors.2da",
+      "key": "mdrnee.genericdoor.elevator",
+      "sourceGameStrRef": 16777559,
+      "targetGameStrRef": 16777223,
+      "occurrences": 4,
+      "text": "Elevator Doors"
+    },
+    {
+      "table": "genericdoors.2da",
+      "key": "mdrnee.genericdoor.wood_glass_reflect",
+      "sourceGameStrRef": 16777560,
+      "targetGameStrRef": 16777224,
+      "occurrences": 6,
+      "text": "Wood Glass Reflect"
+    },
+    {
+      "table": "genericdoors.2da",
+      "key": "mdrnee.genericdoor.manhole",
+      "sourceGameStrRef": 16777561,
+      "targetGameStrRef": 16777225,
+      "occurrences": 2,
+      "text": "Manhole"
+    },
+    {
+      "table": "ambientsound.2da",
+      "key": "mdrnee.ambientsound.modern_city_day",
+      "sourceGameStrRef": 16777490,
+      "targetGameStrRef": 16777216,
+      "occurrences": 1,
+      "text": "Modern City Day"
+    },
+    {
+      "table": "ambientsound.2da",
+      "key": "mdrnee.ambientsound.modern_office",
+      "sourceGameStrRef": 16777491,
+      "targetGameStrRef": 16777217,
+      "occurrences": 1,
+      "text": "Modern Office"
+    },
+    {
+      "table": "ambientsound.2da",
+      "key": "mdrnee.ambientsound.modern_computer_room",
+      "sourceGameStrRef": 16777492,
+      "targetGameStrRef": 16777218,
+      "occurrences": 1,
+      "text": "Modern Computer Room"
+    },
+    {
+      "table": "ambientsound.2da",
+      "key": "mdrnee.ambientsound.modern_war",
+      "sourceGameStrRef": 16777494,
+      "targetGameStrRef": 16777219,
+      "occurrences": 1,
+      "text": "Modern War"
+    },
+    {
+      "table": "ambientsound.2da",
+      "key": "mdrnee.ambientsound.modern_gang_war",
+      "sourceGameStrRef": 16777495,
+      "targetGameStrRef": 16777220,
+      "occurrences": 1,
+      "text": "Modern Gang War"
+    },
+    {
+      "table": "genericdoors.2da",
+      "key": "mdrnee.doortype.glass_window",
+      "sourceGameStrRef": 1678190,
+      "targetGameStrRef": 16777226,
+      "occurrences": 1,
+      "text": "Glass Window"
+    },
+    {
+      "table": "doortypes.2da",
+      "key": "mdrnee.doortype.glass_window",
+      "sourceGameStrRef": 1678190,
+      "targetGameStrRef": 16777226,
+      "occurrences": 1,
+      "text": "Glass Window"
+    }
+  ]
+}

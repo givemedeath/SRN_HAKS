@@ -12,6 +12,7 @@
       "sha256": "b00501cc57adc63392f17d460d712edcdcbe35cb37f7d7257ab23806ed86aed1",
       "executables": {
         "erf": "nwn_erf.exe",
+        "gff": "nwn_gff.exe",
         "tlk": "nwn_tlk.exe"
       }
     },
@@ -21,6 +22,7 @@
       "sha256": "f9cc2e50fbe6f750954d11b824434a92b12913cc0a3442e95dcc5eefd4ddc387",
       "executables": {
         "erf": "nwn_erf",
+        "gff": "nwn_gff",
         "tlk": "nwn_tlk"
       }
     }

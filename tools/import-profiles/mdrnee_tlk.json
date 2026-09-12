@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "mdrnee_tlk",
+  "reportStem": "mdrnee_tlk",
+  "expectedSha256": "18620A3D984410024C79BDA7647A100A0F23A1D14713B602CE37DEFC95361D0F",
+  "entries": [
+    { "sourceId": 274, "expectedText": "Modern City Day", "key": "mdrnee.ambientsound.modern_city_day", "owner": "shared" },
+    { "sourceId": 275, "expectedText": "Modern Office", "key": "mdrnee.ambientsound.modern_office", "owner": "shared" },
+    { "sourceId": 276, "expectedText": "Modern Computer Room", "key": "mdrnee.ambientsound.modern_computer_room", "owner": "shared" },
+    { "sourceId": 278, "expectedText": "Modern War", "key": "mdrnee.ambientsound.modern_war", "owner": "shared" },
+    { "sourceId": 279, "expectedText": "Modern Gang War", "key": "mdrnee.ambientsound.modern_gang_war", "owner": "shared" },
+    { "sourceId": 341, "expectedText": "Bay Door/GarageDoor", "key": "mdrnee.genericdoor.bay_garage", "owner": "shared" },
+    { "sourceId": 342, "expectedText": "Sliding Glass Doors", "key": "mdrnee.genericdoor.sliding_glass", "owner": "shared" },
+    { "sourceId": 343, "expectedText": "Elevator Doors", "key": "mdrnee.genericdoor.elevator", "owner": "shared" },
+    { "sourceId": 344, "expectedText": "Wood Glass Reflect", "key": "mdrnee.genericdoor.wood_glass_reflect", "owner": "shared" },
+    { "sourceId": 345, "expectedText": "Manhole", "key": "mdrnee.genericdoor.manhole", "owner": "shared" },
+    { "text": "Glass Window", "sourceValue": 1678190, "reason": "repair-invalid-srt04-doortypes-stringref", "key": "mdrnee.doortype.glass_window", "owner": "shared" }
+  ]
+}

@@ -116,7 +116,7 @@ resources in the SWLOR HAK decomposition at `SWLOR_Haks` commit
 their respective upstream content.
 
 `t_door93.mdl` is retained as source content, but its `udp1_ohfire2` generic-door registration is
-withheld because no matching `t_door93.dwk` was found. Restoring that registration requires the
+withheld because no matching `t_door93.dwk` was found. Its row remains blank to preserve all later generic-door appearance IDs. Restoring that registration requires the
 original walkmesh or an engine-tested derivative; the final dependency report records this gap.
 
 ## MDRNEE audio import (2026-09-10)
@@ -127,11 +127,15 @@ original walkmesh or an engine-tested derivative; the final dependency report re
 Exact hashes and the one differing EE identity
 collision (`it_materialcloth.wav`) are recorded in `docs/imports/mdrnee_audio-manifest.json`.
 
-The archive accompanies the same D20 Modern content distribution and is retained under the same
-operator-reviewed open-project permission described above. Several music registration labels name
-commercial game properties or soundtracks. The archive contains no per-track authorship or license
-metadata, so public redistribution of the music pack requires a separate provenance/legal review;
-the import record does not represent that those third-party rights have been cleared.
+The archive accompanies the same D20 Modern content distribution. The Neverwinter Vault project
+page explicitly includes `mdrn21_music.rar` and publishes the collection as free and open when the
+consuming project is also open, with reuse in other projects allowed and acknowledgement requested.
+The operator accepts that project-level permission for this public, noncommercial NWN repository.
+The archive contains no per-track authorship or license metadata, so this record does not separately
+warrant ownership or clearance of any underlying third-party recording. The imported audio retains
+the upstream D20 Modern/Vault terms and is not relicensed under the repository's default license.
+
+Source: <https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>
 
 ## MDRNEE placeable import (2026-09-11)
 
@@ -173,3 +177,33 @@ repository's default PolyForm license.
 
 
 <!-- srn-size-exception {"path":"srn_t_vmp01/vmp01_building01.tga","reason":"Required original D20 Planetscape tileset texture; reviewed at 16,777,260 bytes and below GitHub's hard limit."} -->
+
+## Accepted MDRNEE source limitations and repairs
+
+The source archives contain no `sjm_udoor_01.dwk` or `sjm_udoor_02.dwk`; the corresponding
+unreferenced SJM door registrations are therefore withheld, while their models remain available for
+later recovery. D20 Parking Garage remains a group-centric legacy SET whose four named terrain and
+crosser brushes have no source placement rules. UDP2 remains usable with its legacy edge behavior;
+the unresolvable `gi_z*` edge references and missing `Office_Alum` edge rule are deferred polish.
+
+No inspected staged HAK supplies `vmp01__ref01` or the 191 VMR01 `midr01_*` minimaps. Planetscape
+therefore uses the EE `env_tti` environment-map fallback. Mars Interior remains usable but displays
+blank custom area-map tiles until authentic minimaps are recovered. No substitute art was fabricated.
+
+The DGT repair wraps 172 bare Blender AABB exports as standalone WOK resources without changing
+geometry, corrects one internal edge-model identity, and restores evidence-backed edge/minimap metadata.
+SRT04 shared-model door, crosser, and minimap records are restored from the matching packaged DGT
+records. Planetscape tile 382 remains a decorative Wall Gate with `Doors=0`, matching both the
+MDRNEE source and SWLOR's working decomposition; no unproven door transform was invented.
+
+Final review also restores source-backed DGT/SRT minimap and group metadata, enables VMP's declared
+height rules, aligns VMP edge aliases with its SET names, and restores ZSF stair-door visibility.
+
+Withheld SJM doortype rows remain explicit blanks so later numeric IDs are stable. Final review also
+restores Flow ramp lighting and the VMR Exterior Dais 2 walkmesh identity; fixture tooling now
+resolves pinned GFF and ERF executables through the platform-aware tool manifest.
+
+The shared chainlink_fence.dds source texture is owned by srn_t_common so both DGT tiles
+and its placeable consumer close without a HAK-order duplicate. Final metadata repair also aligns Flow
+door slots to model hooks, corrects SJM/SRT/ZSF minimaps, normalizes invalid ZSF boolean flags,
+and binds the Planetscape palette to mp01.

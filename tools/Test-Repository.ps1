@@ -117,6 +117,15 @@ foreach ($name in $registeredNames) {
         if (Test-GitLfsPointer -Path $file.FullName) {
             Add-ValidationError "Git LFS pointer detected at '$relativeFile'; this repository does not use LFS."
         }
+        if ($file.Extension -ieq '.set') {
+            $setLineNumber = 0
+            foreach ($setLine in [System.IO.File]::ReadLines($file.FullName)) {
+                $setLineNumber++
+                if ($setLine -match '^(Interior|HasHeightTransition|Grass|MainLight1|MainLight2|SourceLight1|SourceLight2|AnimLoop1|AnimLoop2|AnimLoop3)=(-?\d+)$' -and $Matches[2] -notin @('0', '1')) {
+                    Add-ValidationError "SET boolean field '$($Matches[1])' must be 0 or 1 at '$relativeFile`:$setLineNumber'; found '$($Matches[2])'."
+                }
+            }
+        }
     }
 }
 

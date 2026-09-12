@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "name": "mdrnee_audio",
+  "reportStem": "mdrnee_audio",
+  "expectedSha256": "012841691F5AB20EDAD8F2924DC63CC638C84CB8FD3D6A188F13388905E7742F",
+  "expectedResourceCount": 158,
+  "baseline": { "fileVersion": "89.8193.37-17", "dataBuild": "r1284" },
+  "promotedTilesets": [],
+  "preserveRawSets": [],
+  "packNames": {},
+  "paletteFiles": {},
+  "lightmapPrefixes": {},
+  "promotedEdges": [],
+  "customDoorRows": [],
+  "excludedBaseResources": [],
+  "quarantinedResources": [],
+  "excludedResources": ["mdrnmod_barclub.wav"],
+  "extensionPacks": {
+    "bmu": "srn_music",
+    "wav": "srn_sound"
+  },
+  "registerPacks": ["srn_music", "srn_sound"],
+  "reportNotes": [
+    "All 142 BMU resources land in srn_music. Fifteen WAV resources land in srn_sound; mdrnmod_barclub.wav is explicitly excluded.",
+    "The companion mdrnee_tile profile supplies baseline-preserving ambientmusic.2da and ambientsound.2da merges for resources registered by the legacy bundle.",
+    "Ten WAV effects are direct-use resources without global ambient table rows; five landed mdrnmod_* WAV loops are registered by the merged ambient sound table."
+  ]
+}
