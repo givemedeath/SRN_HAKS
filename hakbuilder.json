@@ -17,6 +17,11 @@
       "Name": "srn_2da",
       "Path": "./srn_2da/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_skybox",
+      "Path": "./srn_skybox/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": []
