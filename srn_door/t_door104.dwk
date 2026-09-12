@@ -1,8 +1,8 @@
 #MAXDOOR ASCII
-# model: t_door71_DWK 
+# model: t_door104_DWK 
 filedependancy greenhouse base tiles01.max
-node trimesh 71_DWK_wg_open1 
-  parent t_door71_DWK 
+node trimesh 05_DWK_wg_open1 
+  parent t_door104_DWK 
   position -1.0 1.0 1.5
   orientation  0.0 0.0 -1.0  -1.5708
   wirecolor 0.580392 0.694118 0.101961  
@@ -71,8 +71,8 @@ node trimesh 71_DWK_wg_open1
      -3.01695 0.0119243 0 
      -2.97815 0.639792 0 
 endnode
-node trimesh 71_DWK_wg_closed 
-  parent t_door71_DWK 
+node trimesh 05_DWK_wg_closed 
+  parent t_door104_DWK 
   position 0.0 0.0 1.5
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.580392 0.694118 0.101961  
@@ -141,8 +141,8 @@ node trimesh 71_DWK_wg_closed
      -3.01695 0.0119243 0 
      -2.97815 0.639792 0 
 endnode
-node trimesh 71_DWK_wg_open2 
-  parent t_door71_DWK 
+node trimesh 05_DWK_wg_open2 
+  parent t_door104_DWK 
   position -1.0 -1.0 1.5
   orientation  0.0 0.0 1.0  -1.5708
   wirecolor 0.580392 0.694118 0.101961  
@@ -211,26 +211,26 @@ node trimesh 71_DWK_wg_open2
      -3.01695 0.0119243 0 
      -2.97815 0.639792 0 
 endnode
-node dummy 71_DWK_dp_open2_01 
-  parent t_door71_DWK 
+node dummy 05_DWK_dp_open2_01 
+  parent t_door104_DWK 
   position -0.903019 -1.7285 0.0
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.423529 0.0313726 0.533333  
 endnode
-node dummy 71_DWK_dp_open1_01 
-  parent t_door71_DWK 
+node dummy 05_DWK_dp_open1_01 
+  parent t_door104_DWK 
   position -1.00441 1.52528 0.0
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.341176 0.878431 0.560784  
 endnode
-node dummy 71_DWK_dp_closed_01 
-  parent t_door71_DWK 
+node dummy 05_DWK_dp_closed_01 
+  parent t_door104_DWK 
   position 0.713138 0.100578 0.0
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.52549 0.431373 0.0313726  
 endnode
-node dummy 71_DWK_dp_closed_02 
-  parent t_door71_DWK 
+node dummy 05_DWK_dp_closed_02 
+  parent t_door104_DWK 
   position 0.702044 -0.110862 0.0
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.101961 0.694118 0.345098  
