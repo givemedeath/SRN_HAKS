@@ -901,12 +901,17 @@ if ($profile.PSObject.Properties.Name -contains 'genericDoorMerge') {
     }
     $sourceLines = @([IO.File]::ReadAllLines((Join-Path $rawRoot $resource), [Text.Encoding]::GetEncoding(1252)))
     $targetRow = [int]$merge.allocationStart
+    $excludedSourceRows = if ($merge.PSObject.Properties.Name -contains 'excludedSourceRows') {
+        @($merge.excludedSourceRows | ForEach-Object { [int]$_ })
+    }
+    else { @() }
     $added = 0
     foreach ($line in $sourceLines) {
         if ($line -notmatch '^\s*(\d+)\s+(\S+)\s+\S+\s+(\S+)\s+') { continue }
         $sourceRow = [int]$matches[1]
         $label = $matches[2]
         $model = $matches[3]
+        if ($sourceRow -in $excludedSourceRows) { continue }
         if ($model -eq '****' -or -not (Test-Path -LiteralPath (Join-Path $rawRoot "$model.mdl"))) { continue }
         if ($baseModels.Contains($model)) { continue }
         while ($true) {
