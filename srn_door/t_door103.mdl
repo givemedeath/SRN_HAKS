@@ -2,7 +2,7 @@
 # model: T_Door103
 filedependancy udp2-doorsonly02.max
 newmodel T_Door103
-setsupermodel T_Door103NULL
+setsupermodel T_Door103 NULL
 classification Door
 #MAXGEOM  ASCII
 beginmodelgeom T_Door103

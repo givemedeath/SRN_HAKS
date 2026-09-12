@@ -2,7 +2,7 @@
 # model: t_door84
 filedependancy doors_only01.max
 newmodel t_door84
-setsupermodel t_door84NULL
+setsupermodel t_door84 NULL
 classification Door
 #MAXGEOM  ASCII
 beginmodelgeom t_door84
