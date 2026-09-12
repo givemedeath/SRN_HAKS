@@ -264,6 +264,13 @@ function Get-2daTokens {
     return @([regex]::Matches($Line, '"[^"]*"|\S+') | ForEach-Object { $_.Value.Trim('"') })
 }
 
+function Test-2daReservedRow {
+    param([Parameter(Mandatory)][string]$Line)
+    $tokens = @(Get-2daTokens $Line)
+    if ($tokens.Count -lt 2 -or $tokens[1] -notmatch '^(?i:user\d*|reserved\d*)$') { return $false }
+    return @($tokens | Select-Object -Skip 2 | Where-Object { $_ -ne '****' }).Count -eq 0
+}
+
 function Update-GffNode {
     param(
         $Node,
@@ -1132,7 +1139,7 @@ foreach ($record in @($manifest.resources | Where-Object disposition -eq 'land')
             if ($repairEntry.Count -ne 1 -or -not $repairEntry[0].structurallyClean -or $repairEntry[0].sourceSha256 -cne $rawHash) {
                 throw "Missing or invalid repaired SET entry for $($record.name)."
             }
-            $source = Join-Path (Join-Path $workspace 'repaired') "$code\$code.set"
+            $source = Join-Path (Join-Path (Join-Path $workspace 'repaired') $code) "$code.set"
             $expectedHash = [string]$repairEntry[0].repairedSha256
             if (-not (Test-Path -LiteralPath $source -PathType Leaf) -or
                 (Get-FileHash -Algorithm SHA256 -LiteralPath $source).Hash.ToLowerInvariant() -cne $expectedHash) {
@@ -1189,7 +1196,27 @@ foreach ($record in @($manifest.resources | Where-Object disposition -eq 'land')
 $mergedDoorLines = $null
 if (@($profile.customDoorRows).Count) {
     if (-not $NwnRoot -or -not $NwnUserDirectory) { throw 'Apply requires NWN root and user directory for the pinned 2DA baseline.' }
-    $erf = Get-SrnTool -Name erf; $cat = Join-Path (Split-Path -Parent $erf) 'nwn_resman_cat.exe'; $baseLines = @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr doortypes.2da); $sourceLines = @(Get-Content (Join-Path $rawRoot 'doortypes.2da') -Encoding Default)
+    $erf = Get-SrnTool -Name erf
+    $cat = Join-Path (Split-Path -Parent $erf) 'nwn_resman_cat.exe'
+    $eeBaselineLines = @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr doortypes.2da)
+    $canonicalDoorPath = Join-Path $repoRoot 'srn_2da/doortypes.2da'
+    $baseLines = if (Test-Path -LiteralPath $canonicalDoorPath -PathType Leaf) {
+        @(Get-Content -LiteralPath $canonicalDoorPath -Encoding Default)
+    }
+    else { @($eeBaselineLines) }
+    $baselineHeader = @($eeBaselineLines | Where-Object { $_ -match '^\s*[A-Za-z]' } | Select-Object -First 1)
+    $canonicalHeader = @($baseLines | Where-Object { $_ -match '^\s*[A-Za-z]' } | Select-Object -First 1)
+    if ($baselineHeader.Count -ne 1 -or $canonicalHeader.Count -ne 1 -or
+        (@(Get-2daTokens $baselineHeader[0]) -join "`n") -cne (@(Get-2daTokens $canonicalHeader[0]) -join "`n")) {
+        throw 'Existing canonical doortypes.2da does not match the pinned EE schema.'
+    }
+    foreach ($baselineLine in @($eeBaselineLines | Where-Object { $_ -match '^\s*(\d+)\s+' })) {
+        $rowNumber = [int]([regex]::Match($baselineLine, '^\s*(\d+)').Groups[1].Value)
+        if ((Get-2daRowLineIndex $baseLines $rowNumber) -lt 0) {
+            throw "Existing canonical doortypes.2da is missing EE row $rowNumber."
+        }
+    }
+    $sourceLines = @(Get-Content (Join-Path $rawRoot 'doortypes.2da') -Encoding Default)
     foreach ($row in @($profile.customDoorRows)) {
         $sourceLine = @($sourceLines | Where-Object { $_ -match "^\s*$($row.sourceRow)\s+" })
         $target = -1
@@ -1199,7 +1226,28 @@ if (@($profile.customDoorRows).Count) {
         if ($sourceLine.Count -ne 1 -or $target -lt 0) { throw "Cannot merge doortypes row $($row.sourceRow)." }
         $sourceMatch = [regex]::Match($sourceLine[0], '^(\s*)\d+')
         if (-not $sourceMatch.Success) { throw "Cannot parse doortypes row $($row.sourceRow)." }
-        $baseLines[$target] = "$($sourceMatch.Groups[1].Value)$($row.targetRow)$($sourceLine[0].Substring($sourceMatch.Length))"
+        $desiredLine = "$($sourceMatch.Groups[1].Value)$($row.targetRow)$($sourceLine[0].Substring($sourceMatch.Length))"
+        $mappedDesiredLine = $desiredLine
+        if ($resolvedStringRefRemaps.ContainsKey('doortypes.2da')) {
+            foreach ($remap in @($resolvedStringRefRemaps['doortypes.2da'])) {
+                $pattern = '(?<!\S)' + [regex]::Escape([string]$remap.sourceGameStrRef) + '(?!\S)'
+                $mappedDesiredLine = [regex]::Replace($mappedDesiredLine, $pattern, [string]$remap.targetGameStrRef)
+            }
+        }
+        if ((@(Get-2daTokens $baseLines[$target]) -join "`n") -ceq (@(Get-2daTokens $mappedDesiredLine) -join "`n")) {
+            # Restore the source value so the validated remap pass below remains idempotent.
+            $baseLines[$target] = $desiredLine
+            continue
+        }
+        if ((@(Get-2daTokens $baseLines[$target]) -join "`n") -cne (@(Get-2daTokens $desiredLine) -join "`n")) {
+            $baselineTarget = Get-2daRowLineIndex $eeBaselineLines ([int]$row.targetRow)
+            if ($baselineTarget -lt 0 -or
+                (@(Get-2daTokens $baseLines[$target]) -join "`n") -cne (@(Get-2daTokens $eeBaselineLines[$baselineTarget]) -join "`n") -or
+                -not (Test-2daReservedRow $eeBaselineLines[$baselineTarget])) {
+                throw "doortypes.2da target row $($row.targetRow) is occupied; refusing to replace it."
+            }
+            $baseLines[$target] = $desiredLine
+        }
     }
     $duplicateRows = @($baseLines | Where-Object { $_ -match '^\s*(\d+)\s+' } |
         ForEach-Object { [regex]::Match($_, '^\s*(\d+)').Groups[1].Value } |
