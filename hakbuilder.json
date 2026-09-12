@@ -39,6 +39,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_dgt04",
+      "Path": "./srn_t_dgt04/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_skybox",
       "Path": "./srn_skybox/",
       "CompileModels": false

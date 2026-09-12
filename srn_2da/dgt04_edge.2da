@@ -8,7 +8,7 @@
 4      Concrete              Wall01             Concrete              0                    rdt02_z02_01
 5      Concrete+             Wall01             Concrete+             1                    rdt02_z02_01     
 6      Concrete              Wood_Fence         Concrete              0                    dgt05_z03_01     
-7      Concrete+             Wood_Fence         Concrete+             0                    dgt05_z03_01
+7      Concrete+             Wood_Fence         Concrete+             1                    dgt05_z03_01
 8      Concrete              Chain_Fence        Concrete              0                    dgt04_z05_01 
 9      Concrete+             Chain_Fence        Concrete+             1                    dgt04_z05_01
 10     Concrete              Chain_Fence2       Concrete              0                    dgt04_z18_01
@@ -151,7 +151,7 @@
 125    Concrete+             ****               Lab                   0                    TCN01_Z15_01     
 126    Concrete+             ****               Freeway               0                    TCN01_Z15_01     
 127    Concrete+             ****               Warehouse_01          0                    TCN01_Z15_01     
-128    Concrete+             ****               Building              0                    TCN01_Z15_01               
+128    Concrete+             ****               Warehouse_02              0                    TCN01_Z15_01               
 
 
 
