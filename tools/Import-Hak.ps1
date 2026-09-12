@@ -23,7 +23,11 @@ function Resolve-QuarantinePath {
     $root = [IO.Path]::GetFullPath($quarantineRoot)
     $resolved = [IO.Path]::GetFullPath((Join-Path $root $RelativePath))
     $prefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-    if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
+    $pathComparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+        [StringComparison]::OrdinalIgnoreCase
+    }
+    else { [StringComparison]::Ordinal }
+    if (-not $resolved.StartsWith($prefix, $pathComparison)) {
         throw "OutputRelativePath escapes .quarantine: $RelativePath"
     }
     return $resolved
@@ -269,6 +273,64 @@ function Test-2daReservedRow {
     $tokens = @(Get-2daTokens $Line)
     if ($tokens.Count -lt 2 -or $tokens[1] -notmatch '^(?i:user\d*|reserved\d*)$') { return $false }
     return @($tokens | Select-Object -Skip 2 | Where-Object { $_ -ne '****' }).Count -eq 0
+}
+
+function Test-2daVacantRow {
+    param([Parameter(Mandatory)][string]$Line)
+    $tokens = @(Get-2daTokens $Line)
+    return (Test-2daReservedRow $Line) -or
+        ($tokens.Count -ge 2 -and @($tokens | Select-Object -Skip 1 | Where-Object { $_ -ne '****' }).Count -eq 0)
+}
+
+function Get-2daHeaderLine {
+    param($Lines)
+    return @($Lines | Where-Object {
+        $_ -match '^\s*[A-Za-z]' -and $_ -notmatch '^\s*DEFAULT\s*:'
+    } | Select-Object -First 1)
+}
+
+function Get-Canonical2daMergeBase {
+    param(
+        [Parameter(Mandatory)][string]$Resource,
+        [Parameter(Mandatory)][string]$OutputPack,
+        [Parameter(Mandatory)][string]$CatPath,
+        [Parameter(Mandatory)][string]$GameRoot,
+        [Parameter(Mandatory)][string]$UserDirectory,
+        [Parameter(Mandatory)][string]$RepositoryRoot
+    )
+    $baselineLines = @(& $CatPath --root $GameRoot --userdirectory $UserDirectory --no-ovr $Resource)
+    if ($LASTEXITCODE -ne 0 -or -not $baselineLines.Count) { throw "Unable to read EE baseline $Resource." }
+    $canonicalPath = Join-Path (Join-Path $RepositoryRoot $OutputPack) $Resource
+    $lines = if (Test-Path -LiteralPath $canonicalPath -PathType Leaf) {
+        @(Get-Content -LiteralPath $canonicalPath -Encoding Default)
+    }
+    else { @($baselineLines) }
+    $baselineHeader = @(Get-2daHeaderLine $baselineLines)
+    $canonicalHeader = @(Get-2daHeaderLine $lines)
+    if ($baselineHeader.Count -ne 1 -or $canonicalHeader.Count -ne 1 -or
+        (@(Get-2daTokens $baselineHeader[0]) -join "`n") -cne (@(Get-2daTokens $canonicalHeader[0]) -join "`n")) {
+        throw "Existing canonical $Resource does not match the pinned EE schema."
+    }
+    foreach ($baselineLine in @($baselineLines | Where-Object { $_ -match '^\s*(\d+)\s+' })) {
+        $rowNumber = [int]([regex]::Match($baselineLine, '^\s*(\d+)').Groups[1].Value)
+        $canonicalIndex = Get-2daRowLineIndex $lines $rowNumber
+        if ($canonicalIndex -lt 0) { throw "Existing canonical $Resource is missing EE row $rowNumber." }
+        if (-not (Test-2daVacantRow $baselineLine) -and
+            (@(Get-2daTokens $baselineLine) -join "`n") -cne (@(Get-2daTokens $lines[$canonicalIndex]) -join "`n")) {
+            throw "Existing canonical $Resource changes active EE row $rowNumber."
+        }
+    }
+    return [pscustomobject]@{ baselineLines = @($baselineLines); lines = @($lines) }
+}
+
+function Convert-2daStringRefsInLine {
+    param([Parameter(Mandatory)][string]$Line, $Remaps)
+    $mapped = $Line
+    foreach ($remap in @($Remaps)) {
+        $pattern = '(?<!\S)' + [regex]::Escape([string]$remap.sourceGameStrRef) + '(?!\S)'
+        $mapped = [regex]::Replace($mapped, $pattern, [string]$remap.targetGameStrRef)
+    }
+    return $mapped
 }
 
 function Update-GffNode {
@@ -812,7 +874,7 @@ if ($Mode -eq 'Repair') {
     }
     [IO.File]::WriteAllLines($reportPath, $reportLines, [Text.UTF8Encoding]::new($false))
 
-    $docs = Join-Path $repoRoot 'docs\imports'
+    $docs = Join-Path (Join-Path $repoRoot 'docs') 'imports'
     New-Item -ItemType Directory -Force $docs | Out-Null
     Copy-Item $manifestPath (Join-Path $docs "$($profile.reportStem)-manifest.json") -Force
     Copy-Item $repairLogPath (Join-Path $docs "$($profile.reportStem)-repair-log.json") -Force
@@ -890,13 +952,19 @@ if (($profile.PSObject.Properties.Name -contains 'genericDoorMerge') -or
 if ($profile.PSObject.Properties.Name -contains 'genericDoorMerge') {
     $merge = $profile.genericDoorMerge
     $resource = ([string]$merge.resource).ToLowerInvariant()
+    $mergeBase = Get-Canonical2daMergeBase -Resource $resource -OutputPack ([string]$merge.outputPack) -CatPath $cat -GameRoot $NwnRoot -UserDirectory $NwnUserDirectory -RepositoryRoot $repoRoot
+    $baselineLines = @($mergeBase.baselineLines)
     $baseLines = [Collections.Generic.List[string]]::new()
-    foreach ($line in @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr $resource)) { $baseLines.Add($line) }
-    if ($LASTEXITCODE -ne 0 -or -not $baseLines.Count) { throw "Unable to read EE baseline $resource." }
+    foreach ($line in @($mergeBase.lines)) { $baseLines.Add($line) }
+    $baselineModels = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($line in $baselineLines) {
+        if ($line -match '^\s*\d+\s+\S+\s+\S+\s+(\S+)\s+' -and $matches[1] -ne '****') { [void]$baselineModels.Add($matches[1]) }
+    }
     $baseModels = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $baseModelRows = @{}
     foreach ($line in $baseLines) {
-        if ($line -match '^\s*\d+\s+\S+\s+\S+\s+(\S+)\s+' -and $matches[1] -ne '****') {
-            [void]$baseModels.Add($matches[1])
+        if ($line -match '^\s*(\d+)\s+\S+\s+\S+\s+(\S+)\s+' -and $matches[2] -ne '****') {
+            [void]$baseModels.Add($matches[2]); $baseModelRows[$matches[2].ToLowerInvariant()] = [int]$matches[1]
         }
     }
     $sourceLines = @([IO.File]::ReadAllLines((Join-Path $rawRoot $resource), [Text.Encoding]::GetEncoding(1252)))
@@ -913,7 +981,18 @@ if ($profile.PSObject.Properties.Name -contains 'genericDoorMerge') {
         $model = $matches[3]
         if ($sourceRow -in $excludedSourceRows) { continue }
         if ($model -eq '****' -or -not (Test-Path -LiteralPath (Join-Path $rawRoot "$model.mdl"))) { continue }
-        if ($baseModels.Contains($model)) { continue }
+        if ($baselineModels.Contains($model)) { continue }
+        if ($baseModels.Contains($model)) {
+            $existingRow = [int]$baseModelRows[$model.ToLowerInvariant()]
+            $existingIndex = Get-2daRowLineIndex $baseLines $existingRow
+            $baseLines[$existingIndex] = Set-2daRowNumber $line $existingRow
+            $globalAllocations.Add([pscustomobject]@{
+                table = $resource; sourceRow = $sourceRow; targetRow = $existingRow
+                label = $label; model = $model; pack = [string]$merge.outputPack
+            })
+            $added++
+            continue
+        }
         while ($true) {
             $targetIndex = Get-2daRowLineIndex $baseLines $targetRow
             if ($targetIndex -lt 0) { throw "$resource does not declare allocation row $targetRow." }
@@ -923,6 +1002,7 @@ if ($profile.PSObject.Properties.Name -contains 'genericDoorMerge') {
         }
         $baseLines[$targetIndex] = Set-2daRowNumber $line $targetRow
         [void]$baseModels.Add($model)
+        $baseModelRows[$model.ToLowerInvariant()] = $targetRow
         $globalAllocations.Add([pscustomobject]@{
             table = $resource; sourceRow = $sourceRow; targetRow = $targetRow
             label = $label; model = $model; pack = [string]$merge.outputPack
@@ -943,19 +1023,30 @@ if ($profile.PSObject.Properties.Name -contains 'genericDoorMerge') {
 if ($profile.PSObject.Properties.Name -contains 'skyboxMerge') {
     $merge = $profile.skyboxMerge
     $resource = ([string]$merge.resource).ToLowerInvariant()
+    $mergeBase = Get-Canonical2daMergeBase -Resource $resource -OutputPack ([string]$merge.outputPack) -CatPath $cat -GameRoot $NwnRoot -UserDirectory $NwnUserDirectory -RepositoryRoot $repoRoot
+    $baselineLines = @($mergeBase.baselineLines)
     $baseLines = [Collections.Generic.List[string]]::new()
-    foreach ($line in @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr $resource)) { $baseLines.Add($line) }
-    if ($LASTEXITCODE -ne 0 -or -not $baseLines.Count) { throw "Unable to read EE baseline $resource." }
+    foreach ($line in @($mergeBase.lines)) { $baseLines.Add($line) }
     $sourceLines = @([IO.File]::ReadAllLines((Join-Path $rawRoot $resource), [Text.Encoding]::GetEncoding(1252)))
     foreach ($row in @($merge.rows)) {
         $sourceLine = @($sourceLines | Where-Object { $_ -match "^\s*$($row.sourceRow)\s+" })
         if ($sourceLine.Count -ne 1) { throw "Cannot locate $resource source row $($row.sourceRow)." }
         $replacement = Set-2daRowNumber $sourceLine[0] ([int]$row.targetRow)
+        $mappedReplacement = Convert-2daStringRefsInLine -Line $replacement -Remaps $resolvedStringRefRemaps[$resource]
         $targetIndex = Get-2daRowLineIndex $baseLines ([int]$row.targetRow)
         if ($targetIndex -ge 0) {
-            throw "$resource baseline row $($row.targetRow) is occupied; refusing to replace it."
+            $baselineIndex = Get-2daRowLineIndex $baselineLines ([int]$row.targetRow)
+            $existingTokens = @(Get-2daTokens $baseLines[$targetIndex])
+            $sameImportedRow = ($existingTokens -join "`n") -ceq (@(Get-2daTokens $replacement) -join "`n") -or
+                ($existingTokens -join "`n") -ceq (@(Get-2daTokens $mappedReplacement) -join "`n")
+            if (-not $sameImportedRow -and ($baselineIndex -lt 0 -or -not (Test-2daVacantRow $baselineLines[$baselineIndex]))) {
+                throw "$resource row $($row.targetRow) is occupied; refusing to replace it."
+            }
+            $baseLines[$targetIndex] = $replacement
         }
-        $baseLines.Add($replacement)
+        else {
+            $baseLines.Add($replacement)
+        }
         $tokens = @($sourceLine[0].Trim() -split '\s+')
         $globalAllocations.Add([pscustomobject]@{
             table = $resource; sourceRow = [int]$row.sourceRow; targetRow = [int]$row.targetRow
@@ -972,9 +1063,9 @@ if ($profile.PSObject.Properties.Name -contains 'skyboxMerge') {
 if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
     foreach ($merge in @($profile.indexedResourceTableMerges)) {
         $resource = ([string]$merge.resource).ToLowerInvariant()
+        $mergeBase = Get-Canonical2daMergeBase -Resource $resource -OutputPack ([string]$merge.outputPack) -CatPath $cat -GameRoot $NwnRoot -UserDirectory $NwnUserDirectory -RepositoryRoot $repoRoot
         $baseLines = [Collections.Generic.List[string]]::new()
-        foreach ($line in @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr $resource)) { $baseLines.Add($line) }
-        if ($LASTEXITCODE -ne 0 -or -not $baseLines.Count) { throw "Unable to read EE baseline $resource." }
+        foreach ($line in @($mergeBase.lines)) { $baseLines.Add($line) }
         $sourceLines = @([IO.File]::ReadAllLines((Join-Path $rawRoot $resource), [Text.Encoding]::GetEncoding(1252)))
         $mappings = [Collections.Generic.List[object]]::new()
         foreach ($range in @($merge.sourceRowRanges)) {
@@ -988,7 +1079,7 @@ if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
         }
         $duplicateTargets = @($mappings | Group-Object targetRow | Where-Object Count -gt 1)
         if ($duplicateTargets.Count) { throw "$resource has duplicate target mappings: $($duplicateTargets.Name -join ', ')" }
-        $header = @($baseLines | Where-Object { $_ -match '^\s*[A-Za-z]' } | Select-Object -First 1)
+        $header = @(Get-2daHeaderLine $baseLines)
         if ($header.Count -ne 1) { throw "Unable to identify $resource columns." }
         $headerTokens = @(Get-2daTokens $header[0])
         $columnCount = $headerTokens.Count
@@ -1003,7 +1094,15 @@ if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
             if ($sourceLine.Count -ne 1) { throw "Cannot locate $resource source row $($mapping.sourceRow)." }
             $targetIndex = Get-2daRowLineIndex $baseLines ([int]$mapping.targetRow)
             if ($targetIndex -lt 0) { throw "Cannot locate $resource target row $($mapping.targetRow)." }
+            $desiredLine = Set-2daRowNumber $sourceLine[0] ([int]$mapping.targetRow)
+            $mappedDesiredLine = Convert-2daStringRefsInLine -Line $desiredLine -Remaps $resolvedStringRefRemaps[$resource]
             $targetTokens = @(Get-2daTokens $baseLines[$targetIndex])
+            $sameImportedRow = ($targetTokens -join "`n") -ceq (@(Get-2daTokens $desiredLine) -join "`n") -or
+                ($targetTokens -join "`n") -ceq (@(Get-2daTokens $mappedDesiredLine) -join "`n")
+            if ($sameImportedRow) {
+                $baseLines[$targetIndex] = $desiredLine
+                $targetTokens = @(Get-2daTokens $baseLines[$targetIndex])
+            }
             $allowedTargetTokens = if ($merge.PSObject.Properties.Name -contains 'allowedTargetTokens') {
                 @($merge.allowedTargetTokens | ForEach-Object { [string]$_ })
             }
@@ -1011,10 +1110,10 @@ if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
             $occupiedTokens = @($targetTokens | Select-Object -Skip 1 | Where-Object {
                 $_ -ne '****' -and $_ -notin $allowedTargetTokens
             })
-            if ($occupiedTokens.Count) {
+            if ($occupiedTokens.Count -and -not $sameImportedRow) {
                 throw "$resource baseline row $($mapping.targetRow) is occupied; refusing to replace it."
             }
-            $baseLines[$targetIndex] = Set-2daRowNumber $sourceLine[0] ([int]$mapping.targetRow)
+            $baseLines[$targetIndex] = $desiredLine
             $sourceTokens = @(Get-2daTokens $sourceLine[0])
             $reportResource = if ($merge.PSObject.Properties.Name -contains 'reportResourceColumn') {
                 $columnName = [string]$merge.reportResourceColumn
@@ -1285,9 +1384,9 @@ foreach ($item in $applyPlan) {
 }
 if ($null -ne $mergedDoorLines) {
     New-Item -ItemType Directory -Force (Join-Path $repoRoot 'srn_2da') | Out-Null
-    Write-2daLines -Path (Join-Path $repoRoot 'srn_2da\doortypes.2da') -Lines $mergedDoorLines
+    Write-2daLines -Path (Join-Path (Join-Path $repoRoot 'srn_2da') 'doortypes.2da') -Lines $mergedDoorLines
 }
-$docs = Join-Path $repoRoot 'docs\imports'; New-Item -ItemType Directory -Force $docs | Out-Null; Copy-Item $manifestPath (Join-Path $docs "$($profile.reportStem)-manifest.json") -Force; Copy-Item $reportPath (Join-Path $docs "$($profile.reportStem)-analysis.md") -Force
+$docs = Join-Path (Join-Path $repoRoot 'docs') 'imports'; New-Item -ItemType Directory -Force $docs | Out-Null; Copy-Item $manifestPath (Join-Path $docs "$($profile.reportStem)-manifest.json") -Force; Copy-Item $reportPath (Join-Path $docs "$($profile.reportStem)-analysis.md") -Force
 if ($globalAllocations.Count) {
     $allocationReport = [ordered]@{
         schemaVersion = 1; profile = $profile.name; profileSha256 = $profileSha256; sourceSha256 = $inputHash

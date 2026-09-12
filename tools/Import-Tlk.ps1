@@ -24,7 +24,11 @@ function Resolve-QuarantinePath {
     $root = [IO.Path]::GetFullPath($quarantineRoot)
     $resolved = [IO.Path]::GetFullPath((Join-Path $root $RelativePath))
     $prefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-    if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
+    $pathComparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+        [StringComparison]::OrdinalIgnoreCase
+    }
+    else { [StringComparison]::Ordinal }
+    if (-not $resolved.StartsWith($prefix, $pathComparison)) {
         throw "OutputRelativePath escapes .quarantine: $RelativePath"
     }
     return $resolved
