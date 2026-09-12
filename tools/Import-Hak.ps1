@@ -973,6 +973,12 @@ if ($profile.PSObject.Properties.Name -contains 'genericDoorMerge') {
         @($merge.excludedSourceRows | ForEach-Object { [int]$_ })
     }
     else { @() }
+    $sourceRowTokenOverrides = if ($merge.PSObject.Properties.Name -contains 'sourceRowTokenOverrides') {
+        @($merge.sourceRowTokenOverrides)
+    }
+    else { @() }
+    $duplicateOverrideRows = @($sourceRowTokenOverrides | Group-Object sourceRow | Where-Object Count -gt 1)
+    if ($duplicateOverrideRows.Count) { throw "$resource has duplicate source-row token overrides: $($duplicateOverrideRows.Name -join ', ')" }
     $added = 0
     foreach ($line in $sourceLines) {
         if ($line -notmatch '^\s*(\d+)\s+(\S+)\s+\S+\s+(\S+)\s+') { continue }
@@ -981,11 +987,25 @@ if ($profile.PSObject.Properties.Name -contains 'genericDoorMerge') {
         $model = $matches[3]
         if ($sourceRow -in $excludedSourceRows) { continue }
         if ($model -eq '****' -or -not (Test-Path -LiteralPath (Join-Path $rawRoot "$model.mdl"))) { continue }
+        $importLine = $line
+        $tokenOverride = @($sourceRowTokenOverrides | Where-Object { [int]$_.sourceRow -eq $sourceRow })
+        if ($tokenOverride.Count -eq 1) {
+            $pattern = '(?<!\S)' + [regex]::Escape([string]$tokenOverride[0].oldToken) + '(?!\S)'
+            $matchesBefore = [regex]::Matches($importLine, $pattern).Count
+            $expectedOccurrences = if ($tokenOverride[0].PSObject.Properties.Name -contains 'expectedOccurrences') {
+                [int]$tokenOverride[0].expectedOccurrences
+            }
+            else { 1 }
+            if ($matchesBefore -ne $expectedOccurrences) {
+                throw "$resource source row $sourceRow contains $matchesBefore occurrences of token '$($tokenOverride[0].oldToken)'; expected $expectedOccurrences."
+            }
+            $importLine = [regex]::Replace($importLine, $pattern, [string]$tokenOverride[0].newToken)
+        }
         if ($baselineModels.Contains($model)) { continue }
         if ($baseModels.Contains($model)) {
             $existingRow = [int]$baseModelRows[$model.ToLowerInvariant()]
             $existingIndex = Get-2daRowLineIndex $baseLines $existingRow
-            $baseLines[$existingIndex] = Set-2daRowNumber $line $existingRow
+            $baseLines[$existingIndex] = Set-2daRowNumber $importLine $existingRow
             $globalAllocations.Add([pscustomobject]@{
                 table = $resource; sourceRow = $sourceRow; targetRow = $existingRow
                 label = $label; model = $model; pack = [string]$merge.outputPack
@@ -1000,7 +1020,7 @@ if ($profile.PSObject.Properties.Name -contains 'genericDoorMerge') {
                 $matches[1] -eq '****' -and $matches[2] -eq '****') { break }
             $targetRow++
         }
-        $baseLines[$targetIndex] = Set-2daRowNumber $line $targetRow
+        $baseLines[$targetIndex] = Set-2daRowNumber $importLine $targetRow
         [void]$baseModels.Add($model)
         $baseModelRows[$model.ToLowerInvariant()] = $targetRow
         $globalAllocations.Add([pscustomobject]@{
