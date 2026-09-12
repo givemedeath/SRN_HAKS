@@ -9,7 +9,8 @@ Before opening a pull request:
 3. Keep `.2da` resources in `srn_2da` and do not renumber existing rows.
 4. Run `pwsh ./tools/Test-Repository.ps1 -AllPacks`.
 
-Internal resource stems must match `[a-z0-9_]{1,16}`. File extensions must also be lowercase. A
+Internal resource stems must match `[a-z0-9_-]{1,16}`; hyphens are retained for established
+legacy NWN resource identities that models already reference. File extensions must be lowercase. A
 resource larger than 15 MiB needs a documented size exception. Files at or above GitHub's 100 MiB
 limit are not accepted.
 
