@@ -1,0 +1,10 @@
+node dummy e2b_pwk_use01
+  parent m3_cup_coffee2b_pwk
+  position  0.00000 -0.05371  0.11525
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy e2b_pwk_use02
+  parent m3_cup_coffee2b_pwk
+  position  0.00000  0.04736  0.13674
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

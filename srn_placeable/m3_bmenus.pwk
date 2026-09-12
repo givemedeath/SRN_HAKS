@@ -1,0 +1,10 @@
+node dummy nus_pwk_use01
+  parent m3_bmenus_pwk
+  position  0.00000  0.33940  0.93222
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy nus_pwk_use02
+  parent m3_bmenus_pwk
+  position  0.00000  0.41011  0.93222
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

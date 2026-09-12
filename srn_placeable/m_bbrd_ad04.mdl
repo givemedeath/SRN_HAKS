@@ -1,0 +1,65 @@
+# Exported from NeverBlender 2.8.43 - Tuesday, 2024-02-06
+filedependancy ModernCity_02p.blend
+newmodel m_bbrd_ad04
+setsupermodel m_bbrd_ad04 null
+classification CHARACTER
+setanimationscale 1.0
+beginmodelgeom m_bbrd_ad04
+node dummy m_bbrd_ad04
+  parent null
+endnode
+node trimesh prop_billboard_16.#dr_mesh.005
+  parent m_bbrd_ad04
+  position  0.00000  0.00000  0.88374
+  orientation  0.00000  1.00000  0.00000  0.00000
+  wirecolor 1.00 1.00 1.00
+  ambient 1.00 1.00 1.00
+  diffuse 1.00 1.00 1.00
+  specular 0.00 0.00 0.00
+  selfillumcolor 0.00 0.00 0.00
+  bitmap M3_ad_2
+  shininess 1
+  render 1
+  shadow 0
+  tilefade 0
+  verts 4
+     0.49621  0.00000  0.80156
+    -0.49621  0.00000  0.80156
+    -0.49621  0.00000 -0.80156
+     0.49621  0.00000 -0.80156
+  tverts 4
+     0.9890  0.0999  0
+     0.5177  0.8612  0
+     0.5177  0.0999  0
+     0.9890  0.8612  0
+  colors 4
+    0.4941 0.4941 0.0000
+    0.4941 0.4941 0.0000
+    0.4941 0.4941 0.0000
+    0.4941 0.4941 0.0000
+  faces 2
+    3 1 2 1  0 1 2 0
+    3 0 1 1  0 3 1 0
+endnode
+node dummy rd_ad01_ground.003
+  parent m_bbrd_ad04
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy rd_ad01_hand.003
+  parent m_bbrd_ad04
+  position  0.00000  0.00000  1.03466
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy rd_ad01_head_hit.003
+  parent m_bbrd_ad04
+  position  0.00000  0.00000  1.36133
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy rd_ad01_impact.003
+  parent m_bbrd_ad04
+  position  0.00000  0.00000  0.88000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+endmodelgeom m_bbrd_ad04
+donemodel m_bbrd_ad04

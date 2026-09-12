@@ -1,0 +1,10 @@
+node dummy p1g_pwk_use01
+  parent m3_can_01g_pwk
+  position -3.69583  0.80462  3.54075
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p1g_pwk_use02
+  parent m3_can_01g_pwk
+  position  3.64274  0.79838  3.52863
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

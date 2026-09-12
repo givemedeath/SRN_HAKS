@@ -1,0 +1,10 @@
+ 
+renderhint NormalAndSpecMapped
+ 
+// Textures 
+texture0 m3_brkwall_01a_d
+texture1 m3_brkwall_01a_n
+texture2 m3_brkwall_01a_s
+texture3 null
+texture4 m3_brkwall_01a_h
+texture5 null

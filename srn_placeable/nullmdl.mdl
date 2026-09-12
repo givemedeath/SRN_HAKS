@@ -1,0 +1,32 @@
+# Exported from NeverBlender 2.8.43 - Saturday, 2023-10-21
+filedependancy ModernCity_02g.blend
+newmodel nullmdl
+setsupermodel nullmdl null
+classification CHARACTER
+setanimationscale 1.0
+beginmodelgeom nullmdl
+node dummy nullmdl
+  parent null
+endnode
+node dummy _ground
+  parent nullmdl
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy _hand
+  parent nullmdl
+  position  0.00000  0.50000  0.50000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy _head_hit
+  parent nullmdl
+  position  0.00000  0.00000  1.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy _impact
+  parent nullmdl
+  position  0.00000  0.00000  0.50000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+endmodelgeom nullmdl
+donemodel nullmdl

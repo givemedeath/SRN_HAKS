@@ -1,0 +1,10 @@
+node dummy p20_pwk_use01
+  parent m3_a120_pwk
+  position  0.00792  0.02361  0.16146
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p20_pwk_use02
+  parent m3_a120_pwk
+  position  0.01084 -0.02427  0.16250
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

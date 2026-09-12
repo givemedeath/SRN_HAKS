@@ -1,0 +1,177 @@
+# Exported from NeverBlender 2.8.43 - Sunday, 2024-06-02
+filedependancy unknown
+newmodel m3_flicker_vfx
+setsupermodel m3_flicker_vfx null
+classification CHARACTER
+setanimationscale 1.0
+beginmodelgeom m3_flicker_vfx
+node dummy m3_flicker_vfx
+  parent null
+endnode
+node dummy scryfld_head
+  parent m3_flicker_vfx
+  position  0.00000  0.00000  2.77297
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy scryfld_hand
+  parent m3_flicker_vfx
+  position  0.00399 -1.19591  1.63921
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy scryfld_head_hit
+  parent m3_flicker_vfx
+  position  0.00000  0.00000  2.47211
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy scryfld_impact
+  parent m3_flicker_vfx
+  position  0.00000  0.00000  1.03524
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy scryfld_ground
+  parent m3_flicker_vfx
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node light auroralight01
+  parent m3_flicker_vfx
+  position  0.00000  0.00000  1.31872
+  orientation  0.57735 -0.57735 -0.57735  2.09440
+  ambientonly 0
+  ndynamictype 1
+  affectdynamic 1
+  shadow 1
+  lightpriority 2
+  fadingLight 0
+  radius 5.0
+  multiplier 4.0
+  color 0.00 0.00 0.00
+endnode
+endmodelgeom m3_flicker_vfx
+
+# ANIM ASCII
+newanim default m3_flicker_vfx
+  length 1.267
+  transtime 0.25
+  animroot m3_flicker_vfx
+  node dummy m3_flicker_vfx
+    parent null
+  endnode
+  node dummy scryfld_head
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_hand
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_head_hit
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_impact
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_ground
+    parent m3_flicker_vfx
+  endnode
+  node light auroralight01
+    parent m3_flicker_vfx
+    colorkey 13
+       0.000 0.00 0.00 0.00
+       0.033 0.00 0.00 0.00
+       0.100 1.00 1.00 1.00
+       0.233 0.15 0.15 0.15
+       0.333 1.00 1.00 1.00
+       0.433 0.11 0.11 0.11
+       0.533 1.00 1.00 1.00
+       0.633 0.11 0.11 0.11
+       0.733 1.00 1.00 1.00
+       0.833 0.00 0.00 0.00
+       0.967 1.00 1.00 1.00
+       1.100 0.00 0.00 0.00
+       1.200 1.00 1.00 1.00
+    endlist
+  endnode
+doneanim default m3_flicker_vfx
+
+newanim damage m3_flicker_vfx
+  length 0.133
+  transtime 0.25
+  animroot m3_flicker_vfx
+  node dummy m3_flicker_vfx
+    parent null
+  endnode
+  node dummy scryfld_head
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_hand
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_head_hit
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_impact
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_ground
+    parent m3_flicker_vfx
+  endnode
+  node light auroralight01
+    parent m3_flicker_vfx
+  endnode
+doneanim damage m3_flicker_vfx
+
+newanim dead m3_flicker_vfx
+  length 0.033
+  transtime 0.25
+  animroot m3_flicker_vfx
+  node dummy m3_flicker_vfx
+    parent null
+  endnode
+  node dummy scryfld_head
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_hand
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_head_hit
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_impact
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_ground
+    parent m3_flicker_vfx
+  endnode
+  node light auroralight01
+    parent m3_flicker_vfx
+  endnode
+doneanim dead m3_flicker_vfx
+
+newanim die m3_flicker_vfx
+  length 0.033
+  transtime 0.25
+  animroot m3_flicker_vfx
+  event 0.0 detonate
+  node dummy m3_flicker_vfx
+    parent null
+  endnode
+  node dummy scryfld_head
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_hand
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_head_hit
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_impact
+    parent m3_flicker_vfx
+  endnode
+  node dummy scryfld_ground
+    parent m3_flicker_vfx
+  endnode
+  node light auroralight01
+    parent m3_flicker_vfx
+  endnode
+doneanim die m3_flicker_vfx
+
+donemodel m3_flicker_vfx

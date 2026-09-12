@@ -1,0 +1,10 @@
+node dummy ger_pwk_use01
+  parent SM_Burger_pwk
+  position  0.00090 -0.06278  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy ger_pwk_use02
+  parent SM_Burger_pwk
+  position  0.00090  0.06750  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

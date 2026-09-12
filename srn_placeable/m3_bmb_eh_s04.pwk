@@ -1,0 +1,10 @@
+node dummy s07_pwk_use01
+  parent m3_bmb_f_s07_pwk
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy s07_pwk_use02
+  parent m3_bmb_f_s07_pwk
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

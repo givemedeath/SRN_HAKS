@@ -1,0 +1,10 @@
+node dummy hup_pwk_use01
+  parent m3_ketchup_pwk
+  position  0.00000 -0.02027  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy hup_pwk_use02
+  parent m3_ketchup_pwk
+  position  0.00000  0.02791  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
