@@ -66,13 +66,6 @@ origin, hash, disposition, dependency evidence, and recommended landing are reco
 | `srn_t_vmr01` | D20 Alien Ruins |
 | `srn_t_zsf01` | D20 SciFi Base CQ |
 
-### D20 Planetscape size review
-
-`vmp01_building01.tga` is a required original tileset texture. Its 16,777,260-byte source image was
-reviewed and remains below GitHub's hard limit.
-
-<!-- srn-size-exception {"path":"srn_t_vmp01/vmp01_building01.tga","reason":"Required original D20 Planetscape tileset texture; reviewed at 16,777,260 bytes and below GitHub's hard limit."} -->
-
 The source archive credits D20 Modern contributors including Stacy, Fuzzwolf, Goudea/Enki,
 Jezira, Horred the Plague, JDA, Chandigar, CaveGnome, ChicoCQ, Tom Banjo, DrHoo,
 Plush Hyena of Doom, Vanya Mia, Vahnhaunt, Yumi-Chan, Veldin, and the Dark Times team.
@@ -171,3 +164,6 @@ Valthrendir, Borden Haelven, and MerricksDad, with additional credited static-me
 in `creditdoc.txt`. This batch is covered by the same operator-reviewed open-project permission and
 attribution conditions described for the MDRNEE tileset import; it is not relicensed under the
 repository's default PolyForm license.
+
+
+<!-- srn-size-exception {"path":"srn_t_vmp01/vmp01_building01.tga","reason":"Required original D20 Planetscape tileset texture; reviewed at 16,777,260 bytes and below GitHub's hard limit."} -->
