@@ -1097,6 +1097,12 @@ if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
         foreach ($row in @($merge.rowMappings)) {
             $mappings.Add([pscustomobject]@{ sourceRow = [int]$row.sourceRow; targetRow = [int]$row.targetRow })
         }
+        $sourceRowTokenOverrides = if ($merge.PSObject.Properties.Name -contains 'sourceRowTokenOverrides') {
+            @($merge.sourceRowTokenOverrides)
+        }
+        else { @() }
+        $duplicateOverrideRows = @($sourceRowTokenOverrides | Group-Object sourceRow | Where-Object Count -gt 1)
+        if ($duplicateOverrideRows.Count) { throw "$resource has duplicate source-row token overrides: $($duplicateOverrideRows.Name -join ', ')" }
         $duplicateTargets = @($mappings | Group-Object targetRow | Where-Object Count -gt 1)
         if ($duplicateTargets.Count) { throw "$resource has duplicate target mappings: $($duplicateTargets.Name -join ', ')" }
         $header = @(Get-2daHeaderLine $baseLines)
@@ -1114,7 +1120,21 @@ if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
             if ($sourceLine.Count -ne 1) { throw "Cannot locate $resource source row $($mapping.sourceRow)." }
             $targetIndex = Get-2daRowLineIndex $baseLines ([int]$mapping.targetRow)
             if ($targetIndex -lt 0) { throw "Cannot locate $resource target row $($mapping.targetRow)." }
-            $desiredLine = Set-2daRowNumber $sourceLine[0] ([int]$mapping.targetRow)
+            $importLine = $sourceLine[0]
+            $tokenOverride = @($sourceRowTokenOverrides | Where-Object { [int]$_.sourceRow -eq [int]$mapping.sourceRow })
+            if ($tokenOverride.Count -eq 1) {
+                $pattern = '(?<!\S)' + [regex]::Escape([string]$tokenOverride[0].oldToken) + '(?!\S)'
+                $matchesBefore = [regex]::Matches($importLine, $pattern).Count
+                $expectedOccurrences = if ($tokenOverride[0].PSObject.Properties.Name -contains 'expectedOccurrences') {
+                    [int]$tokenOverride[0].expectedOccurrences
+                }
+                else { 1 }
+                if ($matchesBefore -ne $expectedOccurrences) {
+                    throw "$resource source row $($mapping.sourceRow) contains $matchesBefore occurrences of token '$($tokenOverride[0].oldToken)'; expected $expectedOccurrences."
+                }
+                $importLine = [regex]::Replace($importLine, $pattern, [string]$tokenOverride[0].newToken)
+            }
+            $desiredLine = Set-2daRowNumber $importLine ([int]$mapping.targetRow)
             $mappedDesiredLine = Convert-2daStringRefsInLine -Line $desiredLine -Remaps $resolvedStringRefRemaps[$resource]
             $targetTokens = @(Get-2daTokens $baseLines[$targetIndex])
             $sameImportedRow = ($targetTokens -join "`n") -ceq (@(Get-2daTokens $desiredLine) -join "`n") -or
@@ -1134,7 +1154,7 @@ if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
                 throw "$resource baseline row $($mapping.targetRow) is occupied; refusing to replace it."
             }
             $baseLines[$targetIndex] = $desiredLine
-            $sourceTokens = @(Get-2daTokens $sourceLine[0])
+            $sourceTokens = @(Get-2daTokens $importLine)
             $reportResource = if ($merge.PSObject.Properties.Name -contains 'reportResourceColumn') {
                 $columnName = [string]$merge.reportResourceColumn
                 $columnIndex = [Array]::IndexOf([string[]]$headerTokens, $columnName)
