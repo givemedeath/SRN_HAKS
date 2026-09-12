@@ -82,6 +82,7 @@
 - The companion manifest records every resource and its recommended landing.
 - Generic-door source row 103 (`udp1_ohfire2` / `t_door93`) is withheld because no `t_door93.dwk` exists in any reviewed source. The model remains staged in `srn_door` pending a verified walkmesh.
 - Generic-door source row 21 (`Glass_Window`) uses the dedicated `Glass Window` TLK entry; the source row incorrectly reused `Wood Glass Reflect`.
+- Seven ambient-music rows retain their available main battle tracks but clear optional `mus_sbat_f_*` stinger references whose BMUs are absent from the source audio HAK.
 
 <!-- repair-results -->
 ## Repaired SET artifacts

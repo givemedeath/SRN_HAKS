@@ -59,6 +59,10 @@ sound or music selection fields, so neither references source ID 203.
 
 ## Remaining risk
 
+Seven source registrations (rows 206-210 and 266-267) named optional `mus_sbat_f_*` battle
+stingers that are absent from the audio HAK. Their main `mus_bat_f_*` tracks are present and land;
+the missing stinger fields are cleared to `****` so the engine does not request unavailable audio.
+
 The technical linkage is closed, but per-track redistribution rights are not documented in the
 archive. Several display labels identify commercial game properties or soundtracks. Complete the
 provenance/legal review before publicly distributing `srn_music.hak`.

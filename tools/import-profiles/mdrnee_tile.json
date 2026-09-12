@@ -157,6 +157,15 @@
       "outputPack": "srn_2da",
       "sourceRowRanges": ["190-194", "201-337"],
       "rowMappings": [],
+      "sourceRowTokenOverrides": [
+        { "sourceRow": 206, "oldToken": "mus_sbat_f_rave", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 207, "oldToken": "mus_sbat_f_st_3", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 208, "oldToken": "mus_sbat_f_tech1", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 209, "oldToken": "mus_sbat_f_tech2", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 210, "oldToken": "mus_sbat_f_tense", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 266, "oldToken": "mus_sbat_f_st_1", "newToken": "****", "expectedOccurrences": 1 },
+        { "sourceRow": 267, "oldToken": "mus_sbat_f_st_2", "newToken": "****", "expectedOccurrences": 1 }
+      ],
       "expectedAddedRows": 142
     },
     {
@@ -196,6 +205,7 @@
     "The 142 music registrations backed by mdrnee_audio retain source rows 190-194 and 201-337. Five landed modern ambient loops move to blank EE rows 204-205 and 207-209; the oversized bar/club loop and its target row 206 remain deferred. Generic doors use EE user rows 1000 onward, and source skybox rows 7-15 extend the pinned EE baseline.",
     "Door remaps are 239→260, 240→261, 243→262, 241→263, 242→264, and 255→265. The final three register the otherwise dormant SJM01 dome/gate and VMP01 wall-gate doors.",
     "Generic-door source row 21 is assigned the dedicated Glass Window TLK entry instead of inheriting the source row's Wood Glass Reflect string.",
+    "Seven ambient-music rows have unavailable optional battle stingers cleared while retaining their available main tracks.",
     "The companion manifest records every resource and its recommended landing."
   ]
 }
