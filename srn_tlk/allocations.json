@@ -1,5 +1,852 @@
 {
   "schemaVersion": 1,
-  "nextId": 0,
-  "allocations": []
+  "nextId": 136,
+  "allocations": [
+    {
+      "id": 0,
+      "key": "mdrnee.ambientsound.modern_city_day",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 1,
+      "key": "mdrnee.ambientsound.modern_office",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "key": "mdrnee.ambientsound.modern_computer_room",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "key": "mdrnee.ambientsound.modern_war",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 4,
+      "key": "mdrnee.ambientsound.modern_gang_war",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 5,
+      "key": "mdrnee.genericdoor.bay_garage",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 6,
+      "key": "mdrnee.genericdoor.sliding_glass",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 7,
+      "key": "mdrnee.genericdoor.elevator",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 8,
+      "key": "mdrnee.genericdoor.wood_glass_reflect",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 9,
+      "key": "mdrnee.genericdoor.manhole",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 10,
+      "key": "mdrnee.doortype.glass_window",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 11,
+      "key": "mdrnee.placeable_palette.s45_weapons_and_ammunition",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 12,
+      "key": "mdrnee.placeable_palette.s313_nature_parks_and_gardens",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 13,
+      "key": "mdrnee.placeable_palette.s992_modern_exterior",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 14,
+      "key": "mdrnee.placeable_palette.s993_buildings",
+      "owner": "shared",
+      "status": "active",
+      "aliases": [
+        "mdrnee.placeable_palette.s33545_buildings"
+      ]
+    },
+    {
+      "id": 15,
+      "key": "mdrnee.placeable_palette.s994_signs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 16,
+      "key": "mdrnee.placeable_palette.s995_vehicles",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 17,
+      "key": "mdrnee.placeable_palette.s996_streets",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 18,
+      "key": "mdrnee.placeable_palette.s997_walls_and_fences",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 19,
+      "key": "mdrnee.placeable_palette.s998_ground",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 20,
+      "key": "mdrnee.placeable_palette.s1000_misc",
+      "owner": "shared",
+      "status": "active",
+      "aliases": [
+        "mdrnee.placeable_palette.s1008_misc"
+      ]
+    },
+    {
+      "id": 21,
+      "key": "mdrnee.placeable_palette.s1001_modern_interior",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 22,
+      "key": "mdrnee.placeable_palette.s1002_ceilings",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 23,
+      "key": "mdrnee.placeable_palette.s1003_containers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 24,
+      "key": "mdrnee.placeable_palette.s1004_controls",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 25,
+      "key": "mdrnee.placeable_palette.s1005_equipment",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 26,
+      "key": "mdrnee.placeable_palette.s1006_floors",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 27,
+      "key": "mdrnee.placeable_palette.s1007_wall_hangings",
+      "owner": "shared",
+      "status": "active",
+      "aliases": [
+        "mdrnee.placeable_palette.s33602_wall_hangings"
+      ]
+    },
+    {
+      "id": 28,
+      "key": "mdrnee.placeable_palette.s1009_modern_space",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 29,
+      "key": "mdrnee.placeable_palette.s1010_astronomical_bodies",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 30,
+      "key": "mdrnee.placeable_palette.s1011_ships",
+      "owner": "shared",
+      "status": "active",
+      "aliases": [
+        "mdrnee.placeable_palette.s33564_ships"
+      ]
+    },
+    {
+      "id": 31,
+      "key": "mdrnee.placeable_palette.s1012_structures",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 32,
+      "key": "mdrnee.placeable_palette.s1018_table_items",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 33,
+      "key": "mdrnee.placeable_palette.s1045_wall_fixtures_and_features",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 34,
+      "key": "mdrnee.placeable_palette.s1046_furniture",
+      "owner": "shared",
+      "status": "active",
+      "aliases": [
+        "mdrnee.placeable_palette.s33593_furniture"
+      ]
+    },
+    {
+      "id": 35,
+      "key": "mdrnee.placeable_palette.s1056_kitchen_and_food",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 36,
+      "key": "mdrnee.placeable_palette.s1057_futuristic_exterior",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 37,
+      "key": "mdrnee.placeable_palette.s1058_futuristic_interior",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 38,
+      "key": "mdrnee.placeable_palette.s1059_personal_items",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 39,
+      "key": "mdrnee.placeable_palette.s33496_siege_equipment",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 40,
+      "key": "mdrnee.placeable_palette.s33497_fortifications",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 41,
+      "key": "mdrnee.placeable_palette.s33498_broken_equipment",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 42,
+      "key": "mdrnee.placeable_palette.s33499_bodies",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 43,
+      "key": "mdrnee.placeable_palette.s33500_other",
+      "owner": "shared",
+      "status": "active",
+      "aliases": [
+        "mdrnee.placeable_palette.s33521_other",
+        "mdrnee.placeable_palette.s33534_other",
+        "mdrnee.placeable_palette.s33536_other",
+        "mdrnee.placeable_palette.s33543_other",
+        "mdrnee.placeable_palette.s33559_other",
+        "mdrnee.placeable_palette.s33563_other",
+        "mdrnee.placeable_palette.s33574_other",
+        "mdrnee.placeable_palette.s33591_other",
+        "mdrnee.placeable_palette.s33603_other"
+      ]
+    },
+    {
+      "id": 44,
+      "key": "mdrnee.placeable_palette.s33501_vegetation",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 45,
+      "key": "mdrnee.placeable_palette.s33502_bushes",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 46,
+      "key": "mdrnee.placeable_palette.s33503_flowers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 47,
+      "key": "mdrnee.placeable_palette.s33504_ground_cover",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 48,
+      "key": "mdrnee.placeable_palette.s33505_ivy",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 49,
+      "key": "mdrnee.placeable_palette.s33506_trees",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 50,
+      "key": "mdrnee.placeable_palette.s33507_trees_spring",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 51,
+      "key": "mdrnee.placeable_palette.s33508_trees_summer",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 52,
+      "key": "mdrnee.placeable_palette.s33509_trees_fall",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 53,
+      "key": "mdrnee.placeable_palette.s33510_trees_winter_and_dead",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 54,
+      "key": "mdrnee.placeable_palette.s33511_trees_evergreen",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 55,
+      "key": "mdrnee.placeable_palette.s33512_other_plants",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 56,
+      "key": "mdrnee.placeable_palette.s33513_tents",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 57,
+      "key": "mdrnee.placeable_palette.s33514_paths",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 58,
+      "key": "mdrnee.placeable_palette.s33515_tracks",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 59,
+      "key": "mdrnee.placeable_palette.s33516_campsite",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 60,
+      "key": "mdrnee.placeable_palette.s33517_water_snow_and_lava",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 61,
+      "key": "mdrnee.placeable_palette.s33518_skulls_and_bones_and_debris",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 62,
+      "key": "mdrnee.placeable_palette.s33519_smoke_and_fog",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 63,
+      "key": "mdrnee.placeable_palette.s33520_dens_caves_and_lairs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 64,
+      "key": "mdrnee.placeable_palette.s33522_skies",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 65,
+      "key": "mdrnee.placeable_palette.s33523_standards_and_banners",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 66,
+      "key": "mdrnee.placeable_palette.s33524_wayposts_and_road_signs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 67,
+      "key": "mdrnee.placeable_palette.s33525_hanging_signs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 68,
+      "key": "mdrnee.placeable_palette.s33526_standing_signs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 69,
+      "key": "mdrnee.placeable_palette.s33527_other_signs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 70,
+      "key": "mdrnee.placeable_palette.s33528_farms_and_gardens",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 71,
+      "key": "mdrnee.placeable_palette.s33529_blacksmithing_and_metalworking",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 72,
+      "key": "mdrnee.placeable_palette.s33530_construction",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 73,
+      "key": "mdrnee.placeable_palette.s33531_logging_and_woodworking",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 74,
+      "key": "mdrnee.placeable_palette.s33532_academic_trades",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 75,
+      "key": "mdrnee.placeable_palette.s33533_music",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 76,
+      "key": "mdrnee.placeable_palette.s33535_magic_effects",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 77,
+      "key": "mdrnee.placeable_palette.s33537_statues_and_stones",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 78,
+      "key": "mdrnee.placeable_palette.s33538_statues",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 79,
+      "key": "mdrnee.placeable_palette.s33539_statues_partial",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 80,
+      "key": "mdrnee.placeable_palette.s33540_megaliths",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 81,
+      "key": "mdrnee.placeable_palette.s33541_stones_misc",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 82,
+      "key": "mdrnee.placeable_palette.s33542_columns_pillars_etc",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 83,
+      "key": "mdrnee.placeable_palette.s33544_civilization_exterior",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 84,
+      "key": "mdrnee.placeable_palette.s33546_houses",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 85,
+      "key": "mdrnee.placeable_palette.s33547_towers_and_castles",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 86,
+      "key": "mdrnee.placeable_palette.s33548_temples_and_shrines",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 87,
+      "key": "mdrnee.placeable_palette.s33549_ruins_and_destroyed_buildings",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 88,
+      "key": "mdrnee.placeable_palette.s33550_other_buildings",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 89,
+      "key": "mdrnee.placeable_palette.s33551_awnings_and_windows",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 90,
+      "key": "mdrnee.placeable_palette.s33552_archways",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 91,
+      "key": "mdrnee.placeable_palette.s33553_fountains",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 92,
+      "key": "mdrnee.placeable_palette.s33554_fences_and_walls",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 93,
+      "key": "mdrnee.placeable_palette.s33555_market",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 94,
+      "key": "mdrnee.placeable_palette.s33556_doors",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 95,
+      "key": "mdrnee.placeable_palette.s33557_rail",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 96,
+      "key": "mdrnee.placeable_palette.s33558_roads",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 97,
+      "key": "mdrnee.placeable_palette.s33560_transportation",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 98,
+      "key": "mdrnee.placeable_palette.s33561_boats",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 99,
+      "key": "mdrnee.placeable_palette.s33562_dock_and_pier",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 100,
+      "key": "mdrnee.placeable_palette.s33565_shipwrecks",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 101,
+      "key": "mdrnee.placeable_palette.s33566_wagons_and_carts",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 102,
+      "key": "mdrnee.placeable_palette.s33567_lighting",
+      "owner": "shared",
+      "status": "active",
+      "aliases": [
+        "mdrnee.placeable_palette.s33577_lighting",
+        "mdrnee.placeable_palette.s33601_lighting"
+      ]
+    },
+    {
+      "id": 103,
+      "key": "mdrnee.placeable_palette.s33568_dungeon",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 104,
+      "key": "mdrnee.placeable_palette.s33569_graffiti_and_splats",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 105,
+      "key": "mdrnee.placeable_palette.s33570_torture_execution",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 106,
+      "key": "mdrnee.placeable_palette.s33571_altars",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 107,
+      "key": "mdrnee.placeable_palette.s33572_doorway_grate_portal",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 108,
+      "key": "mdrnee.placeable_palette.s33573_dungeon_dressing",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 109,
+      "key": "mdrnee.placeable_palette.s33575_debris",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 110,
+      "key": "mdrnee.placeable_palette.s33576_traps",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 111,
+      "key": "mdrnee.placeable_palette.s33578_tombs_grave_markers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 112,
+      "key": "mdrnee.placeable_palette.s33579_civilization_interior",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 113,
+      "key": "mdrnee.placeable_palette.s33580_bathroom",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 114,
+      "key": "mdrnee.placeable_palette.s33581_bedroom",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 115,
+      "key": "mdrnee.placeable_palette.s33582_kitchen",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 116,
+      "key": "mdrnee.placeable_palette.s33583_food",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 117,
+      "key": "mdrnee.placeable_palette.s33584_flowers_plants",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 118,
+      "key": "mdrnee.placeable_palette.s33585_fireplaces",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 119,
+      "key": "mdrnee.placeable_palette.s33586_books_and_manuscripts",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 120,
+      "key": "mdrnee.placeable_palette.s33587_furnishing_misc",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 121,
+      "key": "mdrnee.placeable_palette.s33588_table_toppers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 122,
+      "key": "mdrnee.placeable_palette.s33589_floor_coverings",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 123,
+      "key": "mdrnee.placeable_palette.s33590_carpets",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 124,
+      "key": "mdrnee.placeable_palette.s33592_rugs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 125,
+      "key": "mdrnee.placeable_palette.s33594_bar",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 126,
+      "key": "mdrnee.placeable_palette.s33595_desks_and_cabinets",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 127,
+      "key": "mdrnee.placeable_palette.s33596_bookcases_and_dressers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 128,
+      "key": "mdrnee.placeable_palette.s33597_sofas_and_benches",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 129,
+      "key": "mdrnee.placeable_palette.s33598_chairs_and_stools",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 130,
+      "key": "mdrnee.placeable_palette.s33599_table",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 131,
+      "key": "mdrnee.placeable_palette.s33600_throne",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 132,
+      "key": "mdrnee.placeable_palette.s33604_taxidermy",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 133,
+      "key": "mdrnee.placeable_palette.s33605_paintings_round",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 134,
+      "key": "mdrnee.placeable_palette.s33606_paintings_square",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 135,
+      "key": "mdrnee.placeable_palette.s33607_tapestries",
+      "owner": "shared",
+      "status": "active"
+    }
+  ]
 }
