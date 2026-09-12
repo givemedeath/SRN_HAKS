@@ -13,6 +13,12 @@ exception:
 
 There are no content batches or size exceptions in the initial scaffold.
 
+This import is delivered as a stack of one-component pull requests. The complete reviewed
+provenance is introduced with the first content PR so every later intermediate tree passes the
+repository's attribution check. Pack names and `docs/imports/` evidence below describe the complete
+stack; those packs and reports appear incrementally, with the reports landing in the final
+integration PR.
+
 ## Vendored model tooling
 
 `tools/vendor/nwnmdlcomp/NWN_compDcomp.exe` and
