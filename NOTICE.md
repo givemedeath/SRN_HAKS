@@ -31,5 +31,7 @@ per-track rights metadata; see `PROVENANCE.md` for the unresolved redistribution
 
 The item archive is presently analysis-only: no item resource has been promoted. Its source credit
 file names the original D20 Modern team, Jezira, Prole, Xialya, Vanya Mia, Taina, JKA, Forestwolf,
-Shemsu-Heru, Aenea, The Barbarian, Zwerkule, and Den of Assassins. Detailed hashes, category data,
-and unresolved licensing/dependency findings are recorded in `docs/imports/mdrnee_item-analysis.md`.
+Shemsu-Heru, Aenea, The Barbarian, Zwerkule, and Den of Assassins. The companion project-source
+`d20modernupdate.erf` is used only to identify 669 item-blueprint consumers; its unrelated module
+resources are not imported. Detailed hashes, friendly categories, and unresolved licensing and
+dependency findings are recorded in `docs/imports/mdrnee_item-analysis.md`.

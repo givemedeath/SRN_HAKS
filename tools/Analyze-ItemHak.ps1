@@ -156,7 +156,7 @@ if (Test-Path -LiteralPath $palettePath -PathType Leaf) {
         sourceHakSha256 = $sourceHash
         nextUseableId = [int]$palette.NEXT_USEABLE_ID.value
         blueprintResourceCount = @($manifest.resources | Where-Object type -eq 'uti').Count
-        note = 'These are palette category definitions only. Without UTI resources, individual item blueprints cannot be assigned to them from this HAK.'
+        note = 'These are palette category definitions from the HAK. Join an authoritative companion UTI ERF with Analyze-ItemBlueprintErf.ps1 to assign individual blueprints.'
         topLevelCategories = @($leaves | Group-Object topLevel | Sort-Object Name | ForEach-Object {
             [pscustomobject][ordered]@{ name = $_.Name; leafCount = $_.Count; ids = @($_.Group.id | Sort-Object) }
         })

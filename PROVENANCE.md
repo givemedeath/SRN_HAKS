@@ -223,7 +223,10 @@ Assassins. The credit record establishes attribution but is not itself a standal
 future promotion must retain the operator-reviewed open-project terms described above and confirm
 that the item archive belongs to the same Neverwinter Vault distribution.
 
-The archive contains no UTI blueprints. Its `itempal.itp` supplies friendly category definitions
-only; consumer modules or an authoritative source package are required to prove blueprint,
-base-item, sound, and model ownership before promotion. See
-`docs/imports/mdrnee_item-analysis.md` for the full dependency and global-table risk assessment.
+The HAK contains no UTI blueprints, but the companion project-source `d20modernupdate.erf` (SHA-256
+`CD96273454F3C6AF55F40B683C9C0F237129D95B1BD07C68418756FE4FE71A4D`; 17,715,193 bytes; 5,534
+resources) supplies 669 item blueprints. All 669 map to the HAK's friendly `itempal.itp` categories
+and source `baseitems.2da` rows. Only the UTI records are item-import evidence; the ERF's areas,
+creatures, doors, placeables, scripts, and other module content remain quarantined. See
+`docs/imports/mdrnee_item-analysis.md` and `docs/imports/mdrnee_item-blueprint-report.md` for the full
+consumer, dependency, and global-table assessment.

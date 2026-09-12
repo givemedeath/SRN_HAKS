@@ -4,7 +4,7 @@
   "sourceHakSha256": "3CE0229D041F12789BB7B4C44AA534570B8A56F4AC9F0DC75E9A018D3C0CC654",
   "nextUseableId": 210,
   "blueprintResourceCount": 0,
-  "note": "These are palette category definitions only. Without UTI resources, individual item blueprints cannot be assigned to them from this HAK.",
+  "note": "These are palette category definitions from the HAK. The companion d20modernupdate.erf mapping is recorded in mdrnee_item-blueprint-analysis.json.",
   "topLevelCategories": [
     {
       "name": "Armor",

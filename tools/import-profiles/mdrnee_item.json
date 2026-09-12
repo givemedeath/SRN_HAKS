@@ -37,7 +37,7 @@
   },
   "registerPacks": [],
   "reportNotes": [
-    "Analysis only: this HAK contains no UTI blueprint resources, so itempal.itp describes friendly palette categories but cannot assign individual blueprints to them.",
+    "The HAK contains no UTI resources; the verified d20modernupdate.erf companion supplies 669 item blueprints and maps all of them to the itempal.itp categories.",
     "All global 2DA files require baseline-preserving row merges; none are approved for wholesale replacement.",
     "iprp_magcapcost.2da is structurally invalid because row 2 is repeated 34 times.",
     "iprp_spells past.2da is a malformed archival fragment with no 2DA header and an invalid NWN resource name.",

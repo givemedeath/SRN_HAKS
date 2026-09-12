@@ -2,16 +2,18 @@
 
 ## Executive summary
 
-`mdrnee_item.hak` is an item-system asset bundle, not a blueprint library. It contains **zero UTI item blueprints**. The included `itempal.itp` defines 117 friendly palette leaves, but without UTI consumers there is no defensible way to place individual items into those categories from this HAK alone.
+`mdrnee_item.hak` is an item-system asset bundle rather than a self-contained blueprint library: the HAK itself contains **zero UTI item blueprints**. The companion project-source archive `d20modernupdate.erf`, however, supplies **669 unique UTI item blueprints**. Joining those records to the HAK's `itempal.itp` and `baseitems.2da` resolves every blueprint to a friendly category and a source base-item row.
 
-The useful payload is substantial: 1,006 ASCII models, 2,320 textures and sidecars, 57 sounds, 21 global 2DA tables, and one item palette. The recommended first landing is a single `srn_item` component for the reviewed item models, icons, textures, and palette; `srn_2da` receives only row-level merges against the pinned EE baseline; and `srn_sound` receives only sounds with proven consumers. Nothing is approved to land yet.
+The useful HAK payload is substantial: 1,006 ASCII models, 2,320 textures and sidecars, 57 sounds, 21 global 2DA tables, and one item palette. The recommended first landing remains a curated `srn_item` component, row-level merges into `srn_2da`, and proven audio in `srn_sound`. The companion UTIs are consumer evidence and a future curated module-blueprint import; the mixed ERF must not be copied wholesale into a HAK.
 
 The most important findings are:
 
 - `iprp_magcapcost.2da` is structurally invalid: row `2` occurs 34 times.
 - `iprp_spells past.2da` is an archival six-row fragment with no 2DA header and a space in its resource name. It cannot be a valid NWN resource and should be excluded.
-- The 57-model `WBwSl` family has no corresponding `baseitems.2da` registration in this archive. Its friendly intended category appears to be **Modern Weapons > Ranged Weapons > SMGs**, but that association is an inference and must be proven from a known-working module or source package.
-- Sixteen texture identities used by actual item models are absent from both the HAK and the pinned EE baseline. A further 71 unresolved texture names occur only in bundled animation overrides and are likely body-part placeholders rather than item texture omissions.
+- All 669 UTI ResRefs are unique; all 669 Palette IDs resolve to one of 50 used friendly leaves; and all 669 BaseItem values resolve to the source `baseitems.2da`.
+- The 57-model `WBwSl` family is not used by any companion item blueprint. All eight blueprints in **Modern Weapons > Ranged Weapons > SMGs** use row `8`, item class `WBwLn`. `WBwSl` is therefore an unproven ancillary family rather than a required missing registration.
+- 403 blueprints contain 790 item-property instances. Base-item, PropertyName, CostTable, subtype, and TLK remapping must update these UTIs together with the merged 2DAs.
+- Six of the 16 item-facing missing texture stems are now proven reachable through companion blueprints: `01`, `ladle`, `rollingpin`, `soff_lens`, `tex_glsbr01`, and `tex_lsbr01`. The other ten are lower-priority unused-variant candidates until another consumer is found.
 - The archive changes 537 identities already present in EE, including 269 models and 246 TGA files. The archive's full legacy global tables and base-resource overrides must not be copied wholesale.
 - There are 64 identity overlaps with SRN packs already imported. Twelve pairs are byte-identical; 55 pairs differ and require technical/visual comparison or an explicit HAK-order decision.
 
@@ -41,6 +43,19 @@ pwsh -NoProfile -File tools/Analyze-ItemHak.ps1 `
 
 `OutputRelativePath` is resolved strictly beneath the repository's predefined `.quarantine` directory.
 
+Reproduce the companion blueprint join with:
+
+```powershell
+pwsh -NoProfile -File tools/Analyze-ItemBlueprintErf.ps1 `
+  -InputErf 'D:\source\repos\SRN_CC\content\staging\erf\d20modernupdate.erf' `
+  -OutputRelativePath 'mdrnee_item\blueprints' `
+  -ItemHakOutputRelativePath 'mdrnee_item' `
+  -ExpectedSha256 'CD96273454F3C6AF55F40B683C9C0F237129D95B1BD07C68418756FE4FE71A4D' `
+  -ExpectedResourceCount 5534
+```
+
+The ERF analysis also constrains its `OutputRelativePath` and item-analysis input beneath `.quarantine`.
+
 ## Resource inventory and recommended destinations
 
 | Type | Count | EE identities changed | Recommended destination |
@@ -58,73 +73,51 @@ The manifest recommends 3,327 model/texture/palette resources for eventual `srn_
 
 ## Blueprint and palette-category findings
 
-### Blueprint availability
+### Companion blueprint source
 
-There are no `.uti` resources. Consequently:
+`D:\source\repos\SRN_CC\content\staging\erf\d20modernupdate.erf` is the authoritative companion found in the project sources. Its SHA-256 is `CD96273454F3C6AF55F40B683C9C0F237129D95B1BD07C68418756FE4FE71A4D`; it is 17,715,193 bytes and contains 5,534 resources, including 669 UTI item blueprints.
 
-- bundled blueprint count: **0**;
-- blueprints assignable to a friendly category: **0**;
-- category data available: **yes**, from `itempal.itp`;
-- model-family inference available: **yes**, from NWN item naming conventions and `baseitems.2da`, but it is not a substitute for blueprint evidence.
+The ERF is a mixed module/update bundle—3,565 placeables, 271 creatures, 128 doors, 448 source scripts, 415 compiled scripts, and other module resources accompany the UTIs. Only its UTI records are used as item-import evidence. The rest remain quarantined and are not proposed for `srn_item`.
 
-The machine-readable [category map](./mdrnee_item-category-map.json) contains every leaf ID, full friendly path, and STRREF.
+The exact ERF inventory is in the [blueprint ERF manifest](./mdrnee_item-blueprint-erf-manifest.json). The [machine-readable blueprint analysis](./mdrnee_item-blueprint-analysis.json) preserves every UTI field needed for migration, and the [detailed blueprint report](./mdrnee_item-blueprint-report.md) lists all 669 blueprints under their friendly palette paths.
 
-### Palette overview
+### Integrity and coverage
 
-| Top-level palette branch | Leaf categories |
-|---|---:|
-| Armor | 9 |
-| Creature Items | 6 |
-| D20 Modern System Items | 3 |
-| Miscellaneous | 18 |
-| Modern Clothing | 9 |
-| Modern General | 8 |
-| Modern Weapons | 25 |
-| Plot Item | 1 |
-| Special | 5 |
-| Tutorial | 1 |
-| Weapons | 32 |
-| **Total** | **117** |
+- unique UTI ResRefs: **669 of 669**;
+- friendly palette matches: **669 of 669**;
+- source base-item row matches: **669 of 669**;
+- used palette leaves: **50 of 117**;
+- source base-item rows actually consumed: **71**;
+- blueprints with properties: **403**;
+- item-property instances: **790**;
+- unique tags: **649**; 13 repeated tag values cover 33 blueprints and require script-aware review, but do not invalidate the records.
 
-### D20 Modern System Items
+| Top-level friendly category | Blueprints | Used leaves |
+|---|---:|---:|
+| Armor | 1 | 1 |
+| Creature Items | 5 | 2 |
+| D20 Modern System Items | 78 | 3 |
+| Miscellaneous | 22 | 2 |
+| Modern Clothing | 166 | 9 |
+| Modern General | 130 | 8 |
+| Modern Weapons | 262 | 22 |
+| Tutorial | 1 | 1 |
+| Weapons | 4 | 2 |
+| **Total** | **669** | **50** |
 
-- `113` — DM Tools
-- `114` — Other Tools
-- `115` — Special Abilities
+The 67 unused leaves are mostly stock palette branches plus custom placeholders. An unused leaf does not indicate a defect; it simply has no UTI in this companion ERF.
 
-### Modern General
+### Particularly useful category evidence
 
-- `107` — Computers and Consumer Electronics
-- `108` — Surveillance Gear
-- `109` — Professional Equipment
-- `110` — Survival Gear
-- `111` — Weapon Accessories
-- `112` — Miscellaneous
-- `116` — Drugs
-- `127` — Money
+- **SMGs**: 8 blueprints, all using base-item row `8` (`d20_smallarms_d8`, `WBwLn`); none uses `WBwSl`.
+- **Dual Handgun**: 30 blueprints split evenly between rows `61` and `213`, both labeled `d20_smallArms_d6` with item class `WBwSh`.
+- **Handgun**: 17 category blueprints use row `11` (`d20_handguns_d6`, `WBwSh`).
+- **Longarms**: 15 category blueprints use row `7` (`d20_longarms_d8`, `WBwXl`).
+- **Heavy**: 15 category blueprints, of which 14 use row `6` (`d20_heavyweap_d10`, `WBwXh`) and one is a flashlight represented by the torch base.
+- **Ammunition**: 90 blueprints across Handgun, Longarms, and Boxes & Packs; all 30 box/pack entries use custom row `202` (`ammo_rounds`, `it_faammo`).
+- **Improvised Weapons**: 37 blueprints, including 31 consumers of makeshift rows `504`–`508`.
 
-### Modern Clothing
-
-- `117` — Clothing
-- `118` — Light
-- `119` — Heavy
-- `120` — Helmets
-- `121` — Shields > Small Shields
-- `122` — Shields > Large Shields
-- `123` — Shields > Tower Shields
-- `124` — Medium
-- `125` — NPC Clothing
-
-### Modern Weapons
-
-- Ammunition: `185` Handgun, `186` Longarms, `187` Boxes & Packs
-- Axes: `188` One-Handed, `189` Two-Handed
-- Bladed: `190` Shortswords, `191` Daggers, `192` Great Swords, `193` Longswords, `194` Other
-- Blunts: `195` Clubs, `196` Flails, `197` Hammers, `198` Maces, `199` Morning Star
-- Ranged Weapons: `200` Heavy, `201` SMGs, `202` Handgun, `203` Dual Handgun, `204` Longarms
-- Other: `205` Improvised Weapons, `206` Exotic, `207` Power Blades, `208` Polearms, `209` Throwing
-
-Additional custom leaves are **Fashion Accessory**, **Flag**, **Holy Symbol**, **Musical Instrument**, **Falchions**, **Tridents**, **Picks**, and **Lightcrossbow**.
+These records replace filename-only inference with actual toolset blueprint evidence. They also give the row-migration work a finite consumer set: every changed base-item or item-property row can now be traced to exact UTI ResRefs.
 
 ## Asset families
 
@@ -136,7 +129,7 @@ Model classification metadata is not a reliable category label: 730 weapon model
 | Longarms | `WBwXl` | 143 | D20 longarms row exists |
 | Light/small arms | `WBwLn` | 49 | D20 small-arms row exists |
 | Heavy ranged weapons | `WBwXh` | 53 | D20 heavy-weapons row exists |
-| Probable SMGs | `WBwSl` | 57 | **no baseitems row in this HAK** |
+| Unused SMG-like variants | `WBwSl` | 57 | no companion UTI uses this family; quarantine unless another consumer is proven |
 | Improvised/makeshift weapons | `WMk*` | 77 | rows 504–508 exist |
 | Standard bladed weapons | `WSw*` | 142 | mostly base identities plus custom variants |
 | Standard blunt weapons | `WBl*` | 49 | mostly base identities plus custom variants |
@@ -155,18 +148,20 @@ The remaining models are shields, special weapons, and isolated support models. 
 
 `baseitems.2da` contains 510 numbered rows but only 172 rows screen as active. It is a full legacy global table with an older 57-column schema, whereas the pinned EE table has 113 rows and 67 columns. On their shared columns, 98 active overlapping rows differ, and 65 active rows lie beyond the EE table.
 
-Useful custom row groups include:
+The companion UTIs reduce that broad legacy inventory to **71 actually consumed rows**. Nineteen consumed rows are above the current EE range and account for 132 blueprints. Several lower-numbered D20 rows also replace current EE identities and therefore require allocation rather than in-place overwrite.
 
-| Group | Source rows | Notes |
+| Proven consumer group | Source rows | Blueprint evidence |
 |---|---|---|
-| D20 firearms and ammunition | `6`, `7`, `8`, `11`, `61`, `201`, `202`, `213` | row allocation and modern combat-property linkage required |
-| Modern general item bases | `205`–`211`, `214`, `215` | thin/medium/large items, necklace, pills, holdables, bank notes and coins |
-| Fire axe | `212` | custom weapon base |
-| Extended weapon/item bases | `300`–`314`, `316`–`325`, `327`, `330`, `350` | mixed custom and legacy community content; review individually |
-| CEP cloak | `349` | exclude unless a non-CEP consumer is proven |
-| Makeshift weapons | `504`–`508` | large/medium/small blunt, small slashing, and combat staff |
+| D20 firearms | `6`, `7`, `8`, `11`, `61`, `213` | 115 blueprints; includes Heavy, Longarms, SMGs, Handgun, and Dual Handgun |
+| Ammunition boxes/packs | `202` | 31 blueprints using `it_faammo` |
+| Modern general bases | `205`–`211`, `214`, `215` | 49 blueprints covering modern objects, necklaces, pills, holdables, bank notes, and coins |
+| Fire axe | `212` | 1 blueprint |
+| Fashion accessory and flowers | `314`, `325` | 7 blueprints |
+| Makeshift weapons | `504`–`508` | 29 blueprints across blunt, slashing, and combat-staff bases |
 
-These source row numbers are not reserved allocations in SRN. They must be mapped into reviewed user slots, with every dependent table, UTI in consuming modules, script constant, and TLK reference updated together.
+Source row `201`, the other extended rows `300`–`313`, `316`–`324`, `327`, `330`, `349`, and `350`, and their associated assets are not used by these 669 UTIs. They should not enter the first landing merely because they are active in the legacy table. In particular, the CEP cloak at row `349` remains excluded absent a non-CEP consumer.
+
+These source row numbers are not reserved allocations in SRN. Required rows must be mapped into reviewed user slots, with every dependent UTI `BaseItem`, item-property field, 2DA reference, script constant, and TLK reference updated together. The detailed blueprint analysis supplies the exact ResRef consumer list for each row.
 
 ## Global 2DA assessment
 
@@ -225,7 +220,16 @@ Of the 87 unresolved texture stems, 71 are referenced only by the six global ani
 | `tex_glsbr01` | `wswglsbr_b_011` |
 | `tex_lsbr01` | `wdblsbr_m_011` |
 
-Search the remaining MDRNEE HAKs and known-working D20 Modern modules for these exact identities before deciding whether each is an actual visual defect or a harmless unused variant.
+The companion UTIs prove seven blueprints reach six of these missing texture stems:
+
+- `01`: the two **Chainsword** blueprints (`wswls_m_105`, `wswls_m_106`);
+- `ladle`: **Dipper** (`wmkbs_*_062`);
+- `rollingpin`: **Rolling Pin** (`wblcl_m_111`);
+- `soff_lens`: **Negev 5.56mm Light Machine Gun** (`wbwxh_m_074`);
+- `tex_glsbr01`: **Lightsaber** (`wswglsbr_b_011`);
+- `tex_lsbr01`: **Double Lightsaber** (`wdblsbr_m_011`).
+
+Search the remaining MDRNEE HAKs and known-working D20 Modern modules for those six first. The other ten item-facing gaps are attached only to models not selected by this companion UTI set; retain them as lower-priority ancillary candidates unless another consumer is found.
 
 ## Sound linkage
 
@@ -264,14 +268,14 @@ The credit list establishes authorship, not redistribution terms. Before landing
 
 ## Recommended landing plan
 
-1. Locate a known-working module or source package containing the actual UTI blueprints. Use those consumers to populate the friendly palette categories and prove which base-item rows, models, sounds, and item properties are required.
-2. Search the remaining MDRNEE HAKs for the 16 item-facing missing texture identities and for the absent `WBwSl` registration. Treat this as the highest-value dependency audit.
-3. Create a row-allocation plan for required custom `baseitems.2da` rows and the four custom firearm-property tables. Repair `iprp_magcapcost.2da` only from authoritative consumer behavior or a clean upstream copy—not by guessing which duplicated row `2` was intended.
-4. Merge only proven rows into the current EE-derived `srn_2da`, remapping dependent row references and passing every custom string through the deduplicating TLK importer.
-5. Build `srn_item` initially as one component containing the retained item models, inventory icons, textures, animation overrides, and transformed `itempal.itp`. The item system is too cross-linked to split safely by visual category before blueprint evidence exists.
-6. Reuse the 12 byte-identical SRN resources. Resolve the 55 differing SRN pairs through technical and visual comparison before packing.
-7. Promote linked WAVs into `srn_sound`; keep the 26 unlinked WAVs quarantined until module/script evidence supplies a consumer.
-8. Compile the ASCII models, build the candidate HAKs, and test representative items from every proven friendly category in the toolset and game client: palette visibility, ground model, inventory icon, equip animation, ammunition, rate of fire, reload behavior, damage type, sounds, and visual effects.
+1. Treat the 669 UTIs as the authoritative first-pass consumer ledger. Keep the mixed source ERF quarantined; generate a curated item-blueprint ERF or module seed only after all allocated row IDs are final.
+2. Allocate and merge the proven custom base-item rows, then rewrite the exact dependent UTI `BaseItem` fields. Do not import unused active rows from the 510-row legacy aggregate.
+3. Build an item-property row map from the 790 property instances. Migrate PropertyName, CostTable, subtype, parameter, spell, and TLK references as one transaction with `srn_2da`.
+4. Recover the six blueprint-reachable missing texture stems first. Treat the other ten item-facing gaps and all 57 `WBwSl` models as non-blocking ancillary content until another consumer proves them necessary.
+5. Repair `iprp_magcapcost.2da` from an authoritative clean source or demonstrated behavior—not by guessing which repeated row `2` values were intended—and exclude `iprp_spells past.2da`.
+6. Build `srn_item` around closure for the 669 proven blueprints: retained models, inventory icons, textures, required animation overrides, and the transformed `itempal.itp`. Defer resources with no UTI, script, model, or compatibility consumer.
+7. Reuse byte-identical SRN resources and resolve differing identities through the established technical/visual policy before packing. Promote proven WAVs into `srn_sound`; keep audio without a UTI, 2DA, model, or script consumer quarantined.
+8. Compile the ASCII models, build the candidate HAKs, import the curated blueprint ERF into a test module, and smoke-test all 50 used friendly leaves and every one of the 71 retained base-item rows. Cover ground models, inventory icons, equip animations, ammunition, rate of fire, reload behavior, damage types, sounds, item properties, and visual effects.
 
 ## Acceptance gates
 
