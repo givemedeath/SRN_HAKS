@@ -99,6 +99,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_vmr01",
+      "Path": "./srn_t_vmr01/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_skybox",
       "Path": "./srn_skybox/",
       "CompileModels": false
