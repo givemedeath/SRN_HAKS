@@ -1011,7 +1011,7 @@
 1007         Elevator_Doors     5349   T1doora3       0          1            11           16777223
 1008         Wood_Glass_Reflect 5349   T1doora4       1          1            0            16777224
 1009         Manhole            5349   T1doora5       1          1            0            16777225
-1010         Glass_Window       5349   T_Door12       0          1            ****         16777224
+1010         Glass_Window       5349   T_Door12       0          1            ****         16777226
 1011         gao_PullGate       5349   GN_Door21      0          1            11           16777223
 1012         gao_WoodCentre     5349   GN_Door22      1          1            0            63750
 1013         gao_StoneMech      5349   GN_Door23      1          1            4            164
