@@ -13,6 +13,12 @@ exception:
 
 There are no content batches or size exceptions in the initial scaffold.
 
+This import is delivered as a stack of one-component pull requests. The complete reviewed
+provenance is introduced with the first content PR so every later intermediate tree passes the
+repository's attribution check. Pack names and `docs/imports/` evidence below describe the complete
+stack; those packs and reports appear incrementally, with the reports landing in the final
+integration PR.
+
 ## Vendored model tooling
 
 `tools/vendor/nwnmdlcomp/NWN_compDcomp.exe` and
@@ -102,6 +108,10 @@ Ten supplemental door dependencies are recorded in
 resources in the SWLOR HAK decomposition at `SWLOR_Haks` commit
 `e349a8026ce226da1e2199295b0d9e34bc4e94f4`. They retain the provenance and permission terms of
 their respective upstream content.
+
+`t_door93.mdl` is retained as source content, but its `udp1_ohfire2` generic-door registration is
+withheld because no matching `t_door93.dwk` was found. Restoring that registration requires the
+original walkmesh or an engine-tested derivative; the final dependency report records this gap.
 
 ## MDRNEE audio import (2026-09-10)
 
