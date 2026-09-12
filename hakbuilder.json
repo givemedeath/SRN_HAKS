@@ -2,6 +2,12 @@
   "TlkPath": "./output/srn.tlk",
   "TlkSource": "./srn_tlk/srn.tlk.json",
   "OutputPath": "./output/",
-  "HakList": [],
+  "HakList": [
+    {
+      "Name": "srn_t_common",
+      "Path": "./srn_t_common/",
+      "CompileModels": false
+    }
+  ],
   "ExpectedOverrides": []
 }
