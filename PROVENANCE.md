@@ -66,6 +66,12 @@ origin, hash, disposition, dependency evidence, and recommended landing are reco
 | `srn_t_vmr01` | D20 Alien Ruins |
 | `srn_t_zsf01` | D20 SciFi Base CQ |
 
+Known upstream visual limitation: `zsf01_a01_01.mdl` references the texture
+`zsf01_stonespdr`, but no matching TGA or DDS is present in the imported source HAK or the
+inspected MDRNEE staging assets. The tileset remains usable, with the affected mesh potentially
+showing the engine fallback texture. This is accepted as non-blocking until a provenance-compatible
+source texture is located; no substitute texture is inferred or fabricated.
+
 The source archive credits D20 Modern contributors including Stacy, Fuzzwolf, Goudea/Enki,
 Jezira, Horred the Plague, JDA, Chandigar, CaveGnome, ChicoCQ, Tom Banjo, DrHoo,
 Plush Hyena of Doom, Vanya Mia, Vahnhaunt, Yumi-Chan, Veldin, and the Dark Times team.
