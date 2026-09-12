@@ -1,0 +1,424 @@
+{
+  "schemaVersion": 1,
+  "policy": "For differing MDRNEE texture identities with unequal dimensions, propagate the greater pixel-area source bytes to every staged pack carrying that identity.",
+  "applied": true,
+  "textureCount": 30,
+  "tileWinners": 25,
+  "placeableWinners": 5,
+  "records": [
+    {
+      "resource": "cockpit.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "9ed7adde1384e2cafd6014711109c212545081b577925eff77825a994cdfb13c",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_shp02"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "glass.dds",
+      "winner": "placeable",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "a3cc01c2d74949311aa1533ee21acd08a04715d3bde777bcd7606ce13adcecd7",
+      "stagedPacks": [
+        "srn_door",
+        "srn_placeable"
+      ],
+      "updatedPacks": [
+        "srn_door"
+      ]
+    },
+    {
+      "resource": "red.dds",
+      "winner": "placeable",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "64x64",
+      "winnerSha256": "cead0490b15a499636b0265d39c9692ae8aa225ef6b63bd6f6b572240cece6ec",
+      "stagedPacks": [
+        "srn_placeable"
+      ],
+      "updatedPacks": []
+    },
+    {
+      "resource": "shp02_wall03.tga",
+      "winner": "placeable",
+      "winnerDimensions": "256x256",
+      "supersededDimensions": "64x64",
+      "winnerSha256": "a87edcbe7bcb12aa5641df885cf3aa0af30ca980172a97012593dd9340661699",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_shp02"
+      ],
+      "updatedPacks": [
+        "srn_t_shp02"
+      ]
+    },
+    {
+      "resource": "tinsiding.dds",
+      "winner": "placeable",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "b00efaf29868ca2c93dd4db526792a8056092bed88d1973490f59486231cd0cd",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_shp02"
+      ],
+      "updatedPacks": [
+        "srn_t_shp02"
+      ]
+    },
+    {
+      "resource": "udp1-aircond.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "4a117d01cdf06b7e0fc1c991b18b591c53d6fd2e9b0e78df7d7a02789f6af1ca",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-asph.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "512x512",
+      "winnerSha256": "e5dd31d44b1e4c66d12201956e729eaf51eb52f24b1b8a3eef6659697ae0fa3c",
+      "stagedPacks": [
+        "srn_door",
+        "srn_placeable"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-dumpster.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "f5b81c1c63e27ec8c18f37ec406915605fe983f2334c2fb63a6cc476508b2c87",
+      "stagedPacks": [
+        "srn_door",
+        "srn_placeable"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-gogas.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "63be03341d9ccc1b39005cdb7b204e15cabb055aeaf24d6c8a93d44b215c18dc",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-gogas2.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "512x512",
+      "winnerSha256": "43f9efbd9f447d1b10572967891a256554f52029ef761e459ca55d98aff9df33",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-h6-sdg.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "25924f5ab4a1e1f2783fe59fca34d4c7d6087f42dcd96a1a6a2c713499f9fe2e",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-metal.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "a41165f8ffecb465d581b572f9fab10e7c2b6baada5a7b6c30439c4b39fe5791",
+      "stagedPacks": [
+        "srn_door",
+        "srn_placeable"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-msc-stngl2.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "cccd90e07af9687ae05caeada1f65de7d0d366c0c46cf26ab388371e25cfcb3e",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-grd-b.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "f8d62f9d749bf256f6a709660f2fdb484b83f1e6bafa30ad3e7c9c263438eccc",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-grd-r.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "289e9b74140075d10e101c7df1d844c44a0f7db3a25f6c87007d55609ca72540",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-grd-y.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "c6adc56ab9f8b9e0905d1fe14dd932169e39790d0cd1991e0b6aaf1687c73bdd",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-grid.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "785dd8d04ae01bf014538a2d792ea3342978497adf44b198d272821032dbed45",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_common"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-gry.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "18ac28c4fc550f93497ec8a12eee542d1f85ae90b7a52e0e12a72289d2bb8686",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_common"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-rvt.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "28a22bfb284c82f624565005bcbd30807cc8e86ce398dfc5386b4cc4b6182ea1",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-ss-b.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "bda7e173103396fc3db55e35116454c67956df4deaaf21120a39a076acfd8a42",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-ss-dr.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "4712e08e1a478c2656c8758781e39606146457a60812df2ba3f524a48a5f20c3",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-ss-dy.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "22862cf15e3a5f7795dc570d6c68786863ac1012e192016b86ed7c82572ba54b",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-ss-g.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "719c57df7f11f599dd007d2d1431d089ce1bbea8a346706cef451377fa448c92",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-mtl-vents.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "6a0bd59fe2b6162895bde0ce20219d645f7eba84b4b22e7ad7e87701910b2d8d",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-pnt-wh1.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "45bb414efaca0ea0ff0d343f9e3f0757c3cc5de199366e5751174a1b9af11ad1",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_common"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-pnt-wh3.dds",
+      "winner": "tile",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "256x256",
+      "winnerSha256": "a8b3f7c82a988b11519ac24141cf04e34cda81fb5e5f896c2f5c3c8969eec3bc",
+      "stagedPacks": [
+        "srn_door",
+        "srn_placeable"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-tile-rdst.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "512x512",
+      "winnerSha256": "9f742948fe835d2230f43ded9e80cf29c4d5885738a7c96ae3a720495159fede",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "udp1-wd-grd1.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "512x512",
+      "winnerSha256": "5f8a9a442531837490569a4f4087b10f434292f2b5110187dfd12e175cb33c9d",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_common"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "window.dds",
+      "winner": "tile",
+      "winnerDimensions": "1024x1024",
+      "supersededDimensions": "256x64",
+      "winnerSha256": "9da04a2499ab845d0ad6a8e7c39ae546c798c4c1001a26b0e201197f41f5e154",
+      "stagedPacks": [
+        "srn_placeable",
+        "srn_t_shp02"
+      ],
+      "updatedPacks": [
+        "srn_placeable"
+      ]
+    },
+    {
+      "resource": "yellow.dds",
+      "winner": "placeable",
+      "winnerDimensions": "512x512",
+      "supersededDimensions": "64x64",
+      "winnerSha256": "87b25d02669ef3de47dd4880a13a9952d9739751ce1d8202c2f802eade8a5446",
+      "stagedPacks": [
+        "srn_placeable"
+      ],
+      "updatedPacks": []
+    }
+  ]
+}

@@ -1,0 +1,4909 @@
+{
+  "schemaVersion": 1,
+  "profile": "mdrnee_tile",
+  "profileSha256": "EC21DD9D081202A4403BD9B4907AD69123B34AA3ACAD65A6D55073293B75C8E7",
+  "sourceSha256": "B52CFAA8823826B1262AB19836D66C0DD04797AC2DD02ED9C03FE37309C59F44",
+  "generatedAtUtc": "2026-09-11T03:54:31.5790557Z",
+  "rawResourcesModified": 0,
+  "repairedSetCount": 14,
+  "entries": [
+    {
+      "tileset": "dgt04",
+      "friendlyName": "D20 Modern Exterior",
+      "source": "raw/dgt04.set",
+      "output": "repaired/dgt04/dgt04.set",
+      "sourceSha256": "eb9b1c62bb906ffe1e272b1192dfc1153cb1919f3040756bf30883fbf950c62e",
+      "repairedSha256": "0314bed3138e339097044d12fb371256aa376b5bbd85f628125a8c3010c02e02",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 1249,
+          "section": "TILE37",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 2671,
+          "section": "TILE87",
+          "field": "doors",
+          "old": "1",
+          "new": "4"
+        },
+        {
+          "kind": "section-count",
+          "line": 3000,
+          "section": "TILE97",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 3147,
+          "section": "TILE102",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 3834,
+          "section": "TILE125",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 4093,
+          "section": "TILE133",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4121,
+          "section": "TILE134",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4268,
+          "section": "TILE139",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 4338,
+          "section": "TILE141",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 4373,
+          "section": "TILE142",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 4485,
+          "section": "TILE145",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4793,
+          "section": "TILE155",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 4828,
+          "section": "TILE156",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4947,
+          "section": "TILE160",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 5039,
+          "section": "TILE163",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 5130,
+          "section": "TILE166",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 5193,
+          "section": "TILE168",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 11007,
+          "section": "TILE369",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 11070,
+          "section": "TILE371",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 11105,
+          "section": "TILE372",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 11224,
+          "section": "TILE376",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 11350,
+          "section": "TILE380",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11378,
+          "section": "TILE381",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11546,
+          "section": "TILE387",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 11847,
+          "section": "TILE397",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [
+        "dgw02_z01_01",
+        "dgt04_z12_01",
+        "dgt04_z14_01",
+        "tcn01_z17_01",
+        "rdt02_a14_01",
+        "tcn01_z03_01",
+        "dgt04_z00_03",
+        "dgt04_z00_04",
+        "tcn01_z15_01"
+      ],
+      "promotionStatus": "candidate-known-visual-walkmesh-gaps"
+    },
+    {
+      "tileset": "fcx01",
+      "friendlyName": "D20 Futuristic City SW",
+      "source": "raw/fcx01.set",
+      "output": "repaired/fcx01/fcx01.set",
+      "sourceSha256": "311787095e221b8ffc26a824cbb5bdd5f71dcec649d3aad60c4d6bbd5cf6eefc",
+      "repairedSha256": "ebf097cdc3ee79d81a21e2760eb4018d71028d0cb5e9e83e1383703f5d0fde05",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 3078,
+          "section": "TILE99",
+          "field": "doors",
+          "old": "15554516",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3079,
+          "section": "TILE99",
+          "field": "sounds",
+          "old": "15555548",
+          "new": "0"
+        },
+        {
+          "kind": "door-row-remap",
+          "line": 3117,
+          "section": "TILE100DOOR0",
+          "field": "type",
+          "old": "240",
+          "new": "261"
+        },
+        {
+          "kind": "door-row-remap",
+          "line": 3124,
+          "section": "TILE100DOOR1",
+          "field": "type",
+          "old": "240",
+          "new": "261"
+        },
+        {
+          "kind": "section-count",
+          "line": 3183,
+          "section": "TILE102",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3213,
+          "section": "TILE103",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "door-row-remap",
+          "line": 3401,
+          "section": "TILE109DOOR0",
+          "field": "type",
+          "old": "240",
+          "new": "261"
+        },
+        {
+          "kind": "door-row-remap",
+          "line": 3408,
+          "section": "TILE109DOOR1",
+          "field": "type",
+          "old": "240",
+          "new": "261"
+        },
+        {
+          "kind": "section-count",
+          "line": 3494,
+          "section": "TILE112",
+          "field": "doors",
+          "old": "31",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4258,
+          "section": "TILE139",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4677,
+          "section": "TILE154",
+          "field": "doors",
+          "old": "48",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4678,
+          "section": "TILE154",
+          "field": "sounds",
+          "old": "1701603668",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4817,
+          "section": "TILE159",
+          "field": "doors",
+          "old": "96",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4818,
+          "section": "TILE159",
+          "field": "sounds",
+          "old": "4822824",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5098,
+          "section": "TILE169",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5321,
+          "section": "TILE177",
+          "field": "doors",
+          "old": "64",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5322,
+          "section": "TILE177",
+          "field": "sounds",
+          "old": "22712924",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5903,
+          "section": "TILE197",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6357,
+          "section": "TILE213",
+          "field": "doors",
+          "old": "31",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6525,
+          "section": "TILE219",
+          "field": "doors",
+          "old": "22821944",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6526,
+          "section": "TILE219",
+          "field": "sounds",
+          "old": "22821620",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6581,
+          "section": "TILE221",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6582,
+          "section": "TILE221",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6609,
+          "section": "TILE222",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6610,
+          "section": "TILE222",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "door-row-remap",
+          "line": 6924,
+          "section": "TILE233DOOR0",
+          "field": "type",
+          "old": "239",
+          "new": "260"
+        },
+        {
+          "kind": "door-row-remap",
+          "line": 6959,
+          "section": "TILE234DOOR0",
+          "field": "type",
+          "old": "239",
+          "new": "260"
+        },
+        {
+          "kind": "door-row-remap",
+          "line": 6994,
+          "section": "TILE235DOOR0",
+          "field": "type",
+          "old": "239",
+          "new": "260"
+        },
+        {
+          "kind": "door-row-remap",
+          "line": 7029,
+          "section": "TILE236DOOR0",
+          "field": "type",
+          "old": "239",
+          "new": "260"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [],
+      "promotionStatus": "candidate-ready-targeted-validation"
+    },
+    {
+      "tileset": "fifi",
+      "friendlyName": "D20 Bunker PHoD",
+      "source": "raw/fifi.set",
+      "output": "repaired/fifi/fifi.set",
+      "sourceSha256": "ed861b2c88d9e4fd054332dcff936ef3aae3bb312ee25dbd4ed88a8458705639",
+      "repairedSha256": "d270277e9733c57ade1c051f6260a6f4544da946ad27300adaba3dbf827c1b83",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 146,
+          "section": "TILE1",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 174,
+          "section": "TILE2",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 202,
+          "section": "TILE3",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 230,
+          "section": "TILE4",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 545,
+          "section": "TILE14",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 573,
+          "section": "TILE15",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 601,
+          "section": "TILE16",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [],
+      "promotionStatus": "candidate-ready-targeted-validation"
+    },
+    {
+      "tileset": "flow_pa",
+      "friendlyName": "D20 Parking Garage",
+      "source": "raw/flow_pa.set",
+      "output": "repaired/flow_pa/flow_pa.set",
+      "sourceSha256": "95cc279e870821145a23e2c621cc7cdfd99d558176d23996eb66dc821ba85f70",
+      "repairedSha256": "dc7060d9a0ba057bef2473357ee5db67238229b1653dc20ec4de0ddd347daee6",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 269,
+          "section": "TILE7",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 270,
+          "section": "TILE7",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 353,
+          "section": "TILE10",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 354,
+          "section": "TILE10",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 381,
+          "section": "TILE11",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 382,
+          "section": "TILE11",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 437,
+          "section": "TILE13",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 438,
+          "section": "TILE13",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 605,
+          "section": "TILE19",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 606,
+          "section": "TILE19",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 801,
+          "section": "TILE26",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 802,
+          "section": "TILE26",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [],
+      "promotionStatus": "candidate-ready-targeted-validation"
+    },
+    {
+      "tileset": "nac01",
+      "friendlyName": "D20 ServiceDucts",
+      "source": "raw/nac01.set",
+      "output": "repaired/nac01/nac01.set",
+      "sourceSha256": "444e8534c4dfc4ac3c3a358480457b1b6893a796982ce2d40f67050ceb18a091",
+      "repairedSha256": "8f8d0eb132215e2b659634bd1de76b007cb68d1e96c2e8d282f17a758c0a0b73",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 130,
+          "section": "TILE1",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 158,
+          "section": "TILE2",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 186,
+          "section": "TILE3",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 214,
+          "section": "TILE4",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 529,
+          "section": "TILE14",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 557,
+          "section": "TILE15",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 585,
+          "section": "TILE16",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [],
+      "promotionStatus": "candidate-ready-targeted-validation"
+    },
+    {
+      "tileset": "shp02",
+      "friendlyName": "D20 Starship Interior SW",
+      "source": "raw/shp02.set",
+      "output": "repaired/shp02/shp02.set",
+      "sourceSha256": "f1d15f5d66d33dd1e93cfdf71b709a91ed54036eb22f37ace32c9bd5ac9d3d4f",
+      "repairedSha256": "b7878683cf239b1e0f7de25689e7b69d14e87d8e9d9e9519b8dcc57697b64f1a",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 15372,
+          "section": "TILE423",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 15373,
+          "section": "TILE423",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17360,
+          "section": "TILE482",
+          "field": "doors",
+          "old": "544825708",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17361,
+          "section": "TILE482",
+          "field": "sounds",
+          "old": "1953261894",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17416,
+          "section": "TILE484",
+          "field": "doors",
+          "old": "23230036",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17417,
+          "section": "TILE484",
+          "field": "sounds",
+          "old": "23230036",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17444,
+          "section": "TILE485",
+          "field": "doors",
+          "old": "23215880",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17445,
+          "section": "TILE485",
+          "field": "sounds",
+          "old": "23215880",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17815,
+          "section": "TILE498",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17816,
+          "section": "TILE498",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17899,
+          "section": "TILE501",
+          "field": "doors",
+          "old": "56",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17900,
+          "section": "TILE501",
+          "field": "sounds",
+          "old": "1886611780",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18390,
+          "section": "TILE516",
+          "field": "sounds",
+          "old": "9",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18816,
+          "section": "TILE531",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18817,
+          "section": "TILE531",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18872,
+          "section": "TILE533",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18873,
+          "section": "TILE533",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 19076,
+          "section": "TILE539",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 19111,
+          "section": "TILE540",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20013,
+          "section": "TILE570",
+          "field": "doors",
+          "old": "1850039411",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20014,
+          "section": "TILE570",
+          "field": "sounds",
+          "old": "1113352555",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20154,
+          "section": "TILE575",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20265,
+          "section": "TILE578",
+          "field": "doors",
+          "old": "1819042167",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20266,
+          "section": "TILE578",
+          "field": "sounds",
+          "old": "80",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [],
+      "promotionStatus": "candidate-ready-targeted-validation"
+    },
+    {
+      "tileset": "sjm01",
+      "friendlyName": "D20 SJ Metal Interior",
+      "source": "raw/sjm01.set",
+      "output": "repaired/sjm01/sjm01.set",
+      "sourceSha256": "a31749b0af41f2a61c6167f7e60911a2f35630276d48f00fced6af16199f48bb",
+      "repairedSha256": "6f5c9d183e6449189550d021fbd523c0e8944fdf391b0ad7e1d04b41fb1be266",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 3579,
+          "section": "TILE111",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3607,
+          "section": "TILE112",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3608,
+          "section": "TILE112",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3635,
+          "section": "TILE113",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3636,
+          "section": "TILE113",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3859,
+          "section": "TILE121",
+          "field": "doors",
+          "old": "67583140",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3860,
+          "section": "TILE121",
+          "field": "sounds",
+          "old": "67583140",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3887,
+          "section": "TILE122",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3888,
+          "section": "TILE122",
+          "field": "sounds",
+          "old": "1884511333",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3915,
+          "section": "TILE123",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3916,
+          "section": "TILE123",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3971,
+          "section": "TILE125",
+          "field": "doors",
+          "old": "12197",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3972,
+          "section": "TILE125",
+          "field": "sounds",
+          "old": "-481034240",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4027,
+          "section": "TILE127",
+          "field": "doors",
+          "old": "916586540",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4028,
+          "section": "TILE127",
+          "field": "sounds",
+          "old": "-2113679356",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4055,
+          "section": "TILE128",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4056,
+          "section": "TILE128",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4083,
+          "section": "TILE129",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4084,
+          "section": "TILE129",
+          "field": "sounds",
+          "old": "1884511333",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4111,
+          "section": "TILE130",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4112,
+          "section": "TILE130",
+          "field": "sounds",
+          "old": "1884511333",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4139,
+          "section": "TILE131",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4140,
+          "section": "TILE131",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4168,
+          "section": "TILE132",
+          "field": "sounds",
+          "old": "4822824",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4335,
+          "section": "TILE138",
+          "field": "doors",
+          "old": "1161965625",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4336,
+          "section": "TILE138",
+          "field": "sounds",
+          "old": "1229473606",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4419,
+          "section": "TILE141",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4420,
+          "section": "TILE141",
+          "field": "sounds",
+          "old": "1884511333",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4447,
+          "section": "TILE142",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4448,
+          "section": "TILE142",
+          "field": "sounds",
+          "old": "1884511333",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4475,
+          "section": "TILE143",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4476,
+          "section": "TILE143",
+          "field": "sounds",
+          "old": "1884511333",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4564,
+          "section": "TILE146",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4594,
+          "section": "TILE147",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4683,
+          "section": "TILE150",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4684,
+          "section": "TILE150",
+          "field": "sounds",
+          "old": "1884511333",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [],
+      "promotionStatus": "candidate-ready-targeted-validation"
+    },
+    {
+      "tileset": "srt04",
+      "friendlyName": "D20 Shadowrun Exterior",
+      "source": "raw/srt04.set",
+      "output": "repaired/srt04/srt04.set",
+      "sourceSha256": "a1150ec73834e489bbe40d750e12b128bebf2a3cdf10774a42a65b8877671001",
+      "repairedSha256": "e06dd630f5164e23b0df26b6d84c1e2fa9a65e201b1da650a581f00f98a2efb5",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 2686,
+          "section": "TILE87",
+          "field": "doors",
+          "old": "1",
+          "new": "4"
+        },
+        {
+          "kind": "section-count",
+          "line": 2897,
+          "section": "TILE93",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2925,
+          "section": "TILE94",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2953,
+          "section": "TILE95",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3163,
+          "section": "TILE102",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 3310,
+          "section": "TILE107",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3338,
+          "section": "TILE108",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3366,
+          "section": "TILE109",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3394,
+          "section": "TILE110",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3422,
+          "section": "TILE111",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3450,
+          "section": "TILE112",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3513,
+          "section": "TILE114",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3576,
+          "section": "TILE116",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3639,
+          "section": "TILE118",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3702,
+          "section": "TILE120",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3730,
+          "section": "TILE121",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3793,
+          "section": "TILE123",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3821,
+          "section": "TILE124",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3990,
+          "section": "TILE129",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4018,
+          "section": "TILE130",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4046,
+          "section": "TILE131",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4109,
+          "section": "TILE133",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4137,
+          "section": "TILE134",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4291,
+          "section": "TILE139",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 4326,
+          "section": "TILE140",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 4361,
+          "section": "TILE141",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 4396,
+          "section": "TILE142",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 4508,
+          "section": "TILE145",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4641,
+          "section": "TILE149",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4753,
+          "section": "TILE153",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4781,
+          "section": "TILE154",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4844,
+          "section": "TILE156",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4872,
+          "section": "TILE157",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5027,
+          "section": "TILE162",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5090,
+          "section": "TILE164",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5118,
+          "section": "TILE165",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5272,
+          "section": "TILE170",
+          "field": "doors",
+          "old": "1",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 5314,
+          "section": "TILE171",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5342,
+          "section": "TILE172",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5454,
+          "section": "TILE176",
+          "field": "doors",
+          "old": "1",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 5531,
+          "section": "TILE178",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5594,
+          "section": "TILE180",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5706,
+          "section": "TILE184",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5769,
+          "section": "TILE186",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5797,
+          "section": "TILE187",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5982,
+          "section": "TILE193",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6094,
+          "section": "TILE197",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6150,
+          "section": "TILE199",
+          "field": "doors",
+          "old": "1",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [],
+      "promotionStatus": "candidate-ready-targeted-validation"
+    },
+    {
+      "tileset": "tfb01",
+      "friendlyName": "D20 Modern Interior",
+      "source": "raw/tfb01.set",
+      "output": "repaired/tfb01/tfb01.set",
+      "sourceSha256": "0e03cc5ee331dac5451d5d39114f717e0838a20650f41c1c4924ebe3ce851876",
+      "repairedSha256": "212ee00000e8ec53f6da6ec5507f5a43d9f2e561170f414724fae97323c0e0ad",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 10076,
+          "section": "TILE306",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10077,
+          "section": "TILE306",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10104,
+          "section": "TILE307",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10105,
+          "section": "TILE307",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10132,
+          "section": "TILE308",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10133,
+          "section": "TILE308",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10160,
+          "section": "TILE309",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10161,
+          "section": "TILE309",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10188,
+          "section": "TILE310",
+          "field": "doors",
+          "old": "48",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10189,
+          "section": "TILE310",
+          "field": "sounds",
+          "old": "1701603668",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10468,
+          "section": "TILE319",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10469,
+          "section": "TILE319",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10496,
+          "section": "TILE320",
+          "field": "doors",
+          "old": "68",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10497,
+          "section": "TILE320",
+          "field": "sounds",
+          "old": "4822856",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10552,
+          "section": "TILE322",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10553,
+          "section": "TILE322",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10692,
+          "section": "TILE327",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10693,
+          "section": "TILE327",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10748,
+          "section": "TILE329",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10749,
+          "section": "TILE329",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10777,
+          "section": "TILE330",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10972,
+          "section": "TILE337",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10973,
+          "section": "TILE337",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [
+        "tall_a01_01",
+        "tall_b01_01"
+      ],
+      "promotionStatus": "candidate-known-visual-walkmesh-gaps"
+    },
+    {
+      "tileset": "udp1",
+      "friendlyName": "D20 Suburbs UDP",
+      "source": "raw/udp1.set",
+      "output": "repaired/udp1/udp1.set",
+      "sourceSha256": "c855769d2bd84997df3bb228945f362dab2b50a776af72456ff9dc22b69b1816",
+      "repairedSha256": "41ccfa91933842c1222e3ac3d6148c8084002fb59e7501d5304f2006081ec540",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 255,
+          "section": "TILE1",
+          "field": "doors",
+          "old": "1685412979",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 256,
+          "section": "TILE1",
+          "field": "sounds",
+          "old": "1633628528",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 315,
+          "section": "TILE3",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 316,
+          "section": "TILE3",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 465,
+          "section": "TILE8",
+          "field": "doors",
+          "old": "1735667257",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 466,
+          "section": "TILE8",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 525,
+          "section": "TILE10",
+          "field": "doors",
+          "old": "1885631836",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 526,
+          "section": "TILE10",
+          "field": "sounds",
+          "old": "811687729",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 555,
+          "section": "TILE11",
+          "field": "doors",
+          "old": "1735667250",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 556,
+          "section": "TILE11",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 585,
+          "section": "TILE12",
+          "field": "doors",
+          "old": "1735667251",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 586,
+          "section": "TILE12",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 705,
+          "section": "TILE16",
+          "field": "doors",
+          "old": "1735667249",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 706,
+          "section": "TILE16",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 825,
+          "section": "TILE20",
+          "field": "doors",
+          "old": "1735667249",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 826,
+          "section": "TILE20",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1005,
+          "section": "TILE26",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1006,
+          "section": "TILE26",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1155,
+          "section": "TILE31",
+          "field": "doors",
+          "old": "842096435",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1156,
+          "section": "TILE31",
+          "field": "sounds",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1245,
+          "section": "TILE34",
+          "field": "doors",
+          "old": "1735667253",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1246,
+          "section": "TILE34",
+          "field": "sounds",
+          "old": "1953235041",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1365,
+          "section": "TILE38",
+          "field": "doors",
+          "old": "16187492",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1366,
+          "section": "TILE38",
+          "field": "sounds",
+          "old": "16245400",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1395,
+          "section": "TILE39",
+          "field": "doors",
+          "old": "861682243",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1396,
+          "section": "TILE39",
+          "field": "sounds",
+          "old": "1634562916",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1425,
+          "section": "TILE40",
+          "field": "doors",
+          "old": "1735667253",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1426,
+          "section": "TILE40",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1455,
+          "section": "TILE41",
+          "field": "doors",
+          "old": "1735667254",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1456,
+          "section": "TILE41",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1485,
+          "section": "TILE42",
+          "field": "doors",
+          "old": "861682243",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1486,
+          "section": "TILE42",
+          "field": "sounds",
+          "old": "1634562916",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1515,
+          "section": "TILE43",
+          "field": "doors",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1545,
+          "section": "TILE44",
+          "field": "doors",
+          "old": "1735667257",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1546,
+          "section": "TILE44",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1575,
+          "section": "TILE45",
+          "field": "doors",
+          "old": "1735667248",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1576,
+          "section": "TILE45",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1605,
+          "section": "TILE46",
+          "field": "doors",
+          "old": "100",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1606,
+          "section": "TILE46",
+          "field": "sounds",
+          "old": "16239060",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1695,
+          "section": "TILE49",
+          "field": "doors",
+          "old": "1735667252",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1696,
+          "section": "TILE49",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1785,
+          "section": "TILE52",
+          "field": "doors",
+          "old": "1834759544",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1786,
+          "section": "TILE52",
+          "field": "sounds",
+          "old": "1701344101",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1965,
+          "section": "TILE58",
+          "field": "doors",
+          "old": "1735667249",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1966,
+          "section": "TILE58",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2235,
+          "section": "TILE67",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2236,
+          "section": "TILE67",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2355,
+          "section": "TILE71",
+          "field": "doors",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2356,
+          "section": "TILE71",
+          "field": "sounds",
+          "old": "80",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2415,
+          "section": "TILE73",
+          "field": "doors",
+          "old": "861682243",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2416,
+          "section": "TILE73",
+          "field": "sounds",
+          "old": "1634562916",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2535,
+          "section": "TILE77",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2536,
+          "section": "TILE77",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2565,
+          "section": "TILE78",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2566,
+          "section": "TILE78",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2895,
+          "section": "TILE89",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2896,
+          "section": "TILE89",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2955,
+          "section": "TILE91",
+          "field": "doors",
+          "old": "892362553",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2956,
+          "section": "TILE91",
+          "field": "sounds",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3015,
+          "section": "TILE93",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3016,
+          "section": "TILE93",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3135,
+          "section": "TILE97",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3136,
+          "section": "TILE97",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3225,
+          "section": "TILE100",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3226,
+          "section": "TILE100",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3345,
+          "section": "TILE104",
+          "field": "doors",
+          "old": "861682243",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3346,
+          "section": "TILE104",
+          "field": "sounds",
+          "old": "1634562916",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3825,
+          "section": "TILE120",
+          "field": "doors",
+          "old": "1885631836",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3826,
+          "section": "TILE120",
+          "field": "sounds",
+          "old": "812212017",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4125,
+          "section": "TILE130",
+          "field": "doors",
+          "old": "812212017",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4126,
+          "section": "TILE130",
+          "field": "sounds",
+          "old": "842030905",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4155,
+          "section": "TILE131",
+          "field": "doors",
+          "old": "33",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4156,
+          "section": "TILE131",
+          "field": "sounds",
+          "old": "861682243",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4576,
+          "section": "TILE145",
+          "field": "sounds",
+          "old": "4822824",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4755,
+          "section": "TILE151",
+          "field": "doors",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4815,
+          "section": "TILE153",
+          "field": "doors",
+          "old": "942694195",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4816,
+          "section": "TILE153",
+          "field": "sounds",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4875,
+          "section": "TILE155",
+          "field": "doors",
+          "old": "1834759544",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4876,
+          "section": "TILE155",
+          "field": "sounds",
+          "old": "1701344101",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5025,
+          "section": "TILE160",
+          "field": "doors",
+          "old": "861682243",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5026,
+          "section": "TILE160",
+          "field": "sounds",
+          "old": "1634562916",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5205,
+          "section": "TILE166",
+          "field": "doors",
+          "old": "1735667257",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5206,
+          "section": "TILE166",
+          "field": "sounds",
+          "old": "97",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5676,
+          "section": "TILE181",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5677,
+          "section": "TILE181",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5826,
+          "section": "TILE186",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5827,
+          "section": "TILE186",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5856,
+          "section": "TILE187",
+          "field": "doors",
+          "old": "56",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5857,
+          "section": "TILE187",
+          "field": "sounds",
+          "old": "4822792",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5916,
+          "section": "TILE189",
+          "field": "doors",
+          "old": "88",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5917,
+          "section": "TILE189",
+          "field": "sounds",
+          "old": "4822792",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6620,
+          "section": "TILE212",
+          "field": "doors",
+          "old": "56",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6621,
+          "section": "TILE212",
+          "field": "sounds",
+          "old": "4822792",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6650,
+          "section": "TILE213",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6651,
+          "section": "TILE213",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6964,
+          "section": "TILE223",
+          "field": "doors",
+          "old": "56",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6965,
+          "section": "TILE223",
+          "field": "sounds",
+          "old": "4822792",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6994,
+          "section": "TILE224",
+          "field": "doors",
+          "old": "68",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6995,
+          "section": "TILE224",
+          "field": "sounds",
+          "old": "4822824",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7025,
+          "section": "TILE225",
+          "field": "sounds",
+          "old": "4822792",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7174,
+          "section": "TILE230",
+          "field": "doors",
+          "old": "32",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7175,
+          "section": "TILE230",
+          "field": "sounds",
+          "old": "32",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7444,
+          "section": "TILE239",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7445,
+          "section": "TILE239",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7504,
+          "section": "TILE241",
+          "field": "doors",
+          "old": "56",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7505,
+          "section": "TILE241",
+          "field": "sounds",
+          "old": "4822824",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7984,
+          "section": "TILE257",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7985,
+          "section": "TILE257",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8224,
+          "section": "TILE265",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8225,
+          "section": "TILE265",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8344,
+          "section": "TILE269",
+          "field": "doors",
+          "old": "56",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8345,
+          "section": "TILE269",
+          "field": "sounds",
+          "old": "4822792",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8508,
+          "section": "TILE274",
+          "field": "doors",
+          "old": "52",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8509,
+          "section": "TILE274",
+          "field": "sounds",
+          "old": "4822856",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8673,
+          "section": "TILE279",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8942,
+          "section": "TILE288",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8943,
+          "section": "TILE288",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9002,
+          "section": "TILE290",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9003,
+          "section": "TILE290",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9182,
+          "section": "TILE296",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9183,
+          "section": "TILE296",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9542,
+          "section": "TILE308",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9543,
+          "section": "TILE308",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9662,
+          "section": "TILE312",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9663,
+          "section": "TILE312",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9722,
+          "section": "TILE314",
+          "field": "doors",
+          "old": "68",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 9723,
+          "section": "TILE314",
+          "field": "sounds",
+          "old": "4822792",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10022,
+          "section": "TILE324",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10023,
+          "section": "TILE324",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10172,
+          "section": "TILE329",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10173,
+          "section": "TILE329",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10352,
+          "section": "TILE335",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10353,
+          "section": "TILE335",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10412,
+          "section": "TILE337",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10413,
+          "section": "TILE337",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10472,
+          "section": "TILE339",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10473,
+          "section": "TILE339",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10772,
+          "section": "TILE349",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10773,
+          "section": "TILE349",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10862,
+          "section": "TILE352",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10863,
+          "section": "TILE352",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 12352,
+          "section": "TILE397",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 12353,
+          "section": "TILE397",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 13512,
+          "section": "TILE431",
+          "field": "doors",
+          "old": "536870912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14283,
+          "section": "TILE456",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14284,
+          "section": "TILE456",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14507,
+          "section": "TILE463",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14508,
+          "section": "TILE463",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14567,
+          "section": "TILE465",
+          "field": "doors",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14664,
+          "section": "TILE468",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14665,
+          "section": "TILE468",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14731,
+          "section": "TILE470",
+          "field": "doors",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14761,
+          "section": "TILE471",
+          "field": "doors",
+          "old": "811753265",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14762,
+          "section": "TILE471",
+          "field": "sounds",
+          "old": "808673076",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14791,
+          "section": "TILE472",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14792,
+          "section": "TILE472",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14821,
+          "section": "TILE473",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 14822,
+          "section": "TILE473",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 15609,
+          "section": "TILE496",
+          "field": "doors",
+          "old": "811818801",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 15610,
+          "section": "TILE496",
+          "field": "sounds",
+          "old": "825253684",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17004,
+          "section": "TILE532",
+          "field": "doors",
+          "old": "942694197",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 17005,
+          "section": "TILE532",
+          "field": "sounds",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18010,
+          "section": "TILE559",
+          "field": "doors",
+          "old": "23",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18414,
+          "section": "TILE572",
+          "field": "doors",
+          "old": "48",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18415,
+          "section": "TILE572",
+          "field": "sounds",
+          "old": "1701603668",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18511,
+          "section": "TILE575",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18512,
+          "section": "TILE575",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 18832,
+          "section": "TILE585",
+          "field": "doors",
+          "old": "1634169902",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 19603,
+          "section": "TILE610",
+          "field": "doors",
+          "old": "15432",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 19604,
+          "section": "TILE610",
+          "field": "sounds",
+          "old": "1886611780",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 19730,
+          "section": "TILE614",
+          "field": "doors",
+          "old": "31",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 19984,
+          "section": "TILE622",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 19985,
+          "section": "TILE622",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20014,
+          "section": "TILE623",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20015,
+          "section": "TILE623",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20104,
+          "section": "TILE626",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20105,
+          "section": "TILE626",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20194,
+          "section": "TILE629",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20195,
+          "section": "TILE629",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20344,
+          "section": "TILE634",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20345,
+          "section": "TILE634",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20374,
+          "section": "TILE635",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 20375,
+          "section": "TILE635",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [
+        "udp1_z01_33",
+        "udp1_z01_34",
+        "udp1_z01_35"
+      ],
+      "promotionStatus": "candidate-known-visual-walkmesh-gaps"
+    },
+    {
+      "tileset": "udp2",
+      "friendlyName": "D20 Office Interiors UDP",
+      "source": "raw/udp2.set",
+      "output": "repaired/udp2/udp2.set",
+      "sourceSha256": "ca034e7a0ca421c7b604c7ed0f47e3c1a991b64b778e2a3f1554c1afdfe3d05d",
+      "repairedSha256": "ed01b8814346116b17d20f267d9adf7dcbed60a0ec910fa56981269798c0bd35",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 463,
+          "section": "TILE11",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 767,
+          "section": "TILE20",
+          "field": "doors",
+          "old": "1848138868",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 768,
+          "section": "TILE20",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 798,
+          "section": "TILE21",
+          "field": "sounds",
+          "old": "1886611780",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 915,
+          "section": "TILE24",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 916,
+          "section": "TILE24",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1005,
+          "section": "TILE27",
+          "field": "doors",
+          "old": "76",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1006,
+          "section": "TILE27",
+          "field": "sounds",
+          "old": "4822792",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1035,
+          "section": "TILE28",
+          "field": "doors",
+          "old": "1848138868",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1036,
+          "section": "TILE28",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1126,
+          "section": "TILE31",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1347,
+          "section": "TILE37",
+          "field": "doors",
+          "old": "1848138868",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1348,
+          "section": "TILE37",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1378,
+          "section": "TILE38",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1452,
+          "section": "TILE40",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1488,
+          "section": "TILE41",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1489,
+          "section": "TILE41",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1630,
+          "section": "TILE45",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1703,
+          "section": "TILE47",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1704,
+          "section": "TILE47",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1763,
+          "section": "TILE49",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1764,
+          "section": "TILE49",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1793,
+          "section": "TILE50",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1794,
+          "section": "TILE50",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1883,
+          "section": "TILE53",
+          "field": "doors",
+          "old": "67",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1884,
+          "section": "TILE53",
+          "field": "sounds",
+          "old": "4814228",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1914,
+          "section": "TILE54",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 1951,
+          "section": "TILE55",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2032,
+          "section": "TILE57",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2069,
+          "section": "TILE58",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2240,
+          "section": "TILE63",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2418,
+          "section": "TILE68",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2611,
+          "section": "TILE74",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2612,
+          "section": "TILE74",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2671,
+          "section": "TILE76",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2672,
+          "section": "TILE76",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2702,
+          "section": "TILE77",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2857,
+          "section": "TILE81",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2923,
+          "section": "TILE83",
+          "field": "doors",
+          "old": "1848138868",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2924,
+          "section": "TILE83",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 2954,
+          "section": "TILE84",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3162,
+          "section": "TILE90",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3206,
+          "section": "TILE91",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3279,
+          "section": "TILE93",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3280,
+          "section": "TILE93",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3309,
+          "section": "TILE94",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3310,
+          "section": "TILE94",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3369,
+          "section": "TILE96",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3370,
+          "section": "TILE96",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3399,
+          "section": "TILE97",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3400,
+          "section": "TILE97",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3429,
+          "section": "TILE98",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3430,
+          "section": "TILE98",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3459,
+          "section": "TILE99",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3460,
+          "section": "TILE99",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3527,
+          "section": "TILE101",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3681,
+          "section": "TILE105",
+          "field": "doors",
+          "old": "1848138868",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3682,
+          "section": "TILE105",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3816,
+          "section": "TILE109",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3919,
+          "section": "TILE112",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3920,
+          "section": "TILE112",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 3950,
+          "section": "TILE113",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4067,
+          "section": "TILE116",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4068,
+          "section": "TILE116",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4097,
+          "section": "TILE117",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4098,
+          "section": "TILE117",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4127,
+          "section": "TILE118",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4128,
+          "section": "TILE118",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4187,
+          "section": "TILE120",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4188,
+          "section": "TILE120",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4247,
+          "section": "TILE122",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4248,
+          "section": "TILE122",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4278,
+          "section": "TILE123",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4396,
+          "section": "TILE126",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4469,
+          "section": "TILE128",
+          "field": "doors",
+          "old": "1848138868",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4470,
+          "section": "TILE128",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4499,
+          "section": "TILE129",
+          "field": "doors",
+          "old": "1848138868",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4500,
+          "section": "TILE129",
+          "field": "sounds",
+          "old": "694971509",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4596,
+          "section": "TILE132",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4597,
+          "section": "TILE132",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4626,
+          "section": "TILE133",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4627,
+          "section": "TILE133",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4656,
+          "section": "TILE134",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4657,
+          "section": "TILE134",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4686,
+          "section": "TILE135",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4687,
+          "section": "TILE135",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4716,
+          "section": "TILE136",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4717,
+          "section": "TILE136",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4746,
+          "section": "TILE137",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4747,
+          "section": "TILE137",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5125,
+          "section": "TILE148",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5126,
+          "section": "TILE148",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5155,
+          "section": "TILE149",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5156,
+          "section": "TILE149",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7357,
+          "section": "TILE207",
+          "field": "doors",
+          "old": "6291456",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7358,
+          "section": "TILE207",
+          "field": "sounds",
+          "old": "12582912",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7448,
+          "section": "TILE210",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7559,
+          "section": "TILE213",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7781,
+          "section": "TILE219",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8091,
+          "section": "TILE227",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8092,
+          "section": "TILE227",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [
+        "gi_z01_07",
+        "gi_z02_07",
+        "gi_z01_06",
+        "gi_z02_06",
+        "gi_z01_08",
+        "gi_z01_09",
+        "gi_z03_01",
+        "gi_z01_01",
+        "gi_z02_01",
+        "gi_z01_02",
+        "gi_z02_02",
+        "gi_z01_03",
+        "gi_z02_03",
+        "gi_z01_04",
+        "gi_z02_04",
+        "gi_z01_05",
+        "gi_z02_05"
+      ],
+      "promotionStatus": "candidate-known-visual-walkmesh-gaps"
+    },
+    {
+      "tileset": "vmp01",
+      "friendlyName": "D20 Planetscape",
+      "source": "raw/vmp01.set",
+      "output": "repaired/vmp01/vmp01.set",
+      "sourceSha256": "63d873155b501d3086fa37bb531d3f10f0932ca6180dca5102f11a3f02095d87",
+      "repairedSha256": "4bc09257e2689ac321364948fbbfb62ec5b6e5c7a5bbdd778df42b55795ff346",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 4782,
+          "section": "TILE152",
+          "field": "sounds",
+          "old": "1954180444",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 4950,
+          "section": "TILE158",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5006,
+          "section": "TILE160",
+          "field": "sounds",
+          "old": "24935",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 5034,
+          "section": "TILE161",
+          "field": "sounds",
+          "old": "24935",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6032,
+          "section": "TILE195",
+          "field": "sounds",
+          "old": "1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 6983,
+          "section": "TILE228",
+          "field": "sounds",
+          "old": "1701863779",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7095,
+          "section": "TILE232",
+          "field": "sounds",
+          "old": "1701863779",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 7179,
+          "section": "TILE235",
+          "field": "sounds",
+          "old": "1394626135",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 10070,
+          "section": "TILE337",
+          "field": "sounds",
+          "old": "4784225",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11092,
+          "section": "TILE372",
+          "field": "doors",
+          "old": "16",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11093,
+          "section": "TILE372",
+          "field": "sounds",
+          "old": "812676717",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11148,
+          "section": "TILE374",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11149,
+          "section": "TILE374",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11204,
+          "section": "TILE376",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11205,
+          "section": "TILE376",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11264,
+          "section": "TILE378",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11265,
+          "section": "TILE378",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11294,
+          "section": "TILE379",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11295,
+          "section": "TILE379",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11416,
+          "section": "TILE383",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11417,
+          "section": "TILE383",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11594,
+          "section": "TILE389",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11595,
+          "section": "TILE389",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11622,
+          "section": "TILE390",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 11623,
+          "section": "TILE390",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [],
+      "promotionStatus": "candidate-ready-targeted-validation"
+    },
+    {
+      "tileset": "vmr01",
+      "friendlyName": "D20 Alien Ruins",
+      "source": "raw/vmr01.set",
+      "output": "repaired/vmr01/vmr01.set",
+      "sourceSha256": "81dfda03e5aad2a9e60e5f68a62d232029a251a081f2ff871e5f9025c682d9b9",
+      "repairedSha256": "b303efc0525ec9d5382f4d75dd5c2011e5f772a4e49397e1cba59344ddc952fd",
+      "changes": [
+        {
+          "kind": "door-row-remap",
+          "line": 2055,
+          "section": "TILE58DOOR0",
+          "field": "type",
+          "old": "243",
+          "new": "262"
+        },
+        {
+          "kind": "section-count",
+          "line": 8519,
+          "section": "TILE260",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8520,
+          "section": "TILE260",
+          "field": "sounds",
+          "old": "1951620197",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8547,
+          "section": "TILE261",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8548,
+          "section": "TILE261",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8603,
+          "section": "TILE263",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8604,
+          "section": "TILE263",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8659,
+          "section": "TILE265",
+          "field": "doors",
+          "old": "1818850399",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8660,
+          "section": "TILE265",
+          "field": "sounds",
+          "old": "1951620197",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8687,
+          "section": "TILE266",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8688,
+          "section": "TILE266",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8715,
+          "section": "TILE267",
+          "field": "doors",
+          "old": "-1",
+          "new": "0"
+        },
+        {
+          "kind": "section-count",
+          "line": 8716,
+          "section": "TILE267",
+          "field": "sounds",
+          "old": "-1",
+          "new": "0"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [
+        "vmr01_z01_01",
+        "vmr01_z02_01",
+        "vmr01_z03_01",
+        "vmr01_z04_01",
+        "vmr01_z05_01",
+        "vmr01_z06_01",
+        "vmr01_z07_01",
+        "vmr01_z09_01",
+        "vmr01_z08_01",
+        "vmr01_z10_01",
+        "vmr01_z31_01",
+        "vmr01_z32_01",
+        "vmr01_z35_01",
+        "vmr01_z37_01",
+        "vmr01_z34_01"
+      ],
+      "promotionStatus": "candidate-known-visual-walkmesh-gaps"
+    },
+    {
+      "tileset": "zsf01",
+      "friendlyName": "D20 SciFi Base CQ",
+      "source": "raw/zsf01.set",
+      "output": "repaired/zsf01/zsf01.set",
+      "sourceSha256": "1d86f723cf74c0d1a5474d9c34e4c79e056a80845a84b4fd2d5acfa43700aa40",
+      "repairedSha256": "43a97bda66410f9599c25bdbc177607779667472407a05aeecbbd938e60aed94",
+      "changes": [
+        {
+          "kind": "section-count",
+          "line": 277,
+          "section": "TILE7",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 312,
+          "section": "TILE8",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 347,
+          "section": "TILE9",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 382,
+          "section": "TILE10",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 424,
+          "section": "TILE11",
+          "field": "doors",
+          "old": "0",
+          "new": "3"
+        },
+        {
+          "kind": "section-count",
+          "line": 473,
+          "section": "TILE12",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 515,
+          "section": "TILE13",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 557,
+          "section": "TILE14",
+          "field": "doors",
+          "old": "0",
+          "new": "3"
+        },
+        {
+          "kind": "section-count",
+          "line": 606,
+          "section": "TILE15",
+          "field": "doors",
+          "old": "0",
+          "new": "4"
+        },
+        {
+          "kind": "section-count",
+          "line": 662,
+          "section": "TILE16",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 697,
+          "section": "TILE17",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 732,
+          "section": "TILE18",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 774,
+          "section": "TILE19",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 816,
+          "section": "TILE20",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 851,
+          "section": "TILE21",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 886,
+          "section": "TILE22",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 921,
+          "section": "TILE23",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 963,
+          "section": "TILE24",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 1005,
+          "section": "TILE25",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1320,
+          "section": "TILE36",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1355,
+          "section": "TILE37",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1390,
+          "section": "TILE38",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1425,
+          "section": "TILE39",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1460,
+          "section": "TILE40",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 1502,
+          "section": "TILE41",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1537,
+          "section": "TILE42",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1880,
+          "section": "TILE54",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1915,
+          "section": "TILE55",
+          "field": "doors",
+          "old": "0",
+          "new": "2"
+        },
+        {
+          "kind": "section-count",
+          "line": 1957,
+          "section": "TILE56",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        },
+        {
+          "kind": "section-count",
+          "line": 1992,
+          "section": "TILE57",
+          "field": "doors",
+          "old": "0",
+          "new": "1"
+        }
+      ],
+      "structurallyClean": true,
+      "unresolvedModels": [
+        "zsf01_z07_01",
+        "zsf01_z06_01",
+        "zsf01_z03_01",
+        "zsf01_z04_01",
+        "zsf01_z02_01",
+        "zsf01_z08_01",
+        "zsf01_z09_01"
+      ],
+      "promotionStatus": "candidate-known-visual-walkmesh-gaps"
+    }
+  ],
+  "edgeExperiments": [
+    {
+      "tileset": "udp2",
+      "friendlyName": "D20 Office Interiors UDP",
+      "resource": "udp2_edge.2da",
+      "output": "experiments/udp2/udp2_edge.2da",
+      "sourceSha256": "3cae631c9e55021ce497f772c6bf1e8f654c0373c6a99ac0bee0e3423807d647",
+      "experimentSha256": "3d89f170e768128db78f7d5db7264cb39c12e9cc92fe5468771b255b3f27b3e2",
+      "changes": [
+        {
+          "line": 11,
+          "source": "gi_z01_01",
+          "target": "udp2_z01_01"
+        },
+        {
+          "line": 24,
+          "source": "gi_z01_01",
+          "target": "udp2_z01_01"
+        },
+        {
+          "line": 13,
+          "source": "gi_z01_02",
+          "target": "udp2_z01_02"
+        },
+        {
+          "line": 25,
+          "source": "gi_z01_02",
+          "target": "udp2_z01_02"
+        },
+        {
+          "line": 15,
+          "source": "gi_z01_03",
+          "target": "udp2_z01_03"
+        },
+        {
+          "line": 26,
+          "source": "gi_z01_03",
+          "target": "udp2_z01_03"
+        },
+        {
+          "line": 17,
+          "source": "gi_z01_04",
+          "target": "udp2_z01_04"
+        },
+        {
+          "line": 27,
+          "source": "gi_z01_04",
+          "target": "udp2_z01_04"
+        },
+        {
+          "line": 19,
+          "source": "gi_z01_05",
+          "target": "udp2_z01_05"
+        },
+        {
+          "line": 28,
+          "source": "gi_z01_05",
+          "target": "udp2_z01_05"
+        },
+        {
+          "line": 6,
+          "source": "gi_z01_06",
+          "target": "udp2_z01_06"
+        },
+        {
+          "line": 22,
+          "source": "gi_z01_06",
+          "target": "udp2_z01_06"
+        },
+        {
+          "line": 4,
+          "source": "gi_z01_07",
+          "target": "udp2_z01_07"
+        },
+        {
+          "line": 21,
+          "source": "gi_z01_07",
+          "target": "udp2_z01_07"
+        },
+        {
+          "line": 8,
+          "source": "gi_z01_08",
+          "target": "udp2_z01_08"
+        },
+        {
+          "line": 9,
+          "source": "gi_z01_09",
+          "target": "udp2_z01_09"
+        },
+        {
+          "line": 12,
+          "source": "gi_z02_01",
+          "target": "udp2_z02_01"
+        },
+        {
+          "line": 14,
+          "source": "gi_z02_02",
+          "target": "udp2_z02_02"
+        },
+        {
+          "line": 16,
+          "source": "gi_z02_03",
+          "target": "udp2_z02_03"
+        },
+        {
+          "line": 18,
+          "source": "gi_z02_04",
+          "target": "udp2_z02_04"
+        },
+        {
+          "line": 20,
+          "source": "gi_z02_05",
+          "target": "udp2_z02_05"
+        },
+        {
+          "line": 7,
+          "source": "gi_z02_06",
+          "target": "udp2_z02_06"
+        },
+        {
+          "line": 5,
+          "source": "gi_z02_07",
+          "target": "udp2_z02_07"
+        },
+        {
+          "line": 10,
+          "source": "gi_z03_01",
+          "target": "udp2_z03_01"
+        },
+        {
+          "line": 23,
+          "source": "gi_z03_01",
+          "target": "udp2_z03_01"
+        },
+        {
+          "line": 19,
+          "source": "Study",
+          "target": "Office_Alum"
+        },
+        {
+          "line": 20,
+          "source": "Study",
+          "target": "Office_Alum"
+        },
+        {
+          "line": 28,
+          "source": "Study",
+          "target": "Office_Alum"
+        }
+      ],
+      "activation": "optional-targeted-visual-walkmesh-comparison"
+    }
+  ]
+}

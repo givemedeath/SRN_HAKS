@@ -1,0 +1,1137 @@
+{
+  "schemaVersion": 1,
+  "profile": "mdrnee_placeable",
+  "profileSha256": "A59DD0837FA5B75DD39D098637BFCE5E5CEAD65A7DCA086C5156A2D35A43BBCC",
+  "sourceSha256": "E90B4F15EE15D8009D843C8B2EB70C77BD835FF0ED77F1534BB5EC4963B8A159",
+  "generatedAtUtc": "2026-09-11T21:17:43.5870896Z",
+  "remaps": [
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33593_furniture",
+      "sourceGameStrRef": 16810809,
+      "targetGameStrRef": 16777250,
+      "occurrences": 1,
+      "text": "Furniture*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33586_books_and_manuscripts",
+      "sourceGameStrRef": 16810802,
+      "targetGameStrRef": 16777335,
+      "occurrences": 1,
+      "text": "Books & Manuscripts*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33581_bedroom",
+      "sourceGameStrRef": 16810797,
+      "targetGameStrRef": 16777330,
+      "occurrences": 1,
+      "text": "Bedroom*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33585_fireplaces",
+      "sourceGameStrRef": 16810801,
+      "targetGameStrRef": 16777334,
+      "occurrences": 1,
+      "text": "Fireplaces*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33516_campsite",
+      "sourceGameStrRef": 16810732,
+      "targetGameStrRef": 16777275,
+      "occurrences": 1,
+      "text": "Campsite*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33500_other",
+      "sourceGameStrRef": 16810716,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33496_siege_equipment",
+      "sourceGameStrRef": 16810712,
+      "targetGameStrRef": 16777255,
+      "occurrences": 1,
+      "text": "Siege Equipment*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33584_flowers_plants",
+      "sourceGameStrRef": 16810800,
+      "targetGameStrRef": 16777333,
+      "occurrences": 1,
+      "text": "Flowers, Plants*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33530_construction",
+      "sourceGameStrRef": 16810746,
+      "targetGameStrRef": 16777288,
+      "occurrences": 1,
+      "text": "Construction*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33570_torture_execution",
+      "sourceGameStrRef": 16810786,
+      "targetGameStrRef": 16777321,
+      "occurrences": 1,
+      "text": "Torture, Execution*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s45_weapons_and_ammunition",
+      "sourceGameStrRef": 16777261,
+      "targetGameStrRef": 16777227,
+      "occurrences": 4,
+      "text": "Weapons & Ammunition*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33547_towers_and_castles",
+      "sourceGameStrRef": 16810763,
+      "targetGameStrRef": 16777301,
+      "occurrences": 1,
+      "text": "Towers & Castles*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33563_other",
+      "sourceGameStrRef": 16810779,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1001_modern_interior",
+      "sourceGameStrRef": 16778217,
+      "targetGameStrRef": 16777237,
+      "occurrences": 1,
+      "text": "Modern Interior*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33507_trees_spring",
+      "sourceGameStrRef": 16810723,
+      "targetGameStrRef": 16777266,
+      "occurrences": 1,
+      "text": "Trees: Spring*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1004_controls",
+      "sourceGameStrRef": 16778220,
+      "targetGameStrRef": 16777240,
+      "occurrences": 2,
+      "text": "Controls*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33514_paths",
+      "sourceGameStrRef": 16810730,
+      "targetGameStrRef": 16777273,
+      "occurrences": 1,
+      "text": "Paths*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33558_roads",
+      "sourceGameStrRef": 16810774,
+      "targetGameStrRef": 16777312,
+      "occurrences": 1,
+      "text": "Roads*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33498_broken_equipment",
+      "sourceGameStrRef": 16810714,
+      "targetGameStrRef": 16777257,
+      "occurrences": 1,
+      "text": "Broken Equipment*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33556_doors",
+      "sourceGameStrRef": 16810772,
+      "targetGameStrRef": 16777310,
+      "occurrences": 1,
+      "text": "Doors*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33602_wall_hangings",
+      "sourceGameStrRef": 16810818,
+      "targetGameStrRef": 16777243,
+      "occurrences": 1,
+      "text": "Wall Hangings*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33537_statues_and_stones",
+      "sourceGameStrRef": 16810753,
+      "targetGameStrRef": 16777293,
+      "occurrences": 1,
+      "text": "Statues & Stones*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33594_bar",
+      "sourceGameStrRef": 16810810,
+      "targetGameStrRef": 16777341,
+      "occurrences": 1,
+      "text": "Bar*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33521_other",
+      "sourceGameStrRef": 16810737,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33591_other",
+      "sourceGameStrRef": 16810807,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33509_trees_fall",
+      "sourceGameStrRef": 16810725,
+      "targetGameStrRef": 16777268,
+      "occurrences": 1,
+      "text": "Trees: Fall*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33531_logging_and_woodworking",
+      "sourceGameStrRef": 16810747,
+      "targetGameStrRef": 16777289,
+      "occurrences": 1,
+      "text": "Logging & Woodworking*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33541_stones_misc",
+      "sourceGameStrRef": 16810757,
+      "targetGameStrRef": 16777297,
+      "occurrences": 1,
+      "text": "Stones, Misc*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33506_trees",
+      "sourceGameStrRef": 16810722,
+      "targetGameStrRef": 16777265,
+      "occurrences": 1,
+      "text": "Trees*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33607_tapestries",
+      "sourceGameStrRef": 16810823,
+      "targetGameStrRef": 16777351,
+      "occurrences": 1,
+      "text": "Tapestries*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33518_skulls_and_bones_and_debris",
+      "sourceGameStrRef": 16810734,
+      "targetGameStrRef": 16777277,
+      "occurrences": 1,
+      "text": "Skulls & Bones & Debris*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33579_civilization_interior",
+      "sourceGameStrRef": 16810795,
+      "targetGameStrRef": 16777328,
+      "occurrences": 1,
+      "text": "Civilization Interior*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33504_ground_cover",
+      "sourceGameStrRef": 16810720,
+      "targetGameStrRef": 16777263,
+      "occurrences": 1,
+      "text": "Ground Cover*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33576_traps",
+      "sourceGameStrRef": 16810792,
+      "targetGameStrRef": 16777326,
+      "occurrences": 1,
+      "text": "Traps*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33510_trees_winter_and_dead",
+      "sourceGameStrRef": 16810726,
+      "targetGameStrRef": 16777269,
+      "occurrences": 1,
+      "text": "Trees: Winter & Dead*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33557_rail",
+      "sourceGameStrRef": 16810773,
+      "targetGameStrRef": 16777311,
+      "occurrences": 1,
+      "text": "Rail*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33552_archways",
+      "sourceGameStrRef": 16810768,
+      "targetGameStrRef": 16777306,
+      "occurrences": 1,
+      "text": "Archways*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33572_doorway_grate_portal",
+      "sourceGameStrRef": 16810788,
+      "targetGameStrRef": 16777323,
+      "occurrences": 1,
+      "text": "Doorway, Grate, Portal*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33497_fortifications",
+      "sourceGameStrRef": 16810713,
+      "targetGameStrRef": 16777256,
+      "occurrences": 1,
+      "text": "Fortifications*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33580_bathroom",
+      "sourceGameStrRef": 16810796,
+      "targetGameStrRef": 16777329,
+      "occurrences": 1,
+      "text": "Bathroom*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33605_paintings_round",
+      "sourceGameStrRef": 16810821,
+      "targetGameStrRef": 16777349,
+      "occurrences": 1,
+      "text": "Paintings Round*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33528_farms_and_gardens",
+      "sourceGameStrRef": 16810744,
+      "targetGameStrRef": 16777286,
+      "occurrences": 1,
+      "text": "Farms & Gardens*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33519_smoke_and_fog",
+      "sourceGameStrRef": 16810735,
+      "targetGameStrRef": 16777278,
+      "occurrences": 1,
+      "text": "Smoke & Fog*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33527_other_signs",
+      "sourceGameStrRef": 16810743,
+      "targetGameStrRef": 16777285,
+      "occurrences": 1,
+      "text": "Other Signs*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33571_altars",
+      "sourceGameStrRef": 16810787,
+      "targetGameStrRef": 16777322,
+      "occurrences": 1,
+      "text": "Altars*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33600_throne",
+      "sourceGameStrRef": 16810816,
+      "targetGameStrRef": 16777347,
+      "occurrences": 1,
+      "text": "Throne*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33589_floor_coverings",
+      "sourceGameStrRef": 16810805,
+      "targetGameStrRef": 16777338,
+      "occurrences": 1,
+      "text": "Floor Coverings*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s996_streets",
+      "sourceGameStrRef": 16778212,
+      "targetGameStrRef": 16777233,
+      "occurrences": 2,
+      "text": "Streets*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33542_columns_pillars_etc",
+      "sourceGameStrRef": 16810758,
+      "targetGameStrRef": 16777298,
+      "occurrences": 1,
+      "text": "Columns, Pillars, etc.*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s993_buildings",
+      "sourceGameStrRef": 16778209,
+      "targetGameStrRef": 16777230,
+      "occurrences": 2,
+      "text": "Buildings*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33523_standards_and_banners",
+      "sourceGameStrRef": 16810739,
+      "targetGameStrRef": 16777281,
+      "occurrences": 1,
+      "text": "Standards & Banners*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1057_futuristic_exterior",
+      "sourceGameStrRef": 16778273,
+      "targetGameStrRef": 16777252,
+      "occurrences": 1,
+      "text": "Futuristic Exterior*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1005_equipment",
+      "sourceGameStrRef": 16778221,
+      "targetGameStrRef": 16777241,
+      "occurrences": 2,
+      "text": "Equipment*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1009_modern_space",
+      "sourceGameStrRef": 16778225,
+      "targetGameStrRef": 16777244,
+      "occurrences": 1,
+      "text": "Modern Space*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1011_ships",
+      "sourceGameStrRef": 16778227,
+      "targetGameStrRef": 16777246,
+      "occurrences": 1,
+      "text": "Ships*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1046_furniture",
+      "sourceGameStrRef": 16778262,
+      "targetGameStrRef": 16777250,
+      "occurrences": 2,
+      "text": "Furniture*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33539_statues_partial",
+      "sourceGameStrRef": 16810755,
+      "targetGameStrRef": 16777295,
+      "occurrences": 1,
+      "text": "Statues Partial*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33595_desks_and_cabinets",
+      "sourceGameStrRef": 16810811,
+      "targetGameStrRef": 16777342,
+      "occurrences": 1,
+      "text": "Desks & Cabinets*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1007_wall_hangings",
+      "sourceGameStrRef": 16778223,
+      "targetGameStrRef": 16777243,
+      "occurrences": 2,
+      "text": "Wall Hangings*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1008_misc",
+      "sourceGameStrRef": 16778224,
+      "targetGameStrRef": 16777236,
+      "occurrences": 2,
+      "text": "Misc.*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33524_wayposts_and_road_signs",
+      "sourceGameStrRef": 16810740,
+      "targetGameStrRef": 16777282,
+      "occurrences": 1,
+      "text": "Wayposts & Road Signs*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33588_table_toppers",
+      "sourceGameStrRef": 16810804,
+      "targetGameStrRef": 16777337,
+      "occurrences": 1,
+      "text": "Table Toppers*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33517_water_snow_and_lava",
+      "sourceGameStrRef": 16810733,
+      "targetGameStrRef": 16777276,
+      "occurrences": 1,
+      "text": "Water, Snow & Lava*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33568_dungeon",
+      "sourceGameStrRef": 16810784,
+      "targetGameStrRef": 16777319,
+      "occurrences": 1,
+      "text": "Dungeon*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s994_signs",
+      "sourceGameStrRef": 16778210,
+      "targetGameStrRef": 16777231,
+      "occurrences": 2,
+      "text": "Signs*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33536_other",
+      "sourceGameStrRef": 16810752,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33533_music",
+      "sourceGameStrRef": 16810749,
+      "targetGameStrRef": 16777291,
+      "occurrences": 1,
+      "text": "Music*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33565_shipwrecks",
+      "sourceGameStrRef": 16810781,
+      "targetGameStrRef": 16777316,
+      "occurrences": 1,
+      "text": "Shipwrecks*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33512_other_plants",
+      "sourceGameStrRef": 16810728,
+      "targetGameStrRef": 16777271,
+      "occurrences": 1,
+      "text": "Other Plants*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1006_floors",
+      "sourceGameStrRef": 16778222,
+      "targetGameStrRef": 16777242,
+      "occurrences": 2,
+      "text": "Floors*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33526_standing_signs",
+      "sourceGameStrRef": 16810742,
+      "targetGameStrRef": 16777284,
+      "occurrences": 1,
+      "text": "Standing Signs*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s313_nature_parks_and_gardens",
+      "sourceGameStrRef": 16777529,
+      "targetGameStrRef": 16777228,
+      "occurrences": 2,
+      "text": "Nature, Parks & Gardens"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33522_skies",
+      "sourceGameStrRef": 16810738,
+      "targetGameStrRef": 16777280,
+      "occurrences": 1,
+      "text": "Skies*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33549_ruins_and_destroyed_buildings",
+      "sourceGameStrRef": 16810765,
+      "targetGameStrRef": 16777303,
+      "occurrences": 1,
+      "text": "Ruins & Destroyed Buildings*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33569_graffiti_and_splats",
+      "sourceGameStrRef": 16810785,
+      "targetGameStrRef": 16777320,
+      "occurrences": 1,
+      "text": "Graffiti & Splats*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33513_tents",
+      "sourceGameStrRef": 16810729,
+      "targetGameStrRef": 16777272,
+      "occurrences": 1,
+      "text": "Tents*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33554_fences_and_walls",
+      "sourceGameStrRef": 16810770,
+      "targetGameStrRef": 16777308,
+      "occurrences": 1,
+      "text": "Fences & Walls*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33603_other",
+      "sourceGameStrRef": 16810819,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33505_ivy",
+      "sourceGameStrRef": 16810721,
+      "targetGameStrRef": 16777264,
+      "occurrences": 1,
+      "text": "Ivy*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33553_fountains",
+      "sourceGameStrRef": 16810769,
+      "targetGameStrRef": 16777307,
+      "occurrences": 1,
+      "text": "Fountains*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33560_transportation",
+      "sourceGameStrRef": 16810776,
+      "targetGameStrRef": 16777313,
+      "occurrences": 1,
+      "text": "Transportation*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33587_furnishing_misc",
+      "sourceGameStrRef": 16810803,
+      "targetGameStrRef": 16777336,
+      "occurrences": 1,
+      "text": "Furnishing, Misc*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33545_buildings",
+      "sourceGameStrRef": 16810761,
+      "targetGameStrRef": 16777230,
+      "occurrences": 1,
+      "text": "Buildings*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33566_wagons_and_carts",
+      "sourceGameStrRef": 16810782,
+      "targetGameStrRef": 16777317,
+      "occurrences": 1,
+      "text": "Wagons & Carts*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33534_other",
+      "sourceGameStrRef": 16810750,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33601_lighting",
+      "sourceGameStrRef": 16810817,
+      "targetGameStrRef": 16777318,
+      "occurrences": 3,
+      "text": "Lighting*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33583_food",
+      "sourceGameStrRef": 16810799,
+      "targetGameStrRef": 16777332,
+      "occurrences": 1,
+      "text": "Food*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33538_statues",
+      "sourceGameStrRef": 16810754,
+      "targetGameStrRef": 16777294,
+      "occurrences": 1,
+      "text": "Statues*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1010_astronomical_bodies",
+      "sourceGameStrRef": 16778226,
+      "targetGameStrRef": 16777245,
+      "occurrences": 1,
+      "text": "Astronomical Bodies*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33520_dens_caves_and_lairs",
+      "sourceGameStrRef": 16810736,
+      "targetGameStrRef": 16777279,
+      "occurrences": 1,
+      "text": "Dens, Caves & Lairs*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33502_bushes",
+      "sourceGameStrRef": 16810718,
+      "targetGameStrRef": 16777261,
+      "occurrences": 1,
+      "text": "Bushes*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1000_misc",
+      "sourceGameStrRef": 16778216,
+      "targetGameStrRef": 16777236,
+      "occurrences": 2,
+      "text": "Misc.*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33606_paintings_square",
+      "sourceGameStrRef": 16810822,
+      "targetGameStrRef": 16777350,
+      "occurrences": 1,
+      "text": "Paintings Square*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33501_vegetation",
+      "sourceGameStrRef": 16810717,
+      "targetGameStrRef": 16777260,
+      "occurrences": 1,
+      "text": "Vegetation*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33577_lighting",
+      "sourceGameStrRef": 16810793,
+      "targetGameStrRef": 16777318,
+      "occurrences": 1,
+      "text": "Lighting*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1059_personal_items",
+      "sourceGameStrRef": 16778275,
+      "targetGameStrRef": 16777254,
+      "occurrences": 2,
+      "text": "Personal Items*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33529_blacksmithing_and_metalworking",
+      "sourceGameStrRef": 16810745,
+      "targetGameStrRef": 16777287,
+      "occurrences": 1,
+      "text": "Blacksmithing & Metalworking*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33592_rugs",
+      "sourceGameStrRef": 16810808,
+      "targetGameStrRef": 16777340,
+      "occurrences": 1,
+      "text": "Rugs*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1045_wall_fixtures_and_features",
+      "sourceGameStrRef": 16778261,
+      "targetGameStrRef": 16777249,
+      "occurrences": 4,
+      "text": "Wall Fixtures & Features*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33597_sofas_and_benches",
+      "sourceGameStrRef": 16810813,
+      "targetGameStrRef": 16777344,
+      "occurrences": 1,
+      "text": "Sofas & Benches*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33543_other",
+      "sourceGameStrRef": 16810759,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33596_bookcases_and_dressers",
+      "sourceGameStrRef": 16810812,
+      "targetGameStrRef": 16777343,
+      "occurrences": 1,
+      "text": "Bookcases & Dressers*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33567_lighting",
+      "sourceGameStrRef": 16810783,
+      "targetGameStrRef": 16777318,
+      "occurrences": 1,
+      "text": "Lighting*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s997_walls_and_fences",
+      "sourceGameStrRef": 16778213,
+      "targetGameStrRef": 16777234,
+      "occurrences": 2,
+      "text": "Walls & Fences*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33503_flowers",
+      "sourceGameStrRef": 16810719,
+      "targetGameStrRef": 16777262,
+      "occurrences": 1,
+      "text": "Flowers*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s995_vehicles",
+      "sourceGameStrRef": 16778211,
+      "targetGameStrRef": 16777232,
+      "occurrences": 2,
+      "text": "Vehicles*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33525_hanging_signs",
+      "sourceGameStrRef": 16810741,
+      "targetGameStrRef": 16777283,
+      "occurrences": 1,
+      "text": "Hanging Signs*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33499_bodies",
+      "sourceGameStrRef": 16810715,
+      "targetGameStrRef": 16777258,
+      "occurrences": 1,
+      "text": "Bodies*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33604_taxidermy",
+      "sourceGameStrRef": 16810820,
+      "targetGameStrRef": 16777348,
+      "occurrences": 1,
+      "text": "Taxidermy*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33599_table",
+      "sourceGameStrRef": 16810815,
+      "targetGameStrRef": 16777346,
+      "occurrences": 1,
+      "text": "Table*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s998_ground",
+      "sourceGameStrRef": 16778214,
+      "targetGameStrRef": 16777235,
+      "occurrences": 2,
+      "text": "Ground*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33562_dock_and_pier",
+      "sourceGameStrRef": 16810778,
+      "targetGameStrRef": 16777315,
+      "occurrences": 1,
+      "text": "Dock & Pier*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33515_tracks",
+      "sourceGameStrRef": 16810731,
+      "targetGameStrRef": 16777274,
+      "occurrences": 1,
+      "text": "Tracks*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33544_civilization_exterior",
+      "sourceGameStrRef": 16810760,
+      "targetGameStrRef": 16777299,
+      "occurrences": 1,
+      "text": "Civilization Exterior*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33590_carpets",
+      "sourceGameStrRef": 16810806,
+      "targetGameStrRef": 16777339,
+      "occurrences": 1,
+      "text": "Carpets*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1056_kitchen_and_food",
+      "sourceGameStrRef": 16778272,
+      "targetGameStrRef": 16777251,
+      "occurrences": 2,
+      "text": "Kitchen & Food*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33546_houses",
+      "sourceGameStrRef": 16810762,
+      "targetGameStrRef": 16777300,
+      "occurrences": 1,
+      "text": "Houses*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1002_ceilings",
+      "sourceGameStrRef": 16778218,
+      "targetGameStrRef": 16777238,
+      "occurrences": 2,
+      "text": "Ceilings*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33511_trees_evergreen",
+      "sourceGameStrRef": 16810727,
+      "targetGameStrRef": 16777270,
+      "occurrences": 1,
+      "text": "Trees: Evergreen*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1018_table_items",
+      "sourceGameStrRef": 16778234,
+      "targetGameStrRef": 16777248,
+      "occurrences": 2,
+      "text": "Table Items*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1012_structures",
+      "sourceGameStrRef": 16778228,
+      "targetGameStrRef": 16777247,
+      "occurrences": 3,
+      "text": "Structures*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33559_other",
+      "sourceGameStrRef": 16810775,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33551_awnings_and_windows",
+      "sourceGameStrRef": 16810767,
+      "targetGameStrRef": 16777305,
+      "occurrences": 1,
+      "text": "Awnings & Windows*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33598_chairs_and_stools",
+      "sourceGameStrRef": 16810814,
+      "targetGameStrRef": 16777345,
+      "occurrences": 1,
+      "text": "Chairs & Stools*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33548_temples_and_shrines",
+      "sourceGameStrRef": 16810764,
+      "targetGameStrRef": 16777302,
+      "occurrences": 1,
+      "text": "Temples & Shrines*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33575_debris",
+      "sourceGameStrRef": 16810791,
+      "targetGameStrRef": 16777325,
+      "occurrences": 1,
+      "text": "Debris*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33573_dungeon_dressing",
+      "sourceGameStrRef": 16810789,
+      "targetGameStrRef": 16777324,
+      "occurrences": 1,
+      "text": "Dungeon Dressing*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1003_containers",
+      "sourceGameStrRef": 16778219,
+      "targetGameStrRef": 16777239,
+      "occurrences": 2,
+      "text": "Containers*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33540_megaliths",
+      "sourceGameStrRef": 16810756,
+      "targetGameStrRef": 16777296,
+      "occurrences": 1,
+      "text": "Megaliths*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33532_academic_trades",
+      "sourceGameStrRef": 16810748,
+      "targetGameStrRef": 16777290,
+      "occurrences": 1,
+      "text": "Academic Trades*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33555_market",
+      "sourceGameStrRef": 16810771,
+      "targetGameStrRef": 16777309,
+      "occurrences": 1,
+      "text": "Market*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33508_trees_summer",
+      "sourceGameStrRef": 16810724,
+      "targetGameStrRef": 16777267,
+      "occurrences": 1,
+      "text": "Trees: Summer*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33535_magic_effects",
+      "sourceGameStrRef": 16810751,
+      "targetGameStrRef": 16777292,
+      "occurrences": 1,
+      "text": "Magic Effects*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33574_other",
+      "sourceGameStrRef": 16810790,
+      "targetGameStrRef": 16777259,
+      "occurrences": 1,
+      "text": "Other*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33550_other_buildings",
+      "sourceGameStrRef": 16810766,
+      "targetGameStrRef": 16777304,
+      "occurrences": 1,
+      "text": "Other Buildings*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33582_kitchen",
+      "sourceGameStrRef": 16810798,
+      "targetGameStrRef": 16777331,
+      "occurrences": 1,
+      "text": "Kitchen*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s1058_futuristic_interior",
+      "sourceGameStrRef": 16778274,
+      "targetGameStrRef": 16777253,
+      "occurrences": 1,
+      "text": "Futuristic Interior*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33564_ships",
+      "sourceGameStrRef": 16810780,
+      "targetGameStrRef": 16777246,
+      "occurrences": 1,
+      "text": "Ships*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33578_tombs_grave_markers",
+      "sourceGameStrRef": 16810794,
+      "targetGameStrRef": 16777327,
+      "occurrences": 1,
+      "text": "Tombs, Grave Markers*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s992_modern_exterior",
+      "sourceGameStrRef": 16778208,
+      "targetGameStrRef": 16777229,
+      "occurrences": 1,
+      "text": "Modern Exterior*"
+    },
+    {
+      "table": "placeablepal.itp",
+      "key": "mdrnee.placeable_palette.s33561_boats",
+      "sourceGameStrRef": 16810777,
+      "targetGameStrRef": 16777314,
+      "occurrences": 1,
+      "text": "Boats*"
+    }
+  ]
+}

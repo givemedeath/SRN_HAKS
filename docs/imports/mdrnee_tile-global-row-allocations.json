@@ -1,0 +1,2009 @@
+{
+  "schemaVersion": 1,
+  "profile": "mdrnee_tile",
+  "profileSha256": "EC21DD9D081202A4403BD9B4907AD69123B34AA3ACAD65A6D55073293B75C8E7",
+  "sourceSha256": "B52CFAA8823826B1262AB19836D66C0DD04797AC2DD02ED9C03FE37309C59F44",
+  "generatedAtUtc": "2026-09-11T04:04:36.8952950Z",
+  "allocations": [
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 11,
+      "targetRow": 1000,
+      "label": "Ship_Door_01",
+      "model": "shp_Door01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 12,
+      "targetRow": 1001,
+      "label": "Ship_Door_02",
+      "model": "shp_door02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 13,
+      "targetRow": 1002,
+      "label": "Ship_Door_03",
+      "model": "shp_door03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 14,
+      "targetRow": 1003,
+      "label": "Ship_Door_04",
+      "model": "shp_door04",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 15,
+      "targetRow": 1004,
+      "label": "Ship_Door_05",
+      "model": "shp_door05",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 16,
+      "targetRow": 1005,
+      "label": "Bay_Door",
+      "model": "T1doora1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 17,
+      "targetRow": 1006,
+      "label": "Sliding_Glass_Door",
+      "model": "T1doora2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 18,
+      "targetRow": 1007,
+      "label": "Elevator_Doors",
+      "model": "T1doora3",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 19,
+      "targetRow": 1008,
+      "label": "Wood_Glass_Reflect",
+      "model": "T1doora4",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 20,
+      "targetRow": 1009,
+      "label": "Manhole",
+      "model": "T1doora5",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 21,
+      "targetRow": 1010,
+      "label": "Glass_Window",
+      "model": "T_Door12",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 31,
+      "targetRow": 1011,
+      "label": "gao_PullGate",
+      "model": "GN_Door21",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 32,
+      "targetRow": 1012,
+      "label": "gao_WoodCentre",
+      "model": "GN_Door22",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 33,
+      "targetRow": 1013,
+      "label": "gao_StoneMech",
+      "model": "GN_Door23",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 34,
+      "targetRow": 1014,
+      "label": "gao_Mimosa",
+      "model": "GN_Door24",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 35,
+      "targetRow": 1015,
+      "label": "gao_FoldGrate",
+      "model": "GN_Door25",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 36,
+      "targetRow": 1016,
+      "label": "gao_DrowCrys",
+      "model": "GN_Door26",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 37,
+      "targetRow": 1017,
+      "label": "gao_Beholder",
+      "model": "GN_Door27",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 38,
+      "targetRow": 1018,
+      "label": "gao_Barrel",
+      "model": "GN_Door28",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 39,
+      "targetRow": 1019,
+      "label": "gao_Science",
+      "model": "GN_Door29",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 40,
+      "targetRow": 1020,
+      "label": "gao_Lantern",
+      "model": "GN_Door30",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 49,
+      "targetRow": 1021,
+      "label": "fci_Door_01",
+      "model": "fci_door_01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 50,
+      "targetRow": 1022,
+      "label": "fci_Door_02",
+      "model": "fci_door_02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 51,
+      "targetRow": 1023,
+      "label": "fci_Door_03",
+      "model": "fci_door_03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 52,
+      "targetRow": 1024,
+      "label": "fci_Door_04",
+      "model": "fci_door_04",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 53,
+      "targetRow": 1025,
+      "label": "gao_Science2",
+      "model": "GN_Door31",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 54,
+      "targetRow": 1026,
+      "label": "Elevator_Doors",
+      "model": "tmx_door_01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 60,
+      "targetRow": 1027,
+      "label": "udp1_resgrn1",
+      "model": "T_DOOR50",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 61,
+      "targetRow": 1028,
+      "label": "udp1_resred1",
+      "model": "T_DOOR51",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 62,
+      "targetRow": 1029,
+      "label": "udp1_resgrn2",
+      "model": "T_DOOR52",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 63,
+      "targetRow": 1030,
+      "label": "udp1_resred2",
+      "model": "T_DOOR53",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 64,
+      "targetRow": 1031,
+      "label": "udp1_screen",
+      "model": "T_Door54",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 65,
+      "targetRow": 1032,
+      "label": "udp1_store1_1",
+      "model": "T_DOOR55",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 66,
+      "targetRow": 1033,
+      "label": "udp1_store1_2",
+      "model": "T_DOOR56",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 67,
+      "targetRow": 1034,
+      "label": "udp1_store2_1",
+      "model": "T_DOOR57",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 68,
+      "targetRow": 1035,
+      "label": "udp1_store2_2",
+      "model": "T_DOOR58",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 69,
+      "targetRow": 1036,
+      "label": "udp1_sliding",
+      "model": "T_DOOR59",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 70,
+      "targetRow": 1037,
+      "label": "udp1_manhole",
+      "model": "T_DOOR60",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 71,
+      "targetRow": 1038,
+      "label": "udp1_fence",
+      "model": "T_DOOR61",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 72,
+      "targetRow": 1039,
+      "label": "udp1_resold1",
+      "model": "T_DOOR62",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 73,
+      "targetRow": 1040,
+      "label": "udp1_resold2",
+      "model": "T_DOOR63",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 74,
+      "targetRow": 1041,
+      "label": "udp1_reswht1",
+      "model": "T_DOOR64",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 75,
+      "targetRow": 1042,
+      "label": "udp1_reswht2",
+      "model": "T_DOOR65",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 76,
+      "targetRow": 1043,
+      "label": "udp1_resfr11",
+      "model": "T_DOOR66",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 77,
+      "targetRow": 1044,
+      "label": "udp1_resfr12",
+      "model": "T_DOOR67",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 78,
+      "targetRow": 1045,
+      "label": "udp1_resfr21",
+      "model": "T_DOOR68",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 79,
+      "targetRow": 1046,
+      "label": "udp1_resfr22",
+      "model": "T_DOOR69",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 80,
+      "targetRow": 1047,
+      "label": "udp1_ohfire",
+      "model": "T_DOOR70",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 81,
+      "targetRow": 1048,
+      "label": "udp1_garwh2",
+      "model": "T_DOOR71",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 82,
+      "targetRow": 1049,
+      "label": "udp1_garwh1",
+      "model": "T_DOOR72",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 83,
+      "targetRow": 1050,
+      "label": "udp1_garol2",
+      "model": "T_DOOR73",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 84,
+      "targetRow": 1051,
+      "label": "udp1_garol1",
+      "model": "T_DOOR74",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 85,
+      "targetRow": 1052,
+      "label": "udp1_gargr2",
+      "model": "T_DOOR75",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 86,
+      "targetRow": 1053,
+      "label": "udp1_gargr1",
+      "model": "T_DOOR76",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 87,
+      "targetRow": 1054,
+      "label": "udp1_garut2",
+      "model": "T_DOOR77",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 88,
+      "targetRow": 1055,
+      "label": "udp1_garut1",
+      "model": "T_DOOR78",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 89,
+      "targetRow": 1056,
+      "label": "udp1_rear1",
+      "model": "T_DOOR79",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 90,
+      "targetRow": 1057,
+      "label": "udp1_rear2",
+      "model": "T_DOOR80",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 91,
+      "targetRow": 1058,
+      "label": "udp1_rear3",
+      "model": "T_DOOR81",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 92,
+      "targetRow": 1059,
+      "label": "IntGreen",
+      "model": "T_Door82",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 93,
+      "targetRow": 1060,
+      "label": "IntGreen2",
+      "model": "T_Door83",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 94,
+      "targetRow": 1061,
+      "label": "House1",
+      "model": "T_Door84",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 95,
+      "targetRow": 1062,
+      "label": "House2",
+      "model": "T_Door85",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 96,
+      "targetRow": 1063,
+      "label": "House3",
+      "model": "T_Door86",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 97,
+      "targetRow": 1064,
+      "label": "IntBrown",
+      "model": "T_Door87",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 98,
+      "targetRow": 1065,
+      "label": "IntWhite",
+      "model": "T_Door88",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 99,
+      "targetRow": 1066,
+      "label": "IntRed",
+      "model": "T_Door89",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 100,
+      "targetRow": 1067,
+      "label": "IntOld",
+      "model": "T_Door90",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 101,
+      "targetRow": 1068,
+      "label": "Green",
+      "model": "T_Door91",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 102,
+      "targetRow": 1069,
+      "label": "GateMtlBlk",
+      "model": "T_Door92",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 103,
+      "targetRow": 1070,
+      "label": "udp1_ohfire2",
+      "model": "T_DOOR93",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 104,
+      "targetRow": 1071,
+      "label": "udp1_intoff",
+      "model": "T_DOOR94",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 105,
+      "targetRow": 1072,
+      "label": "udp1_intoff1",
+      "model": "T_DOOR95",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 106,
+      "targetRow": 1073,
+      "label": "udp1_intoff2",
+      "model": "T_DOOR96",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 107,
+      "targetRow": 1074,
+      "label": "udp1_intoff2d",
+      "model": "T_DOOR97",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 108,
+      "targetRow": 1075,
+      "label": "udp1_intoff3",
+      "model": "T_DOOR98",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 109,
+      "targetRow": 1076,
+      "label": "udp1_intoff3d",
+      "model": "T_DOOR99",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 110,
+      "targetRow": 1077,
+      "label": "udp1_intoff4",
+      "model": "T_DOOR100",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 111,
+      "targetRow": 1078,
+      "label": "udp1_intoff4d",
+      "model": "T_DOOR101",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 112,
+      "targetRow": 1079,
+      "label": "udp1_intoff5",
+      "model": "T_DOOR102",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 113,
+      "targetRow": 1080,
+      "label": "udp1_elev",
+      "model": "T_DOOR103",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 114,
+      "targetRow": 1081,
+      "label": "Rusted-NWN",
+      "model": "T_Door104",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 115,
+      "targetRow": 1082,
+      "label": "ctp_curtain01",
+      "model": "ctp_curtain_01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 116,
+      "targetRow": 1083,
+      "label": "ctp_curtain02",
+      "model": "ctp_curtain_02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 117,
+      "targetRow": 1084,
+      "label": "ctp_curtain03",
+      "model": "ctp_curtain_03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 118,
+      "targetRow": 1085,
+      "label": "ctp_curtain04",
+      "model": "ctp_curtain_04",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 119,
+      "targetRow": 1086,
+      "label": "ctp_curtain05",
+      "model": "ctp_curtain_05",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 120,
+      "targetRow": 1087,
+      "label": "ctp_curtain06",
+      "model": "ctp_curtain_06",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 121,
+      "targetRow": 1088,
+      "label": "intoff_wide",
+      "model": "tfb_udoor_01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 122,
+      "targetRow": 1089,
+      "label": "intoff_wide",
+      "model": "tfb_udoor_02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 123,
+      "targetRow": 1090,
+      "label": "fence",
+      "model": "tfb_udoor_03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 124,
+      "targetRow": 1091,
+      "label": "alien_door1",
+      "model": "vmr_gdoor01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 125,
+      "targetRow": 1092,
+      "label": "alien_door2",
+      "model": "vmr_gdoor02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "genericdoors.2da",
+      "sourceRow": 126,
+      "targetRow": 1093,
+      "label": "alien_door3",
+      "model": "vmr_gdoor03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 7,
+      "targetRow": 7,
+      "label": "Wildspace",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 8,
+      "targetRow": 8,
+      "label": "Red_Clouds",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 9,
+      "targetRow": 9,
+      "label": "Moon_Scape",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 10,
+      "targetRow": 10,
+      "label": "Volcanic_Planet",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 11,
+      "targetRow": 11,
+      "label": "Mountain_Peaks",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 12,
+      "targetRow": 12,
+      "label": "Desert_Spire",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 13,
+      "targetRow": 13,
+      "label": "City_Skyline",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 14,
+      "targetRow": 14,
+      "label": "DeepSpace",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "skyboxes.2da",
+      "sourceRow": 15,
+      "targetRow": 15,
+      "label": "Asteroid_Belt",
+      "model": null,
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 190,
+      "targetRow": 190,
+      "label": "****",
+      "resource": "mus_Caves",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 191,
+      "targetRow": 191,
+      "label": "****",
+      "resource": "mus_bat_Contact",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 192,
+      "targetRow": 192,
+      "label": "****",
+      "resource": "mus_HonorBound",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 193,
+      "targetRow": 193,
+      "label": "****",
+      "resource": "mus_moondepths",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 194,
+      "targetRow": 194,
+      "label": "****",
+      "resource": "mus_ponr",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 201,
+      "targetRow": 201,
+      "label": "****",
+      "resource": "mus_bat_d20_1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 202,
+      "targetRow": 202,
+      "label": "****",
+      "resource": "mus_bat_d20_2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 203,
+      "targetRow": 203,
+      "label": "****",
+      "resource": "mus_bat_d20_3",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 204,
+      "targetRow": 204,
+      "label": "****",
+      "resource": "mus_bat_d20_4",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 205,
+      "targetRow": 205,
+      "label": "****",
+      "resource": "mus_bat_d20_5",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 206,
+      "targetRow": 206,
+      "label": "****",
+      "resource": "mus_bat_f_rave",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 207,
+      "targetRow": 207,
+      "label": "****",
+      "resource": "mus_bat_f_st_3",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 208,
+      "targetRow": 208,
+      "label": "****",
+      "resource": "mus_bat_f_tech1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 209,
+      "targetRow": 209,
+      "label": "****",
+      "resource": "mus_bat_f_tech2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 210,
+      "targetRow": 210,
+      "label": "****",
+      "resource": "mus_bat_f_tense",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 211,
+      "targetRow": 211,
+      "label": "****",
+      "resource": "mus_bat_fot_grov",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 212,
+      "targetRow": 212,
+      "label": "****",
+      "resource": "mus_d20_drums01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 213,
+      "targetRow": 213,
+      "label": "****",
+      "resource": "mus_d20_drums02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 214,
+      "targetRow": 214,
+      "label": "****",
+      "resource": "mus_d20_drums03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 215,
+      "targetRow": 215,
+      "label": "****",
+      "resource": "mus_d20_drums04",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 216,
+      "targetRow": 216,
+      "label": "****",
+      "resource": "mus_d20_hvykey01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 217,
+      "targetRow": 217,
+      "label": "****",
+      "resource": "mus_d20_hvykey02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 218,
+      "targetRow": 218,
+      "label": "****",
+      "resource": "mus_d20_hvykey03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 219,
+      "targetRow": 219,
+      "label": "****",
+      "resource": "mus_d20_indust01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 220,
+      "targetRow": 220,
+      "label": "****",
+      "resource": "mus_d20_indust02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 221,
+      "targetRow": 221,
+      "label": "****",
+      "resource": "mus_d20_indust03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 222,
+      "targetRow": 222,
+      "label": "****",
+      "resource": "mus_d20_piano01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 223,
+      "targetRow": 223,
+      "label": "****",
+      "resource": "mus_d20_sofkey01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 224,
+      "targetRow": 224,
+      "label": "****",
+      "resource": "mus_d20_sofkey02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 225,
+      "targetRow": 225,
+      "label": "****",
+      "resource": "mus_d20_sofkey03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 226,
+      "targetRow": 226,
+      "label": "****",
+      "resource": "mus_d20_sofkey04",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 227,
+      "targetRow": 227,
+      "label": "****",
+      "resource": "mus_d20_sofkey05",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 228,
+      "targetRow": 228,
+      "label": "****",
+      "resource": "mus_fot_moanlady",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 229,
+      "targetRow": 229,
+      "label": "****",
+      "resource": "mus_fot_mystry01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 230,
+      "targetRow": 230,
+      "label": "****",
+      "resource": "mus_fot_mystry02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 231,
+      "targetRow": 231,
+      "label": "****",
+      "resource": "mus_fot_olcity01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 232,
+      "targetRow": 232,
+      "label": "****",
+      "resource": "mus_fot_olcity02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 233,
+      "targetRow": 233,
+      "label": "****",
+      "resource": "mus_fot_olcity03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 234,
+      "targetRow": 234,
+      "label": "****",
+      "resource": "mus_fot_olcity04",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 235,
+      "targetRow": 235,
+      "label": "****",
+      "resource": "mus_fot_olcity05",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 236,
+      "targetRow": 236,
+      "label": "****",
+      "resource": "mus_fot_olcity06",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 237,
+      "targetRow": 237,
+      "label": "****",
+      "resource": "mus_fot_sht_bnyd",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 238,
+      "targetRow": 238,
+      "label": "****",
+      "resource": "mus_fot_sht_cave",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 239,
+      "targetRow": 239,
+      "label": "****",
+      "resource": "mus_fot_sht_dung",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 240,
+      "targetRow": 240,
+      "label": "****",
+      "resource": "mus_fot_sht_milt",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 241,
+      "targetRow": 241,
+      "label": "****",
+      "resource": "mus_fot_sht_susp",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 242,
+      "targetRow": 242,
+      "label": "****",
+      "resource": "mus_fot_susp01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 243,
+      "targetRow": 243,
+      "label": "****",
+      "resource": "mus_fot_susp02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 244,
+      "targetRow": 244,
+      "label": "****",
+      "resource": "mus_fot_susp03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 245,
+      "targetRow": 245,
+      "label": "****",
+      "resource": "mus_fot_travel01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 246,
+      "targetRow": 246,
+      "label": "****",
+      "resource": "mus_fot_travel02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 247,
+      "targetRow": 247,
+      "label": "****",
+      "resource": "mus_fot_tribal01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 248,
+      "targetRow": 248,
+      "label": "****",
+      "resource": "mus_fot_tribal02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 249,
+      "targetRow": 249,
+      "label": "****",
+      "resource": "mus_fot_ugbase01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 250,
+      "targetRow": 250,
+      "label": "****",
+      "resource": "mus_fot_ugbase02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 251,
+      "targetRow": 251,
+      "label": "****",
+      "resource": "mus_fot_wastes01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 252,
+      "targetRow": 252,
+      "label": "****",
+      "resource": "mus_fot_wastes02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 253,
+      "targetRow": 253,
+      "label": "****",
+      "resource": "mus_fot_wastes03",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 254,
+      "targetRow": 254,
+      "label": "****",
+      "resource": "mus_fot_wastes04",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 255,
+      "targetRow": 255,
+      "label": "****",
+      "resource": "mus_fot_wastes05",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 256,
+      "targetRow": 256,
+      "label": "****",
+      "resource": "mus_fot_wastes06",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 257,
+      "targetRow": 257,
+      "label": "****",
+      "resource": "mus_f_fiddle",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 258,
+      "targetRow": 258,
+      "label": "****",
+      "resource": "mus_f_ser_fables",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 259,
+      "targetRow": 259,
+      "label": "****",
+      "resource": "mus_f_ser_muroc",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 260,
+      "targetRow": 260,
+      "label": "****",
+      "resource": "mus_f_ser_river",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 261,
+      "targetRow": 261,
+      "label": "****",
+      "resource": "mus_f_st_doom",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 262,
+      "targetRow": 262,
+      "label": "****",
+      "resource": "mus_f_st_sad",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 263,
+      "targetRow": 263,
+      "label": "****",
+      "resource": "mus_f_st_susp_01",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 264,
+      "targetRow": 264,
+      "label": "****",
+      "resource": "mus_f_st_susp_02",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 265,
+      "targetRow": 265,
+      "label": "****",
+      "resource": "mus_f_susp_trap",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 266,
+      "targetRow": 266,
+      "label": "****",
+      "resource": "mus_bat_f_st_1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 267,
+      "targetRow": 267,
+      "label": "****",
+      "resource": "mus_bat_f_st_2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 268,
+      "targetRow": 268,
+      "label": "****",
+      "resource": "mus_f_sw_trash",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 269,
+      "targetRow": 269,
+      "label": "****",
+      "resource": "mus_bat_dob_keuf",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 270,
+      "targetRow": 270,
+      "label": "****",
+      "resource": "mus_bat_dobcrusa",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 271,
+      "targetRow": 271,
+      "label": "****",
+      "resource": "mus_bat_mongoose",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 272,
+      "targetRow": 272,
+      "label": "****",
+      "resource": "mus_ctrlfreak",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 273,
+      "targetRow": 273,
+      "label": "****",
+      "resource": "mus_dob_bang",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 274,
+      "targetRow": 274,
+      "label": "****",
+      "resource": "mus_dob_bapteme",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 275,
+      "targetRow": 275,
+      "label": "****",
+      "resource": "mus_dob_btbdead",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 276,
+      "targetRow": 276,
+      "label": "****",
+      "resource": "mus_dob_drunk",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 277,
+      "targetRow": 277,
+      "label": "****",
+      "resource": "mus_dob_feel_hot",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 278,
+      "targetRow": 278,
+      "label": "****",
+      "resource": "mus_dob_higher",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 279,
+      "targetRow": 279,
+      "label": "****",
+      "resource": "mus_dob_musikbox",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 280,
+      "targetRow": 280,
+      "label": "****",
+      "resource": "mus_em_cheyenne",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 281,
+      "targetRow": 281,
+      "label": "****",
+      "resource": "mus_fo1_birth",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 282,
+      "targetRow": 282,
+      "label": "****",
+      "resource": "mus_fo1_cavern",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 283,
+      "targetRow": 283,
+      "label": "****",
+      "resource": "mus_fo1_children",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 284,
+      "targetRow": 284,
+      "label": "****",
+      "resource": "mus_fo1_desert",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 285,
+      "targetRow": 285,
+      "label": "****",
+      "resource": "mus_fo1_follow",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 286,
+      "targetRow": 286,
+      "label": "****",
+      "resource": "mus_fo1_glow",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 287,
+      "targetRow": 287,
+      "label": "****",
+      "resource": "mus_fo1_junk",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 288,
+      "targetRow": 288,
+      "label": "****",
+      "resource": "mus_fo1_hub",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 289,
+      "targetRow": 289,
+      "label": "****",
+      "resource": "mus_fo1_labone",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 290,
+      "targetRow": 290,
+      "label": "****",
+      "resource": "mus_fo1_master",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 291,
+      "targetRow": 291,
+      "label": "****",
+      "resource": "mus_fo1_necro",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 292,
+      "targetRow": 292,
+      "label": "****",
+      "resource": "mus_fo1_raider",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 293,
+      "targetRow": 293,
+      "label": "****",
+      "resource": "mus_fo1_shady",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 294,
+      "targetRow": 294,
+      "label": "****",
+      "resource": "mus_fo1_vats",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 295,
+      "targetRow": 295,
+      "label": "****",
+      "resource": "mus_fo1_vault",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 296,
+      "targetRow": 296,
+      "label": "****",
+      "resource": "mus_fo1_wind",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 297,
+      "targetRow": 297,
+      "label": "****",
+      "resource": "mus_fo1_wrldmap",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 298,
+      "targetRow": 298,
+      "label": "****",
+      "resource": "mus_d20_newworld",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 299,
+      "targetRow": 299,
+      "label": "****",
+      "resource": "mus_bat_d20_ccg1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 300,
+      "targetRow": 300,
+      "label": "****",
+      "resource": "mus_d20_ccg_usa4",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 301,
+      "targetRow": 301,
+      "label": "****",
+      "resource": "mus_d20_ccg_usa8",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 302,
+      "targetRow": 302,
+      "label": "****",
+      "resource": "mus_d20_destiny",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 303,
+      "targetRow": 303,
+      "label": "****",
+      "resource": "mus_d20_deserted",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 304,
+      "targetRow": 304,
+      "label": "****",
+      "resource": "mus_bat_d20_frnq",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 305,
+      "targetRow": 305,
+      "label": "****",
+      "resource": "mus_d20_recon1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 306,
+      "targetRow": 306,
+      "label": "****",
+      "resource": "mus_d20_recon2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 307,
+      "targetRow": 307,
+      "label": "****",
+      "resource": "mus_bat_d20_hlk1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 308,
+      "targetRow": 308,
+      "label": "****",
+      "resource": "mus_bat_d20_hlk2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 309,
+      "targetRow": 309,
+      "label": "****",
+      "resource": "mus_bat_d20_hlk3",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 310,
+      "targetRow": 310,
+      "label": "****",
+      "resource": "mus_bat_d20_ldw",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 311,
+      "targetRow": 311,
+      "label": "****",
+      "resource": "mus_bat_d20_lin1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 312,
+      "targetRow": 312,
+      "label": "****",
+      "resource": "mus_d20_lineage1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 313,
+      "targetRow": 313,
+      "label": "****",
+      "resource": "mus_d20_lineage2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 314,
+      "targetRow": 314,
+      "label": "****",
+      "resource": "mus_d20_nagasaki",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 315,
+      "targetRow": 315,
+      "label": "****",
+      "resource": "mus_d20_rsix1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 316,
+      "targetRow": 316,
+      "label": "****",
+      "resource": "mus_d20_rsix2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 317,
+      "targetRow": 317,
+      "label": "****",
+      "resource": "mus_d20_rsix3",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 318,
+      "targetRow": 318,
+      "label": "****",
+      "resource": "mus_d20_rio",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 319,
+      "targetRow": 319,
+      "label": "****",
+      "resource": "mus_bat_d20_swmp",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 320,
+      "targetRow": 320,
+      "label": "****",
+      "resource": "mus_d20_temple",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 321,
+      "targetRow": 321,
+      "label": "****",
+      "resource": "mus_d20_tlj_alas",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 322,
+      "targetRow": 322,
+      "label": "****",
+      "resource": "mus_bat_d20_tlj1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 323,
+      "targetRow": 323,
+      "label": "****",
+      "resource": "mus_d20_tlj_drum",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 324,
+      "targetRow": 324,
+      "label": "****",
+      "resource": "mus_d20_tlj_eplg",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 325,
+      "targetRow": 325,
+      "label": "****",
+      "resource": "mus_d20_tlj_orgn",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 326,
+      "targetRow": 326,
+      "label": "****",
+      "resource": "mus_d20_tlj_pian",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 327,
+      "targetRow": 327,
+      "label": "****",
+      "resource": "mus_d20_tlj_prlg",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 328,
+      "targetRow": 328,
+      "label": "****",
+      "resource": "mus_d20_tlj_subw",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 329,
+      "targetRow": 329,
+      "label": "****",
+      "resource": "mus_d20_tlj_dolp",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 330,
+      "targetRow": 330,
+      "label": "****",
+      "resource": "mus_d20_tlj_drag",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 331,
+      "targetRow": 331,
+      "label": "****",
+      "resource": "mus_d20_tlj_eagl",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 332,
+      "targetRow": 332,
+      "label": "****",
+      "resource": "mus_d20_tlj_shrk",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 333,
+      "targetRow": 333,
+      "label": "****",
+      "resource": "mus_d20_airvent",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 334,
+      "targetRow": 334,
+      "label": "****",
+      "resource": "mus_d20_mellow",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 335,
+      "targetRow": 335,
+      "label": "****",
+      "resource": "mus_d20_wolfen1",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 336,
+      "targetRow": 336,
+      "label": "****",
+      "resource": "mus_d20_wolfen2",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientmusic.2da",
+      "sourceRow": 337,
+      "targetRow": 337,
+      "label": "****",
+      "resource": "mus_bat_d20_zero",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientsound.2da",
+      "sourceRow": 201,
+      "targetRow": 204,
+      "label": "16777490",
+      "resource": "mdrnmod_cityday",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientsound.2da",
+      "sourceRow": 202,
+      "targetRow": 205,
+      "label": "16777491",
+      "resource": "mdrnmod_office",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientsound.2da",
+      "sourceRow": 204,
+      "targetRow": 207,
+      "label": "16777494",
+      "resource": "mdrnmod_bigwar",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientsound.2da",
+      "sourceRow": 205,
+      "targetRow": 208,
+      "label": "16777495",
+      "resource": "mdrnmod_gangwar",
+      "pack": "srn_2da"
+    },
+    {
+      "table": "ambientsound.2da",
+      "sourceRow": 206,
+      "targetRow": 209,
+      "label": "16777492",
+      "resource": "mdrnmod_comproom",
+      "pack": "srn_2da"
+    }
+  ]
+}

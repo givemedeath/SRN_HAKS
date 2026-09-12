@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "landingPack": "srn_door",
+  "sourceArtifacts": [
+    {
+      "name": "mdrnee_placeable.hak",
+      "sha256": "E90B4F15EE15D8009D843C8B2EB70C77BD835FF0ED77F1534BB5EC4963B8A159"
+    },
+    {
+      "name": "SWLOR_Haks",
+      "gitCommit": "e349a8026ce226da1e2199295b0d9e34bc4e94f4"
+    }
+  ],
+  "resources": [
+    {
+      "name": "chrome.dds",
+      "bytes": 10956,
+      "sha256": "C052A5FEDA629630471DF973B01453A706FEAFFBE4AA492D8953F3EB68EF0192",
+      "source": "mdrnee_placeable.hak:chrome.dds",
+      "consumers": ["t1doora2.mdl"]
+    },
+    {
+      "name": "chrome.txi",
+      "bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "source": "mdrnee_placeable.hak:chrome.txi",
+      "consumers": ["chrome.dds"]
+    },
+    {
+      "name": "tin01__metal01.dds",
+      "bytes": 10956,
+      "sha256": "085C546F227CAB1FF10C7C414506B80FE5E5946839848FD51D8092856F377DBB",
+      "source": "mdrnee_placeable.hak:tin01__metal01.dds",
+      "consumers": ["gn_door21.mdl"]
+    },
+    {
+      "name": "tin01_black.dds",
+      "bytes": 44,
+      "sha256": "A771154B8BB650D31B28765AF37E058508AB47E09EA5388039855FEFC0DB2010",
+      "source": "mdrnee_placeable.hak:tin01_black.dds",
+      "consumers": ["gn_door30.mdl"]
+    },
+    {
+      "name": "gg2-h3-2.dds",
+      "bytes": 174796,
+      "sha256": "633EE83B63A02B8CB9F1E1B947D005DBF753438BA22E5E292D759A9507AFE8BD",
+      "source": "SWLOR_Haks@e349a8026ce226da1e2199295b0d9e34bc4e94f4:sw_door/gg2-h3-2.dds",
+      "consumers": ["t_door82.mdl"]
+    },
+    {
+      "name": "gg2-dr-grn.dds",
+      "bytes": 174796,
+      "sha256": "695298D621A4303F425CD529329AC58A242B62284AE73FE49109847EAFE2BF3A",
+      "source": "SWLOR_Haks@e349a8026ce226da1e2199295b0d9e34bc4e94f4:sw_door/gg2-dr-grn.dds",
+      "consumers": ["t_door84.mdl"]
+    },
+    {
+      "name": "gg2-dr-gry.dds",
+      "bytes": 174796,
+      "sha256": "F09C8F47C8ACD43E7EDDE3AB86E30CF460927C0A534FD8BA4297C1A127957638",
+      "source": "SWLOR_Haks@e349a8026ce226da1e2199295b0d9e34bc4e94f4:sw_door/gg2-dr-gry.dds",
+      "consumers": ["t_door85.mdl"]
+    },
+    {
+      "name": "gg2-dr-wht.dds",
+      "bytes": 174796,
+      "sha256": "E99EF59DFAFD00EDFC4024E35CEA72B6F5AD6BE303DD7C94897DD19FD024D826",
+      "source": "SWLOR_Haks@e349a8026ce226da1e2199295b0d9e34bc4e94f4:sw_door/gg2-dr-wht.dds",
+      "consumers": ["t_door86.mdl"]
+    },
+    {
+      "name": "gg-msc-pnl2.dds",
+      "bytes": 174796,
+      "sha256": "39D3A0637AB7EFFABF5E9DAFE81A9412EFC964205FEE3B08557A5E76624DBDAD",
+      "source": "SWLOR_Haks@e349a8026ce226da1e2199295b0d9e34bc4e94f4:sw_door/gg-msc-pnl2.dds",
+      "consumers": ["t_door91.mdl"]
+    },
+    {
+      "name": "gg-msc-fence.dds",
+      "bytes": 349572,
+      "sha256": "D50CCB2B9B5453E2B69ED5D03DE3AB5D465B5E64DE43428216AEB95BB645ED47",
+      "source": "SWLOR_Haks@e349a8026ce226da1e2199295b0d9e34bc4e94f4:sw_plc_cep/gg-msc-fence.dds",
+      "consumers": ["t_door92.mdl"]
+    }
+  ],
+  "remainingMissing": [
+    {
+      "name": "arcology_brkn_win",
+      "kind": "surface-texture",
+      "consumers": ["t_door12.mdl"],
+      "affectedTables": ["doortypes.2da:117", "genericdoors.2da:1010"],
+      "affectedTilesets": ["D20 Shadowrun Exterior (srt04)"],
+      "recommendedLanding": "srn_door",
+      "prerequisite": "Locate the original texture or create and visually approve a compatible replacement."
+    },
+    {
+      "name": "fxpa_cloud02",
+      "kind": "emitter-texture",
+      "consumers": [
+        "sjm_udoor_01.mdl", "sjm_udoor_02.mdl", "t1doora4.mdl",
+        "tfb_udoor_01.mdl", "tfb_udoor_02.mdl", "tfb_udoor_03.mdl",
+        "vmp_udoor_01.mdl", "vmp_udoor_03.mdl", "vmp_udoor_04.mdl", "vmp_udoor_06.mdl",
+        "vmr_udoor_01.mdl", "vmr_udoor_02.mdl", "vmr_udoor_03.mdl", "vmr_udoor_04.mdl",
+        "vmr_udoor_05.mdl", "vmr_udoor_06.mdl", "vmr_udoor_07.mdl"
+      ],
+      "affectedTilesets": [
+        "D20 SJ Metal Interior (sjm01)",
+        "D20 Modern Interior (tfb01)",
+        "D20 Planetscape (vmp01)",
+        "D20 Alien Ruins (vmr01)"
+      ],
+      "recommendedLanding": "srn_door",
+      "prerequisite": "Locate the original emitter texture or confirm through animation testing that the missing cloud layer is intentionally invisible."
+    }
+  ]
+}

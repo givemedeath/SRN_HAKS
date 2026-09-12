@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "profile": "mdrnee_placeable",
+  "profileSha256": "A59DD0837FA5B75DD39D098637BFCE5E5CEAD65A7DCA086C5156A2D35A43BBCC",
+  "sourceSha256": "E90B4F15EE15D8009D843C8B2EB70C77BD835FF0ED77F1534BB5EC4963B8A159",
+  "generatedAtUtc": "2026-09-11T21:17:43.6013789Z",
+  "transforms": [
+    {
+      "resource": "placeablepal.itp",
+      "removedStructs": 1,
+      "remappedStringRefs": 170.0
+    }
+  ]
+}
