@@ -2941,7 +2941,7 @@ DoorVisibilityOrientation=0
 ImageMap2D=mijm01_k06
 
 [TILE89DOOR0]
-Type=110
+Type=264
 X=-3.48
 Y=5.24
 Z=-0.00
@@ -3126,7 +3126,7 @@ DoorVisibilityOrientation=270
 ImageMap2D=mijm01_k08
 
 [TILE95DOOR0]
-Type=109
+Type=263
 X=-0.67
 Y=2.63
 Z=0.40
