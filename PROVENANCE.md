@@ -121,11 +121,15 @@ original walkmesh or an engine-tested derivative; the final dependency report re
 Exact hashes and the one differing EE identity
 collision (`it_materialcloth.wav`) are recorded in `docs/imports/mdrnee_audio-manifest.json`.
 
-The archive accompanies the same D20 Modern content distribution and is retained under the same
-operator-reviewed open-project permission described above. Several music registration labels name
-commercial game properties or soundtracks. The archive contains no per-track authorship or license
-metadata, so public redistribution of the music pack requires a separate provenance/legal review;
-the import record does not represent that those third-party rights have been cleared.
+The archive accompanies the same D20 Modern content distribution. The Neverwinter Vault project
+page explicitly includes `mdrn21_music.rar` and publishes the collection as free and open when the
+consuming project is also open, with reuse in other projects allowed and acknowledgement requested.
+The operator accepts that project-level permission for this public, noncommercial NWN repository.
+The archive contains no per-track authorship or license metadata, so this record does not separately
+warrant ownership or clearance of any underlying third-party recording. The imported audio retains
+the upstream D20 Modern/Vault terms and is not relicensed under the repository's default license.
+
+Source: <https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>
 
 ## MDRNEE placeable import (2026-09-11)
 
