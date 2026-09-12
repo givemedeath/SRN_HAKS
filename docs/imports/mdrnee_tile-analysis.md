@@ -81,6 +81,7 @@
 - Door remaps are 239→260, 240→261, 243→262, SET references 109→263 and 110→264 for custom rows imported from 241/242, and 255→265. The final three register the otherwise dormant SJM01 dome/gate and VMP01 wall-gate doors.
 - The companion manifest records every resource and its recommended landing.
 - Generic-door source row 103 (`udp1_ohfire2` / `t_door93`) is withheld because no `t_door93.dwk` exists in any reviewed source. The model remains staged in `srn_door` pending a verified walkmesh.
+- Generic-door source row 21 (`Glass_Window`) uses the dedicated `Glass Window` TLK entry; the source row incorrectly reused `Wood Glass Reflect`.
 
 <!-- repair-results -->
 ## Repaired SET artifacts

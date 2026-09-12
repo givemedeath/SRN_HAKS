@@ -131,6 +131,9 @@
     "assetPack": "srn_door",
     "allocationStart": 1000,
     "excludedSourceRows": [103],
+    "sourceRowTokenOverrides": [
+      { "sourceRow": 21, "oldToken": "16777560", "newToken": "1678190", "expectedOccurrences": 1 }
+    ],
     "expectedAddedRows": 93
   },
   "skyboxMerge": {
@@ -179,8 +182,9 @@
     { "resource": "genericdoors.2da", "sourceGameStrRef": 16777557, "key": "mdrnee.genericdoor.bay_garage", "expectedOccurrences": 10 },
     { "resource": "genericdoors.2da", "sourceGameStrRef": 16777558, "key": "mdrnee.genericdoor.sliding_glass", "expectedOccurrences": 3 },
     { "resource": "genericdoors.2da", "sourceGameStrRef": 16777559, "key": "mdrnee.genericdoor.elevator", "expectedOccurrences": 4 },
-    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777560, "key": "mdrnee.genericdoor.wood_glass_reflect", "expectedOccurrences": 7 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777560, "key": "mdrnee.genericdoor.wood_glass_reflect", "expectedOccurrences": 6 },
     { "resource": "genericdoors.2da", "sourceGameStrRef": 16777561, "key": "mdrnee.genericdoor.manhole", "expectedOccurrences": 2 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 1678190, "key": "mdrnee.doortype.glass_window", "expectedOccurrences": 1 },
     { "resource": "doortypes.2da", "sourceGameStrRef": 1678190, "key": "mdrnee.doortype.glass_window", "expectedOccurrences": 1 }
   ],
   "promoteRecommendedPacks": ["srn_door", "srn_skybox"],
@@ -191,6 +195,7 @@
     "All 18 tilesets are treated as established working content. UDP2 uses the count-normalized SET for a new controlled test: comparison with a Toolset-created area showed that the generated fixture used a group tile instead of the tileset's blank Wall filler tile.",
     "The 142 music registrations backed by mdrnee_audio retain source rows 190-194 and 201-337. Five landed modern ambient loops move to blank EE rows 204-205 and 207-209; the oversized bar/club loop and its target row 206 remain deferred. Generic doors use EE user rows 1000 onward, and source skybox rows 7-15 extend the pinned EE baseline.",
     "Door remaps are 239→260, 240→261, 243→262, 241→263, 242→264, and 255→265. The final three register the otherwise dormant SJM01 dome/gate and VMP01 wall-gate doors.",
+    "Generic-door source row 21 is assigned the dedicated Glass Window TLK entry instead of inheriting the source row's Wood Glass Reflect string.",
     "The companion manifest records every resource and its recommended landing."
   ]
 }
