@@ -78,8 +78,9 @@
 - Five source edge tables contain 48 missing model identities. UDP2's optional remap remains quarantined because Toolset testing confirmed its Wall-first terrain workflow without the remap.
 - All 18 tilesets are treated as established working content. UDP2 uses the count-normalized SET for a new controlled test: comparison with a Toolset-created area showed that the generated fixture used a group tile instead of the tileset's blank Wall filler tile.
 - The 142 music registrations backed by mdrnee_audio retain source rows 190-194 and 201-337. Five landed modern ambient loops move to blank EE rows 204-205 and 207-209; the oversized bar/club loop and its target row 206 remain deferred. Generic doors use EE user rows 1000 onward, and source skybox rows 7-15 extend the pinned EE baseline.
-- Door remaps are 239→260, 240→261, 243→262, 241→263, 242→264, and 255→265. The final three register the otherwise dormant SJM01 dome/gate and VMP01 wall-gate doors.
+- Door remaps are 239→260, 240→261, 243→262, SET references 109→263 and 110→264 for custom rows imported from 241/242, and 255→265. The final three register the otherwise dormant SJM01 dome/gate and VMP01 wall-gate doors.
 - The companion manifest records every resource and its recommended landing.
+- Generic-door source row 103 (`udp1_ohfire2` / `t_door93`) is withheld because no `t_door93.dwk` exists in any reviewed source. The model remains staged in `srn_door` pending a verified walkmesh.
 
 <!-- repair-results -->
 ## Repaired SET artifacts
@@ -94,7 +95,7 @@ Raw extraction remains byte-for-byte unchanged. Repaired SETs are generated bene
 | flow_pa | D20 Parking Garage | 12 | clean | candidate-ready-targeted-validation |
 | nac01 | D20 ServiceDucts | 7 | clean | candidate-ready-targeted-validation |
 | shp02 | D20 Starship Interior SW | 24 | clean | candidate-ready-targeted-validation |
-| sjm01 | D20 SJ Metal Interior | 36 | clean | candidate-ready-targeted-validation |
+| sjm01 | D20 SJ Metal Interior | 38 | clean | candidate-ready-targeted-validation |
 | srt04 | D20 Shadowrun Exterior | 48 | clean | candidate-ready-targeted-validation |
 | tfb01 | D20 Modern Interior | 23 | clean | candidate-known-visual-walkmesh-gaps |
 | udp1 | D20 Suburbs UDP | 183 | clean | candidate-known-visual-walkmesh-gaps |

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "profile": "mdrnee_tile",
-  "profileSha256": "2CED362C668F6E537B44159EF41FB90CAEC25DEFC146F2BF9CDB1CECB5AB2A5E",
+  "profileSha256": "646A6672F6F2BE80E5A19C7CF54046D8C8A1AAEF4819436D1C302B0DB36C38F5",
   "sourceSha256": "B52CFAA8823826B1262AB19836D66C0DD04797AC2DD02ED9C03FE37309C59F44",
   "generatedAtUtc": "2026-09-11T03:54:31.5790557Z",
   "rawResourcesModified": 0,
@@ -933,7 +933,7 @@
       "source": "raw/sjm01.set",
       "output": "repaired/sjm01/sjm01.set",
       "sourceSha256": "a31749b0af41f2a61c6167f7e60911a2f35630276d48f00fced6af16199f48bb",
-      "repairedSha256": "6f5c9d183e6449189550d021fbd523c0e8944fdf391b0ad7e1d04b41fb1be266",
+      "repairedSha256": "fb2bd9270624d3e72426d707437d00cdd6bacccbc67b24ee6f40d0de78406779",
       "changes": [
         {
           "kind": "section-count",
@@ -1222,6 +1222,22 @@
           "field": "sounds",
           "old": "1884511333",
           "new": "0"
+        },
+        {
+          "kind": "door-row",
+          "line": 2944,
+          "section": "TILE89DOOR0",
+          "field": "type",
+          "old": "110",
+          "new": "264"
+        },
+        {
+          "kind": "door-row",
+          "line": 3129,
+          "section": "TILE95DOOR0",
+          "field": "type",
+          "old": "109",
+          "new": "263"
         }
       ],
       "structurallyClean": true,

@@ -29,8 +29,17 @@ decompilations of all six binary models. After the supplemental import:
 
 - 31 external texture identities resolve from the installed NWN:EE baseline.
 - `standardmaterial` is an engine material token, not a missing file.
-- Two texture identities remain absent from all 24 staged packs, the 21 source HAKs, NWN:EE, and
+- Two texture identities and one walkmesh identity remain absent from all 24 staged packs, the 21 source HAKs, NWN:EE, and
   the checked SWLOR tree.
+
+### `t_door93.dwk`
+
+The `t_door93.mdl` garage door was retained in `srn_door`, but no same-resref door walkmesh exists
+in the source HAKs, NWN:EE, or the checked SWLOR tree. Its animation hooks resemble `t_door70`, but
+renaming that walkmesh would also require correcting malformed root-node identities in the source
+model and engine-testing the result. The `udp1_ohfire2` generic-door registration is therefore
+withheld rather than publishing a door with unproven collision. Recommended landing: `srn_door`
+after the original DWK is found or a derived replacement passes open/closed pathing tests.
 
 ### `arcology_brkn_win`
 

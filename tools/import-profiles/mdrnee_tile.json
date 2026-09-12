@@ -100,6 +100,8 @@
   "futureDoorRows": [
     { "sourceRow": 239, "targetRow": 260, "tileset": "fcx01" },
     { "sourceRow": 240, "targetRow": 261, "tileset": "fcx01" },
+    { "sourceRow": 109, "targetRow": 263, "tileset": "sjm01" },
+    { "sourceRow": 110, "targetRow": 264, "tileset": "sjm01" },
     { "sourceRow": 243, "targetRow": 262, "tileset": "vmr01" }
   ],
   "candidateDoorRows": [
@@ -128,7 +130,8 @@
     "outputPack": "srn_2da",
     "assetPack": "srn_door",
     "allocationStart": 1000,
-    "expectedAddedRows": 94
+    "excludedSourceRows": [103],
+    "expectedAddedRows": 93
   },
   "skyboxMerge": {
     "resource": "skyboxes.2da",
@@ -173,7 +176,7 @@
     { "resource": "ambientsound.2da", "sourceGameStrRef": 16777492, "key": "mdrnee.ambientsound.modern_computer_room", "expectedOccurrences": 1 },
     { "resource": "ambientsound.2da", "sourceGameStrRef": 16777494, "key": "mdrnee.ambientsound.modern_war", "expectedOccurrences": 1 },
     { "resource": "ambientsound.2da", "sourceGameStrRef": 16777495, "key": "mdrnee.ambientsound.modern_gang_war", "expectedOccurrences": 1 },
-    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777557, "key": "mdrnee.genericdoor.bay_garage", "expectedOccurrences": 11 },
+    { "resource": "genericdoors.2da", "sourceGameStrRef": 16777557, "key": "mdrnee.genericdoor.bay_garage", "expectedOccurrences": 10 },
     { "resource": "genericdoors.2da", "sourceGameStrRef": 16777558, "key": "mdrnee.genericdoor.sliding_glass", "expectedOccurrences": 3 },
     { "resource": "genericdoors.2da", "sourceGameStrRef": 16777559, "key": "mdrnee.genericdoor.elevator", "expectedOccurrences": 4 },
     { "resource": "genericdoors.2da", "sourceGameStrRef": 16777560, "key": "mdrnee.genericdoor.wood_glass_reflect", "expectedOccurrences": 7 },

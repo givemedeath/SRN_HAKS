@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "profile": "mdrnee_tile",
-  "profileSha256": "2CED362C668F6E537B44159EF41FB90CAEC25DEFC146F2BF9CDB1CECB5AB2A5E",
+  "profileSha256": "646A6672F6F2BE80E5A19C7CF54046D8C8A1AAEF4819436D1C302B0DB36C38F5",
   "sourceSha256": "B52CFAA8823826B1262AB19836D66C0DD04797AC2DD02ED9C03FE37309C59F44",
-  "generatedAtUtc": "2026-09-11T04:04:36.8952950Z",
+  "generatedAtUtc": "2026-09-11T04:04:36.895295Z",
   "allocations": [
     {
       "table": "genericdoors.2da",
@@ -567,16 +567,8 @@
     },
     {
       "table": "genericdoors.2da",
-      "sourceRow": 103,
-      "targetRow": 1070,
-      "label": "udp1_ohfire2",
-      "model": "T_DOOR93",
-      "pack": "srn_2da"
-    },
-    {
-      "table": "genericdoors.2da",
       "sourceRow": 104,
-      "targetRow": 1071,
+      "targetRow": 1070,
       "label": "udp1_intoff",
       "model": "T_DOOR94",
       "pack": "srn_2da"
@@ -584,7 +576,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 105,
-      "targetRow": 1072,
+      "targetRow": 1071,
       "label": "udp1_intoff1",
       "model": "T_DOOR95",
       "pack": "srn_2da"
@@ -592,7 +584,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 106,
-      "targetRow": 1073,
+      "targetRow": 1072,
       "label": "udp1_intoff2",
       "model": "T_DOOR96",
       "pack": "srn_2da"
@@ -600,7 +592,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 107,
-      "targetRow": 1074,
+      "targetRow": 1073,
       "label": "udp1_intoff2d",
       "model": "T_DOOR97",
       "pack": "srn_2da"
@@ -608,7 +600,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 108,
-      "targetRow": 1075,
+      "targetRow": 1074,
       "label": "udp1_intoff3",
       "model": "T_DOOR98",
       "pack": "srn_2da"
@@ -616,7 +608,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 109,
-      "targetRow": 1076,
+      "targetRow": 1075,
       "label": "udp1_intoff3d",
       "model": "T_DOOR99",
       "pack": "srn_2da"
@@ -624,7 +616,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 110,
-      "targetRow": 1077,
+      "targetRow": 1076,
       "label": "udp1_intoff4",
       "model": "T_DOOR100",
       "pack": "srn_2da"
@@ -632,7 +624,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 111,
-      "targetRow": 1078,
+      "targetRow": 1077,
       "label": "udp1_intoff4d",
       "model": "T_DOOR101",
       "pack": "srn_2da"
@@ -640,7 +632,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 112,
-      "targetRow": 1079,
+      "targetRow": 1078,
       "label": "udp1_intoff5",
       "model": "T_DOOR102",
       "pack": "srn_2da"
@@ -648,7 +640,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 113,
-      "targetRow": 1080,
+      "targetRow": 1079,
       "label": "udp1_elev",
       "model": "T_DOOR103",
       "pack": "srn_2da"
@@ -656,7 +648,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 114,
-      "targetRow": 1081,
+      "targetRow": 1080,
       "label": "Rusted-NWN",
       "model": "T_Door104",
       "pack": "srn_2da"
@@ -664,7 +656,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 115,
-      "targetRow": 1082,
+      "targetRow": 1081,
       "label": "ctp_curtain01",
       "model": "ctp_curtain_01",
       "pack": "srn_2da"
@@ -672,7 +664,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 116,
-      "targetRow": 1083,
+      "targetRow": 1082,
       "label": "ctp_curtain02",
       "model": "ctp_curtain_02",
       "pack": "srn_2da"
@@ -680,7 +672,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 117,
-      "targetRow": 1084,
+      "targetRow": 1083,
       "label": "ctp_curtain03",
       "model": "ctp_curtain_03",
       "pack": "srn_2da"
@@ -688,7 +680,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 118,
-      "targetRow": 1085,
+      "targetRow": 1084,
       "label": "ctp_curtain04",
       "model": "ctp_curtain_04",
       "pack": "srn_2da"
@@ -696,7 +688,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 119,
-      "targetRow": 1086,
+      "targetRow": 1085,
       "label": "ctp_curtain05",
       "model": "ctp_curtain_05",
       "pack": "srn_2da"
@@ -704,7 +696,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 120,
-      "targetRow": 1087,
+      "targetRow": 1086,
       "label": "ctp_curtain06",
       "model": "ctp_curtain_06",
       "pack": "srn_2da"
@@ -712,7 +704,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 121,
-      "targetRow": 1088,
+      "targetRow": 1087,
       "label": "intoff_wide",
       "model": "tfb_udoor_01",
       "pack": "srn_2da"
@@ -720,7 +712,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 122,
-      "targetRow": 1089,
+      "targetRow": 1088,
       "label": "intoff_wide",
       "model": "tfb_udoor_02",
       "pack": "srn_2da"
@@ -728,7 +720,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 123,
-      "targetRow": 1090,
+      "targetRow": 1089,
       "label": "fence",
       "model": "tfb_udoor_03",
       "pack": "srn_2da"
@@ -736,7 +728,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 124,
-      "targetRow": 1091,
+      "targetRow": 1090,
       "label": "alien_door1",
       "model": "vmr_gdoor01",
       "pack": "srn_2da"
@@ -744,7 +736,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 125,
-      "targetRow": 1092,
+      "targetRow": 1091,
       "label": "alien_door2",
       "model": "vmr_gdoor02",
       "pack": "srn_2da"
@@ -752,7 +744,7 @@
     {
       "table": "genericdoors.2da",
       "sourceRow": 126,
-      "targetRow": 1093,
+      "targetRow": 1092,
       "label": "alien_door3",
       "model": "vmr_gdoor03",
       "pack": "srn_2da"
