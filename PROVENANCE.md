@@ -171,4 +171,3 @@ Valthrendir, Borden Haelven, and MerricksDad, with additional credited static-me
 in `creditdoc.txt`. This batch is covered by the same operator-reviewed open-project permission and
 attribution conditions described for the MDRNEE tileset import; it is not relicensed under the
 repository's default PolyForm license.
-
