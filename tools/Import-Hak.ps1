@@ -655,7 +655,13 @@ if ($Mode -eq 'Repair') {
     foreach ($property in @($manifest.setAnalysis.PSObject.Properties | Sort-Object Name)) {
         $code = $property.Name.ToLowerInvariant()
         $analysis = $property.Value
-        if (@($analysis.repairs).Count -eq 0) { continue }
+        $doorRowMap = [pscustomobject]@{}
+        if ($profile.PSObject.Properties.Name -contains 'futureDoorRows') {
+            foreach ($row in @($profile.futureDoorRows | Where-Object tileset -eq $code)) {
+                $doorRowMap | Add-Member -NotePropertyName ([string]$row.sourceRow) -NotePropertyValue ([int]$row.targetRow)
+            }
+        }
+        if (@($analysis.repairs).Count -eq 0 -and $doorRowMap.PSObject.Properties.Count -eq 0) { continue }
         if (@($analysis.nonContiguous).Count) {
             throw "Refusing to guess non-contiguous sections in $code.set."
         }
@@ -664,12 +670,6 @@ if ($Mode -eq 'Repair') {
         }
         $source = Join-Path $rawRoot "$code.set"
         $destination = Join-Path (Join-Path $repairRoot $code) "$code.set"
-        $doorRowMap = [pscustomobject]@{}
-        if ($profile.PSObject.Properties.Name -contains 'futureDoorRows') {
-            foreach ($row in @($profile.futureDoorRows | Where-Object tileset -eq $code)) {
-                $doorRowMap | Add-Member -NotePropertyName ([string]$row.sourceRow) -NotePropertyValue ([int]$row.targetRow)
-            }
-        }
         $changes = @(Write-RepairedSet -SourcePath $source -DestinationPath $destination -SetAnalysis $analysis -DoorRowMap $doorRowMap)
         $validation = Read-SetFile $destination
         if (-not $validation.structurallyClean) {
@@ -812,6 +812,23 @@ if ($Mode -eq 'Repair') {
     Copy-Item $reportPath (Join-Path $docs "$($profile.reportStem)-analysis.md") -Force
     Write-Host "Repair complete: $repairLogPath"
     exit 0
+}
+$configPath = Join-Path $repoRoot 'hakbuilder.json'
+$configuration = Get-Content $configPath -Raw | ConvertFrom-Json -Depth 32
+if ($profile.PSObject.Properties.Name -contains 'expectedOverrides') {
+    $configuredOverrides = @($configuration.ExpectedOverrides)
+    foreach ($requested in @($profile.expectedOverrides)) {
+        $resource = ([string]$requested.resource).ToLowerInvariant()
+        $packs = @($requested.packs | ForEach-Object { [string]$_ } | Sort-Object -Unique)
+        $existing = @($configuredOverrides | Where-Object { ([string]$_.Resource).ToLowerInvariant() -ceq $resource })
+        if ($existing.Count -gt 1) { throw "Duplicate configured expected override '$resource'." }
+        if ($existing.Count -eq 1) {
+            $existingPacks = @($existing[0].Packs | ForEach-Object { [string]$_ } | Sort-Object -Unique)
+            if (($existingPacks -join "`n") -cne ($packs -join "`n")) {
+                throw "Configured expected override '$resource' differs from the reviewed import profile."
+            }
+        }
+    }
 }
 $repairLogPath = Join-Path $analysisRoot 'repair-log.json'
 $repairLog = if (Test-Path -LiteralPath $repairLogPath -PathType Leaf) {
@@ -1103,7 +1120,10 @@ foreach ($record in @($manifest.resources | Where-Object disposition -eq 'land')
         $setProperty = @($manifest.setAnalysis.PSObject.Properties | Where-Object Name -eq $code)
         $preserveRawSet = $profile.PSObject.Properties.Name -contains 'preserveRawSets' -and
             $code -in @($profile.preserveRawSets)
-        if (-not $preserveRawSet -and $setProperty.Count -eq 1 -and @($setProperty[0].Value.repairs).Count) {
+        $hasDoorRowRemaps = $profile.PSObject.Properties.Name -contains 'futureDoorRows' -and
+            @($profile.futureDoorRows | Where-Object tileset -eq $code).Count -gt 0
+        if (-not $preserveRawSet -and $setProperty.Count -eq 1 -and
+            (@($setProperty[0].Value.repairs).Count -gt 0 -or $hasDoorRowRemaps)) {
             if (-not $repairLog -or $repairLog.sourceSha256 -cne $inputHash -or
                 $repairLog.profile -cne $profile.name -or $repairLog.profileSha256 -cne $profileSha256) {
                 throw "Missing or mismatched repair log for $($record.name)."
@@ -1241,7 +1261,7 @@ if ($gffTransformResults.Count) {
     Write-SrnJsonAtomic -Path (Join-Path $analysisRoot 'gff-transforms.json') -Value $gffReport
     Write-SrnJsonAtomic -Path (Join-Path $docs "$($profile.reportStem)-gff-transforms.json") -Value $gffReport
 }
-$configPath = Join-Path $repoRoot 'hakbuilder.json'; $configuration = Get-Content $configPath -Raw | ConvertFrom-Json -Depth 32; $registered = @($configuration.HakList)
+$registered = @($configuration.HakList)
 foreach ($name in @($profile.registerPacks)) { if ($name -notin @($registered | ForEach-Object { $_.Name })) { $registered += [pscustomobject]@{ Name = $name; Path = "./$name/"; CompileModels = $false } } }
 $configuration.HakList = $registered
 if ($profile.PSObject.Properties.Name -contains 'expectedOverrides') {
