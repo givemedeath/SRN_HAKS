@@ -63,6 +63,11 @@ Seven source registrations (rows 206-210 and 266-267) named optional `mus_sbat_f
 stingers that are absent from the audio HAK. Their main `mus_bat_f_*` tracks are present and land;
 the missing stinger fields are cleared to `****` so the engine does not request unavailable audio.
 
-The technical linkage is closed, but per-track redistribution rights are not documented in the
-archive. Several display labels identify commercial game properties or soundtracks. Complete the
-provenance/legal review before publicly distributing `srn_music.hak`.
+The technical linkage is closed. The D20 Modern 2.1 Neverwinter Vault project page explicitly lists
+the music archive and permits reuse when the consuming project is also open, with acknowledgement
+requested. The operator accepts those project-level terms for this public, noncommercial NWN
+repository, so they are not a release blocker for `srn_music.hak`. Per-track authorship is not
+included in the archive; this acceptance does not separately warrant ownership or clearance of any
+underlying third-party recording.
+
+Source: <https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>
