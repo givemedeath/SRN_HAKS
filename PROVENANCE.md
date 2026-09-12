@@ -230,3 +230,11 @@ and source `baseitems.2da` rows. Only the UTI records are item-import evidence; 
 creatures, doors, placeables, scripts, and other module content remain quarantined. See
 `docs/imports/mdrnee_item-analysis.md` and `docs/imports/mdrnee_item-blueprint-report.md` for the full
 consumer, dependency, and global-table assessment.
+
+The SR3 appearance crosswalk comes from `sr3-blueprint-candidates.xlsx` (SHA-256
+`06FFCF13C39C04B57F58E45EC75FE36D7805DBFC722B0EA97656A0492FA6F5FE`; 68,308 bytes). The
+`Candidates!A1:T97` classification and `Method!A1:B24` provenance ranges identify 12 Exact identity
+and 81 Visual stand-in candidates. All 93 join uniquely to the verified companion ERF by Blueprint
+ResRef and source base-item row. This crosswalk contributes classification and catalog-identity
+metadata only; its advisory dependency and rights fields do not supersede this repository's source,
+dependency, or licensing review.

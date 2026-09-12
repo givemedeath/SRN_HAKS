@@ -1034,3 +1034,124 @@ Only the UTI records are in item-import scope. The ERF also contains areas, crea
 | Blueprint | ResRef | Base item | Item class | Model parts | Properties |
 |---|---|---|---|---|---:|
 | Shortbow | `d20_shortbow_001` | 11 `d20_handguns_d6` | `WBwSh` | 34/144/11 | 2 |
+
+## Match Tier subset from the SR3 candidate workbook
+
+Source: `sr3-blueprint-candidates.xlsx`; SHA-256 `06FFCF13C39C04B57F58E45EC75FE36D7805DBFC722B0EA97656A0492FA6F5FE`; classification range `Candidates!A1:T97`.
+
+The workbook classifies **93 of 669** MDRN item blueprints as SR3 catalog candidates. Every candidate joins uniquely to this report by Blueprint ResRef and agrees on the UTI base-item row.
+
+| Match Tier | Blueprints |
+|---|---:|
+| Exact identity | 12 |
+| Visual stand-in | 81 |
+| **Total** | **93** |
+
+This is an appearance-only shortlist. The workbook explicitly does not transfer costs, properties, descriptions, scripts, combat behavior, models, icons, or 2DA definitions. Its dependency and rights statements were written without the item HAK analysis and remain advisory; this repository's dependency closure and provenance records control landing decisions.
+
+### Exact identity (12)
+
+Friendly-category distribution: Modern General: 4; Modern Weapons: 8.
+
+| Rank | Blueprint | ResRef | Friendly MDRN category | Catalog identity | Catalog category | Source tier | Confidence |
+|---:|---|---|---|---|---|---|---|
+| 1 | Arrow | `d20_arrow_001` | Modern Weapons > Ammunitions > Handgun | SRG-00113 — Arrows | Weapons > Projectile weapons > Bows | `official-SR3-line` | High |
+| 2 | Binoculars (standard) | `_mdrn_it_binocs` | Modern General > Survival Gear | SRG-03645 — Binoculars | Surveillance and security > Vision enhancers/Flashlights | `official-SR3-line` | High |
+| 3 | Chainsaw | `_mdrn_it_csaw` | Modern Weapons > Improvised Weapons | SRG-00102 — Chainsaw(Chainsaw) | Weapons > Melee weapons > Other | `official-SR3-line` | High |
+| 4 | Bolts | `d20_ammo_box_100` | Modern Weapons > Ammunitions > Boxes & Packs | SRG-00150 — Bolts | Weapons > Projectile weapons > Crossbows | `official-SR3-line` | High |
+| 5 | Harpoon | `_mdrn_it_harpnsp` | Modern Weapons > Polearms | SRG-00058 — Harpoon | Weapons > Melee weapons > Clubs/Pole Arms/Staffs | `official-SR3-line` | High |
+| 6 | Lockpick Set | `_mdrn_ot_lock` | Modern General > Professional Equipment | SRG-04347 — Lockpick Set | Surveillance and security > Other security-related equipment | `official-SR3-line` | High |
+| 7 | Rope (150 ft.) | `_mdrn_ot_rope` | Modern General > Survival Gear | SRG-04445 — Rope (50 meters) | Survival gear > Climbing Gear | `official-SR3-line` | High |
+| 8 | Sleeping Bag | `_mdrn_it_sbag` | Modern General > Survival Gear | SRG-04399 — Sleeping Bag | Survival gear > General | `official-SR3-line` | High |
+| 9 | Smoke Grenade | `_mdrn_ot_smoke` | Modern Weapons > Throwing | SRG-02435 — Smoke Grenade (A) | Explosives > Grenades > Aerodynamic Grenades | `official-SR3-line` | High |
+| 10 | White Phosphorus Grenade | `_mdrn_ot_phosp` | Modern Weapons > Throwing | SRG-02441 — White Phosphorus Grenade (A) | Explosives > Grenades > Aerodynamic Grenades | `official-SR3-line` | High |
+| 11 | Brass Knuckles | `_mdrn_it_brasskn` | Modern Weapons > Improvised Weapons | SRG-00101 — Brass Knuckles | Weapons > Melee weapons > Other | `official-earlier-edition` | High |
+| 12 | Switchblade | `_mdrn_it_knife03` | Modern Weapons > Bladed > Daggers | SRG-00037 — Switchblade | Weapons > Melee weapons > Edged weapons | `fan-or-conversion` | High |
+
+### Visual stand-in (81)
+
+Friendly-category distribution: Modern Clothing: 5; Modern General: 20; Modern Weapons: 56.
+
+| Rank | Blueprint | ResRef | Friendly MDRN category | Catalog identity | Catalog category | Source tier | Confidence |
+|---:|---|---|---|---|---|---|---|
+| 13 | AKM/AK 47 7.62mm Assault Rifle | `_mdrn_it_ak47` | Modern Weapons > Ranged Weapons > Longarms | SRG-00948 — AK-97 | Weapons > Firearms > Assault rifles | `official-SR3-line` | High |
+| 14 | AKS-74U 5.45mm Assault Rifle | `_mdrn_it_ak74u` | Modern Weapons > Ranged Weapons > Longarms | SRG-00843 — AK-97 SMG/Carbine | Weapons > Firearms > Submachine guns | `official-SR3-line` | High |
+| 15 | Digital Audio Recorder | `_mdrn_it_audrec` | Modern General > Computers and Consumer Electronics | SRG-04377 — Audio Recorder [1] | Surveillance and security > Professional Audio Recorders | `official-SR3-line` | High |
+| 16 | Police Baton | `d20_melee004` | Modern Weapons > Blunts > Clubs | SRG-00057 — Extendable Baton | Weapons > Melee weapons > Clubs/Pole Arms/Staffs | `official-SR3-line` | High |
+| 17 | Concealable Vest | `_mdrn_it_cvest` | Modern Clothing > Medium | SRG-02629 — Armor Vest | Clothing and armor > Armor clothing | `official-SR3-line` | High |
+| 18 | Stun Grenade | `_mdrn_ot_stun` | Modern Weapons > Throwing | SRG-02420 — IPE Concussion Grenade (A) | Explosives > Grenades > Aerodynamic Grenades | `official-SR3-line` | High |
+| 19 | Electrical Toolkit (Deluxe) | `_mdrn_ot_disab2` | Modern General > Professional Equipment | SRG-04516 — Electronic ToolKit | Working Gear > Kit (B/R) | `official-SR3-line` | High |
+| 20 | Electrical Toolkit (basic) | `_mdrn_ot_disable` | Modern General > Professional Equipment | SRG-04516 — Electronic ToolKit | Working Gear > Kit (B/R) | `official-SR3-line` | High |
+| 21 | Fragmentation Grenade | `_mdrn_ot_frag` | Modern Weapons > Throwing | SRG-02422 — IPE Defensive HE Grenade (A) | Explosives > Grenades > Aerodynamic Grenades | `official-SR3-line` | High |
+| 22 | HK G36 5.56mm Assault Rifle | `_mdrn_it_g36` | Modern Weapons > Ranged Weapons > Longarms | SRG-01454 — HK G38 Assault | Weapons > Firearms > Special weapons > Multi Weapon Systems > Heckler & Koch G38 System | `official-SR3-line` | High |
+| 23 | Tear Gas Grenade | `_mdrn_ot_tear` | Modern Weapons > Throwing | SRG-02414 — Gas Grenade (A) | Explosives > Grenades > Aerodynamic Grenades | `official-SR3-line` | High |
+| 24 | Scientific Geiger Counter | `_mdrn_ot_geiger` | Modern General > Computers and Consumer Electronics | SRG-04414 — Geiger Counter | Survival gear > Biohazard Equipment | `official-SR3-line` | High |
+| 25 | GPS Receiver | `_mdrn_it_gps` | Modern General > Survival Gear | SRG-04259 — Nav-Dat GPS | Surveillance and security > Global positioning system | `official-SR3-line` | High |
+| 26 | Mac Ingram M10 .45 Machine Pistol | `d20_macingramm10` | Modern Weapons > Ranged Weapons > SMGs | SRG-00875 — Ingram Smartgun Mod. 20t | Weapons > Firearms > Submachine guns | `official-SR3-line` | High |
+| 27 | Laser Sight | `_mdrn_ot_laser` | Modern General > Weapon Accessories | SRG-01619 — Laser Sight | Firearm and weapon accessories > Imaging Accessories > Laser Sights | `official-SR3-line` | High |
+| 28 | First Aid Kit | `_mdrn_firstaid` | Modern General > Professional Equipment | SRG-04948 — Basic Medkit | Biotech > Medical equipment > Medkits | `official-SR3-line` | High |
+| 29 | Medical Kit | `_mdrn_medikit` | Modern General > Professional Equipment | SRG-04948 — Basic Medkit | Biotech > Medical equipment > Medkits | `official-SR3-line` | High |
+| 30 | Minigun .50 mm | `d20_hvarms001` | Modern Weapons > Ranged Weapons > Heavy | SRG-01347 — Vindicator Minigun | Weapons > Firearms > Heavy weapons > Assault Cannons and Miniguns | `official-SR3-line` | High |
+| 31 | Flashlight | `_mdrn_it_torch` | Modern General > Survival Gear | SRG-03650 — Flashlight, pocket | Surveillance and security > Vision enhancers/Flashlights | `official-SR3-line` | High |
+| 32 | Ballistic Shield (Metal) | `_mdrn_swatshld1` | Modern Clothing > Shields > Tower Shields | SRG-02614 — Riot Shield, Large | Clothing and armor > Clothing and Riot Shields | `official-SR3-line` | High |
+| 33 | Riot (SWAT) Shield (Polycarbonate) | `_mdrn_swatshld2` | Modern Clothing > Shields > Tower Shields | SRG-02614 — Riot Shield, Large | Clothing and armor > Clothing and Riot Shields | `official-SR3-line` | High |
+| 34 | Sawed Off Shotgun | `_mdrn_it_sawnoff` | Modern Weapons > Ranged Weapons > Handgun | SRG-01104 — Remington 990 Sawed-Off | Weapons > Firearms > Shotguns | `official-SR3-line` | High |
+| 35 | SPAS 12-gauge Shotgun | `_mdrn_it_spas12` | Modern Weapons > Ranged Weapons > Longarms | SRG-01085 — Franchi SPAS-22 | Weapons > Firearms > Shotguns | `official-SR3-line` | High |
+| 36 | Undercover Vest | `_mdrn_it_uvest` | Modern Clothing > Light | SRG-02639 — Secure Vest | Clothing and armor > Armor clothing | `official-SR3-line` | High |
+| 37 | Uzi 9mm Submachine Gun | `_mdrn_it_uzi9mm` | Modern Weapons > Ranged Weapons > SMGs | SRG-00891 — Uzi III | Weapons > Firearms > Submachine guns | `official-SR3-line` | High |
+| 38 | Camo Pants (Green) & Green Jacket | `_mdrn_it_camjack` | Modern Clothing > Clothing | SRG-02758 — Camo Jacket (Woods) | Clothing and armor > Camouflage | `official-SR3-line` | High |
+| 39 | Fireaxe | `_mdrn_it_fireaxe` | Modern Weapons > Axes > One-Handed | SRG-00011 — Combat Axe | Weapons > Melee weapons > Edged weapons | `official-SR3-line` | Medium |
+| 40 | Hatchet | `_mdrn_it_hatchet` | Modern Weapons > Axes > One-Handed | SRG-00011 — Combat Axe | Weapons > Melee weapons > Edged weapons | `official-SR3-line` | Medium |
+| 41 | Beretta 92FS .22 (dual-wield) | `_mdrn_it_92dual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00210 — Beretta Model 101T | Weapons > Firearms > Pistols > Light | `official-SR3-line` | Medium |
+| 42 | Beretta 92FS .22 (off-hand) | `_mdrn_it_92off` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00210 — Beretta Model 101T | Weapons > Firearms > Pistols > Light | `official-SR3-line` | Medium |
+| 43 | Beretta 92FS .22 | `d20_smarms001` | Modern Weapons > Ranged Weapons > Handgun | SRG-00210 — Beretta Model 101T | Weapons > Firearms > Pistols > Light | `official-SR3-line` | Medium |
+| 44 | Binoculars (Electro-Optical) | `_mdrn_it_ebinoc` | Modern General > Survival Gear | SRG-03645 — Binoculars | Surveillance and security > Vision enhancers/Flashlights | `official-SR3-line` | Medium |
+| 45 | FN2000 5.56mm Assault Rifle | `_mdrn_it_fn2000` | Modern Weapons > Ranged Weapons > Longarms | SRG-00959 — FN HAR | Weapons > Firearms > Assault rifles | `official-SR3-line` | Medium |
+| 46 | M4 Carbine 5.56mm Assault Rifle | `_mdrn_it_m4` | Modern Weapons > Ranged Weapons > Longarms | SRG-00953 — Colt M-23 | Weapons > Firearms > Assault rifles | `official-SR3-line` | Medium |
+| 47 | Colt .38 Detective (dual-wield) | `_mdrn_it_c6dual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00214 — Colt Asp | Weapons > Firearms > Pistols > Light | `official-SR3-line` | Medium |
+| 48 | Colt .38 Detective (off-hand) | `_mdrn_it_c6off` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00214 — Colt Asp | Weapons > Firearms > Pistols > Light | `official-SR3-line` | Medium |
+| 49 | Colt .38 Detective Revolver | `d20_smarms004` | Modern Weapons > Ranged Weapons > Handgun | SRG-00214 — Colt Asp | Weapons > Firearms > Pistols > Light | `official-SR3-line` | Medium |
+| 50 | H&K MP5 9mm Submachine Gun | `_mdrn_it_hkmp5k` | Modern Weapons > Ranged Weapons > SMGs | SRG-00875 — Ingram Smartgun Mod. 20t | Weapons > Firearms > Submachine guns | `official-SR3-line` | Medium |
+| 51 | Electro-Optic Scope | `_mdrn_ot_nscope` | Modern General > Weapon Accessories | SRG-01622 — Imaging Scope: Low-Light | Firearm and weapon accessories > Imaging Accessories > Scopes and Sights | `official-SR3-line` | Medium |
+| 52 | Colt 1911 .45 (dual-wield) | `_mdrn_it_c45dual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00282 — Colt Manhunter | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 53 | Colt 1911 .45 (off-hand) | `_mdrn_it_c45off` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00282 — Colt Manhunter | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 54 | Colt 1911 .45 | `d20_smarms007` | Modern Weapons > Ranged Weapons > Handgun | SRG-00282 — Colt Manhunter | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 55 | Desert Eagle 0.50AE (dual-wield) | `_mdrn_it_eagdual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 56 | Desert Eagle 0.50AE | `_mdrn_it_eagle` | Modern Weapons > Ranged Weapons > Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 57 | Desert Eagle 0.50AE (off-hand) | `_mdrn_it_eagoff` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 58 | Glock 17 9mm (dual-wield) | `_mdrn_it_glkdual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 59 | Glock 17 9mm (off-hand) | `_mdrn_it_glkoff` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 60 | H&K USP 9mm (dual-wield) | `_mdrn_it_hkudual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 61 | H&K USP 9mm (off-hand) | `_mdrn_it_hkuoff` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 62 | H&K USP 9mm | `d20_smarms003` | Modern Weapons > Ranged Weapons > Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 63 | Glock 17 9mm | `d20_smarms008` | Modern Weapons > Ranged Weapons > Handgun | SRG-00261 — Ares Predator III | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 64 | Colt Python .357 Revolver (dual-wield) | `_mdrn_it_357dual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 65 | Colt Python .357 Revolver (off-hand) | `_mdrn_it_357off` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 66 | S&W M29 .44 Magnum Revolver (dual-wield) | `_mdrn_it_44dual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 67 | S&W M29 .44 Magnum Revolver | `_mdrn_it_44mag` | Modern Weapons > Ranged Weapons > Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 68 | S&W M29 .44 Magnum Revolver (off-hand) | `_mdrn_it_44off` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 69 | Colt Python .357 Revolver | `d20_smarms005` | Modern Weapons > Ranged Weapons > Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 70 | Webley .38 British Bulldog | `d20_smarms013` | Modern Weapons > Ranged Weapons > Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 71 | Webley .38 British Bulldog (dual-wield) | `d20_smarms013dl` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 72 | Webley .38 British Bulldog (off-hand) | `d20_smarms013off` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00320 — Ruger Super Warhawk | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Medium |
+| 73 | Molotov Cocktail | `_mdrn_ot_molotov` | Modern Weapons > Throwing | SRG-02418 — Incendary Grenade (A) | Explosives > Grenades > Aerodynamic Grenades | `official-SR3-line` | Medium |
+| 74 | Flashlight | `_mdrn_ot_light` | Modern General > Survival Gear | SRG-03651 — Flashlight, large | Surveillance and security > Vision enhancers/Flashlights | `official-SR3-line` | Medium |
+| 75 | Negev 5.56mm Light Machine Gun | `d20_hvarms006` | Modern Weapons > Ranged Weapons > Heavy | SRG-01321 — Ingram Valiant | Weapons > Firearms > Heavy weapons > Light Machine Guns | `official-SR3-line` | Medium |
+| 76 | Mauser m/96 7.62mm Sniper Rifle | `d20_hvarms004` | Modern Weapons > Ranged Weapons > Heavy | SRG-01191 — Remington 950 | Weapons > Firearms > Rifles > Sport rifles | `official-SR3-line` | Medium |
+| 77 | M24 7.62mm Sniper Rifle | `d20_hvarms005` | Modern Weapons > Ranged Weapons > Heavy | SRG-01191 — Remington 950 | Weapons > Firearms > Rifles > Sport rifles | `official-SR3-line` | Medium |
+| 78 | Enfield .303 Rifle | `d20_hvarms_004` | Modern Weapons > Ranged Weapons > Longarms | SRG-01191 — Remington 950 | Weapons > Firearms > Rifles > Sport rifles | `official-SR3-line` | Medium |
+| 79 | Skorpion Vz61 .32 caliber Machine Pistol | `d20_smarms006` | Modern Weapons > Ranged Weapons > SMGs | SRG-00854 — Colt Cobra TZ-110 | Weapons > Firearms > Submachine guns | `official-SR3-line` | Medium |
+| 80 | Standard Scope | `_mdrn_ot_scope` | Modern General > Weapon Accessories | SRG-01623 — Imaging Scope: Mag:1 | Firearm and weapon accessories > Imaging Accessories > Scopes and Sights | `official-SR3-line` | Medium |
+| 81 | Ithaca 37 Shotgun | `_mdrn_it_ithac37` | Modern Weapons > Ranged Weapons > Longarms | SRG-01103 — Remington 990 | Weapons > Firearms > Shotguns | `official-SR3-line` | Medium |
+| 82 | Gas Mask | `_mdrn_it_gasmask` | Modern General > Survival Gear | SRG-04393 — Respirator | Survival gear > General | `official-SR3-line` | Medium |
+| 83 | Stun Gun | `_mdrn_it_stungun` | Modern General > Professional Equipment | SRG-00829 — Defiance Super Shock | Weapons > Firearms > Tasers | `official-SR3-line` | Medium |
+| 84 | Machete | `_mdrn_it_knife01` | Modern Weapons > Bladed > Shortswords | SRG-00043 — Survival Knife | Weapons > Melee weapons > Edged weapons | `official-SR3-line` | Medium |
+| 85 | Combat Knife | `_mdrn_it_knife05` | Modern Weapons > Bladed > Daggers | SRG-00043 — Survival Knife | Weapons > Melee weapons > Edged weapons | `official-SR3-line` | Medium |
+| 86 | Anti-toxin | `_mdrn_ot_antidot` | Modern General > Drugs | SRG-05055 — Antidote Patch [1] | Biotech > Slap patches > Antidote Patch Max 8 | `official-SR3-line` | Low |
+| 87 | Baby Browning .25 (dual-wield) | `_mdrn_it_bbydual` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00275 — Browning Max-Power | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Low |
+| 88 | Baby Browning .25 (off-hand) | `_mdrn_it_bbyoff` | Modern Weapons > Ranged Weapons > Dual Handgun | SRG-00275 — Browning Max-Power | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Low |
+| 89 | Baby Browning .25 | `d20_smarms002` | Modern Weapons > Ranged Weapons > Handgun | SRG-00275 — Browning Max-Power | Weapons > Firearms > Pistols > Heavy pistols | `official-SR3-line` | Low |
+| 90 | Microphone | `_mdrn_ot_mike1` | Modern General > Professional Equipment | SRG-03693 — Subvocal Microphone | Surveillance and security > Communications > General | `official-SR3-line` | Low |
+| 91 | Microphone - News | `_mdrn_ot_mike2` | Modern General > Professional Equipment | SRG-03693 — Subvocal Microphone | Surveillance and security > Communications > General | `official-SR3-line` | Low |
+| 92 | Night Vision Goggles | `_mdrn_it_nvgog` | Modern General > Surveillance Gear | SRG-03656 — Night Vision Contacts | Surveillance and security > Vision enhancers/Flashlights | `official-SR3-line` | Low |
+| 93 | Adrenaline Injection | `_mdrn_ot_adrenal` | Modern General > Drugs | SRG-05063 — Stimulant Patch [1] | Biotech > Slap patches > Stimulant Patch Max 6 | `official-SR3-line` | Low |

@@ -50,6 +50,7 @@ pwsh -NoProfile -File tools/Analyze-ItemBlueprintErf.ps1 `
   -InputErf 'D:\source\repos\SRN_CC\content\staging\erf\d20modernupdate.erf' `
   -OutputRelativePath 'mdrnee_item\blueprints' `
   -ItemHakOutputRelativePath 'mdrnee_item' `
+  -MatchTierPath '.\docs\imports\mdrnee_item-match-tier.json' `
   -ExpectedSha256 'CD96273454F3C6AF55F40B683C9C0F237129D95B1BD07C68418756FE4FE71A4D' `
   -ExpectedResourceCount 5534
 ```
@@ -118,6 +119,22 @@ The 67 unused leaves are mostly stock palette branches plus custom placeholders.
 - **Improvised Weapons**: 37 blueprints, including 31 consumers of makeshift rows `504`–`508`.
 
 These records replace filename-only inference with actual toolset blueprint evidence. They also give the row-migration work a finite consumer set: every changed base-item or item-property row can now be traced to exact UTI ResRefs.
+
+### SR3 Match Tier subset
+
+The external `sr3-blueprint-candidates.xlsx` workbook (SHA-256 `06FFCF13C39C04B57F58E45EC75FE36D7805DBFC722B0EA97656A0492FA6F5FE`) classifies **93 of 669** blueprints as appearance candidates. Its ERF hash matches this analysis, and all 93 spreadsheet rows join uniquely by Blueprint ResRef and agree with the UTI base-item row.
+
+| Match Tier | Blueprints | Friendly-category distribution |
+|---|---:|---|
+| Exact identity | 12 | Modern General: 4; Modern Weapons: 8 |
+| Visual stand-in | 81 | Modern Clothing: 5; Modern General: 20; Modern Weapons: 56 |
+| **Total** | **93** | |
+
+Ten of the 12 Exact identity rows reference the official SR3 line; one references an earlier official edition and one is fan/conversion catalog data. All 81 Visual stand-ins reference the official SR3 line. Confidence across the shortlist is 38 High, 47 Medium, and 8 Low.
+
+This subset is appearance-only. The spreadsheet does not authorize reuse of costs, properties, descriptions, scripts, combat behavior, models, icons, or 2DA definitions. Its dependency and rights columns remain advisory source fields because they were prepared without this item-HAK analysis. Current repository dependency and provenance findings control landing decisions.
+
+The [detailed blueprint report](./mdrnee_item-blueprint-report.md#match-tier-subset-from-the-sr3-candidate-workbook) lists all 12 Exact identity and 81 Visual stand-in rows with their friendly MDRN category and catalog identity. The [normalized Match Tier data](./mdrnee_item-match-tier.json) records the workbook SHA-256, source ranges, join checks, and all 93 classifications.
 
 ## Asset families
 

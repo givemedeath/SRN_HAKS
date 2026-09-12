@@ -4,6 +4,7 @@ param(
     [Parameter(Mandatory)][string]$OutputRelativePath,
     [string]$ItemHakOutputRelativePath = 'mdrnee_item',
     [string]$CategoryMapPath = (Join-Path $PSScriptRoot '../docs/imports/mdrnee_item-category-map.json'),
+    [string]$MatchTierPath,
     [string]$ExpectedSha256,
     [int]$ExpectedResourceCount = -1
 )
@@ -367,6 +368,88 @@ foreach ($group in $categoryGroups) {
         [void]$markdown.AppendLine("| $name | ``$($blueprint.resref)`` | $($blueprint.baseItem) ``$($blueprint.baseItemLabel)`` | ``$($blueprint.itemClass)`` | $($parts -join '/') | $($blueprint.propertyCount) |")
     }
     [void]$markdown.AppendLine()
+}
+if ($MatchTierPath) {
+    $matchTier = Get-Content -LiteralPath (Resolve-Path -LiteralPath $MatchTierPath).Path -Raw |
+        ConvertFrom-Json -Depth 64
+    if ([string]$matchTier.sourceWorkbook.archiveSha256 -cne $sourceHash) {
+        throw 'Match Tier source archive SHA-256 does not match InputErf.'
+    }
+    if ([int]$matchTier.join.unmatchedBlueprints -ne 0 -or
+        [int]$matchTier.join.duplicateCandidateResRefs -ne 0 -or
+        [int]$matchTier.join.baseItemMismatches -ne 0) {
+        throw 'Match Tier input contains unresolved blueprint joins.'
+    }
+    $allowedTiers = @('Exact identity', 'Visual stand-in')
+    $tiers = @($matchTier.tiers)
+    if (@($tiers | Where-Object name -notin $allowedTiers).Count) {
+        throw 'Match Tier input contains an unsupported tier.'
+    }
+    foreach ($tierName in $allowedTiers) {
+        if (@($tiers | Where-Object name -ceq $tierName).Count -ne 1) {
+            throw 'Match Tier input must contain exactly one Exact identity and one Visual stand-in tier.'
+        }
+    }
+    $matchRows = @($tiers | ForEach-Object { @($_.blueprints) })
+    if ($matchRows.Count -ne [int]$matchTier.join.matchedBlueprints) {
+        throw 'Match Tier detail count does not match its join summary.'
+    }
+    $seenMatchResRefs = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($tier in $tiers) {
+        $tierRows = @($tier.blueprints)
+        if ($tierRows.Count -ne [int]$tier.count) {
+            throw "Match Tier count does not match its detail: $($tier.name)"
+        }
+        foreach ($row in $tierRows) {
+            if ([string]$row.matchTier -cne [string]$tier.name) {
+                throw "Match Tier row is filed under the wrong tier: $($row.blueprintResRef)"
+            }
+            if (-not $seenMatchResRefs.Add([string]$row.blueprintResRef)) {
+                throw "Duplicate Match Tier blueprint ResRef: $($row.blueprintResRef)"
+            }
+            $known = @($blueprints | Where-Object resref -ieq ([string]$row.blueprintResRef))
+            if ($known.Count -ne 1 -or [int]$known[0].baseItem -ne [int]$row.baseItem) {
+                throw "Match Tier row no longer matches blueprint analysis: $($row.blueprintResRef)"
+            }
+        }
+    }
+
+    [void]$markdown.AppendLine('## Match Tier subset from the SR3 candidate workbook')
+    [void]$markdown.AppendLine()
+    [void]$markdown.AppendLine("Source: ``$($matchTier.sourceWorkbook.file)``; SHA-256 ``$($matchTier.sourceWorkbook.sha256)``; classification range ``$($matchTier.sourceWorkbook.candidateSheet)``.")
+    [void]$markdown.AppendLine()
+    [void]$markdown.AppendLine("The workbook classifies **$($matchRows.Count) of $($blueprints.Count)** MDRN item blueprints as SR3 catalog candidates. Every candidate joins uniquely to this report by Blueprint ResRef and agrees on the UTI base-item row.")
+    [void]$markdown.AppendLine()
+    [void]$markdown.AppendLine('| Match Tier | Blueprints |')
+    [void]$markdown.AppendLine('|---|---:|')
+    foreach ($tier in $tiers) {
+        [void]$markdown.AppendLine("| $($tier.name) | $($tier.count) |")
+    }
+    [void]$markdown.AppendLine("| **Total** | **$($matchRows.Count)** |")
+    [void]$markdown.AppendLine()
+    [void]$markdown.AppendLine('This is an appearance-only shortlist. The workbook explicitly does not transfer costs, properties, descriptions, scripts, combat behavior, models, icons, or 2DA definitions. Its dependency and rights statements were written without the item HAK analysis and remain advisory; this repository''s dependency closure and provenance records control landing decisions.')
+    [void]$markdown.AppendLine()
+    foreach ($tier in $tiers) {
+        [void]$markdown.AppendLine("### $($tier.name) ($($tier.count))")
+        [void]$markdown.AppendLine()
+        $distribution = @($tier.topLevelCategories | ForEach-Object { "$($_.name): $($_.count)" }) -join '; '
+        [void]$markdown.AppendLine("Friendly-category distribution: $distribution.")
+        [void]$markdown.AppendLine()
+        [void]$markdown.AppendLine('| Rank | Blueprint | ResRef | Friendly MDRN category | Catalog identity | Catalog category | Source tier | Confidence |')
+        [void]$markdown.AppendLine('|---:|---|---|---|---|---|---|---|')
+        foreach ($row in @($tier.blueprints | Sort-Object rank)) {
+            $blueprintName = ([string]$row.blueprintName).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+            $blueprintResRef = ([string]$row.blueprintResRef).Replace('|', '\|')
+            $friendlyCategory = ([string]$row.friendlyCategory).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+            $catalogId = ([string]$row.catalogId).Replace('|', '\|')
+            $catalogName = ([string]$row.catalogName).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+            $catalogCategory = ([string]$row.catalogCategory).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+            $catalogSourceTier = ([string]$row.catalogSourceTier).Replace('|', '\|')
+            $confidence = ([string]$row.confidence).Replace('|', '\|')
+            [void]$markdown.AppendLine("| $($row.rank) | $blueprintName | ``$blueprintResRef`` | $friendlyCategory | $catalogId — $catalogName | $catalogCategory | ``$catalogSourceTier`` | $confidence |")
+        }
+        [void]$markdown.AppendLine()
+    }
 }
 [IO.File]::WriteAllText((Join-Path $analysisRoot 'blueprint-report.md'), $markdown.ToString().TrimEnd() + "`n", [Text.UTF8Encoding]::new($false))
 
