@@ -49,6 +49,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_fifi",
+      "Path": "./srn_t_fifi/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_skybox",
       "Path": "./srn_skybox/",
       "CompileModels": false
