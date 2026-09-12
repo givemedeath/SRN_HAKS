@@ -28,6 +28,9 @@ $outputDirectory = Split-Path -Parent $outputPath
 if (-not (Test-Path -LiteralPath $outputDirectory -PathType Container)) {
     New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
 }
+if (Test-Path -LiteralPath $outputPath -PathType Leaf) {
+    Remove-Item -LiteralPath $outputPath -Force
+}
 
 $arguments = [Collections.Generic.List[string]]::new()
 $arguments.Add($(if ($Mode -eq 'Compile') { '-c' } else { '-d' }))
