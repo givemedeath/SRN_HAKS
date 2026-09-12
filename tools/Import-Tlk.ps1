@@ -136,8 +136,10 @@ $allocationPath = Join-Path $repoRoot 'srn_tlk/allocations.json'
 $tlkPath = Join-Path $repoRoot 'srn_tlk/srn.tlk.json'
 $lockPath = Join-Path $repoRoot 'srn_tlk/.allocation.lock'
 $lockStream = $null
+$lockOwned = $false
 try {
     $lockStream = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
+    $lockOwned = $true
     $allocationBytes = [IO.File]::ReadAllBytes($allocationPath)
     $tlkBytes = [IO.File]::ReadAllBytes($tlkPath)
     $registry = [Text.Encoding]::UTF8.GetString($allocationBytes) | ConvertFrom-Json -Depth 32
@@ -245,5 +247,5 @@ try {
 }
 finally {
     if ($null -ne $lockStream) { $lockStream.Dispose() }
-    if (Test-Path -LiteralPath $lockPath) { Remove-Item -LiteralPath $lockPath -Force }
+    if ($lockOwned -and (Test-Path -LiteralPath $lockPath)) { Remove-Item -LiteralPath $lockPath -Force }
 }
