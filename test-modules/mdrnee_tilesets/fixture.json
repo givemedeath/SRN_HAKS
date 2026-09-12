@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "moduleResRef": "srn_mdrnee_test",
+  "moduleName": "SRN MDRNEE Tileset Smoke Test",
+  "customTlk": "srn",
+  "description": "Portable smoke-test fixture for the curated MDRNEE tileset, placeable, door, skybox, and audio packs. Each area uses a declared seed tile from its tileset. Live rendering, placeable appearance, and walkmesh results must be recorded by a consuming project.",
+  "outputFile": "srn_mdrnee_test.mod",
+  "sourceDateUtc": "2026-09-10T00:00:00Z",
+  "defaultAreaWidth": 16,
+  "defaultAreaHeight": 16,
+  "haks": [
+    "srn_t_common", "srn_t_net01", "srn_t_tbx78", "srn_t_tjsb0", "srn_t_vac01",
+    "srn_door", "srn_2da", "srn_t_dgt04", "srn_t_fcx01", "srn_t_fifi",
+    "srn_t_flow_pa", "srn_t_nac01", "srn_t_shp02", "srn_t_sjm01", "srn_t_srt04",
+    "srn_t_tfb01", "srn_t_udp1", "srn_t_udp2", "srn_t_vmp01", "srn_t_vmr01",
+    "srn_t_zsf01", "srn_skybox", "srn_music", "srn_sound", "srn_placeable"
+  ],
+  "areas": [
+    { "resref": "mt_dgt04", "tileset": "dgt04", "friendlyName": "D20 Modern Exterior", "pack": "srn_t_dgt04", "tileId": 0 },
+    { "resref": "mt_fcx01", "tileset": "fcx01", "friendlyName": "D20 Futuristic City SW", "pack": "srn_t_fcx01", "tileId": 0 },
+    { "resref": "mt_fifi", "tileset": "fifi", "friendlyName": "D20 Bunker PHoD", "pack": "srn_t_fifi", "tileId": 0 },
+    { "resref": "mt_flow_pa", "tileset": "flow_pa", "friendlyName": "D20 Parking Garage", "pack": "srn_t_flow_pa", "tileId": 0 },
+    { "resref": "mt_nac01", "tileset": "nac01", "friendlyName": "D20 ServiceDucts", "pack": "srn_t_nac01", "tileId": 0 },
+    { "resref": "mt_net01", "tileset": "net01", "friendlyName": "D20 VirtuNet", "pack": "srn_t_net01", "tileId": 0 },
+    { "resref": "mt_shp02", "tileset": "shp02", "friendlyName": "D20 Starship Interior SW", "pack": "srn_t_shp02", "tileId": 0 },
+    { "resref": "mt_sjm01", "tileset": "sjm01", "friendlyName": "D20 SJ Metal Interior", "pack": "srn_t_sjm01", "tileId": 0 },
+    { "resref": "mt_srt04", "tileset": "srt04", "friendlyName": "D20 Shadowrun Exterior", "pack": "srn_t_srt04", "tileId": 0 },
+    { "resref": "mt_tbx78", "tileset": "tbx78", "friendlyName": "D20 Modern Facility", "pack": "srn_t_tbx78", "tileId": 0 },
+    { "resref": "mt_tfb01", "tileset": "tfb01", "friendlyName": "D20 Modern Interior", "pack": "srn_t_tfb01", "tileId": 0 },
+    { "resref": "mt_tjsb0", "tileset": "tjsb0", "friendlyName": "D20 Secret Base", "pack": "srn_t_tjsb0", "tileId": 0 },
+    { "resref": "mt_udp1", "tileset": "udp1", "friendlyName": "D20 Suburbs UDP", "pack": "srn_t_udp1", "tileId": 0 },
+    { "resref": "mt_udp2", "tileset": "udp2", "friendlyName": "D20 Office Interiors UDP", "pack": "srn_t_udp2", "tileId": 13 },
+    { "resref": "mt_vac01", "tileset": "vac01", "friendlyName": "D20 Space", "pack": "srn_t_vac01", "tileId": 0 },
+    { "resref": "mt_vmp01", "tileset": "vmp01", "friendlyName": "D20 Planetscape", "pack": "srn_t_vmp01", "tileId": 0 },
+    { "resref": "mt_vmr01", "tileset": "vmr01", "friendlyName": "D20 Alien Ruins", "pack": "srn_t_vmr01", "tileId": 0 },
+    { "resref": "mt_zsf01", "tileset": "zsf01", "friendlyName": "D20 SciFi Base CQ", "pack": "srn_t_zsf01", "tileId": 0 }
+  ]
+}

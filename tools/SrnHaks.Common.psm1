@@ -32,7 +32,7 @@ function Resolve-SrnRepositoryPath {
 }
 
 function Get-SrnTool {
-    param([Parameter(Mandatory)][ValidateSet('erf', 'tlk')][string]$Name)
+    param([Parameter(Mandatory)][ValidateSet('erf', 'gff', 'tlk')][string]$Name)
 
     $toolRoot = & (Join-Path $PSScriptRoot 'Bootstrap-Tools.ps1')
     $markerPath = Join-Path $toolRoot '.complete.json'

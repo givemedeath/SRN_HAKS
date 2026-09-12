@@ -21,7 +21,14 @@ $markerPath = Join-Path $destination '.complete.json'
 if (-not $Force -and (Test-Path -LiteralPath $markerPath -PathType Leaf)) {
     try {
         $marker = Get-Content -Raw -LiteralPath $markerPath | ConvertFrom-Json
-        if ($marker.archiveSha256 -eq $platform.sha256 -and $marker.releaseTag -eq $lock.releaseTag) {
+        $markerMatches = $marker.archiveSha256 -eq $platform.sha256 -and $marker.releaseTag -eq $lock.releaseTag
+        foreach ($toolName in @($platform.executables.PSObject.Properties.Name)) {
+            if ($marker.executables.$toolName -cne $platform.executables.$toolName) {
+                $markerMatches = $false
+                break
+            }
+        }
+        if ($markerMatches) {
             Write-Output $destination
             exit 0
         }
@@ -63,7 +70,7 @@ if (Test-Path -LiteralPath $destination) {
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
 Expand-Archive -LiteralPath $archivePath -DestinationPath $destination
 
-foreach ($toolName in @($platform.executables.erf, $platform.executables.tlk)) {
+foreach ($toolName in @($platform.executables.PSObject.Properties.Value)) {
     $matches = @(Get-ChildItem -LiteralPath $destination -Recurse -File | Where-Object { $_.Name -ceq $toolName })
     if ($matches.Count -ne 1) {
         throw "Verified archive did not contain exactly one $toolName."
