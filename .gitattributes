@@ -7,7 +7,7 @@
 *.set text eol=lf whitespace=-trailing-space
 *.mtr text eol=lf
 *.txi text eol=lf whitespace=-trailing-space
-*.ini text eol=lf
+*.ini text eol=lf whitespace=-trailing-space
 *.shd text eol=lf
 *.nss text eol=lf
 *.mdl binary
