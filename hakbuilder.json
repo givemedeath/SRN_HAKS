@@ -19,6 +19,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_tjsb0",
+      "Path": "./srn_t_tjsb0/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_door",
       "Path": "./srn_door/",
       "CompileModels": false
