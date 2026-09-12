@@ -27,6 +27,11 @@
       "Name": "srn_music",
       "Path": "./srn_music/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_sound",
+      "Path": "./srn_sound/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": []
