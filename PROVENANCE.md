@@ -207,3 +207,23 @@ The shared chainlink_fence.dds source texture is owned by srn_t_common so both D
 and its placeable consumer close without a HAK-order duplicate. Final metadata repair also aligns Flow
 door slots to model hooks, corrects SJM/SRT/ZSF minimaps, normalizes invalid ZSF boolean flags,
 and binds the Planetscape palette to mp01.
+
+## MDRNEE item analysis (2026-09-12)
+
+`mdrnee_item.hak` was decomposed in quarantine under the `mdrnee_item` analysis profile. Its
+verified SHA-256 is
+`3CE0229D041F12789BB7B4C44AA534570B8A56F4AC9F0DC75E9A018D3C0CC654`, covering exactly 3,406
+resources. No item resource is landed by this analysis change. Exact source hashes and proposed
+destinations are recorded in `docs/imports/mdrnee_item-manifest.json`.
+
+The archive credit file attributes earlier work to the original D20 Modern team and later item,
+weapon, lightsaber, icon, GUI, animation, and holdable contributions to Jezira, Prole, Xialya,
+Vanya Mia, Taina, JKA, Forestwolf, Shemsu-Heru, Aenea, The Barbarian, Zwerkule, and Den of
+Assassins. The credit record establishes attribution but is not itself a standalone license. Any
+future promotion must retain the operator-reviewed open-project terms described above and confirm
+that the item archive belongs to the same Neverwinter Vault distribution.
+
+The archive contains no UTI blueprints. Its `itempal.itp` supplies friendly category definitions
+only; consumer modules or an authoritative source package are required to prove blueprint,
+base-item, sound, and model ownership before promotion. See
+`docs/imports/mdrnee_item-analysis.md` for the full dependency and global-table risk assessment.

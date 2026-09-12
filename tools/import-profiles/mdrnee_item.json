@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "name": "mdrnee_item",
+  "reportStem": "mdrnee_item",
+  "expectedSha256": "3CE0229D041F12789BB7B4C44AA534570B8A56F4AC9F0DC75E9A018D3C0CC654",
+  "expectedResourceCount": 3406,
+  "baseline": {
+    "fileVersion": "89.8193.37-17",
+    "dataBuild": "r1284"
+  },
+  "promotedTilesets": [],
+  "preserveRawSets": [],
+  "packNames": {},
+  "paletteFiles": {},
+  "lightmapPrefixes": {},
+  "promotedEdges": [],
+  "customDoorRows": [],
+  "excludedBaseResources": [],
+  "quarantinedResources": [
+    "iprp_magcapcost.2da",
+    "iprp_spells past.2da"
+  ],
+  "excludedResources": [
+    "credits.txt"
+  ],
+  "analysisResourcePacks": {
+    "credits.txt": "docs/attribution"
+  },
+  "analysisExtensionPacks": {
+    "2da": "srn_2da",
+    "dds": "srn_item",
+    "itp": "srn_item",
+    "mdl": "srn_item",
+    "tga": "srn_item",
+    "txi": "srn_item",
+    "wav": "srn_sound"
+  },
+  "registerPacks": [],
+  "reportNotes": [
+    "Analysis only: this HAK contains no UTI blueprint resources, so itempal.itp describes friendly palette categories but cannot assign individual blueprints to them.",
+    "All global 2DA files require baseline-preserving row merges; none are approved for wholesale replacement.",
+    "iprp_magcapcost.2da is structurally invalid because row 2 is repeated 34 times.",
+    "iprp_spells past.2da is a malformed archival fragment with no 2DA header and an invalid NWN resource name.",
+    "No resource is approved to land until base-item row allocation, TLK migration, dependency closure, and targeted engine validation are complete."
+  ]
+}

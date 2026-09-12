@@ -1,0 +1,413 @@
+{
+  "schemaVersion": 1,
+  "waveCount": 57,
+  "linkedBy2daOrModelCount": 31,
+  "unlinkedCount": 26,
+  "resources": [
+    {
+      "name": "cb_bu_glasslrg.wav",
+      "size": 11324,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_ht_chitin.wav",
+      "size": 34804,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_ht_chitin3.wav",
+      "size": 24220,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_ht_leather.wav",
+      "size": 45872,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_leather1.wav",
+      "size": 35962,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_metal.wav",
+      "size": 39858,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_metal1.wav",
+      "size": 34094,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_multmiss.wav",
+      "size": 75266,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_ht_multmiss1.wav",
+      "size": 49594,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_ht_saberchan1.wav",
+      "size": 101362,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_saberchan2.wav",
+      "size": 99758,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_sabercrit.wav",
+      "size": 66934,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_saberleth1.wav",
+      "size": 101362,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_saberleth2.wav",
+      "size": 99758,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_saberplat1.wav",
+      "size": 101362,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_saberplat2.wav",
+      "size": 99758,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_wood.wav",
+      "size": 18684,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_ht_wood1.wav",
+      "size": 49202,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_pa_saber.wav",
+      "size": 53038,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_ahandgun.wav",
+      "size": 4412,
+      "tables": [
+        "ammunitiontypes.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_ahandgun1.wav",
+      "size": 12590,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_sh_alongarm.wav",
+      "size": 32012,
+      "tables": [
+        "ammunitiontypes.2da",
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_alongarm1.wav",
+      "size": 20570,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_laser_hvy.wav",
+      "size": 18076,
+      "tables": [
+        "ammunitiontypes.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_machgun.wav",
+      "size": 2876,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_missile1.wav",
+      "size": 12968,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_sh_missile2.wav",
+      "size": 12470,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_sh_multmiss.wav",
+      "size": 110652,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_sh_multmiss1.wav",
+      "size": 110652,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_sh_photon.wav",
+      "size": 29860,
+      "tables": [
+        "ammunitiontypes.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_plascannon.wav",
+      "size": 40768,
+      "tables": [
+        "ammunitiontypes.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_pulserifle.wav",
+      "size": 9198,
+      "tables": [
+        "ammunitiontypes.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sh_railgun.wav",
+      "size": 30290,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "cb_sw_saber1.wav",
+      "size": 48430,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "cb_sw_saber2.wav",
+      "size": 43278,
+      "tables": [
+        "weaponsounds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "dssawful.wav",
+      "size": 18140,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "dssawhit.wav",
+      "size": 8054,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "dssawidl.wav",
+      "size": 7575,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "dssawup.wav",
+      "size": 16333,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "fw_blaster.wav",
+      "size": 64558,
+      "tables": [
+        "ammunitiontypes.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "gunshot.wav",
+      "size": 18210,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "gunshot2.wav",
+      "size": 4490,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "gunsilencer.wav",
+      "size": 4094,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "it_arrow_bolt.wav",
+      "size": 83964,
+      "tables": [
+        "inventorysnds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "it_bow_xbow_med.wav",
+      "size": 83964,
+      "tables": [
+        "inventorysnds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "it_bow_xbows_lrg.wav",
+      "size": 83964,
+      "tables": [
+        "inventorysnds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "it_lightsaber.wav",
+      "size": 146598,
+      "tables": [
+        "inventorysnds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "it_materialcloth.wav",
+      "size": 5044,
+      "tables": [
+        "inventorysnds.2da"
+      ],
+      "models": []
+    },
+    {
+      "name": "m16_release.wav",
+      "size": 27996,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "machinegun.wav",
+      "size": 6572,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "pulserifle.wav",
+      "size": 36508,
+      "tables": [],
+      "models": [
+        "wbwxl_m_101.mdl"
+      ]
+    },
+    {
+      "name": "rapidfire.wav",
+      "size": 35644,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "redalert.wav",
+      "size": 31484,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "reload.wav",
+      "size": 33908,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "saberoff.wav",
+      "size": 152596,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "saberon.wav",
+      "size": 146598,
+      "tables": [],
+      "models": []
+    },
+    {
+      "name": "sco_autofire1.wav",
+      "size": 20528,
+      "tables": [],
+      "models": []
+    }
+  ]
+}

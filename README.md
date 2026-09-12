@@ -117,6 +117,11 @@ quarantine path. An optional `-ProfilePath` supplies archive-specific ownership 
 `-ExpectedSha256` pins the expected input. Supply `-NwnRoot` and `-NwnUserDirectory` when the report
 must compare resources against a base-game installation.
 
+For item-system archives, `tools/Analyze-ItemHak.ps1` wraps the same parameterized extraction and
+adds palette-category, global-2DA, model-dependency, sound-linkage, and existing-pack collision
+reports. The current MDRNEE findings are documented in
+`docs/imports/mdrnee_item-analysis.md`.
+
 For a profiled archive whose SET count fields can be repaired without guessing, generate isolated
 repair candidates with:
 

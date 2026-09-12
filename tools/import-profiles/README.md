@@ -17,6 +17,9 @@ Required fields for schema version 1:
   `Apply`.
 - `customDoorRows` declares source and target `doortypes.2da` rows. Use an empty array when unused.
 - `extensionPacks` maps simple resource extensions such as BMU and WAV to component packs.
+- `analysisResourcePacks` and `analysisExtensionPacks` set proposed destinations in an analysis
+  manifest without approving or landing those resources. Exact resource mappings take precedence
+  over extension mappings.
 - `genericDoorMerge`, `skyboxMerge`, and `indexedResourceTableMerges` generate reviewed global
   tables from the supplied EE baseline. Their tables must land in `srn_2da`; an optional
   `assetPack` keeps companion models and textures in their category pack.

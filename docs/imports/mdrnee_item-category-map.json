@@ -1,0 +1,1014 @@
+{
+  "schemaVersion": 1,
+  "source": "itempal.itp",
+  "sourceHakSha256": "3CE0229D041F12789BB7B4C44AA534570B8A56F4AC9F0DC75E9A018D3C0CC654",
+  "nextUseableId": 210,
+  "blueprintResourceCount": 0,
+  "note": "These are palette category definitions only. Without UTI resources, individual item blueprints cannot be assigned to them from this HAK.",
+  "topLevelCategories": [
+    {
+      "name": "Armor",
+      "leafCount": 9,
+      "ids": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        58
+      ]
+    },
+    {
+      "name": "Creature Items",
+      "leafCount": 6,
+      "ids": [
+        13,
+        14,
+        55,
+        56,
+        59,
+        63
+      ]
+    },
+    {
+      "name": "D20 Modern System Items",
+      "leafCount": 3,
+      "ids": [
+        113,
+        114,
+        115
+      ]
+    },
+    {
+      "name": "Miscellaneous",
+      "leafCount": 18,
+      "ids": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        26,
+        57,
+        60,
+        64,
+        100,
+        101,
+        102,
+        103
+      ]
+    },
+    {
+      "name": "Modern Clothing",
+      "leafCount": 9,
+      "ids": [
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125
+      ]
+    },
+    {
+      "name": "Modern General",
+      "leafCount": 8,
+      "ids": [
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        116,
+        127
+      ]
+    },
+    {
+      "name": "Modern Weapons",
+      "leafCount": 25,
+      "ids": [
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209
+      ]
+    },
+    {
+      "name": "Plot Item",
+      "leafCount": 1,
+      "ids": [
+        54
+      ]
+    },
+    {
+      "name": "Special",
+      "leafCount": 5,
+      "ids": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "name": "Tutorial",
+      "leafCount": 1,
+      "ids": [
+        53
+      ]
+    },
+    {
+      "name": "Weapons",
+      "leafCount": 32,
+      "ids": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        61,
+        62,
+        104,
+        105,
+        106,
+        126
+      ]
+    }
+  ],
+  "leafCategories": [
+    {
+      "id": 0,
+      "name": "Custom 1",
+      "path": "Special > Custom 1",
+      "topLevel": "Special",
+      "strRef": 6688
+    },
+    {
+      "id": 1,
+      "name": "Custom 2",
+      "path": "Special > Custom 2",
+      "topLevel": "Special",
+      "strRef": 6689
+    },
+    {
+      "id": 2,
+      "name": "Custom 3",
+      "path": "Special > Custom 3",
+      "topLevel": "Special",
+      "strRef": 6690
+    },
+    {
+      "id": 3,
+      "name": "Custom 4",
+      "path": "Special > Custom 4",
+      "topLevel": "Special",
+      "strRef": 6691
+    },
+    {
+      "id": 4,
+      "name": "Custom 5",
+      "path": "Special > Custom 5",
+      "topLevel": "Special",
+      "strRef": 6692
+    },
+    {
+      "id": 5,
+      "name": "Clothing",
+      "path": "Armor > Clothing",
+      "topLevel": "Armor",
+      "strRef": 186
+    },
+    {
+      "id": 6,
+      "name": "Light",
+      "path": "Armor > Light",
+      "topLevel": "Armor",
+      "strRef": 4815
+    },
+    {
+      "id": 7,
+      "name": "Medium",
+      "path": "Armor > Medium",
+      "topLevel": "Armor",
+      "strRef": 6669
+    },
+    {
+      "id": 8,
+      "name": "Heavy",
+      "path": "Armor > Heavy",
+      "topLevel": "Armor",
+      "strRef": 4818
+    },
+    {
+      "id": 9,
+      "name": "Helmets",
+      "path": "Armor > Helmets",
+      "topLevel": "Armor",
+      "strRef": 6739
+    },
+    {
+      "id": 10,
+      "name": "Small Shields",
+      "path": "Armor > Shields > Small Shields",
+      "topLevel": "Armor",
+      "strRef": 6741
+    },
+    {
+      "id": 11,
+      "name": "Large Shields",
+      "path": "Armor > Shields > Large Shields",
+      "topLevel": "Armor",
+      "strRef": 6822
+    },
+    {
+      "id": 12,
+      "name": "Tower Shields",
+      "path": "Armor > Shields > Tower Shields",
+      "topLevel": "Armor",
+      "strRef": 6742
+    },
+    {
+      "id": 13,
+      "name": "Claw",
+      "path": "Creature Items > Claw",
+      "topLevel": "Creature Items",
+      "strRef": 6744
+    },
+    {
+      "id": 14,
+      "name": "Skin/Hide",
+      "path": "Creature Items > Skin/Hide",
+      "topLevel": "Creature Items",
+      "strRef": 6809
+    },
+    {
+      "id": 15,
+      "name": "Boots",
+      "path": "Miscellaneous > Clothing > Boots",
+      "topLevel": "Miscellaneous",
+      "strRef": 1520
+    },
+    {
+      "id": 16,
+      "name": "Belts",
+      "path": "Miscellaneous > Clothing > Belts",
+      "topLevel": "Miscellaneous",
+      "strRef": 6745
+    },
+    {
+      "id": 17,
+      "name": "Bracers",
+      "path": "Miscellaneous > Clothing > Bracers",
+      "topLevel": "Miscellaneous",
+      "strRef": 6746
+    },
+    {
+      "id": 18,
+      "name": "Cloaks",
+      "path": "Miscellaneous > Clothing > Cloaks",
+      "topLevel": "Miscellaneous",
+      "strRef": 6747
+    },
+    {
+      "id": 19,
+      "name": "Gloves",
+      "path": "Miscellaneous > Clothing > Gloves",
+      "topLevel": "Miscellaneous",
+      "strRef": 1530
+    },
+    {
+      "id": 20,
+      "name": "Kit",
+      "path": "Miscellaneous > Kit",
+      "topLevel": "Miscellaneous",
+      "strRef": 6748
+    },
+    {
+      "id": 21,
+      "name": "Amulets",
+      "path": "Miscellaneous > Jewelry > Amulets",
+      "topLevel": "Miscellaneous",
+      "strRef": 6750
+    },
+    {
+      "id": 22,
+      "name": "Rings",
+      "path": "Miscellaneous > Jewelry > Rings",
+      "topLevel": "Miscellaneous",
+      "strRef": 6751
+    },
+    {
+      "id": 23,
+      "name": "Other",
+      "path": "Miscellaneous > Other",
+      "topLevel": "Miscellaneous",
+      "strRef": 6699
+    },
+    {
+      "id": 24,
+      "name": "Potions",
+      "path": "Miscellaneous > Potions",
+      "topLevel": "Miscellaneous",
+      "strRef": 6753
+    },
+    {
+      "id": 26,
+      "name": "Scrolls",
+      "path": "Miscellaneous > Scrolls",
+      "topLevel": "Miscellaneous",
+      "strRef": 6754
+    },
+    {
+      "id": 27,
+      "name": "Arrows",
+      "path": "Weapons > Ammunitions > Arrows",
+      "topLevel": "Weapons",
+      "strRef": 6757
+    },
+    {
+      "id": 28,
+      "name": "Bolts",
+      "path": "Weapons > Ammunitions > Bolts",
+      "topLevel": "Weapons",
+      "strRef": 6758
+    },
+    {
+      "id": 29,
+      "name": "Bullets",
+      "path": "Weapons > Ammunitions > Bullets",
+      "topLevel": "Weapons",
+      "strRef": 6759
+    },
+    {
+      "id": 30,
+      "name": "One-Handed",
+      "path": "Weapons > Axes > One-Handed",
+      "topLevel": "Weapons",
+      "strRef": 6760
+    },
+    {
+      "id": 31,
+      "name": "Two-Handed",
+      "path": "Weapons > Axes > Two-Handed",
+      "topLevel": "Weapons",
+      "strRef": 6761
+    },
+    {
+      "id": 32,
+      "name": "Great",
+      "path": "Weapons > Axes > Great",
+      "topLevel": "Weapons",
+      "strRef": 6762
+    },
+    {
+      "id": 33,
+      "name": "Bastard Swords",
+      "path": "Weapons > Bladed > Bastard Swords",
+      "topLevel": "Weapons",
+      "strRef": 6764
+    },
+    {
+      "id": 34,
+      "name": "Daggers",
+      "path": "Weapons > Bladed > Daggers",
+      "topLevel": "Weapons",
+      "strRef": 6765
+    },
+    {
+      "id": 35,
+      "name": "Great Swords",
+      "path": "Weapons > Bladed > Great Swords",
+      "topLevel": "Weapons",
+      "strRef": 6766
+    },
+    {
+      "id": 36,
+      "name": "Longswords",
+      "path": "Weapons > Bladed > Longswords",
+      "topLevel": "Weapons",
+      "strRef": 6767
+    },
+    {
+      "id": 37,
+      "name": "Other",
+      "path": "Weapons > Bladed > Other",
+      "topLevel": "Weapons",
+      "strRef": 6699
+    },
+    {
+      "id": 38,
+      "name": "Shortswords",
+      "path": "Weapons > Bladed > Shortswords",
+      "topLevel": "Weapons",
+      "strRef": 6768
+    },
+    {
+      "id": 39,
+      "name": "Clubs",
+      "path": "Weapons > Blunts > Clubs",
+      "topLevel": "Weapons",
+      "strRef": 6769
+    },
+    {
+      "id": 40,
+      "name": "Flails",
+      "path": "Weapons > Blunts > Flails",
+      "topLevel": "Weapons",
+      "strRef": 6770
+    },
+    {
+      "id": 41,
+      "name": "Hammers",
+      "path": "Weapons > Blunts > Hammers",
+      "topLevel": "Weapons",
+      "strRef": 6771
+    },
+    {
+      "id": 42,
+      "name": "Maces",
+      "path": "Weapons > Blunts > Maces",
+      "topLevel": "Weapons",
+      "strRef": 6772
+    },
+    {
+      "id": 43,
+      "name": "Crossbow",
+      "path": "Weapons > Ranged Weapons > Crossbow",
+      "topLevel": "Weapons",
+      "strRef": 6774
+    },
+    {
+      "id": 44,
+      "name": "Longbows",
+      "path": "Weapons > Ranged Weapons > Longbows",
+      "topLevel": "Weapons",
+      "strRef": 6819
+    },
+    {
+      "id": 45,
+      "name": "Shortbow",
+      "path": "Weapons > Ranged Weapons > Shortbow",
+      "topLevel": "Weapons",
+      "strRef": 6820
+    },
+    {
+      "id": 46,
+      "name": "Double-Sided",
+      "path": "Weapons > Double-Sided",
+      "topLevel": "Weapons",
+      "strRef": 6775
+    },
+    {
+      "id": 47,
+      "name": "Exotic",
+      "path": "Weapons > Exotic",
+      "topLevel": "Weapons",
+      "strRef": 6776
+    },
+    {
+      "id": 48,
+      "name": "Rods",
+      "path": "Weapons > Mage-Specific > Rods",
+      "topLevel": "Weapons",
+      "strRef": 6778
+    },
+    {
+      "id": 49,
+      "name": "Staves",
+      "path": "Weapons > Mage-Specific > Staves",
+      "topLevel": "Weapons",
+      "strRef": 6779
+    },
+    {
+      "id": 50,
+      "name": "Wands",
+      "path": "Weapons > Mage-Specific > Wands",
+      "topLevel": "Weapons",
+      "strRef": 6780
+    },
+    {
+      "id": 51,
+      "name": "Polearms",
+      "path": "Weapons > Polearms",
+      "topLevel": "Weapons",
+      "strRef": 489
+    },
+    {
+      "id": 52,
+      "name": "Throwing",
+      "path": "Weapons > Throwing",
+      "topLevel": "Weapons",
+      "strRef": 494
+    },
+    {
+      "id": 53,
+      "name": "Tutorial",
+      "path": "Tutorial",
+      "topLevel": "Tutorial",
+      "strRef": 6732
+    },
+    {
+      "id": 54,
+      "name": "Plot Item",
+      "path": "Plot Item",
+      "topLevel": "Plot Item",
+      "strRef": 6808
+    },
+    {
+      "id": 55,
+      "name": "Bite",
+      "path": "Creature Items > Bite",
+      "topLevel": "Creature Items",
+      "strRef": 6810
+    },
+    {
+      "id": 56,
+      "name": "Slam",
+      "path": "Creature Items > Slam",
+      "topLevel": "Creature Items",
+      "strRef": 6811
+    },
+    {
+      "id": 57,
+      "name": "Gems",
+      "path": "Miscellaneous > Gems",
+      "topLevel": "Miscellaneous",
+      "strRef": 6812
+    },
+    {
+      "id": 58,
+      "name": "NPC Clothing",
+      "path": "Armor > NPC Clothing",
+      "topLevel": "Armor",
+      "strRef": 6813
+    },
+    {
+      "id": 59,
+      "name": "Melee Weapons",
+      "path": "Creature Items > Melee Weapons",
+      "topLevel": "Creature Items",
+      "strRef": 6814
+    },
+    {
+      "id": 60,
+      "name": "Books",
+      "path": "Miscellaneous > Books",
+      "topLevel": "Miscellaneous",
+      "strRef": 6815
+    },
+    {
+      "id": 61,
+      "name": "Morning Star",
+      "path": "Weapons > Blunts > Morning Star",
+      "topLevel": "Weapons",
+      "strRef": 6817
+    },
+    {
+      "id": 62,
+      "name": "Slings",
+      "path": "Weapons > Ranged Weapons > Slings",
+      "topLevel": "Weapons",
+      "strRef": 6821
+    },
+    {
+      "id": 63,
+      "name": "Gore",
+      "path": "Creature Items > Gore",
+      "topLevel": "Creature Items",
+      "strRef": 6831
+    },
+    {
+      "id": 64,
+      "name": "Crafting Base Material",
+      "path": "Miscellaneous > Crafting Base Material",
+      "topLevel": "Miscellaneous",
+      "strRef": 83602
+    },
+    {
+      "id": 100,
+      "name": "Fashion Accessory*",
+      "path": "Miscellaneous > Clothing > Fashion Accessory*",
+      "topLevel": "Miscellaneous",
+      "strRef": 16807260
+    },
+    {
+      "id": 101,
+      "name": "Flag*",
+      "path": "Miscellaneous > Flag*",
+      "topLevel": "Miscellaneous",
+      "strRef": 16807291
+    },
+    {
+      "id": 102,
+      "name": "Holy Symbol*",
+      "path": "Miscellaneous > Holy Symbol*",
+      "topLevel": "Miscellaneous",
+      "strRef": 16807292
+    },
+    {
+      "id": 103,
+      "name": "Musical Instrument*",
+      "path": "Miscellaneous > Musical Instrument*",
+      "topLevel": "Miscellaneous",
+      "strRef": 16807293
+    },
+    {
+      "id": 104,
+      "name": "Falchions*",
+      "path": "Weapons > Bladed > Falchions*",
+      "topLevel": "Weapons",
+      "strRef": 16807294
+    },
+    {
+      "id": 105,
+      "name": "Tridents*",
+      "path": "Weapons > Tridents*",
+      "topLevel": "Weapons",
+      "strRef": 16807295
+    },
+    {
+      "id": 106,
+      "name": "Picks*",
+      "path": "Weapons > Picks*",
+      "topLevel": "Weapons",
+      "strRef": 16807290
+    },
+    {
+      "id": 107,
+      "name": "Computers and Consumer Electronics",
+      "path": "Modern General > Computers and Consumer Electronics",
+      "topLevel": "Modern General",
+      "strRef": 16778250
+    },
+    {
+      "id": 108,
+      "name": "Surveillance Gear",
+      "path": "Modern General > Surveillance Gear",
+      "topLevel": "Modern General",
+      "strRef": 16778251
+    },
+    {
+      "id": 109,
+      "name": "Professional Equipment",
+      "path": "Modern General > Professional Equipment",
+      "topLevel": "Modern General",
+      "strRef": 16778252
+    },
+    {
+      "id": 110,
+      "name": "Survival Gear",
+      "path": "Modern General > Survival Gear",
+      "topLevel": "Modern General",
+      "strRef": 16778253
+    },
+    {
+      "id": 111,
+      "name": "Weapon Accessories",
+      "path": "Modern General > Weapon Accessories",
+      "topLevel": "Modern General",
+      "strRef": 16778254
+    },
+    {
+      "id": 112,
+      "name": " Misc.",
+      "path": "Modern General >  Misc.",
+      "topLevel": "Modern General",
+      "strRef": 16778224
+    },
+    {
+      "id": 113,
+      "name": "DM Tools",
+      "path": "D20 Modern System Items > DM Tools",
+      "topLevel": "D20 Modern System Items",
+      "strRef": 16778256
+    },
+    {
+      "id": 114,
+      "name": "Other Tools",
+      "path": "D20 Modern System Items > Other Tools",
+      "topLevel": "D20 Modern System Items",
+      "strRef": 16778259
+    },
+    {
+      "id": 115,
+      "name": "Special Abilities",
+      "path": "D20 Modern System Items > Special Abilities",
+      "topLevel": "D20 Modern System Items",
+      "strRef": 16778257
+    },
+    {
+      "id": 116,
+      "name": "Drugs",
+      "path": "Modern General > Drugs",
+      "topLevel": "Modern General",
+      "strRef": 16778260
+    },
+    {
+      "id": 117,
+      "name": "Clothing",
+      "path": "Modern Clothing > Clothing",
+      "topLevel": "Modern Clothing",
+      "strRef": 186
+    },
+    {
+      "id": 118,
+      "name": "Light",
+      "path": "Modern Clothing > Light",
+      "topLevel": "Modern Clothing",
+      "strRef": 4815
+    },
+    {
+      "id": 119,
+      "name": "Heavy",
+      "path": "Modern Clothing > Heavy",
+      "topLevel": "Modern Clothing",
+      "strRef": 4818
+    },
+    {
+      "id": 120,
+      "name": "Helmets",
+      "path": "Modern Clothing > Helmets",
+      "topLevel": "Modern Clothing",
+      "strRef": 6739
+    },
+    {
+      "id": 121,
+      "name": "Small Shields",
+      "path": "Modern Clothing > Shields > Small Shields",
+      "topLevel": "Modern Clothing",
+      "strRef": 6741
+    },
+    {
+      "id": 122,
+      "name": "Large Shields",
+      "path": "Modern Clothing > Shields > Large Shields",
+      "topLevel": "Modern Clothing",
+      "strRef": 6822
+    },
+    {
+      "id": 123,
+      "name": "Tower Shields",
+      "path": "Modern Clothing > Shields > Tower Shields",
+      "topLevel": "Modern Clothing",
+      "strRef": 6742
+    },
+    {
+      "id": 124,
+      "name": "Medium",
+      "path": "Modern Clothing > Medium",
+      "topLevel": "Modern Clothing",
+      "strRef": 6669
+    },
+    {
+      "id": 125,
+      "name": "NPC Clothing",
+      "path": "Modern Clothing > NPC Clothing",
+      "topLevel": "Modern Clothing",
+      "strRef": 6813
+    },
+    {
+      "id": 126,
+      "name": "Lightcrossbow",
+      "path": "Weapons > Ranged Weapons > Lightcrossbow",
+      "topLevel": "Weapons",
+      "strRef": 16778269
+    },
+    {
+      "id": 127,
+      "name": "Money",
+      "path": "Modern General > Money",
+      "topLevel": "Modern General",
+      "strRef": 16778271
+    },
+    {
+      "id": 185,
+      "name": "Handgun",
+      "path": "Modern Weapons > Ammunitions > Handgun",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778278
+    },
+    {
+      "id": 186,
+      "name": "Longarms",
+      "path": "Modern Weapons > Ammunitions > Longarms",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778279
+    },
+    {
+      "id": 187,
+      "name": "Boxes & Packs",
+      "path": "Modern Weapons > Ammunitions > Boxes & Packs",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778280
+    },
+    {
+      "id": 188,
+      "name": "One-Handed",
+      "path": "Modern Weapons > Axes > One-Handed",
+      "topLevel": "Modern Weapons",
+      "strRef": 6760
+    },
+    {
+      "id": 189,
+      "name": "Two-Handed",
+      "path": "Modern Weapons > Axes > Two-Handed",
+      "topLevel": "Modern Weapons",
+      "strRef": 6761
+    },
+    {
+      "id": 190,
+      "name": "Shortswords",
+      "path": "Modern Weapons > Bladed > Shortswords",
+      "topLevel": "Modern Weapons",
+      "strRef": 6768
+    },
+    {
+      "id": 191,
+      "name": "Daggers",
+      "path": "Modern Weapons > Bladed > Daggers",
+      "topLevel": "Modern Weapons",
+      "strRef": 6765
+    },
+    {
+      "id": 192,
+      "name": "Great Swords",
+      "path": "Modern Weapons > Bladed > Great Swords",
+      "topLevel": "Modern Weapons",
+      "strRef": 6766
+    },
+    {
+      "id": 193,
+      "name": "Longswords",
+      "path": "Modern Weapons > Bladed > Longswords",
+      "topLevel": "Modern Weapons",
+      "strRef": 6767
+    },
+    {
+      "id": 194,
+      "name": "Other",
+      "path": "Modern Weapons > Bladed > Other",
+      "topLevel": "Modern Weapons",
+      "strRef": 6699
+    },
+    {
+      "id": 195,
+      "name": "Clubs",
+      "path": "Modern Weapons > Blunts > Clubs",
+      "topLevel": "Modern Weapons",
+      "strRef": 6769
+    },
+    {
+      "id": 196,
+      "name": "Flails",
+      "path": "Modern Weapons > Blunts > Flails",
+      "topLevel": "Modern Weapons",
+      "strRef": 6770
+    },
+    {
+      "id": 197,
+      "name": "Hammers",
+      "path": "Modern Weapons > Blunts > Hammers",
+      "topLevel": "Modern Weapons",
+      "strRef": 6771
+    },
+    {
+      "id": 198,
+      "name": "Maces",
+      "path": "Modern Weapons > Blunts > Maces",
+      "topLevel": "Modern Weapons",
+      "strRef": 6772
+    },
+    {
+      "id": 199,
+      "name": "Morning Star",
+      "path": "Modern Weapons > Blunts > Morning Star",
+      "topLevel": "Modern Weapons",
+      "strRef": 6817
+    },
+    {
+      "id": 200,
+      "name": "Heavy",
+      "path": "Modern Weapons > Ranged Weapons > Heavy",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778249
+    },
+    {
+      "id": 201,
+      "name": "SMGs",
+      "path": "Modern Weapons > Ranged Weapons > SMGs",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778247
+    },
+    {
+      "id": 202,
+      "name": "Handgun",
+      "path": "Modern Weapons > Ranged Weapons > Handgun",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778248
+    },
+    {
+      "id": 203,
+      "name": "Dual Handgun",
+      "path": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778263
+    },
+    {
+      "id": 204,
+      "name": "Longarms",
+      "path": "Modern Weapons > Ranged Weapons > Longarms",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778269
+    },
+    {
+      "id": 205,
+      "name": "Improvised Weapons",
+      "path": "Modern Weapons > Improvised Weapons",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778283
+    },
+    {
+      "id": 206,
+      "name": "Exotic",
+      "path": "Modern Weapons > Exotic",
+      "topLevel": "Modern Weapons",
+      "strRef": 6776
+    },
+    {
+      "id": 207,
+      "name": "Power Blades",
+      "path": "Modern Weapons > Power Blades",
+      "topLevel": "Modern Weapons",
+      "strRef": 16778284
+    },
+    {
+      "id": 208,
+      "name": "Polearms",
+      "path": "Modern Weapons > Polearms",
+      "topLevel": "Modern Weapons",
+      "strRef": 489
+    },
+    {
+      "id": 209,
+      "name": "Throwing",
+      "path": "Modern Weapons > Throwing",
+      "topLevel": "Modern Weapons",
+      "strRef": 494
+    }
+  ]
+}

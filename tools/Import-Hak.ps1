@@ -221,6 +221,15 @@ function Get-Recommendation {
     if ($ownerCount -eq 1 -and $Profile -and $Profile.packNames.PSObject.Properties.Name -contains $ownerArray[0]) {
         return [string]$Profile.packNames.($ownerArray[0])
     }
+    if ($Profile -and $Profile.PSObject.Properties.Name -contains 'analysisResourcePacks') {
+        $resource = @($Profile.analysisResourcePacks.PSObject.Properties | Where-Object Name -ceq $name)
+        if ($resource.Count -eq 1) { return [string]$resource[0].Value }
+    }
+    if ($Profile -and $Profile.PSObject.Properties.Name -contains 'analysisExtensionPacks') {
+        $extension = $File.Extension.TrimStart('.').ToLowerInvariant()
+        $mapping = @($Profile.analysisExtensionPacks.PSObject.Properties | Where-Object Name -ceq $extension)
+        if ($mapping.Count -eq 1) { return [string]$mapping[0].Value }
+    }
     if ($name -match '_edge\.2da$' -or $name -eq 'doortypes.2da') { return 'srn_2da' }
     if ($name -eq 'genericdoors.2da' -or $File.Extension -ieq '.dwk') { return 'srn_door' }
     if ($File.Extension -ieq '.pwk') { return 'srn_placeable' }
