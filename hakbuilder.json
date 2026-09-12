@@ -12,6 +12,11 @@
       "Name": "srn_door",
       "Path": "./srn_door/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_2da",
+      "Path": "./srn_2da/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": []
