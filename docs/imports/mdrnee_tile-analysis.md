@@ -84,6 +84,32 @@
 - Generic-door source row 21 (`Glass_Window`) uses the dedicated `Glass Window` TLK entry; the source row incorrectly reused `Wood Glass Reflect`.
 - Seven ambient-music rows retain their available main battle tracks but clear optional `mus_sbat_f_*` stinger references whose BMUs are absent from the source audio HAK.
 
+## Pull-request audit disposition
+
+All 18 friendly tilesets passed the requested Toolset and game-client smoke test. The audit therefore
+separates decomposition regressions, which were fixed, from source-authored visual, palette, terrain,
+door-slot, animation, minimap, texture, edge-model, and walkmesh oddities. The latter remain usable
+known limitations and are candidates for later targeted polish rather than release blockers.
+
+| Friendly tileset | Code | Reviewed limitation or correction | Disposition |
+|---|---|---|---|
+| D20 Network Interior | net01 | malformed secondary-door coordinates; unavailable custom minimaps | preserve source; optional door/minimap polish |
+| D20 TBX Interior | tbx78 | unavailable `tbx79` minimaps | preserve source; optional minimap polish |
+| D20 Secret Base | tjsb0 | two suspect per-tile minimap selections | ownership fixed; optional per-tile polish |
+| D20 Vacuum Exterior | vac01 | palette identity, nebula walkmesh, minimaps, and shooting-star animation name | preserve source; optional palette/visual/pathing polish |
+| D20 Modern Exterior | dgt04 | undeclared corner terrain, unavailable minimaps, and missing edge models | preserve source; optional terrain/minimap/edge polish |
+| D20 Futuristic City SW | fcx01 | palette identity, NAR minimaps, and unavailable window environment map | preserve source; optional palette/visual polish |
+| D20 FIFI Interior | fifi | door coordinates, Bunker2/Bunker3 terrain topology, and unavailable minimaps | preserve source; optional door/terrain/minimap polish |
+| D20 Parking Garage | flow_pa | palette-prefix mismatch and unavailable minimaps | preserve source; optional palette/minimap polish |
+| D20 ServiceDucts | nac01 | one malformed door coordinate and crosser mismatch | preserve source; optional door/terrain polish |
+| D20 SJ Metal Interior | sjm01 | minimap ownership and two custom door row references | fixed in decomposition/import |
+| D20 Shadowrun Exterior | srt04 | palette identities, one undeclared Slums terrain, and unavailable minimaps | preserve source; optional palette/terrain/minimap polish |
+| D20 Modern Interior | tfb01 | unavailable WOKs/minimaps and incomplete door-slot declarations | preserve source; optional pathing/minimap/door polish |
+| D20 Suburbs UDP | udp1 | three unavailable forest-clearing edge models | preserve source; optional edge polish |
+| D20 Office Interiors UDP | udp2 | water-cooler texture-name mismatch | preserve source; optional visual polish |
+| D20 Mars Interior | vmr01 | fifteen unavailable edge models | preserve source; optional edge polish |
+| D20 ZSF Interior | zsf01 | minimap-name mismatch, five unavailable WOKs, seven edge models, and two textures | preserve source; optional visual/pathing/edge polish |
+
 <!-- repair-results -->
 ## Repaired SET artifacts
 
