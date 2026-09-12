@@ -3,8 +3,8 @@
       Corner1         Edge      Corner2         Height    Model       
 0     Rock            ****      Rock            0         vmp01_z01_01
 1     Rock            Trench    Rock            0         vmp01_z02_01
-2     Rock            Wall      Rock            0         vmp01_z03_01
-3     Chasm           Bridge    Chasm           0         vmp01_z04_01
+2     Rock            "Rock Wall"       Rock            0         vmp01_z03_01
+3     Chasm           "Rock Bridge"     Chasm           0         vmp01_z04_01
 4     Rock            Road      Rock            0         vmp01_z05_01
 5     Rock            ****      Chasm           0         vmp01_z06_01
 6     Cliff           ****      Chasm           0         vmp01_z08_01
@@ -19,10 +19,10 @@
 15    Rock            Slope     Rock+           0         vmp01_z09_01
 16    Rock+           ****      ****            1         vmp01_z01_01
 17    Rock+           Road      Rock+           1         vmp01_z05_01
-18    Rock+           Wall      Rock+           1         vmp01_z03_01
+18    Rock+           "Rock Wall"       Rock+           1         vmp01_z03_01
 19    Rock+           Trench    Rock+           1         vmp01_z02_01
-20    Rock            Fence     Rock            0         vmp01_z11_01
-21    Rock+           Fence     Rock+           1         vmp01_z11_01
-22    Plaza           ****      Plaza           0         vmp01_z14_01
-23    Rock            ****      Plaza           0         vmp01_z15_01
-24    Plaza           ****      ****            0         vmp01_z14_01
+20    Rock            "Chain-Link Fence" Rock           0         vmp01_z11_01
+21    Rock+           "Chain-Link Fence" Rock+          1         vmp01_z11_01
+22    "Alien Plaza"   ****              "Alien Plaza"   0         vmp01_z14_01
+23    Rock            ****              "Alien Plaza"   0         vmp01_z15_01
+24    "Alien Plaza"   ****              ****            0         vmp01_z14_01
