@@ -14,15 +14,20 @@ $allocationPath = Join-Path $root 'srn_tlk/allocations.json'
 $tlkPath = Join-Path $root 'srn_tlk/srn.tlk.json'
 $lockPath = Join-Path $root 'srn_tlk/.allocation.lock'
 $lockStream = $null
+$lockOwned = $false
 
 try {
     $lockStream = [System.IO.File]::Open($lockPath, [System.IO.FileMode]::OpenOrCreate, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+    $lockOwned = $true
     $allocationBytes = [System.IO.File]::ReadAllBytes($allocationPath)
     $tlkBytes = [System.IO.File]::ReadAllBytes($tlkPath)
     $registry = [System.Text.Encoding]::UTF8.GetString($allocationBytes) | ConvertFrom-Json -Depth 16
     $tlk = [System.Text.Encoding]::UTF8.GetString($tlkBytes) | ConvertFrom-Json -Depth 16
 
-    if (@($registry.allocations | Where-Object { $_.key -ceq $Key }).Count -gt 0) {
+    if (@($registry.allocations | Where-Object {
+        $_.key -ceq $Key -or
+        ($_.PSObject.Properties.Name -contains 'aliases' -and @($_.aliases) -ccontains $Key)
+    }).Count -gt 0) {
         throw "StrRef key already exists: $Key"
     }
 
@@ -51,5 +56,5 @@ try {
 }
 finally {
     if ($null -ne $lockStream) { $lockStream.Dispose() }
-    if (Test-Path -LiteralPath $lockPath) { Remove-Item -LiteralPath $lockPath -Force }
+    if ($lockOwned -and (Test-Path -LiteralPath $lockPath)) { Remove-Item -LiteralPath $lockPath -Force }
 }
