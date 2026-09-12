@@ -165,5 +165,3 @@ in `creditdoc.txt`. This batch is covered by the same operator-reviewed open-pro
 attribution conditions described for the MDRNEE tileset import; it is not relicensed under the
 repository's default PolyForm license.
 
-
-<!-- srn-size-exception {"path":"srn_t_vmp01/vmp01_building01.tga","reason":"Required original D20 Planetscape tileset texture; reviewed at 16,777,260 bytes and below GitHub's hard limit."} -->
