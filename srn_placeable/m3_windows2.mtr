@@ -1,0 +1,10 @@
+ 
+renderhint NormalAndSpecMapped
+ 
+// Textures 
+texture0 m3_windows2_d
+texture1 m3_windows1_n
+texture2 m3_windows1_s
+texture3 m3_windows1_r
+texture4 m3_windows1_h
+texture5 null

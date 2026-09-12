@@ -1,0 +1,10 @@
+node dummy h2a_pwk_use01
+  parent m3_dish2a_pwk
+  position -0.39795 -0.38965  0.66211
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy h2a_pwk_use02
+  parent m3_dish2a_pwk
+  position  0.39990 -0.38965  0.66211
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

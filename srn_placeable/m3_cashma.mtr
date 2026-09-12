@@ -1,0 +1,10 @@
+ 
+renderhint NormalAndSpecMapped
+ 
+// Textures 
+texture0 m3_cashma_d
+texture1 m3_cashma_n
+texture2 m3_cashma_s
+texture3 m3_cashma_r
+texture4 null
+texture5 m3_cashma_i

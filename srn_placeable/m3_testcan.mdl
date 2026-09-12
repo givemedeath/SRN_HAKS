@@ -1,0 +1,762 @@
+# Exported from NeverBlender 2.8.43 - Friday, 2023-10-20
+filedependancy ModernCity_02f.blend
+newmodel m3_testcan
+setsupermodel m3_testcan null
+classification CHARACTER
+setanimationscale 1.0
+beginmodelgeom m3_testcan
+node dummy m3_testcan
+  parent null
+endnode
+node emitter fire!
+  parent m3_testcan
+  position  0.00000  0.01379  0.50481
+  orientation -1.00000  0.00000  0.00000  1.57080
+  xsize 92.00
+  ysize 73.00
+  update Explosion
+  render Normal
+  blend Normal
+  spawntype 0
+  renderorder 0
+  birthrate 8
+  lifeexp 2.50
+  mass 0.09
+  velocity 1.50
+  randvel 0.50
+  particlerot 0.50
+  spread 2.97
+  splat 0
+  affectedbywind 0
+  colorstart 0.47 0.45 0.39
+  colorend 0.76 0.75 0.69
+  alphastart 1.00
+  alphaend 0.00
+  sizestart 1.00
+  sizeend 0.50
+  sizestart_y 0.00
+  sizeend_y 0.00
+  bounce 0
+  bounce_co 0.00
+  blurlength 10.00
+  deadspace 0.00
+  texture fxpa_smoke01
+  twosidedtex 1
+  m_istinted 1
+  xgrid 4
+  ygrid 4
+  fps 10
+  framestart 0
+  frameend 24
+  random 0
+  p2p 0
+  blastradius 0.20
+  blastlength 1.00
+  inherit 0
+  inheritvel 0
+  inherit_local 1
+  inherit_part 0
+endnode
+node trimesh damage
+  parent m3_testcan
+  position  0.00087  0.03487  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+  wirecolor 0.60 0.84 0.90
+  ambient 1.00 1.00 1.00
+  diffuse 1.00 1.00 1.00
+  specular 0.00 0.00 0.00
+  bitmap null
+  shininess 25
+  render 0
+  shadow 0
+  tilefade 0
+  verts 12
+     0.19542  0.18622  0.00000
+     0.19542 -0.18622  0.00000
+    -0.19542 -0.18622  0.00000
+    -0.19542  0.18622  0.00000
+     0.19542  0.18622  0.50000
+    -0.19542  0.18622  0.50000
+    -0.19542 -0.18622  0.50000
+     0.19542 -0.18622  0.50000
+    -0.10394  0.09905  0.25000
+     0.10394  0.09905  0.25000
+    -0.10394 -0.09905  0.25000
+     0.10394 -0.09905  0.25000
+  tverts 1
+     0.0000  0.0000  0
+  faces 20
+     0  1  2 1  0 0 0 0
+     2  3  0 1  0 0 0 0
+     4  5  6 1  0 0 0 0
+     6  7  4 1  0 0 0 0
+     0  3  8 1  0 0 0 0
+     8  9  0 1  0 0 0 0
+     9  8  5 1  0 0 0 0
+     5  4  9 1  0 0 0 0
+     3  2 10 1  0 0 0 0
+    10  8  3 1  0 0 0 0
+     8 10  6 1  0 0 0 0
+     6  5  8 1  0 0 0 0
+     2  1 11 1  0 0 0 0
+    11 10  2 1  0 0 0 0
+    10 11  7 1  0 0 0 0
+     7  6 10 1  0 0 0 0
+     1  0  9 1  0 0 0 0
+     9 11  1 1  0 0 0 0
+    11  9  4 1  0 0 0 0
+     4  7 11 1  0 0 0 0
+endnode
+node light AuroraLight01
+  parent damage
+  position  0.00580 -0.01533  0.86177
+  orientation  0.00000  1.00000  0.00000  0.00000
+  ambientonly 0
+  ndynamictype 1
+  affectdynamic 1
+  shadow 0
+  lightpriority 3
+  fadingLight 1
+  radius 4.0
+  multiplier 1.0
+  color 1.00 1.00 0.87
+  flareradius 1.0
+endnode
+node trimesh Candle01
+  parent damage
+  position -0.01169 -0.01636  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+  wirecolor 0.11 0.35 0.69
+  ambient 1.00 1.00 1.00
+  diffuse 1.00 1.00 1.00
+  specular 0.00 0.00 0.00
+  selfillumcolor 0.00 0.00 0.00
+  bitmap plc_bookcover
+  shininess 2
+  render 1
+  shadow 1
+  tilefade 0
+  verts 11
+     0.13972  0.00000  0.00000
+     0.04318  0.13288  0.00000
+    -0.11304  0.08213  0.00000
+    -0.11304 -0.08213  0.00000
+     0.04318 -0.13288  0.00000
+     0.13972  0.00000  0.56552
+     0.04318  0.13288  0.56552
+    -0.11304  0.08213  0.53914
+    -0.11304 -0.08213  0.53914
+     0.04318 -0.13288  0.54881
+     0.00000  0.00000  0.53776
+  tverts 17
+     0.0032  0.0005  0
+    -0.1869  0.9995  0
+     0.0032  0.9995  0
+    -0.1869  0.0005  0
+    -0.1899  0.0005  0
+     0.0000  0.9529  0
+    -0.1899  0.9995  0
+     0.0000  0.0005  0
+     0.0000  0.9995  0
+    -0.1899  0.9819  0
+     0.0000  0.9700  0
+    -0.0850 -0.1000  0
+    -0.1899 -0.1000  0
+    -0.1174 -0.1999  0
+     0.0000 -0.1617  0
+     0.0000 -0.0383  0
+    -0.1174  0.0000  0
+  faces 15
+     0  6  5 1   0  1  2 0
+     0  1  6 1   0  3  1 0
+     1  7  6 1   4  5  6 0
+     1  2  7 1   4  7  5 0
+     2  8  7 1   7  6  8 0
+     2  3  8 1   7  4  6 0
+     3  9  8 1   4  8  9 0
+     3  4  9 1   4  7  8 0
+     4  5  9 1   7  6 10 0
+     4  0  5 1   7  4  6 0
+    10  5  6 1  11 12 13 0
+    10  6  7 1  11 13 14 0
+    10  7  8 1  11 14 15 0
+    10  8  9 1  11 15 16 0
+    10  9  5 1  11 16 12 0
+endnode
+node emitter Candleflame
+  parent damage
+  position  0.00605 -0.00937  0.69059
+  orientation  0.00000  1.00000  0.00000  0.00000
+  xsize 0.00
+  ysize 0.00
+  update Fountain
+  render Normal
+  blend Lighten
+  spawntype 0
+  renderorder 0
+  birthrate 3
+  lifeexp 2.00
+  mass 0.00
+  velocity 0.00
+  randvel 0.00
+  particlerot 0.00
+  spread 0.00
+  splat 0
+  affectedbywind 0
+  colorstart 1.00 1.00 1.00
+  colorend 0.00 0.00 0.00
+  alphastart 0.00
+  alphaend 1.00
+  sizestart 0.40
+  sizeend 0.40
+  sizestart_y 0.00
+  sizeend_y 0.00
+  bounce 0
+  bounce_co 0.00
+  blurlength 10.00
+  deadspace 0.00
+  texture fxpa_cndl01
+  twosidedtex 0
+  m_istinted 0
+  xgrid 3
+  ygrid 3
+  fps 16
+  framestart 0
+  frameend 8
+  random 1
+  p2p 0
+  blastradius 0.00
+  blastlength 0.00
+  inherit 1
+  inheritvel 0
+  inherit_local 0
+  inherit_part 0
+endnode
+node dummy Cndl01_ground
+  parent m3_testcan
+  position  0.00363 -0.00699  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy Cndl01_hand
+  parent m3_testcan
+  position -0.00399  0.71005  0.26321
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy Cndl01_head
+  parent m3_testcan
+  position  0.01826  0.00093  0.27972
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy Cndl01_head_hit
+  parent m3_testcan
+  position -0.00399 -0.01083  0.26390
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy Cndl01_impact
+  parent m3_testcan
+  position -0.00399 -0.01100  0.29143
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+endmodelgeom m3_testcan
+
+# ANIM ASCII
+newanim default m3_testcan
+  length 0.0
+  transtime 0.25
+  animroot m3_testcan
+  node dummy m3_testcan
+    parent null
+  endnode
+  node emitter fire!
+    parent m3_testcan
+  endnode
+  node trimesh damage
+    parent m3_testcan
+    positionkey 1
+       0.000  0.00087  0.03487  0.00000
+    endlist
+    orientationkey 1
+       0.000  0.00000  1.00000  0.00000  0.00000
+    endlist
+  endnode
+  node light AuroraLight01
+    parent damage
+    colorkey 1
+       0.000 1.00 1.00 0.87
+    endlist
+    radiuskey 1
+       0.000 4.00000
+    endlist
+  endnode
+  node trimesh Candle01
+    parent damage
+  endnode
+  node emitter Candleflame
+    parent damage
+    birthratekey 1
+       0.000 3
+    endlist
+    alphastartkey 1
+       0.000 0.00
+    endlist
+    alphaendkey 1
+       0.000 1.00
+    endlist
+    sizestartkey 1
+       0.000 0.40
+    endlist
+    sizeendkey 1
+       0.000 0.40
+    endlist
+  endnode
+  node dummy Cndl01_ground
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_hand
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head_hit
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_impact
+    parent m3_testcan
+  endnode
+doneanim default m3_testcan
+
+newanim damage m3_testcan
+  length 0.133
+  transtime 0.0
+  animroot m3_testcan
+  node dummy m3_testcan
+    parent null
+  endnode
+  node emitter fire!
+    parent m3_testcan
+  endnode
+  node trimesh damage
+    parent m3_testcan
+    positionkey 3
+       0.000  0.00087  0.03487  0.00000
+       0.033  0.00087  0.03487  0.02446
+       0.133  0.00087  0.03487  0.00000
+    endlist
+    orientationkey 4
+       0.000  0.00000  1.00000  0.00000  0.00000
+       0.033  0.37135 -0.92849 -0.00810  0.04699
+       0.100 -0.59998  0.80001 -0.01047  0.04363
+       0.133  0.00000  1.00000  0.00000  0.00000
+    endlist
+  endnode
+  node light AuroraLight01
+    parent damage
+  endnode
+  node trimesh Candle01
+    parent damage
+  endnode
+  node emitter Candleflame
+    parent damage
+  endnode
+  node dummy Cndl01_ground
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_hand
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head_hit
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_impact
+    parent m3_testcan
+  endnode
+doneanim damage m3_testcan
+
+newanim die m3_testcan
+  length 0.167
+  transtime 0.0
+  animroot m3_testcan
+  node dummy m3_testcan
+    parent null
+  endnode
+  node emitter fire!
+    parent m3_testcan
+  endnode
+  node trimesh damage
+    parent m3_testcan
+    positionkey 2
+       0.000  0.00087  0.03487  0.00000
+       0.167  0.00087  0.03487 -6.95145
+    endlist
+    orientationkey 1
+       0.000  0.00000  1.00000  0.00000  0.00000
+    endlist
+  endnode
+  node light AuroraLight01
+    parent damage
+  endnode
+  node trimesh Candle01
+    parent damage
+  endnode
+  node emitter Candleflame
+    parent damage
+  endnode
+  node dummy Cndl01_ground
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_hand
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head_hit
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_impact
+    parent m3_testcan
+  endnode
+doneanim die m3_testcan
+
+newanim dead m3_testcan
+  length 0.033
+  transtime 0.0
+  animroot m3_testcan
+  node dummy m3_testcan
+    parent null
+  endnode
+  node emitter fire!
+    parent m3_testcan
+  endnode
+  node trimesh damage
+    parent m3_testcan
+    positionkey 2
+       0.000  0.00087  0.03487 -6.95145
+       0.033  0.00087  0.03487 -6.95145
+    endlist
+  endnode
+  node light AuroraLight01
+    parent damage
+  endnode
+  node trimesh Candle01
+    parent damage
+  endnode
+  node emitter Candleflame
+    parent damage
+  endnode
+  node dummy Cndl01_ground
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_hand
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head_hit
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_impact
+    parent m3_testcan
+  endnode
+doneanim dead m3_testcan
+
+newanim on2off m3_testcan
+  length 0.033
+  transtime 0.25
+  animroot m3_testcan
+  node dummy m3_testcan
+    parent null
+  endnode
+  node emitter fire!
+    parent m3_testcan
+  endnode
+  node trimesh damage
+    parent m3_testcan
+    positionkey 2
+       0.000  0.00087  0.03487  0.00000
+       0.033  0.00087  0.03487  0.00000
+    endlist
+    orientationkey 2
+       0.000  0.00000  1.00000  0.00000  0.00000
+       0.033  0.00000  1.00000  0.00000  0.00000
+    endlist
+  endnode
+  node light AuroraLight01
+    parent damage
+    colorkey 1
+       0.000 1.00 1.00 0.87
+    endlist
+    radiuskey 2
+       0.000 4.00000
+       0.033 0.00000
+    endlist
+  endnode
+  node trimesh Candle01
+    parent damage
+  endnode
+  node emitter Candleflame
+    parent damage
+    birthratekey 2
+       0.000 3
+       0.033 0
+    endlist
+    alphastartkey 2
+       0.000 0.00
+       0.033 0.00
+    endlist
+    alphaendkey 2
+       0.000 1.00
+       0.033 0.00
+    endlist
+    sizestartkey 2
+       0.000 0.40
+       0.033 0.00
+    endlist
+    sizeendkey 2
+       0.000 0.40
+       0.033 0.00
+    endlist
+  endnode
+  node dummy Cndl01_ground
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_hand
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head_hit
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_impact
+    parent m3_testcan
+  endnode
+doneanim on2off m3_testcan
+
+newanim off2on m3_testcan
+  length 0.033
+  transtime 0.25
+  animroot m3_testcan
+  node dummy m3_testcan
+    parent null
+  endnode
+  node emitter fire!
+    parent m3_testcan
+  endnode
+  node trimesh damage
+    parent m3_testcan
+    positionkey 2
+       0.000  0.00087  0.03487  0.00000
+       0.033  0.00087  0.03487  0.00000
+    endlist
+    orientationkey 2
+       0.000  0.00000  1.00000  0.00000  0.00000
+       0.033  0.00000  1.00000  0.00000  0.00000
+    endlist
+  endnode
+  node light AuroraLight01
+    parent damage
+    colorkey 1
+       0.033 1.00 1.00 0.87
+    endlist
+    radiuskey 2
+       0.000 0.00000
+       0.033 4.00000
+    endlist
+  endnode
+  node trimesh Candle01
+    parent damage
+  endnode
+  node emitter Candleflame
+    parent damage
+    birthratekey 2
+       0.000 0
+       0.033 3
+    endlist
+    alphastartkey 2
+       0.000 0.00
+       0.033 0.00
+    endlist
+    alphaendkey 2
+       0.000 0.00
+       0.033 1.00
+    endlist
+    sizestartkey 2
+       0.000 0.00
+       0.033 0.40
+    endlist
+    sizeendkey 2
+       0.000 0.00
+       0.033 0.40
+    endlist
+  endnode
+  node dummy Cndl01_ground
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_hand
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head_hit
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_impact
+    parent m3_testcan
+  endnode
+doneanim off2on m3_testcan
+
+newanim on m3_testcan
+  length 0.033
+  transtime 0.25
+  animroot m3_testcan
+  node dummy m3_testcan
+    parent null
+  endnode
+  node emitter fire!
+    parent m3_testcan
+  endnode
+  node trimesh damage
+    parent m3_testcan
+    positionkey 2
+       0.000  0.00087  0.03487  0.00000
+       0.033  0.00087  0.03487  0.00000
+    endlist
+    orientationkey 2
+       0.000  0.00000  1.00000  0.00000  0.00000
+       0.033  0.00000  1.00000  0.00000  0.00000
+    endlist
+  endnode
+  node light AuroraLight01
+    parent damage
+    colorkey 2
+       0.000 1.00 1.00 0.87
+       0.033 1.00 1.00 0.87
+    endlist
+    radiuskey 2
+       0.000 4.00000
+       0.033 4.00000
+    endlist
+  endnode
+  node trimesh Candle01
+    parent damage
+  endnode
+  node emitter Candleflame
+    parent damage
+    birthratekey 2
+       0.000 3
+       0.033 3
+    endlist
+    alphastartkey 2
+       0.000 0.00
+       0.033 0.00
+    endlist
+    alphaendkey 2
+       0.000 1.00
+       0.033 1.00
+    endlist
+    sizestartkey 2
+       0.000 0.40
+       0.033 0.40
+    endlist
+    sizeendkey 2
+       0.000 0.40
+       0.033 0.40
+    endlist
+  endnode
+  node dummy Cndl01_ground
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_hand
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head_hit
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_impact
+    parent m3_testcan
+  endnode
+doneanim on m3_testcan
+
+newanim off m3_testcan
+  length 0.033
+  transtime 0.25
+  animroot m3_testcan
+  node dummy m3_testcan
+    parent null
+  endnode
+  node emitter fire!
+    parent m3_testcan
+  endnode
+  node trimesh damage
+    parent m3_testcan
+    positionkey 2
+       0.000  0.00087  0.03487  0.00000
+       0.033  0.00087  0.03487  0.00000
+    endlist
+    orientationkey 2
+       0.000  0.00000  1.00000  0.00000  0.00000
+       0.033  0.00000  1.00000  0.00000  0.00000
+    endlist
+  endnode
+  node light AuroraLight01
+    parent damage
+    radiuskey 2
+       0.000 0.00000
+       0.033 0.00000
+    endlist
+  endnode
+  node trimesh Candle01
+    parent damage
+  endnode
+  node emitter Candleflame
+    parent damage
+    birthratekey 2
+       0.000 0
+       0.033 0
+    endlist
+    alphastartkey 2
+       0.000 0.00
+       0.033 0.00
+    endlist
+    alphaendkey 2
+       0.000 0.00
+       0.033 0.00
+    endlist
+    sizestartkey 2
+       0.000 0.00
+       0.033 0.00
+    endlist
+    sizeendkey 2
+       0.000 0.00
+       0.033 0.00
+    endlist
+  endnode
+  node dummy Cndl01_ground
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_hand
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_head_hit
+    parent m3_testcan
+  endnode
+  node dummy Cndl01_impact
+    parent m3_testcan
+  endnode
+doneanim off m3_testcan
+
+donemodel m3_testcan

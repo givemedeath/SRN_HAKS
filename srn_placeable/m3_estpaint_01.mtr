@@ -1,0 +1,10 @@
+ 
+renderhint NormalAndSpecMapped
+ 
+// Textures 
+texture0 m3_estpaint_01_d
+texture1 m3_estpaint_01_n
+texture2 m3_estpaint_01_s
+texture3 m3_estpaint_01_r
+texture4 null
+texture5 null

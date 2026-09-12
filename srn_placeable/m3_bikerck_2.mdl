@@ -1,0 +1,32 @@
+# Exported from NeverBlender 2.8.43 - Monday, 2023-11-27
+filedependancy ModernCity_02l.blend
+newmodel m3_bikerck_2
+setsupermodel m3_bikerck_2 null
+classification CHARACTER
+setanimationscale 1.0
+beginmodelgeom m3_bikerck_2
+node dummy m3_bikerck_2
+  parent null
+endnode
+node dummy _ground
+  parent m3_bikerck_2
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy _hand
+  parent m3_bikerck_2
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy _head_hit
+  parent m3_bikerck_2
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy _impact
+  parent m3_bikerck_2
+  position  0.00000  0.00000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+endmodelgeom m3_bikerck_2
+donemodel m3_bikerck_2

@@ -1,0 +1,10 @@
+node dummy rd1_pwk_use01
+  parent m3_keybrd1_pwk
+  position  0.00000 -0.12393  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy rd1_pwk_use02
+  parent m3_keybrd1_pwk
+  position  0.00000  0.12458  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

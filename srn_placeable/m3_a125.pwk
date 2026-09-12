@@ -1,0 +1,10 @@
+node dummy p25_pwk_use01
+  parent m3_a125_pwk
+  position  0.00019 -0.01448  0.13967
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p25_pwk_use02
+  parent m3_a125_pwk
+  position -0.00613 -0.01450  0.13576
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

@@ -1,0 +1,10 @@
+node dummy p47_pwk_use01
+  parent m3_a147_pwk
+  position -0.00691 -0.05298  1.67640
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p47_pwk_use02
+  parent m3_a147_pwk
+  position -0.01279 -0.05194  1.67671
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

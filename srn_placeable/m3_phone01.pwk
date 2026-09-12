@@ -1,0 +1,10 @@
+node dummy e01_pwk_use01
+  parent m3_phone01_pwk
+  position -0.04736 -0.13428  0.02539
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy e01_pwk_use02
+  parent m3_phone01_pwk
+  position  0.01514  0.18701  0.09424
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

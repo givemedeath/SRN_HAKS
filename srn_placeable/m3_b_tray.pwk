@@ -1,0 +1,10 @@
+node dummy ray_pwk_use01
+  parent SM_MTray_pwk
+  position  0.00000 -0.15000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy ray_pwk_use02
+  parent SM_MTray_pwk
+  position  0.00000  0.15000  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

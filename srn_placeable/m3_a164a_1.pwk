@@ -1,0 +1,10 @@
+node dummy p4a_pwk_use01
+  parent m3_a164a_pwk
+  position  0.01309 -0.07417  0.10172
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p4a_pwk_use02
+  parent m3_a164a_pwk
+  position -0.00080  0.12379  0.10975
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

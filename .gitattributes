@@ -5,7 +5,7 @@
 *.md text eol=lf
 *.2da text eol=lf whitespace=-trailing-space
 *.set text eol=lf whitespace=-trailing-space
-*.mtr text eol=lf
+*.mtr text eol=lf whitespace=-trailing-space
 *.txi text eol=lf whitespace=-trailing-space
 *.ini text eol=lf whitespace=-trailing-space
 *.shd text eol=lf

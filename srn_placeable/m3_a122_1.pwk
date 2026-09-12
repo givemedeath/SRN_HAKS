@@ -1,0 +1,10 @@
+node dummy p22_pwk_use01
+  parent m3_a122_pwk
+  position  0.00619  0.04817  0.15278
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy p22_pwk_use02
+  parent m3_a122_pwk
+  position -0.01176 -0.00506  0.10426
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

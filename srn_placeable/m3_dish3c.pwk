@@ -1,0 +1,10 @@
+node dummy h3c_pwk_use01
+  parent m3_dish3c_pwk
+  position  0.28320 -0.29980  0.57178
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy h3c_pwk_use02
+  parent m3_dish3c_pwk
+  position -0.28125 -0.29980  0.57178
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode

@@ -1,0 +1,10 @@
+ 
+renderhint NormalAndSpecMapped
+ 
+// Textures 
+texture0 m3_ba_pc_d
+texture1 m3_ba_pc_n
+texture2 m3_ba_pc_s
+texture3 m3_ba_pc_r
+texture4 null
+texture5 m3_ba_pc_i

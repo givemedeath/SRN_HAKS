@@ -1,0 +1,10 @@
+node dummy ine_pwk_use01
+  parent SM_MCashierMachine_pwk
+  position  0.00000 -0.11834  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
+node dummy ine_pwk_use02
+  parent SM_MCashierMachine_pwk
+  position  0.00000  0.09313  0.00000
+  orientation  0.00000  1.00000  0.00000  0.00000
+endnode
