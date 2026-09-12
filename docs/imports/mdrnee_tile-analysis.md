@@ -51,11 +51,11 @@
 | srn_t_nac01 | 66 | 0 | 0 | 1597727 |
 | srn_t_net01 | 106 | 0 | 0 | 3287194 |
 | srn_t_shp02 | 2095 | 2 | 0 | 58783949 |
-| srn_t_sjm01 | 505 | 0 | 0 | 33113054 |
+| srn_t_sjm01 | 464 | 0 | 0 | 33091898 |
 | srn_t_srt04 | 18 | 0 | 0 | 613469 |
 | srn_t_tbx78 | 284 | 0 | 0 | 8176128 |
 | srn_t_tfb01 | 1531 | 0 | 0 | 33091601 |
-| srn_t_tjsb0 | 487 | 0 | 0 | 19824557 |
+| srn_t_tjsb0 | 528 | 0 | 0 | 19845713 |
 | srn_t_udp1 | 2108 | 0 | 0 | 79334450 |
 | srn_t_udp2 | 758 | 0 | 0 | 25265429 |
 | srn_t_vac01 | 56 | 0 | 0 | 3379433 |
@@ -74,6 +74,7 @@
 
 ## Profile notes
 
+- Post-import dependency review corrected a decomposition-only ownership swap: the 92 `mijm01_*` minimaps belong to D20 SJ Metal Interior (`srn_t_sjm01`), while the 133 `mijsb0_*` minimaps belong to D20 Secret Base (`srn_t_tjsb0`). The import profile and manifest now reproduce that assignment.
 - Five source edge tables contain 48 missing model identities. UDP2's optional remap remains quarantined because Toolset testing confirmed its Wall-first terrain workflow without the remap.
 - All 18 tilesets are treated as established working content. UDP2 uses the count-normalized SET for a new controlled test: comparison with a Toolset-created area showed that the generated fixture used a group tile instead of the tileset's blank Wall filler tile.
 - The 142 music registrations backed by mdrnee_audio retain source rows 190-194 and 201-337. Five landed modern ambient loops move to blank EE rows 204-205 and 207-209; the oversized bar/club loop and its target row 206 remain deferred. Generic doors use EE user rows 1000 onward, and source skybox rows 7-15 extend the pinned EE baseline.

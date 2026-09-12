@@ -23,7 +23,7 @@
     "vac01": ["vac01pal.itp", "vac01palstd.itp"], "vmp01": ["vmp01pal.itp", "vmp01palstd.itp"],
     "vmr01": ["vmr01pal.itp", "vmr01palstd.itp"], "zsf01": ["zsf01palstd.itp"]
   },
-  "lightmapPrefixes": { "tbx78": ["mi_tbx78"], "tjsb0": ["mijm01"] },
+  "lightmapPrefixes": { "sjm01": ["mijm01"], "tbx78": ["mi_tbx78"], "tjsb0": ["mijsb0"] },
   "resourcePrefixes": {
     "dgt04": ["dgt04", "dgt05", "midg04", "midg05"],
     "fcx01": ["fcx01", "fci01", "cor01", "mi_fcx01", "mi_fci01", "mi_cor01"],
@@ -32,11 +32,11 @@
     "nac01": ["nac01", "mi_nac01", "mi_nar01"],
     "net01": ["net01"],
     "shp02": ["shp02", "shp04", "mi_shp02", "mi_shp04"],
-    "sjm01": ["sjm01", "sjm02", "mijsb0"],
+    "sjm01": ["sjm01", "sjm02", "mijm01"],
     "srt04": ["srt04"],
     "tbx78": ["tbx78", "mi_tbx78"],
     "tfb01": ["tfb01", "mi_tfb01", "mi_tfb_"],
-    "tjsb0": ["tjsb0", "mijm01"],
+    "tjsb0": ["tjsb0", "mijsb0"],
     "udp1": ["udp1", "mi_udp1"],
     "udp2": ["udp2", "mi_udp2"],
     "vac01": ["vac01"],
