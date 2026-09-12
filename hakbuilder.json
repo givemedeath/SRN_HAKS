@@ -24,6 +24,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_vac01",
+      "Path": "./srn_t_vac01/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_door",
       "Path": "./srn_door/",
       "CompileModels": false
