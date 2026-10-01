@@ -45,7 +45,7 @@ $selected = @(); $blueprints = @(); $resources = @()
     $name = "$resref.uti"
     [IO.File]::WriteAllText((Join-Path $utiRaw $name), "Fixture resource $_")
     $resources += @{name=$name; sha256=(Get-FileHash (Join-Path $utiRaw $name)).Hash}
-    $selected += @{rank=$_; blueprintResRef=$resref; baseItem=24; matchTier=$(if ($_ -le 12) {'Exact identity'} else {'Visual stand-in'}); catalogName=$resref}
+    $selected += @{rank=$_; blueprintResRef=$resref; baseItem=24; matchTier=$(if ($_ -le 13) {'Exact identity'} else {'Visual stand-in'}); catalogName=$resref}
     $blueprints += @{resref=$resref; baseItem=24; itemClass='test'; modelType='0'; modelPart1=1; name=$resref; categoryPath='General'; propertyCount=0}
 }
 Write-TestJson (Join-Path $docs 'mdrnee_item-match-tier.json') @{sourceWorkbook=@{archiveSha256=$sourceHash; sha256=$sourceHash}; tiers=@(@{blueprints=$selected})}
@@ -73,6 +73,7 @@ if ((Test-Path $destination) -or @(Get-ChildItem (Join-Path $fixture '.quarantin
 Write-TestJson (Join-Path $fixtureTools 'test-tools.json') @{erf=$realErf; gff=$realGff}
 & (Join-Path $fixtureTools 'Stage-ItemMatches.ps1') -OutputRelativePath selected
 if (@(Get-ChildItem (Join-Path $destination 'blueprints') -File).Count -ne 93) { throw 'Retry did not publish all 93 blueprints.' }
+if ((Get-Content (Join-Path $destination 'migration-report.md') -Raw) -notmatch '13 Exact identity; 80 Visual stand-in') { throw 'Migration report tier counts do not match the selection.' }
 $stagedManifest = Get-Content (Join-Path $destination 'migration-manifest.json') -Raw | ConvertFrom-Json
 if (-not (($stagedManifest | ConvertTo-Json -Depth 30) -match 'Matching simple-model candidate outside item HAK: test_001')) { throw 'Missing simple-model candidate was not reported.' }
 $savedHash = (Get-FileHash (Join-Path $destination 'migration-manifest.json')).Hash

@@ -134,7 +134,9 @@ foreach ($record in $records) { $name="$($record.resref).uti"; if ((Get-FileHash
 $lines = [Collections.Generic.List[string]]::new()
 $lines.Add('# MDRNEE selected-item migration — first stage')
 $lines.Add('')
-$lines.Add("Staged $($records.Count) unchanged blueprints (12 Exact identity; 81 Visual stand-in) and $($assets.Count) candidate assets. Source and ERF roundtrip hashes verified. No production pack or global table was changed.")
+$exactCount = @($records | Where-Object matchTier -eq 'Exact identity').Count
+$standInCount = @($records | Where-Object matchTier -eq 'Visual stand-in').Count
+$lines.Add("Staged $($records.Count) unchanged blueprints ($exactCount Exact identity; $standInCount Visual stand-in) and $($assets.Count) candidate assets. Source and ERF roundtrip hashes verified. No production pack or global table was changed.")
 $lines.Add('')
 $lines.Add('The ERF preserves source gameplay, tags, palette IDs, and BaseItem IDs. It is an archival migration input, **not ready for import into an SRN module**. Candidate assets are a conservative first pass, not a complete runtime closure. Texture formats have not yet been consolidated; collisions have not yet been resolved.')
 $lines.Add('')
