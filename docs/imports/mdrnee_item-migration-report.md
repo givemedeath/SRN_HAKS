@@ -21,13 +21,13 @@ The ERF preserves source gameplay, tags, palette IDs, and BaseItem IDs. It is an
 
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
-| Undercover Vest (_mdrn_it_uvest) | Visual stand-in | Secure Vest | 21 | Direct appearance candidates found; table/property/collision review still required |
+| Undercover Vest (_mdrn_it_uvest) | Visual stand-in | Secure Vest | 21 | Matching simple-model candidate outside item HAK: it_belt_061 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 
 ## Modern Clothing > Medium
 
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
-| Concealable Vest (_mdrn_it_cvest) | Visual stand-in | Armor Vest | 21 | Direct appearance candidates found; table/property/collision review still required |
+| Concealable Vest (_mdrn_it_cvest) | Visual stand-in | Armor Vest | 21 | Matching simple-model candidate outside item HAK: it_belt_061 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 
 ## Modern Clothing > Shields > Tower Shields
 
@@ -40,7 +40,7 @@ The ERF preserves source gameplay, tags, palette IDs, and BaseItem IDs. It is an
 
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
-| Digital Audio Recorder (_mdrn_it_audrec) | Visual stand-in | Audio Recorder [1] | 205 | Direct appearance candidates found; table/property/collision review still required |
+| Digital Audio Recorder (_mdrn_it_audrec) | Visual stand-in | Audio Recorder [1] | 205 | Matching simple-model candidate outside item HAK: it_mdrnthn_010 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 | Scientific Geiger Counter (_mdrn_ot_geiger) | Visual stand-in | Geiger Counter | 15 | Direct appearance candidates found; table/property/collision review still required |
 
 ## Modern General > Drugs
@@ -48,17 +48,17 @@ The ERF preserves source gameplay, tags, palette IDs, and BaseItem IDs. It is an
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
 | Anti-toxin (_mdrn_ot_antidot) | Visual stand-in | Antidote Patch [1] | 15 | Direct appearance candidates found; table/property/collision review still required |
-| Adrenaline Injection (_mdrn_ot_adrenal) | Visual stand-in | Stimulant Patch [1] | 209 | Direct appearance candidates found; table/property/collision review still required |
+| Adrenaline Injection (_mdrn_ot_adrenal) | Visual stand-in | Stimulant Patch [1] | 209 | Matching simple-model candidate outside item HAK: it_mdrnpil_024 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 
 ## Modern General > Professional Equipment
 
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
-| Lockpick Set (_mdrn_ot_lock) | Exact identity | Lockpick Set | 24 | Direct appearance candidates found; table/property/collision review still required |
-| Electrical Toolkit (Deluxe) (_mdrn_ot_disab2) | Visual stand-in | Electronic ToolKit | 207 | Direct appearance candidates found; table/property/collision review still required |
-| Electrical Toolkit (basic) (_mdrn_ot_disable) | Visual stand-in | Electronic ToolKit | 206 | Direct appearance candidates found; table/property/collision review still required |
-| First Aid Kit (_mdrn_firstaid) | Visual stand-in | Basic Medkit | 206 | Direct appearance candidates found; table/property/collision review still required |
-| Medical Kit (_mdrn_medikit) | Visual stand-in | Basic Medkit | 29 | Icon outside item HAK (base/other HAK check needed): iit_midmisc_186 |
+| Lockpick Set (_mdrn_ot_lock) | Exact identity | Lockpick Set | 24 | Matching simple-model candidate outside item HAK: it_smlmisc_121 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| Electrical Toolkit (Deluxe) (_mdrn_ot_disab2) | Visual stand-in | Electronic ToolKit | 207 | Matching simple-model candidate outside item HAK: it_mdrnlrg_003 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| Electrical Toolkit (basic) (_mdrn_ot_disable) | Visual stand-in | Electronic ToolKit | 206 | Matching simple-model candidate outside item HAK: it_mdrnmdm_074 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| First Aid Kit (_mdrn_firstaid) | Visual stand-in | Basic Medkit | 206 | Matching simple-model candidate outside item HAK: it_mdrnmdm_039 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| Medical Kit (_mdrn_medikit) | Visual stand-in | Basic Medkit | 29 | Icon outside item HAK (base/other HAK check needed): iit_midmisc_186; Matching simple-model candidate outside item HAK: it_midmisc_186 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 | Stun Gun (_mdrn_it_stungun) | Visual stand-in | Defiance Super Shock | 28 | Model outside item HAK (base/other HAK check needed): wblcl_t_051 |
 | Microphone (_mdrn_ot_mike1) | Visual stand-in | Subvocal Microphone | 15 | Direct appearance candidates found; table/property/collision review still required |
 | Microphone - News (_mdrn_ot_mike2) | Visual stand-in | Subvocal Microphone | 15 | Direct appearance candidates found; table/property/collision review still required |
@@ -67,18 +67,18 @@ The ERF preserves source gameplay, tags, palette IDs, and BaseItem IDs. It is an
 
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
-| Night Vision Goggles (_mdrn_it_nvgog) | Visual stand-in | Night Vision Contacts | 208 | Direct appearance candidates found; table/property/collision review still required |
+| Night Vision Goggles (_mdrn_it_nvgog) | Visual stand-in | Night Vision Contacts | 208 | Matching simple-model candidate outside item HAK: it_mdrnnek_001 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 
 ## Modern General > Survival Gear
 
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
-| Binoculars (standard) (_mdrn_it_binocs) | Exact identity | Binoculars | 206 | Direct appearance candidates found; table/property/collision review still required |
-| Rope (150 ft.) (_mdrn_ot_rope) | Exact identity | Rope (50 meters) | 29 | Icon outside item HAK (base/other HAK check needed): iit_midmisc_190 |
-| Sleeping Bag (_mdrn_it_sbag) | Exact identity | Sleeping Bag | 34 | Icon outside item HAK (base/other HAK check needed): iit_talmisc_012 |
-| GPS Receiver (_mdrn_it_gps) | Visual stand-in | Nav-Dat GPS | 206 | Direct appearance candidates found; table/property/collision review still required |
+| Binoculars (standard) (_mdrn_it_binocs) | Exact identity | Binoculars | 206 | Matching simple-model candidate outside item HAK: it_mdrnmdm_132 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| Rope (150 ft.) (_mdrn_ot_rope) | Exact identity | Rope (50 meters) | 29 | Icon outside item HAK (base/other HAK check needed): iit_midmisc_190; Matching simple-model candidate outside item HAK: it_midmisc_190 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| Sleeping Bag (_mdrn_it_sbag) | Exact identity | Sleeping Bag | 34 | Icon outside item HAK (base/other HAK check needed): iit_talmisc_012; Matching simple-model candidate outside item HAK: it_talmisc_012 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| GPS Receiver (_mdrn_it_gps) | Visual stand-in | Nav-Dat GPS | 206 | Matching simple-model candidate outside item HAK: it_mdrnmdm_017 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 | Flashlight (_mdrn_it_torch) | Visual stand-in | Flashlight, pocket | 15 | Direct appearance candidates found; table/property/collision review still required |
-| Binoculars (Electro-Optical) (_mdrn_it_ebinoc) | Visual stand-in | Binoculars | 208 | Direct appearance candidates found; table/property/collision review still required |
+| Binoculars (Electro-Optical) (_mdrn_it_ebinoc) | Visual stand-in | Binoculars | 208 | Matching simple-model candidate outside item HAK: it_mdrnnek_001 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 | Flashlight (_mdrn_ot_light) | Visual stand-in | Flashlight, large | 15 | Direct appearance candidates found; table/property/collision review still required |
 | Gas Mask (_mdrn_it_gasmask) | Visual stand-in | Respirator | 17 | Special appearance mapping requires inspection: armor, helmet, or ammunition |
 
@@ -86,15 +86,15 @@ The ERF preserves source gameplay, tags, palette IDs, and BaseItem IDs. It is an
 
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
-| Laser Sight (_mdrn_ot_laser) | Visual stand-in | Laser Sight | 79 | Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177 |
-| Electro-Optic Scope (_mdrn_ot_nscope) | Visual stand-in | Imaging Scope: Low-Light | 79 | Icon outside item HAK (base/other HAK check needed): iit_thnmisc_181 |
-| Standard Scope (_mdrn_ot_scope) | Visual stand-in | Imaging Scope: Mag:1 | 79 | Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177 |
+| Laser Sight (_mdrn_ot_laser) | Visual stand-in | Laser Sight | 79 | Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177; Matching simple-model candidate outside item HAK: it_thnmisc_177 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| Electro-Optic Scope (_mdrn_ot_nscope) | Visual stand-in | Imaging Scope: Low-Light | 79 | Icon outside item HAK (base/other HAK check needed): iit_thnmisc_181; Matching simple-model candidate outside item HAK: it_thnmisc_181 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
+| Standard Scope (_mdrn_ot_scope) | Visual stand-in | Imaging Scope: Mag:1 | 79 | Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177; Matching simple-model candidate outside item HAK: it_thnmisc_177 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 
 ## Modern Weapons > Ammunitions > Boxes & Packs
 
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
-| Bolts (d20_ammo_box_100) | Exact identity | Bolts | 202 | Direct appearance candidates found; table/property/collision review still required |
+| Bolts (d20_ammo_box_100) | Exact identity | Bolts | 202 | Matching simple-model candidate outside item HAK: it_faammo_015 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 
 ## Modern Weapons > Ammunitions > Handgun
 
@@ -133,7 +133,7 @@ The ERF preserves source gameplay, tags, palette IDs, and BaseItem IDs. It is an
 | Blueprint | Tier | SR3 match | Legacy base row | Follow-up |
 |---|---|---|---:|---|
 | Chainsaw (_mdrn_it_csaw) | Exact identity | Chainsaw(Chainsaw) | 60 | Texture outside item HAK: fxpa_smoke01 (from wspsc_m_014.mdl) |
-| Brass Knuckles (_mdrn_it_brasskn) | Exact identity | Brass Knuckles | 36 | Direct appearance candidates found; table/property/collision review still required |
+| Brass Knuckles (_mdrn_it_brasskn) | Exact identity | Brass Knuckles | 36 | Matching simple-model candidate outside item HAK: it_glove_022 (check declared DefaultModel and EE/shared assets; this candidate may be optional) |
 
 ## Modern Weapons > Polearms
 

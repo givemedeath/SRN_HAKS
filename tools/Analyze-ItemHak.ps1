@@ -35,11 +35,23 @@ foreach ($path in @($workspace, (Join-Path $workspace 'raw'), (Join-Path $worksp
     }
 }
 
+$publishedRawRoot = Join-Path $workspace 'raw'
+$publishedAnalysisRoot = Join-Path $workspace 'analysis'
+$sourcePath = (Resolve-Path -LiteralPath $InputHak).Path
+foreach ($target in @($publishedRawRoot, $publishedAnalysisRoot)) {
+    if ($sourcePath.Equals($target, $comparison) -or $sourcePath.StartsWith($target + [IO.Path]::DirectorySeparatorChar, $comparison)) {
+        throw 'InputHak must be outside the output raw and analysis directories.'
+    }
+}
+$buildRelativePath = [IO.Path]::GetRelativePath($quarantineRoot, (Join-Path (Split-Path $workspace -Parent) ('.item-analysis-build-' + [Guid]::NewGuid().ToString('N'))))
+$buildRoot = Resolve-SrnQuarantinePath $buildRelativePath
+New-Item -ItemType Directory -Path $buildRoot -Force | Out-Null
+try {
 if (-not $SkipImport) {
     $arguments = @{
         Mode = 'Analyze'
         InputHak = $InputHak
-        OutputRelativePath = $OutputRelativePath
+        OutputRelativePath = $buildRelativePath
         ProfilePath = $ProfilePath
     }
     if ($NwnRoot) { $arguments.NwnRoot = $NwnRoot }
@@ -47,8 +59,21 @@ if (-not $SkipImport) {
     & (Join-Path $PSScriptRoot 'Import-Hak.ps1') @arguments
 }
 
-$rawRoot = Join-Path $workspace 'raw'
-$analysisRoot = Join-Path $workspace 'analysis'
+$rawRoot = if ($SkipImport) { $publishedRawRoot } else { Join-Path $buildRoot 'raw' }
+$analysisRoot = Join-Path $buildRoot 'analysis'
+New-Item -ItemType Directory -Path $analysisRoot -Force | Out-Null
+$generated = @('itempal.json', 'item-category-map.json', '2da-comparison.json', 'model-dependencies.json', 'sound-linkages.json', 'cross-hak-collisions.json', 'ee-baseline')
+if (-not $SkipImport) { $generated += @('manifest.json', 'report.md') }
+if (Test-Path -LiteralPath $publishedAnalysisRoot) {
+    foreach ($entry in @(Get-ChildItem -LiteralPath $publishedAnalysisRoot -Force)) {
+        if ($entry.Name -in $generated) { continue }
+        $descendants = @($entry) + @(if ($entry.PSIsContainer) { Get-ChildItem -LiteralPath $entry.FullName -Recurse -Force })
+        if (@($descendants | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint }).Count) {
+            throw "Reparse point not allowed in retained analysis: $($entry.FullName)"
+        }
+        Copy-Item -LiteralPath $entry.FullName -Destination $analysisRoot -Recurse -Force
+    }
+}
 $manifestPath = Join-Path $analysisRoot 'manifest.json'
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
     throw "Missing import analysis manifest: $manifestPath"
@@ -268,6 +293,7 @@ if ($NwnRoot -and $NwnUserDirectory) {
     & $grep --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr --all --silent | ForEach-Object {
         if ($_ -match '^\s*(\S+)') { [void]$baseNames.Add($matches[1]) }
     }
+    if ($LASTEXITCODE -ne 0) { throw 'Unable to inventory the requested NWN:EE baseline.' }
 }
 $textureReferences = @{}
 $supermodelReferences = @{}
@@ -383,4 +409,10 @@ Write-AnalysisJson -Name 'cross-hak-collisions.json' -Value ([ordered]@{
     pairs = @($crossPackPairs | Sort-Object pack, name)
 })
 
-Write-Host "Item HAK supplements complete: $analysisRoot"
+$replacements = @(@{ source = $analysisRoot; destination = $publishedAnalysisRoot })
+if (-not $SkipImport) { $replacements = @(@{ source = $rawRoot; destination = $publishedRawRoot }) + $replacements }
+Publish-SrnDirectorySet $replacements
+Write-Host "Item HAK supplements complete: $publishedAnalysisRoot"
+} finally {
+    if (Test-Path -LiteralPath $buildRoot) { Remove-Item -LiteralPath $buildRoot -Recurse -Force }
+}

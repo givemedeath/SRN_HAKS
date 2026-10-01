@@ -24,6 +24,14 @@ function Resolve-LocalPath([string]$Relative) {
 $output = Resolve-LocalPath $OutputRelativePath
 $items = Resolve-LocalPath $ItemSourceRelativePath
 $blueprints = Resolve-LocalPath $BlueprintSourceRelativePath
+$comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+foreach ($source in @($items, $blueprints)) {
+    if ($output.Equals($source, $comparison) -or
+        $output.StartsWith($source + [IO.Path]::DirectorySeparatorChar, $comparison) -or
+        $source.StartsWith($output + [IO.Path]::DirectorySeparatorChar, $comparison)) {
+        throw 'Staging output must not overlap either source directory.'
+    }
+}
 if (Test-Path -LiteralPath $output) { throw 'Output already exists; choose a new OutputRelativePath to preserve previous runs.' }
 $selection = Get-Content (Join-Path $root 'docs/imports/mdrnee_item-match-tier.json') -Raw | ConvertFrom-Json
 $analysis = Get-Content (Join-Path $root 'docs/imports/mdrnee_item-blueprint-analysis.json') -Raw | ConvertFrom-Json
@@ -66,7 +74,9 @@ foreach ($candidate in $selected) {
     } elseif ($b.modelType -eq '0') {
         $stem = '{0}_{1:000}' -f $prefix,[int]$b.modelPart1
         if (-not (Add-Image "i$stem" $b.resref 'Inventory appearance')) { $unresolved.Add("Icon outside item HAK (base/other HAK check needed): i$stem") }
-        [void](Add-Asset "$stem.mdl" $b.resref 'Matching simple-model candidate')
+        if (-not (Add-Asset "$stem.mdl" $b.resref 'Matching simple-model candidate')) {
+            $unresolved.Add("Matching simple-model candidate outside item HAK: $stem (check declared DefaultModel and EE/shared assets; this candidate may be optional)")
+        }
     } else {
         $unresolved.Add('Special appearance mapping requires inspection: armor, helmet, or ammunition')
     }

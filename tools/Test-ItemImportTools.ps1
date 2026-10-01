@@ -22,15 +22,23 @@ foreach ($name in @('Stage-ItemMatches.ps1','Analyze-ItemBlueprintErf.ps1','Anal
 function Write-TestJson([string]$Path, $Value) { [IO.File]::WriteAllText($Path, ($Value | ConvertTo-Json -Depth 30) + "`n") }
 Write-TestJson (Join-Path $fixtureTools 'test-tools.json') @{ erf=$realErf; gff=$realGff }
 # The fixture resolver uses the real pinned binaries; its ERF path can be replaced to inject a failure.
-[IO.File]::WriteAllText((Join-Path $fixtureTools 'SrnHaks.Common.psm1'), @'
+$fixtureCommon = Join-Path $fixtureTools 'SrnHaks.Common.psm1'
+[IO.File]::WriteAllText($fixtureCommon, [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'SrnHaks.Common.psm1')) + "`n" + @'
 function Get-SrnRepositoryRoot { Split-Path -Parent $PSScriptRoot }
 function Get-SrnTool([string]$Name) {
     $tools = Get-Content (Join-Path $PSScriptRoot 'test-tools.json') -Raw | ConvertFrom-Json
     $tools.$Name
 }
-Export-ModuleMember -Function Get-SrnRepositoryRoot,Get-SrnTool
+Export-ModuleMember -Function Get-SrnRepositoryRoot,Get-SrnTool,Resolve-SrnQuarantinePath,Publish-SrnDirectorySet
 '@)
 $sourceHash = 'A' * 64
+foreach ($overlap in @('mdrnee_item/raw/migration','mdrnee_item/blueprints/raw/migration')) {
+    try {
+        & (Join-Path $fixtureTools 'Stage-ItemMatches.ps1') -OutputRelativePath $overlap
+        throw 'Source-nested staging output unexpectedly accepted.'
+    } catch { if ($_.Exception.Message -ne 'Staging output must not overlap either source directory.') {throw} }
+    if (Test-Path (Join-Path $fixture ".quarantine/$overlap")) {throw 'Overlap rejection contaminated source extraction.'}
+}
 $selected = @(); $blueprints = @(); $resources = @()
 1..93 | ForEach-Object {
     $resref = 'item{0:000}' -f $_
@@ -65,6 +73,8 @@ if ((Test-Path $destination) -or @(Get-ChildItem (Join-Path $fixture '.quarantin
 Write-TestJson (Join-Path $fixtureTools 'test-tools.json') @{erf=$realErf; gff=$realGff}
 & (Join-Path $fixtureTools 'Stage-ItemMatches.ps1') -OutputRelativePath selected
 if (@(Get-ChildItem (Join-Path $destination 'blueprints') -File).Count -ne 93) { throw 'Retry did not publish all 93 blueprints.' }
+$stagedManifest = Get-Content (Join-Path $destination 'migration-manifest.json') -Raw | ConvertFrom-Json
+if (-not (($stagedManifest | ConvertTo-Json -Depth 30) -match 'Matching simple-model candidate outside item HAK: test_001')) { throw 'Missing simple-model candidate was not reported.' }
 $savedHash = (Get-FileHash (Join-Path $destination 'migration-manifest.json')).Hash
 try {
     & (Join-Path $fixtureTools 'Stage-ItemMatches.ps1') -OutputRelativePath selected
@@ -193,16 +203,16 @@ Assert-PreviousAnalysis
 
 # Inject a failure after the new raw directory is published to exercise the actual rollback.
 $fixtureAnalyzer = Join-Path $fixtureTools 'Analyze-ItemBlueprintErf.ps1'
-$analyzerCode = [IO.File]::ReadAllText($fixtureAnalyzer)
+$analyzerCode = [IO.File]::ReadAllText($fixtureCommon)
 $moveStatement = '[IO.Directory]::Move($target.source, $target.destination)'
 if (-not $analyzerCode.Contains($moveStatement)) {throw 'Publication failure injection point is missing.'}
 $injectedCode = $analyzerCode.Replace($moveStatement, "if (`$target.name -eq 'analysis') { throw 'Injected publication failure' }; " + $moveStatement)
-[IO.File]::WriteAllText($fixtureAnalyzer,$injectedCode)
+[IO.File]::WriteAllText($fixtureCommon,$injectedCode)
 try {
     & $fixtureAnalyzer -InputErf $anomalyErf -OutputRelativePath anomalies
     throw 'Expected publication failure was not raised.'
 } catch { if ($_.Exception.Message -ne 'Injected publication failure') {throw} }
-finally { [IO.File]::WriteAllText($fixtureAnalyzer,$analyzerCode) }
+finally { [IO.File]::WriteAllText($fixtureCommon,$analyzerCode) }
 Assert-PreviousAnalysis
 & (Join-Path $fixtureTools 'Analyze-ItemBlueprintErf.ps1') -InputErf $anomalyErf -OutputRelativePath anomalies -ExpectedResourceCount 2
 Assert-PreviousAnalysis
@@ -231,6 +241,14 @@ Write-TestJson (Join-Path $fixtureTools 'test-tools.json') @{erf=$realErf; gff=$
 & (Join-Path $fixtureTools 'Analyze-ItemHak.ps1') -InputHak $hakPath -OutputRelativePath hak -ProfilePath $profilePath -NwnRoot fixture-game -NwnUserDirectory fixture-user
 if (@(Get-Content (Join-Path $fixtureTools 'baseline-calls.txt')).Count -ne 2) {throw 'Nested and supplemental baseline queries did not use the resolved helper.'}
 $hakWorkspace = Join-Path $fixture '.quarantine/hak'
+$nestedHak = Join-Path $hakWorkspace 'raw/source.hak'
+Copy-Item -LiteralPath $hakPath -Destination $nestedHak
+try {
+    & (Join-Path $fixtureTools 'Analyze-ItemHak.ps1') -InputHak $nestedHak -OutputRelativePath hak -ProfilePath $profilePath
+    throw 'Input HAK beneath the replacement target unexpectedly accepted.'
+} catch { if ($_.Exception.Message -ne 'InputHak must be outside the output raw and analysis directories.') {throw} }
+if ((Get-FileHash $nestedHak).Hash -ne $profile.expectedSha256) {throw 'Overlap rejection modified the input archive.'}
+[IO.File]::Delete($nestedHak)
 $rawModel = Join-Path $hakWorkspace 'raw/test.mdl'
 $hakSnapshot = @{}
 foreach ($file in Get-ChildItem (Join-Path $hakWorkspace 'analysis') -Recurse -File) { $hakSnapshot[$file.FullName] = (Get-FileHash $file.FullName).Hash }
@@ -260,5 +278,18 @@ try {
 } catch { if ($_.Exception.Message -ne 'Raw inventory does not match the analysis manifest.') {throw} }
 Assert-HakReportsPreserved
 [IO.File]::Delete($extra)
+# Both supplemental and nested baseline failures must leave the prior extraction/reports intact.
+$baselineCode = [IO.File]::ReadAllText($baselineSpy)
+[IO.File]::WriteAllText($baselineSpy,$baselineCode.Replace('$global:LASTEXITCODE = 0','$global:LASTEXITCODE = 7'))
+foreach ($reuse in @($true,$false)) {
+    try {
+        & (Join-Path $fixtureTools 'Analyze-ItemHak.ps1') -InputHak $hakPath -OutputRelativePath hak -ProfilePath $profilePath -NwnRoot fixture-game -NwnUserDirectory fixture-user -SkipImport:$reuse
+        throw 'Failed baseline inventory unexpectedly accepted.'
+    } catch { if ($_.Exception.Message -ne 'Unable to inventory the requested NWN:EE baseline.') {throw} }
+    Assert-HakReportsPreserved
+    if ([IO.File]::ReadAllText($rawModel) -cne $modelText) {throw 'Failed baseline query changed the raw extraction.'}
+    if (@(Get-ChildItem (Join-Path $fixture '.quarantine') -Directory -Force -Filter '.item-analysis-build-*').Count) {throw 'Failed HAK analysis left temporary output.'}
+}
+[IO.File]::WriteAllText($baselineSpy,$baselineCode)
 & (Join-Path $fixtureTools 'Analyze-ItemHak.ps1') -InputHak $hakPath -OutputRelativePath hak -SkipImport
 Write-Host 'Item import regression checks passed, including reused-inventory verification, nested platform helper calls, failed repeat preservation, and publication rollback.'

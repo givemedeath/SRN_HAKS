@@ -163,7 +163,6 @@ $buildRoot = Resolve-QuarantinePath ([IO.Path]::GetRelativePath($quarantineRoot,
 $rawRoot = Join-Path $buildRoot 'raw'
 $analysisRoot = Join-Path $buildRoot 'analysis'
 $decodedRoot = Join-Path $analysisRoot 'uti-json'
-$preserveBuildRoot = $false
 try {
 New-Item -ItemType Directory -Path $rawRoot, $analysisRoot -Force | Out-Null
 New-Item -ItemType Directory -Force -Path $decodedRoot | Out-Null
@@ -488,46 +487,13 @@ if ($MatchTierPath) {
 }
 [IO.File]::WriteAllText((Join-Path $analysisRoot 'blueprint-report.md'), $markdown.ToString().TrimEnd() + "`n", [Text.UTF8Encoding]::new($false))
 
-# Publish only complete replacements. If either move fails, restore both previous directories.
-[void](Resolve-QuarantinePath $OutputRelativePath)
-foreach ($path in @($publishedRawRoot, $publishedAnalysisRoot)) {
-    [void](Resolve-QuarantinePath ([IO.Path]::GetRelativePath($quarantineRoot, $path)))
-}
-New-Item -ItemType Directory -Path $workspace -Force | Out-Null
-$backupRoot = New-Item -ItemType Directory -Path (Join-Path $buildRoot 'backup')
-$targets = @(
-    @{ name='raw'; source=$rawRoot; destination=$publishedRawRoot },
-    @{ name='analysis'; source=$analysisRoot; destination=$publishedAnalysisRoot }
+Publish-SrnDirectorySet @(
+    @{ source=$rawRoot; destination=$publishedRawRoot },
+    @{ source=$analysisRoot; destination=$publishedAnalysisRoot }
 )
-$backedUp = [Collections.Generic.List[object]]::new()
-$installed = [Collections.Generic.List[object]]::new()
-try {
-    foreach ($target in $targets) {
-        if (Test-Path -LiteralPath $target.destination) {
-            [IO.Directory]::Move($target.destination, (Join-Path $backupRoot.FullName $target.name))
-            $backedUp.Add($target)
-        }
-    }
-    foreach ($target in $targets) {
-        [IO.Directory]::Move($target.source, $target.destination)
-        $installed.Add($target)
-    }
-}
-catch {
-    $publishFailure = $_
-    try {
-        foreach ($target in $installed) { Remove-Item -LiteralPath $target.destination -Recurse -Force }
-        foreach ($target in $backedUp) { [IO.Directory]::Move((Join-Path $backupRoot.FullName $target.name), $target.destination) }
-    }
-    catch {
-        $preserveBuildRoot = $true
-        throw "Could not restore previous analysis; backups preserved at $($backupRoot.FullName): $($_.Exception.Message)"
-    }
-    throw $publishFailure
-}
 }
 finally {
-    if (-not $preserveBuildRoot -and (Test-Path -LiteralPath $buildRoot)) {
+    if (Test-Path -LiteralPath $buildRoot) {
         Remove-Item -LiteralPath $buildRoot -Recurse -Force
     }
 }

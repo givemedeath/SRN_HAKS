@@ -68,4 +68,66 @@ function Write-SrnJsonAtomic {
     }
 }
 
-Export-ModuleMember -Function Get-SrnRepositoryRoot, Get-SrnConfiguration, Resolve-SrnRepositoryPath, Get-SrnTool, Write-SrnJsonAtomic
+function Resolve-SrnQuarantinePath {
+    param([Parameter(Mandatory)][string]$RelativePath)
+    if ([string]::IsNullOrWhiteSpace($RelativePath) -or [IO.Path]::IsPathRooted($RelativePath)) { throw 'Expected a quarantine-relative path.' }
+    $root = [IO.Path]::GetFullPath((Join-Path (Get-SrnRepositoryRoot) '.quarantine'))
+    $resolved = [IO.Path]::GetFullPath((Join-Path $root $RelativePath))
+    $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+    if (-not $resolved.StartsWith($root + [IO.Path]::DirectorySeparatorChar, $comparison)) { throw 'Path escapes quarantine.' }
+    $current = $resolved
+    while ($current -and $current.Length -ge $root.Length) {
+        if ((Test-Path -LiteralPath $current) -and
+            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Reparse point not allowed: $current" }
+        $current = Split-Path $current -Parent
+    }
+    $resolved
+}
+
+function Publish-SrnDirectorySet {
+    param([Parameter(Mandatory)][object[]]$Replacements)
+    $quarantine = [IO.Path]::GetFullPath((Join-Path (Get-SrnRepositoryRoot) '.quarantine'))
+    $targets = @($Replacements | ForEach-Object {
+        $source = Resolve-SrnQuarantinePath ([IO.Path]::GetRelativePath($quarantine, [IO.Path]::GetFullPath($_.source)))
+        $destination = Resolve-SrnQuarantinePath ([IO.Path]::GetRelativePath($quarantine, [IO.Path]::GetFullPath($_.destination)))
+        if (-not (Test-Path -LiteralPath $source -PathType Container)) { throw "Missing replacement directory: $source" }
+        if ((Test-Path -LiteralPath $destination) -and -not (Test-Path -LiteralPath $destination -PathType Container)) { throw "Destination is not a directory: $destination" }
+        [pscustomobject]@{source=$source; destination=$destination; name=[IO.Path]::GetFileName($destination)}
+    })
+    $backupParent = Split-Path (Split-Path $targets[0].destination -Parent) -Parent
+    $backupPath = Resolve-SrnQuarantinePath ([IO.Path]::GetRelativePath($quarantine, (Join-Path $backupParent ('.analysis-backup-' + [Guid]::NewGuid().ToString('N')))))
+    $backupRoot = New-Item -ItemType Directory -Path $backupPath
+    $backedUp = [Collections.Generic.List[object]]::new()
+    $installed = [Collections.Generic.List[object]]::new()
+    $preserveBackup = $false
+    try {
+        foreach ($target in $targets) {
+            New-Item -ItemType Directory -Path (Split-Path $target.destination -Parent) -Force | Out-Null
+            if (Test-Path -LiteralPath $target.destination) {
+                [IO.Directory]::Move($target.destination, (Join-Path $backupRoot.FullName $target.name))
+                $backedUp.Add($target)
+            }
+        }
+        foreach ($target in $targets) {
+            [IO.Directory]::Move($target.source, $target.destination)
+            $installed.Add($target)
+        }
+    }
+    catch {
+        $publishFailure = $_
+        try {
+            foreach ($target in $installed) { Remove-Item -LiteralPath $target.destination -Recurse -Force }
+            foreach ($target in $backedUp) { [IO.Directory]::Move((Join-Path $backupRoot.FullName $target.name), $target.destination) }
+        }
+        catch {
+            $preserveBackup = $true
+            throw "Could not restore previous analysis; backups preserved at $($backupRoot.FullName): $($_.Exception.Message)"
+        }
+        throw $publishFailure
+    }
+    finally {
+        if (-not $preserveBackup -and (Test-Path -LiteralPath $backupRoot.FullName)) { Remove-Item -LiteralPath $backupRoot.FullName -Recurse -Force }
+    }
+}
+
+Export-ModuleMember -Function Get-SrnRepositoryRoot, Get-SrnConfiguration, Resolve-SrnRepositoryPath, Get-SrnTool, Write-SrnJsonAtomic, Resolve-SrnQuarantinePath, Publish-SrnDirectorySet

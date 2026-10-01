@@ -32,7 +32,9 @@
       "itemClass": "it_mdrnmdm",
       "modelType": "0",
       "propertyCount": 1,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnmdm_132 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -60,7 +62,9 @@
       "itemClass": "it_faammo",
       "modelType": "0",
       "propertyCount": 0,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_faammo_015 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -86,7 +90,9 @@
       "itemClass": "it_smlmisc",
       "modelType": "0",
       "propertyCount": 0,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_smlmisc_121 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -100,7 +106,8 @@
       "modelType": "0",
       "propertyCount": 1,
       "unresolved": [
-        "Icon outside item HAK (base/other HAK check needed): iit_midmisc_190"
+        "Icon outside item HAK (base/other HAK check needed): iit_midmisc_190",
+        "Matching simple-model candidate outside item HAK: it_midmisc_190 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
       ],
       "status": "staged-original-not-runtime-ready"
     },
@@ -115,7 +122,8 @@
       "modelType": "0",
       "propertyCount": 1,
       "unresolved": [
-        "Icon outside item HAK (base/other HAK check needed): iit_talmisc_012"
+        "Icon outside item HAK (base/other HAK check needed): iit_talmisc_012",
+        "Matching simple-model candidate outside item HAK: it_talmisc_012 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
       ],
       "status": "staged-original-not-runtime-ready"
     },
@@ -155,7 +163,9 @@
       "itemClass": "it_glove",
       "modelType": "0",
       "propertyCount": 1,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_glove_022 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -209,7 +219,9 @@
       "itemClass": "it_mdrnthn",
       "modelType": "0",
       "propertyCount": 0,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnthn_010 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -237,7 +249,9 @@
       "itemClass": "it_belt",
       "modelType": "0",
       "propertyCount": 2,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_belt_061 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -263,7 +277,9 @@
       "itemClass": "it_mdrnlrg",
       "modelType": "0",
       "propertyCount": 1,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnlrg_003 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -276,7 +292,9 @@
       "itemClass": "it_mdrnmdm",
       "modelType": "0",
       "propertyCount": 1,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnmdm_074 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -343,7 +361,9 @@
       "itemClass": "it_mdrnmdm",
       "modelType": "0",
       "propertyCount": 0,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnmdm_017 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -370,7 +390,8 @@
       "modelType": "0",
       "propertyCount": 1,
       "unresolved": [
-        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177"
+        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177",
+        "Matching simple-model candidate outside item HAK: it_thnmisc_177 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
       ],
       "status": "staged-original-not-runtime-ready"
     },
@@ -384,7 +405,9 @@
       "itemClass": "it_mdrnmdm",
       "modelType": "0",
       "propertyCount": 2,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnmdm_039 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -398,7 +421,8 @@
       "modelType": "0",
       "propertyCount": 1,
       "unresolved": [
-        "Icon outside item HAK (base/other HAK check needed): iit_midmisc_186"
+        "Icon outside item HAK (base/other HAK check needed): iit_midmisc_186",
+        "Matching simple-model candidate outside item HAK: it_midmisc_186 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
       ],
       "status": "staged-original-not-runtime-ready"
     },
@@ -490,7 +514,9 @@
       "itemClass": "it_belt",
       "modelType": "0",
       "propertyCount": 1,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_belt_061 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -603,7 +629,9 @@
       "itemClass": "it_mdrnnek",
       "modelType": "0",
       "propertyCount": 3,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnnek_001 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -699,7 +727,8 @@
       "modelType": "0",
       "propertyCount": 2,
       "unresolved": [
-        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_181"
+        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_181",
+        "Matching simple-model candidate outside item HAK: it_thnmisc_181 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
       ],
       "status": "staged-original-not-runtime-ready"
     },
@@ -1085,7 +1114,8 @@
       "modelType": "0",
       "propertyCount": 1,
       "unresolved": [
-        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177"
+        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177",
+        "Matching simple-model candidate outside item HAK: it_thnmisc_177 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
       ],
       "status": "staged-original-not-runtime-ready"
     },
@@ -1250,7 +1280,9 @@
       "itemClass": "it_mdrnnek",
       "modelType": "0",
       "propertyCount": 3,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnnek_001 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     },
     {
@@ -1263,7 +1295,9 @@
       "itemClass": "it_mdrnpil",
       "modelType": "0",
       "propertyCount": 1,
-      "unresolved": [],
+      "unresolved": [
+        "Matching simple-model candidate outside item HAK: it_mdrnpil_024 (check declared DefaultModel and EE/shared assets; this candidate may be optional)"
+      ],
       "status": "staged-original-not-runtime-ready"
     }
   ],

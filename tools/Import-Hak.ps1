@@ -522,6 +522,7 @@ if ($Mode -eq 'Analyze') {
     if ($NwnRoot -and $NwnUserDirectory) {
         $grep = Get-SrnTool -Name resman_grep
         & $grep --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr --all --md5 | ForEach-Object { if ($_ -match '^\s*(\S+)\s+([0-9a-f]{32})') { [void]$baseNames.Add($matches[1]); $baseHashes[$matches[1].ToLowerInvariant()] = $matches[2].ToLowerInvariant() } }
+        if ($LASTEXITCODE -ne 0) { throw 'Unable to inventory the requested NWN:EE baseline.' }
     }
 
     $landing = @{}
