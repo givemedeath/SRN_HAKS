@@ -124,7 +124,7 @@ foreach ($path in @($rawRoot, $analysisRoot)) {
 New-Item -ItemType Directory -Force -Path $decodedRoot | Out-Null
 
 $erf = Get-SrnTool -Name erf
-$gff = Join-Path (Split-Path -Parent $erf) 'nwn_gff.exe'
+$gff = Get-SrnTool -Name gff
 Push-Location $rawRoot
 try {
     & $erf -x -f $source
@@ -332,9 +332,9 @@ $markdown = [Text.StringBuilder]::new()
 [void]$markdown.AppendLine()
 [void]$markdown.AppendLine('## Integrity and item-property usage')
 [void]$markdown.AppendLine()
-[void]$markdown.AppendLine("- All **$($blueprints.Count)** ResRefs are unique.")
-[void]$markdown.AppendLine("- All **$($blueprints.Count)** Palette IDs resolve to a friendly ``itempal.itp`` leaf.")
-[void]$markdown.AppendLine("- All **$($blueprints.Count)** BaseItem values resolve to a row in the source ``baseitems.2da``.")
+[void]$markdown.AppendLine("- **$($analysis.uniqueResRefCount)** distinct ResRefs across **$($blueprints.Count)** blueprints; **$($blueprints.Count - $analysis.uniqueResRefCount)** repeated occurrences.")
+[void]$markdown.AppendLine("- **$($analysis.categorizedBlueprintCount) of $($blueprints.Count)** Palette IDs resolve to a friendly ``itempal.itp`` leaf; **$($analysis.unmappedBlueprintCount)** are unmapped.")
+[void]$markdown.AppendLine("- **$($blueprints.Count - $analysis.missingBaseItemCount) of $($blueprints.Count)** BaseItem values resolve to a row in the source ``baseitems.2da``; **$($analysis.missingBaseItemCount)** are missing.")
 [void]$markdown.AppendLine("- **$(@($blueprints | Where-Object propertyCount -gt 0).Count)** blueprints carry **$($propertyInstances.Count)** item-property instances. Their PropertyName and CostTable rows must be remapped with the merged 2DAs.")
 [void]$markdown.AppendLine("- **$($duplicateTags.Count)** tag values are non-unique; this does not invalidate the blueprints, but tag-based scripts may intentionally target more than one template.")
 [void]$markdown.AppendLine()

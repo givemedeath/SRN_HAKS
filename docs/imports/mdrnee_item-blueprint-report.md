@@ -18,9 +18,9 @@ Only the UTI records are in item-import scope. The ERF also contains areas, crea
 
 ## Integrity and item-property usage
 
-- All **669** ResRefs are unique.
-- All **669** Palette IDs resolve to a friendly `itempal.itp` leaf.
-- All **669** BaseItem values resolve to a row in the source `baseitems.2da`.
+- **669** distinct ResRefs across **669** blueprints; **0** repeated occurrences.
+- **669 of 669** Palette IDs resolve to a friendly `itempal.itp` leaf; **0** are unmapped.
+- **669 of 669** BaseItem values resolve to a row in the source `baseitems.2da`; **0** are missing.
 - **403** blueprints carry **790** item-property instances. Their PropertyName and CostTable rows must be remapped with the merged 2DAs.
 - **13** tag values are non-unique; this does not invalidate the blueprints, but tag-based scripts may intentionally target more than one template.
 

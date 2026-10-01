@@ -12,7 +12,8 @@ $quarantine = [IO.Path]::GetFullPath((Join-Path $root '.quarantine'))
 function Resolve-LocalPath([string]$Relative) {
     if ([string]::IsNullOrWhiteSpace($Relative) -or [IO.Path]::IsPathRooted($Relative)) { throw 'Expected a quarantine-relative path.' }
     $path = [IO.Path]::GetFullPath((Join-Path $quarantine $Relative))
-    if (-not $path.StartsWith($quarantine + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Path escapes quarantine.' }
+    $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+    if (-not $path.StartsWith($quarantine + [IO.Path]::DirectorySeparatorChar, $comparison)) { throw 'Path escapes quarantine.' }
     $current = $path
     while ($current -and $current.Length -ge $quarantine.Length) {
         if ((Test-Path -LiteralPath $current) -and ((Get-Item -LiteralPath $current).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Reparse point not allowed: $current" }
@@ -92,6 +93,11 @@ foreach ($record in $records) {
     if (-not $erfIndex.ContainsKey($name) -or (Get-FileHash -LiteralPath (Join-Path $blueprints $name)).Hash -ne $erfIndex[$name].sha256) { throw "Blueprint hash mismatch: $name" }
 }
 foreach ($name in $assets.Keys) { if ((Get-FileHash -LiteralPath (Join-Path $items $name)).Hash -ne $assets[$name].sha256) { throw "Asset hash mismatch: $name" } }
+$destination = $output
+$parent = Split-Path $destination -Parent
+New-Item -ItemType Directory -Path $parent -Force | Out-Null
+$output = Resolve-LocalPath ([IO.Path]::GetRelativePath($quarantine, (Join-Path $parent ('.item-staging-' + [Guid]::NewGuid().ToString('N')))))
+try {
 $utiOut = New-Item -ItemType Directory -Path (Join-Path $output 'blueprints') -Force
 $assetOut = New-Item -ItemType Directory -Path (Join-Path $output 'srn_item-candidate') -Force
 foreach ($record in $records) { Copy-Item -LiteralPath (Join-Path $blueprints "$($record.resref).uti") -Destination $utiOut.FullName }
@@ -132,4 +138,10 @@ foreach ($group in ($records | Group-Object category | Sort-Object Name)) {
     foreach ($r in $group.Group) { $notes= if ($r.unresolved.Count) { $r.unresolved -join '; ' } else { 'Direct appearance candidates found; table/property/collision review still required' }; $lines.Add("| $($r.name) ($($r.resref)) | $($r.matchTier) | $($r.catalogName) | $($r.baseItem) | $notes |".Replace('| |','| |')) }
 }
 [IO.File]::WriteAllText((Join-Path $output 'migration-report.md'), ($lines -join "`n") + "`n")
-Write-Output "Verified candidate staging: $output ($($records.Count) blueprints, $($assets.Count) assets)."
+[IO.Directory]::Move($output, $destination)
+}
+finally {
+    # This is the generated staging directory, never the requested destination.
+    if (Test-Path -LiteralPath $output) { Remove-Item -LiteralPath $output -Recurse -Force }
+}
+Write-Output "Verified candidate staging: $destination ($($records.Count) blueprints, $($assets.Count) assets)."

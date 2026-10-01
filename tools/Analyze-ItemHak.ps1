@@ -112,10 +112,9 @@ function Test-Active2daRow {
 }
 
 $erf = Get-SrnTool -Name erf
-$toolRoot = Split-Path -Parent $erf
-$gff = Join-Path $toolRoot 'nwn_gff.exe'
-$cat = Join-Path $toolRoot 'nwn_resman_cat.exe'
-$grep = Join-Path $toolRoot 'nwn_resman_grep.exe'
+$gff = Get-SrnTool -Name gff
+$cat = Get-SrnTool -Name resman_cat
+$grep = Get-SrnTool -Name resman_grep
 
 # Decode and flatten the item palette. These are category definitions, not UTI blueprints.
 $palettePath = Join-Path $rawRoot 'itempal.itp'
