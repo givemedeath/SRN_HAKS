@@ -29,7 +29,9 @@ $selection = Get-Content (Join-Path $root 'docs/imports/mdrnee_item-match-tier.j
 $analysis = Get-Content (Join-Path $root 'docs/imports/mdrnee_item-blueprint-analysis.json') -Raw | ConvertFrom-Json
 $itemManifest = Get-Content (Join-Path $root 'docs/imports/mdrnee_item-manifest.json') -Raw | ConvertFrom-Json
 $erfManifest = Get-Content (Join-Path $root 'docs/imports/mdrnee_item-blueprint-erf-manifest.json') -Raw | ConvertFrom-Json
-if ($selection.sourceWorkbook.archiveSha256 -ne $erfManifest.sourceSha256 -or $analysis.itemHak.sourceHakSha256 -ne $itemManifest.sourceSha256) { throw 'Source manifest mismatch.' }
+if ($selection.sourceWorkbook.archiveSha256 -ne $erfManifest.sourceSha256 -or
+    $analysis.sourceErf.sha256 -ne $erfManifest.sourceSha256 -or
+    $analysis.itemHak.sourceHakSha256 -ne $itemManifest.sourceSha256) { throw 'Source manifest mismatch.' }
 $selected = @($selection.tiers.blueprints | Sort-Object rank)
 if ($selected.Count -ne 93 -or @($selected.blueprintResRef | Sort-Object -Unique).Count -ne 93) { throw 'Expected 93 unique selected blueprints.' }
 if (@($selected | Where-Object matchTier -NotIn @('Exact identity','Visual stand-in')).Count) { throw 'Unexpected match tier.' }

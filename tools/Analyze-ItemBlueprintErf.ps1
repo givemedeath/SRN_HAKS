@@ -28,6 +28,14 @@ function Resolve-QuarantinePath {
     if (-not $resolved.StartsWith($prefix, $comparison)) {
         throw "Relative path escapes .quarantine: $RelativePath"
     }
+    $current = $resolved
+    while ($current -and $current.Length -ge $quarantineRoot.Length) {
+        if ((Test-Path -LiteralPath $current) -and
+            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "Reparse point not allowed: $current"
+        }
+        $current = Split-Path $current -Parent
+    }
     $resolved
 }
 
@@ -115,7 +123,39 @@ foreach ($protectedPath in @((Join-Path $itemWorkspace 'raw'), (Join-Path $itemW
     }
 }
 
-# The paths have already passed the strict containment and overlap checks above. Clearing them prevents
+# Validate both deletion targets and the item inputs before touching either output directory.
+foreach ($path in @($rawRoot, $analysisRoot, (Join-Path $itemWorkspace 'raw'), (Join-Path $itemWorkspace 'analysis'))) {
+    [void](Resolve-QuarantinePath ([IO.Path]::GetRelativePath($quarantineRoot, $path)))
+}
+foreach ($path in @($rawRoot, $analysisRoot)) {
+    if ($source.StartsWith($path.TrimEnd($separator) + $separator, $comparison)) {
+        throw 'InputErf is inside an output directory that would be cleared.'
+    }
+}
+$categoryMap = Get-Content -LiteralPath (Resolve-Path -LiteralPath $CategoryMapPath).Path -Raw | ConvertFrom-Json -Depth 64
+$itemManifestPath = Join-Path $itemWorkspace 'analysis/manifest.json'
+if (-not (Test-Path -LiteralPath $itemManifestPath -PathType Leaf)) {
+    throw "The item HAK analysis must exist first; missing $itemManifestPath"
+}
+$itemManifest = Get-Content -LiteralPath $itemManifestPath -Raw | ConvertFrom-Json -Depth 64
+if ([string]::IsNullOrWhiteSpace([string]$categoryMap.sourceHakSha256) -or
+    [string]$categoryMap.sourceHakSha256 -ine [string]$itemManifest.sourceSha256) {
+    throw 'Category map source HAK SHA-256 does not match the item HAK analysis.'
+}
+$baseItemsPath = Join-Path $itemWorkspace 'raw/baseitems.2da'
+if (-not (Test-Path -LiteralPath $baseItemsPath -PathType Leaf)) {
+    throw "The item HAK analysis must exist first; missing $baseItemsPath"
+}
+$baseItemRecords = @($itemManifest.resources | Where-Object name -ieq 'baseitems.2da')
+if ($baseItemRecords.Count -ne 1 -or
+    (Get-FileHash -LiteralPath $baseItemsPath -Algorithm SHA256).Hash -ine [string]$baseItemRecords[0].sha256) {
+    throw 'baseitems.2da does not match the item HAK analysis manifest.'
+}
+$baseItems = Read-2daRows $baseItemsPath
+$categories = @{}
+foreach ($category in $categoryMap.leafCategories) { $categories[[int]$category.id] = $category }
+
+# The paths have already passed the containment, link and overlap checks above. Clearing them prevents
 # stale resources from a previous ERF from contaminating a repeat analysis.
 foreach ($path in @($rawRoot, $analysisRoot)) {
     if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
@@ -161,16 +201,6 @@ $manifest = [ordered]@{
     resources = $resources
 }
 Write-JsonFile -Path (Join-Path $analysisRoot 'manifest.json') -Value $manifest
-
-$categoryMap = Get-Content -LiteralPath (Resolve-Path -LiteralPath $CategoryMapPath).Path -Raw | ConvertFrom-Json -Depth 64
-$categories = @{}
-foreach ($category in $categoryMap.leafCategories) { $categories[[int]$category.id] = $category }
-
-$baseItemsPath = Join-Path $itemWorkspace 'raw/baseitems.2da'
-if (-not (Test-Path -LiteralPath $baseItemsPath -PathType Leaf)) {
-    throw "The item HAK analysis must exist first; missing $baseItemsPath"
-}
-$baseItems = Read-2daRows $baseItemsPath
 
 $blueprints = [Collections.Generic.List[object]]::new()
 foreach ($uti in @(Get-ChildItem -LiteralPath $rawRoot -Filter '*.uti' | Sort-Object Name)) {

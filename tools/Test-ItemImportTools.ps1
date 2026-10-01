@@ -40,10 +40,18 @@ $selected = @(); $blueprints = @(); $resources = @()
     $blueprints += @{resref=$resref; baseItem=24; itemClass='test'; modelType='0'; modelPart1=1; name=$resref; categoryPath='General'; propertyCount=0}
 }
 Write-TestJson (Join-Path $docs 'mdrnee_item-match-tier.json') @{sourceWorkbook=@{archiveSha256=$sourceHash; sha256=$sourceHash}; tiers=@(@{blueprints=$selected})}
-Write-TestJson (Join-Path $docs 'mdrnee_item-blueprint-analysis.json') @{itemHak=@{sourceHakSha256=$sourceHash}; blueprints=$blueprints}
+$blueprintAnalysisPath = Join-Path $docs 'mdrnee_item-blueprint-analysis.json'
+Write-TestJson $blueprintAnalysisPath @{sourceErf=@{sha256=$sourceHash}; itemHak=@{sourceHakSha256=$sourceHash}; blueprints=$blueprints}
 [IO.File]::WriteAllText((Join-Path $itemRaw 'itest_001.tga'), 'Fixture icon')
 Write-TestJson (Join-Path $docs 'mdrnee_item-manifest.json') @{sourceSha256=$sourceHash; resources=@(@{name='itest_001.tga'; sha256=(Get-FileHash (Join-Path $itemRaw 'itest_001.tga')).Hash})}
 Write-TestJson (Join-Path $docs 'mdrnee_item-blueprint-erf-manifest.json') @{sourceSha256=$sourceHash; resources=$resources}
+Write-TestJson $blueprintAnalysisPath @{sourceErf=@{sha256=('B' * 64)}; itemHak=@{sourceHakSha256=$sourceHash}; blueprints=$blueprints}
+try {
+    & (Join-Path $fixtureTools 'Stage-ItemMatches.ps1') -OutputRelativePath mismatched-erf
+    throw 'Mismatched blueprint analysis unexpectedly accepted.'
+} catch { if ($_.Exception.Message -ne 'Source manifest mismatch.') {throw} }
+if (Test-Path (Join-Path $fixture '.quarantine/mismatched-erf')) {throw 'Mismatched analysis created output.'}
+Write-TestJson $blueprintAnalysisPath @{sourceErf=@{sha256=$sourceHash}; itemHak=@{sourceHakSha256=$sourceHash}; blueprints=$blueprints}
 $failingErf = Join-Path $fixtureTools 'fail-erf.ps1'
 [IO.File]::WriteAllText($failingErf, "throw 'Injected packing failure'")
 Write-TestJson (Join-Path $fixtureTools 'test-tools.json') @{erf=$failingErf; gff=$realGff}
@@ -86,10 +94,62 @@ $anomalyErf = Join-Path $fixture 'anomaly.erf'
 & $realErf -c -f $anomalyErf -e ERF @(Get-ChildItem $anomalyRoot.FullName -Filter '*.uti' -File | Sort-Object Name | ForEach-Object FullName)
 if ($LASTEXITCODE -ne 0) {throw 'Fixture ERF packing failed.'}
 [IO.File]::WriteAllText((Join-Path $itemRaw 'baseitems.2da'), "2DA V2.0`n`nlabel ItemClass ModelType`n24 misc test 0`n")
-Write-TestJson (Join-Path $docs 'mdrnee_item-category-map.json') @{source='itempal.itp'; sourceHakSha256=$sourceHash; leafCategories=@(@{id=1; name='General'; path='General'; topLevel='General'})}
+$itemAnalysisRoot = New-Item -ItemType Directory -Path (Join-Path $fixture '.quarantine/mdrnee_item/analysis') -Force
+Write-TestJson (Join-Path $itemAnalysisRoot.FullName 'manifest.json') @{sourceSha256=$sourceHash; resources=@(@{name='baseitems.2da'; sha256=(Get-FileHash (Join-Path $itemRaw 'baseitems.2da')).Hash})}
+$categoryMapPath = Join-Path $docs 'mdrnee_item-category-map.json'
+$categoryMap = @{source='itempal.itp'; sourceHakSha256=$sourceHash; leafCategories=@(@{id=1; name='General'; path='General'; topLevel='General'})}
+Write-TestJson $categoryMapPath $categoryMap
+
+# Linked workspaces, their ancestors, and deletion-target children must be rejected before clearing data.
+$protected = New-Item -ItemType Directory -Path (Join-Path $fixture 'protected-data')
+foreach ($directory in @('raw','analysis','child/raw','child/analysis')) {
+    $sentinelDirectory = New-Item -ItemType Directory -Path (Join-Path $protected.FullName $directory) -Force
+    [IO.File]::WriteAllText((Join-Path $sentinelDirectory.FullName 'keep.txt'), 'Preserve this fixture data')
+}
+$sentinels = @(Get-ChildItem $protected.FullName -Recurse -File | ForEach-Object FullName)
+$linkType = if ($IsWindows) {'Junction'} else {'SymbolicLink'}
+New-Item -ItemType $linkType -Path (Join-Path $fixture '.quarantine/linked') -Target $protected.FullName | Out-Null
+$linkedRawWorkspace = New-Item -ItemType Directory -Path (Join-Path $fixture '.quarantine/linked-raw')
+New-Item -ItemType $linkType -Path (Join-Path $linkedRawWorkspace.FullName 'raw') -Target (Join-Path $protected.FullName 'raw') | Out-Null
+foreach ($case in @(@{output='linked'; item='mdrnee_item'}, @{output='linked/child'; item='mdrnee_item'}, @{output='linked-raw'; item='mdrnee_item'}, @{output='item-link-test'; item='linked'})) {
+    try {
+        & (Join-Path $fixtureTools 'Analyze-ItemBlueprintErf.ps1') -InputErf $anomalyErf -OutputRelativePath $case.output -ItemHakOutputRelativePath $case.item
+        throw 'Linked analysis workspace unexpectedly accepted.'
+    } catch { if ($_.Exception.Message -notlike 'Reparse point not allowed:*') {throw} }
+    foreach ($sentinel in $sentinels) { if (-not (Test-Path -LiteralPath $sentinel)) {throw "Linked workspace removed protected data: $sentinel"} }
+}
+
+# Bad source metadata must leave an existing analysis untouched.
+$preservedOutput = Join-Path $fixture '.quarantine/category-mismatch'
+foreach ($directory in @('raw','analysis')) {
+    $sentinelDirectory = New-Item -ItemType Directory -Path (Join-Path $preservedOutput $directory) -Force
+    [IO.File]::WriteAllText((Join-Path $sentinelDirectory.FullName 'keep.txt'), 'Preserve previous run')
+}
+$categoryMap.sourceHakSha256 = 'B' * 64
+Write-TestJson $categoryMapPath $categoryMap
+try {
+    & (Join-Path $fixtureTools 'Analyze-ItemBlueprintErf.ps1') -InputErf $anomalyErf -OutputRelativePath category-mismatch
+    throw 'Mismatched category map unexpectedly accepted.'
+} catch { if ($_.Exception.Message -ne 'Category map source HAK SHA-256 does not match the item HAK analysis.') {throw} }
+$categoryMap.sourceHakSha256 = $sourceHash
+Write-TestJson $categoryMapPath $categoryMap
+[IO.File]::AppendAllText((Join-Path $itemRaw 'baseitems.2da'), "999 changed other 0`n")
+try {
+    & (Join-Path $fixtureTools 'Analyze-ItemBlueprintErf.ps1') -InputErf $anomalyErf -OutputRelativePath category-mismatch
+    throw 'Changed baseitems bytes unexpectedly accepted.'
+} catch { if ($_.Exception.Message -ne 'baseitems.2da does not match the item HAK analysis manifest.') {throw} }
+[IO.File]::WriteAllText((Join-Path $itemRaw 'baseitems.2da'), "2DA V2.0`n`nlabel ItemClass ModelType`n24 misc test 0`n")
+foreach ($directory in @('raw','analysis')) { if (-not (Test-Path (Join-Path $preservedOutput "$directory/keep.txt"))) {throw 'Source mismatch cleared existing output.'} }
+$nestedInput = Join-Path $preservedOutput 'raw/source.erf'
+Copy-Item -LiteralPath $anomalyErf -Destination $nestedInput
+try {
+    & (Join-Path $fixtureTools 'Analyze-ItemBlueprintErf.ps1') -InputErf $nestedInput -OutputRelativePath category-mismatch
+    throw 'Input inside the deletion target unexpectedly accepted.'
+} catch { if ($_.Exception.Message -ne 'InputErf is inside an output directory that would be cleared.') {throw} }
+if (-not (Test-Path -LiteralPath $nestedInput)) {throw 'Analyzer deleted its own input.'}
 & (Join-Path $fixtureTools 'Analyze-ItemBlueprintErf.ps1') -InputErf $anomalyErf -OutputRelativePath anomalies -ExpectedResourceCount 2
 $report = Get-Content (Join-Path $fixture '.quarantine/anomalies/analysis/blueprint-report.md') -Raw
 foreach ($claim in @('**1** distinct ResRefs across **2** blueprints; **1** repeated occurrences.', '**1 of 2** Palette IDs', '**1** are unmapped.', '**1 of 2** BaseItem values', '**1** are missing.')) {
     if (-not $report.Contains($claim)) { throw "Missing measured integrity claim: $claim" }
 }
-Write-Host 'Item import regression checks passed: platform tools, failed-run cleanup/retry, output preservation, quarantine containment, and measured anomaly reporting.'
+Write-Host 'Item import regression checks passed: platform tools, failed-run cleanup/retry, output preservation, quarantine containment, linked-directory rejection, source provenance, and measured anomaly reporting.'
