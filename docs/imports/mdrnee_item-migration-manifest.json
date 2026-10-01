@@ -1,0 +1,3721 @@
+{
+  "schemaVersion": 1,
+  "status": "candidate-staging-only",
+  "sourceErfSha256": "CD96273454F3C6AF55F40B683C9C0F237129D95B1BD07C68418756FE4FE71A4D",
+  "sourceHakSha256": "3CE0229D041F12789BB7B4C44AA534570B8A56F4AC9F0DC75E9A018D3C0CC654",
+  "sourceWorkbookSha256": "06FFCF13C39C04B57F58E45EC75FE36D7805DBFC722B0EA97656A0492FA6F5FE",
+  "blueprintCount": 93,
+  "assetCount": 217,
+  "blueprints": [
+    {
+      "resref": "d20_arrow_001",
+      "name": "Arrow",
+      "category": "Modern Weapons > Ammunitions > Handgun",
+      "matchTier": "Exact identity",
+      "catalogName": "Arrows",
+      "baseItem": 20,
+      "itemClass": "WAmAr",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [
+        "Special appearance mapping requires inspection: armor, helmet, or ammunition"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_binocs",
+      "name": "Binoculars (standard)",
+      "category": "Modern General > Survival Gear",
+      "matchTier": "Exact identity",
+      "catalogName": "Binoculars",
+      "baseItem": 206,
+      "itemClass": "it_mdrnmdm",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_csaw",
+      "name": "Chainsaw",
+      "category": "Modern Weapons > Improvised Weapons",
+      "matchTier": "Exact identity",
+      "catalogName": "Chainsaw(Chainsaw)",
+      "baseItem": 60,
+      "itemClass": "WSpSc",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_smoke01 (from wspsc_m_014.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_ammo_box_100",
+      "name": "Bolts",
+      "category": "Modern Weapons > Ammunitions > Boxes & Packs",
+      "matchTier": "Exact identity",
+      "catalogName": "Bolts",
+      "baseItem": 202,
+      "itemClass": "it_faammo",
+      "modelType": "0",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_harpnsp",
+      "name": "Harpoon",
+      "category": "Modern Weapons > Polearms",
+      "matchTier": "Exact identity",
+      "catalogName": "Harpoon",
+      "baseItem": 58,
+      "itemClass": "WPlSs",
+      "modelType": "2",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_lock",
+      "name": "Lockpick Set",
+      "category": "Modern General > Professional Equipment",
+      "matchTier": "Exact identity",
+      "catalogName": "Lockpick Set",
+      "baseItem": 24,
+      "itemClass": "it_smlmisc",
+      "modelType": "0",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_rope",
+      "name": "Rope (150 ft.)",
+      "category": "Modern General > Survival Gear",
+      "matchTier": "Exact identity",
+      "catalogName": "Rope (50 meters)",
+      "baseItem": 29,
+      "itemClass": "it_midmisc",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [
+        "Icon outside item HAK (base/other HAK check needed): iit_midmisc_190"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_sbag",
+      "name": "Sleeping Bag",
+      "category": "Modern General > Survival Gear",
+      "matchTier": "Exact identity",
+      "catalogName": "Sleeping Bag",
+      "baseItem": 34,
+      "itemClass": "it_talmisc",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [
+        "Icon outside item HAK (base/other HAK check needed): iit_talmisc_012"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_smoke",
+      "name": "Smoke Grenade",
+      "category": "Modern Weapons > Throwing",
+      "matchTier": "Exact identity",
+      "catalogName": "Smoke Grenade (A)",
+      "baseItem": 81,
+      "itemClass": "it_x1_gren",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_phosp",
+      "name": "White Phosphorus Grenade",
+      "category": "Modern Weapons > Throwing",
+      "matchTier": "Exact identity",
+      "catalogName": "White Phosphorus Grenade (A)",
+      "baseItem": 81,
+      "itemClass": "it_x1_gren",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_brasskn",
+      "name": "Brass Knuckles",
+      "category": "Modern Weapons > Improvised Weapons",
+      "matchTier": "Exact identity",
+      "catalogName": "Brass Knuckles",
+      "baseItem": 36,
+      "itemClass": "it_glove",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_knife03",
+      "name": "Switchblade",
+      "category": "Modern Weapons > Bladed > Daggers",
+      "matchTier": "Exact identity",
+      "catalogName": "Switchblade",
+      "baseItem": 22,
+      "itemClass": "WSwDg",
+      "modelType": "2",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_ak47",
+      "name": "AKM/AK 47 7.62mm Assault Rifle",
+      "category": "Modern Weapons > Ranged Weapons > Longarms",
+      "matchTier": "Visual stand-in",
+      "catalogName": "AK-97",
+      "baseItem": 7,
+      "itemClass": "WBwXl",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_ak74u",
+      "name": "AKS-74U 5.45mm Assault Rifle",
+      "category": "Modern Weapons > Ranged Weapons > Longarms",
+      "matchTier": "Visual stand-in",
+      "catalogName": "AK-97 SMG/Carbine",
+      "baseItem": 7,
+      "itemClass": "WBwXl",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_flare (from wbwxl_m_241.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_audrec",
+      "name": "Digital Audio Recorder",
+      "category": "Modern General > Computers and Consumer Electronics",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Audio Recorder [1]",
+      "baseItem": 205,
+      "itemClass": "it_mdrnthn",
+      "modelType": "0",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_melee004",
+      "name": "Police Baton",
+      "category": "Modern Weapons > Blunts > Clubs",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Extendable Baton",
+      "baseItem": 28,
+      "itemClass": "WBlCl",
+      "modelType": "2",
+      "propertyCount": 1,
+      "unresolved": [
+        "Model outside item HAK (base/other HAK check needed): wblcl_t_051"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_cvest",
+      "name": "Concealable Vest",
+      "category": "Modern Clothing > Medium",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Armor Vest",
+      "baseItem": 21,
+      "itemClass": "it_belt",
+      "modelType": "0",
+      "propertyCount": 2,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_stun",
+      "name": "Stun Grenade",
+      "category": "Modern Weapons > Throwing",
+      "matchTier": "Visual stand-in",
+      "catalogName": "IPE Concussion Grenade (A)",
+      "baseItem": 81,
+      "itemClass": "it_x1_gren",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_disab2",
+      "name": "Electrical Toolkit (Deluxe)",
+      "category": "Modern General > Professional Equipment",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Electronic ToolKit",
+      "baseItem": 207,
+      "itemClass": "it_mdrnlrg",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_disable",
+      "name": "Electrical Toolkit (basic)",
+      "category": "Modern General > Professional Equipment",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Electronic ToolKit",
+      "baseItem": 206,
+      "itemClass": "it_mdrnmdm",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_frag",
+      "name": "Fragmentation Grenade",
+      "category": "Modern Weapons > Throwing",
+      "matchTier": "Visual stand-in",
+      "catalogName": "IPE Defensive HE Grenade (A)",
+      "baseItem": 81,
+      "itemClass": "it_x1_gren",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_g36",
+      "name": "HK G36 5.56mm Assault Rifle",
+      "category": "Modern Weapons > Ranged Weapons > Longarms",
+      "matchTier": "Visual stand-in",
+      "catalogName": "HK G38 Assault",
+      "baseItem": 7,
+      "itemClass": "WBwXl",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_flare (from wbwxl_m_251.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_tear",
+      "name": "Tear Gas Grenade",
+      "category": "Modern Weapons > Throwing",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Gas Grenade (A)",
+      "baseItem": 81,
+      "itemClass": "it_x1_gren",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_geiger",
+      "name": "Scientific Geiger Counter",
+      "category": "Modern General > Computers and Consumer Electronics",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Geiger Counter",
+      "baseItem": 15,
+      "itemClass": "it_torch",
+      "modelType": "0",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_gps",
+      "name": "GPS Receiver",
+      "category": "Modern General > Survival Gear",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Nav-Dat GPS",
+      "baseItem": 206,
+      "itemClass": "it_mdrnmdm",
+      "modelType": "0",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_macingramm10",
+      "name": "Mac Ingram M10 .45 Machine Pistol",
+      "category": "Modern Weapons > Ranged Weapons > SMGs",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ingram Smartgun Mod. 20t",
+      "baseItem": 8,
+      "itemClass": "WBwLn",
+      "modelType": "2",
+      "propertyCount": 5,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_laser",
+      "name": "Laser Sight",
+      "category": "Modern General > Weapon Accessories",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Laser Sight",
+      "baseItem": 79,
+      "itemClass": "IT_THNMISC",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [
+        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_firstaid",
+      "name": "First Aid Kit",
+      "category": "Modern General > Professional Equipment",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Basic Medkit",
+      "baseItem": 206,
+      "itemClass": "it_mdrnmdm",
+      "modelType": "0",
+      "propertyCount": 2,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_medikit",
+      "name": "Medical Kit",
+      "category": "Modern General > Professional Equipment",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Basic Medkit",
+      "baseItem": 29,
+      "itemClass": "it_midmisc",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [
+        "Icon outside item HAK (base/other HAK check needed): iit_midmisc_186"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_hvarms001",
+      "name": "Minigun .50 mm",
+      "category": "Modern Weapons > Ranged Weapons > Heavy",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Vindicator Minigun",
+      "baseItem": 6,
+      "itemClass": "WBwXh",
+      "modelType": "2",
+      "propertyCount": 5,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_torch",
+      "name": "Flashlight",
+      "category": "Modern General > Survival Gear",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Flashlight, pocket",
+      "baseItem": 15,
+      "itemClass": "it_torch",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_swatshld1",
+      "name": "Ballistic Shield (Metal)",
+      "category": "Modern Clothing > Shields > Tower Shields",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Riot Shield, Large",
+      "baseItem": 57,
+      "itemClass": "AShTo",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_swatshld2",
+      "name": "Riot (SWAT) Shield (Polycarbonate)",
+      "category": "Modern Clothing > Shields > Tower Shields",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Riot Shield, Large",
+      "baseItem": 57,
+      "itemClass": "AShTo",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_sawnoff",
+      "name": "Sawed Off Shotgun",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Remington 990 Sawed-Off",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_spas12",
+      "name": "SPAS 12-gauge Shotgun",
+      "category": "Modern Weapons > Ranged Weapons > Longarms",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Franchi SPAS-22",
+      "baseItem": 7,
+      "itemClass": "WBwXl",
+      "modelType": "2",
+      "propertyCount": 5,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_uvest",
+      "name": "Undercover Vest",
+      "category": "Modern Clothing > Light",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Secure Vest",
+      "baseItem": 21,
+      "itemClass": "it_belt",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_uzi9mm",
+      "name": "Uzi 9mm Submachine Gun",
+      "category": "Modern Weapons > Ranged Weapons > SMGs",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Uzi III",
+      "baseItem": 8,
+      "itemClass": "WBwLn",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_camjack",
+      "name": "Camo Pants (Green) & Green Jacket",
+      "category": "Modern Clothing > Clothing",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Camo Jacket (Woods)",
+      "baseItem": 16,
+      "itemClass": "AArCl",
+      "modelType": "3",
+      "propertyCount": 0,
+      "unresolved": [
+        "Special appearance mapping requires inspection: armor, helmet, or ammunition"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_fireaxe",
+      "name": "Fireaxe",
+      "category": "Modern Weapons > Axes > One-Handed",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Combat Axe",
+      "baseItem": 212,
+      "itemClass": "WAxFa",
+      "modelType": "2",
+      "propertyCount": 2,
+      "unresolved": [
+        "Texture outside item HAK: w_metal_tex (from waxfa_b_011.mdl)",
+        "Texture outside item HAK: w_metal_tex (from waxfa_t_011.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_hatchet",
+      "name": "Hatchet",
+      "category": "Modern Weapons > Axes > One-Handed",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Combat Axe",
+      "baseItem": 38,
+      "itemClass": "WAxHn",
+      "modelType": "2",
+      "propertyCount": 1,
+      "unresolved": [
+        "Model outside item HAK (base/other HAK check needed): waxhn_b_034",
+        "Model outside item HAK (base/other HAK check needed): waxhn_m_014",
+        "Model outside item HAK (base/other HAK check needed): waxhn_t_014"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_92dual",
+      "name": "Beretta 92FS .22 (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Beretta Model 101T",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_92off",
+      "name": "Beretta 92FS .22 (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Beretta Model 101T",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms001",
+      "name": "Beretta 92FS .22",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Beretta Model 101T",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_ebinoc",
+      "name": "Binoculars (Electro-Optical)",
+      "category": "Modern General > Survival Gear",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Binoculars",
+      "baseItem": 208,
+      "itemClass": "it_mdrnnek",
+      "modelType": "0",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_fn2000",
+      "name": "FN2000 5.56mm Assault Rifle",
+      "category": "Modern Weapons > Ranged Weapons > Longarms",
+      "matchTier": "Visual stand-in",
+      "catalogName": "FN HAR",
+      "baseItem": 7,
+      "itemClass": "WBwXl",
+      "modelType": "2",
+      "propertyCount": 5,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_flare (from wbwxl_m_073.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_m4",
+      "name": "M4 Carbine 5.56mm Assault Rifle",
+      "category": "Modern Weapons > Ranged Weapons > Longarms",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Colt M-23",
+      "baseItem": 7,
+      "itemClass": "WBwXl",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_flare (from wbwxl_m_021.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_c6dual",
+      "name": "Colt .38 Detective (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Colt Asp",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_c6off",
+      "name": "Colt .38 Detective (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Colt Asp",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms004",
+      "name": "Colt .38 Detective Revolver",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Colt Asp",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_hkmp5k",
+      "name": "H&K MP5 9mm Submachine Gun",
+      "category": "Modern Weapons > Ranged Weapons > SMGs",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ingram Smartgun Mod. 20t",
+      "baseItem": 8,
+      "itemClass": "WBwLn",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_nscope",
+      "name": "Electro-Optic Scope",
+      "category": "Modern General > Weapon Accessories",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Imaging Scope: Low-Light",
+      "baseItem": 79,
+      "itemClass": "IT_THNMISC",
+      "modelType": "0",
+      "propertyCount": 2,
+      "unresolved": [
+        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_181"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_c45dual",
+      "name": "Colt 1911 .45 (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Colt Manhunter",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 5,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_c45off",
+      "name": "Colt 1911 .45 (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Colt Manhunter",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms007",
+      "name": "Colt 1911 .45",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Colt Manhunter",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_eagdual",
+      "name": "Desert Eagle 0.50AE (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_eagle",
+      "name": "Desert Eagle 0.50AE",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_eagoff",
+      "name": "Desert Eagle 0.50AE (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_glkdual",
+      "name": "Glock 17 9mm (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_glkoff",
+      "name": "Glock 17 9mm (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_hkudual",
+      "name": "H&K USP 9mm (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_hkuoff",
+      "name": "H&K USP 9mm (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms003",
+      "name": "H&K USP 9mm",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms008",
+      "name": "Glock 17 9mm",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ares Predator III",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_357dual",
+      "name": "Colt Python .357 Revolver (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_357off",
+      "name": "Colt Python .357 Revolver (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_44dual",
+      "name": "S&W M29 .44 Magnum Revolver (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_44mag",
+      "name": "S&W M29 .44 Magnum Revolver",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_44off",
+      "name": "S&W M29 .44 Magnum Revolver (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms005",
+      "name": "Colt Python .357 Revolver",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms013",
+      "name": "Webley .38 British Bulldog",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms013dl",
+      "name": "Webley .38 British Bulldog (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms013off",
+      "name": "Webley .38 British Bulldog (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ruger Super Warhawk",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_molotov",
+      "name": "Molotov Cocktail",
+      "category": "Modern Weapons > Throwing",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Incendary Grenade (A)",
+      "baseItem": 81,
+      "itemClass": "it_x1_gren",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_light",
+      "name": "Flashlight",
+      "category": "Modern General > Survival Gear",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Flashlight, large",
+      "baseItem": 15,
+      "itemClass": "it_torch",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_hvarms006",
+      "name": "Negev 5.56mm Light Machine Gun",
+      "category": "Modern Weapons > Ranged Weapons > Heavy",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Ingram Valiant",
+      "baseItem": 6,
+      "itemClass": "WBwXh",
+      "modelType": "2",
+      "propertyCount": 5,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_flare (from wbwxh_m_074.mdl)",
+        "Texture outside item HAK: soff_lens (from wbwxh_m_074.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_hvarms004",
+      "name": "Mauser m/96 7.62mm Sniper Rifle",
+      "category": "Modern Weapons > Ranged Weapons > Heavy",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Remington 950",
+      "baseItem": 6,
+      "itemClass": "WBwXh",
+      "modelType": "2",
+      "propertyCount": 4,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_flare (from wbwxh_m_072.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_hvarms005",
+      "name": "M24 7.62mm Sniper Rifle",
+      "category": "Modern Weapons > Ranged Weapons > Heavy",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Remington 950",
+      "baseItem": 6,
+      "itemClass": "WBwXh",
+      "modelType": "2",
+      "propertyCount": 5,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_flare (from wbwxh_m_021.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_hvarms_004",
+      "name": "Enfield .303 Rifle",
+      "category": "Modern Weapons > Ranged Weapons > Longarms",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Remington 950",
+      "baseItem": 7,
+      "itemClass": "WBwXl",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms006",
+      "name": "Skorpion Vz61 .32 caliber Machine Pistol",
+      "category": "Modern Weapons > Ranged Weapons > SMGs",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Colt Cobra TZ-110",
+      "baseItem": 8,
+      "itemClass": "WBwLn",
+      "modelType": "2",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_scope",
+      "name": "Standard Scope",
+      "category": "Modern General > Weapon Accessories",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Imaging Scope: Mag:1",
+      "baseItem": 79,
+      "itemClass": "IT_THNMISC",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [
+        "Icon outside item HAK (base/other HAK check needed): iit_thnmisc_177"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_ithac37",
+      "name": "Ithaca 37 Shotgun",
+      "category": "Modern Weapons > Ranged Weapons > Longarms",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Remington 990",
+      "baseItem": 7,
+      "itemClass": "WBwXl",
+      "modelType": "2",
+      "propertyCount": 5,
+      "unresolved": [
+        "Texture outside item HAK: fxpa_flare (from wbwxl_m_043.mdl)"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_gasmask",
+      "name": "Gas Mask",
+      "category": "Modern General > Survival Gear",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Respirator",
+      "baseItem": 17,
+      "itemClass": "helm",
+      "modelType": "1",
+      "propertyCount": 1,
+      "unresolved": [
+        "Special appearance mapping requires inspection: armor, helmet, or ammunition"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_stungun",
+      "name": "Stun Gun",
+      "category": "Modern General > Professional Equipment",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Defiance Super Shock",
+      "baseItem": 28,
+      "itemClass": "WBlCl",
+      "modelType": "2",
+      "propertyCount": 2,
+      "unresolved": [
+        "Model outside item HAK (base/other HAK check needed): wblcl_t_051"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_knife01",
+      "name": "Machete",
+      "category": "Modern Weapons > Bladed > Shortswords",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Survival Knife",
+      "baseItem": 0,
+      "itemClass": "WSwSs",
+      "modelType": "2",
+      "propertyCount": 1,
+      "unresolved": [
+        "Model outside item HAK (base/other HAK check needed): wswss_b_011"
+      ],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_knife05",
+      "name": "Combat Knife",
+      "category": "Modern Weapons > Bladed > Daggers",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Survival Knife",
+      "baseItem": 22,
+      "itemClass": "WSwDg",
+      "modelType": "2",
+      "propertyCount": 2,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_antidot",
+      "name": "Anti-toxin",
+      "category": "Modern General > Drugs",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Antidote Patch [1]",
+      "baseItem": 15,
+      "itemClass": "it_torch",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_bbydual",
+      "name": "Baby Browning .25 (dual-wield)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Browning Max-Power",
+      "baseItem": 61,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 2,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_bbyoff",
+      "name": "Baby Browning .25 (off-hand)",
+      "category": "Modern Weapons > Ranged Weapons > Dual Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Browning Max-Power",
+      "baseItem": 213,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "d20_smarms002",
+      "name": "Baby Browning .25",
+      "category": "Modern Weapons > Ranged Weapons > Handgun",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Browning Max-Power",
+      "baseItem": 11,
+      "itemClass": "WBwSh",
+      "modelType": "2",
+      "propertyCount": 2,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_mike1",
+      "name": "Microphone",
+      "category": "Modern General > Professional Equipment",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Subvocal Microphone",
+      "baseItem": 15,
+      "itemClass": "it_torch",
+      "modelType": "0",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_mike2",
+      "name": "Microphone - News",
+      "category": "Modern General > Professional Equipment",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Subvocal Microphone",
+      "baseItem": 15,
+      "itemClass": "it_torch",
+      "modelType": "0",
+      "propertyCount": 0,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_it_nvgog",
+      "name": "Night Vision Goggles",
+      "category": "Modern General > Surveillance Gear",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Night Vision Contacts",
+      "baseItem": 208,
+      "itemClass": "it_mdrnnek",
+      "modelType": "0",
+      "propertyCount": 3,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    },
+    {
+      "resref": "_mdrn_ot_adrenal",
+      "name": "Adrenaline Injection",
+      "category": "Modern General > Drugs",
+      "matchTier": "Visual stand-in",
+      "catalogName": "Stimulant Patch [1]",
+      "baseItem": 209,
+      "itemClass": "it_mdrnpil",
+      "modelType": "0",
+      "propertyCount": 1,
+      "unresolved": [],
+      "status": "staged-original-not-runtime-ready"
+    }
+  ],
+  "assets": [
+    {
+      "name": "ashto_050.mdl",
+      "sha256": "5f87450960990d6216a345b8aa1903ee3fcaecbd5abff1c3a949745b7f8ea387",
+      "owners": [
+        "_mdrn_swatshld1"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "ashto_051.mdl",
+      "sha256": "5044c3b2d627f604783c4ab0a73a157f4207bc6a7f9a2a39a007ef8637b7a716",
+      "owners": [
+        "_mdrn_swatshld2"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "balshield.dds",
+      "sha256": "0eaa35f06fa74d7dfc35ca51bb92fe48abf771140ed9eec2d4912362bccdd8ff",
+      "owners": [
+        "_mdrn_swatshld1"
+      ],
+      "reasons": [
+        "Texture referenced by ashto_050.mdl"
+      ]
+    },
+    {
+      "name": "beretta.dds",
+      "sha256": "68511ead0e5a08a2645ba4791c559b79b19f0f1b9671ea73a7e4f5f6216667bf",
+      "owners": [
+        "_mdrn_it_92dual",
+        "_mdrn_it_92off",
+        "d20_smarms001"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_053.mdl"
+      ]
+    },
+    {
+      "name": "browning.dds",
+      "sha256": "3b277b86b3eac05e2e06357347f1da87123abd8ce90faa5b0aee82ec26ea27fd",
+      "owners": [
+        "_mdrn_it_bbydual",
+        "_mdrn_it_bbyoff",
+        "d20_smarms002"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_063.mdl"
+      ]
+    },
+    {
+      "name": "d20_guntex04.dds",
+      "sha256": "a5da2f4c8349f6ec821dda2bfbdcfd6b52d2eeff69aca12c57fbbbc2a163e26a",
+      "owners": [
+        "d20_melee004"
+      ],
+      "reasons": [
+        "Texture referenced by wblcl_m_081.mdl"
+      ]
+    },
+    {
+      "name": "d20_guntex07.dds",
+      "sha256": "40dc4270df343f53e255dc42feb421534ec5c2a2ec5557259a29203c611902d3",
+      "owners": [
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "d20_smarms004"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_033.mdl"
+      ]
+    },
+    {
+      "name": "deserteagle.dds",
+      "sha256": "312e87518b6fbaf2fb78d8b18e72ef4a896dd2aa3e40c947e76ac2617a98977e",
+      "owners": [
+        "_mdrn_it_eagdual",
+        "_mdrn_it_eagle",
+        "_mdrn_it_eagoff"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_073.mdl"
+      ]
+    },
+    {
+      "name": "fireaxe_red.dds",
+      "sha256": "2c2bb9e2b6b6e7de845bac3b1e66aea8c04a1fb7273d8de2f41713f6b6dce689",
+      "owners": [
+        "_mdrn_it_fireaxe"
+      ],
+      "reasons": [
+        "Texture referenced by waxfa_t_011.mdl"
+      ]
+    },
+    {
+      "name": "fwhold_blue.dds",
+      "sha256": "45975ac622f24ba1de89450041d943bfff82e62b393c253f17bc8d3c376617bb",
+      "owners": [
+        "_mdrn_it_stungun",
+        "_mdrn_ot_geiger"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_010.mdl",
+        "Texture referenced by wblcl_m_101.mdl"
+      ]
+    },
+    {
+      "name": "fwhold_green.dds",
+      "sha256": "a339a397395f38ee2fcf5feff498d0d399cb64965cda8de008c6471f4332076a",
+      "owners": [
+        "_mdrn_it_stungun",
+        "_mdrn_ot_geiger"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_010.mdl",
+        "Texture referenced by wblcl_m_101.mdl"
+      ]
+    },
+    {
+      "name": "fwhold_jade.dds",
+      "sha256": "1358b5099f088943508d2d0a74aab9ad8882d070cd3c2218ad5b1ecbc904de90",
+      "owners": [
+        "_mdrn_ot_antidot"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_016.mdl"
+      ]
+    },
+    {
+      "name": "fwhold_red.dds",
+      "sha256": "e47b9916b01a9c03a516930ef4c7dcdc11a31af1b628d37a1a1f6f69396338a5",
+      "owners": [
+        "_mdrn_it_stungun",
+        "_mdrn_ot_geiger",
+        "_mdrn_ot_light"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_010.mdl",
+        "Texture referenced by it_torch_013.mdl",
+        "Texture referenced by wblcl_m_101.mdl"
+      ]
+    },
+    {
+      "name": "fxpa_smoke02.dds",
+      "sha256": "b1302074030cf39ad20baf0c907e9cfc3c6512f1c9435399de47f012368c6c01",
+      "owners": [
+        "_mdrn_it_ithac37"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_043.mdl"
+      ]
+    },
+    {
+      "name": "fxpa_smoke02.txi",
+      "sha256": "3723f516073aa4a60856f6522005223e0db6cc5a7de766d41baf4227849604a3",
+      "owners": [
+        "_mdrn_it_ithac37"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_043.mdl"
+      ]
+    },
+    {
+      "name": "g36_hdle.dds",
+      "sha256": "81f875c863f96350377c3fb2b63b78c243fab080da1209109187d27e7126dadb",
+      "owners": [
+        "_mdrn_it_g36"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_251.mdl"
+      ]
+    },
+    {
+      "name": "g36_main.dds",
+      "sha256": "296f3f2bcb25c068a09480de1e8586a9bfd7e6207b5835f2e346d88b90c7fc36",
+      "owners": [
+        "_mdrn_it_g36"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_251.mdl"
+      ]
+    },
+    {
+      "name": "g36_stuf.dds",
+      "sha256": "1b906748de16452aeb108b6256cf7190c8afea9b5c30f27b0a716ac3b9cbaf27",
+      "owners": [
+        "_mdrn_it_g36"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_251.mdl"
+      ]
+    },
+    {
+      "name": "glocmap.dds",
+      "sha256": "5bda17489b786acc87cf20dc09e9290f8c1e3ba6e008b0a8dcad84c6f2ec7f35",
+      "owners": [
+        "_mdrn_it_glkdual",
+        "_mdrn_it_glkoff",
+        "d20_smarms008"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_051.mdl"
+      ]
+    },
+    {
+      "name": "gren_barrel.dds",
+      "sha256": "4bd1b2df936ec33249f63da7a08aa696fbc4a5f8bfade76ef00999c5e3e0ccf7",
+      "owners": [
+        "_mdrn_it_ithac37"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_043.mdl"
+      ]
+    },
+    {
+      "name": "harpoon01.dds",
+      "sha256": "df1579c375159167e6619447410f632a60a259c7415f61209ff12c15d80fb5c8",
+      "owners": [
+        "_mdrn_it_harpnsp"
+      ],
+      "reasons": [
+        "Texture referenced by wplss_t_141.mdl"
+      ]
+    },
+    {
+      "name": "harpoon03.dds",
+      "sha256": "544455e92243230fa3b56df2eaeb71143c9afce882c6beaa7e8af88a71c4d212",
+      "owners": [
+        "_mdrn_it_harpnsp"
+      ],
+      "reasons": [
+        "Texture referenced by wplss_m_143.mdl"
+      ]
+    },
+    {
+      "name": "hb_wood_fill_001.dds",
+      "sha256": "b79a6b7a909c1db16ecb3974d2be7d932c3463f3e6481b949486e11f1c559153",
+      "owners": [
+        "_mdrn_it_fireaxe"
+      ],
+      "reasons": [
+        "Texture referenced by waxfa_m_011.mdl"
+      ]
+    },
+    {
+      "name": "iashto_050.tga",
+      "sha256": "a06e9c7c862f68d760015d3fd440c3b08f71bcbb4fd36ded02c407a74c711efe",
+      "owners": [
+        "_mdrn_swatshld1"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iashto_051.tga",
+      "sha256": "a06e9c7c862f68d760015d3fd440c3b08f71bcbb4fd36ded02c407a74c711efe",
+      "owners": [
+        "_mdrn_swatshld2"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_belt_061.tga",
+      "sha256": "81220c81a7e8e71f4d420294ee88eaec7011b6d6ae47b1e07b346815cb700b95",
+      "owners": [
+        "_mdrn_it_cvest",
+        "_mdrn_it_uvest"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_faammo_015.tga",
+      "sha256": "f48814ab99cf093bf178a9ccc3fbfca93ed2caf66c6ff5f94af194ea802a9319",
+      "owners": [
+        "d20_ammo_box_100"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_glove_022.tga",
+      "sha256": "90a161251864d430df8a301f4db576048e0f93053c110aff5f5a7fedc7475bb0",
+      "owners": [
+        "_mdrn_it_brasskn"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_mdrnlrg_003.tga",
+      "sha256": "dffd1a3d7ea2b2644908371a1464db30252337bdecbc059c263126e7f051f1d9",
+      "owners": [
+        "_mdrn_ot_disab2"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_mdrnmdm_017.tga",
+      "sha256": "f20c1643e1a6f235c598c078fd671896ba4b98ac56d3320b347dd67853ee130b",
+      "owners": [
+        "_mdrn_it_gps"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_mdrnmdm_039.tga",
+      "sha256": "676a9601834260bf3c68a56466b2a06e5f579769d8da217dd446196f44d976d2",
+      "owners": [
+        "_mdrn_firstaid"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_mdrnmdm_074.tga",
+      "sha256": "2af19c6826e18ae58d6ecbb785f81a0b3398db26b9264c5db686736292e90cc8",
+      "owners": [
+        "_mdrn_ot_disable"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_mdrnmdm_132.tga",
+      "sha256": "4788bc21ac804790ac5ce23add338d154983d064429c116ac555254b9f4ba92b",
+      "owners": [
+        "_mdrn_it_binocs"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_mdrnnek_001.tga",
+      "sha256": "823d342447c9a9be8fd466ce737c7aebf0d0db45363e83e33e1602bb00a54a84",
+      "owners": [
+        "_mdrn_it_ebinoc",
+        "_mdrn_it_nvgog"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_mdrnpil_024.tga",
+      "sha256": "27777c17f5011ca03098b45df911f89e388080ec629fda54f1008cc45d78360c",
+      "owners": [
+        "_mdrn_ot_adrenal"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_mdrnthn_010.tga",
+      "sha256": "78fda6e3bec223a102d74b82b03c429fcdc3499288e109a1c6c73ceb64bc5c9f",
+      "owners": [
+        "_mdrn_it_audrec"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_smlmisc_121.tga",
+      "sha256": "9b21059e81feea1a25e5012f9ed2b53da3c96ce13e2c9065507f901c9583088d",
+      "owners": [
+        "_mdrn_ot_lock"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_torch_010.tga",
+      "sha256": "8c153c423ff517faf98a9c6d99decb02452fdd1391c7f7cd9e677ed1cb2d540b",
+      "owners": [
+        "_mdrn_ot_geiger"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_torch_013.tga",
+      "sha256": "dc3cf8c8cf691e32859ed1dd31f4a5121a5b3d0b13b4522cda38bff4e9a01fd7",
+      "owners": [
+        "_mdrn_ot_light"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_torch_016.tga",
+      "sha256": "951e8f45131e2fd974f76d9f044409389d78451c350c376dc0acd4b8eb743488",
+      "owners": [
+        "_mdrn_ot_antidot"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_torch_021.tga",
+      "sha256": "26c23d35c60cc40fe8da6166c62e49f07501fdc95d0bdd3b115f7d8046e1e19e",
+      "owners": [
+        "_mdrn_ot_mike1"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_torch_022.tga",
+      "sha256": "a189070e53bbe1f6b4638316f469efb3d8ce4b5234ef177307af5c7b0a5f26b5",
+      "owners": [
+        "_mdrn_ot_mike2"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_torch_024.tga",
+      "sha256": "ca58f2cf7b4e9cbeec4e3ff30872c8e610add0f4ee083cc10b4d485d79e34245",
+      "owners": [
+        "_mdrn_it_torch"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_x1_gren_007.tga",
+      "sha256": "e92f96f77c08cb0cd7e86e3cb490da139d5c939210a331c7f8a7407089eecb2a",
+      "owners": [
+        "_mdrn_ot_molotov"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_x1_gren_010.tga",
+      "sha256": "624fb660b15d44b169eec499459e9590e5bb3e60276c1f0243f1b01210a5495d",
+      "owners": [
+        "_mdrn_ot_smoke"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_x1_gren_012.tga",
+      "sha256": "94c5077c77f984868ce643c637cf4c22fc7d7145ad36b22002799dd6ef6d6943",
+      "owners": [
+        "_mdrn_ot_frag"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_x1_gren_014.tga",
+      "sha256": "67625fd417fa5acc868c55d82e9357db1df631320c3c9044f183dbf5787be398",
+      "owners": [
+        "_mdrn_ot_tear"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_x1_gren_021.tga",
+      "sha256": "e8d12ae605f7d6d61f211c733b0f0247c63dde5da6b9c845a411a46ea29d425c",
+      "owners": [
+        "_mdrn_ot_stun"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "iit_x1_gren_022.tga",
+      "sha256": "795a954b7864d54153ee40d3f05f08043b5e5efba6800b878484046feeca5ccf",
+      "owners": [
+        "_mdrn_ot_phosp"
+      ],
+      "reasons": [
+        "Inventory appearance"
+      ]
+    },
+    {
+      "name": "it_torch_010.mdl",
+      "sha256": "2be319c41f6dafd071c79fa598e529ddcf3c232fc816d6e9064ad29766847fdb",
+      "owners": [
+        "_mdrn_ot_geiger"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_torch_013.mdl",
+      "sha256": "5f483f4392f62142cbc710a5c87ef7173b2e11ea05ea2e5518a7afc16972f7ce",
+      "owners": [
+        "_mdrn_ot_light"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_torch_016.mdl",
+      "sha256": "b7e7af12f8483f46d012fe2b7c57e0f27f24250714b44d3b40cccb22ea7c3bce",
+      "owners": [
+        "_mdrn_ot_antidot"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_torch_021.mdl",
+      "sha256": "98999d77c0b74b62334ace4d0d3f9551106d98f26c4d64fc661df1a3543280c9",
+      "owners": [
+        "_mdrn_ot_mike1"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_torch_022.mdl",
+      "sha256": "17b857947b0aceca35f6cecbe27b104e1b7561758a0ec9f8e50a5cd1a6d0e931",
+      "owners": [
+        "_mdrn_ot_mike2"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_torch_024.mdl",
+      "sha256": "e497b3a1acff0dc8863422ad793d2ac59fb59122f74cfe67d1facfa508e66abf",
+      "owners": [
+        "_mdrn_it_torch"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_x1_gren_007.mdl",
+      "sha256": "0dff91956ff0e69b93bdf33e9baf38eb86da7a1395fd51856576e8dc7cfb358b",
+      "owners": [
+        "_mdrn_ot_molotov"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_x1_gren_010.mdl",
+      "sha256": "2c1c26a21602ffa655ad75775ffc7499da76f73061a056ee0a676fc5efb9e41b",
+      "owners": [
+        "_mdrn_ot_smoke"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_x1_gren_012.mdl",
+      "sha256": "0b90116fdcfea6c0928fbfb73417d687a1297ebeeea397ec082d77399ee9abb4",
+      "owners": [
+        "_mdrn_ot_frag"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_x1_gren_014.mdl",
+      "sha256": "f700e9019b88ee5114b4ab933ee1821c8509367c174fdaeca2f0b2b932a953c4",
+      "owners": [
+        "_mdrn_ot_tear"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_x1_gren_021.mdl",
+      "sha256": "d8933a7ea72cb45cc4144f077a27173aa3cf1293c044b458d7934c7601236067",
+      "owners": [
+        "_mdrn_ot_stun"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "it_x1_gren_022.mdl",
+      "sha256": "d7ded3cce80316f5329d84d7cf815578adde8c1413e2eed1c16deaa2929a4751",
+      "owners": [
+        "_mdrn_ot_phosp"
+      ],
+      "reasons": [
+        "Matching simple-model candidate"
+      ]
+    },
+    {
+      "name": "iwaxfa_b_011.tga",
+      "sha256": "d3a0cacabaa1b4f3bfc0dfca64fc670e3cd7f20b288b8be350cfcf885380d9b7",
+      "owners": [
+        "_mdrn_it_fireaxe"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwaxfa_m_011.tga",
+      "sha256": "eb31062d3b292126da63cfc9bea2b5944225bc96e26fb56fd5151cc01537cbe7",
+      "owners": [
+        "_mdrn_it_fireaxe"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwaxfa_t_011.tga",
+      "sha256": "b7a5e4be4b78c64359875cbd0a25cf3f66003da526092bdaf1248d900e472530",
+      "owners": [
+        "_mdrn_it_fireaxe"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwblcl_b_071.tga",
+      "sha256": "661d16159c709a8e0a7393141771ee55f13d269882aced3ac9ca2859dd0be0b3",
+      "owners": [
+        "_mdrn_it_stungun",
+        "d20_melee004"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwblcl_m_081.tga",
+      "sha256": "e1ed9e0eed1de998c803f86f858b691ef589d915633d20dee9ffef8c45a6d0cd",
+      "owners": [
+        "d20_melee004"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwblcl_m_101.tga",
+      "sha256": "8c153c423ff517faf98a9c6d99decb02452fdd1391c7f7cd9e677ed1cb2d540b",
+      "owners": [
+        "_mdrn_it_stungun"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwblcl_t_051.tga",
+      "sha256": "661d16159c709a8e0a7393141771ee55f13d269882aced3ac9ca2859dd0be0b3",
+      "owners": [
+        "_mdrn_it_stungun",
+        "d20_melee004"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwln_b_071.tga",
+      "sha256": "9e611387e180fd8141bbf41dd3ff4c71d0db58ee2a31e5600aa4e041865fa75b",
+      "owners": [
+        "_mdrn_it_hkmp5k",
+        "_mdrn_it_uzi9mm",
+        "d20_macingramm10",
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwln_m_011.tga",
+      "sha256": "434df79fd9365f3e834f8d24a9b7dfbd0b19ab2ace7dc929642d2a91063365f3",
+      "owners": [
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwln_m_013.tga",
+      "sha256": "1ceb823076658c8cd28e532f4e87147b2a6be0f458088784dcee561918ac5d67",
+      "owners": [
+        "_mdrn_it_uzi9mm"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwln_m_021.tga",
+      "sha256": "b3bf230bc35d7a29fa4a2b98a381d1a7c3b500cad443a91c1ad53f234648c6dc",
+      "owners": [
+        "d20_macingramm10"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwln_m_061.tga",
+      "sha256": "9807c232bc6751ed3df4cdc9c199f6a99b8a020d2eddcf1ee10f304367b8219e",
+      "owners": [
+        "_mdrn_it_hkmp5k"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwln_t_011.tga",
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "owners": [
+        "_mdrn_it_hkmp5k",
+        "_mdrn_it_uzi9mm",
+        "d20_macingramm10",
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_b_011.tga",
+      "sha256": "55e91947026eef4f17d5d0172638f1cddc9cdb1b7e4b2a806ecc4d1d8a65c178",
+      "owners": [
+        "_mdrn_it_357dual",
+        "_mdrn_it_357off",
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off",
+        "_mdrn_it_92dual",
+        "_mdrn_it_92off",
+        "_mdrn_it_bbydual",
+        "_mdrn_it_bbyoff",
+        "_mdrn_it_c45dual",
+        "_mdrn_it_c45off",
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "_mdrn_it_eagdual",
+        "_mdrn_it_eagle",
+        "_mdrn_it_eagoff",
+        "_mdrn_it_glkdual",
+        "_mdrn_it_glkoff",
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "_mdrn_it_sawnoff",
+        "d20_smarms001",
+        "d20_smarms002",
+        "d20_smarms003",
+        "d20_smarms004",
+        "d20_smarms005",
+        "d20_smarms007",
+        "d20_smarms008",
+        "d20_smarms013",
+        "d20_smarms013dl",
+        "d20_smarms013off"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_031.tga",
+      "sha256": "5a1635a149395c578845e781b02909270f8db65c39197a59bf5233a91bb525c7",
+      "owners": [
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_033.tga",
+      "sha256": "9d7fa5158cce3818d48e27fdd0f0d56df47ef711c2db16ef9813f4d985cccff8",
+      "owners": [
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "d20_smarms004"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_041.tga",
+      "sha256": "c1f39c7b1e50ddf0a0c82907fe71185fd99c8ecf848265537bd5e6a2ac7097f3",
+      "owners": [
+        "_mdrn_it_sawnoff"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_051.tga",
+      "sha256": "329bd4c21d0d51a4e94c2e9d4a9b66cc1e5a8c886b9b679cb58605628287569e",
+      "owners": [
+        "_mdrn_it_glkdual",
+        "_mdrn_it_glkoff",
+        "d20_smarms008"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_053.tga",
+      "sha256": "7aad7c196693146314b1588d88ec88ee713a3fb69b04cb182ecf90e482eb988a",
+      "owners": [
+        "_mdrn_it_92dual",
+        "_mdrn_it_92off",
+        "d20_smarms001"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_063.tga",
+      "sha256": "fb3d06ff82c8900995fb94ded2cfcda2092bf0558c388b6fe1a0dbf4993facc6",
+      "owners": [
+        "_mdrn_it_bbydual",
+        "_mdrn_it_bbyoff",
+        "d20_smarms002"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_073.tga",
+      "sha256": "8d9ac5f7ef543472755bb31445295d4828a2d042062c325e781d2b5411a1337c",
+      "owners": [
+        "_mdrn_it_eagdual",
+        "_mdrn_it_eagle",
+        "_mdrn_it_eagoff"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_151.tga",
+      "sha256": "109f4f1f547be43f9d8fa43faff375d08304824c1b7a99c1b3a9c4b87c302d2b",
+      "owners": [
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "d20_smarms003"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_171.tga",
+      "sha256": "7c4d19af91cde92e5cb62dd934101c7e3d7fb5c538f8db59d07d6fb7c176fb9f",
+      "owners": [
+        "_mdrn_it_c45dual",
+        "_mdrn_it_c45off",
+        "d20_smarms007"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_172.tga",
+      "sha256": "b7d1544a63f1e5c4179ff96c8b14df06ef5aecd1dcca548d3b26153a45ce41ef",
+      "owners": [
+        "_mdrn_it_357dual",
+        "_mdrn_it_357off",
+        "d20_smarms005"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_m_182.tga",
+      "sha256": "70eade202896a6dcd3346f5fde2a9fde01842c1e1aeba81487a5d90d5a34fd2b",
+      "owners": [
+        "d20_smarms013",
+        "d20_smarms013dl",
+        "d20_smarms013off"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwsh_t_011.tga",
+      "sha256": "55e91947026eef4f17d5d0172638f1cddc9cdb1b7e4b2a806ecc4d1d8a65c178",
+      "owners": [
+        "_mdrn_it_357dual",
+        "_mdrn_it_357off",
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off",
+        "_mdrn_it_92dual",
+        "_mdrn_it_92off",
+        "_mdrn_it_bbydual",
+        "_mdrn_it_bbyoff",
+        "_mdrn_it_c45dual",
+        "_mdrn_it_c45off",
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "_mdrn_it_eagdual",
+        "_mdrn_it_eagle",
+        "_mdrn_it_eagoff",
+        "_mdrn_it_glkdual",
+        "_mdrn_it_glkoff",
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "_mdrn_it_sawnoff",
+        "d20_smarms001",
+        "d20_smarms002",
+        "d20_smarms003",
+        "d20_smarms004",
+        "d20_smarms005",
+        "d20_smarms007",
+        "d20_smarms008",
+        "d20_smarms013",
+        "d20_smarms013dl",
+        "d20_smarms013off"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxh_b_011.tga",
+      "sha256": "bae3930c4ba008a3adec3137b223147687ca0116d609a0bd2d6e1e42439b7712",
+      "owners": [
+        "d20_hvarms001",
+        "d20_hvarms004",
+        "d20_hvarms005",
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxh_m_014.tga",
+      "sha256": "3a0969e9683a5d370bfcf1c7492e297660a8576369669915876c1a1d90543c17",
+      "owners": [
+        "d20_hvarms001"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxh_m_021.tga",
+      "sha256": "d6670c49a7f35e9337982754d94f8da289e0b5bff2d8c8bee6506a59b630339b",
+      "owners": [
+        "d20_hvarms005"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxh_m_072.tga",
+      "sha256": "88bdb504cdc6a736780a78d5e616e0594cc23abdfab76f60e5418f7b58272076",
+      "owners": [
+        "d20_hvarms004"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxh_m_074.tga",
+      "sha256": "b331258b5e8df7028b912a19a0753f27a342ec50b933b57a60d51d1bf98c48e7",
+      "owners": [
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxh_t_011.tga",
+      "sha256": "bae3930c4ba008a3adec3137b223147687ca0116d609a0bd2d6e1e42439b7712",
+      "owners": [
+        "d20_hvarms001",
+        "d20_hvarms004",
+        "d20_hvarms005",
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_b_011.tga",
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "owners": [
+        "_mdrn_it_ak47",
+        "_mdrn_it_ak74u",
+        "_mdrn_it_fn2000",
+        "_mdrn_it_g36",
+        "_mdrn_it_ithac37",
+        "_mdrn_it_m4",
+        "_mdrn_it_spas12",
+        "d20_hvarms_004"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_m_011.tga",
+      "sha256": "0db9e6798d653a57c6e50025484f19c6f8e23bcc4cb3b6574edc45e8b3e20804",
+      "owners": [
+        "d20_hvarms_004"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_m_021.tga",
+      "sha256": "1738c34e7835af09514f0ca767e0a3e47aed273d31f038997902371959847d8f",
+      "owners": [
+        "_mdrn_it_m4"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_m_043.tga",
+      "sha256": "ce5e870c57cdc9e2b8bcbc1e302c88167933c69f93498a065a3307051a47236d",
+      "owners": [
+        "_mdrn_it_ithac37"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_m_051.tga",
+      "sha256": "03fae288d7a7393595e874a77be6da0ab1a28693cbca2349e7cf64c98c79c183",
+      "owners": [
+        "_mdrn_it_ak47"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_m_062.tga",
+      "sha256": "034fc5853044ac6d08c0279a464f92b250d52870bcf906e4634b379c7a4d967f",
+      "owners": [
+        "_mdrn_it_spas12"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_m_073.tga",
+      "sha256": "d9eaf3e50b5c84441cfc932174ec2893270d91700d4b3e26cd83e0c690cad5a7",
+      "owners": [
+        "_mdrn_it_fn2000"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_m_241.tga",
+      "sha256": "1ad5c388f2f6e1b460cca5174f9d3491550fcd7c1d2105517f6d201f9ecb0979",
+      "owners": [
+        "_mdrn_it_ak74u"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_m_251.tga",
+      "sha256": "6656782773ec36bce068b3854be9d355f385af40810263c040bd71d4e90abb95",
+      "owners": [
+        "_mdrn_it_g36"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwbwxl_t_011.tga",
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "owners": [
+        "_mdrn_it_ak47",
+        "_mdrn_it_ak74u",
+        "_mdrn_it_fn2000",
+        "_mdrn_it_g36",
+        "_mdrn_it_ithac37",
+        "_mdrn_it_m4",
+        "_mdrn_it_spas12",
+        "d20_hvarms_004"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwplss_b_141.tga",
+      "sha256": "626b1a4de8e29075168e1afefa5de13bdf33813510569f22edf9112461f2d31f",
+      "owners": [
+        "_mdrn_it_harpnsp"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwplss_m_143.tga",
+      "sha256": "6aac360e702d0129f66332a17d2b61930670ad84219cbd13f538c58b4bf23146",
+      "owners": [
+        "_mdrn_it_harpnsp"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwplss_t_141.tga",
+      "sha256": "d0de95ca6223a922d3b3a747e2ba2524330215b781f2f1919687adeab21d1492",
+      "owners": [
+        "_mdrn_it_harpnsp"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwspsc_b_014.tga",
+      "sha256": "6b5afd63ea572169c20d8b15737564667640a78f4bf4964717c9a91cbb31f7bd",
+      "owners": [
+        "_mdrn_it_csaw"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwspsc_m_014.tga",
+      "sha256": "030c43fab391b3041568ea2c380fa4a2bdf359e4eec9754072e3fe64dfc4e3de",
+      "owners": [
+        "_mdrn_it_csaw"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwspsc_t_014.tga",
+      "sha256": "6b5afd63ea572169c20d8b15737564667640a78f4bf4964717c9a91cbb31f7bd",
+      "owners": [
+        "_mdrn_it_csaw"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwswdg_b_011.tga",
+      "sha256": "4c37301881aa33176bb2a967875bb7dceb5c76791754b98e8eb6334de3d0a619",
+      "owners": [
+        "_mdrn_it_knife03",
+        "_mdrn_it_knife05"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwswdg_m_011.tga",
+      "sha256": "c35146aa1d713a4e059323cfb61a427b4cded0725f032d1dd4be46eb816bc714",
+      "owners": [
+        "_mdrn_it_knife03"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwswdg_m_014.tga",
+      "sha256": "aab831bdb54f7034edfcc5292ecbcbdbe65a5a0e489278f95b4257bae409f7bf",
+      "owners": [
+        "_mdrn_it_knife05"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwswdg_t_011.tga",
+      "sha256": "4c37301881aa33176bb2a967875bb7dceb5c76791754b98e8eb6334de3d0a619",
+      "owners": [
+        "_mdrn_it_knife03",
+        "_mdrn_it_knife05"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwswss_m_071.tga",
+      "sha256": "0065a92c6e2989ed9758ecbb2395956bc2038c7ffba79496f3c1b347b4581e1b",
+      "owners": [
+        "_mdrn_it_knife01"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "iwswss_t_071.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "owners": [
+        "_mdrn_it_knife01"
+      ],
+      "reasons": [
+        "Multipart icon candidate"
+      ]
+    },
+    {
+      "name": "jez_flashlight.tga",
+      "sha256": "d367eb4d3e7fe41f058ad6bb1fe79c24e25bf3ab9924685d5f90a5c073da3d06",
+      "owners": [
+        "_mdrn_it_torch"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_024.mdl"
+      ]
+    },
+    {
+      "name": "jz_mike01.tga",
+      "sha256": "0d1bd6a813c816c899f982dc56f9ed7d49d1ada52f54edb395a7b2bd26ecebd9",
+      "owners": [
+        "_mdrn_ot_mike1",
+        "_mdrn_ot_mike2"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_021.mdl",
+        "Texture referenced by it_torch_022.mdl"
+      ]
+    },
+    {
+      "name": "jzg_38special.dds",
+      "sha256": "cad82af3ae4cb2b1639f223b4d37fcebeb6dcbf121cc2e8f40a89aafc05025b4",
+      "owners": [
+        "d20_smarms013",
+        "d20_smarms013dl",
+        "d20_smarms013off"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_182.mdl"
+      ]
+    },
+    {
+      "name": "jzg_ak47.dds",
+      "sha256": "ff125eb1141fa892e38f526d4e4773dc4f8fa08ac5f37724ad81f7dc50cdafe1",
+      "owners": [
+        "_mdrn_it_ak47"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_051.mdl"
+      ]
+    },
+    {
+      "name": "jzg_colt45.dds",
+      "sha256": "6ce9e5965d0f12bfb9f8d173e11fad01de5cc2bbbf5fb060fa6bd59090e3a8ea",
+      "owners": [
+        "_mdrn_it_c45dual",
+        "_mdrn_it_c45off",
+        "d20_smarms007"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_171.mdl"
+      ]
+    },
+    {
+      "name": "jzg_ingram.dds",
+      "sha256": "96e6b66c7f18ff3bfaddb057b58e1c3df66bc4f30148725be651e15a9178563a",
+      "owners": [
+        "d20_macingramm10"
+      ],
+      "reasons": [
+        "Texture referenced by wbwln_m_021.mdl"
+      ]
+    },
+    {
+      "name": "jzg_mas36.dds",
+      "sha256": "84c654d07a10f323368079a275625e34d336e03d8600ba474a37ab5b4406a585",
+      "owners": [
+        "d20_hvarms_004"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_011.mdl"
+      ]
+    },
+    {
+      "name": "jzg_python.dds",
+      "sha256": "303f26ad29022cfc7ba1d0fe725abe79dcb6911528b320c8fd206e0cb3140c1a",
+      "owners": [
+        "_mdrn_it_357dual",
+        "_mdrn_it_357off",
+        "d20_smarms005"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_172.mdl"
+      ]
+    },
+    {
+      "name": "jzg_sawedshotg.dds",
+      "sha256": "fd02a2c45e3dc1a099bc0f45915094d9d2f5e102a0ae3d3e945137d01ee9a3ec",
+      "owners": [
+        "_mdrn_it_sawnoff"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_041.mdl"
+      ]
+    },
+    {
+      "name": "jzg_usph.dds",
+      "sha256": "a9d0b509c13cb67407fc19f74e11dff0303fa21ea39ccade999f396b0bcacacb",
+      "owners": [
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "d20_smarms003"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_151.mdl"
+      ]
+    },
+    {
+      "name": "jzg_uspp.dds",
+      "sha256": "298e0f02d13e97aa257deffb396938f883276c943b8de3003c63f0d93ad29c1f",
+      "owners": [
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "d20_smarms003"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_151.mdl"
+      ]
+    },
+    {
+      "name": "jzg_uspss.dds",
+      "sha256": "49b1ea01cca369648987c14b575abb84cb484d6dac08ee6059b12d134acf2af3",
+      "owners": [
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "d20_smarms003"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_151.mdl"
+      ]
+    },
+    {
+      "name": "k98_scoped.dds",
+      "sha256": "8d01ba2792702ac10c93a6f90e275b4e47f8037ae660db2108bbba68cbbc3460",
+      "owners": [
+        "d20_hvarms004"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_072.mdl"
+      ]
+    },
+    {
+      "name": "lightbeam_a.tga",
+      "sha256": "7fbf4d6b43cd0f7710d8272e4e8d0a0e73bd9a0a9d6b29920ec7e2711319efde",
+      "owners": [
+        "_mdrn_it_torch"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_024.mdl"
+      ]
+    },
+    {
+      "name": "lightbeam_a.txi",
+      "sha256": "6d8a45525fb7b13b46ca6b1198db754bff7e7cee6a0a87fe5aaa2c1a20cda9a4",
+      "owners": [
+        "_mdrn_it_torch"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_024.mdl"
+      ]
+    },
+    {
+      "name": "m4colt.dds",
+      "sha256": "60b2b927ddfa70485cfc9eb5ad4ae8ded7127bad4c8e969c6ff51dd7b7e6219d",
+      "owners": [
+        "_mdrn_it_m4"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_021.mdl"
+      ]
+    },
+    {
+      "name": "m4handle.dds",
+      "sha256": "a29b7e4f8e404a7e3c9affecd9297e98393bff8e16cb9352561dbe337cead6ae",
+      "owners": [
+        "_mdrn_it_knife01"
+      ],
+      "reasons": [
+        "Texture referenced by wswss_m_071.mdl"
+      ]
+    },
+    {
+      "name": "mg-back.tga",
+      "sha256": "a0dad3032ea635c4995c128ce96618ae8de373de534383a669dfb563e812f658",
+      "owners": [
+        "d20_hvarms005"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_021.mdl"
+      ]
+    },
+    {
+      "name": "mg-barrel.tga",
+      "sha256": "e6839952e3d48a753606dcd623b89ead2f18a6b878dc95905fc075f27e7c4bee",
+      "owners": [
+        "d20_hvarms005"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_021.mdl"
+      ]
+    },
+    {
+      "name": "mg-base.tga",
+      "sha256": "2a193902f427e108a5152263141dec915d2c5c003d24330b66111bd26c6ccd5b",
+      "owners": [
+        "d20_hvarms005"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_021.mdl"
+      ]
+    },
+    {
+      "name": "mg-scope.tga",
+      "sha256": "f2a886aaa970c8fafbcf1762051954a8aab22a237e279845f465a4cffd821863",
+      "owners": [
+        "d20_hvarms005"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_021.mdl"
+      ]
+    },
+    {
+      "name": "mg-scpmt.tga",
+      "sha256": "635b4b738549cd7196cad9c10dc8694d6f47b717235459ffc03a3212e20c4c7a",
+      "owners": [
+        "d20_hvarms005"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_021.mdl"
+      ]
+    },
+    {
+      "name": "military_black.dds",
+      "sha256": "b48b6fa31f150abead1307d778695260e64adeaeb308d9c6b98052c620012be9",
+      "owners": [
+        "_mdrn_it_stungun",
+        "_mdrn_ot_antidot",
+        "_mdrn_ot_geiger",
+        "_mdrn_ot_light"
+      ],
+      "reasons": [
+        "Texture referenced by it_torch_010.mdl",
+        "Texture referenced by it_torch_013.mdl",
+        "Texture referenced by it_torch_016.mdl",
+        "Texture referenced by wblcl_m_101.mdl"
+      ]
+    },
+    {
+      "name": "mini_uzi_1024.dds",
+      "sha256": "cbf80a6ee77a151138d450dca5bbf922a5f3f233707c01a8b1286641bf185897",
+      "owners": [
+        "_mdrn_it_uzi9mm"
+      ],
+      "reasons": [
+        "Texture referenced by wbwln_m_013.mdl"
+      ]
+    },
+    {
+      "name": "minigun.dds",
+      "sha256": "5a90c34798a485f9b62219fee64665645b20111c2f111c1524e0a4e8139110db",
+      "owners": [
+        "d20_hvarms001"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_014.mdl"
+      ]
+    },
+    {
+      "name": "mp5kskin.dds",
+      "sha256": "2b31491ade80b2974df3f2294a5f0ce84eb4ab8ad1dcf30fdc8b71b6770130ff",
+      "owners": [
+        "_mdrn_it_hkmp5k"
+      ],
+      "reasons": [
+        "Texture referenced by wbwln_m_061.mdl"
+      ]
+    },
+    {
+      "name": "mpsilencer.dds",
+      "sha256": "082d16127c25345aab2efa7569827319c39079bd8941ec716f60c8c783c63b00",
+      "owners": [
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off",
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "d20_smarms004"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_031.mdl",
+        "Texture referenced by wbwsh_m_033.mdl"
+      ]
+    },
+    {
+      "name": "pk.dds",
+      "sha256": "62c542396f1917a9b460c046cd485ca546b40e5016be39bb29c22360975e8e41",
+      "owners": [
+        "_mdrn_it_ak74u"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_241.mdl"
+      ]
+    },
+    {
+      "name": "pulserifle2.dds",
+      "sha256": "f8a36a618839c6713e39de42f8e1af7f87789594320e485b8c7bb6efdd50af36",
+      "owners": [
+        "_mdrn_it_ithac37"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_043.mdl"
+      ]
+    },
+    {
+      "name": "sawedoff_tex03.dds",
+      "sha256": "de8b1bfeefb8206f8997dc29c5ac83b5c1f6ede30b105d9d9387e1bd8771e20c",
+      "owners": [
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off",
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "_mdrn_it_ithac37",
+        "d20_smarms004"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_031.mdl",
+        "Texture referenced by wbwsh_m_033.mdl",
+        "Texture referenced by wbwxl_m_043.mdl"
+      ]
+    },
+    {
+      "name": "scorpbase.dds",
+      "sha256": "3921dcde4c7940f373c2d22f6cf50cce85c0a5d3ed7a0729f5fc8a98a58c0484",
+      "owners": [
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Texture referenced by wbwln_m_011.mdl"
+      ]
+    },
+    {
+      "name": "scorpgrip.dds",
+      "sha256": "dca5408bb8a24f5e6d9ff51f9382bb196c40f7b3ca6fd180b6e12a61edd61731",
+      "owners": [
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Texture referenced by wbwln_m_011.mdl"
+      ]
+    },
+    {
+      "name": "scorpmagazine.dds",
+      "sha256": "0979b4a3788266e0ebe48722ffef3573c1a7860560c08de8a6acb172f4be9849",
+      "owners": [
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Texture referenced by wbwln_m_011.mdl"
+      ]
+    },
+    {
+      "name": "sfg_frag.dds",
+      "sha256": "27f408b74160d6b4eb9c6e800e25422f1e77369cf6f61da0a428ef6500067962",
+      "owners": [
+        "_mdrn_ot_stun"
+      ],
+      "reasons": [
+        "Texture referenced by it_x1_gren_021.mdl"
+      ]
+    },
+    {
+      "name": "sfg_grpb.dds",
+      "sha256": "a82e25175c4eb6f3648813ac519d52040bb4091f6d6807ec308d9520745d65fb",
+      "owners": [
+        "_mdrn_ot_molotov"
+      ],
+      "reasons": [
+        "Texture referenced by it_x1_gren_007.mdl"
+      ]
+    },
+    {
+      "name": "sfg_grprt.dds",
+      "sha256": "2c4d17cd0d62ebcd4f0c7ca75e66666de089cf492e8767677aa185228718ae89",
+      "owners": [
+        "_mdrn_ot_molotov"
+      ],
+      "reasons": [
+        "Texture referenced by it_x1_gren_007.mdl"
+      ]
+    },
+    {
+      "name": "sfg_noisemkr.dds",
+      "sha256": "b6dc9e897803912cc5f60697505e5e9dd97a4782f86e24b5a22bb887b1bb46f3",
+      "owners": [
+        "_mdrn_ot_phosp"
+      ],
+      "reasons": [
+        "Texture referenced by it_x1_gren_022.mdl"
+      ]
+    },
+    {
+      "name": "sfg_twidgra.dds",
+      "sha256": "8c6d0cc2c333046844a1c4acccb5a0450db6ebd72935e67e4f57f665a651f2c3",
+      "owners": [
+        "_mdrn_it_knife03"
+      ],
+      "reasons": [
+        "Texture referenced by wswdg_m_011.mdl"
+      ]
+    },
+    {
+      "name": "sfg_vbrbldea.dds",
+      "sha256": "0d741c2fc5956a5fbb59d93757ccfa12ca4c8d4b83b9e411b6ad2bee86828b23",
+      "owners": [
+        "_mdrn_it_knife05"
+      ],
+      "reasons": [
+        "Texture referenced by wswdg_m_014.mdl"
+      ]
+    },
+    {
+      "name": "soff1.dds",
+      "sha256": "33dcc21d8e4f17ac102eba6a5cca4eab3ce810eea075f89eea72ec8dddf2809e",
+      "owners": [
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_074.mdl"
+      ]
+    },
+    {
+      "name": "soff2.dds",
+      "sha256": "4acddcabe8efffd9173100113c0937439dd9edfc0cd1fd09006f977cf9b5b202",
+      "owners": [
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_074.mdl"
+      ]
+    },
+    {
+      "name": "soff3.dds",
+      "sha256": "95bb8ed0fb33e9ce8f4822fc168671b3fa30c919df6bd990b75bf76ff35afc8f",
+      "owners": [
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxh_m_074.mdl"
+      ]
+    },
+    {
+      "name": "spas.dds",
+      "sha256": "a7fb0ac7d1be4e0ec035c06baf9424c74148c14f740deee9d4a2b243bad537ee",
+      "owners": [
+        "_mdrn_it_spas12"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_062.mdl"
+      ]
+    },
+    {
+      "name": "stainless.dds",
+      "sha256": "ac1d75620e1d1d7400021d7ff1c88727c3264c773f2f79734178fdeee15b1314",
+      "owners": [
+        "_mdrn_it_knife01"
+      ],
+      "reasons": [
+        "Texture referenced by wswss_m_071.mdl"
+      ]
+    },
+    {
+      "name": "steel.dds",
+      "sha256": "8a887740ab02d395d92dbdc988cff9ad438bab4f00acd99ba0444b80fda609f0",
+      "owners": [
+        "_mdrn_it_ithac37"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_043.mdl"
+      ]
+    },
+    {
+      "name": "swat.dds",
+      "sha256": "e72a09ddca0747cf65129867a81a57ec61c0465c5746c247e2d82b044b6d555c",
+      "owners": [
+        "_mdrn_swatshld2"
+      ],
+      "reasons": [
+        "Texture referenced by ashto_051.mdl"
+      ]
+    },
+    {
+      "name": "uspside.dds",
+      "sha256": "94377b3817a23c62bf271916f27461a5f89670066e68f01e5a563acac44f36b4",
+      "owners": [
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off",
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "d20_smarms004"
+      ],
+      "reasons": [
+        "Texture referenced by wbwsh_m_031.mdl",
+        "Texture referenced by wbwsh_m_033.mdl"
+      ]
+    },
+    {
+      "name": "w_fn2000.dds",
+      "sha256": "06f8a257bf6d407ae205292ebfe741a2b1d07af5f4d361445d973943520a6a26",
+      "owners": [
+        "_mdrn_it_fn2000"
+      ],
+      "reasons": [
+        "Texture referenced by wbwxl_m_073.mdl"
+      ]
+    },
+    {
+      "name": "waxfa_b_011.mdl",
+      "sha256": "ee07fbd118430b78704c12a69a4c771ed3b12c7953c4ff7401e7c115f8474ca1",
+      "owners": [
+        "_mdrn_it_fireaxe"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "waxfa_m_011.mdl",
+      "sha256": "874bf00e078311ee246ca6edda2ce2a409085c3c257733a858429b0faf3eeb3e",
+      "owners": [
+        "_mdrn_it_fireaxe"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "waxfa_t_011.mdl",
+      "sha256": "59507534a4b6cc0b3aa4414fe28758163617546b0af097e3c407d8509e1f7908",
+      "owners": [
+        "_mdrn_it_fireaxe"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wblcl_b_071.mdl",
+      "sha256": "a0a3f40d979a0e0653573e920e7d04d2df9edabd4231b4c74db036c080500645",
+      "owners": [
+        "_mdrn_it_stungun",
+        "d20_melee004"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wblcl_m_081.mdl",
+      "sha256": "61f178273bc348325959a0c4d4392c64bf05d522287f7339d1c4716557d39b6c",
+      "owners": [
+        "d20_melee004"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wblcl_m_101.mdl",
+      "sha256": "2be319c41f6dafd071c79fa598e529ddcf3c232fc816d6e9064ad29766847fdb",
+      "owners": [
+        "_mdrn_it_stungun"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwln_b_071.mdl",
+      "sha256": "64cf44ae0af1e99352d1436e5908af36bf5ce7e1992271ebfad4a1ee29db97a8",
+      "owners": [
+        "_mdrn_it_hkmp5k",
+        "_mdrn_it_uzi9mm",
+        "d20_macingramm10",
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwln_m_011.mdl",
+      "sha256": "701d22fcd65638d5a0083199837db31f2482abf666d16690866b4d7bdd576584",
+      "owners": [
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwln_m_013.mdl",
+      "sha256": "5fc6e9098143010adeef091f119575aa9f5fb46f3d0815acba2e6c1df6bc7c40",
+      "owners": [
+        "_mdrn_it_uzi9mm"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwln_m_021.mdl",
+      "sha256": "e2839dee9d3eb832409c1efff2990e52010ce9381e688a85c28a61751c5e273b",
+      "owners": [
+        "d20_macingramm10"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwln_m_061.mdl",
+      "sha256": "2b628685d4626ae53a5f01254b3a5a8c60739b80228b7b7f936e353a1b5855e5",
+      "owners": [
+        "_mdrn_it_hkmp5k"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwln_t_011.mdl",
+      "sha256": "af4dc6829f1ecfa3b51dca2a32c26f044d0ecca23bbc72b2ebaec15bded389c2",
+      "owners": [
+        "_mdrn_it_hkmp5k",
+        "_mdrn_it_uzi9mm",
+        "d20_macingramm10",
+        "d20_smarms006"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_b_011.mdl",
+      "sha256": "5cb31ca5b5ab917c25d42a62af2540f5f8d9cf21c093ecf08b382a3dd6f17e94",
+      "owners": [
+        "_mdrn_it_357dual",
+        "_mdrn_it_357off",
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off",
+        "_mdrn_it_92dual",
+        "_mdrn_it_92off",
+        "_mdrn_it_bbydual",
+        "_mdrn_it_bbyoff",
+        "_mdrn_it_c45dual",
+        "_mdrn_it_c45off",
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "_mdrn_it_eagdual",
+        "_mdrn_it_eagle",
+        "_mdrn_it_eagoff",
+        "_mdrn_it_glkdual",
+        "_mdrn_it_glkoff",
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "_mdrn_it_sawnoff",
+        "d20_smarms001",
+        "d20_smarms002",
+        "d20_smarms003",
+        "d20_smarms004",
+        "d20_smarms005",
+        "d20_smarms007",
+        "d20_smarms008",
+        "d20_smarms013",
+        "d20_smarms013dl",
+        "d20_smarms013off"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_031.mdl",
+      "sha256": "b6db25bb2f00d9ca553fda07c7df65ee67f64da02aec3676ce9bcb6e1c7b20b7",
+      "owners": [
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_033.mdl",
+      "sha256": "1d38b712bd8a5ffce82aa3eb4a5bdb38e32fb5ca0a850540f6c7d9849904e071",
+      "owners": [
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "d20_smarms004"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_041.mdl",
+      "sha256": "ba6e0496e36569b4f3d030b0e73723f792e03f289b789274b8b5b323625a9971",
+      "owners": [
+        "_mdrn_it_sawnoff"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_051.mdl",
+      "sha256": "015a8dd402e928e306f1902194f71500465014f6faccde0f7febc79ef228ba6d",
+      "owners": [
+        "_mdrn_it_glkdual",
+        "_mdrn_it_glkoff",
+        "d20_smarms008"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_053.mdl",
+      "sha256": "eea29ee454afb74383accf2232dcdda77f9df6f892dd678ac4bafad8e3f3a534",
+      "owners": [
+        "_mdrn_it_92dual",
+        "_mdrn_it_92off",
+        "d20_smarms001"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_063.mdl",
+      "sha256": "5991e25fe477f8093fb9d7145ae4cf8ff8252efd87ff5b421251324cb92f9879",
+      "owners": [
+        "_mdrn_it_bbydual",
+        "_mdrn_it_bbyoff",
+        "d20_smarms002"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_073.mdl",
+      "sha256": "dd7db3a663480e06eebd6008f7638bb0610676ef8cb6d5e5058fe94d3cb21495",
+      "owners": [
+        "_mdrn_it_eagdual",
+        "_mdrn_it_eagle",
+        "_mdrn_it_eagoff"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_151.mdl",
+      "sha256": "959847b4ee4891e2439388c18efec0d02ae717ea894e0e669a1ebc8ef85c8728",
+      "owners": [
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "d20_smarms003"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_171.mdl",
+      "sha256": "ee16b6c9f109a458d150c6c41e066679c62d23948b8edec7b8cb7669dea716e9",
+      "owners": [
+        "_mdrn_it_c45dual",
+        "_mdrn_it_c45off",
+        "d20_smarms007"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_172.mdl",
+      "sha256": "238629b9933d5819c85ea3003a2c0a3d66b743c5a94cdd6067a619298a7e28ad",
+      "owners": [
+        "_mdrn_it_357dual",
+        "_mdrn_it_357off",
+        "d20_smarms005"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_m_182.mdl",
+      "sha256": "6a21532c72c47bb34b1ac48f87583be8e4d9a53e3ed20190d7de40e725f7a416",
+      "owners": [
+        "d20_smarms013",
+        "d20_smarms013dl",
+        "d20_smarms013off"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwsh_t_011.mdl",
+      "sha256": "32257bbe32fca28b04816f8edaa912d121a2fc3196b83ccf6b396b2236b88ca0",
+      "owners": [
+        "_mdrn_it_357dual",
+        "_mdrn_it_357off",
+        "_mdrn_it_44dual",
+        "_mdrn_it_44mag",
+        "_mdrn_it_44off",
+        "_mdrn_it_92dual",
+        "_mdrn_it_92off",
+        "_mdrn_it_bbydual",
+        "_mdrn_it_bbyoff",
+        "_mdrn_it_c45dual",
+        "_mdrn_it_c45off",
+        "_mdrn_it_c6dual",
+        "_mdrn_it_c6off",
+        "_mdrn_it_eagdual",
+        "_mdrn_it_eagle",
+        "_mdrn_it_eagoff",
+        "_mdrn_it_glkdual",
+        "_mdrn_it_glkoff",
+        "_mdrn_it_hkudual",
+        "_mdrn_it_hkuoff",
+        "_mdrn_it_sawnoff",
+        "d20_smarms001",
+        "d20_smarms002",
+        "d20_smarms003",
+        "d20_smarms004",
+        "d20_smarms005",
+        "d20_smarms007",
+        "d20_smarms008",
+        "d20_smarms013",
+        "d20_smarms013dl",
+        "d20_smarms013off"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxh_b_011.mdl",
+      "sha256": "9ea360fc8c0be2b1fcdea7a7e0a2404d3d5c8319a9b45bd50604db501d35f5a0",
+      "owners": [
+        "d20_hvarms001",
+        "d20_hvarms004",
+        "d20_hvarms005",
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxh_m_014.mdl",
+      "sha256": "0655dbc3e96cf0a07aa759e66998e237601c0022fc4939d36684c0d8fda7823e",
+      "owners": [
+        "d20_hvarms001"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxh_m_021.mdl",
+      "sha256": "e96f4f91297d5c0e557a62feaa938409eda5603338e637567cd75fb3c4c70667",
+      "owners": [
+        "d20_hvarms005"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxh_m_072.mdl",
+      "sha256": "1636890f23e90a44443947e8b00d451b278820fc73911fd24319146d59b45da7",
+      "owners": [
+        "d20_hvarms004"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxh_m_074.mdl",
+      "sha256": "0c162cce0e7864ada81db54b2d34a601cda869f29fda0224cb5885baf1472ac1",
+      "owners": [
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxh_t_011.mdl",
+      "sha256": "8a40f6be6e4415d95964ba995c7c09c27c6d2b195455108881469c3b0250c963",
+      "owners": [
+        "d20_hvarms001",
+        "d20_hvarms004",
+        "d20_hvarms005",
+        "d20_hvarms006"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_b_011.mdl",
+      "sha256": "6a841089da1218940501f62bf8f45b9584947550ac7e265bef65c378c9d73765",
+      "owners": [
+        "_mdrn_it_ak47",
+        "_mdrn_it_ak74u",
+        "_mdrn_it_fn2000",
+        "_mdrn_it_g36",
+        "_mdrn_it_ithac37",
+        "_mdrn_it_m4",
+        "_mdrn_it_spas12",
+        "d20_hvarms_004"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_m_011.mdl",
+      "sha256": "ff2123a5182c9070190c52aebcb032c310c68f57cffb9faa2829db81c76c7d37",
+      "owners": [
+        "d20_hvarms_004"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_m_021.mdl",
+      "sha256": "5e12f42a1eac79c4c5b8c8564c33ddc25e2fd714a5b404a38858ac9b82c993d1",
+      "owners": [
+        "_mdrn_it_m4"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_m_043.mdl",
+      "sha256": "e520873b152bc683fdf7e0e66ef7fe379f002bc41d7f98928b9bc450c8a120fb",
+      "owners": [
+        "_mdrn_it_ithac37"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_m_051.mdl",
+      "sha256": "093b5aac983d10271a12953b85f440e2e2312d619182775d1db3b8edfe3af231",
+      "owners": [
+        "_mdrn_it_ak47"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_m_062.mdl",
+      "sha256": "571a622a1a8aa24d51f733518a46502dbd2ff7446a12590de285bd5ef66d00f0",
+      "owners": [
+        "_mdrn_it_spas12"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_m_073.mdl",
+      "sha256": "af5cde885443400bdd45055b7e59bff83410511695a296b4c0b068321c595f67",
+      "owners": [
+        "_mdrn_it_fn2000"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_m_241.mdl",
+      "sha256": "46a35afabf533322eabd1bfe76dde0b2e4f44ee9f233454de72fac598abf74a7",
+      "owners": [
+        "_mdrn_it_ak74u"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_m_251.mdl",
+      "sha256": "2d51b66e53dad78df508d0916eb0d2707c4cfc890ecf1ec3094a1e516bfeb98e",
+      "owners": [
+        "_mdrn_it_g36"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wbwxl_t_011.mdl",
+      "sha256": "524949e0ba5a269cd724faf7523f059b73a043e51cb4bf1d6a8982dfb33f8313",
+      "owners": [
+        "_mdrn_it_ak47",
+        "_mdrn_it_ak74u",
+        "_mdrn_it_fn2000",
+        "_mdrn_it_g36",
+        "_mdrn_it_ithac37",
+        "_mdrn_it_m4",
+        "_mdrn_it_spas12",
+        "d20_hvarms_004"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wplss_b_141.mdl",
+      "sha256": "f81487c72b380832e0c62e7bfc3912781eb6232a3054fb00dc91a08765a92ae1",
+      "owners": [
+        "_mdrn_it_harpnsp"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wplss_m_143.mdl",
+      "sha256": "c43e5ab4d2104906ee28e93e2aa62206d07175f80c5dc3a8bde9a4545af6fac4",
+      "owners": [
+        "_mdrn_it_harpnsp"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wplss_t_141.mdl",
+      "sha256": "f38ef4595ec5394a666f59e20225812c63e4e3178a4873b8077c128f8b9e747c",
+      "owners": [
+        "_mdrn_it_harpnsp"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wspsc_b_014.mdl",
+      "sha256": "e9b6cae388f9a7d25df0f877b94cec8a87ba4c37bc9011e69a41c51ae4321bfa",
+      "owners": [
+        "_mdrn_it_csaw"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wspsc_m_014.mdl",
+      "sha256": "0925ac559e7d51571c13f7155ad03ba734e5944b8318b93004f2bc3abaa9747b",
+      "owners": [
+        "_mdrn_it_csaw"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wspsc_m_014.tga",
+      "sha256": "6e2fcf0bd60510b176eb44bf65d053d56d40850dd5b4fb646ed6504e015da4e9",
+      "owners": [
+        "_mdrn_it_csaw"
+      ],
+      "reasons": [
+        "Texture referenced by wspsc_m_014.mdl"
+      ]
+    },
+    {
+      "name": "wspsc_t_014.mdl",
+      "sha256": "80716a1c6174e424b56262d285e4a3778a6f8a1fd7bce30f6edb1393565c0fbd",
+      "owners": [
+        "_mdrn_it_csaw"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wswdg_b_011.mdl",
+      "sha256": "52e4b7e1a3b669d24ba1478ebb4cd0775c53708271822b60db67b32da5209349",
+      "owners": [
+        "_mdrn_it_knife03",
+        "_mdrn_it_knife05"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wswdg_m_011.mdl",
+      "sha256": "4999192cde3c6c2b3a7cc6c0a0e2fe1e208872aa84fe771de3c3bf90d1256885",
+      "owners": [
+        "_mdrn_it_knife03"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wswdg_m_014.mdl",
+      "sha256": "c9d88df8354c3662f78d419f28cd3949a01509ac62a058d71765d983381f91cc",
+      "owners": [
+        "_mdrn_it_knife05"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wswdg_t_011.mdl",
+      "sha256": "1e56e39fe857ec051c42901361227ae63f585f2edc85770c367f4723040e1875",
+      "owners": [
+        "_mdrn_it_knife03",
+        "_mdrn_it_knife05"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wswss_m_071.mdl",
+      "sha256": "762fe809698a184f82fdadcd038f9bd091b5dd2c6c4c24263a3118bce8a6f7f1",
+      "owners": [
+        "_mdrn_it_knife01"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    },
+    {
+      "name": "wswss_t_071.mdl",
+      "sha256": "c64abb43a7078afeffe3db02f496a671f2fefee9ae6688c4d83c592af94026fa",
+      "owners": [
+        "_mdrn_it_knife01"
+      ],
+      "reasons": [
+        "Multipart appearance"
+      ]
+    }
+  ]
+}
