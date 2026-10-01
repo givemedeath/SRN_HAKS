@@ -291,5 +291,6 @@ foreach ($reuse in @($true,$false)) {
     if (@(Get-ChildItem (Join-Path $fixture '.quarantine') -Directory -Force -Filter '.item-analysis-build-*').Count) {throw 'Failed HAK analysis left temporary output.'}
 }
 [IO.File]::WriteAllText($baselineSpy,$baselineCode)
+$global:LASTEXITCODE = 0 # Clear the deliberately injected native failure before a lookup-free run.
 & (Join-Path $fixtureTools 'Analyze-ItemHak.ps1') -InputHak $hakPath -OutputRelativePath hak -SkipImport
 Write-Host 'Item import regression checks passed, including reused-inventory verification, nested platform helper calls, failed repeat preservation, and publication rollback.'
