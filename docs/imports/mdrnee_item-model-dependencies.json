@@ -1139,18 +1139,6 @@
       "status": "archive"
     },
     {
-      "model": "wbwxh_t_011",
-      "referencedByCount": 5,
-      "referencingModels": [
-        "wbwsh_m_019.mdl",
-        "wbwsh_t_032.mdl",
-        "wbwsh_t_033.mdl",
-        "wbwxh_t_032.mdl",
-        "wbwxh_t_033.mdl"
-      ],
-      "status": "archive"
-    },
-    {
       "model": "a_ba_casts",
       "referencedByCount": 1,
       "referencingModels": [
@@ -1180,6 +1168,18 @@
       "referencedByCount": 1,
       "referencingModels": [
         "it_torch_020.mdl"
+      ],
+      "status": "archive"
+    },
+    {
+      "model": "wbwxh_t_011",
+      "referencedByCount": 5,
+      "referencingModels": [
+        "wbwsh_m_019.mdl",
+        "wbwsh_t_032.mdl",
+        "wbwsh_t_033.mdl",
+        "wbwxh_t_032.mdl",
+        "wbwxh_t_033.mdl"
       ],
       "status": "archive"
     }

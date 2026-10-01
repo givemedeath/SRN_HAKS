@@ -321,7 +321,7 @@ $supermodelClosure = @(foreach ($stem in $supermodelReferences.Keys) {
 })
 $modelFamilies = @($allFiles | Where-Object Extension -ieq '.mdl' | Group-Object {
     if ($_.BaseName -match '^([^_]+)') { $matches[1].ToLowerInvariant() } else { $_.BaseName.ToLowerInvariant() }
-} | Sort-Object Count -Descending | ForEach-Object { [pscustomobject]@{ prefix = $_.Name; modelCount = $_.Count } })
+} | Sort-Object -Property @{ Expression='Count'; Descending=$true }, Name | ForEach-Object { [pscustomobject]@{ prefix = $_.Name; modelCount = $_.Count } })
 Write-AnalysisJson -Name 'model-dependencies.json' -Value ([ordered]@{
     schemaVersion = 1
     modelCount = @($allFiles | Where-Object Extension -ieq '.mdl').Count
@@ -335,7 +335,7 @@ Write-AnalysisJson -Name 'model-dependencies.json' -Value ([ordered]@{
         unresolved = @($textureClosure | Where-Object status -eq 'unresolved').Count
     }
     unresolvedTextureReferences = @($textureClosure | Where-Object status -eq 'unresolved' | Sort-Object stem)
-    supermodelReferences = $supermodelClosure
+    supermodelReferences = @($supermodelClosure | Sort-Object model)
 })
 
 # Associate WAV resources with exact tokens in 2DAs and model animation data.
