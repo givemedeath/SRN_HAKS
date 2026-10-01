@@ -16,7 +16,7 @@ function Resolve-LocalPath([string]$Relative) {
     if (-not $path.StartsWith($quarantine + [IO.Path]::DirectorySeparatorChar, $comparison)) { throw 'Path escapes quarantine.' }
     $current = $path
     while ($current -and $current.Length -ge $quarantine.Length) {
-        if ((Test-Path -LiteralPath $current) -and ((Get-Item -LiteralPath $current).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Reparse point not allowed: $current" }
+        if ((Test-Path -LiteralPath $current) -and ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Reparse point not allowed: $current" }
         $current = Split-Path $current -Parent
     }
     $path

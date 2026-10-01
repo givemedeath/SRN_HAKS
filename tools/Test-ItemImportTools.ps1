@@ -52,7 +52,7 @@ try {
     & (Join-Path $fixtureTools 'Stage-ItemMatches.ps1') -OutputRelativePath selected
     throw 'Expected packing failure was not raised.'
 } catch { if ($_.Exception.Message -ne 'Injected packing failure') {throw} }
-if ((Test-Path $destination) -or @(Get-ChildItem (Join-Path $fixture '.quarantine') -Directory -Filter '.item-staging-*').Count) { throw 'Failed run left partial staging output.' }
+if ((Test-Path $destination) -or @(Get-ChildItem (Join-Path $fixture '.quarantine') -Directory -Force -Filter '.item-staging-*').Count) { throw 'Failed run left partial staging output.' }
 Write-TestJson (Join-Path $fixtureTools 'test-tools.json') @{erf=$realErf; gff=$realGff}
 & (Join-Path $fixtureTools 'Stage-ItemMatches.ps1') -OutputRelativePath selected
 if (@(Get-ChildItem (Join-Path $destination 'blueprints') -File).Count -ne 93) { throw 'Retry did not publish all 93 blueprints.' }
