@@ -24,6 +24,16 @@ $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [
 if (-not $workspace.StartsWith($prefix, $comparison)) {
     throw "OutputRelativePath escapes .quarantine: $OutputRelativePath"
 }
+foreach ($path in @($workspace, (Join-Path $workspace 'raw'), (Join-Path $workspace 'analysis'))) {
+    $current = $path
+    while ($current -and $current.Length -ge $quarantineRoot.Length) {
+        if ((Test-Path -LiteralPath $current) -and
+            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "Reparse point not allowed: $current"
+        }
+        $current = Split-Path $current -Parent
+    }
+}
 
 if (-not $SkipImport) {
     $arguments = @{
@@ -47,6 +57,27 @@ $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json -Dept
 $sourceHash = (Get-FileHash -LiteralPath (Resolve-Path -LiteralPath $InputHak).Path -Algorithm SHA256).Hash.ToUpperInvariant()
 if ([string]$manifest.sourceSha256 -cne $sourceHash) {
     throw 'Analysis manifest does not match InputHak.'
+}
+# Supplemental findings must describe the verified extraction, including when -SkipImport is used.
+$rawEntries = @(Get-ChildItem -LiteralPath $rawRoot -Force)
+$expectedResources = @($manifest.resources)
+if ($expectedResources.Count -ne [int]$manifest.resourceCount -or
+    $rawEntries.Count -ne $expectedResources.Count -or
+    @($rawEntries | Where-Object { $_.PSIsContainer -or ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) }).Count) {
+    throw 'Raw inventory does not match the analysis manifest.'
+}
+$rawByName = @{}
+foreach ($entry in $rawEntries) { $rawByName[$entry.Name] = $entry }
+$seenResources = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+foreach ($resource in $expectedResources) {
+    if (-not $seenResources.Add([string]$resource.name) -or -not $rawByName.ContainsKey([string]$resource.name)) {
+        throw 'Raw inventory does not match the analysis manifest.'
+    }
+    $entry = $rawByName[[string]$resource.name]
+    if ($entry.Length -ne [int64]$resource.size -or
+        (Get-FileHash -LiteralPath $entry.FullName -Algorithm SHA256).Hash -ine [string]$resource.sha256) {
+        throw "Raw resource hash/size mismatch: $($resource.name)"
+    }
 }
 
 function Write-AnalysisJson {

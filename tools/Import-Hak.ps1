@@ -520,7 +520,7 @@ if ($Mode -eq 'Analyze') {
     $baseNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     $baseHashes = @{}
     if ($NwnRoot -and $NwnUserDirectory) {
-        $grep = Join-Path (Split-Path -Parent $erf) 'nwn_resman_grep.exe'
+        $grep = Get-SrnTool -Name resman_grep
         & $grep --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr --all --md5 | ForEach-Object { if ($_ -match '^\s*(\S+)\s+([0-9a-f]{32})') { [void]$baseNames.Add($matches[1]); $baseHashes[$matches[1].ToLowerInvariant()] = $matches[2].ToLowerInvariant() } }
     }
 
@@ -954,7 +954,7 @@ if (($profile.PSObject.Properties.Name -contains 'genericDoorMerge') -or
         throw 'Apply requires NWN root and user directory for baseline-preserving global 2DA merges.'
     }
     $erf = Get-SrnTool -Name erf
-    $cat = Join-Path (Split-Path -Parent $erf) 'nwn_resman_cat.exe'
+    $cat = Get-SrnTool -Name resman_cat
     $generatedRoot = Join-Path $workspace 'generated'
     New-Item -ItemType Directory -Force -Path $generatedRoot | Out-Null
 }
@@ -1190,7 +1190,7 @@ if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
 }
 $gffTransformResults = [Collections.Generic.List[object]]::new()
 if ($profile.PSObject.Properties.Name -contains 'gffTransforms') {
-    $gff = Join-Path (Split-Path -Parent (Get-SrnTool -Name erf)) 'nwn_gff.exe'
+    $gff = Get-SrnTool -Name gff
     foreach ($transform in @($profile.gffTransforms)) {
         $resource = ([string]$transform.resource).ToLowerInvariant()
         $source = Join-Path $rawRoot $resource
@@ -1350,7 +1350,7 @@ $mergedDoorLines = $null
 if (@($profile.customDoorRows).Count) {
     if (-not $NwnRoot -or -not $NwnUserDirectory) { throw 'Apply requires NWN root and user directory for the pinned 2DA baseline.' }
     $erf = Get-SrnTool -Name erf
-    $cat = Join-Path (Split-Path -Parent $erf) 'nwn_resman_cat.exe'
+    $cat = Get-SrnTool -Name resman_cat
     $eeBaselineLines = @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr doortypes.2da)
     $canonicalDoorPath = Join-Path $repoRoot 'srn_2da/doortypes.2da'
     $baseLines = if (Test-Path -LiteralPath $canonicalDoorPath -PathType Leaf) {
