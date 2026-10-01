@@ -1,0 +1,1187 @@
+{
+  "schemaVersion": 1,
+  "modelCount": 1006,
+  "classifications": [
+    {
+      "classification": "character",
+      "count": 730
+    },
+    {
+      "classification": "effect",
+      "count": 7
+    },
+    {
+      "classification": "item",
+      "count": 30
+    },
+    {
+      "classification": "other",
+      "count": 188
+    },
+    {
+      "classification": "tile",
+      "count": 36
+    },
+    {
+      "classification": "unknown",
+      "count": 15
+    }
+  ],
+  "modelFamilies": [
+    {
+      "prefix": "wbwsh",
+      "modelCount": 170
+    },
+    {
+      "prefix": "wbwxl",
+      "modelCount": 143
+    },
+    {
+      "prefix": "it",
+      "modelCount": 70
+    },
+    {
+      "prefix": "wbwsl",
+      "modelCount": 57
+    },
+    {
+      "prefix": "wbwxh",
+      "modelCount": 53
+    },
+    {
+      "prefix": "wbwln",
+      "modelCount": 49
+    },
+    {
+      "prefix": "wswdg",
+      "modelCount": 48
+    },
+    {
+      "prefix": "wmkbs",
+      "modelCount": 42
+    },
+    {
+      "prefix": "wblcl",
+      "modelCount": 40
+    },
+    {
+      "prefix": "wplss",
+      "modelCount": 30
+    },
+    {
+      "prefix": "wswglsbr",
+      "modelCount": 22
+    },
+    {
+      "prefix": "wswls",
+      "modelCount": 22
+    },
+    {
+      "prefix": "wdbax",
+      "modelCount": 21
+    },
+    {
+      "prefix": "wplhb",
+      "modelCount": 18
+    },
+    {
+      "prefix": "wspka",
+      "modelCount": 18
+    },
+    {
+      "prefix": "wmkbm",
+      "modelCount": 17
+    },
+    {
+      "prefix": "wspsc",
+      "modelCount": 17
+    },
+    {
+      "prefix": "wswgs",
+      "modelCount": 15
+    },
+    {
+      "prefix": "wswss",
+      "modelCount": 15
+    },
+    {
+      "prefix": "wdblsbr",
+      "modelCount": 13
+    },
+    {
+      "prefix": "waxgr",
+      "modelCount": 9
+    },
+    {
+      "prefix": "wmkbl",
+      "modelCount": 9
+    },
+    {
+      "prefix": "wswsc",
+      "modelCount": 9
+    },
+    {
+      "prefix": "wthax",
+      "modelCount": 9
+    },
+    {
+      "prefix": "waxbt",
+      "modelCount": 7
+    },
+    {
+      "prefix": "a",
+      "modelCount": 6
+    },
+    {
+      "prefix": "wamar",
+      "modelCount": 6
+    },
+    {
+      "prefix": "wambo",
+      "modelCount": 6
+    },
+    {
+      "prefix": "wambu",
+      "modelCount": 6
+    },
+    {
+      "prefix": "wmkcs",
+      "modelCount": 6
+    },
+    {
+      "prefix": "wswka",
+      "modelCount": 6
+    },
+    {
+      "prefix": "wblhw",
+      "modelCount": 5
+    },
+    {
+      "prefix": "wswbs",
+      "modelCount": 5
+    },
+    {
+      "prefix": "vpr",
+      "modelCount": 4
+    },
+    {
+      "prefix": "wblml",
+      "modelCount": 4
+    },
+    {
+      "prefix": "wdbma",
+      "modelCount": 4
+    },
+    {
+      "prefix": "ashto",
+      "modelCount": 3
+    },
+    {
+      "prefix": "gi",
+      "modelCount": 3
+    },
+    {
+      "prefix": "waxfa",
+      "modelCount": 3
+    },
+    {
+      "prefix": "waxhn",
+      "modelCount": 3
+    },
+    {
+      "prefix": "wdbqs",
+      "modelCount": 3
+    },
+    {
+      "prefix": "wmkss",
+      "modelCount": 3
+    },
+    {
+      "prefix": "vff",
+      "modelCount": 2
+    },
+    {
+      "prefix": "ashlw",
+      "modelCount": 1
+    },
+    {
+      "prefix": "ashsw",
+      "modelCount": 1
+    },
+    {
+      "prefix": "fx",
+      "modelCount": 1
+    },
+    {
+      "prefix": "silencer",
+      "modelCount": 1
+    },
+    {
+      "prefix": "wthdt",
+      "modelCount": 1
+    }
+  ],
+  "textureReferenceStems": 651,
+  "textureClosure": {
+    "archive": 524,
+    "eeBase": 40,
+    "unresolved": 87
+  },
+  "unresolvedTextureReferences": [
+    {
+      "stem": "01",
+      "referencedByCount": 5,
+      "referencingModels": [
+        "wbwxl_m_025.mdl",
+        "wbwxl_m_026.mdl",
+        "wswgs_m_105.mdl",
+        "wswls_m_105.mdl",
+        "wswls_m_106.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "anakin2saber2",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wswglsbr_b_041.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "belt_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "box06",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wbwsl_m_071.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cl1_fg",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cl1_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cl2_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cl3_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cl4_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cloak_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cm1_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cm2_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cm3_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cm4_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cr1_fg",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cr1_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cr2_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cr3_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cr4_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "cylinder02",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wbwsl_m_071.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "dblsaber1",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wdblsbr_b_012.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "dgmetal",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wbwxh_m_083.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "dual_visceron",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wdblsbr_b_013.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "fb1_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "g_wambu_001",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wambu_001.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "head_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "ladle",
+      "referencedByCount": 3,
+      "referencingModels": [
+        "wmkbs_b_062.mdl",
+        "wmkbs_m_062.mdl",
+        "wmkbs_t_062.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "lbicep_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "lens",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wbwxl_m_141.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "lfoot_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "lforearm_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "lhand_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "lshin_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "lshoulder_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "lthigh_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "material",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "mg-silencer",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wbwxh_m_022.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "neck_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pelvis_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_bicepr099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_chest099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_footl099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_footr099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_forel099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_forer099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_head099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_legl099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_legr099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_neck001",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_neck099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_shinl099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_shinr099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_shol099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pfh0_shor099",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pma0_head001",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba_med_weap.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_belt003",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_bicepl001",
+      "referencedByCount": 4,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_da.mdl",
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_chest001",
+      "referencedByCount": 3,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_footl001",
+      "referencedByCount": 4,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_da.mdl",
+        "a_fa.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_footl006",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_dwarf.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_forel001",
+      "referencedByCount": 3,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_handl004",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_dwarf.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_handl005",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_dwarf.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_head001g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba_non_combat.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_legl001",
+      "referencedByCount": 3,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_legl008",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_dwarf.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_neck001",
+      "referencedByCount": 3,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_pelvis001",
+      "referencedByCount": 4,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_ba.mdl",
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_robe030",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_shinl001",
+      "referencedByCount": 3,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_shinr009",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_dwarf.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmh0_shol001",
+      "referencedByCount": 3,
+      "referencingModels": [
+        "a_ba_med_weap.mdl",
+        "a_ba_non_combat.mdl",
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "pmo0_head005",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_da.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rbicep_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rfoot_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rforearm_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rhand_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rollingpin",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wblcl_m_111.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rshin_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rshoulder_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rsw",
+      "referencedByCount": 2,
+      "referencingModels": [
+        "wbwsh_m_221.mdl",
+        "wbwsh_m_222.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "rthigh_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "soff_lens",
+      "referencedByCount": 2,
+      "referencingModels": [
+        "wbwxh_m_074.mdl",
+        "wbwxl_m_072.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "tex_glsbr01",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wswglsbr_b_011.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "tex_lsbr01",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "wdblsbr_m_011.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "tf3_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    },
+    {
+      "stem": "torso_g",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba.mdl"
+      ],
+      "archiveResources": [],
+      "baseResources": [],
+      "status": "unresolved"
+    }
+  ],
+  "supermodelReferences": [
+    {
+      "model": "a_ba",
+      "referencedByCount": 2,
+      "referencingModels": [
+        "a_da.mdl",
+        "a_dwarf.mdl"
+      ],
+      "status": "archive"
+    },
+    {
+      "model": "a_ba_casts",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba_med_weap.mdl"
+      ],
+      "status": "ee-base"
+    },
+    {
+      "model": "a_ba_med_weap",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "a_ba_non_combat.mdl"
+      ],
+      "status": "archive"
+    },
+    {
+      "model": "a_ba_non_combat",
+      "referencedByCount": 2,
+      "referencingModels": [
+        "a_ba.mdl",
+        "a_fa.mdl"
+      ],
+      "status": "archive"
+    },
+    {
+      "model": "a_fa",
+      "referencedByCount": 1,
+      "referencingModels": [
+        "it_torch_020.mdl"
+      ],
+      "status": "archive"
+    },
+    {
+      "model": "wbwxh_t_011",
+      "referencedByCount": 5,
+      "referencingModels": [
+        "wbwsh_m_019.mdl",
+        "wbwsh_t_032.mdl",
+        "wbwsh_t_033.mdl",
+        "wbwxh_t_032.mdl",
+        "wbwxh_t_033.mdl"
+      ],
+      "status": "archive"
+    }
+  ]
+}

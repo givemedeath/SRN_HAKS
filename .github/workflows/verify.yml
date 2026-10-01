@@ -38,6 +38,9 @@ jobs:
           else {
             ./tools/Test-Repository.ps1 -ChangedSince $env:BASE_SHA *>&1 | Tee-Object -FilePath verify.log
           }
+      - name: Verify item import regressions
+        shell: pwsh
+        run: ./tools/Test-ItemImportTools.ps1
       - name: Upload compact verification log
         if: always()
         uses: actions/upload-artifact@v7

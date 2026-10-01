@@ -207,3 +207,34 @@ The shared chainlink_fence.dds source texture is owned by srn_t_common so both D
 and its placeable consumer close without a HAK-order duplicate. Final metadata repair also aligns Flow
 door slots to model hooks, corrects SJM/SRT/ZSF minimaps, normalizes invalid ZSF boolean flags,
 and binds the Planetscape palette to mp01.
+
+## MDRNEE item analysis (2026-09-12)
+
+`mdrnee_item.hak` was decomposed in quarantine under the `mdrnee_item` analysis profile. Its
+verified SHA-256 is
+`3CE0229D041F12789BB7B4C44AA534570B8A56F4AC9F0DC75E9A018D3C0CC654`, covering exactly 3,406
+resources. No item resource is landed by this analysis change. Exact source hashes and proposed
+destinations are recorded in `docs/imports/mdrnee_item-manifest.json`.
+
+The archive credit file attributes earlier work to the original D20 Modern team and later item,
+weapon, lightsaber, icon, GUI, animation, and holdable contributions to Jezira, Prole, Xialya,
+Vanya Mia, Taina, JKA, Forestwolf, Shemsu-Heru, Aenea, The Barbarian, Zwerkule, and Den of
+Assassins. The credit record establishes attribution but is not itself a standalone license. Any
+future promotion must retain the operator-reviewed open-project terms described above and confirm
+that the item archive belongs to the same Neverwinter Vault distribution.
+
+The HAK contains no UTI blueprints, but the companion project-source `d20modernupdate.erf` (SHA-256
+`CD96273454F3C6AF55F40B683C9C0F237129D95B1BD07C68418756FE4FE71A4D`; 17,715,193 bytes; 5,534
+resources) supplies 669 item blueprints. All 669 map to the HAK's friendly `itempal.itp` categories
+and source `baseitems.2da` rows. Only the UTI records are item-import evidence; the ERF's areas,
+creatures, doors, placeables, scripts, and other module content remain quarantined. See
+`docs/imports/mdrnee_item-analysis.md` and `docs/imports/mdrnee_item-blueprint-report.md` for the full
+consumer, dependency, and global-table assessment.
+
+The SR3 appearance crosswalk comes from `sr3-blueprint-candidates.xlsx` (SHA-256
+`06FFCF13C39C04B57F58E45EC75FE36D7805DBFC722B0EA97656A0492FA6F5FE`; 68,308 bytes). The
+`Candidates!A1:T97` classification and `Method!A1:B24` provenance ranges identify 12 Exact identity
+and 81 Visual stand-in candidates. All 93 join uniquely to the verified companion ERF by Blueprint
+ResRef and source base-item row. This crosswalk contributes classification and catalog-identity
+metadata only; its advisory dependency and rights fields do not supersede this repository's source,
+dependency, or licensing review.

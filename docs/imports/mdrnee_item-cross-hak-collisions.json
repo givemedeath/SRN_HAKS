@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "identityCount": 64,
+  "pairCount": 67,
+  "identicalPairs": 12,
+  "differingPairs": 55,
+  "pairs": [
+    {
+      "name": "chrome.dds",
+      "pack": "srn_door",
+      "sameBytes": false
+    },
+    {
+      "name": "dgt04_chrome.dds",
+      "pack": "srn_door",
+      "sameBytes": false
+    },
+    {
+      "name": "glass.dds",
+      "pack": "srn_door",
+      "sameBytes": false
+    },
+    {
+      "name": "amp_3.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "ar1_2.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "bs_brwn.dds",
+      "pack": "srn_placeable",
+      "sameBytes": true
+    },
+    {
+      "name": "chrome.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "cloud.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "desk.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "dgt04_chrome.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "f4-t2.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "ffspside.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "foodcart.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "fxpa_smoke02.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "fxpa_smoke02.txi",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "glass.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "gren.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "grenadel.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "gun_dur.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "gun012.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "hb_wood_fill_001.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "horg2.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "jz_billets.dds",
+      "pack": "srn_placeable",
+      "sameBytes": true
+    },
+    {
+      "name": "laserpistol.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "ldarl.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "lenz.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "map1.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "map2.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "map34.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "metaldark.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "mg1_3.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "military_black.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "military_green.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "minigun.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "missilelauncher.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "mop_handle.tga",
+      "pack": "srn_placeable",
+      "sameBytes": true
+    },
+    {
+      "name": "mop_head1.tga",
+      "pack": "srn_placeable",
+      "sameBytes": true
+    },
+    {
+      "name": "mop_head2.tga",
+      "pack": "srn_placeable",
+      "sameBytes": true
+    },
+    {
+      "name": "mop_head3.tga",
+      "pack": "srn_placeable",
+      "sameBytes": true
+    },
+    {
+      "name": "mor1.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "mor2.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "p_bt_flamecannon.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "p_g36c.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "p_horg1.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "phonepanel1.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "phonepanel2.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "plc_beer.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "rifle.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "rmetal.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "rocket.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "rocket6.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "rocketlauncher02.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "rusted_tank_tex.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "rustymetal1.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "sg_ammo.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "spas.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "stainless.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "steel.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "w_fn2000.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "w_rpg.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "wood.dds",
+      "pack": "srn_placeable",
+      "sameBytes": false
+    },
+    {
+      "name": "dssawful.wav",
+      "pack": "srn_sound",
+      "sameBytes": true
+    },
+    {
+      "name": "dssawhit.wav",
+      "pack": "srn_sound",
+      "sameBytes": true
+    },
+    {
+      "name": "dssawidl.wav",
+      "pack": "srn_sound",
+      "sameBytes": true
+    },
+    {
+      "name": "dssawup.wav",
+      "pack": "srn_sound",
+      "sameBytes": true
+    },
+    {
+      "name": "fw_blaster.wav",
+      "pack": "srn_sound",
+      "sameBytes": true
+    },
+    {
+      "name": "it_materialcloth.wav",
+      "pack": "srn_sound",
+      "sameBytes": true
+    }
+  ]
+}

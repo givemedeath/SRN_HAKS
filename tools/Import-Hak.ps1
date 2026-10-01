@@ -221,6 +221,15 @@ function Get-Recommendation {
     if ($ownerCount -eq 1 -and $Profile -and $Profile.packNames.PSObject.Properties.Name -contains $ownerArray[0]) {
         return [string]$Profile.packNames.($ownerArray[0])
     }
+    if ($Profile -and $Profile.PSObject.Properties.Name -contains 'analysisResourcePacks') {
+        $resource = @($Profile.analysisResourcePacks.PSObject.Properties | Where-Object Name -ceq $name)
+        if ($resource.Count -eq 1) { return [string]$resource[0].Value }
+    }
+    if ($Profile -and $Profile.PSObject.Properties.Name -contains 'analysisExtensionPacks') {
+        $extension = $File.Extension.TrimStart('.').ToLowerInvariant()
+        $mapping = @($Profile.analysisExtensionPacks.PSObject.Properties | Where-Object Name -ceq $extension)
+        if ($mapping.Count -eq 1) { return [string]$mapping[0].Value }
+    }
     if ($name -match '_edge\.2da$' -or $name -eq 'doortypes.2da') { return 'srn_2da' }
     if ($name -eq 'genericdoors.2da' -or $File.Extension -ieq '.dwk') { return 'srn_door' }
     if ($File.Extension -ieq '.pwk') { return 'srn_placeable' }
@@ -511,8 +520,9 @@ if ($Mode -eq 'Analyze') {
     $baseNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     $baseHashes = @{}
     if ($NwnRoot -and $NwnUserDirectory) {
-        $grep = Join-Path (Split-Path -Parent $erf) 'nwn_resman_grep.exe'
+        $grep = Get-SrnTool -Name resman_grep
         & $grep --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr --all --md5 | ForEach-Object { if ($_ -match '^\s*(\S+)\s+([0-9a-f]{32})') { [void]$baseNames.Add($matches[1]); $baseHashes[$matches[1].ToLowerInvariant()] = $matches[2].ToLowerInvariant() } }
+        if ($LASTEXITCODE -ne 0) { throw 'Unable to inventory the requested NWN:EE baseline.' }
     }
 
     $landing = @{}
@@ -945,7 +955,7 @@ if (($profile.PSObject.Properties.Name -contains 'genericDoorMerge') -or
         throw 'Apply requires NWN root and user directory for baseline-preserving global 2DA merges.'
     }
     $erf = Get-SrnTool -Name erf
-    $cat = Join-Path (Split-Path -Parent $erf) 'nwn_resman_cat.exe'
+    $cat = Get-SrnTool -Name resman_cat
     $generatedRoot = Join-Path $workspace 'generated'
     New-Item -ItemType Directory -Force -Path $generatedRoot | Out-Null
 }
@@ -1181,7 +1191,7 @@ if ($profile.PSObject.Properties.Name -contains 'indexedResourceTableMerges') {
 }
 $gffTransformResults = [Collections.Generic.List[object]]::new()
 if ($profile.PSObject.Properties.Name -contains 'gffTransforms') {
-    $gff = Join-Path (Split-Path -Parent (Get-SrnTool -Name erf)) 'nwn_gff.exe'
+    $gff = Get-SrnTool -Name gff
     foreach ($transform in @($profile.gffTransforms)) {
         $resource = ([string]$transform.resource).ToLowerInvariant()
         $source = Join-Path $rawRoot $resource
@@ -1341,7 +1351,7 @@ $mergedDoorLines = $null
 if (@($profile.customDoorRows).Count) {
     if (-not $NwnRoot -or -not $NwnUserDirectory) { throw 'Apply requires NWN root and user directory for the pinned 2DA baseline.' }
     $erf = Get-SrnTool -Name erf
-    $cat = Join-Path (Split-Path -Parent $erf) 'nwn_resman_cat.exe'
+    $cat = Get-SrnTool -Name resman_cat
     $eeBaselineLines = @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr doortypes.2da)
     $canonicalDoorPath = Join-Path $repoRoot 'srn_2da/doortypes.2da'
     $baseLines = if (Test-Path -LiteralPath $canonicalDoorPath -PathType Leaf) {

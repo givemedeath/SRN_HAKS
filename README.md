@@ -117,6 +117,15 @@ quarantine path. An optional `-ProfilePath` supplies archive-specific ownership 
 `-ExpectedSha256` pins the expected input. Supply `-NwnRoot` and `-NwnUserDirectory` when the report
 must compare resources against a base-game installation.
 
+For item-system archives, `tools/Analyze-ItemHak.ps1` wraps the same parameterized extraction and
+adds palette-category, global-2DA, model-dependency, sound-linkage, and existing-pack collision
+reports. `tools/Analyze-ItemBlueprintErf.ps1` accepts a companion ERF and quarantine-relative output
+path, extracts it unchanged, and joins its UTI records to the item HAK's palette and base-item rows.
+An optional `-MatchTierPath` adds a validated Exact identity and Visual stand-in subset from a
+normalized catalog crosswalk. The current MDRNEE findings and all blueprints grouped by friendly
+category are documented in
+`docs/imports/mdrnee_item-analysis.md` and `docs/imports/mdrnee_item-blueprint-report.md`.
+
 For a profiled archive whose SET count fields can be repaired without guessing, generate isolated
 repair candidates with:
 

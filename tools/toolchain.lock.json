@@ -13,7 +13,9 @@
       "executables": {
         "erf": "nwn_erf.exe",
         "gff": "nwn_gff.exe",
-        "tlk": "nwn_tlk.exe"
+        "tlk": "nwn_tlk.exe",
+        "resman_cat": "nwn_resman_cat.exe",
+        "resman_grep": "nwn_resman_grep.exe"
       }
     },
     "linux-x64": {
@@ -23,7 +25,9 @@
       "executables": {
         "erf": "nwn_erf",
         "gff": "nwn_gff",
-        "tlk": "nwn_tlk"
+        "tlk": "nwn_tlk",
+        "resman_cat": "nwn_resman_cat",
+        "resman_grep": "nwn_resman_grep"
       }
     }
   }
