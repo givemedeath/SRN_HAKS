@@ -135,8 +135,12 @@ records root's complete sheet review and exact literal source viewport pixels.
 Crops preserve source colors; layout resizing is uniform and aspect-preserving,
 with no semantic edits or generative capture changes.
 
-Use `output/phenotypes/human-male-complete-goal-v1/Launch-HumanMale.ps1` for the
-review fixture. Default `Motion` selects the exact tested run 26740 archive;
+The original local review used
+`output/phenotypes/human-male-complete-goal-v1/Launch-HumanMale.ps1`.
+A new checkout first needs the external fixture restored; follow the
+[restoration and current launch instructions](phenotype-full-body-client-validation.md#direct-launch-and-isolation).
+Use the restored output wrapper only with `-NoLaunch`, then call the current
+launcher with explicit `-WorkspacePython` and `-Client` paths. Default `Motion` selects the exact tested run 26740 archive;
 `-Mode Gameplay` selects run 40868 and `-Mode Kneel` selects run 48948. These run
 numbers are evidence archive IDs, not live PIDs to control. Selection verifies
 frozen MOD/receipt/test HAK bytes and refuses a switch while another client runs.

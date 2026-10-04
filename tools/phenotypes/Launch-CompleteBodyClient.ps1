@@ -1,8 +1,9 @@
 param(
   [Parameter(Mandatory=$true)][string]$Fixture,
   [Parameter(Mandatory=$true)][string]$ReceiptSha256,
-  [string]$Client='C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe',
-  [string]$WorkspacePython='C:\Users\benco\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+  [Parameter(Mandatory=$true)][ValidateScript({Test-Path -LiteralPath $_ -PathType Leaf})][string]$Client,
+  [Parameter(Mandatory=$true)][ValidateScript({Test-Path -LiteralPath $_ -PathType Leaf})][string]$WorkspacePython,
+  [switch]$NoLaunch
 )
 $ErrorActionPreference='Stop'
 $taskStage=(Resolve-Path -LiteralPath $Fixture).Path
@@ -10,6 +11,10 @@ $taskPreflight=Join-Path $taskStage ('client-preflight-'+[guid]::NewGuid().ToStr
 & $WorkspacePython (Join-Path $PSScriptRoot 'preflight_complete_body_client.py') --fixture $taskStage --receipt-sha256 $ReceiptSha256 --client $Client --output $taskPreflight
 if ($LASTEXITCODE -ne 0) { throw 'Complete-body client preflight failed' }
 $taskProof=Get-Content -LiteralPath $taskPreflight -Raw | ConvertFrom-Json
+if ($NoLaunch) {
+  $taskProof | ConvertTo-Json -Depth 10
+  return
+}
 $taskRunning=@(Get-Process | Where-Object { $_.ProcessName -ieq 'nwmain' })
 if ($taskRunning.Count -ne 0) { throw 'A client is already running; observe ownership before replacing it' }
 # This is the explicitly authorized interactive game test window.

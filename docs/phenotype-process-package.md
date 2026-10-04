@@ -61,7 +61,7 @@ and equipment work; including that plan does not begin the phase.
 Use the bundled workspace Python for the included unit tests:
 
 ```powershell
-$taskPython = 'C:/Users/benco/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
+$taskPython = '<absolute path to your bundled workspace Python executable>'
 & $taskPython -m unittest discover -s tools/phenotypes -p 'test_*.py'
 ```
 

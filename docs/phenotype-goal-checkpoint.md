@@ -163,9 +163,9 @@ confirms review of both complete sheets, all bodies framed and exact literal
 viewport source pixels/crops. Layout resizing is aspect-preserving; no generative
 or semantic alteration of captures was used.
 
-The delivery launcher is
+The original local delivery launcher was
 `output/phenotypes/human-male-complete-goal-v1/Launch-HumanMale.ps1`.
-It selects byte-pinned tested archives: default `Motion` from run 26740,
+It requires the external working fixture and selects byte-pinned tested archives: default `Motion` from run 26740,
 `Gameplay` from run 40868 or `Kneel` from run 48948. Those numbers identify evidence
 archives, not live processes to reuse. `-NoLaunch` selected the default Motion
 MOD without starting a client. `final-delivery-preflight-v1.json`, SHA256
@@ -374,3 +374,12 @@ The preceding six active documents are [archived byte-exact](history/phenotype-f
 with a hash manifest. Historical stops, old PIDs, old foot selections and rejected
 source recipes do not override later user directions. Keep those receipts and
 assets as evidence; do not copy their payloads into the current selection.
+
+PR portability correction, 2026-10-04: the archived wrapper is historical evidence;
+test MOD/HAK and full provenance are not included in Git. Restore the original
+output/dependency closure before replay, or build `srn_body` for a new test module.
+Use the restored output wrapper only with `-NoLaunch`; the current lower-level
+launcher requires explicit bundled `-WorkspacePython` and matching `-Client`
+paths and supports a full preflight-only `-NoLaunch`. See the
+[client validation guide](phenotype-full-body-client-validation.md#direct-launch-and-isolation).
+No body assets, immutable evidence or completed-goal status changed.

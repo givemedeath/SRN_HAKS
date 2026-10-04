@@ -51,34 +51,90 @@ receipts remain preparation history; completed execution receipts are current.
 
 ## Direct launch and isolation
 
-For user review, use the goal's
-[Launch-HumanMale.ps1](phenotypes/evidence/human-male-complete-goal-v1/Launch-HumanMale.ps1).
-Its default `Motion` restores the exact tested PID26740 module/receipt;
-`-Mode Gameplay` selects PID40868 and `-Mode Kneel` selects PID48948.
-Each selection checks the archived receipt, MOD and shared HAK hashes before
-restoring that tested fixture. `-NoLaunch` selects and verifies without opening
-the client. The current selection is `Motion`, recorded in
-`client-fixture-selection.json`; the final delivery preflight passed with
-`clientLaunched=false`. Wrapper SHA256:
-`36262a3c451328906676c3eb9f5dbf33d8786c6cc55e795ef18caf7a4d7db384`.
+### Fresh checkout
 
-The wrapper delegates to
-[Launch-CompleteBodyClient.ps1](../tools/phenotypes/Launch-CompleteBodyClient.ps1).
-For a fresh controlled fixture, that lower-level launcher accepts its directory
-and the reviewed SHA256 of its actual `test-module/receipt.json`:
+The repository publishes `srn_body` resources and recorded comparison images;
+it does **not** publish the original test MOD, `srn_pheno_test.hak`, private stock
+bank or complete compiler/material ancestry. The
+[archived Launch-HumanMale.ps1](phenotypes/evidence/human-male-complete-goal-v1/Launch-HumanMale.ps1)
+is byte-exact historical evidence, not a runnable launcher in that evidence
+folder. Even its `-NoLaunch` mode needs the external files listed below.
+
+To use the accepted body in a new checkout, build and verify the published pack:
 
 ```powershell
-& 'D:\srwt\codex\f0b3\SRN_HAKS\tools\phenotypes\Launch-CompleteBodyClient.ps1' `
-  -Fixture '<final fixture inside human-male-complete-goal-v1>' `
-  -ReceiptSha256 '<reviewed actual fixture receipt SHA256>'
+$taskPython = '<absolute path to your bundled workspace Python executable>'
+pwsh ./tools/Build-Haks.ps1 -Pack srn_body
+& $taskPython ./tools/phenotypes/verify_published_body.py --hak ./output/srn_body.hak
 ```
 
-This is reusable invocation syntax; actual launches are now complete. The
-launcher uses bundled workspace Python
-for [preflight](../tools/phenotypes/preflight_complete_body_client.py), then opens
-the authorized interactive client directly with
-`-userdirectory "<isolated userdir>" +TestNewModule srn_pheno_test`. Do not navigate
-menus or reuse an old part-specific launcher/selector.
+Install that HAK into your NWN:EE user directory's `hak` folder and attach
+`srn_body` to a separate test module in the Toolset's module properties/custom
+content. Use a Human male with stock normal phenotype (0), bare flesh part style
+001, stock neck/head and no worn armor for the initial body inspection. Test
+stock equipment separately. The pack replaces those fourteen Human part models;
+it contains no module, comparator aliases or animation overrides. A module made
+this way is a new test fixture, not a replay of the three archived runs. Record
+its actual package hashes and new observations using the checks below.
+
+### Restore the original comparison fixture
+
+This path requires a backup/export of the **original working output**, not just
+the evidence committed to Git. Restore the original `output/phenotypes` tree,
+including the full compiler/material dependency closure identified by its
+absolute-path receipts, at its recorded locations. Also restore the recorded
+stock inputs and the matching NWN client/compiler installation. Moving files
+alone does not relocate immutable receipts. If these external inputs are
+unavailable, use the fresh-checkout pack above; do not resubmit generation jobs
+or treat the committed evidence folder as a substitute fixture.
+
+The restored goal directory must be
+`output/phenotypes/human-male-complete-goal-v1` beneath the checkout used by
+[Launch-CompleteBodyClient.ps1](../tools/phenotypes/Launch-CompleteBodyClient.ps1).
+Within its `client-fourteen-skin3-motion-v2` directory, retain:
+
+- `userdir/hak/srn_pheno_test.hak`, SHA256
+  `1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245`;
+- `build-archive/<module SHA256>/srn_pheno_test.mod` for each selected mode;
+- `client-evidence-run-<run ID>/receipt.json` with that mode's recorded hash;
+- the converted body/native ancestry, `test-module/hak-resources`, isolated
+  userdir settings and aliases. A MOD/HAK pair alone cannot pass preflight.
+
+| Mode | Run ID | Module SHA256 | Receipt SHA256 |
+| --- | --- | --- | --- |
+| Motion | 26740 | `6fbe425671c9317f2e3f6da08fd7de118963b3f4005bf033a79b4689978ee079` | `ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b` |
+| Gameplay | 40868 | `9a25dc111eccc0c363b242ed393c6dd6518bd0c402acc029e67be8e36c471b0d` | `78beba25081d47250efc0462a4c439a19dbb8e00a58642ea79b13d4c9381cb9e` |
+| Kneel | 48948 | `dbf696bf7e5c305026e2015c45d62d06b42ba02c4237b14a9cf45eaa51cfe7cc` | `e8dfb9ad08b3c57fd5e6b26a2e564695ebea9004810263594c69362599b43633` |
+
+Close any running test client before selecting a mode. Run the **restored output
+copy** of the historical wrapper with `-NoLaunch` to hash-check the external
+files and select the exact archived MOD/receipt. Then run the current lower-level
+launcher with explicit interpreter and client paths:
+
+```powershell
+$taskPython = '<absolute path to your bundled workspace Python executable>'
+$taskClient = '<absolute path to the matching installed nwmain.exe>'
+& ./output/phenotypes/human-male-complete-goal-v1/Launch-HumanMale.ps1 -Mode Motion -NoLaunch
+& ./tools/phenotypes/Launch-CompleteBodyClient.ps1 `
+  -Fixture ./output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2 `
+  -ReceiptSha256 ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b `
+  -WorkspacePython $taskPython -Client $taskClient -NoLaunch
+```
+
+The current launcher's `-NoLaunch` performs the full preflight and saves fresh
+evidence without opening the game. Once it passes, omit that switch for an
+authorized interactive review. Use the matching receipt hash in the table when
+selecting another mode. The frozen wrapper's automatic launch delegation predates
+the mandatory interpreter/client parameters; always use it only to select with
+`-NoLaunch`, then call the current launcher explicitly. Do not edit the archived
+wrapper or receipts to make their old paths look portable.
+
+The launcher has no developer-specific interpreter or game-install default.
+It runs [preflight](../tools/phenotypes/preflight_complete_body_client.py), then
+opens the interactive client directly with
+`-userdirectory "<isolated userdir>" +TestNewModule srn_pheno_test`.
+The original wrapper SHA256 is
+`36262a3c451328906676c3eb9f5dbf33d8786c6cc55e795ef18caf7a4d7db384`.
 
 Preflight verifies the complete current body, accepted bytes, actual packed HAK
 payload, fixture material binding, matching compiler/client executable, unlocked
@@ -106,7 +162,7 @@ from attempted key presses or unlocked configuration alone.
 Each fresh launch records PID/time, userdir, working directory, actual HAK/MOD,
 client, fixture receipt, preflight and launcher SHA256 values. Preflight separately
 records body resource hashes and its executed code hash. Pin settings/quality and
-captured logs too. The current actual launcher SHA256 is
+captured logs too. The historical tested launcher SHA256 was
 `8c799f026ca3792f4a34c0559fe35c8c1ff1eb0b2c543908080a2f8ea4282842`;
 each launch pins its exact executed preflight and package receipts.
 

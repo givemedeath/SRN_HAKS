@@ -31,19 +31,20 @@ the newer client validation establishes current tested readiness.
 
 ## Reopen the isolated comparison
 
-Close any running NWN client, then run:
+A fresh checkout can build `srn_body` and attach it to a new test module.
+The original scripted comparison MOD/HAK and its complete source ancestry remain
+external working outputs. Follow the [fresh-checkout and original-fixture
+restoration instructions](phenotype-full-body-client-validation.md#direct-launch-and-isolation)
+before launching. The wrapper under `docs/phenotypes/evidence` is immutable
+history, not an installed fixture.
 
-```powershell
-& 'D:\srwt\codex\f0b3\SRN_HAKS\output\phenotypes\human-male-complete-goal-v1\Launch-HumanMale.ps1'
-```
-
-The default `Motion` mode selects the exact tested skin8/directional-light module
-with a 12 m walk/run route. Use `-Mode Gameplay` for the tested skin3 original-light
-sword/shield, casting and death/resurrection loop, or `-Mode Kneel` for held side
-kneeling. `-NoLaunch` selects a mode without starting the client. The wrapper
-verifies frozen inputs and refuses to replace a running client. Camera locks are
-disabled. Wheel zoom was observed working; injected keyboard pan was not reliably
-verified, so the side inspection used explicit fixture facing.
+With the complete original output restored, select its `Motion`, `Gameplay` or
+`Kneel` archive using the **output copy** of `Launch-HumanMale.ps1 -NoLaunch`.
+Run the current `Launch-CompleteBodyClient.ps1` with explicit `-WorkspacePython`
+and `-Client` paths, first with `-NoLaunch` for full preflight. Only then omit
+that switch for an authorized review. Wheel zoom was observed working in the
+original tests; keyboard pan was not reliably verified, so side inspection used
+explicit fixture facing.
 
 ## Validation and practical limits
 
