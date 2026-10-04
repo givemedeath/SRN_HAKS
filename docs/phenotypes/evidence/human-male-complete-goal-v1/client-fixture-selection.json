@@ -1,0 +1,9 @@
+{
+  "testedProcessId": 26740,
+  "selectedAt": "2026-10-03T23:17:17.4242318Z",
+  "fixtureReceiptSha256": "ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b",
+  "hakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+  "moduleSha256": "6fbe425671c9317f2e3f6da08fd7de118963b3f4005bf033a79b4689978ee079",
+  "launched": false,
+  "mode": "Motion"
+}

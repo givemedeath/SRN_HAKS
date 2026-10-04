@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "mirrorConfiguration": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-stock-mirror-prepared-v1\\mirror-config.json",
+  "configurationSha256": "866b1c3a8b6de4c9776fa1f825c35eecb1476760666eefe61fe4c690d086abb1",
+  "detachedGeometryOnly": true,
+  "rigOrAnimationsModified": false,
+  "heldRootOffsetsRemainStock": true,
+  "helperSha256": "94d998d0a3af6c828568227d06c04d1794adcb8b72d383d77a27f096eaa2ca1f",
+  "limits": "This prepares the exact opposite attachment-frame reflection, not a selected geometry or right-side weapon/pose proof. Original maps/UVs and transformed authored normals/tangent signs must pass the mirror tool."
+}

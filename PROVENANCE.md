@@ -238,3 +238,33 @@ and 81 Visual stand-in candidates. All 93 join uniquely to the verified companio
 ResRef and source base-item row. This crosswalk contributes classification and catalog-identity
 metadata only; its advisory dependency and rights fields do not supersede this repository's source,
 dependency, or licensing review.
+
+## Purpose-built muscular Human male (2026-10-03)
+
+`srn_body` contains the project's accepted fourteen-part Human male body: 72
+native model, palette texture, normal, roughness and material resources. The
+operator requested publication of this current usable baseline and prioritized
+the remaining races over further optional Human polishing.
+
+The anatomy and textures were commissioned through the project's image-generation
+and local ComfyUI individual-part workflow, then fitted and refined in this
+workstream. Stock NWN:EE Human male parts, attachments and animation controllers
+provided the dimensional and motion reference. The stock root, supermodels,
+animations, neck/head, tables, equipment and test fixture are not redistributed
+in this pack. The generated content is contributed by the SRN project operator
+with Codex-assisted generation, fitting, material processing and validation.
+
+Every published resource is byte-identical to the payload of the accepted
+`human_male_body.hak`, SHA256
+`01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2`.
+Per-resource hashes and sizes are in
+[`docs/phenotypes/human-male-assets.json`](docs/phenotypes/human-male-assets.json).
+The 527,885,123-byte resource payload has no individual file above 15 MiB, so no
+size exception is needed. Models are already compiled; `CompileModels` stays
+false. Rebuilt archive metadata may differ while all resource bytes must match.
+
+[The delivery record](docs/phenotype-human-male-delivery.md) identifies the actual
+native/offline/client evidence, animation sheets and accepted practical limits.
+Generation masters and intermediate maps remain local working assets; packaged
+runtime resources are versioned here. Only an explicitly better validated
+selection should supersede this baseline.

@@ -1,0 +1,91 @@
+{
+  "title": "Muscular Human male \u2014 assembled animation reference",
+  "evidenceKind": "offline-controller",
+  "effectiveBodyConverted": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted",
+  "packagePins": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2"
+  },
+  "cases": [
+    {
+      "category": "idle",
+      "label": "Idle",
+      "caption": "pause1 @ 0.5s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\idle-pause1-0p5\\front.png",
+      "imageSha256": "b1c52ae5f09ecdfb1ff6b27f4d2698d6c2297e7fda6f904fbe948e53ae5d9ba6",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\idle-pause1-0p5\\comparison.json",
+      "receiptSha256": "78dabff874fe432fb8ee5aa69fa756dfca8d1ddc2b29b8f1d638962482d7b9c2",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "walk",
+      "label": "Walk",
+      "caption": "walk @ 0.25s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\walk-walk-0p25\\front.png",
+      "imageSha256": "ded91dcf4bcb4a75b72d2b4abe76c53c6ebfebe4b04d38f66aa638534c882d99",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\walk-walk-0p25\\comparison.json",
+      "receiptSha256": "a6f25f6bf9d75814c6131c91d8a293058bc2bc434bd72f733cddd5bacc224e1b",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "run",
+      "label": "Run",
+      "caption": "run @ 0.2s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\run-run-0p2\\front.png",
+      "imageSha256": "65f412089e6870fabb870371959fc3916a017e641723d798e7ed5cf37211dc0a",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\run-run-0p2\\comparison.json",
+      "receiptSha256": "fbf86d013044bdb4b2acdc4aca436fa985fab86dd07996e5150e078770b77738",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "cast",
+      "label": "Cast",
+      "caption": "conjure2 @ 0.25s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-primary-framing-repairs-v1\\renders\\cast-conjure2-0p25\\front.png",
+      "imageSha256": "71f4d9cf08eac63cd6a008f8833e5665ae7b7b4d4a4824bd572b4785b080550b",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-primary-framing-repairs-v1\\renders\\cast-conjure2-0p25\\comparison.json",
+      "receiptSha256": "10105c4f08a9d499932e65c49c75e6185adf517d21f2a7c1c40ad84b654fae5d",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "combat",
+      "label": "Combat",
+      "caption": "1hparryl @ 0.25s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\combat-1hparryl-0p25\\front.png",
+      "imageSha256": "70a50f23ede8dd2bb24083c728d247f6b4cf08be576810e945d3f47f51a25b13",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\combat-1hparryl-0p25\\comparison.json",
+      "receiptSha256": "9f9b25d93bdbabd776d5cc8293160eb5700410c5bfe6fe9be8425e42673acbdb",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "crouch",
+      "label": "Crouch",
+      "caption": "getlowlp @ 0.833335s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\crouch-getlowlp-0p833335\\front.png",
+      "imageSha256": "cc8da59c8bc6ee96c5e1aa5726582e6ab965d36039c45b68050eb3dd373df3e7",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\crouch-getlowlp-0p833335\\comparison.json",
+      "receiptSha256": "8369f4c7c1876bca4ccf98293e96a2da899da59e774687fa69dc211d487c3bc1",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "kneel",
+      "label": "Kneel",
+      "caption": "kneel @ 1.0s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\kneel-kneel-1p0\\front.png",
+      "imageSha256": "3e3bb96c6b7f399b409914bf556d1043c60e0aef2a1b146c27f418e752d14668",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\kneel-kneel-1p0\\comparison.json",
+      "receiptSha256": "71f0b0f67c31b82919e8a96a5664ddd468d1ea87819558db4adfd374a41909d8",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "death",
+      "label": "Death",
+      "caption": "deadfnt @ 0.0s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-primary-framing-repairs-v1\\renders\\death-deadfnt-0p0\\top.png",
+      "imageSha256": "f2a4d38f662a4c77751c45090ac21ccb9c5b7668fbc2c7bdbc52ee9e9d1b58a0",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-primary-framing-repairs-v1\\renders\\death-deadfnt-0p0\\comparison.json",
+      "receiptSha256": "e1b8650f5954efcb54f00be84cc63b9f683adc5e44771536076b885d42f6b959",
+      "fullBodyReviewed": true
+    }
+  ]
+}

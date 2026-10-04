@@ -37,3 +37,10 @@
 *.are binary
 *.git binary
 *.ifo binary
+# Preserve raw provenance hashes of selected generated helpers and receipts.
+docs/phenotypes/evidence/human-male-complete-goal-v1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/phenotypes/evidence/purposebuilt-hand-pilot-v1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# This frozen executed helper includes its original final blank line.
+docs/phenotypes/evidence/purposebuilt-hand-pilot-v1/measure-wrist-motion-v2.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+# Publish the exact validated body payload, including material line endings.
+srn_body/** -text

@@ -1,5 +1,15 @@
 # SRN HAK Content
 
+## Purpose-built phenotype process
+
+The [process package](docs/phenotype-process-package.md) documents individual-part
+generation, stock-rig fitting, material preservation and assembled client testing,
+with the accepted Human male as its reference case. Its 72 runtime resources
+are versioned in `srn_body`; build `output/srn_body.hak` with the normal HAK
+builder. Generation masters and local ComfyUI/game installations are separate
+dependencies.
+
+
 SRN_HAKS is the public, curated source repository for Neverwinter Nights: Enhanced Edition HAK
 content shared by SR_NWN and SRN_NWN. SRN_CC may produce curated content for this repository, but
 is not a runtime consumer.

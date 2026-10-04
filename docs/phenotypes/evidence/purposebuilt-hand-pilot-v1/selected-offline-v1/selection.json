@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "status": "practical-offline-geometry-pair-ready-for-root-native-integration",
+  "scope": "Latest user direction: wrap the hands up soon; they do not need to be perfect. No further fine cosmetic source trials.",
+  "parts": [
+    {
+      "part": "handl",
+      "model": "pmh0_handl001",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb",
+      "sha256": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d"
+    },
+    {
+      "part": "handr",
+      "model": "pmh0_handr001",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirrored-local.glb",
+      "sha256": "58d803f87abaac491be54201aba9daced6b08096898af61aefade314327c5fc1"
+    }
+  ],
+  "finalGeneration": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json",
+    "sha256": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+    "promptId": "3565bc47-42b7-4e91-a4ce-9c9e164058f3"
+  },
+  "uniformScale": 0.16561695430321036,
+  "sourceWristAnchorNwnZ": 0.39,
+  "properHeldShaftRotationDegrees": 19.326583956217448,
+  "canonicalSourceChiralityReflectionExplicit": true,
+  "oppositeSideExactDetachedStockFrameMirror": true,
+  "stockRigAnimationsAttachmentsAndHeightChanged": false,
+  "equipmentScaling": "stock-identity",
+  "mapAndUvBytesChangedByFittingOrMirror": false,
+  "authoredNormalAndTangentMagnitudePreserved": true,
+  "tangentHandednessFlipsPerReflection": true,
+  "normalMapStrength": 1,
+  "stageConfigurations": [
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-stage-prepared-v1\\stage-config.json",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-stage-prepared-v1\\stage-config.json"
+  ],
+  "evidence": [
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placement.json",
+      "sha256": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirror.json",
+      "sha256": "30a4c1ecc7a7b1f225415e578515d19d0abfa7321120311fb80c80c5a695746d"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-stage-prepared-v1\\map-extraction.json",
+      "sha256": "a360d9f48bf0d582b7288f363891f304213ba02ebdbf906bfe4d2736d8a53924"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-stage-prepared-v1\\map-extraction.json",
+      "sha256": "add2da30042db02f2f90db60bdcfc49d47a6819ae95a2a8934054ea300f78f8b"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-compact-topology-v1\\index.json",
+      "sha256": "1195aac34783c35410b7a8ed4c94aa3975c77c72194b043a907ce6f428c323fc"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-output-basis-v1\\measurement.json",
+      "sha256": "68fc6d62247afcd480b24554db81aa826249b4856f411f3881d0f16aad023979"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\fitted-texture-wrist-review-v1\\review.json",
+      "sha256": "946caaa6dd801acef912f28027cb0bc7e2d20ecf0182f43c997ffc07d610d319"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\review.json",
+      "sha256": "0b330d86f931f612293fec367fe123c1bcafacaaeccae476754db3ae82635fb6"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-held-review-v1\\review.json",
+      "sha256": "46366c34a8fc63774e0de90fa40ca3f23235d03aa8539964483fad4a375ec0cc"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v2\\normal-polish.json",
+      "sha256": "eef2943db65cc96bd9b7c93194a9084563093c6116933955f796d5f05e388521"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\final-hand-pair-wrist-local-intervals-v1.json",
+      "sha256": "d53a941e9e75320477bfb54681295be7b82bad0b1641e1de6289ed61ffe9bf8d"
+    }
+  ],
+  "practicalMovingWrist": {
+    "cases": 243,
+    "comparableRays": 4374,
+    "excludedRays": 0,
+    "newGaps": 0,
+    "minimumOccupiedOverlapMetres": 0.028416955160923463
+  },
+  "visualReviewScope": "Six bind CPU views, four actual-texture wrist views, and representative candidate/stock weapon and shield views at maximum sampled wrist/held rotations. 32 captures per selected pose exist; only representative views were spot-reviewed.",
+  "disclosedLimits": [
+    "Fresh49,990-face compact has eight tiny crossing pairs (maximum about0.624mm at actual scale) and one pinched vertex link introduced by QEM; retained under the coordinator\u2019s measured micro-imperfection decision and latest user scope. Edge boundary/nonmanifold/winding and degeneracy counts are zero; do not claim all vertex links/intersections are clean.",
+    "Selected forearm end shows through the front wrist crown, especially in extreme poses. No empty wrist opening on sampled contact rays; the visible cap patch remains for whole-body/client assessment.",
+    "At maximum sampled73-degree held-dummy rotation, shaft sweeps diagonally through the left palm in the unchanged stock animation; the stock mitten also penetrates. No collision-free item claim.",
+    "RawGLB hand is red/glossy relative to raw forearm. Root owns native palette/AO/roughness calibration, preserving source geometry and normal basis.",
+    "Finite CPU/controller samples and EEVEE previews do not replace native or actual client lighting, motion, stability and performance checks."
+  ],
+  "nativeCompiledByWorker": false,
+  "clientTested": false,
+  "productionWholeBodyAccepted": false,
+  "remainingRootWork": [
+    "Calibrate new hand effective skin/roughness against selected forearms without repeating AO",
+    "Independent native P/N/UV/T/sign proofs",
+    "Cumulative full-body offline assembly and package inventory",
+    "Authorized whole-body actual client tests and animation reference sheet"
+  ],
+  "helperSha256": "fafc01ce477d6c37a01db2eff1a5948961a54618d5f874e95222f5d1e6497776"
+}

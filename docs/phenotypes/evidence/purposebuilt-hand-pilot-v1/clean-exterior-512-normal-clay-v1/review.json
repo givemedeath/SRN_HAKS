@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v1\\normal-polished-highpoly.glb",
+  "sourceSha256": "39b4b3b3a040f5c35cfd465a84631b894fccfc363060c25864b6f2459d5912af",
+  "sourceChanged": false,
+  "helperSha256": "7097ec7ba58fd58e6b318f4833dc3d49bddabe756db2d95d3a753b11f0e38912",
+  "fitOrGeometryEditPerformed": false,
+  "meshObjects": [
+    {
+      "name": "bounded-faired-exterior",
+      "vertices": 2914088,
+      "polygons": 5828260,
+      "hasImportedCustomNormals": true
+    }
+  ],
+  "boundsNwn": [
+    [
+      -0.3771132230758667,
+      -0.2677403688430786,
+      -0.4630686044692993
+    ],
+    [
+      0.36739298701286316,
+      0.27164068818092346,
+      0.455078125
+    ]
+  ],
+  "sharedOrthographicSpan": 1.083413140773773,
+  "actualCameraConvention": "right=[cos(az),sin(az),0], up=cross(back,right); both top/bottom project source X right",
+  "records": [
+    {
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-clay-v1\\palm-clay.png",
+      "sha256": "2d0d232d0ed51c9aa0e5f486201bcc9d236886285900669058a370f54bd8779e",
+      "azimuth": 0,
+      "elevation": 0,
+      "cameraToWorld": [
+        [
+          1.0,
+          -0.0,
+          0.0,
+          -0.00486011803150177
+        ],
+        [
+          0.0,
+          0.0,
+          -1.0,
+          -3.248289108276367
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.003995239734649658
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "right": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "up": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "back": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-clay-v1\\dorsal-clay.png",
+      "sha256": "81e57c8301e24d28ec0fd69bb017b37719636de8529ee8837ea1dcc68b16f9f1",
+      "azimuth": 180,
+      "elevation": 0,
+      "cameraToWorld": [
+        [
+          -1.0,
+          0.0,
+          1.2246468525851679e-16,
+          -0.00486011803150177
+        ],
+        [
+          1.2246468525851679e-16,
+          -0.0,
+          1.0,
+          3.2521896362304688
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.003995239734649658
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "right": [
+        -1.0,
+        1.2246468525851679e-16,
+        0.0
+      ],
+      "up": [
+        0.0,
+        -0.0,
+        1.0
+      ],
+      "back": [
+        1.2246468525851679e-16,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-clay-v1\\thumb-side-clay.png",
+      "sha256": "60a235f577cb7c98695d0a9577f00195d5c9c69182f7a8a70f9416a3848c9d4f",
+      "azimuth": 270,
+      "elevation": 0,
+      "cameraToWorld": [
+        [
+          -1.8369701465288538e-16,
+          0.0,
+          -1.0,
+          -3.2550995349884033
+        ],
+        [
+          -1.0,
+          0.0,
+          1.8369701465288538e-16,
+          0.0019501596689224243
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.003995239734649658
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "right": [
+        -1.8369701465288538e-16,
+        -1.0,
+        0.0
+      ],
+      "up": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "back": [
+        -1.0,
+        1.8369701465288538e-16,
+        0.0
+      ]
+    },
+    {
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-clay-v1\\distal-bottom-clay.png",
+      "sha256": "e864b2b42da4291d8b25d305b97301044c280fb4c7b4ea1d4e81e04286445440",
+      "azimuth": 0,
+      "elevation": -90,
+      "cameraToWorld": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          -0.00486011803150177
+        ],
+        [
+          0.0,
+          -1.0,
+          -6.123234262925839e-17,
+          0.0019501596689224243
+        ],
+        [
+          0.0,
+          6.123234262925839e-17,
+          -1.0,
+          -3.254234552383423
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "right": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "up": [
+        0.0,
+        -1.0,
+        6.123234262925839e-17
+      ],
+      "back": [
+        0.0,
+        -6.123234262925839e-17,
+        -1.0
+      ]
+    }
+  ],
+  "geometrySelected": false,
+  "clientAccepted": false,
+  "limitations": "Neutral preview-only clay, renderer AO and lights; source materials/normal atlas and client palette/lighting are not simulated. glTF imported authored normals are preserved; no model or map export."
+}

@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "newUnselectedCandidateOnly": true,
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\filled-exterior-512-mincut-v1\\exterior-highpoly.glb",
+  "sourceSha256": "d955864c9184a210d0ad9997006576bcb3e6adcdc8b4ecfc46dce410e15c4c9b",
+  "sourceChanged": false,
+  "reconstruction": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\filled-exterior-512-mincut-v1\\reconstruction.json",
+  "reconstructionSha256": "5ef39cbb543958493071caa6573602d01d275df7f62e9505bea16fdae25f6960",
+  "output": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-fairing-v2\\faired-exterior-highpoly.glb",
+  "outputSha256": "feb84aa43e2c7963bf099c3f5b9040f23f2695ae02400405b23bc6303e90a7d6",
+  "geometryFrame": "Original raw glTF, identity node",
+  "positionsChanged": 2756501,
+  "vertices": 2914088,
+  "faces": 5828260,
+  "faceIndicesExact": true,
+  "sourceFaceIndicesSha256": "9ddd0b971ce47eeedcdce88c7a9c08c5c21e630be54f960009381f2f41b113f8",
+  "maximumDisplacementSourceUnits": 0.0010833802873079544,
+  "displacementPercentiles": {
+    "median": 0.000165288111725736,
+    "p95": 0.0006323986107249225,
+    "p99": 0.0008393615732958064
+  },
+  "sourcePitch": 0.001953125,
+  "maximumAllowedDisplacementSourceUnits": 0.001953125,
+  "capAxisRawGltf": "Y",
+  "capPlane": 0.455078125,
+  "capPlaneAndOnePitchBandVerticesFrozen": 102040,
+  "protectedVertexCount": 106883,
+  "protectedVerticesExact": true,
+  "protectedVertexArchiveSha256": "2d4497d13c3e962ad4438b3648b499f863c08a025ffb7f2ca221031c476c9ea1",
+  "gripGuards": [
+    {
+      "lineOriginRawGltf": [
+        0.0,
+        -0.175,
+        0.05
+      ],
+      "sourceMinimumClearance": 0.02507085296628401,
+      "protectedFaceCount": 2075,
+      "guardBandSourceUnits": 0.00390625,
+      "candidateMinimumClearance": 0.02507085296628401
+    },
+    {
+      "lineOriginRawGltf": [
+        0.0,
+        -0.19,
+        0.05
+      ],
+      "sourceMinimumClearance": 0.013285873505887863,
+      "protectedFaceCount": 1096,
+      "guardBandSourceUnits": 0.00390625,
+      "candidateMinimumClearance": 0.013285873505887863
+    },
+    {
+      "lineOriginRawGltf": [
+        0.0,
+        -0.175,
+        0.035
+      ],
+      "sourceMinimumClearance": 0.017356062634026486,
+      "protectedFaceCount": 5396,
+      "guardBandSourceUnits": 0.00390625,
+      "candidateMinimumClearance": 0.017356062634026486
+    },
+    {
+      "lineOriginRawGltf": [
+        0.0,
+        -0.16,
+        0.035
+      ],
+      "sourceMinimumClearance": 0.014318258001832184,
+      "protectedFaceCount": 2020,
+      "guardBandSourceUnits": 0.00390625,
+      "candidateMinimumClearance": 0.014318258001832184
+    }
+  ],
+  "taubinHistory": [
+    {
+      "pair": 1,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0004228639666916204,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 1,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.00023038155772634562,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 2,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0005242338564846354,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 2,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.00038142222154000804,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 3,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0006198645262377219,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 3,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.0004845617198443352,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 4,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.000706752785470773,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 4,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.0005577991935274842,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 5,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0007842371747149547,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 5,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.0006170676217141877,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 6,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0008526709103663375,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 6,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.0007124042964129002,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 7,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0009128061332367004,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 7,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.0007963183331286936,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 8,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0009655113921781003,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 8,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.000869929932940486,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 9,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0010116456288663405,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 9,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.0009343970490014357,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 10,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0010520056753382456,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 10,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.0009908154471677596,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 11,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0010873080987674455,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 11,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.001040180393035365,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 12,
+      "step": "lambda",
+      "factor": 0.5,
+      "maximumDisplacementSourceUnits": 0.0011196268181143285,
+      "clampedVertices": 0
+    },
+    {
+      "pair": 12,
+      "step": "mu",
+      "factor": -0.53,
+      "maximumDisplacementSourceUnits": 0.0010833769631131106,
+      "clampedVertices": 0
+    }
+  ],
+  "integrity": {
+    "originalSignedVolume": 0.1601415847738584,
+    "candidateSignedVolume": 0.16014454316594826,
+    "volumeRatio": 1.0000184736031807,
+    "faceFlips": 0,
+    "degenerateFaces": 0,
+    "minimumOldNewCrossDot": 2.1261269463988678e-13,
+    "normalPolicy": "Fresh unit area-weighted normals on new candidate; no selected/parent normals overwritten"
+  },
+  "sourceBoundsRawGltf": [
+    [
+      -0.376953125,
+      -0.462890625,
+      -0.271484375
+    ],
+    [
+      0.3671875,
+      0.455078125,
+      0.267578125
+    ]
+  ],
+  "candidateBoundsRawGltf": [
+    [
+      -0.3771132230758667,
+      -0.4630686044692993,
+      -0.27164068818092346
+    ],
+    [
+      0.36739298701286316,
+      0.455078125,
+      0.2677403688430786
+    ]
+  ],
+  "uvsOrMapsExist": false,
+  "acceptedGeometryOrMaterialsChanged": false,
+  "helperSha256": "492d0e7250f3a484eda4bdf36b63a6b09352d7236295db31ce0d186a0b4846df",
+  "selected": false,
+  "clientAccepted": false,
+  "remainingGates": [
+    "Independent source-envelope/sections/wrist/grip proof",
+    "Representative clay ridge-removal review",
+    "Fresh compact topology/bakes and stock fitting"
+  ]
+}

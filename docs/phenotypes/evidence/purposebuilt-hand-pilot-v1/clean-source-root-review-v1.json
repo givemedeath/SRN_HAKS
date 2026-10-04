@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v1\\normal-polished-highpoly.glb",
+  "sourceSha256": "39b4b3b3a040f5c35cfd465a84631b894fccfc363060c25864b6f2459d5912af",
+  "observedViews": [
+    "palm",
+    "dorsal",
+    "thumb-side",
+    "distal-bottom"
+  ],
+  "anatomyReviewed": true,
+  "review": "Root inspected all four literal neutral clay captures. Five coherent fingers/thumb, solid flat wrist end and open curled grip are present. User approved recovered macro shape. Visible contour lines remain at enlarged hand-only distance; this accepts the source for a fresh compact texture-bake trial, not finished surface quality or client appearance. No prior body geometry, maps, rig or animations edited.",
+  "remainingSurfaceGate": "Inspect actual fresh2K atlas and compact geometry before fitting/adoption. N-only pass is explicit, maps/normal strength unchanged."
+}

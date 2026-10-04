@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "status": "complete-practical-pass-ready-for-user-review",
+  "implementationCommit": "ed74212cf8251fb32c85e74b979d810d1bc3c8f5",
+  "bodyHak": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak",
+    "sha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2"
+  },
+  "bodyModels": 14,
+  "resources": 72,
+  "offlineValidation": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+    "sha256": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294"
+  },
+  "clientValidation": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+    "sha256": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90"
+  },
+  "clientLogScan": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-log-scan-v1.json",
+    "sha256": "28e6d282d94a251fd5262a155081093cd00c903f7a78a17305553b4997b84ba7"
+  },
+  "offlineSheet": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-animation-reference-v1\\animation-reference-sheet.png",
+    "sha256": "7980c97d555795231e14c001bb901ad4b590a8b1cc5ec9394501dd61400ecf53"
+  },
+  "clientSheet": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\animation-reference-sheet.png",
+    "sha256": "97a054eeebaf44dae69aa0653d8f940c248481560db0502e37e4ca2d7d4c730b"
+  },
+  "sheetReview": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+    "sha256": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40"
+  },
+  "preflight": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json",
+    "sha256": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+  },
+  "launcher": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\Launch-HumanMale.ps1",
+    "sha256": "36262a3c451328906676c3eb9f5dbf33d8786c6cc55e795ef18caf7a4d7db384"
+  },
+  "requirements": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\requirements.json",
+    "sha256": "87ecc66e776e229635d2cef1c55aa9505ee2e1a75d604008459cb473221961d5"
+  },
+  "clientModes": [
+    "Motion",
+    "Gameplay",
+    "Kneel"
+  ],
+  "defaultMode": "Motion",
+  "allOwnedClientsStopped": true,
+  "acceptedLimitations": [
+    "Inherited deep-crouch pelvis/thigh overlap and rounded cap prominence; user explicitly tolerates crouching weirdness.",
+    "Practical hand source retains eight submillimetre crossing pairs and one pinched vertex link; no extra cosmetic loop required.",
+    "Forearm cap can show through the wrist crown and extreme stock held-dummy shaft can enter palm, also present on stock mitten.",
+    "Not all armor/robes/glove/helmet combinations, skin palettes, quality levels or production scenes were exhaustively client-tested.",
+    "No GPU residency/frame-time capture or crowded scene benchmark. Serialized costs/texture estimates are separate from actual process memory.",
+    "Nonfatal Empty field label in MODULE.ifo log warnings remain in archived engine logs; no reported missing-body-resource error or crash in these runs."
+  ],
+  "purgePerformedDuringGoal": false,
+  "largeAssetsPreservedOutsideGit": true,
+  "nextPhase": "Troll male queued separately; not automatically started."
+}

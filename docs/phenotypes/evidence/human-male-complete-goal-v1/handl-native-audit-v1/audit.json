@@ -1,0 +1,111 @@
+{
+  "pass": true,
+  "readOnly": true,
+  "model": "pmh0_handl001",
+  "part": "handl",
+  "helperDependencyHashes": {
+    "stock_limb_contract.py": "36bbf75ff97baea14f6c033eef5cf67d7ab624597f6f3e1d89db7e445801f660"
+  },
+  "sourceHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\config.json": "17c57952b7e9478cad19cc49c75780ebda5265fcf15913ffdeb9b261f1790916",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\native-compile.json": "06f757a8b4695784d71257cd7f3055f63d0dff1b404ed1f6d3ee77578882c861",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\ascii\\pmh0_handl001.mdl": "6f678ed4e81d7b8419ff9db5d787cede4bbaf3ace0022c5914e5c31c1f49cc3d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001.mdl": "5a2c3539fb081d7c826339ffa8b04b64c6d6c506a5d563bd034bc739c629a266",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001.mtr": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001.plt": "a12b099def9b886f978e0083b2e9840ad4de8176f258977c50f49e3928a8a6f8",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001n.tga": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-stage-prepared-v1\\color.png": "33d474151c0cc99ee904cd24ce34866298c840e14e8ce6b3b4abf0918b483897",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-stage-prepared-v1\\normal.png": "cfabff42a6a41aae01a102a072cb5a7d6bbba7d94447f75a7ae727c562a9dcc7",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\audit_native_limb_shading.py": "45c77d8b3221729dde842cf6a1890fbd21479c6bd2c7ec6521b4425495c42a09",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\native-unit-preparation.json": "30b83a3909ae577ceb8bc66e9471523f92b3da0f6491fdce4c7479d1ad920e79",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\material-operation.json": "56530d0c468c8f0049f2bda410a0b985f20427533b876be37abb065c10842132",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\body-resource-manifest.json": "4aa49df1f1e96222dc9657046dd43196fd88530dbd042ac2008f0bec27593697",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001r.tga": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\prepare_effective_native_unit.py": "7a3f820ca6318560a701a1732f1dbbabfd9dbbe9da97faeb28992829160de574"
+  },
+  "nativeMesh": {
+    "nodeAbsoluteOffset": 360,
+    "vertices": 32033,
+    "triangles": 49990,
+    "rawOffset": 1600720,
+    "rawSize": 1837524,
+    "attributeOffsets": {
+      "position": 0,
+      "uv": 384396,
+      "normal": 640660,
+      "tangent": 1324996,
+      "sign": 1709392
+    },
+    "shadowFlag": 1
+  },
+  "sourceToAsciiOrderedCornerMaximumErrors": {
+    "position": 0.0,
+    "normal": 0.0,
+    "uv": 0.0
+  },
+  "sourceToNativeOrderedCornerMaximumErrors": {
+    "position": 0.0,
+    "normal": 0.0,
+    "uv": 0.0
+  },
+  "nativeCornersExactSourceFloat32": {
+    "position": true,
+    "normal": true,
+    "uv": true
+  },
+  "nativeUvFloat32Rounding": {
+    "explicitMaximumAllowedUlps": 0,
+    "observedMaximumUlps": 0,
+    "nonexactValues": 0,
+    "maximumAbsoluteErrorVsRoundedSource": 0.0,
+    "geometryOrAsciiChanged": false
+  },
+  "actualNativeTangentArrays": {
+    "minimumLength": 0.9999998743943922,
+    "maximumLength": 1.0000001234319094,
+    "maxAbsDotAuthoredNormal": 2.041062411556327e-06,
+    "negativeHandednessVertices": 24923,
+    "positiveHandednessVertices": 7110,
+    "nondegenerateUvTriangles": 49990,
+    "degenerateUvTriangles": 0,
+    "faceUvDirectionCosinesDiagnosticOnly": {
+      "tangent": {
+        "minimum": -0.6755565350808806,
+        "median": 0.9996978888895689,
+        "p01": 0.8170965556935484,
+        "negativeCorners": 37,
+        "corners": 149970
+      },
+      "bitangent": {
+        "minimum": -0.9998275046516056,
+        "median": 0.9995292032376581,
+        "p01": 0.7147123536013563,
+        "negativeCorners": 375,
+        "corners": 149970
+      }
+    }
+  },
+  "material": {
+    "mtr": "renderhint NormalTangents\ntexture1 pmh0_handl001n\nparameter float Roughness 0\nparameter float Specularity 0.04\nparameter float Metallicness 0.001\ntexture3 pmh0_handl001r\n",
+    "compileTimeDependenciesExact": true,
+    "normalTgaPixelsExact": true,
+    "pltExpectedLuminancePixelsExact": false,
+    "pltExpectedDeclaredMaterialPixelsExact": true,
+    "explicitFootMaterialDescendant": {
+      "kind": "compiled-effective-ao-roughness-materials",
+      "preparationSha256": "30b83a3909ae577ceb8bc66e9471523f92b3da0f6491fdce4c7479d1ad920e79",
+      "materialOperationSha256": "56530d0c468c8f0049f2bda410a0b985f20427533b876be37abb065c10842132",
+      "runtimeManifestSha256": "4aa49df1f1e96222dc9657046dd43196fd88530dbd042ac2008f0bec27593697",
+      "frozenResourceHashesExact": true,
+      "rebakedHere": false,
+      "originalStageModified": false
+    },
+    "pltSkinLayer0Everywhere": true
+  },
+  "geometryModified": false,
+  "nativeCompilerExecuted": false,
+  "clientControlled": false,
+  "binaryLayoutPrimarySource": "https://github.com/niv/nwn-tools/blob/master/_NwnLib/NwnMdlNodes.h",
+  "limitations": "Constrained one-trimesh decoder. Exact transport and finite orthogonal tangent/sign arrays do not prove client shading or visual acceptance. Per-face differential comparisons are diagnostic; compiler vertex averaging and UV tangencies may differ."
+}

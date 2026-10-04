@@ -1,0 +1,20 @@
+{
+  "archivedAtUtc": "2026-10-03 00:48:21 UTC",
+  "kind": "immutable-historical-operational-bodies",
+  "files": [
+    {
+      "source": "docs\\phenotype-purpose-built-current-runbook.md",
+      "archived": "docs\\history\\phenotype-operational-2026-10-03-004821-utc\\phenotype-purpose-built-current-runbook.md",
+      "sha256": "ad8689a7e893636e188f52a1102eb4079ac4c5a5c30bff651ba9480ba68f4691",
+      "bytes": 20701,
+      "byteExact": true
+    },
+    {
+      "source": "docs\\phenotype-goal-checkpoint.md",
+      "archived": "docs\\history\\phenotype-operational-2026-10-03-004821-utc\\phenotype-goal-checkpoint.md",
+      "sha256": "0b89b0e8b263cb7fe97e18a9b22075085f6412d12a869d19fd070fb7522214cc",
+      "bytes": 9328,
+      "byteExact": true
+    }
+  ]
+}

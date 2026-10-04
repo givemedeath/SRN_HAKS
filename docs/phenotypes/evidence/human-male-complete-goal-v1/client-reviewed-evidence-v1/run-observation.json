@@ -1,0 +1,25 @@
+{
+  "category": "run",
+  "observedDescription": "Actual return run; skin8; directional lighting",
+  "processId": 26740,
+  "capture": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-26740\\011-walk-return-3.json",
+  "captureSha256": "1870cc6c2e876a99d9b873e9bd1c5ea50bb908223161279db1e6f35d5a8a717d",
+  "sourceImage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-26740\\011-walk-return-3-0.jpg",
+  "sourceImageSha256": "794f3294e295abc31c042fc988ca7ceb622563f83ad912b6575f284b83b131d6",
+  "captureStarted": "2026-10-03T22:58:26.625Z",
+  "captureEnded": "2026-10-03T22:58:26.765Z",
+  "fixtureReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-26740\\receipt.json",
+  "fixtureReceiptSha256": "ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b",
+  "moduleSha256": "6fbe425671c9317f2e3f6da08fd7de118963b3f4005bf033a79b4689978ee079",
+  "testHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+  "bodyHakSha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+  "fullBodyReviewed": true,
+  "presentationCrop": [
+    460,
+    295,
+    600,
+    625
+  ],
+  "pixelAdjustment": "None: literal crop only; full original retained",
+  "timingScope": "Observed frame and timestamp, not a measured animation clip position."
+}

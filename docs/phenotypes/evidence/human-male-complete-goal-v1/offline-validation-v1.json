@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "kind": "final14-offline-visual-review",
+  "packagePins": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2"
+  },
+  "completeBodySelected": true,
+  "reviewedBy": "root",
+  "primaryFrames": [
+    {
+      "category": "idle",
+      "label": "Idle",
+      "caption": "pause1 @ 0.5s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\idle-pause1-0p5\\front.png",
+      "imageSha256": "b1c52ae5f09ecdfb1ff6b27f4d2698d6c2297e7fda6f904fbe948e53ae5d9ba6",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\idle-pause1-0p5\\comparison.json",
+      "receiptSha256": "78dabff874fe432fb8ee5aa69fa756dfca8d1ddc2b29b8f1d638962482d7b9c2",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "walk",
+      "label": "Walk",
+      "caption": "walk @ 0.25s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\walk-walk-0p25\\front.png",
+      "imageSha256": "ded91dcf4bcb4a75b72d2b4abe76c53c6ebfebe4b04d38f66aa638534c882d99",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\walk-walk-0p25\\comparison.json",
+      "receiptSha256": "a6f25f6bf9d75814c6131c91d8a293058bc2bc434bd72f733cddd5bacc224e1b",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "run",
+      "label": "Run",
+      "caption": "run @ 0.2s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\run-run-0p2\\front.png",
+      "imageSha256": "65f412089e6870fabb870371959fc3916a017e641723d798e7ed5cf37211dc0a",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\run-run-0p2\\comparison.json",
+      "receiptSha256": "fbf86d013044bdb4b2acdc4aca436fa985fab86dd07996e5150e078770b77738",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "cast",
+      "label": "Cast",
+      "caption": "conjure2 @ 0.25s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-primary-framing-repairs-v1\\renders\\cast-conjure2-0p25\\front.png",
+      "imageSha256": "71f4d9cf08eac63cd6a008f8833e5665ae7b7b4d4a4824bd572b4785b080550b",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-primary-framing-repairs-v1\\renders\\cast-conjure2-0p25\\comparison.json",
+      "receiptSha256": "10105c4f08a9d499932e65c49c75e6185adf517d21f2a7c1c40ad84b654fae5d",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "combat",
+      "label": "Combat",
+      "caption": "1hparryl @ 0.25s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\combat-1hparryl-0p25\\front.png",
+      "imageSha256": "70a50f23ede8dd2bb24083c728d247f6b4cf08be576810e945d3f47f51a25b13",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\combat-1hparryl-0p25\\comparison.json",
+      "receiptSha256": "9f9b25d93bdbabd776d5cc8293160eb5700410c5bfe6fe9be8425e42673acbdb",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "crouch",
+      "label": "Crouch",
+      "caption": "getlowlp @ 0.833335s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\crouch-getlowlp-0p833335\\front.png",
+      "imageSha256": "cc8da59c8bc6ee96c5e1aa5726582e6ab965d36039c45b68050eb3dd373df3e7",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\crouch-getlowlp-0p833335\\comparison.json",
+      "receiptSha256": "8369f4c7c1876bca4ccf98293e96a2da899da59e774687fa69dc211d487c3bc1",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "kneel",
+      "label": "Kneel",
+      "caption": "kneel @ 1.0s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\kneel-kneel-1p0\\front.png",
+      "imageSha256": "3e3bb96c6b7f399b409914bf556d1043c60e0aef2a1b146c27f418e752d14668",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\primary-custom-only\\kneel-kneel-1p0\\comparison.json",
+      "receiptSha256": "71f0b0f67c31b82919e8a96a5664ddd468d1ea87819558db4adfd374a41909d8",
+      "fullBodyReviewed": true
+    },
+    {
+      "category": "death",
+      "label": "Death",
+      "caption": "deadfnt @ 0.0s; skin3; stock male controllers",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-primary-framing-repairs-v1\\renders\\death-deadfnt-0p0\\top.png",
+      "imageSha256": "f2a4d38f662a4c77751c45090ac21ccb9c5b7668fbc2c7bdbc52ee9e9d1b58a0",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-primary-framing-repairs-v1\\renders\\death-deadfnt-0p0\\comparison.json",
+      "receiptSha256": "e1b8650f5954efcb54f00be84cc63b9f683adc5e44771536076b885d42f6b959",
+      "fullBodyReviewed": true
+    }
+  ],
+  "comparisonSources": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\idle-pause1-0p5\\front.png": "98656b22b6703d6480e5afacf9189cb2aa2106e06c2c4f99b66ab2904be9a68e",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\walk-walk-0p25\\front.png": "f67f823219da4cde98ad3b6b2bf643a3f6eaa9de95876ed902bf60923fe929f3",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\run-run-0p2\\front.png": "3caf88b2b7ddade5bc214b36a5c491e06d98681560976f0d7ff4dda98bf6c7e8",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\cast-conjure2-0p25\\front.png": "519c524a98bb93382c4dc092c98fc5e9aeb09814521497e4cd4b954b57528e78",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-1hparryl-0p25\\front.png": "502da76dca7ed1c2f4e4cc51438cb87f33a48cb81a62cd674944a937895f3171",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\crouch-getlowlp-0p833335\\front.png": "e6ea6093e41bc0aefbf48cf34189978121ef2cd8dcf57953262f506b83bc9a1c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\kneel-kneel-1p0\\front.png": "7ebd3eeb3c676cd4c7c2a30fe03d432e5da6ec137b7f56cb1ae6b55c8d0d6739",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\death-deadfnt-0p0\\front.png": "6673484d66407746f077ae5bf4743b6da905ac7aee4b963e5b5ac5257406af3d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\idle-pause2-0p5\\front.png": "0d057a3a7dc6436b9c679a16bb629b216cb55a86550b8d2e974f7aa2ff506eed",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-1hslashr-0p5\\front.png": "d384f2dc97f719d5b2c6e252f5e45cb7ae53c8fda6bf417ba33005d441a5414d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-nwslashl-0p875\\front.png": "170aea77e69bf3e6e9143f225876ef0b1447ce245dd2480cee075a81c2ff44ab",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\crouch-getlow-0p5\\front.png": "3404ee14bc265913f5487dd5d3f527df8ab50460c382ccd4f3a7791aecbf101f",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\kneel-worship-3p5\\front.png": "1e471e18cf490081cf245eac6a6f308fe338e972ee5fc0c4a03bb6501404f30c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\death-kdfntdie-0p466667\\front.png": "4a10a69bb0f222bb0b643bd85f16b4fe1925fc381d30708be6dbd56df88bebdc",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\idle-pause1-0p5\\rear.png": "e49a83cf5bb3689686a8c1be5d856de7ffc33d3467fb425a84b50fd51e941cd7",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\walk-walk-0p25\\rear.png": "151a3b541a038151860b3fb11a5161b643ec864b252b8773ccc521bafe8be83c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\run-run-0p2\\rear.png": "94c5422956442f5ccc1d9c1bafafd3ff13c96ae76d229563c17429e2bac6ec9e",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\cast-conjure2-0p25\\rear.png": "f6a5905567dba3252408fecd0a336990476df6fb1e9f43a9301038ed2018bac2",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-1hparryl-0p25\\rear.png": "9ef817ba4dbc6802eddfbaff7b2ba7fd7bb7dfd27399f92e99df7f6a464bd515",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\crouch-getlowlp-0p833335\\rear.png": "becba3b1c4e71cec8b79e023734fcfc7fb51b298e1e4ec6f2138a7c20c9e92d9",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\kneel-kneel-1p0\\rear.png": "e71a22c0e70bd73a2087a9b89c91445ecf801bf91ae9f87c48909ed9fe03da79",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\death-deadfnt-0p0\\rear.png": "2546cd912d97f32aadbb3c610f4855570ac184195e3da85ed950cee709f90b6c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\idle-pause2-0p5\\rear.png": "849261b68117acd04f79d6b61cbecae90013386abcb7f6cf17c76267e386326d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-1hslashr-0p5\\rear.png": "2e9b180661db56c30664d662e843ac36454509c73077763746ccfc0666f98ba0",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-nwslashl-0p875\\rear.png": "b0c36b4dd85e2d92ca2d0a4d911cc0e8617d548db4b57fb7c20b1a2cbfeb889b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\crouch-getlow-0p5\\rear.png": "3a57dbdf7e48ab3d99948ff26b54b0c6ee73c4ce4bebf8a66ea8634bb4a2c696",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\kneel-worship-3p5\\rear.png": "477f51dfaa56cc0e105271f3220212947f8947fcfc3696531752ad991c114d48",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\death-kdfntdie-0p466667\\rear.png": "48f85065636943224558786a78b312c11aeb3f399d695e776f73c75eb63360f3",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\idle-pause1-0p5\\left.png": "8475a3d35c6820240f8409dc5ebb69e4698b7609dfe49fb1552780bd5e5264b6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\walk-walk-0p25\\left.png": "9695add4ee330635a05986ff38e18b5681800f42e34fb10d8ed4a4293ad29f6c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\run-run-0p2\\left.png": "685bb8837acaedb04de430761058a73ed9d6ccbd9643284ccf569b0acdf21d54",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\cast-conjure2-0p25\\left.png": "a51edffd3df0554cc6a705ddf15721339461c0597b7b4fe745f8a523d383b877",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-1hparryl-0p25\\left.png": "e353d2a30582e37e66132681b6a1864fe140fe7ac3ef25c9b06511b3ab13bce6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\crouch-getlowlp-0p833335\\left.png": "58c89918aef1ac537dc1dcc282f2e48ebfee7b416704a23a9bd7c4823112c614",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\kneel-kneel-1p0\\left.png": "27796a52206e761f2284f9023cca93a8c9ac584ab15361a2cb2cd4fc63a5b362",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\death-deadfnt-0p0\\left.png": "2f484358ffb02a38827b2547a2d442820f7f5877d2fd22032f297e3e1602cc44",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\idle-pause2-0p5\\left.png": "faa1cc6da8568b28f4d67109e8e754748bd2e959865bf6e96ad0165e83ba3034",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-1hslashr-0p5\\left.png": "d76e3ca71aaa70160169be6b9db3667b2caa617612b70e7a13a1100ade61b6bd",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\combat-nwslashl-0p875\\left.png": "0e61e81aec96c90478160898cd3e575c8e167e37405817fd271593eca0de5a7f",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\crouch-getlow-0p5\\left.png": "724da7fc0922402e0ab7cd5ee9ec5f4e2b477800012392eb51fdd6516d19ee5c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\kneel-worship-3p5\\left.png": "5553c1b18443f9aebf6fb8e457ff58cc2a994c8a1cae0fc91c82587b6156aa4c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\renders\\comparison\\death-kdfntdie-0p466667\\left.png": "45bd5a237524861a1e193605b90b58c4f6e70fdd45ca4a03cc8df9ea43ff25bf"
+  },
+  "comparisonViews": [
+    "front",
+    "rear",
+    "left"
+  ],
+  "comparisonCases": 14,
+  "all42ComparisonsReviewed": true,
+  "initialClippedFramesExcluded": [
+    "cast-conjure2-0p25/front.png scale2",
+    "death-deadfnt-0p0/top.png scale2"
+  ],
+  "observations": [
+    "All14 parts present, stock head/neck and male controller height preserved.",
+    "No new detached parts or open joint gaps in reviewed sampled poses.",
+    "Muscular anatomy preserved relative to stock, bilateral silhouettes coherent.",
+    "Wrist overlap cap remains visible in close poses; accepted practical hand limitation.",
+    "Rounded thigh/pelvis overlap remains prominent in crouch, inherited accepted limitation.",
+    "Knee/elbow part seams visible at close range; no new disjointed pose behavior seen.",
+    "Blender shading approximates runtime BRDF/palette; actual client materials and continuous blends still pending."
+  ],
+  "performanceObserved": false,
+  "clientObserved": false
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "b5f12e349814fef7c70d87655c216eddf5138abd5b3476c205dbde5723018493",
+  "generationSha256": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+  "jobPromptId": "3565bc47-42b7-4e91-a4ce-9c9e164058f3",
+  "stockRootSha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+  "stockMeasurementSha256": "1ee5f518f7139061c11214633e3d6a901abd575eb0389ac600a782be688ac159",
+  "uniformScale": 0.16561695430321036,
+  "properRotationMatrixNwn": [
+    [
+      0.0,
+      -0.9436474987374092,
+      0.33095225958834507
+    ],
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.33095225958834507,
+      0.9436474987374092
+    ]
+  ],
+  "sourceAnchorNwn": [
+    0.026804717306764092,
+    0.06342780524881104,
+    0.39
+  ],
+  "targetAnchorHandLocal": [
+    -0.0020940664467079886,
+    -0.0009720413348515596,
+    0.0
+  ],
+  "reflectSourceAnatomyX": true,
+  "reflectionEvidence": "Measured source palm -Y, thumb -X and distal -Z differ in chirality from actual stock left palm +X, thumb +Y, distal -Z; explicit source X reflection reverses winding and tangent W, followed by a proper Rz(+90) and shaft-axis rotation. No stock rig or animation is mirrored.",
+  "orientationEvidence": "Actual stock longsword handle axis is +Y in the identity held frame. The preserved source C grip opening runs along source X; Rz(+90) after explicit X reflection maps this to -Y, and a proper rotation about that shaft aligns the measured wrist-to-grip perpendicular vector. Exact stock lhand_g/lhand matrices remain unchanged.",
+  "label": "Strict uniform stock wrist and held-shaft fit, crown plane +0.390 source units"
+}

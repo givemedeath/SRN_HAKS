@@ -1,0 +1,452 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "inputHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\measure-selected-wrist-targets-v1.py": "36420b211bd426523c053b552deb072f7d65729427120548c645ac6e9e815a28",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\left-proximal-taper-moderate-v1\\tapered-local.glb": "5ca7da7072848fb7bf84d5926d47ada919ce16eb8be7f446768840b96f7b3e32",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\right-proximal-taper-moderate-mirror-v1\\mirrored-local.glb": "a1a1d3df83c85b4bf7a06b4fd34f1360ea373869326ee5539fb19942231a9500"
+  },
+  "records": [
+    {
+      "side": "l",
+      "forearm": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\left-proximal-taper-moderate-v1\\tapered-local.glb",
+      "forearmSha256": "5ca7da7072848fb7bf84d5926d47ada919ce16eb8be7f446768840b96f7b3e32",
+      "actualForearmToHandBind": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.03309000000000001
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.0228936
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.291763
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "actualEquipmentInHandBind": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          -0.015335500000000002
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -2.0146399999990128e-07
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.09451759999999998
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "handWristToGripTranslationMm": [
+        -15.335500000000001,
+        -0.00020146399999990128,
+        -94.51759999999997
+      ],
+      "forearmSectionsInHandFrame": [
+        {
+          "handLocalZ": -0.025,
+          "actualIntersectionCount": 384,
+          "boundsXY": [
+            [
+              -0.0295959423473329,
+              -0.02728335294345319
+            ],
+            [
+              0.024565644205897998,
+              0.02421112275397916
+            ]
+          ],
+          "centerXY": [
+            -0.0025151490707174505,
+            -0.0015361150947370162
+          ],
+          "diametersXYMm": [
+            54.1615865532309,
+            51.49447569743234
+          ]
+        },
+        {
+          "handLocalZ": -0.015,
+          "actualIntersectionCount": 396,
+          "boundsXY": [
+            [
+              -0.03616128530417467,
+              -0.028422303835005762
+            ],
+            [
+              0.025631332970552652,
+              0.029133597320281528
+            ]
+          ],
+          "centerXY": [
+            -0.0052649761668110105,
+            0.0003556467426378829
+          ],
+          "diametersXYMm": [
+            61.792618274727324,
+            57.55590115528729
+          ]
+        },
+        {
+          "handLocalZ": -0.005,
+          "actualIntersectionCount": 402,
+          "boundsXY": [
+            [
+              -0.03390835540103788,
+              -0.02968911533151663
+            ],
+            [
+              0.028071246283606414,
+              0.0285657851534281
+            ]
+          ],
+          "centerXY": [
+            -0.002918554558715732,
+            -0.0005616650890442644
+          ],
+          "diametersXYMm": [
+            61.979601684644294,
+            58.25490048494473
+          ]
+        },
+        {
+          "handLocalZ": 0.0,
+          "actualIntersectionCount": 420,
+          "boundsXY": [
+            [
+              -0.03347515762867432,
+              -0.03059446853156686
+            ],
+            [
+              0.029287024735258342,
+              0.02865038586186374
+            ]
+          ],
+          "centerXY": [
+            -0.0020940664467079886,
+            -0.0009720413348515596
+          ],
+          "diametersXYMm": [
+            62.76218236393266,
+            59.2448543934306
+          ]
+        },
+        {
+          "handLocalZ": 0.005,
+          "actualIntersectionCount": 454,
+          "boundsXY": [
+            [
+              -0.033717027172817195,
+              -0.031580950506892386
+            ],
+            [
+              0.03011440133546859,
+              0.028791622330624347
+            ]
+          ],
+          "centerXY": [
+            -0.0018013129186743027,
+            -0.0013946640881340195
+          ],
+          "diametersXYMm": [
+            63.83142850828578,
+            60.372572837516735
+          ]
+        },
+        {
+          "handLocalZ": 0.015,
+          "actualIntersectionCount": 466,
+          "boundsXY": [
+            [
+              -0.03373561605447442,
+              -0.031866750957606535
+            ],
+            [
+              0.03158276267544342,
+              0.029132614494834168
+            ]
+          ],
+          "centerXY": [
+            -0.001076426689515502,
+            -0.0013670682313861836
+          ],
+          "diametersXYMm": [
+            65.31837872991782,
+            60.999365452440706
+          ]
+        },
+        {
+          "handLocalZ": 0.025,
+          "actualIntersectionCount": 458,
+          "boundsXY": [
+            [
+              -0.031807199076779646,
+              -0.03229656156233581
+            ],
+            [
+              0.033061694409601196,
+              0.029692134199721682
+            ]
+          ],
+          "centerXY": [
+            0.0006272476664107747,
+            -0.0013022136813070646
+          ],
+          "diametersXYMm": [
+            64.86889348638084,
+            61.988695762057496
+          ]
+        }
+      ]
+    },
+    {
+      "side": "r",
+      "forearm": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\right-proximal-taper-moderate-mirror-v1\\mirrored-local.glb",
+      "forearmSha256": "a1a1d3df83c85b4bf7a06b4fd34f1360ea373869326ee5539fb19942231a9500",
+      "actualForearmToHandBind": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          -0.03309000000000001
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.0228936
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.291763
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "actualEquipmentInHandBind": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.011068100000000025
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.09612810000000005
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "handWristToGripTranslationMm": [
+        11.068100000000026,
+        0.0,
+        -96.12810000000005
+      ],
+      "forearmSectionsInHandFrame": [
+        {
+          "handLocalZ": -0.025,
+          "actualIntersectionCount": 384,
+          "boundsXY": [
+            [
+              -0.02456653615758434,
+              -0.027283984821733196
+            ],
+            [
+              0.02959711653477921,
+              0.024212462703477794
+            ]
+          ],
+          "centerXY": [
+            0.0025152901885974344,
+            -0.001535761059127701
+          ],
+          "diametersXYMm": [
+            54.16365269236355,
+            51.49644752521099
+          ]
+        },
+        {
+          "handLocalZ": -0.015,
+          "actualIntersectionCount": 396,
+          "boundsXY": [
+            [
+              -0.025631810712102507,
+              -0.028422070273312776
+            ],
+            [
+              0.03616089740698112,
+              0.029133539663132563
+            ]
+          ],
+          "centerXY": [
+            0.0052645433474393065,
+            0.00035573469490989343
+          ],
+          "diametersXYMm": [
+            61.79270811908363,
+            57.555609936445336
+          ]
+        },
+        {
+          "handLocalZ": -0.005,
+          "actualIntersectionCount": 402,
+          "boundsXY": [
+            [
+              -0.028071933319359477,
+              -0.029689348739031365
+            ],
+            [
+              0.033907795479078046,
+              0.02856581062848548
+            ]
+          ],
+          "centerXY": [
+            0.0029179310798592845,
+            -0.0005617690552729426
+          ],
+          "diametersXYMm": [
+            61.97972879843752,
+            58.255159367516846
+          ]
+        },
+        {
+          "handLocalZ": 0.0,
+          "actualIntersectionCount": 420,
+          "boundsXY": [
+            [
+              -0.0292876054341161,
+              -0.03059470866265284
+            ],
+            [
+              0.03347475132857016,
+              0.02865040987773188
+            ]
+          ],
+          "centerXY": [
+            0.0020935729472270313,
+            -0.0009721493924604811
+          ],
+          "diametersXYMm": [
+            62.76235676268627,
+            59.24511854038472
+          ]
+        },
+        {
+          "handLocalZ": 0.005,
+          "actualIntersectionCount": 454,
+          "boundsXY": [
+            [
+              -0.030114946780981085,
+              -0.03158107395631826
+            ],
+            [
+              0.033716704309903,
+              0.028791665423974936
+            ]
+          ],
+          "centerXY": [
+            0.0018008787644609569,
+            -0.001394704266171663
+          ],
+          "diametersXYMm": [
+            63.83165109088408,
+            60.3727393802932
+          ]
+        },
+        {
+          "handLocalZ": 0.015,
+          "actualIntersectionCount": 466,
+          "boundsXY": [
+            [
+              -0.03158330683243093,
+              -0.03186668105403399
+            ],
+            [
+              0.0337350702479924,
+              0.029132655849746295
+            ]
+          ],
+          "centerXY": [
+            0.0010758817077807376,
+            -0.0013670126021438495
+          ],
+          "diametersXYMm": [
+            65.31837708042333,
+            60.99933690378029
+          ]
+        },
+        {
+          "handLocalZ": 0.025,
+          "actualIntersectionCount": 458,
+          "boundsXY": [
+            [
+              -0.033062242885997725,
+              -0.03229672665816226
+            ],
+            [
+              0.03180668788611319,
+              0.029692208597416045
+            ]
+          ],
+          "centerXY": [
+            -0.0006277774999422676,
+            -0.0013022590303731069
+          ],
+          "diametersXYMm": [
+            64.86893077211093,
+            61.988935255578305
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Actual selected forearm geometry and stock held roots in each hand attachment frame. No hand source is fitted here. Uniform two-anchor similarity should align measured wrist and actual reconstructed grip center while preserving shaft axis; proper rotation around held axis may be necessary. No per-axis hand scaling or stock controller/height/equipment changes.",
+  "stockRigUnchanged": true,
+  "sourceOrMapsChanged": false,
+  "clientTested": false
+}

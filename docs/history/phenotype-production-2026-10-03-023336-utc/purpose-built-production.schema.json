@@ -1,0 +1,1303 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:srn:phenotypes:purpose-built-production:1",
+  "title": "Purpose-built stock-first phenotype production configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "configurationState",
+    "target",
+    "storage",
+    "designFamily",
+    "generation",
+    "fitting",
+    "materials",
+    "equipment",
+    "acceptance",
+    "parts",
+    "acceptedReplacements",
+    "currentDiagnostic"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "configurationState": {
+      "enum": [
+        "design-template",
+        "configured",
+        "in-production",
+        "complete"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "race",
+        "gender",
+        "bodyType",
+        "physique",
+        "raceSlot",
+        "modelPrefix",
+        "phenotype",
+        "baseline",
+        "rig",
+        "height",
+        "partResourceMap"
+      ],
+      "properties": {
+        "race": {
+          "enum": [
+            "human",
+            "elf",
+            "dwarf",
+            "orc",
+            "troll"
+          ]
+        },
+        "gender": {
+          "enum": [
+            "male",
+            "female"
+          ]
+        },
+        "bodyType": {
+          "enum": [
+            "fit",
+            "large"
+          ]
+        },
+        "physique": {
+          "type": "string",
+          "minLength": 1
+        },
+        "raceSlot": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "modelPrefix": {
+          "type": "string",
+          "pattern": "^p[mf][hedog][0-9]+$"
+        },
+        "phenotype": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "asciiDirectory",
+            "receipt",
+            "receiptSha256",
+            "partsAreActualStock",
+            "frozenModels"
+          ],
+          "properties": {
+            "asciiDirectory": {
+              "type": "string",
+              "minLength": 1
+            },
+            "receipt": {
+              "type": "string",
+              "minLength": 1
+            },
+            "receiptSha256": {
+              "$ref": "#/$defs/hash"
+            },
+            "partsAreActualStock": {
+              "const": true
+            },
+            "frozenModels": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/hash"
+              },
+              "minProperties": 3
+            }
+          }
+        },
+        "rig": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourcePrefix",
+            "transformPolicy",
+            "controllerPolicy",
+            "generationPoseInAnimations",
+            "preserveStockNeck",
+            "preserveStockHead"
+          ],
+          "properties": {
+            "sourcePrefix": {
+              "type": "string",
+              "minLength": 1
+            },
+            "transformPolicy": {
+              "enum": [
+                "exact-stock",
+                "explicit-uniform-racial-scale"
+              ]
+            },
+            "controllerPolicy": {
+              "const": "stock-controller-chain"
+            },
+            "generationPoseInAnimations": {
+              "const": false
+            },
+            "preserveStockNeck": {
+              "const": true
+            },
+            "preserveStockHead": {
+              "const": true
+            }
+          }
+        },
+        "height": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "stockHumanMaleMetres",
+            "referenceHumanMaleMetres",
+            "targetReferenceMetres",
+            "scaleRelativeToStockHuman",
+            "targetAssembledMetres",
+            "measurementReceipt",
+            "assemblyVerified"
+          ],
+          "properties": {
+            "basis": {
+              "const": "measured-stock-human-male"
+            },
+            "stockHumanMaleMetres": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "referenceHumanMaleMetres": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "targetReferenceMetres": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "scaleRelativeToStockHuman": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "targetAssembledMetres": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "measurementReceipt": {
+              "type": "string",
+              "minLength": 1
+            },
+            "assemblyVerified": {
+              "type": "boolean"
+            }
+          }
+        },
+        "partResourceMap": {
+          "const": {
+            "chest": "chest",
+            "pelvis": "pelvis",
+            "upperarm_l": "bicepl",
+            "upperarm_r": "bicepr",
+            "forearm_l": "forel",
+            "forearm_r": "forer",
+            "hand_l": "handl",
+            "hand_r": "handr",
+            "thigh_l": "legl",
+            "thigh_r": "legr",
+            "shin_l": "shinl",
+            "shin_r": "shinr",
+            "foot_l": "footl",
+            "foot_r": "footr",
+            "neck": "neck",
+            "head": "head"
+          }
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspace",
+        "productionRoot",
+        "referenceDirectory",
+        "normalizedDesignDirectory",
+        "historicalEvidenceRoot",
+        "preserveHistoricalOutputs"
+      ],
+      "properties": {
+        "workspace": {
+          "type": "string"
+        },
+        "productionRoot": {
+          "type": "string"
+        },
+        "referenceDirectory": {
+          "type": "string"
+        },
+        "normalizedDesignDirectory": {
+          "type": "string"
+        },
+        "historicalEvidenceRoot": {
+          "type": "string"
+        },
+        "preserveHistoricalOutputs": {
+          "const": true
+        }
+      }
+    },
+    "designFamily": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "anatomy",
+        "skinMaterial",
+        "sharedPromptTemplate",
+        "underwearOwnership",
+        "excludedGeneratedParts"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "anatomy": {
+          "type": "string"
+        },
+        "skinMaterial": {
+          "type": "string"
+        },
+        "sharedPromptTemplate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "underwearOwnership": {
+          "const": "pelvis-only"
+        },
+        "excludedGeneratedParts": {
+          "const": [
+            "head",
+            "neck"
+          ]
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "service",
+        "workflow",
+        "partWorkflowConfiguration",
+        "viewOrder",
+        "viewAzimuthDegrees",
+        "normalization",
+        "sourcePreservation",
+        "nextPartGenerationState"
+      ],
+      "properties": {
+        "service": {
+          "type": "string"
+        },
+        "workflow": {
+          "const": "SR_NWN_3d_pixal3d_multi_views.json"
+        },
+        "partWorkflowConfiguration": {
+          "type": "string"
+        },
+        "viewOrder": {
+          "const": [
+            "front",
+            "left",
+            "back",
+            "right"
+          ]
+        },
+        "viewAzimuthDegrees": {
+          "const": [
+            0,
+            90,
+            180,
+            270
+          ]
+        },
+        "normalization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pixels",
+            "background",
+            "scalePolicy",
+            "commonVerticalOrigin",
+            "measurePanelDifferences"
+          ],
+          "properties": {
+            "pixels": {
+              "const": 1024
+            },
+            "background": {
+              "const": "black-composited-RGB"
+            },
+            "scalePolicy": {
+              "const": "shared-isotropic"
+            },
+            "commonVerticalOrigin": {
+              "const": true
+            },
+            "measurePanelDifferences": {
+              "const": true
+            }
+          }
+        },
+        "sourcePreservation": {
+          "const": "immutable-sheet-panels-workflow-history-and-all-masters"
+        },
+        "nextPartGenerationState": {
+          "enum": [
+            "pending-current-part-perfection",
+            "ready"
+          ]
+        }
+      }
+    },
+    "fitting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currentPhase",
+        "similarityFitting",
+        "laterLocalizedCleanup",
+        "connectors",
+        "stockReplacementPolicy",
+        "nextAction"
+      ],
+      "properties": {
+        "currentPhase": {
+          "enum": [
+            "uniform-scale-diagnostic",
+            "localized-refinement",
+            "validation"
+          ]
+        },
+        "laterLocalizedCleanup": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "scopeConfiguration",
+            "preserveSource",
+            "protectMuscularInterior",
+            "deliberateHiddenOverlap",
+            "permittedRegions",
+            "protectedRegions"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending-similarity-exhaustion-and-explicit-next-phase",
+                "configured",
+                "complete",
+                "authorized-waist-cap-design"
+              ]
+            },
+            "scopeConfiguration": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "preserveSource": {
+              "const": true
+            },
+            "protectMuscularInterior": {
+              "const": true
+            },
+            "deliberateHiddenOverlap": {
+              "const": true
+            },
+            "permittedRegions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "protectedRegions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            }
+          }
+        },
+        "connectors": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reference",
+            "coordinates",
+            "units",
+            "state",
+            "measurementReceipt",
+            "measurements"
+          ],
+          "properties": {
+            "reference": {
+              "const": "actual-stock-parts-and-target-rig"
+            },
+            "coordinates": {
+              "const": "target-stock-world"
+            },
+            "units": {
+              "const": "metres"
+            },
+            "state": {
+              "enum": [
+                "pending-stock-cap-measurement",
+                "measured",
+                "motion-verified"
+              ]
+            },
+            "measurementReceipt": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/receipt"
+                }
+              ]
+            },
+            "measurements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/connector"
+              }
+            }
+          }
+        },
+        "stockReplacementPolicy": {
+          "const": "undeclared-parts-are-actual-stock;accepted-parts-only-in-cumulative-baseline"
+        },
+        "similarityFitting": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "uniformScaleOnly",
+            "properOrientationAndTranslationAllowed",
+            "stretching",
+            "sourceMeshAlteration",
+            "state",
+            "exhaustBeforeMeshChanges",
+            "trialReceipts"
+          ],
+          "properties": {
+            "uniformScaleOnly": {
+              "const": true
+            },
+            "properOrientationAndTranslationAllowed": {
+              "const": true
+            },
+            "stretching": {
+              "const": false
+            },
+            "sourceMeshAlteration": {
+              "const": false
+            },
+            "state": {
+              "enum": [
+                "in-progress",
+                "exhausted",
+                "adequate-user-selected"
+              ]
+            },
+            "exhaustBeforeMeshChanges": {
+              "const": true
+            },
+            "trialReceipts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/receipt"
+              }
+            }
+          }
+        },
+        "nextAction": {
+          "enum": [
+            "similarity-optimization",
+            "localized-waist-cap-design",
+            "gate-validation"
+          ]
+        }
+      }
+    },
+    "materials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "atlasSize",
+        "normalStrength",
+        "palettePolicy",
+        "clothing",
+        "rebakeAfterGeometryChange",
+        "stockSeamMaterialMatch"
+      ],
+      "properties": {
+        "atlasSize": {
+          "const": 2048
+        },
+        "normalStrength": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "palettePolicy": {
+          "const": "NWN-skin-PLT-with-matching-fixed-materials"
+        },
+        "clothing": {
+          "const": "pelvis-only"
+        },
+        "rebakeAfterGeometryChange": {
+          "const": true
+        },
+        "stockSeamMaterialMatch": {
+          "const": true
+        }
+      }
+    },
+    "equipment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "identityScale",
+        "profileState",
+        "profiles",
+        "profileBasis",
+        "groups",
+        "carryHistoricalHumanResize",
+        "clientVerified",
+        "groupPartAssociations"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "stock-identity",
+            "measured-racial-profiles"
+          ]
+        },
+        "identityScale": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "profileState": {
+          "enum": [
+            "not-required",
+            "pending-accepted-assembly",
+            "measured",
+            "client-verified"
+          ]
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/equipmentProfile"
+          }
+        },
+        "profileBasis": {
+          "const": "accepted-target-part-assembly-and-actual-stock-equipment"
+        },
+        "groups": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "carryHistoricalHumanResize": {
+          "const": false
+        },
+        "clientVerified": {
+          "type": "boolean"
+        },
+        "groupPartAssociations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "chest",
+                "pelvis",
+                "upperarm_l",
+                "upperarm_r",
+                "forearm_l",
+                "forearm_r",
+                "hand_l",
+                "hand_r",
+                "thigh_l",
+                "thigh_r",
+                "shin_l",
+                "shin_r",
+                "foot_l",
+                "foot_r",
+                "neck",
+                "head"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requiredGates",
+        "promotionPolicy",
+        "clientCamera",
+        "sourceHashBeforeAndAfter"
+      ],
+      "properties": {
+        "requiredGates": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/gateName"
+          },
+          "minItems": 9
+        },
+        "promotionPolicy": {
+          "const": "one-part-at-a-time-after-all-gates-and-recorded-visual-acceptance"
+        },
+        "clientCamera": {
+          "const": "unlocked-pan-and-zoom"
+        },
+        "sourceHashBeforeAndAfter": {
+          "const": true
+        }
+      }
+    },
+    "parts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chest",
+        "pelvis",
+        "upperarm_l",
+        "upperarm_r",
+        "forearm_l",
+        "forearm_r",
+        "hand_l",
+        "hand_r",
+        "thigh_l",
+        "thigh_r",
+        "shin_l",
+        "shin_r",
+        "foot_l",
+        "foot_r",
+        "neck",
+        "head"
+      ],
+      "properties": {
+        "chest": {
+          "$ref": "#/$defs/part"
+        },
+        "pelvis": {
+          "$ref": "#/$defs/part"
+        },
+        "upperarm_l": {
+          "$ref": "#/$defs/part"
+        },
+        "upperarm_r": {
+          "$ref": "#/$defs/part"
+        },
+        "forearm_l": {
+          "$ref": "#/$defs/part"
+        },
+        "forearm_r": {
+          "$ref": "#/$defs/part"
+        },
+        "hand_l": {
+          "$ref": "#/$defs/part"
+        },
+        "hand_r": {
+          "$ref": "#/$defs/part"
+        },
+        "thigh_l": {
+          "$ref": "#/$defs/part"
+        },
+        "thigh_r": {
+          "$ref": "#/$defs/part"
+        },
+        "shin_l": {
+          "$ref": "#/$defs/part"
+        },
+        "shin_r": {
+          "$ref": "#/$defs/part"
+        },
+        "foot_l": {
+          "$ref": "#/$defs/part"
+        },
+        "foot_r": {
+          "$ref": "#/$defs/part"
+        },
+        "neck": {
+          "$ref": "#/$defs/preservedStockPart"
+        },
+        "head": {
+          "$ref": "#/$defs/preservedStockPart"
+        }
+      }
+    },
+    "acceptedReplacements": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/acceptedReplacement"
+      },
+      "propertyNames": {
+        "enum": [
+          "chest",
+          "pelvis",
+          "upperarm_l",
+          "upperarm_r",
+          "forearm_l",
+          "forearm_r",
+          "hand_l",
+          "hand_r",
+          "thigh_l",
+          "thigh_r",
+          "shin_l",
+          "shin_r",
+          "foot_l",
+          "foot_r"
+        ]
+      }
+    },
+    "currentDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "part",
+        "stockReplacementMap",
+        "clientAccepted",
+        "futurePartsGenerated",
+        "comparisonAudit",
+        "stockReplacementMapSha256",
+        "selectedPlacementReceipt",
+        "exportProofReceipt",
+        "placedPartReceipt",
+        "selectionBasis",
+        "selectionReceipt"
+      ],
+      "properties": {
+        "part": {
+          "type": "string"
+        },
+        "stockReplacementMap": {
+          "type": "string"
+        },
+        "clientAccepted": {
+          "const": false
+        },
+        "futurePartsGenerated": {
+          "const": false
+        },
+        "comparisonAudit": {
+          "$ref": "#/$defs/receipt"
+        },
+        "stockReplacementMapSha256": {
+          "$ref": "#/$defs/hash"
+        },
+        "selectedPlacementReceipt": {
+          "$ref": "#/$defs/receipt"
+        },
+        "exportProofReceipt": {
+          "$ref": "#/$defs/receipt"
+        },
+        "placedPartReceipt": {
+          "$ref": "#/$defs/receipt"
+        },
+        "selectionReceipt": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/receipt"}
+          ]
+        },
+        "selectionBasis": {
+          "enum": [
+            "pending-visual-selection",
+            "user-selected-diagnostic-baseline"
+          ]
+        }
+      }
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "target": {
+            "properties": {
+              "race": {
+                "const": "human"
+              },
+              "gender": {
+                "const": "male"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "target": {
+            "properties": {
+              "rig": {
+                "properties": {
+                  "transformPolicy": {
+                    "const": "exact-stock"
+                  }
+                }
+              },
+              "height": {
+                "properties": {
+                  "scaleRelativeToStockHuman": {
+                    "const": 1
+                  }
+                }
+              }
+            }
+          },
+          "equipment": {
+            "properties": {
+              "mode": {
+                "const": "stock-identity"
+              },
+              "identityScale": {
+                "const": 1
+              },
+              "profileState": {
+                "const": "not-required"
+              },
+              "profiles": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "point": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "gateName": {
+      "enum": [
+        "source-fidelity",
+        "stock-attachment-motion",
+        "geometry-and-normals",
+        "material-and-palette",
+        "native-compilation",
+        "hak-module-integrity",
+        "client-animation",
+        "client-equipment",
+        "client-performance"
+      ]
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "connector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "ownerPart",
+        "neighbourPart",
+        "joint",
+        "pivot",
+        "axis",
+        "capProfileReceipt",
+        "targetOverlapReceipt"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "ownerPart": {
+          "type": "string"
+        },
+        "neighbourPart": {
+          "type": "string"
+        },
+        "joint": {
+          "type": "string"
+        },
+        "pivot": {
+          "$ref": "#/$defs/point"
+        },
+        "axis": {
+          "$ref": "#/$defs/point"
+        },
+        "capProfileReceipt": {
+          "$ref": "#/$defs/receipt"
+        },
+        "targetOverlapReceipt": {
+          "$ref": "#/$defs/receipt"
+        }
+      }
+    },
+    "gateResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gate",
+        "state",
+        "receipt"
+      ],
+      "properties": {
+        "gate": {
+          "$ref": "#/$defs/gateName"
+        },
+        "state": {
+          "enum": [
+            "pending",
+            "pass",
+            "fail"
+          ]
+        },
+        "receipt": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/receipt"
+            }
+          ]
+        }
+      }
+    },
+    "part": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "activeSource",
+        "designFamilyId",
+        "gates",
+        "promotionReceipt"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "stock",
+            "design-pending",
+            "source-generated",
+            "scale-only-diagnostic",
+            "refinement-pending",
+            "offline-verified",
+            "native-verified",
+            "client-reviewed",
+            "accepted",
+            "rejected"
+          ]
+        },
+        "activeSource": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/receipt"
+            }
+          ]
+        },
+        "designFamilyId": {
+          "type": "string"
+        },
+        "gates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gateResult"
+          }
+        },
+        "promotionReceipt": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/receipt"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "accepted"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "activeSource": {
+                "$ref": "#/$defs/receipt"
+              },
+              "promotionReceipt": {
+                "$ref": "#/$defs/receipt"
+              },
+              "gates": {
+                "minItems": 9,
+                "items": {
+                  "properties": {
+                    "state": {
+                      "const": "pass"
+                    },
+                    "receipt": {
+                      "$ref": "#/$defs/receipt"
+                    }
+                  }
+                },
+                "maxItems": 9,
+                "allOf": [
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "source-fidelity"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "stock-attachment-motion"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "geometry-and-normals"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "material-and-palette"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "native-compilation"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "hak-module-integrity"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "client-animation"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "client-equipment"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "gate": {
+                          "const": "client-performance"
+                        }
+                      },
+                      "required": [
+                        "gate"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "preservedStockPart": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/part"
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "stock"
+            },
+            "activeSource": {
+              "type": "null"
+            },
+            "promotionReceipt": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    "acceptedReplacement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "localGlb",
+        "glbSha256",
+        "nativeResource",
+        "nativeSha256",
+        "promotionReceipt"
+      ],
+      "properties": {
+        "localGlb": {
+          "type": "string"
+        },
+        "glbSha256": {
+          "$ref": "#/$defs/hash"
+        },
+        "nativeResource": {
+          "type": "string"
+        },
+        "nativeSha256": {
+          "$ref": "#/$defs/hash"
+        },
+        "promotionReceipt": {
+          "$ref": "#/$defs/receipt"
+        }
+      }
+    },
+    "equipmentProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "group",
+        "profileReceipt",
+        "acceptedAssemblyReceipt",
+        "state"
+      ],
+      "properties": {
+        "group": {
+          "type": "string"
+        },
+        "profileReceipt": {
+          "$ref": "#/$defs/receipt"
+        },
+        "acceptedAssemblyReceipt": {
+          "$ref": "#/$defs/receipt"
+        },
+        "state": {
+          "enum": [
+            "measured",
+            "client-verified"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "new-limb-skin-calibration",
+  "calibrationInputs": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-skin-cohorts-v1\\measurement.json": "445183d8df60da7054103fcce55dcdddf8358db1d4091cb22541d8df516d8392"
+  },
+  "stages": [
+    {
+      "part": "handl",
+      "stage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-left-raw-stage-v1",
+      "stageReceiptSha256": "46077e0957d4ce3be6df942a1719dcbe78be2abc5cdc2547cb6d99da98911493",
+      "originalPltSha256": "8319773bffe8bb0e6d9ea6f750cff4b906c4640d1a9674f967796702c43dcaf7",
+      "shadeOffset": -9,
+      "calibrationReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-skin-cohorts-v1\\measurement.json",
+      "rationale": "Actual current selected forearm20mm wrist mean107.4186 vs newhand116.5448; integer-9 gives107.5448 without geometry/map strength edits. Both independently measured sides agree."
+    },
+    {
+      "part": "handr",
+      "stage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-right-raw-stage-v1",
+      "stageReceiptSha256": "182dfdffe98d3ae95a1e24a52bedd46deb2b624c0809be229aa83ab39fcd3cc5",
+      "originalPltSha256": "8319773bffe8bb0e6d9ea6f750cff4b906c4640d1a9674f967796702c43dcaf7",
+      "shadeOffset": -9,
+      "calibrationReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-skin-cohorts-v1\\measurement.json",
+      "rationale": "Actual current selected forearm20mm wrist mean107.4186 vs newhand116.5448; integer-9 gives107.5448 without geometry/map strength edits. Both independently measured sides agree."
+    }
+  ]
+}

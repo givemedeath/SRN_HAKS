@@ -1,0 +1,6 @@
+renderhint NormalTangents
+texture1 pmh0_handl001n
+parameter float Roughness 0
+parameter float Specularity 0.04
+parameter float Metallicness 0.001
+texture3 pmh0_handl001r

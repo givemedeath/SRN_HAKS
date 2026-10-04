@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "kind": "human-male-material-trial",
+  "useAO": true,
+  "useRoughness": true,
+  "inputHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-skin-calibration-config-v1.json": "11d5df8b9f61538e4e6423921c00275d42dd5bd2f3ec18687091efc27723187f",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\prepare_limb_material_collection.py": "e9e5670360fe3e6bbc6ecf36ac6bd3e1ccf9191e5e72a6e46e046cd5f2883af4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\adjust_pelvis_skin_plt.py": "acd900deeee4b5ff526511e9c77ecf53187a9d66ed22e7f456f1a331aa5bb54e",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\current-material-cohorts-v1\\measurement.json": "48b81ddb9ed0b9cae74c8954bcc9bf42a1fe807adc97521c0b0bd38831ada2a1",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\connector-material-cohorts-v1\\measurement.json": "ac52d05f4f83ea2ef21698a2367696ce21687502009bb1c304b8c57a9dde2058",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\accepted-chest-material-anchors-v1\\measurement.json": "95f24b2452c45fbb3a6cad27f5b5493992675b85dc496bb7645bc2dcfe6d6330",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-material-stage-preparation-v1\\stage-config.json": "ec496ab551ec947547706bc9be23a99202b5c345acd0266eff7b9fe764df83f3",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-distal-taper-mild-v1\\tapered-local.glb": "9d50d2bdf1db01e3100c271980fe445b71db35257905ba57ba058fcef5f6325f",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-material-stage-preparation-v1\\color.png": "65e8cffe4b055d455799741a96cd6f28fd2f31a0ec8be80d91eeb467916d558b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-material-stage-preparation-v1\\normal.png": "01e0c5e29ca791ad956c51b47a91740f5e658c7266d4c1e7ba9f35dc69a19393",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\input-inventory.json": "72b08b309f346d9603c085228ab33871920a55bb689a9bfb87a8d77ba53a8d49",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\stage_stock_part.py": "c7892b97e58e5b3ab5c3f2d1d42949401215c5db93318784f1857d4b4c938435",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0_bicepl001.mdl": "dbb009d7c2fe1397014fdfd72c7c486cf0cb6005e3cf47ff01732ed2cae56b06",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\fixture\\human-template.json": "d2889cb2c21def24e2174087480b03789c31ef1e6948572b54b8951c51e8fcd6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\fixture\\ttr01.set": "d93758c1b584e8417892d355e694f730fb792ec5217ab0d627733213482560c3",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\fixture\\ttr01_edge.2da": "38b8d53efaea0710dc4d42cf72105cc35d6fb56d9d040087e3251c392e9fa8a9",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\baseline\\human-template.json": "d2889cb2c21def24e2174087480b03789c31ef1e6948572b54b8951c51e8fcd6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\baseline\\ttr01.set": "d93758c1b584e8417892d355e694f730fb792ec5217ab0d627733213482560c3",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\baseline\\ttr01_edge.2da": "38b8d53efaea0710dc4d42cf72105cc35d6fb56d9d040087e3251c392e9fa8a9",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\executed-stage-stock-part.py": "c7892b97e58e5b3ab5c3f2d1d42949401215c5db93318784f1857d4b4c938435",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\human_male_fit\\converted\\ascii\\pmh0_bicepl001.mdl": "39efbe521911cdbf5e26767a6c3dbfb17c6b20dd1a63150f87634ebc424cb623",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\human_male_fit\\converted\\conversion.json": "6698900bc6fe681ae1f9d91bb20712c0e74bfecc3e7d96ff042cf500d99fa260",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\human_male_fit\\converted\\resources\\pmh0_bicepl001.mtr": "e645e0fbb3b7c6dc2fd72fb96ed7c62e6b32d5e93175ff19c510615017775aa4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\human_male_fit\\converted\\resources\\pmh0_bicepl001.plt": "e2089a83f986712c4ceaa4d712cf177b0826da099d0f06fb881d26fd9bea9f66",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\human_male_fit\\converted\\resources\\pmh0_bicepl001n.tga": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\manifest.json": "170c7ad938ab0832e1b52e541651bc9eb1fc3a25a920218fea379b85a73a710b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\selected-source\\color.png": "65e8cffe4b055d455799741a96cd6f28fd2f31a0ec8be80d91eeb467916d558b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\selected-source\\normal.png": "01e0c5e29ca791ad956c51b47a91740f5e658c7266d4c1e7ba9f35dc69a19393",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\selected-source\\tapered-local.glb": "9d50d2bdf1db01e3100c271980fe445b71db35257905ba57ba058fcef5f6325f",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-distal-taper-mild-v1\\taper.json": "9cc6aa3fe7738e797f1b00916b395decb7ae971e0e7fc691f0c1aa3ee2a15502",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-upperarm-microrepair-v1\\repair.json": "e58bc3e9d368abdeeaf5e82721871db63798ed11f7b17fd5d5890be0d49f88e5",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-upperarm-microrepair-v1\\repaired-local.glb": "128688112a7a3a7c248e9e45a59e056d433037dc2b3a0b88ad2e9c0c25b5941d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-uniform-height-axis-v1\\placement.json": "57dae79d3c190af00dc9bb7f5c0199d038ff84e2b5c2fd735d6b4e9d2855523e",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\left-uniform-height-axis-v1\\placed-local.glb": "6b32619343eaadf696a11bb2eff300b5092e7f5dbffbd71169887559c5231ce0",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1\\stock-part-stage.json": "a470ff06b972da40184f6e7732482318ebb99e9d72c52d22cf6f8ee8948a4e35",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\right-material-stage-preparation-v1\\stage-config.json": "d3dc55939d1bd0de5fef2f27a2bcd4f38cd038db7b2340f69c8f7b4e2232ca14",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\right-distal-taper-mild-mirror-v1\\mirrored-local.glb": "b8321ef60f565d6c46ed18ce6f15ea759d7ef0878663d6a530214bbdeebf9c02",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\right-material-stage-preparation-v1\\color.png": "65e8cffe4b055d455799741a96cd6f28fd2f31a0ec8be80d91eeb467916d558b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\right-material-stage-preparation-v1\\normal.png": "01e0c5e29ca791ad956c51b47a91740f5e658c7266d4c1e7ba9f35dc69a19393",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0_bicepr001.mdl": "936c6317dc46e38336c035f90848ecd7622178a4832dac556c71345523ce055d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\baseline\\human-template.json": "d2889cb2c21def24e2174087480b03789c31ef1e6948572b54b8951c51e8fcd6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\baseline\\ttr01.set": "d93758c1b584e8417892d355e694f730fb792ec5217ab0d627733213482560c3",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\baseline\\ttr01_edge.2da": "38b8d53efaea0710dc4d42cf72105cc35d6fb56d9d040087e3251c392e9fa8a9",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\executed-stage-stock-part.py": "c7892b97e58e5b3ab5c3f2d1d42949401215c5db93318784f1857d4b4c938435",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\human_male_fit\\converted\\ascii\\pmh0_bicepr001.mdl": "ff65b90275a54a0e8b5b2fd16048b6cc7847ec70f82a56b4dd1986ced29f5c25",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\human_male_fit\\converted\\conversion.json": "d901ecfc253919650f9d01a3a2961857e77f5b34871453ff4a7a498247e7fe43",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\human_male_fit\\converted\\resources\\pmh0_bicepr001.mtr": "16aa8ef2a97af6e3bca1d5dc69b1860095a0afb3a7540cf0c5d98bee4c92933d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\human_male_fit\\converted\\resources\\pmh0_bicepr001.plt": "e2089a83f986712c4ceaa4d712cf177b0826da099d0f06fb881d26fd9bea9f66",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\human_male_fit\\converted\\resources\\pmh0_bicepr001n.tga": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\manifest.json": "170c7ad938ab0832e1b52e541651bc9eb1fc3a25a920218fea379b85a73a710b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\selected-source\\color.png": "65e8cffe4b055d455799741a96cd6f28fd2f31a0ec8be80d91eeb467916d558b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\selected-source\\mirrored-local.glb": "b8321ef60f565d6c46ed18ce6f15ea759d7ef0878663d6a530214bbdeebf9c02",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\selected-source\\normal.png": "01e0c5e29ca791ad956c51b47a91740f5e658c7266d4c1e7ba9f35dc69a19393",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\right-distal-taper-mild-mirror-v1\\mirror.json": "37cf17798e0b0357b918f8fdb1f118926bd6b97d632e23a7b847af0879dd158e",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1\\stock-part-stage.json": "c98405ef1a7cf49bc935e2e72b9c52f0b1ea0a4f3e520390dc22a966b79fed53",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\selected-offline-v1\\forel-stage-config-v2.json": "c99008b38a666c40cc837fcc6a56d75698d75e1083e94c6053edc0f8113b5178",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\left-proximal-taper-moderate-v1\\tapered-local.glb": "5ca7da7072848fb7bf84d5926d47ada919ce16eb8be7f446768840b96f7b3e32",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\source-material-conditioning-v1\\color.png": "a2230f6d9c7b3add91041809b9fdb32c46ad35a0f471841e35c0bb09fcc4b95d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\source-material-conditioning-v1\\normal.png": "2c5629b1bd7228806facc70fc546da0b96e089f660ecd05b32cb08cc3b6657af",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0_forel001.mdl": "bac69f0d3bea3d88ac9bc6aab84027d37b5a6a29f2d8f771bb009c0a704a5c0a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\baseline\\human-template.json": "d2889cb2c21def24e2174087480b03789c31ef1e6948572b54b8951c51e8fcd6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\baseline\\ttr01.set": "d93758c1b584e8417892d355e694f730fb792ec5217ab0d627733213482560c3",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\baseline\\ttr01_edge.2da": "38b8d53efaea0710dc4d42cf72105cc35d6fb56d9d040087e3251c392e9fa8a9",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\executed-stage-stock-part.py": "c7892b97e58e5b3ab5c3f2d1d42949401215c5db93318784f1857d4b4c938435",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\human_male_fit\\converted\\ascii\\pmh0_forel001.mdl": "6dc8080cac6b9c3ae2e74357efc3bd72350fdc2c721e7305245f5bce0b0e680a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\human_male_fit\\converted\\conversion.json": "63d753cc11781a37bd8414df30bebc1d3d9514b6b45761c3a90d3d7dc4449382",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\human_male_fit\\converted\\resources\\pmh0_forel001.mtr": "82c4285ce8ef7dbebedc84362ed0772576f1b0c477f5f328eb2f315e4d8df481",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\human_male_fit\\converted\\resources\\pmh0_forel001.plt": "ba336e2175f9312ced9adb9070499c5dcce8ab8555bf635d10456f83a1da4829",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\human_male_fit\\converted\\resources\\pmh0_forel001n.tga": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\manifest.json": "170c7ad938ab0832e1b52e541651bc9eb1fc3a25a920218fea379b85a73a710b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\selected-source\\color.png": "a2230f6d9c7b3add91041809b9fdb32c46ad35a0f471841e35c0bb09fcc4b95d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\selected-source\\normal.png": "2c5629b1bd7228806facc70fc546da0b96e089f660ecd05b32cb08cc3b6657af",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\selected-source\\tapered-local.glb": "5ca7da7072848fb7bf84d5926d47ada919ce16eb8be7f446768840b96f7b3e32",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\left-proximal-taper-moderate-v1\\taper.json": "b1a64711fff7d52bd345cd934a7de6e6507b53d3f793ae8fc9f15ade89d46f5d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\left-uniform-visible-axis-v1\\placement.json": "1ad5acdaeab447230b539c83a362fc7eb7211cb03528c3b5f09441d794d6ea54",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\left-uniform-visible-axis-v1\\placed-local.glb": "fde0a0ec3d5f0bbed6fa8e6d34ef9b803e96517a0f472bdcb6b3efeb5c4dc4d5",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2\\stock-part-stage.json": "900f68bd2ad66e1db95e450552887fae6d979b72184f409a11a8225fb111a993",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\selected-offline-v1\\forer-stage-config-v2.json": "fee8c4a5bc8dd39c5e2dd4281a68f53f05798ac15081889b968e5db212fb5655",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\right-proximal-taper-moderate-mirror-v1\\mirrored-local.glb": "a1a1d3df83c85b4bf7a06b4fd34f1360ea373869326ee5539fb19942231a9500",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0_forer001.mdl": "e746549d704c0c4582151ccea96d8e4fa532d72c513777d409a5f0adb3da1b02",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\baseline\\human-template.json": "d2889cb2c21def24e2174087480b03789c31ef1e6948572b54b8951c51e8fcd6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\baseline\\ttr01.set": "d93758c1b584e8417892d355e694f730fb792ec5217ab0d627733213482560c3",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\baseline\\ttr01_edge.2da": "38b8d53efaea0710dc4d42cf72105cc35d6fb56d9d040087e3251c392e9fa8a9",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\executed-stage-stock-part.py": "c7892b97e58e5b3ab5c3f2d1d42949401215c5db93318784f1857d4b4c938435",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\human_male_fit\\converted\\ascii\\pmh0_forer001.mdl": "41ce41fe968047a5153b53e54ea15fa992605299422a5e8866205ea94fa69045",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\human_male_fit\\converted\\conversion.json": "35f587a0dd9e1a3bb84fb29cd8a317ef72833de67fdd892cd49b2b1e72392874",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\human_male_fit\\converted\\resources\\pmh0_forer001.mtr": "cc53f690617fa7a195054a0de61af4f062785250d751f631b9e638f8df88d30a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\human_male_fit\\converted\\resources\\pmh0_forer001.plt": "ba336e2175f9312ced9adb9070499c5dcce8ab8555bf635d10456f83a1da4829",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\human_male_fit\\converted\\resources\\pmh0_forer001n.tga": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\manifest.json": "170c7ad938ab0832e1b52e541651bc9eb1fc3a25a920218fea379b85a73a710b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\selected-source\\color.png": "a2230f6d9c7b3add91041809b9fdb32c46ad35a0f471841e35c0bb09fcc4b95d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\selected-source\\mirrored-local.glb": "a1a1d3df83c85b4bf7a06b4fd34f1360ea373869326ee5539fb19942231a9500",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\selected-source\\normal.png": "2c5629b1bd7228806facc70fc546da0b96e089f660ecd05b32cb08cc3b6657af",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\right-proximal-taper-moderate-mirror-v1\\mirror.json": "283abc9d818d67cb023263da3adb8d65085ff5d2c27ed6ea703e5d5e6c0f447d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2\\stock-part-stage.json": "61e956540488b00575ba4ac5c3a4f8e22c40304662b6fcfcea8fcbcb185592c6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resource-manifest.json": "5373d88e7f7cbc043bda6242a23dbc7b26ecfaae34cba711a3242a6ae70e83b9",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-equipment-items-v1\\raw\\pal_skin01.tga": "78ba81891b576c213390b01c04ed157fed7b9a21f5e67ca1eabb0c830f3ea86c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_bicepl001.mdl": "39efbe521911cdbf5e26767a6c3dbfb17c6b20dd1a63150f87634ebc424cb623",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_bicepl001.mtr": "e645e0fbb3b7c6dc2fd72fb96ed7c62e6b32d5e93175ff19c510615017775aa4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_bicepl001.plt": "39a2239c21385bb810154200609c6bfde0311491d981fba9f46a5357440ed1f8",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_bicepl001n.tga": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_bicepr001.mdl": "ff65b90275a54a0e8b5b2fd16048b6cc7847ec70f82a56b4dd1986ced29f5c25",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_bicepr001.mtr": "16aa8ef2a97af6e3bca1d5dc69b1860095a0afb3a7540cf0c5d98bee4c92933d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_bicepr001.plt": "39a2239c21385bb810154200609c6bfde0311491d981fba9f46a5357440ed1f8",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_bicepr001n.tga": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_forel001.mdl": "6dc8080cac6b9c3ae2e74357efc3bd72350fdc2c721e7305245f5bce0b0e680a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_forel001.mtr": "82c4285ce8ef7dbebedc84362ed0772576f1b0c477f5f328eb2f315e4d8df481",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_forel001.plt": "e9097938ec689978ff3b46620dc1f0d2c5ca2fe07b270881846670ea062925d4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_forel001n.tga": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_forer001.mdl": "41ce41fe968047a5153b53e54ea15fa992605299422a5e8866205ea94fa69045",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_forer001.mtr": "cc53f690617fa7a195054a0de61af4f062785250d751f631b9e638f8df88d30a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_forer001.plt": "e9097938ec689978ff3b46620dc1f0d2c5ca2fe07b270881846670ea062925d4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources\\pmh0_forer001n.tga": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\ascii\\pmh0_bicepl001.mdl": "39efbe521911cdbf5e26767a6c3dbfb17c6b20dd1a63150f87634ebc424cb623",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\ascii\\pmh0_bicepr001.mdl": "ff65b90275a54a0e8b5b2fd16048b6cc7847ec70f82a56b4dd1986ced29f5c25",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\ascii\\pmh0_forel001.mdl": "6dc8080cac6b9c3ae2e74357efc3bd72350fdc2c721e7305245f5bce0b0e680a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\ascii\\pmh0_forer001.mdl": "41ce41fe968047a5153b53e54ea15fa992605299422a5e8866205ea94fa69045",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\skin-calibration.json": "d474f98c8546d9776e63d6e04d5c3f13bc9a49c8cfcbec8aa4838d5f4a761ef7",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\audit.json": "a2cdd10fd6b17a9d01ff011d80bb8d066fbdcd8a9d0ce9d9b5e7f593d169930b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\prepare-arm-bake-config-v1.py": "bd0860c2a7b482897819564554484aa2d69277c56aa777d1eb81f8ba5d67aad5",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepl\\color.png": "65e8cffe4b055d455799741a96cd6f28fd2f31a0ec8be80d91eeb467916d558b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepl\\normal.png": "01e0c5e29ca791ad956c51b47a91740f5e658c7266d4c1e7ba9f35dc69a19393",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepl\\ao.png": "2b027c451b12a242d27c2ef240606aecc4a5dc761d047abf5e181a58aa213ba4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepl\\orm.png": "2b027c451b12a242d27c2ef240606aecc4a5dc761d047abf5e181a58aa213ba4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepl\\native-uv-samples.npz": "1dfb5854f5e7cc27dcf839a1e86ede07db776cc46bb8d0b52a247575c7209c33",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepr\\color.png": "65e8cffe4b055d455799741a96cd6f28fd2f31a0ec8be80d91eeb467916d558b",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepr\\normal.png": "01e0c5e29ca791ad956c51b47a91740f5e658c7266d4c1e7ba9f35dc69a19393",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepr\\ao.png": "2b027c451b12a242d27c2ef240606aecc4a5dc761d047abf5e181a58aa213ba4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepr\\orm.png": "2b027c451b12a242d27c2ef240606aecc4a5dc761d047abf5e181a58aa213ba4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\bicepr\\native-uv-samples.npz": "386dab9df6e8cfa5307f1ccf55febc06e4e1750fdf7b07eaca3251e9d12f271f",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forel\\color.png": "a2230f6d9c7b3add91041809b9fdb32c46ad35a0f471841e35c0bb09fcc4b95d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forel\\normal.png": "2c5629b1bd7228806facc70fc546da0b96e089f660ecd05b32cb08cc3b6657af",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forel\\ao.png": "cfbb1375ad48a9b3531229a79974ba648f6ecc48870f225089926694ead5917c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forel\\orm.png": "cfbb1375ad48a9b3531229a79974ba648f6ecc48870f225089926694ead5917c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forel\\native-uv-samples.npz": "012af2a49d6bb9696f2632ff2ef9ce518bf20046d60cef81def590407829649d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forer\\color.png": "a2230f6d9c7b3add91041809b9fdb32c46ad35a0f471841e35c0bb09fcc4b95d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forer\\normal.png": "2c5629b1bd7228806facc70fc546da0b96e089f660ecd05b32cb08cc3b6657af",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forer\\ao.png": "cfbb1375ad48a9b3531229a79974ba648f6ecc48870f225089926694ead5917c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forer\\orm.png": "cfbb1375ad48a9b3531229a79974ba648f6ecc48870f225089926694ead5917c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\forer\\native-uv-samples.npz": "fda72de9850af5ac6a002aeef6aae69dc309d15008a948f4a0dcf103826aa308"
+  },
+  "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-material-audit-v1\\audit.json",
+  "baselineResources": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\body-resources",
+  "baselineResourceHashes": {
+    "pmh0_bicepl001.mdl": "39efbe521911cdbf5e26767a6c3dbfb17c6b20dd1a63150f87634ebc424cb623",
+    "pmh0_bicepl001.mtr": "e645e0fbb3b7c6dc2fd72fb96ed7c62e6b32d5e93175ff19c510615017775aa4",
+    "pmh0_bicepl001.plt": "39a2239c21385bb810154200609c6bfde0311491d981fba9f46a5357440ed1f8",
+    "pmh0_bicepl001n.tga": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+    "pmh0_bicepr001.mdl": "ff65b90275a54a0e8b5b2fd16048b6cc7847ec70f82a56b4dd1986ced29f5c25",
+    "pmh0_bicepr001.mtr": "16aa8ef2a97af6e3bca1d5dc69b1860095a0afb3a7540cf0c5d98bee4c92933d",
+    "pmh0_bicepr001.plt": "39a2239c21385bb810154200609c6bfde0311491d981fba9f46a5357440ed1f8",
+    "pmh0_bicepr001n.tga": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+    "pmh0_forel001.mdl": "6dc8080cac6b9c3ae2e74357efc3bd72350fdc2c721e7305245f5bce0b0e680a",
+    "pmh0_forel001.mtr": "82c4285ce8ef7dbebedc84362ed0772576f1b0c477f5f328eb2f315e4d8df481",
+    "pmh0_forel001.plt": "e9097938ec689978ff3b46620dc1f0d2c5ca2fe07b270881846670ea062925d4",
+    "pmh0_forel001n.tga": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+    "pmh0_forer001.mdl": "41ce41fe968047a5153b53e54ea15fa992605299422a5e8866205ea94fa69045",
+    "pmh0_forer001.mtr": "cc53f690617fa7a195054a0de61af4f062785250d751f631b9e638f8df88d30a",
+    "pmh0_forer001.plt": "e9097938ec689978ff3b46620dc1f0d2c5ca2fe07b270881846670ea062925d4",
+    "pmh0_forer001n.tga": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2"
+  },
+  "palette": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-equipment-items-v1\\raw\\pal_skin01.tga",
+  "partSettings": {
+    "bicepl": {
+      "aoStrength": 0.35,
+      "connectorBandMetres": 0.02,
+      "connectorPlanes": [
+        {
+          "outwardNormal": [
+            0,
+            0,
+            1
+          ],
+          "offsetMetres": 0
+        },
+        {
+          "outwardNormal": [
+            0,
+            0,
+            -1
+          ],
+          "offsetMetres": 0.301921
+        }
+      ],
+      "maxDarkenShades": 12,
+      "maxBrightenShades": 3
+    },
+    "bicepr": {
+      "aoStrength": 0.35,
+      "connectorBandMetres": 0.02,
+      "connectorPlanes": [
+        {
+          "outwardNormal": [
+            0,
+            0,
+            1
+          ],
+          "offsetMetres": 0
+        },
+        {
+          "outwardNormal": [
+            0,
+            0,
+            -1
+          ],
+          "offsetMetres": 0.301921
+        }
+      ],
+      "maxDarkenShades": 12,
+      "maxBrightenShades": 3
+    },
+    "forel": {
+      "aoStrength": 0.35,
+      "connectorBandMetres": 0.02,
+      "connectorPlanes": [
+        {
+          "outwardNormal": [
+            0,
+            0,
+            1
+          ],
+          "offsetMetres": 0
+        },
+        {
+          "outwardNormal": [
+            0,
+            0,
+            -1
+          ],
+          "offsetMetres": 0.291763
+        }
+      ],
+      "maxDarkenShades": 12,
+      "maxBrightenShades": 3
+    },
+    "forer": {
+      "aoStrength": 0.35,
+      "connectorBandMetres": 0.02,
+      "connectorPlanes": [
+        {
+          "outwardNormal": [
+            0,
+            0,
+            1
+          ],
+          "offsetMetres": 0
+        },
+        {
+          "outwardNormal": [
+            0,
+            0,
+            -1
+          ],
+          "offsetMetres": 0.291763
+        }
+      ],
+      "maxDarkenShades": 12,
+      "maxBrightenShades": 3
+    }
+  }
+}

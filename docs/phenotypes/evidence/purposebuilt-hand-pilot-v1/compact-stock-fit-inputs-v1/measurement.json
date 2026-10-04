@@ -1,0 +1,400 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "geometryOrRigChanged": false,
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\textured_00001.glb",
+  "sourceSha256": "b5f12e349814fef7c70d87655c216eddf5138abd5b3476c205dbde5723018493",
+  "generation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json",
+  "generationSha256": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+  "jobPromptId": "3565bc47-42b7-4e91-a4ce-9c9e164058f3",
+  "inputHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\textured_00001.glb": "b5f12e349814fef7c70d87655c216eddf5138abd5b3476c205dbde5723018493",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\stock-measurement-v1\\measurement.json": "1ee5f518f7139061c11214633e3d6a901abd575eb0389ac600a782be688ac159",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-wrist-targets-v1\\measurement.json": "441c2bf744111a958bd41307b7caf42bd5d0cffe72eb93b71d575a686fac321c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\prepare-hand-stock-fit-v1.py": "7191a8e05e889ca979770937f313caf84bf7c2de02e7a45f108ccb13f23914be"
+  },
+  "wristAndEquipmentTargets": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-wrist-targets-v1\\measurement.json",
+  "sourceCoreGripLineNwn": [
+    0.0,
+    -0.05,
+    -0.175
+  ],
+  "hypotheses": [
+    {
+      "sourceWristPlaneNwnZ": 0.38,
+      "sourceSection": {
+        "z": 0.38,
+        "points": 514,
+        "boundsXY": [
+          [
+            -0.17963792748205398,
+            -0.1257382696177467
+          ],
+          [
+            0.23366534990544588,
+            0.25255137501691377
+          ]
+        ],
+        "centerXY": [
+          0.027013711211695948,
+          0.06340655269958353
+        ]
+      },
+      "config": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\compact-stock-fit-inputs-v1\\fit-z380.json",
+      "configSha256": "c8ebc1b5d1920392e1fccbad32db78f70bb5928b8137d8a45723acf373538152",
+      "uniformScale": 0.1684836815136416,
+      "additionalShaftAxisRotationDegrees": 19.523561673269093,
+      "actualCandidateWristSection": {
+        "z": 0.0,
+        "points": 484,
+        "boundsXY": [
+          [
+            -0.03614989104596791,
+            -0.03587018413834684
+          ],
+          [
+            0.031696693643199644,
+            0.03387433286457074
+          ]
+        ],
+        "centerXY": [
+          -0.002226598701384131,
+          -0.0009979256368880494
+        ]
+      },
+      "actualCandidateWristWidthsMm": [
+        67.84658468916754,
+        69.74451700291759
+      ],
+      "candidateSectionCenterDeltaMm": [
+        -0.13253225467614246,
+        -0.025884302036489892
+      ],
+      "widthRelativeError": [
+        0.08101060437561713,
+        0.17722488673465708
+      ],
+      "dimensionalScore": 0.037991639383438636,
+      "channelAxisDirectionHandLocal": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "channelToActualShaftPerpendicularErrorMetres": 7.928654179053002e-17,
+      "boundsHandLocal": [
+        [
+          -0.06841040837849549,
+          -0.058222054532981,
+          -0.14189415865834074
+        ],
+        [
+          0.031725120804377026,
+          0.06709543733754096,
+          0.022483524601136087
+        ]
+      ]
+    },
+    {
+      "sourceWristPlaneNwnZ": 0.39,
+      "sourceSection": {
+        "z": 0.39,
+        "points": 486,
+        "boundsXY": [
+          [
+            -0.179463766284998,
+            -0.12667070174580244
+          ],
+          [
+            0.23307320089852618,
+            0.25352631224342453
+          ]
+        ],
+        "centerXY": [
+          0.026804717306764092,
+          0.06342780524881104
+        ]
+      },
+      "config": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\compact-stock-fit-inputs-v1\\fit-z390.json",
+      "configSha256": "5b149f7e8bebae7fedfdf52eb962321db9d9e1bf1b8c67c1b19f140a5e0af1bb",
+      "uniformScale": 0.16561695430321036,
+      "additionalShaftAxisRotationDegrees": 19.326583956217448,
+      "actualCandidateWristSection": {
+        "z": 0.0,
+        "points": 460,
+        "boundsXY": [
+          [
+            -0.035526358499483185,
+            -0.035181888808934754
+          ],
+          [
+            0.030063056341610005,
+            0.033192051336315996
+          ]
+        ],
+        "centerXY": [
+          -0.0027316510789365898,
+          -0.000994918736309379
+        ]
+      },
+      "actualCandidateWristWidthsMm": [
+        65.58941484109319,
+        68.37394014525076
+      ],
+      "candidateSectionCenterDeltaMm": [
+        -0.6375846322286012,
+        -0.022877401457819385
+      ],
+      "widthRelativeError": [
+        0.045046752210854364,
+        0.1540907787737333
+      ],
+      "dimensionalScore": 0.026225441919787894,
+      "channelAxisDirectionHandLocal": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "channelToActualShaftPerpendicularErrorMetres": 4.0608835428777945e-17,
+      "boundsHandLocal": [
+        [
+          -0.0675385909392193,
+          -0.057282566182169786,
+          -0.14111542969721258
+        ],
+        [
+          0.03060584141263705,
+          0.06590266539666848,
+          0.02045046347689126
+        ]
+      ]
+    },
+    {
+      "sourceWristPlaneNwnZ": 0.4,
+      "sourceSection": {
+        "z": 0.4,
+        "points": 490,
+        "boundsXY": [
+          [
+            -0.17928960508794203,
+            -0.12740008003243905
+          ],
+          [
+            0.23271684999261125,
+            0.2558423137310188
+          ]
+        ],
+        "centerXY": [
+          0.026713622452334607,
+          0.06422111684928987
+        ]
+      },
+      "config": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\compact-stock-fit-inputs-v1\\fit-z400.json",
+      "configSha256": "7203ce4c33833cf8f48cdea745fe7db422d6acbc84794f7004889c8fbff92b6f",
+      "uniformScale": 0.16280267014569255,
+      "additionalShaftAxisRotationDegrees": 19.210229525004635,
+      "actualCandidateWristSection": {
+        "z": 0.0,
+        "points": 420,
+        "boundsXY": [
+          [
+            -0.034772123095078766,
+            -0.03451960274475697
+          ],
+          [
+            0.02515792504287668,
+            0.03257405111699663
+          ]
+        ],
+        "centerXY": [
+          -0.004807099026101044,
+          -0.0009727758138801702
+        ]
+      },
+      "actualCandidateWristWidthsMm": [
+        59.930048137955445,
+        67.0936538617536
+      ],
+      "candidateSectionCenterDeltaMm": [
+        -2.713032579393055,
+        -0.0007344790286106795
+      ],
+      "widthRelativeError": [
+        -0.045124852567343915,
+        0.13248069471486984
+      ],
+      "dimensionalScore": 0.027765771587256374,
+      "channelAxisDirectionHandLocal": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "channelToActualShaftPerpendicularErrorMetres": 8.673617379884035e-18,
+      "boundsHandLocal": [
+        [
+          -0.06666937574208001,
+          -0.05634052713314766,
+          -0.14033924768409514
+        ],
+        [
+          0.02963995252147837,
+          0.0647514510880797,
+          0.018471651132605307
+        ]
+      ]
+    },
+    {
+      "sourceWristPlaneNwnZ": 0.41,
+      "sourceSection": {
+        "z": 0.41,
+        "points": 490,
+        "boundsXY": [
+          [
+            -0.17869341890148085,
+            -0.12896195619097206
+          ],
+          [
+            0.23242750246880717,
+            0.2583917095520969
+          ]
+        ],
+        "centerXY": [
+          0.026867041783663156,
+          0.06471487668056242
+        ]
+      },
+      "config": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\compact-stock-fit-inputs-v1\\fit-z410.json",
+      "configSha256": "70e967a27f2e8fa273285b98b1da0b1003e01392ad0e4ced0fe26ae1fd2d5884",
+      "uniformScale": 0.1600973033468005,
+      "additionalShaftAxisRotationDegrees": 19.069514383815036,
+      "actualCandidateWristSection": {
+        "z": 0.0,
+        "points": 414,
+        "boundsXY": [
+          [
+            -0.03400908762170022,
+            -0.033881273920563525
+          ],
+          [
+            0.01999516947891475,
+            0.03196927858431657
+          ]
+        ],
+        "centerXY": [
+          -0.007006959071392736,
+          -0.0009559976681234768
+        ]
+      },
+      "actualCandidateWristWidthsMm": [
+        54.004257100614964,
+        65.85055250488008
+      ],
+      "candidateSectionCenterDeltaMm": [
+        -4.912892624684747,
+        0.016043666728082773
+      ],
+      "widthRelativeError": [
+        -0.13954143934215046,
+        0.11149825886283149
+      ],
+      "dimensionalScore": 0.05872230984637078,
+      "channelAxisDirectionHandLocal": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "channelToActualShaftPerpendicularErrorMetres": 4.0608835428777945e-17,
+      "boundsHandLocal": [
+        [
+          -0.06583729677050718,
+          -0.05539588153436274,
+          -0.13959616297161145
+        ],
+        [
+          0.028672054486826665,
+          0.06368385562718974,
+          0.016563485627979362
+        ]
+      ]
+    },
+    {
+      "sourceWristPlaneNwnZ": 0.42,
+      "sourceSection": {
+        "z": 0.42,
+        "points": 472,
+        "boundsXY": [
+          [
+            -0.17794306093669657,
+            -0.1283710964587916
+          ],
+          [
+            0.232122994611319,
+            0.25973029361586447
+          ]
+        ],
+        "centerXY": [
+          0.027089966837311213,
+          0.06567959857853643
+        ]
+      },
+      "config": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\compact-stock-fit-inputs-v1\\fit-z420.json",
+      "configSha256": "4d48704b84e8e9540c792d4e395cd7c9cb93a31bd25cc2ab7c1bde9263132013",
+      "uniformScale": 0.15745616976749793,
+      "additionalShaftAxisRotationDegrees": 18.977106409245735,
+      "actualCandidateWristSection": {
+        "z": 0.0,
+        "points": 420,
+        "boundsXY": [
+          [
+            -0.03316987300625667,
+            -0.03330384119022535
+          ],
+          [
+            0.014890655153197032,
+            0.03135774303721089
+          ]
+        ],
+        "centerXY": [
+          -0.009139608926529819,
+          -0.0009730490765072312
+        ]
+      },
+      "actualCandidateWristWidthsMm": [
+        48.0605281594537,
+        64.66158422743624
+      ],
+      "candidateSectionCenterDeltaMm": [
+        -7.04554247982183,
+        -0.00100774165567169
+      ],
+      "widthRelativeError": [
+        -0.23424383363902126,
+        0.09142954083462602
+      ],
+      "dimensionalScore": 0.1183847232579329,
+      "channelAxisDirectionHandLocal": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "channelToActualShaftPerpendicularErrorMetres": 6.906291246317746e-17,
+      "boundsHandLocal": [
+        [
+          -0.06501754020456105,
+          -0.05446294767354502,
+          -0.1388642088091294
+        ],
+        [
+          0.02780349031363249,
+          0.06265232484146296,
+          0.014710871713074655
+        ]
+      ]
+    }
+  ],
+  "recommendedConfiguration": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\compact-stock-fit-inputs-v1\\fit-z390.json",
+  "recommendationOnly": true,
+  "pendingObservationOnly": false,
+  "limits": "Positive uniform similarities only; exact source C-axis evidence and measured serialized donor wrist sections. Does not change P/N/UV/maps. Pending-observation configurations cannot pass placement. The score only chooses a first dimensional trial; actual both-side item wrapping, visible anatomy and moving wrist overlap still require checks."
+}

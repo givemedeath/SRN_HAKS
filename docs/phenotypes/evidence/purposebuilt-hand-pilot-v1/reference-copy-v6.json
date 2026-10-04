@@ -1,0 +1,443 @@
+{
+  "pass": true,
+  "files": [
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\back-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\back-alpha.png",
+      "sha256": "a1c75d8b0f52a8e5ffda493c11b36bfbd5be21f54c453953cabecc638fd99c40"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\back.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\back.png",
+      "sha256": "5ea48cd519497818b12cfe76367b2a271569397b38f08079712d5d137f96aba3"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\bottom-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\bottom-alpha.png",
+      "sha256": "05baeaed4c0ebba60365208357c1eafebc6d26dfd630629828bb93c044cbc8dd"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\bottom.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\bottom.png",
+      "sha256": "1127ec9f023893b504cc001c4590983ca24accae980f29f69af768ce488fe32e"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\front-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\front-alpha.png",
+      "sha256": "427c651fd22d87fff703aa729ad528f426f8f25450762159183f4d2372c3f1ec"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\front.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\front.png",
+      "sha256": "8209ad3716e7abf16f6541bbdbc8ca3db3629db1ec480e963b0ebdc93b3d0720"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\left-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\left-alpha.png",
+      "sha256": "49a3b0bf4b708acb6767c340a78d61309dc182602085a3db7b772718ad019199"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\left.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\left.png",
+      "sha256": "f62f7c6c9571576e1a6233a629e5d35b0fbb2b9a551219374c3d174cef5c81f6"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\provenance.json",
+      "sha256": "aab7649c7835b6cbbb85be529e61942215f1dbd35cb3f9d2df17730aef5733e3"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\right-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\right-alpha.png",
+      "sha256": "a22b41857b2d452ad25ec7d81b9277abeea745d7572e914155e01e1d058e453b"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\right.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\right.png",
+      "sha256": "c357ec887d676c25c77c8b29ec3017470a6cb17ee2f6f7ce22d7b5e41bcf0cb1"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\source.png",
+      "sha256": "b1edc30c08e9f8650d3da39c6fe155833a6a8a1405e31808e0e4928ae13d79ab"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\top-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\top-alpha.png",
+      "sha256": "d334485794eceec142f3d0cd433c32d1f6857c90bab7afc8562badac6a6a9af1"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\top.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\normalized\\top.png",
+      "sha256": "e34fe7762350af2eb7121ec390da37f9327e70c9177ff7ab7b4b25f0aeaae6c2"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v13\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\design\\prompt.txt",
+      "sha256": "60c79fc5d3e19dcc37827f3affb5fb31fc0080103fb74207d7830a600315881d"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v13\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\design\\source.png",
+      "sha256": "b1edc30c08e9f8650d3da39c6fe155833a6a8a1405e31808e0e4928ae13d79ab"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\hand-generation-config-v6.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\generation-config.json",
+      "sha256": "7d4e338d5507a9df6db066305c1a1aaec4c595df212b9b6b98cc4c636f922e5c"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\freeze_part_references.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\executed-reference-freezer.py",
+      "sha256": "2db9712ec10ada4cb34eec9f680243010b23f4f8c4026cdf823507c7bd77bbc0"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\hand-generation-config-v6.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\hand-generation-config-v6.json",
+      "sha256": "7d4e338d5507a9df6db066305c1a1aaec4c595df212b9b6b98cc4c636f922e5c"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-lineage-v6.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-lineage-v6.json",
+      "sha256": "278f6b079daa1fbcb0109f1d58619f38d148e5ed188433bd97d33a6ec89489c8"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\provenance.json",
+      "sha256": "aab7649c7835b6cbbb85be529e61942215f1dbd35cb3f9d2df17730aef5733e3"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\polar-angle-evidence-v1\\review.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\polar-angle-evidence-v1\\review.json",
+      "sha256": "a2f393db74ff9f5ed794d1f4c7bcaf6494cd3f4c112c11f1ce8b78dcbb8df404"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\polar-angle-evidence-v1\\wrist-top.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\polar-angle-evidence-v1\\wrist-top.png",
+      "sha256": "b6a82afe02c43e0088bf995c85c73e8837d5b4055fe5cb24e73c150cd3346281"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\polar-angle-evidence-v1\\distal-bottom.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\polar-angle-evidence-v1\\distal-bottom.png",
+      "sha256": "5d0247f657fc3ab6e235c0af415935b0b48485ed4a61655d4c29ca1c40ce623d"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\render-polar-angle-evidence-v1.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\render-polar-angle-evidence-v1.py",
+      "sha256": "9f5942163ec2130fe9c08cf16d52e1690ef259391ebc2ee5e896f396dcd0a15e"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\all-master-topology-v1\\index.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\all-master-topology-v1\\index.json",
+      "sha256": "47a1627fea4012c80baa3f046c51780dae6d4695dfbc85253705c2379397cb79"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\source-full-audit-v1\\audit.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\source-full-audit-v1\\audit.json",
+      "sha256": "13146792d7682f8a63fbe2302b8b5761cc98ddb2ae1256826e606c1f0422c1d5"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-lineage-v1.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-lineage-v1.json",
+      "sha256": "f5dee0ce8e3a6abf84e18cdd68e154e265bc325328de35e21a81bd1e3b0d3685"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v5\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v5\\source.png",
+      "sha256": "902b49fef109293017b2ed7cebbff5625803681a0653f7a21eb84d111fe0c43f"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v5\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v5\\prompt.txt",
+      "sha256": "3f09ab1d20737f08fb808419a57c4a84bb7353bb8537baa2aa3a4d7e9af9db2b"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v6\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v6\\source.png",
+      "sha256": "f772e3f6671de511fdb3726e09a5c7fc8db8d326dfd48a53ecdeafb7253970be"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v6\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v6\\prompt.txt",
+      "sha256": "ee53e34c7fb81c62bd51a2121935c69ea5c99007b59a9d9eba2f0ae2b7caab4c"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v7\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v7\\source.png",
+      "sha256": "8fa1b41f4c8247430d6832884132b06d300be5019bc00d5b71db75457dc97aa7"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v7\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v7\\prompt.txt",
+      "sha256": "e770818c41bae3e726cf442d8d4d3ed6dcbe56303014fd297205036784d303f0"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v8\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v8\\source.png",
+      "sha256": "6a260dadaa3827b6fa8d760e39d425050e21d3edeeb16f0693ef951464a52312"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v8\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v8\\prompt.txt",
+      "sha256": "b1843ea870c4acbdabbb1baaeeca8374c86a52ba9d69e8afbf9db5889cdac51a"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v9\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v9\\source.png",
+      "sha256": "608bbd588c6011d6bfa90caf406e33cca6c1419d3d3d2f894b31e0547d54ebb3"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v9\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v9\\prompt.txt",
+      "sha256": "1ac9fd850bbca73b6f792357332fdfddef1c53a3a29533c397fb09f1dc9790ee"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v10\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v10\\source.png",
+      "sha256": "dd64129aaa2f740d4ecbc6380d7ba11566568cbf755dafca50ff8cbfb3ee1f01"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v10\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v10\\prompt.txt",
+      "sha256": "794b01cbc1ccfc26b93119441c5c6187a2b8195e944bb05d31f86a750b7443fc"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-distal-design-v1\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-distal-design-v1\\source.png",
+      "sha256": "32035cdd715582a5547eb5414dc346a930d67652fd4402d105fff90aff9f2be1"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-distal-design-v1\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-distal-design-v1\\prompt.txt",
+      "sha256": "09b65d5eaf5c23061aa2c546b74a36e590fc2bd83a685048b9a4cbec66a09023"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v11\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v11\\source.png",
+      "sha256": "318155ae6f5d527a038eda28e64ac5398e69f90788c6f2df72f13002caf738d5"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v11\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v11\\prompt.txt",
+      "sha256": "cc3fc1c3e7316edd16a81603774ca83ad00756381c7a5155a3b9f32eb323255a"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v12\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v12\\source.png",
+      "sha256": "8af284eb2c5907f714147193b5cfea7b336c6e71481fb44c33536b5570217955"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v12\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v12\\prompt.txt",
+      "sha256": "26a116a6ba5371f84891b8c2909c2dc985f7107abedf58a424bf1f13b0262af6"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v13\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v13\\source.png",
+      "sha256": "b1edc30c08e9f8650d3da39c6fe155833a6a8a1405e31808e0e4928ae13d79ab"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v13\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v13\\prompt.txt",
+      "sha256": "60c79fc5d3e19dcc37827f3affb5fb31fc0080103fb74207d7830a600315881d"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v1\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v1\\source.png",
+      "sha256": "8e8b1590e8a4250bec7b33f622e18d15b9406dbeed849e6f2e779edc6eb66c9c"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v1\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v1\\prompt.txt",
+      "sha256": "e4755cfd7194f78165e538740dfa1972f895b494a539e74eb58fae84f98e248b"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v2\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v2\\source.png",
+      "sha256": "035b331874b320c905a8107645b9e111e08110edc1321dff7fecf4dca6e584a3"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v2\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v2\\prompt.txt",
+      "sha256": "9d85cfa249f184a0145195eb52dac4c6d80296f70b9f056c8fd283548ab9d49c"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-axial-design-v1\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-axial-design-v1\\source.png",
+      "sha256": "1537270b65dc174681e14c00209ec4c02a591b80917dd2b823ed6fc6cb9103f3"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-axial-design-v1\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-axial-design-v1\\prompt.txt",
+      "sha256": "1437c8f633888369ef8d2f7bb2ea81470903e693c0d31cfc25c770c8eafb3928"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v3\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v3\\source.png",
+      "sha256": "1697a22c802a57d50b271f4151661c69dbb6900b5563d0aee71403c2a6df36f8"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v3\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v3\\prompt.txt",
+      "sha256": "a45a3bf254b5594e7220aaa1d5ac80a12beb696268c43b2e907228ad9a224675"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v4\\source.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v4\\source.png",
+      "sha256": "fd7e26b3ecfb22cfba3fee6d75ed399b1e44c7c60bd2d6d27880c8532801744a"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v4\\prompt.txt",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\image-design-v4\\prompt.txt",
+      "sha256": "b3019a1ca771512235ccea26022227184560dcc57daef289c15e2a254f195dcf"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v4\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v4\\provenance.json",
+      "sha256": "d896ace922dfb961cf9107a1abfa0678276baf7f104383c1656c7364d657538f"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v4\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v4\\executed-normalizer.py",
+      "sha256": "450651387800f8adcdecd20f97d96926189c135cfe9775e69e293cf4bbcaefd6"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v5\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v5\\provenance.json",
+      "sha256": "81ef772af1e15c1d899bea1f0cc1e8b336ec47f7e911656070d442953e9adedf"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v5\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v5\\executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v7\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v7\\provenance.json",
+      "sha256": "e47863ba947906f03b4fe638a2daa5f990a4785e326f693d91a03dab8cd603c9"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v7\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v7\\executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v8\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v8\\provenance.json",
+      "sha256": "01c1106299b158d6137084b156aed2d0e4f0881cdbe94f80ffd35e521d6cf597"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v8\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v8\\executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v9\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v9\\provenance.json",
+      "sha256": "2def31df367091dbaa6919fa1ec8683ec54ca3dae2b7dcd670b39564ae5b4e0f"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v9\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v9\\executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v10\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v10\\provenance.json",
+      "sha256": "01f36b82071181a7a4bb5f7a99ffb1576f6917a820ade7cb17141d20ba1f9e92"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v10\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v10\\executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v12\\provenance.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v12\\provenance.json",
+      "sha256": "20c52e5be1b6ea61a2391bd6b16046a45fdceae88869e946d4844d6a7613ee8d"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v12\\executed-normalizer.py",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v12\\executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\front.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\front.png",
+      "sha256": "8209ad3716e7abf16f6541bbdbc8ca3db3629db1ec480e963b0ebdc93b3d0720"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\front-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\front-alpha.png",
+      "sha256": "427c651fd22d87fff703aa729ad528f426f8f25450762159183f4d2372c3f1ec"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\left.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\left.png",
+      "sha256": "f62f7c6c9571576e1a6233a629e5d35b0fbb2b9a551219374c3d174cef5c81f6"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\left-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\left-alpha.png",
+      "sha256": "49a3b0bf4b708acb6767c340a78d61309dc182602085a3db7b772718ad019199"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\back.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\back.png",
+      "sha256": "5ea48cd519497818b12cfe76367b2a271569397b38f08079712d5d137f96aba3"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\back-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\back-alpha.png",
+      "sha256": "a1c75d8b0f52a8e5ffda493c11b36bfbd5be21f54c453953cabecc638fd99c40"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\right.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\right.png",
+      "sha256": "c357ec887d676c25c77c8b29ec3017470a6cb17ee2f6f7ce22d7b5e41bcf0cb1"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\right-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\right-alpha.png",
+      "sha256": "a22b41857b2d452ad25ec7d81b9277abeea745d7572e914155e01e1d058e453b"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\top.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\top.png",
+      "sha256": "e34fe7762350af2eb7121ec390da37f9327e70c9177ff7ab7b4b25f0aeaae6c2"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\top-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\top-alpha.png",
+      "sha256": "d334485794eceec142f3d0cd433c32d1f6857c90bab7afc8562badac6a6a9af1"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\bottom.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\bottom.png",
+      "sha256": "1127ec9f023893b504cc001c4590983ca24accae980f29f69af768ce488fe32e"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\bottom-alpha.png",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\normalized-v13\\bottom-alpha.png",
+      "sha256": "05baeaed4c0ebba60365208357c1eafebc6d26dfd630629828bb93c044cbc8dd"
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\model-job-request-v6.json",
+      "destination": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\human-male-muscular-purposebuilt-hand-v6\\lineage\\model-job-request-v6.json",
+      "sha256": "0fd2fea7f5a18bda25963fe7be2c2c551874b6f1bd33795525d15b28cf5d04f3"
+    }
+  ],
+  "pixelEdits": false,
+  "sharedScale": 1.792,
+  "sourceSha256": "b1edc30c08e9f8650d3da39c6fe155833a6a8a1405e31808e0e4928ae13d79ab"
+}

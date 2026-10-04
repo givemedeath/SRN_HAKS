@@ -1,0 +1,13 @@
+{
+  "observedAt": "2026-10-03T22:54:55.9357337Z",
+  "processId": 40868,
+  "startedAt": "2026-10-03T22:37:41.0424292Z",
+  "workingSetBytes": 595333120,
+  "privateBytes": 2331295744,
+  "virtualBytes": 9341607936,
+  "cpuSeconds": 275.546875,
+  "responding": true,
+  "bodyHakSha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+  "observedGpuMemory": null,
+  "fpsScope": "Screenshot overlay only; adaptive-vsync scene, not a benchmark"
+}

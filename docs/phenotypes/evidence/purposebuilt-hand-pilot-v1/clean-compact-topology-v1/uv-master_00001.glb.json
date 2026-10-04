@@ -1,0 +1,50 @@
+{
+  "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\uv-master_00001.glb",
+  "sha256": "4c3813d5d609a9bb1f160e36fb861aa48e5b34be260d36f1bbd80d6ce677bef7",
+  "sourceUnchanged": true,
+  "sourceVertexCount": 32018,
+  "exactUniquePositionCount": 24954,
+  "triangleCount": 49990,
+  "zeroAreaTriangleCount": 0,
+  "surfaceArea": 2.455557599832896,
+  "signedVolume": 0.15969591974287717,
+  "axisAlignedBoxVolume": 0.3676853646978238,
+  "volumeFractionOfAxisAlignedBox": 0.4343276482438202,
+  "bounds": {
+    "minimum": [
+      -0.37698671221733093,
+      -0.46192312240600586,
+      -0.2714936137199402
+    ],
+    "maximum": [
+      0.36680930852890015,
+      0.455078125,
+      0.2675855755805969
+    ]
+  },
+  "boundaryEdgeCount": 0,
+  "nonmanifoldEdgeCount": 0,
+  "inconsistentWindingManifoldEdgeCount": 0,
+  "eulerCharacteristic": -41,
+  "componentCountByExactCoordinateEdges": 1,
+  "components": [
+    {
+      "vertices": 24954,
+      "faces": 49990,
+      "signedVolume": 0.1596959197429453
+    }
+  ],
+  "boundaryEdges": [],
+  "nonmanifoldEdges": [],
+  "windingMismatchEdges": [],
+  "exactPositionSha256": "859353307c8b302b399c9b9249bf4e39ed83fb1bb3c945b72c8047630eb113ea",
+  "orientedTrianglesOnExactPositionsSha256": "5495cf76c86caca8db1221ddc76f17b51feee0948dbb5f1784f393646db089de",
+  "depthRaySections": [],
+  "verticalNeckWaistRaySections": [],
+  "elapsedSeconds": 0.12851381301879883,
+  "readOnly": true,
+  "sourceGeometryChanged": false,
+  "generation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json",
+  "generationSha256": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+  "jobPromptId": "3565bc47-42b7-4e91-a4ce-9c9e164058f3"
+}

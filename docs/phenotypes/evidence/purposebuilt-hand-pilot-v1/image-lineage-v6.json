@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "imagegenMode": "built-in",
+  "records": [
+    {
+      "version": "v5",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v5\\source.png",
+      "sourceSha256": "902b49fef109293017b2ed7cebbff5625803681a0653f7a21eb84d111fe0c43f",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v5\\prompt.txt",
+      "promptSha256": "3f09ab1d20737f08fb808419a57c4a84bb7353bb8537baa2aa3a4d7e9af9db2b",
+      "editTarget": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v4\\source.png",
+      "editTargetSha256": "fd7e26b3ecfb22cfba3fee6d75ed399b1e44c7c60bd2d6d27880c8532801744a",
+      "role": "Clearer profile grip channel; rejected by user for duplicated bottom-right finger/nail row."
+    },
+    {
+      "version": "v6",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v6\\source.png",
+      "sourceSha256": "f772e3f6671de511fdb3726e09a5c7fc8db8d326dfd48a53ecdeafb7253970be",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v6\\prompt.txt",
+      "promptSha256": "ee53e34c7fb81c62bd51a2121935c69ea5c99007b59a9d9eba2f0ae2b7caab4c",
+      "editTarget": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v5\\source.png",
+      "editTargetSha256": "902b49fef109293017b2ed7cebbff5625803681a0653f7a21eb84d111fe0c43f",
+      "role": "Targeted correction removes duplicate distal row; rejected normalization because background alpha haze connects silhouettes."
+    },
+    {
+      "version": "v7",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v7\\source.png",
+      "sourceSha256": "8fa1b41f4c8247430d6832884132b06d300be5019bc00d5b71db75457dc97aa7",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v7\\prompt.txt",
+      "promptSha256": "e770818c41bae3e726cf442d8d4d3ed6dcbe56303014fd297205036784d303f0",
+      "editTarget": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v6\\source.png",
+      "editTargetSha256": "f772e3f6671de511fdb3726e09a5c7fc8db8d326dfd48a53ecdeafb7253970be",
+      "role": "Background extraction restores six detached components; distal view magnification too large."
+    },
+    {
+      "version": "v8",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v8\\source.png",
+      "sourceSha256": "6a260dadaa3827b6fa8d760e39d425050e21d3edeeb16f0693ef951464a52312",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v8\\prompt.txt",
+      "promptSha256": "b1843ea870c4acbdabbb1baaeeca8374c86a52ba9d69e8afbf9db5889cdac51a",
+      "editTarget": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v7\\source.png",
+      "editTargetSha256": "8fa1b41f4c8247430d6832884132b06d300be5019bc00d5b71db75457dc97aa7",
+      "role": "Rejected distal panel: long dorsal finger shafts suggest false oblique/front camera. Top panel also lacked one recoverable fingertip. Same image-X thumb placement was not the defect; prior interpretation of generic polar convention was wrong."
+    },
+    {
+      "version": "v9",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v9\\source.png",
+      "sourceSha256": "608bbd588c6011d6bfa90caf406e33cca6c1419d3d3d2f894b31e0547d54ebb3",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v9\\prompt.txt",
+      "promptSha256": "1ac9fd850bbca73b6f792357332fdfddef1c53a3a29533c397fb09f1dc9790ee",
+      "editTarget": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v8\\source.png",
+      "editTargetSha256": "6a260dadaa3827b6fa8d760e39d425050e21d3edeeb16f0693ef951464a52312",
+      "role": "Rejected: wrong image-right thumb generated from incorrect generic bottom-camera convention; compact separated domes did not match actual folded distal anatomy. Top also showed only three recoverable non-thumb tips."
+    },
+    {
+      "version": "v10",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v10\\source.png",
+      "sourceSha256": "dd64129aaa2f740d4ecbc6380d7ba11566568cbf755dafca50ff8cbfb3ee1f01",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v10\\prompt.txt",
+      "promptSha256": "794b01cbc1ccfc26b93119441c5c6187a2b8195e944bb05d31f86a750b7443fc",
+      "editTarget": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v9\\source.png",
+      "editTargetSha256": "608bbd588c6011d6bfa90caf406e33cca6c1419d3d3d2f894b31e0547d54ebb3",
+      "role": "Top corrected to four non-thumb fingertips plus one thumb. Bottom remained rejected wrong-thumb/pebble projection; request v5 was never submitted."
+    },
+    {
+      "version": "image-distal-design-v1",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-distal-design-v1\\source.png",
+      "sourceSha256": "32035cdd715582a5547eb5414dc346a930d67652fd4402d105fff90aff9f2be1",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-distal-design-v1\\prompt.txt",
+      "promptSha256": "09b65d5eaf5c23061aa2c546b74a36e590fc2bd83a685048b9a4cbec66a09023",
+      "role": "Supporting insert: skin conversion of a disposable actual distal-axis render of rejected geometry. Geometry is angle evidence only and never adopted.",
+      "inputReferences": [
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\polar-angle-evidence-v1\\distal-bottom.png",
+          "sha256": "5d0247f657fc3ab6e235c0af415935b0b48485ed4a61655d4c29ca1c40ce623d"
+        }
+      ]
+    },
+    {
+      "version": "image-design-v11",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v11\\source.png",
+      "sourceSha256": "318155ae6f5d527a038eda28e64ac5398e69f90788c6f2df72f13002caf738d5",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v11\\prompt.txt",
+      "promptSha256": "cc3fc1c3e7316edd16a81603774ca83ad00756381c7a5155a3b9f32eb323255a",
+      "role": "Composites true-axis skin insert into v10 bottom panel; normalization rejected for alpha haze joining silhouettes.",
+      "inputReferences": [
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v10\\source.png",
+          "sha256": "dd64129aaa2f740d4ecbc6380d7ba11566568cbf755dafca50ff8cbfb3ee1f01"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-distal-design-v1\\source.png",
+          "sha256": "32035cdd715582a5547eb5414dc346a930d67652fd4402d105fff90aff9f2be1"
+        }
+      ]
+    },
+    {
+      "version": "image-design-v12",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v12\\source.png",
+      "sourceSha256": "8af284eb2c5907f714147193b5cfea7b336c6e71481fb44c33536b5570217955",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v12\\prompt.txt",
+      "promptSha256": "26a116a6ba5371f84891b8c2909c2dc985f7107abedf58a424bf1f13b0262af6",
+      "role": "Background extraction restores six detached alpha components; bottom picture magnification remains excessive at 485 pixels.",
+      "inputReferences": [
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v11\\source.png",
+          "sha256": "318155ae6f5d527a038eda28e64ac5398e69f90788c6f2df72f13002caf738d5"
+        }
+      ]
+    },
+    {
+      "version": "image-design-v13",
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v13\\source.png",
+      "sourceSha256": "b1edc30c08e9f8650d3da39c6fe155833a6a8a1405e31808e0e4928ae13d79ab",
+      "exactPrompt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v13\\prompt.txt",
+      "promptSha256": "60c79fc5d3e19dcc37827f3affb5fb31fc0080103fb74207d7830a600315881d",
+      "role": "Uniform image-generation picture-size correction of bottom only intended; current candidate subject to coordinating-worker review.",
+      "inputReferences": [
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v12\\source.png",
+          "sha256": "8af284eb2c5907f714147193b5cfea7b336c6e71481fb44c33536b5570217955"
+        }
+      ]
+    }
+  ],
+  "selectedReference": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v13\\source.png",
+  "selectedReferenceSha256": "b1edc30c08e9f8650d3da39c6fe155833a6a8a1405e31808e0e4928ae13d79ab",
+  "normalization": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\provenance.json",
+  "normalizationSha256": "aab7649c7835b6cbbb85be529e61942215f1dbd35cb3f9d2df17730aef5733e3",
+  "review": "Candidate v13: front four curled fingers plus one thumb, dorsal four bands plus lateral thumb, two strict profiles with coherent overlapping finger and thumb surfaces. Top explicitly four fingertip/nail forms plus separate image-left thumb. Bottom coherent curved folded middle-finger band with four transitions plus wrapping image-left thumb, matching actual distal-axis evidence. Side heights 478/500/480/494 px; front/back widths370/409 and top/bottom430/392. Bottom4.16%smaller than back, top5.13%larger than back; front/back10.54%width discrepancy remains AI inconsistency. Shared isotropic1.792 normalization with complete six silhouettes. Exact scanner calibration, five-digit donor quality and solid topology are not established by this sheet. Repeated image edits visibly drift skin detail; requested panel invariants are not byte-exact preservation.",
+  "cameraCorrection": {
+    "actualEvidence": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\polar-angle-evidence-v1\\review.json",
+    "actualEvidenceSha256": "a2f393db74ff9f5ed794d1f4c7bcaf6494cd3f4c112c11f1ce8b78dcbb8df404",
+    "contract": "Frozen actual orbit cameras keep world X projected right in both polar views. Top world Y up; bottom world Y down. Fixture [.2,.1,.3] maps top[75,45], bottom[75,65]. Thumb must stay on the same image-X side.",
+    "discardedAssumption": "Generic bottom-camera +Y-up was incorrectly substituted for the installed adapter. Historical v4/v5 configs and lineage contain the wrong thumb-right claim; they are never current inputs."
+  }
+}

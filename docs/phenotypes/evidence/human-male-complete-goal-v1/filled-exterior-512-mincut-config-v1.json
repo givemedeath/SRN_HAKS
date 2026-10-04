@@ -1,0 +1,10 @@
+{
+  "repairDescription": "Candidate exact SAT512 exterior flood with only two added microleak cells. Source-frame extent1.95x3.91x3.91mm; all22 exact grip line occupancies unchanged. Independent continuous envelope, sections and anatomy gates remain; no fitting or adoption.",
+  "proofs": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-leak-independent-v1\\localized-512-mincut-v2\\closure.json": "d19370c63c0232824cf2eb37c2f861dcab54601534331a7fae263c0f0532f984"
+  },
+  "gridSha256": "aef870130e31af29fe26c3254d2f034d09c3c0166c0e45ab7da0667810cf68ca",
+  "sourceSha256": "8dab9ee5a3a6a1596b0577693e3321f23634976f04fc255a1e1c8204a21d9559",
+  "grid": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-leak-independent-v1\\localized-512-mincut-v2\\patched-grid.npz",
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\comfy-v6\\generated\\shape-master_00001.glb"
+}

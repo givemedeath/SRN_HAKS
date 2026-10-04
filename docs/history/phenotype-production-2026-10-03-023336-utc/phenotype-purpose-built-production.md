@@ -1,0 +1,133 @@
+# Purpose-built phenotype production
+
+**Current entry point:** [the current stock-first runbook](phenotype-purpose-built-current-runbook.md) identifies the selected perimeter descendant, verified input bank, exact tested package and commands. The selection/design example below is a frozen **pre-cap template**, not the current runnable candidate. Earlier trial descriptions are evidence; do not choose their filenames as the next input.
+
+Create a new cohesive muscular body as individual purpose-built parts. Replace the **actual base-game parts one at a time**, retaining each replacement only when its anatomy, connections, materials and game behavior are perfected. The first part is the Human male torso. Every other part remains actual stock until separately accepted. Earlier custom arms and whole-body slices are comparison evidence; they are not the matching target for this new build.
+
+This is the current process following the user's latest direction. It does not declare the torso accepted, start another goal, generate the remaining parts, or claim new equipment profiles. The current fork is `D:\srwt\codex\f0b3\SRN_HAKS`. Older evidence in `D:\srwt\codex\3a21\SRN_HAKS\output\phenotypes` remains read-only. Continue task recovery from [the checkpoint](phenotype-goal-checkpoint.md) and retain [the production specification](phenotype-production-goal.md), resolving newer instructions chronologically.
+
+## Configuration and part ledger
+
+The reusable configuration contract is [purpose-built-production.schema.json](../tools/phenotypes/configurations/purpose-built-production.schema.json). [The Human male example](../tools/phenotypes/configurations/purpose-built-human-male-production.example.json) records real stock hashes, measured stock connectors, similarity-fitting trials, the current generated source, pending gates and an **empty accepted-replacement ledger**. The user selected v5 as the diagnostic visual baseline after comparison; similarity fitting is adequate for that baseline. This template freezes the pre-cap design state; the cap and perimeter taper are now complete descendants documented in the current runbook. All other anatomy, stock parts and rig remain protected. It is a design/configuration template, not a claim that a complete production runner is implemented. The existing generator, scaling/preview helpers and native/client tools execute their own recorded phases.
+
+Separate race, gender, game body type/phenotype, and intended physique. The example is Human/male/Fit/phenotype 0 with a muscular physique; muscular is the anatomical design, not a newly invented phenotype number. Each configuration records its actual model prefix, stock source rig, race slot, height basis, material family and equipment policy. Before running any target, freeze its extracted stock model/controller hashes and verify the source installation and extraction receipt.
+
+`validate_purpose_built_config.py` implements the contract's used schema keywords plus ledger/height/phase/mapping checks using bundled Python only. With `--verify-files`, it checks referenced baseline, active source, connector/trial/comparison, selected diagnostic map/placement/export/selection and gate/profile/promotion bytes. It does not execute production or confer geometry/client acceptance. Current proofs are under `output/phenotypes/purposebuilt-production-config-proof-v4`: 42 frozen files verified and 15 malformed configurations rejected, with configuration/schema/validator snapshots and the executed probe script preserved. v1–v3 are historical validation. These checks reject wrong Human armor scaling, false promotion, neck replacement, stale source or selected-map/selection hashes, inconsistent height, concealed cleanup, cleanup before similarity fitting is adequate, broad edits hidden in the narrow waist-cap phase, duplicate gate names, wrong kit-to-NWN suffixes and unassociated equipment groups.
+
+```powershell
+& 'C:\Users\benco\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' tools/phenotypes/validate_purpose_built_config.py --config tools/phenotypes/configurations/purpose-built-human-male-production.example.json --verify-files
+```
+
+The per-part ledger distinguishes `stock`, `design-pending`, `source-generated`, `scale-only-diagnostic`, `refinement-pending`, `offline-verified`, `native-verified`, `client-reviewed`, `accepted` and `rejected`. These states describe evidence, not automatic success merely because a tool exited. Every accepted entry needs its source/native hashes, all nine distinct passing gates and a content-addressed promotion receipt. Cross-check that every accepted replacement is an accepted ledger entry for that exact source, and that its gate receipts belong to the same candidate. JSON schema alone cannot verify file bytes or these cross-record relationships.
+
+| Parts | Current state | Intended treatment |
+|---|---|---|
+| Chest/torso | Perimeter descendant native/client-reviewed diagnostic; geometry and full acceptance gates remain open | Preserve waist fit; diagnose remaining back shading |
+| Pelvis, thighs, shins, feet | Actual stock | Later purpose-built candidates from the same design family |
+| Upper arms, forearms, hands | Actual stock | Later purpose-built candidates; earlier custom arms are not adopted |
+| Neck | Preserved stock | No generated neck cylinder, stump or replacement |
+| Head | Preserved provisional stock | Separate future head work; outside this body sprint |
+
+Keep a separate diagnostic replacement map for the current unaccepted candidate. `pose_preview.py --stock-replacement <json>` selects only the declared parts and loads every undeclared part from actual stock ASCII. A diagnostic torso in that map is **not** an entry in the accepted ledger. Once a part passes, form the cumulative baseline from actual stock plus only previously accepted replacements. Add the next candidate to a fresh diagnostic map, and recheck both its stock connections and connections to already accepted neighbours. Do not accidentally import an old whole-custom-body folder through an undeclared part.
+
+The historical initial pilot maps were `output/phenotypes/purposebuilt-torso-pilot-v1/stock-replacement-v1.json` and `stock-replacement-v2.json`. Their placement files are unaccepted. Earlier `scaling-only-assembly-v1/v2` included historical custom limbs and are useful A/B evidence, but they do not prove the new torso joins actual stock arms. Actual stock comparisons are `stock-only-idle-color-v2`, `stock-only-casting-clay-v2` and `stock-only-crouch-clay-v2`. `stock-only-comparison-audit.json` verifies fifteen unchanged actual-stock parts plus the stock root for all six trial specimens; only the chest is replaced. `--stock-prefix` and `--stock-height` select the proper stock comparator for other targets.
+
+Later native-scale evidence supersedes those initial scale trials: `stock-only-{idle,casting,crouch}-similarity-v3c` compares the untouched source at measured uniform scale `0.5664815410390682`, proper +9° pitch and recorded placement. `stock-native-preview-audit-v3c/audit.json` confirms exact stock matrices and displayScale 1. The first `similarity-v3` preview has rejected display metadata; `v3b` has superseded side cropping. Neither is the canonical visual comparison. `rigid-alternatives-{idle,casting,crouch}-v1` compares v3 with a 5 mm downward v4 placement and +10° pitch/0.534 m-span v5. `rigid-alternatives-audit-v1/audit.json` independently verifies their actual-stock inputs and native scale. A further v6 similarity trial uses uniform scale 0.58, +8° pitch and a waist anchor 20 mm lower; it remains comparison evidence.
+
+The user explicitly clarified that the approved images were **v5**. Its selected source remains the original immutable generation, placed at uniform scale `0.5686111708925986`, proper +10° pitch and the recorded +20 mm waist-Y anchor offset with unchanged waist Z. The selected map is `similarity-alternatives-v1/stock-replacement-v5-pitch.json`, the local part is `similarity-placement-v5-pitch/placed-local.glb`, and `placement.json` plus `actual-export-proof.json` prove the similarity transform and preserved source triangles/UVs. `selected-v5-baseline-v1/selection.json` freezes 24 selected evidence files. The production example freezes the selection receipt, placement/export bytes and reviewed rigid-alternative audit. This is selection of a diagnostic refinement baseline, **not** promotion, native package acceptance or client approval.
+
+The ledger uses canonical kit names. NWN model suffixes and `pose_preview.py --stock-replacement` keys use the following explicit mapping, recorded as `target.partResourceMap` in the configuration:
+
+| Canonical kit / ledger name | NWN suffix / preview key |
+|---|---|
+| `upperarm_l`, `upperarm_r` | `bicepl`, `bicepr` |
+| `forearm_l`, `forearm_r` | `forel`, `forer` |
+| `hand_l`, `hand_r` | `handl`, `handr` |
+| `thigh_l`, `thigh_r` | `legl`, `legr` |
+| `shin_l`, `shin_r` | `shinl`, `shinr` |
+| `foot_l`, `foot_r` | `footl`, `footr` |
+| `chest`, `pelvis`, `neck`, `head` | Same name |
+
+For example, an accepted ledger entry `upperarm_l` becomes preview key `bicepl` and bare model `pmh0_bicepl001.mdl` for the Human male Fit target. Build a preview map by converting each canonical key through `partResourceMap`; do not copy ledger keys directly into `parts`. A chest-only pilot happens to use an identical key, which can conceal this mistake until limb replacement. Native aliases, racial model families and equipment-region profiles must retain their explicit association with canonical parts, mapped NWN suffixes, styles and attachment joints. `equipment.groupPartAssociations` records which canonical parts each equipment group calibrates against; group labels are not model-resource suffixes.
+
+## Measure connections before designing images
+
+Assemble the actual stock parts through their original supermodel attachment transforms. Measure closed cap profiles, pivots, local axes, radial footprints, axial overlap and exposed ownership at the neck, shoulders, waist, hips, elbows, wrists, knees and ankles as each part comes into scope. Use real triangle sections in the shared target rig frame, with units and frozen inputs recorded. A bone pivot is not necessarily the visible cut plane or complete cap boundary.
+
+For Human male, preserve exact `pmh0` root/attachment transforms, supermodel/controller chain, animation data and stock neck/head. The measured stock torso/pelvis pivot is approximately `[-0.000000003, 0.0308358, 1.207405994]` metres and neck pivot approximately `[-0.000000003, -0.050217, 1.676355994]`. These pivots establish the reference frame; they do not replace stock cap measurements. Actual-stock profiles are now recorded in `stock-connectors-v1/measurements.json`, SHA256 `da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6`, created with `--stock-arms`. The stock shoulder section is approximately 156 mm deep versus the earlier custom arm's 147 mm; it sits approximately 11 mm higher and is 19–20 mm shorter vertically. Earlier `connector-guides-v2` custom arm sections are historical guidance. The example now references measured actual-stock neck/shoulder/waist profiles, with proposed overlap lengths still requiring motion validation.
+
+Design each part to overlap its neighbour internally during motion. Closed rounded ends can clip into each other; the goal is continuous visible anatomy without exposed discs, spikes, gaps or flicker. Preserve muscular interior volume and natural grooves. Anatomical ownership follows the moving rigid part rather than a cosmetic image boundary. Do not shrink the entire torso or whole body to match a small cap, and do not project all new anatomy onto stock skin.
+
+## Keep one design family across independent generations
+
+Record a design-family ID and its physique, proportions, skin hue, texture detail, palette behavior and lighting. Carry the same family references into every part prompt. Use the stock geometry as connector/dimension guidance and the new design as the anatomical reference. Head/hair exclusion and pelvis-only underwear ownership apply throughout. Generation T-pose is reconstruction guidance and never changes animations.
+
+A reusable imagegen prompt template is:
+
+> Create only **{part}** of the same **{design family}**. Preserve its muscular anatomical design and material. Use the measured actual-stock **{connector envelopes}** as guidance for shallow hidden closed overlap ends. Show one identical complete object in four equal orthographic-style panels: front, left side, back, right side, at exact 90-degree rotations, one scale and vertical origin. Use soft neutral studio lighting, clear natural anatomy and uncluttered silhouettes. No adjacent body parts, neck, head, hair, equipment, text or guides. Rounded closed ends; no hollow rims, exposed flat discs or pointed spikes. Skin only, except underwear belonging to the pelvis part.
+
+Specialize the prompt for each part's anatomy and its two attachment regions. For torso, include chest/abdomen/back, preserve scapular and spinal definition, and omit the neck column completely. For a hand, use the nearly closed gripping shape requested by the user, and retain separate digits and the measured stock grip relation. Paired limbs must share proportions and material; asymmetric detail is preserved intentionally. Do not mirror views silently to conceal inconsistent anatomy.
+
+Inspect the generated sheet before model generation. Check that all panels depict the same object, caps are shallow/closed, height and proportions agree, and unwanted adjacent parts are absent. Save prompt, source images, imagegen outputs/rejections, interpretation choices and measured deviations. If a corrective generation is rejected, preserve that result and identify the actual selected earlier image; do not describe the rejected edit as accomplished.
+
+## Normalize and reconstruct without losing provenance
+
+Normalize the four views with one isotropic pixel scale, one vertical origin and a common square canvas. Center each view consistently; do not independently stretch/crop every silhouette. Composite alpha onto black RGB before the Comfy `LoadImage` IMAGE output. Record any source panel disagreement rather than silently fixing anatomy by anisotropic scaling. Save the normalized references and provenance under the user's `D:\source\repos\SRN_HAKS\.tools\reference_images` folder, retaining originals, and freeze a working copy in the current candidate directory.
+
+The actual local workflow is `SR_NWN_3d_pixal3d_multi_views.json` at `http://127.0.0.1:8188`. Its image-conditioning orbit is front 0°, left 90°, back 180°, right 270°, elevation 0°, with FOV 20° and approximately 1.1 framing padding. This branch has no connected text conditioning; cap/anatomy instructions must appear in the images. The current generator configuration uses 1024 shape resolution, 2K maps, a 50K textured detail candidate, a retained compact painted master and a retained pre-decimation remesh master. These are source assets, not proposed game budgets.
+
+Use `generate_purpose_built_part.py prepare`, then one coordinated `submit`, then `status`; [the generation guide](phenotype-purpose-built-part-generation.md) provides commands. Freeze the actual live workflow/schema, reviewed views, config and executed dependencies before submission. Preserve prompt ID, API, history, all masters and failures. Do not resubmit a completed/pending/uncertain attempt after compaction; inspect queue/history and the receipt. No further part generation is currently being queued while the first torso is perfected.
+
+The current pilot is `output/phenotypes/purposebuilt-torso-pilot-v1/comfy-v1`, prompt `a8404d03-2dbf-4cb6-93ef-fa6280ef6d5d`, completed in 326.03 seconds. Its selected source is `generated/textured_00001.glb`, SHA256 `905e80661f1ed5ec9b5f456e78b86441e58ed44af26617a9005b56760c438172`. Reference copies are under `reference_images/normalized/purposebuilt-human-male-torso-v1`; current-fork provenance is `normalized-v1/provenance.json` and `reference-copy-audit.json`. The second sheet excludes the neck column, but the reconstruction recreates a rim and oversized shoulder caps. Panel heights differ by up to 3.4%.
+
+Read-only `paired-surface-diagnostic-v2` proves that hollow paired walls exist before final 50K decimation; compact painted and textured geometry match exactly. UDF remeshing is consistent with these thin walls, but no raw pre-remesh decoder mesh was saved, so the image-model/remesh cause is not conclusively isolated. Six boundary edges, a nonmanifold edge and uncapped central passage fail production geometry acceptance. Preserve this promising source and its limits.
+
+## Exhaust uniform scale, proper rotation and placement
+
+Exhaust the available uniform scale, proper orientation and translation into the target rig frame before any mesh changes. Keep each similarity trial separate and compare its shoulder, neck and waist alignment simultaneously; do not stop at the first imperfect placement and jump to deformation. This phase performs no stretching, vertex/topology editing, cap trimming, shell cleanup, smoothing or reslicing. Preserve source geometry, UVs and material data and verify the expected rigid similarity transform against the source. Record any export/custom-normal drift separately; do not substitute computed vertex normals and call them retained source normals.
+
+This source needs a recorded 180° Z orientation because its +Y view shows the back in the current Blender inspection. `scaling-only-placement-v1/v2/placement.json` preserves the actual trial transforms and original hashes. Different scale trials remain separate; neither changes the immutable generation. Test the placed torso with true stock parts in idle, casting, crouching and raised-arm poses, with fixed comparable front/side/rear/top framing and clay/color views. User approval that it is a better starting point is not final part acceptance.
+
+The v3–v6 trials add proper rigid pitch and placement rather than stretching. Following the user's explicit v5 selection, the example records `similarityFitting.state = adequate-user-selected`. That closes the current fitting decision without claiming a mathematically exhaustive global search or accepting the entire asset.
+
+## Subsequent localized refinement and matching materials
+
+Localized cleanup is a separate explicit next phase after similarity fitting is adequate and the user directs the remaining scope. The authorized design is a rounded, matching-textured cap at the bottom back waist of selected v5. No other torso anatomy or neighbouring part is authorized for this phase. Its configuration records that narrow permitted region and protects the remainder of the torso, stock neck/head/arms/pelvis/legs/feet, rig and animations. The v4 production-example snapshot freezes the pre-cap selection/design state; its null `scopeConfiguration` does not claim a repair ran.
+
+Fresh cap diagnostics now exist separately: `purposebuilt-human-male-waist-cap-v3.json` and `waist-rounded-cap-v3/waist-cap.json` preserve the selected v5 upper source and correct cap geometry/normal/PBR continuation. [The common-atlas/native process](phenotype-purpose-built-native-cap-atlas.md) records the subsequent material-only cap packing. Corrected `common-cap-atlas-v2` preserves source geometry/normals/upper UVs and proves zero upper mip0 bilinear differences at 221,879 samples per channel; v1 is rejected after independent sampling found six guard-edge changes. Cap and common-atlas stages require actual posed visual review before any promotion/native/client claim. The accepted-replacement ledger remains empty.
+
+Before execution, record why uniform scale/rotation/placement cannot resolve the identified back-waist opening, the affected region/operation, protected source regions, permitted displacement, original/output hashes and the applicable numeric/visual gates. Preserve the selected similarity source as the comparison baseline. Matching cap texture should continue the adjoining torso material. Do not substitute broad shell extraction, smoothing, shoulder/neck edits or whole-body stretching. Read-only shell/section diagnosis may continue without making a conditioned mesh. Production geometry/material/native/client gates remain open until actual candidate evidence passes.
+
+After geometry changes, provide matching maps for the actual final part's UVs. Use 2K textures where warranted and preserve current normal-map pixels/strength 1: the user accepted the current texture as sufficient. The older 0.35 reduction is a historical option, not an automatic step. Any future normal reduction must be explicit and separately compared. Keep consistent diffuse/roughness response and coherent skin hue at stock and accepted-custom joins. Do not transfer tangent-space normals between unrelated charts without rebaking. Underwear is restricted to pelvis geometry/materials. Removing cloth color alone does not remove garment-shaped protrusions from thighs or torso.
+
+Validate PLT skin channels and fixed materials separately, then exercise real client palette changes. Keep texture preparation idempotent, one correct binding per material and exact dependency inventories. Record triangle count, active atlas bytes and decoded/client performance rather than retaining oversized unused atlases. Shading defects must be distinguished from actual geometry with clay, exported-normal and current-byte checks.
+
+## Required proof and promotion
+
+Each part must pass these nine gates on the same frozen candidate:
+
+1. Source fidelity and anatomical design, including all-around silhouette and coherent family proportions.
+2. Stock attachment coverage through motion and later cumulative accepted-neighbour coverage.
+3. Geometry/normal validity: appropriate closed positive shells, winding, no degenerate/duplicate exterior faces, current serialized coordinates/UVs/normals and protected rig.
+4. Materials, matching maps, dependency resolution and actual skin-palette continuity.
+5. Engine-native compilation from the exact candidate ASCII, with client/compiler/source hashes and unmodified stock controller data.
+6. HAK/module integrity: exact current resource inventory, correct phenotype/appearance mapping, isolated user directory and no stale override.
+7. Actual client animation/gameplay: idle, walking/running, crouching/sitting, casting, melee/ranged grips, damage and death as relevant; report observed evidence separately from script execution.
+8. Actual client equipment fit at the configured policy, including clothing/armor/robes/gloves/boots/shoulders/belts/helmets and weapon/shield attachments.
+9. Actual client stability/performance and storage budget at representative views, with unlocked pan/zoom controls.
+
+Record HAK/module/compiler/client hashes, fixture scripts, palette settings, pose phases, screenshots and failures. Native compilation or a scripted animation log alone does not establish visual acceptance. A read-only preview that intentionally includes an invalid source is diagnostic evidence and cannot waive production gates.
+
+Promote exactly one part after all gates and recorded visual acceptance. Archive its accepted source, maps, native resources and receipt by content hash. Update only that ledger entry and cumulative replacement map. Continue to the next part with the accepted cumulative baseline. If a later neighbour exposes a regression, preserve the failing pair and fix the relevant candidate; do not overwrite the last accepted evidence or reopen unrelated successful parts by default. Package final `phenotypes.2da` and body resources only from accepted entries and validated target mappings.
+
+## Other races and equipment profiles
+
+Use the measured stock Human male assembled height, `1.9339157` metres, as the common basis. The current reference ratios are recorded in `tools/phenotypes/height_targets.json`: target assembled height equals stock Human height multiplied by target reference height divided by the 1.75-metre Human male reference height. This gives the current Troll male target approximately `2.7627367` metres. These are configured targets, not proof that a new assembly already measures correctly. Verify feet on the floor, stock/provisional head height, attachments and motion for each target; do not substitute a preview display height for the measured production height. Historical initial maps' `height: 2` was display metadata with displayScale 1. The current perimeter map records stock height 1.9339157 and still uses native displayScale 1.
+
+Human male retains exact stock rig/animations and stock-identity equipment. It requires no NWNArmory resize profile. Do not revive historical Human X/Y reductions or Human armor scaling. Other targets specify their intended race anatomy, source rig/controller chain and any deliberate uniform racial skeletal scale. Record target-specific transforms; never leak a generation pose into animation data.
+
+Troll replaces the default Gnome race slot (slot 2, model family `g`). Its broader race/appearance/phenotype mapping needs an isolated, validated table configuration. Existing Troll rig preflight evidence does not establish new part geometry, equipment fit or client portability. This purpose-built race branch and its equipment profiles are future pending work.
+
+For a target that needs NWNArmory resizing, derive profiles from its **accepted cumulative part assembly and actual stock equipment groups**. Measure height, width, depth, joint/attachment locations and clearance for chest, pelvis, upper arms, forearms, gloves/hands, thighs, shins/boots, feet, shoulder pads and relevant robe/belt/helmet/weapon/shield groups. Use targeted group/profile parameters rather than one undocumented whole-item scale. Freeze source equipment, accepted assembly, calibration, profile/tool hashes and fitted results; verify world-space geometry, palette/material ownership, native compilation and actual worn-item motion. Texture or geometry generated independently is not a vertex-correspondence calibration against an old donor.
+
+Maintain a profile ledger with `pending-accepted-assembly`, `measured` and `client-verified` states. A profile is valid only for its recorded accepted assembly and equipment group; a body revision requires revalidation of affected groups. No new Troll or other-race profile is claimed by this document. Race/gender/body-type reuse applies this same measured, one-part-at-a-time process with a new configuration and design family, not blind reuse of the previous Human resize.

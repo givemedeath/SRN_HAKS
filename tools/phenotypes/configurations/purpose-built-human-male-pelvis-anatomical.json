@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "name": "purpose-built-human-male-pelvis-v2-anatomical",
+  "part": "pelvis",
+  "workflow": "SR_NWN_3d_pixal3d_multi_views.json",
+  "service": "http://127.0.0.1:8188",
+  "viewOrder": [
+    "front",
+    "left",
+    "back",
+    "right"
+  ],
+  "viewAzimuthDegrees": [
+    0,
+    90,
+    180,
+    270
+  ],
+  "imageSize": 1024,
+  "fovDegrees": 20,
+  "shapeResolution": 1024,
+  "textureSize": 2048,
+  "masterTriangleBudget": 50000,
+  "remesh": {
+    "resolution": 384,
+    "sign_mode": "udf",
+    "sign_mode.qef": false,
+    "sign_mode.drop_inverted_components": true,
+    "sign_mode.drop_enclosed_components": true,
+    "band": 1,
+    "project_back": 0,
+    "fix_poles": false,
+    "smooth_iters": 3,
+    "drop_small_components": 0.01,
+    "precluster_max_verts": 2000000
+  },
+  "seeds": {
+    "structure": 56,
+    "shape": 42,
+    "texture": 43
+  },
+  "normalBakeSize": 2048,
+  "postFitNormalStrength": 1,
+  "compactBakeReference": true,
+  "retainRawMaster": true,
+  "designConstraints": [
+    "Purpose-built entire muscular Human male pelvis only, with dark fitted briefs entirely owned by this part; no head, neck, torso, arms or thighs.",
+    "Solid closed mass with rounded shallow hidden waist and paired hip attachment ends; no hollow openings or inward sleeve walls.",
+    "Preserve exact stock pelvis pivot/rig and fit measured stock waist and thigh attachments using proper orientation, uniform scale and placement first.",
+    "Match the selected purpose-built muscular Human design family, with natural skin/briefs detail and consistent skin hue.",
+    "All four views show the same complete object at one shared scale and vertical origin; no independent view stretching.",
+    "2K maps and unchanged source normal strength1; retain exact raw pre-remesh, pre-decimation remeshed, compact painted and textured masters.",
+    "50K is an initial detail-source budget, not production/native/client performance acceptance. No generation until root supplies reviewed normalized views.",
+    "v6 references distinguish flat anterior from full posterior; verify anatomical orientation before fitting. Short hip ends may need measured thigh-ownership trimming after uniform fit. Previous v5 was rejected for symmetric butt-like front/rear."
+  ]
+}

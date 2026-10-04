@@ -1,0 +1,379 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "fitOrSourceEditPerformed": false,
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-fairing-v2\\faired-exterior-highpoly.glb",
+  "sourceSha256": "feb84aa43e2c7963bf099c3f5b9040f23f2695ae02400405b23bc6303e90a7d6",
+  "inputHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-fairing-v2\\faired-exterior-highpoly.glb": "feb84aa43e2c7963bf099c3f5b9040f23f2695ae02400405b23bc6303e90a7d6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-wrist-targets-v1\\measurement.json": "441c2bf744111a958bd41307b7caf42bd5d0cffe72eb93b71d575a686fac321c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\stock-measurement-v1\\measurement.json": "1ee5f518f7139061c11214633e3d6a901abd575eb0389ac600a782be688ac159",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\measure-clean-hand-landmarks-v1.py": "9db88b8e8d6db713982505034453dc09303f443f64fc65636cb9d1f0bc634c89"
+  },
+  "positionArraySha256": "a250bcd13ebad3509154aa45bc2bc8ed98c091f2e0b17914c99e1dd1287e41e4",
+  "frameConversionRawGltfToNwn": [
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -1.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ]
+  ],
+  "sourceBoundsNwn": [
+    [
+      -0.3771132230758667,
+      -0.2677403688430786,
+      -0.4630686044692993
+    ],
+    [
+      0.36739298701286316,
+      0.27164068818092346,
+      0.455078125
+    ]
+  ],
+  "sourceCoreGripLineNwn": {
+    "origin": [
+      0.0,
+      -0.05,
+      -0.175
+    ],
+    "direction": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "axisOriginXIsFree": true
+  },
+  "targetLeftWristCenterHandLocal": [
+    -0.0020940664467079886,
+    -0.0009720413348515596,
+    0.0
+  ],
+  "targetLeftWristDiametersMm": [
+    62.76218236393266,
+    59.2448543934306
+  ],
+  "targetActualHeldRootHandLocal": [
+    -0.015335500000000002,
+    -2.0146399999990128e-07,
+    -0.09451759999999998
+  ],
+  "targetActualShaftDirectionHandLocalBind": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "targetWristToGripPerpendicularDistance": 0.09544062170955428,
+  "actualSections": [
+    {
+      "planeNwnZ": 0.2,
+      "actualSegmentEndpointSamples": 7456,
+      "boundsNwnXY": [
+        [
+          -0.24832475932253575,
+          -0.1604120714615277
+        ],
+        [
+          0.28728186647702947,
+          0.25201881601201376
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.019478553577246857,
+        0.04580337227524303,
+        0.2
+      ],
+      "diametersNwnXY": [
+        0.5356066257995652,
+        0.41243088747354145
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.3870442948026864,
+      "scaleForExactWristToGripDistance": 0.24658836983557533,
+      "leastSquaresScaleForWristWidthsOnly": 0.1260838420632824,
+      "wristWidthsAtGripDistanceScaleMm": [
+        101.7006602119402,
+        132.0743647290478
+      ]
+    },
+    {
+      "planeNwnZ": 0.25,
+      "actualSegmentEndpointSamples": 7768,
+      "boundsNwnXY": [
+        [
+          -0.19930983121155332,
+          -0.117290660164513
+        ],
+        [
+          0.2550023801804828,
+          0.2539835422467336
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.02784627448446475,
+        0.06834644104111029,
+        0.25
+      ],
+      "diametersNwnXY": [
+        0.45431221139203615,
+        0.3712742024112466
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.4411698993665558,
+      "scaleForExactWristToGripDistance": 0.21633529813931235,
+      "leastSquaresScaleForWristWidthsOnly": 0.1458779896878696,
+      "wristWidthsAtGripDistanceScaleMm": [
+        80.31971527007244,
+        98.28376769982644
+      ]
+    },
+    {
+      "planeNwnZ": 0.3,
+      "actualSegmentEndpointSamples": 6474,
+      "boundsNwnXY": [
+        [
+          -0.1916501612648251,
+          -0.12116471636186361
+        ],
+        [
+          0.24420306299475225,
+          0.2539928669633783
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.02627645086496358,
+        0.06641407530075735,
+        0.3
+      ],
+      "diametersNwnXY": [
+        0.43585322425957734,
+        0.3751575833252419
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.4890574985910454,
+      "scaleForExactWristToGripDistance": 0.19515214874429856,
+      "leastSquaresScaleForWristWidthsOnly": 0.14927756509990298,
+      "wristWidthsAtGripDistanceScaleMm": [
+        73.2128085036392,
+        85.05769325138715
+      ]
+    },
+    {
+      "planeNwnZ": 0.35,
+      "actualSegmentEndpointSamples": 6150,
+      "boundsNwnXY": [
+        [
+          -0.1835635293576573,
+          -0.12311496835858793
+        ],
+        [
+          0.23640158497689742,
+          0.2520662669962685
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.026419027809620063,
+        0.06447564931884028,
+        0.35
+      ],
+      "diametersNwnXY": [
+        0.41996511433455475,
+        0.3751812353548564
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.5373357184172387,
+      "scaleForExactWristToGripDistance": 0.17761823463119397,
+      "leastSquaresScaleForWristWidthsOnly": 0.15270618416975187,
+      "wristWidthsAtGripDistanceScaleMm": [
+        66.63902869048009,
+        74.59346221479115
+      ]
+    },
+    {
+      "planeNwnZ": 0.38,
+      "actualSegmentEndpointSamples": 6356,
+      "boundsNwnXY": [
+        [
+          -0.1797610341178087,
+          -0.12708182953195152
+        ],
+        [
+          0.23443930546898434,
+          0.252060432114677
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.027339135675587822,
+        0.06248930129136274,
+        0.38
+      ],
+      "diametersNwnXY": [
+        0.41420033958679303,
+        0.3791422616466285
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.5662851250960235,
+      "scaleForExactWristToGripDistance": 0.1685381047107156,
+      "leastSquaresScaleForWristWidthsOnly": 0.15329331654117795,
+      "wristWidthsAtGripDistanceScaleMm": [
+        63.89991819365701,
+        69.80854020449289
+      ]
+    },
+    {
+      "planeNwnZ": 0.4,
+      "actualSegmentEndpointSamples": 6076,
+      "boundsNwnXY": [
+        [
+          -0.17976496038209686,
+          -0.12706563548613378
+        ],
+        [
+          0.23249161698463078,
+          0.25596876592368983
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.02636332830126696,
+        0.06445156521877803,
+        0.4
+      ],
+      "diametersNwnXY": [
+        0.4122565773667276,
+        0.3830344014098236
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.5862799338038341,
+      "scaleForExactWristToGripDistance": 0.16279018981653934,
+      "leastSquaresScaleForWristWidthsOnly": 0.15304268659621692,
+      "wristWidthsAtGripDistanceScaleMm": [
+        62.3542429117697,
+        67.11132648264642
+      ]
+    },
+    {
+      "planeNwnZ": 0.42,
+      "actualSegmentEndpointSamples": 6158,
+      "boundsNwnXY": [
+        [
+          -0.1778612407597449,
+          -0.1290371304534452
+        ],
+        [
+          0.23254202977528474,
+          0.2598681232559388
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.027340394507769913,
+        0.06541549640124679,
+        0.42
+      ],
+      "diametersNwnXY": [
+        0.4104032705350297,
+        0.388905253709384
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.6060905351591841,
+      "scaleForExactWristToGripDistance": 0.1574692495148232,
+      "leastSquaresScaleForWristWidthsOnly": 0.15241212406561586,
+      "wristWidthsAtGripDistanceScaleMm": [
+        61.24061843398861,
+        64.62589500958008
+      ]
+    },
+    {
+      "planeNwnZ": 0.44,
+      "actualSegmentEndpointSamples": 5692,
+      "boundsNwnXY": [
+        [
+          -0.145235452111108,
+          -0.1271456447512307
+        ],
+        [
+          0.2190360658676739,
+          0.2597260969302229
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.036900306878282954,
+        0.06629022608949611,
+        0.44
+      ],
+      "diametersNwnXY": [
+        0.3642715179787819,
+        0.3868717416814536
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.6258980880973724,
+      "scaleForExactWristToGripDistance": 0.15248588152694018,
+      "leastSquaresScaleForWristWidthsOnly": 0.16242230512809208,
+      "wristWidthsAtGripDistanceScaleMm": [
+        58.992478568159136,
+        55.546263534151194
+      ]
+    },
+    {
+      "planeNwnZ": 0.45,
+      "actualSegmentEndpointSamples": 5338,
+      "boundsNwnXY": [
+        [
+          -0.11751267254488572,
+          -0.12510718339451313
+        ],
+        [
+          0.20725099144955164,
+          0.2563838959137576
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.04486915945233296,
+        0.06563835625962224,
+        0.45
+      ],
+      "diametersNwnXY": [
+        0.32476366399443735,
+        0.38149107930827075
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.6356077638279974,
+      "scaleForExactWristToGripDistance": 0.15015647564585377,
+      "leastSquaresScaleForWristWidthsOnly": 0.1720422503796192,
+      "wristWidthsAtGripDistanceScaleMm": [
+        57.28335595926283,
+        48.765367203238974
+      ]
+    },
+    {
+      "planeNwnZ": 0.453,
+      "actualSegmentEndpointSamples": 5184,
+      "boundsNwnXY": [
+        [
+          -0.10851801725912252,
+          -0.12304896059571828
+        ],
+        [
+          0.20116715625275305,
+          0.254966034169219
+        ]
+      ],
+      "centerNwnXYZ": [
+        0.046324569496815265,
+        0.06595853678675034,
+        0.453
+      ],
+      "diametersNwnXY": [
+        0.3096851735118756,
+        0.3780149947649373
+      ],
+      "sourceWristToCorePerpendicularDistance": 0.638615989663369,
+      "scaleForExactWristToGripDistance": 0.1494491576383227,
+      "leastSquaresScaleForWristWidthsOnly": 0.17618197757555307,
+      "wristWidthsAtGripDistanceScaleMm": [
+        56.49402254227484,
+        46.282188314427614
+      ]
+    }
+  ],
+  "limits": "Section AABB widths and one exact clear core line are measured fit inputs. Scale diagnostics do not select a landmark, rotation, placement or adoption. Confirm visible hand anatomy and actual compact stage; do not use total donor AABB as fitting authority."
+}

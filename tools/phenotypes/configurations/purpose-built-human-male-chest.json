@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "name": "purpose-built-human-male-chest-v1",
+  "part": "chest",
+  "workflow": "SR_NWN_3d_pixal3d_multi_views.json",
+  "service": "http://127.0.0.1:8188",
+  "viewOrder": ["front", "left", "back", "right"],
+  "viewAzimuthDegrees": [0, 90, 180, 270],
+  "imageSize": 1024,
+  "fovDegrees": 20,
+  "shapeResolution": 1024,
+  "textureSize": 2048,
+  "masterTriangleBudget": 50000,
+  "remesh": {
+    "resolution": 384,
+    "sign_mode": "udf",
+    "sign_mode.qef": false,
+    "sign_mode.drop_inverted_components": true,
+    "sign_mode.drop_enclosed_components": true,
+    "band": 1,
+    "project_back": 0,
+    "fix_poles": false,
+    "smooth_iters": 3,
+    "drop_small_components": 0.01,
+    "precluster_max_verts": 2000000
+  },
+  "seeds": {"structure": 56, "shape": 42, "texture": 43},
+  "normalBakeSize": 2048,
+  "postFitNormalStrength": 1,
+  "compactBakeReference": true,
+  "designConstraints": [
+    "Purpose-built closed torso only; no neck cylinder, stump, head, hair, arms, pelvis or underwear.",
+    "Stock neck is a separate immutable part; use only a shallow hidden collar cap at its insertion.",
+    "Preserve muscular anatomy and fit measured actual stock shoulder/neck/waist attachments, exact stock rig and stock equipment identity.",
+    "All four views show the same object at one shared scale and vertical origin; no independent view stretching.",
+    "Rounded shallow closed overlap ends, no planar exposed discs or pointed cap spikes.",
+    "Generation is a source candidate, not client acceptance; fitting and matching maps follow separately."
+  ]
+}

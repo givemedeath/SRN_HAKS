@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "human-male-repository-publication-validation",
+  "completedUtc": "2026-10-04T00:54:25.766228+00:00",
+  "baseCommit": "4a03683a8e7896701b79d765b5e81411a9d48e28",
+  "assetManifest": "docs/phenotypes/human-male-assets.json",
+  "assetManifestSha256": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4",
+  "publicationVerifierSha256": "661d0cdc750e47d9d20a33c17130247ae6122858fee82a3c6d631204cc7364d5",
+  "repositoryVerification": {
+    "command": "pwsh ./tools/Test-Repository.ps1 -AllPacks",
+    "passed": true,
+    "packsBuiltAndReopened": 26
+  },
+  "unitTests": {
+    "command": "bundled Python -m unittest discover -s tools/phenotypes -p test_*.py",
+    "passed": true,
+    "tests": 107
+  },
+  "ciItemRegressionCheck": {
+    "command": "pwsh ./tools/Test-ItemImportTools.ps1",
+    "passed": true
+  },
+  "body": {
+    "pack": "srn_body",
+    "models": 14,
+    "resources": 72,
+    "payloadBytes": 527885123,
+    "sourceAssetsExactTestedPayload": true,
+    "clientRerun": false,
+    "rebuiltHakSha256": "32da6489001d620af276866a68b3ea8d55f8326eb56bccde05b6df8c42502245",
+    "rebuiltPayloadExactTestedSelection": true
+  },
+  "evidence": {
+    "repository-check.log": "e8ab58a93e47baaf2c4924965dd69a9cc5890c0589541f66d11130dbc17be9e2",
+    "unit-tests.log": "38e103ded9bfc436452cdb1942655332559e385788de950e69e121b30af57c25",
+    "item-regressions.log": "019ccc753e43923534e50c118cb73ccd18bc62e6615d20db8ffa7af87f9a618e",
+    "rebuilt-body-check.json": "ebcb139552128766f1157782b6000b1e2a6ec0a19709a0e6d728c0fc10ef0b03"
+  },
+  "activeMarkdownLinksResolve": true,
+  "clientRerunPerformed": false,
+  "meaning": "Publication integrity and full repository build. Visual evidence belongs to the prior exact-resource Human client runs."
+}

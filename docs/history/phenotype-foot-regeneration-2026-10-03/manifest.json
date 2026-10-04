@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Historical journals before replacing superseded foot directives with current v3 methodology. These documents are evidence, not active authorization or selected assets.",
+  "files": {
+    "phenotype-foot-checkpoint.md": "9a7dde5f42a65391fc5c07140a7646cc0ef0d3ac7414bdc239a08cf0bfc53fcc",
+    "phenotype-foot-validation.md": "53b159c5828095ea81bbcfdfac088ba21fa4d4d4a75b3719e2b8edf5d14994a3",
+    "phenotype-purpose-built-foot-process.md": "66ac266bc87ed7f60f35fc74873c34adfcbb30cc82b24326bbd01960b5fa321c",
+    "purposebuilt-foot-fitting-pilot.md": "e89c1e24c3dce096987fcd2ab42c3a553a53c937610c786e108bf146526d23f0",
+    "phenotype-goal-checkpoint.md": "f214e5e427f45cd3d507c079da19ac9685e8fb632c74dcc7fb8f539c5d134c9a",
+    "phenotype-purpose-built-current-runbook.md": "5759781090deacc8c82439002d5c4eebbad9293220ccae4f98f3fd804b14b49d"
+  }
+}

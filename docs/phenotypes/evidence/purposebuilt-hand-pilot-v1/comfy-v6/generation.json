@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "state": "success",
+  "service": "http://127.0.0.1:8188",
+  "submitted": 1791054344.0995383,
+  "uploadedInputs": [
+    {
+      "view": "front",
+      "serverImage": "srn_purpose_built_parts/purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera/18323877263f/references/front.png",
+      "sha256": "8209ad3716e7abf16f6541bbdbc8ca3db3629db1ec480e963b0ebdc93b3d0720"
+    },
+    {
+      "view": "left",
+      "serverImage": "srn_purpose_built_parts/purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera/18323877263f/references/left.png",
+      "sha256": "f62f7c6c9571576e1a6233a629e5d35b0fbb2b9a551219374c3d174cef5c81f6"
+    },
+    {
+      "view": "back",
+      "serverImage": "srn_purpose_built_parts/purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera/18323877263f/references/back.png",
+      "sha256": "5ea48cd519497818b12cfe76367b2a271569397b38f08079712d5d137f96aba3"
+    },
+    {
+      "view": "right",
+      "serverImage": "srn_purpose_built_parts/purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera/18323877263f/references/right.png",
+      "sha256": "c357ec887d676c25c77c8b29ec3017470a6cb17ee2f6f7ce22d7b5e41bcf0cb1"
+    },
+    {
+      "view": "top",
+      "serverImage": "srn_purpose_built_parts/purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera/18323877263f/references/top.png",
+      "sha256": "e34fe7762350af2eb7121ec390da37f9327e70c9177ff7ab7b4b25f0aeaae6c2"
+    },
+    {
+      "view": "bottom",
+      "serverImage": "srn_purpose_built_parts/purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera/18323877263f/references/bottom.png",
+      "sha256": "1127ec9f023893b504cc001c4590983ca24accae980f29f69af768ce488fe32e"
+    }
+  ],
+  "preparationSha256": "db109b6012190e97546be33d7413f8b34b2472516a6ecefaf16e2e7c64b7aa31",
+  "apiSha256": "4fdeb6375e706e0c4b8c8d708989c66f9f8d2bd979f0ca12178c09ec787f6ea2",
+  "outputs": [
+    {
+      "filename": "textured_00001.glb",
+      "subfolder": "srn_purpose_built_parts\\purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera\\18323877263f",
+      "type": "output",
+      "nodeId": "372",
+      "localPath": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\comfy-v6\\generated\\textured_00001.glb",
+      "sha256": "02d51a168c6cf40ad49c10066ed638c3bb2159d5f1c1e02630acc5e8b1b84b0d"
+    },
+    {
+      "filename": "shape-master_00001.glb",
+      "subfolder": "srn_purpose_built_parts\\purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera\\18323877263f",
+      "type": "output",
+      "nodeId": "1010",
+      "localPath": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\comfy-v6\\generated\\shape-master_00001.glb",
+      "sha256": "8dab9ee5a3a6a1596b0577693e3321f23634976f04fc255a1e1c8204a21d9559"
+    },
+    {
+      "filename": "remeshed-master_00001.glb",
+      "subfolder": "srn_purpose_built_parts\\purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera\\18323877263f",
+      "type": "output",
+      "nodeId": "1012",
+      "localPath": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\comfy-v6\\generated\\remeshed-master_00001.glb",
+      "sha256": "449390eab7a81816817a4b15d60cc439e21ddb39c134819fb0858abca2dcad62"
+    },
+    {
+      "filename": "raw-master_00001.glb",
+      "subfolder": "srn_purpose_built_parts\\purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera\\18323877263f",
+      "type": "output",
+      "nodeId": "1014",
+      "localPath": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\comfy-v6\\generated\\raw-master_00001.glb",
+      "sha256": "9392865b50dd48400a415e1bd2f7e7255cf17b47bc292a005fe858042610037d"
+    }
+  ],
+  "clientAccepted": false,
+  "saveNodes": [
+    "372",
+    "1010",
+    "1012",
+    "1014"
+  ],
+  "response": {
+    "prompt_id": "d6d729af-2cd1-4fe7-b223-71d01fcbc7f3",
+    "number": 4,
+    "node_errors": {}
+  },
+  "promptId": "d6d729af-2cd1-4fe7-b223-71d01fcbc7f3"
+}
