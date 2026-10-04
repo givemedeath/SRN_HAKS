@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "resources": {
+    "pmh0_handl001.mdl": "6f678ed4e81d7b8419ff9db5d787cede4bbaf3ace0022c5914e5c31c1f49cc3d",
+    "pmh0_handl001.mtr": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498",
+    "pmh0_handl001.plt": "a12b099def9b886f978e0083b2e9840ad4de8176f258977c50f49e3928a8a6f8",
+    "pmh0_handl001n.tga": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1",
+    "pmh0_handl001r.tga": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1",
+    "pmh0_handr001.mdl": "db39eccbdaa8e1df60a3f4d4238d9fdb66311ba9dadbc005590672098f5a4b68",
+    "pmh0_handr001.mtr": "baad8aa75ba04a31ea994a3442ec97eb705524f54c9f3852defc4f5c9806022f",
+    "pmh0_handr001.plt": "103b8cee558c05097dd2cc02a89ee041fe8d529ec18b47780ee155a073d1cbbb",
+    "pmh0_handr001n.tga": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1",
+    "pmh0_handr001r.tga": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1"
+  },
+  "operationSha256": "56530d0c468c8f0049f2bda410a0b985f20427533b876be37abb065c10842132",
+  "acceptedResourcesIncluded": false,
+  "geometryNormalsExact": true
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb",
+  "sourceSha256": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+  "sourceReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placement.json",
+  "sourceReceiptSha256": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf",
+  "stockRoot": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl",
+  "stockRootSha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+  "sourceJoint": "lhand_g",
+  "targetJoint": "rhand_g",
+  "planeOriginWorld": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "planeNormalWorld": [
+    1.0,
+    0.0,
+    0.0
+  ]
+}

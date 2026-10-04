@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-03T23:04:45.3875076Z",
+  "processId": 26740,
+  "startedAt": "2026-10-03T22:57:07.8620027Z",
+  "workingSetBytes": 591499264,
+  "privateBytes": 2316697600,
+  "virtualBytes": 9346170880,
+  "cpuSeconds": 105.625,
+  "responding": true,
+  "observedGpuMemory": null,
+  "fpsScope": "61 FPS overlay adaptive-vsync, small isolated scene; not a crowd benchmark"
+}

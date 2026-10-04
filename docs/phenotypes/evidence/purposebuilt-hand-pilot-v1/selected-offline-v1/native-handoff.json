@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "status": "selected-hand-pair-compiled-and-independently-native-verified",
+  "immutableOfflineSelection": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\selection.json",
+    "sha256": "10a51a41a8ec63689357c83d16fd311a50622639e465543719ae59dbec9951c2"
+  },
+  "selectionReceiptChanged": false,
+  "nativeCompilationPerformedBy": "coordinator, not hand worker",
+  "parts": [
+    {
+      "part": "handl",
+      "compileReceipt": {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\native-compile.json",
+        "sha256": "06f757a8b4695784d71257cd7f3055f63d0dff1b404ed1f6d3ee77578882c861"
+      },
+      "independentNativeAudit": {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-audit-v1\\audit.json",
+        "sha256": "3b5337fdf1747cff10153a2c27b83b3d4354e2ce072bfa41c118e5718c5b0a60"
+      },
+      "nativeModel": {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001.mdl",
+        "sha256": "5a2c3539fb081d7c826339ffa8b04b64c6d6c506a5d563bd034bc739c629a266"
+      },
+      "resources": [
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001.mdl",
+          "sha256": "5a2c3539fb081d7c826339ffa8b04b64c6d6c506a5d563bd034bc739c629a266"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001.mtr",
+          "sha256": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001.plt",
+          "sha256": "a12b099def9b886f978e0083b2e9840ad4de8176f258977c50f49e3928a8a6f8"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001n.tga",
+          "sha256": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\human_male_fit\\converted\\resources\\pmh0_handl001r.tga",
+          "sha256": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1"
+        }
+      ],
+      "nativeVertices": 32033,
+      "nativeTriangles": 49990,
+      "positionNormalUvFloat32Exact": {
+        "position": true,
+        "normal": true,
+        "uv": true
+      },
+      "tangentSignMeasurement": {
+        "minimumLength": 0.9999998743943922,
+        "maximumLength": 1.0000001234319094,
+        "maxAbsDotAuthoredNormal": 2.041062411556327e-06,
+        "negativeHandednessVertices": 24923,
+        "positiveHandednessVertices": 7110,
+        "nondegenerateUvTriangles": 49990,
+        "degenerateUvTriangles": 0,
+        "faceUvDirectionCosinesDiagnosticOnly": {
+          "tangent": {
+            "minimum": -0.6755565350808806,
+            "median": 0.9996978888895689,
+            "p01": 0.8170965556935484,
+            "negativeCorners": 37,
+            "corners": 149970
+          },
+          "bitangent": {
+            "minimum": -0.9998275046516056,
+            "median": 0.9995292032376581,
+            "p01": 0.7147123536013563,
+            "negativeCorners": 375,
+            "corners": 149970
+          }
+        }
+      },
+      "nativeMaterialDependenciesExact": true
+    },
+    {
+      "part": "handr",
+      "compileReceipt": {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-v1\\human_male_fit\\converted\\native-compile.json",
+        "sha256": "ad786ab8552ba4dd419d05bb0b26bccd09be3145724fd271748eb2a18181ff12"
+      },
+      "independentNativeAudit": {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-audit-v1\\audit.json",
+        "sha256": "e908437c9305807246dd805ba31f87a655603b5aa29f263d94b81731fe61a582"
+      },
+      "nativeModel": {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-v1\\human_male_fit\\converted\\resources\\pmh0_handr001.mdl",
+        "sha256": "539a6dbc11a02d96b9c122b7931ca064e6ced22a1aabe93d1d0f6ca6e8374164"
+      },
+      "resources": [
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-v1\\human_male_fit\\converted\\resources\\pmh0_handr001.mdl",
+          "sha256": "539a6dbc11a02d96b9c122b7931ca064e6ced22a1aabe93d1d0f6ca6e8374164"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-v1\\human_male_fit\\converted\\resources\\pmh0_handr001.mtr",
+          "sha256": "baad8aa75ba04a31ea994a3442ec97eb705524f54c9f3852defc4f5c9806022f"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-v1\\human_male_fit\\converted\\resources\\pmh0_handr001.plt",
+          "sha256": "103b8cee558c05097dd2cc02a89ee041fe8d529ec18b47780ee155a073d1cbbb"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-v1\\human_male_fit\\converted\\resources\\pmh0_handr001n.tga",
+          "sha256": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-v1\\human_male_fit\\converted\\resources\\pmh0_handr001r.tga",
+          "sha256": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1"
+        }
+      ],
+      "nativeVertices": 32033,
+      "nativeTriangles": 49990,
+      "positionNormalUvFloat32Exact": {
+        "position": true,
+        "normal": true,
+        "uv": true
+      },
+      "tangentSignMeasurement": {
+        "minimumLength": 0.9999998743943922,
+        "maximumLength": 1.0000001234319094,
+        "maxAbsDotAuthoredNormal": 2.041062411556327e-06,
+        "negativeHandednessVertices": 7110,
+        "positiveHandednessVertices": 24923,
+        "nondegenerateUvTriangles": 49990,
+        "degenerateUvTriangles": 0,
+        "faceUvDirectionCosinesDiagnosticOnly": {
+          "tangent": {
+            "minimum": -0.6755565350808806,
+            "median": 0.9996978888895689,
+            "p01": 0.8170965633481846,
+            "negativeCorners": 37,
+            "corners": 149970
+          },
+          "bitangent": {
+            "minimum": -0.9998275046516056,
+            "median": 0.9995292032374038,
+            "p01": 0.7147123536013563,
+            "negativeCorners": 375,
+            "corners": 149970
+          }
+        }
+      },
+      "nativeMaterialDependenciesExact": true
+    }
+  ],
+  "materialOperation": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\material-operation.json",
+    "sha256": "56530d0c468c8f0049f2bda410a0b985f20427533b876be37abb065c10842132"
+  },
+  "materialManifest": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\body-resource-manifest.json",
+    "sha256": "4aa49df1f1e96222dc9657046dd43196fd88530dbd042ac2008f0bec27593697"
+  },
+  "materialConfiguration": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\executed-config.json",
+    "sha256": "a0cadeee844a6bd3ae49acd16a90699b1de2275f0527fe96956fea643693a02c"
+  },
+  "skinCalibration": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-calibrated-materials-v1\\skin-calibration.json",
+    "sha256": "595a0f836385d4fc101cd5afde15d32ad2fbc15e7e47eb1f24773a07226ded04"
+  },
+  "materialScope": {
+    "shadeOffset": -9,
+    "currentForearm20mmMean": 107.4186,
+    "newHand20mmMeanBeforeCalibration": 116.5448,
+    "newHand20mmMeanAfterCalibration": 107.5448,
+    "aoStrength": 0.35,
+    "aoMaximumDarkenShades": 12,
+    "aoMaximumBrightenShades": 3,
+    "connectorProtectionMetres": 0.02,
+    "connectorOutwardPlane": [
+      0,
+      0,
+      1,
+      0
+    ],
+    "normalMapStrength": 1,
+    "roughness": "fresh ORM green to linear texture3 red",
+    "acceptedNeighbourGeometryAndMaterialsModifiedByWorker": false
+  },
+  "practicalMovingWrist": {
+    "cases": 243,
+    "comparableRays": 4374,
+    "excludedRays": 0,
+    "newGaps": 0,
+    "minimumOccupiedOverlapMetres": 0.028416955160923463
+  },
+  "disclosedGeometryAndEquipmentLimits": [
+    "Fresh49,990-face compact has eight tiny crossing pairs (maximum about0.624mm at actual scale) and one pinched vertex link introduced by QEM; retained under the coordinator\u2019s measured micro-imperfection decision and latest user scope. Edge boundary/nonmanifold/winding and degeneracy counts are zero; do not claim all vertex links/intersections are clean.",
+    "Selected forearm end shows through the front wrist crown, especially in extreme poses. No empty wrist opening on sampled contact rays; the visible cap patch remains for whole-body/client assessment.",
+    "At maximum sampled73-degree held-dummy rotation, shaft sweeps diagonally through the left palm in the unchanged stock animation; the stock mitten also penetrates. No collision-free item claim."
+  ],
+  "visualReviewScope": "Six bind CPU views, four actual-texture wrist views, and representative candidate/stock weapon and shield views at maximum sampled wrist/held rotations. 32 captures per selected pose exist; only representative views were spot-reviewed.",
+  "clientTestedByWorker": false,
+  "wholeBodyAccepted": false,
+  "remainingCoordinatorGates": [
+    "Cumulative complete-body assembly, inventory and packaging",
+    "Authorized actual client palette, lighting, movement, equipment, stability and performance checks",
+    "Full-body animation reference sheet and final goal evidence"
+  ],
+  "gpuRenderSlotReleased": true,
+  "helper": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\freeze-hand-native-handoff-v1.py",
+    "sha256": "da17d3005c257de71905d0571489ccf68452d2f5a6017cc39ba6bd57064bd55e"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "state": "prepared-not-submitted",
+  "created": 1791054265.5258074,
+  "service": "http://127.0.0.1:8188",
+  "part": "hand_l",
+  "views": {
+    "front": {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\front.png",
+      "sha256": "8209ad3716e7abf16f6541bbdbc8ca3db3629db1ec480e963b0ebdc93b3d0720",
+      "path": "views/front.png"
+    },
+    "left": {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\left.png",
+      "sha256": "f62f7c6c9571576e1a6233a629e5d35b0fbb2b9a551219374c3d174cef5c81f6",
+      "path": "views/left.png"
+    },
+    "back": {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\back.png",
+      "sha256": "5ea48cd519497818b12cfe76367b2a271569397b38f08079712d5d137f96aba3",
+      "path": "views/back.png"
+    },
+    "right": {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\right.png",
+      "sha256": "c357ec887d676c25c77c8b29ec3017470a6cb17ee2f6f7ce22d7b5e41bcf0cb1",
+      "path": "views/right.png"
+    },
+    "top": {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\top.png",
+      "sha256": "e34fe7762350af2eb7121ec390da37f9327e70c9177ff7ab7b4b25f0aeaae6c2",
+      "path": "views/top.png"
+    },
+    "bottom": {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\normalized-v13\\bottom.png",
+      "sha256": "1127ec9f023893b504cc001c4590983ca24accae980f29f69af768ce488fe32e",
+      "path": "views/bottom.png"
+    }
+  },
+  "viewOrder": [
+    "front",
+    "left",
+    "back",
+    "right",
+    "top",
+    "bottom"
+  ],
+  "projection": "orthographic-six-view",
+  "externalDependencies": {
+    "F:\\Comfy-Desktop\\ComfyUI-Installs\\ComfyUI\\ComfyUI\\custom_nodes\\srn_orthographic_multiview\\__init__.py": "b7a8605b71ae1cde49a7abf6ea8feec1ee6eeb1cb5055c4dae6c7bbeb248b3e1",
+    "F:\\Comfy-Desktop\\ComfyUI-Installs\\ComfyUI\\ComfyUI\\comfy\\ldm\\trellis2\\model.py": "baa8b081de2eada84754b867282bd21d498233816326f8842943857fe1d07e0c",
+    "F:\\Comfy-Desktop\\ComfyUI-Installs\\ComfyUI\\ComfyUI\\comfy_extras\\nodes_trellis2.py": "5d99f8fd2d1a1cc252b860d941717fc4e53cfbc48b623730c9fdd9139dd7f98c"
+  },
+  "frozenFiles": {
+    "workflow-source.json": "7f376999d03afed64b9967ccc70a2bac59695a8b32f061925b28cafe77efd2ec",
+    "object-info.json": "721edaf3eceea3222e1b80cb689ab979d0a256982eba5d0eb58500de59cb7189",
+    "config.json": "7d4e338d5507a9df6db066305c1a1aaec4c595df212b9b6b98cc4c636f922e5c",
+    "workflow-api-template.json": "d51e35ed69b238ebfe884ff46dd8d9f8d135e34ba50c9d8bd705f43a83fbc306",
+    "views/front.png": "8209ad3716e7abf16f6541bbdbc8ca3db3629db1ec480e963b0ebdc93b3d0720",
+    "views/left.png": "f62f7c6c9571576e1a6233a629e5d35b0fbb2b9a551219374c3d174cef5c81f6",
+    "views/back.png": "5ea48cd519497818b12cfe76367b2a271569397b38f08079712d5d137f96aba3",
+    "views/right.png": "c357ec887d676c25c77c8b29ec3017470a6cb17ee2f6f7ce22d7b5e41bcf0cb1",
+    "views/top.png": "e34fe7762350af2eb7121ec390da37f9327e70c9177ff7ab7b4b25f0aeaae6c2",
+    "views/bottom.png": "1127ec9f023893b504cc001c4590983ca24accae980f29f69af768ce488fe32e",
+    "generate_purpose_built_part.py": "bc4d216354bb375aa73e696ef9872aa910b1487e0efeea13fb83c7164e0df347",
+    "pipeline.py": "03e4ff95d1150bdaa813536eaa978a8c68c006a39761a242371c9bfd7f579bef",
+    "height_targets.json": "03c17eb3caedda4e15efde5b1a08894f03e7b553e27c18fd29714eb7368e5b3c",
+    "conditioning-dependency-0.py": "b7a8605b71ae1cde49a7abf6ea8feec1ee6eeb1cb5055c4dae6c7bbeb248b3e1",
+    "conditioning-dependency-1.py": "baa8b081de2eada84754b867282bd21d498233816326f8842943857fe1d07e0c",
+    "conditioning-dependency-2.py": "5d99f8fd2d1a1cc252b860d941717fc4e53cfbc48b623730c9fdd9139dd7f98c"
+  },
+  "outputPrefix": "srn_purpose_built_parts/purpose-built-human-male-gripping-hand-orthographic-v6-actual-polar-camera/18323877263f",
+  "saveNodes": [
+    "372",
+    "1010",
+    "1012",
+    "1014"
+  ],
+  "rawMaster": {
+    "retained": true,
+    "meshConnection": [
+      "202",
+      0
+    ],
+    "sourceGeometryModified": false
+  },
+  "queueAtPreparation": {
+    "queue_running": [],
+    "queue_pending": []
+  },
+  "viewOrbit": {
+    "front": {
+      "azimuth": 0,
+      "elevation": 0
+    },
+    "left": {
+      "azimuth": 90,
+      "elevation": 0
+    },
+    "back": {
+      "azimuth": 180,
+      "elevation": 0
+    },
+    "right": {
+      "azimuth": 270,
+      "elevation": 0
+    },
+    "top": {
+      "azimuth": 0,
+      "elevation": 90
+    },
+    "bottom": {
+      "azimuth": 0,
+      "elevation": -90
+    }
+  },
+  "sourceReferenceFidelityReview": "required-before-submit",
+  "normalStrength": {
+    "value": 1,
+    "applied": false,
+    "stage": "matching post-fit 2K map bake; not an input to Pixal3D"
+  },
+  "clientAccepted": false
+}

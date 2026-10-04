@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "localPath": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v2\\normal-polished-highpoly.glb",
+    "serverPath": "F:\\Comfy-Desktop\\ComfyUI-Shared\\input\\srn_purpose_built_parts\\human-male-gripping-hand-clean-512-normal-v2\\57a01f46487c\\normal-polished-highpoly.glb",
+    "sha256": "57a01f46487c94a5a03f8bcfc255dcd706e4796c8ab724bbbe8cac694963f494",
+    "modelFileAnnotated": "srn_purpose_built_parts/human-male-gripping-hand-clean-512-normal-v2/57a01f46487c/normal-polished-highpoly.glb [input]"
+  },
+  "acceptance": {
+    "sourceSha256": "57a01f46487c94a5a03f8bcfc255dcd706e4796c8ab724bbbe8cac694963f494",
+    "rawAncestorSha256": "9392865b50dd48400a415e1bd2f7e7255cf17b47bc292a005fe858042610037d",
+    "topologyPassed": true,
+    "singleExteriorPassed": true,
+    "gripPreserved": true,
+    "anatomyReviewed": true,
+    "coordinateFramePreserved": true,
+    "reviewEvidence": "Root inspected all four literal neutral clay captures. Five coherent fingers/thumb, solid flat wrist end and open curled grip are present. User approved recovered macro shape. Visible contour lines remain at enlarged hand-only distance; this accepts the source for a fresh compact texture-bake trial, not finished surface quality or client appearance. No prior body geometry, maps, rig or animations edited. Independent encoded P/F byte equality reuses exact verified topology, envelope, section and opening evidence. Four grip-core paths remain clear;21 of22 whole lines clear with unchanged explicitly marginal contact. Final v2 changes exactly one extra vertex normal from the viewed N-v1 trial, preserving all unrelated N and all P/F. Independent full corner check now proves residual negative corners are a subset of original; zero new negative corners or wholly inward faces. User asks to wrap hands soon without perfection: no further cosmetic source refinement; actual compact/wrist/grip/native checks remain.",
+    "receipts": [
+      {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\diagnosis-summary-v3.json",
+        "sha256": "d839fa76b369e847ed078f58744a738e19a3d4494eb48c4901c1f4945fa7c59a"
+      },
+      {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\faired-exterior-512-transport-v2\\measurement.json",
+        "sha256": "da294928af0fa0c12bfbf21f11127a7894edf4e9081e7a8ccbd6d37b05152e72"
+      },
+      {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\normal-only-transport-v2\\measurement.json",
+        "sha256": "dffd996afadf3e63577a186cda5f06e44a9857db740207c174a1f8f6822bd8e5"
+      },
+      {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\normal-only-concave-corners-v3\\measurement.json",
+        "sha256": "abaf0a2b39c88b4a1a00391a343334a8e939f8d99fccf9067b8b38a39f1a1f4f"
+      },
+      {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v2\\normal-polish.json",
+        "sha256": "eef2943db65cc96bd9b7c93194a9084563093c6116933955f796d5f05e388521"
+      },
+      {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-clay-v1\\review.json",
+        "sha256": "8b83585a431008f0283626643a690adf1c7110d7b09e272a591a77b6a799c1c8"
+      },
+      {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-source-root-review-v1.json",
+        "sha256": "bcbe168734a3e892f9ad474f2a34f948cd6062a6ef1ca858c86865f835a8ed11"
+      }
+    ]
+  },
+  "outputPrefix": "srn_purpose_built_parts/human-male-gripping-hand-clean-retexture-512-normal-v2"
+}

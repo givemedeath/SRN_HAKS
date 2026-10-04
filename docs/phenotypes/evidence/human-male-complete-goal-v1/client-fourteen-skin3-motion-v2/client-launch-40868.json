@@ -1,0 +1,15 @@
+{
+  "preflight": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-preflight-211e691f4d6d46f7904790708dda80d7.json",
+  "workingDirectory": "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Neverwinter Nights Enhanced Edition\\bin\\win32",
+  "preflightSha256": "637c8bce0b70c527ebbad92008475d7737808f32138abc0a88e77e91ea574a8c",
+  "userDirectory": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\userdir",
+  "launchedAt": "2026-10-03T22:37:41.0424292Z",
+  "directLoad": "+TestNewModule srn_pheno_test",
+  "launcherSha256": "8c799f026ca3792f4a34c0559fe35c8c1ff1eb0b2c543908080a2f8ea4282842",
+  "fixtureReceiptSha256": "78beba25081d47250efc0462a4c439a19dbb8e00a58642ea79b13d4c9381cb9e",
+  "processId": 40868,
+  "cameraLocked": false,
+  "moduleSha256": "9a25dc111eccc0c363b242ed393c6dd6518bd0c402acc029e67be8e36c471b0d",
+  "hakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+  "clientSha256": "3b7cb1252e0edb2ce22d7971f333aade027039ae30a45b4bc64732c3e6bec73a"
+}

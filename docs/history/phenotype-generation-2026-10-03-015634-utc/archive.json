@@ -1,0 +1,11 @@
+{
+  "archivedAtUtc": "2026-10-03 01:56:34 UTC",
+  "kind": "immutable-historical-isolated-part-generation-journal",
+  "files": [{
+    "source": "docs/phenotype-purpose-built-part-generation.md",
+    "archived": "docs/history/phenotype-generation-2026-10-03-015634-utc/phenotype-purpose-built-part-generation.md",
+    "sha256": "b756056536a046244148499a818b7b027a1fbe970167a2b165f680390425e46c",
+    "bytes": 16332,
+    "byteExact": true
+  }]
+}

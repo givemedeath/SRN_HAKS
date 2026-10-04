@@ -1,0 +1,434 @@
+{
+  "schemaVersion": 1,
+  "diagnosticOnly": true,
+  "part": "handl",
+  "model": "pmh0_handl001",
+  "joint": "lhand_g",
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\textured_00001.glb",
+  "sourceSha256": "b5f12e349814fef7c70d87655c216eddf5138abd5b3476c205dbde5723018493",
+  "generation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json",
+  "generationSha256": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+  "jobPromptId": "3565bc47-42b7-4e91-a4ce-9c9e164058f3",
+  "stockRoot": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl",
+  "stockRootSha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+  "stockMeasurement": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\stock-measurement-v1\\measurement.json",
+  "stockMeasurementSha256": "1ee5f518f7139061c11214633e3d6a901abd575eb0389ac600a782be688ac159",
+  "sourceBoundsNwn": {
+    "minimum": [
+      -0.37698671221733093,
+      -0.2675855755805969,
+      -0.46192312240600586
+    ],
+    "maximum": [
+      0.36680930852890015,
+      0.2714936137199402,
+      0.455078125
+    ],
+    "extent": [
+      0.7437960207462311,
+      0.5390791893005371,
+      0.9170012474060059
+    ]
+  },
+  "embeddedMaps": [
+    {
+      "index": 0,
+      "mimeType": "image/png",
+      "byteLength": 3641105,
+      "sha256": "33d474151c0cc99ee904cd24ce34866298c840e14e8ce6b3b4abf0918b483897"
+    },
+    {
+      "index": 1,
+      "mimeType": "image/png",
+      "byteLength": 3821199,
+      "sha256": "f2b63d32c16d16882cb20655374018e95d7b8ede1c25f6f8296ffb2d3111bc52"
+    },
+    {
+      "index": 2,
+      "mimeType": "image/png",
+      "byteLength": 4077639,
+      "sha256": "cfabff42a6a41aae01a102a072cb5a7d6bbba7d94447f75a7ae727c562a9dcc7"
+    }
+  ],
+  "sourcePrimitives": [
+    {
+      "node": 0,
+      "mesh": 0,
+      "primitive": 0,
+      "triangles": 49990,
+      "sourceAttributeAccessors": {
+        "POSITION": 0,
+        "TEXCOORD_0": 2,
+        "NORMAL": 3,
+        "TANGENT": 4
+      },
+      "indexAccessor": 1,
+      "material": 0,
+      "attributePolicies": {
+        "POSITION": "Recorded similarity",
+        "NORMAL": "Proper rotation only; authored length preserved",
+        "TEXCOORD_0": "Raw values unchanged",
+        "TANGENT": "XYZ proper rotation only; W handedness unchanged; source accessor bytes retained"
+      }
+    }
+  ],
+  "sourceTriangles": 49990,
+  "sourceSections": [
+    {
+      "z": -0.3702229976654053,
+      "points": 638,
+      "boundsXY": [
+        [
+          -0.2666975930723336,
+          -0.16598244833618134
+        ],
+        [
+          0.3169282660465184,
+          0.1658453250985836
+        ]
+      ],
+      "centerXY": [
+        0.02511533648709241,
+        -6.856161879886802e-05
+      ]
+    },
+    {
+      "z": -0.2326728105545044,
+      "points": 1358,
+      "boundsXY": [
+        [
+          -0.31097942549035945,
+          -0.2505325171967893
+        ],
+        [
+          0.34873982924356195,
+          0.2635174136191955
+        ]
+      ],
+      "centerXY": [
+        0.01888020187660125,
+        0.0064924482112030946
+      ]
+    },
+    {
+      "z": -0.0034224987030029297,
+      "points": 958,
+      "boundsXY": [
+        [
+          -0.36641535223490335,
+          -0.22035794797281383
+        ],
+        [
+          0.36328622352779116,
+          0.2557308061837328
+        ]
+      ],
+      "centerXY": [
+        -0.0015645643535560916,
+        0.017686429105459478
+      ]
+    },
+    {
+      "z": 0.22582781314849854,
+      "points": 498,
+      "boundsXY": [
+        [
+          -0.21972794788406502,
+          -0.12949584768467204
+        ],
+        [
+          0.26690656583079625,
+          0.25391249963594714
+        ]
+      ],
+      "centerXY": [
+        0.023589308973365614,
+        0.06220832597563755
+      ]
+    },
+    {
+      "z": 0.3633780002593995,
+      "points": 506,
+      "boundsXY": [
+        [
+          -0.18144283130925523,
+          -0.1245482169325401
+        ],
+        [
+          0.23472190342460553,
+          0.25216337083663376
+        ]
+      ],
+      "centerXY": [
+        0.026639536057675148,
+        0.06380757695204683
+      ]
+    },
+    {
+      "z": 0.4092280626296997,
+      "points": 484,
+      "boundsXY": [
+        [
+          -0.1787413021788446,
+          -0.12900756686175965
+        ],
+        [
+          0.2324271190619981,
+          0.2582250678891608
+        ]
+      ],
+      "centerXY": [
+        0.026842908441576746,
+        0.06460875051370056
+      ]
+    },
+    {
+      "z": 0.43673810005187985,
+      "points": 388,
+      "boundsXY": [
+        [
+          -0.15548593768088714,
+          -0.12682480458531908
+        ],
+        [
+          0.2228133808897729,
+          0.25922622715953597
+        ]
+      ],
+      "centerXY": [
+        0.03366372160444288,
+        0.06620071128710844
+      ]
+    }
+  ],
+  "stockJointWorldMatrix": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      -0.273129603
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      -0.004541799999999995
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.9637069940000003
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "stockRigOrAnimationsModified": false,
+  "nativeOrClientAccepted": false,
+  "frozenInputHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\textured_00001.glb": "b5f12e349814fef7c70d87655c216eddf5138abd5b3476c205dbde5723018493",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\stock-measurement-v1\\measurement.json": "1ee5f518f7139061c11214633e3d6a901abd575eb0389ac600a782be688ac159",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\place-hand-v1.py": "c3ac365fa8bec7c6ba86ca02454ab495250f6be40325d3dd6ed774dceb29fbbb",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\place_purposebuilt_pelvis.py": "5883e994976f71d93347d90f8428f8edd3a5596c4ec066355eae0485afe22697",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\mirror_stock_limb_part.py": "2fd5ac12b04520b24972da3c7c06edc0a7fe77716a4e4f63b5bed444535d0168",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\retarget.py": "3bc4d6dc8fa80e6a6624d27e37ab06021d665b7c5e8ce008b6914201caa63b4c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\compact-stock-fit-inputs-v1\\fit-z390.json": "5b149f7e8bebae7fedfdf52eb962321db9d9e1bf1b8c67c1b19f140a5e0af1bb"
+  },
+  "configuration": {
+    "schemaVersion": 1,
+    "sourceSha256": "b5f12e349814fef7c70d87655c216eddf5138abd5b3476c205dbde5723018493",
+    "generationSha256": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+    "jobPromptId": "3565bc47-42b7-4e91-a4ce-9c9e164058f3",
+    "stockRootSha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+    "stockMeasurementSha256": "1ee5f518f7139061c11214633e3d6a901abd575eb0389ac600a782be688ac159",
+    "uniformScale": 0.16561695430321036,
+    "properRotationMatrixNwn": [
+      [
+        0.0,
+        -0.9436474987374092,
+        0.33095225958834507
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.33095225958834507,
+        0.9436474987374092
+      ]
+    ],
+    "sourceAnchorNwn": [
+      0.026804717306764092,
+      0.06342780524881104,
+      0.39
+    ],
+    "targetAnchorHandLocal": [
+      -0.0020940664467079886,
+      -0.0009720413348515596,
+      0.0
+    ],
+    "reflectSourceAnatomyX": true,
+    "reflectionEvidence": "Measured source palm -Y, thumb -X and distal -Z differ in chirality from actual stock left palm +X, thumb +Y, distal -Z; explicit source X reflection reverses winding and tangent W, followed by a proper Rz(+90) and shaft-axis rotation. No stock rig or animation is mirrored.",
+    "orientationEvidence": "Actual stock longsword handle axis is +Y in the identity held frame. The preserved source C grip opening runs along source X; Rz(+90) after explicit X reflection maps this to -Y, and a proper rotation about that shaft aligns the measured wrist-to-grip perpendicular vector. Exact stock lhand_g/lhand matrices remain unchanged.",
+    "label": "Strict uniform stock wrist and held-shaft fit, crown plane +0.390 source units"
+  },
+  "candidate": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb",
+  "candidateSha256": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+  "nativeCornerArchive": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\native-corners.npz",
+    "sha256": "198446aaab110ca4da7de67a6b44934173aec67926f79973a00856b11c1da35e"
+  },
+  "affineNwnToHandLocal": [
+    [
+      0.0,
+      -0.15628402467673225,
+      0.05481130525278716,
+      -0.013557722814598829
+    ],
+    [
+      -0.16561695430321036,
+      0.0,
+      0.0,
+      0.0034672743064532606
+    ],
+    [
+      0.0,
+      0.05481130525278716,
+      0.15628402467673225,
+      -0.06442733041893249
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "targetBoundsHandLocal": {
+    "minimum": [
+      -0.06753858923912048,
+      -0.05728256702423096,
+      -0.14111542701721191
+    ],
+    "maximum": [
+      0.030605841428041458,
+      0.06590266525745392,
+      0.020450463518500328
+    ],
+    "extent": [
+      0.09814443066716194,
+      0.12318523228168488,
+      0.16156589053571224
+    ]
+  },
+  "proof": {
+    "schemaVersion": 1,
+    "uniformScale": 0.16561695430321036,
+    "orthogonalFactorNwn": [
+      [
+        0.0,
+        -0.9436474987374092,
+        0.33095225958834507
+      ],
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.33095225958834507,
+        0.9436474987374092
+      ]
+    ],
+    "reflected": true,
+    "originalBinPrefixExact": true,
+    "identityOutputNode": true,
+    "originalUVColorAccessorDefinitionsExact": true,
+    "materialMapDefinitionsExact": true,
+    "sourceNodeWorldRaw": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "triangleCornerOrder": [
+      0,
+      2,
+      1
+    ],
+    "triangles": 49990,
+    "maximumPositionFloat32ErrorMetres": 7.4275762207420826e-09,
+    "maximumNormalFloat32Error": 2.9799299139376956e-08,
+    "maximumAuthoredNormalLengthDifference": 2.220446049250313e-16,
+    "normalPolicy": "Orthogonal factor only; authored magnitude preserved",
+    "tangentPolicy": "XYZ orthogonal factor only; W flips exactly for reflection",
+    "uvPolicy": "Raw GLTF UV accessors unchanged; native archive V=1-rawV once; no U/normal-map channel flip",
+    "rigPolicy": "No stock root, skeleton, controllers or animation resources written",
+    "primitives": [
+      {
+        "primitive": 0,
+        "triangles": 49990,
+        "material": 0,
+        "sourceAttributeAccessors": {
+          "POSITION": 0,
+          "TEXCOORD_0": 2,
+          "NORMAL": 3,
+          "TANGENT": 4
+        },
+        "outputAttributeAccessors": {
+          "POSITION": 5,
+          "TEXCOORD_0": 2,
+          "NORMAL": 6,
+          "TANGENT": 8
+        },
+        "sourceIndexAccessor": 1,
+        "outputIndexAccessor": 7
+      }
+    ]
+  },
+  "maximumUniformTriangleEdgeErrorMetres": 3.209238430557093e-17,
+  "geometryEditsBeyondSimilarity": false,
+  "sourceAnatomyReflectionExplicit": true,
+  "sourceMapsChanged": false,
+  "inputsUnchanged": true,
+  "commandArguments": [
+    "place",
+    "--source",
+    "output/phenotypes/human-male-complete-goal-v1/clean-hand-retexture-v2/generated/textured_00001.glb",
+    "--generation",
+    "output/phenotypes/human-male-complete-goal-v1/clean-hand-retexture-v2/generation.json",
+    "--config",
+    "output/phenotypes/purposebuilt-hand-pilot-v1/compact-stock-fit-inputs-v1/fit-z390.json",
+    "--output",
+    "output/phenotypes/purposebuilt-hand-pilot-v1/left-uniform-stock-v1"
+  ]
+}

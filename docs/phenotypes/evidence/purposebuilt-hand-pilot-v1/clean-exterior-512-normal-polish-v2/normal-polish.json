@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "newUnselectedCandidateOnly": true,
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-fairing-v2\\faired-exterior-highpoly.glb",
+  "sourceSha256": "feb84aa43e2c7963bf099c3f5b9040f23f2695ae02400405b23bc6303e90a7d6",
+  "output": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v2\\normal-polished-highpoly.glb",
+  "outputSha256": "57a01f46487c94a5a03f8bcfc255dcd706e4796c8ab724bbbe8cac694963f494",
+  "sourceChanged": false,
+  "vertices": 2914088,
+  "faces": 5828260,
+  "positionsByteExact": true,
+  "faceIndicesByteExact": true,
+  "positionArraySha256": "a250bcd13ebad3509154aa45bc2bc8ed98c091f2e0b17914c99e1dd1287e41e4",
+  "faceArraySha256": "9ddd0b971ce47eeedcdce88c7a9c08c5c21e630be54f960009381f2f41b113f8",
+  "normalFieldChangedOnly": true,
+  "normalAtlasOrStrengthChanged": false,
+  "mapsOrUvsExist": false,
+  "algorithm": "Half self + half equal-edge neighbour mean on actual manifold; normalize; spherical clamp to 35 degrees from v2; cap band exact",
+  "steps": 12,
+  "maximumAllowedChangeDegrees": 35.0,
+  "maximumAngleChangeDegrees": 35.000002349119136,
+  "angleChangePercentilesDegrees": {
+    "median": 12.27151734000737,
+    "p95": 29.004870047274142,
+    "p99": 35.000000225776574
+  },
+  "normalUnitMaximumError": 4.980796086684336e-08,
+  "capNormalVerticesFrozen": 102040,
+  "outwardNormalVerticesRestoredToOriginal": 3,
+  "outwardGuardHistory": [
+    {
+      "iteration": 0,
+      "corners": 17484780,
+      "negativeFaceNormalCorners": 6,
+      "facesAllCornersNegative": 1,
+      "minimumFaceNormalDot": -0.8672538406169646
+    },
+    {
+      "iteration": 1,
+      "corners": 17484780,
+      "negativeFaceNormalCorners": 3,
+      "facesAllCornersNegative": 0,
+      "minimumFaceNormalDot": -0.4360221069259439
+    }
+  ],
+  "capNormalsExact": true,
+  "geometryGripGuardsExactByPositionTransport": true,
+  "before": {
+    "all": {
+      "directedFaceEdgeSamples": 17484780,
+      "meanDegrees": 12.10881522497345,
+      "rmsDegrees": 15.909190389202678,
+      "maximumDegrees": 154.19999656703067,
+      "edgesAbove10Degrees": 9269106,
+      "edgesAbove20Degrees": 3471352
+    },
+    "noncap": {
+      "directedFaceEdgeSamples": 16870030,
+      "meanDegrees": 12.485457408957332,
+      "rmsDegrees": 16.12358478495762,
+      "maximumDegrees": 154.19999656703067,
+      "edgesAbove10Degrees": 9235252,
+      "edgesAbove20Degrees": 3444954
+    }
+  },
+  "after": {
+    "all": {
+      "directedFaceEdgeSamples": 17484780,
+      "meanDegrees": 2.9479070625291106,
+      "rmsDegrees": 4.340469466963023,
+      "maximumDegrees": 154.19999656703067,
+      "edgesAbove10Degrees": 341798,
+      "edgesAbove20Degrees": 76894
+    },
+    "noncap": {
+      "directedFaceEdgeSamples": 16870030,
+      "meanDegrees": 2.995628322189915,
+      "rmsDegrees": 4.171064113357446,
+      "maximumDegrees": 154.19999656703067,
+      "edgesAbove10Degrees": 310046,
+      "edgesAbove20Degrees": 52810
+    }
+  },
+  "history": [
+    {
+      "steps": 4,
+      "adjacentNormalVariation": {
+        "all": {
+          "directedFaceEdgeSamples": 17484780,
+          "meanDegrees": 6.004701778348118,
+          "rmsDegrees": 8.021333781632045,
+          "maximumDegrees": 135.10470493974236,
+          "edgesAbove10Degrees": 3196062,
+          "edgesAbove20Degrees": 185084
+        },
+        "noncap": {
+          "directedFaceEdgeSamples": 16870030,
+          "meanDegrees": 6.163317491225344,
+          "rmsDegrees": 8.0335803293621,
+          "maximumDegrees": 135.10470493974236,
+          "edgesAbove10Degrees": 3164308,
+          "edgesAbove20Degrees": 160478
+        }
+      },
+      "maximumAngleChangeDegrees": 35.00000000000002,
+      "p95AngleChangeDegrees": 17.958967761307207,
+      "clampedVerticesAtLastStep": 386
+    },
+    {
+      "steps": 8,
+      "adjacentNormalVariation": {
+        "all": {
+          "directedFaceEdgeSamples": 17484780,
+          "meanDegrees": 3.8397340109197886,
+          "rmsDegrees": 5.366374381520914,
+          "maximumDegrees": 136.36581330669082,
+          "edgesAbove10Degrees": 941402,
+          "edgesAbove20Degrees": 90484
+        },
+        "noncap": {
+          "directedFaceEdgeSamples": 16870030,
+          "meanDegrees": 3.9199139989924547,
+          "rmsDegrees": 5.264539075057563,
+          "maximumDegrees": 136.36581330669082,
+          "edgesAbove10Degrees": 909680,
+          "edgesAbove20Degrees": 66254
+        }
+      },
+      "maximumAngleChangeDegrees": 35.000000000000036,
+      "p95AngleChangeDegrees": 25.396286397285156,
+      "clampedVerticesAtLastStep": 13744
+    },
+    {
+      "steps": 12,
+      "adjacentNormalVariation": {
+        "all": {
+          "directedFaceEdgeSamples": 17484780,
+          "meanDegrees": 2.947824258233252,
+          "rmsDegrees": 4.339569336221155,
+          "maximumDegrees": 136.45085519610853,
+          "edgesAbove10Degrees": 341786,
+          "edgesAbove20Degrees": 76876
+        },
+        "noncap": {
+          "directedFaceEdgeSamples": 16870030,
+          "meanDegrees": 2.995542500468456,
+          "rmsDegrees": 4.170093278679217,
+          "maximumDegrees": 136.45085519610853,
+          "edgesAbove10Degrees": 310034,
+          "edgesAbove20Degrees": 52792
+        }
+      },
+      "maximumAngleChangeDegrees": 35.000000000000036,
+      "p95AngleChangeDegrees": 29.005079351071878,
+      "clampedVerticesAtLastStep": 71206
+    }
+  ],
+  "outwardCornerComparison": {
+    "before": {
+      "corners": 17484780,
+      "negativeFaceNormalCorners": 3,
+      "facesAllCornersNegative": 0,
+      "minimumFaceNormalDot": -0.4360221069259439
+    },
+    "after": {
+      "corners": 17484780,
+      "negativeFaceNormalCorners": 2,
+      "facesAllCornersNegative": 0,
+      "minimumFaceNormalDot": -0.4360221069259439
+    }
+  },
+  "helperSha256": "236ff1163bb05319b379d0497b9f1404fd966ef5d5ff7b851a8cae4369fec6d3",
+  "selected": false,
+  "clientAccepted": false,
+  "limits": "Noncap RMS covers all surface-adjacency samples with neither endpoint in the protected wrist cap band, including anatomical curvature and grip. It is not a pure noise spectrum or a final bake/client proof.",
+  "parentNormalTrial": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v1\\normal-polished-highpoly.glb",
+  "parentNormalTrialSha256": "39b4b3b3a040f5c35cfd465a84631b894fccfc363060c25864b6f2459d5912af",
+  "inputHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-fairing-v2\\faired-exterior-highpoly.glb": "feb84aa43e2c7963bf099c3f5b9040f23f2695ae02400405b23bc6303e90a7d6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v1\\normal-polished-highpoly.glb": "39b4b3b3a040f5c35cfd465a84631b894fccfc363060c25864b6f2459d5912af",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\guard-negative-hand-normal-corners-v1.py": "236ff1163bb05319b379d0497b9f1404fd966ef5d5ff7b851a8cae4369fec6d3"
+  },
+  "originalNegativeFaceCornerIds": [
+    3111636,
+    3111637,
+    5031865
+  ],
+  "parentTrialNegativeFaceCornerIds": [
+    3111636,
+    3111637,
+    16306365
+  ],
+  "correctedNewNegativeCornerIds": [
+    16306365
+  ],
+  "finalNegativeFaceCornerIds": [
+    3111636,
+    3111637
+  ],
+  "additionalOriginalNormalVertexIds": [
+    2654360
+  ],
+  "additionalOriginalNormalVertexCount": 1,
+  "finalNegativeCornersSubsetOfOriginal": true,
+  "unrelatedNormalVerticesExactToParentTrial": true,
+  "normalRefinementPolicy": "Restore original v2 N at every newly negative face-corner vertex; preserve parent trial all other N, P/F and cap; no whole-shape rerender authorized/needed for this tiny correction",
+  "retainedClayReview": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-clay-v1\\review.json",
+  "retainedClayReviewLimit": "Four images show immutable v1 N field. Only the listed few vertex normals differ; v2 compact/map review remains required."
+}

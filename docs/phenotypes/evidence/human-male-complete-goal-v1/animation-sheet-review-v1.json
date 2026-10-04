@@ -1,0 +1,54 @@
+{
+  "referenceReceiptSha256": "e2fa181169213db32582c2143ee888a1ee4d23b15f92d0c4909367cbff816694",
+  "cases": [
+    {
+      "category": "idle",
+      "sourceExact": true,
+      "literalViewportPixelsExact": true,
+      "fullBodyAndSheetReviewed": true
+    },
+    {
+      "category": "walk",
+      "sourceExact": true,
+      "literalViewportPixelsExact": true,
+      "fullBodyAndSheetReviewed": true
+    },
+    {
+      "category": "run",
+      "sourceExact": true,
+      "literalViewportPixelsExact": true,
+      "fullBodyAndSheetReviewed": true
+    },
+    {
+      "category": "cast",
+      "sourceExact": true,
+      "literalViewportPixelsExact": true,
+      "fullBodyAndSheetReviewed": true
+    },
+    {
+      "category": "combat",
+      "sourceExact": true,
+      "literalViewportPixelsExact": true,
+      "fullBodyAndSheetReviewed": true
+    },
+    {
+      "category": "crouch",
+      "sourceExact": true,
+      "literalViewportPixelsExact": true,
+      "fullBodyAndSheetReviewed": true
+    },
+    {
+      "category": "kneel",
+      "sourceExact": true,
+      "literalViewportPixelsExact": true,
+      "fullBodyAndSheetReviewed": true
+    },
+    {
+      "category": "death",
+      "sourceExact": true,
+      "literalViewportPixelsExact": true,
+      "fullBodyAndSheetReviewed": true
+    }
+  ],
+  "review": "Root inspected both complete sheets; all custom bodies remain framed. Client crops preserve actual colors/pixels; reference panels are uniformly resized for layout only."
+}

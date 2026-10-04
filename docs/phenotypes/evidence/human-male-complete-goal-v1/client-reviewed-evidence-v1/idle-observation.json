@@ -1,0 +1,25 @@
+{
+  "category": "idle",
+  "observedDescription": "Post-gameplay idle; skin3; original lighting",
+  "processId": 40868,
+  "capture": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\008-continuous-gameplay-2.json",
+  "captureSha256": "591801ae17e49241395cdd5939e9a57e79452be00f90f46e20018f2d5725bbc8",
+  "sourceImage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\008-continuous-gameplay-2-0.jpg",
+  "sourceImageSha256": "a052da0fc4c39ac8bd4b5c54f4b89b37bff439b1e483c0e15ab7d3e195af040d",
+  "captureStarted": "2026-10-03T22:44:11.871Z",
+  "captureEnded": "2026-10-03T22:44:11.998Z",
+  "fixtureReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-40868\\receipt.json",
+  "fixtureReceiptSha256": "78beba25081d47250efc0462a4c439a19dbb8e00a58642ea79b13d4c9381cb9e",
+  "moduleSha256": "9a25dc111eccc0c363b242ed393c6dd6518bd0c402acc029e67be8e36c471b0d",
+  "testHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+  "bodyHakSha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+  "fullBodyReviewed": true,
+  "presentationCrop": [
+    350,
+    180,
+    680,
+    635
+  ],
+  "pixelAdjustment": "None: literal crop only; full original retained",
+  "timingScope": "Observed frame and timestamp, not a measured animation clip position."
+}

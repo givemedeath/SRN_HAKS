@@ -1,0 +1,826 @@
+{
+  "schemaVersion": 1,
+  "scope": "Explicit current Human male implementation, immutable receipts and literal sheets; large generated masters/HAKs and unrelated work excluded.",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "sha256": "885f8fd41840491db7f5b896f93322b8ee61d80b49d4fff9b4023c76c21690ff",
+      "bytes": 1226
+    },
+    {
+      "path": "docs/phenotype-body-material-process.md",
+      "sha256": "cd99baff23720aac81ad41ba31f4fdfc06330da58d9c6ee8d0e0052ad147a7f8",
+      "bytes": 15269
+    },
+    {
+      "path": "docs/phenotype-full-body-client-validation.md",
+      "sha256": "777e96a49d35756f5670e1863259ec144bdc1b72652247431660dbaf30f401cd",
+      "bytes": 18396
+    },
+    {
+      "path": "docs/phenotype-goal-checkpoint.md",
+      "sha256": "3041cef423ca112b7e729c15a4236e6d905b0131de0e8913c0dc3d24f86339b4",
+      "bytes": 24551
+    },
+    {
+      "path": "docs/phenotype-hand-shell-diagnosis.md",
+      "sha256": "1d8b4cf3025de83246dff8fecf3a87d3f96b371cfd2c0d6816ed9c092d069ef6",
+      "bytes": 23751
+    },
+    {
+      "path": "docs/phenotype-hand-workstream.md",
+      "sha256": "15178ae4f600e7df058f18fd89e2d90561120e3adbf509ec2d0ba04c3188ee21",
+      "bytes": 47467
+    },
+    {
+      "path": "docs/phenotype-human-male-delivery.md",
+      "sha256": "5355559c53ba84413f0390f49e837eb674e0d67d01d021bb2f504ea2a8d826fa",
+      "bytes": 5540
+    },
+    {
+      "path": "docs/phenotype-purpose-built-current-runbook.md",
+      "sha256": "7f487535bb0d4a35b48b9072a6745140b6d23f43d1af164fceb2f4e9a1401336",
+      "bytes": 22626
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/animation-sheet-review-v1.json",
+      "sha256": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+      "bytes": 1536
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/arm-material-bake-config-v1.json",
+      "sha256": "5a9a4f159546e2bea57dee7138b3c82c16d3f1e2b27ced868051825394bf6d5c",
+      "bytes": 33832
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/arm-native-preparation-index-v2.json",
+      "sha256": "392b6d368bc88262521750d44c1944359454ee010f0d3bf494bdb433bfd690ac",
+      "bytes": 1108
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/arm-skin-calibration-config-v1.json",
+      "sha256": "11d5df8b9f61538e4e6423921c00275d42dd5bd2f3ec18687091efc27723187f",
+      "bytes": 3548
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/clean-hand-retexture-v2/generation.json",
+      "sha256": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+      "bytes": 14514
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/00-idle-literal-viewport.png",
+      "sha256": "1845f91f5f9b60a258ba11806242041b2b6265352eb0f7ac06b20ae6f358ad7f",
+      "bytes": 248104
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/01-walk-literal-viewport.png",
+      "sha256": "3535b1998bed8cb5d7cd55d12e9860484a5642782b127653771030d157003c9e",
+      "bytes": 80936
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/02-run-literal-viewport.png",
+      "sha256": "4ef8cab015b7db1ce14b1efd6888dfd656b8521a5c98a6943c8ba24eb7c0241d",
+      "bytes": 80007
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/03-cast-literal-viewport.png",
+      "sha256": "f66bd831f2132a39a3fa2af679eb6549c8bdb69af0d385eb1e4319e4dbc2140e",
+      "bytes": 260871
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/04-combat-literal-viewport.png",
+      "sha256": "512afb7208df55022f25f6a6f95a42b95758e4b4273ce38a8d5416f7f7951ca9",
+      "bytes": 285502
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/05-crouch-literal-viewport.png",
+      "sha256": "6518922b97d8e2ee3f7f07a6165551a8a1b555df19db1d6df8b18d3c85eb53bd",
+      "bytes": 62341
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/06-kneel-literal-viewport.png",
+      "sha256": "8733382c631a395f9bfcdf4e1aace8d8ea633913964382191d75acbe84e5dc57",
+      "bytes": 87993
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/07-death-literal-viewport.png",
+      "sha256": "2c6e30776a737f7211fa4a2c160e10606e7ea835067d839ededba3265f2f9148",
+      "bytes": 91364
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/animation-reference-sheet.png",
+      "sha256": "97a054eeebaf44dae69aa0653d8f940c248481560db0502e37e4ca2d7d4c730b",
+      "bytes": 3172868
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/config.json",
+      "sha256": "cb781d258860763e29fd92bb2adc4c16c9faa825381709c7ad33974b6aa15b40",
+      "bytes": 6778
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/executed-sheet-builder.py",
+      "sha256": "7d0090dcebd424df6c1646211b5cac45fd0d43e685976100cef3c77b6119882b",
+      "bytes": 7941
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-animation-reference-v2/reference-sheet.json",
+      "sha256": "e2fa181169213db32582c2143ee888a1ee4d23b15f92d0c4909367cbff816694",
+      "bytes": 14149
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-evidence-v1/run-26740/008-walk-return-0-0.jpg",
+      "sha256": "b582ce5d9cc3b469e57690bbf9819a40f08c15879c2e21ef15d31988ff2268d7",
+      "bytes": 122334
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-evidence-v1/run-26740/011-walk-return-3-0.jpg",
+      "sha256": "794f3294e295abc31c042fc988ca7ceb622563f83ad912b6575f284b83b131d6",
+      "bytes": 124473
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-evidence-v1/run-26740/031-live-low-poses-0-0.jpg",
+      "sha256": "22dd6e247e9c488e7fc8febbc46fcc197bb6ab9a4f001ef906ca5b60517c2399",
+      "bytes": 121124
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-evidence-v1/run-40868/003-corpse-fullbody-0.jpg",
+      "sha256": "489bcca73b3fd9db1e32c5e414ea1ffdc1b57cb11fa9cb2b3d7055fc1d4725ce",
+      "bytes": 159626
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-evidence-v1/run-40868/005-wide-floor-contact-0.jpg",
+      "sha256": "8c38c62bfcaff7c3af805b6f8fa60c0de20eca0a1f1b84d97a262aa34218fcab",
+      "bytes": 162367
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-evidence-v1/run-40868/008-continuous-gameplay-2-0.jpg",
+      "sha256": "a052da0fc4c39ac8bd4b5c54f4b89b37bff439b1e483c0e15ab7d3e195af040d",
+      "bytes": 155637
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-evidence-v1/run-40868/018-final-gameplay-stability-0.jpg",
+      "sha256": "1a12fa78cef0054df0d11fba0a49af368ef77e948fc70424e593373843206bbe",
+      "bytes": 151920
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-evidence-v1/run-48948/002-kneel-hold-side-0-0.jpg",
+      "sha256": "5eb6311bed96d31c1604f4c095dbdce3e60dc7568c455eb816534a80cb7a87e4",
+      "bytes": 155259
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fixture-selection.json",
+      "sha256": "4495a0ffd93462bc668c34af60ad665d3977b6d17de811bd04cd40f05f9a6763",
+      "bytes": 392
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/client-evidence-run-26740/receipt.json",
+      "sha256": "ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b",
+      "bytes": 12310
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/client-evidence-run-40868/receipt.json",
+      "sha256": "78beba25081d47250efc0462a4c439a19dbb8e00a58642ea79b13d4c9381cb9e",
+      "bytes": 12746
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/client-evidence-run-48948/receipt.json",
+      "sha256": "e8dfb9ad08b3c57fd5e6b26a2e564695ebea9004810263594c69362599b43633",
+      "bytes": 11621
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/client-launch-26740.json",
+      "sha256": "82f5e2f0526a3ef86c8877a321a87d54f3349e156ed9ae6fea25e7e71e4af972",
+      "bytes": 1138
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/client-launch-40868.json",
+      "sha256": "98646ab2d79037dc16d93b7c24ce1e8a9b782b4280e1429163d6acd06cbef286",
+      "bytes": 1138
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/client-launch-48948.json",
+      "sha256": "abdd8715dab00b7b57739d706063e26811b2428676860cb5bc6dc1254bf41536",
+      "bytes": 1138
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/fixture-preparation.json",
+      "sha256": "3c746f50da60c053419d4c3c8f1ffc637c459251369034b329a650e573a44bc8",
+      "bytes": 36014
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/runtime-metrics-26740.json",
+      "sha256": "1fac45748f24b2061785c6dbf3ee13d869edb2c0a9e3914c60c47389fe3665ee",
+      "bytes": 392
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/runtime-metrics-40868.json",
+      "sha256": "1f39e4ebe5197253ea7bc4408d8a7879ec4cb05214b8921e1b2600487058768a",
+      "bytes": 471
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/runtime-metrics-48948.json",
+      "sha256": "b57bef1ff93436c1e54cfab9a600bf1a4f7bbaab7c760cc7fed6dfd442dde02c",
+      "bytes": 382
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-fourteen-skin3-motion-v2/test-module/receipt.json",
+      "sha256": "ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b",
+      "bytes": 12310
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-log-scan-v1.json",
+      "sha256": "28e6d282d94a251fd5262a155081093cd00c903f7a78a17305553b4997b84ba7",
+      "bytes": 397
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reference-config-v1.json",
+      "sha256": "cb781d258860763e29fd92bb2adc4c16c9faa825381709c7ad33974b6aa15b40",
+      "bytes": 6778
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/cast-observation.json",
+      "sha256": "7a95c91a41321d19617147aa2e6209a9e4ec94cd26db299edc754fcc4723ad06",
+      "bytes": 1518
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/combat-observation.json",
+      "sha256": "f1af4d035e3b838785cd0ab91304dcedabe177285c820b35c015aa2743d7805e",
+      "bytes": 1528
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/crouch-observation.json",
+      "sha256": "92afd606ea1e9ffe5a6f41ff65675844d76078e01c59032241dea54edda20b6e",
+      "bytes": 1518
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/death-observation.json",
+      "sha256": "355be48961ed089fdff915bc7ffe8e9fac1b51e2a038b81a5af911f58d14d32f",
+      "bytes": 1539
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/idle-observation.json",
+      "sha256": "5e7d1c2b6abef3b005645e4d50a994aea2398d3ca565eca81903f50f6c38011a",
+      "bytes": 1528
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/kneel-observation.json",
+      "sha256": "6cfd6caf7006f2e123458f9975c750558e98a6547f0ec9dc7015a9c1091c8b4a",
+      "bytes": 1526
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/run-26740-phenotype.log",
+      "sha256": "c3f859e3d694cb24ab15bf865d9a4f64184806dc0800293f439262f2d9c7be03",
+      "bytes": 13046
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/run-40868-phenotype.log",
+      "sha256": "121eb575d2648f41f8c727d2491e9367677d4f8d28b89d11447832e5caaf4942",
+      "bytes": 142517
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/run-48948-phenotype.log",
+      "sha256": "e2a7439ebcc93877f4161b9d989718f099256302f95139efe2557c5006d934df",
+      "bytes": 1963
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/run-observation.json",
+      "sha256": "cae0678b09b2520dfa10beafe7991ab559dd294279bf39e86035ce9eb53a3273",
+      "bytes": 1513
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-reviewed-evidence-v1/walk-observation.json",
+      "sha256": "9e4284c0dda748f6fd1cb86fc92cf01048f89eedf035ecaec9139837272d91e8",
+      "bytes": 1516
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/client-validation-v1.json",
+      "sha256": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+      "bytes": 15539
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/compile-and-audit-arm-units-v2.py",
+      "sha256": "5972f0119108cd8ce7485643ed27f459d7800aa70131fa2ccb8f1039f3d21650",
+      "bytes": 1348
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/execute-final-pose-batch-v1.py",
+      "sha256": "524cf657310c35156772511ea660887e81fb60c40fd0eb55d82d3ad02fd1c967",
+      "bytes": 1943
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/filled-exterior-512-mincut-config-v1.json",
+      "sha256": "babaa22aac8ae5d545b03f3350675e45922aebc3fde149997f01e3037cf35e99",
+      "bytes": 1006
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/filled-exterior-512-mincut-v1/config.json",
+      "sha256": "babaa22aac8ae5d545b03f3350675e45922aebc3fde149997f01e3037cf35e99",
+      "bytes": 1006
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/filled-exterior-512-mincut-v1/executed-extractor.py",
+      "sha256": "14b4b9a4b1c34a7074aa0e63009c384487ccf8da1abae288fe848e9dc6a6cfb6",
+      "bytes": 8394
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/filled-exterior-512-mincut-v1/reconstruction.json",
+      "sha256": "5ef39cbb543958493071caa6573602d01d275df7f62e9505bea16fdae25f6960",
+      "bytes": 2352
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/final-delivery-preflight-v1.json",
+      "sha256": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790",
+      "bytes": 8174
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/finalize-delivery-metadata-v1.py",
+      "sha256": "b6955ac61a2fac4d28d2755c238ab5f5e8279e48290552428145e4bd7468e12f",
+      "bytes": 8481
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/freeze-client-review-v1.py",
+      "sha256": "93af22da154c07a8ff490a7ea415f3fe3f13ba4c0f6e6d812e9309e08eec042a",
+      "bytes": 8654
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/goal-objective.md",
+      "sha256": "56c7b9573ea7a35c28c5aaa5b1a8cb9aaa35acc2f2829ff0f49e923a1803751f",
+      "bytes": 8489
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/hand-calibrated-materials-v1/skin-calibration.json",
+      "sha256": "595a0f836385d4fc101cd5afde15d32ad2fbc15e7e47eb1f24773a07226ded04",
+      "bytes": 12510
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/hand-effective-materials-v1/body-resource-manifest.json",
+      "sha256": "4aa49df1f1e96222dc9657046dd43196fd88530dbd042ac2008f0bec27593697",
+      "bytes": 1157
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/hand-effective-materials-v1/material-operation.json",
+      "sha256": "56530d0c468c8f0049f2bda410a0b985f20427533b876be37abb065c10842132",
+      "bytes": 20584
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/hand-material-config-v1.json",
+      "sha256": "a0cadeee844a6bd3ae49acd16a90699b1de2275f0527fe96956fea643693a02c",
+      "bytes": 15701
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/hand-skin-calibration-config-v1.json",
+      "sha256": "a29d2380d05e70d732b0563dda149231822acb1adfbe3246aa7f9e1b0a31c73d",
+      "bytes": 1785
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/handl-native-audit-v1/audit.json",
+      "sha256": "3b5337fdf1747cff10153a2c27b83b3d4354e2ce072bfa41c118e5718c5b0a60",
+      "bytes": 6667
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/handr-native-audit-v1/audit.json",
+      "sha256": "e908437c9305807246dd805ba31f87a655603b5aa29f263d94b81731fe61a582",
+      "bytes": 6679
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/Launch-HumanMale.ps1",
+      "sha256": "36262a3c451328906676c3eb9f5dbf33d8786c6cc55e795ef18caf7a4d7db384",
+      "bytes": 2442
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/measure-hand-skin-cohorts-v1.py",
+      "sha256": "647c204104f7ed440c5cc8caa5c7d9fff216852c706092f6c2e41ba8d4e5db6d",
+      "bytes": 2747
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/native-fourteen-config-v1.json",
+      "sha256": "e48fb883b823d14ce03e71f586ef96f6a8502619e38f80afb70673bec62be49b",
+      "bytes": 6047
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/native-fourteen-costs-v1.json",
+      "sha256": "d29e639f78c8c3a0df9bb596362e4dabb3ccbc119b657a86d211c534ec4b81ee",
+      "bytes": 24450
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/native-fourteen-preview-config-v1.json",
+      "sha256": "d77c0e21f5ea014177cee9937b2877a8f06c68ebdcdb7c8cf18da96b87af72dd",
+      "bytes": 2636
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/native-fourteen-v1/body-hak.json",
+      "sha256": "b8c49b83e1ec9f8c068c81dc09f47cc86d3901df555c4bec7ee4f0bfcccb014b",
+      "bytes": 7206
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/native-fourteen-v1/executed-composer.py",
+      "sha256": "83816ff725997a0388a7bbbbbd12b50a5ad4e8e0f68b568a4bfd3083cec4e91e",
+      "bytes": 8195
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/native-fourteen-v1/human_male_fit/converted/effective-material-inventory.json",
+      "sha256": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+      "bytes": 20223
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/offline-animation-reference-v1/animation-reference-sheet.png",
+      "sha256": "7980c97d555795231e14c001bb901ad4b590a8b1cc5ec9394501dd61400ecf53",
+      "bytes": 1117518
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/offline-animation-reference-v1/config.json",
+      "sha256": "94b8ee04a42c95385ec323b053ad3e5013b39316b267aed57c05ac40b3ede05d",
+      "bytes": 6660
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/offline-animation-reference-v1/executed-sheet-builder.py",
+      "sha256": "858187068f9b9ccafa439c0bde1e8222362bc50f7bf8144d1fd97a0c601a16d3",
+      "bytes": 6546
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/offline-animation-reference-v1/reference-sheet.json",
+      "sha256": "7fd34b49b2d9d47d3d8c77fc27a71ffae692a3d39d05f72391f243df39ae5c35",
+      "bytes": 12382
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/offline-reference-config-v1.json",
+      "sha256": "94b8ee04a42c95385ec323b053ad3e5013b39316b267aed57c05ac40b3ede05d",
+      "bytes": 6660
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/offline-validation-v1.json",
+      "sha256": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+      "bytes": 17663
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/prepare-arm-bake-config-v1.py",
+      "sha256": "bd0860c2a7b482897819564554484aa2d69277c56aa777d1eb81f8ba5d67aad5",
+      "bytes": 1746
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/prepare-arm-material-config-v1.py",
+      "sha256": "dc3b741f3554cc287101617149eb4b64ccb9d5cf39a3c40ee99172c29ae08c0f",
+      "bytes": 1918
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/prepare-arm-native-units-v1.py",
+      "sha256": "809736bf5c412a265cbe3ff2cbc448d04188db581a2f7da6799fcf1859bdb6c8",
+      "bytes": 2015
+    },
+    {
+      "path": "output/phenotypes/human-male-complete-goal-v1/requirements.json",
+      "sha256": "9249ba8032bd1aa541336d535d92e3902fbcc54efa627a98b04349a1e43507ea",
+      "bytes": 100896
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/audit-clean-hand-output-basis-v1.py",
+      "sha256": "810d7c4e07c338ea8f64656a2d1ff87367a57e04be9c21f31027eadff66a4647",
+      "bytes": 5017
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-compact-topology-v1/index.json",
+      "sha256": "1195aac34783c35410b7a8ed4c94aa3975c77c72194b043a907ce6f428c323fc",
+      "bytes": 2273
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-compact-topology-v1/textured_00001.glb.json",
+      "sha256": "41b879838544904639e3f22b95d45ad2d66bb89c43383efada95d9e2f1a5c976",
+      "bytes": 1860
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-compact-topology-v1/uv-master_00001.glb.json",
+      "sha256": "41fd87ff553f1ddcd9a61ce31ba5f78f06e3134329717c9c3dc2593e2aee472e",
+      "bytes": 1861
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-exterior-512-fairing-v2/fairing.json",
+      "sha256": "2867d12e10cc53d207b70b1847f7a8f64ad8206c45038cda70b1d08795e8e4b2",
+      "bytes": 8169
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-exterior-512-normal-clay-v1/review.json",
+      "sha256": "8b83585a431008f0283626643a690adf1c7110d7b09e272a591a77b6a799c1c8",
+      "bytes": 5273
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-exterior-512-normal-polish-v1/normal-polish.json",
+      "sha256": "fef030cc7c0198f61acadaf2af6df6301785176d5f92b71c8e7a2d0f48458346",
+      "bytes": 6402
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-exterior-512-normal-polish-v2/normal-polish.json",
+      "sha256": "eef2943db65cc96bd9b7c93194a9084563093c6116933955f796d5f05e388521",
+      "bytes": 8371
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-landmarks-v1/measurement.json",
+      "sha256": "756c9a16a00f1a4e0f923da88aa52596da8a969d7bda24fc2c42e285688c8e31",
+      "bytes": 10667
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-output-basis-v1/measurement.json",
+      "sha256": "68fc6d62247afcd480b24554db81aa826249b4856f411f3881d0f16aad023979",
+      "bytes": 2187
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-retexture-prepared-v2/executed-source-contract.json",
+      "sha256": "b469c6ac7c78bdb752673219a1772b463705ca58e836c1b8eb54e3135983030e",
+      "bytes": 4024
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-retexture-prepared-v2/link-type-proof.json",
+      "sha256": "d5e16cfb2905353fd8723e55a5ff1e18c13c102abde8f823d1776f439ba5dd67",
+      "bytes": 4998
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-retexture-prepared-v2/preparation.json",
+      "sha256": "8364ec23c47331e465e3c54d99baf2b2f0b24619949f5424e4e78d4aeae2d411",
+      "bytes": 15625
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-retexture-prepared-v2/workflow-api.json",
+      "sha256": "62b2250132afdeffa947d7c0243ec2d6b13d77176e9543fa06d87c9eba8df639",
+      "bytes": 10196
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-source-contract-v2.json",
+      "sha256": "b469c6ac7c78bdb752673219a1772b463705ca58e836c1b8eb54e3135983030e",
+      "bytes": 4024
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/clean-source-root-review-v1.json",
+      "sha256": "bcbe168734a3e892f9ad474f2a34f948cd6062a6ef1ca858c86865f835a8ed11",
+      "bytes": 988
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/comfy-v6/config.json",
+      "sha256": "7d4e338d5507a9df6db066305c1a1aaec4c595df212b9b6b98cc4c636f922e5c",
+      "bytes": 4488
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/comfy-v6/generation.json",
+      "sha256": "cfb7bd2d978ce488a932e2ca6a0a5089022550f33d6a062c56b101e9d7752aa6",
+      "bytes": 4219
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/comfy-v6/preparation.json",
+      "sha256": "db109b6012190e97546be33d7413f8b34b2472516a6ecefaf16e2e7c64b7aa31",
+      "bytes": 5127
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/comfy-v6/workflow-api.json",
+      "sha256": "4fdeb6375e706e0c4b8c8d708989c66f9f8d2bd979f0ca12178c09ec787f6ea2",
+      "bytes": 12452
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/compact-stock-fit-inputs-v1/fit-z390.json",
+      "sha256": "5b149f7e8bebae7fedfdf52eb962321db9d9e1bf1b8c67c1b19f140a5e0af1bb",
+      "bytes": 1724
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/compact-stock-fit-inputs-v1/measurement.json",
+      "sha256": "cde273dd434413ce206fafdbe41f3f816ff063bef99c799e69b3a53034b62941",
+      "bytes": 12811
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/equipment-max-held-review-v1/review.json",
+      "sha256": "46366c34a8fc63774e0de90fa40ca3f23235d03aa8539964483fad4a375ec0cc",
+      "bytes": 22964
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/equipment-max-wrist-review-v1/review.json",
+      "sha256": "0b330d86f931f612293fec367fe123c1bcafacaaeccae476754db3ae82635fb6",
+      "bytes": 22998
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/equipment-measurement-v1/measurement.json",
+      "sha256": "42a89d3b6326ec4d4140cdaaa51d68b79bb81ff04427b2ed321c2f3972f04a10",
+      "bytes": 8562
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/fair-reconstructed-hand-v1.py",
+      "sha256": "492d0e7250f3a484eda4bdf36b63a6b09352d7236295db31ce0d186a0b4846df",
+      "bytes": 11714
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/fitted-texture-wrist-review-v1/review.json",
+      "sha256": "946caaa6dd801acef912f28027cb0bc7e2d20ecf0182f43c997ffc07d610d319",
+      "bytes": 6867
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/freeze-hand-native-handoff-v1.py",
+      "sha256": "da17d3005c257de71905d0571489ccf68452d2f5a6017cc39ba6bd57064bd55e",
+      "bytes": 5328
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/freeze-hand-offline-selection-v1.py",
+      "sha256": "fafc01ce477d6c37a01db2eff1a5948961a54618d5f874e95222f5d1e6497776",
+      "bytes": 5499
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/guard-negative-hand-normal-corners-v1.py",
+      "sha256": "236ff1163bb05319b379d0497b9f1404fd966ef5d5ff7b851a8cae4369fec6d3",
+      "bytes": 5816
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/hand-generation-config-v6.json",
+      "sha256": "7d4e338d5507a9df6db066305c1a1aaec4c595df212b9b6b98cc4c636f922e5c",
+      "bytes": 4488
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/image-design-v13/prompt.txt",
+      "sha256": "60c79fc5d3e19dcc37827f3affb5fb31fc0080103fb74207d7830a600315881d",
+      "bytes": 1066
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/image-lineage-v6.json",
+      "sha256": "278f6b079daa1fbcb0109f1d58619f38d148e5ed188433bd97d33a6ec89489c8",
+      "bytes": 11421
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/inspect-selected-hand-masters-v1.py",
+      "sha256": "555a4d7e5f07b1928db118077425ad8830b039994d6a940b87352a7a9ce546b0",
+      "bytes": 3465
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/left-stage-prepared-v1/map-extraction.json",
+      "sha256": "a360d9f48bf0d582b7288f363891f304213ba02ebdbf906bfe4d2736d8a53924",
+      "bytes": 2606
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/left-stage-prepared-v1/stage-config.json",
+      "sha256": "17c57952b7e9478cad19cc49c75780ebda5265fcf15913ffdeb9b261f1790916",
+      "bytes": 2328
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/left-uniform-stock-v1/executed-config.json",
+      "sha256": "5b149f7e8bebae7fedfdf52eb962321db9d9e1bf1b8c67c1b19f140a5e0af1bb",
+      "bytes": 1724
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/left-uniform-stock-v1/placement.json",
+      "sha256": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf",
+      "bytes": 13128
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/measure-clean-hand-landmarks-v1.py",
+      "sha256": "9db88b8e8d6db713982505034453dc09303f443f64fc65636cb9d1f0bc634c89",
+      "bytes": 5962
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/measure-equipment-v1.py",
+      "sha256": "cf86d2bc6f27f06d016c661ee28008bd870a90dcdc39876f0b6dfcffc7e41959",
+      "bytes": 2881
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/measure-selected-wrist-targets-v1.py",
+      "sha256": "36420b211bd426523c053b552deb072f7d65729427120548c645ac6e9e815a28",
+      "bytes": 3713
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/measure-stock-grip-envelope-v1.py",
+      "sha256": "bb5e0534b592bdc78c21b26afe1a0ff8b97b17ad1c3c2b22735f6da32e7f58b3",
+      "bytes": 5267
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/measure-stock-v1.py",
+      "sha256": "02588c358debb0c9e4752c951ea1d7d4373baab637ccbacb2c2adfb790eb5d8e",
+      "bytes": 4978
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/measure-wrist-motion-v2.py",
+      "sha256": "9fdcec566477b7a584f51a0949be3492cac66cb974010962372af6efe0509f09",
+      "bytes": 3350
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/model-job-request-v6.json",
+      "sha256": "0fd2fea7f5a18bda25963fe7be2c2c551874b6f1bd33795525d15b28cf5d04f3",
+      "bytes": 14720
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/normalized-v13/executed-normalizer.py",
+      "sha256": "de85b8769888930c8cc7e05a8637e9c3c6807234d1d30988aaf8ff9f62a5b7ca",
+      "bytes": 8589
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/normalized-v13/provenance.json",
+      "sha256": "aab7649c7835b6cbbb85be529e61942215f1dbd35cb3f9d2df17730aef5733e3",
+      "bytes": 4130
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/place-hand-v1.py",
+      "sha256": "c3ac365fa8bec7c6ba86ca02454ab495250f6be40325d3dd6ed774dceb29fbbb",
+      "bytes": 7612
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/prepare-clean-hand-retexture-v1.py",
+      "sha256": "5f2e8d7216a993f2ab464923123f783aa33146bdd94ba1565bc4bfb49b5fcad7",
+      "bytes": 14439
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/prepare-hand-stock-fit-v1.py",
+      "sha256": "7191a8e05e889ca979770937f313caf84bf7c2de02e7a45f108ccb13f23914be",
+      "bytes": 9307
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/prepare-hand-stock-mirror-v1.py",
+      "sha256": "94d998d0a3af6c828568227d06c04d1794adcb8b72d383d77a27f096eaa2ca1f",
+      "bytes": 2502
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/reference-copy-v6.json",
+      "sha256": "e94bee89fcb36c3387c64c21bfc0ff3445e73e92affbbf9736ce1aa36b1babfe",
+      "bytes": 33992
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/review-clean-hand-blender-v1.py",
+      "sha256": "7097ec7ba58fd58e6b318f4833dc3d49bddabe756db2d95d3a753b11f0e38912",
+      "bytes": 5957
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/review-fitted-hand-texture-blender-v1.py",
+      "sha256": "544715a7e6e8a1e160ee7261afc0a27d69d1adbade61c6cd5770ccf1eefce1ff",
+      "bytes": 5740
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/review-hand-equipment-cpu-v1.py",
+      "sha256": "69ff06a411d5e2cef87465e45d8517046c6d3ba03e58a703ccac56c1d02c621d",
+      "bytes": 6304
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/right-stage-prepared-v1/map-extraction.json",
+      "sha256": "add2da30042db02f2f90db60bdcfc49d47a6819ae95a2a8934054ea300f78f8b",
+      "bytes": 3122
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/right-stage-prepared-v1/stage-config.json",
+      "sha256": "28c8cc12306e997a280998378cc2fde6e3b817b802f8a62042c59e31c13fe35c",
+      "bytes": 2844
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/right-stock-mirror-prepared-v1/mirror-config.json",
+      "sha256": "866b1c3a8b6de4c9776fa1f825c35eecb1476760666eefe61fe4c690d086abb1",
+      "bytes": 881
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/right-stock-mirror-prepared-v1/preparation.json",
+      "sha256": "194f6d5cb2e190b470ccb545e079fd85ed7f3a050c541bf3b4dac6360d1c8224",
+      "bytes": 727
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/right-uniform-stock-mirror-v1/mirror.json",
+      "sha256": "30a4c1ecc7a7b1f225415e578515d19d0abfa7321120311fb80c80c5a695746d",
+      "bytes": 6885
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/selected-offline-v1/native-handoff.json",
+      "sha256": "661ee9089bc35c771385de3921219266d975ea6f8c8669cb0526ae5645ad18a9",
+      "bytes": 10773
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/selected-offline-v1/selection.json",
+      "sha256": "10a51a41a8ec63689357c83d16fd311a50622639e465543719ae59dbec9951c2",
+      "bytes": 6770
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/selected-wrist-targets-v1/measurement.json",
+      "sha256": "441c2bf744111a958bd41307b7caf42bd5d0cffe72eb93b71d575a686fac321c",
+      "bytes": 11864
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/smooth-reconstructed-hand-normals-v1.py",
+      "sha256": "d64453663bcb10bfa92f6d7b698d9b3473f57b292ab986725f4f1f4cd955b4b5",
+      "bytes": 11202
+    },
+    {
+      "path": "output/phenotypes/purposebuilt-hand-pilot-v1/stock-measurement-v1/measurement.json",
+      "sha256": "1ee5f518f7139061c11214633e3d6a901abd575eb0389ac600a782be688ac159",
+      "bytes": 35533
+    },
+    {
+      "path": "tools/phenotypes/build_animation_reference_sheet.py",
+      "sha256": "7d0090dcebd424df6c1646211b5cac45fd0d43e685976100cef3c77b6119882b",
+      "bytes": 7941
+    },
+    {
+      "path": "tools/phenotypes/build_test_module.py",
+      "sha256": "281b7d43d901fa47a4eed71f191b287895528d6f59df75f0d9e0e1c5acc49b96",
+      "bytes": 66365
+    },
+    {
+      "path": "tools/phenotypes/Launch-CompleteBodyClient.ps1",
+      "sha256": "8c799f026ca3792f4a34c0559fe35c8c1ff1eb0b2c543908080a2f8ea4282842",
+      "bytes": 2091
+    },
+    {
+      "path": "tools/phenotypes/prepare_effective_body_fixture.py",
+      "sha256": "4e293c19cb7151e3cf7520c147bf61bb08dc9dc1cbc873b058c7372b1bc671a2",
+      "bytes": 3742
+    },
+    {
+      "path": "tools/phenotypes/test_animation_reference_sheet.py",
+      "sha256": "e9e0943e99302b533dcb2868e9480cebb1918007d47ad541521ddebb8fe03fc5",
+      "bytes": 3068
+    }
+  ]
+}

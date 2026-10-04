@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "kind": "measured-filled-exterior-candidate",
+  "frozenInputs": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-leak-independent-v1\\localized-512-mincut-v2\\patched-grid.npz": "aef870130e31af29fe26c3254d2f034d09c3c0166c0e45ab7da0667810cf68ca",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\comfy-v6\\generated\\shape-master_00001.glb": "8dab9ee5a3a6a1596b0577693e3321f23634976f04fc255a1e1c8204a21d9559",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-leak-independent-v1\\localized-512-mincut-v2\\closure.json": "d19370c63c0232824cf2eb37c2f861dcab54601534331a7fae263c0f0532f984"
+  },
+  "gridShape": [
+    388,
+    477,
+    283
+  ],
+  "pitchSourceCoordinates": 0.001953125,
+  "gridOrigin": [
+    -0.3828125,
+    -0.46875,
+    -0.27734375
+  ],
+  "geometrySourceFrame": "Original generated GLTF coordinates; identity node.",
+  "method": "Cell-center iso0.5 marching tetrahedra; six consistent tetrahedra per cube.",
+  "repairDescription": "Candidate exact SAT512 exterior flood with only two added microleak cells. Source-frame extent1.95x3.91x3.91mm; all22 exact grip line occupancies unchanged. Independent continuous envelope, sections and anatomy gates remain; no fitting or adoption.",
+  "topology": {
+    "vertices": 2914088,
+    "triangles": 5828260,
+    "boundaryEdges": 0,
+    "nonmanifoldEdges": 0,
+    "inconsistentManifoldEdgeWindings": 0,
+    "signedVolume": 0.1601415847738584
+  },
+  "output": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\filled-exterior-512-mincut-v1\\exterior-highpoly.glb",
+  "outputSha256": "d955864c9184a210d0ad9997006576bcb3e6adcdc8b4ecfc46dce410e15c4c9b",
+  "normalPolicy": "Fresh area-weighted normals on the reconstructed exterior; no source normals overwritten.",
+  "uvsOrMaterialsReused": false,
+  "sourceModified": false,
+  "sourceAdopted": false,
+  "fittingApplied": false,
+  "clientStarted": false,
+  "executedCodeSha256": "14b4b9a4b1c34a7074aa0e63009c384487ccf8da1abae288fe848e9dc6a6cfb6",
+  "remainingGates": [
+    "Independent exterior displacement/sections/grip anatomy",
+    "Fresh decimation/unwrap/bakes",
+    "Stock fitting and native/client proof"
+  ]
+}

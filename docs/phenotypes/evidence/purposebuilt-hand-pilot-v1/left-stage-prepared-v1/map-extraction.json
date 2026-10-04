@@ -1,0 +1,50 @@
+{
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb",
+  "sourceSha256": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+  "helperDependencyHashes": {
+    "stock_limb_contract.py": "36bbf75ff97baea14f6c033eef5cf67d7ab624597f6f3e1d89db7e445801f660"
+  },
+  "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placement.json",
+  "receiptSha256": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf",
+  "maps": {
+    "color": {
+      "imageIndex": 0,
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-stage-prepared-v1\\color.png",
+      "sha256": "33d474151c0cc99ee904cd24ce34866298c840e14e8ce6b3b4abf0918b483897",
+      "embeddedBlobSha256": "33d474151c0cc99ee904cd24ce34866298c840e14e8ce6b3b4abf0918b483897",
+      "encodedBytesExact": true,
+      "pixelsExact": true,
+      "mode": "RGB"
+    },
+    "normal": {
+      "imageIndex": 2,
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-stage-prepared-v1\\normal.png",
+      "sha256": "cfabff42a6a41aae01a102a072cb5a7d6bbba7d94447f75a7ae727c562a9dcc7",
+      "embeddedBlobSha256": "cfabff42a6a41aae01a102a072cb5a7d6bbba7d94447f75a7ae727c562a9dcc7",
+      "encodedBytesExact": true,
+      "pixelsExact": true,
+      "mode": "RGB"
+    }
+  },
+  "normalStrength": 1,
+  "embeddedMapBytesChanged": false,
+  "sourceMaterialsChanged": false,
+  "sourceReceiptLineage": [
+    {
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placement.json",
+      "receiptSha256": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf",
+      "candidate": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb",
+      "candidateSha256": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d"
+    }
+  ],
+  "materialRepresentationLimitations": [
+    {
+      "materialIndex": 0,
+      "doubleSided": true,
+      "packedOcclusionRoughnessMetallicRetainedInGLB": true,
+      "nativeRepresentation": "Skin layer0 PLT plus tangent normal map; AO/MR, source sampler and doubleSided are not translated by this adapter."
+    }
+  ],
+  "skinOnlyPalettePolicy": "All generated native PLT pixels layer0. Does not independently prove anatomical/texture semantic purity.",
+  "clientAccepted": false
+}

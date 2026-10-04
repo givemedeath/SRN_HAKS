@@ -1,0 +1,767 @@
+{
+  "objectiveSha256": "56c7b9573ea7a35c28c5aaa5b1a8cb9aaa35acc2f2829ff0f49e923a1803751f",
+  "objectiveSource": "C:\\Users\\benco\\.codex\\attachments\\cc18ed20-997b-45e6-b5ec-d89c5d1da831\\goal-objective.md",
+  "status": "complete-practical-pass",
+  "noClientLaunchOrControl": false,
+  "noPurge": true,
+  "workstreams": {
+    "upperarms": "/root/upperarms",
+    "forearms": "/root/forearms",
+    "hands": "/root/hands"
+  },
+  "requirements": {
+    "preserved-six-byte-exact": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-material-repair-v1\\selected-runtime-v1\\selection.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\arm-material-independent-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Actual72-resource native14 inventory and packed body HAK pass peer byte/type proof; accepted32 and all prior native12 62 resources are exact. Fresh motion-v2 preflight verifies the same complete candidate body hashes and accepted-six preservation.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Byte preservation establishes package identity, not runtime visual acceptance.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json": "b8c49b83e1ec9f8c068c81dc09f47cc86d3901df555c4bec7ee4f0bfcccb014b",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json": "5c4d4b1494ae91a97f5fa916ca751ad104b39e8abb9a95a53b36baf1d37a050f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json": "a51df5739ab9ed9e63570fa5513ac567a71adb37d13e9688620c56696ddbf4da",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "complete-current-native14-and-fixture-byte-proof",
+        "completedEvidenceScope": "Actual72-resource native14 inventory and packed body HAK pass peer byte/type proof; accepted32 and all prior native12 62 resources are exact. Fresh motion-v2 preflight verifies the same complete candidate body hashes and accepted-six preservation.",
+        "remainingScope": "Preserve these exact bytes during remaining delivery and record actual client observations separately."
+      }
+    },
+    "stock-ownership-shoulders": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\stock-ownership-v2\\measurements.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\bare-shoulder-selection-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "decision": "Bare shoulders0, deltoid on biceps; stock shoulder1 optional equipment/diagnostic only",
+      "completedEvidenceScope": "Actual bare actor shoulders0; biceps own deltoids; real optional stock shoulder001 retained as diagnostic/equipment context.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Existence of shoulder001 does not imply bare actor renders it.",
+      "preFinalReviewScope": {
+        "status": "complete-measured",
+        "completedEvidenceScope": "Actual bare actor shoulders0; biceps own deltoids; real optional stock shoulder001 retained as diagnostic/equipment context.",
+        "remainingScope": "Cumulative final-body shoulder/equipment review remains separate."
+      },
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      }
+    },
+    "upperarm-pair": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\selected-offline-v1\\selection.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\selected-pair-attribute-audit-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\selected-shoulder-worst-ray-preview-v1\\comparison.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepl-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepr-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\arm-material-independent-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "User-reviewed mild distal taper; full bilateral serialized geometry/mirror proof, scoped shoulder views and exact native P/N/UV/T/sign proof.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Sparse shoulder-ray diagnostics are not comprehensive contact proof.",
+      "preFinalReviewScope": {
+        "status": "complete-native-offline",
+        "completedEvidenceScope": "User-reviewed mild distal taper; full bilateral serialized geometry/mirror proof, scoped shoulder views and exact native P/N/UV/T/sign proof.",
+        "remainingScope": "Final cumulative body/material/equipment and actual continuous client motion."
+      },
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      }
+    },
+    "forearm-pair": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\selected-offline-v1\\selection.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\final-paired-tapers-elbow-rays-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forel-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forer-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\arm-material-independent-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\final-hand-pair-wrist-local-intervals-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Selected moderate proximal taper, bilateral serialization/native attributes and finite144-frame elbow proof remain unchanged. Actual final hands join these selected forearms across243 cases/4374 comparable rays with0 exclusions/0 new gaps and minimum occupied wrist overlap28.416955mm.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Elbow proof retains24 multihit exclusions; wrist local-interval proof excludes0. Forearm crown may remain visible in extreme poses. Neither finite sample set proves continuous engine coverage.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\final-hand-pair-wrist-local-intervals-v1.json": "d53a941e9e75320477bfb54681295be7b82bad0b1641e1de6289ed61ffe9bf8d",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json": "661ee9089bc35c771385de3921219266d975ea6f8c8669cb0526ae5645ad18a9",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "complete-native-offline",
+        "completedEvidenceScope": "Selected moderate proximal taper, bilateral serialization/native attributes and finite144-frame elbow proof remain unchanged. Actual final hands join these selected forearms across243 cases/4374 comparable rays with0 exclusions/0 new gaps and minimum occupied wrist overlap28.416955mm.",
+        "remainingScope": "Cumulative full-body equipment review and actual continuous client motion."
+      }
+    },
+    "gripping-hand-pair": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\same-raw-hand-sdf-trial-v1\\generation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\diagnosis-summary-v3.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\faired-exterior-512-transport-v2\\measurement.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-fairing-v2\\faired-exterior-highpoly.glb",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-retexture-prepared-v2\\preparation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-exterior-512-normal-polish-v2\\normal-polish.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\diagnosis-summary-v4.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\selection.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\diagnosis-summary-v5.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\final-hand-pair-wrist-local-intervals-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\peer-summary.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\material-operation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-calibrated-materials-v1\\skin-calibration.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Fresh clean-hand job3565bc47-42b7-4e91-a4ce-9c9e164058f3 succeeded; actual two masters/history association checked. Five-digit gripping left hand fitted by positive uniform scale/proper shaft rotation with explicit source-chirality reflection; exact detached opposite-frame mirror. Both selected49,990-face hands passed source basis, practical wrist/equipment and actual native P/N/UV FLOAT32-exact/T/sign checks; current material calibration and bounded AO independently reproduced.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Eight retained tiny compact crossing pairs (maximum measured crossing length0.623673mm; opposite-plane vertex excursion0.783379mm is not an exact penetration-depth claim) and one QEM pinched vertex link. Zero edge boundary/nonmanifold/winding and degenerate counts do not establish all-vertex-link or all-intersection cleanliness. Selected forearm cap can show through the front wrist crown in extreme poses despite sampled occupied overlap. At the unchanged stock73-degree held-dummy extreme the shaft sweeps diagonally through the palm; the stock mitten also penetrates. No collision-free item claim; representative continuous client observation is complete.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\selection.json": "10a51a41a8ec63689357c83d16fd311a50622639e465543719ae59dbec9951c2",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json": "661ee9089bc35c771385de3921219266d975ea6f8c8669cb0526ae5645ad18a9",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\diagnosis-summary-v5.json": "6ab3c0124dd220a1a373056ec5f24782e640df9aa3be6c6270e63b568d5abf82",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\final-hand-pair-wrist-local-intervals-v1.json": "d53a941e9e75320477bfb54681295be7b82bad0b1641e1de6289ed61ffe9bf8d",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\audit.json": "80ef0f2a3f80bcefda2a06a4b319de3a749bb53acfceb96f0c4ffbbc91657ed3",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\peer-summary.json": "ee9c78bc64d4103f0e924b9a66b97bd72d38d0ecd413e0b9679f903abf5d885e",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\material-operation.json": "56530d0c468c8f0049f2bda410a0b985f20427533b876be37abb065c10842132",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-calibrated-materials-v1\\skin-calibration.json": "595a0f836385d4fc101cd5afde15d32ad2fbc15e7e47eb1f24773a07226ded04",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-audit-v1\\audit.json": "3b5337fdf1747cff10153a2c27b83b3d4354e2ce072bfa41c118e5718c5b0a60",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-audit-v1\\audit.json": "e908437c9305807246dd805ba31f87a655603b5aa29f263d94b81731fe61a582",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "latestUserDirection": "please wrap the hands up soon, they don't need to be perfect",
+      "practicalAcceptanceScope": "Latest user: please wrap the hands up soon, they do not need to be perfect. Coordinator explicitly retains bounded measured compact defects; do not lower shared diagnostics or claim defect-free geometry.",
+      "selectedPairHashes": {
+        "pmh0_handl001": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+        "pmh0_handr001": "58d803f87abaac491be54201aba9daced6b08096898af61aefade314327c5fc1"
+      },
+      "preFinalReviewScope": {
+        "status": "complete-practical-native-offline",
+        "completedEvidenceScope": "Fresh clean-hand job3565bc47-42b7-4e91-a4ce-9c9e164058f3 succeeded; actual two masters/history association checked. Five-digit gripping left hand fitted by positive uniform scale/proper shaft rotation with explicit source-chirality reflection; exact detached opposite-frame mirror. Both selected49,990-face hands passed source basis, practical wrist/equipment and actual native P/N/UV FLOAT32-exact/T/sign checks; current material calibration and bounded AO independently reproduced.",
+        "remainingScope": "Root cumulative complete-body offline review and authorized client palette/lighting/continuous motion/equipment/stability/performance. No further cosmetic hand-source trials under latest user scope."
+      }
+    },
+    "v5-feet-native": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\left-foot-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\right-foot-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "limitations": "UV transport is not byte-exact and old defective foot evidence is not this pair.",
+      "completedEvidenceScope": "Both selected v5 feet are natively compiled against frozen final maps; P/N exact; T/sign decoded; UV parser deviation6 values perfoot,1ULP max.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "preFinalReviewScope": {
+        "status": "complete-native-offline",
+        "completedEvidenceScope": "Both selected v5 feet are natively compiled against frozen final maps; P/N exact; T/sign decoded; UV parser deviation6 values perfoot,1ULP max.",
+        "remainingScope": "Final complete-body ankle, floor, boots and continuous client motion."
+      },
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      }
+    },
+    "all-new-materials": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-foot-orthographic-v5\\contact-material-independent-v2.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-calibrated-materials-v1\\skin-calibration.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\arm-effective-materials-v2\\material-operation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\arm-material-independent-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-calibrated-materials-v1\\skin-calibration.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\material-operation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\body-resource-manifest.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\peer-summary.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Selected feet, four arms and both hands have frozen2K runtime material dependencies. Independent hand audit reproduces measured-9 wrist shade, bounded fresh AO strength0.35/max-12/+3 and20mm +Z plane protection, original normal strength1 and ORM-green roughness; complete14 union preserves accepted-six materials.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Upperarm bilateral PLTs differ2 texels/1 shade; hand bilateral PLTs differ25 texels/1 shade from side-specific mask rounding, with layers unchanged and protected zero-mask texels exact. Do not claim bilateral palette hash equality. Offline rendering is approximate.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-calibrated-materials-v1\\skin-calibration.json": "595a0f836385d4fc101cd5afde15d32ad2fbc15e7e47eb1f24773a07226ded04",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\material-operation.json": "56530d0c468c8f0049f2bda410a0b985f20427533b876be37abb065c10842132",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\hand-effective-materials-v1\\body-resource-manifest.json": "4aa49df1f1e96222dc9657046dd43196fd88530dbd042ac2008f0bec27593697",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\audit.json": "80ef0f2a3f80bcefda2a06a4b319de3a749bb53acfceb96f0c4ffbbc91657ed3",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\peer-summary.json": "ee9c78bc64d4103f0e924b9a66b97bd72d38d0ecd413e0b9679f903abf5d885e",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-audit-v1\\audit.json": "3b5337fdf1747cff10153a2c27b83b3d4354e2ce072bfa41c118e5718c5b0a60",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-audit-v1\\audit.json": "e908437c9305807246dd805ba31f87a655603b5aa29f263d94b81731fe61a582",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "complete-eight-new-parts-offline-native",
+        "completedEvidenceScope": "Selected feet, four arms and both hands have frozen2K runtime material dependencies. Independent hand audit reproduces measured-9 wrist shade, bounded fresh AO strength0.35/max-12/+3 and20mm +Z plane protection, original normal strength1 and ORM-green roughness; complete14 union preserves accepted-six materials.",
+        "remainingScope": "Complete-body literal render review and actual client palette/lighting acceptance at matching selectors."
+      }
+    },
+    "native-attributes": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepl-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepr-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forel-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forer-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\left-foot-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\right-foot-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Both selected feet and all six new arm/hand limbs have independent actual native array proofs; hands and arms P/N/UV FLOAT32 exact, feet P/N exact with explicit six UV values per foot at maximum1ULP. Native14 peer proof associates all actual selected binaries and immutable accepted-six bytes with the packed union.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Native unit T/sign transport and finite orthogonality do not prove client appearance. Foot UV parser allowance is bounded to observed1ULP and permits no P/N edits.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json": "b8c49b83e1ec9f8c068c81dc09f47cc86d3901df555c4bec7ee4f0bfcccb014b",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-audit-v1\\audit.json": "3b5337fdf1747cff10153a2c27b83b3d4354e2ce072bfa41c118e5718c5b0a60",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-audit-v1\\audit.json": "e908437c9305807246dd805ba31f87a655603b5aa29f263d94b81731fe61a582",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "complete-native14-current-union",
+        "completedEvidenceScope": "Both selected feet and all six new arm/hand limbs have independent actual native array proofs; hands and arms P/N/UV FLOAT32 exact, feet P/N exact with explicit six UV values per foot at maximum1ULP. Native14 peer proof associates all actual selected binaries and immutable accepted-six bytes with the packed union.",
+        "remainingScope": "Preserve exact final union during delivery; actual client shading/motion remains separate."
+      }
+    },
+    "full-body-pose-transitions": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\stock-motion-envelope-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\final-paired-tapers-elbow-rays-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-pause1-color-v1\\comparison.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\batch.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\final-hand-pair-wrist-local-intervals-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Exact stock controller sampling and scoped arm/hand/foot comparisons exist; final native14 render batch is prepared with skinRow3,8 primary full-body cases and14 comparison cases. Actual final batch execution/review remains root-coordinated in the upperarm pilot.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Sampled static offline controllers and actual continuous client observation are complementary; neither proves every intermediate joint state. Accepted deep-crouch/wrist overlaps remain.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\batch.json": "70d7e6c3db7b7d843ccf411e9e058e4801dbe33ae786d527b4aad4a1bcd1c45f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\hand-shell-diagnosis-v1\\final-hand-pair-wrist-local-intervals-v1.json": "d53a941e9e75320477bfb54681295be7b82bad0b1641e1de6289ed61ffe9bf8d",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "in-progress-complete14-offline-render-review",
+        "completedEvidenceScope": "Exact stock controller sampling and scoped arm/hand/foot comparisons exist; final native14 render batch is prepared with skinRow3,8 primary full-body cases and14 comparison cases. Actual final batch execution/review remains root-coordinated in the upperarm pilot.",
+        "remainingScope": "Root must inspect literal complete14 front/rear/side/top/underside captures at close/gameplay distances, repair misleading framing, and record final reviewed evidence. Actual engine cross-clip motion/transitions require client playback."
+      },
+      "preFinalReviewLimitations": "The prepared batch is not a completed reference sheet or completed visual review; stored static times do not execute engine blending. No actual client observation is claimed."
+    },
+    "stock-equipment-offline": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\stock-equipment-offline-v1\\offline-review-summary.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\stock-equipment-offline-v1\\body-selection-plan.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\stock-equipment-offline-v1\\armor-exposure-mapping.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\review.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-held-review-v1\\review.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Actual stock templates/models/palettes and controller baseline remain frozen at identity scale. Both selected hand grips were spot-reviewed with real longsword/small-shield meshes at bind and maximum sampled wrist/held rotations. Fresh complete14 fixture declares actual full armor, sword and shield templates with installed stock model hashes and no armor overrides.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Representative offline equipment exposure and actual sword/shield/rigid-armor coverage are complete; not every equipment capture or variant was reviewed. Extreme stock held-axis palm penetration remains.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\review.json": "0b330d86f931f612293fec367fe123c1bcafacaaeccae476754db3ae82635fb6",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-held-review-v1\\review.json": "46366c34a8fc63774e0de90fa40ca3f23235d03aa8539964483fad4a375ec0cc",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json": "661ee9089bc35c771385de3921219266d975ea6f8c8669cb0526ae5645ad18a9",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json": "5c4d4b1494ae91a97f5fa916ca751ad104b39e8abb9a95a53b36baf1d37a050f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json": "a51df5739ab9ed9e63570fa5513ac567a71adb37d13e9688620c56696ddbf4da",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "partial-complete-hand-alignments-and-final-fixture-proof",
+        "completedEvidenceScope": "Actual stock templates/models/palettes and controller baseline remain frozen at identity scale. Both selected hand grips were spot-reviewed with real longsword/small-shield meshes at bind and maximum sampled wrist/held rotations. Fresh complete14 fixture declares actual full armor, sword and shield templates with installed stock model hashes and no armor overrides.",
+        "remainingScope": "Complete14 sleeve/glove/boot/waist/hip literal image review and actual equipped client coverage/stance checks; additional weapon/robe variants remain separate."
+      },
+      "preFinalReviewLimitations": "Eight retained tiny compact crossing pairs (maximum measured crossing length0.623673mm; opposite-plane vertex excursion0.783379mm is not an exact penetration-depth claim) and one QEM pinched vertex link. Zero edge boundary/nonmanifold/winding and degenerate counts do not establish all-vertex-link or all-intersection cleanliness. Selected forearm cap can show through the front wrist crown in extreme poses despite sampled occupied overlap. At the unchanged stock73-degree held-dummy extreme the shaft sweeps diagonally through the palm; the stock mitten also penetrates. No collision-free item claim; representative continuous client observation is complete. Fixture commands/resource presence do not establish executed equipped behavior. Only representative hand views were spot-reviewed, not every generated capture."
+    },
+    "body-only-native-hak": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\human_male_body.hak",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Actual body-only native14 HAK contains72 exact resources and14 native models, with no root/controllers/production tables/fixture payload. Peer packed byte/type proof and accepted32/prior62 preservation pass. HAK SHA256 01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Construction-time clientReady=false is immutable history. Completed actual runtime validation is separate, scoped practical evidence.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json": "b8c49b83e1ec9f8c068c81dc09f47cc86d3901df555c4bec7ee4f0bfcccb014b",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "selectedBodyHakSha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+      "preFinalReviewScope": {
+        "status": "complete-native14-payload-offline",
+        "completedEvidenceScope": "Actual body-only native14 HAK contains72 exact resources and14 native models, with no root/controllers/production tables/fixture payload. Peer packed byte/type proof and accepted32/prior62 preservation pass. HAK SHA256 01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2.",
+        "remainingScope": "Root final delivery and actual client validation tied to this complete candidate inventory."
+      },
+      "preFinalReviewLimitations": "completeBodySelected is true; clientReady/runtime acceptance remains false before actual tests."
+    },
+    "isolated-test-module": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fixture-builder-proof-v1\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fixture-builder-proof-v1\\fixture-preparation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\fixture-preparation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Fresh client-fourteen-skin3-motion-v2 binds all72 selected native14 body resources, stock comparator and stock equipment declarations. Preflight passes actual candidate/test HAK/module hashes, complete-body selection, accepted-six exact bytes, empty override and unlocked camera; skinRow3 matches final offline plans.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Actual three-run observation is complete. Historical builder/preflight false flags describe their creation time. Stationary gameplay targets and representative equipment do not cover every encounter.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\fixture-preparation.json": "3c746f50da60c053419d4c3c8f1ffc637c459251369034b329a650e573a44bc8",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json": "ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json": "a51df5739ab9ed9e63570fa5513ac567a71adb37d13e9688620c56696ddbf4da",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "currentFixtureIdentity": {
+        "directory": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2",
+        "moduleSha256": "c8e9fffbb53dc99c60ed9f338a9c1318d1f8198cc2df610616b16c10f4561de8",
+        "testHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+        "bodyInventorySha256": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "engineObserved": false
+      },
+      "preFinalReviewScope": {
+        "status": "complete-native14-fixture-preflight-not-runtime-observed",
+        "completedEvidenceScope": "Fresh client-fourteen-skin3-motion-v2 binds all72 selected native14 body resources, stock comparator and stock equipment declarations. Preflight passes actual candidate/test HAK/module hashes, complete-body selection, accepted-six exact bytes, empty override and unlocked camera; skinRow3 matches final offline plans.",
+        "remainingScope": "Root direct load and actual automated runtime observation of pose/gameplay phases, equipment, palette, lighting, stability and performance."
+      },
+      "preFinalReviewLimitations": "engineObserved/clientLaunched remain false. Builder fixture-preparation nativeComparatorPending is historical preparation state; no runtime or comparator-playback acceptance is inferred from payload/preflight. Gameplay fixture covers melee/magic missile/damage/death against stationary targets; other variants need separate checks."
+    },
+    "human-mapping": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\human-mapping-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Human race6/appearance6/phenotype0 maps to pmh0/style001; stock male chain, attachments,1.9339157m span and identity equipment preserved. Final native14 payload has no rig/animation/production table overrides; fixture diagnostic appearance alias is isolated.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Appearance HEIGHT2 metadata is not a measured2m span; identity equipment preserves stock male helmet1.05.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json": "b8c49b83e1ec9f8c068c81dc09f47cc86d3901df555c4bec7ee4f0bfcccb014b",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json": "5c4d4b1494ae91a97f5fa916ca751ad104b39e8abb9a95a53b36baf1d37a050f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "complete-measured-native14-no-production-table-edits",
+        "completedEvidenceScope": "Human race6/appearance6/phenotype0 maps to pmh0/style001; stock male chain, attachments,1.9339157m span and identity equipment preserved. Final native14 payload has no rig/animation/production table overrides; fixture diagnostic appearance alias is isolated.",
+        "remainingScope": "Verify actual client race/part/equipment selection without changing production mapping."
+      }
+    },
+    "resource-costs": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepl-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepr-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forel-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forer-native-audit-v2\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\left-foot-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\right-foot-native-audit-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-costs-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\peer-summary.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-log-scan-v1.json"
+      ],
+      "completedEvidenceScope": "Actual native14 aggregate:14 models,15 native meshes,405222 vertices,686048 triangles,72 resources and527885123 serialized payload bytes.43 texture resources/27 unique content hashes are recorded; hypothetical per-name RGBA8 allocation721420288 base bytes/961893660 with mips is explicitly not observed residency.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "No speculative engine content deduplication. Stock head/neck/rig, equipment, animation, scene/driver/framebuffer and recolor cache costs are excluded. File counts/offline renders do not prove VRAM, frame time or game stability.",
+      "partialEvidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-costs-v1.json"
+      ],
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-costs-v1.json": "d29e639f78c8c3a0df9bb596362e4dabb3ccbc119b657a86d211c534ec4b81ee",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json": "b8c49b83e1ec9f8c068c81dc09f47cc86d3901df555c4bec7ee4f0bfcccb014b",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\hand-material-independent-audit-v1\\peer-summary.json": "ee9c78bc64d4103f0e924b9a66b97bd72d38d0ecd413e0b9679f903abf5d885e",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-log-scan-v1.json": "28e6d282d94a251fd5262a155081093cd00c903f7a78a17305553b4997b84ba7"
+      },
+      "preFinalReviewScope": {
+        "status": "complete-offline-native14-costs-runtime-pending",
+        "completedEvidenceScope": "Actual native14 aggregate:14 models,15 native meshes,405222 vertices,686048 triangles,72 resources and527885123 serialized payload bytes.43 texture resources/27 unique content hashes are recorded; hypothetical per-name RGBA8 allocation721420288 base bytes/961893660 with mips is explicitly not observed residency.",
+        "remainingScope": "Root must measure practical client stability/frame-time/memory behavior separately; record delivered HAK/disk footprint and variant assumptions."
+      }
+    },
+    "current-process-docs": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-goal-checkpoint.md",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-purpose-built-current-runbook.md",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-purpose-built-production.md",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-purpose-built-part-generation.md",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-body-material-process.md",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-upperarm-workstream.md",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-forearm-workstream.md",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-hand-workstream.md",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "Hand workstream current selection/handoff, measured UDF diagnosis/recovery, fresh bake basis, uniform fitting/mirror, practical wrist/equipment limits and current native/material evidence are documented. Historical attempts/pending passages are explicitly separated from current methodology; latest client authorization and wrap-hands scope are preserved.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Historical no-client clauses and pre-hand milestones do not override newer authorization/current selected pair. No extra cosmetic rounds or purge.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json": "661ee9089bc35c771385de3921219266d975ea6f8c8669cb0526ae5645ad18a9",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\docs\\phenotype-hand-workstream.md": "15178ae4f600e7df058f18fd89e2d90561120e3adbf509ec2d0ba04c3188ee21",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "partial-current-hand-method-and-native14-recorded",
+        "completedEvidenceScope": "Hand workstream current selection/handoff, measured UDF diagnosis/recovery, fresh bake basis, uniform fitting/mirror, practical wrist/equipment limits and current native/material evidence are documented. Historical attempts/pending passages are explicitly separated from current methodology; latest client authorization and wrap-hands scope are preserved.",
+        "remainingScope": "Root complete-body/client evidence, final delivery commands and reviewed animation sheet provenance; final shared docs/commit after runtime checks."
+      }
+    },
+    "committed-implementation": {
+      "status": "complete-committed",
+      "evidence": [
+        "ed74212cf8251fb32c85e74b979d810d1bc3c8f5",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-implementation-files-v1.json"
+      ],
+      "completedEvidenceScope": "Selected implementation, configs, small evidence receipts, current process documents and literal-reference builder committed in the recorded Git object.",
+      "remainingScope": "None; final delivery bookkeeping follows this implementation commit.",
+      "limitations": "Large generated binary assets remain preserved in the worktree, pinned by committed receipts; unrelated changes were not staged."
+    },
+    "client-readiness-and-limitations": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-twelve-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fixture-builder-proof-v1\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\batch.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "completedEvidenceScope": "All14 parts are selected and natively associated; independent packed-byte/hand/native/material proofs and fresh motion-v2 fixture preflight pass. Camera unlocked/override empty; current physical package identities are frozen.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Ready for user review with bounded hand microdefects, visible extreme wrist overlap and accepted deep-crouch hip overlap. No exhaustive production certification.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json": "b8c49b83e1ec9f8c068c81dc09f47cc86d3901df555c4bec7ee4f0bfcccb014b",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\selected-offline-v1\\native-handoff.json": "661ee9089bc35c771385de3921219266d975ea6f8c8669cb0526ae5645ad18a9",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json": "5c4d4b1494ae91a97f5fa916ca751ad104b39e8abb9a95a53b36baf1d37a050f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json": "a51df5739ab9ed9e63570fa5513ac567a71adb37d13e9688620c56696ddbf4da",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\batch.json": "70d7e6c3db7b7d843ccf411e9e058e4801dbe33ae786d527b4aad4a1bcd1c45f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "complete-native-package-preflight-awaiting-root-offline-review-and-runtime",
+        "completedEvidenceScope": "All14 parts are selected and natively associated; independent packed-byte/hand/native/material proofs and fresh motion-v2 fixture preflight pass. Camera unlocked/override empty; current physical package identities are frozen.",
+        "remainingScope": "Root must finish literal full-body offline review, launch authorized fixture, and record actual palettes/lighting/continuous animation/transitions/equipment/floor/stability/performance."
+      },
+      "preFinalReviewLimitations": "Package preflight readiness is not actual client acceptance. Retained tiny hand topology defects, visible wrist overlap and inherited stock shaft sweep are disclosed; currentclientLaunched/engineObserved remain false."
+    },
+    "full-body-animation-reference-sheet": {
+      "status": "complete-practical-pass",
+      "scope": "Actual selected complete body with stock control in representative idle/walk/run/cast/combat/crouch/kneel/death views and readable clip/time/palette/package provenance. Offline controller sheet and client captures must be labelled distinctly.",
+      "completedEvidenceScope": "Final complete14 skinRow3 render batch and actual source/package association are prepared. The coordinator is collecting/reviewing literal full-body offline samples; no finished/reviewed reference sheet is claimed by this ledger update.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Both eight-category sheets and all included full-body sources were reviewed. A sheet samples motion and is not a continuous playback or all-angle guarantee.",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\batch.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-animation-reference-v1\\reference-sheet.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\reference-sheet.json"
+      ],
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-pose-batch-v1\\batch.json": "70d7e6c3db7b7d843ccf411e9e058e4801dbe33ae786d527b4aad4a1bcd1c45f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json": "5c4d4b1494ae91a97f5fa916ca751ad104b39e8abb9a95a53b36baf1d37a050f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-animation-reference-v1\\reference-sheet.json": "7fd34b49b2d9d47d3d8c77fc27a71ffae692a3d39d05f72391f243df39ae5c35",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\reference-sheet.json": "e2fa181169213db32582c2143ee888a1ee4d23b15f92d0c4909367cbff816694"
+      },
+      "preFinalReviewScope": {
+        "status": "in-progress-offline-renders-sheet-and-client-captures-pending",
+        "completedEvidenceScope": "Final complete14 skinRow3 render batch and actual source/package association are prepared. The coordinator is collecting/reviewing literal full-body offline samples; no finished/reviewed reference sheet is claimed by this ledger update.",
+        "remainingScope": "Root finish/reference-sheet layout and literal inspection; label offline controller samples distinctly from actual client captures, with clip/time/palette/package provenance."
+      },
+      "preFinalReviewLimitations": "Partial images or a batch plan do not establish sheet completion, full-angle coverage or client continuous playback."
+    },
+    "authorized-client-validation": {
+      "status": "complete-practical-pass",
+      "scope": "Automated root-owned client tests once complete body ready; actual palettes/lighting/motion/equipment/floor/stability/performance records tied to package hashes.",
+      "completedEvidenceScope": "Newer user authorization permits root-owned actual tests after complete readiness. Native14/fixture preflight pass; no game client has been launched or observed in these evidence receipts.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "Three actual owned runs and literal captures are complete. No all-equipment/palette/quality or crowded-scene GPU/frame-time claim.",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json"
+      ],
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json": "5c4d4b1494ae91a97f5fa916ca751ad104b39e8abb9a95a53b36baf1d37a050f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json": "a51df5739ab9ed9e63570fa5513ac567a71adb37d13e9688620c56696ddbf4da",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\body-hak.json": "b8c49b83e1ec9f8c068c81dc09f47cc86d3901df555c4bec7ee4f0bfcccb014b",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\final-fourteen-readiness-peer-v1\\audit.json": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790"
+      },
+      "preFinalReviewScope": {
+        "status": "pending-root-launch-after-complete-offline-review",
+        "completedEvidenceScope": "Newer user authorization permits root-owned actual tests after complete readiness. Native14/fixture preflight pass; no game client has been launched or observed in these evidence receipts.",
+        "remainingScope": "Root execute complete-body client tests and freeze actual screenshots/logs/results with candidate/body/test HAK/module hashes."
+      },
+      "preFinalReviewLimitations": "Prepared motion/gameplay commands and offline/static renders are not executed game observations."
+    },
+    "direct-load-launcher": {
+      "status": "complete-practical-pass",
+      "evidence": [
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fixture-builder-proof-v1\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\fixture-preparation.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\Launch-HumanMale.ps1",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fixture-selection.json"
+      ],
+      "completedEvidenceScope": "Fresh native14 motion-v2 isolated user directory/module and passing preflight are known and frozen; camera controls remain unlocked.\nCompleted cumulative offline and actual client validation: three owned runs, two palettes/light profiles, all eight animation categories, representative equipment, floor contact and sampled stability/performance.",
+      "remainingScope": "None for the completed practical Human male pass; disclosed limits remain in client-validation-v1.json.",
+      "limitations": "The three immutable modes were actually client-tested; wrapper selection was exercised with NoLaunch. It refuses an existing client. Injected keyboard pan remains unverified.",
+      "latestScope": "Prepare isolated direct-load launcher; authorized execution only after complete body readiness.",
+      "currentEvidenceHashes": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\test-module\\receipt.json": "5c4d4b1494ae91a97f5fa916ca751ad104b39e8abb9a95a53b36baf1d37a050f",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\reviewed-preflight-v1.json": "a51df5739ab9ed9e63570fa5513ac567a71adb37d13e9688620c56696ddbf4da",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\fixture-preparation.json": "3c746f50da60c053419d4c3c8f1ffc637c459251369034b329a650e573a44bc8",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-validation-v1.json": "34d752fca488cf59bb263e434aac0dea410ab20d8f8c1db016068bafc0efed90",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\animation-sheet-review-v1.json": "e76bdad93e4d976383ff4f05c68a5673a3f3d590e524efb57366872b4ff4db40",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\final-delivery-preflight-v1.json": "ca6081251f90b54657fb9bf5fdc867aac45bd8c6c12a7966b481cb6ac0b9e790",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\Launch-HumanMale.ps1": "36262a3c451328906676c3eb9f5dbf33d8786c6cc55e795ef18caf7a4d7db384",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fixture-selection.json": "4495a0ffd93462bc668c34af60ad665d3977b6d17de811bd04cd40f05f9a6763"
+      },
+      "preFinalReviewScope": {
+        "status": "pending-root-final-direct-load-command-for-fresh-fixture",
+        "completedEvidenceScope": "Fresh native14 motion-v2 isolated user directory/module and passing preflight are known and frozen; camera controls remain unlocked.",
+        "remainingScope": "Root generate/freeze exact final direct-load launcher or command for motion-v2, then record authorized execution and observed result after offline readiness."
+      },
+      "preFinalReviewLimitations": "No final launcher file/execution is claimed here; old partial or motion-v1 paths must not be carried forward."
+    }
+  },
+  "clientPolicy": "Authorized practical client pass complete. All three owned clients stopped and archived. No new launch or polish required for this handoff.",
+  "latestUserAmendments": [
+    {
+      "instruction": "go ahead with completing automated client testing when you are ready",
+      "effect": "Supersedes original no-client and unexecuted-only launcher requirements after complete readiness."
+    },
+    {
+      "instruction": "Make sure to generate a reference sheet showing the full body in the various animations as part of the deliverable.",
+      "effect": "Adds full-body animation reference sheet and observed client evidence to final deliverable."
+    },
+    {
+      "instruction": "please wrap the hands up soon, they don't need to be perfect",
+      "effect": "Ends extra cosmetic hand-source trials; retain disclosed bounded compact microdefects and practical wrist/equipment limits while completing native14, cumulative offline review and authorized client tests."
+    }
+  ],
+  "implementationCheckpoint": "ed74212cf8251fb32c85e74b979d810d1bc3c8f5",
+  "currentMilestone": {
+    "scope": "Complete14 native body; offline/client practical validation and both sheets complete",
+    "completeBodySelected": true,
+    "bodyResourceCount": 72,
+    "bodyNativeModels": 14,
+    "bodyHakSha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+    "bodyInventorySha256": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+    "fixtureReceiptSha256": "ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b",
+    "fixtureModuleSha256": "6fbe425671c9317f2e3f6da08fd7de118963b3f4005bf033a79b4689978ee079",
+    "fixtureTestHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+    "peerReadinessReceiptSha256": "36c2fefe499b9cd77dc6d033475cda7b76a844367270d2e4c716c49d08a38ad0",
+    "offlineRenderBatchPrepared": true,
+    "offlineFullBodyVisualReviewCompleted": true,
+    "animationReferenceSheetCompleted": true,
+    "clientLaunched": true,
+    "engineObserved": true,
+    "runtimeAccepted": true,
+    "productionWholeBodyAccepted": false,
+    "practicalHandSourceCosmeticIterationsClosed": true,
+    "purgeAuthorized": false,
+    "allOwnedClientsStopped": true,
+    "acceptanceScope": "Ready for user review with disclosed practical limits; no exhaustive production certification."
+  },
+  "goalStatusAuthority": "Read actual tools.get_goal status; this ledger records deliverable evidence, not goal-tool state."
+}

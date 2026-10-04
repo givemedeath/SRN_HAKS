@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "requireComplete": true,
+  "requiredParts": [
+    "chest",
+    "pelvis",
+    "legl",
+    "legr",
+    "shinl",
+    "shinr",
+    "footl",
+    "footr",
+    "bicepl",
+    "bicepr",
+    "forel",
+    "forer",
+    "handl",
+    "handr"
+  ],
+  "preservedSelection": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-material-repair-v1\\selected-runtime-v1\\selection.json",
+  "preservedSelectionSha256": "b002aa61517bd6441c8035ef96bd7c1ce5bcf524e82612e05341981ecde43f8d",
+  "preservedNativeConverted": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-shin-pilot-v1\\client-pair-v3-pelvis-skin-minus54-front3-v1\\human_male_fit\\converted",
+  "preservedNativeReceiptSha256": "82410338755269f3cb6f583ccdcc837fd3366f04c3e8ad34b4ad8fff4220146f",
+  "preservedGeometry": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\common-cap-atlas-v4-perimeter\\common-atlas-local.glb": "3ae78d023ba522d94c44d9914bac0b36f35b640c42b9532015575e5572161a50",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-pelvis-pilot-v1\\selected-d-original-polished-material-v1\\postfit-local.glb": "db0bdf16099068da3bb685bcb61ae93ebed115e6ddbae90990c0b55e59b8d98a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-thigh-pilot-v1\\left-thigh-proximal-cap-v2-proof\\refined-local.glb": "5420a77d5e9d51b7841f678d12710ce335bab16ed5ad417ae49b67f1e2950ab6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-thigh-pilot-v1\\right-thigh-v2-mirror-v1\\mirrored-local.glb": "3c002789b74bfb5e94392d7c557e3105924e078f0133c47d496b1c123764b980",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-shin-pilot-v1\\left-shin-connectors-v3-monotone\\refined-local.glb": "bde4b16194010cd42ad40d282512e1189c7c992a5ab6df06d0d24c27c5123ee7",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-shin-pilot-v1\\right-shin-v3-mirror-v1\\mirrored-local.glb": "7efe4b5a9e85bacd1b8d23958c96fe4518e186363f5c6c8b91aed5b17b3f4e24"
+  },
+  "units": [
+    {
+      "preparation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\left-foot-native-v1\\native-unit-preparation.json",
+      "preparationSha256": "23a694bf48e1fd4a9e4e1c46444aebcf628872c61fd6540a354114c6da076913",
+      "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\left-foot-native-audit-v1\\audit.json",
+      "auditSha256": "fc03b001ebf08fa41c85280e795ace54a9137ad46ec4805bd45d6e8502cc487b"
+    },
+    {
+      "preparation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\right-foot-native-v1\\native-unit-preparation.json",
+      "preparationSha256": "625880bda436be7da12e38a39cfefe8997b049e5a074691ec5c3fe9a1bdf1533",
+      "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\right-foot-native-audit-v1\\audit.json",
+      "auditSha256": "c9bb635f4a226a0b3bb7a51dd0323d559485f2005107601581ed98f494064306"
+    },
+    {
+      "preparation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepl-native-v2\\native-unit-preparation.json",
+      "preparationSha256": "a6a2f32b6e821b198cfb666b66845d592397f56b1930fbc3babbacbc72267644",
+      "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepl-native-audit-v2\\audit.json",
+      "auditSha256": "ccc37f408afea531d88b4bff52fa34b5e4bb1f4211b7dd167fb9dfbcaa9cd91a"
+    },
+    {
+      "preparation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepr-native-v2\\native-unit-preparation.json",
+      "preparationSha256": "aa8c2e00573d4cf0fdbca400e26301ffdf318bddd72917a16441d831895d88c4",
+      "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepr-native-audit-v2\\audit.json",
+      "auditSha256": "94d8ab6ca78c4ff741ea0ec206e38fb9147c12c797628fc0eac603450bce34ee"
+    },
+    {
+      "preparation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forel-native-v2\\native-unit-preparation.json",
+      "preparationSha256": "668a841cf3565965004f3b4399b28bc79f949b273fffb2cfb2b6e14e775f62b5",
+      "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forel-native-audit-v2\\audit.json",
+      "auditSha256": "371bc74a32996885e803b87a413072762ad6ede7544c1a921674839ebb64b458"
+    },
+    {
+      "preparation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forer-native-v2\\native-unit-preparation.json",
+      "preparationSha256": "7a8d8914aaa4aaa871c3d397ecefcde80b8e40bcb316f31619e02dbb79bfc985",
+      "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forer-native-audit-v2\\audit.json",
+      "auditSha256": "c3dc124a49bf7270527ce49070038f4780f313fa0491411cdbc42a80f254ce1e"
+    },
+    {
+      "preparation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-v1\\native-unit-preparation.json",
+      "preparationSha256": "30b83a3909ae577ceb8bc66e9471523f92b3da0f6491fdce4c7479d1ad920e79",
+      "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handl-native-audit-v1\\audit.json",
+      "auditSha256": "3b5337fdf1747cff10153a2c27b83b3d4354e2ce072bfa41c118e5718c5b0a60"
+    },
+    {
+      "preparation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-v1\\native-unit-preparation.json",
+      "preparationSha256": "8136aa52cf4f611328cc8755abe2991db28a10d700ea2d779ed86bfa1dcf52a1",
+      "audit": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\handr-native-audit-v1\\audit.json",
+      "auditSha256": "e908437c9305807246dd805ba31f87a655603b5aa29f263d94b81731fe61a582"
+    }
+  ]
+}

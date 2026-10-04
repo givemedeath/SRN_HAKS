@@ -1,0 +1,10 @@
+{
+  "pack": "srn_body",
+  "models": 14,
+  "resources": 72,
+  "payloadBytes": 527885123,
+  "sourceAssetsExactTestedPayload": true,
+  "clientRerun": false,
+  "rebuiltHakSha256": "32da6489001d620af276866a68b3ea8d55f8326eb56bccde05b6df8c42502245",
+  "rebuiltPayloadExactTestedSelection": true
+}

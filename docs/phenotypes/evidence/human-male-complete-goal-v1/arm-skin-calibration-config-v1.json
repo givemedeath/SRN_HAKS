@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "kind": "new-limb-skin-calibration",
+  "calibrationInputs": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\current-material-cohorts-v1\\measurement.json": "48b81ddb9ed0b9cae74c8954bcc9bf42a1fe807adc97521c0b0bd38831ada2a1",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\connector-material-cohorts-v1\\measurement.json": "ac52d05f4f83ea2ef21698a2367696ce21687502009bb1c304b8c57a9dde2058",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\accepted-chest-material-anchors-v1\\measurement.json": "95f24b2452c45fbb3a6cad27f5b5493992675b85dc496bb7645bc2dcfe6d6330"
+  },
+  "stages": [
+    {
+      "part": "bicepl",
+      "stage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-left-raw-stage-v1",
+      "stageReceiptSha256": "a470ff06b972da40184f6e7732482318ebb99e9d72c52d22cf6f8ee8948a4e35",
+      "originalPltSha256": "e2089a83f986712c4ceaa4d712cf177b0826da099d0f06fb881d26fd9bea9f66",
+      "shadeOffset": -10,
+      "calibrationReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\current-material-cohorts-v1\\measurement.json",
+      "rationale": "Current effective chest shoulder mean111.584 vs new upperarm121.078; integer-10 keeps front/rear residual within2.3 shades. Visible elbow becomes112.691."
+    },
+    {
+      "part": "bicepr",
+      "stage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\upperarm-right-raw-stage-v1",
+      "stageReceiptSha256": "c98405ef1a7cf49bc935e2e72b9c52f0b1ea0a4f3e520390dc22a966b79fed53",
+      "originalPltSha256": "e2089a83f986712c4ceaa4d712cf177b0826da099d0f06fb881d26fd9bea9f66",
+      "shadeOffset": -10,
+      "calibrationReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-upperarm-pilot-v1\\current-material-cohorts-v1\\measurement.json",
+      "rationale": "Mirrored atlas is pixel-exact donor color; use same measured shoulder and elbow correction as left."
+    },
+    {
+      "part": "forel",
+      "stage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-left-raw-stage-v2",
+      "stageReceiptSha256": "900f68bd2ad66e1db95e450552887fae6d979b72184f409a11a8225fb111a993",
+      "originalPltSha256": "ba336e2175f9312ced9adb9070499c5dcce8ab8555bf635d10456f83a1da4829",
+      "shadeOffset": 11,
+      "calibrationReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\connector-material-cohorts-v1\\measurement.json",
+      "rationale": "Actual0-20mm elbow source102.432..101.036 receives+11 to meet corrected upperarm112.691. Wrist becomes106.681..108.015 for later hand calibration."
+    },
+    {
+      "part": "forer",
+      "stage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forearm-right-raw-stage-v2",
+      "stageReceiptSha256": "61e956540488b00575ba4ac5c3a4f8e22c40304662b6fcfcea8fcbcb185592c6",
+      "originalPltSha256": "ba336e2175f9312ced9adb9070499c5dcce8ab8555bf635d10456f83a1da4829",
+      "shadeOffset": 11,
+      "calibrationReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\connector-material-cohorts-v1\\measurement.json",
+      "rationale": "Actual right connector cohort and mirrored atlas share donor palette; retain same+11 elbow/wrist correction."
+    }
+  ]
+}

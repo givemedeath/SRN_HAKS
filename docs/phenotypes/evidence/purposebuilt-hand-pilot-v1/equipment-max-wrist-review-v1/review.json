@@ -1,0 +1,642 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "clip": "1hslashl",
+  "phase": 0.75,
+  "sourceInputsUnchanged": true,
+  "equipmentScaleIdentity": true,
+  "rigOrAnimationChanged": false,
+  "inputs": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirrored-local.glb": "58d803f87abaac491be54201aba9daced6b08096898af61aefade314327c5fc1",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\left-proximal-taper-moderate-v1\\tapered-local.glb": "5ca7da7072848fb7bf84d5926d47ada919ce16eb8be7f446768840b96f7b3e32",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\right-proximal-taper-moderate-mirror-v1\\mirrored-local.glb": "a1a1d3df83c85b4bf7a06b4fd34f1360ea373869326ee5539fb19942231a9500",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\wrist-motion-dense-v2\\measurement.json": "3571898a938b6b98880e1eb136386290e09765d472060f7242981ba5994a98c4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0_handl001.mdl": "2790f176c8a4e115da9d6036652b16e7fb36eb48659842366160721ecf075e37",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0_handr001.mdl": "145695a569b105028d1638aaba1727d56961b0b542778d8f0245277eaef26382",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\review-hand-equipment-cpu-v1.py": "69ff06a411d5e2cef87465e45d8517046c6d3ba03e58a703ccac56c1d02c621d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\ascii\\wswls_t_011.mdl": "01430ac57b638ae4b02340351f083ab5dab3dfbb9f2f5aed6e9bae090409fc70",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\ascii\\wswls_m_011.mdl": "08771b67d349ea1587777e4b87517f365dee6bd8fcd6a48cb61d78f4281c942f",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\ascii\\wswls_b_011.mdl": "5f6ce35509489aad71439d844414186b49f2f91dcc0e2a992714f5da0176763a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\ascii\\ashsw_011.mdl": "178467fd6652655502fff910b9a7ae2a3f3c9ea3cf2a360c30514084778302c3"
+  },
+  "poseControllerReceipt": {
+    "file": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\a_ba.mdl",
+    "sha256": "34b9b69e1cbe8e41bd836b38ffabd99ece11438849c5b512f48501ac12815d8c",
+    "clip": "1hslashl",
+    "time": 0.75,
+    "length": 1.0
+  },
+  "records": [
+    {
+      "side": "l",
+      "item": "sword",
+      "kind": "candidate",
+      "view": "palm",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-sword-candidate-palm.png",
+      "sha256": "6d71715622ba0d7e88361c64b0c82845eca1e5bf91503d7fc35245885d8a06e2",
+      "cameraDirection": [
+        1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "sword",
+      "kind": "candidate",
+      "view": "dorsal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-sword-candidate-dorsal.png",
+      "sha256": "2603567fbdbaf545f982ee46b953c8d6e398fb87ff2b47fc6569a1dfcff37af2",
+      "cameraDirection": [
+        -1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "sword",
+      "kind": "candidate",
+      "view": "thumb-side",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-sword-candidate-thumb-side.png",
+      "sha256": "f790e16fba0517eb9f8d204400274edcc81d7275e9e76a8a3249b886a945fc87",
+      "cameraDirection": [
+        0,
+        1,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "sword",
+      "kind": "candidate",
+      "view": "distal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-sword-candidate-distal.png",
+      "sha256": "868a11e11752333d6bd82449fae2daae87735182114a4596f33dfc950fbb7625",
+      "cameraDirection": [
+        0,
+        0,
+        -1
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "sword",
+      "kind": "stock",
+      "view": "palm",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-sword-stock-palm.png",
+      "sha256": "bc2974058f0b16b724e8b0d71eab829eeb9c3b6e3c43943d2d0af5cc99b98cc9",
+      "cameraDirection": [
+        1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "sword",
+      "kind": "stock",
+      "view": "dorsal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-sword-stock-dorsal.png",
+      "sha256": "30734ea0e5bb251961fdac25221201281703cb9b63224cac450cb5799b557e63",
+      "cameraDirection": [
+        -1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "sword",
+      "kind": "stock",
+      "view": "thumb-side",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-sword-stock-thumb-side.png",
+      "sha256": "0673da28464df4fd11d55c2237fc40f6da602a2261e13645a531329379859d74",
+      "cameraDirection": [
+        0,
+        1,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "sword",
+      "kind": "stock",
+      "view": "distal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-sword-stock-distal.png",
+      "sha256": "47a14a35f2773e31bf066aba8343e7c365676da7d838b4bd6b2932cab0c75c1b",
+      "cameraDirection": [
+        0,
+        0,
+        -1
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "shield",
+      "kind": "candidate",
+      "view": "palm",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-shield-candidate-palm.png",
+      "sha256": "25331b5439045f40812e5c5b92cc3b50ef22217e18bc152e36b13d799dd4cfba",
+      "cameraDirection": [
+        1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "shield",
+      "kind": "candidate",
+      "view": "dorsal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-shield-candidate-dorsal.png",
+      "sha256": "4de3da042833847c5e5e405bddbc3fab30ae658babbe36e710b2ddb9f0a02f45",
+      "cameraDirection": [
+        -1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "shield",
+      "kind": "candidate",
+      "view": "thumb-side",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-shield-candidate-thumb-side.png",
+      "sha256": "560afa8d9feef92ff12aa26223507f40617e557669786c104da5ecb6676ae776",
+      "cameraDirection": [
+        0,
+        1,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "shield",
+      "kind": "candidate",
+      "view": "distal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-shield-candidate-distal.png",
+      "sha256": "fec7ea8ad446fbca52cb51dec2862d89cf4c17d93ac239c4758cac7a4446e24b",
+      "cameraDirection": [
+        0,
+        0,
+        -1
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "shield",
+      "kind": "stock",
+      "view": "palm",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-shield-stock-palm.png",
+      "sha256": "8cbb40990fc2efa35124d657317908fa3cbf04d7334d75e4a906ccc4247e78ea",
+      "cameraDirection": [
+        1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "shield",
+      "kind": "stock",
+      "view": "dorsal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-shield-stock-dorsal.png",
+      "sha256": "4de3da042833847c5e5e405bddbc3fab30ae658babbe36e710b2ddb9f0a02f45",
+      "cameraDirection": [
+        -1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "shield",
+      "kind": "stock",
+      "view": "thumb-side",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-shield-stock-thumb-side.png",
+      "sha256": "6e7ea278e7928660df6bfc438c0b32c7554f046d38502e6bd20f40d1526da1cd",
+      "cameraDirection": [
+        0,
+        1,
+        0
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "l",
+      "item": "shield",
+      "kind": "stock",
+      "view": "distal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\l-shield-stock-distal.png",
+      "sha256": "c55cf8e6a27fa7ef032f523a87476de5274e6fdc60ae39bcab4f85b6952a0299",
+      "cameraDirection": [
+        0,
+        0,
+        -1
+      ],
+      "centerHandLocal": [
+        -0.018466373905539513,
+        0.004310049116611481,
+        -0.06033248174935579
+      ],
+      "orthographicSpanMetres": 0.2585054248571396
+    },
+    {
+      "side": "r",
+      "item": "sword",
+      "kind": "candidate",
+      "view": "palm",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-sword-candidate-palm.png",
+      "sha256": "18b6ea163237f8c25a9dc67fcde14ab51326407e96615e7848ed6eaf82a1fe16",
+      "cameraDirection": [
+        -1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "sword",
+      "kind": "candidate",
+      "view": "dorsal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-sword-candidate-dorsal.png",
+      "sha256": "9cec3c545d1d7ea149276146d309a3a292e488adf17d5f1463fcbbee50072cd2",
+      "cameraDirection": [
+        1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "sword",
+      "kind": "candidate",
+      "view": "thumb-side",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-sword-candidate-thumb-side.png",
+      "sha256": "119901217f46448307383a0a37b031222496a560ca87de72081249443f2b4cbd",
+      "cameraDirection": [
+        0,
+        1,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "sword",
+      "kind": "candidate",
+      "view": "distal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-sword-candidate-distal.png",
+      "sha256": "d21c044677125cc5b0d5d6e591a2f7a08dbc2e4c12050dddda962e09f4ef3c61",
+      "cameraDirection": [
+        0,
+        0,
+        -1
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "sword",
+      "kind": "stock",
+      "view": "palm",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-sword-stock-palm.png",
+      "sha256": "91b30da9d9c23c6a0af531d360cf4dc52e0ef05c91510acae3d0bab9baca721b",
+      "cameraDirection": [
+        -1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "sword",
+      "kind": "stock",
+      "view": "dorsal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-sword-stock-dorsal.png",
+      "sha256": "68809fe42ee9cb3cc7d4a7fa061e0a30323542f2f3a070c6821c0165e4da24b6",
+      "cameraDirection": [
+        1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "sword",
+      "kind": "stock",
+      "view": "thumb-side",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-sword-stock-thumb-side.png",
+      "sha256": "d4fcb5a68910a73305e5d135791f3642aa35518ea23ae1e15e764935886877e9",
+      "cameraDirection": [
+        0,
+        1,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "sword",
+      "kind": "stock",
+      "view": "distal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-sword-stock-distal.png",
+      "sha256": "28a3c09821b95062cc2facc53799bb2ab6f5270c99cff358e46480ac7745d91d",
+      "cameraDirection": [
+        0,
+        0,
+        -1
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "shield",
+      "kind": "candidate",
+      "view": "palm",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-shield-candidate-palm.png",
+      "sha256": "6b87a30846fdeaa08ca6d36e16a17cab9be919ecf62bf2916e97e637e9558799",
+      "cameraDirection": [
+        -1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "shield",
+      "kind": "candidate",
+      "view": "dorsal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-shield-candidate-dorsal.png",
+      "sha256": "c88f8a323f14edbd25d749be0bdf048b967d2413d4c62d64f2b996605d50d49d",
+      "cameraDirection": [
+        1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "shield",
+      "kind": "candidate",
+      "view": "thumb-side",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-shield-candidate-thumb-side.png",
+      "sha256": "af6b3608827fa5c08183d99fbccca2a206fe707dd8f70e48a1c16225d50cd0c5",
+      "cameraDirection": [
+        0,
+        1,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "shield",
+      "kind": "candidate",
+      "view": "distal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-shield-candidate-distal.png",
+      "sha256": "d43c5b99fee6c81c2ce38d3bda393fc722aa0f151a5bbc655a117e8163f39409",
+      "cameraDirection": [
+        0,
+        0,
+        -1
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "shield",
+      "kind": "stock",
+      "view": "palm",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-shield-stock-palm.png",
+      "sha256": "6b87a30846fdeaa08ca6d36e16a17cab9be919ecf62bf2916e97e637e9558799",
+      "cameraDirection": [
+        -1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "shield",
+      "kind": "stock",
+      "view": "dorsal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-shield-stock-dorsal.png",
+      "sha256": "7776782e5e401f76f11fca1488eddb248e3df46c56852f5aaa6b9fabd53a645b",
+      "cameraDirection": [
+        1,
+        0,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "shield",
+      "kind": "stock",
+      "view": "thumb-side",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-shield-stock-thumb-side.png",
+      "sha256": "ec5f60b39c3a5153a78c7badec667c540609fd413cea7d252441a73be9fe7d99",
+      "cameraDirection": [
+        0,
+        1,
+        0
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    },
+    {
+      "side": "r",
+      "item": "shield",
+      "kind": "stock",
+      "view": "distal",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\equipment-max-wrist-review-v1\\r-shield-stock-distal.png",
+      "sha256": "f9bb4330a81d6e0e2edd77027f4b03ffc05f0bec2920fa355304c0bd675c45ec",
+      "cameraDirection": [
+        0,
+        0,
+        -1
+      ],
+      "centerHandLocal": [
+        0.018465979024767876,
+        0.004310049116611481,
+        -0.060333481058478355
+      ],
+      "orthographicSpanMetres": 0.25850542187690734
+    }
+  ],
+  "scope": "CPU geometric-face clay and actual item silhouettes, separately on both actual hand frames with selected forearm. Blue is actual stock item, gold current forearm. Front/back painter ordering is diagnostic only; authored skin/maps, native materials and engine playback not simulated. Stock comparator receives exactly the same camera and actual item pose. Sword and shield are alternative attachments, not a claim both are held simultaneously.",
+  "nativeOrClientAccepted": false
+}

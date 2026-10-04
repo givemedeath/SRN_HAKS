@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "inputHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\uv-master_00001.glb": "4c3813d5d609a9bb1f160e36fb861aa48e5b34be260d36f1bbd80d6ce677bef7",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\textured_00001.glb": "b5f12e349814fef7c70d87655c216eddf5138abd5b3476c205dbde5723018493",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\audit-clean-hand-output-basis-v1.py": "810d7c4e07c338ea8f64656a2d1ff87367a57e04be9c21f31027eadff66a4647"
+  },
+  "jobPromptId": "3565bc47-42b7-4e91-a4ce-9c9e164058f3",
+  "actualCompactVertices": 32018,
+  "actualCompactFaces": 49990,
+  "positionsFloat32ByteExact": true,
+  "faceIndicesByteExact": true,
+  "identitySourceFrames": true,
+  "uvMasterHasAuthoredNormals": false,
+  "uvMasterHasTangents": false,
+  "finalUvMaximumComponentDifference": 0.0,
+  "changedUvComponents": 0,
+  "normalLengthMinMax": [
+    0.999999878538752,
+    1.0000001299166796
+  ],
+  "tangentLengthMinMax": [
+    0.9999998648173347,
+    1.0000001352737165
+  ],
+  "maximumAbsNormalTangentDot": 2.8500248756557767e-06,
+  "tangentSignsAllUnit": true,
+  "installedFallbackVsActualNormals": {
+    "maximumDegrees": 1.1131846416284069e-05,
+    "p99Degrees": 4.9783130603797145e-06,
+    "meanDegrees": 8.255408600535056e-07
+  },
+  "sourceGeometryOrMapsChanged": false,
+  "acceptedNeighboursChanged": false,
+  "limits": "UV-save intentionally has no N/T. Actual final N/T and unchanged compact geometry are measured. FP32 fallback reconstruction uses installed weld/area weighting, with a different accumulation order from GPU. Native serialized P/N/UV/T and final palette/roughness remain root gates. Tiny compact crossing and pinched-link exceptions are documented separately, not hidden by this basis check."
+}

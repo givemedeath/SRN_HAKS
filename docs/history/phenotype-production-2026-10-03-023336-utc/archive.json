@@ -1,0 +1,35 @@
+{
+  "archivedAtUtc": "2026-10-03 02:33:36 UTC",
+  "kind": "immutable-historical-production-journal-and-pre-cap-design-template",
+  "files": [
+    {
+      "source": "docs/phenotype-purpose-built-production.md",
+      "archived": "docs/history/phenotype-production-2026-10-03-023336-utc/phenotype-purpose-built-production.md",
+      "sha256": "8236e689bb4108817084ba07e5dbcab2fed1f981d68bd60ff3127f3074569f5f",
+      "bytes": 26777,
+      "byteExact": true
+    },
+    {
+      "source": "tools/phenotypes/configurations/purpose-built-production.schema.json",
+      "archived": "docs/history/phenotype-production-2026-10-03-023336-utc/purpose-built-production.schema.json",
+      "sha256": "c5aced8173a0cf890026c067e38785040f3d9b1b27f73d7fa380e309e8de1d64",
+      "bytes": 32587,
+      "byteExact": true
+    },
+    {
+      "source": "tools/phenotypes/configurations/purpose-built-human-male-production.example.json",
+      "archived": "docs/history/phenotype-production-2026-10-03-023336-utc/purpose-built-human-male-production.example.json",
+      "sha256": "0f5fb8a19ab14988b653531c15155fe866462075f42c1674fd0e7c99f0e2dc8d",
+      "bytes": 22813,
+      "byteExact": true
+    },
+    {
+      "source": "tools/phenotypes/validate_purpose_built_config.py",
+      "archived": "docs/history/phenotype-production-2026-10-03-023336-utc/validate_purpose_built_config.py",
+      "sha256": "e2f1e5eaee7eba53a7970545b7c00a3b45190177b5503d9cccfe5fe5cac4001e",
+      "bytes": 12722,
+      "byteExact": true
+    }
+  ],
+  "operationalUse": false
+}

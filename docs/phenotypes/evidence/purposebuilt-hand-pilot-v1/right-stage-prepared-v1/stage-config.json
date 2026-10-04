@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "diagnosticOnly": true,
+  "slug": "human_male_fit",
+  "prefix": "pmh0",
+  "part": "handr",
+  "model": "pmh0_handr001",
+  "joint": "rhand_g",
+  "stockHeightMeters": 1.9339157,
+  "appearance": 6,
+  "raceId": 6,
+  "gender": "male",
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirrored-local.glb",
+  "color": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-stage-prepared-v1\\color.png",
+  "normal": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-stage-prepared-v1\\normal.png",
+  "stockBaseline": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock",
+  "fixtureBaseline": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\fixture",
+  "stageHumanStockComparator": false,
+  "normalStrength": 1,
+  "skinLayer": 0,
+  "equipmentMode": "stock-identity",
+  "inputInventory": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\input-inventory.json",
+  "inputInventorySha256": "72b08b309f346d9603c085228ab33871920a55bb689a9bfb87a8d77ba53a8d49",
+  "expectedInputHashes": {
+    "source": "58d803f87abaac491be54201aba9daced6b08096898af61aefade314327c5fc1",
+    "color": "33d474151c0cc99ee904cd24ce34866298c840e14e8ce6b3b4abf0918b483897",
+    "normal": "cfabff42a6a41aae01a102a072cb5a7d6bbba7d94447f75a7ae727c562a9dcc7"
+  },
+  "reviewedFitReceipt": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirror.json",
+    "sha256": "30a4c1ecc7a7b1f225415e578515d19d0abfa7321120311fb80c80c5a695746d"
+  },
+  "fitReceiptIsUserAcceptance": false,
+  "sourceReceiptLineage": [
+    {
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirror.json",
+      "receiptSha256": "30a4c1ecc7a7b1f225415e578515d19d0abfa7321120311fb80c80c5a695746d",
+      "candidate": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirrored-local.glb",
+      "candidateSha256": "58d803f87abaac491be54201aba9daced6b08096898af61aefade314327c5fc1"
+    },
+    {
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placement.json",
+      "receiptSha256": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf",
+      "candidate": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb",
+      "candidateSha256": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d"
+    }
+  ]
+}

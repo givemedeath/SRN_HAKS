@@ -1,0 +1,25 @@
+[Sat Oct  3 19:06:33] PHENOTYPE_CLIENT_ENTER Aluvian Darkstar
+[Sat Oct  3 19:06:33] PHENOTYPE_SKIN_PALETTE actor=stock human male fit index=3
+[Sat Oct  3 19:06:33] PHENOTYPE_BARE_PARTS stock human male fit belt=0 rightShoulder=0 leftShoulder=0
+[Sat Oct  3 19:06:33] PHENOTYPE_READY stock human male fit creatureSize=3
+[Sat Oct  3 19:06:33] PHENOTYPE_SKIN_PALETTE actor=human male fit full armor index=3
+[Sat Oct  3 19:06:33] PHENOTYPE_BARE_PARTS human male fit full armor belt=0 rightShoulder=0 leftShoulder=0
+[Sat Oct  3 19:06:33] PHENOTYPE_EQUIPMENT_CREATE human male fit full armor valid=1
+[Sat Oct  3 19:06:33] PHENOTYPE_READY human male fit full armor creatureSize=3
+[Sat Oct  3 19:06:33] PHENOTYPE_SKIN_PALETTE actor=human male fit index=3
+[Sat Oct  3 19:06:33] PHENOTYPE_BARE_PARTS human male fit belt=0 rightShoulder=0 leftShoulder=0
+[Sat Oct  3 19:06:33] PHENOTYPE_READY human male fit creatureSize=3
+[Sat Oct  3 19:06:41] PHENOTYPE_EQUIPMENT_WORN human male fit full armor item=sr_pt_full
+[Sat Oct  3 19:06:43] PHENOTYPE_CAMERA_SET
+[Sat Oct  3 19:06:47] PHENOTYPE_HELD_POSE stock human male fit animation=4
+[Sat Oct  3 19:06:47] PHENOTYPE_HELD_POSE human male fit animation=4
+[Sat Oct  3 19:06:47] PHENOTYPE_HELD_POSE human male fit full armor animation=4
+[Sat Oct  3 19:07:39] PHENOTYPE_HELD_POSE human male fit animation=4
+[Sat Oct  3 19:07:40] PHENOTYPE_HELD_POSE stock human male fit animation=4
+[Sat Oct  3 19:07:40] PHENOTYPE_HELD_POSE human male fit full armor animation=4
+[Sat Oct  3 19:08:31] PHENOTYPE_HELD_POSE human male fit full armor animation=4
+[Sat Oct  3 19:08:33] PHENOTYPE_HELD_POSE human male fit animation=4
+[Sat Oct  3 19:08:34] PHENOTYPE_HELD_POSE stock human male fit animation=4
+[Sat Oct  3 19:09:24] PHENOTYPE_HELD_POSE human male fit full armor animation=4
+[Sat Oct  3 19:09:26] PHENOTYPE_HELD_POSE stock human male fit animation=4
+[Sat Oct  3 19:09:27] PHENOTYPE_HELD_POSE human male fit animation=4

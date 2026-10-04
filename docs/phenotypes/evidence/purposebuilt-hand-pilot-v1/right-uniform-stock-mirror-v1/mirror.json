@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "diagnosticOnly": true,
+  "configuration": {
+    "schemaVersion": 1,
+    "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb",
+    "sourceSha256": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+    "sourceReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placement.json",
+    "sourceReceiptSha256": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf",
+    "stockRoot": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl",
+    "stockRootSha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+    "sourceJoint": "lhand_g",
+    "targetJoint": "rhand_g",
+    "planeOriginWorld": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "planeNormalWorld": [
+      1.0,
+      0.0,
+      0.0
+    ]
+  },
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb",
+  "sourceSha256": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+  "sourceReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placement.json",
+  "sourceReceiptSha256": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf",
+  "stockRoot": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl",
+  "stockRootSha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+  "sourceJointWorld": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      -0.273129603
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      -0.004541799999999995
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.9637069940000003
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "targetJointWorld": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.273129997
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      -0.004541799999999995
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.963707994
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "reflectionWorld": [
+    [
+      -1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "sourceToTargetLocal": [
+    [
+      -1.0,
+      0.0,
+      0.0,
+      -3.940000000146604e-07
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      -9.999999996956888e-07
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "candidate": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirrored-local.glb",
+  "candidateSha256": "58d803f87abaac491be54201aba9daced6b08096898af61aefade314327c5fc1",
+  "nativeCornerArchive": {
+    "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirrored-corners.npz",
+    "sha256": "471a1afbabb7b1858d16b28b7fb1bf33aaae1e56e4c8ac046fd53604bf0c9c6d"
+  },
+  "proof": {
+    "schemaVersion": 1,
+    "uniformScale": 1.0,
+    "orthogonalFactorNwn": [
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "reflected": true,
+    "originalBinPrefixExact": true,
+    "identityOutputNode": true,
+    "originalUVColorAccessorDefinitionsExact": true,
+    "materialMapDefinitionsExact": true,
+    "sourceNodeWorldRaw": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "triangleCornerOrder": [
+      0,
+      2,
+      1
+    ],
+    "triangles": 49990,
+    "maximumPositionFloat32ErrorMetres": 1.6221997078957884e-09,
+    "maximumNormalFloat32Error": 0.0,
+    "maximumAuthoredNormalLengthDifference": 0.0,
+    "normalPolicy": "Orthogonal factor only; authored magnitude preserved",
+    "tangentPolicy": "XYZ orthogonal factor only; W flips exactly for reflection",
+    "uvPolicy": "Raw GLTF UV accessors unchanged; native archive V=1-rawV once; no U/normal-map channel flip",
+    "rigPolicy": "No stock root, skeleton, controllers or animation resources written",
+    "primitives": [
+      {
+        "primitive": 0,
+        "triangles": 49990,
+        "material": 0,
+        "sourceAttributeAccessors": {
+          "POSITION": 5,
+          "TEXCOORD_0": 2,
+          "NORMAL": 6,
+          "TANGENT": 8
+        },
+        "outputAttributeAccessors": {
+          "POSITION": 9,
+          "TEXCOORD_0": 2,
+          "NORMAL": 10,
+          "TANGENT": 12
+        },
+        "sourceIndexAccessor": 7,
+        "outputIndexAccessor": 11
+      }
+    ]
+  },
+  "frozenInputs": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placement.json": "ee6c8608831c840f7137e298469e319ea3888ec6ffa16071516b6312c30478cf",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-stock-mirror-prepared-v1\\mirror-config.json": "866b1c3a8b6de4c9776fa1f825c35eecb1476760666eefe61fe4c690d086abb1",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\mirror_stock_limb_part.py": "2fd5ac12b04520b24972da3c7c06edc0a7fe77716a4e4f63b5bed444535d0168",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\stock_limb_contract.py": "36bbf75ff97baea14f6c033eef5cf67d7ab624597f6f3e1d89db7e445801f660",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\place_purposebuilt_pelvis.py": "5883e994976f71d93347d90f8428f8edd3a5596c4ec066355eae0485afe22697",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\retarget.py": "3bc4d6dc8fa80e6a6624d27e37ab06021d665b7c5e8ce008b6914201caa63b4c"
+  },
+  "limitation": "Detached geometry mirror only; opposite attachment/pose/material and actual native tangent/client validation remain required."
+}

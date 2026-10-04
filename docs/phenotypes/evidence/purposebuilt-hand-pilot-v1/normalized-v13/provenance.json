@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\image-design-v13\\source.png",
+  "sourceSha256": "b1edc30c08e9f8650d3da39c6fe155833a6a8a1405e31808e0e4928ae13d79ab",
+  "layout": "2x3: front,left/back,right/top,bottom",
+  "imagegenMode": "built-in",
+  "scale": 1.792,
+  "normalization": "shared isotropic scale, bounds-centered translation only",
+  "layoutMethod": "complete alpha components assigned by centroid",
+  "notes": "v13 magnification correction of v12 true distal-axis insert; actual frozen adapter same image-X polar thumb side; top explicitly four curled tips and one thumb. All panels AI approximate orthographic, verify generated donor. Background and size only intended; no pixel-exact invariants claim.",
+  "views": {
+    "front": {
+      "panelCrop": [
+        102,
+        25,
+        472,
+        503
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        370,
+        478
+      ],
+      "detachedAlphaPixelsRemoved": 0,
+      "normalizedBounds": [
+        180,
+        83,
+        663,
+        857
+      ],
+      "sha256": "8209ad3716e7abf16f6541bbdbc8ca3db3629db1ec480e963b0ebdc93b3d0720"
+    },
+    "left": {
+      "panelCrop": [
+        562,
+        23,
+        921,
+        523
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        359,
+        500
+      ],
+      "detachedAlphaPixelsRemoved": 0,
+      "normalizedBounds": [
+        190,
+        64,
+        643,
+        896
+      ],
+      "sha256": "f62f7c6c9571576e1a6233a629e5d35b0fbb2b9a551219374c3d174cef5c81f6"
+    },
+    "back": {
+      "panelCrop": [
+        105,
+        536,
+        514,
+        1016
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        409,
+        480
+      ],
+      "detachedAlphaPixelsRemoved": 0,
+      "normalizedBounds": [
+        145,
+        82,
+        733,
+        860
+      ],
+      "sha256": "5ea48cd519497818b12cfe76367b2a271569397b38f08079712d5d137f96aba3"
+    },
+    "right": {
+      "panelCrop": [
+        609,
+        536,
+        965,
+        1030
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        356,
+        494
+      ],
+      "detachedAlphaPixelsRemoved": 0,
+      "normalizedBounds": [
+        193,
+        69,
+        638,
+        885
+      ],
+      "sha256": "c357ec887d676c25c77c8b29ec3017470a6cb17ee2f6f7ce22d7b5e41bcf0cb1"
+    },
+    "top": {
+      "panelCrop": [
+        64,
+        1069,
+        494,
+        1453
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        430,
+        384
+      ],
+      "detachedAlphaPixelsRemoved": 0,
+      "normalizedBounds": [
+        126,
+        168,
+        771,
+        688
+      ],
+      "sha256": "e34fe7762350af2eb7121ec390da37f9327e70c9177ff7ab7b4b25f0aeaae6c2"
+    },
+    "bottom": {
+      "panelCrop": [
+        570,
+        1140,
+        962,
+        1416
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        392,
+        276
+      ],
+      "detachedAlphaPixelsRemoved": 0,
+      "normalizedBounds": [
+        161,
+        264,
+        702,
+        495
+      ],
+      "sha256": "1127ec9f023893b504cc001c4590983ca24accae980f29f69af768ce488fe32e"
+    }
+  },
+  "clientAccepted": false,
+  "componentAreas": {
+    "bottom": {
+      "alphaPixels": 78019,
+      "areaRatio": 0.5279437538486523,
+      "minimumAreaRatio": 0.25
+    },
+    "right": {
+      "alphaPixels": 121481,
+      "areaRatio": 0.8220450808301586,
+      "minimumAreaRatio": 0.25
+    },
+    "left": {
+      "alphaPixels": 121621,
+      "areaRatio": 0.8229924414158981,
+      "minimumAreaRatio": 0.25
+    },
+    "top": {
+      "alphaPixels": 128366,
+      "areaRatio": 0.8686349210645626,
+      "minimumAreaRatio": 0.25
+    },
+    "front": {
+      "alphaPixels": 140177,
+      "areaRatio": 0.9485583201943443,
+      "minimumAreaRatio": 0.25
+    },
+    "back": {
+      "alphaPixels": 147779,
+      "areaRatio": 1.0,
+      "minimumAreaRatio": 0.25
+    }
+  },
+  "endViewMinimumAreaRatio": 0.25
+}

@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "stockInputsInventory": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\inventory.json",
+  "stockInputsInventorySha256": "88ef9173dac52824514fd88ce89cafe0943a91bb9700347a990113bf447cbbf8",
+  "models": [
+    {
+      "model": "wswls_t_011",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\ascii\\wswls_t_011.mdl",
+      "sha256": "01430ac57b638ae4b02340351f083ab5dab3dfbb9f2f5aed6e9bae090409fc70",
+      "parts": [
+        {
+          "node": "g_WSwLs_t_011",
+          "vertices": 9,
+          "triangles": 14,
+          "hierarchyMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              3.03633e-05
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.262925
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0018867
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "bounds": [
+            [
+              -0.010226536699999999,
+              0.13251100000000002,
+              -0.0405132
+            ],
+            [
+              0.010267463300000002,
+              0.931386,
+              0.0408278
+            ]
+          ],
+          "extentMm": [
+            20.494,
+            798.875,
+            81.341
+          ]
+        }
+      ]
+    },
+    {
+      "model": "wswls_m_011",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\ascii\\wswls_m_011.mdl",
+      "sha256": "08771b67d349ea1587777e4b87517f365dee6bd8fcd6a48cb61d78f4281c942f",
+      "parts": [
+        {
+          "node": "g_WSwLs_m_011",
+          "vertices": 24,
+          "triangles": 40,
+          "hierarchyMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.000394173
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              -0.0206093
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.000168152
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "bounds": [
+            [
+              -0.027382627,
+              0.0589418,
+              -0.130631848
+            ],
+            [
+              0.027173273,
+              0.1475897,
+              0.130968152
+            ]
+          ],
+          "extentMm": [
+            54.5559,
+            88.64789999999999,
+            261.6
+          ]
+        }
+      ]
+    },
+    {
+      "model": "wswls_b_011",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\ascii\\wswls_b_011.mdl",
+      "sha256": "5f6ce35509489aad71439d844414186b49f2f91dcc0e2a992714f5da0176763a",
+      "parts": [
+        {
+          "node": "g_WSwLs_b_011",
+          "vertices": 14,
+          "triangles": 18,
+          "hierarchyMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.000183583
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              -0.14571
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.000191967
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "bounds": [
+            [
+              -0.043417317,
+              -0.1747768,
+              -0.043408833
+            ],
+            [
+              0.043784483,
+              0.084152,
+              0.043792867
+            ]
+          ],
+          "extentMm": [
+            87.20179999999999,
+            258.9288,
+            87.20169999999999
+          ],
+          "shaft": {
+            "originalVertexIds": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "lowerCenter": [
+              0.00042228299999999986,
+              -0.1455538,
+              0.0001681670000000011
+            ],
+            "upperCenter": [
+              0.00042228300000000073,
+              0.0840765,
+              0.00016816700000000102
+            ],
+            "measuredAxis": [
+              3.777209444870313e-18,
+              1.0,
+              -3.5411338545659187e-19
+            ],
+            "bounds": [
+              [
+                -0.022700117,
+                -0.1455538,
+                -0.022954232999999997
+              ],
+              [
+                0.023544683,
+                0.084152,
+                0.023290567
+              ]
+            ],
+            "lengthMm": 229.6303,
+            "endDiametersXZMm": [
+              [
+                39.525400000000005,
+                39.525400000000005
+              ],
+              [
+                46.244800000000005,
+                46.244800000000005
+              ]
+            ],
+            "rootOriginOnHandle": "Actual weapon origin lies between lower/upperhandleends; rootXYZ is not exact diamondsectioncenter."
+          }
+        }
+      ]
+    },
+    {
+      "model": "ashsw_011",
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-grip-inputs-v1\\ascii\\ashsw_011.mdl",
+      "sha256": "178467fd6652655502fff910b9a7ae2a3f3c9ea3cf2a360c30514084778302c3",
+      "parts": [
+        {
+          "node": "g_AShSw_011",
+          "vertices": 18,
+          "triangles": 32,
+          "hierarchyMatrix": [
+            [
+              -1.1823347090267333e-07,
+              -1.1823348500250574e-07,
+              -0.999999999999986,
+              -0.0315799
+            ],
+            [
+              -0.999999999999986,
+              -1.1823347090267333e-07,
+              1.1823348500250574e-07,
+              -0.0031363
+            ],
+            [
+              -1.1823348500250574e-07,
+              0.999999999999986,
+              -1.1823347090267333e-07,
+              0.00254683
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "bounds": [
+            [
+              -0.11503589999999883,
+              -0.17766629563247627,
+              -0.1719831743675183
+            ],
+            [
+              -0.06851967081737599,
+              0.17139370436751883,
+              0.1770768256324768
+            ]
+          ],
+          "extentMm": [
+            46.51622918262284,
+            349.0599999999951,
+            349.0599999999951
+          ]
+        },
+        {
+          "node": "Box07",
+          "vertices": 8,
+          "triangles": 12,
+          "hierarchyMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              -0.0222261
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              -0.00566849
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0586574
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "bounds": [
+            [
+              -0.0886153,
+              -0.06905059,
+              -0.0525646
+            ],
+            [
+              -0.021442899999999997,
+              0.05771361,
+              0.0586574
+            ]
+          ],
+          "extentMm": [
+            67.1724,
+            126.76419999999999,
+            111.22200000000001
+          ]
+        }
+      ]
+    }
+  ],
+  "weaponRootAxis": "Stock normal longsword handle is local+Y, measured from actual8shaftvertices after hierarchytransform; never assume localZ from dummy.",
+  "shieldScope": "Actual shield has a transformed disk and closedBox07strap, not a cylindricalhandle. Retain exact stock itemgeometry/scale; pose and handcoverage require independentinspection.",
+  "nativeOrClientAccepted": false
+}

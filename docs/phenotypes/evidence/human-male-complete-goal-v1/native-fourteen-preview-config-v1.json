@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "converted": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted",
+  "effectiveInventory": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json",
+  "stockBank": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock",
+  "stockInventory": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\input-inventory.json",
+  "resourceBanks": [
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-material-mapping-inputs-v2\\raw",
+      "inventory": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-material-mapping-inputs-v2\\inventory.json"
+    },
+    {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-equipment-items-v1\\raw",
+      "inventory": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-equipment-items-v1\\inventory.json"
+    }
+  ],
+  "skinRows": [
+    3,
+    8
+  ],
+  "layerSelectors": {
+    "0": 3,
+    "1": 5,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0,
+    "9": 0
+  },
+  "selectorPolicy": "Same selected skin3/8, fixture hair5; other channel defaults explicitly0 in both native and stock previews.",
+  "expectedInputHashes": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\input-inventory.json": "72b08b309f346d9603c085228ab33871920a55bb689a9bfb87a8d77ba53a8d49",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-material-mapping-inputs-v2\\inventory.json": "36d1e5c0a4246096612314e09d398a123d282df7b7cdef3b3283e01a55cbc3b0",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\stock-equipment-items-v1\\inventory.json": "229f0cb4e9593c7ada05a9762f33b8836da86b5eae0443642430b4d62230116c",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\native-compile.json": "1246d496d4925050fcf9c9770ddbc28dbcbb82d821d2d83df01968986a545f33"
+  }
+}

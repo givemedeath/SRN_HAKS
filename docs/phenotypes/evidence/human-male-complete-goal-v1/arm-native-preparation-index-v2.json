@@ -1,0 +1,22 @@
+{
+  "parts": {
+    "bicepl": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepl-native-v2\\native-unit-preparation.json",
+      "sha256": "a6a2f32b6e821b198cfb666b66845d592397f56b1930fbc3babbacbc72267644"
+    },
+    "bicepr": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\bicepr-native-v2\\native-unit-preparation.json",
+      "sha256": "aa8c2e00573d4cf0fdbca400e26301ffdf318bddd72917a16441d831895d88c4"
+    },
+    "forel": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forel-native-v2\\native-unit-preparation.json",
+      "sha256": "668a841cf3565965004f3b4399b28bc79f949b273fffb2cfb2b6e14e775f62b5"
+    },
+    "forer": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\forer-native-v2\\native-unit-preparation.json",
+      "sha256": "7a8d8914aaa4aaa871c3d397ecefcde80b8e40bcb316f31619e02dbb79bfc985"
+    }
+  },
+  "nativeCompilerExecuted": false,
+  "clientLaunched": false
+}

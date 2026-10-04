@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "generation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generation.json",
+  "generationSha256": "d0fdcafef98561b3d02c62d21795c51a23e540fda295bb8e1b051a35b469cae6",
+  "jobPromptId": "3565bc47-42b7-4e91-a4ce-9c9e164058f3",
+  "reports": [
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\textured_00001.glb",
+      "sourceSha256": "b5f12e349814fef7c70d87655c216eddf5138abd5b3476c205dbde5723018493",
+      "report": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-compact-topology-v1\\textured_00001.glb.json",
+      "reportSha256": "41b879838544904639e3f22b95d45ad2d66bb89c43383efada95d9e2f1a5c976",
+      "faces": 49990,
+      "components": 1,
+      "boundary": 0,
+      "nonmanifold": 0,
+      "badWinding": 0,
+      "signedVolume": 0.15969591974287717,
+      "aabbVolumeFraction": 0.4343276482438202
+    },
+    {
+      "source": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\clean-hand-retexture-v2\\generated\\uv-master_00001.glb",
+      "sourceSha256": "4c3813d5d609a9bb1f160e36fb861aa48e5b34be260d36f1bbd80d6ce677bef7",
+      "report": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\clean-compact-topology-v1\\uv-master_00001.glb.json",
+      "reportSha256": "41fd87ff553f1ddcd9a61ce31ba5f78f06e3134329717c9c3dc2593e2aee472e",
+      "faces": 49990,
+      "components": 1,
+      "boundary": 0,
+      "nonmanifold": 0,
+      "badWinding": 0,
+      "signedVolume": 0.15969591974287717,
+      "aabbVolumeFraction": 0.4343276482438202
+    }
+  ],
+  "helpers": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\inspect-selected-hand-masters-v1.py": "555a4d7e5f07b1928db118077425ad8830b039994d6a940b87352a7a9ce546b0",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\inspect_generated_part_topology.py": "2d120fe3288ce28a9b37a5cda70bc0f906040b5aa3a7f5822223798214574a32"
+  },
+  "scope": "Explicit actual fresh retexture outputs only; no adoption or topology modifications."
+}

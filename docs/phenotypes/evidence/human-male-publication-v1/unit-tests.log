@@ -1,0 +1,6 @@
+{"state": "success", "promptId": "one-known-job", "outputs": [{"filename": "textured_00001.glb", "subfolder": "fresh/run", "type": "output", "nodeId": "372", "localPath": "C:\\Users\\benco\\AppData\\Local\\Temp\\tmpk1b0kt5i\\generated\\textured_00001.glb", "sha256": "2ad164f5cf9eed0144dcc3167e82999473dfd711f17556c209b0fb7937978a1a"}, {"filename": "uv-master_00001.glb", "subfolder": "fresh/run", "type": "output", "nodeId": "2002", "localPath": "C:\\Users\\benco\\AppData\\Local\\Temp\\tmpk1b0kt5i\\generated\\uv-master_00001.glb", "sha256": "2ad164f5cf9eed0144dcc3167e82999473dfd711f17556c209b0fb7937978a1a"}], "errors": []}
+...........................................................................................................
+----------------------------------------------------------------------
+Ran 107 tests in 9.143s
+
+OK

@@ -1,0 +1,166 @@
+[Sat Oct  3 18:57:10] PHENOTYPE_CLIENT_ENTER Aluvian Darkstar
+[Sat Oct  3 18:57:10] PHENOTYPE_SKIN_PALETTE actor=stock human male fit index=8
+[Sat Oct  3 18:57:10] PHENOTYPE_BARE_PARTS stock human male fit belt=0 rightShoulder=0 leftShoulder=0
+[Sat Oct  3 18:57:10] PHENOTYPE_READY stock human male fit creatureSize=3
+[Sat Oct  3 18:57:10] PHENOTYPE_SKIN_PALETTE actor=human male fit full armor index=8
+[Sat Oct  3 18:57:10] PHENOTYPE_BARE_PARTS human male fit full armor belt=0 rightShoulder=0 leftShoulder=0
+[Sat Oct  3 18:57:10] PHENOTYPE_EQUIPMENT_CREATE human male fit full armor valid=1
+[Sat Oct  3 18:57:10] PHENOTYPE_READY human male fit full armor creatureSize=3
+[Sat Oct  3 18:57:10] PHENOTYPE_SKIN_PALETTE actor=human male fit index=8
+[Sat Oct  3 18:57:10] PHENOTYPE_BARE_PARTS human male fit belt=0 rightShoulder=0 leftShoulder=0
+[Sat Oct  3 18:57:10] PHENOTYPE_READY human male fit creatureSize=3
+[Sat Oct  3 18:57:19] PHENOTYPE_EQUIPMENT_WORN human male fit full armor item=sr_pt_full
+[Sat Oct  3 18:57:20] PHENOTYPE_CAMERA_SET
+[Sat Oct  3 18:57:50] PHENOTYPE_MOTION human male fit step=5 enabled=1
+[Sat Oct  3 18:57:51] PHENOTYPE_MOTION stock human male fit step=5 enabled=1
+[Sat Oct  3 18:57:51] PHENOTYPE_MOTION human male fit full armor step=5 enabled=1
+[Sat Oct  3 18:57:57] PHENOTYPE_MOTION human male fit step=6 enabled=1
+[Sat Oct  3 18:57:57] PHENOTYPE_MOTION stock human male fit step=6 enabled=1
+[Sat Oct  3 18:57:58] PHENOTYPE_MOTION human male fit full armor step=6 enabled=1
+[Sat Oct  3 18:58:04] PHENOTYPE_MOTION stock human male fit step=7 enabled=1
+[Sat Oct  3 18:58:04] PHENOTYPE_MOTION human male fit step=7 enabled=1
+[Sat Oct  3 18:58:04] PHENOTYPE_MOTION human male fit full armor step=7 enabled=1
+[Sat Oct  3 18:58:10] PHENOTYPE_MOTION human male fit step=8 enabled=1
+[Sat Oct  3 18:58:11] PHENOTYPE_MOTION stock human male fit step=8 enabled=1
+[Sat Oct  3 18:58:11] PHENOTYPE_MOTION human male fit full armor step=8 enabled=1
+[Sat Oct  3 18:58:16] PHENOTYPE_MOTION human male fit step=9 enabled=1
+[Sat Oct  3 18:58:17] PHENOTYPE_MOTION stock human male fit step=9 enabled=1
+[Sat Oct  3 18:58:18] PHENOTYPE_MOTION human male fit full armor step=9 enabled=1
+[Sat Oct  3 18:58:23] PHENOTYPE_MOTION human male fit step=10 enabled=1
+[Sat Oct  3 18:58:24] PHENOTYPE_MOTION human male fit full armor step=10 enabled=1
+[Sat Oct  3 18:58:24] PHENOTYPE_MOTION stock human male fit step=10 enabled=1
+[Sat Oct  3 18:58:30] PHENOTYPE_MOTION human male fit step=11 enabled=1
+[Sat Oct  3 18:58:31] PHENOTYPE_MOTION human male fit full armor step=11 enabled=1
+[Sat Oct  3 18:58:31] PHENOTYPE_MOTION stock human male fit step=11 enabled=1
+[Sat Oct  3 18:58:36] PHENOTYPE_MOTION human male fit step=12 enabled=1
+[Sat Oct  3 18:58:37] PHENOTYPE_MOTION human male fit full armor step=12 enabled=1
+[Sat Oct  3 18:58:38] PHENOTYPE_MOTION stock human male fit step=12 enabled=1
+[Sat Oct  3 18:58:42] PHENOTYPE_MOTION human male fit step=13 enabled=1
+[Sat Oct  3 18:58:43] PHENOTYPE_MOTION human male fit full armor step=13 enabled=1
+[Sat Oct  3 18:58:44] PHENOTYPE_MOTION stock human male fit step=13 enabled=1
+[Sat Oct  3 18:58:49] PHENOTYPE_MOTION human male fit step=14 enabled=1
+[Sat Oct  3 18:58:50] PHENOTYPE_MOTION human male fit full armor step=14 enabled=1
+[Sat Oct  3 18:58:51] PHENOTYPE_MOTION stock human male fit step=14 enabled=1
+[Sat Oct  3 18:58:55] PHENOTYPE_MOTION human male fit step=15 enabled=1
+[Sat Oct  3 18:58:56] PHENOTYPE_MOTION human male fit full armor step=15 enabled=1
+[Sat Oct  3 18:58:58] PHENOTYPE_MOTION stock human male fit step=15 enabled=1
+[Sat Oct  3 18:59:02] PHENOTYPE_MOTION human male fit step=16 enabled=1
+[Sat Oct  3 18:59:03] PHENOTYPE_MOTION human male fit full armor step=16 enabled=1
+[Sat Oct  3 18:59:04] PHENOTYPE_MOTION stock human male fit step=16 enabled=1
+[Sat Oct  3 18:59:09] PHENOTYPE_MOTION human male fit step=17 enabled=1
+[Sat Oct  3 18:59:09] PHENOTYPE_MOTION human male fit full armor step=17 enabled=1
+[Sat Oct  3 18:59:10] PHENOTYPE_MOTION stock human male fit step=17 enabled=1
+[Sat Oct  3 18:59:16] PHENOTYPE_MOTION human male fit step=18 enabled=1
+[Sat Oct  3 18:59:16] PHENOTYPE_MOTION human male fit full armor step=18 enabled=1
+[Sat Oct  3 18:59:17] PHENOTYPE_MOTION stock human male fit step=18 enabled=1
+[Sat Oct  3 18:59:22] PHENOTYPE_MOTION human male fit step=19 enabled=1
+[Sat Oct  3 18:59:23] PHENOTYPE_MOTION human male fit full armor step=19 enabled=1
+[Sat Oct  3 18:59:24] PHENOTYPE_MOTION stock human male fit step=19 enabled=1
+[Sat Oct  3 18:59:28] PHENOTYPE_MOTION human male fit step=20 enabled=1
+[Sat Oct  3 18:59:30] PHENOTYPE_MOTION human male fit full armor step=20 enabled=1
+[Sat Oct  3 18:59:31] PHENOTYPE_MOTION stock human male fit step=20 enabled=1
+[Sat Oct  3 18:59:34] PHENOTYPE_MOTION human male fit step=21 enabled=1
+[Sat Oct  3 18:59:37] PHENOTYPE_MOTION human male fit full armor step=21 enabled=1
+[Sat Oct  3 18:59:38] PHENOTYPE_MOTION stock human male fit step=21 enabled=1
+[Sat Oct  3 19:00:13] PHENOTYPE_MOTION human male fit step=5 enabled=1
+[Sat Oct  3 19:00:15] PHENOTYPE_MOTION human male fit full armor step=5 enabled=1
+[Sat Oct  3 19:00:17] PHENOTYPE_MOTION stock human male fit step=5 enabled=1
+[Sat Oct  3 19:00:20] PHENOTYPE_MOTION human male fit step=6 enabled=1
+[Sat Oct  3 19:00:22] PHENOTYPE_MOTION human male fit full armor step=6 enabled=1
+[Sat Oct  3 19:00:23] PHENOTYPE_MOTION stock human male fit step=6 enabled=1
+[Sat Oct  3 19:00:27] PHENOTYPE_MOTION human male fit step=7 enabled=1
+[Sat Oct  3 19:00:29] PHENOTYPE_MOTION human male fit full armor step=7 enabled=1
+[Sat Oct  3 19:00:30] PHENOTYPE_MOTION stock human male fit step=7 enabled=1
+[Sat Oct  3 19:00:33] PHENOTYPE_MOTION human male fit step=8 enabled=1
+[Sat Oct  3 19:00:36] PHENOTYPE_MOTION stock human male fit step=8 enabled=1
+[Sat Oct  3 19:00:36] PHENOTYPE_MOTION human male fit full armor step=8 enabled=1
+[Sat Oct  3 19:00:39] PHENOTYPE_MOTION human male fit step=9 enabled=1
+[Sat Oct  3 19:00:43] PHENOTYPE_MOTION stock human male fit step=9 enabled=1
+[Sat Oct  3 19:00:43] PHENOTYPE_MOTION human male fit full armor step=9 enabled=1
+[Sat Oct  3 19:00:46] PHENOTYPE_MOTION human male fit step=10 enabled=1
+[Sat Oct  3 19:00:49] PHENOTYPE_MOTION human male fit full armor step=10 enabled=1
+[Sat Oct  3 19:00:50] PHENOTYPE_MOTION stock human male fit step=10 enabled=1
+[Sat Oct  3 19:00:53] PHENOTYPE_MOTION human male fit step=11 enabled=1
+[Sat Oct  3 19:00:56] PHENOTYPE_MOTION human male fit full armor step=11 enabled=1
+[Sat Oct  3 19:00:56] PHENOTYPE_MOTION stock human male fit step=11 enabled=1
+[Sat Oct  3 19:01:00] PHENOTYPE_MOTION human male fit step=12 enabled=1
+[Sat Oct  3 19:01:02] PHENOTYPE_MOTION human male fit full armor step=12 enabled=1
+[Sat Oct  3 19:01:03] PHENOTYPE_MOTION stock human male fit step=12 enabled=1
+[Sat Oct  3 19:01:07] PHENOTYPE_MOTION human male fit step=13 enabled=1
+[Sat Oct  3 19:01:09] PHENOTYPE_MOTION human male fit full armor step=13 enabled=1
+[Sat Oct  3 19:01:09] PHENOTYPE_MOTION stock human male fit step=13 enabled=1
+[Sat Oct  3 19:01:13] PHENOTYPE_MOTION human male fit step=14 enabled=1
+[Sat Oct  3 19:01:16] PHENOTYPE_MOTION stock human male fit step=14 enabled=1
+[Sat Oct  3 19:01:16] PHENOTYPE_MOTION human male fit full armor step=14 enabled=1
+[Sat Oct  3 19:01:20] PHENOTYPE_MOTION human male fit step=15 enabled=1
+[Sat Oct  3 19:01:22] PHENOTYPE_MOTION human male fit full armor step=15 enabled=1
+[Sat Oct  3 19:01:22] PHENOTYPE_MOTION stock human male fit step=15 enabled=1
+[Sat Oct  3 19:01:26] PHENOTYPE_MOTION human male fit step=16 enabled=1
+[Sat Oct  3 19:01:28] PHENOTYPE_MOTION human male fit full armor step=16 enabled=1
+[Sat Oct  3 19:01:29] PHENOTYPE_MOTION stock human male fit step=16 enabled=1
+[Sat Oct  3 19:01:33] PHENOTYPE_MOTION human male fit step=17 enabled=1
+[Sat Oct  3 19:01:35] PHENOTYPE_MOTION human male fit full armor step=17 enabled=1
+[Sat Oct  3 19:01:35] PHENOTYPE_MOTION stock human male fit step=17 enabled=1
+[Sat Oct  3 19:01:39] PHENOTYPE_MOTION human male fit step=18 enabled=1
+[Sat Oct  3 19:01:41] PHENOTYPE_MOTION human male fit full armor step=18 enabled=1
+[Sat Oct  3 19:01:42] PHENOTYPE_MOTION stock human male fit step=18 enabled=1
+[Sat Oct  3 19:01:46] PHENOTYPE_MOTION human male fit step=19 enabled=1
+[Sat Oct  3 19:01:48] PHENOTYPE_MOTION human male fit full armor step=19 enabled=1
+[Sat Oct  3 19:01:49] PHENOTYPE_MOTION stock human male fit step=19 enabled=1
+[Sat Oct  3 19:01:53] PHENOTYPE_MOTION human male fit step=20 enabled=1
+[Sat Oct  3 19:01:55] PHENOTYPE_MOTION stock human male fit step=20 enabled=1
+[Sat Oct  3 19:01:55] PHENOTYPE_MOTION human male fit full armor step=20 enabled=1
+[Sat Oct  3 19:02:00] PHENOTYPE_MOTION human male fit step=21 enabled=1
+[Sat Oct  3 19:02:01] PHENOTYPE_MOTION human male fit full armor step=21 enabled=1
+[Sat Oct  3 19:02:02] PHENOTYPE_MOTION stock human male fit step=21 enabled=1
+[Sat Oct  3 19:02:39] PHENOTYPE_MOTION human male fit step=5 enabled=1
+[Sat Oct  3 19:02:41] PHENOTYPE_MOTION human male fit full armor step=5 enabled=1
+[Sat Oct  3 19:02:41] PHENOTYPE_MOTION stock human male fit step=5 enabled=1
+[Sat Oct  3 19:02:45] PHENOTYPE_MOTION human male fit step=6 enabled=1
+[Sat Oct  3 19:02:47] PHENOTYPE_MOTION human male fit full armor step=6 enabled=1
+[Sat Oct  3 19:02:48] PHENOTYPE_MOTION stock human male fit step=6 enabled=1
+[Sat Oct  3 19:02:51] PHENOTYPE_MOTION human male fit step=7 enabled=1
+[Sat Oct  3 19:02:54] PHENOTYPE_MOTION human male fit full armor step=7 enabled=1
+[Sat Oct  3 19:02:55] PHENOTYPE_MOTION stock human male fit step=7 enabled=1
+[Sat Oct  3 19:02:58] PHENOTYPE_MOTION human male fit step=8 enabled=1
+[Sat Oct  3 19:03:00] PHENOTYPE_MOTION human male fit full armor step=8 enabled=1
+[Sat Oct  3 19:03:01] PHENOTYPE_MOTION stock human male fit step=8 enabled=1
+[Sat Oct  3 19:03:04] PHENOTYPE_MOTION human male fit step=9 enabled=1
+[Sat Oct  3 19:03:06] PHENOTYPE_MOTION human male fit full armor step=9 enabled=1
+[Sat Oct  3 19:03:07] PHENOTYPE_MOTION stock human male fit step=9 enabled=1
+[Sat Oct  3 19:03:11] PHENOTYPE_MOTION human male fit step=10 enabled=1
+[Sat Oct  3 19:03:13] PHENOTYPE_MOTION human male fit full armor step=10 enabled=1
+[Sat Oct  3 19:03:13] PHENOTYPE_MOTION stock human male fit step=10 enabled=1
+[Sat Oct  3 19:03:18] PHENOTYPE_MOTION human male fit step=11 enabled=1
+[Sat Oct  3 19:03:20] PHENOTYPE_MOTION human male fit full armor step=11 enabled=1
+[Sat Oct  3 19:03:20] PHENOTYPE_MOTION stock human male fit step=11 enabled=1
+[Sat Oct  3 19:03:25] PHENOTYPE_MOTION human male fit step=12 enabled=1
+[Sat Oct  3 19:03:26] PHENOTYPE_MOTION human male fit full armor step=12 enabled=1
+[Sat Oct  3 19:03:27] PHENOTYPE_MOTION stock human male fit step=12 enabled=1
+[Sat Oct  3 19:03:32] PHENOTYPE_MOTION human male fit step=13 enabled=1
+[Sat Oct  3 19:03:33] PHENOTYPE_MOTION human male fit full armor step=13 enabled=1
+[Sat Oct  3 19:03:33] PHENOTYPE_MOTION stock human male fit step=13 enabled=1
+[Sat Oct  3 19:03:38] PHENOTYPE_MOTION human male fit step=14 enabled=1
+[Sat Oct  3 19:03:40] PHENOTYPE_MOTION stock human male fit step=14 enabled=1
+[Sat Oct  3 19:03:40] PHENOTYPE_MOTION human male fit full armor step=14 enabled=1
+[Sat Oct  3 19:03:44] PHENOTYPE_MOTION human male fit step=15 enabled=1
+[Sat Oct  3 19:03:47] PHENOTYPE_MOTION human male fit full armor step=15 enabled=1
+[Sat Oct  3 19:03:47] PHENOTYPE_MOTION stock human male fit step=15 enabled=1
+[Sat Oct  3 19:03:51] PHENOTYPE_MOTION human male fit step=16 enabled=1
+[Sat Oct  3 19:03:53] PHENOTYPE_MOTION human male fit full armor step=16 enabled=1
+[Sat Oct  3 19:03:54] PHENOTYPE_MOTION stock human male fit step=16 enabled=1
+[Sat Oct  3 19:03:57] PHENOTYPE_MOTION human male fit step=17 enabled=1
+[Sat Oct  3 19:04:00] PHENOTYPE_MOTION human male fit full armor step=17 enabled=1
+[Sat Oct  3 19:04:01] PHENOTYPE_MOTION stock human male fit step=17 enabled=1
+[Sat Oct  3 19:04:04] PHENOTYPE_MOTION human male fit step=18 enabled=1
+[Sat Oct  3 19:04:07] PHENOTYPE_MOTION human male fit full armor step=18 enabled=1
+[Sat Oct  3 19:04:07] PHENOTYPE_MOTION stock human male fit step=18 enabled=1
+[Sat Oct  3 19:04:10] PHENOTYPE_MOTION human male fit step=19 enabled=1
+[Sat Oct  3 19:04:13] PHENOTYPE_MOTION stock human male fit step=19 enabled=1
+[Sat Oct  3 19:04:13] PHENOTYPE_MOTION human male fit full armor step=19 enabled=1
+[Sat Oct  3 19:04:17] PHENOTYPE_MOTION human male fit step=20 enabled=1
+[Sat Oct  3 19:04:20] PHENOTYPE_MOTION stock human male fit step=20 enabled=1
+[Sat Oct  3 19:04:20] PHENOTYPE_MOTION human male fit full armor step=20 enabled=1
+[Sat Oct  3 19:04:24] PHENOTYPE_MOTION human male fit step=21 enabled=1
+[Sat Oct  3 19:04:26] PHENOTYPE_MOTION stock human male fit step=21 enabled=1
+[Sat Oct  3 19:04:27] PHENOTYPE_MOTION human male fit full armor step=21 enabled=1

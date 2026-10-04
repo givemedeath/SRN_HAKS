@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "nwn-ee-client",
+  "title": "Muscular Human male \u2014 NWN:EE animation reference",
+  "packagePins": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2"
+  },
+  "frozenInputs": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\008-continuous-gameplay-2-0.jpg": "a052da0fc4c39ac8bd4b5c54f4b89b37bff439b1e483c0e15ab7d3e195af040d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\idle-observation.json": "5e7d1c2b6abef3b005645e4d50a994aea2398d3ca565eca81903f50f6c38011a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-26740\\008-walk-return-0-0.jpg": "b582ce5d9cc3b469e57690bbf9819a40f08c15879c2e21ef15d31988ff2268d7",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\walk-observation.json": "9e4284c0dda748f6fd1cb86fc92cf01048f89eedf035ecaec9139837272d91e8",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-26740\\011-walk-return-3-0.jpg": "794f3294e295abc31c042fc988ca7ceb622563f83ad912b6575f284b83b131d6",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\run-observation.json": "cae0678b09b2520dfa10beafe7991ab559dd294279bf39e86035ce9eb53a3273",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\003-corpse-fullbody-0.jpg": "489bcca73b3fd9db1e32c5e414ea1ffdc1b57cb11fa9cb2b3d7055fc1d4725ce",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\cast-observation.json": "7a95c91a41321d19617147aa2e6209a9e4ec94cd26db299edc754fcc4723ad06",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\005-wide-floor-contact-0.jpg": "8c38c62bfcaff7c3af805b6f8fa60c0de20eca0a1f1b84d97a262aa34218fcab",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\combat-observation.json": "f1af4d035e3b838785cd0ab91304dcedabe177285c820b35c015aa2743d7805e",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-26740\\031-live-low-poses-0-0.jpg": "22dd6e247e9c488e7fc8febbc46fcc197bb6ab9a4f001ef906ca5b60517c2399",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\crouch-observation.json": "92afd606ea1e9ffe5a6f41ff65675844d76078e01c59032241dea54edda20b6e",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-48948\\002-kneel-hold-side-0-0.jpg": "5eb6311bed96d31c1604f4c095dbdce3e60dc7568c455eb816534a80cb7a87e4",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\kneel-observation.json": "6cfd6caf7006f2e123458f9975c750558e98a6547f0ec9dc7015a9c1091c8b4a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\018-final-gameplay-stability-0.jpg": "1a12fa78cef0054df0d11fba0a49af368ef77e948fc70424e593373843206bbe",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\death-observation.json": "355be48961ed089fdff915bc7ffe8e9fac1b51e2a038b81a5af911f58d14d32f"
+  },
+  "effectiveBodyConverted": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted",
+  "completeBodySelected": true,
+  "cases": [
+    {
+      "category": "idle",
+      "label": "Idle",
+      "caption": "Post-gameplay idle; skin3; original lighting",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\008-continuous-gameplay-2-0.jpg",
+      "imageSha256": "a052da0fc4c39ac8bd4b5c54f4b89b37bff439b1e483c0e15ab7d3e195af040d",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\idle-observation.json",
+      "receiptSha256": "5e7d1c2b6abef3b005645e4d50a994aea2398d3ca565eca81903f50f6c38011a",
+      "fullBodyReviewed": true,
+      "captureCrop": [
+        350,
+        180,
+        680,
+        635
+      ],
+      "cell": [
+        0,
+        132,
+        600,
+        740
+      ],
+      "literalViewport": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\00-idle-literal-viewport.png",
+      "literalViewportSha256": "1845f91f5f9b60a258ba11806242041b2b6265352eb0f7ac06b20ae6f358ad7f"
+    },
+    {
+      "category": "walk",
+      "label": "Walk",
+      "caption": "Actual outward walk; skin8; directional lighting",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-26740\\008-walk-return-0-0.jpg",
+      "imageSha256": "b582ce5d9cc3b469e57690bbf9819a40f08c15879c2e21ef15d31988ff2268d7",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\walk-observation.json",
+      "receiptSha256": "9e4284c0dda748f6fd1cb86fc92cf01048f89eedf035ecaec9139837272d91e8",
+      "fullBodyReviewed": true,
+      "captureCrop": [
+        450,
+        280,
+        596,
+        618
+      ],
+      "cell": [
+        600,
+        132,
+        600,
+        740
+      ],
+      "literalViewport": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\01-walk-literal-viewport.png",
+      "literalViewportSha256": "3535b1998bed8cb5d7cd55d12e9860484a5642782b127653771030d157003c9e"
+    },
+    {
+      "category": "run",
+      "label": "Run",
+      "caption": "Actual return run; skin8; directional lighting",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-26740\\011-walk-return-3-0.jpg",
+      "imageSha256": "794f3294e295abc31c042fc988ca7ceb622563f83ad912b6575f284b83b131d6",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\run-observation.json",
+      "receiptSha256": "cae0678b09b2520dfa10beafe7991ab559dd294279bf39e86035ce9eb53a3273",
+      "fullBodyReviewed": true,
+      "captureCrop": [
+        460,
+        295,
+        600,
+        625
+      ],
+      "cell": [
+        1200,
+        132,
+        600,
+        740
+      ],
+      "literalViewport": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\02-run-literal-viewport.png",
+      "literalViewportSha256": "4ef8cab015b7db1ce14b1efd6888dfd656b8521a5c98a6943c8ba24eb7c0241d"
+    },
+    {
+      "category": "cast",
+      "label": "Cast",
+      "caption": "Actual Magic Missile; skin3; original lighting",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\003-corpse-fullbody-0.jpg",
+      "imageSha256": "489bcca73b3fd9db1e32c5e414ea1ffdc1b57cb11fa9cb2b3d7055fc1d4725ce",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\cast-observation.json",
+      "receiptSha256": "7a95c91a41321d19617147aa2e6209a9e4ec94cd26db299edc754fcc4723ad06",
+      "fullBodyReviewed": true,
+      "captureCrop": [
+        350,
+        180,
+        680,
+        630
+      ],
+      "cell": [
+        1800,
+        132,
+        600,
+        740
+      ],
+      "literalViewport": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\03-cast-literal-viewport.png",
+      "literalViewportSha256": "f66bd831f2132a39a3fa2af679eb6549c8bdb69af0d385eb1e4319e4dbc2140e"
+    },
+    {
+      "category": "combat",
+      "label": "Combat",
+      "caption": "Actual equipped combat; skin3; original lighting",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\005-wide-floor-contact-0.jpg",
+      "imageSha256": "8c38c62bfcaff7c3af805b6f8fa60c0de20eca0a1f1b84d97a262aa34218fcab",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\combat-observation.json",
+      "receiptSha256": "f1af4d035e3b838785cd0ab91304dcedabe177285c820b35c015aa2743d7805e",
+      "fullBodyReviewed": true,
+      "captureCrop": [
+        360,
+        170,
+        710,
+        635
+      ],
+      "cell": [
+        0,
+        872,
+        600,
+        740
+      ],
+      "literalViewport": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\04-combat-literal-viewport.png",
+      "literalViewportSha256": "512afb7208df55022f25f6a6f95a42b95758e4b4273ce38a8d5416f7f7951ca9"
+    },
+    {
+      "category": "crouch",
+      "label": "Crouch",
+      "caption": "GET_LOW; skin8; inherited deep-hip overlap",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-26740\\031-live-low-poses-0-0.jpg",
+      "imageSha256": "22dd6e247e9c488e7fc8febbc46fcc197bb6ab9a4f001ef906ca5b60517c2399",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\crouch-observation.json",
+      "receiptSha256": "92afd606ea1e9ffe5a6f41ff65675844d76078e01c59032241dea54edda20b6e",
+      "fullBodyReviewed": true,
+      "captureCrop": [
+        460,
+        440,
+        650,
+        620
+      ],
+      "cell": [
+        600,
+        872,
+        600,
+        740
+      ],
+      "literalViewport": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\05-crouch-literal-viewport.png",
+      "literalViewportSha256": "6518922b97d8e2ee3f7f07a6165551a8a1b555df19db1d6df8b18d3c85eb53bd"
+    },
+    {
+      "category": "kneel",
+      "label": "Kneel",
+      "caption": "Held WORSHIP; skin3; side view; original lighting",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-48948\\002-kneel-hold-side-0-0.jpg",
+      "imageSha256": "5eb6311bed96d31c1604f4c095dbdce3e60dc7568c455eb816534a80cb7a87e4",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\kneel-observation.json",
+      "receiptSha256": "6cfd6caf7006f2e123458f9975c750558e98a6547f0ec9dc7015a9c1091c8b4a",
+      "fullBodyReviewed": true,
+      "captureCrop": [
+        470,
+        320,
+        630,
+        601
+      ],
+      "cell": [
+        1200,
+        872,
+        600,
+        740
+      ],
+      "literalViewport": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\06-kneel-literal-viewport.png",
+      "literalViewportSha256": "8733382c631a395f9bfcdf4e1aace8d8ea633913964382191d75acbe84e5dc57"
+    },
+    {
+      "category": "death",
+      "label": "Death",
+      "caption": "Actual gameplay corpse; skin3; original lighting",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\018-final-gameplay-stability-0.jpg",
+      "imageSha256": "1a12fa78cef0054df0d11fba0a49af368ef77e948fc70424e593373843206bbe",
+      "receipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\death-observation.json",
+      "receiptSha256": "355be48961ed089fdff915bc7ffe8e9fac1b51e2a038b81a5af911f58d14d32f",
+      "fullBodyReviewed": true,
+      "captureCrop": [
+        420,
+        460,
+        670,
+        636
+      ],
+      "cell": [
+        1800,
+        872,
+        600,
+        740
+      ],
+      "literalViewport": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-animation-reference-v2\\07-death-literal-viewport.png",
+      "literalViewportSha256": "2c6e30776a737f7211fa4a2c160e10606e7ea835067d839ededba3265f2f9148"
+    }
+  ],
+  "pngSha256": "97a054eeebaf44dae69aa0653d8f940c248481560db0502e37e4ca2d7d4c730b",
+  "svgSha256": "ad9ad8867883a4d0e84a1f763b17e16e9bf228550ebb6c49636c7df1e78d9fed",
+  "sourceCapturesModified": false,
+  "layoutPolicy": "Uniform aspect-preserving letterbox layout; explicit client-only pixel crops preserve original captures and colors. No semantic editing or generative imagery.",
+  "font": "C:\\Windows\\Fonts\\segoeui.ttf",
+  "fontSha256": "8134dbcd09e7b123c9a7f229d49cffbcb01352cc72ea5e1076b65d0dca9f73cd",
+  "executedCodeSha256": "7d0090dcebd424df6c1646211b5cac45fd0d43e685976100cef3c77b6119882b"
+}

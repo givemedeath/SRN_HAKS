@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "troll-male-human-reference-scaled-rig",
+  "specimen": {"race": "troll", "gender": "male", "bodyType": "muscular"},
+  "stockReference": {"prefix": "pmh0", "heightMeters": 1.9339157, "designHeightMeters": 1.75},
+  "targetRig": {"prefix": "pmg0", "mode": "reference-scaled", "heightMeters": 2.762736714285714, "uniformRigScale": 1.4285714285714286, "designHeightMeters": 2.5},
+  "raceReplacement": {"raceTableRow": 2, "replaces": "Gnome", "replacement": "Troll", "bodyFamily": "g", "appearanceRow": 2},
+  "requiredAttachments": ["torso_g", "pelvis_g", "neck_g", "head_g", "lbicep_g", "rbicep_g", "lforearm_g", "rforearm_g", "lhand_g", "rhand_g", "lthigh_g", "rthigh_g", "lshin_g", "rshin_g", "lfoot_g", "rfoot_g"],
+  "animationPolicy": {"preserveRotationControllers": true, "preserveClipTimingEvents": true, "positionControllers": "uniform scaled displacements around explicitly scaled stock bind joints", "generationPosePropagated": false},
+  "equipment": {"mode": "measured-rigid-armory", "profileRequired": true, "sourcePrefix": "pmh0", "destinationPrefix": "pmg0", "excludeBareBodyPart001": true, "correctDoubleTranslation": true, "robes": "separate animated retarget and client acceptance", "helmetsWeaponsShields": "measure stock attachment transforms and prove in client"},
+  "materialPolicy": {"fixedClothingParts": ["pelvis"], "stockNeck": true, "provisionalStockHead": true},
+  "helperLimitations": ["fit_stock_rig.py and paired-end/current operation gates require exact Human basis; generalize through explicit target matrices before running Troll geometry", "Existing envelope profiles and affine NWNArmory candidates are calibration seeds, not accepted equipment", "Race/appearance row mapping is project configuration and still requires packaged table/client proof"],
+  "acceptance": {"sourceApproved": false, "assembledAccepted": false, "clientAccepted": false, "status": "portability-preflight-only"}
+}

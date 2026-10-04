@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "created": "2026-10-03T23:13:32.599896+00:00",
+  "scope": "Practical complete Human male validation pass; hands cosmetic work closed by user.",
+  "packagePins": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted\\effective-material-inventory.json": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_body.hak": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2"
+  },
+  "completeBodySelected": true,
+  "nativeModels": 14,
+  "bodyResources": 72,
+  "clientObserved": true,
+  "clientPassCompleted": true,
+  "runs": [
+    {
+      "processId": 40868,
+      "launch": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-launch-40868.json",
+      "launchSha256": "98646ab2d79037dc16d93b7c24ce1e8a9b782b4280e1429163d6acd06cbef286",
+      "fixtureReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-40868\\receipt.json",
+      "fixtureReceiptSha256": "78beba25081d47250efc0462a4c439a19dbb8e00a58642ea79b13d4c9381cb9e",
+      "testHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+      "moduleSha256": "9a25dc111eccc0c363b242ed393c6dd6518bd0c402acc029e67be8e36c471b0d",
+      "configuration": {
+        "slugs": "human_male_fit,stock_human_male_fit",
+        "motion": true,
+        "pose": null,
+        "skinColor": 3,
+        "gameplay": true,
+        "gameplayOnly": false,
+        "gameplayRepeat": true,
+        "cameraPitch": 75.0,
+        "cameraDistance": 3.5,
+        "cameraFacing": 90.0,
+        "cameraHeight": 1.0,
+        "cameraTarget": "human_male_fit",
+        "cameraLock": false,
+        "entryPosition": [
+          14.0,
+          13.0
+        ],
+        "equipmentTemplateSha256": null,
+        "fullEquipmentTemplateSha256": "ead8af5ac02a3c46eb51f980169d2db70e4f20b6e0f1d3f38b1c8ffe00caed64",
+        "stockEquipmentFallback": true,
+        "weaponTemplateSha256": "670a8a4c236dd7e63762b8ca47ae03e3b94baf6d199c5974621ee32948bb4c02",
+        "shieldTemplateSha256": "7da519ba87293d2c9c636ef591612ffe2f05a4248def9cb31fbd7bde0aa137f1",
+        "builderSha256": "52ef1fab24153c82af368b8dd93fbadfc6e0a5a8c4248d95856418cdcece0a24",
+        "fixtureResourceHashes": {
+          "appearance.2da": "e05fca2a6fb5b69ba2312c8fe7ac696490be7c688f55ad17e855663ea36e76a9"
+        },
+        "effectiveNativeBodyMaterials": true,
+        "bareAccessoryPolicy": {
+          "belt": 0,
+          "rightShoulder": 0,
+          "leftShoulder": 0,
+          "fleshParts": 1,
+          "head": 1
+        }
+      },
+      "settings": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-40868\\settings.tml",
+      "settingsSha256": "477ff86c81ae74dd158bc76e02461d09eb86224a8f6d3028748de83a3ee396be",
+      "runtimeMetrics": {
+        "observedAt": "2026-10-03T22:54:55.9357337Z",
+        "processId": 40868,
+        "startedAt": "2026-10-03T22:37:41.0424292Z",
+        "workingSetBytes": 595333120,
+        "privateBytes": 2331295744,
+        "virtualBytes": 9341607936,
+        "cpuSeconds": 275.546875,
+        "responding": true,
+        "bodyHakSha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+        "observedGpuMemory": null,
+        "fpsScope": "Screenshot overlay only; adaptive-vsync scene, not a benchmark"
+      },
+      "runtimeMetricsSha256": "1f39e4ebe5197253ea7bc4408d8a7879ec4cb05214b8921e1b2600487058768a",
+      "sourceLogs": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-40868\\logs\\nwclientLog1.txt": "f8519aed95c1e805564027100a4683fc5bedfd6123810aef4ce5667bafe47af0",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-40868\\logs\\nwengineLog.txt": "bbc06ca113519cbcdd64568905658aa65de124ffddb86d9999e3876ef4a1bd5b"
+      },
+      "filteredPhenotypeLog": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\run-40868-phenotype.log",
+      "filteredPhenotypeLogSha256": "121eb575d2648f41f8c727d2491e9367677d4f8d28b89d11447832e5caaf4942"
+    },
+    {
+      "processId": 26740,
+      "launch": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-launch-26740.json",
+      "launchSha256": "82f5e2f0526a3ef86c8877a321a87d54f3349e156ed9ae6fea25e7e71e4af972",
+      "fixtureReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-26740\\receipt.json",
+      "fixtureReceiptSha256": "ce27e69d4a30fe82a164cb81afda1746fe045301ab23722704fca585918b933b",
+      "testHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+      "moduleSha256": "6fbe425671c9317f2e3f6da08fd7de118963b3f4005bf033a79b4689978ee079",
+      "configuration": {
+        "slugs": "human_male_fit,stock_human_male_fit",
+        "motion": true,
+        "pose": null,
+        "skinColor": 8,
+        "gameplay": false,
+        "gameplayOnly": false,
+        "gameplayRepeat": false,
+        "cameraPitch": 75.0,
+        "cameraDistance": 5.0,
+        "cameraFacing": 90.0,
+        "cameraHeight": 0.9,
+        "cameraTarget": "human_male_fit",
+        "cameraLock": false,
+        "entryPosition": [
+          14.0,
+          13.0
+        ],
+        "equipmentTemplateSha256": null,
+        "fullEquipmentTemplateSha256": "ead8af5ac02a3c46eb51f980169d2db70e4f20b6e0f1d3f38b1c8ffe00caed64",
+        "stockEquipmentFallback": true,
+        "weaponTemplateSha256": null,
+        "shieldTemplateSha256": null,
+        "builderSha256": "281b7d43d901fa47a4eed71f191b287895528d6f59df75f0d9e0e1c5acc49b96",
+        "motionRouteDistanceMeters": 12.0,
+        "lightingProfile": "directional",
+        "fixtureResourceHashes": {
+          "appearance.2da": "e05fca2a6fb5b69ba2312c8fe7ac696490be7c688f55ad17e855663ea36e76a9"
+        },
+        "effectiveNativeBodyMaterials": true,
+        "bareAccessoryPolicy": {
+          "belt": 0,
+          "rightShoulder": 0,
+          "leftShoulder": 0,
+          "fleshParts": 1,
+          "head": 1
+        },
+        "lightingFields": {
+          "ambientRGB": 5263440,
+          "diffuseRGB": 15658734,
+          "sunShadows": true
+        }
+      },
+      "settings": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-26740\\settings.tml",
+      "settingsSha256": "bf0238f8e29c9d86e6bc5c9e9ac415c7ccba586c097cca3fc39259f1d46f5de6",
+      "runtimeMetrics": {
+        "observedAt": "2026-10-03T23:04:45.3875076Z",
+        "processId": 26740,
+        "startedAt": "2026-10-03T22:57:07.8620027Z",
+        "workingSetBytes": 591499264,
+        "privateBytes": 2316697600,
+        "virtualBytes": 9346170880,
+        "cpuSeconds": 105.625,
+        "responding": true,
+        "observedGpuMemory": null,
+        "fpsScope": "61 FPS overlay adaptive-vsync, small isolated scene; not a crowd benchmark"
+      },
+      "runtimeMetricsSha256": "1fac45748f24b2061785c6dbf3ee13d869edb2c0a9e3914c60c47389fe3665ee",
+      "sourceLogs": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-26740\\logs\\nwclientLog1.txt": "5cbf3ca8e0aebb7d8e6d01de39d9018952c9f0662ca73e21e1aa4b47e13bea2c",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-26740\\logs\\nwengineLog.txt": "dbd5daba8ec4ffe6b194f476b06fb81e33ced58c1054c9dcebf4ab60895bda86"
+      },
+      "filteredPhenotypeLog": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\run-26740-phenotype.log",
+      "filteredPhenotypeLogSha256": "c3f859e3d694cb24ab15bf865d9a4f64184806dc0800293f439262f2d9c7be03"
+    },
+    {
+      "processId": 48948,
+      "launch": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-launch-48948.json",
+      "launchSha256": "abdd8715dab00b7b57739d706063e26811b2428676860cb5bc6dc1254bf41536",
+      "fixtureReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-48948\\receipt.json",
+      "fixtureReceiptSha256": "e8dfb9ad08b3c57fd5e6b26a2e564695ebea9004810263594c69362599b43633",
+      "testHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+      "moduleSha256": "dbf696bf7e5c305026e2015c45d62d06b42ba02c4237b14a9cf45eaa51cfe7cc",
+      "configuration": {
+        "slugs": "human_male_fit,stock_human_male_fit",
+        "motion": false,
+        "pose": "kneel",
+        "skinColor": 3,
+        "gameplay": false,
+        "gameplayOnly": false,
+        "gameplayRepeat": false,
+        "cameraPitch": 75.0,
+        "cameraDistance": 5.0,
+        "cameraFacing": 180.0,
+        "cameraHeight": 0.9,
+        "cameraTarget": "human_male_fit",
+        "cameraLock": false,
+        "entryPosition": [
+          14.0,
+          13.0
+        ],
+        "equipmentTemplateSha256": null,
+        "fullEquipmentTemplateSha256": "ead8af5ac02a3c46eb51f980169d2db70e4f20b6e0f1d3f38b1c8ffe00caed64",
+        "stockEquipmentFallback": true,
+        "weaponTemplateSha256": null,
+        "shieldTemplateSha256": null,
+        "builderSha256": "281b7d43d901fa47a4eed71f191b287895528d6f59df75f0d9e0e1c5acc49b96",
+        "fixtureResourceHashes": {
+          "appearance.2da": "e05fca2a6fb5b69ba2312c8fe7ac696490be7c688f55ad17e855663ea36e76a9"
+        },
+        "effectiveNativeBodyMaterials": true,
+        "bareAccessoryPolicy": {
+          "belt": 0,
+          "rightShoulder": 0,
+          "leftShoulder": 0,
+          "fleshParts": 1,
+          "head": 1
+        }
+      },
+      "settings": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-48948\\settings.tml",
+      "settingsSha256": "bf0238f8e29c9d86e6bc5c9e9ac415c7ccba586c097cca3fc39259f1d46f5de6",
+      "runtimeMetrics": {
+        "observedAt": "2026-10-03T23:10:11.6741266Z",
+        "processId": 48948,
+        "startedAt": "2026-10-03T23:06:30.5898199Z",
+        "workingSetBytes": 594653184,
+        "privateBytes": 2318155776,
+        "virtualBytes": 9359396864,
+        "cpuSeconds": 51.28125,
+        "responding": true,
+        "observedGpuMemory": null,
+        "fpsScope": "61 FPS adaptive-vsync screenshot overlay; not a crowd benchmark"
+      },
+      "runtimeMetricsSha256": "b57bef1ff93436c1e54cfab9a600bf1a4f7bbaab7c760cc7fed6dfd442dde02c",
+      "sourceLogs": {
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-48948\\logs\\nwclientLog1.txt": "011f67c2297f0c9c4c842725d16f7c0312897e9905b501ba1ab83a67e67e2ac5",
+        "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-48948\\logs\\nwengineLog.txt": "ff6595431eb20394ebb6d19aca4494c830870fa7b3e2070f0b7f9aa9e340efc6"
+      },
+      "filteredPhenotypeLog": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reviewed-evidence-v1\\run-48948-phenotype.log",
+      "filteredPhenotypeLogSha256": "e2a7439ebcc93877f4161b9d989718f099256302f95139efe2557c5006d934df"
+    }
+  ],
+  "observed": {
+    "materials": "Skin3/original and skin8/directional: anatomical definition visible, adjoining skin broadly coherent, fixed dark pelvis cloth preserved. Hover highlights excluded from assessment.",
+    "motion": "Actual walk/run start, outward route, return and idle; casting, equipped melee, damage, death and resurrection; GET_LOW entry/hold/recovery and held WORSHIP kneeling cycle inspected.",
+    "joints": "No newly detached parts or empty openings observed in inspected frames. Rounded overlaps/wrist cap remain visible in some extremes.",
+    "floor": "Feet and corpse inspected; walk/run plants appear practical. No collision or continuous floor-height instrumentation was used.",
+    "equipment": "Rigid armor, sleeves/boots coverage and actual sword/shield behavior inspected at stock identity scaling. Full armor hides many custom surfaces; it is fallback/coverage evidence.",
+    "views": "Front/rear route, equipped front/rear, side kneeling, close/gameplay views; offline front/rear/side/top comparisons supplement engine captures.",
+    "camera": "Distance wheel changed visible framing. Camera locking disabled in all receipts. Keyboard camera-pan injection did not independently establish a reliable turning control; side view uses explicit fixture facing.",
+    "stability": "Three completed root-owned runs with no crash reports produced; skin3 gameplay >17min, skin8 motion >7min, held-kneel inspection several minutes. Process responding at each metric sample.",
+    "performance": "Steady screenshot overlay typically61FPS under adaptive-vsync, 3 specimen actors plus PC (7 actors during gameplay targets). Small isolated test, not a crowd/frametime benchmark."
+  },
+  "acceptedLimitations": [
+    "Inherited deep-crouch pelvis/thigh overlap and rounded cap prominence; user explicitly tolerates crouching weirdness.",
+    "Practical hand source retains eight submillimetre crossing pairs and one pinched vertex link; no extra cosmetic loop required.",
+    "Forearm cap can show through the wrist crown and extreme stock held-dummy shaft can enter palm, also present on stock mitten.",
+    "Not all armor/robes/glove/helmet combinations, skin palettes, quality levels or production scenes were exhaustively client-tested.",
+    "No GPU residency/frame-time capture or crowded scene benchmark. Serialized costs/texture estimates are separate from actual process memory.",
+    "Nonfatal Empty field label in MODULE.ifo log warnings remain in archived engine logs; no reported missing-body-resource error or crash in these runs."
+  ],
+  "clientReferenceConfig": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-reference-config-v1.json",
+  "clientReferenceConfigSha256": "cb781d258860763e29fd92bb2adc4c16c9faa825381709c7ad33974b6aa15b40",
+  "offlineValidation": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\offline-validation-v1.json",
+  "offlineValidationSha256": "4f45db030d9431545fba0f8d185db30d33a7edb26ed853d93aa1c9324f376294",
+  "frozenReviewCodeSha256": "93af22da154c07a8ff490a7ea415f3fe3f13ba4c0f6e6d812e9309e08eec042a",
+  "purgePerformed": false,
+  "acceptance": "Ready for user review, with disclosed practical limits; no claim of exhaustive production certification."
+}

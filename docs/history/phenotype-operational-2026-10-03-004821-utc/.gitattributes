@@ -1,0 +1,2 @@
+# Keep archived journals byte-identical across checkouts for recorded SHA256s.
+* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

@@ -1,0 +1,730 @@
+{
+  "schemaVersion": 1,
+  "converted": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\native-fourteen-v1\\human_male_fit\\converted",
+  "inventorySha256": "cc1f7a2c3a8c561311625db85af56995efe6b2a7e4a3767ec581be716d2b3304",
+  "completeBodySelected": true,
+  "acceptedSixBytesExact": true,
+  "resources": [
+    {
+      "name": "pmh0_bicepl001.mdl",
+      "sha256": "7870dff3505d0667699e91b5a07448dad44a80a11486dab55e33408801676e3d",
+      "serializedBytes": 3240472,
+      "meshes": [
+        {
+          "node": "pmh0_bicepl001p",
+          "vertices": 27922,
+          "triangles": 49978
+        }
+      ]
+    },
+    {
+      "name": "pmh0_bicepl001.mtr",
+      "sha256": "dcf38d3e0d114ef3c5d476b0493c6566bbb7561083cc20ec26008931b40fdaa0",
+      "serializedBytes": 178
+    },
+    {
+      "name": "pmh0_bicepl001.plt",
+      "sha256": "714c44cdbfdd940f278d946db77e0ea2d7e30c3351cba9f2d0ff5ccf06374ecd",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_bicepl001n.tga",
+      "sha256": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_bicepl001r.tga",
+      "sha256": "5f763a3a7723270afa4ca96c5c9983336dd7cb737fe113c04e85ee9d1fa27ac1",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_bicepr001.mdl",
+      "sha256": "abad51abdc6fe1f55d0e0fc216d70724a27e3fa5156754b2dfe7ffc65f8acae7",
+      "serializedBytes": 3240472,
+      "meshes": [
+        {
+          "node": "pmh0_bicepr001p",
+          "vertices": 27922,
+          "triangles": 49978
+        }
+      ]
+    },
+    {
+      "name": "pmh0_bicepr001.mtr",
+      "sha256": "5451a0147ba6348122e851025991509227ad26fa501d70ffe95a250b97de449b",
+      "serializedBytes": 178
+    },
+    {
+      "name": "pmh0_bicepr001.plt",
+      "sha256": "f345d6b907139521acddf297be62ad138689bf634677b9350c4eb1a87caf9935",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_bicepr001n.tga",
+      "sha256": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_bicepr001r.tga",
+      "sha256": "5f763a3a7723270afa4ca96c5c9983336dd7cb737fe113c04e85ee9d1fa27ac1",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_chest001.mdl",
+      "sha256": "8afdd1e81bd7b695b18ce5b88d5f1fa265e7c34043c5bc838bd012a55fb3e1be",
+      "serializedBytes": 3976864,
+      "meshes": [
+        {
+          "node": "pmh0_chest001p",
+          "vertices": 36338,
+          "triangles": 58726
+        }
+      ]
+    },
+    {
+      "name": "pmh0_chest001.mtr",
+      "sha256": "a5b910a9324316fabe4ee34b67678340f29bb8a704e41f81064077b89a74d396",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_chest001.plt",
+      "sha256": "a1cbede36e7f2e03998152cd336634fb414bc124fafff1966e09c2e99d2d42be",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_chest001n.tga",
+      "sha256": "ae5c744affad92c96aeea540eb0a5d74e576d3c3f7f77dc66b115938bdfca9bc",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_chest001r.tga",
+      "sha256": "c383792c60b91173037315a43e8a6bd243c1e018dfe773a8b0e1d6df04e77744",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_footl001.mdl",
+      "sha256": "9e84eb4ef52a8e037f459a3fe0ac9638bcafcd4ae78731b1bdc3735dc18fa16d",
+      "serializedBytes": 3334616,
+      "meshes": [
+        {
+          "node": "pmh0_footl001p",
+          "vertices": 29915,
+          "triangles": 49938
+        }
+      ]
+    },
+    {
+      "name": "pmh0_footl001.mtr",
+      "sha256": "68997d26d4cbb3d4f65226454c7919b1bad696dabe2b8dc7a5a9c9d19844461c",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_footl001.plt",
+      "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_footl001n.tga",
+      "sha256": "cdeb1b3170e130f2891782b87744bebd3f132f4db8b79642042b8b0b19f3c78e",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_footl001r.tga",
+      "sha256": "cb34d51e5d543521376a0825e4f1c8fb21d12fa10fb35c7ebdd804573eabaf5a",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_footr001.mdl",
+      "sha256": "607bfafd8175c44b35d6c25a9e07de306a076a33ba2716e36ac4d473ec4fde2d",
+      "serializedBytes": 3334616,
+      "meshes": [
+        {
+          "node": "pmh0_footr001p",
+          "vertices": 29915,
+          "triangles": 49938
+        }
+      ]
+    },
+    {
+      "name": "pmh0_footr001.mtr",
+      "sha256": "9181b8ddb022feb47255bb24b82410fd1db81d24b9be748f153a21797493f3f1",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_footr001.plt",
+      "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_footr001n.tga",
+      "sha256": "cdeb1b3170e130f2891782b87744bebd3f132f4db8b79642042b8b0b19f3c78e",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_footr001r.tga",
+      "sha256": "cb34d51e5d543521376a0825e4f1c8fb21d12fa10fb35c7ebdd804573eabaf5a",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_forel001.mdl",
+      "sha256": "77b01bdbbd09fe1417c7065f2c004afeb8f956a76f21ef617a82aa141d0d87b7",
+      "serializedBytes": 3237852,
+      "meshes": [
+        {
+          "node": "pmh0_forel001p",
+          "vertices": 27850,
+          "triangles": 50000
+        }
+      ]
+    },
+    {
+      "name": "pmh0_forel001.mtr",
+      "sha256": "ae06b9e1c2933eea58ad6e60c656cf6c1bffdf1d16c16f413eafd79047934a13",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_forel001.plt",
+      "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_forel001n.tga",
+      "sha256": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_forel001r.tga",
+      "sha256": "3947f8f7140f1b43e1f9595a25c3314f77fdda443261c9736abe9aff57939266",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_forer001.mdl",
+      "sha256": "615fb8386d72589441fc23f82c90f9dd3ab891b15ac555701a1936669a604c9c",
+      "serializedBytes": 3237852,
+      "meshes": [
+        {
+          "node": "pmh0_forer001p",
+          "vertices": 27850,
+          "triangles": 50000
+        }
+      ]
+    },
+    {
+      "name": "pmh0_forer001.mtr",
+      "sha256": "cb5c157171322e18ace217077f3818b01ed0946de52edb466942eab08de99b85",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_forer001.plt",
+      "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_forer001n.tga",
+      "sha256": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_forer001r.tga",
+      "sha256": "3947f8f7140f1b43e1f9595a25c3314f77fdda443261c9736abe9aff57939266",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_handl001.mdl",
+      "sha256": "5a2c3539fb081d7c826339ffa8b04b64c6d6c506a5d563bd034bc739c629a266",
+      "serializedBytes": 3438256,
+      "meshes": [
+        {
+          "node": "pmh0_handl001p",
+          "vertices": 32033,
+          "triangles": 49990
+        }
+      ]
+    },
+    {
+      "name": "pmh0_handl001.mtr",
+      "sha256": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_handl001.plt",
+      "sha256": "a12b099def9b886f978e0083b2e9840ad4de8176f258977c50f49e3928a8a6f8",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_handl001n.tga",
+      "sha256": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_handl001r.tga",
+      "sha256": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_handr001.mdl",
+      "sha256": "539a6dbc11a02d96b9c122b7931ca064e6ced22a1aabe93d1d0f6ca6e8374164",
+      "serializedBytes": 3438256,
+      "meshes": [
+        {
+          "node": "pmh0_handr001p",
+          "vertices": 32033,
+          "triangles": 49990
+        }
+      ]
+    },
+    {
+      "name": "pmh0_handr001.mtr",
+      "sha256": "baad8aa75ba04a31ea994a3442ec97eb705524f54c9f3852defc4f5c9806022f",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_handr001.plt",
+      "sha256": "103b8cee558c05097dd2cc02a89ee041fe8d529ec18b47780ee155a073d1cbbb",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_handr001n.tga",
+      "sha256": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_handr001r.tga",
+      "sha256": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_legl001.mdl",
+      "sha256": "e82617d80230c5ac3496093de84bb01ceefdb16f2c25c4b96450cd995333126c",
+      "serializedBytes": 3276956,
+      "meshes": [
+        {
+          "node": "pmh0_legl001p",
+          "vertices": 28671,
+          "triangles": 49992
+        }
+      ]
+    },
+    {
+      "name": "pmh0_legl001.mtr",
+      "sha256": "b566e78518a0087728544238d01a88ec25e56766ce5438ba9a89ef4dba2bc467",
+      "serializedBytes": 174
+    },
+    {
+      "name": "pmh0_legl001.plt",
+      "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_legl001n.tga",
+      "sha256": "cc4151d87b0e25a18d4a2f55340beddc718ecbf9d2298b5085d4d2b63852bd8c",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_legl001r.tga",
+      "sha256": "3bd3d1c9d451bd19efb15d7714d80058e81b34618b75832c6d9f2b5a04927171",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_legr001.mdl",
+      "sha256": "cfd6d71f11594756fbb54a8710f3dc687f556c63bb69dde3a5998f7abef6f033",
+      "serializedBytes": 3276956,
+      "meshes": [
+        {
+          "node": "pmh0_legr001p",
+          "vertices": 28671,
+          "triangles": 49992
+        }
+      ]
+    },
+    {
+      "name": "pmh0_legr001.mtr",
+      "sha256": "1741df5e302bc913cc5fa40cc126fdf9832687a2752c713294b20a7a8605d4d8",
+      "serializedBytes": 174
+    },
+    {
+      "name": "pmh0_legr001.plt",
+      "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_legr001n.tga",
+      "sha256": "cc4151d87b0e25a18d4a2f55340beddc718ecbf9d2298b5085d4d2b63852bd8c",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_legr001r.tga",
+      "sha256": "3bd3d1c9d451bd19efb15d7714d80058e81b34618b75832c6d9f2b5a04927171",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_pelvis001.mdl",
+      "sha256": "c0d87495e6405254fa9dfb9b5ec1d144ed098ccd06a6e6290b36fced9a1a428a",
+      "serializedBytes": 1988920,
+      "meshes": [
+        {
+          "node": "pmh0_pelvis001p",
+          "vertices": 3183,
+          "triangles": 4327
+        },
+        {
+          "node": "pmh0_pelvis001f",
+          "vertices": 16425,
+          "triangles": 23199
+        }
+      ]
+    },
+    {
+      "name": "pmh0_pelvis001.mtr",
+      "sha256": "fd17a10276d22cab12adcbd265d6878053fcf580bd9931b721c5543d93dc3bf2",
+      "serializedBytes": 178
+    },
+    {
+      "name": "pmh0_pelvis001.plt",
+      "sha256": "641a251d05ba30297009d0d184f7089dcbaad94e2baabc07405aa033da281d3b",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_pelvis001f.mtr",
+      "sha256": "30eed31a1cabedba960023a116e658a388c53bc095fa20fc179438a6169c90a5",
+      "serializedBytes": 181
+    },
+    {
+      "name": "pmh0_pelvis001f.tga",
+      "sha256": "93a8f2faeac57cac7ca745c593c61d54e4e7ad6700b2f368d049213fb3306f17",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_pelvis001n.tga",
+      "sha256": "a932887e8d65c9f1869a8f97d309c7d92224bebdb90396de6623dc40ef6b3d20",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_pelvis001r.tga",
+      "sha256": "7d2dce54154ccf706c0b318ebdec92135ad076e1e51e7026499a5e16b9f476cd",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_shinl001.mdl",
+      "sha256": "3d4eb3c94fb8ce73114c5293e70a5edf9bf7647b32a46357e9abd9fb99e4ff63",
+      "serializedBytes": 3256908,
+      "meshes": [
+        {
+          "node": "pmh0_shinl001p",
+          "vertices": 28247,
+          "triangles": 50000
+        }
+      ]
+    },
+    {
+      "name": "pmh0_shinl001.mtr",
+      "sha256": "358bbd913357c9fc0648d224cd9363712258ffdcbc5290f4cea136e8552d866b",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_shinl001.plt",
+      "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_shinl001n.tga",
+      "sha256": "dbc72949e74962fd698794b73829c291c63e6b24358a19a86b6c9baa6ca0aa19",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_shinl001r.tga",
+      "sha256": "f9ef38468856c763a8be3c2389b204b5eff0ffd5628a72e5e373da04ec6e95d9",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_shinr001.mdl",
+      "sha256": "282e55060fb333789ad8b6670d5fe83d9153df67be5756829d9b07195eb278a9",
+      "serializedBytes": 3256908,
+      "meshes": [
+        {
+          "node": "pmh0_shinr001p",
+          "vertices": 28247,
+          "triangles": 50000
+        }
+      ]
+    },
+    {
+      "name": "pmh0_shinr001.mtr",
+      "sha256": "62b07d272e095dcb090ae2256137e32ac57558a006f175f0b4719662c0d5158e",
+      "serializedBytes": 176
+    },
+    {
+      "name": "pmh0_shinr001.plt",
+      "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c",
+      "serializedBytes": 8388632,
+      "width": 2048,
+      "height": 2048,
+      "decodedShadeAndLayerBytes": 8388608,
+      "hypotheticalRecoloredRGBA8BaseBytes": 16777216,
+      "hypotheticalRecoloredRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_shinr001n.tga",
+      "sha256": "dbc72949e74962fd698794b73829c291c63e6b24358a19a86b6c9baa6ca0aa19",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    },
+    {
+      "name": "pmh0_shinr001r.tga",
+      "sha256": "f9ef38468856c763a8be3c2389b204b5eff0ffd5628a72e5e373da04ec6e95d9",
+      "serializedBytes": 12582956,
+      "width": 2048,
+      "height": 2048,
+      "storedImageMode": "RGB",
+      "decodedImageBytes": 12582912,
+      "hypotheticalRGBA8BaseBytes": 16777216,
+      "hypotheticalRGBA8MipBytes": 22369620
+    }
+  ],
+  "resourceCount": 72,
+  "modelCount": 14,
+  "serializedPayloadBytes": 527885123,
+  "nativeMeshCount": 15,
+  "nativeVertices": 405222,
+  "nativeTriangles": 686048,
+  "textureResourceCount": 43,
+  "hypotheticalAllTextureRGBA8BaseBytes": 721420288,
+  "hypotheticalAllTextureRGBA8MipBytes": 961893660,
+  "uniqueTextureContentHashes": 27,
+  "memoryPolicy": "Per resource name, no speculative content deduplication. RGBA8 figures are an explicit hypothetical uncompressed allocation, not observed engine memory. Stock head/neck/rig, equipment, animation, driver/cache and framebuffer costs are excluded.",
+  "clientPerformanceMeasured": false,
+  "clientLaunchedByThisTool": false,
+  "executedCodeSha256": "cf6c5c3bbc890ff71388349f3479c4d6ae2e960e9e5d1938a8d723f180f7b621"
+}

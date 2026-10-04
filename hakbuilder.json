@@ -127,6 +127,11 @@
       "Name": "srn_placeable",
       "Path": "./srn_placeable/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_body",
+      "Path": "./srn_body/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": [

@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "readOnly": true,
+  "inputs": {
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\left-uniform-stock-v1\\placed-local.glb": "a65969da012dc41661747f76e2585286e2e4f3cfad9fffcd852948694ea4fc0d",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\right-uniform-stock-mirror-v1\\mirrored-local.glb": "58d803f87abaac491be54201aba9daced6b08096898af61aefade314327c5fc1",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\left-proximal-taper-moderate-v1\\tapered-local.glb": "5ca7da7072848fb7bf84d5926d47ada919ce16eb8be7f446768840b96f7b3e32",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-forearm-pilot-v1\\right-proximal-taper-moderate-mirror-v1\\mirrored-local.glb": "a1a1d3df83c85b4bf7a06b4fd34f1360ea373869326ee5539fb19942231a9500",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-stock-inputs-v1\\stock\\ascii\\pmh0.mdl": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+    "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\review-fitted-hand-texture-blender-v1.py": "544715a7e6e8a1e160ee7261afc0a27d69d1adbade61c6cd5770ccf1eefce1ff"
+  },
+  "records": [
+    {
+      "side": "l",
+      "view": "palm",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\fitted-texture-wrist-review-v1\\l-palm.png",
+      "sha256": "cbc77e514ac2ed117737293f1c9917a9cb3757bf2da205f49a49d7b37fea7dfd",
+      "cameraToHandLocal": [
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.7315336465835571
+        ],
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.004310049116611481
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.06033248081803322
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "forearmToHandBind": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.03308999910950661
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.022893600165843964
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.2917630076408386
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "handImportedCustomNormals": [
+        true
+      ]
+    },
+    {
+      "side": "l",
+      "view": "oblique",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\fitted-texture-wrist-review-v1\\l-oblique.png",
+      "sha256": "af32213237c58c7824952b828c5626ffea11d1bcb34cf0f094bd3fe37131927f",
+      "cameraToHandLocal": [
+        [
+          -0.5449883341789246,
+          0.20452548563480377,
+          0.8131155967712402,
+          0.5913703441619873
+        ],
+        [
+          0.8384436368942261,
+          0.13294155895709991,
+          0.5285251140594482,
+          0.40070387721061707
+        ],
+        [
+          0.0,
+          0.9697916507720947,
+          -0.24393469095230103,
+          -0.2432834953069687
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "forearmToHandBind": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.03308999910950661
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.022893600165843964
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.2917630076408386
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "handImportedCustomNormals": [
+        true
+      ]
+    },
+    {
+      "side": "r",
+      "view": "palm",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\fitted-texture-wrist-review-v1\\r-palm.png",
+      "sha256": "24b3fe0dbdfb51ba3d0670543951f4f5bb5d50d3bbf6f5fbe9241a89da97279c",
+      "cameraToHandLocal": [
+        [
+          0.0,
+          0.0,
+          -1.0,
+          -0.7315340042114258
+        ],
+        [
+          -1.0,
+          0.0,
+          0.0,
+          0.004310049116611481
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.060333482921123505
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "forearmToHandBind": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          -0.03308999910950661
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.022893600165843964
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.2917630076408386
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "handImportedCustomNormals": [
+        true
+      ]
+    },
+    {
+      "side": "r",
+      "view": "oblique",
+      "image": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-hand-pilot-v1\\fitted-texture-wrist-review-v1\\r-oblique.png",
+      "sha256": "4931e8dc95f731377c308a1bd8d63a23be891cfe1ccf322265b0e325ca72866b",
+      "cameraToHandLocal": [
+        [
+          -0.5449883341789246,
+          -0.20452548563480377,
+          -0.8131155967712402,
+          -0.591370701789856
+        ],
+        [
+          -0.8384436368942261,
+          0.13294155895709991,
+          0.5285251140594482,
+          0.40070387721061707
+        ],
+        [
+          0.0,
+          0.9697916507720947,
+          -0.24393469095230103,
+          -0.24328449368476868
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "forearmToHandBind": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          -0.03308999910950661
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.022893600165843964
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.2917630076408386
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "handImportedCustomNormals": [
+        true
+      ]
+    }
+  ],
+  "sourceGeometryOrMapsChanged": false,
+  "rigChanged": false,
+  "clientAccepted": false,
+  "limits": "Actual generated GLB maps and selected forearm raw GLB materials, EEVEE neutral lights/AO. Root native palette calibration and embedded-AO/roughness repair are not simulated; skin colour mismatch here is not final native evidence. No model export. Stock bind wrist assembly only; CPU weapon and dense controller checks complement this view."
+}

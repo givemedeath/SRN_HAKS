@@ -1,0 +1,607 @@
+{
+  "$schema": "purpose-built-production.schema.json",
+  "schemaVersion": 1,
+  "configurationState": "design-template",
+  "target": {
+    "race": "human",
+    "gender": "male",
+    "bodyType": "fit",
+    "physique": "muscular",
+    "raceSlot": 6,
+    "modelPrefix": "pmh0",
+    "phenotype": 0,
+    "baseline": {
+      "asciiDirectory": "D:\\srwt\\codex\\3a21\\SRN_HAKS\\output\\phenotypes\\baseline\\ascii",
+      "receipt": "D:\\srwt\\codex\\3a21\\SRN_HAKS\\output\\phenotypes\\baseline\\baseline.json",
+      "receiptSha256": "d5ff5bd412a6c6da18e362c2e5eef18b650ce4c03ea9142e5ca1aa82eabcbe3c",
+      "partsAreActualStock": true,
+      "frozenModels": {
+        "a_ba.mdl": "34b9b69e1cbe8e41bd836b38ffabd99ece11438849c5b512f48501ac12815d8c",
+        "a_ba2.mdl": "c34c573d3fcbc964243811231b63ed152f2426ec423f4a499d05b6c91f79c173",
+        "a_ba_casts.mdl": "5b5523cbc6cdab1a5fadbdfac402700e7decbbf0c93aa9a67929dd61931ac91c",
+        "a_ba_custom.mdl": "c29d502d2b9fc830ba90302236fb2247d999dd6c851437e370fc21a936fd23c4",
+        "a_ba_med_weap.mdl": "4b3a823c7b9c2ee35f3e0a948a914569c40a5a36b66d88d42ef782ceebd83777",
+        "a_ba_non_combat.mdl": "e01a07908d1044187d172daf23b9a94811cc18f1315065b3a0394dc037664cd7",
+        "pmh0.mdl": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+        "pmh0_belt001.mdl": "eb648802d49bc700c767bbba97f54545e7d663b171ce7bccb18daec8915df4fe",
+        "pmh0_bicepl001.mdl": "dbb009d7c2fe1397014fdfd72c7c486cf0cb6005e3cf47ff01732ed2cae56b06",
+        "pmh0_bicepr001.mdl": "936c6317dc46e38336c035f90848ecd7622178a4832dac556c71345523ce055d",
+        "pmh0_chest001.mdl": "96a470a0962a679b1556dde88fff2ac6212fcb421da87ef663883fa02a5e037f",
+        "pmh0_footl001.mdl": "5d017f998ffe014d1ae66bac0473329fee00cc671d8706f8a8bfa715da4fc897",
+        "pmh0_footr001.mdl": "2ccc6e07940e3620fc2eab1edb6336e90e929e6bd938ef80f11dfebbe14678b0",
+        "pmh0_forel001.mdl": "bac69f0d3bea3d88ac9bc6aab84027d37b5a6a29f2d8f771bb009c0a704a5c0a",
+        "pmh0_forer001.mdl": "e746549d704c0c4582151ccea96d8e4fa532d72c513777d409a5f0adb3da1b02",
+        "pmh0_handl001.mdl": "2790f176c8a4e115da9d6036652b16e7fb36eb48659842366160721ecf075e37",
+        "pmh0_handr001.mdl": "145695a569b105028d1638aaba1727d56961b0b542778d8f0245277eaef26382",
+        "pmh0_head001.mdl": "f6dbf4d99cb8a6e886ab381e1e8af7ec3552cb7d5614d9df335b59b62b832676",
+        "pmh0_legl001.mdl": "74380bfa7464379c3748e6b0cfe2a9a71b93426e9a01e1fae4ee7c41b0bc6663",
+        "pmh0_legr001.mdl": "1ecffff859db34653e67afd267e6331352aa6db9c828ba27a2662a18f31e700d",
+        "pmh0_neck001.mdl": "65e1243c2f0a431f65b62fd0b7c0e9f2b92f938e0cef2b1a2f6ec4ca96b3ad2c",
+        "pmh0_pelvis001.mdl": "996d77df1af4b5b310668abeb603d3447e0c06974fb5390db488b19bdae100a7",
+        "pmh0_robe001.mdl": "4cc7107d3a91d6ce84e72b1dffe781a524bc3cd463d8e277c44b02693170047f",
+        "pmh0_shinl001.mdl": "271379b73b50060731b548f104f23290f3768efd0321acd357a0d2ea1a485d47",
+        "pmh0_shinr001.mdl": "51368b200e9f19ca8556c427ed15ea296a43e36f627dac7f35da4c9ef4c56a91",
+        "pmh0_shol001.mdl": "228de0c392ab14f4ea4d56d63aa7cd5ec2b26ad907650b2163ecc367debbb263",
+        "pmh0_shor001.mdl": "9028925639423d5d5b95f15724f470620a898c8833ef0ba7f1d1340b94382d0b"
+      }
+    },
+    "rig": {
+      "sourcePrefix": "pmh0",
+      "transformPolicy": "exact-stock",
+      "controllerPolicy": "stock-controller-chain",
+      "generationPoseInAnimations": false,
+      "preserveStockNeck": true,
+      "preserveStockHead": true
+    },
+    "height": {
+      "basis": "measured-stock-human-male",
+      "stockHumanMaleMetres": 1.9339157000000002,
+      "referenceHumanMaleMetres": 1.75,
+      "targetReferenceMetres": 1.75,
+      "scaleRelativeToStockHuman": 1.0,
+      "targetAssembledMetres": 1.9339157000000002,
+      "measurementReceipt": "D:\\srwt\\codex\\3a21\\SRN_HAKS\\output\\phenotypes\\athletic-tpose-v12\\stock-head-fit.json",
+      "assemblyVerified": false
+    },
+    "partResourceMap": {
+      "chest": "chest",
+      "pelvis": "pelvis",
+      "upperarm_l": "bicepl",
+      "upperarm_r": "bicepr",
+      "forearm_l": "forel",
+      "forearm_r": "forer",
+      "hand_l": "handl",
+      "hand_r": "handr",
+      "thigh_l": "legl",
+      "thigh_r": "legr",
+      "shin_l": "shinl",
+      "shin_r": "shinr",
+      "foot_l": "footl",
+      "foot_r": "footr",
+      "neck": "neck",
+      "head": "head"
+    }
+  },
+  "storage": {
+    "workspace": "D:\\srwt\\codex\\f0b3\\SRN_HAKS",
+    "productionRoot": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-human-male-production-v1",
+    "referenceDirectory": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images",
+    "normalizedDesignDirectory": "D:\\source\\repos\\SRN_HAKS\\.tools\\reference_images\\normalized\\purposebuilt-human-male-torso-v1",
+    "historicalEvidenceRoot": "D:\\srwt\\codex\\3a21\\SRN_HAKS\\output\\phenotypes",
+    "preserveHistoricalOutputs": true
+  },
+  "designFamily": {
+    "id": "human-male-muscular-purposebuilt-v1",
+    "description": "New cohesive muscular Human male design, built as purpose-defined rigid parts.",
+    "anatomy": "Muscular natural anatomy with coherent proportions; actual stock attachment caps and rig define connections.",
+    "skinMaterial": "Consistent Human skin hue, gentle detail, shared palette behavior and subdued normals.",
+    "sharedPromptTemplate": "Create ONLY {part} of the SAME {design_family}, using measured actual stock {connector_envelopes} as hidden overlap guidance. Preserve natural muscular interior anatomy. Four equal panels of identical object: front, left, back, right at 90-degree rotations, identical scale and vertical origin, black-composited background, soft neutral studio lighting. Rounded closed shallow overlap ends. No adjacent body parts, no head, neck, hair, equipment or text. Skin-only except pelvis-owned underwear.",
+    "underwearOwnership": "pelvis-only",
+    "excludedGeneratedParts": [
+      "head",
+      "neck"
+    ]
+  },
+  "generation": {
+    "service": "http://127.0.0.1:8188",
+    "workflow": "SR_NWN_3d_pixal3d_multi_views.json",
+    "partWorkflowConfiguration": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\tools\\phenotypes\\configurations\\purpose-built-human-male-chest.json",
+    "viewOrder": [
+      "front",
+      "left",
+      "back",
+      "right"
+    ],
+    "viewAzimuthDegrees": [
+      0,
+      90,
+      180,
+      270
+    ],
+    "normalization": {
+      "pixels": 1024,
+      "background": "black-composited-RGB",
+      "scalePolicy": "shared-isotropic",
+      "commonVerticalOrigin": true,
+      "measurePanelDifferences": true
+    },
+    "sourcePreservation": "immutable-sheet-panels-workflow-history-and-all-masters",
+    "nextPartGenerationState": "pending-current-part-perfection"
+  },
+  "fitting": {
+    "currentPhase": "localized-refinement",
+    "laterLocalizedCleanup": {
+      "state": "authorized-waist-cap-design",
+      "scopeConfiguration": null,
+      "preserveSource": true,
+      "protectMuscularInterior": true,
+      "deliberateHiddenOverlap": true,
+      "permittedRegions": [
+        "bottom-back-waist"
+      ],
+      "protectedRegions": [
+        "rest-of-torso",
+        "neck",
+        "head",
+        "arms",
+        "pelvis",
+        "legs",
+        "feet",
+        "rig-and-animations"
+      ]
+    },
+    "connectors": {
+      "reference": "actual-stock-parts-and-target-rig",
+      "coordinates": "target-stock-world",
+      "units": "metres",
+      "state": "measured",
+      "measurementReceipt": {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+        "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+      },
+      "measurements": [
+        {
+          "name": "neck",
+          "ownerPart": "chest",
+          "neighbourPart": "neck",
+          "joint": "neck_g",
+          "pivot": [
+            -2.9999999999930256e-09,
+            -0.05021699999999999,
+            1.6763559940000001
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "capProfileReceipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+            "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+          },
+          "targetOverlapReceipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+            "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+          }
+        },
+        {
+          "name": "left-shoulder",
+          "ownerPart": "chest",
+          "neighbourPart": "upperarm_l",
+          "joint": "lbicep_g",
+          "pivot": [
+            -0.201005003,
+            -0.048654499999999996,
+            1.5573909940000001
+          ],
+          "axis": [
+            -1,
+            0,
+            0
+          ],
+          "capProfileReceipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+            "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+          },
+          "targetOverlapReceipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+            "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+          }
+        },
+        {
+          "name": "right-shoulder",
+          "ownerPart": "chest",
+          "neighbourPart": "upperarm_r",
+          "joint": "rbicep_g",
+          "pivot": [
+            0.201009997,
+            -0.048654499999999996,
+            1.557391994
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "capProfileReceipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+            "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+          },
+          "targetOverlapReceipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+            "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+          }
+        },
+        {
+          "name": "waist",
+          "ownerPart": "chest",
+          "neighbourPart": "pelvis",
+          "joint": "pelvis_g",
+          "pivot": [
+            -2.9999999999930256e-09,
+            0.030835800000000003,
+            1.2074059940000001
+          ],
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "capProfileReceipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+            "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+          },
+          "targetOverlapReceipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\stock-connectors-v1\\measurements.json",
+            "sha256": "da3e542d85cdc8fb678fbf63484e8c6f5bbb128736f2234b2d3ea3f286916ac6"
+          }
+        }
+      ]
+    },
+    "stockReplacementPolicy": "undeclared-parts-are-actual-stock;accepted-parts-only-in-cumulative-baseline",
+    "similarityFitting": {
+      "uniformScaleOnly": true,
+      "properOrientationAndTranslationAllowed": true,
+      "stretching": false,
+      "sourceMeshAlteration": false,
+      "state": "adequate-user-selected",
+      "exhaustBeforeMeshChanges": true,
+      "trialReceipts": [
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\scaling-only-placement-v1\\placement.json",
+          "sha256": "b502838526a24a491b6fa4227a857c922860d0f229df0796599a5cdb7a5b6c47"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\scaling-only-placement-v2\\placement.json",
+          "sha256": "2338e02347cc528fcaddfb098243b34cfdd7ebddcf5c3049cf4cd2ba42c302d1"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\similarity-placement-v3-optimal\\placement.json",
+          "sha256": "046297e015529c49f5cbf8cbc8ece44f19537f51f2bbc8f4b764c792b2c2f7e3"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\similarity-placement-v4-lowered\\placement.json",
+          "sha256": "30c74a2aa7c0cf849bd6e6bf59c2f9cfc509aff74e26aacf1732acffd3f1661c"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\similarity-placement-v5-pitch\\placement.json",
+          "sha256": "3913d447402d84e20c11d05070f252846c22320f3c2f0f6c37c1389bb56cad7f"
+        },
+        {
+          "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\similarity-placement-v6-overlap\\placement.json",
+          "sha256": "78e1754785430bf2b5c3d401a547bc778b7395aa16754dd0004e5abf5fbf2654"
+        }
+      ]
+    },
+    "nextAction": "localized-waist-cap-design"
+  },
+  "materials": {
+    "atlasSize": 2048,
+    "normalStrength": 1,
+    "palettePolicy": "NWN-skin-PLT-with-matching-fixed-materials",
+    "clothing": "pelvis-only",
+    "rebakeAfterGeometryChange": true,
+    "stockSeamMaterialMatch": true
+  },
+  "equipment": {
+    "mode": "stock-identity",
+    "identityScale": 1.0,
+    "profileState": "not-required",
+    "profiles": [],
+    "profileBasis": "accepted-target-part-assembly-and-actual-stock-equipment",
+    "groups": [
+      "chest",
+      "pelvis",
+      "upper-arms",
+      "forearms",
+      "hands-gloves",
+      "thighs",
+      "shins-boots",
+      "feet",
+      "shoulder-pads",
+      "robes",
+      "belts",
+      "helmets",
+      "weapon-grips",
+      "shield-grips"
+    ],
+    "carryHistoricalHumanResize": false,
+    "clientVerified": false,
+    "groupPartAssociations": {
+      "chest": [
+        "chest"
+      ],
+      "pelvis": [
+        "pelvis"
+      ],
+      "upper-arms": [
+        "upperarm_l",
+        "upperarm_r"
+      ],
+      "forearms": [
+        "forearm_l",
+        "forearm_r"
+      ],
+      "hands-gloves": [
+        "forearm_l",
+        "forearm_r",
+        "hand_l",
+        "hand_r"
+      ],
+      "thighs": [
+        "thigh_l",
+        "thigh_r"
+      ],
+      "shins-boots": [
+        "shin_l",
+        "shin_r",
+        "foot_l",
+        "foot_r"
+      ],
+      "feet": [
+        "foot_l",
+        "foot_r"
+      ],
+      "shoulder-pads": [
+        "chest",
+        "upperarm_l",
+        "upperarm_r"
+      ],
+      "robes": [
+        "chest",
+        "pelvis",
+        "upperarm_l",
+        "upperarm_r",
+        "thigh_l",
+        "thigh_r"
+      ],
+      "belts": [
+        "chest",
+        "pelvis"
+      ],
+      "helmets": [
+        "head",
+        "neck"
+      ],
+      "weapon-grips": [
+        "hand_l",
+        "hand_r"
+      ],
+      "shield-grips": [
+        "hand_l",
+        "hand_r"
+      ]
+    }
+  },
+  "acceptance": {
+    "requiredGates": [
+      "source-fidelity",
+      "stock-attachment-motion",
+      "geometry-and-normals",
+      "material-and-palette",
+      "native-compilation",
+      "hak-module-integrity",
+      "client-animation",
+      "client-equipment",
+      "client-performance"
+    ],
+    "promotionPolicy": "one-part-at-a-time-after-all-gates-and-recorded-visual-acceptance",
+    "clientCamera": "unlocked-pan-and-zoom",
+    "sourceHashBeforeAndAfter": true
+  },
+  "parts": {
+    "chest": {
+      "status": "refinement-pending",
+      "activeSource": {
+        "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\comfy-v1\\generated\\textured_00001.glb",
+        "sha256": "905e80661f1ed5ec9b5f456e78b86441e58ed44af26617a9005b56760c438172"
+      },
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [
+        {
+          "gate": "source-fidelity",
+          "state": "pending",
+          "receipt": null
+        },
+        {
+          "gate": "stock-attachment-motion",
+          "state": "pending",
+          "receipt": null
+        },
+        {
+          "gate": "geometry-and-normals",
+          "state": "fail",
+          "receipt": {
+            "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\paired-surface-diagnostic-v2\\conclusions.json",
+            "sha256": "b73125592b3b2232bca4cddc0b77a8d7a2bb57ef83f771e236f4cff17bdfb075"
+          }
+        },
+        {
+          "gate": "material-and-palette",
+          "state": "pending",
+          "receipt": null
+        },
+        {
+          "gate": "native-compilation",
+          "state": "pending",
+          "receipt": null
+        },
+        {
+          "gate": "hak-module-integrity",
+          "state": "pending",
+          "receipt": null
+        },
+        {
+          "gate": "client-animation",
+          "state": "pending",
+          "receipt": null
+        },
+        {
+          "gate": "client-equipment",
+          "state": "pending",
+          "receipt": null
+        },
+        {
+          "gate": "client-performance",
+          "state": "pending",
+          "receipt": null
+        }
+      ],
+      "promotionReceipt": null
+    },
+    "pelvis": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "upperarm_l": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "upperarm_r": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "forearm_l": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "forearm_r": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "hand_l": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "hand_r": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "thigh_l": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "thigh_r": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "shin_l": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "shin_r": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "foot_l": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "foot_r": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "neck": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    },
+    "head": {
+      "status": "stock",
+      "activeSource": null,
+      "designFamilyId": "human-male-muscular-purposebuilt-v1",
+      "gates": [],
+      "promotionReceipt": null
+    }
+  },
+  "acceptedReplacements": {},
+  "currentDiagnostic": {
+    "part": "chest",
+    "stockReplacementMap": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\similarity-alternatives-v1\\stock-replacement-v5-pitch.json",
+    "clientAccepted": false,
+    "futurePartsGenerated": false,
+    "comparisonAudit": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\rigid-alternatives-audit-v1\\audit.json",
+      "sha256": "378c8ae29f4e50c89f99b434fbd879e3f826a8a65af1963101932293fec75fbb"
+    },
+    "stockReplacementMapSha256": "012456d112dc67d654b349bb9c1a52849a1180c6a19c22e5ee04bfd9850e97d2",
+    "selectedPlacementReceipt": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\similarity-placement-v5-pitch\\placement.json",
+      "sha256": "3913d447402d84e20c11d05070f252846c22320f3c2f0f6c37c1389bb56cad7f"
+    },
+    "exportProofReceipt": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\similarity-placement-v5-pitch\\actual-export-proof.json",
+      "sha256": "620419d0a1991454afe80dad621b0746449de3e74f0cdcb8eb8783644c046dff"
+    },
+    "placedPartReceipt": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\similarity-placement-v5-pitch\\placed-local.glb",
+      "sha256": "29488287361ff090714411f0bea96de35509bccde276712c55e4b87dbab29f93"
+    },
+    "selectionBasis": "user-selected-diagnostic-baseline",
+    "selectionReceipt": {
+      "path": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\purposebuilt-torso-pilot-v1\\selected-v5-baseline-v1\\selection.json",
+      "sha256": "51aa2f0d62545e06a31594c10262732e333b2bb626afe770089b2b32107781f3"
+    }
+  }
+}

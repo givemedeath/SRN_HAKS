@@ -1,0 +1,25 @@
+{
+  "category": "kneel",
+  "observedDescription": "Held WORSHIP; skin3; side view; original lighting",
+  "processId": 48948,
+  "capture": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-48948\\002-kneel-hold-side-0.json",
+  "captureSha256": "0ad1932b956a594aa6084ef9d63d57f5c6fb6ba4ebd4a2f69d5aad687161de58",
+  "sourceImage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-48948\\002-kneel-hold-side-0-0.jpg",
+  "sourceImageSha256": "5eb6311bed96d31c1604f4c095dbdce3e60dc7568c455eb816534a80cb7a87e4",
+  "captureStarted": "2026-10-03T23:09:20.172Z",
+  "captureEnded": "2026-10-03T23:09:20.288Z",
+  "fixtureReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-48948\\receipt.json",
+  "fixtureReceiptSha256": "e8dfb9ad08b3c57fd5e6b26a2e564695ebea9004810263594c69362599b43633",
+  "moduleSha256": "dbf696bf7e5c305026e2015c45d62d06b42ba02c4237b14a9cf45eaa51cfe7cc",
+  "testHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+  "bodyHakSha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+  "fullBodyReviewed": true,
+  "presentationCrop": [
+    470,
+    320,
+    630,
+    601
+  ],
+  "pixelAdjustment": "None: literal crop only; full original retained",
+  "timingScope": "Observed frame and timestamp, not a measured animation clip position."
+}

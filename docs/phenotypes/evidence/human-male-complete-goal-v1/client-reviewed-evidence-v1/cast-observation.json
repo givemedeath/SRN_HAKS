@@ -1,0 +1,25 @@
+{
+  "category": "cast",
+  "observedDescription": "Actual Magic Missile; skin3; original lighting",
+  "processId": 40868,
+  "capture": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\003-corpse-fullbody.json",
+  "captureSha256": "25674d09bf37ae8a85d89b1f41c2863eda2485db65243f2635bd844a8884508d",
+  "sourceImage": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-evidence-v1\\run-40868\\003-corpse-fullbody-0.jpg",
+  "sourceImageSha256": "489bcca73b3fd9db1e32c5e414ea1ffdc1b57cb11fa9cb2b3d7055fc1d4725ce",
+  "captureStarted": "2026-10-03T22:42:30.442Z",
+  "captureEnded": "2026-10-03T22:42:31.350Z",
+  "fixtureReceipt": "D:\\srwt\\codex\\f0b3\\SRN_HAKS\\output\\phenotypes\\human-male-complete-goal-v1\\client-fourteen-skin3-motion-v2\\client-evidence-run-40868\\receipt.json",
+  "fixtureReceiptSha256": "78beba25081d47250efc0462a4c439a19dbb8e00a58642ea79b13d4c9381cb9e",
+  "moduleSha256": "9a25dc111eccc0c363b242ed393c6dd6518bd0c402acc029e67be8e36c471b0d",
+  "testHakSha256": "1af9fe160af8be024c3ffe761a2c7dd746a89eee3c1d7ad5117cd09e5b8ac245",
+  "bodyHakSha256": "01524cd39ad111021d30ba9a7c2241fdf8ef3afc7eb77f04346907d423d9f7c2",
+  "fullBodyReviewed": true,
+  "presentationCrop": [
+    350,
+    180,
+    680,
+    630
+  ],
+  "pixelAdjustment": "None: literal crop only; full original retained",
+  "timingScope": "Observed frame and timestamp, not a measured animation clip position."
+}
