@@ -7,6 +7,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch
 import numpy as np
 
 import sys
@@ -518,6 +519,128 @@ class ClientResolutionTests(unittest.TestCase):
                     os.environ["NWN_CLIENT"] = old_val
                 else:
                     os.environ.pop("NWN_CLIENT", None)
+
+
+class GameRootResolutionTests(unittest.TestCase):
+    def test_explicit_game_root(self):
+        from stock_dwarf_control import resolve_game_root
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_root = Path(tmp)
+            resolved = resolve_game_root(tmp_root)
+            self.assertEqual(resolved, tmp_root.resolve())
+
+    def test_explicit_game_root_missing_raises(self):
+        from stock_dwarf_control import resolve_game_root
+        with self.assertRaises(FileNotFoundError):
+            resolve_game_root(Path("C:/nonexistent_game_root_dir"))
+
+    def test_env_game_root(self):
+        from stock_dwarf_control import resolve_game_root
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_root = Path(tmp)
+            old_val = os.environ.get("NWN_ROOT")
+            try:
+                os.environ["NWN_ROOT"] = str(tmp_root)
+                resolved = resolve_game_root()
+                self.assertEqual(resolved, tmp_root.resolve())
+            finally:
+                if old_val is not None:
+                    os.environ["NWN_ROOT"] = old_val
+                else:
+                    os.environ.pop("NWN_ROOT", None)
+
+
+class EquipmentConnectorRequirementTests(unittest.TestCase):
+    @patch("derived_equipment.inventory_installed_styles")
+    @patch("derived_equipment.audit_hand_dummies")
+    def test_missing_connector_audit_raises(self, mock_dummies, mock_inventory):
+        from derived_equipment import PARTS, audit_stock_armor_compatibility
+        mock_dummies.return_value = {"handl": {"rigGripPresent": True, "rigAttachmentPresent": True}}
+        mock_inventory.return_value = {
+            "parts": {p: [1] for p in PARTS},
+            "totalModelsFound": 440,
+        }
+        target_config = {
+            "id": "dwarf-male-fit",
+            "identity": {"prefix": "pmd0", "race": "dwarf"},
+            "rig": {"mode": "stock-family", "frames": {"working": ["torso_g", "lbicep_g", "rbicep_g", "lforearm_g", "rforearm_g",
+                                          "lhand_g", "rhand_g", "lthigh_g", "rthigh_g", "lshin_g", "rshin_g", "lfoot_g", "rfoot_g"]}}
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            out_receipt = tmp_dir / "receipt.json"
+            # Missing connector-audit.json must raise ValueError
+            with self.assertRaises(ValueError) as ctx:
+                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
+            self.assertIn("requires a present connector audit receipt", str(ctx.exception))
+
+    @patch("derived_equipment.inventory_installed_styles")
+    @patch("derived_equipment.audit_hand_dummies")
+    def test_mismatched_target_connector_audit_raises(self, mock_dummies, mock_inventory):
+        from derived_equipment import PARTS, audit_stock_armor_compatibility
+        mock_dummies.return_value = {"handl": {"rigGripPresent": True, "rigAttachmentPresent": True}}
+        mock_inventory.return_value = {
+            "parts": {p: [1] for p in PARTS},
+            "totalModelsFound": 440,
+        }
+        target_config = {
+            "id": "dwarf-male-fit",
+            "identity": {"prefix": "pmd0", "race": "dwarf"},
+            "rig": {"mode": "stock-family", "frames": {"working": ["torso_g", "lbicep_g", "rbicep_g", "lforearm_g", "rforearm_g",
+                                          "lhand_g", "rhand_g", "lthigh_g", "rthigh_g", "lshin_g", "rshin_g", "lfoot_g", "rfoot_g"]}}
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            out_receipt = tmp_dir / "receipt.json"
+            bad_audit = tmp_dir / "connector-audit.json"
+            bad_audit.write_text(json.dumps({
+                "targetId": "elf-male-fit",  # Mismatched target
+                "allConnectorsPassed": True,
+            }), encoding="utf-8")
+
+            with self.assertRaises(ValueError) as ctx:
+                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
+            self.assertIn("target mismatch", str(ctx.exception))
+
+    @patch("derived_equipment.inventory_installed_styles")
+    @patch("derived_equipment.audit_hand_dummies")
+    def test_matching_passing_connector_audit_succeeds(self, mock_dummies, mock_inventory):
+        from derived_equipment import PARTS, audit_stock_armor_compatibility
+        mock_dummies.return_value = {"handl": {"rigGripPresent": True, "rigAttachmentPresent": True}}
+        mock_inventory.return_value = {
+            "parts": {p: [1] for p in PARTS},
+            "totalModelsFound": 440,
+        }
+        target_config = {
+            "id": "dwarf-male-fit",
+            "identity": {"prefix": "pmd0", "race": "dwarf"},
+            "rig": {"mode": "stock-family", "frames": {"working": ["torso_g", "lbicep_g", "rbicep_g", "lforearm_g", "rforearm_g",
+                                          "lhand_g", "rhand_g", "lthigh_g", "rthigh_g", "lshin_g", "rshin_g", "lfoot_g", "rfoot_g"]}}
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            out_receipt = tmp_dir / "receipt.json"
+            good_audit = tmp_dir / "connector-audit.json"
+            good_audit.write_text(json.dumps({
+                "targetId": "dwarf-male-fit",
+                "allConnectorsPassed": True,
+            }), encoding="utf-8")
+
+            res = audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
+            self.assertTrue(res["complete"])
+            self.assertEqual(res["connectorCompatibility"]["measuredOverlapStatus"], "verified-positive")
+
+
+class PreflightCliExecutionTests(unittest.TestCase):
+    def test_preflight_cli_help(self):
+        import subprocess
+        res = subprocess.run(
+            [sys.executable, str(Path(__file__).resolve().parent / "preflight_derived_dwarf_client.py"), "--help"],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(res.returncode, 0)
+        self.assertIn("--output-receipt", res.stdout)
 
 
 if __name__ == "__main__":

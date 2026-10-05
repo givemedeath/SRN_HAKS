@@ -37,6 +37,19 @@ def resolve_game_root(explicit: Path | None = None) -> Path:
     env_root = os.environ.get("NWN_ROOT") or os.environ.get("NWN_GAME_ROOT")
     if env_root and Path(env_root).exists():
         return Path(env_root).resolve()
+    for bindings_path in [
+        REPO / ".tools/runtime_bindings.json",
+        REPO / ".tools/runtime-bindings.json",
+        REPO / "runtime_bindings.json",
+    ]:
+        if bindings_path.exists():
+            try:
+                bindings = json.loads(bindings_path.read_text(encoding="utf-8"))
+                candidate = bindings.get("game_root") or bindings.get("nwn_root") or bindings.get("NWN_ROOT")
+                if candidate and Path(candidate).exists():
+                    return Path(candidate).resolve()
+            except Exception:
+                pass
     for default_path in [
         Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition"),
         Path(r"C:\Program Files (x86)\Steam\steamapps\common\Neverwinter Nights"),

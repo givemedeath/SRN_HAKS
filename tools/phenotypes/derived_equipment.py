@@ -125,6 +125,7 @@ def audit_stock_armor_compatibility(
     derived_ascii_dir: Path,
     output_receipt: Path,
     game_root: Path | None = None,
+    connector_audit_path: Path | None = None,
 ) -> dict:
     """Audit stock armor connector compatibility with derived parts."""
     prefix = target_config["identity"]["prefix"]
@@ -162,18 +163,34 @@ def audit_stock_armor_compatibility(
     missing_frames = [f for f in required_frames if f not in frames]
     require(len(missing_frames) == 0, f"Missing required armor mount frames: {missing_frames}")
 
-    # Inspect connector compatibility evidence if available
-    conn_audit_file = derived_ascii_dir / "connector-audit.json"
-    if not conn_audit_file.exists():
-        conn_audit_file = REPO / f"output/phenotypes/derived-{race}-male-v1/review/connector-audit.json"
+    # Require present, passing, target-bound connector audit evidence
+    target_id = target_config.get("id", f"{race}-male-fit")
+    if connector_audit_path is not None and Path(connector_audit_path).is_file():
+        conn_audit_file = Path(connector_audit_path)
+    else:
+        candidate_paths = [
+            derived_ascii_dir / "connector-audit.json",
+            derived_ascii_dir.parent / "review" / "connector-audit.json",
+            REPO / f"output/phenotypes/derived-{race}-male-v1/review/connector-audit.json",
+        ]
+        conn_audit_file = next((p for p in candidate_paths if p.is_file()), None)
 
-    surfaces_preserved = True
-    overlap_status = "verified-positive"
-    if conn_audit_file.exists():
-        conn_audit = json.loads(conn_audit_file.read_text(encoding="utf-8"))
-        surfaces_preserved = bool(conn_audit.get("allConnectorsPassed", False))
-        overlap_status = "verified-positive" if surfaces_preserved else "failed-overlap"
-        require(surfaces_preserved, f"Connector audit failed in {conn_audit_file}")
+    require(
+        conn_audit_file is not None,
+        f"Gate 3 requires a present connector audit receipt: missing connector-audit.json for target '{target_id}'"
+    )
+
+    conn_audit = json.loads(conn_audit_file.read_text(encoding="utf-8"))
+    conn_target = conn_audit.get("targetId")
+    if conn_target:
+        require(
+            conn_target == target_id,
+            f"Connector audit target mismatch in {conn_audit_file}: expected '{target_id}', got '{conn_target}'"
+        )
+
+    surfaces_preserved = bool(conn_audit.get("allConnectorsPassed", False))
+    require(surfaces_preserved, f"Connector audit failed in {conn_audit_file}")
+    overlap_status = "verified-positive" if surfaces_preserved else "failed-overlap"
 
     audit_complete = bool(len(missing_stock) == 0 and hand_dummies_valid and len(missing_frames) == 0 and surfaces_preserved)
     require(audit_complete, "Gate 3 equipment compatibility audit failed")
@@ -212,6 +229,7 @@ def main():
     parser.add_argument("--gender", type=str, default="male", help="Target gender (default: male)")
     parser.add_argument("--game-root", type=Path, default=None, help="Path to NWN game installation root")
     parser.add_argument("--ascii-dir", type=Path, default=None)
+    parser.add_argument("--connector-audit", type=Path, default=None, help="Explicit path to connector-audit.json")
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
@@ -233,7 +251,13 @@ def main():
         else None
     )
 
-    audit_stock_armor_compatibility(config, ascii_dir, output_path, game_root=game_root)
+    audit_stock_armor_compatibility(
+        config,
+        ascii_dir,
+        output_path,
+        game_root=game_root,
+        connector_audit_path=args.connector_audit,
+    )
 
 
 if __name__ == "__main__":

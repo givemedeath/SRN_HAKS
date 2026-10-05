@@ -11,9 +11,11 @@ import sys
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from shared_tools import resolve_tool
+from stock_dwarf_control import resolve_game_root
 
-GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
+DEFAULT_GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
 PYTHON = Path(sys.executable)
 
 CANDIDATE_CONVERTED = REPO / "output/phenotypes/derived-dwarf-male-v1/candidate/converted"
@@ -26,20 +28,21 @@ def run_tool(name: str, args: list[str]) -> bytes:
     return res.stdout
 
 
-def stage_baseline(stage_dir: Path, temp_userdir: Path):
+def stage_baseline(stage_dir: Path, temp_userdir: Path, game_root: Path | None = None):
     baseline_dir = stage_dir / "baseline"
     baseline_dir.mkdir(parents=True, exist_ok=True)
+    root = resolve_game_root(game_root)
 
     # 1. ttr01.set
-    set_data = run_tool("resman_cat", ["--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", "ttr01.set"])
+    set_data = run_tool("resman_cat", ["--root", str(root), "--userdirectory", str(temp_userdir), "--no-ovr", "ttr01.set"])
     (baseline_dir / "ttr01.set").write_bytes(set_data)
 
     # 2. ttr01_edge.2da
-    edge_data = run_tool("resman_cat", ["--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", "ttr01_edge.2da"])
+    edge_data = run_tool("resman_cat", ["--root", str(root), "--userdirectory", str(temp_userdir), "--no-ovr", "ttr01_edge.2da"])
     (baseline_dir / "ttr01_edge.2da").write_bytes(edge_data)
 
     # 3. human-template.json (from nw_commale.utc)
-    raw_utc = run_tool("resman_cat", ["--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", "nw_commale.utc"])
+    raw_utc = run_tool("resman_cat", ["--root", str(root), "--userdirectory", str(temp_userdir), "--no-ovr", "nw_commale.utc"])
     temp_utc = stage_dir / "temp_peasant.utc"
     temp_json = stage_dir / "temp_peasant.utc.json"
     temp_utc.write_bytes(raw_utc)
@@ -122,12 +125,13 @@ def stage_candidate(stage_dir: Path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", type=Path, default=STAGE_ROOT)
+    parser.add_argument("--game-root", type=Path, default=None, help="NWN game root directory")
     args = parser.parse_args()
 
     stage_dir = args.stage.resolve()
     temp_userdir = REPO / "output/phenotypes/derived-dwarf-male-v1/compiler-userdir"
 
-    stage_baseline(stage_dir, temp_userdir)
+    stage_baseline(stage_dir, temp_userdir, game_root=args.game_root)
     stage_candidate(stage_dir)
     print("Staging complete. Ready to build test module.")
 

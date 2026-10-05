@@ -184,6 +184,10 @@ def main():
         print(f"  {name:16s}: standing_overlap={c['standingOverlapZ']*1000:.1f}mm, worst_motion={c['worstMotionOverlapZ']*1000:.1f}mm (in {c['worstMotionClip']}), all_ok={c['allPosesHaveOverlap']}")
     print(f"Summary written to {args.output_dir / 'motion-review-summary.json'}")
 
+    if not summary.get("allConnectorsOverlapInAllPoses", False):
+        print("ERROR: Motion review failed: one or more connectors lost overlap in sampled poses", file=sys.stderr)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
