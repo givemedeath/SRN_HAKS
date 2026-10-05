@@ -13,8 +13,24 @@
   },
   "benchmarkExecutionSource": {
     "kind": "clean Git archive with committed file bytes",
-    "status": "execution pending"
+    "status": "passed",
+    "sourceCommit": "c5382ca5bbaf1b72ce833a0a082343eb1434f688",
+    "archiveSha256": "5f8c0a7cc19dfc1a43efd2405f61056e595113fc27ea99af9fd8b3bb4fae6988"
   },
   "gameClientLaunched": false,
-  "productionApprovalsCreated": false
+  "productionApprovalsCreated": false,
+  "benchmark": {
+    "kind": "pose-preparation-benchmark",
+    "workload": "synthetic NWN ASCII rigid controller fixture",
+    "samples": 120,
+    "joints": 80,
+    "uncachedSeconds": 1.6726864000002024,
+    "cachedSeconds": 0.9741151999996873,
+    "ratio": 1.7171340720283794,
+    "equivalence": "array-exact",
+    "clientEvidence": false,
+    "limits": "CPU sampler timing only; excludes render, bake, native compilation and client performance."
+  },
+  "benchmarkReceiptSha256": "24e3a180b476e41c560acc89c40e1a1c7fca52f3384dc75c5f0548b6fe431432",
+  "benchmarkOutputSha256": "cfff73363989b0e09483593eff995b2aba21b19a37ed5464db3c29a624601f9c"
 }
