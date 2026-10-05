@@ -19,10 +19,7 @@ from target_part_pipeline import execute as fit_execute
 from target_part_stage import stage
 from test_target_part_pipeline import target_fixture
 from test_target_part_stage import textured_fixture
-
-TOOLS = Path(__file__).resolve().parent
-TOOLCHAIN = TOOLS / 'configurations/shared-tools.json'
-MIGRATION = TOOLS.parents[1] / 'output/phenotypes/troll-male-purposebuilt-v1/tool-migration-shared-v1/migration.json'
+from toolchain_test_fixture import bindings as runtime_test_bindings
 
 
 def source_fixture(change=None):
@@ -168,6 +165,7 @@ class PelvisBoundarySegmentationTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError): segment(doc, binary, bad, cut_map(doc, binary))
 
     def prepare(self, root, repaired=False):
+        toolchain,migration=runtime_test_bindings(root)
         source = root / 'synthetic-generation.glb'; write_glb(source, *source_fixture())
         data = target_fixture(); data['rig'].update(revision='synthetic-offline-frozen', pilotAccepted=True,
                                                    offlineStructureAccepted=True, pilotAcceptanceScope='offline-rig-structure')
@@ -211,8 +209,8 @@ class PelvisBoundarySegmentationTests(unittest.TestCase):
                   'coordinateSpace': 'working', 'targetContract': str(target), 'targetContractSha256': contract.sha(target),
                   'source': str(fitted), 'sourceSha256': contract.sha(fitted), 'sourceReceipt': str(parent_path),
                   'sourceReceiptSha256': contract.sha(parent_path), 'cutMap': str(cut_path), 'cutMapSha256': contract.sha(cut_path),
-                  'sharedToolchain': str(TOOLCHAIN), 'sharedToolchainSha256': contract.sha(TOOLCHAIN),
-                  'migrationReceipt': str(MIGRATION), 'migrationReceiptSha256': contract.sha(MIGRATION)}
+                  'sharedToolchain': str(toolchain), 'sharedToolchainSha256': contract.sha(toolchain),
+                  'migrationReceipt': str(migration), 'migrationReceiptSha256': contract.sha(migration)}
         path = root / 'segment-config.json'; path.write_text(json.dumps(config))
         return path, target, parent_path, parent, cut_path
 

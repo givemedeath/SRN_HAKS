@@ -14,10 +14,7 @@ from target_part_pipeline import execute as geometry_execute
 from target_part_stage import stage
 from test_target_part_pipeline import target_fixture
 from test_target_part_stage import textured_fixture
-
-TOOLS=Path(__file__).resolve().parent
-TOOLCHAIN=TOOLS/'configurations/shared-tools.json'
-MIGRATION=TOOLS.parents[1]/'output/phenotypes/troll-male-purposebuilt-v1/tool-migration-shared-v1/migration.json'
+from toolchain_test_fixture import bindings as runtime_test_bindings
 
 
 def fixture():
@@ -111,6 +108,7 @@ class PelvisPartitionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Known complete'):partition_archive(bad,rows,order,proof)
 
     def prepare(self,root,space='working',acceptance_scope='offline-rig-structure'):
+        toolchain,migration=runtime_test_bindings(root)
         doc,blob=textured_fixture();source=root/'synthetic-generation.glb';write_glb(source,doc,blob)
         data=target_fixture();data['rig'].update(revision='synthetic-offline-frozen',pilotAccepted=True,offlineStructureAccepted=True,pilotAcceptanceScope=acceptance_scope)
         target=root/'target.json';target.write_text(json.dumps(data));job=root/'synthetic-job.json'
@@ -131,7 +129,7 @@ class PelvisPartitionTests(unittest.TestCase):
         partition_config={'schemaVersion':2,'kind':'target-pelvis-material-partition','diagnosticOnly':True,'part':'pelvis','coordinateSpace':space,
                          'targetContract':str(target),'targetContractSha256':contract.sha(target),'source':str(fitted),'sourceSha256':contract.sha(fitted),
                          'sourceReceipt':str(parent_path),'sourceReceiptSha256':contract.sha(parent_path),'faceMap':str(face_path),'faceMapSha256':contract.sha(face_path),
-                         'sharedToolchain':str(TOOLCHAIN),'sharedToolchainSha256':contract.sha(TOOLCHAIN),'migrationReceipt':str(MIGRATION),'migrationReceiptSha256':contract.sha(MIGRATION)}
+                         'sharedToolchain':str(toolchain),'sharedToolchainSha256':contract.sha(toolchain),'migrationReceipt':str(migration),'migrationReceiptSha256':contract.sha(migration)}
         path=root/'partition-config.json';path.write_text(json.dumps(partition_config))
         return path,target,parent_path,parent,face_path
 
