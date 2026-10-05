@@ -130,6 +130,30 @@ class SharedToolsTests(unittest.TestCase):
     def test_windows_case_or_linux_case_is_platform_correct(self):
         self.assertEqual(inside(self.repo/'first',str(self.repo).upper()),os.name=='nt')
 
+    def test_registration_lock_and_reference_union_are_cross_language(self):
+        if not PS:self.skipTest('pwsh unavailable')
+        identity=hashlib.sha256(os.path.normcase(str(self.repo)).encode('utf-8')).hexdigest()
+        folder=self.bank/'consumers'/identity
+        lock=folder/'registration.lock'
+        statement=(f"$stream=[IO.File]::Open('{lock}','OpenOrCreate','ReadWrite','ReadWrite'); "
+                   "try { $stream.Lock(0,1); $stream.Unlock(0,1) } catch { exit 9 } finally { $stream.Dispose() }")
+        with locked(lock):
+            attempt=subprocess.run([PS,'-NoProfile','-Command',statement],capture_output=True)
+            self.assertEqual(attempt.returncode,9,'PowerShell ignored the Python byte-range lock')
+        self.assertEqual(subprocess.run([PS,'-NoProfile','-Command',statement],capture_output=True).returncode,0)
+        first=self.repo/'CaseInput';first.write_bytes(b'first')
+        inputs=[first]
+        if os.name!='nt':
+            other=self.repo/'caseinput';other.write_bytes(b'case-sensitive other');inputs.append(other)
+        literals=','.join("'"+str(path)+"'" for path in inputs)
+        self.ps(f"$tool=Resolve-SrnTool erf -RepositoryRoot '{self.repo}'; Register-SrnToolUse $tool -Inputs @({literals}) -RepositoryRoot '{self.repo}'; 'registered' | ConvertTo-Json")
+        second=self.repo/'second';second.write_bytes(b'second')
+        register_run(self.repo,inputs=[second])
+        current=read_json(folder/'current.json')
+        required={row['path'] for row in current['references']}
+        self.assertTrue({str(path) for path in [self.exe,*inputs,second]}<=required)
+        self.assertFalse(current['completeDeclaration'])
+
 class BootstrapTests(unittest.TestCase):
     def setUp(self):
         if not PS:self.skipTest('pwsh unavailable')

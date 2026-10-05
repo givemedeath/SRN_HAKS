@@ -123,7 +123,7 @@ function Register-SrnToolUse {
         foreach ($input in $Inputs) { $p=Resolve-SrnRealPath $input; $refs+=@{path=$p; role='input'; sha256=$(if (Test-Path $p -PathType Leaf) { (Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant() } else { $null })} }
         $current=Join-Path $folder 'current.json'
         if (Test-Path -LiteralPath $current) { $refs+=(Get-Content -Raw -Encoding utf8 $current | ConvertFrom-Json -AsHashtable).references }
-        $refs=@($refs | Group-Object { $_.role+':'+$_.path } | ForEach-Object { $_.Group[0] })
+        $refs=@($refs | Group-Object -CaseSensitive:(-not $IsWindows) -Property { $_.role+':'+$_.path } | ForEach-Object { $_.Group[0] })
         $report=@{schemaVersion=1; kind='shared-tool-consumer'; worktree=$repo; createdUtc=[DateTime]::UtcNow.ToString('o'); toolsRoot=$Tool.toolsRoot; rootOrigin=$Tool.rootOrigin; completeDeclaration=$false; references=$refs; inventorySha256=$Tool.inventorySha256}
         $local=Join-Path $repo ('.tmp/tool-dependencies/'+[guid]::NewGuid().ToString('N')+'.json'); New-Item -ItemType Directory -Force -Path (Split-Path $local -Parent) | Out-Null
         $json=($report | ConvertTo-Json -Depth 32)+"`n"; [IO.File]::WriteAllText($local,$json,[Text.UTF8Encoding]::new($false))

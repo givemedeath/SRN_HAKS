@@ -8,7 +8,7 @@
   },
   "checks": {
     "toolingTests": {
-      "count": 17,
+      "count": 18,
       "result": "passed"
     },
     "phenotypeTests": {
