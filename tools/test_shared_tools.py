@@ -16,7 +16,7 @@ MODULE=HERE/'SrnTools.psm1'
 
 class SharedToolsTests(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory(); self.base=Path(self.tmp.name)
+        self.tmp=tempfile.TemporaryDirectory(); self.base=Path(self.tmp.name).resolve()
         self.repo=self.base/'primary space';self.repo.mkdir()
         self.env=patch.dict(os.environ,{'SRN_TOOLS_ROOT':''});self.env.start()
         for command in [('init',),('config','user.name','Fixture'),('config','user.email','fixture@example.invalid')]:
@@ -46,6 +46,11 @@ class SharedToolsTests(unittest.TestCase):
             py=resolve_tool('erf',repo)
             ps=self.ps(f"Resolve-SrnTool erf -RepositoryRoot '{repo}' | ConvertTo-Json")
             self.assertEqual(py,ps)
+        # Windows runner TEMP can use an 8.3 alias such as RUNNER~1.
+        alias=Path(self.tmp.name)/'primary space/.tools'
+        py=resolve_tool('erf',self.link,root=alias)
+        ps=self.ps(f"Resolve-SrnTool erf -ToolsRoot '{alias}' -RepositoryRoot '{self.link}' | ConvertTo-Json")
+        self.assertEqual(py,ps)
         other=self.base/'override space';shutil.copytree(self.bank,other)
         with patch.dict(os.environ,{'SRN_TOOLS_ROOT':str(other)}):
             self.assertEqual(tools_root(self.link)[0],other)
@@ -128,7 +133,7 @@ class SharedToolsTests(unittest.TestCase):
 class BootstrapTests(unittest.TestCase):
     def setUp(self):
         if not PS:self.skipTest('pwsh unavailable')
-        self.tmp=tempfile.TemporaryDirectory();self.base=Path(self.tmp.name)
+        self.tmp=tempfile.TemporaryDirectory();self.base=Path(self.tmp.name).resolve()
         self.repo=self.base/'repo';self.tools=self.repo/'tools';self.tools.mkdir(parents=True)
         for name in ['SrnTools.psm1','Bootstrap-Tools.ps1']:shutil.copyfile(HERE/name,self.tools/name)
         self.root=self.base/'cache';(self.root/'downloads').mkdir(parents=True)
