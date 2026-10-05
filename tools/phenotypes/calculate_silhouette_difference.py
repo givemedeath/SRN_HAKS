@@ -200,11 +200,21 @@ def evaluate_gate7_compliance(race_key: str, race_data: dict) -> dict:
     for view_key in ("side", "rear"):
         if view_key in race_data and isinstance(race_data[view_key], dict) and "derived_vs_target" in race_data[view_key]:
             v_reg = race_data[view_key]["derived_vs_target"].get("regional", {})
-            v_torso = v_reg.get("Chest & Upper Torso (15-38%)", {}).get("dice", 0.0)
-            v_pelvis = v_reg.get("Pelvis & Hands (38-60%)", {}).get("dice", 0.0)
-            # Turnaround views must achieve at least core baseline threshold (>= 70.0%)
-            v_ok = (v_torso >= 70.0 or v_torso == 0.0) and (v_pelvis >= 70.0 or v_pelvis == 0.0)
-            turnaround_reports[view_key] = {"torsoDice": v_torso, "pelvisDice": v_pelvis, "passed": v_ok}
+            has_torso = "Chest & Upper Torso (15-38%)" in v_reg
+            has_pelvis = "Pelvis & Hands (38-60%)" in v_reg
+            v_torso = v_reg["Chest & Upper Torso (15-38%)"].get("dice", 0.0) if has_torso else None
+            v_pelvis = v_reg["Pelvis & Hands (38-60%)"].get("dice", 0.0) if has_pelvis else None
+
+            # Turnaround views must achieve at least core baseline threshold (>= 70.0%) for present regions.
+            # Zero score represents complete disjointness (no overlap), NOT missing data, and must fail.
+            torso_ok = (v_torso >= 70.0) if v_torso is not None else True
+            pelvis_ok = (v_pelvis >= 70.0) if v_pelvis is not None else True
+            v_ok = bool(torso_ok and pelvis_ok)
+            turnaround_reports[view_key] = {
+                "torsoDice": round(v_torso, 2) if v_torso is not None else 0.0,
+                "pelvisDice": round(v_pelvis, 2) if v_pelvis is not None else 0.0,
+                "passed": v_ok,
+            }
             if not v_ok:
                 turnaround_passed = False
 

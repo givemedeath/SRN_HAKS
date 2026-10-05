@@ -98,10 +98,17 @@ def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0") ->
 
     rig_text = rig_path.read_text(encoding="cp1252")
 
+    # Match exact dummy node names: "node dummy <node_name>"
+    dummy_nodes = {
+        m.strip().lower()
+        for m in re.findall(r"(?mi)^\s*node\s+dummy\s+(\S+)", rig_text)
+    }
+
     for p_name, path, hook in [("handl", handl_path, "lhand"), ("handr", handr_path, "rhand")]:
         text = path.read_text(encoding="cp1252")
-        has_in_rig = f"node dummy {hook}" in rig_text.lower()
-        has_g_in_rig = f"node dummy {hook}_g" in rig_text.lower()
+        hook_lower = hook.lower()
+        has_in_rig = hook_lower in dummy_nodes
+        has_g_in_rig = f"{hook_lower}_g" in dummy_nodes
         dummy_checks[p_name] = {
             "model": path.name,
             "attachmentNode": hook,

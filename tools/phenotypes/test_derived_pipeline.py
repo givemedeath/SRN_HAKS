@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import os
 import shutil
 import tempfile
 import unittest
@@ -337,6 +338,62 @@ class Gate7ComplianceTests(unittest.TestCase):
         self.assertTrue(res["passed"])
         self.assertTrue(res["torsoPassed"])
 
+    def test_turnaround_zero_score_rejected(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 0.85,
+                    "dice_pct": 82.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 85.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 80.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            },
+            "side": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 0.0},  # Disjoint turnaround region
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
+        }
+        res = evaluate_gate7_compliance("test_race", mock_data)
+        self.assertFalse(res["passed"])
+        self.assertFalse(res["turnaroundPassed"])
+        self.assertFalse(res["turnaroundReports"]["side"]["passed"])
+
+    def test_turnaround_passing_scores(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 0.85,
+                    "dice_pct": 82.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 85.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 80.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            },
+            "side": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 72.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
+        }
+        res = evaluate_gate7_compliance("test_race", mock_data)
+        self.assertTrue(res["passed"])
+        self.assertTrue(res["turnaroundPassed"])
+        self.assertTrue(res["turnaroundReports"]["side"]["passed"])
+
 
 class StageDerivedDwarfDefaultsTests(unittest.TestCase):
     def test_stage_defaults_to_dwarf(self):
@@ -393,6 +450,74 @@ class DeriveRigTargetResolutionTests(unittest.TestCase):
         )
         self.assertNotEqual(res.returncode, 0)
         self.assertIn("Either positional 'target' JSON path or --race must be specified", res.stderr)
+
+
+class HandDummiesExactMatchingTests(unittest.TestCase):
+    def test_rhand_not_matched_by_rhand_g(self):
+        from derived_equipment import audit_hand_dummies
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            handl = tmp_path / "pmd0_handl001.mdl"
+            handr = tmp_path / "pmd0_handr001.mdl"
+            handl.write_text("model test", encoding="cp1252")
+            handr.write_text("model test", encoding="cp1252")
+
+            # Rig has grip frame rhand_g and lhand_g, but NOT rhand or lhand
+            rig_missing_attachment = tmp_path / "rig_no_attach.mdl"
+            rig_missing_attachment.write_text(
+                "node dummy rhand_g\n  parent root\nendnode\nnode dummy lhand_g\n  parent root\nendnode\n",
+                encoding="cp1252",
+            )
+
+            result = audit_hand_dummies(tmp_path, rig_missing_attachment, prefix="pmd0")
+            self.assertTrue(result["handr"]["rigGripPresent"])
+            self.assertFalse(result["handr"]["rigAttachmentPresent"])
+            self.assertTrue(result["handl"]["rigGripPresent"])
+            self.assertFalse(result["handl"]["rigAttachmentPresent"])
+
+            # Rig has both attachment and grip frame
+            rig_complete = tmp_path / "rig_complete.mdl"
+            rig_complete.write_text(
+                "node dummy rhand\nendnode\nnode dummy rhand_g\nendnode\n"
+                "node dummy lhand\nendnode\nnode dummy lhand_g\nendnode\n",
+                encoding="cp1252",
+            )
+            result_complete = audit_hand_dummies(tmp_path, rig_complete, prefix="pmd0")
+            self.assertTrue(result_complete["handr"]["rigGripPresent"])
+            self.assertTrue(result_complete["handr"]["rigAttachmentPresent"])
+            self.assertTrue(result_complete["handl"]["rigGripPresent"])
+            self.assertTrue(result_complete["handl"]["rigAttachmentPresent"])
+
+
+class ClientResolutionTests(unittest.TestCase):
+    def test_explicit_client_path(self):
+        from run_derived_dwarf_client_test import resolve_client
+        with tempfile.TemporaryDirectory() as tmp:
+            dummy_exe = Path(tmp) / "nwmain.exe"
+            dummy_exe.touch()
+            resolved = resolve_client(dummy_exe)
+            self.assertEqual(resolved, dummy_exe.resolve())
+
+    def test_explicit_client_missing_raises(self):
+        from run_derived_dwarf_client_test import resolve_client
+        with self.assertRaises(FileNotFoundError):
+            resolve_client(Path("C:/nonexistent/nwmain.exe"))
+
+    def test_env_client_path(self):
+        from run_derived_dwarf_client_test import resolve_client
+        with tempfile.TemporaryDirectory() as tmp:
+            dummy_exe = Path(tmp) / "custom_client.exe"
+            dummy_exe.touch()
+            old_val = os.environ.get("NWN_CLIENT")
+            try:
+                os.environ["NWN_CLIENT"] = str(dummy_exe)
+                resolved = resolve_client()
+                self.assertEqual(resolved, dummy_exe.resolve())
+            finally:
+                if old_val is not None:
+                    os.environ["NWN_CLIENT"] = old_val
+                else:
+                    os.environ.pop("NWN_CLIENT", None)
 
 
 if __name__ == "__main__":

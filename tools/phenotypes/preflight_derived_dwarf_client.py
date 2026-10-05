@@ -132,8 +132,8 @@ if __name__ == "__main__":
     default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0", "orc": "pmo0"}
     prefix = args.prefix or default_prefixes.get(race, "pmd0")
     stage = args.stage or (REPO / f"output/phenotypes/derived-{race}-male-v1/test-stage")
-    receipt = args.output_receipt or (REPO / f"output/phenotypes/derived-{race}-male-v1/review/client-preflight-receipt.json")
-    client = args.client or CLIENT
+    from run_derived_dwarf_client_test import resolve_client
+    client = resolve_client(args.client)
 
     res = run_preflight(stage_dir=stage, client_path=client, output_receipt=receipt, race=race, prefix=prefix)
     print(f"Preflight passed: {res['pass']}, HAK entries: {res['totalHakEntries']}")
