@@ -122,7 +122,7 @@ def align_and_compare(derived_m: np.ndarray, target_m: np.ndarray, norm_height: 
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--race", choices=["troll", "dwarf", "all"], default="all")
+    parser.add_argument("--race", choices=["troll", "dwarf", "human", "all"], default="all")
     parser.add_argument("--output", type=Path, default=ARTIFACT_DIR / "silhouette_metrics.json")
     return parser.parse_args()
 
@@ -157,14 +157,17 @@ def main():
             "front": {
                 "derived_vs_target": align_and_compare(d_troll_f, c_troll_f),
                 "stock_vs_target": align_and_compare(s_troll_f, c_troll_f),
+                "derived_vs_stock": align_and_compare(d_troll_f, s_troll_f),
             },
             "side": {
                 "derived_vs_target": align_and_compare(d_troll_s, c_troll_s),
                 "stock_vs_target": align_and_compare(s_troll_s, c_troll_s),
+                "derived_vs_stock": align_and_compare(d_troll_s, s_troll_s),
             },
             "rear": {
                 "derived_vs_target": align_and_compare(d_troll_r, c_troll_r),
                 "stock_vs_target": align_and_compare(s_troll_r, c_troll_r),
+                "derived_vs_stock": align_and_compare(d_troll_r, s_troll_r),
             },
         }
 
@@ -187,12 +190,65 @@ def main():
             "front": {
                 "derived_vs_target": align_and_compare(d_dwarf_f, c_dwarf_f),
                 "stock_vs_target": align_and_compare(s_dwarf_f, c_dwarf_f),
+                "derived_vs_stock": align_and_compare(d_dwarf_f, s_dwarf_f),
             },
             "side": {
                 "derived_vs_target": align_and_compare(d_dwarf_s, c_dwarf_s),
                 "stock_vs_target": align_and_compare(s_dwarf_s, c_dwarf_s),
+                "derived_vs_stock": align_and_compare(d_dwarf_s, s_dwarf_s),
             },
         }
+
+    if args.race in ("human", "all"):
+        im_human_concept = Image.open(SCRATCH_DIR / "human_male_fit.png")
+        c_human_f, _, _ = extract_concept_mask(im_human_concept, (15, 330), y_bounds=(65, 720))
+        c_human_s, _, _ = extract_concept_mask(im_human_concept, (340, 680), y_bounds=(65, 720))
+        c_human_r, _, _ = extract_concept_mask(im_human_concept, (690, 1025), y_bounds=(65, 720))
+
+        r_dir = REPO_ROOT / "output/phenotypes/derived-v1/masters/human-male-v1/review/renders"
+        im_hf = Image.open(r_dir / "human_unlit_front.png")
+        arr_hf = np.array(im_hf)
+        bg_hf = arr_hf[10, 10, :3]
+        fg_hf = np.any(np.abs(arr_hf[:, :, :3].astype(int) - bg_hf.astype(int)) > 30, axis=2)
+        s_human_f = fg_hf[:, :1200]
+        m_human_f = fg_hf[:, 1200:]
+
+        im_hs = Image.open(r_dir / "human_unlit_side.png")
+        arr_hs = np.array(im_hs)
+        bg_hs = arr_hs[10, 10, :3]
+        fg_hs = np.any(np.abs(arr_hs[:, :, :3].astype(int) - bg_hs.astype(int)) > 30, axis=2)
+        s_human_s = fg_hs[:, :1200]
+        m_human_s = fg_hs[:, 1200:]
+
+        im_hr = Image.open(r_dir / "human_unlit_rear.png")
+        arr_hr = np.array(im_hr)
+        bg_hr = arr_hr[10, 10, :3]
+        fg_hr = np.any(np.abs(arr_hr[:, :, :3].astype(int) - bg_hr.astype(int)) > 30, axis=2)
+        s_human_r = fg_hr[:, 1200:]
+        m_human_r = fg_hr[:, :1200]
+
+        results["human_male"] = {
+            "front": {
+                "derived_vs_target": align_and_compare(m_human_f, c_human_f),
+                "stock_vs_target": align_and_compare(s_human_f, c_human_f),
+                "derived_vs_stock": align_and_compare(m_human_f, s_human_f),
+            },
+            "side": {
+                "derived_vs_target": align_and_compare(m_human_s, c_human_s),
+                "stock_vs_target": align_and_compare(s_human_s, c_human_s),
+                "derived_vs_stock": align_and_compare(m_human_s, s_human_s),
+            },
+            "rear": {
+                "derived_vs_target": align_and_compare(m_human_r, c_human_r),
+                "stock_vs_target": align_and_compare(s_human_r, c_human_r),
+                "derived_vs_stock": align_and_compare(m_human_r, s_human_r),
+            },
+        }
+
+        # Also write human metrics directly into master review folder
+        h_metrics_path = REPO_ROOT / "output/phenotypes/derived-v1/masters/human-male-v1/review/silhouette_metrics.json"
+        h_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        h_metrics_path.write_text(json.dumps({"human_male": results["human_male"]}, indent=2), encoding="utf-8")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(results, indent=2), encoding="utf-8")
@@ -221,6 +277,11 @@ def main():
             print(f"      - Stock Baseline Dice Match:   {s_res['dice_pct']:6.2f}%  (Difference: {s_res['dice_diff_pct']:5.2f}%)")
             improvement = d_res['dice_pct'] - s_res['dice_pct']
             print(f"      - Derived Pipeline Gain:       +{improvement:5.2f}% closer to target silhouette than stock")
+            if "derived_vs_stock" in vdata:
+                d_s = vdata["derived_vs_stock"]
+                print(f"  [Derived/Master vs Stock Low-Poly Comparison]:")
+                print(f"      - Direct Model DICE Match:     {d_s['dice_pct']:6.2f}% (Overlap IoU: {d_s['iou_pct']:6.2f}%, Divergence: {d_s['dice_diff_pct']:5.2f}%)")
+                print(f"      - High-Poly Excess Contour:    +{d_s['excess_derived_pct']:5.2f}% (Organic muscle & armor volume over stock boxes)")
 
             print(f"  [Regional Breakdown (Derived vs Target)]:")
             for rk, rv in d_res["regional"].items():

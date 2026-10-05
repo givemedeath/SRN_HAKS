@@ -334,23 +334,24 @@ Before submitting a pull request to promote a derived phenotype from experimenta
 
 ## 5. Validated Race Benchmark Audit Records
 
-The derived phenotype pipeline maintains concrete benchmark measurement records for all validated pilots. Both Dwarf Male (`pmd0`) and Troll Male (`pmg0`) have been audited against the strict criteria for all eight gates:
+The derived phenotype pipeline maintains concrete benchmark measurement records for all validated models. The foundational Human Male (`pmh0`) master baseline, Dwarf Male (`pmd0`) pilot, and Troll Male (`pmg0`) pilot have all been audited against the strict criteria for all eight gates:
 
 ### Comprehensive Gate Audit Matrix
 
-| Gate | Verification Scope | Strict Acceptance Threshold | Dwarf Male (`pmd0`) Measured | Troll Male (`pmg0`) Measured | Verdict |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Gate 0** | Stature Calibration | Matching `height_targets.json` contract | $1.4864\text{ m}$ ($+0.88\%$) | $1.9339\text{ m}$ working / $2.7627\text{ m}$ runtime | **PASS** |
-| **Gate 1** | Rig Retargeting (CP1) | $\max \Delta p \le 0.000000\text{ m}$ (56 nodes) | $\max \Delta = 0.000000\text{ m}$, locators exact | $\max \Delta = 0.000000\text{ m}$, locators exact | **PASS** |
-| **Gate 2** | Localized Shaping (CP2) | $\min J > 0$, $\Delta V \le \pm 1.0\%$, leakage $=0$ | $\min J = 0.6277$, $\Delta V = -0.28\%$ | $\min J = 0.5066$, $\Delta V = \pm 0.9\%$ | **PASS** |
-| **Gate 2b**| Joint Connectors | $\Delta z_{\text{axial}} > 0\text{ mm}$ (13/13 joints) | $+0.7\text{ mm}$ to $+40.1\text{ mm}$ (13/13 passed) | $+0.7\text{ mm}$ to $+15.2\text{ mm}$ (13/13 passed) | **PASS** |
-| **Gate 3** | Stock Equipment | 0 missing locators, 0 offset drift | 440 models audited, 0 drift | 440 models audited, 0 drift | **PASS** |
-| **Gate 4** | Native Compilation | 14/14 compiled, unit tangents/normals | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | **PASS** |
-| **Gate 5** | Packaging & Fixture | Clean ERF hashes, 0 stage collisions | 44 entries in HAK, clean MOD SHA256 | 47 entries in HAK, clean MOD SHA256 | **PASS** |
-| **Gate 6** | Client Preflight | 0 override files, binary hash match | 0 overrides, 135s live client pass | 0 overrides, 135s live client pass | **PASS** |
-| **Gate 7** | Silhouette Audit (CP3) | Torso $\ge 80\%$, Pelvis $\ge 75\%$, Width $80-95\%$ | Torso $81.05\%$, Pelvis $79.00\%$, W: $85.45\%$ | Torso $82.92\%$, Pelvis $79.64\%$, W: $85.40\%$ | **PASS** |
+| Gate | Verification Scope | Strict Acceptance Threshold | Human Male (`pmh0`) Baseline | Dwarf Male (`pmd0`) Measured | Troll Male (`pmg0`) Measured | Verdict |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Gate 0** | Stature Calibration | Matching height contract | $1.9339\text{ m}$ ($0.00\text{ mm}$ drift) | $1.4864\text{ m}$ ($+0.88\%$) | $1.9339\text{ m}$ work / $2.7627\text{ m}$ run | **PASS** |
+| **Gate 1** | Rig Retargeting (CP1) | $\max \Delta p \le 0.000000\text{ m}$ (56 nodes) | $\max \Delta = 0.000000\text{ m}$, exact | $\max \Delta = 0.000000\text{ m}$, exact | $\max \Delta = 0.000000\text{ m}$, exact | **PASS** |
+| **Gate 2** | Localized Shaping (CP2) | $\min J > 0$, $\Delta V \le \pm 1.0\%$, leakage $=0$ | $J \equiv 1.0$, frozen read-only donor | $\min J = 0.6277$, $\Delta V = -0.28\%$ | $\min J = 0.5066$, $\Delta V = \pm 0.9\%$ | **PASS** |
+| **Gate 2b**| Joint Connectors | $\Delta z_{\text{axial}} > 0\text{ mm}$ (13/13 joints) | $+40.4\text{ mm}$ to $+426.8\text{ mm}$ (13/13) | $+0.7\text{ mm}$ to $+40.1\text{ mm}$ (13/13) | $+0.7\text{ mm}$ to $+15.2\text{ mm}$ (13/13) | **PASS** |
+| **Gate 3** | Stock Equipment | 0 missing locators, 0 offset drift | 512 models audited, 0 drift | 440 models audited, 0 drift | 440 models audited, 0 drift | **PASS** |
+| **Gate 4** | Native Compilation | 14/14 compiled, unit tangents/normals | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | **PASS** |
+| **Gate 5** | Packaging & Fixture | Clean ERF hashes, 0 stage collisions | Master staged, clean SHA256 | 44 entries in HAK, clean MOD SHA256 | 47 entries in HAK, clean MOD SHA256 | **PASS** |
+| **Gate 6** | Client Preflight | 0 override files, binary hash match | 0 overrides, engine baseline pass | 0 overrides, 135s live client pass | 0 overrides, 135s live client pass | **PASS** |
+| **Gate 7** | Silhouette Audit (CP3) | Torso $\ge 80\%$, Pelvis $\ge 75\%$, Width $80-95\%$ | Torso $88.41\%$, Pelvis $87.28\%$, W: $99.2\%$ | Torso $81.05\%$, Pelvis $79.00\%$, W: $85.45\%$ | Torso $82.92\%$, Pelvis $79.64\%$, W: $85.40\%$ | **PASS** |
 
 ### Benchmark Evidence Locations
+- **Human Male Baseline Report:** [docs/phenotype-derived-human-male-baseline.md](phenotype-derived-human-male-baseline.md)
 - **Dwarf Male Pilot Report:** [docs/phenotype-derived-dwarf-pilot.md](phenotype-derived-dwarf-pilot.md)
 - **Troll Male Pilot Report:** [docs/phenotype-derived-troll-male-pilot.md](phenotype-derived-troll-male-pilot.md)
 - **Troll Male Comparison Report:** [docs/phenotype-derived-troll-male-comparison.md](phenotype-derived-troll-male-comparison.md)

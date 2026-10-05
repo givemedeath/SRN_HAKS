@@ -10,6 +10,19 @@
     "halflingPolicy": "out-of-scope"
   },
   "targets": {
+    "human-male-fit": {
+      "id": "human-male-fit",
+      "race": "human",
+      "gender": "male",
+      "phenotype": 0,
+      "modelPrefix": "pmh0",
+      "masterSource": "human-male-v1",
+      "status": "baseline-master",
+      "appearanceRow": 6,
+      "racialTypeRow": 6,
+      "statureMeters": 1.9339157,
+      "note": "Canonical donor master body and project baseline standard"
+    },
     "dwarf-male-fit": {
       "id": "dwarf-male-fit",
       "race": "dwarf",

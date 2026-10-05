@@ -68,14 +68,20 @@ def extract_mask_from_rgb(arr: np.ndarray, bg_color: tuple[int, int, int], thres
     return np.any(diff > threshold, axis=2)
 
 
-def extract_concept_mask(im: Image.Image, x_bounds: tuple[int, int]) -> tuple[np.ndarray, int, int]:
-    arr = np.array(im)[:, x_bounds[0]:x_bounds[1]]
+def extract_concept_mask(
+    im: Image.Image,
+    x_bounds: tuple[int, int],
+    y_bounds: tuple[int, int] | None = None,
+) -> tuple[np.ndarray, int, int]:
+    if y_bounds:
+        arr = np.array(im)[y_bounds[0]:y_bounds[1], x_bounds[0]:x_bounds[1]]
+    else:
+        arr = np.array(im)[:, x_bounds[0]:x_bounds[1]]
     mask = np.any(arr > 20, axis=2)
     rows = np.where(np.any(mask, axis=1))[0]
     cols = np.where(np.any(mask, axis=0))[0]
     sole_y = rows[-1]
     head_y = rows[0]
-    center_x = (cols[0] + cols[-1]) // 2
     cropped = mask[head_y:sole_y + 1, cols[0]:cols[-1] + 1]
     return cropped, sole_y - head_y + 1, cols[-1] - cols[0] + 1
 
@@ -132,6 +138,7 @@ def compose_3way_silhouette_sheet(
     max_height_meters: float = 3.0,
     working_scale: float = 1.0,
     runtime_scale: float = 1.4285714,
+    delta_meta: dict | None = None,
 ):
     """Render a 4-column master silhouette comparison canvas."""
     canvas_w = 2700
@@ -310,19 +317,20 @@ def compose_3way_silhouette_sheet(
     card_y0 = ground_y + 24
     card_h = footer_h - 10
 
+    default_delta = {
+        "title": "Anatomical Delta Audit",
+        "lines": [
+            "Trapezius: +22 mm field rise matches concept",
+            "Pectorals: +25 mm forward protrusion verified",
+            "Hands: 150% scaled to heavy weapon grips",
+            "Feet: 120% scaled with positive ground lock"
+        ]
+    }
     cards_meta = [
         (stock_meta, col_centers[0], COLOR_STOCK_FILL),
         (derived_meta, col_centers[1], COLOR_DERIVED_FILL),
         (ideal_meta, col_centers[2], COLOR_IDEAL_FILL),
-        ({
-            "title": "Anatomical Delta Audit",
-            "lines": [
-                "Trapezius: +22 mm field rise matches concept",
-                "Pectorals: +25 mm forward protrusion verified",
-                "Hands: 150% scaled to heavy weapon grips",
-                "Feet: 120% scaled with positive ground lock"
-            ]
-        }, col_centers[3], (120, 220, 255, 255))
+        (delta_meta or default_delta, col_centers[3], (120, 220, 255, 255))
     ]
 
     for idx, (meta, cx, tint) in enumerate(cards_meta):
@@ -345,7 +353,7 @@ def compose_3way_silhouette_sheet(
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--race", choices=["troll", "dwarf", "all"], default="troll")
+    parser.add_argument("--race", choices=["troll", "dwarf", "human", "all"], default="all")
     parser.add_argument("--output-dir", type=Path, default=ARTIFACT_DIR)
     args = parser.parse_args()
 
@@ -623,6 +631,163 @@ def main():
                 (out_dwarf_front, "PANEL D: CONTOUR OVERLAY DETAIL (ZERO CONNECTOR DRIFT)"),
             ],
             out_path=out_dwarf_master,
+        )
+
+    if args.race in ("human", "all"):
+        print("=== Generating Human Male Baseline 3-Way Silhouette Comparison Sheets ===")
+        im_human_concept = Image.open(SCRATCH_DIR / "human_male_fit.png")
+        h_concept_front, _, _ = extract_concept_mask(im_human_concept, (54, 282), (65, 720))
+        h_concept_side, _, _ = extract_concept_mask(im_human_concept, (448, 565), (65, 720))
+        h_concept_rear, _, _ = extract_concept_mask(im_human_concept, (732, 988), (65, 720))
+
+        human_delta_meta = {
+            "title": "Master Donor Baseline Audit",
+            "lines": [
+                "Head/Neck: 100% stock locator alignment",
+                "Torso/Limbs: Continuous heroic PBR sculpt",
+                "Connectors: 13/13 positive axial overlap",
+                "Stature: 1.9339 m (0.000000 m drift from stock)"
+            ]
+        }
+
+        r_dir = REPO_ROOT / "output/phenotypes/derived-v1/masters/human-male-v1/review/renders"
+        im_hf = Image.open(r_dir / "human_unlit_front.png")
+        arr_hf = np.array(im_hf)
+        bg_hf = arr_hf[10, 10, :3]
+        fg_hf = np.any(np.abs(arr_hf[:, :, :3].astype(int) - bg_hf.astype(int)) > 30, axis=2)
+        stock_human_front_mask = fg_hf[:, :1200]
+        master_human_front_mask = fg_hf[:, 1200:]
+
+        im_hs = Image.open(r_dir / "human_unlit_side.png")
+        arr_hs = np.array(im_hs)
+        bg_hs = arr_hs[10, 10, :3]
+        fg_hs = np.any(np.abs(arr_hs[:, :, :3].astype(int) - bg_hs.astype(int)) > 30, axis=2)
+        stock_human_side_mask = fg_hs[:, :1200]
+        master_human_side_mask = fg_hs[:, 1200:]
+
+        im_hr = Image.open(r_dir / "human_unlit_rear.png")
+        arr_hr = np.array(im_hr)
+        bg_hr = arr_hr[10, 10, :3]
+        fg_hr = np.any(np.abs(arr_hr[:, :, :3].astype(int) - bg_hr.astype(int)) > 30, axis=2)
+        stock_human_rear_mask = fg_hr[:, 1200:]
+        master_human_rear_mask = fg_hr[:, :1200]
+
+        human_stock_meta = {
+            "title": "Stock NWN Human Male Control (pmh0)",
+            "heightMeters": 1.9339,
+            "lines": [
+                "Model: pmh0 (vanilla Bioware low-poly)",
+                "Polycount: 645 triangles (1,049 verts)",
+                "Stature: 1.9339 m (working & runtime)",
+                "Geometry: Segmented boxy limb primitives"
+            ]
+        }
+        human_master_meta = {
+            "title": "Master Human Male Baseline (pmh0)",
+            "workingHeightMeters": 1.9339,
+            "runtimeHeightMeters": 1.9339,
+            "lines": [
+                "Model: pmh0 (engineered donor master)",
+                "Polycount: 686,048 triangles (405k verts)",
+                "Stature: 1.9339 m (0.000000 m drift)",
+                "Materials: PBR MTR + Normal / Roughness"
+            ]
+        }
+        human_ideal_meta = {
+            "title": "Canonical Human Concept Art",
+            "heightMeters": 1.9339,
+            "lines": [
+                "Source: Shadowrun 4A Core Reference",
+                "Canonical Stature: 1.75 m ref -> 1.93 m game",
+                "Design: Athletic fit muscular physique",
+                "Anatomy: Heroic proportions & balanced V-taper"
+            ]
+        }
+
+        # 1. Front View - Runtime Scale
+        out_human_front = args.output_dir / "human_silhouette_3way_comparison_front.png"
+        compose_3way_silhouette_sheet(
+            title="Human Male Baseline: 3-Way Silhouette Comparison (Front View)",
+            subtitle="Side-by-side comparison of Stock Low-Poly Human, High-Poly Master Human, and Canonical Concept Target",
+            target_race="human",
+            stock_mask=stock_human_front_mask,
+            derived_mask=master_human_front_mask,
+            ideal_mask=h_concept_front,
+            stock_meta=human_stock_meta,
+            derived_meta=human_master_meta,
+            ideal_meta=human_ideal_meta,
+            out_path=out_human_front,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+            delta_meta=human_delta_meta,
+        )
+
+        # 2. Side View - Profile
+        out_human_side = args.output_dir / "human_silhouette_3way_comparison_side.png"
+        compose_3way_silhouette_sheet(
+            title="Human Male Baseline: 3-Way Silhouette Comparison (Profile / Side View)",
+            subtitle="Evaluating Pectoral Projection, Spinal Curvature, Glute Depth, and Center of Mass",
+            target_race="human",
+            stock_mask=stock_human_side_mask,
+            derived_mask=master_human_side_mask,
+            ideal_mask=h_concept_side,
+            stock_meta=human_stock_meta,
+            derived_meta=human_master_meta,
+            ideal_meta=human_ideal_meta,
+            out_path=out_human_side,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+            delta_meta=human_delta_meta,
+        )
+
+        # 3. Rear View
+        out_human_rear = args.output_dir / "human_silhouette_3way_comparison_rear.png"
+        compose_3way_silhouette_sheet(
+            title="Human Male Baseline: 3-Way Silhouette Comparison (Posterior / Rear View)",
+            subtitle="Evaluating Latissimus V-Taper, Scapular Definition, Glute Contours, and Calf Width",
+            target_race="human",
+            stock_mask=stock_human_rear_mask,
+            derived_mask=master_human_rear_mask,
+            ideal_mask=h_concept_rear,
+            stock_meta=human_stock_meta,
+            derived_meta=human_master_meta,
+            ideal_meta=human_ideal_meta,
+            out_path=out_human_rear,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+            delta_meta=human_delta_meta,
+        )
+
+        # 4. Proportional Normalized Sheet
+        out_human_norm = args.output_dir / "human_silhouette_proportional_comparison.png"
+        compose_3way_silhouette_sheet(
+            title="Human Male Baseline: Proportional Anatomy & Silhouette Matching",
+            subtitle="Normalized 1:1 Head Height Comparison: Isolating Shoulder Span, Thoracic Width, and Extremity Ratios",
+            target_race="human",
+            stock_mask=stock_human_front_mask,
+            derived_mask=master_human_front_mask,
+            ideal_mask=h_concept_front,
+            stock_meta=human_stock_meta,
+            derived_meta=human_master_meta,
+            ideal_meta=human_ideal_meta,
+            out_path=out_human_norm,
+            scale_mode="normalized",
+            max_height_meters=2.5,
+            delta_meta=human_delta_meta,
+        )
+
+        # 5. Master 2x2 Turnaround
+        out_human_master = args.output_dir / "human_silhouette_master_turnaround.png"
+        compose_master_2x2_sheet(
+            title="Human Male Master Baseline: Complete 3-Way Silhouette Turnaround Matrix",
+            subtitle="Original Baseline Audit: Stock Low-Poly Human (pmh0) vs. High-Poly Master Human (pmh0) vs. Shadowrun 4A Concept Art",
+            panels=[
+                (out_human_front, "PANEL A: FRONT VIEW (STATURE & HEROIC PROPORTIONS)"),
+                (out_human_norm, "PANEL B: NORMALIZED ANATOMY (1:1 PROPORTIONAL MATCHING)"),
+                (out_human_side, "PANEL C: PROFILE VIEW (POSTURE & PECTORAL DEPTH)"),
+                (out_human_rear, "PANEL D: POSTERIOR VIEW (V-TAPER & SCAPULAR CONTOURS)"),
+            ],
+            out_path=out_human_master,
         )
 
     if args.race == "all":
