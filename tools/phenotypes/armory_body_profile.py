@@ -97,6 +97,35 @@ ELF_MALE_AFFINE = {
     "footr":   {"scale": [0.920, 0.950, 0.9500], "translate": [0.0, 0.0, 0.0]},
 }
 
+# Measured affine profiles for Orc Male (phenotype 0 Fit) relative to Human Male Master
+# Captures broad, powerful, heavily muscled orc anatomy matching stock pmo0 skeleton:
+# - Broadened shoulders & chest (shoulder span 0.602m vs 0.402m, scale 1.4975 in X, 1.120 in Y);
+#   Z 1.2772 = pmo0 neck_g offset 0.59895 / human 0.46895 so the neck seam meets the head
+# - Broadened, lengthened pelvis (hip span 0.276m vs 0.216m, scale 1.2776 in X, 1.080 in Y);
+#   Z 1.1644 = pmo0 hip joint drop 0.212441 / human 0.182441 so the leg seams meet the thighs
+# - Heavy muscular arms: length scaled to reach pmo0 elbow (0.412m vs 0.302m, scale Z ~1.3643, X/Y ~1.080)
+# - Heavy muscular forearms: length scaled to reach pmo0 wrist (0.397m vs 0.292m, scale Z ~1.3599, X/Y ~1.080)
+# - Powerful hands: scale 1.120 in X/Y/Z
+# - Muscular thighs: scale X/Y ~1.080, Z ~1.000
+# - Muscular calves: scale X/Y ~1.060, Z ~1.000
+# - Sturdy boots/feet: scale 1.080 in X/Y/Z
+ORC_MALE_AFFINE = {
+    "chest":   {"scale": [1.4975, 1.120, 1.2772], "translate": [0.0, 0.0, 0.0]},
+    "pelvis":  {"scale": [1.2776, 1.080, 1.1644], "translate": [0.0, 0.0, 0.0]},
+    "bicepl":  {"scale": [1.0800, 1.080, 1.3643], "translate": [0.0, 0.0, 0.0]},
+    "bicepr":  {"scale": [1.0800, 1.080, 1.3643], "translate": [0.0, 0.0, 0.0]},
+    "forel":   {"scale": [1.0800, 1.080, 1.3599], "translate": [0.0, 0.0, 0.0]},
+    "forer":   {"scale": [1.0800, 1.080, 1.3599], "translate": [0.0, 0.0, 0.0]},
+    "handl":   {"scale": [1.1200, 1.120, 1.1200], "translate": [0.0, 0.0, 0.0]},
+    "handr":   {"scale": [1.1200, 1.120, 1.1200], "translate": [0.0, 0.0, 0.0]},
+    "legl":    {"scale": [1.0800, 1.080, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "legr":    {"scale": [1.0800, 1.080, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "shinl":   {"scale": [1.0600, 1.060, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "shinr":   {"scale": [1.0600, 1.060, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "footl":   {"scale": [1.0800, 1.080, 1.0800], "translate": [0.0, 0.0, 0.0]},
+    "footr":   {"scale": [1.0800, 1.080, 1.0800], "translate": [0.0, 0.0, 0.0]},
+}
+
 
 def sha256_file(path: Path | str) -> str:
     digest = hashlib.sha256()
@@ -463,6 +492,8 @@ def main():
         affine_map = TROLL_MALE_AFFINE
     elif race == "elf":
         affine_map = ELF_MALE_AFFINE
+    elif race == "orc":
+        affine_map = ORC_MALE_AFFINE
     else:
         affine_map = DWARF_MALE_AFFINE
     out_dir = args.output_dir or Path(f"output/phenotypes/derived-v1/parts/{race}-male/affine")

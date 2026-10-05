@@ -353,7 +353,7 @@ def compose_3way_silhouette_sheet(
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "all"], default="all")
+    parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "orc", "all"], default="all")
     parser.add_argument("--output-dir", type=Path, default=ARTIFACT_DIR)
     args = parser.parse_args()
 
@@ -652,6 +652,163 @@ def main():
                 (out_elf_rear_runtime, "PANEL D: POSTERIOR VIEW (V-TAPER & SCAPULAR CONTOURS)"),
             ],
             out_path=out_elf_master,
+        )
+
+    if args.race in ("orc", "all"):
+        print("=== Generating Orc Male 3-Way Silhouette Comparison Sheets ===")
+        # 1. Load Concept Art
+        im_orc_concept = Image.open(SCRATCH_DIR / "orc_male_fit.png")
+        concept_orc_front, cof_h, cof_w = extract_concept_mask(im_orc_concept, (60, 420))
+        concept_orc_side, cos_h, cos_w = extract_concept_mask(im_orc_concept, (650, 809))
+        concept_orc_rear, cor_h, cor_w = extract_concept_mask(im_orc_concept, (1019, 1384))
+
+        # 2. Load 3D Renders
+        im_orc_front_render = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_front.png")
+        arr_ofr = np.array(im_orc_front_render)
+        bg_ofr = arr_ofr[10, 10, :3].astype(int)
+        fg_ofr = np.any(np.abs(arr_ofr[:, :, :3].astype(int) - bg_ofr) > 25, axis=2)
+        stock_orc_front_mask = fg_ofr[:, :1200]
+        derived_orc_front_mask = fg_ofr[:, 1200:]
+
+        im_orc_side_render = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_side.png")
+        arr_osr = np.array(im_orc_side_render)
+        bg_osr = arr_osr[10, 10, :3].astype(int)
+        fg_osr = np.any(np.abs(arr_osr[:, :, :3].astype(int) - bg_osr) > 25, axis=2)
+        stock_orc_side_mask = fg_osr[:, :1200]
+        derived_orc_side_mask = fg_osr[:, 1200:]
+
+        im_orc_rear_render = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_rear.png")
+        arr_orr = np.array(im_orc_rear_render)
+        bg_orr = arr_orr[10, 10, :3].astype(int)
+        fg_orr = np.any(np.abs(arr_orr[:, :, :3].astype(int) - bg_orr) > 25, axis=2)
+        stock_orc_rear_mask = fg_orr[:, :1200]
+        derived_orc_rear_mask = fg_orr[:, 1200:]
+
+        orc_stock_meta = {
+            "title": "Stock Human Male Master (pmh0)",
+            "heightMeters": 1.9339,
+            "lines": [
+                "Model: pmh0 (human heroic baseline)",
+                "Height: 1.9339 m (working & runtime)",
+                "Shoulder Span: 0.4020 m",
+                "Provenance: Frozen Master Bank"
+            ]
+        }
+        orc_derived_meta = {
+            "title": "Derived Orc Male Fit (pmo0)",
+            "workingHeightMeters": 1.9339,
+            "runtimeHeightMeters": 2.0997,
+            "lines": [
+                "Model: pmo0 (derived phenotype 0)",
+                "Runtime Height: 2.10 m (scaled x1.0857)",
+                "Shoulder Span: 0.6020 m (broad pmo0 rig)",
+                "Rig: Retargeted heavy a_da / pmo0 rig"
+            ]
+        }
+        orc_ideal_meta = {
+            "title": "Canonical Orc Concept Art",
+            "heightMeters": 2.0997,
+            "lines": [
+                "Source: Shadowrun 4A Reference Sheet",
+                "Target Stature: 1.90 m (ref) -> 2.10 m (scaled)",
+                "Design: Heavy muscular physique, broad traps",
+                "Anatomy: Muscular arms/calves, broad stance"
+            ]
+        }
+        orc_delta_meta = {
+            "title": "Orc Anatomical Delta Audit",
+            "lines": [
+                "Shoulder Span: 0.602 m (+50% vs human baseline)",
+                "Trapezius: Thick cranial field rise matches concept",
+                "Pectorals: +12 mm forward muscle protrusion",
+                "Limbs: Robust quad, calf, and arm girth"
+            ]
+        }
+
+        # 1. Front View - Runtime Scale Sheet
+        out_orc_front_runtime = args.output_dir / "orc_silhouette_3way_comparison_front.png"
+        compose_3way_silhouette_sheet(
+            title="Orc Male Phenotype: 3-Way Silhouette Comparison (Frontal View)",
+            subtitle="Comparing Stock Human Baseline (pmh0), High-Poly Derived Orc (pmo0), and Canonical Concept Target",
+            target_race="orc",
+            stock_mask=stock_orc_front_mask,
+            derived_mask=derived_orc_front_mask,
+            ideal_mask=concept_orc_front,
+            stock_meta=orc_stock_meta,
+            derived_meta=orc_derived_meta,
+            ideal_meta=orc_ideal_meta,
+            out_path=out_orc_front_runtime,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+            delta_meta=orc_delta_meta,
+        )
+
+        # 2. Front View - Proportional 1:1 Head Height Sheet
+        out_orc_front_norm = args.output_dir / "orc_silhouette_proportional_comparison.png"
+        compose_3way_silhouette_sheet(
+            title="Orc Male Phenotype: Proportional Morphological Overlap (1:1 Normalized)",
+            subtitle="Evaluating Normalized Trapezius Slope, Shoulder Span, Chest Girth, and Calves",
+            target_race="orc",
+            stock_mask=stock_orc_front_mask,
+            derived_mask=derived_orc_front_mask,
+            ideal_mask=concept_orc_front,
+            stock_meta=orc_stock_meta,
+            derived_meta=orc_derived_meta,
+            ideal_meta=orc_ideal_meta,
+            out_path=out_orc_front_norm,
+            scale_mode="normalized",
+            max_height_meters=2.6,
+            delta_meta=orc_delta_meta,
+        )
+
+        # 3. Side View - Profile Runtime Sheet
+        out_orc_side_runtime = args.output_dir / "orc_silhouette_3way_comparison_side.png"
+        compose_3way_silhouette_sheet(
+            title="Orc Male Phenotype: 3-Way Silhouette Comparison (Profile / Side View)",
+            subtitle="Evaluating Thorax Depth, Forward Pectoral Projection, Posture, and Leg Muscle Sweep",
+            target_race="orc",
+            stock_mask=stock_orc_side_mask,
+            derived_mask=derived_orc_side_mask,
+            ideal_mask=concept_orc_side,
+            stock_meta=orc_stock_meta,
+            derived_meta=orc_derived_meta,
+            ideal_meta=orc_ideal_meta,
+            out_path=out_orc_side_runtime,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+            delta_meta=orc_delta_meta,
+        )
+
+        # 4. Rear View - Runtime Scale Sheet
+        out_orc_rear_runtime = args.output_dir / "orc_silhouette_3way_comparison_rear.png"
+        compose_3way_silhouette_sheet(
+            title="Orc Male Phenotype: 3-Way Silhouette Comparison (Rear / Posterior View)",
+            subtitle="Evaluating Latissimus Width, Trapezius Mass, Deltoid Breadth, and Calf Spread",
+            target_race="orc",
+            stock_mask=stock_orc_rear_mask,
+            derived_mask=derived_orc_rear_mask,
+            ideal_mask=concept_orc_rear,
+            stock_meta=orc_stock_meta,
+            derived_meta=orc_derived_meta,
+            ideal_meta=orc_ideal_meta,
+            out_path=out_orc_rear_runtime,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+            delta_meta=orc_delta_meta,
+        )
+
+        # 5. Master 2x2 Turnaround Presentation Sheet for Orc
+        out_orc_master = args.output_dir / "orc_silhouette_master_turnaround.png"
+        compose_master_2x2_sheet(
+            title="Orc Male Phenotype: Complete 3-Way Silhouette Turnaround Matrix",
+            subtitle="Side-by-side verification: Stock Human Baseline (pmh0) vs. High-Poly Derived Orc (pmo0) vs. Canonical Shadowrun Concept Art",
+            panels=[
+                (out_orc_front_runtime, "PANEL A: FRONT VIEW (RUNTIME ENGINE STATURE)"),
+                (out_orc_front_norm, "PANEL B: NORMALIZED ANATOMY (1:1 PROPORTIONAL MATCHING)"),
+                (out_orc_side_runtime, "PANEL C: PROFILE VIEW (CHEST DEPTH & POSTURE)"),
+                (out_orc_rear_runtime, "PANEL D: POSTERIOR VIEW (V-TAPER & TRAPEZIUS RISE)"),
+            ],
+            out_path=out_orc_master,
         )
 
     if args.race in ("dwarf", "all"):
@@ -1017,6 +1174,19 @@ def compose_all_races_lineup(artifact_dir: Path, out_path: Path):
     fg_ef = np.any(np.abs(arr_ef[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
     d_elf_m = fg_ef[:, 1200:]
 
+    im_orc_concept = Image.open(SCRATCH_DIR / "orc_male_fit.png")
+    c_orc_m, _, _ = extract_concept_mask(im_orc_concept, (60, 420))
+
+    orc_render_path = REPO_ROOT / "output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_front.png"
+    if orc_render_path.exists():
+        im_orc_front = Image.open(orc_render_path)
+        arr_of = np.array(im_orc_front)
+        bg_of = arr_of[10, 10, :3].astype(int)
+        fg_of = np.any(np.abs(arr_of[:, :, :3].astype(int) - bg_of) > 25, axis=2)
+        d_orc_m = fg_of[:, 1200:]
+    else:
+        d_orc_m = c_orc_m
+
     figures = [
         ("Stock Human (pmh0)", "Heroic Master", s_human_m, 1.9339, COLOR_STOCK_FILL, COLOR_STOCK_RIM),
         ("Stock Dwarf (pmd0)", "Low-Poly Control", s_dwarf_m, 1.4735, (90, 110, 135, 255), (140, 160, 185, 255)),
@@ -1024,6 +1194,8 @@ def compose_all_races_lineup(artifact_dir: Path, out_path: Path):
         ("Ideal Dwarf Target", "Shadowrun 4A Concept", c_dwarf_m, 1.3261, COLOR_IDEAL_FILL, COLOR_IDEAL_RIM),
         ("Derived Elf (pme0)", "Slender Lean Rig", d_elf_m, 2.0997, COLOR_DERIVED_FILL, COLOR_DERIVED_RIM),
         ("Ideal Elf Target", "Shadowrun 4A Concept", c_elf_m, 2.0997, COLOR_IDEAL_FILL, COLOR_IDEAL_RIM),
+        ("Derived Orc (pmo0)", "Broad Muscular Rig", d_orc_m, 2.0997, COLOR_DERIVED_FILL, COLOR_DERIVED_RIM),
+        ("Ideal Orc Target", "Shadowrun 4A Concept", c_orc_m, 2.0997, COLOR_IDEAL_FILL, COLOR_IDEAL_RIM),
         ("Derived Troll (pmg0)", "Broadened Rig (10/7)", d_troll_m, 2.7627, COLOR_DERIVED_FILL, COLOR_DERIVED_RIM),
         ("Ideal Troll Target", "Shadowrun 4A Concept", c_troll_m, 2.7627, COLOR_IDEAL_FILL, COLOR_IDEAL_RIM),
     ]

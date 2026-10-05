@@ -122,7 +122,7 @@ def align_and_compare(derived_m: np.ndarray, target_m: np.ndarray, norm_height: 
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "all"], default="all")
+    parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "orc", "all"], default="all")
     parser.add_argument("--output", type=Path, default=ARTIFACT_DIR / "silhouette_metrics.json")
     return parser.parse_args()
 
@@ -292,6 +292,55 @@ def main():
         e_metrics_path = REPO_ROOT / "output/phenotypes/derived-elf-male-v1/review/silhouette_metrics.json"
         e_metrics_path.parent.mkdir(parents=True, exist_ok=True)
         e_metrics_path.write_text(json.dumps({"elf_male": results["elf_male"]}, indent=2), encoding="utf-8")
+
+    if args.race in ("orc", "all"):
+        im_orc_concept = Image.open(SCRATCH_DIR / "orc_male_fit.png")
+        c_orc_f, _, _ = extract_concept_mask(im_orc_concept, (60, 420))
+        c_orc_s, _, _ = extract_concept_mask(im_orc_concept, (650, 809))
+        c_orc_r, _, _ = extract_concept_mask(im_orc_concept, (1019, 1384))
+
+        im_of = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_front.png")
+        arr_of = np.array(im_of)
+        bg_of = arr_of[10, 10, :3].astype(int)
+        fg_of = np.any(np.abs(arr_of[:, :, :3].astype(int) - bg_of) > 25, axis=2)
+        d_orc_f = fg_of[:, 1200:]
+        s_orc_f = fg_of[:, :1200]
+
+        im_os = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_side.png")
+        arr_os = np.array(im_os)
+        bg_os = arr_os[10, 10, :3].astype(int)
+        fg_os = np.any(np.abs(arr_os[:, :, :3].astype(int) - bg_os) > 25, axis=2)
+        d_orc_s = fg_os[:, 1200:]
+        s_orc_s = fg_os[:, :1200]
+
+        im_or = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_rear.png")
+        arr_or = np.array(im_or)
+        bg_or = arr_or[10, 10, :3].astype(int)
+        fg_or = np.any(np.abs(arr_or[:, :, :3].astype(int) - bg_or) > 25, axis=2)
+        d_orc_r = fg_or[:, 1200:]
+        s_orc_r = fg_or[:, :1200]
+
+        results["orc_male"] = {
+            "front": {
+                "derived_vs_target": align_and_compare(d_orc_f, c_orc_f),
+                "stock_vs_target": align_and_compare(s_orc_f, c_orc_f),
+                "derived_vs_stock": align_and_compare(d_orc_f, s_orc_f),
+            },
+            "side": {
+                "derived_vs_target": align_and_compare(d_orc_s, c_orc_s),
+                "stock_vs_target": align_and_compare(s_orc_s, c_orc_s),
+                "derived_vs_stock": align_and_compare(d_orc_s, s_orc_s),
+            },
+            "rear": {
+                "derived_vs_target": align_and_compare(d_orc_r, c_orc_r),
+                "stock_vs_target": align_and_compare(s_orc_r, c_orc_r),
+                "derived_vs_stock": align_and_compare(d_orc_r, s_orc_r),
+            },
+        }
+
+        o_metrics_path = REPO_ROOT / "output/phenotypes/derived-orc-male-v1/review/silhouette_metrics.json"
+        o_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        o_metrics_path.write_text(json.dumps({"orc_male": results["orc_male"]}, indent=2), encoding="utf-8")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(results, indent=2), encoding="utf-8")

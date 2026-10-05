@@ -288,6 +288,15 @@ def main():
         print(f"  Animation scale: {receipt['animationScale']}")
         print(f"  Max joint deviation: {receipt['maxJointDeviationMeters']:.6e} m")
         print(f"  Receipt written to {output_dir / 'rig-receipt.json'}")
+    elif race in ("orc", "half-orc"):
+        stock_root = args.stock_root or Path("output/phenotypes/derived-v1/masters/human-male-v1/stock/pmo0.mdl")
+        output_dir = args.output_dir or Path("output/phenotypes/derived-v1/rigs/orc-male")
+        receipt = derive_stock_family_rig(target_data, stock_root, output_dir)
+        print(f"Rig derivation successful: verified {receipt['nodeCount']} nodes.")
+        print(f"  Supermodel: {receipt['supermodel']} -> {receipt['animationSupermodel']}")
+        print(f"  Animation scale: {receipt['animationScale']}")
+        print(f"  Max joint deviation: {receipt['maxJointDeviationMeters']:.6e} m")
+        print(f"  Receipt written to {output_dir / 'rig-receipt.json'}")
     else:
         stock_root = args.stock_root or Path("output/phenotypes/derived-v1/masters/human-male-v1/stock/pmd0.mdl")
         output_dir = args.output_dir or Path("output/phenotypes/derived-v1/rigs/dwarf-male")

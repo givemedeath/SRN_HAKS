@@ -320,9 +320,91 @@ def generate_elf_male_target(
     return target_data
 
 
+def generate_orc_male_target(
+    supermodel_path: Path | str = Path("output/phenotypes/derived-v1/masters/human-male-v1/stock/pmo0.mdl"),
+    output_rig_path: Path | str = Path("output/phenotypes/derived-v1/rigs/orc-male/pmo0.mdl"),
+    output_config_path: Path | str = CONFIG_DIR / "target-orc-male-fit.json"
+) -> dict:
+    """Generate, validate, and write the broad stock-measured Orc male target contract."""
+    orc_text = Path(supermodel_path).read_text(encoding="cp1252")
+    skel = nodes(orc_text)
+
+    # Emit rig to output rigs dir
+    rig_path = Path(output_rig_path).resolve()
+    rig_path.parent.mkdir(parents=True, exist_ok=True)
+    rig_path.write_text(orc_text, encoding="cp1252")
+
+    xforms = transforms(skel)
+
+    factor = 1.90 / 1.75  # ~1.0857142857142857
+    working_h = 1.9339157
+    runtime_h = working_h * factor
+
+    working_frames = {}
+    runtime_frames = {}
+
+    for part, joint in PART_JOINTS.items():
+        j_lower = joint.lower()
+        require(j_lower in xforms, f"Missing joint '{joint}' in Orc rig")
+        mat = xforms[j_lower]
+        rot = mat[:3, :3]
+        require(np.allclose(rot.T @ rot, np.eye(3), atol=1e-8), f"Non-orthogonal rotation in {joint}")
+        require(abs(np.linalg.det(rot) - 1.0) < 1e-8, f"Non-proper rotation in {joint}")
+        working_frames[j_lower] = mat.tolist()
+
+        rmat = mat.copy()
+        rmat[:3, 3] *= factor
+        runtime_frames[j_lower] = rmat.tolist()
+
+    models = {part: f"pmo0_{part}001" for part in PART_JOINTS}
+
+    target_data = {
+        "schemaVersion": 2,
+        "kind": "phenotype-target",
+        "id": "orc-male-fit",
+        "identity": {
+            "race": "orc",
+            "gender": "male",
+            "phenotype": 0,
+            "prefix": "pmo0",
+            "raceId": 5,
+            "appearanceRow": 5,
+        },
+        "heightMeters": float(runtime_h),
+        "workingHeightMeters": float(working_h),
+        "rig": {
+            "revision": "pmo0-orc-male-broad-v1",
+            "mode": "retargeted",
+            "runtimeScale": float(factor),
+            "positionPolicy": "bind-relative",
+            "preserveRotations": True,
+            "preserveTimingEvents": True,
+            "sourcePrefix": "pmh0",
+            "targetPrefix": "pmo0",
+            "supermodel": "pmo0",
+            "animationSupermodel": "a_da",
+            "frames": {
+                "working": working_frames,
+                "runtime": runtime_frames,
+            }
+        },
+        "material": {
+            "fixedGarmentParts": ["pelvis"]
+        },
+        "models": models,
+    }
+
+    validate(target_data)
+
+    out = Path(output_config_path).resolve()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(target_data, indent=2) + "\n", encoding="utf-8")
+    return target_data
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--target", type=str, default="elf-male-fit", choices=["dwarf-male-fit", "troll-male-fit", "elf-male-fit"])
+    parser.add_argument("--target", type=str, default="orc-male-fit", choices=["dwarf-male-fit", "troll-male-fit", "elf-male-fit", "orc-male-fit"])
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
@@ -337,6 +419,10 @@ def main():
     elif args.target == "elf-male-fit":
         out = args.output or (CONFIG_DIR / "target-elf-male-fit.json")
         target = generate_elf_male_target(output_config_path=out)
+        print(f"Generated target contract: {target['id']} -> {out}")
+    elif args.target == "orc-male-fit":
+        out = args.output or (CONFIG_DIR / "target-orc-male-fit.json")
+        target = generate_orc_male_target(output_config_path=out)
         print(f"Generated target contract: {target['id']} -> {out}")
 
 

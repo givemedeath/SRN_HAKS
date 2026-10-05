@@ -68,12 +68,12 @@ def stage(race: str = "troll", prefix: str = "pmg0"):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--race", type=str, default="troll", choices=["dwarf", "troll", "elf"])
+    parser.add_argument("--race", type=str, default="orc", choices=["dwarf", "troll", "elf", "orc"])
     parser.add_argument("--prefix", type=str, default=None)
     args = parser.parse_args()
 
-    default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0"}
-    prefix = args.prefix or default_prefixes.get(args.race, "pme0")
+    default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0", "orc": "pmo0"}
+    prefix = args.prefix or default_prefixes.get(args.race, "pmo0")
     stage(race=args.race, prefix=prefix)
 
 
