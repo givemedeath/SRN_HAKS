@@ -15,6 +15,8 @@ jobs:
     name: Repository verification
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      SRN_TOOLS_ROOT: ${{ runner.temp }}/srn-shared-tools
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -24,8 +26,8 @@ jobs:
       - name: Cache verified tool archive and extraction
         uses: actions/cache@v6
         with:
-          path: .tools
-          key: neverwinter-nim-2.1.2-linux-gnu-x64-f9cc2e50
+          path: ${{ env.SRN_TOOLS_ROOT }}
+          key: srn-tools-linux-${{ hashFiles('tools/toolchain.lock.json', 'tools/shared-tools.lock.json') }}
       - name: Verify repository
         shell: pwsh
         env:

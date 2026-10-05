@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "897fb40d0827d547b4c4f37cabb07360e39f3a3d",
+  "localPlatform": "Windows x64",
+  "pythonDependencies": {
+    "numpy": "2.3.5",
+    "Pillow": "12.3.0"
+  },
+  "checks": {
+    "toolingTests": {
+      "count": 17,
+      "result": "passed"
+    },
+    "phenotypeTests": {
+      "count": 142,
+      "result": "passed"
+    },
+    "focusedPreparationTests": {
+      "count": 28,
+      "result": "passed"
+    },
+    "allRepositoryPacks": "built, reopened and verified",
+    "itemImportRegressions": "passed",
+    "committedCleanCheckoutImports": "passed",
+    "armoryCli": {
+      "result": "passed",
+      "version": "1.3.4",
+      "sha256": "08480e535e38d712a831575ea78cc8ed952629ee4705ae8d505cdba31fc01f7f"
+    },
+    "isolatedBlenderImport": {
+      "result": "passed",
+      "blenderVersion": "4.0.0",
+      "neverblenderVersion": [
+        4,
+        1,
+        0
+      ],
+      "sourceChanged": false,
+      "actuallyLoadedAddonRelativeToSharedRoot": "blender-addons/neverblender/__init__.py",
+      "loadedAddonSha256": "f033d7b2d6fb1135be5db159dae9ae9609ed1d3f01a8a49a742d6ff0cbb17a67",
+      "stockSourceSha256": "96a470a0962a679b1556dde88fff2ac6212fcb421da87ef663883fa02a5e037f"
+    }
+  },
+  "benchmark": {
+    "workload": "synthetic NWN ASCII rigid controller fixture",
+    "samples": 120,
+    "joints": 80,
+    "uncachedSeconds": 1.6788748999824747,
+    "cachedSeconds": 1.0398489000508562,
+    "ratio": 1.6145373620151597,
+    "equivalence": "array-exact",
+    "limits": "CPU sampler timing only; excludes render, bake, native compilation and client performance."
+  },
+  "preparationCounts": {
+    "model/controller-parse": 2
+  },
+  "boundBenchmarkIdentity": "1d2b48f2f3845011340b26f23233df39c01c0a14aa4f3550d8e396a253417897",
+  "boundBenchmarkHelperHashes": {
+    "retarget.py": "3bc4d6dc8fa80e6a6624d27e37ab06021d665b7c5e8ce008b6914201caa63b4c",
+    "rig_controller_audit.py": "7808503f63c4b89a63c5ebe6490d915019f77cbb77d00052d9f034359b9d48d8",
+    "rig_pose_audit.py": "b73f83d61ac426236eb480c0316d03199f5266b7d7669e60e28d8f5ced7b0114",
+    "target_contract.py": "e81c9298eec14207869a67b4d818cbbf71d3f9b93fd95e3e9f22240d1dba3f1f",
+    "pose_preview_bridge.py": "658d1a987db5157fc48d454a6aec1551ab27c67a3ee2c5c9da7b50848bf66bd2",
+    "run_preparation.py": "f4f868b40fc45beed0081c86c7a2b7d18875623e937c37046eabce9da126fe2f"
+  },
+  "linuxExecution": "CI matrix verifies Linux separately; local execution was Windows",
+  "activeWorktreeAdoption": "not performed; fresh local migrations required",
+  "gameClientLaunched": false,
+  "productionApprovalsCreated": false
+}
