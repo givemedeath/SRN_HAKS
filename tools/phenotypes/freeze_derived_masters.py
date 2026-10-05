@@ -329,16 +329,13 @@ def freeze_human_male_master(
     return receipt
 
 
-def record_female_master_status(output_dir: Path) -> dict:
+def record_female_master_status(output_dir: Path, female_ledger: Path | None = None) -> dict:
     """Record Human female master status as blocked-on-source with provenance."""
     out = Path(output_dir).resolve()
     out.mkdir(parents=True, exist_ok=True)
 
-    female_ledger = Path(
-        'D:/srwt/codex/human-female-purposebuilt/SRN_HAKS/output/phenotypes/'
-        'human-female-fit-purposebuilt-v1/selection-ledger.json'
-    )
-    female_ledger_sha = sha(female_ledger) if female_ledger.is_file() else None
+    declared_ledger = Path(female_ledger).resolve() if female_ledger else None
+    female_ledger_sha = sha(declared_ledger) if (declared_ledger and declared_ledger.is_file()) else None
 
     receipt = {
         'schemaVersion': 1,
@@ -350,7 +347,7 @@ def record_female_master_status(output_dir: Path) -> dict:
             'final body selection and global female animation overlay remain unapproved.'
         ),
         'femaleLedgerProvenance': {
-            'path': str(female_ledger),
+            'path': str(declared_ledger) if (declared_ledger and declared_ledger.is_file()) else None,
             'sha256': female_ledger_sha,
         },
         'allowedAction': 'Wait for human female master approval before deriving female race variants.',
@@ -366,6 +363,7 @@ def main():
     parser.add_argument('--manifest', type=Path, default=REPO / 'docs/phenotypes/human-male-assets.json')
     parser.add_argument('--output-dir', type=Path, default=REPO / 'output/phenotypes/derived-v1/masters')
     parser.add_argument('--game-root', type=Path, default=Path(r'C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition'))
+    parser.add_argument('--female-ledger', type=Path, default=None, help='Declared Human female selection ledger binding')
     parser.add_argument('--toolchain', type=Path)
     args = parser.parse_args()
 
@@ -379,7 +377,10 @@ def main():
     print(f"Human male master frozen: {male_receipt['resourceCount']} resources, 14 models verified with exact parity.")
 
     print("Recording Human female master status...")
-    female_receipt = record_female_master_status(args.output_dir / 'human-female-v1')
+    female_receipt = record_female_master_status(
+        args.output_dir / 'human-female-v1',
+        female_ledger=args.female_ledger,
+    )
     print(f"Human female status: {female_receipt['status']}.")
 
 

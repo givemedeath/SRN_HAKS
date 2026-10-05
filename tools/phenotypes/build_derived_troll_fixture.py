@@ -121,18 +121,48 @@ def stage_candidate(stage_dir: Path):
     print("Candidate troll_male_fit staged successfully.")
 
 
-def stage_fixture_resources(stage_dir: Path):
+def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path: Path | None = None):
     fixture_res_dir = stage_dir / "fixture-resources"
     fixture_res_dir.mkdir(parents=True, exist_ok=True)
-    dwarf_app = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage/fixture-resources/appearance.2da"
-    if dwarf_app.exists():
-        shutil.copyfile(dwarf_app, fixture_res_dir / "appearance.2da")
-        print(f"Staged fixture appearance.2da to {fixture_res_dir / 'appearance.2da'}")
+    out_app = fixture_res_dir / "appearance.2da"
+
+    # 1. Explicitly supplied copy
+    if appearance_path and Path(appearance_path).is_file():
+        shutil.copyfile(appearance_path, out_app)
+        print(f"Staged explicitly supplied appearance.2da from {appearance_path}")
+        return
+
+    # 2. Extract base appearance.2da using resman_cat from GAME_ROOT
+    if GAME_ROOT.exists():
+        raw_app = run_tool("resman_cat", ["--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", "appearance.2da"])
+        if raw_app.startswith(b"2DA"):
+            out_app.write_bytes(raw_app)
+            print(f"Extracted and staged appearance.2da ({len(raw_app)} bytes) to {out_app}")
+            return
+
+    # 3. Verified durable/fallback copy with explicit SHA256 verification
+    durable_copies = [
+        (REPO / "tools/phenotypes/references/fixtures/appearance.2da", None),
+        (REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage/fixture-resources/appearance.2da", "f059c15e5907886f60980fdd87763ea8351d248c1a6de040d2fc0db06538898a"),
+    ]
+    for candidate_path, expected_hash in durable_copies:
+        if candidate_path.is_file():
+            actual_hash = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
+            if expected_hash is None or actual_hash == expected_hash:
+                shutil.copyfile(candidate_path, out_app)
+                print(f"Staged verified appearance.2da (sha256={actual_hash[:8]}...) to {out_app}")
+                return
+
+    raise RuntimeError(
+        "Missing appearance.2da: specify --appearance-2da, ensure GAME_ROOT is available, "
+        "or provide a verified durable copy in tools/phenotypes/references/fixtures/appearance.2da"
+    )
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", type=Path, default=STAGE_ROOT)
+    parser.add_argument("--appearance-2da", type=Path, default=None, help="Explicit appearance.2da path")
     args = parser.parse_args()
 
     stage_dir = args.stage.resolve()
@@ -140,7 +170,7 @@ def main():
 
     stage_baseline(stage_dir, temp_userdir)
     stage_candidate(stage_dir)
-    stage_fixture_resources(stage_dir)
+    stage_fixture_resources(stage_dir, temp_userdir, appearance_path=args.appearance_2da)
     print("Staging complete. Ready to build test module.")
 
 

@@ -92,20 +92,28 @@ def derive_stock_family_rig(
     scale_match = re.search(r"(?mi)^\s*setanimationscale\s+([0-9.]+)", text)
     anim_scale = float(scale_match.group(1)) if scale_match else 1.0
 
-    # 3. Verify all 16 target joints match target frames
+    # 3. Verify all 16 target joints match target frames (full 4x4 matrix comparison)
     working_frames = target_data["rig"]["frames"]["working"]
     joint_deviations = {}
+    rot_deviations = {}
     for part, joint in PART_JOINTS.items():
         joint_lower = joint.lower()
         require(joint_lower in xforms, f"Required joint dummy '{joint}' missing from {stock_root_mdl.name}")
-        mdl_pos = xforms[joint_lower][:3, 3]
+        mdl_mat = xforms[joint_lower]
         target_mat = np.array(working_frames[joint_lower])
+        mdl_pos = mdl_mat[:3, 3]
         target_pos = target_mat[:3, 3]
         deviation = float(np.linalg.norm(mdl_pos - target_pos))
+        rot_dev = float(np.linalg.norm(mdl_mat[:3, :3] - target_mat[:3, :3]))
         joint_deviations[joint] = deviation
+        rot_deviations[joint] = rot_dev
         require(
             deviation < 1e-4,
             f"Joint '{joint}' position mismatch: mdl={mdl_pos}, target={target_pos}, err={deviation:.6e}",
+        )
+        require(
+            rot_dev < 1e-4,
+            f"Joint '{joint}' rotation matrix mismatch: err={rot_dev:.6e}",
         )
 
     # Copy / establish stock root in rig output directory
@@ -129,6 +137,8 @@ def derive_stock_family_rig(
         "targetRootMdlSha256": sha256_file(target_mdl),
         "jointDeviationsMeters": joint_deviations,
         "maxJointDeviationMeters": max(joint_deviations.values()),
+        "jointRotationDeviations": rot_deviations,
+        "maxJointRotationDeviation": max(rot_deviations.values()),
         "status": "verified-exact",
     }
 
@@ -173,17 +183,25 @@ def derive_broadened_scaled_rig(
 
     working_frames = target_data["rig"]["frames"]["working"]
     joint_deviations = {}
+    rot_deviations = {}
     for part, joint in PART_JOINTS.items():
         joint_lower = joint.lower()
         require(joint_lower in xforms, f"Required joint dummy '{joint}' missing from Troll rig")
-        mdl_pos = xforms[joint_lower][:3, 3]
+        mdl_mat = xforms[joint_lower]
         target_mat = np.array(working_frames[joint_lower])
+        mdl_pos = mdl_mat[:3, 3]
         target_pos = target_mat[:3, 3]
         deviation = float(np.linalg.norm(mdl_pos - target_pos))
+        rot_dev = float(np.linalg.norm(mdl_mat[:3, :3] - target_mat[:3, :3]))
         joint_deviations[joint] = deviation
+        rot_deviations[joint] = rot_dev
         require(
             deviation < 1e-4,
             f"Joint '{joint}' position mismatch: mdl={mdl_pos}, target={target_pos}, err={deviation:.6e}",
+        )
+        require(
+            rot_dev < 1e-4,
+            f"Joint '{joint}' rotation matrix mismatch: err={rot_dev:.6e}",
         )
 
     # Verify weapon and shield locators

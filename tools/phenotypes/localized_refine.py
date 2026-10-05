@@ -498,6 +498,7 @@ def refine_all_parts(
 
     prefix = target_data["identity"]["prefix"]
     part_reports = {}
+    all_parts_passed = True
 
     for part, anchors in anchors_map.items():
         model_name = f"{prefix}_{part}001"
@@ -565,6 +566,12 @@ def refine_all_parts(
         vol_after = sum(calculate_mesh_volume(n["verts"], n["faces"]) for n in data["meshNodes"])
         vol_change_pct = ((vol_after - vol_before) / vol_before) * 100.0 if vol_before > 0 else 0.0
 
+        max_volume_pct = float(target_data.get("volumeThresholdPercent", 1.0))
+        volume_passed = bool(abs(vol_change_pct) <= max_volume_pct)
+        part_status = "passed-localized-refinement" if (global_min_j > 0.0 and volume_passed) else "failed-volume-limit"
+        if not volume_passed or global_min_j <= 0.0:
+            all_parts_passed = False
+
         out_text = emit_ascii_body_part(data)
         out_file = output_dir / f"{model_name}.mdl"
         out_file.write_text(out_text, encoding="cp1252")
@@ -587,8 +594,12 @@ def refine_all_parts(
             "volumeBeforeM3": vol_before,
             "volumeAfterM3": vol_after,
             "volumeChangePercent": vol_change_pct,
-            "status": "passed-localized-refinement",
+            "volumeLimitPercent": max_volume_pct,
+            "volumePreserved": volume_passed,
+            "status": part_status,
         }
+
+    require(all_parts_passed, f"One or more parts exceeded volume limit ({max_volume_pct}%): {[p for p, r in part_reports.items() if r['status'] != 'passed-localized-refinement']}")
 
     proof = {
         "schemaVersion": 1,
@@ -596,8 +607,10 @@ def refine_all_parts(
         "targetId": target_data["id"],
         "partsCount": len(part_reports),
         "falloffType": "wendland-c2",
+        "allPartsPassed": all_parts_passed,
+        "maxVolumeChangePercentThreshold": max_volume_pct,
         "parts": part_reports,
-        "status": "verified-exact-refinement",
+        "status": "verified-exact-refinement" if all_parts_passed else "failed-volume-limit",
     }
 
     proof_path = output_dir / "refinement-proof.json"

@@ -4,6 +4,7 @@ Decodes and verifies NwnMdl binary layout, vertex/face counts, tangent space,
 normals, and material bindings across all 14 derived body parts.
 """
 from __future__ import annotations
+import hashlib
 import json
 from pathlib import Path
 import struct
@@ -92,17 +93,29 @@ def audit_native_models(stage_dir: Path = STAGE, output_receipt: Path | None = N
     if not receipt_file.exists():
         raise RuntimeError("Missing native-compile.json")
     compile_data = json.loads(receipt_file.read_text(encoding="utf-8"))
+    if not compile_data.get("complete", False):
+        raise RuntimeError(f"Incomplete compiler receipt in {receipt_file}")
+
+    compile_models = {m["name"]: m for m in compile_data.get("models", [])}
 
     results = {}
     all_passed = True
 
     for part in PARTS:
         model_name = f"pmd0_{part}001.mdl"
+        if model_name not in compile_models:
+            raise RuntimeError(f"Model {model_name} missing from native-compile.json")
+
         bin_path = stage_dir / "resources" / model_name
         if not bin_path.exists():
             raise RuntimeError(f"Missing compiled binary: {bin_path}")
 
         data = bin_path.read_bytes()
+        actual_sha256 = hashlib.sha256(data).hexdigest()
+        expected_sha256 = compile_models[model_name]["binarySha256"]
+        if actual_sha256 != expected_sha256:
+            raise RuntimeError(f"Binary SHA256 mismatch for {model_name}: expected {expected_sha256}, got {actual_sha256}")
+
         nodes = decode_model_nodes(data, model_name)
         if not nodes:
             raise RuntimeError(f"No trimesh nodes found in {model_name}")
@@ -162,17 +175,29 @@ if __name__ == "__main__":
     if not receipt_file.exists():
         raise RuntimeError(f"Missing native-compile.json in {stage}")
     compile_data = json.loads(receipt_file.read_text(encoding="utf-8"))
+    if not compile_data.get("complete", False):
+        raise RuntimeError(f"Incomplete compiler receipt in {receipt_file}")
+
+    compile_models = {m["name"]: m for m in compile_data.get("models", [])}
 
     results = {}
     all_passed = True
 
     for part in PARTS:
         model_name = f"{prefix}_{part}001.mdl"
+        if model_name not in compile_models:
+            raise RuntimeError(f"Model {model_name} missing from native-compile.json in {stage}")
+
         bin_path = stage / "resources" / model_name
         if not bin_path.exists():
             raise RuntimeError(f"Missing compiled binary: {bin_path}")
 
         data = bin_path.read_bytes()
+        actual_sha256 = hashlib.sha256(data).hexdigest()
+        expected_sha256 = compile_models[model_name]["binarySha256"]
+        if actual_sha256 != expected_sha256:
+            raise RuntimeError(f"Binary SHA256 mismatch for {model_name}: expected {expected_sha256}, got {actual_sha256}")
+
         nodes = decode_model_nodes(data, model_name)
         if not nodes:
             raise RuntimeError(f"No trimesh nodes found in {model_name}")

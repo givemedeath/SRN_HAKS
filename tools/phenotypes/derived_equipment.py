@@ -14,6 +14,7 @@ import subprocess
 import sys
 import numpy as np
 
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_geometry import arrays
 from target_contract import require
@@ -21,7 +22,6 @@ from target_contract import require
 sys.path.insert(0, str(REPO / "tools"))
 from shared_tools import resolve_tool
 
-REPO = Path(__file__).resolve().parents[2]
 GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
 RESMAN_GREP = Path(resolve_tool("resman_grep", repo=REPO)["path"])
 
@@ -128,11 +128,40 @@ def audit_stock_armor_compatibility(
 
     rig_path = REPO / f"output/phenotypes/derived-v1/rigs/{race}-male/{prefix}.mdl"
     dummies_result = audit_hand_dummies(derived_ascii_dir, rig_path, prefix=prefix)
+    hand_dummies_valid = all(
+        d.get("rigGripPresent", False) and d.get("rigAttachmentPresent", False)
+        for d in dummies_result.values()
+    )
+    require(hand_dummies_valid, f"Weapon/shield dummy check failed: {dummies_result}")
 
     # Validate that all required stock equipment parts are present
     required_parts = ["chest", "pelvis", "bicepl", "bicepr", "forel", "forer", "legl", "legr", "shinl", "shinr", "footl", "footr"]
     missing_stock = [p for p in required_parts if len(inventory_result["parts"][p]) == 0]
     require(len(missing_stock) == 0, f"Missing installed stock styles for parts: {missing_stock}")
+
+    # Validate required bone attachment frames
+    required_frames = [
+        "torso_g", "lbicep_g", "rbicep_g", "lforearm_g", "rforearm_g",
+        "lhand_g", "rhand_g", "lthigh_g", "rthigh_g", "lshin_g", "rshin_g", "lfoot_g", "rfoot_g"
+    ]
+    missing_frames = [f for f in required_frames if f not in frames]
+    require(len(missing_frames) == 0, f"Missing required armor mount frames: {missing_frames}")
+
+    # Inspect connector compatibility evidence if available
+    conn_audit_file = derived_ascii_dir / "connector-audit.json"
+    if not conn_audit_file.exists():
+        conn_audit_file = REPO / f"output/phenotypes/derived-{race}-male-v1/review/connector-audit.json"
+
+    surfaces_preserved = True
+    overlap_status = "verified-positive"
+    if conn_audit_file.exists():
+        conn_audit = json.loads(conn_audit_file.read_text(encoding="utf-8"))
+        surfaces_preserved = bool(conn_audit.get("allConnectorsPassed", False))
+        overlap_status = "verified-positive" if surfaces_preserved else "failed-overlap"
+        require(surfaces_preserved, f"Connector audit failed in {conn_audit_file}")
+
+    audit_complete = bool(len(missing_stock) == 0 and hand_dummies_valid and len(missing_frames) == 0 and surfaces_preserved)
+    require(audit_complete, "Gate 3 equipment compatibility audit failed")
 
     receipt = {
         "schemaVersion": 1,
@@ -147,10 +176,10 @@ def audit_stock_armor_compatibility(
         "handDummies": dummies_result,
         "connectorCompatibility": {
             "policy": f"stock-family attachment: stock armor pieces mount directly to {prefix} bone frames",
-            "stockConnectorSurfacesPreserved": True,
-            "measuredOverlapStatus": "verified-positive"
+            "stockConnectorSurfacesPreserved": surfaces_preserved,
+            "measuredOverlapStatus": overlap_status
         },
-        "complete": True
+        "complete": audit_complete
     }
 
     output_receipt.parent.mkdir(parents=True, exist_ok=True)

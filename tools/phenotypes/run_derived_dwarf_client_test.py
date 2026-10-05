@@ -235,9 +235,22 @@ def run_client_test(max_duration: float = 160.0, race: str = "dwarf", prefix: st
         "sampleCount": len(runtime_samples)
     }
 
+    REQUIRED_INSPECTION_PHASES = {
+        "front-idle", "front-raised", "side-idle",
+        "rear-idle", "rear-raised", "rear-crouch", "complete-front-idle"
+    }
+
     evidence_file = review_dir / f"client-evidence-run-{pid}.json"
     evidence_file.write_text(json.dumps(evidence, indent=2), encoding="utf-8")
     print(f"Saved complete client evidence to {evidence_file}")
+
+    missing_phases = REQUIRED_INSPECTION_PHASES - phases_seen
+    if not sequence_complete or missing_phases:
+        raise RuntimeError(
+            f"Client test incomplete for {race}: sequenceComplete={sequence_complete}, "
+            f"missing required phases: {sorted(missing_phases)}"
+        )
+
     return evidence
 
 
@@ -252,5 +265,9 @@ if __name__ == "__main__":
     race = args.race
     default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0", "orc": "pmo0"}
     prefix = args.prefix or default_prefixes.get(race, "pmo0")
-    res = run_client_test(max_duration=args.max_duration, race=race, prefix=prefix)
-    print(f"Client test finished. Sequence complete: {res['sequenceComplete']}, Phases: {len(res['phasesSeen'])}")
+    try:
+        res = run_client_test(max_duration=args.max_duration, race=race, prefix=prefix)
+        print(f"Client test finished. Sequence complete: {res['sequenceComplete']}, Phases: {len(res['phasesSeen'])}")
+    except RuntimeError as err:
+        print(f"ERROR: {err}", file=sys.stderr)
+        sys.exit(1)
