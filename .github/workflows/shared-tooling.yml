@@ -16,12 +16,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     env:
-      SRN_TOOLS_ROOT: ${{ runner.temp }}/srn-shared-tools
       PYTHONUTF8: '1'
       PYTHONIOENCODING: utf-8
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@v7
+      - name: Bind the explicit CI cache root
+        shell: pwsh
+        run: |
+          $taskCacheRoot = Join-Path $env:RUNNER_TEMP 'srn-shared-tools'
+          "SRN_TOOLS_ROOT=$taskCacheRoot" | Out-File -LiteralPath $env:GITHUB_ENV -Encoding utf8 -Append
       - uses: actions/setup-python@v6
         id: interpreter
         with:

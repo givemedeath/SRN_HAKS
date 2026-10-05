@@ -15,14 +15,17 @@ jobs:
     name: Repository verification
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      SRN_TOOLS_ROOT: ${{ runner.temp }}/srn-shared-tools
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           lfs: false
+      - name: Bind the explicit CI cache root
+        shell: pwsh
+        run: |
+          $taskCacheRoot = Join-Path $env:RUNNER_TEMP 'srn-shared-tools'
+          "SRN_TOOLS_ROOT=$taskCacheRoot" | Out-File -LiteralPath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Cache verified tool archive and extraction
         uses: actions/cache@v6
         with:
