@@ -20,6 +20,8 @@ def main():
     parser.add_argument('--tool',choices=('python','blender','armory'),required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--input',type=Path,action='append',default=[],help='Consumed input, registered and frozen before dispatch')
+    parser.add_argument('--input-manifest',type=Path,action='append',default=[],
+                        help='JSON array of explicit file path/sha256 pins, for large declared input sets')
     parser.add_argument('--provenance',type=Path,action='append',default=[])
     parser.add_argument('arguments',nargs=argparse.REMAINDER)
     args=parser.parse_args()
@@ -45,9 +47,17 @@ def main():
         command+=['--factory-startup','-b','-t','4','--python-exit-code','1','--python',
                   str(Path(__file__).with_name('bootstrap_shared_blender_addons.py').resolve())]
     command+=argv
+    declared=[]
+    for manifest in args.input_manifest:
+        rows=json.loads(manifest.read_text(encoding='utf-8'))
+        if not isinstance(rows,list) or not rows:raise ValueError('Nonempty explicit input manifest required')
+        for row in rows:
+            path=Path(row['path']).resolve()
+            if not path.is_file() or sha(path)!=row['sha256']:raise ValueError('Manifest input changed: '+str(path))
+            declared.append(path)
     inputs=[config,Path(__file__).resolve(),Path(__file__).with_name('shared_toolchain.py'),
             Path(__file__).resolve().parents[1]/'shared_tools.py',
-            Path(__file__).resolve().parents[1]/'shared-tools.lock.json',*args.input]
+            Path(__file__).resolve().parents[1]/'shared-tools.lock.json',*args.input,*args.input_manifest,*declared]
     if data.get('addons'):
         inputs.extend(Path(data['addons']['root'])/rel for rel in data['addons']['files'])
     if args.tool=='blender':inputs.append(Path(__file__).with_name('bootstrap_shared_blender_addons.py'))

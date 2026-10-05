@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-head-target-template",
+  "race": null,
+  "sex": null,
+  "phenotype": 0,
+  "bodyRevision": null,
+  "bodyManifest": null,
+  "bodyResourceRoot": null,
+  "rig": null,
+  "headBindMatrix": null,
+  "neckGeometry": null,
+  "cranialEnvelope": null,
+  "landmarkTolerance": null,
+  "palettes": [],
+  "animations": [],
+  "approved": false,
+  "instructions": "Measure and review a local contract; replace kind with srn-head-target only after all real inputs and approval are recorded. Machine bindings stay ignored."
+}

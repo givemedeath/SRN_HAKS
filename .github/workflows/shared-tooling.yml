@@ -53,3 +53,8 @@ jobs:
       - name: Item import regressions
         shell: pwsh
         run: ./tools/Test-ItemImportTools.ps1
+      - name: Head pipeline gates and exporter regressions
+        shell: pwsh
+        run: |
+          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/heads -p 'test_*.py' -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }

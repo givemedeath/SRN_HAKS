@@ -1,0 +1,401 @@
+{
+  "kind": "srn-head-validation-summary",
+  "checkpoint": "neckless-pre-client",
+  "runtimeTriangleLimit": 20000,
+  "budget": {
+    "cap": 300,
+    "spent": 245,
+    "outstanding": 0,
+    "jobs": [
+      {
+        "designId": "human-male-01",
+        "requestId": "human-male-01-attempt1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10cb2-5c3b-7693-b12f-cc814febfa2b",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human-male-02-attempt1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10cb8-f006-75da-89cb-b4774cd5024b",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "elf-female-01",
+        "requestId": "elf-female-01-attempt1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10cbd-2657-7105-9483-f87846fc914b",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "troll-male-01",
+        "requestId": "troll-male-01-attempt1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10cc1-7b22-73c6-b1c9-199f9c54093e",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human-male-01-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10cf8-606a-76ef-ae56-bfc367f895ea",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human-male-02-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10cf9-192b-76bf-8795-533735f41ed0",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-remesh-9k-v1",
+        "operation": "remesh",
+        "taskId": "01a10d14-ac69-700e-b1ec-5ed9f2aa9148",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-remesh-9k-v1",
+        "operation": "remesh",
+        "taskId": "01a10d15-762a-7719-b371-55eb2778079e",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10d1e-9757-72c0-8eeb-bccce9cae111",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10d20-4b51-77de-acd7-3b8908a37485",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human-male-01-attempt2-neckless",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10d6d-c461-737f-8a89-bcf452f33077",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10d7c-e373-718f-b7ab-94fec42948af",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human-male-02-attempt2-neckless",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10d7f-54dd-73ff-a88b-d792d644395b",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-direct-remesh-v1",
+        "operation": "remesh",
+        "taskId": null,
+        "credits": 0,
+        "status": "RECONCILED_VALIDATION_REJECTION"
+      },
+      {
+        "designId": "elf-female-01",
+        "requestId": "elf-female-01-attempt2-neckless",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10d93-10e2-7349-8ff8-6ce332eaf267",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "troll-male-01",
+        "requestId": "troll-male-01-attempt2-neckless",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10d97-7a84-7574-b1e3-c8fef1dfcb6f",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-upload-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10d9c-bd6a-75bc-be1a-2b380379cd76",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-neckless-upload-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10d9f-9910-73b9-8694-6f59e700474b",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-quad-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10da2-8d5f-719f-93c0-fdd6331c4d99",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-neckless-quad-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10da4-e333-75bc-8e71-d6afaaa086bf",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10dc2-8552-7530-a6ad-5dbccb7e5bdb",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-neckless-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10dc5-99d9-76f8-ae52-e0a635fa0c18",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      }
+    ]
+  },
+  "regressions": {
+    "headHelpers": {
+      "passed": true,
+      "logSha256": "561e3e1c616e4508ac3b59204607bf9001fe17f7c337b9c1fa00acf31c9ef30e",
+      "tests": 24,
+      "seconds": 2.295
+    },
+    "sharedHelpers": {
+      "passed": true,
+      "logSha256": "d38719dec871f345026b35797137902cd8b07eb98fc2ac9043d3e3ba4e99a481",
+      "tests": 18,
+      "seconds": 56.469
+    },
+    "phenotypeHelpers": {
+      "passed": true,
+      "logSha256": "0aac7f455604da3c347139f9d30b1054b7ac23a991a1ddf70b9d0b757c22f68d",
+      "tests": 151,
+      "seconds": 25.468
+    },
+    "repository": {
+      "passed": true,
+      "logSha256": "10ad80a3c5df817a43d71acfd1dfc580b4779f2f94f33a87ff93ad003a5fa515",
+      "tests": null,
+      "seconds": null
+    },
+    "itemImport": {
+      "passed": true,
+      "logSha256": "976516a66f141824121d715a657b88e60c0c588cc8d8695fce9d56178f3854ee",
+      "tests": null,
+      "seconds": null
+    }
+  },
+  "renderTimings": [
+    {
+      "designId": "human-male-01",
+      "stage": "neckless-master-donor",
+      "threads": 4,
+      "seconds": 2.0159999999959837,
+      "receiptSha256": "53a77d858ccfdf749b161255339e6ba3da2f60356ac9ff2824648322d680e2f7"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "clay-v1",
+      "threads": 4,
+      "seconds": 13.031000000002678,
+      "receiptSha256": "e26960f213b8bee5771c7e7c154bc8c2dd5a3b202d9422314493a985f1e52065"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "semantic-v1",
+      "threads": 4,
+      "seconds": 13.98399999999674,
+      "receiptSha256": "54265f910fc443fabd1e59a38069f48aaa2ae1f080cdf5c9a3d875e30af3481e"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "palette-light-v2",
+      "threads": 4,
+      "seconds": 10.485000000000582,
+      "receiptSha256": "a2a7b0f4f515139db78b056c81bc44b36d2293c6bf98aad2181a46786f3bd536"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "palette-dark-v2",
+      "threads": 4,
+      "seconds": 10.0,
+      "receiptSha256": "eb7b14000797ca8988b6f881267d95d76358abecc922398f114e7a8264af3a85"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "runtime-lod-normal-bake",
+      "threads": 4,
+      "seconds": 31.860000000000582,
+      "bakeSeconds": 24.07800000000134,
+      "receiptSha256": "8f7be92972ff1828753e99aa0bfa68c66bfd22452d3f5095021249d181e5a92d"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "neckless-master-donor",
+      "threads": 4,
+      "seconds": 2.813000000001921,
+      "receiptSha256": "a0aed25fe9a2b3ec7397916338b4159e782567d23dedf4381116dac782fffc90"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "clay-v1",
+      "threads": 4,
+      "seconds": 12.921999999998661,
+      "receiptSha256": "e60cba6adbea4813810963c92709a235694e9478b553e3038bfa1d54fd63b924"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "semantic-v1",
+      "threads": 4,
+      "seconds": 15.093000000000757,
+      "receiptSha256": "1d8e381b1b0912188d68b8707df075dc2b261e6d5d137a67c331a8197070a5b0"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "palette-light-v2",
+      "threads": 4,
+      "seconds": 10.781000000002678,
+      "receiptSha256": "07b6fbf08c0315001a551ebf93d600e4fef35c18eedd9d2152397f2c438779c0"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "palette-dark-v2",
+      "threads": 4,
+      "seconds": 10.718999999997322,
+      "receiptSha256": "f1fb2c6d8b90a0e3169433cdc6ae3c9e833b2ed8dcd6698030ab52b18837b569"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "runtime-lod-normal-bake",
+      "threads": 4,
+      "seconds": 32.609000000004016,
+      "bakeSeconds": 24.640999999995984,
+      "receiptSha256": "53ad731bd58310f17a2e54a19c1d9de13d3f522003e36be9c5da2594b141faac"
+    },
+    {
+      "designId": "elf-female-01",
+      "stage": "neckless-master-donor",
+      "threads": 4,
+      "seconds": 2.3909999999959837,
+      "receiptSha256": "f9ab54e80db0010544cd68b926aff96147c952b2ba58cc44e7e8217877815e43"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "neckless-master-donor",
+      "threads": 4,
+      "seconds": 2.422000000005937,
+      "receiptSha256": "86739c1aa2f200014dfd7279935cc6e68b8f9f975c4ea29f436f30c137798083"
+    }
+  ],
+  "motion": {
+    "samples": 82,
+    "worstSample": 50,
+    "maximumNeckDisplacementMetres": 0.11464906885113063,
+    "meaning": "Relative stock-neck displacement diagnostic; not a measured visible gap."
+  },
+  "bodyManifest": {
+    "path": "docs/phenotypes/human-male-assets.json",
+    "sha256": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4"
+  },
+  "protectedBodyResources": 72,
+  "bodyResourcesUnchanged": true,
+  "fixtures": [
+    {
+      "lighting": "ambient",
+      "receiptSha256": "216a980f7c645805c869c7ca9cda8fd7eaa6e6c69a365133a0f6c3d95d11a069",
+      "module": {
+        "name": "srn_head_pilot.mod",
+        "sha256": "ae67f9ad10b8059865aea76a4396e4be689565c088399697f98246e3f078caba",
+        "bytes": 93528
+      },
+      "haks": [
+        {
+          "name": "srn_head.hak",
+          "sha256": "1126122975822bf80e0fac6b8df52f4fe5a3aacadd2ec994a40f38c461753dcb",
+          "bytes": 48079546
+        },
+        {
+          "name": "srn_body.hak",
+          "sha256": "88f1be93261dc11b74546840a1c7b14571a24d9f39fcdf5adb9b75cb9867a724",
+          "bytes": 527887587
+        },
+        {
+          "name": "sr_h_fixture.hak",
+          "sha256": "9690a1269d01cb1578fdf95e7d04d359e07840de9178cdc84c80ece78ce05c5d",
+          "bytes": 132116
+        }
+      ],
+      "actorCount": 22,
+      "candidatePayloadVerified": true,
+      "scriptsCompiled": true,
+      "clientObserved": false
+    },
+    {
+      "lighting": "directional",
+      "receiptSha256": "5824f2029abf5ad95205e73887074e0bc35609af7b431e1dd58cac5d416f9c2f",
+      "module": {
+        "name": "srn_head_pilot.mod",
+        "sha256": "43c121393484c9e2af3bbc1b9737e46b78fe6c9979ce9ba87971ea94a92d5050",
+        "bytes": 93528
+      },
+      "haks": [
+        {
+          "name": "srn_head.hak",
+          "sha256": "1126122975822bf80e0fac6b8df52f4fe5a3aacadd2ec994a40f38c461753dcb",
+          "bytes": 48079546
+        },
+        {
+          "name": "srn_body.hak",
+          "sha256": "88f1be93261dc11b74546840a1c7b14571a24d9f39fcdf5adb9b75cb9867a724",
+          "bytes": 527887587
+        },
+        {
+          "name": "sr_h_fixture.hak",
+          "sha256": "9690a1269d01cb1578fdf95e7d04d359e07840de9178cdc84c80ece78ce05c5d",
+          "bytes": 132116
+        }
+      ],
+      "actorCount": 22,
+      "candidatePayloadVerified": true,
+      "scriptsCompiled": true,
+      "clientObserved": false
+    }
+  ],
+  "clientValidated": false,
+  "productionAccepted": false,
+  "productionResourcesPublished": 0,
+  "compactEvidenceReceiptSha256": "db92f3e20c0c968ef72498aaa122dcd57225da21c80ee4ee691f06295694a9e5",
+  "migrationSha256": "d596ea29ff77e05a7300b3d82e73025dab818c5c2a777f82433f4f10435992a9"
+}

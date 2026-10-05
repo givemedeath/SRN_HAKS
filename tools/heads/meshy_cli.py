@@ -1,0 +1,131 @@
+"""Meshy plugin CLI adapter with reservation-first dispatch and explicit resume.
+
+Run through the shared launcher. Bind the executable command in ignored local
+configuration; credentials stay in Meshy's own credential store. No API calls or
+credential reads are performed by this adapter.
+"""
+import argparse
+from pathlib import Path
+import subprocess
+
+from head_workflow import Session, pin, read, require, task_fields, validate_remesh, verify_pins, write_fresh
+
+
+def invoke(binding, arguments, output):
+    verify_pins(binding["inputs"])
+    command = binding["command"]
+    require("--package=meshy-cli@0.4.0" in command, "Pinned Meshy plugin CLI required")
+    output = Path(output)
+    require(not output.exists(), "Fresh CLI operation folder required")
+    output.mkdir(parents=True)
+    with (output / "stdout.json").open("x", encoding="utf-8") as stdout, \
+            (output / "stderr.log").open("x", encoding="utf-8") as stderr:
+        result = subprocess.run([*command, "--output-schema", "v1", "--format", "json",
+                                 "--no-update-check", "--workspace", binding["workspace"], *arguments],
+                                stdout=stdout, stderr=stderr, check=False)
+    verify_pins(binding["inputs"])
+    write_fresh(output / "operation.json", {"kind": "srn-head-meshy-cli-operation", "exitCode": result.returncode,
+                "cliInputs": binding["inputs"], "stdout": pin(output / "stdout.json"),
+                "stderr": pin(output / "stderr.log")})
+    return result.returncode, output / "stdout.json"
+
+
+def dispatch(session, request_file, binding_file, output):
+    request, binding = read(request_file), read(binding_file)
+    require(request["operation"] in ("multi-image-to-3d", "remesh", "retexture"), "Unsupported operation")
+    verify_pins(request["inputs"])
+    require(not any(Path(p["path"]).resolve() == Path(request_file).resolve() for p in request["inputs"]),
+            "Request cannot pin itself")
+    # The exact request is frozen separately by the outer launcher and this event.
+    session.reserve(request["designId"], request["requestId"], request["operation"],
+                    request["estimatedCredits"], [*request["inputs"], pin(request_file), pin(binding_file)], request["payload"])
+    payload = Path(output).with_name(Path(output).name + "-payload.json")
+    write_fresh(payload, request["payload"])
+    arguments = [request["operation"], "create", "--async", "--operation-id", request["requestId"],
+                 "--include-raw", "--data", "@"+str(payload.resolve())]
+    if request["operation"] == "multi-image-to-3d":
+        arguments += ["--image-urls", ",".join(request["payload"]["image_urls"]),
+                      "--should-texture", "false", "--remove-lighting", "false", "--target-formats", "glb"]
+    elif request['operation']=='retexture':
+        payload=request['payload']
+        require(payload.get('enable_original_uv') is True and payload.get('enable_pbr') is True
+                and payload.get('texture_resolution')=='2k','Qualified UV-preserving 2K PBR request required')
+        require('input_task_id' not in payload,'Retexture the selected local geometry, not the generation master')
+        arguments += ['--model-url',payload['model_url'],'--enable-original-uv','true',
+                      '--enable-pbr','true','--texture-resolution','2k','--target-formats','glb',
+                      '--remove-lighting','false']
+        if payload.get('multiview_image_urls'):
+            arguments += ['--multiview-image-urls',','.join(payload['multiview_image_urls'])]
+        elif payload.get('image_style_url'):
+            arguments += ['--image-style-url',payload['image_style_url']]
+        else:
+            arguments += ['--text-style-prompt',payload['text_style_prompt']]
+    elif request['operation']=='remesh':
+        payload=request['payload']
+        validate_remesh(payload)
+        arguments += ['--topology',payload['topology'],'--target-polycount',str(payload['target_polycount']),'--target-formats','glb']
+        if payload.get('input_task_id'): arguments += ['--input-task-id',payload['input_task_id']]
+        else: arguments += ['--model-url',payload['model_url']]
+    if binding.get("project"):
+        arguments += ["--project", binding["project"], "--stage", request["operation"]]
+    code, response = invoke(binding, arguments, output)
+    if code:
+        raise ValueError("Meshy submission is uncertain; reconcile CLI journal and task history before another attempt")
+    task_id = task_fields(read(response))["id"]
+    require(bool(task_id), "Submission task identity missing; reconcile history")
+    session.record_task(request["requestId"], task_id, request["operation"], response)
+    return task_id
+
+
+def wait(session, request_id, binding_file, output):
+    event = next((e for e in session.events() if e["kind"] == "submitted" and e["requestId"] == request_id), None)
+    require(event is not None, "Explicit recorded task required for resume")
+    binding = read(binding_file)
+    arguments = [event["resource"], "wait", event["taskId"], "--timeout", "600", "--include-raw"]
+    if binding.get("project"):
+        arguments += ["--project", binding["project"]]
+    code, response = invoke(binding, arguments, output)
+    actual = task_fields(read(response))
+    if actual.get("status") in ("SUCCEEDED", "FAILED", "CANCELED") and type(actual.get("credits")) is int:
+        session.settle(request_id, actual["status"], actual["credits"], response)
+    require(code == 0 and actual.get("status") == "SUCCEEDED", "Task incomplete/failed; reservation remains until reconciled")
+    return actual["id"]
+
+
+def collect(session, request_id, binding_file, output):
+    settled = next((e for e in session.events() if e["kind"] == "settled" and e["requestId"] == request_id), None)
+    require(settled is not None and settled["status"] == "SUCCEEDED", "Successful owning task required")
+    verify_pins([settled["result"]])
+    source = settled["result"]["path"]
+    binding = read(binding_file)
+    assets = Path(binding["workspace"]) / "source-bank" / Path(output).name
+    require(not assets.exists(), "Fresh source bank required")
+    code, response = invoke(binding, ["download", "--task-json", source, "--all",
+                                               "--output-dir", str(assets.resolve())], output)
+    require(code == 0 and assets.exists(), "Asset download incomplete; retain and reconcile partial output")
+    files = [pin(path) for path in sorted(assets.rglob("*")) if path.is_file()]
+    require(files and any(Path(item["path"]).suffix == ".glb" for item in files), "Source GLB master missing")
+    verify_pins([settled["result"], *files])
+    write_fresh(Path(output) / "collection.json", {"kind":"srn-head-collection", "requestId":request_id,
+                "task":task_fields(read(source)), "response":settled["result"], "files":files,
+                "productionAccepted":False})
+    return task_fields(read(source))["id"]
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=["dispatch", "wait", "collect"])
+    parser.add_argument("--session", type=Path, required=True)
+    parser.add_argument("--binding", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--request", type=Path)
+    parser.add_argument("--request-id")
+    args = parser.parse_args()
+    session = Session(args.session)
+    if args.command == "dispatch":
+        identity = dispatch(session, args.request, args.binding, args.output)
+    elif args.command == "wait":
+        identity = wait(session, args.request_id, args.binding, args.output)
+    else:
+        identity = collect(session, args.request_id, args.binding, args.output)
+    print(identity)

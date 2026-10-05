@@ -1,0 +1,200 @@
+{
+  "kind": "srn-head-portable-slot-audit",
+  "complete": true,
+  "scope": "installed-game-and-repository-packs",
+  "sourceAuditSha256": "d17724ecbe24c3d8645eb7db600d70b61f36603608e6384801f570392c0f79fc",
+  "rangeProofSha256": "491a4da7ba9a577b20ce7f399f6f7a2fa3fa3dc7ddb2236a7ac3a487a5c6edd0",
+  "rangeMeaning": "NWN installed BIC Appearance_Head uses BYTE (0..255); pipeline reserves 0. Actual client selectability remains a separate gate.",
+  "minimum": 1,
+  "maximum": 255,
+  "packs": [
+    {
+      "name": "srn_t_common",
+      "resources": 916
+    },
+    {
+      "name": "srn_t_net01",
+      "resources": 106
+    },
+    {
+      "name": "srn_t_tbx78",
+      "resources": 284
+    },
+    {
+      "name": "srn_t_tjsb0",
+      "resources": 528
+    },
+    {
+      "name": "srn_t_vac01",
+      "resources": 56
+    },
+    {
+      "name": "srn_door",
+      "resources": 335
+    },
+    {
+      "name": "srn_2da",
+      "resources": 18
+    },
+    {
+      "name": "srn_t_dgt04",
+      "resources": 797
+    },
+    {
+      "name": "srn_t_fcx01",
+      "resources": 1096
+    },
+    {
+      "name": "srn_t_fifi",
+      "resources": 128
+    },
+    {
+      "name": "srn_t_flow_pa",
+      "resources": 122
+    },
+    {
+      "name": "srn_t_nac01",
+      "resources": 60
+    },
+    {
+      "name": "srn_t_shp02",
+      "resources": 2095
+    },
+    {
+      "name": "srn_t_sjm01",
+      "resources": 464
+    },
+    {
+      "name": "srn_t_srt04",
+      "resources": 18
+    },
+    {
+      "name": "srn_t_tfb01",
+      "resources": 1531
+    },
+    {
+      "name": "srn_t_udp1",
+      "resources": 2108
+    },
+    {
+      "name": "srn_t_udp2",
+      "resources": 758
+    },
+    {
+      "name": "srn_t_vmp01",
+      "resources": 1233
+    },
+    {
+      "name": "srn_t_vmr01",
+      "resources": 601
+    },
+    {
+      "name": "srn_t_zsf01",
+      "resources": 257
+    },
+    {
+      "name": "srn_skybox",
+      "resources": 32
+    },
+    {
+      "name": "srn_music",
+      "resources": 142
+    },
+    {
+      "name": "srn_sound",
+      "resources": 17
+    },
+    {
+      "name": "srn_placeable",
+      "resources": 15245
+    },
+    {
+      "name": "srn_body",
+      "resources": 72
+    }
+  ],
+  "blocks": [
+    {
+      "race": "human",
+      "sex": "male",
+      "prefix": "pmh0",
+      "first": 82,
+      "last": 101,
+      "count": 20
+    },
+    {
+      "race": "human",
+      "sex": "female",
+      "prefix": "pfh0",
+      "first": 28,
+      "last": 47,
+      "count": 20
+    },
+    {
+      "race": "elf",
+      "sex": "male",
+      "prefix": "pme0",
+      "first": 19,
+      "last": 38,
+      "count": 20
+    },
+    {
+      "race": "elf",
+      "sex": "female",
+      "prefix": "pfe0",
+      "first": 17,
+      "last": 36,
+      "count": 20
+    },
+    {
+      "race": "dwarf",
+      "sex": "male",
+      "prefix": "pmd0",
+      "first": 14,
+      "last": 33,
+      "count": 20
+    },
+    {
+      "race": "dwarf",
+      "sex": "female",
+      "prefix": "pfd0",
+      "first": 13,
+      "last": 32,
+      "count": 20
+    },
+    {
+      "race": "orc",
+      "sex": "male",
+      "prefix": "pmo0",
+      "first": 14,
+      "last": 33,
+      "count": 20
+    },
+    {
+      "race": "orc",
+      "sex": "female",
+      "prefix": "pfo0",
+      "first": 13,
+      "last": 32,
+      "count": 20
+    },
+    {
+      "race": "troll",
+      "sex": "male",
+      "prefix": "pmg0",
+      "first": 14,
+      "last": 33,
+      "count": 20
+    },
+    {
+      "race": "troll",
+      "sex": "female",
+      "prefix": "pfg0",
+      "first": 10,
+      "last": 29,
+      "count": 20
+    }
+  ],
+  "installedInventorySha256": "334ed5671a435461c841d912bf825fe02e2962f35d34f716f2cf61b788ad5db5",
+  "actualClientSelectabilityVerified": false
+}

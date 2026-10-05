@@ -1,5 +1,26 @@
 # Content Provenance
 
+## Meshy head pilot review (2026-10-05)
+
+Contributor: SRN project operator with Codex. The `docs/heads/evidence/` reference
+PNGs and prompts originate from original SRN briefs and OpenAI image generation.
+The donor and Human assembly/material PNGs render Meshy 7 generated heads,
+attributed to [Meshy](https://www.meshy.ai/), with a separately versioned local
+surface LOD, high-source normal bake, uniform fitting, hole caps and runtime
+material preparation. The selected donors have no extending neck; no jaw trimming
+or neck taper is applied. Exact filenames, original
+and derivative hashes, task IDs and dispositions appear in
+`docs/heads/evidence/manifest.json` and `docs/heads/pilot-catalog.json`.
+The full origins, conditional Meshy CC BY 4.0 rights, attribution, modification
+notice and stock-reference scope are in `docs/heads/evidence/NOTICE.md`.
+
+This tooling/review batch publishes no runtime resources into `srn_head`:
+the Human native candidates await client and rights acceptance, and Elf/Troll
+remain donors pending approved bodies. The generated source/native banks, built
+HAKs and operational receipts remain ignored. Existing custom body provenance
+applies to rendered `srn_body` content. Installed stock neck/rig/palette/animation
+files are local validation inputs and are not redistributed in this PR.
+
 Exceptions must be recorded here before it merges. Record the hak category and asset filename and
 contributor.
 

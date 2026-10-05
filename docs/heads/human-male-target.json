@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "race": "human",
+  "sex": "male",
+  "prefix": "pmh0",
+  "phenotype": 0,
+  "bodyRevision": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4",
+  "headBindMatrix": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      -2.9999999999930256e-09
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      -0.03151729999999999
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      1.7530716940000002
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "cranialEnvelope": [
+    [
+      -0.108,
+      -0.13,
+      -0.07
+    ],
+    [
+      0.108,
+      0.15,
+      0.205
+    ]
+  ],
+  "landmarkTolerance": 0.025,
+  "approved": true,
+  "kind": "srn-head-portable-target",
+  "sourceContractSha256": "cf11650b2e793723b1e65199b54f7fc9daad452cb00d5a19f40c426926fc1793",
+  "parentContractSha256": "7a351bcce29b8b2b67c28d706c67649789e08cb18c036febcf4adacd1dfc7290",
+  "bodyManifest": {
+    "path": "docs/phenotypes/human-male-assets.json",
+    "sha256": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4"
+  },
+  "rig": {
+    "path": "stock/ascii/pmh0.mdl",
+    "sha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a"
+  },
+  "neckGeometry": {
+    "path": "stock/ascii/pmh0_neck001.mdl",
+    "sha256": "65e1243c2f0a431f65b62fd0b7c0e9f2b92f938e0cef2b1a2f6ec4ca96b3ad2c"
+  },
+  "measurementOrigin": {
+    "path": "stock/ascii/pmh0_head001.mdl",
+    "sha256": "f6dbf4d99cb8a6e886ab381e1e8af7ec3552cb7d5614d9df335b59b62b832676"
+  },
+  "palettes": [
+    {
+      "path": "stock/raw/pal_skin01.tga",
+      "sha256": "78ba81891b576c213390b01c04ed157fed7b9a21f5e67ca1eabb0c830f3ea86c"
+    },
+    {
+      "path": "stock/raw/pal_hair01.tga",
+      "sha256": "1ebf3fb816efe7367afc012de2dc95876fc0f0ae97b78a0eb9db01772f619eda"
+    }
+  ],
+  "animations": [
+    {
+      "path": "stock/ascii/pmh0.mdl",
+      "sha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a"
+    },
+    {
+      "path": "stock/ascii/a_ba.mdl",
+      "sha256": "34b9b69e1cbe8e41bd836b38ffabd99ece11438849c5b512f48501ac12815d8c"
+    },
+    {
+      "path": "stock/ascii/a_ba_non_combat.mdl",
+      "sha256": "e01a07908d1044187d172daf23b9a94811cc18f1315065b3a0394dc037664cd7"
+    },
+    {
+      "path": "stock/ascii/a_ba_med_weap.mdl",
+      "sha256": "4b3a823c7b9c2ee35f3e0a948a914569c40a5a36b66d88d42ef782ceebd83777"
+    },
+    {
+      "path": "stock/ascii/a_ba_custom.mdl",
+      "sha256": "c29d502d2b9fc830ba90302236fb2247d999dd6c851437e370fc21a936fd23c4"
+    },
+    {
+      "path": "stock/ascii/a_ba_casts.mdl",
+      "sha256": "5b5523cbc6cdab1a5fadbdfac402700e7decbbf0c93aa9a67929dd61931ac91c"
+    }
+  ],
+  "review": {
+    "reviewer": "Codex protected-body and complete-jaw review",
+    "scope": "Normal Human male head attachment; no body/rig changes",
+    "reason": "Natural full-jaw fit extends 0.179 mm below the historical -65 mm envelope. Lower bound revised to -70 mm with 4.821 mm margin, preserving the intact jaw instead of clipping it. All other fit/body limits retained.",
+    "neckFinding": "Neckless full skull and jaw; cap-only closure, no trim or taper. Standing and motion review required before paid textures."
+  }
+}

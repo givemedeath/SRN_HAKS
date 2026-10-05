@@ -1,0 +1,528 @@
+{
+  "kind": "srn-head-portable-review-evidence",
+  "files": [
+    {
+      "path": "evidence/donor-elf-female-01.png",
+      "sha256": "5292ae7c1c3b012a743f1f389102799ae8f1983396d850ce57814462b91f5d04",
+      "bytes": 294683
+    },
+    {
+      "path": "evidence/donor-human-male-01.png",
+      "sha256": "de4472065be16b4da2fe4d2c0a5c89cef7da74728ef13ea3f4d31affe1601a6f",
+      "bytes": 292414
+    },
+    {
+      "path": "evidence/donor-human-male-02.png",
+      "sha256": "5344f330638181303dd202f04ac3cca948a7e65fb77ccadf926072234bcc7428",
+      "bytes": 261117
+    },
+    {
+      "path": "evidence/donor-troll-male-01.png",
+      "sha256": "438638e6066ec42e1dc30eca339cda11e7926e84fec464e588e9c1b69b471ace",
+      "bytes": 279153
+    },
+    {
+      "path": "evidence/human1-materials.png",
+      "sha256": "ba1dbba9663edad4f85a6827da4c4004dfae21d9a34f38a91474c755176a3a9b",
+      "bytes": 575001
+    },
+    {
+      "path": "evidence/human1-motion.png",
+      "sha256": "e0a2f6d9f76a8902c9f0fb6fa048abdbfcbe079a7cc2b2234c87b23c706d70f1",
+      "bytes": 1080326
+    },
+    {
+      "path": "evidence/human2-materials.png",
+      "sha256": "485f4489efefe0d54cf6ee1cb551b1e2a2d573721a5fb42000280644abcbdc77",
+      "bytes": 563991
+    },
+    {
+      "path": "evidence/human2-motion.png",
+      "sha256": "318e909fc236b24cba13fbc5ecf455904e8415763660f93263cbdf1914bd0a73",
+      "bytes": 1076275
+    },
+    {
+      "path": "evidence/reference-elf-female-01-prompt.txt",
+      "sha256": "fe46c1689b14afc98bc81cbc9605f110cc2ceec4dc2269fe5a44992a94ef3467",
+      "bytes": 1238
+    },
+    {
+      "path": "evidence/reference-elf-female-01.png",
+      "sha256": "3d91ee4bc7a41cab4439dd7b9463bea91b07bfa706180991c6d6265036237f5b",
+      "bytes": 1939242
+    },
+    {
+      "path": "evidence/reference-human-male-01-prompt.txt",
+      "sha256": "fcc45cd774030d2dc3c2eac65a64089c370d14f3fde014246653dec1997d9ba2",
+      "bytes": 1596
+    },
+    {
+      "path": "evidence/reference-human-male-01.png",
+      "sha256": "855ca889bcfafd2281a3e2280b874e16f8c342bc9d4cfa438eb54c021642b9a0",
+      "bytes": 2089009
+    },
+    {
+      "path": "evidence/reference-human-male-02-prompt.txt",
+      "sha256": "4af9c92b7444252403b3213e4b6ee3fcfeb8e8c51939a6e630a2be64d09aa1f5",
+      "bytes": 1258
+    },
+    {
+      "path": "evidence/reference-human-male-02.png",
+      "sha256": "6cda16d0d529e30a49f216e3d73d159afb258ebe4cc34212ab915edade727400",
+      "bytes": 2050282
+    },
+    {
+      "path": "evidence/reference-troll-male-01-prompt.txt",
+      "sha256": "9ad91f06f6125d41a9950dc6dde1ebbb2ec36ed886d04acf90db2ffb19b97c16",
+      "bytes": 1302
+    },
+    {
+      "path": "evidence/reference-troll-male-01.png",
+      "sha256": "acd1a2ebcdb9f597ad4cec70c0bbbac948e82b6b8af31808d28f3f33a71a6684",
+      "bytes": 2227017
+    },
+    {
+      "path": "evidence/stock-neck-control.png",
+      "sha256": "dd8f38c4eeb0a1280306eddb5ee9302f8935ec13cc49003ad69c8c29535c215b",
+      "bytes": 257903
+    }
+  ],
+  "sourceHashes": [
+    {
+      "asset": "reference-human-male-01.png",
+      "sourceSha256": "855ca889bcfafd2281a3e2280b874e16f8c342bc9d4cfa438eb54c021642b9a0"
+    },
+    {
+      "asset": "reference-human-male-01-prompt.txt",
+      "sourceSha256": "fcc45cd774030d2dc3c2eac65a64089c370d14f3fde014246653dec1997d9ba2"
+    },
+    {
+      "asset": "reference-human-male-02.png",
+      "sourceSha256": "6cda16d0d529e30a49f216e3d73d159afb258ebe4cc34212ab915edade727400"
+    },
+    {
+      "asset": "reference-human-male-02-prompt.txt",
+      "sourceSha256": "4af9c92b7444252403b3213e4b6ee3fcfeb8e8c51939a6e630a2be64d09aa1f5"
+    },
+    {
+      "asset": "reference-elf-female-01.png",
+      "sourceSha256": "3d91ee4bc7a41cab4439dd7b9463bea91b07bfa706180991c6d6265036237f5b"
+    },
+    {
+      "asset": "reference-elf-female-01-prompt.txt",
+      "sourceSha256": "fe46c1689b14afc98bc81cbc9605f110cc2ceec4dc2269fe5a44992a94ef3467"
+    },
+    {
+      "asset": "reference-troll-male-01.png",
+      "sourceSha256": "acd1a2ebcdb9f597ad4cec70c0bbbac948e82b6b8af31808d28f3f33a71a6684"
+    },
+    {
+      "asset": "reference-troll-male-01-prompt.txt",
+      "sourceSha256": "9ad91f06f6125d41a9950dc6dde1ebbb2ec36ed886d04acf90db2ffb19b97c16"
+    },
+    {
+      "asset": "donor-human-male-01.png",
+      "frame": 0,
+      "label": "human-male-01 donor 0 (master; runtime separate)",
+      "sourceSha256": "745408b96e84194d914b8a3bd4c7c58c79c27a7073d7f944bebf9016eb37d600"
+    },
+    {
+      "asset": "donor-human-male-01.png",
+      "frame": 1,
+      "label": "human-male-01 donor 3 (master; runtime separate)",
+      "sourceSha256": "aa9fa81fbe86414531880452999baf0f983e217a111fd04460962e91d428954d"
+    },
+    {
+      "asset": "donor-human-male-01.png",
+      "frame": 2,
+      "label": "human-male-01 donor 6 (master; runtime separate)",
+      "sourceSha256": "c52efae283af026ac37d921160afc48e2b54aca4880242a30c088a9826fd4cb0"
+    },
+    {
+      "asset": "donor-human-male-01.png",
+      "frame": 3,
+      "label": "human-male-01 donor 9 (master; runtime separate)",
+      "sourceSha256": "af21689b3751c797180add3aed6e4b59c799a716b2edbc532afd5490afff19dd"
+    },
+    {
+      "asset": "donor-human-male-02.png",
+      "frame": 0,
+      "label": "human-male-02 donor 0 (master; runtime separate)",
+      "sourceSha256": "d8b3d9083d4558b5a19ec08bebac4293c10c71c800a770cf0cf120526ed84c5e"
+    },
+    {
+      "asset": "donor-human-male-02.png",
+      "frame": 1,
+      "label": "human-male-02 donor 3 (master; runtime separate)",
+      "sourceSha256": "c0294260e883e16e81fd844812a389789acc9a8b98a7aafdde1efb5987be05f3"
+    },
+    {
+      "asset": "donor-human-male-02.png",
+      "frame": 2,
+      "label": "human-male-02 donor 6 (master; runtime separate)",
+      "sourceSha256": "aeda3b4fb63b47fbfe492c7b646f1175833374b474e485e83e336cb6eea2e06c"
+    },
+    {
+      "asset": "donor-human-male-02.png",
+      "frame": 3,
+      "label": "human-male-02 donor 9 (master; runtime separate)",
+      "sourceSha256": "8638cf797cd082159a1393457ab1457b8e665de9cb18fcdb35d2656279aaa2c2"
+    },
+    {
+      "asset": "donor-elf-female-01.png",
+      "frame": 0,
+      "label": "elf-female-01 donor 0 (fit/client pending)",
+      "sourceSha256": "bc596b1f9fe6749aa800116773d9b617321de3165afdb6077ca4ec4562d0bbc7"
+    },
+    {
+      "asset": "donor-elf-female-01.png",
+      "frame": 1,
+      "label": "elf-female-01 donor 3 (fit/client pending)",
+      "sourceSha256": "842b31dcc3b562ff0acf8ae9789e2b99fc42965dd845f312e45d946ea8121ad2"
+    },
+    {
+      "asset": "donor-elf-female-01.png",
+      "frame": 2,
+      "label": "elf-female-01 donor 6 (fit/client pending)",
+      "sourceSha256": "06846611f33dac722d9defd3e104f4604f1bd9c0761f30f9a270a1c19b20d49f"
+    },
+    {
+      "asset": "donor-elf-female-01.png",
+      "frame": 3,
+      "label": "elf-female-01 donor 9 (fit/client pending)",
+      "sourceSha256": "f6ea9a7239b04ae8c7a4c3a0f46954003ef55f285e6b3944c7904405e29a4248"
+    },
+    {
+      "asset": "donor-troll-male-01.png",
+      "frame": 0,
+      "label": "troll-male-01 donor 0 (fit/client pending)",
+      "sourceSha256": "a77551131d6b132af077ec107ae9072232ccb937804be01c4a93f9674dd0f5d5"
+    },
+    {
+      "asset": "donor-troll-male-01.png",
+      "frame": 1,
+      "label": "troll-male-01 donor 3 (fit/client pending)",
+      "sourceSha256": "e35831a19e5a30ae8c3f2f68407fd4ebc471ac44c8311982931441edf3e19378"
+    },
+    {
+      "asset": "donor-troll-male-01.png",
+      "frame": 2,
+      "label": "troll-male-01 donor 6 (fit/client pending)",
+      "sourceSha256": "8cdd4ecc946af5da4d893be1caafaabcb75205796ef5cea7d543c72f4b55976b"
+    },
+    {
+      "asset": "donor-troll-male-01.png",
+      "frame": 3,
+      "label": "troll-male-01 donor 9 (fit/client pending)",
+      "sourceSha256": "98258032d9daa1a4e8bb92c9298f123ab278e4d3b387ee49f7596c136cbbf983"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 0,
+      "label": "human1 00-standing-0 offline",
+      "sourceSha256": "7f563688008f75155d80a81b58b576b56441775362d132999da758b1e63b1d3f"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 1,
+      "label": "human1 00-standing-180 offline",
+      "sourceSha256": "e6168fed5dd05205fb625a876cb7463191282c9885d045e9f113c3a1e136fd7a"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 2,
+      "label": "human1 00-standing-90 offline",
+      "sourceSha256": "89a99312b8f623d5e4d0b5327edcc846a83693a39f30c924669446445c798712"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 3,
+      "label": "human1 01-idle-35 offline",
+      "sourceSha256": "2c3b3dfbab637f49874d441f4548f42798b05d01c44d21ae0a676a189b7bd2fb"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 4,
+      "label": "human1 10-talk-35 offline",
+      "sourceSha256": "267f5684bd7615c85131538888bde6e56bae4ea9409b4781b1a58fdc184a2634"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 5,
+      "label": "human1 25-locomotion-35 offline",
+      "sourceSha256": "d3ad3d6a91effff41bb0bd3f2ed96763bd9882f87e62858538c5ed88923aee7f"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 6,
+      "label": "human1 34-run-35 offline",
+      "sourceSha256": "3065c420aa4babe4b01af41df2384917858ddbc7d3cb284adc02c20ed9b35cb3"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 7,
+      "label": "human1 40-casting-35 offline",
+      "sourceSha256": "e184809cf82722950e0ffe40b471f093be805f6a2994f963e48b161ef08f4ed8"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 8,
+      "label": "human1 50-combat-0 offline",
+      "sourceSha256": "389877e3c012d111ec1d5624cfc7bf0a8c6036867e1ce8b60d42ab53c9de5a01"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 9,
+      "label": "human1 50-combat-180 offline",
+      "sourceSha256": "577afa841af3bae840c7a7402bb5017c5131f8d07ba0fd46c811a2c398a3a0f6"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 10,
+      "label": "human1 50-combat-90 offline",
+      "sourceSha256": "d264e1c243e0ef034e0ec06e7a042b9267b5950b8abd76e3f7256238cab5375f"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 11,
+      "label": "human1 63-crouch-35 offline",
+      "sourceSha256": "04898b8316348ef394d13e4b6f6bc5be7ef2fbacaea84d4a33f9a29651771762"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 12,
+      "label": "human1 64-kneel-35 offline",
+      "sourceSha256": "c2426cb94a24e252221b03770451a46c2732691ce7b95a0fd1becc171f86af96"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 13,
+      "label": "human1 73-death-35 offline",
+      "sourceSha256": "0a68c76c73e061ac9bcfc06821f881fbeff07d83ced44074a18d4c618389d906"
+    },
+    {
+      "asset": "human1-motion.png",
+      "frame": 14,
+      "label": "human1 standing-full offline",
+      "sourceSha256": "2fcd2abd53587ca930456d48e01333cffb3d68ba7c8a67a24626eaba7e056f9c"
+    },
+    {
+      "asset": "human1-materials.png",
+      "frame": 0,
+      "label": "human1 light (3/21 or 12/5) 0",
+      "sourceSha256": "8bb7e6159c7ab7639bbb61076ff108fbdced586a234dfecddaceea02b38c0546"
+    },
+    {
+      "asset": "human1-materials.png",
+      "frame": 1,
+      "label": "human1 light (3/21 or 12/5) 90",
+      "sourceSha256": "319baafe683f238376285e7755ebb27d6099dac993bd9a32bf5ef2b088ab53bf"
+    },
+    {
+      "asset": "human1-materials.png",
+      "frame": 2,
+      "label": "human1 light (3/21 or 12/5) 180",
+      "sourceSha256": "dfc659529a70e5dbf70a2f1b91c88821b2cc053b03f4d24598f1a40719d4dafe"
+    },
+    {
+      "asset": "human1-materials.png",
+      "frame": 3,
+      "label": "human1 dark (3/21 or 12/5) 0",
+      "sourceSha256": "0555858b3ba55787352a440508013ed5fa595f2cb7e0d3d96d42ac4de9f0dbc7"
+    },
+    {
+      "asset": "human1-materials.png",
+      "frame": 4,
+      "label": "human1 dark (3/21 or 12/5) 90",
+      "sourceSha256": "e96b719a8b7e21bfe34d269ac76dbe3f115eefb45aab0bbefdf25ababa6ed26d"
+    },
+    {
+      "asset": "human1-materials.png",
+      "frame": 5,
+      "label": "human1 dark (3/21 or 12/5) 180",
+      "sourceSha256": "a4e2285a7b2615e1e7539d812c44096a18132ea1e79b18b58d2f88c9118133fc"
+    },
+    {
+      "asset": "human1-materials.png",
+      "frame": 6,
+      "label": "human1 mask 0",
+      "sourceSha256": "5044c9535a5f644d68d181ffd699c74490d2dab69700760e350facbf82cb9753"
+    },
+    {
+      "asset": "human1-materials.png",
+      "frame": 7,
+      "label": "human1 mask 90",
+      "sourceSha256": "23550fd492dddf18e8ec2a618911e10cff28cf3120ac86399554d553e8c9e64d"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 0,
+      "label": "human2 00-standing-0 offline",
+      "sourceSha256": "483c427714212e545714979aae28b9c1b651e501d7dc629df59cf437cffd7d4b"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 1,
+      "label": "human2 00-standing-180 offline",
+      "sourceSha256": "1719231acd57a01cd8a7e05efc930c4080bf2025fcadfaa385112a819c6c0ef5"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 2,
+      "label": "human2 00-standing-90 offline",
+      "sourceSha256": "a2b130f0cf4d56e3763179669362f88c95ee46a603392a8e43a055204392fb23"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 3,
+      "label": "human2 01-idle-35 offline",
+      "sourceSha256": "fc9a93c4f6c012584f18df9276734d232ec1acb07867b058a10b38939bd0bc92"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 4,
+      "label": "human2 10-talk-35 offline",
+      "sourceSha256": "394f7dec535200a0bf6c9356f6801642c77b09986de54ee02fdb63d9fbe77ee0"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 5,
+      "label": "human2 25-locomotion-35 offline",
+      "sourceSha256": "05b3c4bc9d6864b511ad7311a2a8f057e1dbc6d14a5ffe47e2974a27da5035bb"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 6,
+      "label": "human2 34-run-35 offline",
+      "sourceSha256": "935f99622fba391d81ac039c3e5ce618a0140e855a405e810d4ac8d559a1b297"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 7,
+      "label": "human2 40-casting-35 offline",
+      "sourceSha256": "d79bd4b015525f96f07e284c35004795f539666b56c89f1332d8317d4a6e15fc"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 8,
+      "label": "human2 50-combat-0 offline",
+      "sourceSha256": "2e6813ba82f9bce83cfd7e80427baacad894e85101c438a5c1915c50460e0ef7"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 9,
+      "label": "human2 50-combat-180 offline",
+      "sourceSha256": "f5e9b62d1a11e50c167c5e0a10333185e9766f96cdeca8afcdef5e1b050a67b0"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 10,
+      "label": "human2 50-combat-90 offline",
+      "sourceSha256": "c42b10aaea2a7a91982fe52584970dfffa7f088b75d97411f524fee7b9e40bf8"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 11,
+      "label": "human2 63-crouch-35 offline",
+      "sourceSha256": "b190eb92cf55b08d48008bd75cef6765dd53919faa67d9999292fdf104d73ff7"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 12,
+      "label": "human2 64-kneel-35 offline",
+      "sourceSha256": "c8f4af5cd0ffa36607c34cf4041d61256aa9b500339136730bb2d320cf03ddec"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 13,
+      "label": "human2 73-death-35 offline",
+      "sourceSha256": "cb73a3753768483981811131c5b7561f0cee44579b5b50c94109e5d2aa5d204b"
+    },
+    {
+      "asset": "human2-motion.png",
+      "frame": 14,
+      "label": "human2 standing-full offline",
+      "sourceSha256": "415774b0f1c7132c1c1d3f26da61686921e0c9440fc7b066d1cb90c7cfcb38ac"
+    },
+    {
+      "asset": "human2-materials.png",
+      "frame": 0,
+      "label": "human2 light (3/21 or 12/5) 0",
+      "sourceSha256": "471755510748bbd14c26a4502d021243b6e1554d411cea870f9785641d3b3a38"
+    },
+    {
+      "asset": "human2-materials.png",
+      "frame": 1,
+      "label": "human2 light (3/21 or 12/5) 90",
+      "sourceSha256": "0d61a2226a632a07835b7c9e3155b4566f5a29402fb02ec3a8745d0473cfa897"
+    },
+    {
+      "asset": "human2-materials.png",
+      "frame": 2,
+      "label": "human2 light (3/21 or 12/5) 180",
+      "sourceSha256": "e739ba7462a3a85a5ce8ebcb16ecfc4723e41b48f4769a72ed71198c78481b74"
+    },
+    {
+      "asset": "human2-materials.png",
+      "frame": 3,
+      "label": "human2 dark (3/21 or 12/5) 0",
+      "sourceSha256": "6d0e41463b9730e0c4f79caae849c3771815580090a217118016d458c1659437"
+    },
+    {
+      "asset": "human2-materials.png",
+      "frame": 4,
+      "label": "human2 dark (3/21 or 12/5) 90",
+      "sourceSha256": "2c5fb0922398ea3877cc8a01f6afcc62a7267df135f1729675f7dc3fc610f522"
+    },
+    {
+      "asset": "human2-materials.png",
+      "frame": 5,
+      "label": "human2 dark (3/21 or 12/5) 180",
+      "sourceSha256": "0e012fa21f45e7baee1e01a4f9e48963304c03dfeb65ffa563a5922bdfcc4b73"
+    },
+    {
+      "asset": "human2-materials.png",
+      "frame": 6,
+      "label": "human2 mask 0",
+      "sourceSha256": "b121430ad823a2cd5db325ecc4a67f1ab02a04a2f763f745815bf93c8d366357"
+    },
+    {
+      "asset": "human2-materials.png",
+      "frame": 7,
+      "label": "human2 mask 90",
+      "sourceSha256": "66ce4e74c4ff16b86b77c9e8d006dfef19b87e6ddbdf90ec0a45a871e97218a7"
+    },
+    {
+      "asset": "stock-neck-control.png",
+      "frame": 0,
+      "label": "Stock head/neck 00-standing-0 offline",
+      "sourceSha256": "bd4b56fb49424b74499bbc6094fedeead22b47a1ddb75d933495221107f024d1"
+    },
+    {
+      "asset": "stock-neck-control.png",
+      "frame": 1,
+      "label": "Stock head/neck 00-standing-90 offline",
+      "sourceSha256": "cb5949acbef8e794ddc9d9b4ece300f772f95d595c3c28a7a1dd91167e655acc"
+    },
+    {
+      "asset": "stock-neck-control.png",
+      "frame": 2,
+      "label": "Stock head/neck 00-standing-180 offline",
+      "sourceSha256": "0ded88c7887beaaef610e056a8b3097f90c0d584c699f29917b65a0b3f45bfd1"
+    },
+    {
+      "asset": "stock-neck-control.png",
+      "frame": 3,
+      "label": "Stock head/neck 50-combat-90 offline",
+      "sourceSha256": "e7189bb146cfaff042c8d60bcb03a2ddc6b4f92865aabf94534015f72dac9fae"
+    }
+  ],
+  "origins": {
+    "reference": "OpenAI-generated SRN isolated skull/jaw references; edited to remove projecting neck. Prompt and parent-image ancestry retained locally.",
+    "geometry": "Meshy 7 generated assets, attributed to Meshy (https://www.meshy.ai/). Human local surface LOD, high-source normals, uniform fit and hole caps; no trim/taper.",
+    "body": "Published SRN custom Human body; locally installed stock neck/rig/palette/animation as review references only.",
+    "rights": "Conditional Meshy CC BY 4.0 attribution; account tier unverified, production rights acceptance pending. See NOTICE.md."
+  },
+  "clientEvidence": false,
+  "productionAccepted": false
+}

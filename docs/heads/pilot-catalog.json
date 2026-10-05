@@ -1,0 +1,898 @@
+{
+  "kind": "srn-head-pilot-catalog",
+  "checkpoint": "neckless-pre-client",
+  "runtimeTriangleLimit": 20000,
+  "operatorShapeSelectionSha256": "e5f375232875be7eb35dafd41781888fe062ee9f5f9852cd99b338dd80f5a5ce",
+  "pilots": [
+    {
+      "id": "human-male-01",
+      "race": "human",
+      "sex": "male",
+      "slot": 82,
+      "model": "pmh0_head082",
+      "brief": "Black man about 40; short crop, close beard and eyebrow scar; natural full skull/jaw, no extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "b1e1d56da05c33afa2462526daf70cc0ec604d59fcdf03f7a822f418d181d332",
+        "donor": "04bbfc5cfbd85b13bff7ec473f28768338b02d6b1c8e644f9010011af0f8f7a3",
+        "fitting": "9369cb28c9da9f03f1175f07cce2234e7790e9d74a2cfe4b2913840e4b68b102",
+        "assembly": "4ae0c645a540a43f65a23e2430c9ea14e5faeb3f868dd54143be8ca8ce55a76f",
+        "native": "f7c8199666bbebabeaa1c7bb324b41c40e56a409e905b61de94eaa61bee6d9ed"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "OpenAI-generated SRN references edited to remove extending neck while preserving full skull, chin and mandible; no external face/mesh references",
+        "source": {
+          "name": "source.png",
+          "sha256": "855ca889bcfafd2281a3e2280b874e16f8c342bc9d4cfa438eb54c021642b9a0",
+          "bytes": 2089009
+        },
+        "prompt": {
+          "name": "prompt.txt",
+          "sha256": "fcc45cd774030d2dc3c2eac65a64089c370d14f3fde014246653dec1997d9ba2",
+          "bytes": 1596
+        },
+        "ancestrySha256": "54e158a7d0f598dd4ce682f2dee60a717f59fbf7d47a722e0a3dcce991fdb7de",
+        "normalizationSha256": "e242607723bd463e75c5ca7f3a996f91ac13efcb6e7555b7e6a91a6b9241c86d",
+        "sharedScale": 1.5316239316239317,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "e7135bd068edd528c3fb8248a03268d722dea56190c6c09d568189c7796aab5b",
+            "bytes": 791360
+          },
+          {
+            "name": "left.png",
+            "sha256": "7e08316c6e951965c3ba6eb7156e043e1ce444f730acdbca5a1c09b18544c2d9",
+            "bytes": 1002928
+          },
+          {
+            "name": "back.png",
+            "sha256": "3a5cc522fa9ccea7d2aae8469132f31456fc0d7939a2a0ed18f38c82e48649aa",
+            "bytes": 757448
+          },
+          {
+            "name": "right.png",
+            "sha256": "fbc8db6ae00734d0daf0ac3345c1f8931637cc15784129026686e89e6bbef56b",
+            "bytes": 918739
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10d6d-c461-737f-8a89-bcf452f33077",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 2,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "d2f80690d9f3548412fc7aed77a1943217f5b78280166b83203d74c45eaf1afa",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "108adeef5c2682ed2d0e02a57020b658337b84d09385c6aa25283357475dc163",
+            "bytes": 3599640
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "b03a31b81446c097b3484d12e5ea449abe980e922699324cee6f53e068b59008",
+            "bytes": 183040796
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "03c4dc56cecdad0310a40c124e4e48d77e69338b8d1758452fc24c5ca8f213a3",
+            "bytes": 146624
+          },
+          {
+            "name": "thumbnail_alpha.png",
+            "sha256": "03c4dc56cecdad0310a40c124e4e48d77e69338b8d1758452fc24c5ca8f213a3",
+            "bytes": 146624
+          },
+          {
+            "name": "thumbnail_back.png",
+            "sha256": "6dd6fc2172edcf170d3fe2e73f59138cfe640f790ed0dc47593388ef39d4db95",
+            "bytes": 222675
+          },
+          {
+            "name": "thumbnail_front.png",
+            "sha256": "03c4dc56cecdad0310a40c124e4e48d77e69338b8d1758452fc24c5ca8f213a3",
+            "bytes": 146624
+          },
+          {
+            "name": "thumbnail_left.png",
+            "sha256": "dd0fe2b05ce3bed02e85a728c6219fa133ce033bbe6b674980c3ca420988d251",
+            "bytes": 197251
+          },
+          {
+            "name": "thumbnail_right.png",
+            "sha256": "704b40f80425358b35d437ab92baa7a1a2968892fc44fda3e25ab9767a9371a1",
+            "bytes": 217393
+          }
+        ]
+      },
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "5bdc231d2f069ec4b939b210117c3fc375a0d51ebe732929afa2638648d3ebce",
+        "bytes": 1825088
+      },
+      "candidateResources": [
+        {
+          "name": "pmh0_head082.mdl",
+          "sha256": "cdd8f8e95088137ee64b88871ab4872cfd60e582af0baf4636179ff3dedd27bb",
+          "bytes": 1486900
+        },
+        {
+          "name": "pmh0_head082.mtr",
+          "sha256": "17de3f3925ad286fe96be3e74849bc832edfa1a930c0b9871b8a53f63a789c0d",
+          "bytes": 136
+        },
+        {
+          "name": "pmh0_head082.plt",
+          "sha256": "56d10dbe783148dfa6f97fe1a3d7d87302f142fb781317051e63dbdaf6a08b8b",
+          "bytes": 2097176
+        },
+        {
+          "name": "pmh0_head082e.mtr",
+          "sha256": "b2bf33308442173ee71595cc5affcb0559844d85535741cbcd0879673d0fc6c8",
+          "bytes": 138
+        },
+        {
+          "name": "pmh0_head082e.tga",
+          "sha256": "8d03d2d998ccf36fe977b8be3aaae0ee05637a939aea6fc41304ca29a00f1d37",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head082en.tga",
+          "sha256": "4d86d67bdf2edab7cb3ead31dde93f2365e99d64cbb9cbb2feeda99cff404763",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head082er.tga",
+          "sha256": "498fb35b72cd580e52e66c21768d477e1d98a905c1c7e48ffd8e3a91ee33b8da",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head082n.tga",
+          "sha256": "4d86d67bdf2edab7cb3ead31dde93f2365e99d64cbb9cbb2feeda99cff404763",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head082r.tga",
+          "sha256": "498fb35b72cd580e52e66c21768d477e1d98a905c1c7e48ffd8e3a91ee33b8da",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "e4e78793a830d4b93faecceac8f33aad5a34141b231e105f63e3af183b6161d0",
+      "targetContractSha256": "cf11650b2e793723b1e65199b54f7fc9daad452cb00d5a19f40c426926fc1793",
+      "fit": {
+        "reportSha256": "09e45f146566cc85135fdd9ddb674c7b54d58a8fafaf7d6459bcbf5c7fd60842",
+        "uniformScale": 0.12392716293360939,
+        "maximumLandmarkErrorMetres": 0.020920014552421016,
+        "localMatrix": [
+          [
+            -0.1239165070317744,
+            -0.0011543827928875738,
+            0.0011438523440747612,
+            -0.0023536042966526573
+          ],
+          [
+            0.0012177060064093236,
+            -0.12372000479691789,
+            0.0070582800954568595,
+            0.013540713000073779
+          ],
+          [
+            0.0010761923153019184,
+            0.0070689126597697285,
+            0.12372070965154705,
+            0.05686352305664237
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "2ef2453da98c35e82e62af3e4165f7c5f6247386df423c1506d367cf56f42804",
+        "holesCapped": 1,
+        "capTriangles": 1,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "8f7be92972ff1828753e99aa0bfa68c66bfd22452d3f5095021249d181e5a92d",
+        "method": "Exact coincident-position connectivity weld, explicit voxel surface revision, Blender collapse LOD, consistent smooth normals, new smart-project UV atlas; master-to-selected-LOD tangent normal bake",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "093a9bfc52286d90a2bf6a7eee801b1a4e2f9f22e77d0c578c35ad92d0940909",
+          "bytes": 10584268
+        },
+        "output": {
+          "name": "runtime.glb",
+          "sha256": "4128b7e8c4520c3635a05c0442120d79773224648441a54ee763758ca1a7601a",
+          "bytes": 623272
+        },
+        "normal": {
+          "name": "selected-normal.png",
+          "sha256": "f1e60186847e86d570021cc783d1ca09e01a5e6d1affeb6529bdf77be395568d",
+          "bytes": 2212698
+        },
+        "targetTriangles": 19000,
+        "neckTrimApplied": false,
+        "neckTaperApplied": false
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10dc2-8552-7530-a6ad-5dbccb7e5bdb",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "3877c6955d712d1099d9cbe40993449f44f0ac4d606f194c4ca7acb97ef300b6",
+            "bytes": 5151184
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "1276dd9cf07fe315c83f7aeb73f2f691000ec886485ebc9544468c14c885a356",
+            "bytes": 1510667
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "d37b4ebb3e6ad11fee4011d4becd7ba757ea3c5100ccdfc8a25a452025f0cd4b",
+            "bytes": 62978
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "96d36c7ab8f7d1f50b23d4d539a18cbfae56f7acc28aa02d9b64bd7004dbe62b",
+            "bytes": 1486358
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "235a91110287cad4a2655311a7d54576e16dae8b280d800f0b41ac35bdeeb81b",
+            "bytes": 683654
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "773efa400d3649a3faab9cc99a9e54e216efd0942c511c74af61aa181a79748e",
+            "bytes": 217054
+          }
+        ],
+        "returnedGeometrySelected": false,
+        "returnedNormalsSelected": false,
+        "uvAtlasTransferAuditSha256": "2fef4b215e9392cea785f84523b73de6973fdfe285f5b40f34641e28aa880dc7",
+        "atlasTransfer": {
+          "maximumPositionErrorSourceUnits": 6.715382427913141e-08,
+          "maximumUvError": 0,
+          "omittedSourceFaceIds": [
+            18999
+          ],
+          "omittedSourceAreas": [
+            2.7257071616885386e-07
+          ]
+        },
+        "normalSourceSha256": "f1e60186847e86d570021cc783d1ca09e01a5e6d1affeb6529bdf77be395568d",
+        "normalGreenFlippedForUvTransport": false,
+        "runtimeSize": 1024,
+        "clientAppearancePending": true
+      }
+    },
+    {
+      "id": "human-male-02",
+      "race": "human",
+      "sex": "male",
+      "slot": 83,
+      "model": "pmh0_head083",
+      "brief": "East Asian man about 35; swept undercut and anatomical-left temple/eye cyberware with cyan detail; full skull/jaw, no extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "137bb8961103216701b10ec291581cfee7b48eb15c3b9a3c016f7c31652536b8",
+        "donor": "02e098aa293cdab262eb0c3b68b476df7c0c9935a1df0298c9c3460b7efc96ab",
+        "fitting": "839a27952973a4c479faa703423142fa287103f287a492d8411ccc6ffd4e9256",
+        "assembly": "57230950163338b9dfb9e51ab898d9022b6e5de094703cf3fe45e5b80166724b",
+        "native": "914bac61ca9302ed11bf6e47a57a45c0869a8a9e69ff7ed1c0554e622a3c60e5"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "OpenAI-generated SRN references edited to remove extending neck while preserving full skull, chin and mandible; no external face/mesh references",
+        "source": {
+          "name": "source.png",
+          "sha256": "6cda16d0d529e30a49f216e3d73d159afb258ebe4cc34212ab915edade727400",
+          "bytes": 2050282
+        },
+        "prompt": {
+          "name": "prompt.txt",
+          "sha256": "4af9c92b7444252403b3213e4b6ee3fcfeb8e8c51939a6e630a2be64d09aa1f5",
+          "bytes": 1258
+        },
+        "ancestrySha256": "705bfb55f92a5e04c44dfb57f9d8b9921591f89302c2ca0aa6254769d2c2f620",
+        "normalizationSha256": "3dc2e926fff71936b58a0b877311926d28dac9de3e9338365c51c619b25fbce8",
+        "sharedScale": 1.5033557046979866,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "4b3d43e441e09fa031d04ab72abb139c8fa422ee6ba3af9599ced0ead4efcdab",
+            "bytes": 741863
+          },
+          {
+            "name": "left.png",
+            "sha256": "972586dbccfbab8c309969799b0e9db5eae86d1179031711d493f3797ca0ae23",
+            "bytes": 923281
+          },
+          {
+            "name": "back.png",
+            "sha256": "14dbc3d28c5a8051189308642157a4525a83ecfb3a8971f6433a5aa918f34375",
+            "bytes": 774000
+          },
+          {
+            "name": "right.png",
+            "sha256": "5f5afb1a6037f04ca17f0c2bb902b90787469612b737dbcb17db62f0685c1777",
+            "bytes": 900706
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10d7f-54dd-73ff-a88b-d792d644395b",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 2,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "f750f8e07ef56cbe38d0753b0d3bfe57fd51cf89678a3be4ba083bc6545ed3b3",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "7d89d82d74963ec6a5c73f59ccb2b668171f7e81c8eb25402bbcdf1e1e077607",
+            "bytes": 3428012
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "483ce69b2baa8914ef978a3835ec3723955e42c5bed0a19181c91ba5d04daaf7",
+            "bytes": 188312684
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "27e734556876f233412e588d41d8cb38cc3327a4db35d6958c19894ef1d7f8d6",
+            "bytes": 167595
+          },
+          {
+            "name": "thumbnail_alpha.png",
+            "sha256": "27e734556876f233412e588d41d8cb38cc3327a4db35d6958c19894ef1d7f8d6",
+            "bytes": 167595
+          },
+          {
+            "name": "thumbnail_back.png",
+            "sha256": "2c0b5a9f16cb592f7a0249aa7d8924272adf3f52cef0cd4968f458e6b49c135a",
+            "bytes": 166798
+          },
+          {
+            "name": "thumbnail_front.png",
+            "sha256": "27e734556876f233412e588d41d8cb38cc3327a4db35d6958c19894ef1d7f8d6",
+            "bytes": 167595
+          },
+          {
+            "name": "thumbnail_left.png",
+            "sha256": "887435f1e31bf6270ba9b3f089ae3188bfe796013038824e2e7af53a82d9e131",
+            "bytes": 179203
+          },
+          {
+            "name": "thumbnail_right.png",
+            "sha256": "4fcc81b8fef1c1894e4ef6f72cefc6210df9a7c68362d6babb526cb0a3221421",
+            "bytes": 174723
+          }
+        ]
+      },
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "3a693da5a04ffc60d143a050f7ec12d248592f3407246fbc7e2af29e867e8eb6",
+        "bytes": 1825072
+      },
+      "candidateResources": [
+        {
+          "name": "pmh0_head083.mdl",
+          "sha256": "34e4752e71fc93202dadc214a6c16af28f311e275fc96095e4b9d3b30634a6a8",
+          "bytes": 1501708
+        },
+        {
+          "name": "pmh0_head083.mtr",
+          "sha256": "7db416c0562a15e4e1788e414d0e7cbae5e37631194145a79899dd72d48034e2",
+          "bytes": 136
+        },
+        {
+          "name": "pmh0_head083.plt",
+          "sha256": "749ae866b6f4e4dc09f84c24df5510d45792f9b2f829b0769924a5db337aeaa1",
+          "bytes": 2097176
+        },
+        {
+          "name": "pmh0_head083c.mtr",
+          "sha256": "09df3315d0c9821ed60ac0dec979887af19ed36a58b65243dcea42c8d82bfb13",
+          "bytes": 138
+        },
+        {
+          "name": "pmh0_head083c.tga",
+          "sha256": "d1a613b9f942b1e4aeea04a33138d736ffc44eb8f8dcf5febadd1a222ac200cd",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083cn.tga",
+          "sha256": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083cr.tga",
+          "sha256": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083e.mtr",
+          "sha256": "09ae0a7990ad8917b916e49bf287786b19d0345c3a1f08f8000a1de378877925",
+          "bytes": 138
+        },
+        {
+          "name": "pmh0_head083e.tga",
+          "sha256": "d1a613b9f942b1e4aeea04a33138d736ffc44eb8f8dcf5febadd1a222ac200cd",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083en.tga",
+          "sha256": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083er.tga",
+          "sha256": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083n.tga",
+          "sha256": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083r.tga",
+          "sha256": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "31dd5181196efa7eeef20d7077f99699d57bc492f2f9c2a631040eda98eb35e8",
+      "targetContractSha256": "cf11650b2e793723b1e65199b54f7fc9daad452cb00d5a19f40c426926fc1793",
+      "fit": {
+        "reportSha256": "5d3d1dbe0f440bb3ec841cd30d7a2f45d723ddf82005a8dd2e2de9d78aad57b7",
+        "uniformScale": 0.12913811916882442,
+        "maximumLandmarkErrorMetres": 0.010509989483802643,
+        "localMatrix": [
+          [
+            -0.12913564614779321,
+            0.00012619542813719042,
+            0.0007891711901469563,
+            0.00011053119174890644
+          ],
+          [
+            -0.00018197119511771448,
+            -0.12881138264563233,
+            -0.009178693254822517,
+            0.01063057136653462
+          ],
+          [
+            0.000778204945748962,
+            -0.009179629518444348,
+            0.12880909370625976,
+            0.059769975305246706
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "88cb70e3b01d4956f5b9e6bdecb8f440d51397d9436321349998027d2759776e",
+        "holesCapped": 24,
+        "capTriangles": 24,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "53ad731bd58310f17a2e54a19c1d9de13d3f522003e36be9c5da2594b141faac",
+        "method": "Exact coincident-position connectivity weld, explicit voxel surface revision, Blender collapse LOD, consistent smooth normals, new smart-project UV atlas; master-to-selected-LOD tangent normal bake",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "8d9c545d954e2a13cc4b5e5013cd9bbbef555661349d256feec91a68eb588f40",
+          "bytes": 10606252
+        },
+        "output": {
+          "name": "runtime.glb",
+          "sha256": "121d714e2e4c6b82075859c4c13ef38d4557eaf1b2a2b53547ef4c6b1b6b9df2",
+          "bytes": 625628
+        },
+        "normal": {
+          "name": "selected-normal.png",
+          "sha256": "4acff87a89ad18d8dd49f899fcd7773d899452eebae44347fd6be65074d61d75",
+          "bytes": 2068041
+        },
+        "targetTriangles": 19000,
+        "neckTrimApplied": false,
+        "neckTaperApplied": false
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10dc5-99d9-76f8-ae52-e0a635fa0c18",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "e6c54d8f6ddb7fe21b3145d1c2f9f751509665e1d5182ecb3e0857f75238b7b9",
+            "bytes": 5076396
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "eebbfc6ac021c480786cced748e7b458dacf62b5dbc22025ca65c3d403584d6b",
+            "bytes": 1566640
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "f7d42d09355e14afa793e8b156f2b0fb118ea32a03f294d738f06fb29061c39c",
+            "bytes": 170745
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "8d1e891c9b9fecc8ab34e549f92a10fcfbffad375ad9b212e7ef131fef93621f",
+            "bytes": 1439600
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "d609dc7d0f5164db572c44f05d158104e4c41ab31963e23952206ff8315c7d5f",
+            "bytes": 775909
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "cdd97fe7ca5412d57dfbbc3d4ce2809f1deb36b545e1f457d6ac253c01998501",
+            "bytes": 202330
+          }
+        ],
+        "returnedGeometrySelected": false,
+        "returnedNormalsSelected": false,
+        "uvAtlasTransferAuditSha256": "5e3e6ee40fc7e896ba8f8e07e8cd87ccb4dbbb4730eaf9bb744cd6b71cf2cb4f",
+        "atlasTransfer": {
+          "maximumPositionErrorSourceUnits": 8.521725647359091e-08,
+          "maximumUvError": 0,
+          "omittedSourceFaceIds": [
+            1166,
+            1644,
+            10751,
+            11300,
+            18143,
+            18976,
+            18977,
+            18978,
+            18980,
+            18981,
+            18983,
+            18985,
+            18986,
+            18987,
+            18988,
+            18989,
+            18991,
+            18992,
+            18993,
+            18994,
+            18995,
+            18996,
+            18997,
+            18999
+          ],
+          "omittedSourceAreas": [
+            6.326342628084519e-06,
+            1.1835012539791546e-06,
+            9.414503324994949e-06,
+            8.422124712336391e-07,
+            3.521715781255107e-05,
+            4.983576960405107e-06,
+            9.967279713921992e-06,
+            4.663244745100233e-07,
+            2.1926084559745812e-07,
+            6.098218444044425e-07,
+            3.2154800604982555e-05,
+            1.5740170252220024e-06,
+            1.4162181517961414e-05,
+            3.751088949005161e-06,
+            2.948377828225404e-05,
+            1.2544430388110752e-05,
+            4.888185999477543e-06,
+            6.348458382748406e-06,
+            2.5946945654321194e-06,
+            9.65670433485754e-06,
+            6.717937545051206e-05,
+            5.187101637304052e-07,
+            3.021457345715809e-06,
+            3.10044990274874e-06
+          ]
+        },
+        "normalSourceSha256": "4acff87a89ad18d8dd49f899fcd7773d899452eebae44347fd6be65074d61d75",
+        "normalGreenFlippedForUvTransport": false,
+        "runtimeSize": 1024,
+        "clientAppearancePending": true
+      }
+    },
+    {
+      "id": "elf-female-01",
+      "race": "elf",
+      "sex": "female",
+      "slot": 17,
+      "model": "pfe0_head017",
+      "brief": "Brown-skinned Elf woman about 30; auburn bob, pointed ears and complete jaw; no extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "6c2d04b781e33a09d7e9527c40f66aa9d51d5e3a274cb2b096529b0bf5298002",
+        "donor": "352d2cf91590b67dad6b5fa31a6fbd35e755639bf3cd7143146f184a9a1c62ff"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "OpenAI-generated SRN references edited to remove extending neck while preserving full skull, chin and mandible; no external face/mesh references",
+        "source": {
+          "name": "source.png",
+          "sha256": "3d91ee4bc7a41cab4439dd7b9463bea91b07bfa706180991c6d6265036237f5b",
+          "bytes": 1939242
+        },
+        "prompt": {
+          "name": "prompt.txt",
+          "sha256": "fe46c1689b14afc98bc81cbc9605f110cc2ceec4dc2269fe5a44992a94ef3467",
+          "bytes": 1238
+        },
+        "ancestrySha256": "f8376b0827211a9bc680b93a282a2f5440f8274e7ce8cbe1b8607320ca09aff2",
+        "normalizationSha256": "87c345495c757e6dc2ac9b5b5b3279e9e07da970cbbcd1f0209e2ba25c547390",
+        "sharedScale": 1.5858407079646017,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "70b14d5063fcffcc29f7c9bd6e6451f6d18ae88124a52fb64c1ec1f74a05f638",
+            "bytes": 815078
+          },
+          {
+            "name": "left.png",
+            "sha256": "d3ed006a081cb977c10542e49b1077d308284177ac0bdd061ad173a315d05ec1",
+            "bytes": 913148
+          },
+          {
+            "name": "back.png",
+            "sha256": "b1598342b38600fed16b89ef336f47126e4728a1ba1ad0cce1ed9ba9a64a3416",
+            "bytes": 806979
+          },
+          {
+            "name": "right.png",
+            "sha256": "bc2f3729f8b07ff53ec1f677b23684f69e5ed6f6a557bb755d0153d9f14c2c33",
+            "bytes": 863718
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10d93-10e2-7349-8ff8-6ce332eaf267",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 2,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "58bec49b8bc26e5f121d8d6c171c54dc27a12d74873f920e5d3b3cf4837e1ecf",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "5ae3c856cc64df68c93a1bbfe760bf9c5904d475ab5a78910250f0c1b112d1bc",
+            "bytes": 3378028
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "86794a3feb584b28892911bdf86e14cf13695f30d6481d36fa50a6bef7268dc5",
+            "bytes": 185217356
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "dfaa69c86f044371c7f55ce23116e43220161a0dae9a561354960be0422fa74d",
+            "bytes": 191418
+          },
+          {
+            "name": "thumbnail_alpha.png",
+            "sha256": "dfaa69c86f044371c7f55ce23116e43220161a0dae9a561354960be0422fa74d",
+            "bytes": 191418
+          },
+          {
+            "name": "thumbnail_back.png",
+            "sha256": "032e8fa9d843b4c126431e5fc805b623a21db9c1fa71ef2adcb25c5ad5066477",
+            "bytes": 228200
+          },
+          {
+            "name": "thumbnail_front.png",
+            "sha256": "dfaa69c86f044371c7f55ce23116e43220161a0dae9a561354960be0422fa74d",
+            "bytes": 191418
+          },
+          {
+            "name": "thumbnail_left.png",
+            "sha256": "b2dea6d83e66f687b18915bfea80b49d178a35032424b29ecc80176add516251",
+            "bytes": 289184
+          },
+          {
+            "name": "thumbnail_right.png",
+            "sha256": "8595353e81bc495b2838ec68d925f597a720f5b22f1435ac8b47a07e6ae98483",
+            "bytes": 231776
+          }
+        ]
+      },
+      "pendingDependency": "Approved elf female normal-body target contract"
+    },
+    {
+      "id": "troll-male-01",
+      "race": "troll",
+      "sex": "male",
+      "slot": 14,
+      "model": "pmg0_head014",
+      "brief": "Olive-gray Troll man; heavy jaw, horns, tusks and flat-top hair; no extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "6d9be087d4cc31eae072c0696e65894bfaadbbf995fd147a678849c5abe1b14b",
+        "donor": "9e491780429ffc5ca9797ad22aecfb16df4a29c2b0f152da4d20475994c20aa5"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "OpenAI-generated SRN references edited to remove extending neck while preserving full skull, chin and mandible; no external face/mesh references",
+        "source": {
+          "name": "source.png",
+          "sha256": "acd1a2ebcdb9f597ad4cec70c0bbbac948e82b6b8af31808d28f3f33a71a6684",
+          "bytes": 2227017
+        },
+        "prompt": {
+          "name": "prompt.txt",
+          "sha256": "9ad91f06f6125d41a9950dc6dde1ebbb2ec36ed886d04acf90db2ffb19b97c16",
+          "bytes": 1302
+        },
+        "ancestrySha256": "e7d29b67de382bb2409d4f14948e1b4fddc061ebec86ad383a93ec172740fcaa",
+        "normalizationSha256": "aadc2a7a6e3850d91027d98989aedc9148ac9d6f59526ec6e5ab7161d44b2e3a",
+        "sharedScale": 1.52901023890785,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "573e7fa8384aaf369102fe89b358e73927409646fe20679573a0dc0856470f67",
+            "bytes": 894184
+          },
+          {
+            "name": "left.png",
+            "sha256": "25ac93c05742fd1b98f89b5319cb13a61f1f78e17c2dea62d06d823d95034e2d",
+            "bytes": 964376
+          },
+          {
+            "name": "back.png",
+            "sha256": "4880e3b55c35631d7ae0a7ee5f7e0a71203f7bc37dd1f87fa320f7abb272a533",
+            "bytes": 880201
+          },
+          {
+            "name": "right.png",
+            "sha256": "7355f32a8a49088193294ab17c34b37a5bfa8243b8ccc372f31ba1d7f0a8c348",
+            "bytes": 953232
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10d97-7a84-7574-b1e3-c8fef1dfcb6f",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 2,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "ed4aed9033330e8f40e3b5ef5b620508250fa957b3a6effafeecf23e3fe2d304",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "706cee037afcb3ba386ecbd0623a258232a0b2d106dff370a3688c212dc9d7d5",
+            "bytes": 3748032
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "43e46f997a132194b7d078c82f04877eb972f7738d035f40ae2533a94e106885",
+            "bytes": 183174284
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "dc17ec8f00a432d78adf15ded405c6e0faa2f142df31463da5a803fffec6f459",
+            "bytes": 176284
+          },
+          {
+            "name": "thumbnail_alpha.png",
+            "sha256": "dc17ec8f00a432d78adf15ded405c6e0faa2f142df31463da5a803fffec6f459",
+            "bytes": 176284
+          },
+          {
+            "name": "thumbnail_back.png",
+            "sha256": "fda14d89220ac7cb372df2bc3ca42144c1841c197a2c95f05f3c6e817611a30d",
+            "bytes": 169175
+          },
+          {
+            "name": "thumbnail_front.png",
+            "sha256": "dc17ec8f00a432d78adf15ded405c6e0faa2f142df31463da5a803fffec6f459",
+            "bytes": 176284
+          },
+          {
+            "name": "thumbnail_left.png",
+            "sha256": "bf83859647d9a801511ec02cd6b81c743fd32b2c0b6050d660a3d726c65a1842",
+            "bytes": 187220
+          },
+          {
+            "name": "thumbnail_right.png",
+            "sha256": "1c96a0d646fcfc8b9a6994f88ba0d36c80e0ca768fde838d465b7ee59b05a5ae",
+            "bytes": 195008
+          }
+        ]
+      },
+      "pendingDependency": "Approved troll male normal-body target contract"
+    }
+  ]
+}
