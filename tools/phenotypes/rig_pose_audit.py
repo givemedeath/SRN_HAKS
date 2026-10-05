@@ -52,23 +52,33 @@ def interpolate(rows, time, rotation=False):
             else (left[1:] + amount*(right[1:]-left[1:])).tolist())
 
 
-def sample(skeleton, clip_body, time):
-    result = copy.deepcopy(skeleton)
+def compile_controllers(clip_body):
+    output={}
     for match in NODE.finditer(clip_body):
         key,body = match[2].lower(),match[3]
-        if key not in result:
-            continue
         keyed = {label:values for label,values,_,_ in arrays(body)}
-        require('positionbezierkey' not in keyed and 'orientationbezierkey' not in keyed,
-                'Offline audit sampler does not establish Bezier engine semantics')
-        for field,rotation in [('position',False),('orientation',True)]:
+        output[key]={}
+        output[key]['unsupportedBezier']=any(label in keyed for label in ('positionbezierkey','orientationbezierkey'))
+        for field in ('position','orientation'):
             if field+'key' in keyed:
-                value=interpolate(keyed[field+'key'],time,rotation)
+                output[key][field+'key']=keyed[field+'key']
             else:
                 static=re.search(r'(?mi)^\s*'+field+r'\s+([^\n]+)',body)
                 if not static:
                     continue
-                value=[float(v) for v in static[1].split()]
+                output[key][field]=[float(v) for v in static[1].split()]
+    return output
+
+
+def sample(skeleton, clip_body, time, *, controllers=None):
+    result=copy.deepcopy(skeleton)
+    for key,keyed in (compile_controllers(clip_body) if controllers is None else controllers).items():
+        if key not in result:continue
+        require(not keyed.get('unsupportedBezier'),'Offline audit sampler does not establish Bezier engine semantics')
+        for field,rotation in [('position',False),('orientation',True)]:
+            if field+'key' in keyed:value=interpolate(keyed[field+'key'],time,rotation)
+            elif field in keyed:value=list(keyed[field])
+            else:continue
             result[key][field]=np.asarray(value,float) if field=='position' else value
     return transforms(result)
 

@@ -9,7 +9,8 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
-from tool_runtime import tool as resolved_tool
+from tool_runtime import tool as resolved_tool, record_dependencies
+from resume_summary import verify_integration
 
 from stage_stock_part import require, sha, save
 from stock_limb_contract import validate_receipt_lineage, PAIRS
@@ -66,6 +67,9 @@ def compose(config_path,output,tool=None):
     require(parts==set(config['requiredParts']) and parts<=BODY_PARTS,'Required body ownership incomplete/differs')
     for left,right in PAIRS:require((left in parts)==(right in parts),'Native body requires complete selected pairs')
     require(not config.get('requireComplete') or parts==BODY_PARTS,'Complete fourteen-part body required')
+    integration_parent={'path':str(selection_path),'sha256':config['preservedSelectionSha256']}
+    integration_neighbors=[{'path':filename,'sha256':pin} for filename,pin in config['preservedGeometry'].items()]
+    verify_integration(integration_parent,integration_neighbors)
     target=output/'human_male_fit/converted';(target/'resources').mkdir(parents=True);(target/'ascii').mkdir()
     for name in prior_hashes:shutil.copyfile(preserved_resources/name,target/'resources'/name)
     for name in old_models:shutil.copyfile(parent/'ascii'/name,target/'ascii'/name)
@@ -90,6 +94,9 @@ def compose(config_path,output,tool=None):
         'completeBodySelected':parts==BODY_PARTS,'clientReady':False,
         'compilerDependencyPolicy':'Actual original compile union immutable; current selected runtime bytes declared separately.',
         'clientLaunched':False,'noFixtureOrRigResources':True}
+    verify_integration(integration_parent,integration_neighbors)
+    for filename,pin in frozen.items():require(sha(filename)==pin,'Composition dependency changed during execution')
+    inventory['dependencyReceipt']=str(record_dependencies(frozen))
     save(target/'effective-material-inventory.json',inventory);validate_effective_body(target)
     shutil.copyfile(__file__,output/'executed-composer.py')
     if tool:

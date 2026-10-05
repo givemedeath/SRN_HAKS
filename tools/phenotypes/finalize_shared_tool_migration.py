@@ -10,6 +10,7 @@ from pathlib import Path
 import shutil
 
 from shared_toolchain import load, sha
+from shared_tools import worktrees,inside,tools_root
 
 
 def require(condition, message):
@@ -155,7 +156,13 @@ def finalize(config, verification_dir, output):
     helpers = {name: value for name, value in inputs['launchHelpers'].items() if Path(name).name in core}
     active = Path(inputs['activeWorktree']).resolve()
     require(all(Path(name).resolve().is_relative_to(active) for name in helpers), 'Active launcher helpers must belong to this worktree')
+    linked=[Path(row['path']) for row in worktrees(active)[1:] if Path(row['path'])!=active]
+    verification_sources=[inputs['stockAscii']['path'],inputs['equipmentInventory']['path'],
+                          *[row['sourcePath'] for row in equipment['fixtures']]]
+    borrowed=sorted(set(path for path in verification_sources if any(inside(path,root) for root in linked)))
+    shared_root,_=tools_root(active,toolchain.get('toolsRoot'))
     report = {'schemaVersion': 1, 'kind': 'phenotype-shared-tool-migration',
+        'toolsRoot':str(shared_root),'inventorySha256':sha(active/'tools/shared-tools.lock.json'),
         'createdUtc': datetime.now(timezone.utc).isoformat(), 'activeWorktree': str(active),
         'retiringWorktree': toolchain.get('retiringWorktree'), 'toolchain': entry(config),
         'toolchainInitialSnapshot': inputs['toolchainInitialSnapshot'], 'verificationInputs': entry(root / 'input-pins.json'),
@@ -169,12 +176,13 @@ def finalize(config, verification_dir, output):
         'executedFinalizer': entry(Path(__file__).resolve()),
         'preservedHistoricalReceipts': inputs['preservedHistoricalReceipts'],
         'blenderSavedPreferencesBeforeAndAfter': saved, 'savedBlenderPreferencesModified': False,
-        'sourceWorktreeInputsActive': False, 'gameClientTesting': False, 'oldWorktreeOrToolsDeleted': False,
+        'sourceWorktreeInputsActive': bool(borrowed),'borrowedVerificationInputs':borrowed,
+        'gameClientTesting': False, 'oldWorktreeOrToolsDeleted': False,
         'launchPolicy': 'Use the local shared-tools.json and this receipt via launch_shared_tool.py; Blender uses factory background startup and the byte-verified primary addon bank.',
         'historicalReceiptPolicy': 'Historical receipts remain immutable. This local receipt replaces active launch resolution only.',
         'limits': ['Tool execution and source registration only; production assets, equipment sizing and client acceptance remain separate.',
                    'Armory support fixtures include synthetic nested/authored-normal examples; transformed smoke files are not production equipment.']}
-    snapshot = output.with_name('executed-finalizer.py')
+    snapshot = output.with_name(output.stem+'-executed-finalizer.py')
     require(not snapshot.exists(), 'Fresh finalizer snapshot required')
     shutil.copyfile(Path(__file__).resolve(), snapshot)
     report['executedFinalizerSnapshot'] = entry(snapshot)

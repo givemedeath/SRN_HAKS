@@ -94,6 +94,18 @@ class SharedToolsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Store'):resolve_runtime('python',self.base/'WindowsApps/python.exe',self.repo)
         with self.assertRaisesRegex(ValueError,'linked'):resolve_runtime('blender',self.link/'tool',self.repo)
 
+    def test_vendored_tools_belong_to_the_consuming_checkout(self):
+        entry={'origin':'vendored','version':'fixture','platforms':{key:{'relativePath':'vendor/tool.exe',
+            'sha256':sha(self.exe)} for key in ['windows-x64','linux-x64']}}
+        self.data['tools']['mdlcomp']=entry
+        for repo in [self.repo,self.link]:
+            vendor=repo/'tools/vendor';vendor.mkdir();shutil.copyfile(self.exe,vendor/'tool.exe')
+            write_json(repo/'tools/shared-tools.lock.json',self.data)
+        resolved=resolve_tool('mdlcomp',self.link)
+        self.assertTrue(inside(resolved['path'],self.link))
+        self.assertEqual(resolved,self.ps(f"Resolve-SrnTool mdlcomp -RepositoryRoot '{self.link}' | ConvertTo-Json"))
+        with self.assertRaises(ValueError):resolve_tool('mdlcomp',self.link,override=self.repo/'tools/vendor/tool.exe')
+
     def test_retirement_live_migrated_missing_provenance_and_incomplete(self):
         required=self.link/'borrowed';required.write_bytes(b'input')
         register_run(self.repo,inputs=[required],complete=True)
@@ -120,7 +132,7 @@ class BootstrapTests(unittest.TestCase):
         self.key=platform_key();self.destination=self.root/'neverwinter/test'/self.key
         payload=b'fixture executable';archive=self.root/'downloads/fixture.zip'
         with zipfile.ZipFile(archive,'w') as z:z.writestr('tool.exe',payload)
-        self.lock={'releaseTag':'test','platforms':{self.key:{'fileName':'fixture.zip','url':'https://example.invalid/no-download','sha256':sha(archive),'executables':{'erf':'tool.exe'},'executableSha256':{'erf':hashlib.sha256(payload).hexdigest()}}}}
+        self.lock={'releaseTag':'test','sourceRepository':'fixture','commit':'fixture','platforms':{self.key:{'fileName':'fixture.zip','url':'https://example.invalid/no-download','sha256':sha(archive),'executables':{'erf':'tool.exe'},'executableSha256':{'erf':hashlib.sha256(payload).hexdigest()}}}}
         self.inventory={'schemaVersion':1,'tools':{'erf':{'origin':'shared','version':'test','platforms':{self.key:{'relativePath':f'neverwinter/test/{self.key}/tool.exe','sha256':hashlib.sha256(payload).hexdigest()}}}}}
         write_json(self.tools/'toolchain.lock.json',self.lock);write_json(self.tools/'shared-tools.lock.json',self.inventory)
     def tearDown(self):self.tmp.cleanup()

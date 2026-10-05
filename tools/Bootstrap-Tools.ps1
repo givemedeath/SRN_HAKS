@@ -40,7 +40,9 @@ try {
         if (-not (Test-SrnWithin $file $stage) -or -not (Test-Path $file -PathType Leaf) -or (Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant() -cne $platform.executableSha256[$name]) { throw "Staged executable failed verification: $name" }
         if (-not $IsWindows) { & chmod +x -- $file; if ($LASTEXITCODE) { throw 'chmod failed' } }
     }
-    @{schemaVersion=2; releaseTag=$lock.releaseTag; platform=$platformKey; archiveSha256=$platform.sha256; executables=$platform.executables; executableSha256=$platform.executableSha256} | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $stage '.complete.json') -Encoding utf8
+    @{schemaVersion=2; releaseTag=$lock.releaseTag; sourceRepository=$lock.sourceRepository; commit=$lock.commit;
+      platform=$platformKey; archiveSha256=$platform.sha256; executables=$platform.executables; executableSha256=$platform.executableSha256} |
+        ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $stage '.complete.json') -Encoding utf8
     New-Item -ItemType Directory -Force -Path (Split-Path $destination -Parent) | Out-Null
     if (-not (Test-SrnWithin $destination $root)) { throw 'Publication escapes shared root' }; Assert-SrnDurablePath $destination
     if (Test-Path -LiteralPath $destination) { $backup=Join-Path $root ('staging/replaced-'+[guid]::NewGuid().ToString('N')); [IO.Directory]::Move($destination,$backup) }
