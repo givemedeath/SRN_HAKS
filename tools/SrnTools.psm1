@@ -3,6 +3,18 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 $OutputEncoding = [Text.UTF8Encoding]::new($false)
+if ($IsWindows -and -not ('SrnCanonicalPaths.NativeMethods' -as [type])) {
+    Add-Type -TypeDefinition @'
+using System.Runtime.InteropServices;
+using System.Text;
+namespace SrnCanonicalPaths {
+    public static class NativeMethods {
+        [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+        public static extern uint GetLongPathName(string path, StringBuilder output, uint size);
+    }
+}
+'@
+}
 function Resolve-SrnRealPath {
     param([Parameter(Mandatory)][string]$Path)
     $full = [IO.Path]::GetFullPath($Path); $root = [IO.Path]::GetPathRoot($full); $current = $root
@@ -11,6 +23,12 @@ function Resolve-SrnRealPath {
         if (Test-Path -LiteralPath $current) {
             $item = Get-Item -LiteralPath $current -Force
             if ($item.LinkTarget) { $current = $item.ResolveLinkTarget($true).FullName }
+            if ($IsWindows) {
+                $buffer=[Text.StringBuilder]::new(32768)
+                $length=[SrnCanonicalPaths.NativeMethods]::GetLongPathName($current,$buffer,32768)
+                if (-not $length -or $length -ge 32768) { throw "Cannot canonicalize Windows path: $current" }
+                $current=$buffer.ToString()
+            }
         }
     }
     [IO.Path]::GetFullPath($current)
