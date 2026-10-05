@@ -103,21 +103,21 @@ ELF_MALE_AFFINE = {
 #   Z 1.2772 = pmo0 neck_g offset 0.59895 / human 0.46895 so the neck seam meets the head
 # - Broadened, lengthened pelvis (hip span 0.276m vs 0.216m, scale 1.2776 in X, 1.080 in Y);
 #   Z 1.1644 = pmo0 hip joint drop 0.212441 / human 0.182441 so the leg seams meet the thighs
-# - Heavy muscular arms: length scaled to reach pmo0 elbow (0.412m vs 0.302m, scale Z ~1.3643, X/Y ~1.080)
-# - Heavy muscular forearms: length scaled to reach pmo0 wrist (0.397m vs 0.292m, scale Z ~1.3599, X/Y ~1.080)
-# - Powerful hands: scale 1.120 in X/Y/Z
+# - Heavy muscular arms: length scaled to reach pmo0 elbow (scale Z ~1.3643), X 1.460, Y 1.420 for thick orc musculature
+# - Heavy muscular forearms: length scaled to reach pmo0 wrist (scale Z ~1.3599), X 1.420, Y 1.380 for powerful forearm bulk
+# - Powerful hands: scale 1.300 in X/Y/Z to match muscular arm girth
 # - Muscular thighs: scale X/Y ~1.080, Z ~1.000
 # - Muscular calves: scale X/Y ~1.060, Z ~1.000
 # - Sturdy boots/feet: scale 1.080 in X/Y/Z
 ORC_MALE_AFFINE = {
     "chest":   {"scale": [1.4975, 1.120, 1.2772], "translate": [0.0, 0.0, 0.0]},
     "pelvis":  {"scale": [1.2776, 1.080, 1.1644], "translate": [0.0, 0.0, 0.0]},
-    "bicepl":  {"scale": [1.0800, 1.080, 1.3643], "translate": [0.0, 0.0, 0.0]},
-    "bicepr":  {"scale": [1.0800, 1.080, 1.3643], "translate": [0.0, 0.0, 0.0]},
-    "forel":   {"scale": [1.0800, 1.080, 1.3599], "translate": [0.0, 0.0, 0.0]},
-    "forer":   {"scale": [1.0800, 1.080, 1.3599], "translate": [0.0, 0.0, 0.0]},
-    "handl":   {"scale": [1.1200, 1.120, 1.1200], "translate": [0.0, 0.0, 0.0]},
-    "handr":   {"scale": [1.1200, 1.120, 1.1200], "translate": [0.0, 0.0, 0.0]},
+    "bicepl":  {"scale": [1.4600, 1.420, 1.3643], "translate": [0.0, 0.0, 0.0]},
+    "bicepr":  {"scale": [1.4600, 1.420, 1.3643], "translate": [0.0, 0.0, 0.0]},
+    "forel":   {"scale": [1.4200, 1.380, 1.3599], "translate": [0.0, 0.0, 0.0]},
+    "forer":   {"scale": [1.4200, 1.380, 1.3599], "translate": [0.0, 0.0, 0.0]},
+    "handl":   {"scale": [1.3000, 1.300, 1.3000], "translate": [0.0, 0.0, 0.0]},
+    "handr":   {"scale": [1.3000, 1.300, 1.3000], "translate": [0.0, 0.0, 0.0]},
     "legl":    {"scale": [1.0800, 1.080, 1.0000], "translate": [0.0, 0.0, 0.0]},
     "legr":    {"scale": [1.0800, 1.080, 1.0000], "translate": [0.0, 0.0, 0.0]},
     "shinl":   {"scale": [1.0600, 1.060, 1.0000], "translate": [0.0, 0.0, 0.0]},

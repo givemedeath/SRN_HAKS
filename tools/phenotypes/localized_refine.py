@@ -284,24 +284,26 @@ ORC_MALE_ANCHORS = {
         {"name": "glute_right", "center": [0.10, -0.07, -0.093], "radius": 0.10, "disp": [0.005, -0.004, 0.0]},
     ],
     "bicepl": [
-        {"name": "bicep_belly", "center": [-0.04, 0.02, -0.18], "radius": 0.10, "disp": [-0.005, 0.006, 0.0]},
-        {"name": "tricep_belly", "center": [-0.05, -0.03, -0.20], "radius": 0.10, "disp": [-0.005, -0.005, 0.0]},
+        {"name": "bicep_belly", "center": [-0.06, 0.03, -0.22], "radius": 0.14, "disp": [-0.008, 0.012, 0.0]},
+        {"name": "tricep_belly", "center": [-0.07, -0.04, -0.24], "radius": 0.14, "disp": [-0.008, -0.010, 0.0]},
     ],
     "bicepr": [
-        {"name": "bicep_belly", "center": [0.04, 0.02, -0.18], "radius": 0.10, "disp": [0.005, 0.006, 0.0]},
-        {"name": "tricep_belly", "center": [0.05, -0.03, -0.20], "radius": 0.10, "disp": [0.005, -0.005, 0.0]},
+        {"name": "bicep_belly", "center": [0.06, 0.03, -0.22], "radius": 0.14, "disp": [0.008, 0.012, 0.0]},
+        {"name": "tricep_belly", "center": [0.07, -0.04, -0.24], "radius": 0.14, "disp": [0.008, -0.010, 0.0]},
     ],
     "forel": [
-        {"name": "forearm_flexor", "center": [-0.02, 0.02, -0.18], "radius": 0.09, "disp": [-0.004, 0.005, 0.0]},
+        {"name": "forearm_flexor", "center": [-0.03, 0.03, -0.20], "radius": 0.12, "disp": [-0.006, 0.008, 0.0]},
+        {"name": "forearm_brachio", "center": [-0.06, -0.01, -0.16], "radius": 0.11, "disp": [-0.008, 0.0, 0.0]},
     ],
     "forer": [
-        {"name": "forearm_flexor", "center": [0.02, 0.02, -0.18], "radius": 0.09, "disp": [0.004, 0.005, 0.0]},
+        {"name": "forearm_flexor", "center": [0.03, 0.03, -0.20], "radius": 0.12, "disp": [0.008, 0.008, 0.0]},
+        {"name": "forearm_brachio", "center": [0.06, -0.01, -0.16], "radius": 0.11, "disp": [0.008, 0.0, 0.0]},
     ],
     "handl": [
-        {"name": "palm_definition", "center": [-0.02, 0.01, -0.07], "radius": 0.07, "disp": [-0.002, 0.002, 0.0]},
+        {"name": "palm_definition", "center": [-0.02, 0.01, -0.08], "radius": 0.08, "disp": [-0.003, 0.002, 0.0]},
     ],
     "handr": [
-        {"name": "palm_definition", "center": [0.02, 0.01, -0.07], "radius": 0.07, "disp": [0.002, 0.002, 0.0]},
+        {"name": "palm_definition", "center": [0.02, 0.01, -0.08], "radius": 0.08, "disp": [0.003, 0.002, 0.0]},
     ],
     "legl": [
         {"name": "quad_vastus", "center": [-0.06, 0.03, -0.16], "radius": 0.12, "disp": [-0.008, 0.006, 0.0]},
