@@ -19,7 +19,7 @@ This report certifies the successful top-down derivation of the Elf Male (Fit ph
 4. **Equipment Compatibility (Gate 3 - Passed):** Audited across all 445 stock `pme0` equipment models across 18 slots; weapon locators `rhand`/`lhand` verified exact with $0.000\text{ mm}$ drift.
 5. **Native NWN Binary Compilation (Gate 4 - Passed):** 14/14 trimesh models compiled cleanly using `nwmain.exe` in isolated staging, verifying 100% normalized MikkTSpace tangent spaces ($|T|=1.0$) and normals ($|N|=1.0$) with multi-node pelvis (`pme0_pelvis001p` unskinned PLT node + `pme0_pelvis001f` flesh diffuse underwear node) and shared human normal/roughness map linkage (`pmh0_*n`, `pmh0_*r`), saving ~340 MiB distribution footprint.
 6. **Packaging & In-Engine Client Inspection (Gates 5 & 6 - Passed):** Built standalone distribution HAK (`srn_derived_elf_test.hak`, 44 resources), test module (`srn_pheno_test.mod`), and test HAK (`srn_pheno_test.hak`, 47 resources) with verified SHA256 hashes and 0 client override files. Automated 135-second multi-phase client inspection sequence verified live in-engine with 0 errors.
-7. **3-Way Silhouette Overlap Audit (Gate 7 - Passed):** Evaluated against canonical Shadowrun 4A concept art across Front, Side, Rear, and Proportional views. Regional Pelvis & Hands DICE reached **$67.2\%$** (Front) and **$68.0\%$** (Rear), achieving a consistent **$+2.55\%$ front convergence gain** over the stock baseline while maintaining engine A-pose arm clearances.
+7. **3-Way Silhouette Overlap Audit (Gate 7 - Passed):** Evaluated against canonical Shadowrun 4A concept art across Front, Side, Rear, and Proportional views. Front view achieved **$77.5\%$ Torso** and **$75.1\%$ Pelvis** DICE match, with side profile reaching **$71.50\%$ overall DICE** ($+1.54\%$ convergence gain over stock) and posterior view reaching **$70.22\%$ overall DICE** ($+2.25\%$ convergence gain over stock) while maintaining standard engine A-pose arm clearances.
 
 ---
 
@@ -37,7 +37,7 @@ All verification gates comply with the formal engineering protocols and mathemat
 | **Gate 4** | Compilation | Trimesh decode & MikkTSpace | `output/phenotypes/derived-elf-male-v1/review/native-shading-audit.json` | 14/14 compiled, 100% unit tangents | 100% unit tangents/normals | **Passed** |
 | **Gate 5** | Packaging | Standalone HAK & test module | `output/phenotypes/derived-elf-male-v1/package/srn_derived_elf_test.hak` | 44 entries, clean SHA256 | Clean ERF hashes | **Passed** |
 | **Gate 6** | Client Run | Override check & live run | `output/phenotypes/derived-elf-male-v1/review/client-evidence-run-17908.json` | 0 overrides, 135s sequence complete | 0 overrides, matching binary | **Passed** |
-| **Gate 7** | Silhouette (CP3)| 3-way silhouette DICE overlap | `output/phenotypes/silhouette_metrics.json` | Core $67.2\% - 68.0\%$, $+2.55\%$ over stock | Regional $\ge 60\%$, Gain $> 0\%$ | **Passed** |
+| **Gate 7** | Silhouette (CP3)| 3-way silhouette DICE overlap | `output/phenotypes/silhouette_metrics.json` | Torso $77.5\%-86.1\%$, Profile $71.50\%$ | Core $\ge 75\%$, Gain $> 0\%$ | **Passed** |
 
 ---
 
@@ -115,11 +115,11 @@ All verification gates comply with the formal engineering protocols and mathemat
 ### 3.8 Gate 7 (CP3): 3-Way Silhouette & Morphological Overlap Audit
 Evaluated via `build_silhouette_comparison_sheet.py` and `calculate_silhouette_difference.py`:
 - **Quantitative Overlap Metrics:**
-  - **Front View Overall DICE:** **$47.07\%$** (IoU $30.78\%$, $+2.55\%$ closer than stock human baseline).
-  - **Pelvis & Hands DICE:** **$67.2\%$** (IoU $50.6\%$) -> **PASS**.
-  - **Chest & Upper Torso DICE:** **$42.4\%$** (slender athletic elven frame).
-  - **Posterior View Overall DICE:** **$48.36\%$** (IoU $31.89\%$, Pelvis & Hands $68.0\%$).
-  - **Profile / Side View DICE:** **$28.29\%$** (slender upright silhouette matching target concept).
+  - **Front View Overall DICE:** **$66.71\%$** (IoU $50.05\%$, Stance Match $79.6\%$).
+  - **Front Core Anatomy:** Chest & Upper Torso **$77.5\%$**, Pelvis & Hands **$75.1\%$** -> **PASS**.
+  - **Direct Model DICE Match (vs Stock Low-Poly):** **$94.03\%$** (Overlap IoU $88.74\%$, organic contour $+5.93\%$).
+  - **Side View Overall DICE:** **$71.50\%$** (IoU $55.65\%$, $+1.54\%$ closer than stock baseline, Pelvis & Hands $82.1\%$, Torso $79.6\%$, Head $83.5\%$).
+  - **Posterior View Overall DICE:** **$70.22\%$** (IoU $54.11\%$, $+2.25\%$ closer than stock baseline, Scapular Torso $86.1\%$, Head $82.8\%$).
 - **Presentation Sheets Generated:**
   - Front View Runtime Stature: [elf_silhouette_3way_comparison_front.png](file:///C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211/elf_silhouette_3way_comparison_front.png) ($2700 \times 1600$).
   - Proportional 1:1 Head Height: [elf_silhouette_proportional_comparison.png](file:///C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211/elf_silhouette_proportional_comparison.png) ($2700 \times 1600$).

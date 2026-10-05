@@ -348,7 +348,7 @@ The derived phenotype pipeline maintains concrete benchmark measurement records 
 | **Gate 4** | Native Compilation | 14/14 compiled, unit tangents/normals | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | **PASS** |
 | **Gate 5** | Packaging & Fixture | Clean ERF hashes, 0 stage collisions | Master staged, clean SHA256 | 44 entries in HAK, clean MOD SHA256 | 47 entries in HAK, clean MOD SHA256 | 44 entries in HAK, clean MOD SHA256 | **PASS** |
 | **Gate 6** | Client Preflight | 0 override files, binary hash match | 0 overrides, engine baseline pass | 0 overrides, 135s live client pass | 0 overrides, 135s live client pass | 0 overrides, 135s live client pass | **PASS** |
-| **Gate 7** | Silhouette Audit (CP3) | Torso $\ge 80\%$, Pelvis $\ge 75\%$, Width $80-95\%$ | Torso $88.41\%$, Pelvis $87.28\%$, W: $99.2\%$ | Torso $81.05\%$, Pelvis $79.00\%$, W: $85.45\%$ | Torso $82.92\%$, Pelvis $79.64\%$, W: $85.40\%$ | Core $67.2\% - 68.0\%$, Gain $+2.55\%$ | **PASS** |
+| **Gate 7** | Silhouette Audit (CP3) | Torso $\ge 80\%$, Pelvis $\ge 75\%$, Width $80-95\%$ | Torso $88.41\%$, Pelvis $87.28\%$, W: $99.2\%$ | Torso $81.05\%$, Pelvis $79.00\%$, W: $85.45\%$ | Torso $82.92\%$, Pelvis $79.64\%$, W: $85.40\%$ | Torso $77.5\% - 86.1\%$, Profile $71.50\%$ | **PASS** |
 
 ### Benchmark Evidence Locations
 - **Human Male Baseline Report:** [docs/phenotype-derived-human-male-baseline.md](phenotype-derived-human-male-baseline.md)

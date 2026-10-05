@@ -242,7 +242,9 @@ def main():
     scene.cycles.samples = 64
     scene.render.resolution_x = 2400
     scene.render.resolution_y = 1600
-    scene.render.film_transparent = False
+    # Clean initial scene (removes default startup Cube, Camera, Light)
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete(use_global=False)
 
     # Set background color
     scene.world = bpy.data.worlds.new("World")
