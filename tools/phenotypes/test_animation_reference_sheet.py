@@ -30,8 +30,13 @@ class ReferenceEvidenceTests(unittest.TestCase):
 
     def test_changed_capture_rejected(self):
         with tempfile.TemporaryDirectory() as folder:
-            config,_,capture=self.fixture(Path(folder));capture.write_bytes(b'different capture')
+            config,record,capture=self.fixture(Path(folder))
+            inventory=Path(folder)/'effective-material-inventory.json'
+            record['packagePins']={str(Path(folder))+'/./'+inventory.name:sha(inventory)}
+            config.write_text(json.dumps(record))
             with patch('build_animation_reference_sheet.validate_effective_body',return_value=({}, {}, {'completeBodySelected':True})):
+                checked_config(config)
+                capture.write_bytes(b'different capture')
                 with self.assertRaisesRegex(RuntimeError,'changed'):checked_config(config)
 
     def test_missing_motion_category_rejected(self):

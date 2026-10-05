@@ -63,11 +63,17 @@ def calibration_proof(before,after,offset):
 
 
 def verify_pins(pins,tool_origins,inputs):
+    canonical_origins={}
+    for name,origin in tool_origins.items():
+        path=Path(name).resolve()
+        require(path not in canonical_origins or canonical_origins[path]==origin,
+                'Conflicting historical helper origins: '+name)
+        canonical_origins[path]=origin
     archived=[]
     for name,pin in pins.items():
         path=Path(name).resolve()
-        if path.suffix.lower()=='.py' and str(path) in tool_origins:
-            origin=tool_origins[str(path)]
+        if path.suffix.lower()=='.py' and path in canonical_origins:
+            origin=canonical_origins[path]
             require(origin['sha256']==pin,'Historical helper archive pin differs: '+name)
             path=Path(origin['archive']).resolve()
             archived.append({'origin':name,'archive':str(path),'sha256':pin})

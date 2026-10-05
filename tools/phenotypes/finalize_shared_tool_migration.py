@@ -43,6 +43,7 @@ def fixture_declaration(inputs, equipment, inventory):
 
 
 def verify_launch(folder, tool, config, toolchain):
+    config = Path(config).resolve()
     folder = Path(folder).resolve()
     path = folder / 'launch.json'
     report = read(path)
