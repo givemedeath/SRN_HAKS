@@ -93,6 +93,9 @@ class SharedToolsTests(unittest.TestCase):
     def test_runtime_store_shim_and_linked_rejected(self):
         with self.assertRaisesRegex(ValueError,'Store'):resolve_runtime('python',self.base/'WindowsApps/python.exe',self.repo)
         with self.assertRaisesRegex(ValueError,'linked'):resolve_runtime('blender',self.link/'tool',self.repo)
+        py=resolve_runtime('python',self.exe,self.repo)
+        ps=self.ps(f"Resolve-SrnRuntime python -Path '{self.exe}' -RepositoryRoot '{self.repo}' | ConvertTo-Json")
+        self.assertEqual(py,ps)
 
     def test_vendored_tools_belong_to_the_consuming_checkout(self):
         entry={'origin':'vendored','version':'fixture','platforms':{key:{'relativePath':'vendor/tool.exe',

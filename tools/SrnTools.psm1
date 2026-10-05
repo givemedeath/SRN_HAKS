@@ -112,4 +112,14 @@ function Register-SrnToolUse {
         $temp="$current.$([guid]::NewGuid().ToString('N')).tmp"; [IO.File]::WriteAllText($temp,$json,[Text.UTF8Encoding]::new($false)); [IO.File]::Move($temp,$current,$true)
     } finally { if ($acquired) { $lock.Unlock(0,1) }; $lock.Dispose() }
 }
-Export-ModuleMember -Function Resolve-SrnRealPath, Test-SrnWithin, Assert-SrnDurablePath, Get-SrnToolsRoot, Resolve-SrnTool, Register-SrnToolUse
+function Resolve-SrnRuntime {
+    param([Parameter(Mandatory)][string]$Name, [Parameter(Mandatory)][string]$Path, [string]$ExpectedSha256,
+          [string]$RepositoryRoot = (Split-Path $PSScriptRoot -Parent))
+    $target=Resolve-SrnRealPath $Path
+    if ($Name -eq 'python' -and $target -match '(?i)[/\\]WindowsApps[/\\]') { throw 'Windows Store Python shim is unsupported; use bundled workspace Python' }
+    Assert-SrnDurablePath $target $RepositoryRoot
+    $hash=(Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($ExpectedSha256 -and $hash -cne $ExpectedSha256) { throw "Installed runtime changed: $target" }
+    [pscustomobject]@{name=$Name;path=$target;sha256=$hash;origin='installed'}
+}
+Export-ModuleMember -Function Resolve-SrnRealPath, Test-SrnWithin, Assert-SrnDurablePath, Get-SrnToolsRoot, Resolve-SrnTool, Register-SrnToolUse, Resolve-SrnRuntime
