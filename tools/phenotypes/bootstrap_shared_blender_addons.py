@@ -14,7 +14,7 @@ from shared_toolchain import load, sha
 
 config=os.environ['SRN_SHARED_TOOLCHAIN']
 migration=os.environ.get('SRN_SHARED_TOOL_MIGRATION')
-toolchain=load(config,migration)
+toolchain=load(config,migration,required=['blender'])
 root=Path(toolchain['addons']['root']).resolve()
 if not bpy.app.background:raise RuntimeError('Shared tool launcher requires a background Blender process')
 if any(name=='neverblender' or name.startswith('neverblender.') for name in sys.modules):

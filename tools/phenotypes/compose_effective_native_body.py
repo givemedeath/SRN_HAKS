@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+from tool_runtime import tool as resolved_tool
 
 from stage_stock_part import require, sha, save
 from stock_limb_contract import validate_receipt_lineage, PAIRS
@@ -93,7 +94,7 @@ def compose(config_path,output,tool=None):
     shutil.copyfile(__file__,output/'executed-composer.py')
     if tool:
         hak=output/'human_male_body.hak'
-        subprocess.run([str(tool/'nwn_erf.exe'),'-c','-f',str(hak.resolve()),'-e','HAK',str((target/'resources').resolve())],capture_output=True,check=True)
+        subprocess.run([str(resolved_tool("nwn_erf", tool)),'-c','-f',str(hak.resolve()),'-e','HAK',str((target/'resources').resolve())],capture_output=True,check=True)
         compare_archive(archive(hak),target/'resources')
         save(output/'body-hak.json',{'hak':str(hak.resolve()),'hakSha256':sha(hak),'resourceHashes':actual,
             'inventorySha256':sha(target/'effective-material-inventory.json'),'actualPayloadVerified':True,'clientReady':False})

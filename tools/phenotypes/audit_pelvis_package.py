@@ -62,7 +62,7 @@ def run(args):
     floor=next(b for n,k,b in archive(module) if n=='sr_pt_floor' and b[:4]==b'GIT ')
     git=args.output/'packed-floor.git';git.write_bytes(floor)
     actors_path=args.output/'packed-floor.json'
-    subprocess.run([str(args.tool_directory/'nwn_gff.exe'),'-i',str(git),'-o',str(actors_path),'-p'],capture_output=True,check=True)
+    subprocess.run([str(resolved_tool("nwn_gff", args.tool_directory)),'-i',str(git),'-o',str(actors_path),'-p'],capture_output=True,check=True)
     actors=json.loads(actors_path.read_text())['Creature List']['value']
     actor_rows=[{k:a[field]['value'] for k,field in [('gender','Gender'),('phenotype','Phenotype'),('appearance','Appearance_Type')]} for a in actors]
     require(actor_rows and all(a['gender']==0 and a['phenotype']==0 and a['appearance'] in (6,15100) for a in actor_rows),'Unexpected fixture actor rig selection')
@@ -79,7 +79,7 @@ def run(args):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
-    for name in ['stage','stock-bank','frozen-torso','tool-directory','output']:ap.add_argument('--'+name,type=Path,required=True)
+    for name in ['stage','stock-bank','frozen-torso','tool-directory','output']:ap.add_argument('--'+name,type=Path,required=(name != 'tool-directory'))
     run(ap.parse_args())
 
 

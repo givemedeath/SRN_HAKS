@@ -9,6 +9,7 @@ import subprocess
 import time
 
 from pipeline import digest, save_json
+from tool_runtime import runtime
 
 
 def main():
@@ -26,7 +27,7 @@ def main():
     args = parser.parse_args()
     if args.timeout <= 0:
         parser.error("timeout must be positive")
-    client = args.client.resolve()
+    client = runtime("nwn", args.client, inputs=[args.converted])
     userdir = args.user_directory.resolve()
     converted = args.converted.resolve()
     if userdir == converted.parent.parent / "userdir":
