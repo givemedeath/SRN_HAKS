@@ -23,7 +23,9 @@ def similarity(matrix, allow_reflection=False):
     require(matrix.shape == (4, 4) and np.isfinite(matrix).all(), 'Finite affine 4x4 required')
     require(np.allclose(matrix[3], [0, 0, 0, 1], atol=1e-12, rtol=0), 'Projective transform rejected')
     linear = matrix[:3, :3]
-    scale = float(abs(np.linalg.det(linear)) ** (1/3))
+    # Use the same cube-root operation as raw_corners. A fractional power can
+    # round differently from cbrt and fail the exact ordered-normal proof.
+    scale = float(np.cbrt(abs(np.linalg.det(linear))))
     require(scale > 1e-12, 'Singular transform rejected')
     rotation = linear / scale
     require(np.allclose(rotation.T @ rotation, np.eye(3), atol=1e-10, rtol=0), 'Nonuniform stretch rejected')

@@ -40,6 +40,7 @@ class MigrationEvidenceTests(unittest.TestCase):
 
     def test_accepts_current_hash_bound_evidence(self):
         self.assertEqual(self.verify(), self.report)
+        self.assertEqual(verify_launch(self.folder,'python',self.folder/'..'/'toolchain.json',self.toolchain),self.report)
 
     def test_changed_execution_logs_and_helper_are_rejected(self):
         (self.folder / 'stdout.log').write_bytes(b'changed')
