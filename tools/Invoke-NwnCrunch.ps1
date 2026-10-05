@@ -11,15 +11,10 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$tool = Join-Path $PSScriptRoot 'vendor/nwn_crunch/nwn_crunch.exe'
-$expectedSha256 = '6AABE212EE8A4A5C166801C3C7830239E3EB15910F2743232C33666BC91AA46C'
-if (-not (Test-Path -LiteralPath $tool -PathType Leaf)) {
-    throw "Missing vendored NWN Crunch executable: $tool"
-}
-$actualSha256 = (Get-FileHash -LiteralPath $tool -Algorithm SHA256).Hash
-if ($actualSha256 -cne $expectedSha256) {
-    throw "Vendored nwn_crunch.exe hash mismatch. Expected $expectedSha256; found $actualSha256."
-}
+Import-Module (Join-Path $PSScriptRoot 'SrnTools.psm1') -Force
+$resolvedTool = Resolve-SrnTool -Name 'crunch'
+Register-SrnToolUse -Tool $resolvedTool -Inputs @($InputTexture)
+$tool = $resolvedTool.path
 
 $inputPath = (Resolve-Path -LiteralPath $InputTexture).Path
 $outputPath = [IO.Path]::GetFullPath($OutputTexture)

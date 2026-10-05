@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+from tool_runtime import tool as resolved_tool
 
 from pipeline import digest, save_json
 
@@ -190,7 +191,7 @@ def stock_equipment_models(records, root, item):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=Path("output/phenotypes"))
-    parser.add_argument("--tool-directory", type=Path, required=True)
+    parser.add_argument("--tool-directory", type=Path)
     parser.add_argument("--game-root", type=Path, required=True)
     parser.add_argument("--slugs", required=True)
     parser.add_argument("--skin-color",type=int,default=3,
@@ -342,7 +343,7 @@ def main():
         directory.mkdir(parents=True, exist_ok=True)
     tool = args.tool_directory
     def run(name, arguments, **kwargs):
-        result = subprocess.run([str(tool / (name + ".exe")), *map(str, arguments)],
+        result = subprocess.run([str(resolved_tool(name, tool)), *map(str, arguments)],
                                 capture_output=True, check=True, **kwargs)
         return result.stdout.decode(errors="replace")
     manifest = json.loads((root / "manifest.json").read_text())
@@ -432,7 +433,7 @@ def main():
     # SET renaming also changes the engine's implicit edge-table demand.
     edge=root/"baseline/ttr01_edge.2da"
     if not edge.exists():
-        data=subprocess.run([str(tool/"nwn_resman_cat.exe"),"--root",str(args.game_root),
+        data=subprocess.run([str(resolved_tool("nwn_resman_cat", tool)),"--root",str(args.game_root),
             "--userdirectory",str(userdir),"--no-ovr","ttr01_edge.2da"],capture_output=True,check=True).stdout
         if not data.startswith(b"2DA"):raise RuntimeError("Missing stock rural edge table")
         edge.write_bytes(data)
@@ -534,7 +535,7 @@ def main():
             reader=proof_dir/'reader-userdir';reader.mkdir(exist_ok=True)
             hashes={}
             for name in models:
-                raw=subprocess.run([str(args.tool_directory/'nwn_resman_cat.exe'),
+                raw=subprocess.run([str(resolved_tool("nwn_resman_cat", args.tool_directory)),
                     '--root',str(args.game_root),'--userdirectory',str(reader),
                     '--no-ovr',name],capture_output=True,check=True).stdout
                 if not raw:raise RuntimeError('Installed stock equipment missing: '+name)
@@ -543,7 +544,7 @@ def main():
                     raise RuntimeError('Installed stock equipment changed during fixture rebuild: '+name)
                 target.write_bytes(raw);hashes[name]=digest(target)
             stock_armor_proof={'modelHashes':hashes,'gameRoot':str(args.game_root.resolve()),
-                'templateSha256':digest(args.full_equipment_template),'resmanSha256':digest(args.tool_directory/'nwn_resman_cat.exe'),
+                'templateSha256':digest(args.full_equipment_template),'resmanSha256':digest(resolved_tool("nwn_resman_cat", args.tool_directory)),
                 'identityScaling':True,'armorOverridesPacked':False,
                 'limitation':'Installed-resource presence and fixture commands; actual equipped waist/hip coverage requires client evidence.'}
             save_json(proof_dir/'proof.json',stock_armor_proof)
