@@ -3250,14 +3250,30 @@
       "slot": 14,
       "selectedHashes": {
         "reference": "acd1a2ebcdb9f597ad4cec70c0bbbac948e82b6b8af31808d28f3f33a71a6684",
-        "master": "706cee037afcb3ba386ecbd0623a258232a0b2d106dff370a3688c212dc9d7d5"
+        "master": "706cee037afcb3ba386ecbd0623a258232a0b2d106dff370a3688c212dc9d7d5",
+        "runtime": "74484766d60fbf4a14cda78650d779c01574583c10d06fa14b3eefb64b4d533a",
+        "nativeResources": {
+          "pmg0_head014.mdl": "6a58b01c565fefba0b23fa688b22e153bfa0b8dd5e3d4df5d1b4333b5891e971",
+          "pmg0_head014.mtr": "8e2946027231b85c7914ffe1212be7b82d06f7fa8ed67fe1463d851bbff387c2",
+          "pmg0_head014.plt": "a7a58f0060edcc918ad12988e10e3a5a6f0af0c52e49b91d2c366cb20cd35f58",
+          "pmg0_head014a.mtr": "366368f677e7ef33cdfccef9a7cc641c4496e60931b5d2a7ec434637a20f6866",
+          "pmg0_head014a.tga": "919d1217d641141d38fe2a56727005a3fac9d22096a08e88e0f67752b7c082e2",
+          "pmg0_head014an.tga": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "pmg0_head014ar.tga": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "pmg0_head014e.mtr": "a32b44c34f4235f064f38f094ceea3bee1ed1eb2ea7b130c34eafa3b749aa0a4",
+          "pmg0_head014e.tga": "919d1217d641141d38fe2a56727005a3fac9d22096a08e88e0f67752b7c082e2",
+          "pmg0_head014en.tga": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "pmg0_head014er.tga": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "pmg0_head014n.tga": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "pmg0_head014r.tga": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0"
+        }
       },
       "stages": {
         "reference": "passed",
         "donor": "passed",
-        "fitting": "pending",
-        "assembly": "pending",
-        "native": "pending",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
         "client": "pending",
         "acceptance": "pending"
       }
@@ -4044,5 +4060,5 @@
     }
   ],
   "allocationSha256": "7b3b45a10d312d539923523333df07c88636c96818354ef58ba3e640d3606ccd",
-  "checkpoint": "neckless-pre-client"
+  "checkpoint": "derived-male-pre-client"
 }

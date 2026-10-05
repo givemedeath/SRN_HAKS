@@ -85,6 +85,16 @@
       "path": "evidence/stock-neck-control.png",
       "sha256": "dd8f38c4eeb0a1280306eddb5ee9302f8935ec13cc49003ad69c8c29535c215b",
       "bytes": 257903
+    },
+    {
+      "path": "evidence/troll-motion-derived-v1.png",
+      "sha256": "41a61d9c80a92be670408944703b839d96202a9269ac18f7997acb15f913a8f4",
+      "bytes": 1225604
+    },
+    {
+      "path": "evidence/troll-material-derived-v1.png",
+      "sha256": "052d6e05bcaef83bfcc921562a02321d1413ac6f4723c6d2280ada17684a8569",
+      "bytes": 460999
     }
   ],
   "sourceHashes": [

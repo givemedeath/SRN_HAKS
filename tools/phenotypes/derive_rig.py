@@ -216,23 +216,10 @@ def derive_broadened_scaled_rig(
         f"setsupermodel {declared_root} {declared_sm}",
         "classification Character",
         "setanimationscale 1.0",
-        f"beginmodelgeom {declared_root}",
-    ]
-    for node_data in skel.values():
-        name = node_data["name"]
-        parent = node_data["parent"]
-        pos = node_data["position"]
-        ori = node_data["orientation"]
-        lines.append(f"node dummy {name}")
-        lines.append(f"  parent {parent}")
-        lines.append(f"  position {pos[0]:.9g} {pos[1]:.9g} {pos[2]:.9g}")
-        lines.append(f"  orientation {ori[0]:.9g} {ori[1]:.9g} {ori[2]:.9g} {ori[3]:.9g}")
-        lines.append("endnode")
-    lines.extend([
-        f"endmodelgeom {declared_root}",
+        geometry(declared_root, skel, 1),
         f"donemodel {declared_root}",
         "",
-    ])
+    ]
     target_mdl.write_text("\n".join(lines), encoding="cp1252")
 
     receipt = {

@@ -1,10 +1,10 @@
 {
   "kind": "srn-head-validation-summary",
-  "checkpoint": "neckless-pre-client",
+  "checkpoint": "derived-male-pre-client",
   "runtimeTriangleLimit": 20000,
   "budget": {
     "cap": 300,
-    "spent": 245,
+    "spent": 255,
     "outstanding": 0,
     "jobs": [
       {
@@ -182,37 +182,45 @@
         "taskId": "01a10dc5-99d9-76f8-ae52-e0a635fa0c18",
         "credits": 10,
         "status": "SUCCEEDED"
+      },
+      {
+        "designId": "troll-male-01",
+        "requestId": "troll-neckless-retexture-derived-v1",
+        "operation": "retexture",
+        "taskId": "01a10e1e-2c48-7564-8d99-0424e41b92b1",
+        "credits": 10,
+        "status": "SUCCEEDED"
       }
     ]
   },
   "regressions": {
     "headHelpers": {
       "passed": true,
-      "logSha256": "561e3e1c616e4508ac3b59204607bf9001fe17f7c337b9c1fa00acf31c9ef30e",
-      "tests": 24,
-      "seconds": 2.295
+      "logSha256": "2cf6b0ce160fb87b06bda70756002d04566b6bc741b6e99e4c00c5fcc740a089",
+      "tests": 32,
+      "seconds": 3.699
     },
     "sharedHelpers": {
       "passed": true,
-      "logSha256": "d38719dec871f345026b35797137902cd8b07eb98fc2ac9043d3e3ba4e99a481",
+      "logSha256": "e19b9f482f5c51ed832921464abfd8e30971665f7a09695c2016ad72af0fe8ec",
       "tests": 18,
-      "seconds": 56.469
+      "seconds": 44.785
     },
     "phenotypeHelpers": {
       "passed": true,
-      "logSha256": "0aac7f455604da3c347139f9d30b1054b7ac23a991a1ddf70b9d0b757c22f68d",
-      "tests": 151,
-      "seconds": 25.468
+      "logSha256": "a37849f679076eae54a6f2dda8e76967b1b9cd38e5810c44c5d485692110bf09",
+      "tests": 175,
+      "seconds": 22.484
     },
     "repository": {
       "passed": true,
-      "logSha256": "10ad80a3c5df817a43d71acfd1dfc580b4779f2f94f33a87ff93ad003a5fa515",
+      "logSha256": "41b9cb9bfe5a7f6d4844843c414f07216d439ac79ed4906a62bf067740a947e8",
       "tests": null,
       "seconds": null
     },
     "itemImport": {
       "passed": true,
-      "logSha256": "976516a66f141824121d715a657b88e60c0c588cc8d8695fce9d56178f3854ee",
+      "logSha256": "88f8350ddf2eaa13fc7156306fdcf10bda18869d8c5525bc5327ea3a8503e61b",
       "tests": null,
       "seconds": null
     }
@@ -317,6 +325,42 @@
       "threads": 4,
       "seconds": 2.422000000005937,
       "receiptSha256": "86739c1aa2f200014dfd7279935cc6e68b8f9f975c4ea29f436f30c137798083"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "troll-clay-derived-v1",
+      "threads": 4,
+      "seconds": 11.843999999997322,
+      "receiptSha256": "69c068f36a694ad2e4641d05ac5a520cff1c8b7f7ca7a25525318ae4dc35fb22"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "troll-semantic-derived-v3",
+      "threads": 4,
+      "seconds": 7.811999999998079,
+      "receiptSha256": "c1ee0259daeac8c41208e74c8250e366ba1c1882838497f7e6ddb95eda09add8"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "troll-palette-light-derived-v2",
+      "threads": 4,
+      "seconds": 22.17199999999866,
+      "receiptSha256": "42e2c46ab5ad1e1eed2e271cb451c4c4f55cfb11d3d90ebb721db04776f8bbb6"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "troll-palette-dark-derived-v2",
+      "threads": 4,
+      "seconds": 15.781999999999243,
+      "receiptSha256": "678eade5b8b1f39b581a205a7566781ec43df1a0b39d4286f759a5dc2ed7b32f"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "runtime-lod-normal-bake",
+      "threads": 4,
+      "seconds": 29.639999999999418,
+      "bakeSeconds": 21.593999999997322,
+      "receiptSha256": "7eb92d18ae21a18c0a79d35dc6e195a1da17f9970c2b59860c647f009d4295b1"
     }
   ],
   "motion": {
@@ -391,11 +435,122 @@
       "candidatePayloadVerified": true,
       "scriptsCompiled": true,
       "clientObserved": false
+    },
+    {
+      "designIds": [
+        "troll-male-01"
+      ],
+      "lighting": "ambient",
+      "receiptSha256": "1fe4fd2401eba4cc4dd869693f638b04d8c52f061efe4619e992ea0a9fa08724",
+      "module": {
+        "name": "srn_head_pilot.mod",
+        "sha256": "deead35707d3d8bf935bed0537e90f1eb149647b77f0ad9b6cd9015812a1b1cb",
+        "bytes": 61529
+      },
+      "haks": [
+        {
+          "name": "srn_head.hak",
+          "sha256": "3a42d3942913246c47e0463af86e7d193e4276b33fb0f5865bcd0c676c906ab7",
+          "bytes": 28848416
+        },
+        {
+          "name": "srn_body.hak",
+          "sha256": "c34b7a960198b9261dc25d75ad72cb6bca4593f5051c8185f397a1c167e59390",
+          "bytes": 527896815
+        },
+        {
+          "name": "sr_h_fixture.hak",
+          "sha256": "9690a1269d01cb1578fdf95e7d04d359e07840de9178cdc84c80ece78ce05c5d",
+          "bytes": 132116
+        }
+      ],
+      "actorCount": 11,
+      "candidatePayloadVerified": true,
+      "bodyPayloadVerified": true,
+      "bodyResourceCount": 73,
+      "scriptsCompiled": true,
+      "visualScale": 1.4285714285714286,
+      "clientObserved": false
+    },
+    {
+      "designIds": [
+        "troll-male-01"
+      ],
+      "lighting": "directional",
+      "receiptSha256": "be34aab701504bcb7fc298926d0720d7634cb2292aa966c846b580ac715b3b68",
+      "module": {
+        "name": "srn_head_pilot.mod",
+        "sha256": "e263f4de99a5c1e35e27a8c4f3edd2caff4cd56895617fef951f5729db8a2537",
+        "bytes": 61529
+      },
+      "haks": [
+        {
+          "name": "srn_head.hak",
+          "sha256": "3a42d3942913246c47e0463af86e7d193e4276b33fb0f5865bcd0c676c906ab7",
+          "bytes": 28848416
+        },
+        {
+          "name": "srn_body.hak",
+          "sha256": "c34b7a960198b9261dc25d75ad72cb6bca4593f5051c8185f397a1c167e59390",
+          "bytes": 527896815
+        },
+        {
+          "name": "sr_h_fixture.hak",
+          "sha256": "9690a1269d01cb1578fdf95e7d04d359e07840de9178cdc84c80ece78ce05c5d",
+          "bytes": 132116
+        }
+      ],
+      "actorCount": 11,
+      "candidatePayloadVerified": true,
+      "bodyPayloadVerified": true,
+      "bodyResourceCount": 73,
+      "scriptsCompiled": true,
+      "visualScale": 1.4285714285714286,
+      "clientObserved": false
     }
   ],
   "clientValidated": false,
   "productionAccepted": false,
   "productionResourcesPublished": 0,
   "compactEvidenceReceiptSha256": "db92f3e20c0c968ef72498aaa122dcd57225da21c80ee4ee691f06295694a9e5",
-  "migrationSha256": "d596ea29ff77e05a7300b3d82e73025dab818c5c2a777f82433f4f10435992a9"
+  "migrationSha256": "1d9a4e1f35cdac3ba0791b0f071cfbf8081219ba52fc700957a82e78dd00416c",
+  "humanBodyRevalidatedAgainstDerivedBranch": true,
+  "derivedMaleBodies": {
+    "sourceBranch": "codex/derived-phenotypes",
+    "commit": "be6391b437332eeae64ca3df54e952c9749a288d",
+    "availableRaces": [
+      "human",
+      "elf",
+      "dwarf",
+      "orc",
+      "troll"
+    ],
+    "existingMalePilots": [
+      "human-male-01",
+      "human-male-02",
+      "troll-male-01"
+    ],
+    "remainingFemaleDonor": "elf-female-01"
+  },
+  "troll": {
+    "targetContractSha256": "331380741b4235de6758f3235a3359444fbc154b2b58b53d8b5894430c28d5c9",
+    "bodyManifestSha256": "27a401ec8455fb71f226b75cd498140d1cea15cefe052902ffb28ede31243b99",
+    "protectedBodyResources": 44,
+    "bodyResourcesUnchanged": true,
+    "nativeAuditSha256": "42fa201583d776dbceb5197497fcd63eba988d795cba07fcd071aba1a679f292",
+    "triangles": 19000,
+    "motions": 82,
+    "worstSample": 50,
+    "maximumNeckDisplacementMetres": 0.11156796197794042,
+    "fixtureRigAuditSha256": "93e5e5ad87d6b5d112f4c7f98abdbaf5f655558f3b99622f27c4f420d80a9171",
+    "maximumRigFrameError": 2.472328772998991e-07,
+    "runtimeScale": 1.4285714285714286,
+    "clientValidated": false,
+    "productionAccepted": false
+  },
+  "derivedCompletionReceiptSha256": "0f0f22c74123620626acd18fa2fe18d5de87414ce40388140d85866a30ce8fa8",
+  "derivedCompactEvidenceReceipts": {
+    "motion": "4326282224f5444963986f2092685a4de88d8acae64e39c2bc00bbe232e10fb6",
+    "material": "173c9a48ada0873f7454e8f0f15b4c0220de8893e1bb8f49855c5f39196816d0"
+  }
 }

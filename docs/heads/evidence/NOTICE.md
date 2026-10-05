@@ -10,7 +10,8 @@ character assets were supplied. The selected references were normalized to four
 1024-square views; original prompts, source hashes and normalization ancestry are
 in [the pilot catalog](../pilot-catalog.json).
 
-`donor-*.png`, `human*-motion.png`, and `human*-materials.png` contain renders of
+`donor-*.png`, `human*-motion.png`, `human*-materials.png`, and
+`troll-*-derived-v1.png` contain renders of
 **Meshy-generated assets (Meshy 7)**, created from those original reference views.
 Meshy attribution: [Meshy](https://www.meshy.ai/). These images record modified
 geometry (separately versioned local surface LOD, high-source normal bake,
@@ -35,7 +36,11 @@ verified local copies preserve recovery and provenance. A source hash alone does
 not establish backup coverage or authorize deleting a checkout.
 
 Human assembly images also show the already published custom `srn_body` body
-under its existing repository provenance. `stock-neck-control.png` and neck/rig/
+under its existing repository provenance. Troll assembly images use the male
+body derived from that frozen Human master, imported from `codex/derived-phenotypes`
+at `be6391b437332eeae64ca3df54e952c9749a288d`; body bytes and rig node transforms
+are preserved. Fixture rig serialization is separately versioned and parent-first.
+`stock-neck-control.png` and neck/rig/
 palette comparisons use locally installed NWN assets as offline validation
 references. Installed stock models, rigs, palettes, animation libraries and
 fixture templates are not redistributed in Git. The images are review evidence,

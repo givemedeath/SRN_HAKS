@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'phenotypes'))
 from build_test_module import field,structure
 from tool_runtime import tool
-from head_workflow import model_name,pin,read,require,sha,verify_pins,write_fresh
+from head_workflow import model_name,pin,read,require,sha,validate_target,verify_pins,write_fresh
 from verify_head_hak import payload,TYPES
 
 
@@ -21,6 +21,8 @@ SPAWN='''void main() {
   SetCreatureBodyPart(CREATURE_PART_HEAD,GetLocalInt(OBJECT_SELF,"HEAD_SLOT"));
   SetColor(OBJECT_SELF,COLOR_CHANNEL_SKIN,GetLocalInt(OBJECT_SELF,"SKIN_ROW"));
   SetColor(OBJECT_SELF,COLOR_CHANNEL_HAIR,GetLocalInt(OBJECT_SELF,"HAIR_ROW"));
+  float scale=GetLocalFloat(OBJECT_SELF,"BODY_VISUAL_SCALE");
+  if(scale>0.0) SetObjectVisualTransform(OBJECT_SELF,OBJECT_VISUAL_TRANSFORM_SCALE,scale);
   SetLocalLocation(OBJECT_SELF,"HOME",GetLocation(OBJECT_SELF));
   int helmet=GetLocalInt(OBJECT_SELF,"HEAD_HELMET");
   if(helmet>0){object item=CreateItemOnObject("sr_h_helm"+IntToString(helmet),OBJECT_SELF);ActionEquipItem(item,INVENTORY_SLOT_HEAD);}
@@ -46,11 +48,33 @@ HEARTBEAT='''void main() {
 }'''
 
 
+def fixture_identity(config):
+    if not config.get('target'):
+        require(not config.get('rigAudit'), 'Derived rig requires an explicit target')
+        return 'pmh0',6,6,1.0
+    verify_pins([config['target']]);target=validate_target(read(config['target']['path']))
+    require(target['sex']=='male' and target['bodyManifest']==config['bodyManifest'], 'Fixture body target differs')
+    rows={'human':6,'dwarf':0,'elf':1,'orc':5,'troll':2};row=rows[target['race']]
+    if target['race']!='human':
+        require(bool(config.get('rigAudit')), 'Native fixture rig audit required')
+        verify_pins([config['rigAudit']]);audit=read(config['rigAudit']['path'])
+        require(audit['passed'] is True and audit['maximumFrameError']<2e-6, 'Native fixture rig audit required')
+        serialization=read(audit['serialization']['path'])
+        verify_pins([audit['serialization'],audit['binary'],serialization['source'],serialization['output']])
+        require(serialization['source']==target['rig'] and serialization['nodeTextPreserved'] is True,
+                'Fixture rig differs from the protected body contract')
+        require(audit['binary'] in config.get('bodyDependencies',[]), 'Compiled contract rig omitted from fixture')
+    scale=target.get('runtimeScale',1.0)
+    require(isinstance(scale,(float,int)) and 0<scale<=3, 'Bounded positive fixture visual scale required')
+    return target['prefix'],row,row,scale
+
+
 def build(config_path,output):
     config=read(config_path);require(config['kind']=='srn-head-client-fixture','Explicit fixture configuration required')
     verify_pins(config['inputs']); bank=read(config['candidates']['path']);verify_pins([config['candidates'],config['bodyManifest']])
     require(bank['kind']=='srn-head-native-candidates' and bank['nativeValidated'] is True
             and bank['clientValidated'] is False and bank['productionAccepted'] is False,'Native candidate bank required')
+    prefix,appearance,race,visual_scale=fixture_identity(config)
     output=Path(output);require(not output.exists(),'Fresh isolated fixture required')
     user=output/'userdir';stage=output/'module-resources';sources=output/'hak-sources'
     for path in (stage,sources,user/'hak',user/'modules',user/'override'):path.mkdir(parents=True,exist_ok=True)
@@ -65,9 +89,13 @@ def build(config_path,output):
     for folder in (heads,body,floor):folder.mkdir()
     head_pins=[]
     for design in bank['designs']:
-        require(design['model']==model_name('pmh0',design['slot']),'Fixture supports approved Human male slots only')
+        require(design['model']==model_name(prefix,design['slot']),'Head family differs from fixture body target')
         verify_pins(design['resources']);verify_pins([design['nativeAudit']])
-        require(read(design['nativeAudit']['path'])['passed'] is True,'Native audit did not pass')
+        native_audit=read(design['nativeAudit']['path'])
+        require(native_audit['passed'] is True,'Native audit did not pass')
+        if config.get('target'):
+            verify_pins([native_audit['export']])
+            require(read(native_audit['export']['path'])['target']==config['target'], 'Native head uses another body contract')
         for resource in design['resources']:
             source=Path(resource['path']);destination=heads/source.name
             require(not destination.exists(),'Candidate resource collision');shutil.copyfile(source,destination);head_pins.append(pin(destination))
@@ -75,6 +103,15 @@ def build(config_path,output):
     for resource in manifest['resources']:
         source=(repo/resource['path']).resolve();require(source.is_relative_to(repo) and sha(source)==resource['sha256'],'Protected body changed')
         shutil.copyfile(source,body/source.name)
+    verify_pins(config.get('bodyDependencies',[]))
+    for resource in config.get('bodyDependencies',[]):
+        source=Path(resource['path']);destination=body/source.name
+        require(not destination.exists(), 'Additional body dependency collides with protected resource')
+        shutil.copyfile(source,destination)
+    for material in body.glob('*.mtr'):
+        for texture in re.findall(r'(?m)^texture\d+\s+(\S+)',material.read_text(encoding='ascii')):
+            require(any((body/(texture+suffix)).is_file() for suffix in ('.tga','.dds','.plt')),
+                    'Body material dependency omitted: '+texture)
     stock=Path(config['stock']);text=(stock/'ttr01.set').read_text(encoding='cp1252')
     text=re.sub(r'(?m)^Name=TTR01$','Name=SR_H_FLOOR',text);text=re.sub(r'(?m)^Density=[^\n]+','Density=0.000',text)
     (floor/'sr_h_floor.set').write_text(text,encoding='cp1252');shutil.copyfile(stock/'ttr01_edge.2da',floor/'sr_h_floor_edge.2da')
@@ -87,12 +124,15 @@ def build(config_path,output):
         haks.append(pin(path))
     expected={(Path(p['path']).stem,TYPES[Path(p['path']).suffix[1:]]):p['sha256'] for p in head_pins}
     require(payload(user/'hak/srn_head.hak')==expected,'Candidate head HAK payload differs')
+    body_pins=[pin(p) for p in sorted(body.iterdir())]
+    expected_body={(Path(p['path']).stem,TYPES[Path(p['path']).suffix[1:]]):p['sha256'] for p in body_pins}
+    require(payload(user/'hak/srn_body.hak')==expected_body,'Protected body HAK payload differs')
     template=read(stock/'nw_humanmerc001.utc.json');actors=[];catalog=[]
     def creature(tag,name,x,y,slot,skin,hair,helmet=0):
         item=copy.deepcopy(template)
         for key in list(item):
             if key.startswith('Script'):item[key]=field('resref','')
-        item.update({'Appearance_Type':field('word',6),'Race':field('byte',6),'Gender':field('byte',0),'Phenotype':field('int',0),
+        item.update({'Appearance_Type':field('word',appearance),'Race':field('byte',race),'Gender':field('byte',0),'Phenotype':field('int',0),
             'Tag':field('cexostring',tag),'TemplateResRef':field('resref',tag),'FirstName':field('cexolocstring',{'0':name}),
             'LastName':field('cexolocstring',{}),'FactionID':field('word',2),'Plot':field('byte',0),
             'CurrentHitPoints':field('short',100),'MaxHitPoints':field('short',100),'HitPoints':field('short',100),
@@ -101,6 +141,8 @@ def build(config_path,output):
             'ScriptSpawn':field('resref','sr_h_spawn'),'ScriptHeartbeat':field('resref','sr_h_hb'),
             'VarTable':field('list',[{'__struct_id':0,'Name':field('cexostring',key),'Type':field('dword',1),'Value':field('int',value)}
                                    for key,value in (('HEAD_SLOT',slot),('SKIN_ROW',skin),('HAIR_ROW',hair),('HEAD_HELMET',helmet))])})
+        item['VarTable']['value'].append({'__struct_id':0,'Name':field('cexostring','BODY_VISUAL_SCALE'),
+            'Type':field('dword',2),'Value':field('float',visual_scale)})
         return item
     for design in bank['designs']:
         for skin in (0,3,12):
@@ -155,7 +197,11 @@ def build(config_path,output):
     verify_pins(config['inputs']);verify_pins([config['candidates'],config['bodyManifest']])
     write_fresh(output/'fixture.json',{'kind':'srn-head-client-fixture-build','config':pin(config_path),'module':pin(module),
         'haks':haks,'actors':catalog,'lighting':config['lighting'],'candidatePayloadVerified':True,
+        'bodyPayloadVerified':True,'bodyResources':body_pins,
         'helmetTemplates':[pin(stock/'x2_helm_001.uti.json'),pin(stock/'x2_helm_002.uti.json')],
+        'prefix':prefix,'appearanceRow':appearance,'raceId':race,'visualScale':visual_scale,
+        'target':config.get('target'),'rigAudit':config.get('rigAudit'),
+        'bodyDependencies':config.get('bodyDependencies',[]),
         'clientObserved':False,'productionAccepted':False,'limitation':'Script commands and fixture packaging are not client or anatomy acceptance. Inspect actual equipment logs and rendered helmet cases; character-creation slot selection remains a separate client check.'})
 
 

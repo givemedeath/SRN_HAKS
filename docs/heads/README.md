@@ -2,15 +2,18 @@
 
 The current delivery is recorded in [delivery.md](delivery.md), with the
 [four-head catalog](pilot-catalog.json), [selected 200-entry roster](roster-selected.json),
-[Human target](human-male-target.json), [slot audit](slot-catalog.json), and
+[Human target](human-male-target.json), [Troll target](troll-male-target.json),
+[protected Troll body resources](troll-body-resources.json), [slot audit](slot-catalog.json), and
 [validation results](validation-summary.json). Review images are offline evidence.
 Client testing and production acceptance remain pending under the user's revised scope.
 
 The portable roster reserves 200 designs: 20 male and 20 female for Human, Elf,
 Dwarf, Orc and Troll, phenotype 0. Troll uses NWN's `g` model family. The pilot
 contains two Human males (natural and cyberware), an Elf female and a Troll male.
-Only Human male has a published custom-body baseline. A donor for another race
-stays pending until that race and sex have an approved, hash-bound body contract.
+The merged `codex/derived-phenotypes` branch supplies male body contracts for all
+five races. The existing Human and Troll male pilots have passed native checks.
+The Elf female donor stays pending until an approved female body contract exists.
+This update uses the existing pilots; it does not generate additional male designs.
 
 The pilot uses the Meshy plugin CLI at the user's request, superseding the
 original MCP route. CLI 0.4.0's live command schemas were inspected before paid
@@ -95,6 +98,29 @@ and any envelope allowance require measured and visual justification.
 mapping from each logical `stock/...` key to its local file, and explicit `inputs`
 pins. It verifies every binding and all published body resources before writing
 a fresh local contract. Installed stock resources stay outside Git.
+
+For a derived body, use `import_derived_body.py` to copy the complete fourteen-part
+native compiler inventory and explicitly pinned rig/animation/palette dependencies
+into an independent ignored bank. Never borrow another checkout's tools.
+`prepare_derived_target.py` verifies the imported `head_g` against the derived
+contract and emits an unapproved working-space proposal. Approve its racial
+cranial envelope and corresponding anatomical landmarks separately. The Troll
+uses a central scalp crown that excludes horn tips (`--central-crown`) and a
+separate fixture visual scale of 10/7. Its source bodies and proportions are preserved.
+
+The portable Troll target binds the exact retained operational `body.json` using
+the logical `derived-bank/troll-male/body.json` key. Set the ignored binding's
+`repository` to that independent body bank; map the logical rig, stock neck,
+palettes and animation keys to their pinned copies. The portable resource list
+records all 44 protected bytes without machine paths. Rebuilding a different body
+bank requires a fresh target revision and fitting evidence, even if it looks similar.
+
+`prepare_fixture_rig.py` orders geometry nodes parent-first while retaining every
+original node block and transform. Native compile that copy and use
+`audit_fixture_rig.py` to compare all decoded bind frames and parents. The fixture
+requires this audit, the corresponding compiled root and every shared material
+dependency; both head and body HAK payloads are verified. The body branch's rig
+emitters now use the same parent-first serialization for future builds.
 
 Annotate corresponding named anatomical landmarks in NWN head-local coordinates.
 `fit_head.py` permits only positive uniform scale, a proper rotation and

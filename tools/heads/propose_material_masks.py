@@ -35,13 +35,28 @@ def propose(config_path,output):
     pixels=np.clip(np.rint(pixels*2047).astype(int),0,2047);rgb=color[pixels[:,1],pixels[:,0]].astype(float)
     metallic=metal[pixels[:,1],pixels[:,0]]
     gray=rgb.max(1)-rgb.min(1)<28
+    eye_filter=c.get('eyeColorFilter','neutral')
+    require(eye_filter in ('neutral','anatomical'),'Explicit supported eye color filter required')
     eye=np.zeros(len(p),dtype=bool)
     for bounds in c['eyeBounds']:
-        low,high=np.asarray(bounds);eye|=((center>=low)&(center<=high)).all(1)&gray
+        low,high=np.asarray(bounds);eye|=((center>=low)&(center<=high)).all(1)&(gray if eye_filter=='neutral' else True)
     cyber=np.zeros(len(p),dtype=bool)
     for bounds in c['cyberBounds']:
         low,high=np.asarray(bounds);cyber|=((center>=low)&(center<=high)).all(1)&((metallic>80)|(rgb[:,2]>rgb[:,0]+8))
     cyber&=~eye
+    horns=np.zeros(len(p),dtype=bool)
+    for bounds in c.get('fixedAccessoryBounds',[]):
+        low,high=np.asarray(bounds)
+        require(low.shape==high.shape==(3,) and np.all(low<high), 'Explicit fixed accessory material bounds required')
+        horns|=((center>=low)&(center<=high)).all(1)
+    bright_accessories=np.zeros(len(p),dtype=bool)
+    for bounds in c.get('brightAccessoryBounds',[]):
+        low,high=np.asarray(bounds)
+        require(low.shape==high.shape==(3,) and np.all(low<high), 'Explicit bright accessory bounds required')
+        bright_accessories|=((center>=low)&(center<=high)).all(1)&(rgb.max(1)>200)&(rgb.min(1)>130)&(rgb.max(1)-rgb.min(1)<100)
+    require(not c.get('brightAccessoryBounds') or bright_accessories.any(),'No bright accessories identified; bounds need review')
+    horns|=bright_accessories
+    horns&=~(eye|cyber)
     cap_regions=[]
     if correction.get('kind')=='srn-head-cap-only-closure':
         require(correction['output']==fit['source'],'Cap-only proof differs from selected geometry')
@@ -53,13 +68,15 @@ def propose(config_path,output):
             for corner in corners:adjacent|=(np.abs(p[:original_count]-corner)<1e-8).all(2).any(1)
             neighbors=np.flatnonzero(adjacent);require(len(neighbors)>0,'Cap has no preserved surface neighbors')
             eye[ids]=bool(eye[neighbors].mean()>.5);cyber[ids]=bool(cyber[neighbors].mean()>.5)
-            layer=2 if eye[ids].any() or cyber[ids].any() else int(face_hair[neighbors].mean()>.5)
+            horns[ids]=bool(horns[neighbors].mean()>.5)
+            layer=2 if eye[ids].any() or cyber[ids].any() or horns[ids].any() else int(face_hair[neighbors].mean()>.5)
             cap_regions.append({'faces':ids,'layer':layer,'neighborColor':np.rint(rgb[neighbors].mean(0)).astype('uint8')})
-    groups=[{'kind':'palette','triangles':np.flatnonzero(~(eye|cyber)).tolist()}]
-    for ids,suffix,metalness in ((eye,'e',0),(cyber,'c',1)):
+    groups=[{'kind':'palette','triangles':np.flatnonzero(~(eye|cyber|horns)).tolist()}]
+    for ids,suffix,metalness in ((eye,'e',0),(cyber,'c',1),(horns,'a',0)):
         if ids.any():groups.append({'kind':'fixed','suffix':suffix,'metallicness':metalness,'triangles':np.flatnonzero(ids).tolist()})
     require(eye.any(),'No eyes identified; anatomical bounds need review')
     require(not c['cyberBounds'] or cyber.any(),'No cyberware identified; bounds need review')
+    require(not c.get('fixedAccessoryBounds') or horns.any(),'No fixed accessories identified; bounds need review')
     # Dark neutral fibers are distinct from warm skin, including brows/beard.
     values=color.astype(float)
     hair=(values.max(2)<100)&(values[:,:,0]-values[:,:,2]<28)&(values[:,:,1]-values[:,:,2]<22)
@@ -71,7 +88,7 @@ def propose(config_path,output):
         cap_ids=[i for hole in correction['holes'] for i in hole['faces']]
     else:
         cap_ids=correction.get('connectorFaceIds',correction.get('capFaceIds',[]))
-    for i in np.flatnonzero(eye|cyber):draw.polygon([tuple(row) for row in uv[i]*[2047,-2047]+[0,2047]],fill=255)
+    for i in np.flatnonzero(eye|cyber|horns):draw.polygon([tuple(row) for row in uv[i]*[2047,-2047]+[0,2047]],fill=255)
     for i in cap_ids:capdraw.polygon([tuple(row) for row in uv[i]*[2047,-2047]+[0,2047]],fill=255)
     fixed_mask=np.asarray(fixed)!=0;cap_mask=np.asarray(cap.filter(ImageFilter.MaxFilter(3)))!=0
     mask[fixed_mask]=2;mask[cap_mask]=0;normal[cap_mask]=[128,128,255]
@@ -111,6 +128,7 @@ def propose(config_path,output):
         'mask':pin(output/'semantic.png'),'normal':pin(output/'selected-normal.png'),'color':pin(output/'selected-color.png'),
         'roughness':None if roughness is None else pin(output/'selected-roughness.png'),
         'groups':groups,'sourcePaletteRows':rows,'fixedEyeTriangles':int(eye.sum()),'fixedCyberTriangles':int(cyber.sum()),
+        'fixedAccessoryTriangles':int(horns.sum()),
         'paletteSampling':'Selected UV islands only; unused service atlas fill excluded','uvCoverage':pin(output/'uv-coverage.png'),
         'skinPixels':int((mask==0).sum()),'hairPixels':int((mask==1).sum()),'fixedPixels':int((mask==2).sum()),
         'capMaterialInheritance':[{'faces':r['faces'],'layer':r['layer']} for r in cap_regions],

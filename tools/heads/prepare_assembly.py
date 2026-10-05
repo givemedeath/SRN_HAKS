@@ -11,15 +11,27 @@ from prepare_effective_body_preview import mesh_corners
 from pose_preview_bridge import pose
 from retarget import nodes
 from rig_controller_audit import world_frames, CLIP
-from head_workflow import pin, read, require, verify_pins, write_fresh
+from head_workflow import pin, read, require, validate_target, verify_pins, write_fresh
 from head_export import triangles
 from native_reader import decode
 
 
-def prepare(manifest, repository, stock, fits, output):
+def prepare(manifest, repository, stock, fits, output, target_path=None):
     output=Path(output); require(not output.exists(),'Fresh assembly output required'); output.mkdir(parents=True)
     body=read(manifest); repository=Path(repository).resolve(); stock=Path(stock).resolve()
-    root=stock/'ascii/pmh0.mdl'; bind=world_frames(nodes(root.read_text(encoding='cp1252')))
+    target = validate_target(read(target_path)) if target_path else None
+    if target:
+        require(target['bodyManifest'] == pin(manifest), 'Assembly body differs from approved head contract')
+        root = Path(target['rig']['path']); prefix = target['prefix']
+        neckpath = Path(target['neckGeometry']['path'])
+        animation_paths = [Path(p['path']) for p in target['animations']]
+    else:
+        root=stock/'ascii/pmh0.mdl'; prefix='pmh0'
+        neckpath=stock/'ascii/pmh0_neck001.mdl'
+        animation_paths=sorted((stock/'ascii').glob('a_ba*.mdl'))
+    bind=world_frames(nodes(root.read_text(encoding='cp1252')))
+    if target:
+        require(np.allclose(bind['head_g'], target['headBindMatrix'], atol=1e-8), 'Assembly head frame differs')
     parts=[]
     for resource in body['resources']:
         if not resource['path'].endswith('.mdl'): continue
@@ -27,20 +39,20 @@ def prepare(manifest, repository, stock, fits, output):
         joint=({**ATTACHMENTS,'chest':'torso_g','pelvis':'pelvis_g'})[source.stem[5:-3]]
         require(joint in bind,'Unknown body attachment')
         for index,row in enumerate(decode(source.read_bytes(),source.stem)):
-            target=output/(source.stem+f'-{index}.npz')
-            np.savez(target,position=row['position'][row['faces']],normal=row['normal'][row['faces']],uv=row['uv'][row['faces']])
-            parts.append({'name':row['name'],'geometry':pin(target),'source':pin(source),'joint':joint})
-    neckpath=stock/'ascii/pmh0_neck001.mdl'
+            geometry_path=output/(source.stem+f'-{index}.npz')
+            np.savez(geometry_path,position=row['position'][row['faces']],normal=row['normal'][row['faces']],uv=row['uv'][row['faces']])
+            parts.append({'name':row['name'],'geometry':pin(geometry_path),'source':pin(source),'joint':joint})
     for index,row in enumerate(mesh_corners(neckpath.read_text(encoding='cp1252'))):
-        target=output/f'stock-neck-{index}.npz'; np.savez(target,position=row['position'],normal=row['normal'],uv=row['uv'])
-        parts.append({'name':'stock-neck','geometry':pin(target),'source':pin(neckpath),'joint':'neck_g'})
+        geometry_path=output/f'stock-neck-{index}.npz'; np.savez(geometry_path,position=row['position'],normal=row['normal'],uv=row['uv'])
+        parts.append({'name':'stock-neck','geometry':pin(geometry_path),'source':pin(neckpath),'joint':'neck_g'})
     heads=[]
     for path in fits:
         fit=read(path); verify_pins([fit['source'],fit['target']])
+        if target: require(fit['target'] == pin(target_path), 'Head fit uses another body contract')
         p,_,_=triangles(fit['source']['path'],fit['localMatrix'])
         heads.append({'fit':pin(path),'bounds':[p.reshape(-1,3).min(0).tolist(),p.reshape(-1,3).max(0).tolist()]})
     clips={}
-    for source in sorted((stock/'ascii').glob('a_ba*.mdl')):
+    for source in animation_paths:
         for row in CLIP.finditer(source.read_text(encoding='cp1252')):
             clips.setdefault(row[1],float(re.search(r'(?mi)^\s*length\s+(\S+)',row[2])[1]))
     choices={'idle':'pause1','talk':'tlknorm','locomotion':'walk','run':'run','casting':'castout',
@@ -49,10 +61,10 @@ def prepare(manifest, repository, stock, fits, output):
     for kind,clip in choices.items():
         require(clip in clips,'Missing representative clip: '+clip)
         for fraction in np.linspace(0,1,9):
-            frames,receipt=pose(stock/'ascii','pmh0',clip,float(fraction*clips[clip]),stock/'ascii')
+            frames,receipt=pose(root.parent,prefix,clip,float(fraction*clips[clip]),stock/'ascii')
             samples.append({'label':kind,'clip':clip,'time':receipt['time'],'pose':receipt,
                             'frames':{key:value.tolist() for key,value in frames.items()}})
-    neck=np.concatenate([m['position'].reshape(-1,3) for m in mesh_corners((stock/'ascii/pmh0_neck001.mdl').read_text(encoding='cp1252'))])
+    neck=np.concatenate([m['position'].reshape(-1,3) for m in mesh_corners(neckpath.read_text(encoding='cp1252'))])
     # Compare head/neck relative transforms across all samples; choose the largest
     # displacement of the preserved neck's vertices in head attachment space.
     neck_bind=neck@bind['neck_g'][:3,:3].T+bind['neck_g'][:3,3]
@@ -63,14 +75,19 @@ def prepare(manifest, repository, stock, fits, output):
         local=(world-frame['head_g'][:3,3])@frame['head_g'][:3,:3]
         sample['neckDisplacement']=float(np.linalg.norm(local-neck_local,axis=1).max())
     worst=max(range(len(samples)),key=lambda i:samples[i]['neckDisplacement'])
+    if target: validate_target(target)
     write_fresh(output/'assembly.json',{'kind':'srn-head-assembly-measurement','bodyManifest':pin(manifest),
         'parts':parts,'heads':heads,'neckHeadLocalBounds':[neck_local.min(0).tolist(),neck_local.max(0).tolist()],
         'samples':samples,'worstSample':worst,'standingAccepted':False,'motionAccepted':False,
-        'clientValidated':False,'productionAccepted':False})
+        'clientValidated':False,'productionAccepted':False,
+        'headTarget':pin(target_path) if target else None,
+        'rig':pin(root),'neckGeometry':pin(neckpath),
+        'coordinateSpace':'contract-working-space','runtimeScale':target.get('runtimeScale',1) if target else 1})
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('manifest','repository','stock','output'): p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--fit',type=Path,action='append',required=True)
-    a=p.parse_args(); prepare(a.manifest,a.repository,a.stock,a.fit,a.output)
+    p.add_argument('--target',type=Path)
+    a=p.parse_args(); prepare(a.manifest,a.repository,a.stock,a.fit,a.output,a.target)

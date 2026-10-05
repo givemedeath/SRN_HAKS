@@ -27,7 +27,9 @@ def prepare(config_path,output):
         head['colorMap']=pin(path);head['normalMap']=pin(materials/'normal.png');head['roughnessMap']=pin(materials/'roughness.png')
     for i,part in enumerate(assembly['parts']):
         model=Path(part['source']['path']).stem
-        path=Path(c['stock'])/(model+'.plt') if model=='pmh0_neck001' else Path(c['body'])/(model+'.plt')
+        if part['joint']=='neck_g':
+            path=Path(c.get('neckPalette',str(Path(c['stock'])/(model+'.plt'))))
+        else: path=Path(c['body'])/(model+'.plt')
         rgb=palette_image(path,skin,hair,c['skinRow'],c['hairRow']);destination=output/(model+f'-{i}.png')
         Image.fromarray(rgb).save(destination);part['colorMap']=pin(destination)
     assembly['palettePreview']={'skinRow':c['skinRow'],'hairRow':c['hairRow'],'config':pin(config_path),'nativeResourcesRead':True,'clientEvidence':False}

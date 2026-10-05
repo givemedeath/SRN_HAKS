@@ -1,6 +1,6 @@
 {
   "kind": "srn-head-pilot-catalog",
-  "checkpoint": "neckless-pre-client",
+  "checkpoint": "derived-male-pre-client",
   "runtimeTriangleLimit": 20000,
   "operatorShapeSelectionSha256": "e5f375232875be7eb35dafd41781888fe062ee9f5f9852cd99b338dd80f5a5ce",
   "pilots": [
@@ -786,15 +786,18 @@
       "stages": {
         "reference": "passed",
         "donor": "passed",
-        "fitting": "pending",
-        "assembly": "pending",
-        "native": "pending",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
         "client": "pending",
         "acceptance": "pending"
       },
       "reviewHashes": {
         "reference": "6d9be087d4cc31eae072c0696e65894bfaadbbf995fd147a678849c5abe1b14b",
-        "donor": "9e491780429ffc5ca9797ad22aecfb16df4a29c2b0f152da4d20475994c20aa5"
+        "donor": "9e491780429ffc5ca9797ad22aecfb16df4a29c2b0f152da4d20475994c20aa5",
+        "fitting": "80931accf0cb6fffacd0385cf57d4c0df0f1c58733426b91a33baf965e72fa98",
+        "assembly": "3b747e055d5422bd91a63650a8d1fa392fdbe13ecb9622474469ec065cc6c961",
+        "native": "be8c1c879bc26dbd8a3f328e634dd6cdeddfa4d590affb0bc5a3d8a33608b6ad"
       },
       "clientValidated": false,
       "productionAccepted": false,
@@ -892,7 +895,199 @@
           }
         ]
       },
-      "pendingDependency": "Approved troll male normal-body target contract"
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "74484766d60fbf4a14cda78650d779c01574583c10d06fa14b3eefb64b4d533a",
+        "bytes": 1825088
+      },
+      "candidateResources": [
+        {
+          "name": "pmg0_head014.mdl",
+          "sha256": "6a58b01c565fefba0b23fa688b22e153bfa0b8dd5e3d4df5d1b4333b5891e971",
+          "bytes": 1584076
+        },
+        {
+          "name": "pmg0_head014.mtr",
+          "sha256": "8e2946027231b85c7914ffe1212be7b82d06f7fa8ed67fe1463d851bbff387c2",
+          "bytes": 136
+        },
+        {
+          "name": "pmg0_head014.plt",
+          "sha256": "a7a58f0060edcc918ad12988e10e3a5a6f0af0c52e49b91d2c366cb20cd35f58",
+          "bytes": 2097176
+        },
+        {
+          "name": "pmg0_head014a.mtr",
+          "sha256": "366368f677e7ef33cdfccef9a7cc641c4496e60931b5d2a7ec434637a20f6866",
+          "bytes": 138
+        },
+        {
+          "name": "pmg0_head014a.tga",
+          "sha256": "919d1217d641141d38fe2a56727005a3fac9d22096a08e88e0f67752b7c082e2",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014an.tga",
+          "sha256": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014ar.tga",
+          "sha256": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014e.mtr",
+          "sha256": "a32b44c34f4235f064f38f094ceea3bee1ed1eb2ea7b130c34eafa3b749aa0a4",
+          "bytes": 138
+        },
+        {
+          "name": "pmg0_head014e.tga",
+          "sha256": "919d1217d641141d38fe2a56727005a3fac9d22096a08e88e0f67752b7c082e2",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014en.tga",
+          "sha256": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014er.tga",
+          "sha256": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014n.tga",
+          "sha256": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014r.tga",
+          "sha256": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "42fa201583d776dbceb5197497fcd63eba988d795cba07fcd071aba1a679f292",
+      "targetContractSha256": "331380741b4235de6758f3235a3359444fbc154b2b58b53d8b5894430c28d5c9",
+      "fit": {
+        "reportSha256": "7209adc4ca8f52a037e0c44fbab27eb7111222af39c7894a5aa8de3f3724ac54",
+        "uniformScale": 0.12992263001884558,
+        "maximumLandmarkErrorMetres": 0.03245876447860665,
+        "localMatrix": [
+          [
+            -0.1299211893827553,
+            0.0003182483626112256,
+            -0.0005225498672500245,
+            -0.0016930160627002472
+          ],
+          [
+            -0.00032708672546755753,
+            -0.12990344994230968,
+            0.002208279505340746,
+            0.0209671122856566
+          ],
+          [
+            -0.0005170634952214824,
+            0.002209570564471822,
+            0.12990281072508156,
+            0.047727644105671166
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "06abc8fa4f419cee891c0c160b109db68138677ff5d20d6a8d71531ed0a5c60f",
+        "holesCapped": 14,
+        "capTriangles": 14,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "7eb92d18ae21a18c0a79d35dc6e195a1da17f9970c2b59860c647f009d4295b1",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "07e3362874fe6cfdd45b37279b32a5262f9327fb761ed793ebe293b594592566",
+          "bytes": 10410460
+        },
+        "output": {
+          "name": "runtime.glb",
+          "sha256": "3e5b85affe754bec5a581ebb6719c7eb9f2e11b98b227a7a228eadc70ba4b062",
+          "bytes": 681336
+        },
+        "normal": {
+          "name": "selected-normal.png",
+          "sha256": "4d780a2fc7b544041194e35af2dc35ba5b417f93635b5039671cbe8483992d01",
+          "bytes": 1889574
+        },
+        "targetTriangles": 19000,
+        "neckTrimApplied": false,
+        "neckTaperApplied": false
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10e1e-2c48-7564-8d99-0424e41b92b1",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "cbd223a24d517a89e8c3a07b926373b1c42aa5bc79e522b7cc2f04ce7d093eb8",
+            "bytes": 4539696
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "aa4fcc915f4f39221324db0e2465aff447dac99f751a70dde51ee2d9020e5018",
+            "bytes": 1015264
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "f8fc0a73a83b97f1675ba7c29e24d6a7a4bcbbd16b67e628ef2d9ec95fcf813b",
+            "bytes": 120305
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "60ea7febac2387804b85f1fede125a415f053d022bd7e1972ba87d6d15d716de",
+            "bytes": 1048172
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "42507a1d441e65db72c2fedc85c0e452c37bd7b81ec557294637f131260ad957",
+            "bytes": 584456
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "7bd862cfdfa4ab7f666ff36a9f6d854d1e833d52d18adc992f089d0ca97096ee",
+            "bytes": 227533
+          }
+        ],
+        "returnedGeometrySelected": false,
+        "returnedNormalsSelected": false,
+        "uvAtlasTransferAuditSha256": "1f083103b4159522c07da1875b2e55a0e6f00ad5bec0e7ad6b4bdeb606189270",
+        "normalSourceSha256": "4d780a2fc7b544041194e35af2dc35ba5b417f93635b5039671cbe8483992d01",
+        "normalGreenFlippedForUvTransport": false,
+        "runtimeSize": 1024,
+        "clientAppearancePending": true,
+        "sourceSkinPaletteRow": 4,
+        "automaticSkinPaletteRowHeld": 24,
+        "sourceHairPaletteRow": 75
+      },
+      "body": {
+        "sourceBranchCommit": "be6391b",
+        "manifestSha256": "27a401ec8455fb71f226b75cd498140d1cea15cefe052902ffb28ede31243b99",
+        "protectedResources": 44,
+        "runtimeScale": 1.4285714285714286,
+        "fixtureRigSerialization": "parent-first; original node blocks and transforms preserved"
+      }
     }
   ]
 }
