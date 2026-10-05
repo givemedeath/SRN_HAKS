@@ -239,13 +239,14 @@ def prepare(args):
 
 def submit(args):
     root = args.output.resolve()
-    record = verify_record(root)
     receipt_path = root / "generation.json"
     if receipt_path.exists():
         raise RuntimeError("Attempt already exists; use status, never duplicate submission")
+    record = verify_record(root)
+    allow_occupied = bool(getattr(args, "allow_occupied_queue", False))
     service = Comfy(args.service or record["service"])
     queue = service.request("/queue")
-    if queue["queue_running"] or queue["queue_pending"]:
+    if (queue["queue_running"] or queue["queue_pending"]) and not allow_occupied:
         raise RuntimeError("ComfyUI queue is occupied; preserve other work and submit when idle")
     prompt = copy.deepcopy(read_json(root / "workflow-api-template.json"))
     uploaded = []
@@ -262,16 +263,24 @@ def submit(args):
         prompt[str(1000 + index)]["inputs"]["image"] = name
         uploaded.append({"view": view, "serverImage": name, "sha256": actual})
     verify_record(root)
+    # Observe the current queue after uploads as well; idle remains the default.
+    queue = service.request("/queue")
+    if (queue["queue_running"] or queue["queue_pending"]) and not allow_occupied:
+        raise RuntimeError("ComfyUI queue is occupied; preserve other work and submit when idle")
     freeze(root / "workflow-api.json", prompt)
+    client_id = "srn-purpose-built-" + uuid.uuid4().hex
     receipt = {"schemaVersion": 1, "state": "submission-started", "service": service.base,
                "submitted": time.time(), "uploadedInputs": uploaded,
+               "clientId": client_id, "queueAtSubmission": copy.deepcopy(queue),
+               "queuePolicy": "append-existing-queue" if allow_occupied else "require-idle",
+               "allowOccupiedQueue": allow_occupied,
                "preparationSha256": digest(root / "preparation.json"),
                "apiSha256": digest(root / "workflow-api.json"), "outputs": [], "clientAccepted": False}
     receipt["saveNodes"] = declared_save_nodes(record)
     # A crash after request dispatch must not silently queue the same job again.
     freeze(receipt_path, receipt)
     result = service.request("/prompt", {"prompt": prompt,
-                            "client_id": "srn-purpose-built-" + uuid.uuid4().hex})
+                            "client_id": client_id})
     receipt["response"] = result
     if result.get("node_errors") or not result.get("prompt_id"):
         receipt["state"] = "rejected"
@@ -348,7 +357,11 @@ def main():
     parser.add_argument("--config", type=Path)
     parser.add_argument("--views-dir", type=Path)
     parser.add_argument("--service")
+    parser.add_argument("--allow-occupied-queue", action="store_true",
+                        help="Explicitly append this one attempt to existing ComfyUI work; default requires idle")
     args = parser.parse_args()
+    if args.allow_occupied_queue and args.action != "submit":
+        parser.error("--allow-occupied-queue applies only to submit")
     if args.action == "prepare" and args.config is None:
         parser.error("prepare requires an explicit --config for the requested part")
     if args.action == "prepare" and args.views_dir is None:

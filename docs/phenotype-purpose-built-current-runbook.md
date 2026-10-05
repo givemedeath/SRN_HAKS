@@ -1,5 +1,11 @@
 # Current purpose-built Human male workflow
 
+New runs, including the explicitly started Troll goal, follow the shared-tool
+policy in [project instructions](../AGENTS.md) and the
+[Troll runbook](phenotype-troll-male-runbook.md). NWNArmory and Blender addons
+resolve from the primary checkout's `.tools` bank. Historical Human execution
+receipts and the archived runbook copies retain their original paths.
+
 Updated 2026-10-03. **The full muscular Human male deliverable is finished.** All fourteen
 body parts, including upper arms, forearms, nearly closed gripping hands and v5
 feet, are selected and compiled into the current verified native body HAK.
