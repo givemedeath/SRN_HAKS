@@ -1,0 +1,12 @@
+# Workspace instructions
+
+- Use the bundled workspace Python on desktop. Never use the Windows Store Python shim. CI uses its explicit setup-python interpreter.
+- Shared tool root: explicit argument, then `SRN_TOOLS_ROOT`, then Git's primary checkout `.tools`. Use `tools/SrnTools.psm1` or `tools/shared_tools.py`; do not search other worktrees or borrow executables from them. Pinned vendored tools belong to the consuming checkout.
+- Installed Python, Blender and NWN paths stay in ignored, byte-bound local runtime bindings. Shared binaries, local bindings, generated assets and run receipts stay ignored. Never put machine paths in the portable locks.
+- Launch new phenotype CLI runs through `launch_shared_tool.py` with fresh local migration evidence and declare actual consumed inputs. Follow `docs/shared-tooling-and-workflow.md`. Direct historical commands remain readable; historical receipts are immutable.
+- Before retiring a worktree, run the read-only retirement audit. Incomplete coverage cannot establish dependency clearance. A borrowed generated input needs a verified local or durable copy; provenance alone is historical. Audit output never authorizes deletion or proves asset backups.
+- Freeze dependency snapshots before dispatch. Verify helper and input hashes afterward. Integrate a parallel candidate only while its parent and all protected neighbors still match. Preserve each target's approved proportions and rig; animation experiments are separately versioned and owned by the target session.
+- Numerical connector success does not approve visible anatomy. Review standing and measured worst-case motion before expensive maps; retain cumulative assembly, broader motion, native and client gates before acceptance.
+- Resolve instructions chronologically after compaction. Later directions supersede historical stops. Check current goal and latest user direction before changing goal status; a resume summary does not authorize goal changes.
+- Read compact resume state from explicit ledger bindings. Reconcile missing, conflicting or stale bindings; do not choose the newest-looking filename. Preserve historical checkpoints and distinguish reference approval, working selection, native validation, client validation and production acceptance.
+- Use focused affected tests during iteration; unknown dependencies require the full suite. Run full helper, repository and item-import regressions before PR readiness. Keep preview rendering at four threads; record timings before adding concurrency.

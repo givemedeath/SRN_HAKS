@@ -1,0 +1,51 @@
+name: Shared tools and phenotype helpers
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  helpers:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      SRN_TOOLS_ROOT: ${{ runner.temp }}/srn-shared-tools
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        id: interpreter
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v6
+        with:
+          path: ${{ env.SRN_TOOLS_ROOT }}
+          key: srn-tools-${{ runner.os }}-${{ hashFiles('tools/toolchain.lock.json', 'tools/shared-tools.lock.json') }}
+      - name: Install helper dependencies with the selected interpreter
+        shell: pwsh
+        run: '& ''${{ steps.interpreter.outputs.python-path }}'' -m pip install -r tools/phenotypes/requirements.txt'
+      - name: Bootstrap byte-verified shared utilities
+        shell: pwsh
+        run: ./tools/Bootstrap-Tools.ps1
+      - name: Resolver, installation, retirement and clean-checkout tests
+        shell: pwsh
+        run: |
+          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools -p 'test_*.py' -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Full extracted and existing phenotype regressions
+        shell: pwsh
+        run: |
+          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/phenotypes -p 'test_*.py' -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Item import regressions
+        shell: pwsh
+        run: ./tools/Test-ItemImportTools.ps1
