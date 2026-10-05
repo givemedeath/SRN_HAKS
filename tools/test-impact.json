@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "dependencies": {
     "tools/phenotypes/adjust_pelvis_skin_plt.py": [],
+    "tools/phenotypes/armory_body_profile.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/armory_rigid.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/pipeline.py",
@@ -12,6 +18,12 @@
       "tools/phenotypes/scale_fitted_body.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
+    "tools/phenotypes/audit_derived_connectors.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/audit_derived_dwarf_native.py": [],
     "tools/phenotypes/audit_effective_limb_materials.py": [],
     "tools/phenotypes/audit_geometry.py": [],
     "tools/phenotypes/audit_limb_ascii_material.py": [
@@ -59,6 +71,7 @@
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
+    "tools/phenotypes/build_derived_dwarf_fixture.py": [],
     "tools/phenotypes/build_test_module.py": [
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/material_patch_contract.py",
@@ -100,6 +113,33 @@
     "tools/phenotypes/compose_stock_pelvis_native.py": [
       "tools/phenotypes/stage_stock_pelvis.py"
     ],
+    "tools/phenotypes/create_cp2_presentation_sheet.py": [],
+    "tools/phenotypes/derive_rig.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/derived_contract.py": [
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/derived_equipment.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/derived_matrix.py": [
+      "tools/phenotypes/configurations/derived/target-matrix.json"
+    ],
+    "tools/phenotypes/derived_profiles.py": [
+      "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/derived_review_configs.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/effective_body_contract.py": [
       "tools/phenotypes/stage_stock_part.py",
       "tools/phenotypes/stock_limb_contract.py"
@@ -120,6 +160,10 @@
       "tools/phenotypes/compose_stock_limb_offline.py",
       "tools/phenotypes/material_patch_contract.py",
       "tools/phenotypes/stage_stock_part.py"
+    ],
+    "tools/phenotypes/freeze_derived_masters.py": [
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/shared_tools.py"
     ],
     "tools/phenotypes/freeze_part_references.py": [],
     "tools/phenotypes/freeze_stock_part_inputs.py": [],
@@ -149,9 +193,18 @@
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
     ],
+    "tools/phenotypes/localized_refine.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/material_patch_contract.py": [
       "tools/phenotypes/audit_thigh_package.py",
       "tools/phenotypes/stock_limb_contract.py"
+    ],
+    "tools/phenotypes/measure_body_assembly.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/measure_effective_body_costs.py": [
       "tools/phenotypes/audit_geometry.py",
@@ -232,6 +285,7 @@
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
+    "tools/phenotypes/preflight_derived_dwarf_client.py": [],
     "tools/phenotypes/prepare_effective_body_fixture.py": [
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/stage_stock_part.py",
@@ -263,6 +317,15 @@
     "tools/phenotypes/refine_thigh_proximal_cap.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
+    "tools/phenotypes/render_assembly_comparison.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/render_derived_dwarf_review.py": [
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/repair_parts_kit.py": [],
     "tools/phenotypes/resume_summary.py": [
       "tools/phenotypes/shared_toolchain.py",
@@ -284,6 +347,9 @@
     "tools/phenotypes/run_clean_part_retexture.py": [
       "tools/phenotypes/pipeline.py",
       "tools/phenotypes/stage_stock_part.py"
+    ],
+    "tools/phenotypes/run_derived_dwarf_client_test.py": [
+      "tools/phenotypes/preflight_derived_dwarf_client.py"
     ],
     "tools/phenotypes/run_mesh_refinement_trial.py": [
       "tools/phenotypes/pipeline.py",
@@ -308,6 +374,7 @@
     "tools/phenotypes/smoke_shared_blender_import.py": [
       "tools/phenotypes/shared_toolchain.py"
     ],
+    "tools/phenotypes/stage_derived_dwarf.py": [],
     "tools/phenotypes/stage_equipment_item.py": [
       "tools/phenotypes/armory_rigid.py",
       "tools/phenotypes/baseline.py",
@@ -330,6 +397,9 @@
     "tools/phenotypes/stock_body_control.py": [
       "tools/phenotypes/measure_stock_head_fit.py",
       "tools/phenotypes/pipeline.py"
+    ],
+    "tools/phenotypes/stock_dwarf_control.py": [
+      "tools/phenotypes/native_compile.py"
     ],
     "tools/phenotypes/stock_limb_contract.py": [
       "tools/phenotypes/stage_stock_part.py"
@@ -364,6 +434,13 @@
       "tools/SrnTools.psm1",
       "tools/phenotypes/Launch-CompleteBodyClient.ps1",
       "tools/phenotypes/preflight_complete_body_client.py"
+    ],
+    "tools/phenotypes/test_derived_pipeline.py": [
+      "tools/phenotypes/audit_derived_dwarf_native.py",
+      "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/derived_contract.py",
+      "tools/phenotypes/derived_matrix.py",
+      "tools/phenotypes/localized_refine.py"
     ],
     "tools/phenotypes/test_effective_body_contract.py": [
       "tools/phenotypes/effective_body_contract.py"
@@ -539,6 +616,7 @@
     "tools/phenotypes/test_body_material_repair.py",
     "tools/phenotypes/test_clean_part_retexture.py",
     "tools/phenotypes/test_complete_body_launcher.py",
+    "tools/phenotypes/test_derived_pipeline.py",
     "tools/phenotypes/test_effective_body_contract.py",
     "tools/phenotypes/test_effective_body_costs.py",
     "tools/phenotypes/test_effective_body_preview.py",

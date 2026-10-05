@@ -40,6 +40,25 @@ Human male keeps the stock male rig, controllers, neck/head, measured
 modify animation resources. Other races and their equipment profiles need their
 own target measurements and validation.
 
+## Derived phenotypes
+
+For racial variants derived from accepted Human master bodies, see:
+- [The Derived Workflow Runbook](../../docs/phenotype-derived-workflow.md)
+- [Gate Measurement Process & Verification Standards](../../docs/phenotype-gate-measurement-standards.md) (Authoritative engineering thresholds for Gates 0–7)
+- [Silhouette Generation & Overlap Audit Runbook](../../docs/phenotype-silhouette-workflow.md)
+- [Dwarf Male Pilot Validation](../../docs/phenotype-derived-dwarf-pilot.md)
+- [Troll Male Comparison Report](../../docs/phenotype-derived-troll-male-comparison.md)
+
+1. **Target Matrix & Stature Calibration (Gate 0):** `derived_matrix.py` checks target eligibility, prerequisites, and stature calibration.
+2. **Rig Retargeting (Gate 1 / CP1):** `derive_rig.py` establishes the target race rig, stature scaling, and 18 rigid connector frames.
+3. **Localized Deformation (Gate 2 / CP2):** `localized_refine.py` deforms donor parts via Wendland $C^2$ RBF, enforcing positive Jacobian determinants ($J > 0$) and strict volume conservation while keeping rigid connector rings unchanged.
+4. **Joint Connector Overlap Audit (Gate 2b):** `audit_derived_connectors.py` evaluates axial overlap across all 13 primary joint interfaces to ensure zero tearing during animation.
+5. **Equipment Audit (Gate 3):** `derived_equipment.py` verifies attachment locators and checks compatibility across all 440 stock equipment models.
+6. **Materials & Native Compilation (Gate 4):** `stage_derived_dwarf.py` stages models referencing shared human normal/roughness maps (`pmh0_*n`, `pmh0_*r`). Models are compiled to native trimesh binaries with `native_compile.py` and verified via `audit_derived_dwarf_native.py`.
+7. **Packaging & Comparison Fixture (Gate 5):** `stock_dwarf_control.py` and `build_test_module.py` build standalone HAKs and side-by-side comparison test modules against stock controls.
+8. **Client Preflight & Testing (Gate 6):** `preflight_derived_dwarf_client.py` and `run_derived_dwarf_client_test.py` execute and monitor the in-engine inspection sequence.
+9. **3-Way Silhouette & Overlap Audit (Gate 7 / CP3):** `build_silhouette_comparison_sheet.py` generates presentation-grade turnaround sheets and `calculate_silhouette_difference.py` computes mathematical DICE/IoU overlap metrics against canonical concept art.
+
 ## Future hands: inspect each new result
 
 Hands use a nearly closed gripping pose with four curled fingers and a credible
