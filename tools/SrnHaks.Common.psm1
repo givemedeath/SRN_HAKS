@@ -1,5 +1,6 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+Import-Module (Join-Path $PSScriptRoot 'SrnTools.psm1') -Force
 
 function Get-SrnRepositoryRoot {
     return Split-Path -Parent $PSScriptRoot
@@ -32,21 +33,12 @@ function Resolve-SrnRepositoryPath {
 }
 
 function Get-SrnTool {
-    param([Parameter(Mandatory)][ValidateSet('erf', 'gff', 'tlk', 'resman_cat', 'resman_grep')][string]$Name)
-
-    $toolRoot = & (Join-Path $PSScriptRoot 'Bootstrap-Tools.ps1')
-    $markerPath = Join-Path $toolRoot '.complete.json'
-    $marker = Get-Content -Raw -LiteralPath $markerPath | ConvertFrom-Json
-    $fileName = $marker.executables.$Name
-    $matches = @(Get-ChildItem -LiteralPath $toolRoot -Recurse -File | Where-Object { $_.Name -ceq $fileName })
-    if ($matches.Count -ne 1) {
-        throw "Expected exactly one $fileName under $toolRoot; found $($matches.Count)."
-    }
-    if (-not $IsWindows) {
-        & chmod +x -- $matches[0].FullName
-        if ($LASTEXITCODE -ne 0) { throw "Could not mark $fileName executable." }
-    }
-    return $matches[0].FullName
+    param([Parameter(Mandatory)][ValidateSet('erf', 'gff', 'tlk', 'resman_cat', 'resman_grep', 'script_comp')][string]$Name,
+          [string]$ToolsRoot)
+    $null = & (Join-Path $PSScriptRoot 'Bootstrap-Tools.ps1') -ToolsRoot $ToolsRoot
+    $resolved = Resolve-SrnTool -Name $Name -ToolsRoot $ToolsRoot
+    Register-SrnToolUse -Tool $resolved
+    return $resolved.path
 }
 
 function Write-SrnJsonAtomic {

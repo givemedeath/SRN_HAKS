@@ -17,6 +17,7 @@ import numpy as np
 from PIL import Image
 
 from audit_geometry import arrays
+from run_preparation import PreparationContext
 from retarget import NODE, nodes, transforms
 from place_purposebuilt_pelvis import BASIS, accessor, read_glb, write_glb
 
@@ -44,9 +45,14 @@ def save(path, value):
 
 class Resolver:
     """Explicit ordered banks; every consumed file must match its pinned receipt."""
-    def __init__(self, banks, inputs):
+    def __init__(self, banks, inputs, context=None):
         self.banks = banks
         self.inputs = inputs
+        self.context = context
+
+    def image(self, path, mode):
+        decode=lambda data: np.asarray(Image.open(BytesIO(data)).convert(mode))
+        return self.context.prepared(path,'palette/image-decode',decode,settings={'mode':mode}) if self.context else decode(path.read_bytes())
 
     def file(self, name, optional=False):
         require(Path(name).name == name and RESREF.fullmatch(Path(name).stem) is not None,
@@ -197,7 +203,7 @@ def material_inputs(row, resolver, selectors):
                  'layerSelectors': selectors, 'paletteResources': {}}
     if 0 in textures:
         color_path = resolver.file(textures[0]+'.tga')
-        color = np.asarray(Image.open(color_path).convert('RGBA'))
+        color = resolver.image(color_path,'RGBA')
         materials.update(colorPolicy='fixed MTR texture0', colorResource=str(color_path.resolve()))
     else:
         plt = resolver.file(row['bitmap']+'.plt', optional=True)
@@ -209,19 +215,19 @@ def material_inputs(row, resolver, selectors):
                 if layer == 255:
                     continue
                 path = resolver.file(PALETTES[int(layer)])
-                palettes[int(layer)] = np.asarray(Image.open(path).convert('RGB'))
+                palettes[int(layer)] = resolver.image(path,'RGB')
                 materials['paletteResources'][int(layer)] = str(path.resolve())
             color = colorize_plt(data, palettes, selectors)
             materials.update(colorPolicy='actual PLT shade/layer lookup with explicit per-layer rows',
                              colorResource=str(plt.resolve()), usedLayers=used_layers.tolist())
         else:
             color_path = resolver.file(row['bitmap']+'.tga')
-            color = np.asarray(Image.open(color_path).convert('RGBA'))
+            color = resolver.image(color_path,'RGBA')
             materials.update(colorPolicy='fixed ASCII bitmap TGA', colorResource=str(color_path.resolve()))
     normal = None
     if 1 in textures:
         path = resolver.file(textures[1]+'.tga')
-        normal = np.asarray(Image.open(path).convert('RGB'))
+        normal = resolver.image(path,'RGB')
         materials['normalResource'] = str(path.resolve())
     roughness = float(parameters.get('roughness', .72))
     require(0 <= roughness <= 1, 'Unsupported effective scalar roughness')
@@ -230,7 +236,7 @@ def material_inputs(row, resolver, selectors):
         materials['roughnessPolicy'] = 'positive MTR scalar has precedence over texture3'
     elif 3 in textures:
         path = resolver.file(textures[3]+'.tga')
-        values = np.asarray(Image.open(path).convert('RGB'))[:, :, 0]
+        values = resolver.image(path,'RGB')[:, :, 0]
         rough = np.zeros((*values.shape, 3), np.uint8)
         rough[:, :, 0] = 255; rough[:, :, 1] = values
         metallic = float(parameters.get('metallicness', 0))
@@ -326,7 +332,11 @@ def export_part(path, meshes, resolver, selectors):
 def run(config_path, output):
     config_path, output = Path(config_path).resolve(), Path(output).resolve()
     require(not output.exists(), 'Use a fresh preview output directory')
-    config = json.loads(config_path.read_text())
+    config = json.loads(config_path.read_text(encoding='utf-8'))
+    preparation=PreparationContext(target_revision=config.get('targetRevision','stock-human-male'),
+        rig_revision=config.get('rigRevision','stock-exact'),animation_revision='material-export-no-pose',
+        settings=config,dependencies=[config_path,Path(__file__).resolve(),
+            *[Path(__file__).with_name(name) for name in ['audit_geometry.py','retarget.py','place_purposebuilt_pelvis.py']]])
     require(config.get('schemaVersion') == 1, 'Preview config schema1 required')
     converted = Path(config['converted']).resolve()
     require(output != converted and converted not in output.parents, 'Output must not alter native converted directory')
@@ -366,8 +376,8 @@ def run(config_path, output):
     protected_directories = [converted, stock, *[p for p,_ in banks]]
     require(all(output != p and p not in output.parents for p in protected_directories),
             'Preview output must be outside every source bank')
-    candidate = Resolver([(converted/'resources', body_hashes), *banks], inputs)
-    comparator = Resolver(banks, inputs)
+    candidate = Resolver([(converted/'resources', body_hashes), *banks], inputs, preparation)
+    comparator = Resolver(banks, inputs, preparation)
     native_receipt_path = converted/'native-compile.json'
     require(str(native_receipt_path) in expected, 'Native ASCII association receipt not pinned')
     native = json.loads(native_receipt_path.read_text())
@@ -395,10 +405,10 @@ def run(config_path, output):
         path = stock/'ascii'/name
         require(name in stock_ascii and sha(path) == stock_ascii[name], 'Unpinned actual stock ASCII part')
         inputs[str(path.resolve())] = stock_ascii[name]
-        parsed[('stock',part)] = mesh_corners(path.read_text(encoding='cp1252'))
+        parsed[('stock',part)] = preparation.prepared(path,'geometry-decode',lambda data:mesh_corners(data.decode('cp1252')),settings={'authoredRequired':False})
         if part in source_rows:
             path = source_rows[part]['ascii']
-            parsed[('native',part)] = mesh_corners(path.read_text(encoding='cp1252'), authored_required=True)
+            parsed[('native',part)] = preparation.prepared(path,'geometry-decode',lambda data:mesh_corners(data.decode('cp1252'),authored_required=True),settings={'authoredRequired':True})
     output.mkdir(parents=True)
     for helper in helpers:
         shutil.copyfile(helper, output/('executed-'+helper.name))
@@ -431,7 +441,7 @@ def run(config_path, output):
                 'No native compiled TBN export; Blender reconstructs tangents from actual UVs and authored normals.',
                 'Stock ASCII without normals uses recorded smoothing-group computed normals, not native exactness.',
                 'PLT lookup is actual selected row/shade/layer; native runtime filtering and palette changes still require client testing.'],
-              'clientLaunched':False,'nativeCompilationInvoked':False,'geometryFittingInvoked':False}
+              'clientLaunched':False,'nativeCompilationInvoked':False,'geometryFittingInvoked':False,'preparation':preparation.receipt()}
     save(output/'preview-export.json',report)
     return report
 

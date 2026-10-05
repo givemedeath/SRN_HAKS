@@ -19,6 +19,7 @@ $itemRaw = Join-Path $fixture '.quarantine/mdrnee_item/raw'
 $utiRaw = Join-Path $fixture '.quarantine/mdrnee_item/blueprints/raw'
 foreach ($directory in @($fixtureTools,$docs,$itemRaw,$utiRaw)) { New-Item -ItemType Directory -Path $directory -Force | Out-Null }
 foreach ($name in @('Stage-ItemMatches.ps1','Analyze-ItemBlueprintErf.ps1','Analyze-ItemHak.ps1','Import-Hak.ps1')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination $fixtureTools }
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'SrnTools.psm1') -Destination $fixtureTools
 function Write-TestJson([string]$Path, $Value) { [IO.File]::WriteAllText($Path, ($Value | ConvertTo-Json -Depth 30) + "`n") }
 Write-TestJson (Join-Path $fixtureTools 'test-tools.json') @{ erf=$realErf; gff=$realGff }
 # The fixture resolver uses the real pinned binaries; its ERF path can be replaced to inject a failure.

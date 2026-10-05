@@ -2,12 +2,16 @@
 
 
 def apply_render_settings(scene, engine):
+    if engine not in ('eevee','cycles-cpu'):
+        raise ValueError('Unknown offline preview render engine: '+engine)
+    scene.render.threads_mode='FIXED'
+    scene.render.threads=4
     if engine=='eevee':
         scene.render.engine='BLENDER_EEVEE'
         scene.eevee.use_gtao=True
         scene.eevee.gtao_distance=.08
         return {'requested':'eevee','blenderEngine':'BLENDER_EEVEE',
-                'ambientOcclusion':True,'gtaoDistance':.08,'clientEvidence':False}
+                'ambientOcclusion':True,'gtaoDistance':.08,'threadsMode':'FIXED','threads':4,'clientEvidence':False}
     if engine!='cycles-cpu':
         raise ValueError('Unknown offline preview render engine: '+engine)
     scene.render.engine='CYCLES'

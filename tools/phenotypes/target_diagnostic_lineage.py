@@ -53,10 +53,15 @@ def pin(item, inputs):
     contract.require(isinstance(item, dict) and isinstance(item.get('path'), str) and
                      isinstance(item.get('sha256'), str), 'Explicit evidence path/hash required')
     path = Path(item['path']).resolve()
-    contract.require(path.is_file() and contract.sha(path) == item['sha256'],
-                     'Diagnostic evidence changed: '+str(path))
-    inputs[str(path)] = item['sha256']
-    return path
+    try:
+        resolved = contract.verify_frozen_input(path, item['sha256'])
+    except (ValueError, OSError) as error:
+        raise ValueError('Diagnostic evidence changed: '+str(path)) from error
+    inputs[str(resolved)] = item['sha256']
+    if resolved != path:
+        # The old helper is creation provenance; the current code remains explicit.
+        inputs[str(path)] = contract.sha(path)
+    return resolved
 
 
 def load_item(item, inputs):

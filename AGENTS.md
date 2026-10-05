@@ -1,38 +1,12 @@
-# Project instructions
+# Workspace instructions
 
-Use the bundled workspace Python explicitly. Never launch the Windows Store
-`python.exe` shim.
-
-Tapering and connector edits must not create new unintended shelves, ridges,
-or annular grooves. Verify actual source-matched surface contours and inspect
-literal joint renders before accepting an edit. Smooth interpolation, a positive
-Jacobian, unchanged topology and preserved attributes are necessary checks but
-do not establish this visual requirement. Preserve approved anatomical forms and
-intended equipment edges. Replace a failed deformation from its last accepted
-parent; do not compound it with another field to hide the defect.
-
-Shared tools belong in the primary checkout's `.tools` directory, outside
-ephemeral worktrees. For this machine, use:
-
-- NWNArmory: `D:\source\repos\SRN_HAKS\.tools\nwnarmory\v1.3.4\nwnarmory.exe`.
-  Required SHA-256: `08480e535e38d712a831575ea78cc8ed952629ee4705ae8d505cdba31fc01f7f`.
-- Blender addons: `D:\source\repos\SRN_HAKS\.tools\blender-addons`.
-- Python: `C:\Users\benco\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`.
-
-New phenotype CLI runs use `tools/phenotypes/launch_shared_tool.py`, the pinned
-`tools/phenotypes/configurations/shared-tools.json`, and the passed migration
-receipt selected by the current checkpoint/ledger. Blender runs use isolated
-factory background startup and the verified shared addon bootstrap. Check actual
-loaded module file paths and hashes; an addon version alone does not prove its
-location. Do not save or replace user preferences as part of this launcher.
-
-Treat old execution receipts, executed helper snapshots and completed generation
-configurations as immutable history. Create a new receipt/configuration when
-migrating dependencies; do not globally replace paths in historical evidence.
-Do not use `D:\srwt\codex\3a21\SRN_HAKS` for new shared-tool execution. Preserve
-that worktree and its tools until their owner explicitly authorizes archival and
-all needed masters/evidence have recoverable copies.
-
-Continue current Troll work from `docs/phenotype-troll-male-checkpoint.md` and
-the authoritative selection ledger. Retain all outstanding rig, anatomy,
-equipment and actual client acceptance gates.
+- Use the bundled workspace Python on desktop. Never use the Windows Store Python shim. CI uses its explicit setup-python interpreter.
+- Shared tool root: explicit argument, then `SRN_TOOLS_ROOT`, then Git's primary checkout `.tools`. Use `tools/SrnTools.psm1` or `tools/shared_tools.py`; do not search other worktrees or borrow executables from them. Pinned vendored tools belong to the consuming checkout.
+- Installed Python, Blender and NWN paths stay in ignored, byte-bound local runtime bindings. Shared binaries, local bindings, generated assets and run receipts stay ignored. Never put machine paths in the portable locks.
+- Launch new phenotype CLI runs through `launch_shared_tool.py` with fresh local migration evidence and declare actual consumed inputs. Follow `docs/shared-tooling-and-workflow.md`. Direct historical commands remain readable; historical receipts are immutable.
+- Before retiring a worktree, run the read-only retirement audit. Incomplete coverage cannot establish dependency clearance. A borrowed generated input needs a verified local or durable copy; provenance alone is historical. Audit output never authorizes deletion or proves asset backups.
+- Freeze dependency snapshots before dispatch. Verify helper and input hashes afterward. Integrate a parallel candidate only while its parent and all protected neighbors still match. Preserve each target's approved proportions and rig; animation experiments are separately versioned and owned by the target session.
+- Numerical connector success does not approve visible anatomy. Review standing and measured worst-case motion before expensive maps; retain cumulative assembly, broader motion, native and client gates before acceptance.
+- Resolve instructions chronologically after compaction. Later directions supersede historical stops. Check current goal and latest user direction before changing goal status; a resume summary does not authorize goal changes.
+- Read compact resume state from explicit ledger bindings. Reconcile missing, conflicting or stale bindings; do not choose the newest-looking filename. Preserve historical checkpoints and distinguish reference approval, working selection, native validation, client validation and production acceptance.
+- Use focused affected tests during iteration; unknown dependencies require the full suite. Run full helper, repository and item-import regressions before PR readiness. Keep preview rendering at four threads; record timings before adding concurrency.

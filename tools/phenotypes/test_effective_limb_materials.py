@@ -77,7 +77,11 @@ class EffectiveLimbMaterialTests(unittest.TestCase):
             live.write_text('new reusable implementation\n')
             inputs={};origins={str(live):{'archive':str(archive),'sha256':pin}}
             proof=verify_pins({str(live):pin},origins,inputs)
-            self.assertEqual(inputs,{str(archive):pin});self.assertEqual(proof[0]['origin'],str(live))
+            self.assertEqual(inputs,{str(archive.resolve()):pin});self.assertEqual(proof[0]['origin'],str(live))
+            alias=str(root)+'/./collector.py'
+            verify_pins({str(live):pin},{alias:origins[str(live)]},{})
+            with self.assertRaisesRegex(RuntimeError,'Conflicting historical'):
+                verify_pins({str(live):pin},{**origins,alias:{'archive':str(archive),'sha256':'0'*64}},{})
             with self.assertRaises(RuntimeError):verify_pins({str(live):pin},{}, {})
             archive.write_text('changed archive\n')
             with self.assertRaises(RuntimeError):verify_pins({str(live):pin},origins,{})

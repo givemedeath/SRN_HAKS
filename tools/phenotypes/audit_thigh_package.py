@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import struct
 import subprocess
+from tool_runtime import tool as resolved_tool
 
 from audit_pelvis_package import archive, require, sha
 from build_test_module import validate_owned_normal_dependencies
@@ -271,7 +272,7 @@ def run(args):
     args.output.mkdir(parents=True,exist_ok=False)
     floor=next(data for name,kind,data in module if name=='sr_pt_floor' and kind==2023)
     git=args.output/'packed-floor.git';git.write_bytes(floor);json_path=args.output/'packed-floor.json'
-    subprocess.run([str(args.tool_directory/'nwn_gff.exe'),'-i',str(git),'-o',str(json_path),'-p'],capture_output=True,check=True)
+    subprocess.run([str(resolved_tool("nwn_gff", args.tool_directory)),'-i',str(git),'-o',str(json_path),'-p'],capture_output=True,check=True)
     actors,palette=validate_actors(read(json_path)['Creature List']['value'],read(stage/'manifest.json'),build,donor_control_record)
     report={'schemaVersion':1,'hakSha256':sha(build['hak']),'moduleSha256':sha(build['module']),
         'helperDependencyHashes':{'stock_limb_contract.py':sha(Path(__file__).with_name('stock_limb_contract.py'))},
@@ -292,7 +293,7 @@ def run(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('stage','preserve-donor','stock-bank','tool-directory','output'):
-        parser.add_argument('--'+name,type=Path,required=True)
+        parser.add_argument('--'+name,type=Path,required=(name != 'tool-directory'))
     parser.add_argument('--preserve-receipt-sha256',required=True,help='Pinned reviewed donor human_male_fit/converted/native-compile.json SHA256')
     parser.add_argument('--expected-models',choices=('legl','legl,legr','shinl','shinl,shinr','footl','footl,footr'),required=True)
     parser.add_argument('--preserved-material-patch-sha256',help='Explicit accepted runtime palette donor pin')

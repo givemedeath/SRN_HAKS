@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+from tool_runtime import tool as resolved_tool
 
 from stage_stock_part import require, sha, save
 from audit_pelvis_package import archive
@@ -52,7 +53,7 @@ def pack(fixture, operation_path, tool, settings_path, output, reuse_hak=None, r
         shutil.copyfile(reuse_hak,hak)
     else:
         require(not reuse_hak_sha256,'Unused HAK pin')
-        subprocess.run([str(tool/'nwn_erf.exe'),'-c','-f',str(hak),'-e','HAK',str(staged)],check=True,capture_output=True)
+        subprocess.run([str(resolved_tool("nwn_erf", tool)),'-c','-f',str(hak),'-e','HAK',str(staged)],check=True,capture_output=True)
     compare_archive(archive(hak),staged)
     require(sha(module)==build['moduleSha256'],'Module changed during overlay')
     require(all(hashes(staged)[n]==h for n,h in base.items() if not n.startswith('pmh0_')),
@@ -65,7 +66,7 @@ def pack(fixture, operation_path, tool, settings_path, output, reuse_hak=None, r
         require(not reuse_body_sha256,'Unused body HAK pin')
         bodydir=output/'body-resources';shutil.copytree(body,bodydir)
         bodyhak=output/'human_male_body.hak'
-        subprocess.run([str(tool/'nwn_erf.exe'),'-c','-f',str(bodyhak),'-e','HAK',str(bodydir)],check=True,capture_output=True)
+        subprocess.run([str(resolved_tool("nwn_erf", tool)),'-c','-f',str(bodyhak),'-e','HAK',str(bodydir)],check=True,capture_output=True)
         compare_archive(archive(bodyhak),bodydir)
     receipt={'schemaVersion':1,'kind':'runtime-material-fixture','hak':str(hak.resolve()),'hakSha256':sha(hak),
         'module':str(module.resolve()),'moduleSha256':sha(module),'userDirectory':str(user.resolve()),
@@ -84,7 +85,7 @@ def pack(fixture, operation_path, tool, settings_path, output, reuse_hak=None, r
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    for key in ('fixture','operation','tool-directory','settings','output'):p.add_argument('--'+key,type=Path,required=True)
+    for key in ('fixture','operation','tool-directory','settings','output'):p.add_argument('--'+key,type=Path,required=(key != 'tool-directory'))
     p.add_argument('--reuse-hak',type=Path);p.add_argument('--reuse-hak-sha256')
     p.add_argument('--reuse-body-hak',type=Path);p.add_argument('--reuse-body-hak-sha256')
     a=p.parse_args();pack(a.fixture,a.operation,a.tool_directory,a.settings,a.output,

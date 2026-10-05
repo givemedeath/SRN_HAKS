@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+from tool_runtime import tool as resolved_tool, record_dependencies
 
 from pipeline import digest, save_json
 from armory_rigid import correct_rigid
@@ -27,7 +28,7 @@ def main():
     parser.add_argument("--template",type=Path,required=True)
     parser.add_argument("--profile-json",type=Path)
     parser.add_argument("--baseline",type=Path,required=True)
-    parser.add_argument("--tool-directory",type=Path,required=True)
+    parser.add_argument("--tool-directory",type=Path)
     parser.add_argument("--game-root",type=Path,required=True)
     parser.add_argument("--user-directory",type=Path,required=True)
     parser.add_argument("--armory",type=Path)
@@ -59,7 +60,8 @@ def main():
         freeze(args.profile_json)
         profile=json.loads(args.profile_json.read_text())
         ini=args.profile_json.parent/(profile["slug"]+".ini")
-        if not args.armory or freeze(ini)!=profile["profileSha256"] or freeze(args.armory)!=profile["armorySha256"]:
+        args.armory=resolved_tool("armory", path=args.armory)
+        if freeze(ini)!=profile["profileSha256"] or freeze(args.armory)!=profile["armorySha256"]:
             raise RuntimeError("NWNArmory/profile provenance mismatch")
         for transform in profile["transforms"].values():
             if "target" in transform and freeze(Path(transform["target"]))!=transform["targetSha256"]:
@@ -85,13 +87,13 @@ def main():
     def extract(name):
         path=raw/name
         if not path.exists():
-            result=subprocess.run([str(args.tool_directory/"nwn_resman_cat.exe"),"--root",str(args.game_root),
+            result=subprocess.run([str(resolved_tool("nwn_resman_cat", args.tool_directory)),"--root",str(args.game_root),
                 "--userdirectory",str(args.user_directory),"--no-ovr",name],capture_output=True,check=True)
             if not result.stdout:raise RuntimeError("Missing resource: "+name)
             path.write_bytes(result.stdout)
         return path
     sources={}
-    compiler=Path(__file__).resolve().parents[1]/"vendor/nwnmdlcomp/nwnmdlcomp.exe"
+    compiler=resolved_tool("mdlcomp")
     if freeze(compiler)!=COMPILER_SHA256:raise RuntimeError("Pinned model decompiler changed")
     for part,style in styles.items():
         name=source_prefix+"_"+part+f"{style:03}"
@@ -149,6 +151,7 @@ def main():
     for path in normalized.iterdir():
         shutil.copyfile(path,converted/("ascii" if path.suffix==".mdl" else "resources")/path.name)
     save_json(converted/"item-equipment.json",{"templateSha256":template_hash,
+        "dependencyReceipt":str(record_dependencies(frozen)),
         "fitMode":"stock-identity" if not profile else "nwnarmory-calibrated",
         "profileSha256":profile["profileSha256"] if profile else None,
         "profile":str(args.profile_json.resolve()) if profile else None,

@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+from tool_runtime import tool as resolved_tool
 import sys
 from audit_thigh_package import archive, packed_index, compare_archive, TYPE_BY_EXTENSION, donor_protection, validate_inventory
 from compose_stock_limb_native import file_hashes, stock_identity, thigh_attachment, stage_manifest
@@ -106,7 +107,7 @@ def compose(args):
             '--converted',str(converted),'--user-directory',str(output/('compile-userdir-'+str(index))),
             '--timeout','180','--with-material-resources']})
     hak=output/'offline-native-pending.hak'
-    subprocess.run([str(args.tool_directory/'nwn_erf.exe'),'-c','-f',str(hak),'-e','HAK',str(resources)],check=True,capture_output=True)
+    subprocess.run([str(resolved_tool("nwn_erf", args.tool_directory)),'-c','-f',str(hak),'-e','HAK',str(resources)],check=True,capture_output=True)
     rows=archive(hak);compare_archive(rows,resources)
     actual=packed_index(rows);before=packed_index(parent_rows)
     require(all(actual.get(k)==v for k,v in before.items()),'Offline pack changed accepted HAK payload')
@@ -180,7 +181,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage',type=Path,action='append',required=True)
     parser.add_argument('--foot-material-patch-sha256',action='append',help='Explicit pin for each declared foot-only shade descendant.')
-    for key in ('preserve-donor','tool-directory','output'):parser.add_argument('--'+key,type=Path,required=True)
+    for key in ('preserve-donor','tool-directory','output'):parser.add_argument('--'+key,type=Path,required=(key != 'tool-directory'))
     parser.add_argument('--preserved-geometry-selection',type=Path,required=True)
     parser.add_argument('--preserved-geometry-selection-sha256',required=True)
     for key in ('preserve-receipt-sha256','preserved-material-patch-sha256','preserve-hak-sha256'):

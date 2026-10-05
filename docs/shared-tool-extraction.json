@@ -1,0 +1,82 @@
+{
+  "files": [
+    {
+      "file": "tools/phenotypes/shared_toolchain.py",
+      "sha256": "30a918cb2914120b731ce1e2540133389c242087da95241c5a1dacd3925d1935",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/launch_shared_tool.py",
+      "sha256": "3124acf200208333d03bee02f8887f5859247d6d744aa54daad415ed37a411ae",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "sha256": "248880c366db2abdaa2422f1971a723e972aafe3251f3ebdfdad612c83c21bf9",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/inspect_blender_addon_paths.py",
+      "sha256": "a62c6cf5e5763adfc0d1b1634a567b79d119519199f65d7c2103512189acdd1d",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/smoke_shared_blender_import.py",
+      "sha256": "51e55882cf5fae2acd01e0288b879fde5fbf7f6d9874d226b3ac8ab3ef13f7db",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/finalize_shared_tool_migration.py",
+      "sha256": "0ed7fe47b213eeb504023d08c34dba580412626eed3364cf82dffa979bc4c907",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/pose_preview_bridge.py",
+      "sha256": "52ee0cc2ec352de589378d42c06a688313641832c65e8e4501a8ac14d6ca5eea",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/pose_preview_render_settings.py",
+      "sha256": "1f3a3a6bbdf6e76bf1dacc3f30f3d0192164c348a0b1eca1e161fb6185098d64",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/rig_pose_audit.py",
+      "sha256": "cf61afb5d3dbe8767314f605f8eed2221ea50d93d305eddf710f5ca6508e77d5",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/rig_controller_audit.py",
+      "sha256": "7808503f63c4b89a63c5ebe6490d915019f77cbb77d00052d9f034359b9d48d8",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/target_contract.py",
+      "sha256": "e81c9298eec14207869a67b4d818cbbf71d3f9b93fd95e3e9f22240d1dba3f1f",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/test_shared_toolchain.py",
+      "sha256": "37592d830b11bd5bc13b804425545e085441f3d123ca7e0c74b78624e733ef0f",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/test_finalize_shared_tool_migration.py",
+      "sha256": "f120cfb69b26619858e9c5d9b0244b72c9de19918ee8f8903d4e0cef3830a01b",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/test_pose_preview_bridge.py",
+      "sha256": "137b850c5b0d4b87b7f85bf5d7d62504aac2aa57bd03aaab537a4de651c560a3",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    },
+    {
+      "file": "tools/phenotypes/test_pose_preview_render_settings.py",
+      "sha256": "ff269771a964e563c3ecbd686733dee7e714a7a9575e9b4252fa3d4cc6771a6c",
+      "sourceBranch": "codex/human-female-purposebuilt"
+    }
+  ],
+  "note": "Reusable source closure only. Original active worktrees unchanged.",
+  "schemaVersion": 1,
+  "capturedUtc": "2026-10-05T01:33:40.7195590Z"
+}

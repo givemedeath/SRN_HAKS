@@ -23,7 +23,9 @@ def checked_config(path):
     require(inventory['completeBodySelected'] is True,
             'Final full-body sheet requires all fourteen selected native parts')
     inventory_path=converted/'effective-material-inventory.json'
-    require(record['packagePins'].get(str(inventory_path))==sha(inventory_path),
+    inventory_pins=[pin for name,pin in record['packagePins'].items()
+                    if Path(name).resolve()==inventory_path]
+    require(inventory_pins and all(pin==sha(inventory_path) for pin in inventory_pins),
             'Reference sheet must pin its actual complete native inventory')
     require(REQUIRED<={row['category'] for row in record['cases']},'Full-body sheet missing animation categories')
     pins=dict(record['packagePins'])

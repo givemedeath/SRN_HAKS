@@ -15,7 +15,16 @@
         "gff": "nwn_gff.exe",
         "tlk": "nwn_tlk.exe",
         "resman_cat": "nwn_resman_cat.exe",
-        "resman_grep": "nwn_resman_grep.exe"
+        "resman_grep": "nwn_resman_grep.exe",
+        "script_comp": "nwn_script_comp.exe"
+      },
+      "executableSha256": {
+        "erf": "134c3c3f08dd21caf6bee932bfaf731d2371bccae93e434d169a4a4d22f1bc8d",
+        "gff": "5e0cf2352327d4d21df0165e2029456b64436f23a35d3244eb5f64b6d4abed5b",
+        "tlk": "e7037d759b3d071962eca39597c87d0f4f48450384e1c19c6ec8e71eabcf253f",
+        "resman_cat": "46fb977a71b81902cdf028a1da1fe8f669e7a26700e831229665a3781273cf7d",
+        "resman_grep": "1118ace8df1a690c385e854e8e6f697b98d3ec361aa96f451173ccf3bad742c2",
+        "script_comp": "8ba368d0c80149c502faad66aa5cbd200655aeec88f73048d384122ce2d84a58"
       }
     },
     "linux-x64": {
@@ -27,7 +36,16 @@
         "gff": "nwn_gff",
         "tlk": "nwn_tlk",
         "resman_cat": "nwn_resman_cat",
-        "resman_grep": "nwn_resman_grep"
+        "resman_grep": "nwn_resman_grep",
+        "script_comp": "nwn_script_comp"
+      },
+      "executableSha256": {
+        "erf": "fd6462f3a28a5b379e74ba4fc5a63b6e4453a399f732cddb9698808f610412e2",
+        "gff": "a7a40e1f71ec63fa4a7e46764b43a00207d91c4f71324b95f591107206ea7e66",
+        "tlk": "2e629d5569835fd72252b644d7eaad9621460871799f28962630b577251da732",
+        "resman_cat": "42237807a8d7b2a5719edafdfb0d6c61f0cbc3910a26960489a455cf6a299155",
+        "resman_grep": "b2f94f409afa18ec3243a07a365501b7f81ed06be75d0fb4432d3d2f2b4856ef",
+        "script_comp": "0c3023cc74cd4fba3efe9523e1346a49270083ba6a1deb50d5a84f70b44b08bd"
       }
     }
   }

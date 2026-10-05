@@ -10,3 +10,7 @@
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Historical local runtime bindings and Troll execution evidence stay local.
+/tools/phenotypes/configurations/shared-tools.json
+/docs/phenotypes/evidence/troll-male-*/

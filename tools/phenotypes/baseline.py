@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+from tool_runtime import tool as resolved_tool
 
 from pipeline import RACES, digest, save_json
 
@@ -32,7 +33,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--game-root", type=Path, required=True)
     parser.add_argument("--user-directory", type=Path, required=True)
-    parser.add_argument("--tool-directory", type=Path, required=True)
+    parser.add_argument("--tool-directory", type=Path)
     parser.add_argument("--output", type=Path, default=Path("output/phenotypes/baseline"))
     args = parser.parse_args()
     output = args.output.resolve()
@@ -40,15 +41,15 @@ def main():
     ascii_dir = output / "ascii"
     raw.mkdir(parents=True, exist_ok=True)
     ascii_dir.mkdir(parents=True, exist_ok=True)
-    compiler = Path(__file__).resolve().parents[1] / "vendor/nwnmdlcomp/nwnmdlcomp.exe"
+    compiler = resolved_tool("mdlcomp")
     if digest(compiler) != COMPILER_SHA256:
         raise RuntimeError("Model compiler hash differs from the pinned repository compiler")
     common = ["--root", str(args.game_root), "--userdirectory", str(args.user_directory), "--no-ovr"]
-    grep = args.tool_directory / "nwn_resman_grep.exe"
+    grep = resolved_tool("nwn_resman_grep", args.tool_directory)
     listing = subprocess.run([str(grep), *common, "--all"], check=True, capture_output=True).stdout.decode("utf-8", errors="replace")
     available = set(re.findall(r"(?m)^\s*([a-zA-Z0-9_-]+\.[a-zA-Z0-9]+)\s*$", listing))
     save_json(output / "resource-inventory.json", sorted(available))
-    cat = args.tool_directory / "nwn_resman_cat.exe"
+    cat = resolved_tool("nwn_resman_cat", args.tool_directory)
     extracted = {}
 
     def fetch(name):

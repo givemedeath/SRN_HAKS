@@ -11,13 +11,10 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$tool = Join-Path $PSScriptRoot 'vendor/nwnmdlcomp/nwnmdlcomp.exe'
-$expectedSha256 = '0E32070C3E00A07A5F9E93B7E4A63A40DD5486B974900BBB8A0D2F4424C612BB'
-if (-not (Test-Path -LiteralPath $tool -PathType Leaf)) { throw "Missing vendored model compiler: $tool" }
-$actualSha256 = (Get-FileHash -LiteralPath $tool -Algorithm SHA256).Hash
-if ($actualSha256 -cne $expectedSha256) {
-    throw "Vendored nwnmdlcomp.exe hash mismatch. Expected $expectedSha256; found $actualSha256."
-}
+Import-Module (Join-Path $PSScriptRoot 'SrnTools.psm1') -Force
+$resolvedTool = Resolve-SrnTool -Name 'mdlcomp'
+Register-SrnToolUse -Tool $resolvedTool -Inputs @($InputModel)
+$tool = $resolvedTool.path
 
 $inputPath = (Resolve-Path -LiteralPath $InputModel).Path
 $outputPath = [IO.Path]::GetFullPath($OutputModel)

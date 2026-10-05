@@ -5,6 +5,9 @@ import unittest
 import numpy as np
 
 from pose_preview_bridge import pose, freeze_helpers, verify_helpers
+from retarget import nodes
+from rig_pose_audit import sample
+from run_preparation import PreparationContext
 from target_contract import sha
 
 
@@ -76,6 +79,38 @@ class PreviewBridgeTests(unittest.TestCase):
             root=self.fixtures(directory,animation('position 3 0 0'))
             sampled,_=pose(root,'pmh0','pause1',0)
             np.testing.assert_allclose(sampled['joint'][:3,3],[2,6,4],atol=1e-12)
+
+    def test_sampler_rejects_invalid_hierarchy_without_mutating_bind(self):
+        for text,message in [
+            (ROOT.replace('parent rootdummy','parent absent'),'Unresolved parent bind: absent'),
+            (ROOT.replace('parent rootdummy','parent joint'),'Geometry parent cycle: joint'),
+        ]:
+            with self.subTest(message=message):
+                skeleton=nodes(text);before=nodes(text)
+                with self.assertRaisesRegex(ValueError,message):
+                    sample(skeleton,'',.5,controllers={'joint':{'position':[9,8,7]}})
+                for name in before:
+                    for field in before[name]:
+                        np.testing.assert_array_equal(skeleton[name][field],before[name][field])
+
+    def test_cached_and_uncached_reject_incomplete_or_cyclic_bind_hierarchy(self):
+        for text,message in [
+            (ROOT.replace('parent rootdummy','parent absent'),'Unresolved parent bind: absent'),
+            (ROOT.replace('parent pmh0','parent joint'),'Geometry parent cycle: rootdummy'),
+            # The animation owner exists in the supermodel chain, but its bind
+            # node has not been resolved into this root's geometry hierarchy.
+            (ROOT.replace('parent pmh0','parent a_ba'),'Unresolved parent bind: a_ba'),
+        ]:
+            for cached in [False,True]:
+                with self.subTest(message=message,cached=cached), tempfile.TemporaryDirectory() as directory:
+                    root=self.fixtures(directory,animation('position 3 0 0'))
+                    (root/'pmh0.mdl').write_text(text,encoding='cp1252')
+                    pins={path:sha(path) for path in root.glob('*.mdl')}
+                    context=PreparationContext(target_revision='test',rig_revision='stock',
+                        animation_revision='a_ba',settings={}) if cached else None
+                    with self.assertRaisesRegex(RuntimeError,message):
+                        pose(root,'pmh0','pause1',.5,context=context)
+                    self.assertEqual(pins,{path:sha(path) for path in pins})
 
     def test_stock_fallback_pins_every_used_inheritance_input(self):
         with tempfile.TemporaryDirectory() as directory:

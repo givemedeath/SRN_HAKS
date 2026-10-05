@@ -18,8 +18,10 @@ from place_purposebuilt_pelvis import read_glb, rotation_xyz, write_glb
 
 def pin(path, expected):
     path = Path(path).resolve()
-    contract.require(contract.sha(path) == expected, 'Frozen input changed: ' + str(path))
-    return path
+    try:
+        return contract.verify_frozen_input(path, expected)
+    except (ValueError, OSError) as error:
+        raise ValueError('Frozen input changed: '+str(path)) from error
 
 
 def read_target(config):

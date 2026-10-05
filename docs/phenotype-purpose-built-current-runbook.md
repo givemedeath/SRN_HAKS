@@ -356,3 +356,8 @@ The preceding six active documents are [archived byte-exact](history/phenotype-f
 with a hash manifest. Historical stops, old PIDs, old foot selections and rejected
 source recipes do not override later user directions. Keep those receipts and
 assets as evidence; do not copy their payloads into the current selection.
+
+
+## Shared infrastructure adoption
+
+Future Troll runs use the fresh local binding/migration and explicit resume bindings in [the Troll adoption checkpoint](phenotype-troll-pr38-adoption-checkpoint.md). Follow [the target adoption runbook](phenotype-troll-shared-workflow-adoption.md) and [the merged shared workflow](shared-tooling-and-workflow.md). Historical checkpoints and receipts remain unchanged; tool adoption does not approve target assets or resume anatomy work.

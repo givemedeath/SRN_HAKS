@@ -23,6 +23,7 @@ from pose_preview_bridge import pose as sample_preview_pose, freeze_helpers, ver
 from rig_pose_audit import interpolate as sample_controller
 from pose_preview_render_settings import apply_render_settings
 from pose_preview_target_parts import select_preview_receipts as select_target_parts
+from run_preparation import PreparationContext
 
 JOINTS = dict(head="head_g", neck="neck_g", chest="torso_g", pelvis="pelvis_g",
               bicepl="lbicep_g", bicepr="rbicep_g", forel="lforearm_g", forer="rforearm_g",
@@ -36,8 +37,8 @@ def controller(rows, time, rotation=False):
     return value if rotation else np.asarray(value)
 
 
-def pose(ascii_dir, prefix, clip, time, stock_dir=None):
-    return sample_preview_pose(ascii_dir,prefix,clip,time,stock_dir)
+def pose(ascii_dir, prefix, clip, time, stock_dir=None, *, context=None):
+    return sample_preview_pose(ascii_dir,prefix,clip,time,stock_dir,context=context)
 
 
 def stock_part(path, name):
@@ -99,6 +100,13 @@ def main():
     parser.add_argument("--stock-replacement",type=Path,action="append",default=[],
                         help="JSON candidate: label, modelPrefix, height, parts mapping; undeclared parts are actual stock ASCII")
     args = parser.parse_args(sys.argv[sys.argv.index("--")+1:])
+    preview_target=load_target(args.target_contract) if args.target_contract else None
+    preparation=PreparationContext(
+        target_revision=preview_target['rig']['revision'] if preview_target else 'explicit-preview-inputs',
+        rig_revision=preview_target['rig']['revision'] if preview_target else 'content-bound-root',
+        animation_revision='content-bound-source-chain',
+        settings={'clip':args.clip,'time':args.time,'coordinateSpace':args.coordinate_space},
+        dependencies=[Path(__file__).resolve(),*([args.target_contract] if args.target_contract else [])])
     if args.camera_scale is not None and args.camera_scale<=0:
         raise RuntimeError('Camera scale must be positive')
     if (args.target_part_receipt or args.target_diagnostic_part_receipt or args.target_diagnostic_uv_material_preview) and not args.target_assembly:
@@ -178,7 +186,7 @@ def main():
     hues = [(0.20,0.43,0.75,1),(.76,.32,.14,1),(.22,.58,.31,1),(.65,.38,.66,1)]
     for index, (label, directory, height, prefix, ascii_dir) in enumerate(specimens):
         display_objects=[]
-        matrices, receipt = pose(ascii_dir, prefix, args.clip, args.time, args.baseline/"ascii")
+        matrices, receipt = pose(ascii_dir, prefix, args.clip, args.time, args.baseline/"ascii",context=preparation)
         root_path=(ascii_dir/(prefix+".mdl")).resolve()
         input_hashes = {str(root_path):hashlib.sha256(root_path.read_bytes()).hexdigest()}
         input_hashes.update({row['file']:row['sha256'] for row in receipt['sourceInheritance']})
@@ -214,10 +222,10 @@ def main():
         if directory:
             input_hashes[str((directory/'conversion.json').resolve())] = hashlib.sha256((directory/'conversion.json').read_bytes()).hexdigest()
             if json.loads((directory/'conversion.json').read_text()).get("rigMode")=="stock-exact":
-                stock_root=(args.baseline/'ascii'/('pmh0.mdl')).resolve()
+                stock_root=(args.baseline/'ascii'/(args.stock_prefix+'.mdl')).resolve()
                 if root_path.read_bytes()!=stock_root.read_bytes():
                     raise RuntimeError("Exact stock candidate has a changed root")
-                stock_matrices,_=pose(args.baseline/'ascii','pmh0',args.clip,args.time)
+                stock_matrices,_=pose(args.baseline/'ascii',args.stock_prefix,args.clip,args.time,context=preparation)
                 discrepancy=max(float(np.max(abs(matrices[j]-stock_matrices[j]))) for j in active_joints.values())
                 if discrepancy>1e-10:
                     raise RuntimeError("Candidate preview joint transforms differ from stock")
@@ -453,11 +461,13 @@ def main():
                 raise RuntimeError('Preview input changed during rendering: '+path)
     if hashlib.sha256(Path(__file__).read_bytes()).hexdigest()!=code_hash:raise RuntimeError("Preview code changed during rendering")
     verify_helpers(helper_manifest)
+    preparation.verify()
     (args.output/"comparison.json").write_text(json.dumps({"specimens":receipts,"focus":args.focus,
         "cameraViews":[{"name":name,"direction":directions[name],"labelsOutsideProjectedGeometry":name in ("top","rear-top","left","right"),"specimenDisplayOffsetAxis":"Y" if name in ("left","right") else "X"} for name in args.view or ("front","rear","oblique")],
         "materialMode":args.material_mode,"codeSnapshot":"executed-pose-preview.py","codeSha256":code_hash,
         'importedHelperSnapshots':helper_manifest,
         'renderSettings':render_settings,
+        'preparation':preparation.receipt(),
         'cameras':camera_receipts,
         "note":"Offline stock-controller comparison. Color uses declared GLB materials; undeclared stock ASCII fallback is clay. Actual client lighting/playback remain separate evidence."},indent=2)+"\n")
     print(json.dumps(receipts))
