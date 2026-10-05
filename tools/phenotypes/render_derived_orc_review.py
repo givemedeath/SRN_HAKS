@@ -278,7 +278,12 @@ def main():
         if part in ("head", "neck"):
             hm_p = args.masters_dir / "stock" / f"pmh0_{part}001.mdl"
             master_parts[part] = decode_binary_mdl(hm_p, f"pmh0_{part}001g".encode())
-            derived_orc_parts[part] = master_parts[part]
+
+            orc_p = args.masters_dir / "stock" / f"pmo0_{part}001.mdl"
+            if orc_p.exists():
+                derived_orc_parts[part] = decode_binary_mdl(orc_p, f"pmo0_{part}001g".encode())
+            else:
+                derived_orc_parts[part] = master_parts[part]
         else:
             hm_p = args.masters_dir / "ascii" / f"pmh0_{part}001.mdl"
             master_parts[part] = decode_ascii_mdl(hm_p)

@@ -789,6 +789,37 @@ class PreflightCliExecutionTests(unittest.TestCase):
         self.assertIn("--output-receipt", res.stdout)
 
 
+class FreezeStockRigsTests(unittest.TestCase):
+    def test_freeze_stock_models_include_elf_and_orc(self):
+        source = Path(__file__).resolve().parent.joinpath("freeze_derived_masters.py").read_text(encoding="utf-8")
+        self.assertIn("pme0.mdl", source)
+        self.assertIn("pme0_head001.mdl", source)
+        self.assertIn("pmo0.mdl", source)
+        self.assertIn("pmo0_head001.mdl", source)
+
+
+class RenderTargetHeadNeckTests(unittest.TestCase):
+    def test_render_orc_uses_pmo0_head_neck(self):
+        source = Path(__file__).resolve().parent.joinpath("render_derived_orc_review.py").read_text(encoding="utf-8")
+        self.assertIn("pmo0_{part}001.mdl", source)
+
+    def test_render_elf_uses_pme0_head_neck(self):
+        source = Path(__file__).resolve().parent.joinpath("render_derived_elf_review.py").read_text(encoding="utf-8")
+        self.assertIn("pme0_{part}001.mdl", source)
+
+
+class FixtureBuilderCliTests(unittest.TestCase):
+    def test_build_derived_dwarf_fixture_options(self):
+        import subprocess
+        res = subprocess.run(
+            [sys.executable, str(Path(__file__).resolve().parent / "build_derived_dwarf_fixture.py"), "--help"],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(res.returncode, 0)
+        self.assertIn("--stage", res.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
 

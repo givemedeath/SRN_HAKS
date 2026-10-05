@@ -124,7 +124,7 @@ def stage_candidate(stage_dir: Path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stage", type=Path, default=STAGE_ROOT)
+    parser.add_argument("--stage", "--stage-dir", dest="stage", type=Path, default=STAGE_ROOT)
     parser.add_argument("--game-root", type=Path, default=None, help="NWN game root directory")
     args = parser.parse_args()
 

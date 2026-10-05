@@ -172,7 +172,15 @@ python tools/phenotypes/audit_derived_dwarf_native.py
 ### Comparison Fixture Construction
 ```powershell
 # 1. Initialize fixture stage, baseline resources, and candidate staging:
-python tools/phenotypes/build_derived_dwarf_fixture.py --stage-dir output/phenotypes/derived-dwarf-male-v1/test-stage
+python tools/phenotypes/launch_shared_tool.py `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output output/phenotypes/derived-dwarf-male-v1/test-stage `
+  --input output/phenotypes/derived-dwarf-male-v1/candidate/converted/ascii/pmd0_chest001.mdl `
+  -- tools/phenotypes/build_derived_dwarf_fixture.py --stage output/phenotypes/derived-dwarf-male-v1/test-stage
+
+# Direct CLI invocation:
+python tools/phenotypes/build_derived_dwarf_fixture.py --stage output/phenotypes/derived-dwarf-male-v1/test-stage
 
 # 2. Stage stock comparator actor:
 python tools/phenotypes/stock_dwarf_control.py --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
