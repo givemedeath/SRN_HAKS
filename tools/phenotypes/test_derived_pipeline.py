@@ -1,7 +1,10 @@
 """Unit tests for derived phenotypes pipeline components (synthetic fixtures, no game/Blender required)."""
 from __future__ import annotations
+import hashlib
 import json
 from pathlib import Path
+import shutil
+import tempfile
 import unittest
 import numpy as np
 
@@ -78,5 +81,129 @@ class NativeDecoderTests(unittest.TestCase):
             decode_model_nodes(b"\x01\0\0\0\0\0\0\0\0\0\0\0", "test")
 
 
+class ResourcePackagingValidationTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp_dir = tempfile.TemporaryDirectory()
+        self.stage_dir = Path(self.tmp_dir.name)
+        self.res_dir = self.stage_dir / "resources"
+        self.res_dir.mkdir(parents=True, exist_ok=True)
+
+    def tearDown(self):
+        self.tmp_dir.cleanup()
+
+    def test_missing_receipt_raises(self):
+        from pack_derived_elf import validate_resources
+        with self.assertRaises(RuntimeError) as ctx:
+            validate_resources(self.res_dir)
+        self.assertIn("Missing compiler receipt", str(ctx.exception))
+
+    def test_incomplete_receipt_raises(self):
+        from pack_derived_elf import validate_resources
+        receipt = self.stage_dir / "native-compile.json"
+        receipt.write_text(json.dumps({"complete": False, "models": []}), encoding="utf-8")
+        with self.assertRaises(RuntimeError) as ctx:
+            validate_resources(self.res_dir)
+        self.assertIn("Incomplete compiler receipt", str(ctx.exception))
+
+    def test_missing_resource_raises(self):
+        from pack_derived_elf import validate_resources
+        receipt = self.stage_dir / "native-compile.json"
+        receipt.write_text(json.dumps({
+            "complete": True,
+            "models": [{"name": "test.mdl", "binarySha256": "abc"}]
+        }), encoding="utf-8")
+        with self.assertRaises(RuntimeError) as ctx:
+            validate_resources(self.res_dir)
+        self.assertIn("Missing expected compiled resources", str(ctx.exception))
+
+    def test_stale_resource_raises(self):
+        from pack_derived_elf import validate_resources
+        model_bytes = b"model_data"
+        sha = hashlib.sha256(model_bytes).hexdigest()
+        (self.res_dir / "test.mdl").write_bytes(model_bytes)
+        (self.res_dir / "stale.mdl").write_bytes(b"stale")
+
+        receipt = self.stage_dir / "native-compile.json"
+        receipt.write_text(json.dumps({
+            "complete": True,
+            "models": [{"name": "test.mdl", "binarySha256": sha}]
+        }), encoding="utf-8")
+        with self.assertRaises(RuntimeError) as ctx:
+            validate_resources(self.res_dir)
+        self.assertIn("Stale or undeclared resources", str(ctx.exception))
+
+    def test_hash_mismatch_raises(self):
+        from pack_derived_elf import validate_resources
+        (self.res_dir / "test.mdl").write_bytes(b"actual_data")
+
+        receipt = self.stage_dir / "native-compile.json"
+        receipt.write_text(json.dumps({
+            "complete": True,
+            "models": [{"name": "test.mdl", "binarySha256": "wrong_hash"}]
+        }), encoding="utf-8")
+        with self.assertRaises(RuntimeError) as ctx:
+            validate_resources(self.res_dir)
+        self.assertIn("Binary SHA256 mismatch", str(ctx.exception))
+
+    def test_valid_resources_pass(self):
+        from pack_derived_elf import validate_resources
+        model_bytes = b"model_data"
+        model_sha = hashlib.sha256(model_bytes).hexdigest()
+        (self.res_dir / "test.mdl").write_bytes(model_bytes)
+
+        mat_bytes = b"mat_data"
+        mat_sha = hashlib.sha256(mat_bytes).hexdigest()
+        (self.res_dir / "test.mtr").write_bytes(mat_bytes)
+
+        receipt = self.stage_dir / "native-compile.json"
+        receipt.write_text(json.dumps({
+            "complete": True,
+            "models": [{"name": "test.mdl", "binarySha256": model_sha}],
+            "materialResourceHashes": {"test.mtr": mat_sha}
+        }), encoding="utf-8")
+
+        result = validate_resources(self.res_dir)
+        self.assertEqual(len(result), 2)
+
+
+class NativeAuditValidationTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp_dir = tempfile.TemporaryDirectory()
+        self.stage_dir = Path(self.tmp_dir.name)
+        self.res_dir = self.stage_dir / "resources"
+        self.res_dir.mkdir(parents=True, exist_ok=True)
+
+    def tearDown(self):
+        self.tmp_dir.cleanup()
+
+    def test_audit_missing_compile_receipt_raises(self):
+        from audit_derived_dwarf_native import audit_native_models
+        with self.assertRaises(RuntimeError) as ctx:
+            audit_native_models(stage_dir=self.stage_dir)
+        self.assertIn("Missing native-compile.json", str(ctx.exception))
+
+
+class MasterFreezeVerificationTests(unittest.TestCase):
+    def test_dest_hash_verification(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            src = tmp_path / "source.mdl"
+            dst = tmp_path / "native" / "source.mdl"
+            dst.parent.mkdir()
+
+            src.write_bytes(b"fresh_source_data")
+            dst.write_bytes(b"stale_destination_data")
+
+            from freeze_derived_masters import sha
+            actual_sha = sha(src)
+            self.assertNotEqual(sha(dst), actual_sha)
+
+            if not dst.exists() or sha(dst) != actual_sha:
+                shutil.copyfile(src, dst)
+            dest_sha = sha(dst)
+            self.assertEqual(dest_sha, actual_sha)
+
+
 if __name__ == "__main__":
     unittest.main()
+

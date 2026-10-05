@@ -8,6 +8,7 @@ import hashlib
 import json
 from pathlib import Path
 import struct
+import sys
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[2]
@@ -152,6 +153,9 @@ def audit_native_models(stage_dir: Path = STAGE, output_receipt: Path | None = N
         output_receipt.write_text(json.dumps(audit_report, indent=2), encoding="utf-8")
         print(f"Wrote native shading audit to {output_receipt}")
 
+    if not all_passed:
+        raise RuntimeError(f"Gate 4 native shading audit failed: one or more tangent spaces invalid in {stage_dir}")
+
     return audit_report
 
 
@@ -233,3 +237,7 @@ if __name__ == "__main__":
     receipt.write_text(json.dumps(audit_report, indent=2), encoding="utf-8")
     print(f"Wrote native shading audit to {receipt}")
     print(f"Audited {audit_report['totalModelsAudited']} models. All tangent spaces valid: {audit_report['allTangentSpacesValid']}")
+
+    if not audit_report["allTangentSpacesValid"]:
+        print(f"ERROR: Gate 4 native shading audit failed: one or more tangent spaces invalid in {stage}")
+        sys.exit(1)

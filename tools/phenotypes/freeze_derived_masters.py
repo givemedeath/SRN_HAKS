@@ -244,10 +244,13 @@ def freeze_human_male_master(
         if actual_sha != item['sha256']:
             raise ValueError(f"Hash drift in master resource {src}: expected {item['sha256']}, got {actual_sha}")
         dst = native_out / src.name
-        if not dst.exists():
+        if not dst.exists() or sha(dst) != actual_sha:
             shutil.copyfile(src, dst)
+        dest_sha = sha(dst)
+        if dest_sha != actual_sha:
+            raise ValueError(f"Destination hash mismatch for {dst}: expected {actual_sha}, got {dest_sha}")
         resource_pins[src.name] = {
-            'sha256': actual_sha,
+            'sha256': dest_sha,
             'bytes': item['bytes'],
             'path': str(dst),
         }
