@@ -16,7 +16,8 @@ from target_contract import sha, require
 
 def helper_paths():
     return [Path(module.__file__).resolve() for module in
-            (retarget,rig_controller_audit,rig_pose_audit,target_contract)]+[Path(__file__).resolve()]
+            (retarget,rig_controller_audit,rig_pose_audit,target_contract)]+[Path(__file__).resolve(),
+                Path(__file__).with_name('run_preparation.py').resolve()]
 
 
 def helper_inputs():
@@ -35,7 +36,7 @@ def freeze_helpers(output, additional=()):
         shutil.copy2(source,destination)
         result[str(source)]={'sha256':sha(source),'snapshot':str(destination.resolve())}
         require(sha(destination)==result[str(source)]['sha256'],'Preview helper copy changed')
-    (directory/'manifest.json').write_text(json.dumps(result,indent=2)+'\n')
+    (directory/'manifest.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     return result
 
 
@@ -45,8 +46,9 @@ def verify_helpers(manifest):
         require(sha(Path(pin['snapshot']))==pin['sha256'],'Preview helper snapshot changed')
 
 
-def pose(ascii_dir, prefix, clip, time, stock_dir=None):
+def pose(ascii_dir, prefix, clip, time, stock_dir=None, *, context=None):
     """Retain legacy lookup/defaults while sampling count/endlist/static data."""
+    if context is not None:return context.pose(ascii_dir,prefix,clip,time,stock_dir)
     ascii_dir=Path(ascii_dir)
     root_path=(ascii_dir/(prefix+'.mdl')).resolve()
     skeleton=nodes(root_path.read_text(encoding='cp1252'))

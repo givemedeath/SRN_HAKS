@@ -17,6 +17,9 @@ from mathutils import Matrix, Quaternion, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_geometry import arrays
+from pose_preview_bridge import pose
+from run_preparation import PreparationContext
+from pose_preview_render_settings import apply_render_settings
 from retarget import NODE, nodes, transforms, rotations
 
 JOINTS = dict(head="head_g", neck="neck_g", chest="torso_g", pelvis="pelvis_g",
@@ -40,40 +43,6 @@ def controller(rows, time, rotation=False):
         axis, angle = q.to_axis_angle()
         return [*axis, angle]
     return rows[left, 1:4]*(1-mix) + rows[right, 1:4]*mix
-
-
-def pose(ascii_dir, prefix, clip, time, stock_dir=None):
-    skeleton = nodes((ascii_dir/(prefix+".mdl")).read_text(encoding="cp1252"))
-    current = prefix
-    visited = set()
-    while current.lower() != "null":
-        if current in visited:
-            raise RuntimeError("Supermodel cycle")
-        visited.add(current)
-        path = ascii_dir/(current+".mdl")
-        if not path.exists() and stock_dir is not None:
-            path = stock_dir/(current+".mdl")
-        text = path.read_text(encoding="cp1252")
-        match = re.search(r"(?mis)^newanim\s+"+re.escape(clip)+r"\s+\S+\s*\n(.*?)^doneanim[^\n]*", text)
-        if match:
-            length = float(re.search(r"(?m)^\s*length\s+(\S+)", match[1])[1])
-            if not 0 <= time <= length:
-                raise RuntimeError(f"Time {time} outside clip length {length}")
-            for node in NODE.finditer(match[1]):
-                name = node[2].lower()
-                if name not in skeleton:
-                    continue
-                if "bezierkey" in node[3].lower():
-                    raise RuntimeError("Bezier controller requires an explicit evaluator")
-                for label, field, rotation in (("positionkey", "position", False),
-                                                ("orientationkey", "orientation", True)):
-                    rows = arrays(node[3], label)
-                    if rows:
-                        skeleton[name][field] = controller(rows, time, rotation)
-            return transforms(skeleton), {"file":str(path.resolve()), "sha256":hashlib.sha256(path.read_bytes()).hexdigest(),
-                                          "clip":clip, "time":time, "length":length}
-        current = re.search(r"(?mi)^setsupermodel\s+\S+\s+(\S+)", text)[1].lower()
-    raise RuntimeError("Clip unavailable: "+clip)
 
 
 def stock_part(path, name):
@@ -124,6 +93,9 @@ def main():
     parser.add_argument("--stock-replacement",type=Path,action="append",default=[],
                         help="JSON candidate: label, modelPrefix, height, parts mapping; undeclared parts are actual stock ASCII")
     args = parser.parse_args(sys.argv[sys.argv.index("--")+1:])
+    preparation=PreparationContext(target_revision='explicit-preview-inputs',rig_revision='content-bound-root',
+        animation_revision='content-bound-chain',settings={'clip':args.clip,'time':args.time},
+        dependencies=[Path(__file__).resolve()])
     if args.camera_scale is not None and args.camera_scale<=0:
         raise RuntimeError('Camera scale must be positive')
     args.output.mkdir(parents=True, exist_ok=False)
@@ -168,7 +140,7 @@ def main():
     hues = [(0.20,0.43,0.75,1),(.76,.32,.14,1),(.22,.58,.31,1),(.65,.38,.66,1)]
     for index, (label, directory, height, prefix, ascii_dir) in enumerate(specimens):
         display_objects=[]
-        matrices, receipt = pose(ascii_dir, prefix, args.clip, args.time, args.baseline/"ascii")
+        matrices, receipt = pose(ascii_dir, prefix, args.clip, args.time, args.baseline/"ascii", context=preparation)
         root_path=(ascii_dir/(prefix+".mdl")).resolve()
         input_hashes = {str(root_path):hashlib.sha256(root_path.read_bytes()).hexdigest()}
         receipt["attachmentMaterialFaces"]={}
@@ -188,10 +160,10 @@ def main():
         if directory:
             input_hashes[str((directory/'conversion.json').resolve())] = hashlib.sha256((directory/'conversion.json').read_bytes()).hexdigest()
             if json.loads((directory/'conversion.json').read_text()).get("rigMode")=="stock-exact":
-                stock_root=(args.baseline/'ascii'/('pmh0.mdl')).resolve()
+                stock_root=(args.baseline/'ascii'/(args.stock_prefix+'.mdl')).resolve()
                 if root_path.read_bytes()!=stock_root.read_bytes():
                     raise RuntimeError("Exact stock candidate has a changed root")
-                stock_matrices,_=pose(args.baseline/'ascii','pmh0',args.clip,args.time)
+                stock_matrices,_=pose(args.baseline/'ascii',args.stock_prefix,args.clip,args.time,context=preparation)
                 discrepancy=max(float(np.max(abs(matrices[j]-stock_matrices[j]))) for j in active_joints.values())
                 if discrepancy>1e-10:
                     raise RuntimeError("Candidate preview joint transforms differ from stock")
@@ -272,7 +244,7 @@ def main():
         receipts.append(receipt)
         specimen_objects.append(display_objects)
     scene=bpy.context.scene
-    scene.render.engine="BLENDER_EEVEE"
+    render_settings=apply_render_settings(scene,'eevee')
     scene.eevee.use_gtao=True
     scene.eevee.gtao_distance=.08
     scene.world.color=(.15,.15,.15)
@@ -384,11 +356,12 @@ def main():
             if hashlib.sha256(Path(path).read_bytes()).hexdigest() != expected:
                 raise RuntimeError('Preview input changed during rendering: '+path)
     if hashlib.sha256(Path(__file__).read_bytes()).hexdigest()!=code_hash:raise RuntimeError("Preview code changed during rendering")
-    (args.output/"comparison.json").write_text(json.dumps({"specimens":receipts,"focus":args.focus,
+    preparation.verify()
+    (args.output/"comparison.json").write_text(json.dumps({"specimens":receipts,"focus":args.focus,"preparation":preparation.receipt(),"renderSettings":render_settings,
         "cameraViews":[{"name":name,"direction":directions[name],"labelsOutsideProjectedGeometry":name in ("top","rear-top","left","right"),"specimenDisplayOffsetAxis":"Y" if name in ("left","right") else "X"} for name in args.view or ("front","rear","oblique")],
         "materialMode":args.material_mode,"codeSnapshot":"executed-pose-preview.py","codeSha256":code_hash,
         'cameras':camera_receipts,
-        "note":"Offline stock-controller comparison. Color uses declared GLB materials; undeclared stock ASCII fallback is clay. Actual client lighting/playback remain separate evidence."},indent=2)+"\n")
+        "note":"Offline stock-controller comparison. Color uses declared GLB materials; undeclared stock ASCII fallback is clay. Actual client lighting/playback remain separate evidence."},indent=2)+"\n",encoding="utf-8")
     print(json.dumps(receipts))
 
 
