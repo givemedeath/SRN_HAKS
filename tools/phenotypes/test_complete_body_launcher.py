@@ -22,14 +22,16 @@ class CompleteBodyLauncherTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix='body launcher ')
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
-        self.launcher = self.root / 'Launch-CompleteBodyClient.ps1'
+        self.launcher = self.root / 'tools/phenotypes/Launch-CompleteBodyClient.ps1'
+        self.launcher.parent.mkdir(parents=True)
         shutil.copyfile(Path(__file__).with_name(self.launcher.name), self.launcher)
+        shutil.copyfile(Path(__file__).resolve().parents[1]/'SrnTools.psm1',self.root/'tools/SrnTools.psm1')
         self.fixture = self.root / 'fixture with spaces'
         self.fixture.mkdir()
         # This non-executable file deliberately cannot be launched as a game.
         self.client = self.root / 'not a real client.exe'
         self.client.write_text('No game process may start in this test.')
-        (self.root / 'preflight_complete_body_client.py').write_text('''
+        self.launcher.with_name('preflight_complete_body_client.py').write_text('''
 import argparse, json, sys
 from pathlib import Path
 p = argparse.ArgumentParser()
@@ -95,6 +97,12 @@ Path(a.output).write_text(json.dumps({
         self.assertIn('Complete-body client preflight failed', result.stderr)
         self.assertTrue((self.fixture / 'dispatch.json').exists())
         self.assertFalse(list(self.fixture.glob('client-launch-*.json')))
+
+    def test_store_shim_is_rejected_before_preflight(self):
+        shim=self.root/'WindowsApps/python.exe';shim.parent.mkdir();shim.write_bytes(b'non-executable shim fixture')
+        result=self.run_launcher(interpreter=shim)
+        self.assertNotEqual(result.returncode,0);self.assertIn('Store Python shim',result.stderr)
+        self.assertFalse((self.fixture/'dispatch.json').exists())
 
 
 if __name__ == '__main__':

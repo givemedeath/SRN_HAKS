@@ -359,6 +359,7 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/test_complete_body_launcher.py": [
+      "tools/SrnTools.psm1",
       "tools/phenotypes/Launch-CompleteBodyClient.ps1",
       "tools/phenotypes/preflight_complete_body_client.py"
     ],
