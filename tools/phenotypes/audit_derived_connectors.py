@@ -100,17 +100,27 @@ def audit_connectors(
 
         has_3d_overlap = bool(np.all(overlap_span > 0))
 
-        # Calculate axial overlap along limb axis (primarily Z in NWN rest pose)
+        # Calculate bounding box overlap spans
         z_overlap = float(overlap_span[2])
         x_overlap = float(overlap_span[0])
         y_overlap = float(overlap_span[1])
 
-        # Overlap distance past joint center:
-        # Parent past joint, child before joint
-        parent_dist_past_joint = float(np.max(np.linalg.norm(v_parent - joint_pos, axis=1)))
-        child_dist_past_joint = float(np.max(np.linalg.norm(v_child - joint_pos, axis=1)))
+        # Project vertices along parent-to-child joint axis vector
+        p_joint_name = PART_JOINTS.get(parent_part, joint_name).lower()
+        c_joint_name = PART_JOINTS.get(child_part, joint_name).lower()
+        p_pos = np.array(frames[p_joint_name])[:3, 3]
+        c_pos = np.array(frames[c_joint_name])[:3, 3]
+        axis_vec = c_pos - p_pos
+        norm_axis = np.linalg.norm(axis_vec)
+        u_axis = axis_vec / norm_axis if norm_axis > 1e-6 else np.array([0.0, 0.0, -1.0])
 
-        # Boundary gap check: min distance between parent mesh and child mesh in the overlap region
+        proj_p = v_parent @ u_axis
+        proj_c = v_child @ u_axis
+        ol_start = max(float(proj_p.min()), float(proj_c.min()))
+        ol_end = min(float(proj_p.max()), float(proj_c.max()))
+        axial_overlap = max(0.0, ol_end - ol_start)
+
+        # Boundary gap check in the 3D overlap region
         in_overlap_p = v_parent[
             (v_parent[:, 0] >= overlap_min[0]) & (v_parent[:, 0] <= overlap_max[0]) &
             (v_parent[:, 1] >= overlap_min[1]) & (v_parent[:, 1] <= overlap_max[1]) &
@@ -121,20 +131,32 @@ def audit_connectors(
             (v_child[:, 1] >= overlap_min[1]) & (v_child[:, 1] <= overlap_max[1]) &
             (v_child[:, 2] >= overlap_min[2]) & (v_child[:, 2] <= overlap_max[2])
         ]
-
         overlap_vertex_count = len(in_overlap_p) + len(in_overlap_c)
 
-        # Boundary surface gap check: compute inter-surface nearest distance between child and parent mesh
+        # Measure surface proximity on vertices near the joint interface (within 15 cm of child joint center)
+        dp = np.linalg.norm(v_parent - c_pos, axis=1)
+        dc = np.linalg.norm(v_child - c_pos, axis=1)
+        near_p = v_parent[dp < 0.15]
+        near_c = v_child[dc < 0.15]
+
+        # Points in the axial overlap region near the joint
+        in_ax_p = near_p[(near_p @ u_axis >= ol_start) & (near_p @ u_axis <= ol_end)]
+        in_ax_c = near_c[(near_c @ u_axis >= ol_start) & (near_c @ u_axis <= ol_end)]
+
         min_surface_dist = float("inf")
-        if len(in_overlap_c) > 0 and len(in_overlap_p) > 0:
-            for i in range(0, len(in_overlap_c), 500):
-                chunk = in_overlap_c[i:i + 500]
-                d = np.min(np.linalg.norm(chunk[:, None, :] - in_overlap_p[None, :, :], axis=2))
+        pts_c = in_ax_c if (len(in_ax_c) > 0 and len(in_ax_p) > 0) else near_c
+        pts_p = in_ax_p if (len(in_ax_c) > 0 and len(in_ax_p) > 0) else near_p
+
+        if len(pts_c) > 0 and len(pts_p) > 0:
+            for i in range(0, len(pts_c), 500):
+                chunk = pts_c[i:i + 500]
+                d = np.min(np.linalg.norm(chunk[:, None, :] - pts_p[None, :, :], axis=2))
                 if d < min_surface_dist:
                     min_surface_dist = float(d)
 
-        has_surface_proximity = bool(len(in_overlap_c) > 0 and len(in_overlap_p) > 0 and min_surface_dist < 0.005)
-        passed = has_3d_overlap and z_overlap > 0.005 and has_surface_proximity
+        has_surface_proximity = bool(min_surface_dist < 0.005)
+        has_axial_overlap = bool(axial_overlap > 0.005)
+        passed = bool(has_3d_overlap and has_axial_overlap and has_surface_proximity)
 
         if not passed:
             all_passed = False
@@ -146,11 +168,14 @@ def audit_connectors(
             "childPart": child_part,
             "has3DOverlap": has_3d_overlap,
             "axialOverlapZ": z_overlap,
+            "axialOverlapMeters": axial_overlap,
+            "jointAxis": [round(float(x), 4) for x in u_axis],
             "overlapSpanX": x_overlap,
             "overlapSpanY": y_overlap,
             "overlapVertexCount": overlap_vertex_count,
             "minSurfaceDistanceMeters": min_surface_dist if min_surface_dist != float("inf") else None,
             "hasSurfaceProximity": has_surface_proximity,
+            "hasAxialOverlap": has_axial_overlap,
             "status": "passed" if passed else "failed-gap",
         })
 

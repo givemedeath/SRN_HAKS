@@ -188,6 +188,22 @@ def audit_stock_armor_compatibility(
             f"Connector audit target mismatch in {conn_audit_file}: expected '{target_id}', got '{conn_target}'"
         )
 
+    audited_parts = conn_audit.get("parts", {})
+    require(bool(audited_parts), f"Connector audit {conn_audit_file} missing parts metadata")
+    for part_name, meta in audited_parts.items():
+        model_name = meta.get("model", f"{prefix}_{part_name}001")
+        model_file = derived_ascii_dir / f"{model_name}.mdl"
+        require(
+            model_file.is_file(),
+            f"Gate 3 connector audit mismatch: model {model_file} not found in {derived_ascii_dir}",
+        )
+        current_sha = sha256_file(model_file)
+        expected_sha = meta.get("sha256")
+        require(
+            current_sha == expected_sha,
+            f"Gate 3 connector audit hash mismatch for {model_file}: expected {expected_sha}, got {current_sha}",
+        )
+
     surfaces_preserved = bool(conn_audit.get("allConnectorsPassed", False))
     require(surfaces_preserved, f"Connector audit failed in {conn_audit_file}")
     overlap_status = "verified-positive" if surfaces_preserved else "failed-overlap"

@@ -143,30 +143,66 @@ def main():
         decompile_model(temp_dir / f"{source_name}.mdl", temp_dir / f"{source_name}_ascii.mdl")
         original_ascii = (temp_dir / f"{source_name}_ascii.mdl").read_text(encoding="cp1252")
 
+        # Collect distinct non-null bitmaps
         bitmaps = [b for b in re.findall(r"(?mi)^\s*bitmap\s+(\S+)", original_ascii) if b.lower() != "null"]
-        bitmap_source = bitmaps[0] if bitmaps else source_name
+        distinct_bitmaps = []
+        for b in bitmaps:
+            if b not in distinct_bitmaps:
+                distinct_bitmaps.append(b)
 
-        mdl_text = original_ascii.replace("pmd0", "pmz0")
-        mdl_text = re.sub(r"(?mi)^\s*bitmap\s+\S+", f"  bitmap {alias_name}", mdl_text)
-        (ascii_dir / f"{alias_name}.mdl").write_text(mdl_text, encoding="cp1252")
-
-        # Extract source PLT
-        try:
-            raw_plt = extract_stock_resource(f"{bitmap_source}.plt", temp_userdir, game_root)
-        except Exception:
-            # Fallback to srn_body or source_name
-            if (REPO / f"srn_body/{bitmap_source}.plt").exists():
-                raw_plt = (REPO / f"srn_body/{bitmap_source}.plt").read_bytes()
+        # Build alias mapping for each bitmap:
+        # If the bitmap begins with pmd0, alias it to pmz0; otherwise preserve it
+        bitmap_aliases = {}
+        for bmp in distinct_bitmaps:
+            if bmp.lower().startswith("pmd0"):
+                aliased_bmp = f"pmz0{bmp[4:]}"
             else:
-                raw_plt = extract_stock_resource(f"{source_name}.plt", temp_userdir, game_root)
-        (resources_dir / f"{alias_name}.plt").write_bytes(raw_plt)
+                aliased_bmp = bmp
+            bitmap_aliases[bmp] = aliased_bmp
+
+            # Extract source PLT and write to resources_dir as {aliased_bmp}.plt
+            try:
+                raw_plt = extract_stock_resource(f"{bmp}.plt", temp_userdir, game_root)
+            except Exception:
+                if (REPO / f"srn_body/{bmp}.plt").exists():
+                    raw_plt = (REPO / f"srn_body/{bmp}.plt").read_bytes()
+                elif (REPO / f"srn_body/{aliased_bmp}.plt").exists():
+                    raw_plt = (REPO / f"srn_body/{aliased_bmp}.plt").read_bytes()
+                else:
+                    raw_plt = extract_stock_resource(f"{source_name}.plt", temp_userdir, game_root)
+            (resources_dir / f"{aliased_bmp}.plt").write_bytes(raw_plt)
+
+        # Ensure primary part alias PLT exists if referenced
+        primary_plt = resources_dir / f"{alias_name}.plt"
+        if not primary_plt.exists() and distinct_bitmaps:
+            first_alias_plt = resources_dir / f"{bitmap_aliases[distinct_bitmaps[0]]}.plt"
+            if first_alias_plt.exists():
+                shutil.copy2(first_alias_plt, primary_plt)
+
+        # In model text, rename skeleton/nodes pmd0 -> pmz0 and replace bitmaps with their respective aliases
+        mdl_text = original_ascii.replace("pmd0", "pmz0")
+        def replace_bitmap(m):
+            orig = m.group(1)
+            if orig.lower() == "null":
+                return m.group(0)
+            return f"  bitmap {bitmap_aliases.get(orig, orig)}"
+
+        mdl_text = re.sub(r"(?mi)^\s*bitmap\s+(\S+)", replace_bitmap, mdl_text)
+        (ascii_dir / f"{alias_name}.mdl").write_text(mdl_text, encoding="cp1252")
 
         receipt.append({
             "part": part,
             "sourceModel": f"{source_name}.mdl",
             "aliasModel": f"{alias_name}.mdl",
             "modelSha256": digest(ascii_dir / f"{alias_name}.mdl"),
-            "pltSha256": digest(resources_dir / f"{alias_name}.plt")
+            "pltSha256": digest(primary_plt) if primary_plt.exists() else None,
+            "bitmaps": {
+                bmp: {
+                    "alias": alias_bmp,
+                    "pltSha256": digest(resources_dir / f"{alias_bmp}.plt")
+                }
+                for bmp, alias_bmp in bitmap_aliases.items()
+            }
         })
 
     # 3. Native compile the stock alias models

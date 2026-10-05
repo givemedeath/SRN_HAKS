@@ -37,6 +37,8 @@ def evaluate_connector_motion(
     child_joint: str,
     stock_ascii_dir: Path,
     motion_samples: list[dict] = MOTION_SAMPLES,
+    prefix: str = "pmd0",
+    model_ascii_dir: Path | None = None,
 ) -> dict:
     """Evaluate axial overlap and corner proximity across animation clips."""
     text_p = parent_path.read_text(encoding="cp1252")
@@ -49,10 +51,11 @@ def evaluate_connector_motion(
     min_overlap = float("inf")
     worst_clip = None
 
+    pose_dir = model_ascii_dir or stock_ascii_dir
     for s in motion_samples:
         clip = s["clip"]
         t = s["time"]
-        xforms, _ = pose(stock_ascii_dir, "pmd0", clip, t, stock_dir=stock_ascii_dir)
+        xforms, _ = pose(pose_dir, prefix, clip, t, stock_dir=stock_ascii_dir)
 
         m_p = xforms[parent_joint.lower()]
         m_c = xforms[child_joint.lower()]
@@ -107,7 +110,7 @@ def build_all_review_packets(
 ) -> dict:
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    prefix = target_data["identity"]["prefix"]
+    prefix = target_data.get("rig", {}).get("targetPrefix") or target_data["identity"]["prefix"]
 
     connectors = [
         ("chest", "pelvis", "torso_g", "pelvis_g", "waist"),
@@ -129,7 +132,10 @@ def build_all_review_packets(
     for p_part, c_part, p_joint, c_joint, label in connectors:
         p_path = ascii_dir / f"{prefix}_{p_part}001.mdl"
         c_path = ascii_dir / f"{prefix}_{c_part}001.mdl"
-        res = evaluate_connector_motion(p_path, c_path, p_joint, c_joint, stock_ascii_dir)
+        res = evaluate_connector_motion(
+            p_path, c_path, p_joint, c_joint, stock_ascii_dir,
+            prefix=prefix, model_ascii_dir=ascii_dir
+        )
         reports[label] = res
 
     all_ok = all(r["allPosesHaveOverlap"] for r in reports.values())
@@ -137,6 +143,7 @@ def build_all_review_packets(
         "schemaVersion": 1,
         "kind": "derived-motion-review-summary",
         "targetId": target_data["id"],
+        "posePrefix": prefix,
         "allConnectorsOverlapInAllPoses": all_ok,
         "connectorCount": len(reports),
         "motionSamplesEvaluated": len(MOTION_SAMPLES),

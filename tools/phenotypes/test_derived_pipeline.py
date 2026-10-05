@@ -224,7 +224,23 @@ class Gate7ComplianceTests(unittest.TestCase):
                     },
                 },
                 "stock_vs_target": {"dice_pct": 70.0},
-            }
+            },
+            "side": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 75.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
+            "rear": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 75.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
         }
         res = evaluate_gate7_compliance("test_race", mock_data)
         self.assertTrue(res["passed"])
@@ -333,7 +349,23 @@ class Gate7ComplianceTests(unittest.TestCase):
                     },
                 },
                 "stock_vs_target": {"dice_pct": 70.0},
-            }
+            },
+            "side": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 75.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
+            "rear": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 75.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
         }
         res = evaluate_gate7_compliance("elf_male", mock_data)
         self.assertTrue(res["passed"])
@@ -357,6 +389,14 @@ class Gate7ComplianceTests(unittest.TestCase):
                 "derived_vs_target": {
                     "regional": {
                         "Chest & Upper Torso (15-38%)": {"dice": 0.0},  # Disjoint turnaround region
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
+            "rear": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 75.0},
                         "Pelvis & Hands (38-60%)": {"dice": 75.0},
                     },
                 },
@@ -389,11 +429,50 @@ class Gate7ComplianceTests(unittest.TestCase):
                     },
                 },
             },
+            "rear": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 75.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
         }
         res = evaluate_gate7_compliance("test_race", mock_data)
         self.assertTrue(res["passed"])
         self.assertTrue(res["turnaroundPassed"])
         self.assertTrue(res["turnaroundReports"]["side"]["passed"])
+        self.assertTrue(res["turnaroundReports"]["rear"]["passed"])
+
+    def test_missing_turnaround_view_fails(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 0.85,
+                    "dice_pct": 82.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 85.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 80.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            },
+            "side": {
+                "derived_vs_target": {
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 75.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 75.0},
+                    },
+                },
+            },
+            # Missing rear view
+        }
+        res = evaluate_gate7_compliance("test_race", mock_data)
+        self.assertFalse(res["passed"])
+        self.assertFalse(res["turnaroundPassed"])
+        self.assertIn("rear", res["turnaroundReports"])
+        self.assertFalse(res["turnaroundReports"]["rear"]["passed"])
 
 
 class StageDerivedDwarfDefaultsTests(unittest.TestCase):
@@ -621,14 +700,81 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
             tmp_dir = Path(tmp)
             out_receipt = tmp_dir / "receipt.json"
             good_audit = tmp_dir / "connector-audit.json"
+            (tmp_dir / "pmd0_chest001.mdl").write_text("model pmd0_chest001", encoding="utf-8")
             good_audit.write_text(json.dumps({
                 "targetId": "dwarf-male-fit",
                 "allConnectorsPassed": True,
+                "parts": {
+                    "chest": {
+                        "model": "pmd0_chest001",
+                        "sha256": hashlib.sha256(b"model pmd0_chest001").hexdigest(),
+                    }
+                }
             }), encoding="utf-8")
 
             res = audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
             self.assertTrue(res["complete"])
             self.assertEqual(res["connectorCompatibility"]["measuredOverlapStatus"], "verified-positive")
+
+    @patch("derived_equipment.inventory_installed_styles")
+    @patch("derived_equipment.audit_hand_dummies")
+    def test_stale_model_hash_fails(self, mock_dummies, mock_inventory):
+        from derived_equipment import PARTS, audit_stock_armor_compatibility
+        mock_dummies.return_value = {"handl": {"rigGripPresent": True, "rigAttachmentPresent": True}}
+        mock_inventory.return_value = {
+            "parts": {p: [1] for p in PARTS},
+            "totalModelsFound": 440,
+        }
+        target_config = {
+            "id": "dwarf-male-fit",
+            "identity": {"prefix": "pmd0", "race": "dwarf"},
+            "rig": {"mode": "stock-family", "frames": {"working": ["torso_g", "lbicep_g", "rbicep_g", "lforearm_g", "rforearm_g",
+                                          "lhand_g", "rhand_g", "lthigh_g", "rthigh_g", "lshin_g", "rshin_g", "lfoot_g", "rfoot_g"]}}
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            out_receipt = tmp_dir / "receipt.json"
+            good_audit = tmp_dir / "connector-audit.json"
+            (tmp_dir / "pmd0_chest001.mdl").write_text("model pmd0_chest001_modified", encoding="utf-8")
+            good_audit.write_text(json.dumps({
+                "targetId": "dwarf-male-fit",
+                "allConnectorsPassed": True,
+                "parts": {
+                    "chest": {
+                        "model": "pmd0_chest001",
+                        "sha256": "0" * 64,  # Stale hash
+                    }
+                }
+            }), encoding="utf-8")
+
+            with self.assertRaises(ValueError) as ctx:
+                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
+            self.assertIn("hash mismatch", str(ctx.exception))
+
+
+class ConnectorJointAxisAuditTests(unittest.TestCase):
+    def test_connector_audit_measures_joint_axis(self):
+        from audit_derived_connectors import audit_connectors
+        target_path = Path(__file__).resolve().parent / "configurations" / "derived" / "target-dwarf-male-stock.json"
+        target_data = json.loads(target_path.read_text(encoding="utf-8"))
+        ascii_dir = Path(__file__).resolve().parents[2] / "output/phenotypes/derived-v1/parts/dwarf-male/ascii"
+        if ascii_dir.exists():
+            report = audit_connectors(target_data, ascii_dir)
+            self.assertTrue(report["allConnectorsPassed"])
+            for c in report["connectors"]:
+                self.assertIn("axialOverlapMeters", c)
+                self.assertIn("jointAxis", c)
+                self.assertGreater(c["axialOverlapMeters"], 0.005)
+                self.assertTrue(c["hasSurfaceProximity"])
+
+
+class MotionReviewPosePrefixTests(unittest.TestCase):
+    def test_motion_review_prefix_parameter(self):
+        import inspect
+        from derived_review_configs import evaluate_connector_motion, build_all_review_packets
+        sig = inspect.signature(evaluate_connector_motion)
+        self.assertIn("prefix", sig.parameters)
+        self.assertIn("model_ascii_dir", sig.parameters)
 
 
 class PreflightCliExecutionTests(unittest.TestCase):
