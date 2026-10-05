@@ -24,7 +24,9 @@
       "tools/phenotypes/stage_stock_part.py",
       "tools/phenotypes/stock_limb_contract.py"
     ],
-    "tools/phenotypes/audit_pelvis_package.py": [],
+    "tools/phenotypes/audit_pelvis_package.py": [
+      "tools/phenotypes/tool_runtime.py"
+    ],
     "tools/phenotypes/audit_thigh_package.py": [
       "tools/phenotypes/audit_pelvis_package.py",
       "tools/phenotypes/build_test_module.py",
@@ -430,6 +432,13 @@
       "tools/phenotypes/prepare_stock_limb_stage_config.py",
       "tools/phenotypes/test_mirror_stock_limb_part.py"
     ],
+    "tools/phenotypes/test_shared_caller_dependencies.py": [
+      "tools/phenotypes/audit_pelvis_package.py",
+      "tools/phenotypes/native_compile.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/shared-tools.lock.json",
+      "tools/shared_tools.py"
+    ],
     "tools/phenotypes/test_shared_launch.py": [
       "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py",
@@ -505,13 +514,16 @@
       "tools/toolchain.lock.json"
     ],
     "tools/test_test_impact.py": [
+      "tools/phenotypes/audit_pelvis_package.py",
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/height_targets.json",
       "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/native_compile.py",
       "tools/phenotypes/pose_preview_render_settings.py",
       "tools/phenotypes/rig_pose_audit.py",
       "tools/phenotypes/test_generate_purpose_built_part_cli.py",
       "tools/phenotypes/test_pose_preview_bridge.py",
+      "tools/phenotypes/test_shared_caller_dependencies.py",
       "tools/shared-tools.lock.json",
       "tools/test_impact.py",
       "tools/test_shared_tools.py"
@@ -542,6 +554,7 @@
     "tools/phenotypes/test_pose_preview_bridge.py",
     "tools/phenotypes/test_pose_preview_render_settings.py",
     "tools/phenotypes/test_prepare_stock_limb_stage_config.py",
+    "tools/phenotypes/test_shared_caller_dependencies.py",
     "tools/phenotypes/test_shared_launch.py",
     "tools/phenotypes/test_shared_toolchain.py",
     "tools/phenotypes/test_stock_equipment_fallback.py",

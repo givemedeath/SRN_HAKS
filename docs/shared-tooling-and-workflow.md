@@ -120,6 +120,9 @@ staging reuses its frozen input hashes; joint packets register their complete
 consumed hash set. Automatic registrations conservatively remain incomplete.
 Python and PowerShell registrations use the same byte-range filesystem lock;
 Linux registrations preserve case-sensitive path identities.
+Native compilation registers each consumed ASCII model and material file with
+its frozen hash before dispatch. Reused donor receipts and binaries are pinned
+and registered too; drift rejects the run before its final verification receipt.
 Opaque CLI arguments and dynamic resource lookup cannot establish whole-worktree
 coverage. Registration of one operation never certifies all other operations.
 
@@ -213,6 +216,10 @@ The pose bridge preserves its existing arguments and gains optional `context`.
 The maintained pose renderer and effective material exporter use preparation
 contexts. The shared render helper bounds EEVEE and CPU Cycles at four threads.
 Preparation counts and stage timings are recorded before proposing more concurrency.
+Regenerate benchmark evidence from a clean Git export after helper changes.
+The validation record pins the committed helper bytes, and clean-checkout tests
+verify the complete declared helper set. This avoids binding evidence to local
+line endings that differ from the committed files. Preserve older run receipts.
 
 `tools/test_impact.py` builds a catalog of local imports, literal helper launches
 and configuration dependencies. Use `--changed <repository-relative-file> --run`

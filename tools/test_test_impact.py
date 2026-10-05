@@ -6,6 +6,8 @@ class ImpactTests(unittest.TestCase):
     def test_known_import_literal_and_config_edges(self):
         data=catalog()
         for changed,expected in [('tools/phenotypes/rig_pose_audit.py','tools/phenotypes/test_pose_preview_bridge.py'),
+            ('tools/phenotypes/native_compile.py','tools/phenotypes/test_shared_caller_dependencies.py'),
+            ('tools/phenotypes/audit_pelvis_package.py','tools/phenotypes/test_shared_caller_dependencies.py'),
             ('tools/shared-tools.lock.json','tools/test_shared_tools.py'),
             ('tools/phenotypes/height_targets.json','tools/phenotypes/test_generate_purpose_built_part_cli.py')]:
             result=select([changed],data);self.assertIn(expected,result['tests'])

@@ -2,6 +2,7 @@
 import argparse, hashlib, json, re, struct, subprocess
 from collections import Counter
 from pathlib import Path
+from tool_runtime import tool as resolved_tool
 
 
 def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()

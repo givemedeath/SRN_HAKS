@@ -9,7 +9,7 @@ import subprocess
 import time
 
 from pipeline import digest, save_json
-from tool_runtime import runtime
+from tool_runtime import runtime, record_dependencies
 
 
 def main():
@@ -27,7 +27,6 @@ def main():
     args = parser.parse_args()
     if args.timeout <= 0:
         parser.error("timeout must be positive")
-    client = runtime("nwn", args.client, inputs=[args.converted])
     userdir = args.user_directory.resolve()
     converted = args.converted.resolve()
     if userdir == converted.parent.parent / "userdir":
@@ -40,6 +39,11 @@ def main():
     dependencies = sorted(p for p in (converted / "resources").iterdir()
                           if args.with_material_resources and p.suffix.lower() in (".mtr", ".txi", ".tga", ".dds", ".plt"))
     dependency_hashes = {p.name: digest(p) for p in dependencies}
+    snapshot = {p.name: digest(p) for p in sources}
+    frozen_inputs = {str(p.resolve()): snapshot[p.name] for p in sources}
+    frozen_inputs.update({str(p.resolve()): dependency_hashes[p.name] for p in dependencies})
+    client = runtime("nwn", args.client,
+                     inputs=[{"path": path, "sha256": pin} for path, pin in frozen_inputs.items()])
     expected_override = {p.name for p in sources + dependencies}
     extra_override = {p.name for p in override.iterdir()} - expected_override
     if extra_override:
@@ -54,7 +58,9 @@ def main():
         cache = {}
     if args.reuse_from:
         donor=args.reuse_from.resolve()
-        donor_receipt=json.loads((donor/"native-compile.json").read_text())
+        donor_path=donor/"native-compile.json"
+        donor_pin=digest(donor_path)
+        donor_receipt=json.loads(donor_path.read_text(encoding="utf-8"))
         if (not donor_receipt.get("complete") or donor_receipt.get("clientSha256")!=client_hash
                 or donor_receipt.get("materialResourceHashes", {}) != dependency_hashes):
             raise RuntimeError("Compiler cache donor is incomplete or uses a different client")
@@ -64,12 +70,15 @@ def main():
             if source.exists() and digest(source)==entry["sourceSha256"]:
                 if digest(binary)!=entry["binarySha256"]:
                     raise RuntimeError("Compiler cache donor binary changed: "+entry["name"])
+                pins={str(donor_path):donor_pin, str(binary):entry["binarySha256"]}
+                record_dependencies(pins)
+                frozen_inputs.update(pins)
                 shutil.copyfile(binary,converted/"resources"/entry["name"])
                 cache[entry["name"]]={**entry,"reusedFrom":str(donor)}
-    snapshot={}
     for path in sources:
         data=path.read_bytes()
-        snapshot[path.name]=hashlib.sha256(data).hexdigest()
+        if hashlib.sha256(data).hexdigest()!=snapshot[path.name]:
+            raise RuntimeError("Source changed before compiler staging: "+path.name)
         (override/path.name).write_bytes(data)
     receipts = []
     for path in sources:
@@ -103,6 +112,7 @@ def main():
                    "bytes": destination.stat().st_size, "seconds": round(time.time() - started, 2)}
         receipts.append(receipt)
         save_json(receipt_path, {"client": str(client), "clientSha256": client_hash,
+                  "frozenInputs": frozen_inputs,
                   "materialResourceHashes": dependency_hashes,
                   "models": receipts, "complete": False})
         print(json.dumps({"model": path.name, "completed": len(receipts), "total": len(sources)}), flush=True)
@@ -110,7 +120,12 @@ def main():
         raise RuntimeError("Source changed before compiler verification completed")
     if any(digest(p) != dependency_hashes[p.name] or digest(override / p.name) != dependency_hashes[p.name] for p in dependencies):
         raise RuntimeError("Material resource changed before compiler verification completed")
+    if any(digest(Path(path))!=pin for path,pin in frozen_inputs.items()):
+        raise RuntimeError("Registered compiler input changed before verification completed")
+    if digest(client)!=client_hash:
+        raise RuntimeError("Native compiler changed during compilation")
     save_json(receipt_path, {"client": str(client), "clientSha256": client_hash,
+              "frozenInputs": frozen_inputs,
               "executionMode": "compilemodel", "interactiveClientLaunched": False,
               "materialResourceHashes": dependency_hashes,
               "models": receipts, "complete": len(receipts) == len(sources)})
