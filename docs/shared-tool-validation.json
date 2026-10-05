@@ -12,7 +12,7 @@
       "result": "passed"
     },
     "phenotypeTests": {
-      "count": 143,
+      "count": 148,
       "result": "passed"
     },
     "focusedPreparationTests": {
@@ -45,26 +45,32 @@
     "workload": "synthetic NWN ASCII rigid controller fixture",
     "samples": 120,
     "joints": 80,
-    "uncachedSeconds": 1.6788748999824747,
-    "cachedSeconds": 1.0398489000508562,
-    "ratio": 1.6145373620151597,
+    "uncachedSeconds": 1.8725188000826165,
+    "cachedSeconds": 0.8958648999687284,
+    "ratio": 2.0901798922448904,
     "equivalence": "array-exact",
     "limits": "CPU sampler timing only; excludes render, bake, native compilation and client performance."
   },
   "preparationCounts": {
     "model/controller-parse": 2
   },
-  "boundBenchmarkIdentity": "1d2b48f2f3845011340b26f23233df39c01c0a14aa4f3550d8e396a253417897",
+  "boundBenchmarkIdentity": "c78303d7a927045f28c17d4ffba88d2c1bbdff45bd9701cd2953a85c65a3cb13",
   "boundBenchmarkHelperHashes": {
     "retarget.py": "3bc4d6dc8fa80e6a6624d27e37ab06021d665b7c5e8ce008b6914201caa63b4c",
     "rig_controller_audit.py": "7808503f63c4b89a63c5ebe6490d915019f77cbb77d00052d9f034359b9d48d8",
     "rig_pose_audit.py": "b73f83d61ac426236eb480c0316d03199f5266b7d7669e60e28d8f5ced7b0114",
-    "target_contract.py": "e81c9298eec14207869a67b4d818cbbf71d3f9b93fd95e3e9f22240d1dba3f1f",
+    "target_contract.py": "a52f43add93fd1526d6c1446fe81622bd9bd0c08f16f15d6fe13ec59e44de4cc",
     "pose_preview_bridge.py": "658d1a987db5157fc48d454a6aec1551ab27c67a3ee2c5c9da7b50848bf66bd2",
     "run_preparation.py": "f4f868b40fc45beed0081c86c7a2b7d18875623e937c37046eabce9da126fe2f"
   },
   "linuxExecution": "CI matrix verifies Linux separately; local execution was Windows",
   "activeWorktreeAdoption": "not performed; fresh local migrations required",
   "gameClientLaunched": false,
-  "productionApprovalsCreated": false
+  "productionApprovalsCreated": false,
+  "benchmarkExecutionSource": {
+    "kind": "clean Git archive with committed file bytes",
+    "helperSourceCommit": "deffafbd72963068ce6bf8797468330f9f4db051",
+    "benchmarkScriptSha256": "417d1ad0949ed4764a55afe281a0ca2dbf6ba153c56e75424c2f19c523fb430d",
+    "interpreterSha256": "372c2eae555b344520bf147be0096e009069aeca4e7f78d6aecea6d53158056a"
+  }
 }
