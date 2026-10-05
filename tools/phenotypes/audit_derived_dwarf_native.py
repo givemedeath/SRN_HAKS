@@ -132,7 +132,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     race = args.race
-    prefix = args.prefix or ("pmg0" if race == "troll" else "pmd0")
+    default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0"}
+    prefix = args.prefix or default_prefixes.get(race, "pmd0")
     stage = args.stage_dir or (REPO / f"output/phenotypes/derived-{race}-male-v1/candidate/converted")
     receipt = args.output_receipt or (REPO / f"output/phenotypes/derived-{race}-male-v1/review/native-shading-audit.json")
 

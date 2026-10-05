@@ -70,6 +70,33 @@ TROLL_MALE_AFFINE = {
     "footr":   {"scale": [1.200, 1.200, 1.2000], "translate": [0.0, 0.0, 0.0]},
 }
 
+# Measured affine profiles for Elf Male (phenotype 0 Fit) relative to Human Male Master
+# Captures slender, graceful, athletic elven anatomy:
+# - Narrower shoulders and chest (scale X ~0.880, Y ~0.920, Z ~0.980)
+# - Slender waist and hips (scale X ~0.880, Y ~0.920, Z ~1.000)
+# - Elongated slender arms (scale X/Y ~0.900, Z ~1.000)
+# - Slender forearms (scale X/Y ~0.880, Z ~1.000)
+# - Slender hands (scale X/Y ~0.920, Z ~0.950)
+# - Long graceful legs (scale X/Y ~0.900, Z ~1.000)
+# - Slender calves (scale X/Y ~0.880, Z ~1.000)
+# - Sleek feet (scale X ~0.920, Y ~0.950, Z ~0.950)
+ELF_MALE_AFFINE = {
+    "chest":   {"scale": [0.880, 0.920, 0.9800], "translate": [0.0, 0.0, 0.0]},
+    "pelvis":  {"scale": [0.880, 0.920, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "bicepl":  {"scale": [0.900, 0.900, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "bicepr":  {"scale": [0.900, 0.900, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "forel":   {"scale": [0.880, 0.880, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "forer":   {"scale": [0.880, 0.880, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "handl":   {"scale": [0.920, 0.920, 0.9500], "translate": [0.0, 0.0, 0.0]},
+    "handr":   {"scale": [0.920, 0.920, 0.9500], "translate": [0.0, 0.0, 0.0]},
+    "legl":    {"scale": [0.900, 0.900, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "legr":    {"scale": [0.900, 0.900, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "shinl":   {"scale": [0.880, 0.880, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "shinr":   {"scale": [0.880, 0.880, 1.0000], "translate": [0.0, 0.0, 0.0]},
+    "footl":   {"scale": [0.920, 0.950, 0.9500], "translate": [0.0, 0.0, 0.0]},
+    "footr":   {"scale": [0.920, 0.950, 0.9500], "translate": [0.0, 0.0, 0.0]},
+}
+
 
 def sha256_file(path: Path | str) -> str:
     digest = hashlib.sha256()
@@ -432,7 +459,12 @@ def main():
     target_data = json.loads(args.target.read_text(encoding="utf-8"))
     race = target_data["identity"]["race"]
 
-    affine_map = TROLL_MALE_AFFINE if race == "troll" else DWARF_MALE_AFFINE
+    if race == "troll":
+        affine_map = TROLL_MALE_AFFINE
+    elif race == "elf":
+        affine_map = ELF_MALE_AFFINE
+    else:
+        affine_map = DWARF_MALE_AFFINE
     out_dir = args.output_dir or Path(f"output/phenotypes/derived-v1/parts/{race}-male/affine")
 
     proof = process_affine_parts(

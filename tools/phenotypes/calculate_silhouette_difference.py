@@ -122,7 +122,7 @@ def align_and_compare(derived_m: np.ndarray, target_m: np.ndarray, norm_height: 
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--race", choices=["troll", "dwarf", "human", "all"], default="all")
+    parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "all"], default="all")
     parser.add_argument("--output", type=Path, default=ARTIFACT_DIR / "silhouette_metrics.json")
     return parser.parse_args()
 
@@ -249,6 +249,49 @@ def main():
         h_metrics_path = REPO_ROOT / "output/phenotypes/derived-v1/masters/human-male-v1/review/silhouette_metrics.json"
         h_metrics_path.parent.mkdir(parents=True, exist_ok=True)
         h_metrics_path.write_text(json.dumps({"human_male": results["human_male"]}, indent=2), encoding="utf-8")
+
+    if args.race in ("elf", "all"):
+        im_elf_concept = Image.open(SCRATCH_DIR / "elf_male_fit.png")
+        c_elf_f, _, _ = extract_concept_mask(im_elf_concept, (100, 415))
+        c_elf_s, _, _ = extract_concept_mask(im_elf_concept, (663, 798))
+        c_elf_r, _, _ = extract_concept_mask(im_elf_concept, (1037, 1331))
+
+        im_ef = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_front.png")
+        fg_ef = np.any(np.abs(np.array(im_ef)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
+        d_elf_f = fg_ef[:, 1200:]
+        s_elf_f = fg_ef[:, :1200]
+
+        im_es = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_side.png")
+        fg_es = np.any(np.abs(np.array(im_es)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
+        d_elf_s = fg_es[:, 1200:]
+        s_elf_s = fg_es[:, :1200]
+
+        im_er = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_rear.png")
+        fg_er = np.any(np.abs(np.array(im_er)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
+        d_elf_r = fg_er[:, 1200:]
+        s_elf_r = fg_er[:, :1200]
+
+        results["elf_male"] = {
+            "front": {
+                "derived_vs_target": align_and_compare(d_elf_f, c_elf_f),
+                "stock_vs_target": align_and_compare(s_elf_f, c_elf_f),
+                "derived_vs_stock": align_and_compare(d_elf_f, s_elf_f),
+            },
+            "side": {
+                "derived_vs_target": align_and_compare(d_elf_s, c_elf_s),
+                "stock_vs_target": align_and_compare(s_elf_s, c_elf_s),
+                "derived_vs_stock": align_and_compare(d_elf_s, s_elf_s),
+            },
+            "rear": {
+                "derived_vs_target": align_and_compare(d_elf_r, c_elf_r),
+                "stock_vs_target": align_and_compare(s_elf_r, c_elf_r),
+                "derived_vs_stock": align_and_compare(d_elf_r, s_elf_r),
+            },
+        }
+
+        e_metrics_path = REPO_ROOT / "output/phenotypes/derived-elf-male-v1/review/silhouette_metrics.json"
+        e_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        e_metrics_path.write_text(json.dumps({"elf_male": results["elf_male"]}, indent=2), encoding="utf-8")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(results, indent=2), encoding="utf-8")

@@ -353,7 +353,7 @@ def compose_3way_silhouette_sheet(
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--race", choices=["troll", "dwarf", "human", "all"], default="all")
+    parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "all"], default="all")
     parser.add_argument("--output-dir", type=Path, default=ARTIFACT_DIR)
     args = parser.parse_args()
 
@@ -511,6 +511,147 @@ def main():
                 (out_rear_runtime, "PANEL D: POSTERIOR VIEW (V-TAPER & TRAPEZIUS RISE)"),
             ],
             out_path=out_troll_master,
+        )
+
+    if args.race in ("elf", "all"):
+        print("=== Generating Elf Male 3-Way Silhouette Comparison Sheets ===")
+        # 1. Load Concept Art
+        im_elf_concept = Image.open(SCRATCH_DIR / "elf_male_fit.png")
+        concept_elf_front, cef_h, cef_w = extract_concept_mask(im_elf_concept, (100, 415))
+        concept_elf_side, ces_h, ces_w = extract_concept_mask(im_elf_concept, (663, 798))
+        concept_elf_rear, cer_h, cer_w = extract_concept_mask(im_elf_concept, (1037, 1331))
+
+        # 2. Load 3D Renders
+        im_elf_front_render = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_front.png")
+        arr_efr = np.array(im_elf_front_render)
+        fg_efr = np.any(np.abs(arr_efr[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
+        stock_elf_front_mask = fg_efr[:, :1200]
+        derived_elf_front_mask = fg_efr[:, 1200:]
+
+        im_elf_side_render = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_side.png")
+        arr_esr = np.array(im_elf_side_render)
+        fg_esr = np.any(np.abs(arr_esr[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
+        stock_elf_side_mask = fg_esr[:, :1200]
+        derived_elf_side_mask = fg_esr[:, 1200:]
+
+        im_elf_rear_render = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_rear.png")
+        arr_err = np.array(im_elf_rear_render)
+        fg_err = np.any(np.abs(arr_err[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
+        stock_elf_rear_mask = fg_err[:, :1200]
+        derived_elf_rear_mask = fg_err[:, 1200:]
+
+        elf_stock_meta = {
+            "title": "Stock Human Male Master (pmh0)",
+            "heightMeters": 1.9339,
+            "lines": [
+                "Model: pmh0 (human heroic baseline)",
+                "Height: 1.9339 m (working & runtime)",
+                "Shoulder Span: 0.4020 m",
+                "Provenance: Frozen Master Bank"
+            ]
+        }
+        elf_derived_meta = {
+            "title": "Derived Elf Male Fit (pme0)",
+            "workingHeightMeters": 1.9339,
+            "runtimeHeightMeters": 2.0997,
+            "lines": [
+                "Model: pme0 (derived phenotype 0)",
+                "Runtime Height: 2.10 m (scaled x1.0857)",
+                "Working Height: 1.9339 m",
+                "Rig: Retargeted slender pme0 rig"
+            ]
+        }
+        elf_ideal_meta = {
+            "title": "Canonical Elf Concept Art",
+            "heightMeters": 2.0997,
+            "lines": [
+                "Source: Shadowrun 4A Reference Sheet",
+                "Target Stature: 1.90 m (ref) -> 2.10 m (scaled)",
+                "Design: Tall, slender, athletic proportions",
+                "Anatomy: Elongated limbs, narrow waist"
+            ]
+        }
+
+        # 1. Front View - Runtime Scale Sheet
+        out_elf_front_runtime = args.output_dir / "elf_silhouette_3way_comparison_front.png"
+        compose_3way_silhouette_sheet(
+            title="Elf Male Phenotype: 3-Way Silhouette Comparison (Frontal View)",
+            subtitle="Comparing Stock Human Baseline (pmh0), High-Poly Derived Elf (pme0), and Canonical Concept Target",
+            target_race="elf",
+            stock_mask=stock_elf_front_mask,
+            derived_mask=derived_elf_front_mask,
+            ideal_mask=concept_elf_front,
+            stock_meta=elf_stock_meta,
+            derived_meta=elf_derived_meta,
+            ideal_meta=elf_ideal_meta,
+            out_path=out_elf_front_runtime,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+        )
+
+        # 2. Front View - Proportional 1:1 Head Height Sheet
+        out_elf_front_norm = args.output_dir / "elf_silhouette_proportional_comparison.png"
+        compose_3way_silhouette_sheet(
+            title="Elf Male Phenotype: Proportional Morphological Overlap (1:1 Normalized)",
+            subtitle="Evaluating Normalized Slender Shoulders, Narrow Ribcage, Long Limbs, and High Waist",
+            target_race="elf",
+            stock_mask=stock_elf_front_mask,
+            derived_mask=derived_elf_front_mask,
+            ideal_mask=concept_elf_front,
+            stock_meta=elf_stock_meta,
+            derived_meta=elf_derived_meta,
+            ideal_meta=elf_ideal_meta,
+            out_path=out_elf_front_norm,
+            scale_mode="normalized",
+            max_height_meters=2.6,
+        )
+
+        # 3. Side View - Profile Runtime Sheet
+        out_elf_side_runtime = args.output_dir / "elf_silhouette_3way_comparison_side.png"
+        compose_3way_silhouette_sheet(
+            title="Elf Male Phenotype: 3-Way Silhouette Comparison (Profile / Side View)",
+            subtitle="Evaluating Slim Thorax Depth, Upright Posture, Slender Calves, and Athletic Lean",
+            target_race="elf",
+            stock_mask=stock_elf_side_mask,
+            derived_mask=derived_elf_side_mask,
+            ideal_mask=concept_elf_side,
+            stock_meta=elf_stock_meta,
+            derived_meta=elf_derived_meta,
+            ideal_meta=elf_ideal_meta,
+            out_path=out_elf_side_runtime,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+        )
+
+        # 4. Rear View - Runtime Scale Sheet
+        out_elf_rear_runtime = args.output_dir / "elf_silhouette_3way_comparison_rear.png"
+        compose_3way_silhouette_sheet(
+            title="Elf Male Phenotype: 3-Way Silhouette Comparison (Rear / Posterior View)",
+            subtitle="Evaluating Latissimus Taper, Scapular Definition, Slim Flank Contours, and Arm Stance",
+            target_race="elf",
+            stock_mask=stock_elf_rear_mask,
+            derived_mask=derived_elf_rear_mask,
+            ideal_mask=concept_elf_rear,
+            stock_meta=elf_stock_meta,
+            derived_meta=elf_derived_meta,
+            ideal_meta=elf_ideal_meta,
+            out_path=out_elf_rear_runtime,
+            scale_mode="runtime",
+            max_height_meters=2.6,
+        )
+
+        # 5. Master 2x2 Turnaround Presentation Sheet for Elf
+        out_elf_master = args.output_dir / "elf_silhouette_master_turnaround.png"
+        compose_master_2x2_sheet(
+            title="Elf Male Phenotype: Complete 3-Way Silhouette Turnaround Matrix",
+            subtitle="Side-by-side verification: Stock Human Baseline (pmh0) vs. High-Poly Derived Elf (pme0) vs. Canonical Shadowrun Concept Art",
+            panels=[
+                (out_elf_front_runtime, "PANEL A: FRONT VIEW (RUNTIME ENGINE STATURE)"),
+                (out_elf_front_norm, "PANEL B: NORMALIZED ANATOMY (1:1 PROPORTIONAL MATCHING)"),
+                (out_elf_side_runtime, "PANEL C: PROFILE VIEW (SLENDER THORAX & POSTURE)"),
+                (out_elf_rear_runtime, "PANEL D: POSTERIOR VIEW (V-TAPER & SCAPULAR CONTOURS)"),
+            ],
+            out_path=out_elf_master,
         )
 
     if args.race in ("dwarf", "all"):
@@ -849,19 +990,15 @@ def compose_all_races_lineup(artifact_dir: Path, out_path: Path):
     draw.line([(ruler_x_left - 80, ground_y), (ruler_x_right + 80, ground_y)], fill=COLOR_GROUND, width=3)
     draw.text((ruler_x_left - 75, ground_y + 10), "Z = 0.00 m (GROUND)", font=get_font(12, bold=True), fill=COLOR_GROUND)
 
-    # Load 6 Figures
-    # 1. Stock Human Master
-    # 2. Stock Dwarf Male
-    # 3. Derived Dwarf Male
-    # 4. Ideal Dwarf Target
-    # 5. Derived Troll Male
-    # 6. Ideal Troll Target
-
+    # Load Figures: Dwarf, Human, Elf, Troll
     im_troll_concept = Image.open(SCRATCH_DIR / "troll_male_fit.png")
     c_troll_m, _, _ = extract_concept_mask(im_troll_concept, (15, 435))
 
     im_dwarf_concept = Image.open(SCRATCH_DIR / "dwarf_male_fit.png")
     c_dwarf_m, _, _ = extract_concept_mask(im_dwarf_concept, (20, 440))
+
+    im_elf_concept = Image.open(SCRATCH_DIR / "elf_male_fit.png")
+    c_elf_m, _, _ = extract_concept_mask(im_elf_concept, (100, 415))
 
     im_troll_front = Image.open("output/phenotypes/derived-troll-male-v1/review/renders/troll_unlit_front.png")
     arr_tf = np.array(im_troll_front)
@@ -875,11 +1012,18 @@ def compose_all_races_lineup(artifact_dir: Path, out_path: Path):
     s_dwarf_m = fg_df[:, 900:1500]
     d_dwarf_m = fg_df[:, 1600:2300]
 
+    im_elf_front = Image.open(REPO_ROOT / "output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_front.png")
+    arr_ef = np.array(im_elf_front)
+    fg_ef = np.any(np.abs(arr_ef[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
+    d_elf_m = fg_ef[:, 1200:]
+
     figures = [
         ("Stock Human (pmh0)", "Heroic Master", s_human_m, 1.9339, COLOR_STOCK_FILL, COLOR_STOCK_RIM),
         ("Stock Dwarf (pmd0)", "Low-Poly Control", s_dwarf_m, 1.4735, (90, 110, 135, 255), (140, 160, 185, 255)),
         ("Derived Dwarf (pmd0)", "Derived Phenotype", d_dwarf_m, 1.4864, COLOR_DERIVED_FILL, COLOR_DERIVED_RIM),
         ("Ideal Dwarf Target", "Shadowrun 4A Concept", c_dwarf_m, 1.3261, COLOR_IDEAL_FILL, COLOR_IDEAL_RIM),
+        ("Derived Elf (pme0)", "Slender Lean Rig", d_elf_m, 2.0997, COLOR_DERIVED_FILL, COLOR_DERIVED_RIM),
+        ("Ideal Elf Target", "Shadowrun 4A Concept", c_elf_m, 2.0997, COLOR_IDEAL_FILL, COLOR_IDEAL_RIM),
         ("Derived Troll (pmg0)", "Broadened Rig (10/7)", d_troll_m, 2.7627, COLOR_DERIVED_FILL, COLOR_DERIVED_RIM),
         ("Ideal Troll Target", "Shadowrun 4A Concept", c_troll_m, 2.7627, COLOR_IDEAL_FILL, COLOR_IDEAL_RIM),
     ]

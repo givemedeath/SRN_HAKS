@@ -250,6 +250,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     race = args.race
-    prefix = args.prefix or ("pmg0" if race == "troll" else "pmd0")
+    default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0"}
+    prefix = args.prefix or default_prefixes.get(race, "pmd0")
     res = run_client_test(max_duration=args.max_duration, race=race, prefix=prefix)
     print(f"Client test finished. Sequence complete: {res['sequenceComplete']}, Phases: {len(res['phasesSeen'])}")

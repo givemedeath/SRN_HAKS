@@ -196,6 +196,69 @@ TROLL_MALE_ANCHORS = {
     ],
 }
 
+# Measured refinement anchor definitions for Elf Male Fit
+# Lean, graceful, athletic anatomy matching Shadowrun elven archetype:
+# - Elegant clavicle contours and refined athletic pectorals
+# - Slender waist and defined latissimus lines
+# - Streamlined deltoid and bicep definitions
+# - Lean, agile quadriceps and calf profiles
+# - Zero displacement at all connector rings
+ELF_MALE_ANCHORS = {
+    "chest": [
+        {"name": "clavicle_left", "center": [-0.09, 0.04, 0.38], "radius": 0.08, "disp": [-0.003, 0.002, 0.003]},
+        {"name": "clavicle_right", "center": [0.09, 0.04, 0.38], "radius": 0.08, "disp": [0.003, 0.002, 0.003]},
+        {"name": "pectoral_trim", "center": [0.0, 0.08, 0.23], "radius": 0.14, "disp": [0.0, -0.004, 0.0]},
+        {"name": "latissimus_left", "center": [-0.15, -0.05, 0.22], "radius": 0.10, "disp": [0.003, 0.0, 0.0]},
+        {"name": "latissimus_right", "center": [0.15, -0.05, 0.22], "radius": 0.10, "disp": [-0.003, 0.0, 0.0]},
+    ],
+    "pelvis": [
+        {"name": "waist_taper_left", "center": [-0.12, 0.01, 0.0], "radius": 0.08, "disp": [0.002, 0.0, 0.0]},
+        {"name": "waist_taper_right", "center": [0.12, 0.01, 0.0], "radius": 0.08, "disp": [-0.002, 0.0, 0.0]},
+        {"name": "glute_lean_left", "center": [-0.08, -0.06, -0.09], "radius": 0.09, "disp": [0.002, 0.002, 0.0]},
+        {"name": "glute_lean_right", "center": [0.08, -0.06, -0.09], "radius": 0.09, "disp": [-0.002, 0.002, 0.0]},
+    ],
+    "bicepl": [
+        {"name": "bicep_tone", "center": [-0.04, 0.02, -0.14], "radius": 0.08, "disp": [-0.002, 0.002, 0.0]},
+        {"name": "tricep_tone", "center": [-0.04, -0.03, -0.16], "radius": 0.08, "disp": [-0.002, -0.002, 0.0]},
+    ],
+    "bicepr": [
+        {"name": "bicep_tone", "center": [0.04, 0.02, -0.14], "radius": 0.08, "disp": [0.002, 0.002, 0.0]},
+        {"name": "tricep_tone", "center": [0.04, -0.03, -0.16], "radius": 0.08, "disp": [0.002, -0.002, 0.0]},
+    ],
+    "forel": [
+        {"name": "forearm_sleek", "center": [-0.02, 0.02, -0.13], "radius": 0.07, "disp": [-0.002, 0.002, 0.0]},
+    ],
+    "forer": [
+        {"name": "forearm_sleek", "center": [0.02, 0.02, -0.13], "radius": 0.07, "disp": [0.002, 0.002, 0.0]},
+    ],
+    "handl": [
+        {"name": "hand_slender", "center": [-0.02, 0.01, -0.07], "radius": 0.06, "disp": [0.001, 0.0, 0.0]},
+    ],
+    "handr": [
+        {"name": "hand_slender", "center": [0.02, 0.01, -0.07], "radius": 0.06, "disp": [-0.001, 0.0, 0.0]},
+    ],
+    "legl": [
+        {"name": "quad_lean", "center": [-0.04, 0.03, -0.15], "radius": 0.09, "disp": [-0.003, 0.002, 0.0]},
+        {"name": "hamstring_lean", "center": [-0.02, -0.04, -0.16], "radius": 0.09, "disp": [0.0, -0.002, 0.0]},
+    ],
+    "legr": [
+        {"name": "quad_lean", "center": [0.04, 0.03, -0.15], "radius": 0.09, "disp": [0.003, 0.002, 0.0]},
+        {"name": "hamstring_lean", "center": [0.02, -0.04, -0.16], "radius": 0.09, "disp": [0.0, -0.002, 0.0]},
+    ],
+    "shinl": [
+        {"name": "calf_streamlined", "center": [-0.02, -0.03, -0.12], "radius": 0.08, "disp": [-0.002, -0.002, 0.0]},
+    ],
+    "shinr": [
+        {"name": "calf_streamlined", "center": [0.02, -0.03, -0.12], "radius": 0.08, "disp": [0.002, -0.002, 0.0]},
+    ],
+    "footl": [
+        {"name": "instep_sleek", "center": [-0.02, 0.04, -0.08], "radius": 0.07, "disp": [0.0, 0.0, 0.001]},
+    ],
+    "footr": [
+        {"name": "instep_sleek", "center": [0.02, 0.04, -0.08], "radius": 0.07, "disp": [0.0, 0.0, 0.001]},
+    ],
+}
+
 
 def calculate_mesh_volume(verts: np.ndarray, faces: np.ndarray) -> float:
     """Calculate enclosed mesh volume using signed tetrahedra from origin."""
@@ -496,7 +559,12 @@ def main():
 
     target_data = json.loads(args.target.read_text(encoding="utf-8"))
     race = target_data["identity"]["race"]
-    anchors = TROLL_MALE_ANCHORS if race == "troll" else DWARF_MALE_ANCHORS
+    if race == "troll":
+        anchors = TROLL_MALE_ANCHORS
+    elif race == "elf":
+        anchors = ELF_MALE_ANCHORS
+    else:
+        anchors = DWARF_MALE_ANCHORS
     affine_dir = args.affine_dir or Path(f"output/phenotypes/derived-v1/parts/{race}-male/affine")
     output_dir = args.output_dir or Path(f"output/phenotypes/derived-v1/parts/{race}-male/ascii")
 

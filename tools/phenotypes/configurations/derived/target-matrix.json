@@ -57,7 +57,10 @@
       "phenotype": 0,
       "modelPrefix": "pme0",
       "masterSource": "human-male-v1",
-      "status": "pending-pilot-validation",
+      "status": "pilot-accepted",
+      "rigCandidate": "stock-measured",
+      "supermodel": "pme0",
+      "animationSupermodel": "a_ba",
       "appearanceRow": 1,
       "racialTypeRow": 1
     },

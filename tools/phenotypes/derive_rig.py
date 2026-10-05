@@ -267,7 +267,8 @@ def main():
     mode = target_data["rig"]["mode"]
     print(f"Deriving rig for target '{target_data['id']}' (mode: {mode})...")
 
-    if mode == "retargeted" and target_data["identity"]["race"] == "troll":
+    race = target_data["identity"]["race"]
+    if mode == "retargeted" and race == "troll":
         stock_root = args.stock_root or Path("output/phenotypes/derived-v1/masters/human-male-v1/stock/pmh0.mdl")
         output_dir = args.output_dir or Path("output/phenotypes/derived-v1/rigs/troll-male")
         receipt = derive_broadened_scaled_rig(target_data, stock_root, output_dir)
@@ -276,6 +277,15 @@ def main():
         print(f"  Shoulder span: {receipt['shoulderSpanWorkingMeters']:.6f} m")
         print(f"  Hip span: {receipt['hipSpanWorkingMeters']:.6f} m")
         print(f"  Runtime scale: {receipt['runtimeScale']:.6f}")
+        print(f"  Max joint deviation: {receipt['maxJointDeviationMeters']:.6e} m")
+        print(f"  Receipt written to {output_dir / 'rig-receipt.json'}")
+    elif race == "elf":
+        stock_root = args.stock_root or Path("output/phenotypes/derived-v1/masters/human-male-v1/stock/pme0.mdl")
+        output_dir = args.output_dir or Path("output/phenotypes/derived-v1/rigs/elf-male")
+        receipt = derive_stock_family_rig(target_data, stock_root, output_dir)
+        print(f"Rig derivation successful: verified {receipt['nodeCount']} nodes.")
+        print(f"  Supermodel: {receipt['supermodel']} -> {receipt['animationSupermodel']}")
+        print(f"  Animation scale: {receipt['animationScale']}")
         print(f"  Max joint deviation: {receipt['maxJointDeviationMeters']:.6e} m")
         print(f"  Receipt written to {output_dir / 'rig-receipt.json'}")
     else:
