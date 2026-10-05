@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import numpy as np
 from test_pose_preview_bridge import ROOT,animation
 from test_effective_body_preview import model
@@ -75,6 +76,26 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(len(packet['motionMeasurements']),2)
         self.assertEqual(packet['reviewViews'][0]['settings'],packet['reviewViews'][2]['settings'])
         with self.assertRaises(FileExistsError):build(path,self.root/'packet.json')
+    def test_invalid_hierarchy_cannot_publish_joint_review_packet(self):
+        meshes=self.root/'part.mdl';meshes.write_text(model(),encoding='cp1252')
+        row={'path':str(meshes),'sha256':sha(meshes),'attachmentFrame':np.eye(4).tolist(),
+             'joint':'joint','connectorBounds':[[-1,-1,-1],[2,2,2]]}
+        config={'coordinateSpace':'nwn-part-local','targetRevision':'target','rigRevision':'stock','animationRevision':'a_ba',
+            'asciiDirectory':str(self.root),'prefix':'pmh0','reviewSettings':{'cameraScale':2,'threads':4},
+            'parent':row,'candidate':row,'neighbor':{**row,'joint':'rootdummy'},'contactAxis':[1,0,0],
+            'motionSamples':[{'clip':'pause1','time':0,'standing':True},{'clip':'pause1','time':1}]}
+        path=self.root/'packet-config.json';write_json(path,config)
+        for text,message in [
+            (ROOT.replace('parent rootdummy','parent absent'),'Unresolved parent bind'),
+            (ROOT.replace('parent pmh0','parent joint'),'Geometry parent cycle'),
+        ]:
+            with self.subTest(message=message):
+                (self.root/'pmh0.mdl').write_text(text,encoding='cp1252')
+                output=self.root/'invalid-packet.json'
+                with patch('joint_review_packet.record_dependencies') as register:
+                    with self.assertRaisesRegex(RuntimeError,message):build(path,output)
+                    register.assert_not_called()
+                self.assertFalse(output.exists())
     def bindings(self):
         ledger={field:field+' value' for field in FIELDS}
         ledger['latestDirection']={'sequence':3,'superseded':False,'text':'Continue current task'}

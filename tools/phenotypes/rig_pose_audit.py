@@ -3,8 +3,8 @@ import copy
 import re
 import numpy as np
 
-from retarget import NODE, transforms
-from rig_controller_audit import CLIP, arrays
+from retarget import NODE
+from rig_controller_audit import CLIP, arrays, world_frames
 from target_contract import require
 
 
@@ -80,7 +80,9 @@ def sample(skeleton, clip_body, time, *, controllers=None):
             elif field in keyed:value=list(keyed[field])
             else:continue
             result[key][field]=np.asarray(value,float) if field=='position' else value
-    return transforms(result)
+    # Measurements require a complete bind hierarchy; unresolved parents cannot
+    # be treated as roots, including parents inherited from another model.
+    return world_frames(result)
 
 
 def inherited_clips(chain, texts):
