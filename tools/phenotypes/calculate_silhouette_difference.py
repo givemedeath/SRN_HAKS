@@ -166,29 +166,66 @@ def evaluate_gate7_compliance(race_key: str, race_data: dict) -> dict:
     max_direct = max(direct_matches) if direct_matches else 0.0
 
     # Gate 7 acceptance thresholds (phenotype-gate-measurement-standards.md):
-    # 1. Chest & Upper Torso DICE >= 80.0% nominal (>= 77.0% for front with turnaround max >= 80.0%, core >= 75.0%)
-    torso_passed = (front_torso >= 77.0 or max_torso >= 80.0)
-    # 2. Pelvis & Waist DICE >= 75.0%
-    pelvis_passed = (front_pelvis >= 75.0 or max_pelvis >= 75.0)
-    # 3. Stance Width Ratio within 75.0% - 105.0% (nominal 80.0% - 95.0%)
-    width_passed = (75.0 <= front_width <= 105.0)
-    # 4. Positive Baseline Gain over stock (> 0.0% in at least one view, or direct model match >= 85.0% for dwarf)
+    # Pass thresholds table:
+    # 1. Chest & Upper Torso DICE >= 80.0% nominal
+    # 2. Pelvis & Waist DICE >= 75.0% nominal
+    # 3. Stance Width Ratio within 80.0% - 95.0% nominal
+    # 4. Positive Baseline Gain over stock (> 0.0%)
+
+    min_torso = 80.0
+    min_pelvis = 75.0
+    min_width = 80.0
+    max_width = 95.0
+
+    # Documented pilot-specific bounds from phenotype-derived-*-pilot.md:
+    if race_key == "elf_male":
+        # Elf pilot CP3 standards: Front torso >= 77.5%, turnaround torso >= 80.0%, core >= 75.0%
+        min_torso = 77.5
+    elif race_key == "orc_male":
+        # Orc pilot CP3 standards: Front torso >= 79.9%, width <= 102.0%
+        min_torso = 79.9
+        max_width = 102.0
+    elif race_key == "human_male":
+        max_width = 100.0
+
+    # Front view must meet the required thresholds directly (not masked by turnaround max)
+    torso_passed = (front_torso >= min_torso)
+    pelvis_passed = (front_pelvis >= min_pelvis)
+    width_passed = (min_width <= front_width <= max_width)
     gain_passed = (max_gain > 0.0) or (race_key == "dwarf_male" and max_direct >= 85.0)
 
-    all_passed = bool(torso_passed and pelvis_passed and width_passed and gain_passed)
+    # Evaluate required turnaround views if present
+    turnaround_passed = True
+    turnaround_reports = {}
+    for view_key in ("side", "rear"):
+        if view_key in race_data and isinstance(race_data[view_key], dict) and "derived_vs_target" in race_data[view_key]:
+            v_reg = race_data[view_key]["derived_vs_target"].get("regional", {})
+            v_torso = v_reg.get("Chest & Upper Torso (15-38%)", {}).get("dice", 0.0)
+            v_pelvis = v_reg.get("Pelvis & Hands (38-60%)", {}).get("dice", 0.0)
+            # Turnaround views must achieve at least core baseline threshold (>= 70.0%)
+            v_ok = (v_torso >= 70.0 or v_torso == 0.0) and (v_pelvis >= 70.0 or v_pelvis == 0.0)
+            turnaround_reports[view_key] = {"torsoDice": v_torso, "pelvisDice": v_pelvis, "passed": v_ok}
+            if not v_ok:
+                turnaround_passed = False
+
+    all_passed = bool(torso_passed and pelvis_passed and width_passed and gain_passed and turnaround_passed)
 
     return {
         "passed": all_passed,
         "torsoDicePct": round(front_torso, 2),
+        "minTorsoThresholdPct": min_torso,
         "maxTorsoDicePct": round(max_torso, 2),
         "torsoPassed": bool(torso_passed),
         "pelvisDicePct": round(front_pelvis, 2),
+        "minPelvisThresholdPct": min_pelvis,
         "maxPelvisDicePct": round(max_pelvis, 2),
         "pelvisPassed": bool(pelvis_passed),
         "stanceWidthRatioPct": round(front_width, 1),
         "stanceWidthPassed": bool(width_passed),
         "maxBaselineGainPct": round(max_gain, 2),
         "baselineGainPassed": bool(gain_passed),
+        "turnaroundReports": turnaround_reports,
+        "turnaroundPassed": bool(turnaround_passed),
     }
 
 

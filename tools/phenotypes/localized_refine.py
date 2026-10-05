@@ -618,13 +618,56 @@ def refine_all_parts(
     return proof
 
 
+def resolve_target_file(target_str: str | Path | None) -> Path:
+    if target_str is None:
+        return Path("tools/phenotypes/configurations/derived/target-dwarf-male-stock.json")
+    path = Path(target_str)
+    if path.is_file():
+        return path
+    repo_cand = Path(__file__).resolve().parents[2] / path
+    if repo_cand.is_file():
+        return repo_cand
+    configs_dir = Path(__file__).resolve().parent / "configurations" / "derived"
+    cand = configs_dir / f"{target_str}.json"
+    if cand.is_file():
+        return cand
+    cand = configs_dir / f"target-{target_str}.json"
+    if cand.is_file():
+        return cand
+    slug = str(target_str).lower().replace("_", "-")
+    slug_map = {
+        "dwarf": "target-dwarf-male-stock.json",
+        "dwarf-male": "target-dwarf-male-stock.json",
+        "dwarf-male-fit": "target-dwarf-male-stock.json",
+        "elf": "target-elf-male-fit.json",
+        "elf-male": "target-elf-male-fit.json",
+        "elf-male-fit": "target-elf-male-fit.json",
+        "orc": "target-orc-male-fit.json",
+        "orc-male": "target-orc-male-fit.json",
+        "orc-male-fit": "target-orc-male-fit.json",
+        "troll": "target-troll-male-fit.json",
+        "troll-male": "target-troll-male-fit.json",
+        "troll-male-fit": "target-troll-male-fit.json",
+    }
+    if slug in slug_map:
+        cand = configs_dir / slug_map[slug]
+        if cand.is_file():
+            return cand
+    raise FileNotFoundError(f"Cannot resolve target configuration from: {target_str}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "target_pos",
+        nargs="?",
+        default=None,
+        help="Target configuration JSON path or slug (positional)",
+    )
+    parser.add_argument(
         "--target",
-        type=Path,
-        default=Path("tools/phenotypes/configurations/derived/target-dwarf-male-stock.json"),
-        help="Target configuration JSON",
+        default=None,
+        help="Target configuration JSON path or slug",
     )
     parser.add_argument(
         "--affine-dir",
@@ -640,7 +683,8 @@ def main():
     )
     args = parser.parse_args()
 
-    target_data = json.loads(args.target.read_text(encoding="utf-8"))
+    target_path = resolve_target_file(args.target or args.target_pos)
+    target_data = json.loads(target_path.read_text(encoding="utf-8"))
     race = target_data["identity"]["race"]
     if race == "troll":
         anchors = TROLL_MALE_ANCHORS

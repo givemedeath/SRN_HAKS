@@ -23,7 +23,10 @@ sys.path.insert(0, str(REPO / "tools"))
 from shared_tools import resolve_tool
 
 GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
-RESMAN_GREP = Path(resolve_tool("resman_grep", repo=REPO)["path"])
+
+
+def get_resman_grep() -> Path:
+    return Path(resolve_tool("resman_grep", repo=REPO)["path"])
 
 PARTS = [
     "chest", "pelvis", "belt", "neck",
@@ -46,7 +49,7 @@ def inventory_installed_styles(game_root: Path, user_dir: Path, prefix: str = "p
     """Find every installed model for the target prefix in game data."""
     user_dir.mkdir(parents=True, exist_ok=True)
     cmd = [
-        str(RESMAN_GREP),
+        str(get_resman_grep()),
         "--root", str(game_root),
         "--userdirectory", str(user_dir),
         "-p", f"{prefix}_"
@@ -113,15 +116,20 @@ def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0") ->
 def audit_stock_armor_compatibility(
     target_config: dict,
     derived_ascii_dir: Path,
-    output_receipt: Path
+    output_receipt: Path,
+    game_root: Path | None = None,
 ) -> dict:
     """Audit stock armor connector compatibility with derived parts."""
     prefix = target_config["identity"]["prefix"]
     race = target_config["identity"]["race"]
     frames = target_config["rig"]["frames"]["working"]
 
+    inventory_root = game_root or (
+        Path(os.environ["NWN_ROOT"]) if "NWN_ROOT" in os.environ and Path(os.environ["NWN_ROOT"]).exists()
+        else GAME_ROOT
+    )
     inventory_result = inventory_installed_styles(
-        GAME_ROOT,
+        inventory_root,
         REPO / f"output/phenotypes/derived-{race}-male-v1/compiler-userdir",
         prefix=prefix
     )
@@ -189,18 +197,36 @@ def audit_stock_armor_compatibility(
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=Path, default=REPO / "tools/phenotypes/configurations/derived/target-troll-male-fit.json")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("config_pos", nargs="?", default=None, help="Target configuration JSON path (positional)")
+    parser.add_argument("--config", type=Path, default=None, help="Target configuration JSON path")
+    parser.add_argument("--target", type=Path, default=None, help="Target configuration JSON path")
+    parser.add_argument("--race", type=str, default=None, help="Target race (e.g. dwarf, troll, elf, orc)")
+    parser.add_argument("--gender", type=str, default="male", help="Target gender (default: male)")
+    parser.add_argument("--game-root", type=Path, default=None, help="Path to NWN game installation root")
     parser.add_argument("--ascii-dir", type=Path, default=None)
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
-    config = json.loads(args.config.read_text(encoding="utf-8"))
+    config_path = args.config or args.target or args.config_pos
+    if config_path is None:
+        if args.race:
+            from derive_rig import resolve_target_config
+            config_path = resolve_target_config(args.race, args.gender)
+        else:
+            config_path = REPO / "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json"
+
+    config = json.loads(Path(config_path).read_text(encoding="utf-8"))
     race = config["identity"]["race"]
     ascii_dir = args.ascii_dir or (REPO / f"output/phenotypes/derived-v1/parts/{race}-male/ascii")
     output_path = args.output or (REPO / f"output/phenotypes/derived-{race}-male-v1/review/equipment-receipt.json")
 
-    audit_stock_armor_compatibility(config, ascii_dir, output_path)
+    game_root = args.game_root or (
+        Path(os.environ["NWN_ROOT"]) if "NWN_ROOT" in os.environ and Path(os.environ["NWN_ROOT"]).exists()
+        else None
+    )
+
+    audit_stock_armor_compatibility(config, ascii_dir, output_path, game_root=game_root)
 
 
 if __name__ == "__main__":

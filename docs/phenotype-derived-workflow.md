@@ -131,7 +131,16 @@ python tools/phenotypes/derive_rig.py tools/phenotypes/configurations/derived/ta
 
 ### Localized Deformation
 ```powershell
-python tools/phenotypes/localized_refine.py --target dwarf_male_fit
+# Using launch_shared_tool wrapper with declared inputs:
+python tools/phenotypes/launch_shared_tool.py `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output output/phenotypes/derived-v1/parts/dwarf-male `
+  --input tools/phenotypes/configurations/derived/target-dwarf-male-stock.json `
+  -- tools/phenotypes/localized_refine.py --target tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
+
+# Direct CLI invocation:
+python tools/phenotypes/localized_refine.py --target tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
 ```
 
 ### Motion & Visual Rendering
@@ -141,7 +150,16 @@ python tools/phenotypes/render_derived_dwarf_review.py
 
 ### Equipment Audit
 ```powershell
-python tools/phenotypes/derived_equipment.py --race dwarf --gender male
+# Using launch_shared_tool wrapper with declared inputs:
+python tools/phenotypes/launch_shared_tool.py `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output output/phenotypes/derived-dwarf-male-v1/review `
+  --input tools/phenotypes/configurations/derived/target-dwarf-male-stock.json `
+  -- tools/phenotypes/derived_equipment.py --config tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
+
+# Direct CLI invocation:
+python tools/phenotypes/derived_equipment.py --config tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
 ```
 
 ### Staging & Native Compilation
@@ -153,7 +171,7 @@ python tools/phenotypes/audit_derived_dwarf_native.py
 
 ### Comparison Fixture Construction
 ```powershell
-python tools/phenotypes/stock_dwarf_control.py
+python tools/phenotypes/stock_dwarf_control.py --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
 python tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --torso-inspection-sequence --staging output/phenotypes/derived-dwarf-male-v1/test-stage --userdir output/phenotypes/derived-dwarf-male-v1/test-stage/userdir --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
 ```
 

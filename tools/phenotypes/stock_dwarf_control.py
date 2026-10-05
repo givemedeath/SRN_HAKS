@@ -13,11 +13,12 @@ import shutil
 import subprocess
 import sys
 
+import os
+
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from shared_tools import resolve_tool
 
-GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
 MDLCOMP = REPO / "tools/vendor/nwnmdlcomp/nwnmdlcomp.exe"
 
 PARTS = [
@@ -27,13 +28,52 @@ PARTS = [
 ]
 
 
+def resolve_game_root(explicit: Path | None = None) -> Path:
+    if explicit is not None:
+        p = Path(explicit).resolve()
+        if p.exists():
+            return p
+        raise FileNotFoundError(f"Specified game root does not exist: {explicit}")
+    env_root = os.environ.get("NWN_ROOT") or os.environ.get("NWN_GAME_ROOT")
+    if env_root and Path(env_root).exists():
+        return Path(env_root).resolve()
+    for default_path in [
+        Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition"),
+        Path(r"C:\Program Files (x86)\Steam\steamapps\common\Neverwinter Nights"),
+    ]:
+        if default_path.exists():
+            return default_path
+    raise FileNotFoundError("NWN game root not found. Please provide --game-root or set NWN_ROOT.")
+
+
+def resolve_client(explicit: Path | None = None, game_root: Path | None = None) -> Path:
+    if explicit is not None:
+        p = Path(explicit).resolve()
+        if p.exists():
+            return p
+        raise FileNotFoundError(f"Specified client binary does not exist: {explicit}")
+    env_client = os.environ.get("NWN_CLIENT")
+    if env_client and Path(env_client).exists():
+        return Path(env_client).resolve()
+    if game_root is not None:
+        for candidate in [
+            game_root / "bin/win32/nwmain.exe",
+            game_root / "bin/linux-x86/nwmain",
+            game_root / "nwmain.exe",
+            game_root / "bin/win32/nwserver.exe",
+        ]:
+            if candidate.exists():
+                return candidate.resolve()
+    raise FileNotFoundError("NWN client binary not found. Please provide --client or ensure nwmain exists in game root.")
+
+
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def extract_stock_resource(name: str, temp_userdir: Path) -> bytes:
+def extract_stock_resource(name: str, temp_userdir: Path, game_root: Path) -> bytes:
     tool_path = resolve_tool("resman_cat", repo=REPO)["path"]
-    res = subprocess.run([tool_path, "--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", name],
+    res = subprocess.run([tool_path, "--root", str(game_root), "--userdirectory", str(temp_userdir), "--no-ovr", name],
                          capture_output=True, check=True)
     return res.stdout
 
@@ -48,9 +88,14 @@ def decompile_model(bin_path: Path, ascii_path: Path):
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage")
+    parser.add_argument("--game-root", type=Path, default=None, help="Path to NWN game installation root")
+    parser.add_argument("--client", type=Path, default=None, help="Path to nwmain.exe client binary")
     args = parser.parse_args()
+
+    game_root = resolve_game_root(args.game_root)
+    client = resolve_client(args.client, game_root)
 
     stage_dir = args.output.resolve()
     slug = "stock_dwarf_male_fit"
@@ -67,7 +112,7 @@ def main():
 
     receipt = []
     # 1. Root supermodel pmd0.mdl -> pmz0.mdl
-    raw_root = extract_stock_resource("pmd0.mdl", temp_userdir)
+    raw_root = extract_stock_resource("pmd0.mdl", temp_userdir, game_root)
     (temp_dir / "pmd0.mdl").write_bytes(raw_root)
     decompile_model(temp_dir / "pmd0.mdl", temp_dir / "pmd0_ascii.mdl")
     root_ascii = (temp_dir / "pmd0_ascii.mdl").read_text(encoding="cp1252").replace("pmd0", "pmz0")
@@ -80,7 +125,7 @@ def main():
         alias_name = f"pmz0_{part}001"
 
         # Decompile and inspect bitmap
-        raw_mdl = extract_stock_resource(f"{source_name}.mdl", temp_userdir)
+        raw_mdl = extract_stock_resource(f"{source_name}.mdl", temp_userdir, game_root)
         (temp_dir / f"{source_name}.mdl").write_bytes(raw_mdl)
         decompile_model(temp_dir / f"{source_name}.mdl", temp_dir / f"{source_name}_ascii.mdl")
         original_ascii = (temp_dir / f"{source_name}_ascii.mdl").read_text(encoding="cp1252")
@@ -94,13 +139,13 @@ def main():
 
         # Extract source PLT
         try:
-            raw_plt = extract_stock_resource(f"{bitmap_source}.plt", temp_userdir)
+            raw_plt = extract_stock_resource(f"{bitmap_source}.plt", temp_userdir, game_root)
         except Exception:
             # Fallback to srn_body or source_name
             if (REPO / f"srn_body/{bitmap_source}.plt").exists():
                 raw_plt = (REPO / f"srn_body/{bitmap_source}.plt").read_bytes()
             else:
-                raw_plt = extract_stock_resource(f"{source_name}.plt", temp_userdir)
+                raw_plt = extract_stock_resource(f"{source_name}.plt", temp_userdir, game_root)
         (resources_dir / f"{alias_name}.plt").write_bytes(raw_plt)
 
         receipt.append({
@@ -116,7 +161,7 @@ def main():
     compile_cmd = [
         sys.executable,
         str(REPO / "tools/phenotypes/native_compile.py"),
-        "--client", str(GAME_ROOT / "bin/win32/nwmain.exe"),
+        "--client", str(client),
         "--user-directory", str(temp_userdir),
         "--converted", str(converted),
         "--without-material-resources",
@@ -125,7 +170,7 @@ def main():
     subprocess.run(compile_cmd, check=True)
 
     # 4. appearance.2da fixture resource
-    raw_app = extract_stock_resource("appearance.2da", temp_userdir).decode("cp1252")
+    raw_app = extract_stock_resource("appearance.2da", temp_userdir, game_root).decode("cp1252")
     lines = [l for l in raw_app.splitlines() if l.strip()]
     header_lines = [l for l in lines if not re.match(r"^\s*\d+\s", l)]
     data_lines = [l for l in lines if re.match(r"^\s*\d+\s", l)]

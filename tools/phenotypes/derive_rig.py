@@ -266,6 +266,44 @@ def derive_broadened_scaled_rig(
     return receipt
 
 
+TARGET_CONFIG_MAP = {
+    ("dwarf", "male", 0): "target-dwarf-male-stock.json",
+    ("elf", "male", 0): "target-elf-male-fit.json",
+    ("orc", "male", 0): "target-orc-male-fit.json",
+    ("half-orc", "male", 0): "target-orc-male-fit.json",
+    ("troll", "male", 0): "target-troll-male-fit.json",
+    ("gnome", "male", 0): "target-troll-male-fit.json",
+    ("human", "male", 0): "target-human-male-baseline.json",
+}
+
+
+def resolve_target_config(
+    race: str,
+    gender: str = "male",
+    phenotype: int = 0,
+    base_dir: Path | None = None,
+) -> Path:
+    """Resolve target configuration JSON path from race, gender, and phenotype."""
+    configs_dir = (base_dir or (REPO / "tools/phenotypes/configurations/derived")).resolve()
+    key = (race.lower(), gender.lower(), phenotype)
+    if key in TARGET_CONFIG_MAP:
+        candidate = configs_dir / TARGET_CONFIG_MAP[key]
+        if candidate.exists():
+            return candidate
+
+    for suffix in ("fit", "stock", "baseline"):
+        candidate = configs_dir / f"target-{race.lower()}-{gender.lower()}-{suffix}.json"
+        if candidate.exists():
+            return candidate
+        candidate = configs_dir / f"target-{race.lower()}-{suffix}.json"
+        if candidate.exists():
+            return candidate
+
+    raise FileNotFoundError(
+        f"Target configuration not found for race='{race}', gender='{gender}', phenotype={phenotype} in {configs_dir}"
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("target", type=Path, nargs="?", default=None, help="Target configuration JSON")
@@ -289,10 +327,7 @@ def main():
     target_path = args.target
     if target_path is None:
         if args.race:
-            config_name = f"target-{args.race}-{args.gender}-stock.json"
-            target_path = REPO / "tools/phenotypes/configurations/derived" / config_name
-            if not target_path.exists():
-                raise FileNotFoundError(f"Target configuration not found for race '{args.race}': {target_path}")
+            target_path = resolve_target_config(args.race, args.gender, args.phenotype)
         else:
             parser.error("Either positional 'target' JSON path or --race must be specified")
 

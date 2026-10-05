@@ -297,13 +297,14 @@ def freeze_human_male_master(
         ]
         for sm in stock_models:
             target = stock_out / sm
-            if not target.exists():
-                res = subprocess.run(
-                    [str(resman), '--root', str(game_root), '--userdirectory', str(ud), '--no-ovr', sm],
-                    capture_output=True,
-                    check=True,
-                )
-                target.write_bytes(res.stdout)
+            res = subprocess.run(
+                [str(resman), '--root', str(game_root), '--userdirectory', str(ud), '--no-ovr', sm],
+                capture_output=True,
+                check=True,
+            )
+            extracted = res.stdout
+            if not target.exists() or target.read_bytes() != extracted:
+                target.write_bytes(extracted)
             stock_pins[sm] = {
                 'path': str(target),
                 'sha256': sha(target),

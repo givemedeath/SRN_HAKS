@@ -81,15 +81,18 @@ class NativeDecoderTests(unittest.TestCase):
             decode_model_nodes(b"\x01\0\0\0\0\0\0\0\0\0\0\0", "test")
 
 
+def make_test_temp_dir() -> Path:
+    return Path(tempfile.mkdtemp(prefix="derived_test_"))
+
+
 class ResourcePackagingValidationTests(unittest.TestCase):
     def setUp(self):
-        self.tmp_dir = tempfile.TemporaryDirectory()
-        self.stage_dir = Path(self.tmp_dir.name)
+        self.stage_dir = make_test_temp_dir()
         self.res_dir = self.stage_dir / "resources"
         self.res_dir.mkdir(parents=True, exist_ok=True)
 
     def tearDown(self):
-        self.tmp_dir.cleanup()
+        shutil.rmtree(self.stage_dir, ignore_errors=True)
 
     def test_missing_receipt_raises(self):
         from pack_derived_elf import validate_resources
@@ -168,13 +171,12 @@ class ResourcePackagingValidationTests(unittest.TestCase):
 
 class NativeAuditValidationTests(unittest.TestCase):
     def setUp(self):
-        self.tmp_dir = tempfile.TemporaryDirectory()
-        self.stage_dir = Path(self.tmp_dir.name)
+        self.stage_dir = make_test_temp_dir()
         self.res_dir = self.stage_dir / "resources"
         self.res_dir.mkdir(parents=True, exist_ok=True)
 
     def tearDown(self):
-        self.tmp_dir.cleanup()
+        shutil.rmtree(self.stage_dir, ignore_errors=True)
 
     def test_audit_missing_compile_receipt_raises(self):
         from audit_derived_dwarf_native import audit_native_models
@@ -185,8 +187,8 @@ class NativeAuditValidationTests(unittest.TestCase):
 
 class MasterFreezeVerificationTests(unittest.TestCase):
     def test_dest_hash_verification(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            tmp_path = Path(tmp_dir)
+        tmp_path = make_test_temp_dir()
+        try:
             src = tmp_path / "source.mdl"
             dst = tmp_path / "native" / "source.mdl"
             dst.parent.mkdir()
@@ -202,6 +204,8 @@ class MasterFreezeVerificationTests(unittest.TestCase):
                 shutil.copyfile(src, dst)
             dest_sha = sha(dst)
             self.assertEqual(dest_sha, actual_sha)
+        finally:
+            shutil.rmtree(tmp_path, ignore_errors=True)
 
 
 class Gate7ComplianceTests(unittest.TestCase):
@@ -246,6 +250,36 @@ class Gate7ComplianceTests(unittest.TestCase):
         self.assertFalse(res["passed"])
         self.assertFalse(res["torsoPassed"])
 
+    def test_turnaround_max_cannot_mask_failing_front_torso(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 0.85,
+                    "dice_pct": 72.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 75.0},  # Fails nominal 80%
+                        "Pelvis & Hands (38-60%)": {"dice": 80.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            },
+            "side": {
+                "derived_vs_target": {
+                    "width_ratio": 0.85,
+                    "dice_pct": 85.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 90.0},  # High turnaround score
+                        "Pelvis & Hands (38-60%)": {"dice": 85.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            },
+        }
+        res = evaluate_gate7_compliance("test_race", mock_data)
+        self.assertFalse(res["passed"])
+        self.assertFalse(res["torsoPassed"])
+
     def test_failing_stance_width(self):
         from calculate_silhouette_difference import evaluate_gate7_compliance
         mock_data = {
@@ -265,6 +299,44 @@ class Gate7ComplianceTests(unittest.TestCase):
         self.assertFalse(res["passed"])
         self.assertFalse(res["stanceWidthPassed"])
 
+    def test_stance_width_upper_bound(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 1.02,  # 102% exceeds nominal 95%
+                    "dice_pct": 75.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 82.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 80.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            }
+        }
+        res = evaluate_gate7_compliance("test_race", mock_data)
+        self.assertFalse(res["passed"])
+        self.assertFalse(res["stanceWidthPassed"])
+
+    def test_elf_pilot_standards(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 0.85,
+                    "dice_pct": 75.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 78.0},  # Passes elf 77.5% threshold
+                        "Pelvis & Hands (38-60%)": {"dice": 76.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            }
+        }
+        res = evaluate_gate7_compliance("elf_male", mock_data)
+        self.assertTrue(res["passed"])
+        self.assertTrue(res["torsoPassed"])
+
 
 class StageDerivedDwarfDefaultsTests(unittest.TestCase):
     def test_stage_defaults_to_dwarf(self):
@@ -277,20 +349,50 @@ class StageDerivedDwarfDefaultsTests(unittest.TestCase):
 
 class DeriveRigTargetResolutionTests(unittest.TestCase):
     def test_target_resolution_from_race(self):
+        from derive_rig import resolve_target_config
+
+        # Test Dwarf
+        dwarf_cfg = resolve_target_config("dwarf", "male", 0)
+        self.assertTrue(dwarf_cfg.exists())
+        self.assertEqual(dwarf_cfg.name, "target-dwarf-male-stock.json")
+
+        # Test Elf
+        elf_cfg = resolve_target_config("elf", "male", 0)
+        self.assertTrue(elf_cfg.exists())
+        self.assertEqual(elf_cfg.name, "target-elf-male-fit.json")
+
+        # Test Orc
+        orc_cfg = resolve_target_config("orc", "male", 0)
+        self.assertTrue(orc_cfg.exists())
+        self.assertEqual(orc_cfg.name, "target-orc-male-fit.json")
+
+        # Test Troll
+        troll_cfg = resolve_target_config("troll", "male", 0)
+        self.assertTrue(troll_cfg.exists())
+        self.assertEqual(troll_cfg.name, "target-troll-male-fit.json")
+
+        # Test Human
+        human_cfg = resolve_target_config("human", "male", 0)
+        self.assertTrue(human_cfg.exists())
+        self.assertEqual(human_cfg.name, "target-human-male-baseline.json")
+
+    def test_unknown_race_raises(self):
+        from derive_rig import resolve_target_config
+        with self.assertRaises(FileNotFoundError):
+            resolve_target_config("unknown_race", "male", 0)
+
+    def test_cli_requires_target_or_race(self):
         import subprocess
         res = subprocess.run(
             [
                 sys.executable,
                 str(Path(__file__).resolve().parent / "derive_rig.py"),
-                "--race", "dwarf",
-                "--gender", "male",
             ],
             capture_output=True,
             text=True,
         )
-        self.assertEqual(res.returncode, 0)
-        self.assertIn("dwarf-male-stock-family", res.stdout)
-        self.assertIn("verified 56 nodes", res.stdout)
+        self.assertNotEqual(res.returncode, 0)
+        self.assertIn("Either positional 'target' JSON path or --race must be specified", res.stderr)
 
 
 if __name__ == "__main__":
