@@ -116,7 +116,17 @@ python tools/phenotypes/derived_matrix.py
 
 ### Deriving Rig & Anchor Hierarchy
 ```powershell
-python tools/phenotypes/derive_rig.py --race dwarf --gender male --phenotype 0
+# Standard shared tool launch:
+python tools/phenotypes/launch_shared_tool.py `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output output/phenotypes/derived-v1/rigs/dwarf-male `
+  --input tools/phenotypes/configurations/derived/target-dwarf-male-stock.json `
+  --input output/phenotypes/derived-v1/masters/human-male-v1/stock/pmd0.mdl `
+  -- tools/phenotypes/derive_rig.py tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
+
+# Direct CLI invocation:
+python tools/phenotypes/derive_rig.py tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
 ```
 
 ### Localized Deformation

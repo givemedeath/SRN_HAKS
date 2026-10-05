@@ -204,6 +204,95 @@ class MasterFreezeVerificationTests(unittest.TestCase):
             self.assertEqual(dest_sha, actual_sha)
 
 
+class Gate7ComplianceTests(unittest.TestCase):
+    def test_passing_metrics(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 0.85,
+                    "dice_pct": 75.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 82.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 80.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            }
+        }
+        res = evaluate_gate7_compliance("test_race", mock_data)
+        self.assertTrue(res["passed"])
+        self.assertTrue(res["torsoPassed"])
+        self.assertTrue(res["pelvisPassed"])
+        self.assertTrue(res["stanceWidthPassed"])
+        self.assertTrue(res["baselineGainPassed"])
+
+    def test_failing_torso_dice(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 0.85,
+                    "dice_pct": 75.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 70.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 80.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            }
+        }
+        res = evaluate_gate7_compliance("test_race", mock_data)
+        self.assertFalse(res["passed"])
+        self.assertFalse(res["torsoPassed"])
+
+    def test_failing_stance_width(self):
+        from calculate_silhouette_difference import evaluate_gate7_compliance
+        mock_data = {
+            "front": {
+                "derived_vs_target": {
+                    "width_ratio": 0.60,
+                    "dice_pct": 75.0,
+                    "regional": {
+                        "Chest & Upper Torso (15-38%)": {"dice": 82.0},
+                        "Pelvis & Hands (38-60%)": {"dice": 80.0},
+                    },
+                },
+                "stock_vs_target": {"dice_pct": 70.0},
+            }
+        }
+        res = evaluate_gate7_compliance("test_race", mock_data)
+        self.assertFalse(res["passed"])
+        self.assertFalse(res["stanceWidthPassed"])
+
+
+class StageDerivedDwarfDefaultsTests(unittest.TestCase):
+    def test_stage_defaults_to_dwarf(self):
+        import inspect
+        from stage_derived_dwarf import stage
+        sig = inspect.signature(stage)
+        self.assertEqual(sig.parameters["race"].default, "dwarf")
+        self.assertEqual(sig.parameters["prefix"].default, "pmd0")
+
+
+class DeriveRigTargetResolutionTests(unittest.TestCase):
+    def test_target_resolution_from_race(self):
+        import subprocess
+        res = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).resolve().parent / "derive_rig.py"),
+                "--race", "dwarf",
+                "--gender", "male",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(res.returncode, 0)
+        self.assertIn("dwarf-male-stock-family", res.stdout)
+        self.assertIn("verified 56 nodes", res.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
 

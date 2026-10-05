@@ -20,6 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from retarget import nodes, transforms, geometry, signature, rotation_signature
 from target_contract import PART_JOINTS, require
 
+REPO = Path(__file__).resolve().parents[2]
+
 
 def sha256_file(path: Path | str) -> str:
     digest = hashlib.sha256()
@@ -266,7 +268,10 @@ def derive_broadened_scaled_rig(
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("target", type=Path, help="Target configuration JSON")
+    parser.add_argument("target", type=Path, nargs="?", default=None, help="Target configuration JSON")
+    parser.add_argument("--race", type=str, default=None, help="Target race (e.g. dwarf, troll, elf, orc)")
+    parser.add_argument("--gender", type=str, default="male", help="Target gender (default: male)")
+    parser.add_argument("--phenotype", type=int, default=0, help="Target phenotype (default: 0)")
     parser.add_argument(
         "--stock-root",
         type=Path,
@@ -281,7 +286,17 @@ def main():
     )
     args = parser.parse_args()
 
-    target_data = json.loads(args.target.read_text(encoding="utf-8"))
+    target_path = args.target
+    if target_path is None:
+        if args.race:
+            config_name = f"target-{args.race}-{args.gender}-stock.json"
+            target_path = REPO / "tools/phenotypes/configurations/derived" / config_name
+            if not target_path.exists():
+                raise FileNotFoundError(f"Target configuration not found for race '{args.race}': {target_path}")
+        else:
+            parser.error("Either positional 'target' JSON path or --race must be specified")
+
+    target_data = json.loads(target_path.read_text(encoding="utf-8"))
     mode = target_data["rig"]["mode"]
     print(f"Deriving rig for target '{target_data['id']}' (mode: {mode})...")
 

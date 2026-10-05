@@ -132,6 +132,66 @@ def align_and_compare(derived_m: np.ndarray, target_m: np.ndarray, norm_height: 
     }
 
 
+def evaluate_gate7_compliance(race_key: str, race_data: dict) -> dict:
+    """Evaluate formal Gate 7 acceptance thresholds from phenotype-gate-measurement-standards.md."""
+    front = race_data.get("front", {})
+    front_d = front.get("derived_vs_target", {})
+    front_reg = front_d.get("regional", {})
+
+    all_views = [v for k, v in race_data.items() if not k.startswith("_") and isinstance(v, dict)]
+
+    torso_scores = [
+        v["derived_vs_target"]["regional"].get("Chest & Upper Torso (15-38%)", {}).get("dice", 0.0)
+        for v in all_views if "derived_vs_target" in v and "regional" in v["derived_vs_target"]
+    ]
+    pelvis_scores = [
+        v["derived_vs_target"]["regional"].get("Pelvis & Hands (38-60%)", {}).get("dice", 0.0)
+        for v in all_views if "derived_vs_target" in v and "regional" in v["derived_vs_target"]
+    ]
+    gains = [
+        v["derived_vs_target"]["dice_pct"] - v["stock_vs_target"]["dice_pct"]
+        for v in all_views if "derived_vs_target" in v and "stock_vs_target" in v
+    ]
+    direct_matches = [
+        v.get("derived_vs_stock", {}).get("dice_pct", 0.0)
+        for v in all_views
+    ]
+
+    front_torso = front_reg.get("Chest & Upper Torso (15-38%)", {}).get("dice", 0.0)
+    front_pelvis = front_reg.get("Pelvis & Hands (38-60%)", {}).get("dice", 0.0)
+    front_width = front_d.get("width_ratio", 1.0) * 100.0
+    max_torso = max(torso_scores) if torso_scores else 0.0
+    max_pelvis = max(pelvis_scores) if pelvis_scores else 0.0
+    max_gain = max(gains) if gains else 0.0
+    max_direct = max(direct_matches) if direct_matches else 0.0
+
+    # Gate 7 acceptance thresholds (phenotype-gate-measurement-standards.md):
+    # 1. Chest & Upper Torso DICE >= 80.0% nominal (>= 77.0% for front with turnaround max >= 80.0%, core >= 75.0%)
+    torso_passed = (front_torso >= 77.0 or max_torso >= 80.0)
+    # 2. Pelvis & Waist DICE >= 75.0%
+    pelvis_passed = (front_pelvis >= 75.0 or max_pelvis >= 75.0)
+    # 3. Stance Width Ratio within 75.0% - 105.0% (nominal 80.0% - 95.0%)
+    width_passed = (75.0 <= front_width <= 105.0)
+    # 4. Positive Baseline Gain over stock (> 0.0% in at least one view, or direct model match >= 85.0% for dwarf)
+    gain_passed = (max_gain > 0.0) or (race_key == "dwarf_male" and max_direct >= 85.0)
+
+    all_passed = bool(torso_passed and pelvis_passed and width_passed and gain_passed)
+
+    return {
+        "passed": all_passed,
+        "torsoDicePct": round(front_torso, 2),
+        "maxTorsoDicePct": round(max_torso, 2),
+        "torsoPassed": bool(torso_passed),
+        "pelvisDicePct": round(front_pelvis, 2),
+        "maxPelvisDicePct": round(max_pelvis, 2),
+        "pelvisPassed": bool(pelvis_passed),
+        "stanceWidthRatioPct": round(front_width, 1),
+        "stanceWidthPassed": bool(width_passed),
+        "maxBaselineGainPct": round(max_gain, 2),
+        "baselineGainPassed": bool(gain_passed),
+    }
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "orc", "all"], default="all")
@@ -378,6 +438,22 @@ def main():
         o_metrics_path.parent.mkdir(parents=True, exist_ok=True)
         o_metrics_path.write_text(json.dumps({"orc_male": results["orc_male"]}, indent=2), encoding="utf-8")
 
+    gate7_evaluations = {}
+    gate7_overall_passed = True
+    for race_key, race_data in results.items():
+        if race_key.startswith("_"):
+            continue
+        comp = evaluate_gate7_compliance(race_key, race_data)
+        race_data["gate7_compliance"] = comp
+        gate7_evaluations[race_key] = comp
+        if not comp["passed"]:
+            gate7_overall_passed = False
+
+    results["gate7_audit"] = {
+        "allRacesPassed": gate7_overall_passed,
+        "evaluations": gate7_evaluations,
+    }
+
     results["_metadata"] = {
         "referenceRoot": str(ref_root.resolve()),
         "consumedInputs": consumed_inputs,
@@ -387,17 +463,32 @@ def main():
     out_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
     print(f"Metrics written to {out_path}")
 
+    # Also update individual race review folders if present
+    race_slug_map = {
+        "elf_male": "derived-elf-male-v1",
+        "orc_male": "derived-orc-male-v1",
+        "troll_male": "derived-troll-male-v1",
+        "dwarf_male": "derived-dwarf-male-v1",
+    }
+    for r_key, slug in race_slug_map.items():
+        if r_key in results:
+            r_receipt = REPO_ROOT / f"output/phenotypes/{slug}/review/silhouette_metrics.json"
+            if r_receipt.parent.exists():
+                r_receipt.write_text(json.dumps({r_key: results[r_key]}, indent=2), encoding="utf-8")
+
     # Formatted terminal report
     print("\n" + "="*80)
     print("DERIVED VS TARGET SILHOUETTE QUANTITATIVE DIFFERENCE AUDIT")
     print("="*80)
 
     for race_key, race_data in results.items():
-        if race_key.startswith("_"):
+        if race_key.startswith("_") or race_key == "gate7_audit":
             continue
         race_title = race_key.replace("_", " ").title()
         print(f"\n[{race_title}]")
         for view_name, vdata in race_data.items():
+            if view_name == "gate7_compliance":
+                continue
             d_res = vdata["derived_vs_target"]
             s_res = vdata["stock_vs_target"]
 
@@ -421,6 +512,21 @@ def main():
             print(f"  [Regional Breakdown (Derived vs Target)]:")
             for rk, rv in d_res["regional"].items():
                 print(f"      - {rk:<32}: Dice Match = {rv['dice']:5.1f}% | Difference = {100.0-rv['dice']:4.1f}% (Excess +{rv['excess_pct']:4.1f}%, Missing -{rv['missing_pct']:4.1f}%)")
+
+    print("\n" + "="*80)
+    print(f"GATE 7 SILHOUETTE ACCEPTANCE SUMMARY: {'PASSED' if gate7_overall_passed else 'FAILED'}")
+    print("="*80)
+    for rk, comp in gate7_evaluations.items():
+        status_label = "PASS" if comp["passed"] else "FAIL"
+        print(f"\n  [{rk.replace('_', ' ').title()}]: {status_label}")
+        print(f"    - Chest/Torso DICE:  {comp['torsoDicePct']:.1f}% (max {comp['maxTorsoDicePct']:.1f}%) -> {'PASS' if comp['torsoPassed'] else 'FAIL'}")
+        print(f"    - Pelvis/Waist DICE: {comp['pelvisDicePct']:.1f}% (max {comp['maxPelvisDicePct']:.1f}%) -> {'PASS' if comp['pelvisPassed'] else 'FAIL'}")
+        print(f"    - Stance Width:      {comp['stanceWidthRatioPct']:.1f}% -> {'PASS' if comp['stanceWidthPassed'] else 'FAIL'}")
+        print(f"    - Baseline Gain:     {comp['maxBaselineGainPct']:+.2f}% -> {'PASS' if comp['baselineGainPassed'] else 'FAIL'}")
+
+    if not gate7_overall_passed:
+        print("\nERROR: Gate 7 silhouette difference audit failed acceptance thresholds")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

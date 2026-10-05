@@ -11,7 +11,7 @@ PARTS = [
 ]
 
 
-def stage(race: str = "troll", prefix: str = "pmg0"):
+def stage(race: str = "dwarf", prefix: str = "pmd0"):
     ascii_source = REPO / f"output/phenotypes/derived-v1/parts/{race}-male/ascii"
     target_root = REPO / f"output/phenotypes/derived-{race}-male-v1/candidate/converted"
 
@@ -68,12 +68,12 @@ def stage(race: str = "troll", prefix: str = "pmg0"):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--race", type=str, default="orc", choices=["dwarf", "troll", "elf", "orc"])
+    parser.add_argument("--race", type=str, default="dwarf", choices=["dwarf", "troll", "elf", "orc"])
     parser.add_argument("--prefix", type=str, default=None)
     args = parser.parse_args()
 
     default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0", "orc": "pmo0"}
-    prefix = args.prefix or default_prefixes.get(args.race, "pmo0")
+    prefix = args.prefix or default_prefixes.get(args.race, "pmd0")
     stage(race=args.race, prefix=prefix)
 
 

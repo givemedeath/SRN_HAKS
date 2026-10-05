@@ -45,6 +45,7 @@ def audit_connectors(
     target_data: dict,
     ascii_dir: Path,
     output_report_path: Path | None = None,
+    raise_on_failure: bool = False,
 ) -> dict:
     """Audit all connector interfaces in the rest assembly."""
     prefix = target_data["identity"]["prefix"]
@@ -168,6 +169,9 @@ def audit_connectors(
         out_p.parent.mkdir(parents=True, exist_ok=True)
         out_p.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
+    if raise_on_failure and not all_passed:
+        raise RuntimeError(f"Gate 2b connector audit failed for '{target_data['id']}': one or more connectors failed overlap/surface checks")
+
     return report
 
 
@@ -201,6 +205,10 @@ def main():
         surf_str = f"{c['minSurfaceDistanceMeters']*1000:.2f}mm" if c['minSurfaceDistanceMeters'] is not None else "N/A"
         print(f"  {c['connector']:16s} ({c['parentPart']} -> {c['childPart']}): Z-overlap={c['axialOverlapZ']*1000:.1f}mm, surf_dist={surf_str}, overlap_pts={c['overlapVertexCount']}, status={c['status']}")
     print(f"Report written to {args.output}")
+
+    if not report["allConnectorsPassed"]:
+        print(f"ERROR: Gate 2b connector audit failed for '{target_data['id']}': one or more connectors failed overlap/surface checks")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
