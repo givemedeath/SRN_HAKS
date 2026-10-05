@@ -212,7 +212,10 @@ def locked(path, timeout=30):
                     msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
                 else:
                     import fcntl
-                    fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    # FileStream.Lock uses a POSIX byte-range lock. flock is a
+                    # separate lock family on Linux and would allow PS writers
+                    # to enter the same registration critical section.
+                    fcntl.lockf(stream, fcntl.LOCK_EX | fcntl.LOCK_NB, 1, 0, os.SEEK_SET)
                 acquired = True
             except OSError:
                 if time.monotonic() >= end:
@@ -227,7 +230,7 @@ def locked(path, timeout=30):
                 msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
             else:
                 import fcntl
-                fcntl.flock(stream, fcntl.LOCK_UN)
+                fcntl.lockf(stream, fcntl.LOCK_UN, 1, 0, os.SEEK_SET)
         stream.close()
 
 

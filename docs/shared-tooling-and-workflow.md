@@ -118,6 +118,8 @@ provenance. Utility wrappers and phenotype tool adapters register actual resolve
 tools; the launcher registers declared input files and addon sources; equipment
 staging reuses its frozen input hashes; joint packets register their complete
 consumed hash set. Automatic registrations conservatively remain incomplete.
+Python and PowerShell registrations use the same byte-range filesystem lock;
+Linux registrations preserve case-sensitive path identities.
 Opaque CLI arguments and dynamic resource lookup cannot establish whole-worktree
 coverage. Registration of one operation never certifies all other operations.
 
