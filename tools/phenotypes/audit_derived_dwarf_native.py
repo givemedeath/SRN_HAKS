@@ -54,9 +54,22 @@ def decode_model_nodes(data: bytes, model_name: str) -> list[dict]:
                     has_normals = (offsets["normal"] != 0xffffffff and offsets["normal"] + vertices * 12 <= raw_size)
 
                     tangent_finite = False
+                    tangent_unit_norm = False
                     if has_tangents:
-                        t_arr = np.frombuffer(data, "<f4", vertices * 3, raw_start + offsets["tangent"])
+                        t_arr = np.frombuffer(data, "<f4", vertices * 3, raw_start + offsets["tangent"]).reshape(-1, 3)
                         tangent_finite = bool(np.isfinite(t_arr).all())
+                        if tangent_finite and vertices > 0:
+                            t_len = np.linalg.norm(t_arr, axis=1)
+                            tangent_unit_norm = bool(np.all(np.abs(t_len - 1.0) < 0.05))
+
+                    normal_finite = False
+                    normal_unit_norm = False
+                    if has_normals:
+                        n_arr = np.frombuffer(data, "<f4", vertices * 3, raw_start + offsets["normal"]).reshape(-1, 3)
+                        normal_finite = bool(np.isfinite(n_arr).all())
+                        if normal_finite and vertices > 0:
+                            n_len = np.linalg.norm(n_arr, axis=1)
+                            normal_unit_norm = bool(np.all(np.abs(n_len - 1.0) < 0.05))
 
                     nodes.append({
                         "nodeName": node_name,
@@ -64,7 +77,10 @@ def decode_model_nodes(data: bytes, model_name: str) -> list[dict]:
                         "triangles": count,
                         "hasTangents": has_tangents,
                         "tangentFinite": tangent_finite,
-                        "hasNormals": has_normals
+                        "tangentUnitNorm": tangent_unit_norm,
+                        "hasNormals": has_normals,
+                        "normalFinite": normal_finite,
+                        "normalUnitNorm": normal_unit_norm,
                     })
         offset += 4
 
@@ -91,7 +107,11 @@ def audit_native_models(stage_dir: Path = STAGE, output_receipt: Path | None = N
         if not nodes:
             raise RuntimeError(f"No trimesh nodes found in {model_name}")
 
-        all_nodes_valid = all(n["hasTangents"] and n["tangentFinite"] and n["hasNormals"] for n in nodes)
+        all_nodes_valid = all(
+            n["hasTangents"] and n["tangentFinite"] and n["tangentUnitNorm"] and
+            n["hasNormals"] and n["normalFinite"] and n["normalUnitNorm"]
+            for n in nodes
+        )
         total_verts = sum(n["vertices"] for n in nodes)
         total_tris = sum(n["triangles"] for n in nodes)
 
@@ -157,7 +177,11 @@ if __name__ == "__main__":
         if not nodes:
             raise RuntimeError(f"No trimesh nodes found in {model_name}")
 
-        all_nodes_valid = all(n["hasTangents"] and n["tangentFinite"] and n["hasNormals"] for n in nodes)
+        all_nodes_valid = all(
+            n["hasTangents"] and n["tangentFinite"] and n["tangentUnitNorm"] and
+            n["hasNormals"] and n["normalFinite"] and n["normalUnitNorm"]
+            for n in nodes
+        )
         total_verts = sum(n["vertices"] for n in nodes)
         total_tris = sum(n["triangles"] for n in nodes)
 

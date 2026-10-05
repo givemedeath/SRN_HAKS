@@ -6,7 +6,9 @@ import subprocess
 import sys
 
 REPO = Path(__file__).resolve().parents[2]
-TOOLS_ROOT = Path(r"D:\source\repos\SRN_HAKS\.tools\neverwinter\2.1.2\windows-x64")
+sys.path.insert(0, str(REPO / "tools"))
+from shared_tools import resolve_tool
+
 RESOURCES_DIR = REPO / "output/phenotypes/derived-orc-male-v1/candidate/converted/resources"
 PACKAGE_DIR = REPO / "output/phenotypes/derived-orc-male-v1/package"
 HAK_PATH = PACKAGE_DIR / "srn_derived_orc_test.hak"
@@ -28,7 +30,7 @@ def main():
     files = list(RESOURCES_DIR.iterdir())
     print(f"Packing {len(files)} resources into {HAK_PATH}")
 
-    erf_tool = TOOLS_ROOT / "nwn_erf.exe"
+    erf_tool = resolve_tool("erf", repo=REPO)["path"]
     cmd = [
         str(erf_tool),
         "-c",

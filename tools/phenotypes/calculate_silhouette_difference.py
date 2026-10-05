@@ -20,16 +20,28 @@ import sys
 import numpy as np
 from PIL import Image
 
+import hashlib
+import os
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
-ARTIFACT_DIR = Path("C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211")
-SCRATCH_DIR = ARTIFACT_DIR / "scratch"
+DEFAULT_REFERENCE_ROOT = SCRIPT_DIR / "references" / "concepts"
+ARTIFACT_DIR = Path(os.environ.get("ANTIGRAVITY_ARTIFACT_DIR", "C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211"))
+SCRATCH_DIR = DEFAULT_REFERENCE_ROOT if DEFAULT_REFERENCE_ROOT.exists() else (ARTIFACT_DIR / "scratch")
 
 # Import helper functions
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from build_silhouette_comparison_sheet import extract_concept_mask
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def align_and_compare(derived_m: np.ndarray, target_m: np.ndarray, norm_height: int = 1000) -> dict:
@@ -123,32 +135,54 @@ def align_and_compare(derived_m: np.ndarray, target_m: np.ndarray, norm_height: 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "orc", "all"], default="all")
-    parser.add_argument("--output", type=Path, default=ARTIFACT_DIR / "silhouette_metrics.json")
+    parser.add_argument("--reference-root", type=Path, default=None,
+                        help="Root directory containing canonical silhouette concept images (default: tools/phenotypes/references/concepts)")
+    parser.add_argument("--output", type=Path, default=None,
+                        help="Output path for silhouette_metrics.json (default: <artifact_dir>/silhouette_metrics.json)")
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
 
+    ref_root = args.reference_root or Path(os.environ.get("SRN_SILHOUETTE_REFERENCES", DEFAULT_REFERENCE_ROOT))
+    if not ref_root.exists() and (ARTIFACT_DIR / "scratch").exists():
+        ref_root = ARTIFACT_DIR / "scratch"
+    if not ref_root.exists():
+        raise FileNotFoundError(f"Missing silhouette reference directory: {ref_root}")
+
+    out_path = args.output or (ARTIFACT_DIR / "silhouette_metrics.json")
+    consumed_inputs = {}
+
+    def load_image(path: Path) -> Image.Image:
+        resolved = path.resolve()
+        if not resolved.exists():
+            raise FileNotFoundError(f"Missing required silhouette input: {resolved}")
+        consumed_inputs[path.name] = {
+            "path": str(resolved),
+            "sha256": sha256_file(resolved)
+        }
+        return Image.open(resolved)
+
     results = {}
 
     if args.race in ("troll", "all"):
-        im_troll_concept = Image.open(SCRATCH_DIR / "troll_male_fit.png")
+        im_troll_concept = load_image(ref_root / "troll_male_fit.png")
         c_troll_f, _, _ = extract_concept_mask(im_troll_concept, (15, 435))
         c_troll_s, _, _ = extract_concept_mask(im_troll_concept, (630, 835))
         c_troll_r, _, _ = extract_concept_mask(im_troll_concept, (990, 1400))
 
-        im_tf = Image.open("output/phenotypes/derived-troll-male-v1/review/renders/troll_unlit_front.png")
+        im_tf = load_image(REPO_ROOT / "output/phenotypes/derived-troll-male-v1/review/renders/troll_unlit_front.png")
         fg_tf = np.any(np.abs(np.array(im_tf)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
         d_troll_f = fg_tf[:, 1200:]
         s_troll_f = fg_tf[:, :1200]
 
-        im_ts = Image.open("output/phenotypes/derived-troll-male-v1/review/renders/troll_unlit_side.png")
+        im_ts = load_image(REPO_ROOT / "output/phenotypes/derived-troll-male-v1/review/renders/troll_unlit_side.png")
         fg_ts = np.any(np.abs(np.array(im_ts)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
         d_troll_s = fg_ts[:, 1200:]
         s_troll_s = fg_ts[:, :1200]
 
-        im_tr = Image.open("output/phenotypes/derived-troll-male-v1/review/renders/troll_unlit_rear.png")
+        im_tr = load_image(REPO_ROOT / "output/phenotypes/derived-troll-male-v1/review/renders/troll_unlit_rear.png")
         fg_tr = np.any(np.abs(np.array(im_tr)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
         d_troll_r = fg_tr[:, :1200]
         s_troll_r = fg_tr[:, 1200:]
@@ -172,16 +206,18 @@ def main():
         }
 
     if args.race in ("dwarf", "all"):
-        im_dwarf_concept = Image.open(SCRATCH_DIR / "dwarf_male_fit.png")
+        im_dwarf_concept = load_image(ref_root / "dwarf_male_fit.png")
         c_dwarf_f, _, _ = extract_concept_mask(im_dwarf_concept, (20, 440))
         c_dwarf_s, _, _ = extract_concept_mask(im_dwarf_concept, (610, 810))
 
-        im_df = Image.open(ARTIFACT_DIR / "cp2_unlit_front.png")
+        df_front = (ref_root / "cp2_unlit_front.png") if (ref_root / "cp2_unlit_front.png").exists() else (ARTIFACT_DIR / "cp2_unlit_front.png")
+        im_df = load_image(df_front)
         fg_df = np.any(np.abs(np.array(im_df)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
         s_dwarf_f = fg_df[:, 900:1500]
         d_dwarf_f = fg_df[:, 1600:2300]
 
-        im_ds = Image.open(ARTIFACT_DIR / "cp2_unlit_side.png")
+        ds_side = (ref_root / "cp2_unlit_side.png") if (ref_root / "cp2_unlit_side.png").exists() else (ARTIFACT_DIR / "cp2_unlit_side.png")
+        im_ds = load_image(ds_side)
         fg_ds = np.any(np.abs(np.array(im_ds)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
         s_dwarf_s = fg_ds[:, 900:1500]
         d_dwarf_s = fg_ds[:, 1600:2300]
@@ -200,27 +236,27 @@ def main():
         }
 
     if args.race in ("human", "all"):
-        im_human_concept = Image.open(SCRATCH_DIR / "human_male_fit.png")
+        im_human_concept = load_image(ref_root / "human_male_fit.png")
         c_human_f, _, _ = extract_concept_mask(im_human_concept, (15, 330), y_bounds=(65, 720))
         c_human_s, _, _ = extract_concept_mask(im_human_concept, (340, 680), y_bounds=(65, 720))
         c_human_r, _, _ = extract_concept_mask(im_human_concept, (690, 1025), y_bounds=(65, 720))
 
         r_dir = REPO_ROOT / "output/phenotypes/derived-v1/masters/human-male-v1/review/renders"
-        im_hf = Image.open(r_dir / "human_unlit_front.png")
+        im_hf = load_image(r_dir / "human_unlit_front.png")
         arr_hf = np.array(im_hf)
         bg_hf = arr_hf[10, 10, :3]
         fg_hf = np.any(np.abs(arr_hf[:, :, :3].astype(int) - bg_hf.astype(int)) > 30, axis=2)
         s_human_f = fg_hf[:, :1200]
         m_human_f = fg_hf[:, 1200:]
 
-        im_hs = Image.open(r_dir / "human_unlit_side.png")
+        im_hs = load_image(r_dir / "human_unlit_side.png")
         arr_hs = np.array(im_hs)
         bg_hs = arr_hs[10, 10, :3]
         fg_hs = np.any(np.abs(arr_hs[:, :, :3].astype(int) - bg_hs.astype(int)) > 30, axis=2)
         s_human_s = fg_hs[:, :1200]
         m_human_s = fg_hs[:, 1200:]
 
-        im_hr = Image.open(r_dir / "human_unlit_rear.png")
+        im_hr = load_image(r_dir / "human_unlit_rear.png")
         arr_hr = np.array(im_hr)
         bg_hr = arr_hr[10, 10, :3]
         fg_hr = np.any(np.abs(arr_hr[:, :, :3].astype(int) - bg_hr.astype(int)) > 30, axis=2)
@@ -251,22 +287,22 @@ def main():
         h_metrics_path.write_text(json.dumps({"human_male": results["human_male"]}, indent=2), encoding="utf-8")
 
     if args.race in ("elf", "all"):
-        im_elf_concept = Image.open(SCRATCH_DIR / "elf_male_fit.png")
+        im_elf_concept = load_image(ref_root / "elf_male_fit.png")
         c_elf_f, _, _ = extract_concept_mask(im_elf_concept, (100, 415))
         c_elf_s, _, _ = extract_concept_mask(im_elf_concept, (663, 798))
         c_elf_r, _, _ = extract_concept_mask(im_elf_concept, (1037, 1331))
 
-        im_ef = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_front.png")
+        im_ef = load_image(REPO_ROOT / "output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_front.png")
         fg_ef = np.any(np.abs(np.array(im_ef)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
         d_elf_f = fg_ef[:, 1200:]
         s_elf_f = fg_ef[:, :1200]
 
-        im_es = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_side.png")
+        im_es = load_image(REPO_ROOT / "output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_side.png")
         fg_es = np.any(np.abs(np.array(im_es)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
         d_elf_s = fg_es[:, 1200:]
         s_elf_s = fg_es[:, :1200]
 
-        im_er = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_rear.png")
+        im_er = load_image(REPO_ROOT / "output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_rear.png")
         fg_er = np.any(np.abs(np.array(im_er)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
         d_elf_r = fg_er[:, 1200:]
         s_elf_r = fg_er[:, :1200]
@@ -294,26 +330,26 @@ def main():
         e_metrics_path.write_text(json.dumps({"elf_male": results["elf_male"]}, indent=2), encoding="utf-8")
 
     if args.race in ("orc", "all"):
-        im_orc_concept = Image.open(SCRATCH_DIR / "orc_male_fit.png")
+        im_orc_concept = load_image(ref_root / "orc_male_fit.png")
         c_orc_f, _, _ = extract_concept_mask(im_orc_concept, (60, 420))
         c_orc_s, _, _ = extract_concept_mask(im_orc_concept, (650, 809))
         c_orc_r, _, _ = extract_concept_mask(im_orc_concept, (1019, 1384))
 
-        im_of = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_front.png")
+        im_of = load_image(REPO_ROOT / "output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_front.png")
         arr_of = np.array(im_of)
         bg_of = arr_of[10, 10, :3].astype(int)
         fg_of = np.any(np.abs(arr_of[:, :, :3].astype(int) - bg_of) > 25, axis=2)
         d_orc_f = fg_of[:, 1200:]
         s_orc_f = fg_of[:, :1200]
 
-        im_os = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_side.png")
+        im_os = load_image(REPO_ROOT / "output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_side.png")
         arr_os = np.array(im_os)
         bg_os = arr_os[10, 10, :3].astype(int)
         fg_os = np.any(np.abs(arr_os[:, :, :3].astype(int) - bg_os) > 25, axis=2)
         d_orc_s = fg_os[:, 1200:]
         s_orc_s = fg_os[:, :1200]
 
-        im_or = Image.open("output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_rear.png")
+        im_or = load_image(REPO_ROOT / "output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_rear.png")
         arr_or = np.array(im_or)
         bg_or = arr_or[10, 10, :3].astype(int)
         fg_or = np.any(np.abs(arr_or[:, :, :3].astype(int) - bg_or) > 25, axis=2)
@@ -342,9 +378,14 @@ def main():
         o_metrics_path.parent.mkdir(parents=True, exist_ok=True)
         o_metrics_path.write_text(json.dumps({"orc_male": results["orc_male"]}, indent=2), encoding="utf-8")
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(results, indent=2), encoding="utf-8")
-    print(f"Metrics written to {args.output}")
+    results["_metadata"] = {
+        "referenceRoot": str(ref_root.resolve()),
+        "consumedInputs": consumed_inputs,
+    }
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
+    print(f"Metrics written to {out_path}")
 
     # Formatted terminal report
     print("\n" + "="*80)
@@ -352,6 +393,8 @@ def main():
     print("="*80)
 
     for race_key, race_data in results.items():
+        if race_key.startswith("_"):
+            continue
         race_title = race_key.replace("_", " ").title()
         print(f"\n[{race_title}]")
         for view_name, vdata in race_data.items():

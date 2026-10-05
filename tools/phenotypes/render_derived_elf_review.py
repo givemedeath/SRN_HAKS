@@ -238,7 +238,7 @@ def main():
     scene.render.engine = "CYCLES"
     scene.cycles.device = "CPU"
     scene.render.threads_mode = "FIXED"
-    scene.render.threads = args.threads
+    scene.render.threads = min(4, max(1, args.threads))
     scene.cycles.samples = 64
     scene.render.resolution_x = 2400
     scene.render.resolution_y = 1600

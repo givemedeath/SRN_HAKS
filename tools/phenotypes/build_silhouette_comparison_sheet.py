@@ -12,14 +12,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import numpy as np
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-ARTIFACT_DIR = Path("C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211")
-SCRATCH_DIR = ARTIFACT_DIR / "scratch"
+DEFAULT_REFERENCE_ROOT = Path(__file__).resolve().parent / "references" / "concepts"
+DEFAULT_ARTIFACT_DIR = Path(os.environ.get("ANTIGRAVITY_ARTIFACT_DIR", "C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211"))
 
 
 # Color Palette
@@ -354,15 +355,17 @@ def compose_3way_silhouette_sheet(
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--race", choices=["troll", "dwarf", "human", "elf", "orc", "all"], default="all")
-    parser.add_argument("--output-dir", type=Path, default=ARTIFACT_DIR)
+    parser.add_argument("--reference-root", type=Path, default=DEFAULT_REFERENCE_ROOT, help="Directory containing concept images")
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_ARTIFACT_DIR)
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    ref_dir = args.reference_root if args.reference_root.exists() else (args.output_dir / "scratch")
 
     if args.race in ("troll", "all"):
         print("=== Generating Troll Male 3-Way Silhouette Comparison Sheets ===")
         # 1. Load Concept Art
-        im_concept = Image.open(SCRATCH_DIR / "troll_male_fit.png")
+        im_concept = Image.open(ref_dir / "troll_male_fit.png")
         arr_concept = np.array(im_concept)
 
         concept_front_mask, cf_h, cf_w = extract_concept_mask(im_concept, (15, 435))
@@ -516,7 +519,7 @@ def main():
     if args.race in ("elf", "all"):
         print("=== Generating Elf Male 3-Way Silhouette Comparison Sheets ===")
         # 1. Load Concept Art
-        im_elf_concept = Image.open(SCRATCH_DIR / "elf_male_fit.png")
+        im_elf_concept = Image.open(ref_dir / "elf_male_fit.png")
         concept_elf_front, cef_h, cef_w = extract_concept_mask(im_elf_concept, (100, 415))
         concept_elf_side, ces_h, ces_w = extract_concept_mask(im_elf_concept, (663, 798))
         concept_elf_rear, cer_h, cer_w = extract_concept_mask(im_elf_concept, (1037, 1331))
@@ -657,7 +660,7 @@ def main():
     if args.race in ("orc", "all"):
         print("=== Generating Orc Male 3-Way Silhouette Comparison Sheets ===")
         # 1. Load Concept Art
-        im_orc_concept = Image.open(SCRATCH_DIR / "orc_male_fit.png")
+        im_orc_concept = Image.open(ref_dir / "orc_male_fit.png")
         concept_orc_front, cof_h, cof_w = extract_concept_mask(im_orc_concept, (60, 420))
         concept_orc_side, cos_h, cos_w = extract_concept_mask(im_orc_concept, (650, 809))
         concept_orc_rear, cor_h, cor_w = extract_concept_mask(im_orc_concept, (1019, 1384))
@@ -813,11 +816,14 @@ def main():
 
     if args.race in ("dwarf", "all"):
         print("=== Generating Dwarf Male 3-Way Silhouette Comparison Sheets ===")
-        im_dwarf_concept = Image.open(SCRATCH_DIR / "dwarf_male_fit.png")
+        im_dwarf_concept = Image.open(ref_dir / "dwarf_male_fit.png")
         d_concept_front, _, _ = extract_concept_mask(im_dwarf_concept, (20, 440))
         d_concept_side, _, _ = extract_concept_mask(im_dwarf_concept, (610, 810))
 
-        im_dwarf_front_render = Image.open(ARTIFACT_DIR / "cp2_unlit_front.png")
+        df_path = ref_dir / "cp2_unlit_front.png"
+        if not df_path.exists():
+            df_path = args.output_dir / "cp2_unlit_front.png"
+        im_dwarf_front_render = Image.open(df_path)
         arr_dr = np.array(im_dwarf_front_render)
         diff_dr = np.abs(arr_dr[:, :, :3].astype(int) - np.array([55, 55, 73]))
         fg_dr = np.any(diff_dr > 30, axis=2)
@@ -826,7 +832,10 @@ def main():
         derived_dwarf_front_mask = fg_dr[:, 1600:2300]
 
         # Side render
-        im_dwarf_side_render = Image.open(ARTIFACT_DIR / "cp2_unlit_side.png")
+        ds_path = ref_dir / "cp2_unlit_side.png"
+        if not ds_path.exists():
+            ds_path = args.output_dir / "cp2_unlit_side.png"
+        im_dwarf_side_render = Image.open(ds_path)
         arr_dsr = np.array(im_dwarf_side_render)
         diff_dsr = np.abs(arr_dsr[:, :, :3].astype(int) - np.array([55, 55, 73]))
         fg_dsr = np.any(diff_dsr > 30, axis=2)
@@ -933,7 +942,7 @@ def main():
 
     if args.race in ("human", "all"):
         print("=== Generating Human Male Baseline 3-Way Silhouette Comparison Sheets ===")
-        im_human_concept = Image.open(SCRATCH_DIR / "human_male_fit.png")
+        im_human_concept = Image.open(ref_dir / "human_male_fit.png")
         h_concept_front, _, _ = extract_concept_mask(im_human_concept, (54, 282), (65, 720))
         h_concept_side, _, _ = extract_concept_mask(im_human_concept, (448, 565), (65, 720))
         h_concept_rear, _, _ = extract_concept_mask(im_human_concept, (732, 988), (65, 720))
@@ -1093,13 +1102,14 @@ def main():
         out_all_lineup = args.output_dir / "all_races_silhouette_comparison.png"
         compose_all_races_lineup(
             args.output_dir,
-            out_all_lineup
+            out_all_lineup,
+            reference_root=ref_dir,
         )
 
     print(f"All silhouette comparison sheets generated successfully in {args.output_dir}")
 
 
-def compose_all_races_lineup(artifact_dir: Path, out_path: Path):
+def compose_all_races_lineup(artifact_dir: Path, out_path: Path, reference_root: Path | None = None):
     """Render a wide master lineup of all races on a single metric height scale."""
     canvas_w = 3840
     canvas_h = 1600
@@ -1147,14 +1157,16 @@ def compose_all_races_lineup(artifact_dir: Path, out_path: Path):
     draw.line([(ruler_x_left - 80, ground_y), (ruler_x_right + 80, ground_y)], fill=COLOR_GROUND, width=3)
     draw.text((ruler_x_left - 75, ground_y + 10), "Z = 0.00 m (GROUND)", font=get_font(12, bold=True), fill=COLOR_GROUND)
 
+    ref_dir = reference_root if (reference_root and reference_root.exists()) else (artifact_dir / "scratch")
+
     # Load Figures: Dwarf, Human, Elf, Troll
-    im_troll_concept = Image.open(SCRATCH_DIR / "troll_male_fit.png")
+    im_troll_concept = Image.open(ref_dir / "troll_male_fit.png")
     c_troll_m, _, _ = extract_concept_mask(im_troll_concept, (15, 435))
 
-    im_dwarf_concept = Image.open(SCRATCH_DIR / "dwarf_male_fit.png")
+    im_dwarf_concept = Image.open(ref_dir / "dwarf_male_fit.png")
     c_dwarf_m, _, _ = extract_concept_mask(im_dwarf_concept, (20, 440))
 
-    im_elf_concept = Image.open(SCRATCH_DIR / "elf_male_fit.png")
+    im_elf_concept = Image.open(ref_dir / "elf_male_fit.png")
     c_elf_m, _, _ = extract_concept_mask(im_elf_concept, (100, 415))
 
     im_troll_front = Image.open("output/phenotypes/derived-troll-male-v1/review/renders/troll_unlit_front.png")
@@ -1163,7 +1175,10 @@ def compose_all_races_lineup(artifact_dir: Path, out_path: Path):
     s_human_m = fg_tf[:, :1200]
     d_troll_m = fg_tf[:, 1200:]
 
-    im_dwarf_front = Image.open(artifact_dir / "cp2_unlit_front.png")
+    df_path = ref_dir / "cp2_unlit_front.png"
+    if not df_path.exists():
+        df_path = artifact_dir / "cp2_unlit_front.png"
+    im_dwarf_front = Image.open(df_path)
     arr_df = np.array(im_dwarf_front)
     fg_df = np.any(np.abs(arr_df[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
     s_dwarf_m = fg_df[:, 900:1500]
@@ -1174,7 +1189,7 @@ def compose_all_races_lineup(artifact_dir: Path, out_path: Path):
     fg_ef = np.any(np.abs(arr_ef[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
     d_elf_m = fg_ef[:, 1200:]
 
-    im_orc_concept = Image.open(SCRATCH_DIR / "orc_male_fit.png")
+    im_orc_concept = Image.open(ref_dir / "orc_male_fit.png")
     c_orc_m, _, _ = extract_concept_mask(im_orc_concept, (60, 420))
 
     orc_render_path = REPO_ROOT / "output/phenotypes/derived-orc-male-v1/review/renders/orc_unlit_front.png"

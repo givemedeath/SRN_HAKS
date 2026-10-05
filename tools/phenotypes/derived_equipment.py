@@ -18,11 +18,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_geometry import arrays
 from target_contract import require
 
+sys.path.insert(0, str(REPO / "tools"))
+from shared_tools import resolve_tool
+
 REPO = Path(__file__).resolve().parents[2]
 GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
-RESMAN_GREP = REPO / ".tools/neverwinter/2.1.2/windows-x64/nwn_resman_grep.exe"
-if not RESMAN_GREP.exists():
-    RESMAN_GREP = Path(r"D:\source\repos\SRN_HAKS\.tools\neverwinter\2.1.2\windows-x64\nwn_resman_grep.exe")
+RESMAN_GREP = Path(resolve_tool("resman_grep", repo=REPO)["path"])
 
 PARTS = [
     "chest", "pelvis", "belt", "neck",

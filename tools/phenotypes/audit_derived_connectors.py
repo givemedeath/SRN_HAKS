@@ -122,7 +122,18 @@ def audit_connectors(
         ]
 
         overlap_vertex_count = len(in_overlap_p) + len(in_overlap_c)
-        passed = has_3d_overlap and z_overlap > 0.005
+
+        # Boundary surface gap check: compute inter-surface nearest distance between child and parent mesh
+        min_surface_dist = float("inf")
+        if len(in_overlap_c) > 0 and len(in_overlap_p) > 0:
+            for i in range(0, len(in_overlap_c), 500):
+                chunk = in_overlap_c[i:i + 500]
+                d = np.min(np.linalg.norm(chunk[:, None, :] - in_overlap_p[None, :, :], axis=2))
+                if d < min_surface_dist:
+                    min_surface_dist = float(d)
+
+        has_surface_proximity = bool(len(in_overlap_c) > 0 and len(in_overlap_p) > 0 and min_surface_dist < 0.005)
+        passed = has_3d_overlap and z_overlap > 0.005 and has_surface_proximity
 
         if not passed:
             all_passed = False
@@ -137,6 +148,8 @@ def audit_connectors(
             "overlapSpanX": x_overlap,
             "overlapSpanY": y_overlap,
             "overlapVertexCount": overlap_vertex_count,
+            "minSurfaceDistanceMeters": min_surface_dist if min_surface_dist != float("inf") else None,
+            "hasSurfaceProximity": has_surface_proximity,
             "status": "passed" if passed else "failed-gap",
         })
 
@@ -185,7 +198,8 @@ def main():
 
     print(f"Connector audit for '{target_data['id']}': {'PASSED (13/13)' if report['allConnectorsPassed'] else 'FAILED'}")
     for c in report["connectors"]:
-        print(f"  {c['connector']:16s} ({c['parentPart']} -> {c['childPart']}): Z-overlap={c['axialOverlapZ']*1000:.1f}mm, overlap_pts={c['overlapVertexCount']}, status={c['status']}")
+        surf_str = f"{c['minSurfaceDistanceMeters']*1000:.2f}mm" if c['minSurfaceDistanceMeters'] is not None else "N/A"
+        print(f"  {c['connector']:16s} ({c['parentPart']} -> {c['childPart']}): Z-overlap={c['axialOverlapZ']*1000:.1f}mm, surf_dist={surf_str}, overlap_pts={c['overlapVertexCount']}, status={c['status']}")
     print(f"Report written to {args.output}")
 
 

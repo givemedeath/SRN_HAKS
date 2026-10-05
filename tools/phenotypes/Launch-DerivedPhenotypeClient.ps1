@@ -10,14 +10,42 @@ $env:PYTHONUTF8='1'; $env:PYTHONIOENCODING='utf-8'; $env:PYTHONDONTWRITEBYTECODE
 $taskStage=(Resolve-Path -LiteralPath $Fixture).Path
 $taskPreflight=Join-Path $taskStage ('client-preflight-'+[guid]::NewGuid().ToString('N')+'.json')
 
-& $WorkspacePython (Join-Path $PSScriptRoot 'preflight_derived_dwarf_client.py')
+# Identify target race and prefix from fixture manifest if present
+$manifestPath=Join-Path $taskStage 'manifest.json'
+$race='dwarf'
+$prefix='pmd0'
+if (Test-Path -LiteralPath $manifestPath) {
+  $manifest=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+  if ($manifest.combinations -and $manifest.combinations.Count -gt 0) {
+    $comb=$manifest.combinations[0]
+    if ($comb.race) { $race=$comb.race.ToLower() }
+    if ($comb.slug -and ($comb.slug -match '^([a-z]+)_')) { $race=$Matches[1] }
+  }
+}
+$prefixMap=@{dwarf='pmd0'; troll='pmg0'; elf='pme0'; orc='pmo0'}
+if ($prefixMap.ContainsKey($race)) { $prefix=$prefixMap[$race] }
+
+& $WorkspacePython (Join-Path $PSScriptRoot 'preflight_derived_dwarf_client.py') `
+  --stage $taskStage `
+  --client $Client `
+  --race $race `
+  --prefix $prefix `
+  --output-receipt $taskPreflight
+
 if ($LASTEXITCODE -ne 0) { throw 'Derived-phenotype client preflight failed' }
 
-$taskPreflightSrc=Join-Path (Split-Path (Split-Path $taskStage -Parent) -Parent) 'derived-dwarf-male-v1/review/client-preflight-receipt.json'
-if (-not (Test-Path -LiteralPath $taskPreflightSrc)) {
-  $taskPreflightSrc=Join-Path $taskStage 'client-preflight-receipt.json'
+# Verify and compare ReceiptSha256 against the fixture build receipt hash
+$fixtureReceiptPath=Join-Path $taskStage 'test-module/receipt.json'
+if (-not (Test-Path -LiteralPath $fixtureReceiptPath)) {
+  $fixtureReceiptPath=Join-Path $taskStage 'receipt.json'
 }
-Copy-Item -LiteralPath $taskPreflightSrc -Destination $taskPreflight
+if (Test-Path -LiteralPath $fixtureReceiptPath) {
+  $actualReceiptSha=(Get-FileHash -LiteralPath $fixtureReceiptPath -Algorithm SHA256).Hash.ToLower()
+  if ($ReceiptSha256 -and ($actualReceiptSha -ne $ReceiptSha256.ToLower())) {
+    throw "Fixture receipt SHA256 mismatch: expected $ReceiptSha256, actual $actualReceiptSha"
+  }
+}
+
 $taskProof=Get-Content -LiteralPath $taskPreflight -Raw | ConvertFrom-Json
 
 if ($NoLaunch) {

@@ -14,8 +14,10 @@ import subprocess
 import sys
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "tools"))
+from shared_tools import resolve_tool
+
 GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
-TOOLS_ROOT = Path(r"D:\source\repos\SRN_HAKS\.tools\neverwinter\2.1.2\windows-x64")
 MDLCOMP = REPO / "tools/vendor/nwnmdlcomp/nwnmdlcomp.exe"
 
 PARTS = [
@@ -30,8 +32,8 @@ def digest(path: Path) -> str:
 
 
 def extract_stock_resource(name: str, temp_userdir: Path) -> bytes:
-    tool_path = TOOLS_ROOT / "nwn_resman_cat.exe"
-    res = subprocess.run([str(tool_path), "--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", name],
+    tool_path = resolve_tool("resman_cat", repo=REPO)["path"]
+    res = subprocess.run([tool_path, "--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", name],
                          capture_output=True, check=True)
     return res.stdout
 

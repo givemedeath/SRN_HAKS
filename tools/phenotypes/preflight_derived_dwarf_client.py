@@ -10,7 +10,6 @@ import sys
 REPO = Path(__file__).resolve().parents[2]
 STAGE = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage"
 CLIENT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe")
-TOOLS_ROOT = Path(r"D:\source\repos\SRN_HAKS\.tools\neverwinter\2.1.2\windows-x64")
 
 
 def sha256_file(path: Path | str) -> str:
@@ -125,14 +124,16 @@ if __name__ == "__main__":
     parser.add_argument("--race", default="dwarf", help="Target race (default: dwarf)")
     parser.add_argument("--prefix", default=None, help="Model prefix (default: pmd0 for dwarf, pmg0 for troll)")
     parser.add_argument("--stage", default=None, type=Path, help="Stage dir")
+    parser.add_argument("--client", default=None, type=Path, help="Client executable path")
     parser.add_argument("--output-receipt", default=None, type=Path, help="Output receipt path")
     args = parser.parse_args()
 
     race = args.race
-    default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0"}
+    default_prefixes = {"dwarf": "pmd0", "troll": "pmg0", "elf": "pme0", "orc": "pmo0"}
     prefix = args.prefix or default_prefixes.get(race, "pmd0")
     stage = args.stage or (REPO / f"output/phenotypes/derived-{race}-male-v1/test-stage")
     receipt = args.output_receipt or (REPO / f"output/phenotypes/derived-{race}-male-v1/review/client-preflight-receipt.json")
+    client = args.client or CLIENT
 
-    res = run_preflight(stage_dir=stage, output_receipt=receipt, race=race, prefix=prefix)
+    res = run_preflight(stage_dir=stage, client_path=client, output_receipt=receipt, race=race, prefix=prefix)
     print(f"Preflight passed: {res['pass']}, HAK entries: {res['totalHakEntries']}")

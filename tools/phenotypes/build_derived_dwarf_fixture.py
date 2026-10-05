@@ -10,8 +10,10 @@ import subprocess
 import sys
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "tools"))
+from shared_tools import resolve_tool
+
 GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
-TOOLS_ROOT = Path(r"D:\source\repos\SRN_HAKS\.tools\neverwinter\2.1.2\windows-x64")
 PYTHON = Path(sys.executable)
 
 CANDIDATE_CONVERTED = REPO / "output/phenotypes/derived-dwarf-male-v1/candidate/converted"
@@ -19,8 +21,8 @@ STAGE_ROOT = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage"
 
 
 def run_tool(name: str, args: list[str]) -> bytes:
-    tool_path = TOOLS_ROOT / f"nwn_{name}.exe"
-    res = subprocess.run([str(tool_path), *args], capture_output=True, check=True)
+    tool_path = resolve_tool(name, repo=REPO)["path"]
+    res = subprocess.run([tool_path, *args], capture_output=True, check=True)
     return res.stdout
 
 
@@ -41,7 +43,8 @@ def stage_baseline(stage_dir: Path, temp_userdir: Path):
     temp_utc = stage_dir / "temp_peasant.utc"
     temp_json = stage_dir / "temp_peasant.utc.json"
     temp_utc.write_bytes(raw_utc)
-    subprocess.run([str(TOOLS_ROOT / "nwn_gff.exe"), "-i", str(temp_utc), "-o", str(temp_json)], check=True)
+    gff_tool = resolve_tool("gff", repo=REPO)["path"]
+    subprocess.run([gff_tool, "-i", str(temp_utc), "-o", str(temp_json)], check=True)
     shutil.copyfile(temp_json, baseline_dir / "human-template.json")
     temp_utc.unlink(missing_ok=True)
     temp_json.unlink(missing_ok=True)
