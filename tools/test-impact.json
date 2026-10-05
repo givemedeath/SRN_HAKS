@@ -12,6 +12,10 @@
       "tools/phenotypes/scale_fitted_body.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
+    "tools/phenotypes/audit_bounded_pelvis_diagnostic.py": [
+      "tools/phenotypes/bounded_pelvis_connector_v2.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
+    ],
     "tools/phenotypes/audit_effective_limb_materials.py": [],
     "tools/phenotypes/audit_geometry.py": [],
     "tools/phenotypes/audit_limb_ascii_material.py": [
@@ -24,8 +28,99 @@
       "tools/phenotypes/stage_stock_part.py",
       "tools/phenotypes/stock_limb_contract.py"
     ],
+    "tools/phenotypes/audit_native_static_equipment.py": [],
     "tools/phenotypes/audit_pelvis_package.py": [
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/phenotypes/audit_skin_equipment_binds.py": [
+      "tools/phenotypes/armory_rigid.py",
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/audit_stock_equipment_palettes.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py"
+    ],
+    "tools/phenotypes/audit_target_connector_surfaces.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/connector_surface_math.py",
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/audit_target_diagnostic_uv_material_native.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/audit_native_limb_shading.py",
+      "tools/phenotypes/audit_target_native_part.py",
+      "tools/phenotypes/target_body_inventory.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py",
+      "tools/phenotypes/target_diagnostic_uv_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_material_stage.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
+    "tools/phenotypes/audit_target_garment_readiness.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/audit_target_joint_bands.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
+    "tools/phenotypes/audit_target_material_shaders.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
+    "tools/phenotypes/audit_target_native_caps.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/audit_native_limb_shading.py",
+      "tools/phenotypes/audit_target_joint_bands.py",
+      "tools/phenotypes/audit_target_native_part.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/stage_stock_part.py",
+      "tools/phenotypes/target_body_inventory.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
+    "tools/phenotypes/audit_target_native_part.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/audit_native_limb_shading.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_body_inventory.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
+    "tools/phenotypes/audit_target_rig.py": [
+      "tools/phenotypes/build_target_diagnostic.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py",
+      "tools/phenotypes/rig_pose_audit.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/audit_target_working_leaves_native.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/audit_native_limb_shading.py",
+      "tools/phenotypes/audit_target_diagnostic_uv_material_native.py",
+      "tools/phenotypes/audit_target_native_part.py",
+      "tools/phenotypes/stage_target_working_leaves.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/audit_terminal_field_serialization.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/audit_thigh_package.py": [
       "tools/phenotypes/audit_pelvis_package.py",
@@ -33,6 +128,25 @@
       "tools/phenotypes/material_patch_contract.py",
       "tools/phenotypes/stock_limb_contract.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/phenotypes/audit_unresolved_equipment_materials.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/audit_native_static_equipment.py",
+      "tools/phenotypes/audit_stock_equipment_palettes.py",
+      "tools/phenotypes/measure_held_equipment.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/shared_toolchain.py"
+    ],
+    "tools/phenotypes/author_target_robe_cloth.py": [
+      "tools/phenotypes/armory_rigid.py",
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/audit_stock_equipment_palettes.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/prepare_target_material_donors.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/bake_body_materials.py": [
       "tools/phenotypes/audit_body_material_inputs.py",
@@ -49,15 +163,29 @@
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/bind_shared_runtimes.py": [
+      "tools/phenotypes/historical_helper_bindings.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/bootstrap_shared_blender_addons.py": [
       "tools/phenotypes/shared_toolchain.py"
     ],
+    "tools/phenotypes/bounded_pelvis_connector.py": [],
+    "tools/phenotypes/bounded_pelvis_connector_v2.py": [],
     "tools/phenotypes/build_animation_reference_sheet.py": [
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/stage_stock_part.py"
+    ],
+    "tools/phenotypes/build_target_diagnostic.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/build_target_rig.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/build_target_rig.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/build_test_module.py": [
       "tools/phenotypes/effective_body_contract.py",
@@ -100,9 +228,172 @@
     "tools/phenotypes/compose_stock_pelvis_native.py": [
       "tools/phenotypes/stage_stock_pelvis.py"
     ],
+    "tools/phenotypes/compress_target_foot_upper_neck.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/connector_surface_math.py": [],
+    "tools/phenotypes/conservative_face_selection.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
+    ],
+    "tools/phenotypes/deform_target_terminal_caps.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/diagnose_equipment_gff_sources.py": [
+      "tools/phenotypes/pipeline.py"
+    ],
+    "tools/phenotypes/diagnostic_axis_radial.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/diagnostic_bicep_girth_math.py": [
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/diagnostic_connector_shear.py": [],
+    "tools/phenotypes/diagnostic_foot_uniform120.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/pose_preview.py",
+      "tools/phenotypes/pose_preview_target_parts.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/diagnostic_foot_upper_stub_radial.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/foot_upper_stub_math.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/verify_diagnostic_foot_uniform120.py"
+    ],
+    "tools/phenotypes/diagnostic_knee_terminal_connectors.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_shin_girth90.py",
+      "tools/phenotypes/diagnostic_thigh_proximal_one_sided.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/diagnostic_opposite_lower_limb.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_connector_shear.py",
+      "tools/phenotypes/diagnostic_thigh_proximal_back.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_diagnostic_opposite_lower_limb.py"
+    ],
+    "tools/phenotypes/diagnostic_pelvis_cap_round.py": [
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/diagnostic_pelvis_cap_skin_material.py": [
+      "tools/phenotypes/diagnostic_pelvis_cuff_contour15.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/diagnostic_pelvis_cuff_contour.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_pelvis_terminal.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/diagnostic_pelvis_cuff_contour15.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_pelvis_terminal.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/diagnostic_pelvis_terminal.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/diagnostic_selected_working_opposite.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_thigh_proximal_one_sided.py",
+      "tools/phenotypes/diagnostic_upper_arm_girth.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_diagnostic_selected_working_opposite.py"
+    ],
+    "tools/phenotypes/diagnostic_shin_girth90.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_opposite_lower_limb.py",
+      "tools/phenotypes/diagnostic_thigh_proximal_back.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/pose_preview.py",
+      "tools/phenotypes/pose_preview_target_parts.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_diagnostic_shin_girth90.py"
+    ],
+    "tools/phenotypes/diagnostic_shin_girth90_opposite.py": [
+      "tools/phenotypes/diagnostic_selected_working_opposite.py",
+      "tools/phenotypes/diagnostic_shin_girth90.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_diagnostic_shin_girth90_opposite.py"
+    ],
+    "tools/phenotypes/diagnostic_thigh_proximal_back.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_connector_shear.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/pose_preview.py",
+      "tools/phenotypes/pose_preview_target_parts.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_diagnostic_thigh_proximal_back.py"
+    ],
+    "tools/phenotypes/diagnostic_thigh_proximal_one_sided.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_connector_shear.py",
+      "tools/phenotypes/diagnostic_thigh_proximal_back.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_diagnostic_thigh_proximal_one_sided.py"
+    ],
+    "tools/phenotypes/diagnostic_upper_arm_girth.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_bicep_girth_math.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_diagnostic_bicep_girth_math.py",
+      "tools/phenotypes/test_diagnostic_upper_arm_girth.py"
+    ],
     "tools/phenotypes/effective_body_contract.py": [
       "tools/phenotypes/stage_stock_part.py",
       "tools/phenotypes/stock_limb_contract.py"
+    ],
+    "tools/phenotypes/equipment_section_field.py": [],
+    "tools/phenotypes/export_target_bind_bank.py": [
+      "tools/phenotypes/audit_target_rig.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/export_target_regional_chest002.py": [
+      "tools/phenotypes/equipment_section_field.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/stage_target_rigid_equipment.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/extract_filled_exterior.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py",
@@ -111,6 +402,7 @@
     "tools/phenotypes/finalize_shared_tool_migration.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/comfy_nodes/srn_orthographic_multiview/__init__.py",
+      "tools/phenotypes/historical_helper_bindings.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared-tools.lock.json",
@@ -121,18 +413,45 @@
       "tools/phenotypes/material_patch_contract.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
+    "tools/phenotypes/foot_upper_stub_math.py": [],
+    "tools/phenotypes/freeze_equipment_supermodels.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py"
+    ],
     "tools/phenotypes/freeze_part_references.py": [],
     "tools/phenotypes/freeze_stock_part_inputs.py": [],
+    "tools/phenotypes/freeze_target_rig.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/generate_purpose_built_part.py": [
       "tools/phenotypes/height_targets.json",
       "tools/phenotypes/pipeline.py"
     ],
+    "tools/phenotypes/generate_target_qwen_reference.py": [
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/hand_stub_radial_math.py": [],
+    "tools/phenotypes/historical_helper_bindings.py": [],
     "tools/phenotypes/init_shared_atlas.py": [],
     "tools/phenotypes/inspect_blender_addon_paths.py": [],
     "tools/phenotypes/inspect_generated_part_topology.py": [],
     "tools/phenotypes/inspect_stock_joints.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/retarget.py"
+    ],
+    "tools/phenotypes/inventory_target_equipment.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py"
+    ],
+    "tools/phenotypes/investigate_target_sheet.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/joint_review_packet.py": [
       "tools/phenotypes/audit_geometry.py",
@@ -145,6 +464,7 @@
     ],
     "tools/phenotypes/launch_shared_tool.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/historical_helper_bindings.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
@@ -159,11 +479,26 @@
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
+    "tools/phenotypes/measure_held_equipment.py": [
+      "tools/phenotypes/armory_rigid.py",
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/inventory_target_equipment.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/measure_stock_head_fit.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/inspect_stock_joints.py",
       "tools/phenotypes/pipeline.py",
       "tools/phenotypes/retarget.py"
+    ],
+    "tools/phenotypes/measure_target_shoulder_caps.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/measure_target_upperarm_ownership.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/mirror_stock_limb_part.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py",
@@ -175,6 +510,9 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/normalize_part_turnaround.py": [],
+    "tools/phenotypes/offline_native_material_bridge.py": [
+      "tools/phenotypes/prepare_effective_body_preview.py"
+    ],
     "tools/phenotypes/pack_body_material_fixture.py": [
       "tools/phenotypes/audit_pelvis_package.py",
       "tools/phenotypes/audit_thigh_package.py",
@@ -183,6 +521,18 @@
     ],
     "tools/phenotypes/pack_purpose_built_cap_atlas.py": [
       "tools/phenotypes/round_generated_waist_cap.py"
+    ],
+    "tools/phenotypes/partition_target_pelvis_materials.py": [
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
+    "tools/phenotypes/pending_qwen_duplicate_inventory_test.py": [
+      "tools/phenotypes/generate_target_qwen_reference.py",
+      "tools/phenotypes/test_generate_target_qwen_reference.py"
     ],
     "tools/phenotypes/pipeline.py": [
       "tools/phenotypes/height_targets.json"
@@ -209,12 +559,24 @@
     ],
     "tools/phenotypes/pose_preview.py": [
       "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/pose_preview_bridge.py",
       "tools/phenotypes/pose_preview_render_settings.py",
+      "tools/phenotypes/pose_preview_target_parts.py",
       "tools/phenotypes/retarget.py",
-      "tools/phenotypes/run_preparation.py"
+      "tools/phenotypes/rig_pose_audit.py",
+      "tools/phenotypes/run_preparation.py",
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py",
+      "tools/phenotypes/target_diagnostic_uv_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_material_preview.py",
+      "tools/phenotypes/target_part_pipeline.py"
     ],
     "tools/phenotypes/pose_preview_bridge.py": [
+      "tools/phenotypes/historical_helper_bindings.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/rig_controller_audit.py",
       "tools/phenotypes/rig_pose_audit.py",
@@ -222,6 +584,11 @@
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/pose_preview_render_settings.py": [],
+    "tools/phenotypes/pose_preview_target_parts.py": [
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_material_preview.py"
+    ],
     "tools/phenotypes/postfit_pelvis_similarity.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
@@ -231,6 +598,13 @@
       "tools/phenotypes/check_userdir.py",
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/stage_stock_part.py"
+    ],
+    "tools/phenotypes/preflight_target_body_client.py": [
+      "tools/phenotypes/audit_pelvis_package.py",
+      "tools/phenotypes/audit_thigh_package.py",
+      "tools/phenotypes/target_body_inventory.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
     ],
     "tools/phenotypes/prepare_effective_body_fixture.py": [
       "tools/phenotypes/effective_body_contract.py",
@@ -252,24 +626,126 @@
       "tools/phenotypes/stage_stock_part.py",
       "tools/phenotypes/stock_limb_contract.py"
     ],
+    "tools/phenotypes/prepare_provisional_target_head_neck.py": [
+      "tools/phenotypes/audit_native_static_equipment.py",
+      "tools/phenotypes/audit_stock_equipment_palettes.py",
+      "tools/phenotypes/build_target_diagnostic.py",
+      "tools/phenotypes/native_compile.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/review_held_equipment_surfaces.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/stage_target_rigid_equipment.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/prepare_stock_limb_stage_config.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/stage_stock_part.py",
       "tools/phenotypes/stock_limb_contract.py"
     ],
+    "tools/phenotypes/prepare_target_material_donors.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/audit_native_static_equipment.py",
+      "tools/phenotypes/audit_stock_equipment_palettes.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/prepare_target_pose_review.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/build_target_diagnostic.py",
+      "tools/phenotypes/build_target_rig.py",
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/preview_authored_robe_cloth.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/pose_preview_render_settings.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/shared_toolchain.py"
+    ],
+    "tools/phenotypes/preview_generated_part.py": [],
     "tools/phenotypes/refine_shin_connectors.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
     "tools/phenotypes/refine_thigh_proximal_cap.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
+    "tools/phenotypes/render_bounded_pelvis_detail.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/render_bounded_pelvis_diagnostic.py",
+      "tools/phenotypes/write_bounded_pelvis_diagnostic.py"
+    ],
+    "tools/phenotypes/render_bounded_pelvis_detail_v2.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/render_bounded_pelvis_diagnostic.py",
+      "tools/phenotypes/write_bounded_pelvis_diagnostic.py"
+    ],
+    "tools/phenotypes/render_bounded_pelvis_detail_v3.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/render_bounded_pelvis_diagnostic.py",
+      "tools/phenotypes/write_bounded_pelvis_diagnostic.py"
+    ],
+    "tools/phenotypes/render_bounded_pelvis_diagnostic.py": [
+      "tools/phenotypes/bounded_pelvis_connector_v2.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/write_bounded_pelvis_diagnostic.py"
+    ],
+    "tools/phenotypes/render_target_pilot_materials.py": [
+      "tools/phenotypes/audit_target_native_part.py",
+      "tools/phenotypes/offline_native_material_bridge.py",
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/pose_preview_render_settings.py",
+      "tools/phenotypes/prepare_effective_body_preview.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/render_target_pilot_materials_v2.py": [
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/pose_preview_render_settings.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/render_target_pilot_materials_v3.py": [
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/pose_preview_render_settings.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/render_target_pilot_patch_detail.py": [],
+    "tools/phenotypes/render_target_pilot_patch_detail_v2.py": [],
     "tools/phenotypes/repair_parts_kit.py": [],
+    "tools/phenotypes/repair_target_part_faces.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/repair_troll_pelvis_opposite_pairs.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/stage_stock_part.py",
+      "tools/phenotypes/write_bounded_pelvis_diagnostic.py"
+    ],
+    "tools/phenotypes/restore_provisional_head_native_uv.py": [
+      "tools/phenotypes/native_compile.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/prepare_provisional_target_head_neck.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/stage_target_rigid_equipment.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/resume_summary.py": [
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/retarget.py": [
       "tools/phenotypes/pipeline.py"
+    ],
+    "tools/phenotypes/review_held_equipment_surfaces.py": [
+      "tools/phenotypes/audit_native_static_equipment.py",
+      "tools/phenotypes/freeze_target_rig.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/rig_controller_audit.py": [
       "tools/phenotypes/retarget.py",
@@ -300,6 +776,38 @@
       "tools/phenotypes/measure_stock_head_fit.py",
       "tools/phenotypes/pipeline.py"
     ],
+    "tools/phenotypes/segment_target_diagnostic_pelvis_body.py": [
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/partition_target_pelvis_materials.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_material_lineage.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/segment_target_diagnostic_pelvis_uv_basis.py": [
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/partition_target_pelvis_materials.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/segment_target_pelvis_boundary.py": [
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/partition_target_pelvis_materials.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
     "tools/phenotypes/shared_toolchain.py": [
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py",
@@ -327,12 +835,36 @@
       "tools/phenotypes/stock_body_control.py",
       "tools/phenotypes/texture_pelvis_caps.py"
     ],
+    "tools/phenotypes/stage_target_rigid_equipment.py": [
+      "tools/phenotypes/armory_rigid.py",
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/audit_stock_equipment_palettes.py",
+      "tools/phenotypes/measure_held_equipment.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/stage_target_working_leaves.py": [
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/stage_stock_part.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
     "tools/phenotypes/stock_body_control.py": [
       "tools/phenotypes/measure_stock_head_fit.py",
       "tools/phenotypes/pipeline.py"
     ],
     "tools/phenotypes/stock_limb_contract.py": [
       "tools/phenotypes/stage_stock_part.py"
+    ],
+    "tools/phenotypes/summarize_target_connector_surfaces.py": [
+      "tools/phenotypes/connector_surface_math.py",
+      "tools/phenotypes/effective_body_contract.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/retarget.py"
     ],
     "tools/phenotypes/taper_foot_ankle.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py",
@@ -341,20 +873,158 @@
     "tools/phenotypes/taper_generated_waist_back.py": [
       "tools/phenotypes/round_generated_waist_cap.py"
     ],
+    "tools/phenotypes/taper_target_hand_wrist_stub.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/hand_stub_radial_math.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/taper_target_shin_terminal.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/target_body_inventory.py": [
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
     "tools/phenotypes/target_contract.py": [
+      "tools/phenotypes/historical_helper_bindings.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/rig_controller_audit.py"
+    ],
+    "tools/phenotypes/target_diagnostic_lineage.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
+    ],
+    "tools/phenotypes/target_diagnostic_material_lineage.py": [
+      "tools/phenotypes/partition_target_pelvis_materials.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py"
+    ],
+    "tools/phenotypes/target_diagnostic_terminal_preview.py": [
+      "tools/phenotypes/diagnostic_pelvis_terminal.py",
+      "tools/phenotypes/pose_preview.py",
+      "tools/phenotypes/pose_preview_target_parts.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_material_preview.py",
+      "tools/phenotypes/test_target_diagnostic_terminal_preview.py"
+    ],
+    "tools/phenotypes/target_diagnostic_uv_basis.py": [
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_material_lineage.py"
+    ],
+    "tools/phenotypes/target_diagnostic_uv_material_lineage.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py"
+    ],
+    "tools/phenotypes/target_diagnostic_uv_material_preview.py": [
+      "tools/phenotypes/pose_preview.py",
+      "tools/phenotypes/pose_preview_target_parts.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py",
+      "tools/phenotypes/target_diagnostic_uv_material_lineage.py",
+      "tools/phenotypes/test_target_diagnostic_uv_material_preview.py"
+    ],
+    "tools/phenotypes/target_diagnostic_uv_material_stage.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/stage_stock_part.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py",
+      "tools/phenotypes/target_diagnostic_uv_material_lineage.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
+    "tools/phenotypes/target_fixture.py": [
+      "tools/phenotypes/build_test_module.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/target_knee_working_leaf.py": [
+      "tools/phenotypes/diagnostic_knee_terminal_connectors.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/target_part_pipeline.py": [
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/target_part_stage.py": [
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/stage_stock_part.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py"
     ],
     "tools/phenotypes/test_animation_reference_sheet.py": [
       "tools/phenotypes/build_animation_reference_sheet.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
+    "tools/phenotypes/test_armory_rigid.py": [
+      "tools/phenotypes/armory_rigid.py",
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/inventory_target_equipment.py"
+    ],
     "tools/phenotypes/test_audit_native_limb_shading.py": [
       "tools/phenotypes/audit_native_limb_shading.py"
+    ],
+    "tools/phenotypes/test_audit_target_diagnostic_uv_material_native.py": [
+      "tools/phenotypes/audit_target_diagnostic_uv_material_native.py",
+      "tools/phenotypes/audit_target_native_part.py",
+      "tools/phenotypes/target_body_inventory.py",
+      "tools/phenotypes/target_diagnostic_uv_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_material_stage.py",
+      "tools/phenotypes/test_audit_target_native_part.py",
+      "tools/phenotypes/test_target_diagnostic_uv_material_stage.py",
+      "tools/phenotypes/test_target_part_stage.py"
+    ],
+    "tools/phenotypes/test_audit_target_joint_bands.py": [
+      "tools/phenotypes/audit_target_joint_bands.py"
+    ],
+    "tools/phenotypes/test_audit_target_material_shaders.py": [
+      "tools/phenotypes/audit_target_material_shaders.py"
+    ],
+    "tools/phenotypes/test_audit_target_native_caps.py": [
+      "tools/phenotypes/audit_target_native_caps.py"
+    ],
+    "tools/phenotypes/test_audit_target_native_part.py": [
+      "tools/phenotypes/audit_target_native_part.py",
+      "tools/phenotypes/target_part_stage.py"
+    ],
+    "tools/phenotypes/test_audit_target_working_leaves_native.py": [
+      "tools/phenotypes/audit_target_working_leaves_native.py",
+      "tools/phenotypes/stage_target_working_leaves.py",
+      "tools/phenotypes/test_audit_target_native_part.py",
+      "tools/phenotypes/test_stage_target_working_leaves.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_authored_robe_cloth.py": [
+      "tools/phenotypes/author_target_robe_cloth.py"
     ],
     "tools/phenotypes/test_body_material_repair.py": [
       "tools/phenotypes/bake_body_materials.py",
       "tools/phenotypes/pack_body_material_fixture.py"
+    ],
+    "tools/phenotypes/test_bounded_pelvis_connector.py": [
+      "tools/phenotypes/bounded_pelvis_connector.py"
+    ],
+    "tools/phenotypes/test_bounded_pelvis_connector_v2.py": [
+      "tools/phenotypes/bounded_pelvis_connector_v2.py"
     ],
     "tools/phenotypes/test_clean_part_retexture.py": [
       "tools/phenotypes/run_clean_part_retexture.py",
@@ -364,6 +1034,115 @@
       "tools/SrnTools.psm1",
       "tools/phenotypes/Launch-CompleteBodyClient.ps1",
       "tools/phenotypes/preflight_complete_body_client.py"
+    ],
+    "tools/phenotypes/test_compress_target_foot_upper_neck.py": [
+      "tools/phenotypes/compress_target_foot_upper_neck.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_connector_surface_math.py": [
+      "tools/phenotypes/connector_surface_math.py"
+    ],
+    "tools/phenotypes/test_conservative_face_selection.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py"
+    ],
+    "tools/phenotypes/test_diagnostic_axis_radial.py": [
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_diagnostic_bicep_girth_math.py": [
+      "tools/phenotypes/diagnostic_bicep_girth_math.py"
+    ],
+    "tools/phenotypes/test_diagnostic_connector_shear.py": [
+      "tools/phenotypes/diagnostic_connector_shear.py"
+    ],
+    "tools/phenotypes/test_diagnostic_foot_uniform120.py": [
+      "tools/phenotypes/diagnostic_foot_uniform120.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
+    ],
+    "tools/phenotypes/test_diagnostic_foot_upper_stub_radial.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_foot_upper_stub_radial.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py"
+    ],
+    "tools/phenotypes/test_diagnostic_knee_terminal_connectors.py": [
+      "tools/phenotypes/diagnostic_knee_terminal_connectors.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_diagnostic_opposite_lower_limb.py": [
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_opposite_lower_limb.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_diagnostic_pelvis_cap_round.py": [
+      "tools/phenotypes/diagnostic_pelvis_cap_round.py"
+    ],
+    "tools/phenotypes/test_diagnostic_pelvis_cap_skin_material.py": [
+      "tools/phenotypes/diagnostic_pelvis_cap_skin_material.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_diagnostic_pelvis_cuff_contour.py": [
+      "tools/phenotypes/diagnostic_pelvis_cuff_contour.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
+    ],
+    "tools/phenotypes/test_diagnostic_pelvis_cuff_contour15.py": [
+      "tools/phenotypes/diagnostic_pelvis_cuff_contour15.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
+    ],
+    "tools/phenotypes/test_diagnostic_pelvis_terminal.py": [
+      "tools/phenotypes/diagnostic_pelvis_terminal.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py"
+    ],
+    "tools/phenotypes/test_diagnostic_selected_working_opposite.py": [
+      "tools/phenotypes/diagnostic_opposite_lower_limb.py",
+      "tools/phenotypes/diagnostic_selected_working_opposite.py",
+      "tools/phenotypes/mirror_stock_limb_part.py"
+    ],
+    "tools/phenotypes/test_diagnostic_shin_girth90.py": [
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/diagnostic_selected_working_opposite.py",
+      "tools/phenotypes/diagnostic_shin_girth90.py"
+    ],
+    "tools/phenotypes/test_diagnostic_shin_girth90_opposite.py": [
+      "tools/phenotypes/diagnostic_selected_working_opposite.py",
+      "tools/phenotypes/diagnostic_shin_girth90_opposite.py",
+      "tools/phenotypes/mirror_stock_limb_part.py"
+    ],
+    "tools/phenotypes/test_diagnostic_thigh_proximal_back.py": [
+      "tools/phenotypes/diagnostic_thigh_proximal_back.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/pose_preview.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py"
+    ],
+    "tools/phenotypes/test_diagnostic_thigh_proximal_one_sided.py": [
+      "tools/phenotypes/diagnostic_connector_shear.py",
+      "tools/phenotypes/diagnostic_thigh_proximal_one_sided.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
+    ],
+    "tools/phenotypes/test_diagnostic_upper_arm_girth.py": [
+      "tools/phenotypes/diagnostic_bicep_girth_math.py",
+      "tools/phenotypes/diagnostic_upper_arm_girth.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
     "tools/phenotypes/test_effective_body_contract.py": [
       "tools/phenotypes/effective_body_contract.py"
@@ -377,6 +1156,17 @@
     ],
     "tools/phenotypes/test_effective_limb_materials.py": [
       "tools/phenotypes/audit_effective_limb_materials.py"
+    ],
+    "tools/phenotypes/test_equipment_section_field.py": [
+      "tools/phenotypes/equipment_section_field.py"
+    ],
+    "tools/phenotypes/test_equipment_source_diagnosis.py": [
+      "tools/phenotypes/audit_native_static_equipment.py",
+      "tools/phenotypes/diagnose_equipment_gff_sources.py"
+    ],
+    "tools/phenotypes/test_export_target_regional_chest002.py": [
+      "tools/phenotypes/export_target_regional_chest002.py",
+      "tools/phenotypes/stage_target_rigid_equipment.py"
     ],
     "tools/phenotypes/test_filled_exterior.py": [
       "tools/phenotypes/extract_filled_exterior.py",
@@ -394,8 +1184,35 @@
     "tools/phenotypes/test_foot_taper.py": [
       "tools/phenotypes/taper_foot_ankle.py"
     ],
+    "tools/phenotypes/test_foot_upper_stub_math.py": [
+      "tools/phenotypes/foot_upper_stub_math.py"
+    ],
+    "tools/phenotypes/test_freeze_target_rig.py": [
+      "tools/phenotypes/freeze_target_rig.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/test_generate_purpose_built_part_cli.py": [
       "tools/phenotypes/generate_purpose_built_part.py"
+    ],
+    "tools/phenotypes/test_generate_target_qwen_reference.py": [
+      "tools/phenotypes/generate_target_qwen_reference.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/test_hand_stub_radial_math.py": [
+      "tools/phenotypes/hand_stub_radial_math.py"
+    ],
+    "tools/phenotypes/test_held_equipment_surfaces.py": [
+      "tools/phenotypes/review_held_equipment_surfaces.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/test_historical_helper_bindings.py": [
+      "tools/phenotypes/bind_shared_runtimes.py",
+      "tools/phenotypes/historical_helper_bindings.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/shared-tools.lock.json",
+      "tools/shared_tools.py"
     ],
     "tools/phenotypes/test_limb_material_collection.py": [
       "tools/phenotypes/prepare_limb_material_collection.py"
@@ -413,11 +1230,25 @@
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
+    "tools/phenotypes/test_offline_native_material_bridge.py": [
+      "tools/phenotypes/offline_native_material_bridge.py"
+    ],
     "tools/phenotypes/test_part_normalization.py": [
       "tools/phenotypes/normalize_part_turnaround.py"
     ],
     "tools/phenotypes/test_part_projection.py": [
       "tools/phenotypes/generate_purpose_built_part.py"
+    ],
+    "tools/phenotypes/test_partition_target_pelvis_materials.py": [
+      "tools/phenotypes/configurations/shared-tools.json",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/partition_target_pelvis_materials.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py",
+      "tools/phenotypes/test_target_part_pipeline.py",
+      "tools/phenotypes/test_target_part_stage.py"
     ],
     "tools/phenotypes/test_pose_preview_bridge.py": [
       "tools/phenotypes/pose_preview_bridge.py",
@@ -429,11 +1260,74 @@
     "tools/phenotypes/test_pose_preview_render_settings.py": [
       "tools/phenotypes/pose_preview_render_settings.py"
     ],
+    "tools/phenotypes/test_pose_preview_target_parts.py": [
+      "tools/phenotypes/pose_preview_target_parts.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_preflight_target_body_client.py": [
+      "tools/phenotypes/preflight_target_body_client.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_prepare_provisional_target_head_neck.py": [
+      "tools/phenotypes/build_target_diagnostic.py",
+      "tools/phenotypes/prepare_provisional_target_head_neck.py"
+    ],
     "tools/phenotypes/test_prepare_stock_limb_stage_config.py": [
       "tools/phenotypes/mirror_stock_limb_part.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/prepare_stock_limb_stage_config.py",
       "tools/phenotypes/test_mirror_stock_limb_part.py"
+    ],
+    "tools/phenotypes/test_repair_target_part_faces.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/repair_target_part_faces.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_repair_troll_pelvis_opposite_pairs.py": [
+      "tools/phenotypes/repair_troll_pelvis_opposite_pairs.py",
+      "tools/phenotypes/write_bounded_pelvis_diagnostic.py"
+    ],
+    "tools/phenotypes/test_restore_provisional_head_native_uv.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/restore_provisional_head_native_uv.py"
+    ],
+    "tools/phenotypes/test_rig_pose_audit.py": [
+      "tools/phenotypes/audit_target_rig.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py",
+      "tools/phenotypes/rig_pose_audit.py"
+    ],
+    "tools/phenotypes/test_segment_target_diagnostic_pelvis_body.py": [
+      "tools/phenotypes/partition_target_pelvis_materials.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/segment_target_diagnostic_pelvis_body.py",
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_material_lineage.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_segment_target_pelvis_boundary.py",
+      "tools/phenotypes/test_target_diagnostic_lineage.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_segment_target_pelvis_boundary.py": [
+      "tools/phenotypes/configurations/shared-tools.json",
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/partition_target_pelvis_materials.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/repair_target_part_faces.py",
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py",
+      "tools/phenotypes/test_target_part_pipeline.py",
+      "tools/phenotypes/test_target_part_stage.py"
     ],
     "tools/phenotypes/test_shared_caller_dependencies.py": [
       "tools/phenotypes/audit_pelvis_package.py",
@@ -447,10 +1341,42 @@
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared_tools.py"
     ],
+    "tools/phenotypes/test_shared_launch_input_manifest.py": [
+      "tools/phenotypes/historical_helper_bindings.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/shared-tools.lock.json",
+      "tools/shared_tools.py"
+    ],
     "tools/phenotypes/test_shared_toolchain.py": [
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared-tools.lock.json",
       "tools/toolchain.lock.json"
+    ],
+    "tools/phenotypes/test_skin_equipment_binds.py": [
+      "tools/phenotypes/audit_skin_equipment_binds.py",
+      "tools/phenotypes/audit_stock_equipment_palettes.py",
+      "tools/phenotypes/measure_held_equipment.py"
+    ],
+    "tools/phenotypes/test_stage_target_rigid_equipment.py": [
+      "tools/phenotypes/armory_rigid.py",
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/stage_target_rigid_equipment.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_armory_rigid.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_stage_target_working_leaves.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/stage_target_working_leaves.py",
+      "tools/phenotypes/target_body_inventory.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py",
+      "tools/phenotypes/test_target_part_pipeline.py",
+      "tools/phenotypes/test_target_part_stage.py"
     ],
     "tools/phenotypes/test_stock_equipment_fallback.py": [
       "tools/phenotypes/build_test_module.py"
@@ -462,8 +1388,127 @@
     "tools/phenotypes/test_stock_palette_binding.py": [
       "tools/phenotypes/stock_body_control.py"
     ],
+    "tools/phenotypes/test_taper_target_hand_wrist_stub.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/diagnostic_axis_radial.py",
+      "tools/phenotypes/mirror_stock_limb_part.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/taper_target_hand_wrist_stub.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_taper_target_shin_terminal.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/taper_target_shin_terminal.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_target_body_inventory.py": [
+      "tools/phenotypes/effective_body_contract.py",
+      "tools/phenotypes/target_body_inventory.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_target_diagnostic_lineage.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/pose_preview_target_parts.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_target_diagnostic_terminal_preview.py": [
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_terminal_preview.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_target_diagnostic_uv_basis.py": [
+      "tools/phenotypes/partition_target_pelvis_materials.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/segment_target_diagnostic_pelvis_body.py",
+      "tools/phenotypes/segment_target_diagnostic_pelvis_uv_basis.py",
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/target_diagnostic_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py",
+      "tools/phenotypes/test_segment_target_diagnostic_pelvis_body.py"
+    ],
+    "tools/phenotypes/test_target_diagnostic_uv_material_preview.py": [
+      "tools/phenotypes/pose_preview_target_parts.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py",
+      "tools/phenotypes/target_diagnostic_uv_material_preview.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_target_diagnostic_uv_material_stage.py": [
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/segment_target_pelvis_boundary.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_diagnostic_uv_basis.py",
+      "tools/phenotypes/target_diagnostic_uv_material_lineage.py",
+      "tools/phenotypes/target_diagnostic_uv_material_stage.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_target_part_pipeline.py",
+      "tools/phenotypes/test_target_part_stage.py"
+    ],
+    "tools/phenotypes/test_target_fixture.py": [
+      "tools/phenotypes/target_fixture.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_target_garment_readiness.py": [
+      "tools/phenotypes/audit_target_garment_readiness.py"
+    ],
+    "tools/phenotypes/test_target_knee_working_leaf.py": [
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_knee_working_leaf.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_target_material_donors.py": [
+      "tools/phenotypes/prepare_target_material_donors.py"
+    ],
+    "tools/phenotypes/test_target_part_pipeline.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py"
+    ],
+    "tools/phenotypes/test_target_part_stage.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/target_part_stage.py",
+      "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_target_part_pipeline.py"
+    ],
+    "tools/phenotypes/test_target_rig.py": [
+      "tools/phenotypes/build_target_diagnostic.py",
+      "tools/phenotypes/build_target_rig.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/test_target_terminal_field.py": [
+      "tools/phenotypes/deform_target_terminal_caps.py"
+    ],
+    "tools/phenotypes/test_target_upperarm_ownership.py": [
+      "tools/phenotypes/measure_target_upperarm_ownership.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
+    ],
     "tools/phenotypes/test_thigh_proximal_cap.py": [
       "tools/phenotypes/refine_thigh_proximal_cap.py"
+    ],
+    "tools/phenotypes/test_unresolved_equipment_materials.py": [
+      "tools/phenotypes/audit_unresolved_equipment_materials.py"
+    ],
+    "tools/phenotypes/test_verify_diagnostic_foot_uniform120.py": [
+      "tools/phenotypes/diagnostic_foot_uniform120.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/test_diagnostic_foot_uniform120.py",
+      "tools/phenotypes/verify_diagnostic_foot_uniform120.py"
     ],
     "tools/phenotypes/test_workflow_infrastructure.py": [
       "tools/phenotypes/finalize_shared_tool_migration.py",
@@ -475,6 +1520,9 @@
       "tools/phenotypes/test_pose_preview_bridge.py",
       "tools/shared_tools.py"
     ],
+    "tools/phenotypes/test_write_bounded_pelvis_diagnostic.py": [
+      "tools/phenotypes/write_bounded_pelvis_diagnostic.py"
+    ],
     "tools/phenotypes/texture_pelvis_caps.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/stage_stock_pelvis.py"
@@ -483,6 +1531,11 @@
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py",
       "tools/toolchain.lock.json"
+    ],
+    "tools/phenotypes/trial_target_exterior_selection.py": [
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/validate_body_material_repair.py": [
       "tools/phenotypes/audit_body_material_inputs.py",
@@ -494,8 +1547,23 @@
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/scale_fitted_body.py"
     ],
+    "tools/phenotypes/verify_armory_rigid_tool.py": [
+      "tools/phenotypes/armory_rigid.py",
+      "tools/phenotypes/audit_geometry.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/retarget.py"
+    ],
+    "tools/phenotypes/verify_diagnostic_foot_uniform120.py": [
+      "tools/phenotypes/place_purposebuilt_pelvis.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/verify_published_body.py": [
       "tools/phenotypes/audit_pelvis_package.py"
+    ],
+    "tools/phenotypes/write_bounded_pelvis_diagnostic.py": [
+      "tools/phenotypes/bounded_pelvis_connector_v2.py",
+      "tools/phenotypes/conservative_face_selection.py",
+      "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
     "tools/shared_tools.py": [
       "tools/shared-tools.lock.json",
@@ -535,36 +1603,111 @@
   "unresolved": [],
   "tests": [
     "tools/phenotypes/test_animation_reference_sheet.py",
+    "tools/phenotypes/test_armory_rigid.py",
     "tools/phenotypes/test_audit_native_limb_shading.py",
+    "tools/phenotypes/test_audit_target_diagnostic_uv_material_native.py",
+    "tools/phenotypes/test_audit_target_joint_bands.py",
+    "tools/phenotypes/test_audit_target_material_shaders.py",
+    "tools/phenotypes/test_audit_target_native_caps.py",
+    "tools/phenotypes/test_audit_target_native_part.py",
+    "tools/phenotypes/test_audit_target_working_leaves_native.py",
+    "tools/phenotypes/test_authored_robe_cloth.py",
     "tools/phenotypes/test_body_material_repair.py",
+    "tools/phenotypes/test_bounded_pelvis_connector.py",
+    "tools/phenotypes/test_bounded_pelvis_connector_v2.py",
     "tools/phenotypes/test_clean_part_retexture.py",
     "tools/phenotypes/test_complete_body_launcher.py",
+    "tools/phenotypes/test_compress_target_foot_upper_neck.py",
+    "tools/phenotypes/test_connector_surface_math.py",
+    "tools/phenotypes/test_conservative_face_selection.py",
+    "tools/phenotypes/test_diagnostic_axis_radial.py",
+    "tools/phenotypes/test_diagnostic_bicep_girth_math.py",
+    "tools/phenotypes/test_diagnostic_connector_shear.py",
+    "tools/phenotypes/test_diagnostic_foot_uniform120.py",
+    "tools/phenotypes/test_diagnostic_foot_upper_stub_radial.py",
+    "tools/phenotypes/test_diagnostic_knee_terminal_connectors.py",
+    "tools/phenotypes/test_diagnostic_opposite_lower_limb.py",
+    "tools/phenotypes/test_diagnostic_pelvis_cap_round.py",
+    "tools/phenotypes/test_diagnostic_pelvis_cap_skin_material.py",
+    "tools/phenotypes/test_diagnostic_pelvis_cuff_contour.py",
+    "tools/phenotypes/test_diagnostic_pelvis_cuff_contour15.py",
+    "tools/phenotypes/test_diagnostic_pelvis_terminal.py",
+    "tools/phenotypes/test_diagnostic_selected_working_opposite.py",
+    "tools/phenotypes/test_diagnostic_shin_girth90.py",
+    "tools/phenotypes/test_diagnostic_shin_girth90_opposite.py",
+    "tools/phenotypes/test_diagnostic_thigh_proximal_back.py",
+    "tools/phenotypes/test_diagnostic_thigh_proximal_one_sided.py",
+    "tools/phenotypes/test_diagnostic_upper_arm_girth.py",
     "tools/phenotypes/test_effective_body_contract.py",
     "tools/phenotypes/test_effective_body_costs.py",
     "tools/phenotypes/test_effective_body_preview.py",
     "tools/phenotypes/test_effective_limb_materials.py",
+    "tools/phenotypes/test_equipment_section_field.py",
+    "tools/phenotypes/test_equipment_source_diagnosis.py",
+    "tools/phenotypes/test_export_target_regional_chest002.py",
     "tools/phenotypes/test_filled_exterior.py",
     "tools/phenotypes/test_finalize_shared_tool_migration.py",
     "tools/phenotypes/test_fixed_material_dependencies.py",
     "tools/phenotypes/test_foot_taper.py",
+    "tools/phenotypes/test_foot_upper_stub_math.py",
+    "tools/phenotypes/test_freeze_target_rig.py",
     "tools/phenotypes/test_generate_purpose_built_part_cli.py",
+    "tools/phenotypes/test_generate_target_qwen_reference.py",
+    "tools/phenotypes/test_hand_stub_radial_math.py",
+    "tools/phenotypes/test_held_equipment_surfaces.py",
+    "tools/phenotypes/test_historical_helper_bindings.py",
     "tools/phenotypes/test_limb_material_collection.py",
     "tools/phenotypes/test_material_tool_archival.py",
     "tools/phenotypes/test_mesh_refinement_trial.py",
     "tools/phenotypes/test_mirror_stock_limb_part.py",
+    "tools/phenotypes/test_offline_native_material_bridge.py",
     "tools/phenotypes/test_part_normalization.py",
     "tools/phenotypes/test_part_projection.py",
+    "tools/phenotypes/test_partition_target_pelvis_materials.py",
     "tools/phenotypes/test_pose_preview_bridge.py",
     "tools/phenotypes/test_pose_preview_render_settings.py",
+    "tools/phenotypes/test_pose_preview_target_parts.py",
+    "tools/phenotypes/test_preflight_target_body_client.py",
+    "tools/phenotypes/test_prepare_provisional_target_head_neck.py",
     "tools/phenotypes/test_prepare_stock_limb_stage_config.py",
+    "tools/phenotypes/test_repair_target_part_faces.py",
+    "tools/phenotypes/test_repair_troll_pelvis_opposite_pairs.py",
+    "tools/phenotypes/test_restore_provisional_head_native_uv.py",
+    "tools/phenotypes/test_rig_pose_audit.py",
+    "tools/phenotypes/test_segment_target_diagnostic_pelvis_body.py",
+    "tools/phenotypes/test_segment_target_pelvis_boundary.py",
     "tools/phenotypes/test_shared_caller_dependencies.py",
     "tools/phenotypes/test_shared_launch.py",
+    "tools/phenotypes/test_shared_launch_input_manifest.py",
     "tools/phenotypes/test_shared_toolchain.py",
+    "tools/phenotypes/test_skin_equipment_binds.py",
+    "tools/phenotypes/test_stage_target_rigid_equipment.py",
+    "tools/phenotypes/test_stage_target_working_leaves.py",
     "tools/phenotypes/test_stock_equipment_fallback.py",
     "tools/phenotypes/test_stock_limb_contract.py",
     "tools/phenotypes/test_stock_palette_binding.py",
+    "tools/phenotypes/test_taper_target_hand_wrist_stub.py",
+    "tools/phenotypes/test_taper_target_shin_terminal.py",
+    "tools/phenotypes/test_target_body_inventory.py",
+    "tools/phenotypes/test_target_diagnostic_lineage.py",
+    "tools/phenotypes/test_target_diagnostic_terminal_preview.py",
+    "tools/phenotypes/test_target_diagnostic_uv_basis.py",
+    "tools/phenotypes/test_target_diagnostic_uv_material_preview.py",
+    "tools/phenotypes/test_target_diagnostic_uv_material_stage.py",
+    "tools/phenotypes/test_target_fixture.py",
+    "tools/phenotypes/test_target_garment_readiness.py",
+    "tools/phenotypes/test_target_knee_working_leaf.py",
+    "tools/phenotypes/test_target_material_donors.py",
+    "tools/phenotypes/test_target_part_pipeline.py",
+    "tools/phenotypes/test_target_part_stage.py",
+    "tools/phenotypes/test_target_rig.py",
+    "tools/phenotypes/test_target_terminal_field.py",
+    "tools/phenotypes/test_target_upperarm_ownership.py",
     "tools/phenotypes/test_thigh_proximal_cap.py",
+    "tools/phenotypes/test_unresolved_equipment_materials.py",
+    "tools/phenotypes/test_verify_diagnostic_foot_uniform120.py",
     "tools/phenotypes/test_workflow_infrastructure.py",
+    "tools/phenotypes/test_write_bounded_pelvis_diagnostic.py",
     "tools/test_clean_checkout.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"
