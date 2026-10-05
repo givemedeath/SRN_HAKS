@@ -188,6 +188,13 @@ also supplies target/rig/animation revisions, `asciiDirectory`, optional
 `cameraScale` and at most four threads, material input pins, and `motionSamples`
 with clip/time and a standing marker.
 
+Pose measurements require a complete bind hierarchy in the supplied root model.
+Both cached and uncached sampling reject missing geometry parents and parent
+cycles before publishing a packet. An animation found in a supermodel does not
+resolve its inherited bind nodes into the root. Supply a verified complete
+effective hierarchy when inheritance is needed; the sampler does not infer it
+or rewrite the rig or animations.
+
 The packet records input hashes, centers, extents, attachment frames, axial
 interval overlap, closest-corner distances, pose inheritance and the worst
 measured samples. It includes matched clay, unlit-color and native-material

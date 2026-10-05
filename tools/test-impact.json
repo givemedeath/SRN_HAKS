@@ -421,6 +421,9 @@
     ],
     "tools/phenotypes/test_pose_preview_bridge.py": [
       "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_pose_audit.py",
+      "tools/phenotypes/run_preparation.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/test_pose_preview_render_settings.py": [
