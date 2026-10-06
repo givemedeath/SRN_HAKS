@@ -775,6 +775,24 @@ class MotionReviewPosePrefixTests(unittest.TestCase):
         sig = inspect.signature(evaluate_connector_motion)
         self.assertIn("prefix", sig.parameters)
         self.assertIn("model_ascii_dir", sig.parameters)
+        self.assertIn("rig_dir", sig.parameters)
+        build_sig = inspect.signature(build_all_review_packets)
+        self.assertIn("rig_dir", build_sig.parameters)
+
+    def test_motion_review_measures_posed_surfaces(self):
+        source = Path(__file__).resolve().parent.joinpath("derived_review_configs.py").read_text(encoding="utf-8")
+        self.assertIn("allConnectorsPassMotionSurfaces", source)
+        self.assertIn("minSurfaceDistanceMeters", source)
+        self.assertIn("axialOverlapMeters", source)
+
+
+class StageCleanStagingTests(unittest.TestCase):
+    def test_stage_cleans_directories_and_enforces_14_models(self):
+        source = Path(__file__).resolve().parent.joinpath("stage_derived_dwarf.py").read_text(encoding="utf-8")
+        self.assertIn("shutil.rmtree(ascii_dir)", source)
+        self.assertIn("shutil.rmtree(resources_dir)", source)
+        self.assertIn("len(staged_models) != 14", source)
+
 
 
 class PreflightCliExecutionTests(unittest.TestCase):

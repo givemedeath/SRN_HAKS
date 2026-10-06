@@ -39,8 +39,10 @@ def evaluate_connector_motion(
     motion_samples: list[dict] = MOTION_SAMPLES,
     prefix: str = "pmd0",
     model_ascii_dir: Path | None = None,
+    rig_dir: Path | None = None,
+    posed_frames: list[tuple[dict, dict]] | None = None,
 ) -> dict:
-    """Evaluate axial overlap and corner proximity across animation clips."""
+    """Evaluate axial overlap and connector surface proximity across animation clips."""
     text_p = parent_path.read_text(encoding="cp1252")
     text_c = child_path.read_text(encoding="cp1252")
 
@@ -48,14 +50,21 @@ def evaluate_connector_motion(
     verts_c = np.array(arrays(text_c, "verts"), dtype=float)
 
     sample_results = []
-    min_overlap = float("inf")
+    min_axial_overlap = float("inf")
+    max_surf_dist = 0.0
     worst_clip = None
 
-    pose_dir = model_ascii_dir or stock_ascii_dir
-    for s in motion_samples:
+    frames_to_eval = posed_frames
+    if frames_to_eval is None:
+        pose_dir = rig_dir or (model_ascii_dir if (model_ascii_dir and (model_ascii_dir / f"{prefix}.mdl").exists()) else stock_ascii_dir)
+        frames_to_eval = []
+        for s in motion_samples:
+            xforms, _ = pose(pose_dir, prefix, s["clip"], s["time"], stock_dir=stock_ascii_dir)
+            frames_to_eval.append((s, xforms))
+
+    for s, xforms in frames_to_eval:
         clip = s["clip"]
         t = s["time"]
-        xforms, _ = pose(pose_dir, prefix, clip, t, stock_dir=stock_ascii_dir)
 
         m_p = xforms[parent_joint.lower()]
         m_c = xforms[child_joint.lower()]
@@ -71,22 +80,70 @@ def evaluate_connector_motion(
         overlap_max = np.minimum(max_p, max_c)
         overlap_span = overlap_max - overlap_min
 
-        has_overlap = bool(np.all(overlap_span > 0))
-        z_overlap = float(overlap_span[2]) if has_overlap else 0.0
+        has_3d_overlap = bool(np.all(overlap_span > 0))
+        z_overlap = float(overlap_span[2]) if has_3d_overlap else 0.0
 
-        if z_overlap < min_overlap:
-            min_overlap = z_overlap
+        # Project along parent-to-child joint axis vector
+        p_pos = m_p[:3, 3]
+        c_pos = m_c[:3, 3]
+        axis_vec = c_pos - p_pos
+        norm_axis = np.linalg.norm(axis_vec)
+        u_axis = axis_vec / norm_axis if norm_axis > 1e-6 else np.array([0.0, 0.0, -1.0])
+
+        proj_p = w_p @ u_axis
+        proj_c = w_c @ u_axis
+        ol_start = max(float(proj_p.min()), float(proj_c.min()))
+        ol_end = min(float(proj_p.max()), float(proj_c.max()))
+        axial_overlap = max(0.0, ol_end - ol_start)
+
+        # Measure surface proximity on vertices near the joint interface (within 15 cm of child joint center)
+        dp = np.linalg.norm(w_p - c_pos, axis=1)
+        dc = np.linalg.norm(w_c - c_pos, axis=1)
+        near_p = w_p[dp < 0.15]
+        near_c = w_c[dc < 0.15]
+
+        # Points in the axial overlap region near the joint
+        in_ax_p = near_p[(near_p @ u_axis >= ol_start) & (near_p @ u_axis <= ol_end)]
+        in_ax_c = near_c[(near_c @ u_axis >= ol_start) & (near_c @ u_axis <= ol_end)]
+
+        pts_c = in_ax_c if (len(in_ax_c) > 0 and len(in_ax_p) > 0) else near_c
+        pts_p = in_ax_p if (len(in_ax_c) > 0 and len(in_ax_p) > 0) else near_p
+
+        min_d2 = float("inf")
+        if len(pts_c) > 0 and len(pts_p) > 0:
+            for i in range(0, len(pts_c), 250):
+                chunk = pts_c[i:i + 250]
+                d2 = np.min(np.sum((chunk[:, None, :] - pts_p[None, :, :]) ** 2, axis=2))
+                if d2 < min_d2:
+                    min_d2 = float(d2)
+
+        min_surface_dist = float(np.sqrt(min_d2)) if min_d2 != float("inf") else float("inf")
+
+        has_axial_overlap = bool(axial_overlap > 0.005)
+        has_surface_proximity = bool(min_surface_dist < 0.015)
+        pose_passed = bool(has_3d_overlap and has_axial_overlap and has_surface_proximity)
+
+        if axial_overlap < min_axial_overlap:
+            min_axial_overlap = axial_overlap
             worst_clip = clip
+
+        if min_surface_dist != float("inf") and min_surface_dist > max_surf_dist:
+            max_surf_dist = min_surface_dist
 
         sample_results.append({
             "clip": clip,
             "time": t,
             "label": s["label"],
             "standing": s.get("standing", False),
-            "has3DOverlap": has_overlap,
+            "has3DOverlap": has_3d_overlap,
             "axialOverlapZ": z_overlap,
-            "overlapSpanX": float(overlap_span[0]) if has_overlap else 0.0,
-            "overlapSpanY": float(overlap_span[1]) if has_overlap else 0.0,
+            "axialOverlapMeters": axial_overlap,
+            "overlapSpanX": float(overlap_span[0]) if has_3d_overlap else 0.0,
+            "overlapSpanY": float(overlap_span[1]) if has_3d_overlap else 0.0,
+            "minSurfaceDistanceMeters": min_surface_dist if min_surface_dist != float("inf") else None,
+            "hasAxialOverlap": has_axial_overlap,
+            "hasSurfaceProximity": has_surface_proximity,
+            "passed": pose_passed,
         })
 
     return {
@@ -95,9 +152,16 @@ def evaluate_connector_motion(
         "parentJoint": parent_joint,
         "childJoint": child_joint,
         "standingOverlapZ": sample_results[0]["axialOverlapZ"],
-        "worstMotionOverlapZ": min_overlap,
+        "standingAxialOverlap": sample_results[0]["axialOverlapMeters"],
+        "standingSurfaceDistance": sample_results[0]["minSurfaceDistanceMeters"],
+        "worstMotionOverlapZ": sample_results[0]["axialOverlapZ"],
+        "worstMotionAxialOverlap": min_axial_overlap,
+        "worstMotionSurfaceDistance": max_surf_dist,
         "worstMotionClip": worst_clip,
         "allPosesHaveOverlap": all(r["has3DOverlap"] for r in sample_results),
+        "allPosesHaveAxialOverlap": all(r["hasAxialOverlap"] for r in sample_results),
+        "allPosesHaveSurfaceProximity": all(r["hasSurfaceProximity"] for r in sample_results),
+        "allPosesPassed": all(r["passed"] for r in sample_results),
         "samples": sample_results,
     }
 
@@ -107,10 +171,28 @@ def build_all_review_packets(
     ascii_dir: Path,
     stock_ascii_dir: Path,
     output_dir: Path,
+    rig_dir: Path | None = None,
 ) -> dict:
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     prefix = target_data.get("rig", {}).get("targetPrefix") or target_data["identity"]["prefix"]
+
+    if rig_dir is None:
+        race = target_data.get("identity", {}).get("race", "dwarf")
+        gender = target_data.get("identity", {}).get("gender", "male")
+        candidate_rig = Path(f"output/phenotypes/derived-v1/rigs/{race}-{gender}")
+        if candidate_rig.exists() and (candidate_rig / f"{prefix}.mdl").exists():
+            rig_dir = candidate_rig
+        elif (ascii_dir / f"{prefix}.mdl").exists():
+            rig_dir = ascii_dir
+        else:
+            rig_dir = stock_ascii_dir
+
+    pose_root = rig_dir or (ascii_dir if (ascii_dir / f"{prefix}.mdl").exists() else stock_ascii_dir)
+    posed_frames = []
+    for s in MOTION_SAMPLES:
+        xforms, _ = pose(pose_root, prefix, s["clip"], s["time"], stock_dir=stock_ascii_dir)
+        posed_frames.append((s, xforms))
 
     connectors = [
         ("chest", "pelvis", "torso_g", "pelvis_g", "waist"),
@@ -134,17 +216,19 @@ def build_all_review_packets(
         c_path = ascii_dir / f"{prefix}_{c_part}001.mdl"
         res = evaluate_connector_motion(
             p_path, c_path, p_joint, c_joint, stock_ascii_dir,
-            prefix=prefix, model_ascii_dir=ascii_dir
+            prefix=prefix, model_ascii_dir=ascii_dir, rig_dir=rig_dir,
+            posed_frames=posed_frames,
         )
         reports[label] = res
 
-    all_ok = all(r["allPosesHaveOverlap"] for r in reports.values())
+    all_ok = all(r["allPosesPassed"] for r in reports.values())
     summary = {
         "schemaVersion": 1,
         "kind": "derived-motion-review-summary",
         "targetId": target_data["id"],
         "posePrefix": prefix,
         "allConnectorsOverlapInAllPoses": all_ok,
+        "allConnectorsPassMotionSurfaces": all_ok,
         "connectorCount": len(reports),
         "motionSamplesEvaluated": len(MOTION_SAMPLES),
         "connectors": reports,
@@ -173,6 +257,12 @@ def main():
         default=Path("output/phenotypes/derived-v1/stock-cache/ascii"),
     )
     parser.add_argument(
+        "--rig-dir",
+        type=Path,
+        default=None,
+        help="Directory containing the derived rig root (<prefix>.mdl); defaults to output/phenotypes/derived-v1/rigs/<race>-<gender>",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path("output/phenotypes/derived-v1/review/dwarf-male"),
@@ -185,14 +275,18 @@ def main():
         args.ascii_dir,
         args.stock_ascii_dir,
         args.output_dir,
+        rig_dir=args.rig_dir,
     )
-    print(f"Motion review evaluation: {'PASSED (all poses overlap)' if summary['allConnectorsOverlapInAllPoses'] else 'FAILED'}")
+    passed = summary.get("allConnectorsPassMotionSurfaces", summary.get("allConnectorsOverlapInAllPoses", False))
+    print(f"Motion review evaluation: {'PASSED (all poses overlap and meet surface tolerances)' if passed else 'FAILED'}")
     for name, c in summary["connectors"].items():
-        print(f"  {name:16s}: standing_overlap={c['standingOverlapZ']*1000:.1f}mm, worst_motion={c['worstMotionOverlapZ']*1000:.1f}mm (in {c['worstMotionClip']}), all_ok={c['allPosesHaveOverlap']}")
+        surf_str = f"{c['worstMotionSurfaceDistance']*1000:.2f}mm" if c.get("worstMotionSurfaceDistance") else "N/A"
+        ax_str = f"{c.get('worstMotionAxialOverlap', c['worstMotionOverlapZ'])*1000:.1f}mm"
+        print(f"  {name:16s}: worst_axial={ax_str}, worst_surface={surf_str} (in {c['worstMotionClip']}), passed={c.get('allPosesPassed', c['allPosesHaveOverlap'])}")
     print(f"Summary written to {args.output_dir / 'motion-review-summary.json'}")
 
-    if not summary.get("allConnectorsOverlapInAllPoses", False):
-        print("ERROR: Motion review failed: one or more connectors lost overlap in sampled poses", file=sys.stderr)
+    if not passed:
+        print("ERROR: Motion review failed: one or more connectors lost overlap or surface proximity in sampled poses", file=sys.stderr)
         sys.exit(1)
 
 

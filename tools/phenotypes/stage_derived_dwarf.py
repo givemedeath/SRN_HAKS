@@ -17,8 +17,16 @@ def stage(race: str = "dwarf", prefix: str = "pmd0"):
 
     ascii_dir = target_root / "ascii"
     resources_dir = target_root / "resources"
+    if ascii_dir.exists():
+        shutil.rmtree(ascii_dir)
+    if resources_dir.exists():
+        shutil.rmtree(resources_dir)
     ascii_dir.mkdir(parents=True, exist_ok=True)
     resources_dir.mkdir(parents=True, exist_ok=True)
+
+    for stale in target_root.glob("native-compile*"):
+        if stale.is_file():
+            stale.unlink()
 
     for part in PARTS:
         model_name = f"{prefix}_{part}001.mdl"
@@ -62,6 +70,10 @@ def stage(race: str = "dwarf", prefix: str = "pmd0"):
                 f"texture3 pmh0_{part}001r\n",
                 encoding="ascii"
             )
+
+    staged_models = list(ascii_dir.glob("*.mdl"))
+    if len(staged_models) != 14:
+        raise RuntimeError(f"Expected exactly 14 staged models in {ascii_dir}, found {len(staged_models)}")
 
     print(f"Staged 14 ASCII models and material dependencies for {race} ({prefix}) to {target_root}")
 

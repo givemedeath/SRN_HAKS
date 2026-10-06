@@ -50,7 +50,10 @@ def pose(ascii_dir, prefix, clip, time, stock_dir=None, *, context=None):
     """Retain legacy lookup/defaults while sampling count/endlist/static data."""
     if context is not None:return context.pose(ascii_dir,prefix,clip,time,stock_dir)
     ascii_dir=Path(ascii_dir)
-    root_path=(ascii_dir/(prefix+'.mdl')).resolve()
+    root_path=ascii_dir/(prefix+'.mdl')
+    if not root_path.exists() and stock_dir is not None:
+        root_path=Path(stock_dir)/(prefix+'.mdl')
+    root_path=root_path.resolve()
     skeleton=nodes(root_path.read_text(encoding='cp1252'))
     current=prefix.lower();visited=set();inheritance=[]
     while current!='null':
