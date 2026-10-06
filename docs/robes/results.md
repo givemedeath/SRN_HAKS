@@ -19,6 +19,7 @@ PLT or texture bytes that differ from the client-validated build (fixture
 neck-load-v2). Gates: reference approval, working selection, native validation
 (in-client compiler only; the CLI compiler rejects skin meshes), client validation
 yes; production acceptance no (trial row, no srn_2da or hakbuilder registration).
+Operator reviewed the packaged module itself in the client (2026-10-06): "looks good".
 
 ## Stock control
 
