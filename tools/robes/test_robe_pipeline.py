@@ -146,6 +146,13 @@ class ComparisonTests(unittest.TestCase):
         tolerances = {"bindTranslation": 1e-6, "bindRotation": 1e-6}
         self.assertIn("structure", str(verdict(report, tolerances)))
         self.assertNotIn("structure", str(verdict(dict(report, addedNodes=[]), tolerances)))
+        mesh = {"node": "cloth", "bitmap": ["a", "a"], "uvPresent": [True, True], "maximumCornerPositionError": 0.0}
+        clean = dict(report, addedNodes=[], meshes=[mesh])
+        loose = {"position": 1e-5, "uv": 1e-4, "weight": 1e-3, "weightSum": 2e-3, "deformation": 1e-3, **tolerances}
+        self.assertEqual(verdict(clean, loose)["failures"], [])
+        self.assertIn("cloth: UV presence", verdict(dict(clean, meshes=[dict(mesh, uvPresent=[True, False])]), loose)["failures"])
+        self.assertIn("cloth: face pairing",
+                      verdict(dict(clean, meshes=[dict(mesh, maximumCornerPositionError=0.01)]), loose)["failures"])
 
     def test_review_measures_rank_compression_and_collapse(self):
         from deformation_review import measures

@@ -114,6 +114,7 @@ def main():
                                  lambda kv: min(s["hemZ"] for s in kv[1]["skins"])),
         "longSkirtCoatBones": pick(lambda v: "a_ba_coat" in v["supermodelChain"], lambda kv: kv[0]),
     }
+    verify_pins(consumed)  # the loop above read these files
     report = {"schemaVersion": 1, "kind": "srn-robe-stock-inventory", "createdUtc": utc(),
               "prefix": extraction["prefix"], "inputs": consumed, "bodyLandmarks": marks,
               "bodyChain": extraction["bodyChain"], "robes": robes, "donorSelection": selection,

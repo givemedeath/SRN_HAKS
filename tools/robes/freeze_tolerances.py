@@ -7,7 +7,7 @@ absorbed by editing this file.
 import argparse
 from pathlib import Path
 
-from robe_common import FLAGS, pin, read, require, utc, write_fresh
+from robe_common import FLAGS, pin, read, require, utc, verify_pins, write_fresh
 
 # Writer precision observed in the Neverblender 4.1.0 export (5-decimal positions,
 # 4-decimal UVs, 3-decimal weights renormalized after dropping weights below 0.001).
@@ -42,12 +42,14 @@ def main():
     parser.add_argument("--bone-limit", type=int, required=True, help="Per-skin-node bone limit proven so far")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    controls = [pin(path) for path in args.comparison]  # hashed before reading, re-verified after measuring
     reports = [read(path) for path in args.comparison]
     worst = measure(reports)
+    verify_pins(controls)
     tolerances = {key: max(2 * worst[key], BOUNDS[key]) for key in BOUNDS}
     tolerances["smoothingEdges"] = 0
     report = {"schemaVersion": 1, "kind": "srn-robe-control-tolerances", "createdUtc": utc(),
-              "controls": [pin(path) for path in args.comparison], "measuredControlLoss": worst,
+              "controls": controls, "measuredControlLoss": worst,
               "representationBounds": BOUNDS, "rule": "max(2 x measured control loss, representation bound)",
               "tolerances": tolerances, "maximumInfluences": 4, "boneLimitPerSkinNode": args.bone_limit,
               "knownInformationalDifferences": ["per-face surface-material column written as 0 (render meshes ignore it)",

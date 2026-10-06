@@ -75,7 +75,7 @@ def compare_mesh(left_rig, right_rig, left, right, samples, index_tolerance=1e-4
     row = {"node": left.name, "kinds": [left.kind, right.kind], "vertices": [len(lw), len(rw)],
            "faces": [len(lf), len(rf)], "mapping": "index" if ordered else "nearest-position",
            "maximumPositionError": float(max(gap.max(), back_gap.max())) if len(gap) else 0.0,
-           "bitmap": [left.get("bitmap"), right.get("bitmap")]}
+           "bitmap": [left.get("bitmap"), right.get("bitmap")], "uvPresent": [lu is not None, ru is not None]}
     if len(lc) and len(rc):
         left_tri, right_tri = lc.reshape(-1, 3, 3), rc.reshape(-1, 3, 3)
         if ordered:
@@ -177,8 +177,11 @@ def verdict(report, tolerances):
         if mesh.get("smoothingEdgeMismatches", 0) > tolerances.get("smoothingEdges", 0):
             failures.append(f"{mesh['node']}: smoothing edges")
         if mesh.get("maximumFaceCentroidError", 0) > tolerances["position"] or \
-                mesh.get("maximumReferenceFaceGap", 0) > tolerances["position"]:
+                mesh.get("maximumReferenceFaceGap", 0) > tolerances["position"] or \
+                mesh.get("maximumCornerPositionError", 0) > tolerances["position"]:
             failures.append(f"{mesh['node']}: face pairing")
+        if len(set(mesh.get("uvPresent", [True, True]))) > 1:
+            failures.append(f"{mesh['node']}: UV presence")
         if str(mesh["bitmap"][0]).lower() != str(mesh["bitmap"][1]).lower():
             failures.append(f"{mesh['node']}: bitmap")
         deformation = mesh.get("sampledDeformation")
