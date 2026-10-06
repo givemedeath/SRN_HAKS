@@ -146,6 +146,21 @@ def main():
         min_improvement=fit.get("latticeMinImprovement", 0.01))
     generation = inflated[welded] if space == "generation" else None
     fitted = fit_math.blend(generation, weights, transforms) if space == "generation" else inflated[welded]
+    separation = fit.get("bindSeparation")
+    separation_history = None
+    if separation:
+        # Move only the listed segments (torso/belt/legs) away from the hanging stock arms in bind;
+        # sleeves stay put, so the elbows are not pushed in.
+        require(space == "generation", "bindSeparation follows a generation-space fit")
+        arms = Body(args.stock_ascii, config["target"]["prefix"], parts=separation["bodyParts"])
+        arm_verts, arm_faces, _ = arms.posed()
+        movable = np.isin(labels, [fit_math.SEGMENTS.index(s) for s in separation["segments"]])
+        bind_visible = outer_visibility(fitted, tris, welded)[first]
+        separated, separation_history, _, _ = fit_math.lattice_inflate(
+            fitted[first], bind_visible, arm_verts, arm_faces, separation["clearance"], fit["latticeCell"],
+            fit["latticeSigma"], separation.get("iterations", 12), fit.get("latticeFade", 0.5),
+            min_improvement=fit.get("latticeMinImprovement", 0.01), movable=movable)
+        fitted = separated[welded]
     inflated = fitted[first]
     shift_source = clearance_source
     obj.data.vertices.foreach_set("co", fitted.ravel())
@@ -187,7 +202,7 @@ def main():
               "poseConversion": {"maximumShift": float(pose_shift.max()), "p95Shift": float(np.percentile(pose_shift, 95)),
                                  "dominantProxyCounts": {name: int((dominant == i).sum())
                                                          for i, name in enumerate(fit_math.PROXY)}},
-              "clearanceSpace": space,
+              "clearanceSpace": space, "bindSeparation": {"settings": separation, "history": separation_history},
               "inflation": {"bodyParts": fit["bodyParts"], "distance": fit["clearance"], "cell": fit["latticeCell"],
                             "sigma": fit["latticeSigma"], "history": history, "maximumShift": float(shift.max()),
                             "p95Shift": float(np.percentile(shift, 95)), "outerVertices": int(outer.sum()),

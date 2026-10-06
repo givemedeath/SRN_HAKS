@@ -67,6 +67,15 @@ class FitMathTests(unittest.TestCase):
         np.testing.assert_allclose(frames["lforearm_g"], np.linalg.inv(transforms["fa_L"]))
         np.testing.assert_allclose(frames["pelvis_g"], np.eye(4))
 
+    def test_lattice_moves_only_movable_points(self):
+        body = np.array([[-1, -1, 0], [1, -1, 0], [1, 1, 0], [-1, 1, 0]], float)
+        faces = np.array([[0, 1, 2], [0, 2, 3]])
+        points = np.array([[0.0, 0.0, 0.002], [0.01, 0.0, 0.002]])
+        moved, _, _, _ = fit_math.lattice_inflate(points, np.array([True, True]), body, faces, 0.01, iterations=10,
+                                                  fade=0.05, movable=np.array([True, False]))
+        self.assertGreater(moved[0, 2], points[0, 2])
+        np.testing.assert_allclose(moved[1], points[1])
+
     def test_lattice_stops_when_violations_plateau(self):
         body = np.array([[-1, -1, 0], [1, -1, 0], [1, 1, 0], [-1, 1, 0]], float)
         faces = np.array([[0, 1, 2], [0, 2, 3]])

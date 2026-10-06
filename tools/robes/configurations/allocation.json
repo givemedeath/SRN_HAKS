@@ -14,6 +14,7 @@
     "17": {"use": "workwear corrected candidate v2 (belt-zone relabel after client review)", "model": "pmh0_robe017"},
     "18": {"use": "workwear corrected-v2 reduced to a runtime face budget (client equip stall)", "model": "pmh0_robe018"},
     "19": {"use": "workwear corrected-v2 reduced to a 20k runtime face budget", "model": "pmh0_robe019"},
-    "35": {"use": "workwear corrected-v3 (A-pose clearance and weights), 20k runtime", "model": "pmh0_robe035"}
+    "35": {"use": "workwear corrected-v3 (A-pose clearance and weights), 20k runtime", "model": "pmh0_robe035"},
+    "36": {"use": "workwear corrected-v4 (v3 plus bind-pose torso/arm separation), 20k runtime", "model": "pmh0_robe036"}
   }
 }

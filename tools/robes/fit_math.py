@@ -379,13 +379,15 @@ def _trilinear(grid, coords):
 
 
 def lattice_inflate(points, outer, body_verts, body_faces, distance, cell=0.02, sigma=0.04, iterations=12,
-                    fade=0.5, reach=0.2, min_improvement=0.01, patience=2):
+                    fade=0.5, reach=0.2, min_improvement=0.01, patience=2, movable=None):
     """Smooth spatial inflation: splat clearance pushes into a voxel lattice, blur, sample at every point.
 
     Every layer inside a cell moves together, so garment layers keep their order and detail.
     Stops early once patience consecutive passes each remove less than min_improvement
-    of the remaining clearance deficit (the field has plateaued).
+    of the remaining clearance deficit (the field has plateaued). Only `movable` points
+    (default all) push into or follow the field.
     """
+    movable = np.ones(len(points), bool) if movable is None else np.asarray(movable, bool)
     low = points.min(0) - 6 * cell
     shape = tuple(np.ceil((points.max(0) - low) / cell).astype(int) + 7)
     current = points.copy()
@@ -401,7 +403,7 @@ def lattice_inflate(points, outer, body_verts, body_faces, distance, cell=0.02, 
         if initial is None:
             initial = signed.copy()
             near = signed < distance + reach  # points farther than the total possible travel never violate
-        need = np.where(outer, np.clip(distance - signed, 0, None), 0.0)
+        need = np.where(outer & movable, np.clip(distance - signed, 0, None), 0.0)
         history.append({"violations": int((need > 1e-4).sum()), "maximumNeeded": float(need.max()),
                         "deficit": float(need.sum()), "inside": int(((signed < 0) & outer).sum())})
         if history[-1]["violations"] == 0:
@@ -425,7 +427,7 @@ def lattice_inflate(points, outer, body_verts, body_faces, distance, cell=0.02, 
         blurred_count = _gaussian_blur(count, sigma / cell)
         field = blurred_push / np.maximum(blurred_count, 1e-9)[..., None]
         field *= (blurred_count / (blurred_count + fade))[..., None]
-        current = current + _trilinear(field, (current - low) / cell)
+        current = current + _trilinear(field, (current - low) / cell) * movable[:, None]
     gap, side = np.full(len(points), np.inf), np.ones(len(points))
     _, gap[near], _, side[near] = closest_on_triangles(current[near], body_verts, body_faces)
     signed = side * gap
