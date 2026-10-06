@@ -522,7 +522,7 @@ class Session:
                 and response.get('error',{}).get('code')=='validation'
                 and response['error'].get('http_status')==400,'Only a definite API validation rejection can be reconciled')
         listing=history.get('result',{})
-        require(history.get('ok') is True and listing.get('items')
+        require(history.get('ok') is True and isinstance(listing.get('items'), list)
                 and listing.get('page',{}).get('page_num')==1
                 and listing['page'].get('sort_by')=='-created_at','Newest-first owning task history required')
         with self.lock():
@@ -565,8 +565,12 @@ class Session:
                 design = self.design(identity)
                 require((target["race"], target["sex"]) == (design["race"], design["sex"]), "Wrong body target")
                 if index > 2:
-                    require(report["target"] == read(reviews["fitting"]["report"]["path"])["target"],
+                    fitting_report = read(reviews["fitting"]["report"]["path"])
+                    require(report["target"] == fitting_report["target"],
                             "Body target changed after fitting")
+                    require(report.get("fit") == fitting_report["fit"],
+                            "Fit changed after fitting")
+                    verify_pins([report["fit"]])
             if stage == "fitting":
                 verify_pins([report["fit"]])
                 fitted = read(report["fit"]["path"])

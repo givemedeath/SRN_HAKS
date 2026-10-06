@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 import numpy as np
 
-from head_workflow import (Session, RECIPE, allocate_slots, fit_similarity, make_roster,
-                           model_name, pin, task_fields, validate_roster, write_fresh)
+from head_workflow import (MOTION, Session, RECIPE, allocate_slots, fit_similarity, make_roster,
+                           model_name, pin, task_fields, validate_roster, validate_target, write_fresh)
 from head_export import ascii_model, node_matrix, plt_bytes
 
 
@@ -180,5 +180,104 @@ class HeadTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Invalid material"):
             ascii_model("pmh0_head022", p, n, uv, [{"kind":"fixed", "suffix":"../x", "triangles":[0]}])
 
+    def test_downstream_reviews_require_approved_fit_pin(self):
+        donor = self.root / 'donor.json'
+        write_fresh(donor, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'donor', 'passed': True,
+            'parentReportSha256': pin(self.report)['sha256'], 'inputs': [pin(self.roster)],
+            'evidence': [pin(self.report)], 'sourceUnmodified': True, 'geometryInspected': True
+        })
+        self.session.review('human-male-01', 'donor', donor)
+
+        protected = self.root / 'body.mdl'; protected.write_bytes(b'body')
+        manifest = self.root / 'manifest.json'
+        write_fresh(manifest, {'resources': [{'path': 'body.mdl', 'sha256': pin(protected)['sha256']}]})
+        stock = []
+        for name in ('rig', 'neck', 'skin', 'hair', 'animation'):
+            p = self.root / name; p.write_bytes(name.encode()); stock.append(pin(p))
+        target_data = {
+            'schemaVersion': 1, 'kind': 'srn-head-target', 'approved': True, 'race': 'human', 'sex': 'male',
+            'prefix': 'pmh0', 'phenotype': 0, 'bodyRevision': pin(manifest)['sha256'], 'bodyManifest': pin(manifest),
+            'bodyResourceRoot': str(self.root), 'rig': stock[0], 'neckGeometry': stock[1], 'palettes': stock[2:4],
+            'animations': stock[4:], 'headBindMatrix': [[1,0,0,0],[0,1,0,0],[0,0,1,1.75],[0,0,0,1]],
+            'cranialEnvelope': [[-.1,-.1,-.06],[.1,.15,.2]], 'landmarkTolerance': .025
+        }
+        target_file = self.root / 'target.json'
+        write_fresh(target_file, target_data)
+
+        source_model = self.root / 'head_source.glb'; source_model.write_bytes(b'glb_source')
+        landmarks = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+        sim = fit_similarity(np.array(landmarks, dtype=float), np.array(landmarks, dtype=float), target_data['landmarkTolerance'])
+        fit_data = {
+            'target': pin(target_file), 'source': pin(source_model),
+            'sourceLandmarks': landmarks, 'targetLandmarks': landmarks, 'matrix': sim['matrix']
+        }
+        fit_file = self.root / 'fit.json'
+        write_fresh(fit_file, fit_data)
+
+        fitting = self.root / 'fitting.json'
+        write_fresh(fitting, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'fitting', 'passed': True,
+            'parentReportSha256': pin(donor)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(fit_file), pin(source_model)],
+            'evidence': [pin(donor)], 'target': pin(target_file), 'fit': pin(fit_file)
+        })
+        self.session.review('human-male-01', 'fitting', fitting)
+
+        # Substitute fit
+        sub_fit_file = self.root / 'sub_fit.json'
+        write_fresh(sub_fit_file, {**fit_data, 'matrix': [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]})
+
+        # Assembly report with substituted fit rejected
+        bad_assembly = self.root / 'assembly_bad.json'
+        write_fresh(bad_assembly, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'assembly', 'passed': True,
+            'parentReportSha256': pin(fitting)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(sub_fit_file)],
+            'evidence': [pin(fitting)], 'target': pin(target_file), 'fit': pin(sub_fit_file),
+            'standingReviewed': True, 'worstCaseMotionReviewed': True, 'bodyResourcesUnchanged': True,
+            'motions': list(MOTION)
+        })
+        with self.assertRaisesRegex(ValueError, 'Fit changed after fitting'):
+            self.session.review('human-male-01', 'assembly', bad_assembly)
+
+        # Assembly report missing fit pin rejected
+        missing_fit_assembly = self.root / 'assembly_missing_fit.json'
+        write_fresh(missing_fit_assembly, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'assembly', 'passed': True,
+            'parentReportSha256': pin(fitting)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file)],
+            'evidence': [pin(fitting)], 'target': pin(target_file),
+            'standingReviewed': True, 'worstCaseMotionReviewed': True, 'bodyResourcesUnchanged': True,
+            'motions': list(MOTION)
+        })
+        with self.assertRaisesRegex(ValueError, 'Fit changed after fitting'):
+            self.session.review('human-male-01', 'assembly', missing_fit_assembly)
+
+        # Assembly report with exact approved fit accepted
+        good_assembly = self.root / 'assembly_good.json'
+        write_fresh(good_assembly, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'assembly', 'passed': True,
+            'parentReportSha256': pin(fitting)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(fit_file)],
+            'evidence': [pin(fitting)], 'target': pin(target_file), 'fit': pin(fit_file),
+            'standingReviewed': True, 'worstCaseMotionReviewed': True, 'bodyResourcesUnchanged': True,
+            'motions': list(MOTION)
+        })
+        self.session.review('human-male-01', 'assembly', good_assembly)
+
+        # Native report with substituted fit rejected
+        bad_native = self.root / 'native_bad.json'
+        write_fresh(bad_native, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'native', 'passed': True,
+            'parentReportSha256': pin(good_assembly)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(sub_fit_file)],
+            'evidence': [pin(good_assembly)], 'target': pin(target_file), 'fit': pin(sub_fit_file),
+        })
+        with self.assertRaisesRegex(ValueError, 'Fit changed after fitting'):
+            self.session.review('human-male-01', 'native', bad_native)
+
 
 if __name__ == "__main__": unittest.main()
+
+

@@ -34,5 +34,25 @@ class SubmissionReconciliationTests(unittest.TestCase):
             self.assertEqual(session.credit_used(),0)
             with self.assertRaisesRegex(ValueError,'unsubmitted'):session.reconcile_rejection('oversized',rejected,history)
 
+    def test_reconcile_rejection_accepts_empty_task_history(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);roster=root/'roster.json';write_fresh(roster,make_roster())
+            session=Session.create(root/'session',roster)
+            session.append('reserved',requestId='first-dispatch',operation='multi-image-to-3d',estimatedCredits=20)
+            rejected=root/'rejected.json';empty_history=root/'empty_history.json'
+            write_fresh(rejected,{'ok':False,'result':None,'error':{'code':'validation','http_status':400}})
+            write_fresh(empty_history,{'ok':True,'result':{'items':[],
+                'page':{'page_num':1,'sort_by':'-created_at'}}})
+            self.assertEqual(session.credit_used(),20)
+            session.reconcile_rejection('first-dispatch',rejected,empty_history)
+            self.assertEqual(session.credit_used(),0)
+            bad_history=root/'bad_history.json'
+            session.append('reserved',requestId='second-dispatch',operation='multi-image-to-3d',estimatedCredits=20)
+            write_fresh(bad_history,{'ok':True,'result':{'items':None,
+                'page':{'page_num':1,'sort_by':'-created_at'}}})
+            with self.assertRaisesRegex(ValueError,'Newest-first owning task history required'):
+                session.reconcile_rejection('second-dispatch',rejected,bad_history)
+
 
 if __name__=='__main__':unittest.main()
+

@@ -1,10 +1,10 @@
 {
   "kind": "srn-head-review-fixes-validation",
-  "helperTestsPassed": 305,
+  "helperTestsPassed": 307,
   "checks": {
     "head": {
-      "tests": 44,
-      "logSha256": "5a52de92778dca37c5c25e5e9a5b64dbf1ceb0b7929efe6ac0c796ec7b834f6a"
+      "tests": 46,
+      "logSha256": "49709ce79ccc24ca1631a758749e13c48e38b6f71c126216c334623980b927d2"
     },
     "gallery": {
       "tests": 9,
@@ -40,7 +40,9 @@
     "Cumulative budget and duplicate dispatch across revision forks",
     "Current consumer collision audit at publication",
     "Local dispatch validation before reservation",
-    "Direct byte-pinned offline Meshy executable and dependency tree"
+    "Direct byte-pinned offline Meshy executable and dependency tree",
+    "Empty task history accepted on definite API rejection reconciliation",
+    "Downstream reviews bound to approved fitting review fit pin"
   ],
   "installedKeyReader": {
     "relevantResourceNames": 70106,
