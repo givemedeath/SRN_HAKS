@@ -130,9 +130,9 @@ def main():
         donor, donor_nodes, body_rig, body, samples, args.donor_cache)
     rows, saved = [], {}
     for index, sample in enumerate(samples):
-        frames = candidate.frames(sample["clip"], sample["time"])
-        posed = pose(candidate, nodes, frames)
+        # The client animates the creature (stock) skeleton and skins against the robe's own rest frames.
         body_frames = body_rig.frames(sample["clip"], sample["time"])
+        posed = pose(candidate, nodes, body_frames)
         body_verts, body_faces, _ = body.posed(body_frames)
         ratios = np.concatenate([(np.linalg.norm(p[n["edges"][:, 0]] - p[n["edges"][:, 1]], axis=1) / np.maximum(r, 1e-9))[r >= MINIMUM_EDGE]
                                  for p, n, r in zip(posed, nodes, rest_lengths)])
@@ -179,7 +179,7 @@ def main():
               "candidate": Path(args.candidate).stem, "donor": args.donor, "bodyChain": chain,
               "donorBaseline": {"key": donor_key, "reusedFromCache": donor_reused,
                                 "cache": str(Path(args.donor_cache).resolve()) if args.donor_cache else None},
-              "method": "numpy linear blend skinning with rig_pose_audit frames; stock parts posed rigidly",
+              "method": "numpy linear blend skinning: stock skeleton frames (rig_pose_audit) against the candidate's own rest frames; stock parts posed rigidly",
               "flagThresholds": FLAG, "measuredEdgesAtLeast": MINIMUM_EDGE, "measuredAreasAtLeast": MINIMUM_AREA, "samples": rows, "worstByFamily": worst, "savedSamples": selected,
               "geometry": [pin(p) for p in sorted(geometry.iterdir())], "clientEvidence": False, **FLAGS}
     print(write_fresh(output / "review.json", report)["sha256"])

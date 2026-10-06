@@ -234,6 +234,22 @@ def main():
         rows_t = np.flatnonzero(torso_members)
         smoothed[np.ix_(rows_t, arm_columns)] *= scale[:, None]
         masked_counts["torsoArmShareCapped"] = int((share > cap).sum())
+    rigid = plan.get("rigidHands")
+    if rigid:
+        # Gloves keep the Meshy hand shape: past a wrist band they follow only the hand bone.
+        joints = fit_report["outfitJoints"] if generation else fit_report["stockTargets"]
+        band = rigid.get("wristBand", 0.03)
+        for side, segment in (("L", 1), ("R", 2)):
+            wrist, tip = np.array(joints["wrist" + side]), np.array(joints["fingertip" + side])
+            axis = (tip - wrist) / np.linalg.norm(tip - wrist)
+            members = np.flatnonzero(labels == segment)
+            share = np.clip(((points[members] - wrist) @ axis) / band, 0, 1)[:, None]
+            rows_w = smoothed[members] / np.maximum(smoothed[members].sum(1, keepdims=True), 1e-12)
+            hand = np.zeros_like(rows_w)
+            hand[:, SKIN_BONES.index(side.lower() + "hand_g")] = 1.0
+            smoothed[members] = (1 - share) * rows_w + share * hand
+            masked_counts["rigidHand" + side] = int((share[:, 0] >= 1).sum())
+            masked_counts["wristBand" + side] = int(((share[:, 0] > 0) & (share[:, 0] < 1)).sum())
     limited = limit_and_normalize(smoothed, 4, plan.get("prune", 0.01))
     report_weights = validate(limited, SKIN_BONES, SKIN_BONES, sum_tolerance=tolerances["tolerances"]["weightSum"],
                               max_influences=tolerances["maximumInfluences"], bone_limit=None)

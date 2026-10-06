@@ -24,6 +24,24 @@ class ModelBuildTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             skeleton_nodes(stock, ["missing_g"])
 
+    def test_generation_rest_puts_limb_bones_at_outfit_joints(self):
+        from build_robe_model import generation_rest
+        import fit_math
+        extra = ("node dummy lbicep_g\n  parent upper\n  position -0.2 0.0 0.3\n  orientation 0.0 0.0 0.0 0.0\nendnode\n"
+                 "node skin cloth")
+        stock = mdl_ascii.parse(SKIN_MODEL.replace("node skin cloth", extra, 1))
+        shoulder = np.array([-0.2, 0.0, 1.8])  # rootdummy 1.0 + upper 0.5 + 0.3
+        outfit_shoulder, outfit_elbow = np.array([-0.25, 0.0, 1.75]), np.array([-0.55, 0.0, 1.45])
+        transforms = {name: np.eye(4) for name in fit_math.PROXY}
+        transforms["ua_L"] = fit_math.segment_transform(outfit_shoulder, outfit_elbow, shoulder, shoulder - [0, 0, 0.3])
+        report = {"outfitJoints": {"shoulderL": outfit_shoulder.tolist()}, "stockTargets": {"shoulderL": shoulder.tolist()}}
+        rest = generation_rest(stock, ["rootdummy", "upper", "lbicep_g"], report, transforms)
+        np.testing.assert_allclose(rest["lbicep_g"][:3, 3], outfit_shoulder, atol=1e-12)
+        down = rest["lbicep_g"][:3, :3] @ np.array([0, 0, -1.0])  # stock arm direction carried into the A-pose
+        np.testing.assert_allclose(down, (outfit_elbow - outfit_shoulder) / np.linalg.norm(outfit_elbow - outfit_shoulder),
+                                   atol=1e-12)
+        np.testing.assert_allclose(rest["upper"], mdl_ascii.bind_frames(stock)["upper"])
+
     def test_axis_angle_round_trips_mdl_orientation(self):
         from apose_skeleton import axis_angle
         from retarget import rotations

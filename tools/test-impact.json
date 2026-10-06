@@ -511,6 +511,7 @@
       "tools/robes/robe_common.py"
     ],
     "tools/robes/build_robe_model.py": [
+      "tools/robes/fit_math.py",
       "tools/robes/mdl_ascii.py",
       "tools/robes/robe_common.py"
     ],
@@ -629,6 +630,7 @@
       "tools/robes/apose_skeleton.py",
       "tools/robes/build_robe_fixture.py",
       "tools/robes/build_robe_model.py",
+      "tools/robes/fit_math.py",
       "tools/robes/mdl_ascii.py",
       "tools/robes/prepare_materials.py",
       "tools/robes/prepare_reference.py",

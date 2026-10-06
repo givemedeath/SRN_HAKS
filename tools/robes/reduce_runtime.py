@@ -97,6 +97,8 @@ def main():
     parser.add_argument("--tolerances", type=Path, required=True)
     parser.add_argument("--target-faces", type=int, required=True)
     parser.add_argument("--weld-distance", type=float, default=1e-6)
+    parser.add_argument("--space", choices=["bind", "generation"], default="bind",
+                        help="generation: reduce and emit the outfit in its A-pose (for generation-rest robes)")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     inputs = [pin(args.weights / "weights.npz"), pin(args.weights / "loop-uv.npy"), pin(args.fit_arrays),
@@ -106,7 +108,11 @@ def main():
         bpy.data.objects.remove(obj, do_unlink=True)
     data = np.load(args.weights / "weights.npz")
     uv = np.load(args.weights / "loop-uv.npy")
-    visible = np.load(args.fit_arrays)["visible"]
+    fit_arrays = np.load(args.fit_arrays)
+    visible = fit_arrays["visible"]
+    if args.space == "generation":
+        require("fittedGeneration" in fit_arrays.files, "Generation-space fit arrays required")
+        data = dict(data, verts=fit_arrays["fittedGeneration"])
     require(len(visible) == len(data["verts"]), "Fit arrays do not match the weighted mesh")
     plan = read(args.config)["weights"]
     tolerances = read(args.tolerances)
@@ -145,7 +151,7 @@ def main():
     report = {"schemaVersion": 1, "kind": "srn-robe-runtime-reduction", "createdUtc": utc(), "inputs": inputs,
               "method": "weld, Blender collapse decimation (triangulated) carrying weights, segment one-hot, outer "
                         "mask and UVs; segment bone masks and torso arm-share cap re-applied; 4-influence limit",
-              "masterPreserved": True, "weldDistance": args.weld_distance, "verticesMerged": merged,
+              "masterPreserved": True, "space": args.space, "weldDistance": args.weld_distance, "verticesMerged": merged,
               "facesBefore": int(len(data["tris"])), "facesWelded": welded_faces, "facesAfter": final_faces,
               "targetFaces": args.target_faces, "vertices": int(len(verts)),
               "skinFaces": int(skin.sum()), "skinFacesBefore": int(data["skinFaces"].sum()),

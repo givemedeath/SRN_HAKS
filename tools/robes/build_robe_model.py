@@ -13,6 +13,7 @@ import shutil
 
 import numpy as np
 
+import fit_math
 import mdl_ascii
 from robe_common import FLAGS, pin, read, require, utc, verify_pins, write_fresh
 
@@ -29,6 +30,38 @@ def skeleton_nodes(stock, bones):
             needed.add(key)
             key = table[key].parent.lower()
     return [node for node in stock.nodes if node.key in needed]
+
+
+SEGMENT_START = {"ua": "shoulder", "fa": "elbow", "hand": "wrist", "th": "hip", "sh": "knee", "ft": "ankle"}
+
+
+def generation_rest(stock, names, fit_report, transforms):
+    """Robe rest frames at the outfit's own A-pose joints: each limb bone's stock bind frame taken back
+    through the rigid part of its proxy transform (outfit joint -> stock joint). The client skins against
+    these frames, so the A-pose mesh ships unconverted."""
+    bind = mdl_ascii.bind_frames(stock)
+    world = {}
+    for key in names:
+        proxy = fit_math.BONE_PROXY.get(key, "torso")
+        frame = bind[key].copy()
+        if proxy != "torso":
+            rotation = fit_math._split(transforms[proxy])[0]
+            segment, side = proxy.split("_")
+            outfit = np.array(fit_report["outfitJoints"][SEGMENT_START[segment] + side])
+            target = np.array(fit_report["stockTargets"][SEGMENT_START[segment] + side])
+            frame[:3, :3] = rotation.T @ bind[key][:3, :3]
+            frame[:3, 3] = rotation.T @ (bind[key][:3, 3] - target) + outfit
+        world[key] = frame
+    return world
+
+
+def axis_angle(rotation):
+    angle = float(np.arccos(np.clip((np.trace(rotation) - 1) / 2, -1, 1)))
+    if angle < 1e-9:
+        return np.zeros(4)
+    require(np.pi - angle > 1e-6, "Half-turn rest rotations are not expected")
+    axis = np.array([rotation[2, 1] - rotation[1, 2], rotation[0, 2] - rotation[2, 0], rotation[1, 0] - rotation[0, 1]])
+    return np.r_[axis / np.linalg.norm(axis), angle]
 
 
 def node_for_faces(name, faces, verts, corner_uv, weights, bone_names, bitmap, decimals):
@@ -65,6 +98,9 @@ def main():
     parser.add_argument("--tolerances", type=Path, required=True)
     parser.add_argument("--weight-decimals", type=int, default=6)
     parser.add_argument("--skin-plt", type=Path, help="Skin-only PLT, copied in as <model>.plt")
+    parser.add_argument("--rest", choices=["bind", "generation"], default="bind",
+                        help="generation: robe rest skeleton at the outfit's A-pose joints (weights dir must be A-pose)")
+    parser.add_argument("--fit", type=Path, help="Fit output directory (required for --rest generation)")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     require(len(args.model) <= 16 and len(args.prefix) <= 8, "Resref limits exceeded")
@@ -87,11 +123,24 @@ def main():
     model.classification = "character"
     root = mdl_ascii.Node("dummy", args.model)
     model.nodes.append(root)
-    for node in skeleton_nodes(stock, used_bones):
+    skeleton = skeleton_nodes(stock, used_bones)
+    rest = None
+    if args.rest == "generation":
+        require(args.fit is not None, "--rest generation needs --fit")
+        inputs += [pin(args.fit / "fit.json"), pin(args.fit / "fit-arrays.npz")]
+        transforms = dict(zip(fit_math.PROXY, np.load(args.fit / "fit-arrays.npz")["proxyTransforms"]))
+        rest = generation_rest(stock, [n.key for n in skeleton], read(args.fit / "fit.json"), transforms)
+    for node in skeleton:
         copy = mdl_ascii.Node("dummy", node.name)
         copy.parent = args.model if node.parent.lower() == stock.name.lower() else node.parent
         copy.position, copy.orientation = node.position.copy(), node.orientation.copy()
+        if rest is not None and node.parent.lower() in rest:
+            local = np.linalg.inv(rest[node.parent.lower()]) @ rest[node.key]
+            copy.position, copy.orientation = local[:3, 3], axis_angle(local[:3, :3])
         model.nodes.append(copy)
+    if rest is not None:
+        check = mdl_ascii.bind_frames(model)
+        require(all(np.allclose(check[k], rest[k], atol=1e-6) for k in rest if k in check), "Rest frames did not round-trip")
     face_segment = np.array([np.bincount(segments[t], minlength=5).argmax() for t in tris])
     corner_uv = uv[loops]
     summary, mapping = [], {}
@@ -126,10 +175,11 @@ def main():
     report = {"schemaVersion": 1, "kind": "srn-robe-intended-model", "createdUtc": utc(), "model": args.model,
               "supermodel": stock.name, "inputs": inputs, "skeleton": [n.name for n in model.nodes[1:]
                                                                        if n.kind == "dummy"],
-              "skeletonSource": "stock bind frames copied unchanged", "skinNodes": summary,
+              "skeletonSource": "stock bind frames copied unchanged" if rest is None else "limb rest frames at the outfit A-pose joints (rigid part of the proxy transforms)", "skinNodes": summary,
               "materials": {"fixed": material + "a", "skinPlt": args.model,
                             "skinPltFile": pin(skin_plt) if skin_plt else None},
-              "triangles": int(len(tris)), "file": pin(path), "bindFramesChanged": False, **FLAGS}
+              "triangles": int(len(tris)), "file": pin(path), "restPose": args.rest,
+              "bindFramesChanged": args.rest != "bind", "stockRigChanged": False, **FLAGS}
     print(write_fresh(output / "model.json", report)["sha256"])
 
 
