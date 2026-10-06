@@ -176,7 +176,6 @@ python tools/phenotypes/audit_derived_dwarf_native.py
 $binding = Get-Content .tmp/runtime-bindings/run-001.json -Raw | ConvertFrom-Json
 $python = if ($binding.runtimes) { $binding.runtimes.python.path } else { $binding.tools.python.path }
 $gameRoot = "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition"
-$stage = "output/phenotypes/derived-dwarf-male-v1/test-stage"
 # Freeze maintained helpers, their portable configs and durable reference assets.
 # Overdeclare tracked tool inputs so transitive helper imports are also covered.
 $helperInputs = @()
@@ -193,7 +192,7 @@ $gameInputs = @('--input-tree', $gameRoot)
   --migration-receipt .tmp/shared-tool-migration.json `
   --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
   --input-tree output/phenotypes/derived-dwarf-male-v1/candidate/converted `
-  -- tools/phenotypes/build_derived_dwarf_fixture.py --stage output/phenotypes/derived-dwarf-male-v1/test-stage
+  -- tools/phenotypes/build_derived_dwarf_fixture.py --game-root $gameRoot --stage output/phenotypes/derived-dwarf-male-v1/test-stage
 
 # 2. Stage stock comparator actor:
 & $python tools/phenotypes/stock_dwarf_control.py --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
