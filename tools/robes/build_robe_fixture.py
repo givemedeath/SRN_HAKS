@@ -179,6 +179,10 @@ def main():
         source = run_root / spec["model"]
         inputs.append(pin(source))
         target = resources / (spec["resref"] + ".mdl")
+        if source.read_bytes()[:4] == b"\0\0\0\0":  # client-compiled binary: names are baked in
+            require(spec["sourceName"].lower() == spec["resref"].lower(), "Binary models cannot be renamed: " + row)
+            shutil.copyfile(source, target)
+            continue
         text = renamed_model(source, spec["sourceName"], spec["resref"])
         target.write_text(text, encoding="cp1252", newline="\n")
     write_2da(resources / "parts_robe.2da", columns, table)
