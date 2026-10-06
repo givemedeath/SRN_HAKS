@@ -37,6 +37,15 @@ def pin(path):
     return {"path": str(path), "sha256": sha(path)}
 
 
+def skin_colour(rgb):
+    """Exposed-skin colour rule on (n, 3) base-colour values in 0-1 (display-encoded): warm, moderately saturated."""
+    import numpy as np
+    rgb = np.asarray(rgb, dtype=float)
+    r, g, b = rgb[:, 0], rgb[:, 1], rgb[:, 2]
+    saturation = (rgb.max(1) - rgb.min(1)) / np.maximum(rgb.max(1), 1e-6)
+    return (r > g) & (g > b) & (saturation > 0.18) & (saturation < 0.75) & (rgb.max(1) > 0.08) & ((r - b) > 0.05)
+
+
 def verify_pins(pins):
     for item in pins:
         require(Path(item["path"]).is_file(), "Pinned input missing: " + item["path"])

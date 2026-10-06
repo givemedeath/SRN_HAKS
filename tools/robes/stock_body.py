@@ -86,8 +86,14 @@ class Body:
         return (frames[row["bone"]] @ np.c_[row["local"], np.ones(len(row["local"]))].T).T[:, :3]
 
 
-def closest_on_triangles(points, verts, faces, chunk=2048):
-    """Closest point, distance, face index and signed side (+outside by face normal) for each point."""
+def closest_on_triangles(points, verts, faces, chunk=None, budget=1 << 25):
+    """Closest point, distance, face index and signed side (+outside by face normal) for each point.
+
+    Each chunk broadcasts against every face through about a dozen (chunk, faces, 3) float64
+    temporaries; by default the chunk is sized so each stays within `budget` bytes.
+    """
+    if chunk is None:
+        chunk = max(1, int(budget // (max(len(faces), 1) * 3 * 8)))
     a, b, c = verts[faces[:, 0]], verts[faces[:, 1]], verts[faces[:, 2]]
     normals = np.cross(b - a, c - a)
     normals /= np.maximum(np.linalg.norm(normals, axis=1), 1e-12)[:, None]

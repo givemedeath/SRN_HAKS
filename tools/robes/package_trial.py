@@ -27,6 +27,14 @@ def row_line(path, row):
     return lines[row]
 
 
+def row_visibility(path, row):
+    """Body parts the packaged parts_robe row hides and leaves visible (HIDE* columns)."""
+    from build_robe_fixture import read_2da
+    columns, rows = read_2da(path)
+    flags = {c[4:].lower(): rows[row][c] for c in columns if c.startswith("HIDE")}
+    return sorted(p for p, v in flags.items() if v == "1"), sorted(p for p, v in flags.items() if v != "1")
+
+
 def readme(config, manifest):
     gates = "\n".join(f"- **{name}**: {'yes' if gate['status'] else 'no'}. {gate['note']}"
                       for name, gate in manifest["gates"].items())
@@ -38,7 +46,8 @@ Trial package for stock human male phenotype 0. Not registered in srn_2da or hak
 ## Contents
 
 - `srn_robetrial.hak`: robe model `{config['model']}.mdl` (client-compiled binary), its skin PLT,
-  fixed-colour MTR/TGA and a `parts_robe.2da` whose row {config['row']} hides every body part except head and neck.
+  fixed-colour MTR/TGA and a `parts_robe.2da` whose row {config['row']} hides {', '.join(manifest['hides']) or 'nothing'}
+  and leaves {', '.join(manifest['visible']) or 'nothing'} visible.
 - `{manifest['item']['file']}`: armour item (cloth base) using robe row {config['row']}.
 - `srn_robetrial.mod`: demo module, stock robe004 beside the pilot on light and dark skin and with sword and shield.
 - `parts_robe.2da`: the same table as a loose file. The engine reads 2DA rows by position, so any merge
@@ -91,10 +100,11 @@ def main():
     for source in (hak, module, item, table):
         shutil.copyfile(source, output / source.name)
     line = row_line(output / "parts_robe.2da", row)
+    hides, visible = row_visibility(output / "parts_robe.2da", row)
     model_report = read(run_root / config["lineage"]["model"])
     manifest = {"schemaVersion": 1, "kind": "srn-robe-trial-package", "createdUtc": utc(), "outfit": config["outfit"],
                 "title": config["title"], "row": row, "model": model, "triangles": model_report["triangles"],
-                "partsRobeRow": line.split(), "item": {"file": item.name, "label": config["itemLabel"]},
+                "partsRobeRow": line.split(), "hides": hides, "visible": visible, "item": {"file": item.name, "label": config["itemLabel"]},
                 "files": {p.name: sha(p) for p in sorted(output.iterdir())},
                 "hakResources": receipt["hakResources"], "validatedAgainst": pin(run_root / config["validatedFixture"]),
                 "fixtureReceipt": pin(args.fixture_receipt), "configuration": pin(args.config),

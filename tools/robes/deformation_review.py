@@ -137,7 +137,7 @@ def main():
     samples = lbs.motion_samples(candidate, count=args.samples_per_clip)
     donor_key, donor_reused, donor_posed_all, donor_faces, donor_rows = donor_baseline(
         donor, donor_nodes, body_rig, body, samples, args.donor_cache)
-    rows, saved = [], {}
+    rows, saved, families, pause_index = [], {}, {}, None
     for index, sample in enumerate(samples):
         # The client animates the creature (stock) skeleton and skins against the robe's own rest frames.
         body_frames = body_rig.frames(sample["clip"], sample["time"])
@@ -158,18 +158,22 @@ def main():
                "penetration": penetration(outer_points, body_verts, body_faces),
                "donorPenetration": donor_rows[index]}
         rows.append(row)
-        candidate_mesh = merged(posed, [n["faces"] for n in nodes])
-        saved[index] = (candidate_mesh, (donor_posed_all[index], donor_faces), (body_verts, body_faces))
-        if index % 10 == 0:
-            print({"sample": index, "of": len(samples), "clip": sample["clip"]}, flush=True)
-    families = {}
-    for row in rows:
+        # Keep geometry only for samples that can still be saved: the bind sample, the first idle
+        # sample and the current worst sample of each family.
         score = row["penetration"]["deepest"] + max(0.0, row["stretch"]["maximum"] - 1) * 0.05
         best = families.get(row["family"])
         if best is None or score > best[0]:
-            families[row["family"]] = (score, row["index"])
-    selected = sorted({0, *[index for _, index in families.values()],
-                       next((r["index"] for r in rows if r["clip"] == "pause1"), 0)})
+            families[row["family"]] = (score, index)
+        if pause_index is None and sample["clip"] == "pause1":
+            pause_index = index
+        needed = {0, 0 if pause_index is None else pause_index, *[i for _, i in families.values()]}
+        if index in needed:
+            candidate_mesh = merged(posed, [n["faces"] for n in nodes])
+            saved[index] = (candidate_mesh, (donor_posed_all[index], donor_faces), (body_verts, body_faces))
+        saved = {i: mesh for i, mesh in saved.items() if i in needed}
+        if index % 10 == 0:
+            print({"sample": index, "of": len(samples), "clip": sample["clip"]}, flush=True)
+    selected = sorted(saved)
     geometry = output / "geometry"
     geometry.mkdir()
     for index in selected:

@@ -85,3 +85,62 @@ def to_pairs(matrix, bones):
         order = np.argsort(-values, kind="stable")
         rows.append([(bones[column], float(values[column])) for column in order if values[column] > 0])
     return rows
+
+
+def limb_corrections(weights, points, labels, bones, plan, joints):
+    """Apply weights.rigidHands and weights.jointSharpening in place; returns per-rule vertex counts.
+
+    points and joints must share one space (the outfit A-pose or the stock bind pose); labels are
+    segment indices (1 left arm, 2 right arm). Runs after weight transfer and again after runtime
+    reduction, whose decimation re-blends weights at collapsed vertices.
+    """
+    counts = {}
+    rigid = plan.get("rigidHands")
+    if rigid:
+        # Gloves keep the Meshy hand shape: past a wrist band they follow only the hand bone.
+        band = rigid.get("wristBand", 0.03)
+        for side, segment in (("L", 1), ("R", 2)):
+            wrist, tip = np.array(joints["wrist" + side]), np.array(joints["fingertip" + side])
+            axis = (tip - wrist) / np.linalg.norm(tip - wrist)
+            members = np.flatnonzero(labels == segment)
+            share = np.clip(((points[members] - wrist) @ axis) / band, 0, 1)[:, None]
+            rows = weights[members] / np.maximum(weights[members].sum(1, keepdims=True), 1e-12)
+            hand = np.zeros_like(rows)
+            hand[:, bones.index(side.lower() + "hand_g")] = 1.0
+            weights[members] = (1 - share) * rows + share * hand
+            counts["rigidHand" + side] = int((share[:, 0] >= 1).sum())
+            counts["wristBand" + side] = int(((share[:, 0] > 0) & (share[:, 0] < 1)).sum())
+    sharpening = plan.get("jointSharpening")
+    if sharpening:
+        torso_centre = np.array([0.0, 0.0, np.mean([joints["shoulderL"][2], joints["shoulderR"][2]])])
+        for side in ("L", "R"):
+            low = side.lower()
+            shoulder, elbow, wrist = (np.array(joints[k + side]) for k in ("shoulder", "elbow", "wrist"))
+            upper = (elbow - shoulder) / np.linalg.norm(elbow - shoulder)
+            fore = (wrist - elbow) / np.linalg.norm(wrist - elbow)
+            # Crease directions keep their blend: armpit faces the torso, the inner elbow faces forward (+Y).
+            for joint, centre, axis, crease, proximal, distal in (
+                    ("shoulder", shoulder, upper, torso_centre - shoulder, "torso_g", low + "bicep_g"),
+                    ("elbow", elbow, fore, np.array([0.0, 1.0, 0.0]), low + "bicep_g", low + "forearm_g")):
+                spec = sharpening.get(joint)
+                if not spec:
+                    continue
+                crease = crease - (crease @ axis) * axis
+                crease /= np.linalg.norm(crease)
+                a, b = bones.index(proximal), bones.index(distal)
+                total = weights[:, a] + weights[:, b]
+                mixed = np.flatnonzero((weights[:, a] > 0) & (weights[:, b] > 0))
+                radial = points[mixed] - centre
+                radial -= np.outer(radial @ axis, axis)
+                facing = (radial / np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-9)) @ crease
+                lo, hi = spec.get("creaseFrom", 0.3), spec.get("creaseTo", 0.7)
+                keep = np.clip((facing - lo) / (hi - lo), 0, 1)
+                share = weights[mixed, b] / np.maximum(total[mixed], 1e-12)
+                half = spec.get("band", 0.15)
+                x = np.clip((share - (0.5 - half)) / (2 * half), 0, 1)
+                sharp = x * x * (3 - 2 * x)
+                final = share + (1 - keep) * (sharp - share)
+                weights[mixed, a] = total[mixed] * (1 - final)
+                weights[mixed, b] = total[mixed] * final
+                counts[f"sharpened{joint.title()}{side}"] = int(((1 - keep) > 0.5).sum())
+    return counts

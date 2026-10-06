@@ -171,5 +171,35 @@ class RigSourceTests(unittest.TestCase):
             self.assertEqual([Path(s["path"]).name for s in rig.sources], ["probe.mdl", "base.mdl"])
             self.assertEqual(rig.sources[1]["sha256"], hashlib.sha256(base.read_bytes()).hexdigest())
 
+
+class SharedCorrectionTests(unittest.TestCase):
+    def test_rigid_hands_bind_glove_vertices_to_the_hand_past_the_band(self):
+        from robe_weights import limb_corrections
+        bones = ["torso_g", "lbicep_g", "lforearm_g", "lhand_g", "rhand_g"]
+        points = np.array([[-0.5, 0, 1.0], [-0.52, 0, 1.0], [-0.6, 0, 1.0]])  # before, inside, past the wrist band
+        weights = np.array([[0, 0, 1.0, 0, 0], [0, 0, 0.6, 0.4, 0], [0, 0, 0.5, 0.5, 0]])
+        joints = {"wristL": [-0.5, 0, 1.0], "fingertipL": [-0.7, 0, 1.0], "wristR": [0.5, 0, 1.0], "fingertipR": [0.7, 0, 1.0]}
+        counts = limb_corrections(weights, points, np.array([1, 1, 1]), bones, {"rigidHands": {"wristBand": 0.04}}, joints)
+        np.testing.assert_allclose(weights[0], [0, 0, 1, 0, 0])
+        np.testing.assert_allclose(weights[1], [0, 0, 0.3, 0.7, 0])
+        np.testing.assert_allclose(weights[2], [0, 0, 0, 1, 0])
+        self.assertEqual((counts["rigidHandL"], counts["wristBandL"]), (1, 1))
+
+    def test_skin_colour_rule(self):
+        from robe_common import skin_colour
+        rgb = np.array([[0.8, 0.6, 0.45], [0.5, 0.5, 0.5], [0.2, 0.3, 0.6], [0.05, 0.03, 0.02]])
+        self.assertEqual(skin_colour(rgb).tolist(), [True, False, False, False])
+
+    def test_closest_point_chunking_does_not_change_results(self):
+        rng = np.random.default_rng(3)
+        verts = rng.normal(size=(30, 3))
+        faces = rng.integers(0, 30, size=(40, 3))
+        faces = faces[(faces[:, 0] != faces[:, 1]) & (faces[:, 1] != faces[:, 2]) & (faces[:, 0] != faces[:, 2])]
+        points = rng.normal(size=(50, 3))
+        whole = closest_on_triangles(points, verts, faces, chunk=50)
+        small = closest_on_triangles(points, verts, faces, budget=len(faces) * 24 * 3)  # three points per chunk
+        for left, right in zip(whole, small):
+            np.testing.assert_allclose(left, right)
+
 if __name__ == "__main__":
     unittest.main()

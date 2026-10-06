@@ -27,7 +27,7 @@ runtime binding and a robe-scoped migration receipt.
 | Weights | `transfer_weights.py` | Region-restricted nearest-face barycentric transfer from stock robe and body-part cage donors, smoothing, ≤4 influences, normalisation, validation. |
 | Model | `build_robe_model.py` | Stock bind skeleton copied unchanged; region skin nodes; exposed skin in skin-PLT nodes. |
 | Review | `deformation_review.py`, `render_review.py`, `contact_sheet.py` | Offline linear blend skinning over the motion matrix against the stock donor; matched renders; stretch/collapse/penetration flags. |
-| Materials | `prepare_materials.py` | 2K fixed-colour TGA/MTR; skin-layer PLT with an MTR that omits `texture0`. |
+| Materials | `prepare_robe_materials.py` | 2K fixed-colour TGA/MTR; skin-layer PLT with an MTR that omits `texture0`. |
 | Package | `build_robe_fixture.py` | Trial HAK, `parts_robe` rows, robe items and the comparison module in an isolated userdir. |
 | Client | `Launch-RobeTrialClient.ps1` | Refuses to start beside a running client; records package hashes. |
 

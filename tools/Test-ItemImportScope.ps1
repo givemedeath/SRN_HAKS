@@ -7,7 +7,8 @@ param(
 # all-zero or undiffable base runs the regressions.
 $ErrorActionPreference = 'Stop'
 $scope = @(
-  '^tools/(Test-ItemImportTools|Import-Hak|Analyze-ItemHak|Analyze-ItemBlueprintErf|Stage-ItemMatches)\.ps1$',
+  '^tools/(Test-ItemImportTools|Test-ItemImportScope|Import-Hak|Analyze-ItemHak|Analyze-ItemBlueprintErf|Stage-ItemMatches)\.ps1$',
+  '^\.github/workflows/(verify|shared-tooling)\.yml$',
   '^tools/(SrnHaks\.Common|SrnTools)\.psm1$',
   '^tools/(toolchain|shared-tools)\.lock\.json$',
   '^tools/import-profiles/',

@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from robe_common import FLAGS, pin, read, require, utc, verify_pins, write_fresh
+from robe_common import FLAGS, pin, read, require, skin_colour, utc, verify_pins, write_fresh
 
 MTR_PARAMETERS = ["parameter float Roughness 0", "parameter float Specularity 0.04",
                   "parameter float Metallicness 0.001"]
@@ -62,9 +62,13 @@ def main():
     (output / (fixed + ".mtr")).write_text("\n".join(["renderhint NormalTangents", f"texture0 {fixed}",
                                                       f"texture1 {fixed}n", *MTR_PARAMETERS, f"texture3 {fixed}r"])
                                            + "\n", encoding="ascii", newline="\n")
-    linear = np.asarray(diffuse, dtype=np.float32) / 255.0
-    luminance = 0.2126 * linear[:, :, 0] + 0.7152 * linear[:, :, 1] + 0.0722 * linear[:, :, 2]
-    low, high = np.percentile(luminance, [2, 98])
+    encoded = np.asarray(diffuse, dtype=np.float32) / 255.0  # display-encoded (sRGB) values, as the shade is seen
+    luminance = 0.2126 * encoded[:, :, 0] + 0.7152 * encoded[:, :, 1] + 0.0722 * encoded[:, :, 2]
+    # Stretch the shade range over the skin-coloured texels only (the rule that marks exposed-skin faces),
+    # so cloth, leather and metal elsewhere in the atlas do not compress the skin's contrast.
+    skin_texels = skin_colour(encoded.reshape(-1, 3)).reshape(luminance.shape)
+    basis = luminance[skin_texels] if skin_texels.sum() >= 1024 else luminance.ravel()
+    low, high = np.percentile(basis, [2, 98])
     lo, hi = args.skin_shade_range
     shades = np.clip(lo + (luminance - low) / max(high - low, 1e-6) * (hi - lo), 0, 255).astype(np.uint8)
     layers = np.zeros(shades.shape, dtype=np.uint8)
@@ -78,7 +82,8 @@ def main():
               "fixedMaterial": {"mtr": pin(output / (fixed + ".mtr")), "diffuse": pin(output / (fixed + ".tga")),
                                 "normal": pin(output / (fixed + "n.tga")), "roughness": pin(output / (fixed + "r.tga"))},
               "skinMaterial": {"mtr": pin(output / (skin + ".mtr")), "plt": pin(output / (skin + ".plt")),
-                               "layer": 0, "shadeRange": [lo, hi], "luminancePercentiles": [float(low), float(high)]},
+                               "layer": 0, "shadeRange": [lo, hi], "luminancePercentiles": [float(low), float(high)],
+                               "percentileTexels": "skin-coloured" if skin_texels.sum() >= 1024 else "whole atlas"},
               "metallic": "constant Metallicness 0.001; the Meshy metallic map is not bound (no standard slot used)",
               "limits": ["Normal-map green orientation needs client confirmation.",
                          "Skin shade is a luminance mapping of the baked albedo; palette response needs client review."],

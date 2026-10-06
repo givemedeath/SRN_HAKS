@@ -4,8 +4,9 @@ The full-resolution weighted mesh stays the master for later baking. The
 runtime copy is welded and collapse-decimated; bone weights, segment one-hot
 labels and the outer-visibility mask ride along as vertex groups (interpolated
 only between connected vertices), skin faces as a face attribute and UVs as
-loop data. The configured segment bone masks and torso arm-share cap are then
-re-applied, weights re-limited and validated. Writes weights.npz, loop-uv.npy
+loop data. The configured segment bone masks, torso arm-share cap, rigid hands and
+joint sharpening are then re-applied (decimation re-blends weights at collapsed
+vertices), weights re-limited and validated. Writes weights.npz, loop-uv.npy
 and runtime-arrays.npz (visible) in the transfer_weights layout; approves nothing.
 """
 import argparse
@@ -19,7 +20,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fit_math
 from robe_common import FLAGS, fresh_directory, pin, read, require, utc, verify_pins, write_fresh
-from robe_weights import limit_and_normalize, validate
+from robe_weights import limb_corrections, limit_and_normalize, validate
 
 ARM_COLUMNS = ("lbicep_g", "rbicep_g", "lforearm_g", "rforearm_g", "lhand_g", "rhand_g")
 
@@ -92,7 +93,7 @@ def read_back(obj, names):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--weights", type=Path, required=True, help="Full-resolution weights directory")
-    parser.add_argument("--fit-arrays", type=Path, required=True)
+    parser.add_argument("--fit-arrays", type=Path, required=True, help="fit-arrays.npz; its fit.json sibling supplies joints")
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--tolerances", type=Path, required=True)
     parser.add_argument("--target-faces", type=int, required=True)
@@ -101,8 +102,9 @@ def main():
                         help="generation: reduce and emit the outfit in its A-pose (for generation-rest robes)")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
+    fit_json = args.fit_arrays.parent / "fit.json"
     inputs = [pin(args.weights / "weights.npz"), pin(args.weights / "loop-uv.npy"), pin(args.fit_arrays),
-              pin(args.config), pin(args.tolerances)]
+              pin(fit_json), pin(args.config), pin(args.tolerances)]
     output = fresh_directory(args.output)
     for obj in list(bpy.data.objects):
         bpy.data.objects.remove(obj, do_unlink=True)
@@ -139,6 +141,9 @@ def main():
         share = weights[np.ix_(rows, columns)].sum(1) / np.maximum(weights[rows].sum(1), 1e-12)
         weights[np.ix_(rows, columns)] *= np.where(share > cap, cap / np.maximum(share, 1e-12), 1.0)[:, None]
         masked["torsoArmShareCapped"] = int((share > cap).sum())
+    fit_report = read(fit_json)
+    joints = fit_report["outfitJoints"] if args.space == "generation" else fit_report["stockTargets"]
+    masked.update(limb_corrections(weights, verts, segments, bones, plan, joints))
     require(np.all(weights.sum(1) > 0), "Runtime vertex lost every influence")
     limited = limit_and_normalize(weights, tolerances["maximumInfluences"], plan.get("prune", 0.01))
     report_weights = validate(limited, bones, bones, sum_tolerance=tolerances["tolerances"]["weightSum"],
@@ -150,7 +155,8 @@ def main():
     verify_pins(inputs)
     report = {"schemaVersion": 1, "kind": "srn-robe-runtime-reduction", "createdUtc": utc(), "inputs": inputs,
               "method": "weld, Blender collapse decimation (triangulated) carrying weights, segment one-hot, outer "
-                        "mask and UVs; segment bone masks and torso arm-share cap re-applied; 4-influence limit",
+                        "mask and UVs; segment bone masks, torso arm-share cap, rigid hands and joint sharpening re-applied; "
+                        "4-influence limit",
               "masterPreserved": True, "space": args.space, "weldDistance": args.weld_distance, "verticesMerged": merged,
               "facesBefore": int(len(data["tris"])), "facesWelded": welded_faces, "facesAfter": final_faces,
               "targetFaces": args.target_faces, "vertices": int(len(verts)),

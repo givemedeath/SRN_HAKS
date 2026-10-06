@@ -184,7 +184,10 @@ def main():
     for row, spec in fixture["rows"].items():
         hide = spec["hide"] if isinstance(spec["hide"], dict) else \
             {c: table[int(spec["hide"].split(":")[1])][c] for c in HIDE}
-        table[int(row)] = {"COSTMODIFIER": 0, "ACBONUS": "0.00", **{c: int(hide[c]) for c in HIDE}}
+        stock = table.get(int(row), {})  # an overridden stock row keeps its cost and AC; new rows get none
+        kept = {c: stock[c] if stock.get(c, "****") != "****" else default
+                for c, default in (("COSTMODIFIER", 0), ("ACBONUS", "0.00"))}
+        table[int(row)] = {**kept, **{c: int(hide[c]) for c in HIDE}}
         source = run_root / spec["model"]
         inputs.append(pin(source))
         target = resources / (spec["resref"] + ".mdl")

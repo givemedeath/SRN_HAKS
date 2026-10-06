@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mdl_ascii
 from build_robe_fixture import read_2da, renamed_model, scripts, write_2da
 from build_robe_model import node_for_faces, skeleton_nodes
-from prepare_materials import plt_bytes
+from prepare_robe_materials import plt_bytes
 from prepare_reference import subject_bottom
 from test_robe_core import SKIN_MODEL
 
@@ -130,6 +130,13 @@ class FixtureTests(unittest.TestCase):
             path.write_text("2DA V2.0\n\n    HIDENECK\n0   0\n3   1\n", encoding="ascii")
             with self.assertRaises(Exception):
                 row_line(path, 1)
+
+    def test_package_readme_parts_come_from_the_row(self):
+        from package_trial import row_visibility
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "parts_robe.2da"
+            write_2da(path, ["ACBONUS", "HIDENECK", "HIDEHANDL", "HIDECHEST"], {2: {"HIDENECK": 0, "HIDEHANDL": 1, "HIDECHEST": 1}})
+            self.assertEqual(row_visibility(path, 2), (["chest", "handl"], ["neck"]))
 
     def test_rename_keeps_bitmaps(self):
         with tempfile.TemporaryDirectory() as folder:
