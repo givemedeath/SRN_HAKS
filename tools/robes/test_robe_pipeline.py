@@ -147,7 +147,8 @@ class ComparisonTests(unittest.TestCase):
     def test_verdict_rejects_added_nodes(self):
         from compare_skin_models import verdict
         report = {"missingNodes": [], "addedNodes": ["extra_g"], "kindChanges": [], "parentChanges": [],
-                  "header": {"supermodel": ["pmh0", "pmh0"]}, "maximumBindTranslationError": 0.0,
+                  "header": {"supermodel": ["pmh0", "pmh0"], "animationScale": ["1.0", "1.0"]},
+                  "maximumBindTranslationError": 0.0,
                   "maximumBindRotationError": 0.0, "meshes": []}
         tolerances = {"bindTranslation": 1e-6, "bindRotation": 1e-6}
         self.assertIn("structure", str(verdict(report, tolerances)))
@@ -160,6 +161,25 @@ class ComparisonTests(unittest.TestCase):
         self.assertIn("cloth: UV presence", verdict(dict(clean, meshes=[dict(mesh, uvPresent=[True, False])]), loose)["failures"])
         self.assertIn("cloth: face pairing",
                       verdict(dict(clean, meshes=[dict(mesh, maximumCornerPositionError=0.01)]), loose)["failures"])
+
+    def test_verdict_rejects_animation_header_changes(self):
+        from types import SimpleNamespace
+        from compare_skin_models import animation_content, verdict
+        clip = "newanim pause1 pmh0_robe004\n  length 2.0\ndoneanim pause1 pmh0_robe004\n"
+        left = SimpleNamespace(animations=[{"name": "pause1", "model": "pmh0_robe004", "text": clip}])
+        renamed = SimpleNamespace(animations=[{"name": "pause1", "model": "pmh0_robe052",
+                                               "text": clip.replace("004", "052").replace("2.0", "2.00000")}])
+        self.assertEqual(animation_content(left), animation_content(renamed))
+        report = {"missingNodes": [], "addedNodes": [], "kindChanges": [], "parentChanges": [],
+                  "header": {"supermodel": ["pmh0", "pmh0"], "animationScale": ["1.0", "1.0"],
+                             "animationContent": [animation_content(left), animation_content(renamed)]},
+                  "maximumBindTranslationError": 0.0, "maximumBindRotationError": 0.0, "meshes": []}
+        tolerances = {"bindTranslation": 1e-6, "bindRotation": 1e-6}
+        self.assertEqual(verdict(report, tolerances)["failures"], [])
+        scaled = dict(report, header=dict(report["header"], animationScale=["1.0", "0.9"]))
+        self.assertIn("animation scale", verdict(scaled, tolerances)["failures"])
+        dropped = dict(report, header=dict(report["header"], animationContent=[animation_content(left), {}]))
+        self.assertIn("local animations", verdict(dropped, tolerances)["failures"])
 
     def test_review_measures_rank_compression_and_collapse(self):
         from deformation_review import measures

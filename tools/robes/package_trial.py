@@ -101,8 +101,13 @@ def main():
     table = staging / "hak-resources" / "parts_robe.2da"
     require(sha(item) == receipt.get("items", {}).get(item.name), "Robe item missing from or changed since the fixture receipt")
     require(sha(table) == receipt["hakResources"]["parts_robe.2da"], "parts_robe.2da changed since the fixture build")
-    for source in (hak, module, item, table):
+    expected = {hak: receipt["hak"]["sha256"], module: receipt["module"]["sha256"],
+                item: receipt["items"][item.name], table: receipt["hakResources"]["parts_robe.2da"]}
+    for source in expected:
         shutil.copyfile(source, output / source.name)
+    # The shipped copies, not just their sources, must be the validated bytes.
+    changed = [source.name for source, digest in expected.items() if sha(output / source.name) != digest]
+    require(not changed, "Fixture files changed while packaging: " + ", ".join(changed))
     line = row_line(output / "parts_robe.2da", row)
     hides, visible = row_visibility(output / "parts_robe.2da", row)
     model_report = read(run_root / config["lineage"]["model"])

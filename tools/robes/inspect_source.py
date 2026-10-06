@@ -196,7 +196,11 @@ def main():
                             "center": points.mean(0).round(4).tolist(),
                             "extent": (points.max(0) - points.min(0)).round(4).tolist(),
                             "distanceToMain": round(float(gap), 5)})
-    keys = np.sort(welded[tris], axis=1)
+    # Rotate each triangle to start at its lowest vertex but keep its winding: a reversed copy is the
+    # back of double-sided cloth (repair_source.remove_duplicates keeps it), not a duplicate.
+    corners = welded[tris]
+    start = corners.argmin(axis=1)[:, None]
+    keys = np.take_along_axis(corners, (start + np.arange(3)) % 3, axis=1)
     _, duplicate_counts = np.unique(keys, axis=0, return_counts=True)
     rng = np.random.default_rng(1234)
     sample = rng.choice(len(tris), size=min(args.hidden_sample, len(tris)), replace=False)

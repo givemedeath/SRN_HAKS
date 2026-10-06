@@ -6,6 +6,7 @@ The report states measurements and, optionally, a tolerance verdict; it never
 approves visible deformation.
 """
 import argparse
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -163,7 +164,8 @@ def compare(left_path, right_path, left_chain, right_chain, ascii_directory, mot
     return {"header": {"supermodel": [lm.supermodel, rm.supermodel],
                        "classification": [lm.classification, rm.classification],
                        "animationScale": [lm.animation_scale, rm.animation_scale],
-                       "localAnimations": [len(lm.animations), len(rm.animations)]},
+                       "localAnimations": [len(lm.animations), len(rm.animations)],
+                       "animationContent": [animation_content(lm), animation_content(rm)]},
             "missingNodes": sorted(set(lnodes) - set(rnodes)), "addedNodes": sorted(set(rnodes) - set(lnodes)),
             "kindChanges": [k for k in shared if lnodes[k].kind != rnodes[k].kind],
             "parentChanges": [k for k in shared if lnodes[k].parent.lower() != rnodes[k].parent.lower()],
@@ -172,12 +174,32 @@ def compare(left_path, right_path, left_chain, right_chain, ascii_directory, mot
             "bindFrames": frames, "meshes": meshes, "modelSources": left_rig.sources + right_rig.sources}
 
 
+def animation_content(model):
+    """Local clips by name, with numbers rounded so exporter formatting and the model's own name do not count."""
+    clips = {}
+    for clip in model.animations:
+        tokens = []
+        for token in clip["text"].replace(clip["model"], "<model>").split():
+            try:
+                tokens.append(f"{float(token):.4f}")
+            except ValueError:
+                tokens.append(token.lower())
+        clips[clip["name"].lower()] = hashlib.sha256(" ".join(tokens).encode()).hexdigest()
+    return clips
+
+
 def verdict(report, tolerances):
     failures = []
     if report["missingNodes"] or report["addedNodes"] or report["kindChanges"] or report["parentChanges"]:
         failures.append("structure")
     if report["header"]["supermodel"][0].lower() != report["header"]["supermodel"][1].lower():
         failures.append("supermodel")
+    scale = report["header"]["animationScale"]
+    if abs(float(scale[0]) - float(scale[1])) > 1e-6:
+        failures.append("animation scale")
+    content = report["header"].get("animationContent")
+    if content and content[0] != content[1]:
+        failures.append("local animations")
     if report["maximumBindTranslationError"] > tolerances["bindTranslation"] or \
             report["maximumBindRotationError"] > tolerances["bindRotation"]:
         failures.append("bind frames")
