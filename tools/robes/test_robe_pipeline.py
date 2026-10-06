@@ -10,6 +10,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fit_math
 from compare_skin_models import nearest, smoothing_edges
+from deformation_review import donor_cache_key
 from freeze_tolerances import BOUNDS, measure
 from meshy_robe import Session, validate_request
 from robe_common import pin
@@ -53,6 +54,15 @@ class FitMathTests(unittest.TestCase):
         self.assertLess(history[-1]["violations"], history[0]["violations"])
         self.assertTrue(np.all(moved[:, 2] > points[:, 2]))
 
+    def test_lattice_stops_when_violations_plateau(self):
+        body = np.array([[-1, -1, 0], [1, -1, 0], [1, 1, 0], [-1, 1, 0]], float)
+        faces = np.array([[0, 1, 2], [0, 2, 3]])
+        points = np.array([[0.0, 0.0, 0.002]])
+        _, history, _, _ = fit_math.lattice_inflate(points, np.array([True]), body, faces, 0.01, iterations=30,
+                                                   fade=1e6, min_improvement=0.5)
+        self.assertTrue(any(row.get("stoppedEarly") for row in history))
+        self.assertLess(len(history), 10)
+
 
 class ComparisonTests(unittest.TestCase):
     def test_nearest_matches_reordered_points(self):
@@ -82,6 +92,22 @@ class ComparisonTests(unittest.TestCase):
         broken = dict(report, missingNodes=["torso_g"])
         with self.assertRaises(ValueError):
             measure([broken])
+
+    def test_donor_cache_key_tracks_inputs_and_samples(self):
+        class Stub:
+            pass
+        with tempfile.TemporaryDirectory() as folder:
+            for name in ("pmh0_robe004", "pmh0", "pmh0_chest001"):
+                (Path(folder) / (name + ".mdl")).write_text(name, encoding="ascii")
+            donor, body = Stub(), Stub()
+            donor.path, donor.chain = Path(folder) / "pmh0_robe004.mdl", ["pmh0_robe004", "pmh0"]
+            body.directory, body.prefix, body.parts = folder, "pmh0", {"chest": {}}
+            samples = [{"clip": "walk", "time": 0.0}]
+            first = donor_cache_key(donor, body, samples)
+            self.assertEqual(first, donor_cache_key(donor, body, samples))
+            self.assertNotEqual(first, donor_cache_key(donor, body, [{"clip": "walk", "time": 0.5}]))
+            (Path(folder) / "pmh0.mdl").write_text("changed", encoding="ascii")
+            self.assertNotEqual(first, donor_cache_key(donor, body, samples))
 
 
 class MeshyPolicyTests(unittest.TestCase):

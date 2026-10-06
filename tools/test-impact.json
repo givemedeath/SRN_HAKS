@@ -624,6 +624,7 @@
     ],
     "tools/robes/test_robe_pipeline.py": [
       "tools/robes/compare_skin_models.py",
+      "tools/robes/deformation_review.py",
       "tools/robes/fit_math.py",
       "tools/robes/freeze_tolerances.py",
       "tools/robes/meshy_robe.py",

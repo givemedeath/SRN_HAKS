@@ -135,7 +135,8 @@ def main():
     body_verts, body_faces, _ = volume.posed()
     inflated, history, signed, initial = fit_math.lattice_inflate(
         posed[first], visible[first], body_verts, body_faces, fit["clearance"], fit["latticeCell"],
-        fit["latticeSigma"], fit["latticeIterations"], fit.get("latticeFade", 0.5))
+        fit["latticeSigma"], fit["latticeIterations"], fit.get("latticeFade", 0.5),
+        min_improvement=fit.get("latticeMinImprovement", 0.01))
     fitted = inflated[welded]
     obj.data.vertices.foreach_set("co", fitted.ravel())
     obj.data.update()

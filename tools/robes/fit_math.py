@@ -350,10 +350,12 @@ def _trilinear(grid, coords):
 
 
 def lattice_inflate(points, outer, body_verts, body_faces, distance, cell=0.02, sigma=0.04, iterations=12,
-                    fade=0.5, reach=0.2):
+                    fade=0.5, reach=0.2, min_improvement=0.01, patience=2):
     """Smooth spatial inflation: splat clearance pushes into a voxel lattice, blur, sample at every point.
 
     Every layer inside a cell moves together, so garment layers keep their order and detail.
+    Stops early once patience consecutive passes each remove less than min_improvement
+    of the remaining clearance deficit (the field has plateaued).
     """
     low = points.min(0) - 6 * cell
     shape = tuple(np.ceil((points.max(0) - low) / cell).astype(int) + 7)
@@ -361,6 +363,7 @@ def lattice_inflate(points, outer, body_verts, body_faces, distance, cell=0.02, 
     history = []
     initial = None
     near = np.ones(len(points), bool)
+    stalled = 0
     for _ in range(iterations):
         closest = current.copy()
         gap, side = np.full(len(points), np.inf), np.ones(len(points))
@@ -371,9 +374,15 @@ def lattice_inflate(points, outer, body_verts, body_faces, distance, cell=0.02, 
             near = signed < distance + reach  # points farther than the total possible travel never violate
         need = np.where(outer, np.clip(distance - signed, 0, None), 0.0)
         history.append({"violations": int((need > 1e-4).sum()), "maximumNeeded": float(need.max()),
-                        "inside": int(((signed < 0) & outer).sum())})
+                        "deficit": float(need.sum()), "inside": int(((signed < 0) & outer).sum())})
         if history[-1]["violations"] == 0:
             break
+        if len(history) > 1:
+            before = history[-2]["deficit"]
+            stalled = stalled + 1 if before - history[-1]["deficit"] < min_improvement * before else 0
+            if stalled >= patience:
+                history[-1]["stoppedEarly"] = True
+                break
         direction = np.where((side >= 0)[:, None], current - closest, closest - current)
         direction /= np.maximum(np.linalg.norm(direction, axis=1), 1e-12)[:, None]
         active = need > 1e-4
@@ -388,7 +397,8 @@ def lattice_inflate(points, outer, body_verts, body_faces, distance, cell=0.02, 
         field = blurred_push / np.maximum(blurred_count, 1e-9)[..., None]
         field *= (blurred_count / (blurred_count + fade))[..., None]
         current = current + _trilinear(field, (current - low) / cell)
-    closest, gap, _, side = closest_on_triangles(current, body_verts, body_faces)
+    gap, side = np.full(len(points), np.inf), np.ones(len(points))
+    _, gap[near], _, side[near] = closest_on_triangles(current[near], body_verts, body_faces)
     signed = side * gap
     history.append({"violations": int(((signed < distance - 1e-4) & outer).sum()),
                     "inside": int(((signed < 0) & outer).sum()), "hiddenInside": int(((signed < 0) & ~outer).sum()),

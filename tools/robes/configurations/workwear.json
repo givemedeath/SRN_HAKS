@@ -28,6 +28,7 @@
     "latticeSigma": 0.04,
     "latticeIterations": 30,
     "latticeFade": 0.1,
+    "latticeMinImprovement": 0.01,
     "scaleLandmarks": ["floor", "crotch", "collarTop"],
     "blends": {"shoulder": 0.09, "elbow": 0.05, "wrist": 0.03, "knee": 0.05, "ankle": 0.04}
   },

@@ -56,6 +56,7 @@
                 "latticeSigma":  0.04,
                 "latticeIterations":  30,
                 "latticeFade":  0.1,
+    "latticeMinImprovement": 0.01,
                 "scaleLandmarks":  [
                                        "floor",
                                        "crotch",

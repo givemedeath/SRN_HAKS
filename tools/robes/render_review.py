@@ -1,8 +1,9 @@
 """Render matched orthographic review views of outfit and body geometry (Blender).
 
 A scene spec lists meshes (GLB, posed .npz with verts/faces, or the stock body)
-with flat review colours. Every render in a review uses the same cameras, light
-rig and four-thread engine settings. Images are review aids, never client evidence.
+with flat review colours, or several `scenes` of such meshes rendered in one launch.
+Every render in a review uses the same cameras, light rig and four-thread engine
+settings. Images are review aids, never client evidence.
 """
 import argparse
 import json
@@ -103,8 +104,8 @@ def main():
     scene.render.resolution_x, scene.render.resolution_y = spec.get("resolution", [720, 960])
     scene.render.film_transparent = False
     scene.view_settings.view_transform = "Standard"
-    for entry in spec["meshes"]:
-        load(spec, entry)
+    scenes = spec.get("scenes") or [{"prefix": spec.get("prefix", "review"), "meshes": spec["meshes"]}]
+    require(len({s["prefix"] for s in scenes}) == len(scenes), "Scene prefixes must be unique")
     lights()
     centre = Vector(spec.get("centre", [0.0, 0.0, 0.97]))
     camera_data = bpy.data.cameras.new("review")
@@ -113,19 +114,29 @@ def main():
     camera = bpy.data.objects.new("review", camera_data)
     scene.collection.objects.link(camera)
     scene.camera = camera
-    renders = []
-    for view in spec.get("views", ["front", "left", "back", "threequarter"]):
-        direction = Vector(VIEWS[view]).normalized()
-        camera.location = centre + direction * 6.0
-        camera.rotation_euler = (-direction).to_track_quat("-Z", "Y").to_euler()
-        path = output / f"{spec.get('prefix', 'review')}-{view}.png"
-        scene.render.filepath = str(path)
-        bpy.ops.render.render(write_still=True)
-        require(path.is_file(), "Render missing: " + str(path))
-        renders.append({"view": view, "image": pin(path), "cameraLocation": list(camera.location),
-                        "cameraRotation": list(camera.rotation_euler)})
+    renders, inputs = [], []
+    # One launch renders every scene with the same cameras and lights; only meshes are swapped.
+    for entry_set in scenes:
+        for obj in [o for o in bpy.data.objects if o.type == "MESH"]:
+            bpy.data.objects.remove(obj, do_unlink=True)
+        for collection in (bpy.data.meshes, bpy.data.materials):
+            for item in [i for i in collection if i.users == 0]:
+                collection.remove(item)
+        for entry in entry_set["meshes"]:
+            load(spec, entry)
+            inputs += [pin(entry[k]) for k in ("glb", "npz") if k in entry]
+        for view in spec.get("views", ["front", "left", "back", "threequarter"]):
+            direction = Vector(VIEWS[view]).normalized()
+            camera.location = centre + direction * 6.0
+            camera.rotation_euler = (-direction).to_track_quat("-Z", "Y").to_euler()
+            path = output / f"{entry_set['prefix']}-{view}.png"
+            scene.render.filepath = str(path)
+            bpy.ops.render.render(write_still=True)
+            require(path.is_file(), "Render missing: " + str(path))
+            renders.append({"scene": entry_set["prefix"], "view": view, "image": pin(path),
+                            "cameraLocation": list(camera.location), "cameraRotation": list(camera.rotation_euler)})
     report = {"schemaVersion": 1, "kind": "srn-robe-review-render", "createdUtc": utc(), "spec": pin(args.spec),
-              "inputs": [pin(e[k]) for e in spec["meshes"] for k in ("glb", "npz") if k in e],
+              "inputs": inputs, "scenes": len(scenes),
               "renderSettings": settings, "cameraScale": camera_data.ortho_scale, "centre": list(centre),
               "renders": renders, "clientEvidence": False, **FLAGS}
     print(json.dumps(write_fresh(output / "render.json", report)))

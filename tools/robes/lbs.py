@@ -29,6 +29,7 @@ class Rig:
 
     def __init__(self, model_path, chain, ascii_directory):
         self.path = Path(model_path)
+        self.chain = list(chain)
         text = self.path.read_text(encoding="cp1252")
         self.model = mdl_ascii.parse(text)
         self.skeleton = skeleton_nodes(text)
