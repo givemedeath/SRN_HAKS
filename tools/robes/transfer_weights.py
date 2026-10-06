@@ -250,6 +250,39 @@ def main():
             smoothed[members] = (1 - share) * rows_w + share * hand
             masked_counts["rigidHand" + side] = int((share[:, 0] >= 1).sum())
             masked_counts["wristBand" + side] = int(((share[:, 0] > 0) & (share[:, 0] < 1)).sum())
+    sharpening = plan.get("jointSharpening")
+    if sharpening:
+        joints = fit_report["outfitJoints"] if generation else fit_report["stockTargets"]
+        torso_centre = np.array([0.0, 0.0, np.mean([joints["shoulderL"][2], joints["shoulderR"][2]])])
+        for side in ("L", "R"):
+            low = side.lower()
+            shoulder, elbow, wrist = (np.array(joints[k + side]) for k in ("shoulder", "elbow", "wrist"))
+            upper = (elbow - shoulder) / np.linalg.norm(elbow - shoulder)
+            fore = (wrist - elbow) / np.linalg.norm(wrist - elbow)
+            # Crease directions keep their blend: armpit faces the torso, the inner elbow faces forward (+Y).
+            for joint, centre, axis, crease, proximal, distal in (
+                    ("shoulder", shoulder, upper, torso_centre - shoulder, "torso_g", low + "bicep_g"),
+                    ("elbow", elbow, fore, np.array([0.0, 1.0, 0.0]), low + "bicep_g", low + "forearm_g")):
+                spec = sharpening.get(joint)
+                if not spec:
+                    continue
+                crease = crease - (crease @ axis) * axis
+                crease /= np.linalg.norm(crease)
+                a, b = SKIN_BONES.index(proximal), SKIN_BONES.index(distal)
+                total = smoothed[:, a] + smoothed[:, b]
+                mixed = np.flatnonzero((smoothed[:, a] > 0) & (smoothed[:, b] > 0))
+                radial = points[mixed] - centre
+                radial -= np.outer(radial @ axis, axis)
+                facing = (radial / np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-9)) @ crease
+                keep = np.clip((facing - spec.get("creaseFrom", 0.3)) / (spec.get("creaseTo", 0.7) - spec.get("creaseFrom", 0.3)), 0, 1)
+                share = smoothed[mixed, b] / np.maximum(total[mixed], 1e-12)
+                half = spec.get("band", 0.15)
+                x = np.clip((share - (0.5 - half)) / (2 * half), 0, 1)
+                sharp = x * x * (3 - 2 * x)
+                final = share + (1 - keep) * (sharp - share)
+                smoothed[mixed, a] = total[mixed] * (1 - final)
+                smoothed[mixed, b] = total[mixed] * final
+                masked_counts[f"sharpened{joint.title()}{side}"] = int(((1 - keep) > 0.5).sum())
     limited = limit_and_normalize(smoothed, 4, plan.get("prune", 0.01))
     report_weights = validate(limited, SKIN_BONES, SKIN_BONES, sum_tolerance=tolerances["tolerances"]["weightSum"],
                               max_influences=tolerances["maximumInfluences"], bone_limit=None)

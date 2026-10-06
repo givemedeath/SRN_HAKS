@@ -23,6 +23,7 @@
     "42": {"use": "workwear corrected-v8 (rigid hands), arms-down rest, 20k runtime", "model": "pmh0_robe042"},
     "43": {"use": "workwear corrected-v8 (rigid hands), A-pose rest skeleton with the unconverted Meshy mesh, 20k runtime", "model": "pmh0_robe043"},
     "44": {"use": "workwear corrected-v9 (straight-arm elbows, rigid hands), arms-down rest, 20k runtime", "model": "pmh0_robe044"},
-    "45": {"use": "workwear corrected-v9 (straight-arm elbows, rigid hands), A-pose rest, 20k runtime", "model": "pmh0_robe045"}
+    "45": {"use": "workwear corrected-v9 (straight-arm elbows, rigid hands), A-pose rest, 20k runtime", "model": "pmh0_robe045"},
+    "46": {"use": "workwear corrected-v10 (narrow outer shoulder/elbow blends), A-pose rest, 20k runtime", "model": "pmh0_robe046"}
   }
 }
