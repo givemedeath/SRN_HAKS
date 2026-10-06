@@ -197,6 +197,68 @@ class ComparisonTests(unittest.TestCase):
         self.assertNotIn("classification", verdict(dict(report, header=dict(
             report["header"], classification=["character", "CHARACTER"])), tolerances)["failures"])
 
+    def test_reference_coverage_sees_a_dropped_opposite_winding_face(self):
+        from compare_skin_models import reference_coverage
+        front = np.array([[0.0, 0, 0], [1, 0, 0], [0, 1, 0]])
+        back = front[::-1].copy()
+        other = front + [5.0, 0, 0]
+        reference = np.stack([front, back, other])
+        self.assertEqual(reference_coverage(reference, np.stack([back, other, front])), 0.0)
+        # Same face count and centroids, but the back face was duplicated as a front face.
+        self.assertGreater(reference_coverage(reference, np.stack([front, front, other])), 1e-3)
+
+    def test_image_edit_collects_images_and_models_need_glb(self):
+        import meshy_robe
+        from unittest import mock
+        for resource, name, ok in (("image-to-image", "edit.png", True), ("image-to-image", "model.glb", False),
+                                   ("remesh", "model.glb", True), ("remesh", "edit.png", False)):
+            with tempfile.TemporaryDirectory() as folder:
+                session = Session.create(Path(folder) / "session", 40, ["workwear"])
+                task = Path(folder) / "task.json"
+                task.write_text("{}")
+                session.append("submitted", requestId="r1", taskId="t1", resource=resource, inputsUnchanged=True)
+                session.append("settled", requestId="r1", taskId="t1", resource=resource, status="SUCCEEDED",
+                               credits=9, task=pin(task))
+                bank = Path(folder) / "bank"
+
+                def download(_binding, _arguments, _out, bank=bank, name=name):
+                    bank.mkdir()
+                    (bank / name).write_bytes(b"x")
+                    return 0, bank
+
+                with mock.patch.object(meshy_robe, "invoke", download), \
+                        mock.patch.object(meshy_robe, "load_binding", lambda _path: {}):
+                    if ok:
+                        self.assertEqual(len(meshy_robe.collect(session, "r1", "binding", Path(folder) / "op", bank)), 1)
+                    else:
+                        with self.assertRaises(ValueError):
+                            meshy_robe.collect(session, "r1", "binding", Path(folder) / "op", bank)
+
+    def test_invoke_pins_the_launcher_and_refuses_a_changed_binding(self):
+        import meshy_robe
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as folder:
+            launcher = Path(folder) / "npm.cmd"
+            launcher.write_text("v1")
+            binding_file = Path(folder) / "binding.json"
+            binding_file.write_text(json.dumps({"command": ["npm.cmd", meshy_robe.CLI_PACKAGE], "workspace": folder}))
+            binding = meshy_robe.load_binding(binding_file)
+
+            def swap(*_args, **_kwargs):
+                binding_file.write_text("{}")
+                return mock.Mock(returncode=0)
+
+            with mock.patch.object(meshy_robe.shutil, "which", lambda _name: str(launcher)), \
+                    mock.patch.object(meshy_robe.subprocess, "run", swap):
+                with self.assertRaises(ValueError):
+                    meshy_robe.invoke(binding, ["status"], Path(folder) / "op")
+            operation = json.loads((Path(folder) / "op" / "operation.json").read_text())
+            self.assertIn("binding.json", operation["launchInputsChanged"])
+            self.assertEqual(Path(operation["executable"]["path"]).name, "npm.cmd")
+            with mock.patch.object(meshy_robe.shutil, "which", lambda _name: None):
+                with self.assertRaises(ValueError):
+                    meshy_robe.invoke(binding, ["status"], Path(folder) / "op2")
+
     def test_review_measures_rank_compression_and_collapse(self):
         from deformation_review import measures
         calm = {"penetration": {"deepest": 0.0}, "stretch": {"maximum": 1.0}, "compression": {"minimum": 0.9},

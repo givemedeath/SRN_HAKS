@@ -8,6 +8,7 @@ recorded reference approval, and every downloaded file is hashed unchanged.
 import argparse
 import json
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -17,6 +18,7 @@ CLI_PACKAGE = "--package=meshy-cli@0.4.0"
 MAX_FACES = 100000
 GENERATION = {"image-to-3d", "multi-image-to-3d"}
 OPERATIONS = GENERATION | {"image-to-image", "remesh", "retexture"}
+IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".webp")
 ESTIMATES = {"image-to-3d": 30, "multi-image-to-3d": 30, "image-to-image": 9, "remesh": 5, "retexture": 10}
 
 
@@ -161,20 +163,39 @@ def task_fields(response):
     return {"id": identity, "status": task.get("status"), "credits": task.get("consumed_credits")}
 
 
+def load_binding(binding_file):
+    """The binding and the pin of exactly the bytes read, so invoke can re-verify it after the call."""
+    data, binding_pin = read_pinned(binding_file)
+    return {**json.loads(data.decode("utf-8-sig")), "bindingPin": binding_pin}
+
+
 def invoke(binding, arguments, folder):
     command = binding["command"]
     require(CLI_PACKAGE in command, "Pinned Meshy plugin CLI required")
+    # The command runs by its resolved absolute path, hashed before and after the call and recorded in the
+    # receipt. The package cache and its transitive dependencies are not byte-pinned (npm resolves them).
+    executable = shutil.which(command[0])
+    require(executable is not None, "Meshy CLI launcher not found: " + command[0])
+    executable_pin = pin(executable)
     folder = Path(folder)
     require(not folder.exists(), "Fresh CLI operation folder required")
     folder.mkdir(parents=True)
-    full = [*command, *arguments, "--output-schema", "v1", "--format", "json", "--no-update-check",
-            "--workspace", binding["workspace"]]
+    full = [executable_pin["path"], *command[1:], *arguments, "--output-schema", "v1", "--format", "json",
+            "--no-update-check", "--workspace", binding["workspace"]]
     with (folder / "stdout.json").open("x", encoding="utf-8") as out, \
             (folder / "stderr.log").open("x", encoding="utf-8") as err:
         result = subprocess.run(full, stdout=out, stderr=err, check=False)
+    launch_pins = [executable_pin, *([binding["bindingPin"]] if binding.get("bindingPin") else [])]
+    changed = None
+    try:
+        verify_pins(launch_pins)
+    except ValueError as error:
+        changed = str(error)
     write_fresh(folder / "operation.json", {"kind": "srn-robe-meshy-cli-operation", "createdUtc": utc(),
-                "arguments": arguments, "exitCode": result.returncode, "stdout": pin(folder / "stdout.json"),
-                "stderr": pin(folder / "stderr.log")})
+                "arguments": arguments, "exitCode": result.returncode, "executable": executable_pin,
+                "binding": binding.get("bindingPin"), "launchInputsChanged": changed,
+                "stdout": pin(folder / "stdout.json"), "stderr": pin(folder / "stderr.log")})
+    require(changed is None, "CLI launcher or binding changed during the call: " + str(changed))
     return result.returncode, folder / "stdout.json"
 
 
@@ -185,7 +206,7 @@ def _json(path):
 
 def dispatch(session, request_file, binding_file, approval_file, folder):
     request_bytes, request_pin = read_pinned(request_file)  # the arguments and the reservation name the same bytes
-    request, binding = json.loads(request_bytes.decode("utf-8-sig")), read(binding_file)
+    request, binding = json.loads(request_bytes.decode("utf-8-sig")), load_binding(binding_file)
     verify_pins(request["inputs"])
     arguments = validate_request(request)
     lock = session.lock()
@@ -223,7 +244,7 @@ def wait(session, request_id, binding_file, folder):
         event = next((e for e in events if e["kind"] == "submitted" and e["requestId"] == request_id), None)
         require(event is not None, "Recorded submission required")
         require(not any(e["kind"] == "settled" and e["requestId"] == request_id for e in events), "Request already settled")
-        code, response = invoke(read(binding_file), [event["resource"], "wait", event["taskId"], "--timeout", "1800",
+        code, response = invoke(load_binding(binding_file), [event["resource"], "wait", event["taskId"], "--timeout", "1800",
                                                      "--include-raw", "--save-json",
                                                      str(Path(folder).resolve() / "task.json")], folder)
         fields = task_fields(_json(response))
@@ -252,12 +273,14 @@ def collect(session, request_id, binding_file, folder, bank):
         verify_pins([settled["task"]])
         bank = Path(bank).resolve()
         require(not bank.exists(), "Fresh source bank folder required")
-        code, _ = invoke(read(binding_file), ["download", "--task-json", settled["task"]["path"], "--all",
+        code, _ = invoke(load_binding(binding_file), ["download", "--task-json", settled["task"]["path"], "--all",
                                               "--output-dir", str(bank)], folder)
         require(code == 0 and bank.exists(), "Download incomplete; keep partial output and reconcile")
         verify_pins([settled["task"]])  # the CLI read this task record during the download
         files = [pin(path) for path in sorted(bank.rglob("*")) if path.is_file()]
-        require(any(Path(item["path"]).suffix.lower() == ".glb" for item in files), "GLB master missing")
+        wanted = IMAGE_SUFFIXES if settled["resource"] == "image-to-image" else (".glb",)
+        require(any(Path(item["path"]).suffix.lower() in wanted for item in files),
+                f"Expected {'/'.join(wanted)} output missing for {settled['resource']}")
         write_fresh(bank.parent / (bank.name + "-collection.json"), {"kind": "srn-robe-meshy-collection",
                     "createdUtc": utc(), "requestId": request_id, "taskId": settled["taskId"],
                     "resource": settled["resource"], "credits": settled["credits"], "task": settled["task"],

@@ -16,6 +16,33 @@ import mdl_ascii
 from robe_common import FLAGS, merge_pins, pin, read, require, utc, verify_pins, write_fresh
 
 
+def dense_nearest(reference, query, rows=None, budget=1 << 22):
+    """Nearest reference row and distance for the selected query rows, in memory-bounded chunks (any dimension)."""
+    rows = np.arange(len(query)) if rows is None else np.asarray(rows, dtype=np.int64)
+    found = np.empty(len(query), dtype=np.int64)
+    distance = np.empty(len(query))
+    step = max(1, budget // max(len(reference) * reference.shape[1], 1))
+    for start in range(0, len(rows), step):
+        chosen = rows[start:start + step]
+        gaps = np.linalg.norm(query[chosen][:, None, :] - reference[None, :, :], axis=2)
+        found[chosen] = gaps.argmin(axis=1)
+        distance[chosen] = gaps[np.arange(len(chosen)), found[chosen]]
+    return found, distance
+
+
+def oriented_features(triangles, normal_scale=1e-2):
+    """Centroid plus scaled unit winding normal: coincident opposite-winding faces differ by 2 x scale."""
+    normals = np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0])
+    normals /= np.maximum(np.linalg.norm(normals, axis=1), 1e-12)[:, None]
+    return np.c_[triangles.mean(axis=1), normals * normal_scale]
+
+
+def reference_coverage(reference_triangles, exported_triangles):
+    """Largest distance from any reference face to its nearest exported face by centroid and winding."""
+    gaps = dense_nearest(oriented_features(exported_triangles), oriented_features(reference_triangles))[1]
+    return float(gaps.max(initial=0.0))
+
+
 def nearest(reference, query, cell=1e-3):
     """Index of and distance to the nearest reference point for each query point (grid hash)."""
     reference, query = np.asarray(reference, float), np.asarray(query, float)
@@ -37,13 +64,9 @@ def nearest(reference, query, cell=1e-3):
         gaps = np.linalg.norm(reference[candidates] - point, axis=1)
         best = int(np.argmin(gaps))
         found[row], distance[row] = candidates[best], gaps[best]
-    far = np.asarray(far, dtype=np.int64)
-    step = max(1, (1 << 24) // max(len(reference), 1))
-    for start in range(0, len(far), step):
-        rows = far[start:start + step]
-        gaps = np.linalg.norm(query[rows][:, None, :] - reference[None, :, :], axis=2)
-        found[rows] = gaps.argmin(axis=1)
-        distance[rows] = gaps[np.arange(len(rows)), found[rows]]
+    if far:
+        found_far, distance_far = dense_nearest(reference, query, far, budget=1 << 24)
+        found[far], distance[far] = found_far[far], distance_far[far]
     return found, distance
 
 
@@ -108,9 +131,8 @@ def compare_mesh(left_rig, right_rig, left, right, samples, index_tolerance=1e-4
         row["maximumFaceCentroidError"] = float(face_gap.max())
         # Exported-to-reference pairing is many-to-one; also require every reference face to be covered,
         # so a duplicated triangle cannot hide an omitted one.
-        _, coverage_gap = (np.arange(len(left_tri)), face_gap) if ordered else \
-            nearest(right_tri.mean(axis=1), left_tri.mean(axis=1))
-        row["maximumReferenceFaceGap"] = float(coverage_gap.max())
+        # Coverage looks at centroid and winding normal, so coincident opposite-winding faces cannot stand in for each other.
+        row["maximumReferenceFaceGap"] = float(face_gap.max()) if ordered else reference_coverage(left_tri, right_tri)
         row["maximumCornerPositionError"] = float(position_error[chosen, best].max())
         if lu is not None and ru is not None:
             row["maximumUvError"] = float(uv_error[chosen, best].max())
