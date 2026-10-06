@@ -6,6 +6,20 @@ result is corrected-v10 at 20k triangles, client-compiled, robe row 46: operator
 selected and client reviewed; production acceptance not claimed. Run root:
 `output/robes/meshy-robe-trial-v1/` (ignored).
 
+### Final pilot package (r2, current)
+
+`package/workwear-pilot-final-r2/` supersedes the first package below. Code review
+found that runtime reduction dropped the rigid-hand and joint-sharpening corrections
+(decimation re-blends weights at collapsed vertices); r2 re-applies them after
+reduction (316 of 9,785 runtime vertices change by more than 0.1). Same row 46 and
+resref `pmh0_robe046`, rebuilt under migration receipt v2, export compare as before
+(only the 8.2e-6 rad rest-rotation precision), offline worst stretch 7.7x (was
+20-24x in melee and raised arms) and walk penetration 7.6 cm (was 16.7 cm),
+client-compiled again and approved by the operator in the client (2026-10-06).
+Built from `configurations/package-workwear-r2.json` and the
+`fixture-workwear-final-r2.json` build; the HAK and module are byte-identical to
+the reviewed ones.
+
 ### Final pilot package
 
 `package/workwear-pilot-final/` (built by `package_trial.py` from
