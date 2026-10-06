@@ -15,6 +15,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_geometry import arrays
 from target_contract import PART_JOINTS, require
+from derived_review_configs import connector_vertex_distances
 
 CONNECTOR_PAIRS = [
     ("chest", "pelvis", "torso_g", "waist"),
@@ -143,18 +144,19 @@ def audit_connectors(
         in_ax_p = near_p[(near_p @ u_axis >= ol_start) & (near_p @ u_axis <= ol_end)]
         in_ax_c = near_c[(near_c @ u_axis >= ol_start) & (near_c @ u_axis <= ol_end)]
 
-        min_surface_dist = float("inf")
         pts_c = in_ax_c if (len(in_ax_c) > 0 and len(in_ax_p) > 0) else near_c
         pts_p = in_ax_p if (len(in_ax_c) > 0 and len(in_ax_p) > 0) else near_p
 
-        if len(pts_c) > 0 and len(pts_p) > 0:
-            for i in range(0, len(pts_c), 500):
-                chunk = pts_c[i:i + 500]
-                d = np.min(np.linalg.norm(chunk[:, None, :] - pts_p[None, :, :], axis=2))
-                if d < min_surface_dist:
-                    min_surface_dist = float(d)
+        distances = connector_vertex_distances(pts_p, pts_c)
+        min_surface_dist = distances["minimum"]
+        worst_surface_dist = distances["maximum"]
+        parent_cov = distances["parentCoverage"]
+        child_cov = distances["childCoverage"]
 
-        has_surface_proximity = bool(min_surface_dist < 0.005)
+        has_surface_proximity = bool(
+            worst_surface_dist < 0.015
+            or (min_surface_dist < 0.005 and parent_cov >= 0.20 and child_cov >= 0.10)
+        )
         has_axial_overlap = bool(axial_overlap > 0.005)
         passed = bool(has_3d_overlap and has_axial_overlap and has_surface_proximity)
 
@@ -173,7 +175,10 @@ def audit_connectors(
             "overlapSpanX": x_overlap,
             "overlapSpanY": y_overlap,
             "overlapVertexCount": overlap_vertex_count,
-            "minSurfaceDistanceMeters": min_surface_dist if min_surface_dist != float("inf") else None,
+            "minSurfaceDistanceMeters": min_surface_dist if np.isfinite(min_surface_dist) else None,
+            "maxSurfaceDistanceMeters": worst_surface_dist if np.isfinite(worst_surface_dist) else None,
+            "parentInterfaceCoverage": parent_cov,
+            "childInterfaceCoverage": child_cov,
             "hasSurfaceProximity": has_surface_proximity,
             "hasAxialOverlap": has_axial_overlap,
             "status": "passed" if passed else "failed-gap",

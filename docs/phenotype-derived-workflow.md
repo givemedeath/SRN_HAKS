@@ -226,8 +226,18 @@ if ($LASTEXITCODE) { throw "Stock-control staging failed; preserve its launch an
   -- tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --torso-inspection-sequence --camera-target dwarf_male_fit --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
 
 # 4. Preflight and run the bare torso module BEFORE the equipment rebuild:
-& $python tools/phenotypes/preflight_derived_dwarf_client.py
-& $python tools/phenotypes/run_derived_dwarf_client_test.py
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input $client --input-tree $stage `
+  -- tools/phenotypes/preflight_derived_dwarf_client.py
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input $client --input-tree $stage `
+  -- tools/phenotypes/run_derived_dwarf_client_test.py
 if ($LASTEXITCODE) { throw "Bare torso inspection failed; retain this module for diagnosis." }
 
 # 5. Build separate equipment-focused test module (focuses camera on full-armor actor):
@@ -243,8 +253,18 @@ if ($LASTEXITCODE) { throw "Bare torso inspection failed; retain this module for
   -- tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --camera-target dwarf_male_fit --camera-equipment-target --camera-pitch 75.0 --camera-distance 4.0 --camera-height 1.2 --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
 
 # 6. Preflight and run the equipment-focused module after its rebuild:
-& $python tools/phenotypes/preflight_derived_dwarf_client.py
-& $python tools/phenotypes/run_derived_dwarf_client_test.py --equipment-target
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input $client --input-tree $stage `
+  -- tools/phenotypes/preflight_derived_dwarf_client.py
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input $client --input-tree $stage `
+  -- tools/phenotypes/run_derived_dwarf_client_test.py --equipment-target
 if ($LASTEXITCODE) { throw "Equipment inspection failed; retain this module for diagnosis." }
 ```
 
