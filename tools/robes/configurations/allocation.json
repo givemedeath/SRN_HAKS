@@ -107,6 +107,10 @@
     "51": {
       "use": "neck check: row 48 with render-0 trimesh bone placeholders",
       "model": "pmh0_robe051"
+    },
+    "52": {
+      "use": "neck check: stock robe004 decompiled ASCII renamed only",
+      "model": "pmh0_robe052"
     }
   }
 }
