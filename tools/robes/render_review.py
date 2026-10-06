@@ -18,7 +18,7 @@ from mathutils import Vector
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "phenotypes"))
 from pose_preview_render_settings import apply_render_settings
-from robe_common import FLAGS, fresh_directory, pin, read, require, utc, write_fresh
+from robe_common import FLAGS, fresh_directory, pin, read, require, utc, verify_pins, write_fresh
 
 VIEWS = {"front": (0.0, 1.0, 0.0), "back": (0.0, -1.0, 0.0), "left": (-1.0, 0.0, 0.0), "right": (1.0, 0.0, 0.0),
          "threequarter": (0.62, 0.78, 0.0), "top": (0.0, 0.05, 1.0)}
@@ -51,18 +51,22 @@ def from_arrays(name, verts, faces):
 
 
 def load(spec, entry):
+    """Import one entry; returns its mesh objects and every file read (for input pinning)."""
     if "glb" in entry:
         before = set(bpy.data.objects)
         bpy.ops.import_scene.gltf(filepath=entry["glb"])
         objects = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
+        sources = [entry["glb"]]
     elif "npz" in entry:
         data = np.load(entry["npz"])
         objects = [from_arrays(entry["name"], data["verts"], data["faces"])]
+        sources = [entry["npz"]]
     else:
         from stock_body import Body
         body = Body(entry["stockBody"]["ascii"], entry["stockBody"].get("prefix", "pmh0"),
                     parts=[p for p in entry["stockBody"].get("parts", [])] or None)
         verts, faces, _ = body.posed()
+        sources = body.sources
         objects = [from_arrays(entry["name"], verts, faces)]
     mat = material(entry["name"], entry["color"]) if entry.get("color") else None
     for obj in objects:
@@ -73,7 +77,7 @@ def load(spec, entry):
             obj.data.materials.append(mat)
         for polygon in obj.data.polygons:
             polygon.use_smooth = entry.get("smooth", True)
-    return objects
+    return objects, sources
 
 
 def lights():
@@ -123,8 +127,7 @@ def main():
             for item in [i for i in collection if i.users == 0]:
                 collection.remove(item)
         for entry in entry_set["meshes"]:
-            load(spec, entry)
-            inputs += [pin(entry[k]) for k in ("glb", "npz") if k in entry]
+            inputs += [pin(path) for path in load(spec, entry)[1]]
         for view in spec.get("views", ["front", "left", "back", "threequarter"]):
             direction = Vector(VIEWS[view]).normalized()
             camera.location = centre + direction * 6.0
@@ -135,6 +138,7 @@ def main():
             require(path.is_file(), "Render missing: " + str(path))
             renders.append({"scene": entry_set["prefix"], "view": view, "image": pin(path),
                             "cameraLocation": list(camera.location), "cameraRotation": list(camera.rotation_euler)})
+    verify_pins(inputs)
     report = {"schemaVersion": 1, "kind": "srn-robe-review-render", "createdUtc": utc(), "spec": pin(args.spec),
               "inputs": inputs, "scenes": len(scenes),
               "renderSettings": settings, "cameraScale": camera_data.ortho_scale, "centre": list(centre),

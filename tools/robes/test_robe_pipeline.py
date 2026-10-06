@@ -133,7 +133,8 @@ class ComparisonTests(unittest.TestCase):
                               "sampledDeformation": {"maximumDisplacementError": 0.0014}}]}
         worst = measure([report])
         self.assertAlmostEqual(max(2 * worst["deformation"], BOUNDS["deformation"]), 0.0028)
-        for broken in (dict(report, missingNodes=["torso_g"]), dict(report, addedNodes=["extra_g"])):
+        dropped = dict(report, meshes=[dict(report["meshes"][0], faces=[12, 11])])
+        for broken in (dict(report, missingNodes=["torso_g"]), dict(report, addedNodes=["extra_g"]), dropped):
             with self.assertRaises(ValueError):
                 measure([broken])
 
@@ -203,6 +204,32 @@ class MeshyPolicyTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 session.reserve(dict(second, estimatedCredits=15), pin(request_file), None)
             self.assertEqual(session.committed(), 30)
+
+    def test_dispatch_records_then_refuses_inputs_changed_during_upload(self):
+        import meshy_robe
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as folder:
+            session = Session.create(Path(folder) / "session", 40, ["workwear"])
+            request = self.request(folder)
+            request_file = Path(folder) / "request.json"
+            request_file.write_text(json.dumps(request))
+            approval = Path(folder) / "approval.json"
+            approval.write_text(json.dumps({"kind": "srn-robe-reference-approval", "outfit": "workwear",
+                                            "request": {"sha256": meshy_robe.sha(request_file)}, "userInstruction": "go"}))
+            binding = Path(folder) / "binding.json"
+            binding.write_text("{}")
+
+            def upload_swaps_image(_binding, _arguments, out):
+                Path(request["payload"]["image_url"]).write_bytes(b"other")
+                response = Path(out) / "stdout.json"
+                response.write_text(json.dumps({"result": {"task_id": "t1"}}))
+                return 0, response
+
+            with mock.patch.object(meshy_robe, "invoke", upload_swaps_image):
+                with self.assertRaises(ValueError):
+                    meshy_robe.dispatch(session, request_file, binding, approval, Path(folder))
+            submitted = [e for e in session.events() if e["kind"] == "submitted"]
+            self.assertEqual([(e["taskId"], e["inputsUnchanged"]) for e in submitted], [("t1", False)])
 
 
 if __name__ == "__main__":

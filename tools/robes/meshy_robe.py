@@ -191,8 +191,15 @@ def dispatch(session, request_file, binding_file, approval_file, folder):
         code, response = invoke(binding, arguments, folder)
         identity = task_fields(_json(response))["id"] if code == 0 else None
         require(code == 0 and identity, "Submission uncertain; reconcile CLI journal before any retry")
+        try:  # an input replaced during upload means the paid task may not match the reserved hashes
+            verify_pins(request["inputs"])
+            unchanged = True
+        except ValueError:
+            unchanged = False
+        # The task is paid either way, so the submission is recorded before refusing to attribute it.
         session.append("submitted", requestId=request["requestId"], taskId=identity,
-                       resource=request["operation"], response=pin(response))
+                       resource=request["operation"], response=pin(response), inputsUnchanged=unchanged)
+        require(unchanged, "Inputs changed during submission; task " + identity + " cannot be attributed to the pinned request")
         return identity
     finally:
         lock.unlink()

@@ -13,7 +13,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from robe_common import FLAGS, fresh_directory, pin, read, require, sha, utc, write_fresh
+from robe_common import FLAGS, fresh_directory, pin, read, require, sha, utc, verify_pins, write_fresh
 from tool_runtime import tool as resolved_tool
 
 HIDE = ("HIDEFOOTR", "HIDEFOOTL", "HIDESHINR", "HIDESHINL", "HIDELEGR", "HIDELEGL", "HIDEPELVIS", "HIDECHEST",
@@ -320,9 +320,11 @@ def main():
     if module.exists():
         module.unlink()
     tool("nwn_erf", ["-c", "-f", module, "-e", "MOD", binary])
+    verify_pins(inputs)
     receipt = {"schemaVersion": 1, "kind": "srn-robe-fixture-build", "createdUtc": utc(), "inputs": inputs,
                "hak": pin(hak), "module": pin(module), "userDirectory": str(userdir),
                "hakResources": {p.name: sha(p) for p in sorted(resources.iterdir())},
+               "items": {p.name: sha(p) for p in sorted(binary.glob("*.uti"))},
                "partsRobeRows": {row: table[int(row)] for row in fixture["rows"]},
                "actors": [{"tag": f"sr_rt_a{i}", **a} for i, a in enumerate(fixture["actors"])],
                "motion": [family for family, _ in MOTION], "engineObserved": False, **FLAGS}

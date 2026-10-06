@@ -85,7 +85,10 @@ def main():
     hak, module = Path(receipt["hak"]["path"]), Path(receipt["module"]["path"])
     require(sha(hak) == receipt["hak"]["sha256"] and sha(module) == receipt["module"]["sha256"], "Fixture outputs changed since the build")
     item = staging / "binary" / f"sr_rt_r{row}.uti"
-    for source in (hak, module, item, staging / "hak-resources" / "parts_robe.2da"):
+    table = staging / "hak-resources" / "parts_robe.2da"
+    require(sha(item) == receipt.get("items", {}).get(item.name), "Robe item missing from or changed since the fixture receipt")
+    require(sha(table) == receipt["hakResources"]["parts_robe.2da"], "parts_robe.2da changed since the fixture build")
+    for source in (hak, module, item, table):
         shutil.copyfile(source, output / source.name)
     line = row_line(output / "parts_robe.2da", row)
     model_report = read(run_root / config["lineage"]["model"])
