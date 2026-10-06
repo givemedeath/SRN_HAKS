@@ -73,10 +73,15 @@ def stage(race: str = "dwarf", prefix: str = "pmd0"):
 
     # Stage retargeted rig root for Troll (pmg0.mdl)
     rig_root = REPO / f"output/phenotypes/derived-v1/rigs/{race}-male/{prefix}.mdl"
-    if race == "troll" and rig_root.is_file():
+    if race == "troll":
+        if not rig_root.is_file():
+            raise FileNotFoundError(
+                f"Required Troll retargeted rig root not found at {rig_root}. "
+                "Gate 1 rig derivation must be run before staging Troll models."
+            )
         shutil.copyfile(rig_root, ascii_dir / f"{prefix}.mdl")
 
-    expected_count = 15 if (ascii_dir / f"{prefix}.mdl").is_file() else 14
+    expected_count = 15 if race == "troll" or (ascii_dir / f"{prefix}.mdl").is_file() else 14
     staged_models = list(ascii_dir.glob("*.mdl"))
     if len(staged_models) != expected_count:
         if len(staged_models) != 14:

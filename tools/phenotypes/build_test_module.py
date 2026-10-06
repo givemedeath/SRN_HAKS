@@ -167,25 +167,39 @@ def validate_single_stock_part_inventory(converted, conversion):
 
 
 def stock_equipment_models(records, root, item):
-    """Allow game fallback only for proved stock-height male Human candidates."""
+    """Allow game fallback for proved stock-height male Human or stock-family candidate rigs."""
     from stage_equipment_item import ARMOR_PARTS
     if item.get('ArmorPart_Robe', {}).get('value', 0):
         raise RuntimeError('Stock rigid-equipment fixture cannot prove robe behavior')
     if not any(not record.get('fixtureControl') for record in records):
         raise RuntimeError('Stock equipment fixture has no candidate to validate')
+    prefixes = set()
     for record in records:
-        if record.get('fixtureControl'):continue
-        conversion=json.loads((root/record['slug']/'converted/conversion.json').read_text())
-        if (conversion.get('modelPrefix')!='pmh0'
-                or conversion.get('rigMode')!='stock-exact-game-fallback'
-                or conversion.get('stockOtherPartsFromGame') is not True
-                or not (0<conversion.get('height',0)<10
-                    and 0<conversion.get('stockReferenceHeight',-1)<10
-                    and abs(conversion['height']-conversion['stockReferenceHeight'])<=1e-7)):
+        if record.get('fixtureControl'):
+            continue
+        conversion = json.loads((root / record['slug'] / 'converted/conversion.json').read_text())
+        rig_mode = conversion.get('rigMode')
+        if rig_mode == 'stock-exact-game-fallback':
+            if (conversion.get('modelPrefix') != 'pmh0'
+                    or conversion.get('stockOtherPartsFromGame') is not True
+                    or not (0 < conversion.get('height', 0) < 10
+                        and 0 < conversion.get('stockReferenceHeight', -1) < 10
+                        and abs(conversion['height'] - conversion['stockReferenceHeight']) <= 1e-7)):
+                raise RuntimeError('Stock equipment fallback requires exact stock-height male Human rig')
+            prefixes.add('pmh0')
+        elif rig_mode == 'stock-family':
+            if (conversion.get('stockOtherPartsFromGame') is not True
+                    or not conversion.get('modelPrefix')):
+                raise RuntimeError('Stock equipment fallback requires stockOtherPartsFromGame and valid prefix')
+            prefixes.add(conversion['modelPrefix'])
+        else:
             raise RuntimeError('Stock equipment fallback requires exact stock-height male Human rig')
-    return sorted({'pmh0_'+part+f'{int(item["ArmorPart_"+key]["value"]):03}.mdl'
-        for key,part in ARMOR_PARTS.items() if 'ArmorPart_'+key in item
-        and int(item['ArmorPart_'+key]['value'])>1})
+    models = set()
+    for pfx in prefixes:
+        models.update({pfx + '_' + part + f'{int(item["ArmorPart_" + key]["value"]):03}.mdl'
+            for key, part in ARMOR_PARTS.items() if 'ArmorPart_' + key in item
+            and int(item['ArmorPart_' + key]['value']) > 1})
+    return sorted(models)
 
 
 def main():

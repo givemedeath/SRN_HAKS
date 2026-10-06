@@ -180,6 +180,14 @@ def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path
     data_lines = [l for l in lines if re.match(r"^\s*\d+\s", l)]
     cols = header_lines[-1].split()
 
+    if not cols:
+        raise RuntimeError(f"Missing or invalid 2DA header columns in appearance.2da at {out_app}")
+
+    required_scale_cols = ["HEIGHT", "SIZECATEGORY", "WEAPONSCALE", "WALKDIST", "RUNDIST"]
+    missing_cols = [c for c in required_scale_cols if c not in cols]
+    if missing_cols:
+        raise RuntimeError(f"Missing required scale columns {missing_cols} in appearance.2da at {out_app}")
+
     row_2_idx = None
     for idx, dl in enumerate(data_lines):
         parts = dl.split()
@@ -187,35 +195,35 @@ def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path
             row_2_idx = idx
             break
 
-    if row_2_idx is not None:
-        parts = data_lines[row_2_idx].split()
-        row_id = parts[0]
-        row_vals = list(parts[1:])
-        col_patches = {
-            "LABEL": "Troll",
-            "HEIGHT": "2.7627",
-            "SIZECATEGORY": "4",
-            "WEAPONSCALE": f"{1.0 * runtime_scale:.5f}",
-            "WING_TAIL_SCALE": f"{1.0 * runtime_scale:.5f}",
-            "HELMET_SCALE_M": f"{0.9 * runtime_scale:.5f}",
-            "HELMET_SCALE_F": f"{0.82 * runtime_scale:.5f}",
-            "WALKDIST": f"{1.0 * runtime_scale:.5f}",
-            "RUNDIST": f"{1.94 * runtime_scale:.5f}",
-            "CREPERSPACE": f"{0.4 * runtime_scale:.5f}",
-            "PREFATCKDIST": f"{1.3 * runtime_scale:.5f}",
-        }
-        for col_name, val in col_patches.items():
-            if col_name in cols:
-                row_vals[cols.index(col_name)] = val
+    if row_2_idx is None:
+        raise RuntimeError(f"Failed to find Gnome appearance row (row 2) in {out_app}; cannot apply Troll runtime scale")
 
-        data_lines[row_2_idx] = f"{row_id:<6}" + " ".join(f"{v:<12}" for v in row_vals)
-        new_app_text = "\n".join(header_lines) + "\n" + "\n".join(data_lines) + "\n"
-        out_app.write_text(new_app_text, encoding="cp1252")
-        patched_hash = hashlib.sha256(out_app.read_bytes()).hexdigest()
-        print(f"Patched Gnome row (row 2) with Troll runtime scale ({runtime_scale:.6f}) in {out_app} (sha256={patched_hash})")
-        return patched_hash
+    parts = data_lines[row_2_idx].split()
+    row_id = parts[0]
+    row_vals = list(parts[1:])
+    col_patches = {
+        "LABEL": "Troll",
+        "HEIGHT": "2.7627",
+        "SIZECATEGORY": "4",
+        "WEAPONSCALE": f"{1.0 * runtime_scale:.5f}",
+        "WING_TAIL_SCALE": f"{1.0 * runtime_scale:.5f}",
+        "HELMET_SCALE_M": f"{0.9 * runtime_scale:.5f}",
+        "HELMET_SCALE_F": f"{0.82 * runtime_scale:.5f}",
+        "WALKDIST": f"{1.0 * runtime_scale:.5f}",
+        "RUNDIST": f"{1.94 * runtime_scale:.5f}",
+        "CREPERSPACE": f"{0.4 * runtime_scale:.5f}",
+        "PREFATCKDIST": f"{1.3 * runtime_scale:.5f}",
+    }
+    for col_name, val in col_patches.items():
+        if col_name in cols:
+            row_vals[cols.index(col_name)] = val
 
-    return hashlib.sha256(out_app.read_bytes()).hexdigest()
+    data_lines[row_2_idx] = f"{row_id:<6}" + " ".join(f"{v:<12}" for v in row_vals)
+    new_app_text = "\n".join(header_lines) + "\n" + "\n".join(data_lines) + "\n"
+    out_app.write_text(new_app_text, encoding="cp1252")
+    patched_hash = hashlib.sha256(out_app.read_bytes()).hexdigest()
+    print(f"Patched Gnome row (row 2) with Troll runtime scale ({runtime_scale:.6f}) in {out_app} (sha256={patched_hash})")
+    return patched_hash
 
 
 def main():

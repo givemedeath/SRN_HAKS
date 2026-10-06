@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import time
 import sys
@@ -128,6 +129,42 @@ def get_process_metrics(pid: int) -> dict | None:
         return None
     finally:
         ctypes.windll.kernel32.CloseHandle(handle)
+
+
+def scan_log_for_errors(log_path: Path) -> list[str]:
+    """Scan client or engine log for relevant runtime errors.
+
+    Detects model-loading failures, missing resource/texture/file errors,
+    script runtime errors, fatal errors, and assertion failures, while
+    allowing benign notices (such as non-fatal empty field label in MODULE.ifo).
+    """
+    if not log_path.is_file():
+        return []
+
+    error_patterns = [
+        re.compile(r"\b(?:error|fatal|crash|assertion failed)\b", re.IGNORECASE),
+        re.compile(r"\b(?:model|texture|resource)\b.*?\b(?:not found|failed to load|cannot find|missing)\b", re.IGNORECASE),
+        re.compile(r"\b(?:failed to load|missing)\b.*?\b(?:model|texture|resource)\b", re.IGNORECASE),
+        re.compile(r"\bscript\b.*?\b(?:error|failed)\b", re.IGNORECASE),
+        re.compile(r"\bRuntime Error:\b", re.IGNORECASE),
+    ]
+    ignorable_patterns = [
+        re.compile(r"empty field label in module\.ifo", re.IGNORECASE),
+        re.compile(r"nonfatal", re.IGNORECASE),
+    ]
+
+    detected = []
+    text = log_path.read_text(encoding="utf-8", errors="replace")
+    for line_num, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if any(ign.search(stripped) for ign in ignorable_patterns):
+            continue
+        if any(pat.search(stripped) for pat in error_patterns):
+            detected.append(f"[{log_path.name}:{line_num}] {stripped}")
+
+    return detected
 
 
 def check_no_nwmain():
@@ -263,15 +300,17 @@ def run_client_test(max_duration: float = 160.0, race: str = "dwarf", prefix: st
             if "PHENOTYPE_" in line:
                 filtered_lines.append(line)
 
+
     filtered_log_file = review_dir / f"run-{pid}-phenotype.log"
     filtered_log_file.write_text("\n".join(filtered_lines) + "\n", encoding="utf-8")
     print(f"Extracted {len(filtered_lines)} phenotype log lines to {filtered_log_file}")
 
     source_logs = {}
-    if client_log_path.exists():
-        source_logs[str(client_log_path)] = sha256_file(client_log_path)
-    if engine_log_path.exists():
-        source_logs[str(engine_log_path)] = sha256_file(engine_log_path)
+    detected_errors = []
+    for log_p in [client_log_path, engine_log_path]:
+        if log_p.exists():
+            source_logs[str(log_p)] = sha256_file(log_p)
+            detected_errors.extend(scan_log_for_errors(log_p))
 
     evidence = {
         "schemaVersion": 1,
@@ -291,6 +330,8 @@ def run_client_test(max_duration: float = 160.0, race: str = "dwarf", prefix: st
         "runtimeMetrics": last_metrics,
         "runtimeMetricsSha256": sha256_file(metrics_file),
         "sourceLogs": source_logs,
+        "runtimeLogErrors": detected_errors,
+        "cleanLogsVerified": len(detected_errors) == 0,
         "filteredPhenotypeLog": str(filtered_log_file),
         "filteredPhenotypeLogSha256": sha256_file(filtered_log_file),
         "sampleCount": len(runtime_samples)
@@ -310,6 +351,12 @@ def run_client_test(max_duration: float = 160.0, race: str = "dwarf", prefix: st
         raise RuntimeError(
             f"Client test incomplete for {race}: sequenceComplete={sequence_complete}, "
             f"missing required phases: {sorted(missing_phases)}"
+        )
+
+    if detected_errors:
+        err_sample = "\n  ".join(detected_errors[:10])
+        raise RuntimeError(
+            f"Client test rejected for {race}: detected {len(detected_errors)} runtime error(s) in logs:\n  {err_sample}"
         )
 
     return evidence

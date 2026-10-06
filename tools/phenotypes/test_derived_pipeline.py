@@ -866,8 +866,14 @@ class DecompileBinaryMdlTests(unittest.TestCase):
 class TrollRootStagingAndScaleTests(unittest.TestCase):
     def test_stage_troll_enforces_15_models_with_root(self):
         source = Path(__file__).resolve().parent.joinpath("stage_derived_dwarf.py").read_text(encoding="utf-8")
-        self.assertIn('expected_count = 15 if (ascii_dir / f"{prefix}.mdl").is_file() else 14', source)
+        self.assertIn('expected_count = 15 if race == "troll" or (ascii_dir / f"{prefix}.mdl").is_file() else 14', source)
         self.assertIn('rig_root = REPO / f"output/phenotypes/derived-v1/rigs/{race}-male/{prefix}.mdl"', source)
+
+    def test_stage_troll_requires_rig_root(self):
+        from stage_derived_dwarf import stage
+        with unittest.mock.patch("stage_derived_dwarf.REPO", Path("C:/nonexistent/repo")):
+            with self.assertRaises(FileNotFoundError):
+                stage(race="troll", prefix="pmg0")
 
     def test_troll_fixture_patches_appearance_scale(self):
         from build_derived_troll_fixture import stage_fixture_resources
@@ -902,7 +908,126 @@ class TrollRootStagingAndScaleTests(unittest.TestCase):
             self.assertAlmostEqual(float(row_2[cols.index("WEAPONSCALE") + 1]), 1.42857, places=4)
             self.assertEqual(app_hash, hashlib.sha256((stage_dir / "fixture-resources/appearance.2da").read_bytes()).hexdigest())
 
+    def test_troll_appearance_patch_missing_row_fails(self):
+        from build_derived_troll_fixture import stage_fixture_resources
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            stage_dir = tmp / "stage"
+            userdir = tmp / "userdir"
+            stage_dir.mkdir(parents=True)
+            userdir.mkdir(parents=True)
+
+            app_path = tmp / "no_gnome_appearance.2da"
+            headers = "LABEL STRING_REF HEIGHT SIZECATEGORY WEAPONSCALE WALKDIST RUNDIST"
+            lines = [
+                "2DA V2.0",
+                "      " + headers,
+                "0     Dwarf  1985 1.5  3 1.0 1.06 2.12",
+                "1     Elf    1986 1.75 3 1.0 1.43 2.86",
+            ]
+            app_path.write_text("\n".join(lines) + "\n", encoding="cp1252")
+
+            with self.assertRaises(RuntimeError):
+                stage_fixture_resources(stage_dir, userdir, appearance_path=app_path)
+
+    def test_troll_appearance_patch_missing_scale_cols_fails(self):
+        from build_derived_troll_fixture import stage_fixture_resources
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            stage_dir = tmp / "stage"
+            userdir = tmp / "userdir"
+            stage_dir.mkdir(parents=True)
+            userdir.mkdir(parents=True)
+
+            app_path = tmp / "bad_headers_appearance.2da"
+            headers = "LABEL STRING_REF OTHER_COL"
+            lines = [
+                "2DA V2.0",
+                "      " + headers,
+                "0     Dwarf  1985 val",
+                "2     Gnome  1987 val",
+            ]
+            app_path.write_text("\n".join(lines) + "\n", encoding="cp1252")
+
+            with self.assertRaises(RuntimeError):
+                stage_fixture_resources(stage_dir, userdir, appearance_path=app_path)
+
+
+class ClientLogScanTests(unittest.TestCase):
+    def test_scan_log_detects_errors(self):
+        from run_derived_dwarf_client_test import scan_log_for_errors
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_p = Path(tmpdir) / "test_client.log"
+            log_p.write_text(
+                "Loading area...\n"
+                "Empty field label in MODULE.ifo\n"
+                "Model pmd0_chest001 not found\n"
+                "Spawn complete\n"
+                "Runtime Error: script failure\n",
+                encoding="utf-8"
+            )
+            errors = scan_log_for_errors(log_p)
+            self.assertEqual(len(errors), 2)
+            self.assertTrue(any("not found" in e for e in errors))
+            self.assertTrue(any("Runtime Error" in e for e in errors))
+
+    def test_scan_log_clean_when_only_benign_notices(self):
+        from run_derived_dwarf_client_test import scan_log_for_errors
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_p = Path(tmpdir) / "clean_engine.log"
+            log_p.write_text(
+                "Initializing engine...\n"
+                "Empty field label in MODULE.ifo\n"
+                "Nonfatal notice\n"
+                "Sequence finished successfully\n",
+                encoding="utf-8"
+            )
+            errors = scan_log_for_errors(log_p)
+            self.assertEqual(errors, [])
+
+
+class SilhouetteRearViewHalvesTests(unittest.TestCase):
+    def test_rear_view_halves_assignment_in_source(self):
+        source = Path(__file__).resolve().parent.joinpath("calculate_silhouette_difference.py").read_text(encoding="utf-8")
+        self.assertIn("d_elf_r = fg_er[:, :1200]", source)
+        self.assertIn("s_elf_r = fg_er[:, 1200:]", source)
+        self.assertIn("d_orc_r = fg_or[:, :1200]", source)
+        self.assertIn("s_orc_r = fg_or[:, 1200:]", source)
+
+        sheet_source = Path(__file__).resolve().parent.joinpath("build_silhouette_comparison_sheet.py").read_text(encoding="utf-8")
+        self.assertIn("stock_elf_rear_mask = fg_err[:, 1200:]", sheet_source)
+        self.assertIn("derived_elf_rear_mask = fg_err[:, :1200]", sheet_source)
+        self.assertIn("stock_orc_rear_mask = fg_orr[:, 1200:]", sheet_source)
+        self.assertIn("derived_orc_rear_mask = fg_orr[:, :1200]", sheet_source)
+
+
+class StockFamilyEquipmentFallbackTests(unittest.TestCase):
+    def test_stock_family_fallback_resolves_prefix_models(self):
+        from build_test_module import stock_equipment_models
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            converted = root / "dwarf_fit/converted"
+            converted.mkdir(parents=True)
+            conversion = {
+                "modelPrefix": "pmd0",
+                "rigMode": "stock-family",
+                "stockOtherPartsFromGame": True,
+                "height": 1.4864,
+                "stockReferenceHeight": 1.473
+            }
+            (converted / "conversion.json").write_text(json.dumps(conversion), encoding="utf-8")
+            records = [{"slug": "dwarf_fit"}, {"slug": "stock_dwarf", "fixtureControl": True}]
+            item = {
+                "ArmorPart_Torso": {"value": 16},
+                "ArmorPart_Pelvis": {"value": 1},
+                "ArmorPart_LThigh": {"value": 4},
+                "ArmorPart_Robe": {"value": 0}
+            }
+            models = stock_equipment_models(records, root, item)
+            self.assertEqual(models, ["pmd0_chest016.mdl", "pmd0_legl004.mdl"])
+
 
 if __name__ == "__main__":
     unittest.main()
+
 

@@ -433,8 +433,8 @@ def main():
 
         im_er = load_image(REPO_ROOT / "output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_rear.png")
         fg_er = np.any(np.abs(np.array(im_er)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
-        d_elf_r = fg_er[:, 1200:]
-        s_elf_r = fg_er[:, :1200]
+        d_elf_r = fg_er[:, :1200]
+        s_elf_r = fg_er[:, 1200:]
 
         results["elf_male"] = {
             "front": {
@@ -482,8 +482,8 @@ def main():
         arr_or = np.array(im_or)
         bg_or = arr_or[10, 10, :3].astype(int)
         fg_or = np.any(np.abs(arr_or[:, :, :3].astype(int) - bg_or) > 25, axis=2)
-        d_orc_r = fg_or[:, 1200:]
-        s_orc_r = fg_or[:, :1200]
+        d_orc_r = fg_or[:, :1200]
+        s_orc_r = fg_or[:, 1200:]
 
         results["orc_male"] = {
             "front": {
