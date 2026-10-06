@@ -147,6 +147,14 @@ class ComparisonTests(unittest.TestCase):
         self.assertIn("structure", str(verdict(report, tolerances)))
         self.assertNotIn("structure", str(verdict(dict(report, addedNodes=[]), tolerances)))
 
+    def test_review_measures_rank_compression_and_collapse(self):
+        from deformation_review import measures
+        calm = {"penetration": {"deepest": 0.0}, "stretch": {"maximum": 1.0}, "compression": {"minimum": 0.9},
+                "collapse": {"flagged": 0}}
+        crushed = dict(calm, compression={"minimum": 0.2}, collapse={"flagged": 5})
+        self.assertGreater(measures(crushed)["compression"], measures(calm)["compression"])
+        self.assertGreater(measures(crushed)["collapse"], measures(calm)["collapse"])
+
     def test_donor_cache_key_tracks_inputs_and_samples(self):
         class Stub:
             pass

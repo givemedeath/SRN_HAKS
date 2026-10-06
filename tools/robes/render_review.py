@@ -50,6 +50,20 @@ def from_arrays(name, verts, faces):
     return obj
 
 
+def entry_sources(entry):
+    """Every file load() will read for one entry, resolvable before anything is read."""
+    if "glb" in entry:
+        return [Path(entry["glb"])]
+    if "npz" in entry:
+        return [Path(entry["npz"])]
+    from stock_body import ATTACH
+    stock = entry["stockBody"]
+    directory, prefix = Path(stock["ascii"]), stock.get("prefix", "pmh0")
+    parts = [p for p in ATTACH if not stock.get("parts") or p in stock["parts"]]
+    return [directory / (prefix + ".mdl")] + [path for path in (directory / f"{prefix}_{p}001.mdl" for p in parts)
+                                               if path.is_file()]
+
+
 def load(spec, entry):
     """Import one entry; returns its mesh objects and every file read (for input pinning)."""
     if "glb" in entry:
@@ -127,7 +141,10 @@ def main():
             for item in [i for i in collection if i.users == 0]:
                 collection.remove(item)
         for entry in entry_set["meshes"]:
-            inputs += [pin(path) for path in load(spec, entry)[1]]
+            pinned = [pin(path) for path in entry_sources(entry)]  # hashed before the files are read
+            read_paths = {str(Path(path).resolve()) for path in load(spec, entry)[1]}
+            require(read_paths <= {p["path"] for p in pinned}, "Render entry read an unpinned file")
+            inputs += pinned
         for view in spec.get("views", ["front", "left", "back", "threequarter"]):
             direction = Vector(VIEWS[view]).normalized()
             camera.location = centre + direction * 6.0

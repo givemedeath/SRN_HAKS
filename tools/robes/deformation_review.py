@@ -63,6 +63,12 @@ def penetration(points, body_verts, body_faces):
             "fraction": float((signed < 0).mean()), "flagged": int((signed < -FLAG["penetration"]).sum())}
 
 
+def measures(row):
+    """Per-measure severity of one sample (larger is worse); each one's worst sample is saved per family."""
+    return {"penetration": row["penetration"]["deepest"], "stretch": row["stretch"]["maximum"],
+            "compression": -row["compression"]["minimum"], "collapse": float(row["collapse"]["flagged"])}
+
+
 def donor_cache_key(donor, body, samples):
     """Identity of the stock-donor baseline: donor and chain bytes, body parts, samples and the computing code."""
     files = sorted({str(donor.path)} | {str(Path(body.directory) / (name + ".mdl")) for name in donor.chain} |
@@ -159,11 +165,11 @@ def main():
                "donorPenetration": donor_rows[index]}
         rows.append(row)
         # Keep geometry only for samples that can still be saved: the bind sample, the first idle
-        # sample and the current worst sample of each family.
-        score = row["penetration"]["deepest"] + max(0.0, row["stretch"]["maximum"] - 1) * 0.05
-        best = families.get(row["family"])
-        if best is None or score > best[0]:
-            families[row["family"]] = (score, index)
+        # sample and, per family, the current worst sample of every measure.
+        for measure, score in measures(row).items():
+            best = families.get((row["family"], measure))
+            if best is None or score > best[0]:
+                families[(row["family"], measure)] = (score, index)
         if pause_index is None and sample["clip"] == "pause1":
             pause_index = index
         needed = {0, 0 if pause_index is None else pause_index, *[i for _, i in families.values()]}
@@ -182,12 +188,15 @@ def main():
         np.savez_compressed(geometry / f"s{index:03d}-donor.npz", verts=dv, faces=df)
         np.savez_compressed(geometry / f"s{index:03d}-body.npz", verts=bv, faces=bf)
     verify_pins(inputs)
-    worst = {name: {"sample": index, "clip": rows[index]["clip"], "time": rows[index]["time"],
-                    "penetrationDeepest": rows[index]["penetration"]["deepest"],
-                    "donorPenetrationDeepest": rows[index]["donorPenetration"]["deepest"],
-                    "stretchMaximum": rows[index]["stretch"]["maximum"],
-                    "compressionMinimum": rows[index]["compression"]["minimum"]}
-             for name, (_, index) in families.items()}
+    worst = {}
+    for (name, measure), (_, index) in sorted(families.items()):
+        worst.setdefault(name, {})[measure] = {
+            "sample": index, "clip": rows[index]["clip"], "time": rows[index]["time"],
+            "penetrationDeepest": rows[index]["penetration"]["deepest"],
+            "donorPenetrationDeepest": rows[index]["donorPenetration"]["deepest"],
+            "stretchMaximum": rows[index]["stretch"]["maximum"],
+            "compressionMinimum": rows[index]["compression"]["minimum"],
+            "collapseFlagged": rows[index]["collapse"]["flagged"]}
     report = {"schemaVersion": 1, "kind": "srn-robe-deformation-review", "createdUtc": utc(), "inputs": inputs,
               "candidate": Path(args.candidate).stem, "donor": args.donor, "bodyChain": chain,
               "donorBaseline": {"key": donor_key, "reusedFromCache": donor_reused,

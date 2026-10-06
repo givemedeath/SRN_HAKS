@@ -233,6 +233,7 @@ def collect(session, request_id, binding_file, folder, bank):
     code, _ = invoke(read(binding_file), ["download", "--task-json", settled["task"]["path"], "--all",
                                           "--output-dir", str(bank)], folder)
     require(code == 0 and bank.exists(), "Download incomplete; keep partial output and reconcile")
+    verify_pins([settled["task"]])  # the CLI read this task record during the download
     files = [pin(path) for path in sorted(bank.rglob("*")) if path.is_file()]
     require(any(Path(item["path"]).suffix.lower() == ".glb" for item in files), "GLB master missing")
     write_fresh(bank.parent / (bank.name + "-collection.json"), {"kind": "srn-robe-meshy-collection",

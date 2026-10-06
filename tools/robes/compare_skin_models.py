@@ -95,6 +95,11 @@ def compare_mesh(left_rig, right_rig, left, right, samples, index_tolerance=1e-4
                          for f in range(len(right_tri))])
         chosen = np.arange(len(right_tri))
         row["maximumFaceCentroidError"] = float(face_gap.max())
+        # Exported-to-reference pairing is many-to-one; also require every reference face to be covered,
+        # so a duplicated triangle cannot hide an omitted one.
+        _, coverage_gap = (np.arange(len(left_tri)), face_gap) if ordered else \
+            nearest(right_tri.mean(axis=1), left_tri.mean(axis=1))
+        row["maximumReferenceFaceGap"] = float(coverage_gap.max())
         row["maximumCornerPositionError"] = float(position_error[chosen, best].max())
         if lu is not None and ru is not None:
             row["maximumUvError"] = float(uv_error[chosen, best].max())
@@ -171,7 +176,8 @@ def verdict(report, tolerances):
             failures.append(f"{mesh['node']}: face count")
         if mesh.get("smoothingEdgeMismatches", 0) > tolerances.get("smoothingEdges", 0):
             failures.append(f"{mesh['node']}: smoothing edges")
-        if mesh.get("maximumFaceCentroidError", 0) > tolerances["position"]:
+        if mesh.get("maximumFaceCentroidError", 0) > tolerances["position"] or \
+                mesh.get("maximumReferenceFaceGap", 0) > tolerances["position"]:
             failures.append(f"{mesh['node']}: face pairing")
         if str(mesh["bitmap"][0]).lower() != str(mesh["bitmap"][1]).lower():
             failures.append(f"{mesh['node']}: bitmap")
