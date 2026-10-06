@@ -123,7 +123,7 @@ def main():
     scale, offset = fit_math.similarity(raw_marks, targets)
     aligned = scale * oriented + offset
     marks = fit_math.apply_similarity(raw_marks, scale, offset)
-    joints = fit_math.outfit_joints(marks, targets, aligned)
+    joints = fit_math.outfit_joints(marks, targets, aligned, straight_arms=fit.get("straightArms", False))
     transforms = fit_math.proxy_transforms(joints, targets)
     labels, soft, seed_counts = fit_math.segment_labels(aligned[first], rows, cols, joints, marks, blends)
     corrections = config.get("corrections", {})

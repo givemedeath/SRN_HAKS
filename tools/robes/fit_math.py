@@ -155,7 +155,7 @@ def apply_similarity(marks, scale, offset):
     return out
 
 
-def outfit_joints(marks, targets, verts):
+def outfit_joints(marks, targets, verts, straight_arms=False):
     joints = {}
     ratio = (marks["crotch"] - marks["floor"]) / (targets["crotch"] - targets["floor"])
     for side in SIDES:
@@ -189,6 +189,10 @@ def outfit_joints(marks, targets, verts):
         segment = min(int(np.searchsorted(lengths, goal)), len(path) - 1)
         fraction = (goal - lengths[segment - 1]) / max(lengths[segment] - lengths[segment - 1], 1e-9)
         elbow = path[segment - 1] + fraction * (path[segment] - path[segment - 1])
+        if straight_arms:
+            # A straight A-pose arm: keep the elbow on the shoulder-wrist line. Slice centres bend
+            # around rolled cuffs and pockets, which put a 30-40 degree kink into the rest arm.
+            elbow = shoulder + upper / (upper + lower) * (wrist - shoulder)
         joints.update({"shoulder" + side: shoulder, "elbow" + side: elbow, "wrist" + side: wrist,
                        "fingertip" + side: arm["fingertip"],
                        "shoulderOffsetFromStock" + side: float(np.linalg.norm(shoulder - stock_shoulder))})
