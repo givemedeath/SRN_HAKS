@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-fixture",
+  "title": "Robe hang check A (stock)",
+  "module": "srn_rthang_a",
+  "hak": "srn_rthang_a",
+  "area": "sr_rt_floor",
+  "partsRobe": "stock/raw/parts_robe.2da",
+  "templates": {
+    "creature": "nw_humanmerc001",
+    "armor": "nw_cloth001"
+  },
+  "rows": {
+    "10": {
+      "resref": "pmh0_robe010",
+      "sourceName": "pmh0_robe004",
+      "hide": "stock:4",
+      "model": "control/roundtrip-robe004-v1/exported/pmh0_robe004.mdl"
+    }
+  },
+  "resources": [],
+  "rowLabels": {
+    "4": "Stock robe 004",
+    "10": "Control robe 004 round-trip",
+    "11": "Workwear auto-v1",
+    "12": "Workwear corrected-v1",
+    "17": "Workwear corrected-v2"
+  },
+  "actors": [
+    {
+      "label": "Stock robe 004",
+      "row": 4,
+      "skin": 3
+    },
+    {
+      "label": "Control round-trip 010",
+      "row": 10,
+      "skin": 3
+    }
+  ],
+  "purpose": "Isolate the client stall observed at the re-equip step of fixture-workwear (2026-10-06)."
+}

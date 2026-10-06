@@ -1,6 +1,272 @@
 {
   "schemaVersion": 1,
   "dependencies": {
+    "tools/gallery/build_gallery.py": [
+      "tools/gallery/catalog.py",
+      "tools/gallery/gff.py",
+      "tools/gallery/inspection_tileset.py",
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/gallery/catalog.py": [],
+    "tools/gallery/gff.py": [],
+    "tools/gallery/inspection_tileset.py": [],
+    "tools/gallery/test_gallery.py": [
+      "tools/gallery/build_gallery.py",
+      "tools/gallery/catalog.py",
+      "tools/gallery/gff.py",
+      "tools/gallery/inspection_tileset.py"
+    ],
+    "tools/heads/audit_fixture_rig.py": [
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/heads/audit_native_head.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/native_reader.py",
+      "tools/heads/verify_retexture.py"
+    ],
+    "tools/heads/audit_neck_closure.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/audit_neck_connector.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/prepare_effective_body_preview.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py"
+    ],
+    "tools/heads/audit_neck_revision.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_retexture.py"
+    ],
+    "tools/heads/audit_slots.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/bind_target.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/build_head_fixture.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/phenotypes/build_test_module.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/heads/cap_head_holes.py": [
+      "tools/heads/correct_neck_rim.py",
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/collect_fixture_inputs.py": [
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/heads/collect_head_family.py": [
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/heads/correct_neck_rim.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/export_review_evidence.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/finalize_head_migration.py": [
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/comfy_nodes/srn_orthographic_multiview/__init__.py",
+      "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py"
+    ],
+    "tools/heads/fit_head.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/head_export.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/head_workflow.py": [
+      "tools/heads/audit_slots.py",
+      "tools/heads/verify_head_hak.py"
+    ],
+    "tools/heads/import_derived_body.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/inspect_head.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/make_review_sheet.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/meshy_cli.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/native_reader.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/prepare_assembly.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/native_reader.py",
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/prepare_effective_body_preview.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py",
+      "tools/phenotypes/stock_limb_contract.py"
+    ],
+    "tools/heads/prepare_derived_target.py": [
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py"
+    ],
+    "tools/heads/prepare_fixture_rig.py": [
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/retarget.py"
+    ],
+    "tools/heads/prepare_human_target.py": [
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/prepare_effective_body_preview.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_controller_audit.py"
+    ],
+    "tools/heads/prepare_materials.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/prepare_meshy_input.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/prepare_palette_assembly.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/prepare_runtime_head.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/prepare_runtime_lod.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/prepare_stock_head_control.py": [
+      "tools/heads/correct_neck_rim.py",
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/prepare_effective_body_preview.py"
+    ],
+    "tools/heads/propose_landmarks.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/phenotypes/prepare_effective_body_preview.py"
+    ],
+    "tools/heads/propose_material_masks.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/publish_head_pack.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/render_assembly.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/render_donor.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/retopologize_head.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/smoke_head_tools.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/test_atlas_allowance.py": [
+      "tools/heads/correct_neck_rim.py",
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_texture_transfer.py"
+    ],
+    "tools/heads/test_budget_extension.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/roster.json"
+    ],
+    "tools/heads/test_derived_assembly.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/prepare_assembly.py"
+    ],
+    "tools/heads/test_derived_body_import.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/import_derived_body.py"
+    ],
+    "tools/heads/test_fixture_identity.py": [
+      "tools/heads/build_head_fixture.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/test_fixture_rig.py": [
+      "tools/heads/audit_fixture_rig.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/prepare_fixture_rig.py",
+      "tools/phenotypes/derived_profiles.py",
+      "tools/phenotypes/retarget.py"
+    ],
+    "tools/heads/test_geometry_guards.py": [
+      "tools/heads/audit_neck_revision.py",
+      "tools/heads/correct_neck_rim.py",
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/native_reader.py",
+      "tools/heads/verify_retexture.py",
+      "tools/heads/verify_texture_transfer.py"
+    ],
+    "tools/heads/test_head_holes.py": [
+      "tools/heads/cap_head_holes.py"
+    ],
+    "tools/heads/test_head_pipeline.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/roster.json",
+      "tools/heads/verify_head_hak.py"
+    ],
+    "tools/heads/test_meshy_dispatch.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/meshy_cli.py",
+      "tools/heads/test_head_pipeline.py"
+    ],
+    "tools/heads/test_microface_materials.py": [
+      "tools/heads/propose_material_masks.py"
+    ],
+    "tools/heads/test_palette_sampling.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/prepare_palette_assembly.py",
+      "tools/heads/propose_material_masks.py"
+    ],
+    "tools/heads/test_submission_reconciliation.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/meshy_cli.py",
+      "tools/heads/roster.json"
+    ],
+    "tools/heads/test_target_and_publication.py": [
+      "tools/heads/audit_slots.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/publish_head_pack.py",
+      "tools/heads/roster.json",
+      "tools/heads/verify_head_hak.py"
+    ],
+    "tools/heads/verify_head_hak.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/verify_retexture.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/verify_texture_transfer.py": [
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py"
+    ],
     "tools/phenotypes/adjust_pelvis_skin_plt.py": [],
     "tools/phenotypes/armory_body_profile.py": [
       "tools/phenotypes/audit_geometry.py",
@@ -21,6 +287,7 @@
     "tools/phenotypes/audit_derived_connectors.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/derived_review_configs.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/audit_derived_dwarf_native.py": [],
@@ -298,7 +565,8 @@
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/pack_purpose_built_cap_atlas.py": [
-      "tools/phenotypes/round_generated_waist_cap.py"
+      "tools/phenotypes/round_generated_waist_cap.py",
+      "tools/robes/configurations/allocation.json"
     ],
     "tools/phenotypes/pipeline.py": [
       "tools/phenotypes/height_targets.json"
@@ -717,6 +985,187 @@
     "tools/phenotypes/verify_published_body.py": [
       "tools/phenotypes/audit_pelvis_package.py"
     ],
+    "tools/robes/apose_skeleton.py": [
+      "tools/robes/build_robe_model.py",
+      "tools/robes/fit_math.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/blender_io.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/blender_roundtrip.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/build_robe_fixture.py": [
+      "tools/phenotypes/tool_runtime.py",
+      "tools/robes/parts_robe.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/build_robe_model.py": [
+      "tools/robes/fit_math.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/compare_skin_models.py": [
+      "tools/robes/lbs.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/contact_sheet.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/deformation_review.py": [
+      "tools/robes/lbs.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/extract_stock_robes.py": [
+      "tools/phenotypes/tool_runtime.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/finalize_robe_migration.py": [
+      "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/comfy_nodes/srn_orthographic_multiview/__init__.py",
+      "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/fit_math.py": [
+      "tools/robes/mesh_ops.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/fit_outfit.py": [
+      "tools/robes/blender_io.py",
+      "tools/robes/fit_math.py",
+      "tools/robes/mesh_ops.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/freeze_tolerances.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/inspect_source.py": [
+      "tools/robes/blender_io.py",
+      "tools/robes/mesh_ops.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/inventory_stock_robes.py": [
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/parts_robe.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py"
+    ],
+    "tools/robes/lbs.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_pose_audit.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/mdl_ascii.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py"
+    ],
+    "tools/robes/mesh_ops.py": [],
+    "tools/robes/meshy_robe.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/package_trial.py": [
+      "tools/robes/parts_robe.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/parts_robe.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/prepare_reference.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/prepare_robe_materials.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/reduce_runtime.py": [
+      "tools/robes/fit_math.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py"
+    ],
+    "tools/robes/render_review.py": [
+      "tools/phenotypes/pose_preview_render_settings.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/repair_source.py": [
+      "tools/robes/blender_io.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/robe_common.py": [],
+    "tools/robes/robe_node_variant.py": [
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/robe_weights.py": [],
+    "tools/robes/run_robe_migration.py": [
+      "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/smoke_shared_blender_import.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/robes/extract_stock_robes.py",
+      "tools/robes/finalize_robe_migration.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py",
+      "tools/robes/smoke_robe_tools.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/robes/smoke_robe_tools.py": [
+      "tools/robes/robe_weights.py"
+    ],
+    "tools/robes/stock_body.py": [
+      "tools/robes/mdl_ascii.py"
+    ],
+    "tools/robes/test_robe_core.py": [
+      "tools/robes/lbs.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/mesh_ops.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/test_robe_packaging.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/robes/build_robe_fixture.py",
+      "tools/robes/build_robe_model.py",
+      "tools/robes/fit_math.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/package_trial.py",
+      "tools/robes/parts_robe.py",
+      "tools/robes/prepare_reference.py",
+      "tools/robes/prepare_robe_materials.py",
+      "tools/robes/robe_node_variant.py",
+      "tools/robes/stock_body.py",
+      "tools/robes/test_robe_core.py"
+    ],
+    "tools/robes/test_robe_pipeline.py": [
+      "tools/robes/compare_skin_models.py",
+      "tools/robes/deformation_review.py",
+      "tools/robes/fit_math.py",
+      "tools/robes/freeze_tolerances.py",
+      "tools/robes/meshy_robe.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/transfer_weights.py": [
+      "tools/robes/blender_io.py",
+      "tools/robes/fit_math.py",
+      "tools/robes/lbs.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/mesh_ops.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py",
+      "tools/robes/stock_body.py"
+    ],
     "tools/shared_tools.py": [
       "tools/shared-tools.lock.json",
       "tools/toolchain.lock.json"
@@ -754,6 +1203,21 @@
   },
   "unresolved": [],
   "tests": [
+    "tools/gallery/test_gallery.py",
+    "tools/heads/test_atlas_allowance.py",
+    "tools/heads/test_budget_extension.py",
+    "tools/heads/test_derived_assembly.py",
+    "tools/heads/test_derived_body_import.py",
+    "tools/heads/test_fixture_identity.py",
+    "tools/heads/test_fixture_rig.py",
+    "tools/heads/test_geometry_guards.py",
+    "tools/heads/test_head_holes.py",
+    "tools/heads/test_head_pipeline.py",
+    "tools/heads/test_meshy_dispatch.py",
+    "tools/heads/test_microface_materials.py",
+    "tools/heads/test_palette_sampling.py",
+    "tools/heads/test_submission_reconciliation.py",
+    "tools/heads/test_target_and_publication.py",
     "tools/phenotypes/test_animation_reference_sheet.py",
     "tools/phenotypes/test_audit_native_limb_shading.py",
     "tools/phenotypes/test_body_material_repair.py",
@@ -789,6 +1253,9 @@
     "tools/phenotypes/test_stock_palette_binding.py",
     "tools/phenotypes/test_thigh_proximal_cap.py",
     "tools/phenotypes/test_workflow_infrastructure.py",
+    "tools/robes/test_robe_core.py",
+    "tools/robes/test_robe_packaging.py",
+    "tools/robes/test_robe_pipeline.py",
     "tools/test_clean_checkout.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"

@@ -21,6 +21,8 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Bind the explicit CI cache root
         shell: pwsh
         run: |
@@ -50,7 +52,19 @@ jobs:
         run: |
           & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/phenotypes -p 'test_*.py' -v
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Meshy robe trial helper regressions
+        shell: pwsh
+        run: |
+          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/robes -p 'test_*.py' -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Decide whether item import changed
+        id: items
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: ./tools/Test-ItemImportScope.ps1 -BaseSha $env:BASE_SHA
       - name: Item import regressions
+        if: steps.items.outputs.run == 'true'
         shell: pwsh
         run: ./tools/Test-ItemImportTools.ps1
       - name: Head pipeline gates and exporter regressions

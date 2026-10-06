@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-fixture",
+  "title": "SRN Robe Trial neck load check",
+  "module": "srn_rtload",
+  "hak": "srn_rtload",
+  "area": "sr_rt_floor",
+  "partsRobe": "stock/raw/parts_robe.2da",
+  "templates": {
+    "creature": "nw_humanmerc001",
+    "armor": "nw_cloth001"
+  },
+  "rows": {
+    "4": {
+      "resref": "pmh0_robe004",
+      "sourceName": "pmh0_robe004",
+      "model": "stock/ascii/pmh0_robe004.mdl",
+      "hide": "stock:4"
+    },
+    "52": {
+      "resref": "pmh0_robe052",
+      "sourceName": "pmh0_robe004",
+      "model": "stock/ascii/pmh0_robe004.mdl",
+      "hide": "stock:4"
+    },
+    "46": {
+      "resref": "pmh0_robe046",
+      "sourceName": "pmh0_robe046",
+      "model": "workwear/corrected-v10/runtime-20k-aposerest/compiled/pmh0_robe046.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    }
+  },
+  "resources": [
+    "workwear/corrected-v10/runtime-20k-aposerest/model/pmh0_robe046.plt",
+    "workwear/corrected-v9/runtime-20k-aposerest/model/pmh0_robe045.plt",
+    "workwear/materials-skin-v2/ww11a.mtr",
+    "workwear/materials-skin-v2/ww11a.tga",
+    "workwear/materials-skin-v2/ww11an.tga",
+    "workwear/materials-skin-v2/ww11ar.tga"
+  ],
+  "rowLabels": {
+    "4": "robe004 decompiled ASCII (own name)",
+    "10": "Control robe 004 round-trip",
+    "11": "Workwear auto-v1",
+    "12": "Workwear corrected-v1",
+    "17": "Workwear corrected-v2",
+    "18": "Workwear corrected-v2 runtime 8k",
+    "19": "Workwear corrected-v2 runtime 20k",
+    "35": "Workwear corrected-v3 runtime 20k",
+    "40": "v7 with A-pose robe skeleton",
+    "41": "Workwear corrected-v7 20k",
+    "44": "v9 arms-down rest",
+    "45": "v9 A-pose rest",
+    "46": "v10 compiled binary",
+    "48": "v10 20k, no robe neck_g",
+    "49": "robe004, dummy bone nodes",
+    "50": "robe004 + hand/foot nodes",
+    "51": "row 48, trimesh bone nodes",
+    "52": "robe004 ASCII renamed 052"
+  },
+  "actors": [
+    {
+      "label": "robe004 ASCII own name",
+      "row": 4,
+      "skin": 3
+    },
+    {
+      "label": "robe004 ASCII renamed 052",
+      "row": 52,
+      "skin": 3
+    },
+    {
+      "label": "v10 compiled binary 046",
+      "row": 46,
+      "skin": 3
+    }
+  ],
+  "purpose": "Isolate whether the hidden neck follows ASCII loading (row 4 overridden with its decompile) or a new resref/row (row 52), with the client-compiled v10 binary for comparison.",
+  "entry": [
+    8.35,
+    16.2
+  ]
+}

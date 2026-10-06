@@ -269,8 +269,13 @@ the full Python suite. Dynamic dependencies still require full-suite review;
 focused selection is a convenience, not a release gate. Refresh the tracked
 `tools/test-impact.json` when helpers change.
 
-Before PR readiness run both full Python suites, full repository verification,
-item-import regressions, clean-checkout tests and affected native tool smokes.
+Before PR readiness select validation from the changed files and their dependencies:
+focused affected tests for helper, configuration and documentation changes, the full
+helper suites when shared helpers change, clean-checkout tests and affected native tool
+smokes. Reserve full repository verification and all-pack rebuilds for unknown dependency
+coverage, repository-wide build changes, release checks or an explicit request.
+Item-import regressions run only when `tools/Test-ItemImportScope.ps1` finds item-import
+changes; CI applies the same gate.
 Windows/Linux CI uses an explicit selected interpreter, an explicit shared cache
 root and cache keys derived from both tool locks. The copied manual Armory/Blender
 installs are verified locally; CI does not download them or launch NWN.

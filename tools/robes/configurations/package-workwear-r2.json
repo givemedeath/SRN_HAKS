@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-package",
+  "outfit": "workwear",
+  "title": "Meshy workwear pilot (corrected-v10 r2, 20k, client-compiled)",
+  "row": 46,
+  "model": "pmh0_robe046",
+  "itemLabel": "Workwear (Meshy pilot)",
+  "validatedFixture": "package/fixture-workwear-final-r2-v1/fixture.json",
+  "lineage": {
+    "reference": "source-bank/workwear/reference-v1/reference.json",
+    "meshyMaster": "source-bank/workwear/meshy-gen-a1/model.glb",
+    "meshyWorking": "source-bank/workwear/meshy-remesh-a1/model.glb",
+    "repair": "workwear/auto-v1/repair-v2/repair.json",
+    "fit": "workwear/corrected-v10/fit/fit.json",
+    "weights": "workwear/corrected-v10/weights/weights.json",
+    "reduction": "workwear/corrected-v10/runtime-20k-aposerest-r2/weights/reduction.json",
+    "model": "workwear/corrected-v10/runtime-20k-aposerest-r2/model/model.json",
+    "exportCompare": "workwear/corrected-v10/runtime-20k-aposerest-r2/export/compare.json",
+    "deformation": "workwear/corrected-v10/runtime-20k-aposerest-r2/deformation/review.json",
+    "clientCompile": "workwear/corrected-v10/runtime-20k-aposerest-r2/compiled/compile.json"
+  },
+  "gates": {
+    "referenceApproval": {
+      "status": true,
+      "note": "G1: operator approved the exact Meshy submission (2026-10-05)."
+    },
+    "workingSelection": {
+      "status": true,
+      "note": "Operator selected corrected-v10 at 20k triangles over v9 and the 15k build (2026-10-06)."
+    },
+    "nativeValidation": {
+      "status": true,
+      "note": "Compiled by the NWN:EE client's own model compiler ('## compileloadedasciimodels', 'Success: Compiled 7 models'). The CLI compiler rejects skin meshes, so no independent native decode audit exists. Export compare passes except the known 8.2e-6 rad rest-rotation precision (Neverblender 5-decimal export)."
+    },
+    "clientValidation": {
+      "status": true,
+      "note": "Operator approved the r2 package module (fixture workwear-final-r2-v1, client-compiled binary) in the client on 2026-10-06: \"approved\"."
+    },
+    "productionAcceptance": {
+      "status": false,
+      "note": "Trial package only: no srn_2da or hakbuilder registration; row 46 is a trial allocation past the stock table."
+    }
+  },
+  "knownLimits": [
+    "Neck may clip into the collar by design (no clearance pass; collar not trimmed).",
+    "Offline stretch peaks (7.7x after the r2 limb corrections) sit in the narrowed shoulder and outer-elbow seams.",
+    "Exposed forearm skin tints with the creature skin colour; all other materials are fixed colour (no cloth/leather/metal dyeing).",
+    "Stock pmh0 phenotype 0 only."
+  ]
+}

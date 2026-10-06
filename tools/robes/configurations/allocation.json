@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-trial-allocation",
+  "table": "parts_robe.2da",
+  "basis": "Stock rows 10-19 are empty (all ****) and no pmh0_robe010-019 model is installed or present in any repository pack (checked 2026-10-06). Trial package only; no srn_2da or hakbuilder registration.",
+  "rows": {
+    "10": {
+      "use": "control: Neverblender round-trip of stock pmh0_robe004",
+      "model": "pmh0_robe010"
+    },
+    "11": {
+      "use": "workwear automatic candidate auto-v1",
+      "model": "pmh0_robe011"
+    },
+    "12": {
+      "use": "workwear corrected candidate",
+      "model": "pmh0_robe012"
+    },
+    "13": {
+      "use": "long open coat automatic candidate",
+      "model": "pmh0_robe013"
+    },
+    "14": {
+      "use": "long open coat corrected candidate",
+      "model": "pmh0_robe014"
+    },
+    "15": {
+      "use": "layered long robe automatic candidate",
+      "model": "pmh0_robe015"
+    },
+    "16": {
+      "use": "layered long robe corrected candidate",
+      "model": "pmh0_robe016"
+    },
+    "17": {
+      "use": "workwear corrected candidate v2 (belt-zone relabel after client review)",
+      "model": "pmh0_robe017"
+    },
+    "18": {
+      "use": "workwear corrected-v2 reduced to a runtime face budget (client equip stall)",
+      "model": "pmh0_robe018"
+    },
+    "19": {
+      "use": "workwear corrected-v2 reduced to a 20k runtime face budget",
+      "model": "pmh0_robe019"
+    },
+    "35": {
+      "use": "workwear corrected-v3 (A-pose clearance and weights), 20k runtime",
+      "model": "pmh0_robe035"
+    },
+    "36": {
+      "use": "workwear corrected-v4 (v3 plus bind-pose torso/arm separation), 20k runtime",
+      "model": "pmh0_robe036"
+    },
+    "37": {
+      "use": "workwear corrected-v5 (visible-part clearance, dual-quaternion conversion), 20k runtime",
+      "model": "pmh0_robe037"
+    },
+    "39": {
+      "use": "workwear corrected-v6 (v5 without head clearance), 20k runtime; appended after stock row 38",
+      "model": "pmh0_robe039"
+    },
+    "40": {
+      "use": "experiment: corrected-v7 with an A-pose robe skeleton (does the client skin against the robe's own rest frames?)",
+      "model": "pmh0_robe040"
+    },
+    "41": {
+      "use": "workwear corrected-v7 (no clearance pass, dual-quaternion conversion), 20k runtime",
+      "model": "pmh0_robe041"
+    },
+    "42": {
+      "use": "workwear corrected-v8 (rigid hands), arms-down rest, 20k runtime",
+      "model": "pmh0_robe042"
+    },
+    "43": {
+      "use": "workwear corrected-v8 (rigid hands), A-pose rest skeleton with the unconverted Meshy mesh, 20k runtime",
+      "model": "pmh0_robe043"
+    },
+    "44": {
+      "use": "workwear corrected-v9 (straight-arm elbows, rigid hands), arms-down rest, 20k runtime",
+      "model": "pmh0_robe044"
+    },
+    "45": {
+      "use": "workwear corrected-v9 (straight-arm elbows, rigid hands), A-pose rest, 20k runtime",
+      "model": "pmh0_robe045"
+    },
+    "46": {
+      "use": "workwear corrected-v10 (narrow outer shoulder/elbow blends), A-pose rest, 20k runtime",
+      "model": "pmh0_robe046"
+    },
+    "47": {
+      "use": "workwear corrected-v10, A-pose rest, 15k runtime",
+      "model": "pmh0_robe047"
+    },
+    "48": {
+      "use": "workwear corrected-v10, A-pose rest, 20k runtime, neck_g folded into torso_g (diagnostic; the hidden neck was the unpadded 2DA, not neck_g)",
+      "model": "pmh0_robe048"
+    },
+    "49": {
+      "use": "neck check: stock robe004 with its trimesh bone placeholders as dummies",
+      "model": "pmh0_robe049"
+    },
+    "50": {
+      "use": "neck check: stock robe004 plus hand and foot dummy nodes",
+      "model": "pmh0_robe050"
+    },
+    "51": {
+      "use": "neck check: row 48 with render-0 trimesh bone placeholders",
+      "model": "pmh0_robe051"
+    },
+    "52": {
+      "use": "neck check: stock robe004 decompiled ASCII renamed only",
+      "model": "pmh0_robe052"
+    }
+  }
+}

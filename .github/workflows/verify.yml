@@ -43,7 +43,14 @@ jobs:
           else {
             ./tools/Test-Repository.ps1 -ChangedSince $env:BASE_SHA *>&1 | Tee-Object -FilePath verify.log
           }
+      - name: Decide whether item import changed
+        id: items
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: ./tools/Test-ItemImportScope.ps1 -BaseSha $env:BASE_SHA
       - name: Verify item import regressions
+        if: steps.items.outputs.run == 'true'
         shell: pwsh
         run: ./tools/Test-ItemImportTools.ps1
       - name: Upload compact verification log
