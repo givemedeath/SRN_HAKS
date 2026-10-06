@@ -1,9 +1,24 @@
-# Meshy robe trial — results (interim, 2026-10-06, updated after client round 2)
+# Meshy robe trial — results (interim, 2026-10-06, workwear pilot packaged)
 
-Status: **workwear pilot in progress; long open coat and layered long robe not
-started** (awaiting their reference files and credit cap). No candidate is yet
-claimed usable: none has passed client review. Run root:
+Status: **workwear pilot complete and packaged; long open coat and layered long
+robe not started** (awaiting their reference files and credit cap). The pilot
+result is corrected-v10 at 20k triangles, client-compiled, robe row 46: operator
+selected and client reviewed; production acceptance not claimed. Run root:
 `output/robes/meshy-robe-trial-v1/` (ignored).
+
+### Final pilot package
+
+`package/workwear-pilot-final/` (built by `package_trial.py` from
+`configurations/package-workwear.json` and the `fixture-workwear-final.json` build):
+`srn_robetrial.hak` (compiled `pmh0_robe046.mdl`, skin PLT, fixed-colour MTR/TGA,
+padded `parts_robe.2da`), the robe item, the `srn_robetrial` demo module (stock
+robe004 beside the pilot on light and dark skin and with sword and shield), a loose
+`parts_robe.2da`, `manifest.json` (hashes, lineage from the Meshy source bank to the
+client compile, gate states, known limits) and a README. The packager refuses model,
+PLT or texture bytes that differ from the client-validated build (fixture
+neck-load-v2). Gates: reference approval, working selection, native validation
+(in-client compiler only; the CLI compiler rejects skin meshes), client validation
+yes; production acceptance no (trial row, no srn_2da or hakbuilder registration).
 
 ## Stock control
 
@@ -95,4 +110,6 @@ therefore optimistic for the workwear; the coat and robe test generalisation.
   motions need a correction pass. Classify as **needs correction pass**.
 - Runtime budget: keep the Meshy master (≤100k) for bakes and ship a reduced
   runtime copy; 20k triangles loads and equips like stock. Precompile in-client.
+- Packaging: pad `parts_robe.2da` to keep every row on its own position; name skin
+  bitmaps and the PLT after the robe model resref.
 - Coat and robe classes: no evidence yet.
