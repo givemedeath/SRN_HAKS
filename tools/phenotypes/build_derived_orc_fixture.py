@@ -102,7 +102,7 @@ def stage_candidate(stage_dir: Path):
         ],
         "textures": {},
         "geometryStatus": "derived-phenotype",
-        "rigMode": "retargeted",
+        "rigMode": "stock-family",
         "stockOtherPartsFromGame": True,
         "diagnosticOnly": False,
         "clientAccepted": False

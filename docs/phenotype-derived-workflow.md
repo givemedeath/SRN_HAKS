@@ -198,7 +198,12 @@ python tools/phenotypes/launch_shared_tool.py `
 # Direct CLI invocation (bare torso sequence):
 python tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --torso-inspection-sequence --camera-target dwarf_male_fit --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
 
-# 4. Build separate equipment-focused test module (focuses camera on full-armor actor):
+# 4. Preflight and run the bare torso module BEFORE the equipment rebuild:
+python tools/phenotypes/preflight_derived_dwarf_client.py
+python tools/phenotypes/run_derived_dwarf_client_test.py
+if ($LASTEXITCODE) { throw "Bare torso inspection failed; retain this module for diagnosis." }
+
+# 5. Build separate equipment-focused test module (focuses camera on full-armor actor):
 python tools/phenotypes/launch_shared_tool.py `
   --toolchain .tmp/runtime-bindings/run-001.json `
   --migration-receipt .tmp/shared-tool-migration.json `
@@ -209,19 +214,20 @@ python tools/phenotypes/launch_shared_tool.py `
 
 # Direct CLI invocation (equipment camera target):
 python tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --camera-target dwarf_male_fit --camera-equipment-target --camera-pitch 75.0 --camera-distance 4.0 --camera-height 1.2 --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
-```
 
-### Client Preflight & Execution
-```powershell
-# Preflight check without launch:
+# 6. Preflight and run the equipment-focused module after its rebuild:
 python tools/phenotypes/preflight_derived_dwarf_client.py
-
-# Interactive bare actor torso test execution:
-python tools/phenotypes/run_derived_dwarf_client_test.py
-
-# Interactive equipment-focused actor test execution:
 python tools/phenotypes/run_derived_dwarf_client_test.py --equipment-target
+if ($LASTEXITCODE) { throw "Equipment inspection failed; retain this module for diagnosis." }
 ```
+
+Both builds publish the same live `srn_pheno_test.mod`, HAK and fixture receipt.
+Complete step 4 and preserve its build receipt, logs and seven-phase torso evidence
+before step 5 replaces that module. Complete step 6 against the equipment build
+and preserve its separate evidence. The runner infers equipment mode from the
+current fixture receipt; omitting `--equipment-target` after the equipment rebuild
+does not restore the torso sequence. Apply this build/run/build/run order to each
+race, using that target's stage paths and `--race`/`--prefix` client arguments.
 
 ---
 

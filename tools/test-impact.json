@@ -71,13 +71,33 @@
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
-    "tools/phenotypes/build_derived_dwarf_fixture.py": [],
+    "tools/phenotypes/build_derived_dwarf_fixture.py": [
+      "tools/phenotypes/references/fixtures/full_armor_template.json",
+      "tools/phenotypes/stock_dwarf_control.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/phenotypes/build_derived_elf_fixture.py": [
+      "tools/phenotypes/stock_dwarf_control.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/phenotypes/build_derived_orc_fixture.py": [
+      "tools/phenotypes/stock_dwarf_control.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/phenotypes/build_derived_troll_fixture.py": [
+      "tools/phenotypes/stock_dwarf_control.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/phenotypes/build_silhouette_comparison_sheet.py": [],
     "tools/phenotypes/build_test_module.py": [
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/material_patch_contract.py",
       "tools/phenotypes/pipeline.py",
       "tools/phenotypes/stage_equipment_item.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/phenotypes/calculate_silhouette_difference.py": [
+      "tools/phenotypes/build_silhouette_comparison_sheet.py"
     ],
     "tools/phenotypes/check_userdir.py": [],
     "tools/phenotypes/comfy_nodes/srn_orthographic_multiview/__init__.py": [],
@@ -114,9 +134,19 @@
       "tools/phenotypes/stage_stock_pelvis.py"
     ],
     "tools/phenotypes/create_cp2_presentation_sheet.py": [],
+    "tools/phenotypes/create_elf_presentation_sheet.py": [],
+    "tools/phenotypes/create_human_presentation_sheet.py": [],
+    "tools/phenotypes/create_orc_presentation_sheet.py": [],
+    "tools/phenotypes/create_troll_presentation_sheet.py": [],
     "tools/phenotypes/derive_rig.py": [
+      "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/configurations/derived/target-elf-male-fit.json",
+      "tools/phenotypes/configurations/derived/target-human-male-baseline.json",
+      "tools/phenotypes/configurations/derived/target-orc-male-fit.json",
+      "tools/phenotypes/configurations/derived/target-troll-male-fit.json",
       "tools/phenotypes/retarget.py",
-      "tools/phenotypes/target_contract.py"
+      "tools/phenotypes/target_contract.py",
+      "tools/shared_tools.py"
     ],
     "tools/phenotypes/derived_contract.py": [
       "tools/phenotypes/target_contract.py"
@@ -124,13 +154,19 @@
     "tools/phenotypes/derived_equipment.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
-      "tools/phenotypes/target_contract.py"
+      "tools/phenotypes/derive_rig.py",
+      "tools/phenotypes/target_contract.py",
+      "tools/shared_tools.py"
     ],
     "tools/phenotypes/derived_matrix.py": [
       "tools/phenotypes/configurations/derived/target-matrix.json"
     ],
     "tools/phenotypes/derived_profiles.py": [
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/configurations/derived/target-elf-male-fit.json",
+      "tools/phenotypes/configurations/derived/target-orc-male-fit.json",
+      "tools/phenotypes/configurations/derived/target-troll-male-fit.json",
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
@@ -196,6 +232,9 @@
     "tools/phenotypes/localized_refine.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/configurations/derived/target-elf-male-fit.json",
+      "tools/phenotypes/configurations/derived/target-orc-male-fit.json",
+      "tools/phenotypes/configurations/derived/target-troll-male-fit.json",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/material_patch_contract.py": [
@@ -233,6 +272,15 @@
       "tools/phenotypes/audit_thigh_package.py",
       "tools/phenotypes/stage_stock_part.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/phenotypes/pack_derived_elf.py": [
+      "tools/shared_tools.py"
+    ],
+    "tools/phenotypes/pack_derived_orc.py": [
+      "tools/shared_tools.py"
+    ],
+    "tools/phenotypes/pack_derived_troll.py": [
+      "tools/shared_tools.py"
     ],
     "tools/phenotypes/pack_purpose_built_cap_atlas.py": [
       "tools/phenotypes/round_generated_waist_cap.py"
@@ -285,7 +333,9 @@
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/stage_stock_part.py"
     ],
-    "tools/phenotypes/preflight_derived_dwarf_client.py": [],
+    "tools/phenotypes/preflight_derived_dwarf_client.py": [
+      "tools/phenotypes/run_derived_dwarf_client_test.py"
+    ],
     "tools/phenotypes/prepare_effective_body_fixture.py": [
       "tools/phenotypes/effective_body_contract.py",
       "tools/phenotypes/stage_stock_part.py",
@@ -323,6 +373,24 @@
     ],
     "tools/phenotypes/render_derived_dwarf_review.py": [
       "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/render_derived_elf_review.py": [
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/render_derived_orc_review.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/render_derived_troll_review.py": [
+      "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
+    "tools/phenotypes/render_human_baseline_review.py": [
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
@@ -399,7 +467,8 @@
       "tools/phenotypes/pipeline.py"
     ],
     "tools/phenotypes/stock_dwarf_control.py": [
-      "tools/phenotypes/native_compile.py"
+      "tools/phenotypes/native_compile.py",
+      "tools/shared_tools.py"
     ],
     "tools/phenotypes/stock_limb_contract.py": [
       "tools/phenotypes/stage_stock_part.py"
@@ -436,11 +505,33 @@
       "tools/phenotypes/preflight_complete_body_client.py"
     ],
     "tools/phenotypes/test_derived_pipeline.py": [
+      "tools/phenotypes/audit_derived_connectors.py",
       "tools/phenotypes/audit_derived_dwarf_native.py",
+      "tools/phenotypes/build_derived_dwarf_fixture.py",
+      "tools/phenotypes/build_derived_troll_fixture.py",
+      "tools/phenotypes/build_silhouette_comparison_sheet.py",
+      "tools/phenotypes/build_test_module.py",
+      "tools/phenotypes/calculate_silhouette_difference.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+      "tools/phenotypes/configurations/derived/target-elf-male-fit.json",
+      "tools/phenotypes/configurations/derived/target-human-male-baseline.json",
+      "tools/phenotypes/configurations/derived/target-orc-male-fit.json",
+      "tools/phenotypes/configurations/derived/target-troll-male-fit.json",
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/derived_contract.py",
+      "tools/phenotypes/derived_equipment.py",
       "tools/phenotypes/derived_matrix.py",
-      "tools/phenotypes/localized_refine.py"
+      "tools/phenotypes/derived_profiles.py",
+      "tools/phenotypes/derived_review_configs.py",
+      "tools/phenotypes/freeze_derived_masters.py",
+      "tools/phenotypes/localized_refine.py",
+      "tools/phenotypes/pack_derived_elf.py",
+      "tools/phenotypes/preflight_derived_dwarf_client.py",
+      "tools/phenotypes/render_derived_elf_review.py",
+      "tools/phenotypes/render_derived_orc_review.py",
+      "tools/phenotypes/run_derived_dwarf_client_test.py",
+      "tools/phenotypes/stage_derived_dwarf.py",
+      "tools/phenotypes/stock_dwarf_control.py"
     ],
     "tools/phenotypes/test_effective_body_contract.py": [
       "tools/phenotypes/effective_body_contract.py"
@@ -530,6 +621,8 @@
       "tools/toolchain.lock.json"
     ],
     "tools/phenotypes/test_stock_equipment_fallback.py": [
+      "tools/phenotypes/build_derived_elf_fixture.py",
+      "tools/phenotypes/build_derived_orc_fixture.py",
       "tools/phenotypes/build_test_module.py"
     ],
     "tools/phenotypes/test_stock_limb_contract.py": [
