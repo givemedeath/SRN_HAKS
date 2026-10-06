@@ -143,7 +143,14 @@ class ComparisonTests(unittest.TestCase):
         worst = measure([report])
         self.assertAlmostEqual(max(2 * worst["deformation"], BOUNDS["deformation"]), 0.0028)
         dropped = dict(report, meshes=[dict(report["meshes"][0], faces=[12, 11])])
-        for broken in (dict(report, missingNodes=["torso_g"]), dict(report, addedNodes=["extra_g"]), dropped):
+        mesh = report["meshes"][0]
+        lossy = [dict(report, meshes=[dict(mesh, uvPresent=[True, False])]),
+                 dict(report, meshes=[dict(mesh, render=["0", "1"])]),
+                 dict(report, meshes=[dict(mesh, bitmap=["robe", "null"])]),
+                 dict(report, header={"supermodel": ["pmh0", "pmh0"], "animationScale": ["1.0", "0.5"]})]
+        measure([dict(report, header={"supermodel": ["pmh0", "PMH0"], "classification": ["character", "CHARACTER"],
+                                      "animationScale": ["1", "1.0"]})])
+        for broken in (dict(report, missingNodes=["torso_g"]), dict(report, addedNodes=["extra_g"]), dropped, *lossy):
             with self.assertRaises(ValueError):
                 measure([broken])
 

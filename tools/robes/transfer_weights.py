@@ -211,7 +211,8 @@ def main():
     report_weights = validate(limited, SKIN_BONES, SKIN_BONES, sum_tolerance=tolerances["tolerances"]["weightSum"],
                               max_influences=tolerances["maximumInfluences"], bone_limit=None)
     mask = skin_mask(obj, tris, loops)
-    arm_faces = np.isin(arrays["segmentLabels"][tris[:, 0]], [1, 2])
+    # Any arm vertex qualifies, as in build_robe_model.face_groups; vertex order must not decide the material.
+    arm_faces = np.isin(arrays["segmentLabels"][tris], [1, 2]).any(axis=1)
     proxy = arrays["proxyWeights"].argmax(1)
     forearm_hand = np.isin(proxy[tris].max(1), [fit_math.PROXY.index(n) for n in ("fa_L", "hand_L", "fa_R", "hand_R")])
     skin_faces = np.zeros(len(tris), bool) if mask is None else (mask & arm_faces & forearm_hand)

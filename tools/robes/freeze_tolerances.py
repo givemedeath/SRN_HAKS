@@ -15,6 +15,28 @@ BOUNDS = {"bindTranslation": 3e-5, "bindRotation": 1e-6, "position": 2e-5, "uv":
           "weight": 1.5e-3, "weightSum": 2e-3, "deformation": 1e-3, "smoothingEdges": 0}
 
 
+def invariant_changes(report):
+    """Control differences no numeric tolerance can absorb: header, UV presence, render state, bitmap."""
+    header, changes = report.get("header", {}), []
+    for key in ("supermodel", "classification"):
+        pair = header.get(key)
+        if pair and str(pair[0]).lower() != str(pair[1]).lower():
+            changes.append(key)
+    scale = header.get("animationScale")
+    if scale and abs(float(scale[0]) - float(scale[1])) > 1e-6:
+        changes.append("animation scale")
+    content = header.get("animationContent")
+    if content and content[0] != content[1]:
+        changes.append("local animations")
+    for mesh in report["meshes"]:
+        for key in ("uvPresent", "render"):
+            if len(set(map(str, mesh.get(key, [])))) > 1:
+                changes.append(f"{mesh.get('node')}: {key}")
+        if "bitmap" in mesh and str(mesh["bitmap"][0]).lower() != str(mesh["bitmap"][1]).lower():
+            changes.append(f"{mesh.get('node')}: bitmap")
+    return changes
+
+
 def measure(reports):
     worst = {key: 0.0 for key in BOUNDS}
     for report in reports:
@@ -23,6 +45,8 @@ def measure(reports):
                 "Control structure changed; investigate before freezing tolerances")
         require(all(m.get("faces", [0, 0])[0] == m.get("faces", [0, 0])[1] for m in report["meshes"]),
                 "Control face count changed; investigate before freezing tolerances")
+        changes = invariant_changes(report)
+        require(not changes, "Control changed untoleranced properties; investigate before freezing: " + ", ".join(changes))
         worst["bindTranslation"] = max(worst["bindTranslation"], report["maximumBindTranslationError"])
         worst["bindRotation"] = max(worst["bindRotation"], report["maximumBindRotationError"])
         for mesh in report["meshes"]:
