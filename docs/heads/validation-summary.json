@@ -1,6 +1,6 @@
 {
   "kind": "srn-head-validation-summary",
-  "checkpoint": "all-male-pre-client",
+  "checkpoint": "gallery-client-layout-v1",
   "runtimeTriangleLimit": 20000,
   "budget": {
     "cap": 405,
@@ -246,17 +246,17 @@
     "headHelpers": {
       "passed": true,
       "tests": 36,
-      "logSha256": "c07924b77d75c7eeed49fc4f0d5c964d17f7e40b3c7bf5012de3c1e5af1d80ef"
+      "logSha256": "36a4b9af58ac907ae375131ba2d3b7db1f1fa118c551d0186271b1708179c61d"
     },
     "sharedHelpers": {
       "passed": true,
       "tests": 19,
-      "logSha256": "1e9de552d6d031622f34aa08deea260c5acb9d1ba77865794ef44383f6274e25"
+      "logSha256": "1ffa7afe491ecedcb3eb4ff5d99db6a9fa09490678d6899e41cfd56a24c3ba02"
     },
     "phenotypeHelpers": {
       "passed": true,
       "tests": 176,
-      "logSha256": "d3a32510941248ed9f323dedf47d57928aa984654e2732537a12a590f6784f5d"
+      "logSha256": "ca5fb5c4264f3cca52820f91862340084e961197b8c6fad3c0320fa8fa2159e1"
     },
     "repository": {
       "passed": true,
@@ -266,12 +266,12 @@
     "itemImport": {
       "passed": true,
       "tests": null,
-      "logSha256": "2b18f8cdb13cf9e7009f0da5c4d1e3af47d0e99521775e2c29d119778562f078"
+      "logSha256": "a62da5789ca16844b7a0127b6917ad57c97b64a3c0ac5cbc788ec1646d73733c"
     },
     "galleryHelpers": {
       "passed": true,
-      "tests": 6,
-      "logSha256": "382c30f13afbb901d3dc3692e35ccd65ae1d58d92c639fdbe293c2deaa136938"
+      "tests": 9,
+      "logSha256": "fe7be7634e7b1db108735a127319bcbf92cb68fd4ef1c0021877f3d80172a132"
     },
     "repositoryStructure": {
       "passed": true,
@@ -596,7 +596,7 @@
     "worstSample": 50,
     "maximumNeckDisplacementMetres": 0.11156796197794042,
     "fixtureRigAuditSha256": "93e5e5ad87d6b5d112f4c7f98abdbaf5f655558f3b99622f27c4f420d80a9171",
-    "maximumRigFrameError": 2.472328772998991e-07,
+    "maximumRigFrameError": 2.472328772998991E-07,
     "runtimeScale": 1.4285714285714286,
     "clientValidated": false,
     "productionAccepted": false
@@ -879,10 +879,11 @@
   "resumeLedgerSha256": "146554cc760c7dfd02dc3c508b7a93ee1d27940f1522b1e5c68be024e101a688",
   "gallery": {
     "validation": "test-modules/srn_gallery/validation.json",
-    "validationSha256": "5c0ae87927151b222eb847bf58706ef64e2432f630b889eecff931a136f93602",
-    "moduleSha256": "265ebe78bba41bcab5f5ca2ac27be7e947511a3d813c5498e7b392e65a3f15c9",
+    "validationSha256": "872dfbc803799ac46fbd2037721680302e6b4849fda8ffe33e28634e79a704a4",
+    "moduleSha256": "3de44311feef3f648a234e5a50b02c31d0a55a59910062fe4951f12714a84b97",
     "inspectionHakSha256": "818fcdfa85e870ebe54f9ef026749a10c400f4aa814c57604dbc2b8eff144992",
-    "clientObserved": false,
-    "productionAccepted": false
+    "clientObserved": true,
+    "productionAccepted": false,
+    "clientValidationScope": "Startup, NPC spawning, Clothing 1 equipment and gallery usability only"
   }
 }

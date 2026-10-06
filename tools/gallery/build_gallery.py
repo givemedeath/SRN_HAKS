@@ -17,10 +17,30 @@ from head_workflow import pin,read,require,verify_pins,write_fresh
 from tool_runtime import tool
 from catalog import discover,table
 from gff import encode
+from inspection_tileset import inspection_set
 
 
 def field(kind,value):return {'type':kind,'value':value}
 def document(kind,**values):return {'__data_type':kind,'__struct_id':-1,**values}
+def instance(blueprint,kind,**position):
+    require(kind in ('creature','placeable'),'Supported GIT instance kind required')
+    item=copy.deepcopy(blueprint);item.pop('__data_type',None)
+    item['__struct_id']={'creature':4,'placeable':9}[kind];item.update(position)
+    return item
+PILOT_BAY={'origin':[104,28],'columnSpacing':6,'rowSpacing':12,'arrival':[114,16]}
+def pilot_specimen(head,identity,rows,head_index,row_index,resref,bay=None):
+    bay=bay or PILOT_BAY
+    row=rows[row_index];blueprint=copy.deepcopy(head)
+    blueprint.update(TemplateResRef=field('resref',resref),Tag=field('cexostring',resref),
+        FirstName=field('cexolocstring',{'0':identity+' ('+row['name']+'; test candidate)'}))
+    blueprint['VarTable']['value'].append(variable('GG_EQUIPMENT',row['equipment']))
+    x=bay['origin'][0]+head_index*bay['columnSpacing'];y=bay['origin'][1]+row_index*bay['rowSpacing']
+    require(100<=x<=150 and 20<=y<=150,'Pilot specimens must fit the separate eastern bay')
+    actor=instance(blueprint,'creature',XPosition=field('float',float(x)),YPosition=field('float',float(y)),
+        ZPosition=field('float',0.),XOrientation=field('float',0.),YOrientation=field('float',-1.))
+    entry={'id':'creatures:'+identity+('' if row_index==0 else '-'+row['id']),'category':'creatures','kind':'creature',
+        'name':blueprint['FirstName']['value']['0'],'resref':resref,'pilotRow':row['id'],'equipment':row['equipment'],'position':[x,y],'clientValidated':False}
+    return blueprint,actor,entry
 def variable(name,value):
     kind='float' if isinstance(value,float) else 'int' if isinstance(value,int) else 'cexostring'
     return {'__struct_id':0,'Name':field('cexostring',name),'Type':field('dword',{'int':1,'float':2,'cexostring':3}[kind]),'Value':field(kind,value)}
@@ -114,6 +134,12 @@ def build(repository,config,binding,output):
     c=read(config);b=read(binding);require(c['schemaVersion']==1 and 1<=c['pageSize']<=24,'Supported gallery configuration required')
     require(c['startingCategory'] in ('placeables','doors','items','creatures','music','sounds','skyboxes','tilesets'),'Unknown starting category')
     require(len(c['prestaged'])<=24,'Starting area supports at most 24 prestaged entries')
+    pilot_rows=c.get('pilotRows',[{'id':'body','name':'Body','equipment':''}])
+    pilot_bay=c.get('pilotBay',PILOT_BAY)
+    require(1<=len(pilot_rows)<=4 and len({v['id'] for v in pilot_rows})==len(pilot_rows),'Unique pilot rows required')
+    for row in pilot_rows:
+        require(re.fullmatch(r'[a-z0-9_]{1,16}',row['id']) is not None and bool(row['name']),'Valid pilot row required')
+        require(row['equipment'] in ('','nw_aarcl001'),'Supported inspection outfit required')
     snapshot_path=os.environ.get('SRN_VERIFIED_INPUTS');snapshot=read(snapshot_path) if snapshot_path else None
     if snapshot:require(snapshot['kind']=='verified-shared-input-snapshot','Wrong launcher snapshot')
     hashes=snapshot['files'] if snapshot else None
@@ -137,7 +163,7 @@ def build(repository,config,binding,output):
         if result.returncode:raise ValueError(name+' failed: '+result.stdout.decode(errors='replace')+' '+result.stderr.decode(errors='replace'))
     stock=Path(b['stock']);floor=(stock/'ttr01.set').read_text(encoding='cp1252')
     floor=re.sub(r'(?m)^Name=TTR01$','Name=SR_G_FLOOR',floor);floor=re.sub(r'(?m)^Density=[^\n]+','Density=0.000',floor)
-    (overlay/'sr_g_floor.set').write_text(floor,encoding='cp1252');shutil.copyfile(stock/'ttr01_edge.2da',overlay/'sr_g_floor_edge.2da')
+    (overlay/'sr_g_floor.set').write_bytes(floor.replace('\n','\r\n').encode('cp1252'));shutil.copyfile(stock/'ttr01_edge.2da',overlay/'sr_g_floor_edge.2da')
     for category,filename in (('placeables','placeables.2da'),('doors','genericdoors.2da')):
         additions=[v for v in catalog['entries'][category] if v.get('testOnlyAppearance')]
         if additions:
@@ -176,24 +202,30 @@ def build(repository,config,binding,output):
         for record in f['actors']:
             identity=record['designId']
             if identity in known_heads or 'helmet' in record:continue
-            known_heads.add(identity);resref='ggh'+str(len(heads)).zfill(5);head=copy.deepcopy(template)
+            known_heads.add(identity);head=copy.deepcopy(template)
             for key in list(head):
                 if key.startswith('Script'):head[key]=field('resref','')
-            head.update(TemplateResRef=field('resref',resref),Tag=field('cexostring',resref),FirstName=field('cexolocstring',{'0':identity+' (test candidate)'}),LastName=field('cexolocstring',{}),
+            head.update(LastName=field('cexolocstring',{}),
                 Appearance_Type=field('word',f['appearanceRow']),Race=field('byte',f['raceId']),Gender=field('byte',0),Phenotype=field('int',0),FactionID=field('word',2),
                 ItemList=field('list',[]),Equip_ItemList=field('list',[]),Plot=field('byte',1),ScriptSpawn=field('resref','sr_g_actor'),
                 VarTable=field('list',[variable(k,v) for k,v in [('HEAD_SLOT',record['slot']),('SKIN_ROW',3),('HAIR_ROW',5),('BODY_VISUAL_SCALE',float(f['visualScale']))]]))
-            put(resref+'.utc',head);actor=copy.deepcopy(head);i=len(actors)
-            actor.update(XPosition=field('float',14.+i*12.),YPosition=field('float',30.),ZPosition=field('float',0.),XOrientation=field('float',0.),YOrientation=field('float',1.))
-            actors.append(actor);heads.append({'id':'creatures:'+identity,'category':'creatures','kind':'creature','name':identity+' (test candidate)','resref':resref,'clientValidated':False})
-    catalog['entries']['creatures'].extend(heads);catalog['heads']=heads
+            for row_index in range(len(pilot_rows)):
+                resref='ggh'+str(len(heads)).zfill(5)
+                blueprint,actor,entry=pilot_specimen(head,identity,pilot_rows,len(known_heads)-1,row_index,resref,pilot_bay)
+                put(resref+'.utc',blueprint);actors.append(actor);heads.append(entry)
+    catalog['entries']['creatures'].extend(heads);catalog['heads']=heads;catalog['pilotBay']=pilot_bay;catalog['pilotRows']=pilot_rows
     module_vars=[];areas=[]
     for index,row in enumerate(catalog['entries']['tilesets']):
         pages=[]
+        pack=next(v for v in read(repository/'hakbuilder.json')['HakList'] if v['Name']==row['pack'])
+        source_set=(repository/pack['Path']/(row['resref']+'.set')).read_text(encoding='cp1252')
         for page,start in enumerate(range(0,len(row['tiles']),64)):
             resref=f'ggt{index:03d}_{page:03d}';ids=row['tiles'][start:start+64];ids+=([ids[0]]*(64-len(ids)))
-            put(resref+'.are',area(resref,row['resref'],ids));put(resref+'.git',empty_git());areas.append(resref)
-            pages.append({'area':resref,'tiles':row['tiles'][start:start+64]})
+            sheet=f'gs{index:03d}{page:02d}'
+            (stage/(sheet+'.set')).write_bytes(inspection_set(floor,source_set,ids,sheet).encode('cp1252'))
+            shutil.copyfile(stock/'ttr01_edge.2da',stage/(sheet+'_edge.2da'))
+            put(resref+'.are',area(resref,sheet,list(range(64))));put(resref+'.git',empty_git());areas.append(resref)
+            pages.append({'area':resref,'tiles':row['tiles'][start:start+64],'inspectionTileset':sheet,'runtimeTileIds':list(range(len(row['tiles'][start:start+64]))),'sourceMetadataActivated':False})
         row['pages']=pages;row['option']=pages[0]['area'].upper()
     for category,rows in catalog['entries'].items():
         for index,row in enumerate(rows):
@@ -227,12 +259,16 @@ def build(repository,config,binding,output):
     module_vars += [variable('gg_page_size',c['pageSize']),variable('gg_start_category',c['startingCategory']),variable('gg_prestaged_count',len(c['prestaged']))]
     module_vars += [variable('gg_prestaged'+str(i),identity) for i,identity in enumerate(c['prestaged'])]
     module_vars += [variable('gg_area_'+name,1) for name in ['sr_g_start',*areas]]
-    put('gg_button.utp',placeable('gg_button','Gallery control',25,'help'))
+    module_vars.append(variable('gg_pilot_count',len(heads)))
+    module_vars.extend(variable('gg_pilot_arrival_'+axis,float(pilot_bay['arrival'][i])) for i,axis in enumerate(('x','y')))
+    for i,head in enumerate(heads):module_vars.append(variable('gg_pilot_'+str(i),head['resref']))
+    put('gg_button.utp',placeable('gg_button','Gallery control',22,'help'))
     git=empty_git();git['Creature List']=field('list',actors);controls=[]
-    actions=[('Previous page','previous',''),('Next page','next',''),('Help','help','')]+[(v.title(),'category',v) for v in categories]
+    actions=[('Previous page','previous',''),('Next page','next',''),('Help','help',''),('Male race rows','pilots','')]+[(v.title(),'category',v) for v in categories]
     for i,(name,action,argument) in enumerate(actions):
-        control=placeable('gg_button',name,25,action,argument)
-        control.update(X=field('float',12.+i%6*12.),Y=field('float',8.+i//6*8.),Z=field('float',0.),Bearing=field('float',0.));controls.append(control)
+        control=instance(placeable('gg_button',name,22,action,argument),'placeable',
+            X=field('float',14.+i%6*6.),Y=field('float',24.+i//6*6.),Z=field('float',0.),Bearing=field('float',0.))
+        controls.append(control)
     git['Placeable List']=field('list',controls);put('sr_g_start.git',git);put('sr_g_start.are',area('sr_g_start','sr_g_floor',[120]*256,16,16));areas.insert(0,'sr_g_start')
     ifo=document('IFO ',Mod_Name=field('cexolocstring',{'0':c['moduleName']}),Mod_Description=field('cexolocstring',{'0':c['description']}),
         Mod_Tag=field('cexostring','SRN_GALLERY'),Mod_Version=field('dword',3),Mod_MinGameVer=field('cexostring','1.69'),Mod_IsSaveGame=field('byte',0),
@@ -274,7 +310,7 @@ def build(repository,config,binding,output):
             if suffix=='.utd':
                 decoded=read(destination);require(decoded['GenericType']['type']=='byte' and decoded['Appearance']['type']=='dword','Door blueprint schema differs from the installed game')
     payload=archive(module)
-    extension_types={'.are':2012,'.git':2023,'.ifo':2014,'.fac':2038,'.utc':2027,'.uti':2025,'.utp':2044,'.utd':2042,'.nss':2009,'.ncs':2010}
+    extension_types=RESOURCE_TYPES
     expected={(p.stem.lower(),extension_types[p.suffix]):p.read_bytes() for p in stage.iterdir()}
     require(payload==expected,'Gallery module resource payload differs from the generated source')
     if hashes is None:verify_pins(inputs)

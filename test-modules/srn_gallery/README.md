@@ -7,12 +7,18 @@ content; generated modules, HAKs, bindings, catalogs and receipts stay in ignore
 `output/`.
 
 The completed native build is recorded in [validation.json](validation.json):
-75 areas, 29,019 inventoried resources and six male head candidates prestaged.
+75 areas, 29,019 inventoried resources and six male head candidates in two
+matching rows (12 NPCs): bare bodies and Clothing 1.
 All 26 repository HAK payloads, the inspection overlay and saved module copies
-passed byte verification. Interactive client inspection remains pending.
+passed byte verification. Initial client startup and NPC/item spawning pass;
+visual content acceptance remains pending.
 
-The starting area has labeled category and page controls. The first page appears
-on entry. Search and stage individual appearances with chat commands:
+The starting area has labeled floor levers for categories and pages, just ahead
+of spawn. The first page appears on entry. The **Male race rows** lever or
+`.gallery pilots` takes you to the separate eastern inspection bay. Its first
+row shows bare bodies; its second shows the same heads wearing Clothing 1.
+This bay is separate from both the display and staging grids. Search and stage
+individual appearances with chat commands:
 
 ```text
 .gallery find chair
@@ -20,6 +26,7 @@ on entry. Search and stage individual appearances with chat commands:
 .gallery category doors
 .gallery page 2
 .gallery home
+.gallery pilots
 ```
 
 Staged objects remain in the starting area while browsing other pages. Add their
@@ -35,6 +42,15 @@ ID is placed in a display area, with each page selectable in the browser;
 `.gallery area <area-resref>` or the Toolset area chooser to inspect subsequent
 tile pages. These are sample layouts for inspecting individual tiles, not proofs
 of terrain transitions or walkmesh compatibility.
+
+Tile sheets use unique inspection SET resources with stock floor metadata and
+the original model identities. Imported terrain/crosser/group/door definitions
+are preserved in their production HAKs but are not activated by these sheets.
+SET exports use explicit CRLF line endings: controlled client tests crash with
+LF-only definitions and load with otherwise identical CRLF definitions. The
+complete 75-area gallery passes the startup gate; visual content acceptance is
+still pending. The catalog maps each sheet tile back to its original tileset
+and tile ID. See [startup investigation](../../docs/gallery/startup-investigation.md).
 
 Textures, palettes, materials and body parts are included in the complete hashed
 resource inventory and loaded through their consuming models. Assets without a

@@ -1,0 +1,48 @@
+{
+  "kind": "srn-gallery-startup-validation",
+  "checkpoint": "gallery-client-layout-v1",
+  "clientVersion": "89.8193.37-17",
+  "observedTrigger": "LF-only generated SET payloads",
+  "repair": "Explicit CRLF bytes in isolated inspection SETs",
+  "controlledCases": [
+    {
+      "survived": false,
+      "tiles": 64,
+      "repeated": true,
+      "lineEndings": "LF"
+    },
+    {
+      "survived": true,
+      "tiles": 64,
+      "lineEndings": "CRLF"
+    },
+    {
+      "survived": true,
+      "tiles": 429,
+      "lineEndings": "CRLF"
+    },
+    {
+      "alias": "7 characters",
+      "survived": true,
+      "tiles": 64,
+      "lineEndings": "CRLF"
+    }
+  ],
+  "controlledReceiptSha256": "330ad449e3bed0e54ebd1ceb2934f674259434b45aaaa0cc798dae1204e22393",
+  "fullModuleOnly74SetLineEndingsChanged": {
+    "receiptSha256": "e0f929756e0a5b2ffb8a4096cfe1a86882370d9ac014c48b7616ccf727e29ae2",
+    "passed": true
+  },
+  "moduleSha256": "3de44311feef3f648a234e5a50b02c31d0a55a59910062fe4951f12714a84b97",
+  "buildReceiptSha256": "e96ced39aee75d0c80f2aaf2f8bd615ec81a7696f115ce147bfb5794ed1de220",
+  "launchReceiptSha256": "74bfa8c1193501dc2fa5bc7e592c79db244d6f9fedeaccee5b4bf704958c7dc0",
+  "relaunchReceiptSha256": "b8dfd120eb3fb4119c6e6a5522a9c127fcba8757d599b72bfdb69d39462dc9c0",
+  "survived20Seconds": true,
+  "spawnedNpcCount": 12,
+  "equippedClothing1Count": 6,
+  "userConfirmedWorking": true,
+  "userConfirmationAppliesTo": "Prior two-row fixture gallery usability",
+  "fullHeadClientValidated": false,
+  "productionAccepted": false,
+  "clientLogSnapshotSha256": "7feea1d2df2cbc0d9cc367a580131721063fbe145cd543a36a8cad3bdd9cc10e"
+}

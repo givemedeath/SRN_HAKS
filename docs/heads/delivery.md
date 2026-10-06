@@ -137,7 +137,10 @@ through native quantization. Client slot selection, neck joining, shading and
 equipment clearance remain pending.
 
 [srn_gallery](../../test-modules/srn_gallery/README.md) prestages all six male
-candidates and offers a refreshable browser for registered custom content.
+candidates in two rows of six, one showing bodies and one wearing Clothing 1,
+in a separate eastern bay. Floor levers and `.gallery pilots` provide navigation.
+The [startup investigation](../gallery/startup-investigation.md) records the controlled
+SET line-ending fix and successful client startup.
 Generated modules, test HAKs and local bindings remain ignored; editable source,
 scripts and portable configuration are committed.
 
@@ -149,7 +152,8 @@ configuration names `light`/`dark` use skin/hair selectors 3/21 and 12/5 respect
 the names do not imply palette brightness order. All previews use four threads,
 with timings in the validation record.
 
-Resume ignored operating state from the explicit
+Resume current gallery state from [this checkpoint](checkpoint-gallery-client-layout-v1.md).
+Resume preserved head operating state from the explicit
 `output/heads/male-expansion-v1/local/resume-ledger-male-expansion-v1.json` for
 the new three males and the preserved
 `output/heads/pilot-v1/local/resume-ledger-derived-male-v1.json` for Human/Troll.

@@ -1,6 +1,7 @@
 # Head production pipeline
 
-The current delivery is recorded in [delivery.md](delivery.md), with the
+The current [gallery checkpoint](checkpoint-gallery-client-layout-v1.md) binds the exact resume ledger.
+The delivery is recorded in [delivery.md](delivery.md), with the
 [seven-design catalog](pilot-catalog.json), [selected 200-entry roster](roster-selected.json),
 [Human target](human-male-target.json), [Troll target](troll-male-target.json),
 [protected Troll body resources](troll-body-resources.json), [slot audit](slot-catalog.json), and
@@ -8,7 +9,8 @@ The current delivery is recorded in [delivery.md](delivery.md), with the
 Additional portable contracts cover [Elf](elf-male-target.json),
 [Dwarf](dwarf-male-target.json) and [Orc](orc-male-target.json) males. Their
 protected resource hashes are included in the pilot catalog.
-Client testing and production acceptance remain pending under the user's revised scope.
+Initial gallery client startup and NPC/item spawning pass. Full visual head
+validation and production acceptance remain pending.
 
 The portable roster reserves 200 designs: 20 male and 20 female for Human, Elf,
 Dwarf, Orc and Troll, phenotype 0. Troll uses NWN's `g` model family. The pilot
@@ -18,7 +20,8 @@ The merged `codex/derived-phenotypes` branch supplies male body contracts for al
 five races. All six male candidates have passed native checks.
 The Elf female donor stays pending until an approved female body contract exists.
 The [gallery module](../../test-modules/srn_gallery/README.md) prestages all six
-male candidates alongside its refreshable repository content catalog.
+male candidates in separate body and Clothing 1 rows alongside its refreshable
+repository content catalog. See the [startup investigation](../gallery/startup-investigation.md).
 
 The pilot uses the Meshy plugin CLI at the user's request, superseding the
 original MCP route. CLI 0.4.0's live command schemas were inspected before paid

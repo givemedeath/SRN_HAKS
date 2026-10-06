@@ -12,7 +12,7 @@ void GGClear(){
   for(i=0;i<32;i++){object item=GetLocalObject(module,"gg_display"+IntToString(i));if(GetIsObjectValid(item))DestroyObject(item);DeleteLocalObject(module,"gg_display"+IntToString(i));}
 }
 void GGHelp(object pc){
-  SendMessageToPC(pc,"SRN Gallery: use the labeled controls to browse. Chat: .gallery find <text>, .gallery stage <id>, .gallery home.");
+  SendMessageToPC(pc,"SRN Gallery: use the labeled controls to browse. Chat: .gallery find <text>, .gallery stage <id>, .gallery home, .gallery pilots.");
   SendMessageToPC(pc,"More: .gallery category placeables|doors|items|creatures|sounds|music|skyboxes|tilesets; .gallery page <number>; .gallery area <resref>.");
 }
 void GGSelect(object pc,string category,int index){
@@ -92,8 +92,9 @@ void GGAction(object pc,string command,string argument=""){
   else if(command=="find")GGFind(pc,argument);
   else if(command=="stage")GGFind(pc,argument,TRUE);
   else if(command=="home")AssignCommand(pc,JumpToLocation(GGHome()));
+  else if(command=="pilots")AssignCommand(pc,JumpToLocation(Location(GetObjectByTag("SR_G_START"),Vector(GetLocalFloat(module,"gg_pilot_arrival_x"),GetLocalFloat(module,"gg_pilot_arrival_y"),0.0),90.0)));
   else if(command=="area"){
-    object area=GetObjectByTag(argument);if(GetIsObjectValid(area) && GetLocalInt(module,"gg_area_"+argument)==1)AssignCommand(pc,JumpToLocation(Location(area,Vector(5.0,5.0,0.0),90.0)));
+    object area=GetObjectByTag(GetStringUpperCase(argument));if(GetIsObjectValid(area) && GetLocalInt(module,"gg_area_"+GetStringLowerCase(argument))==1)AssignCommand(pc,JumpToLocation(Location(area,Vector(5.0,5.0,0.0),90.0)));
     else SendMessageToPC(pc,"Unknown gallery area; see the saved catalog.");
   }
   else GGHelp(pc);

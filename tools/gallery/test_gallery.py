@@ -8,6 +8,41 @@ from gff import encode
 
 
 class GalleryTests(unittest.TestCase):
+    def test_body_and_clothing_specimens_align_and_keep_distinct_equipment(self):
+        from build_gallery import document,field,pilot_specimen
+        head=document('UTC ',VarTable=field('list',[]),Appearance_Type=field('word',6))
+        rows=[{'id':'body','name':'Body','equipment':''},{'id':'clothing1','name':'Clothing 1','equipment':'nw_aarcl001'}]
+        bare,a,e=pilot_specimen(head,'human-male-natural-01',rows,2,0,'ggh00000')
+        clothed,b,f=pilot_specimen(head,'human-male-natural-01',rows,2,1,'ggh00001')
+        self.assertEqual(a['XPosition'],b['XPosition']);self.assertLess(a['YPosition']['value'],b['YPosition']['value'])
+        self.assertGreater(a['XPosition']['value'],74+20)  # Main object grid ends at x=74.
+        self.assertEqual(bare['VarTable']['value'][-1]['Value']['value'],'')
+        self.assertEqual(clothed['VarTable']['value'][-1]['Value']['value'],'nw_aarcl001')
+        self.assertEqual(head['VarTable']['value'],[]);self.assertNotEqual(e['id'],f['id'])
+        self.assertEqual(a['__struct_id'],4);self.assertEqual(b['Appearance_Type']['value'],6)
+    def test_blueprints_become_typed_git_instances_without_mutating_source(self):
+        from build_gallery import document,field,instance
+        blueprint=document('UTC ',Tag=field('cexostring','pilot'),ScriptSpawn=field('resref','sr_g_actor'))
+        creature=instance(blueprint,'creature',XPosition=field('float',14.))
+        self.assertEqual(creature['__struct_id'],4);self.assertNotIn('__data_type',creature)
+        self.assertEqual(creature['ScriptSpawn']['value'],'sr_g_actor')
+        self.assertEqual(blueprint['__struct_id'],-1);self.assertNotIn('XPosition',blueprint)
+        button=instance(document('UTP ',Useable=field('byte',1)),'placeable',X=field('float',14.))
+        self.assertEqual(button['__struct_id'],9);self.assertEqual(button['Useable']['value'],1)
+        creature['Tag']['value']='changed';self.assertEqual(blueprint['Tag']['value'],'pilot')
+        with self.assertRaises(ValueError):instance(blueprint,'item')
+    def test_inspection_sheet_preserves_models_without_imported_metadata(self):
+        from inspection_tileset import inspection_set,sections
+        stock='[GENERAL]\nName=TTR01\nFloor=Grass\n[GRASS]\nDensity=1.0\n[TERRAIN TYPES]\nCount=1\n[TERRAIN0]\nName=Grass\n[CROSSER TYPES]\nCount=0\n[TILE120]\nModel=ttr01_p03_01\nDoors=0\nSounds=0\nAnimLoop1=0\n'
+        source='[GENERAL]\nName=Original\n[GROUPS]\nCount=100\n[TILE3]\nModel=custom_a\n[TILE7]\nModel=custom_b\n'
+        payload=inspection_set(stock,source,[7,3,7],'gg_sheet').encode('cp1252')
+        self.assertIn(b'\r\n',payload)
+        self.assertNotIn(b'\n',payload.replace(b'\r\n',b''))
+        result=sections(payload.decode('cp1252'))
+        self.assertIn('Density=0.000',result['GRASS']);self.assertEqual(result['TILES'],'Count=3')
+        self.assertIn('Model=custom_b',result['TILE0']);self.assertIn('Model=custom_a',result['TILE1'])
+        self.assertEqual(result['GROUPS'],'Count=0');self.assertNotIn('Name=Original',result['GENERAL'])
+        with self.assertRaises(KeyError):inspection_set(stock,source,[9],'gg_sheet')
     def test_native_pack_audit_rejects_stale_and_duplicate_payloads(self):
         import hashlib
         from build_gallery import verify_pack

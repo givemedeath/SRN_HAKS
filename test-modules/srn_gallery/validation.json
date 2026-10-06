@@ -1,11 +1,11 @@
 {
   "kind": "srn-gallery-validation",
-  "checkpoint": "native-complete-client-pending",
+  "checkpoint": "gallery-client-layout-v1",
   "counts": {
     "placeables": 5624,
     "doors": 113,
     "items": 0,
-    "creatures": 6,
+    "creatures": 12,
     "music": 142,
     "sounds": 17,
     "skyboxes": 0,
@@ -13,7 +13,7 @@
   },
   "resourceCount": 29019,
   "areas": 75,
-  "prestagedHeads": 6,
+  "prestagedHeads": 12,
   "heads": [
     "pmh0_head082",
     "pmh0_head083",
@@ -22,7 +22,7 @@
     "pmo0_head014",
     "pmg0_head014"
   ],
-  "moduleSha256": "265ebe78bba41bcab5f5ca2ac27be7e947511a3d813c5498e7b392e65a3f15c9",
+  "moduleSha256": "3de44311feef3f648a234e5a50b02c31d0a55a59910062fe4951f12714a84b97",
   "inspectionHakSha256": "818fcdfa85e870ebe54f9ef026749a10c400f4aa814c57604dbc2b8eff144992",
   "scriptsCompiled": true,
   "moduleRoundTripVerified": true,
@@ -167,12 +167,14 @@
   "savedCopiesVerified": true,
   "inputVerification": "shared-launcher-before-and-after",
   "inputsUnchanged": true,
-  "buildReceiptSha256": "a0c86b248bac881a623196d7219929c191382a4f21496513a8d7ff19a85bd156",
-  "launchReceiptSha256": "496fcef86bd4f15b43b2bf7c4878b4d11499c0babaf7c2d01dc5cef477808396",
+  "buildReceiptSha256": "e96ced39aee75d0c80f2aaf2f8bd615ec81a7696f115ce147bfb5794ed1de220",
+  "launchReceiptSha256": "74bfa8c1193501dc2fa5bc7e592c79db244d6f9fedeaccee5b4bf704958c7dc0",
   "deliveryAuditSha256": "f71cc4baf71a84d37daff0c436f03d81ede881eb9587fc902ea1fddb269e38c0",
   "migrationReceiptSha256": "413fa14f29b8181e64971d9d2ab0f0aab0377a4c598c616d38d88339dbd8d705",
-  "nativeSmokeReceiptSha256": "b6ab58632c4f338bd8e2ce65f548f771ece7eda2d5283119e5e3b862297982f7",
-  "launchElapsedSeconds": 762.5939999999973,
-  "clientObserved": false,
-  "productionAccepted": false
+  "launchElapsedSeconds": 641.2350000000006,
+  "clientObserved": true,
+  "productionAccepted": false,
+  "uniqueHeadDesigns": 6,
+  "startupValidationSha256": "39a8ffedcf41847a87503a7ff0347705183fff471cbdd8e0800bccb6733ac2b5",
+  "clientValidationScope": "Startup, NPC spawning, Clothing 1 equipment and gallery usability only"
 }
