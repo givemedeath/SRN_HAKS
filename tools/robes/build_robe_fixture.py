@@ -151,26 +151,34 @@ def main():
         directory.mkdir(parents=True, exist_ok=True)
     require(not any((userdir / "override").iterdir()), "Isolated userdir override must be empty")
     common = ["--root", str(args.game_root), "--userdirectory", str(userdir), "--no-ovr"]
+    inputs, executables = [], {}
 
     def tool(name, arguments):
-        result = subprocess.run([str(resolved_tool(name)), *map(str, arguments)], capture_output=True)
+        if name not in executables:  # every invoked executable is pinned and re-verified with the inputs
+            executables[name] = resolved_tool(name)
+            inputs.append(pin(executables[name]))
+        result = subprocess.run([str(executables[name]), *map(str, arguments)], capture_output=True)
         require(result.returncode == 0, name + " failed: " + result.stderr.decode(errors="replace")[-600:])
         return result.stdout
 
     def installed(name):
+        """Installed game resource, staged under installed/ and pinned so the receipt names the bytes used."""
         data = tool("nwn_resman_cat", [*common, name])
         require(bool(data), "Installed resource missing: " + name)
+        path = staging / "installed" / name
+        path.parent.mkdir(exist_ok=True)
+        path.write_bytes(data)
+        inputs.append(pin(path))
         return data
 
     def gff_json(name):
+        installed(name)
         path = staging / "installed" / name
-        path.parent.mkdir(exist_ok=True)
-        path.write_bytes(installed(name))
         out = staging / "installed" / (name + ".json")
         tool("nwn_gff", ["-i", path, "-o", out])
         return json.loads(out.read_text(encoding="utf-8"))
 
-    inputs = [pin(args.fixture)]
+    inputs.append(pin(args.fixture))
     columns, table = read_2da(run_root / fixture["partsRobe"])
     inputs.append(pin(run_root / fixture["partsRobe"]))
     for row, spec in fixture["rows"].items():

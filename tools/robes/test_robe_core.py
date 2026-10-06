@@ -159,5 +159,17 @@ class MeshTests(unittest.TestCase):
         np.testing.assert_allclose(closest[2], [1, 0, 0])
 
 
+
+class RigSourceTests(unittest.TestCase):
+    def test_rig_pins_the_bytes_of_every_model_read(self):
+        import hashlib
+        with tempfile.TemporaryDirectory() as folder:
+            model, base = Path(folder) / "probe.mdl", Path(folder) / "base.mdl"
+            model.write_text(SKIN_MODEL, encoding="cp1252")
+            base.write_text(SKIN_MODEL.replace("probe", "base"), encoding="cp1252")
+            rig = lbs.Rig(model, ["probe", "base"], folder)
+            self.assertEqual([Path(s["path"]).name for s in rig.sources], ["probe.mdl", "base.mdl"])
+            self.assertEqual(rig.sources[1]["sha256"], hashlib.sha256(base.read_bytes()).hexdigest())
+
 if __name__ == "__main__":
     unittest.main()

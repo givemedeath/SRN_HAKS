@@ -25,6 +25,7 @@ class Extractor:
         self.common = ["--root", str(game_root), "--userdirectory", str(user_directory), "--no-ovr"]
         self.cat = resolved_tool("nwn_resman_cat", tool_directory)
         grep = resolved_tool("nwn_resman_grep", tool_directory)
+        # mdlcomp is vendored in this checkout (tools/vendor), not part of the shared tool directory.
         self.compiler = resolved_tool("mdlcomp")
         require(sha(self.compiler) == COMPILER_SHA256, "Model compiler differs from the pinned compiler")
         listing = subprocess.run([str(grep), *self.common, "--all"], check=True,

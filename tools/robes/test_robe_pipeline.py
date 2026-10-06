@@ -160,6 +160,12 @@ class ComparisonTests(unittest.TestCase):
             first = donor_cache_key(donor, body, samples)
             self.assertEqual(first, donor_cache_key(donor, body, samples))
             self.assertNotEqual(first, donor_cache_key(donor, body, [{"clip": "walk", "time": 0.5}]))
+            import deformation_review
+            from unittest import mock
+            real = deformation_review.sha
+            helper = str(Path(sys.modules["rig_pose_audit"].__file__))
+            with mock.patch.object(deformation_review, "sha", lambda path: "changed" if str(path) == helper else real(path)):
+                self.assertNotEqual(first, donor_cache_key(donor, body, samples))  # pose helper code is in the key
             (Path(folder) / "pmh0.mdl").write_text("changed", encoding="ascii")
             self.assertNotEqual(first, donor_cache_key(donor, body, samples))
 

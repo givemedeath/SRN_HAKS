@@ -149,7 +149,7 @@ def compare(left_path, right_path, left_chain, right_chain, ascii_directory, mot
             "parentChanges": [k for k in shared if lnodes[k].parent.lower() != rnodes[k].parent.lower()],
             "maximumBindTranslationError": max(f["translation"] for f in frames),
             "maximumBindRotationError": max(f["rotation"] for f in frames),
-            "bindFrames": frames, "meshes": meshes}
+            "bindFrames": frames, "meshes": meshes, "modelSources": left_rig.sources + right_rig.sources}
 
 
 def verdict(report, tolerances):
@@ -203,6 +203,9 @@ def main():
     left_chain = [Path(args.left).stem.lower(), *tail]
     right_chain = [Path(args.right).stem.lower(), *tail]
     report = compare(args.left, args.right, left_chain, right_chain, extraction["asciiDirectory"], args.motion_count)
+    for source in report.pop("modelSources"):  # both rigs read the same stock chain; pin each file once
+        if source["path"] not in {i["path"] for i in inputs}:
+            inputs.append(source)
     if args.tolerances:
         tolerance_file = read(args.tolerances)
         require(tolerance_file["kind"] == "srn-robe-control-tolerances", "Frozen control tolerances required")

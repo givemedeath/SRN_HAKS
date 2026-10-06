@@ -171,6 +171,7 @@ def main():
     plan = config["weights"]
     donor_name = plan["upperDonor"]
     rig = lbs.Rig(ascii_dir / (donor_name + ".mdl"), lbs.chain_for(args.extraction, donor_name), ascii_dir)
+    inputs += [p for p in rig.sources if p["path"] not in {i["path"] for i in inputs}]
     robe_node = next(n for n in rig.model.nodes if n.kind == "skin")
     offset = body.bind["rootdummy"][:3, 3] - rig.bind["rootdummy"][:3, 3]
     rv, rf, rw, dominant = robe_donor_faces(rig, robe_node, offset)

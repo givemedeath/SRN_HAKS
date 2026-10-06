@@ -4,6 +4,7 @@ Bone frames come from the shared rigid sampler (rig_pose_audit) applied to the
 model's own complete bind hierarchy, with clips inherited along its supermodel
 chain. Results are numerical evidence only; engine playback needs the client.
 """
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -30,10 +31,17 @@ class Rig:
     def __init__(self, model_path, chain, ascii_directory):
         self.path = Path(model_path)
         self.chain = list(chain)
-        text = self.path.read_text(encoding="cp1252")
+        self.sources = []  # pins of the exact bytes read: the model and every supermodel in its chain
+
+        def consume(path):
+            data = Path(path).read_bytes()
+            self.sources.append({"path": str(Path(path).resolve()), "sha256": hashlib.sha256(data).hexdigest()})
+            return data.decode("cp1252")
+
+        text = consume(self.path)
         self.model = mdl_ascii.parse(text)
         self.skeleton = skeleton_nodes(text)
-        texts = {name: (Path(ascii_directory) / (name + ".mdl")).read_text(encoding="cp1252") for name in chain[1:]}
+        texts = {name: consume(Path(ascii_directory) / (name + ".mdl")) for name in chain[1:]}
         texts[chain[0]] = text
         self.clips = inherited_clips(chain, texts)
         self.bind = mdl_ascii.bind_frames(self.model)

@@ -67,7 +67,10 @@ def donor_cache_key(donor, body, samples):
     """Identity of the stock-donor baseline: donor and chain bytes, body parts, samples and the computing code."""
     files = sorted({str(donor.path)} | {str(Path(body.directory) / (name + ".mdl")) for name in donor.chain} |
                    {str(Path(body.directory) / f"{body.prefix}_{part}001.mdl") for part in body.parts})
-    code = [Path(__file__), Path(lbs.__file__), Path(mdl_ascii.__file__), Path(sys.modules[Body.__module__].__file__)]
+    # The pose helpers lbs.Rig.frames() samples through (tools/phenotypes) determine every cached pose too.
+    helpers = ("retarget", "rig_pose_audit", "rig_controller_audit", "target_contract")
+    code = [Path(__file__), Path(lbs.__file__), Path(mdl_ascii.__file__), Path(sys.modules[Body.__module__].__file__),
+            *(Path(sys.modules[name].__file__) for name in helpers)]
     material = {"files": {Path(p).name: sha(p) for p in files}, "code": {p.name: sha(p) for p in code},
                 "samples": [[s["clip"], s["time"]] for s in samples], "parts": sorted(body.parts)}
     return hashlib.sha256(json.dumps(material, sort_keys=True).encode()).hexdigest()
@@ -120,6 +123,11 @@ def main():
     body_rig = lbs.Rig(ascii_dir / (chain[0] + ".mdl"), chain, ascii_dir)
     body = Body(ascii_dir, chain[0], parts=config["fit"]["bodyParts"] + ["head"])
     inputs += [pin(path) for path in body.sources]
+    seen = {i["path"] for i in inputs}
+    for source in candidate.sources + donor.sources + body_rig.sources:
+        if source["path"] not in seen:
+            inputs.append(source)
+            seen.add(source["path"])
     nodes, donor_nodes = skin_nodes(candidate), skin_nodes(donor)
     mapping = np.load(args.node_vertices)
     visible = np.load(args.fit_arrays)["visible"]
