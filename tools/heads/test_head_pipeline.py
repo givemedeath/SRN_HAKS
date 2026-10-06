@@ -216,11 +216,13 @@ class HeadTests(unittest.TestCase):
             ascii_model("pmh0_head022", p, n, uv, [{"kind":"fixed", "suffix":"../x", "triangles":[0]}])
 
     def test_downstream_reviews_require_approved_fit_pin(self):
+        source_model = self.root / 'head_source.glb'; source_model.write_bytes(b'glb_source')
         donor = self.root / 'donor.json'
         write_fresh(donor, {
             'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'donor', 'passed': True,
-            'parentReportSha256': pin(self.report)['sha256'], 'inputs': [pin(self.roster)],
-            'evidence': [pin(self.report)], 'sourceUnmodified': True, 'geometryInspected': True
+            'parentReportSha256': pin(self.report)['sha256'], 'inputs': [pin(self.roster), pin(source_model)],
+            'evidence': [pin(self.report)], 'source': pin(source_model),
+            'sourceUnmodified': True, 'geometryInspected': True
         })
         self.session.review('human-male-01', 'donor', donor)
 
@@ -240,7 +242,6 @@ class HeadTests(unittest.TestCase):
         target_file = self.root / 'target.json'
         write_fresh(target_file, target_data)
 
-        source_model = self.root / 'head_source.glb'; source_model.write_bytes(b'glb_source')
         landmarks = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
         sim = fit_similarity(np.array(landmarks, dtype=float), np.array(landmarks, dtype=float), target_data['landmarkTolerance'])
         fit_data = {
@@ -314,11 +315,13 @@ class HeadTests(unittest.TestCase):
 
     def test_native_and_client_reviews_bind_package_pin(self):
         self.reserve(); self.complete()
+        fit_geom = self.root / 'fit_pkg.glb'; fit_geom.write_bytes(b'fit_geom')
         donor = self.root / 'donor_pkg.json'
         write_fresh(donor, {
             'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'donor', 'passed': True,
-            'parentReportSha256': pin(self.report)['sha256'], 'inputs': [pin(self.roster)],
-            'evidence': [pin(self.report)], 'sourceUnmodified': True, 'geometryInspected': True
+            'parentReportSha256': pin(self.report)['sha256'], 'inputs': [pin(self.roster), pin(fit_geom)],
+            'evidence': [pin(self.report)], 'source': pin(fit_geom),
+            'sourceUnmodified': True, 'geometryInspected': True
         })
         self.session.review('human-male-01', 'donor', donor)
 
@@ -337,7 +340,6 @@ class HeadTests(unittest.TestCase):
         }
         target_file = self.root / 'target_pkg.json'; write_fresh(target_file, target_data)
 
-        fit_geom = self.root / 'fit_pkg.glb'; fit_geom.write_bytes(b'fit_geom')
         src_landmarks = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
         fit_data = {
             'kind': 'srn-head-fit', 'source': pin(fit_geom), 'target': pin(target_file),
@@ -478,6 +480,121 @@ class HeadTests(unittest.TestCase):
         recorded = [e for e in self.session.events() if e['kind'] == 'review' and e['designId'] == 'human-male-02']
         self.assertEqual(len(recorded), 1)
         self.assertEqual(recorded[0]['report'], pin(ref_report))
+
+    def test_reserve_multi_image_generation_binds_to_approved_reference_evidence(self):
+        other_views = []
+        for name in ("front2", "left2", "back2", "right2"):
+            p = self.root / (name + ".png")
+            p.write_bytes(name.encode())
+            other_views.append(p)
+        other_payload = {**RECIPE, "image_urls": [str(p) for p in other_views]}
+        with self.assertRaisesRegex(ValueError, "Generation image pins must match approved reference review evidence"):
+            self.session.reserve("human-male-01", "unapproved-images", "multi-image-to-3d", 20,
+                                 [pin(p) for p in other_views], other_payload)
+
+        # One substituted image among reviewed images
+        sub_views = [*self.views[:3], other_views[3]]
+        sub_payload = {**RECIPE, "image_urls": [str(p) for p in sub_views]}
+        with self.assertRaisesRegex(ValueError, "Generation image pins must match approved reference review evidence"):
+            self.session.reserve("human-male-01", "sub-image", "multi-image-to-3d", 20,
+                                 [pin(p) for p in sub_views], sub_payload)
+
+        # Duplicate image in payload
+        dup_payload = {**RECIPE, "image_urls": [str(self.views[0]), str(self.views[0]), str(self.views[2]), str(self.views[3])]}
+        with self.assertRaisesRegex(ValueError, "Generation image pins must match approved reference review evidence"):
+            self.session.reserve("human-male-01", "dup-image", "multi-image-to-3d", 20,
+                                 [pin(p) for p in self.views], dup_payload)
+
+        # Matching views and hashes succeed
+        self.session.reserve("human-male-01", "valid-reserve", "multi-image-to-3d", 20,
+                             [pin(p) for p in self.views], self.payload)
+
+    def test_fitting_review_binds_to_reviewed_donor_source(self):
+        donor_model_a = self.root / "donor_a.glb"
+        donor_model_a.write_bytes(b"donor_a")
+        donor_model_b = self.root / "donor_b.glb"
+        donor_model_b.write_bytes(b"donor_b")
+
+        # 1. Donor report omitting source is rejected at fitting stage
+        donor_no_source = self.root / "donor_no_source.json"
+        write_fresh(donor_no_source, {
+            "kind": "srn-head-review", "designId": "human-male-01", "stage": "donor", "passed": True,
+            "parentReportSha256": pin(self.report)["sha256"], "inputs": [pin(self.roster)],
+            "evidence": [pin(self.report)], "sourceUnmodified": True, "geometryInspected": True
+        })
+        self.session.review("human-male-01", "donor", donor_no_source)
+
+        protected = self.root / "body_fit_test.mdl"; protected.write_bytes(b"body")
+        manifest = self.root / "manifest_fit_test.json"
+        write_fresh(manifest, {"resources": [{"path": "body_fit_test.mdl", "sha256": pin(protected)["sha256"]}]})
+        stock = []
+        for name in ("rig_ft", "neck_ft", "skin_ft", "hair_ft", "anim_ft"):
+            p = self.root / name; p.write_bytes(name.encode()); stock.append(pin(p))
+        target_data = {
+            "schemaVersion": 1, "kind": "srn-head-target", "approved": True, "race": "human", "sex": "male",
+            "prefix": "pmh0", "phenotype": 0, "bodyRevision": pin(manifest)["sha256"], "bodyManifest": pin(manifest),
+            "bodyResourceRoot": str(self.root), "rig": stock[0], "neckGeometry": stock[1], "palettes": stock[2:4],
+            "animations": stock[4:], "headBindMatrix": [[1,0,0,0],[0,1,0,0],[0,0,1,1.75],[0,0,0,1]],
+            "cranialEnvelope": [[-.1,-.1,-.06],[.1,.15,.2]], "landmarkTolerance": .025
+        }
+        target_file = self.root / "target_fit_test.json"
+        write_fresh(target_file, target_data)
+
+        landmarks = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+        sim = fit_similarity(np.array(landmarks, dtype=float), np.array(landmarks, dtype=float), target_data["landmarkTolerance"])
+        fit_data_b = {
+            "target": pin(target_file), "source": pin(donor_model_b),
+            "sourceLandmarks": landmarks, "targetLandmarks": landmarks, "matrix": sim["matrix"]
+        }
+        fit_file_b = self.root / "fit_b.json"
+        write_fresh(fit_file_b, fit_data_b)
+
+        fitting_with_no_donor_source = self.root / "fitting_no_src.json"
+        write_fresh(fitting_with_no_donor_source, {
+            "kind": "srn-head-review", "designId": "human-male-01", "stage": "fitting", "passed": True,
+            "parentReportSha256": pin(donor_no_source)["sha256"],
+            "inputs": [pin(self.roster), pin(target_file), pin(fit_file_b), pin(donor_model_b)],
+            "evidence": [pin(donor_no_source)], "target": pin(target_file), "fit": pin(fit_file_b)
+        })
+        with self.assertRaisesRegex(ValueError, "Donor review requires pinned source"):
+            self.session.review("human-male-01", "fitting", fitting_with_no_donor_source)
+
+        # 2. Donor report inspecting source A, but fitting points to source B
+        donor_with_source_a = self.root / "donor_with_a.json"
+        write_fresh(donor_with_source_a, {
+            "kind": "srn-head-review", "designId": "human-male-01", "stage": "donor", "passed": True,
+            "parentReportSha256": pin(self.report)["sha256"], "inputs": [pin(self.roster), pin(donor_model_a)],
+            "evidence": [pin(self.report)], "source": pin(donor_model_a),
+            "sourceUnmodified": True, "geometryInspected": True
+        })
+        session_fork = self.session.fork_revision(self.root / "fork", ["human-male-01"], "donor", [pin(self.roster)])
+        session_fork.review("human-male-01", "donor", donor_with_source_a)
+
+        fitting_with_mismatched_src = self.root / "fitting_mismatch.json"
+        write_fresh(fitting_with_mismatched_src, {
+            "kind": "srn-head-review", "designId": "human-male-01", "stage": "fitting", "passed": True,
+            "parentReportSha256": pin(donor_with_source_a)["sha256"],
+            "inputs": [pin(self.roster), pin(target_file), pin(fit_file_b), pin(donor_model_b)],
+            "evidence": [pin(donor_with_source_a)], "target": pin(target_file), "fit": pin(fit_file_b)
+        })
+        with self.assertRaisesRegex(ValueError, "Fitted source differs from reviewed donor geometry"):
+            session_fork.review("human-male-01", "fitting", fitting_with_mismatched_src)
+
+        # 3. Fitting with matching source A succeeds
+        fit_data_a = {
+            "target": pin(target_file), "source": pin(donor_model_a),
+            "sourceLandmarks": landmarks, "targetLandmarks": landmarks, "matrix": sim["matrix"]
+        }
+        fit_file_a = self.root / "fit_a.json"
+        write_fresh(fit_file_a, fit_data_a)
+        fitting_with_matching_src = self.root / "fitting_match.json"
+        write_fresh(fitting_with_matching_src, {
+            "kind": "srn-head-review", "designId": "human-male-01", "stage": "fitting", "passed": True,
+            "parentReportSha256": pin(donor_with_source_a)["sha256"],
+            "inputs": [pin(self.roster), pin(target_file), pin(fit_file_a), pin(donor_model_a)],
+            "evidence": [pin(donor_with_source_a)], "target": pin(target_file), "fit": pin(fit_file_a)
+        })
+        session_fork.review("human-male-01", "fitting", fitting_with_matching_src)
 
 
 if __name__ == "__main__": unittest.main()

@@ -1,9 +1,9 @@
 {
   "kind": "srn-head-review-fixes-validation",
-  "helperTestsPassed": 315,
+  "helperTestsPassed": 317,
   "checks": {
     "head": {
-      "tests": 53,
+      "tests": 55,
       "logSha256": "671d46fe5af8396da88abf3065dd3641c71ef61d0c51467e5e247c0ed3c33031"
     },
     "gallery": {
@@ -52,7 +52,9 @@
     "Palette assembly inputs require every consumed PLT, map, and palette file to be declared and pinned",
     "Definite API rejection reconciliation exposed through workflow and meshy CLI commands",
     "Native review validates package archive payload contains all declared native resources",
-    "Review reports pinned and verified before validation and reverified under session lock before appending"
+    "Review reports pinned and verified before validation and reverified under session lock before appending",
+    "Multi-image generation payload image pins bound to approved reference review evidence",
+    "Fitting review source pin bound to approved donor review geometry"
   ],
   "installedKeyReader": {
     "relevantResourceNames": 70106,

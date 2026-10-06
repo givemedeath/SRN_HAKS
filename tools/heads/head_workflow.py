@@ -519,6 +519,12 @@ class Session:
                         and Path(payload['model_url']).resolve()==Path(donor['source']['path']).resolve(),
                         'Remesh source must use the exact reviewed donor geometry')
             if operation == "multi-image-to-3d":
+                ref_report = read(reviews["reference"]["report"]["path"])
+                ref_evidence = {str(Path(p["path"]).resolve()): p["sha256"] for p in ref_report.get("evidence", [])}
+                input_pins = {str(Path(p["path"]).resolve()): p["sha256"] for p in inputs}
+                payload_pins = {str(Path(url).resolve()): input_pins.get(str(Path(url).resolve())) for url in payload.get("image_urls", [])}
+                require(len(payload.get("image_urls", [])) == 4 and len(ref_evidence) == 4 and payload_pins == ref_evidence,
+                        "Generation image pins must match approved reference review evidence")
                 require(sum(e["designId"] == identity and e["operation"] == operation for e in requests) < 2,
                         "Two generation attempts per pilot design exhausted")
             self.append("reserved", designId=identity, requestId=request_id, operation=operation,
@@ -616,6 +622,13 @@ class Session:
                 fitted = read(report["fit"]["path"])
                 require(fitted["target"] == report["target"], "Fit belongs to another target")
                 verify_pins([fitted["source"]])
+                donor_report = read(reviews["donor"]["report"]["path"])
+                require("source" in donor_report, "Donor review requires pinned source")
+                verify_pins([donor_report["source"]])
+                require(fitted["source"] == donor_report["source"]
+                        or (Path(fitted["source"]["path"]).resolve() == Path(donor_report["source"]["path"]).resolve()
+                            and fitted["source"]["sha256"] == donor_report["source"]["sha256"]),
+                        "Fitted source differs from reviewed donor geometry")
                 measured = fit_similarity(fitted["sourceLandmarks"], fitted["targetLandmarks"],
                                           target["landmarkTolerance"])
                 require(np.allclose(measured["matrix"], fitted["matrix"], atol=1e-9), "Fit matrix differs from landmarks")
