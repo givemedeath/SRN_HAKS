@@ -19,8 +19,8 @@ def measure(reports):
     worst = {key: 0.0 for key in BOUNDS}
     for report in reports:
         require(report["kind"] == "srn-robe-model-comparison", "Control comparison required")
-        require(not (report["missingNodes"] or report["kindChanges"] or report["parentChanges"]),
-                "Control lost structure; investigate before freezing tolerances")
+        require(not (report["missingNodes"] or report["addedNodes"] or report["kindChanges"] or report["parentChanges"]),
+                "Control structure changed; investigate before freezing tolerances")
         worst["bindTranslation"] = max(worst["bindTranslation"], report["maximumBindTranslationError"])
         worst["bindRotation"] = max(worst["bindRotation"], report["maximumBindRotationError"])
         for mesh in report["meshes"]:

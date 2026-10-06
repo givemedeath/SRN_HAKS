@@ -154,7 +154,7 @@ def compare(left_path, right_path, left_chain, right_chain, ascii_directory, mot
 
 def verdict(report, tolerances):
     failures = []
-    if report["missingNodes"] or report["kindChanges"] or report["parentChanges"]:
+    if report["missingNodes"] or report["addedNodes"] or report["kindChanges"] or report["parentChanges"]:
         failures.append("structure")
     if report["header"]["supermodel"][0].lower() != report["header"]["supermodel"][1].lower():
         failures.append("supermodel")

@@ -167,6 +167,7 @@ def main():
     extraction = read(args.extraction)
     ascii_dir = Path(extraction["asciiDirectory"])
     body = Body(ascii_dir, config["target"]["prefix"])
+    inputs += [pin(path) for path in body.sources]
     plan = config["weights"]
     donor_name = plan["upperDonor"]
     rig = lbs.Rig(ascii_dir / (donor_name + ".mdl"), lbs.chain_for(args.extraction, donor_name), ascii_dir)

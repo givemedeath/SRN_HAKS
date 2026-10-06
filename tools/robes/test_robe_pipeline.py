@@ -126,15 +126,25 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(smoothing_edges(left, verts, hard, verts), 1)
 
     def test_tolerances_use_measured_or_representation_bound(self):
-        report = {"kind": "srn-robe-model-comparison", "missingNodes": [], "kindChanges": [], "parentChanges": [],
+        report = {"kind": "srn-robe-model-comparison", "missingNodes": [], "addedNodes": [], "kindChanges": [],
+                  "parentChanges": [],
                   "maximumBindTranslationError": 1e-5, "maximumBindRotationError": 0.0,
                   "meshes": [{"maximumPositionError": 1e-5, "maximumWeightError": 0.001,
                               "sampledDeformation": {"maximumDisplacementError": 0.0014}}]}
         worst = measure([report])
         self.assertAlmostEqual(max(2 * worst["deformation"], BOUNDS["deformation"]), 0.0028)
-        broken = dict(report, missingNodes=["torso_g"])
-        with self.assertRaises(ValueError):
-            measure([broken])
+        for broken in (dict(report, missingNodes=["torso_g"]), dict(report, addedNodes=["extra_g"])):
+            with self.assertRaises(ValueError):
+                measure([broken])
+
+    def test_verdict_rejects_added_nodes(self):
+        from compare_skin_models import verdict
+        report = {"missingNodes": [], "addedNodes": ["extra_g"], "kindChanges": [], "parentChanges": [],
+                  "header": {"supermodel": ["pmh0", "pmh0"]}, "maximumBindTranslationError": 0.0,
+                  "maximumBindRotationError": 0.0, "meshes": []}
+        tolerances = {"bindTranslation": 1e-6, "bindRotation": 1e-6}
+        self.assertIn("structure", str(verdict(report, tolerances)))
+        self.assertNotIn("structure", str(verdict(dict(report, addedNodes=[]), tolerances)))
 
     def test_donor_cache_key_tracks_inputs_and_samples(self):
         class Stub:

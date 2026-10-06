@@ -88,6 +88,21 @@ def node_for_faces(name, faces, verts, corner_uv, weights, bone_names, bitmap, d
     return node
 
 
+def face_groups(tris, segments, skin_faces, prefix, fixed_bitmap, skin_bitmap):
+    """Fixed-colour nodes by majority segment; exposed-skin nodes by arm side. Every face lands in exactly one group."""
+    face_segment = skin_side = np.array([np.bincount(segments[t], minlength=5).argmax() for t in tris])
+    if skin_faces.any():
+        # Skin faces always touch an arm segment but a boundary face can have a torso majority; side them by their arm vertices.
+        arm_counts = np.stack([(segments[tris] == i).sum(1) for i in (1, 2)], 1)
+        require(np.all(arm_counts[skin_faces].sum(1) > 0), "Skin face without an arm vertex")
+        skin_side = np.where(skin_faces, np.where(arm_counts[:, 1] > arm_counts[:, 0], 2, 1), face_segment)
+    groups = [(f"{prefix}_{SEGMENT_NODES[i]}", (face_segment == i) & ~skin_faces, fixed_bitmap) for i in range(5)]
+    groups += [(f"{prefix}_skin{s}", (skin_side == i) & skin_faces, skin_bitmap) for i, s in ((1, "l"), (2, "r"))]
+    coverage = np.sum([selected for _, selected, _ in groups], axis=0)
+    require(np.all(coverage == 1), f"{int((coverage != 1).sum())} faces not emitted exactly once")
+    return groups
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--weights", type=Path, required=True, help="Weights output directory")
@@ -153,14 +168,10 @@ def main():
     if rest is not None:
         check = mdl_ascii.bind_frames(model)
         require(all(np.allclose(check[k], rest[k], atol=1e-6) for k in rest if k in check), "Rest frames did not round-trip")
-    face_segment = np.array([np.bincount(segments[t], minlength=5).argmax() for t in tris])
     corner_uv = uv[loops]
     summary, mapping = [], {}
     material = args.material_prefix or args.prefix
-    groups = [(f"{args.prefix}_{SEGMENT_NODES[i]}", (face_segment == i) & ~skin_faces, material + "a")
-              for i in range(5)]
-    groups += [(f"{args.prefix}_skin{s}", (face_segment == i) & skin_faces, args.model)
-               for i, s in ((1, "l"), (2, "r"))]
+    groups = face_groups(tris, segments, skin_faces, args.prefix, material + "a", args.model)
     for name, selected, bitmap in groups:
         if not selected.any():
             continue

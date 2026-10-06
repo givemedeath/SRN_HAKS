@@ -64,6 +64,27 @@ class ModelBuildTests(unittest.TestCase):
         back = variant(reparsed, "probe3", "dummy", [], None, rename_bitmaps=False)
         self.assertEqual({n.kind for n in back.nodes if n.key != "cloth"}, {"dummy"})
 
+    def test_face_groups_emit_every_face_once_and_side_skin_by_arm(self):
+        from build_robe_model import face_groups
+        segments = np.array([0, 0, 1, 1, 2, 2, 0])
+        tris = np.array([[0, 1, 2], [2, 3, 0], [4, 5, 6], [0, 6, 1]])  # face 0: torso majority, one left-arm vertex
+        skin = np.array([True, True, False, False])
+        groups = {name: selected for name, selected, _ in face_groups(tris, segments, skin, "ww", "fx", "skin")}
+        self.assertEqual(groups["ww_skinl"].tolist(), [True, True, False, False])
+        self.assertEqual(groups["ww_armr"].tolist(), [False, False, True, False])
+        self.assertEqual(groups["ww_torso"].tolist(), [False, False, False, True])
+        with self.assertRaises(Exception):
+            face_groups(tris, segments, np.array([False, False, False, True]), "ww", "fx", "skin")  # skin face, no arm
+
+    def test_stock_body_records_every_model_read(self):
+        from stock_body import Body
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / "probe.mdl").write_text(SKIN_MODEL, encoding="cp1252")
+            part = SKIN_MODEL.replace("probe", "probe_chest001").replace("node skin cloth", "node trimesh cloth")
+            (Path(folder) / "probe_chest001.mdl").write_text(part, encoding="cp1252")
+            body = Body(folder, "probe")
+            self.assertEqual(sorted(p.name for p in body.sources), ["probe.mdl", "probe_chest001.mdl"])
+
     def test_node_reindexes_vertices_and_deduplicates_uvs(self):
         verts = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [9, 9, 9]], float)
         faces = np.array([[0, 1, 2]])

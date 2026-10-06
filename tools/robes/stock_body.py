@@ -25,6 +25,7 @@ class Body:
         self.directory = Path(ascii_directory)
         self.prefix = prefix
         self.model = mdl_ascii.read(self.directory / (prefix + ".mdl"))
+        self.sources = [self.directory / (prefix + ".mdl")]  # every model read, for input pinning
         self.bind = mdl_ascii.bind_frames(self.model)
         self.parts = {}
         for part, bone in ATTACH.items():
@@ -34,6 +35,7 @@ class Body:
             if not path.is_file():
                 continue
             model = mdl_ascii.read(path)
+            self.sources.append(path)
             local = mdl_ascii.bind_frames(model)
             meshes = [n for n in model.nodes if n.kind in mdl_ascii.MESHES and "faces" in n.arrays]
             verts, faces, offset = [], [], 0

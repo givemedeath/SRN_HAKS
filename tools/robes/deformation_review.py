@@ -119,6 +119,7 @@ def main():
     donor = lbs.Rig(ascii_dir / (args.donor + ".mdl"), lbs.chain_for(args.extraction, args.donor), ascii_dir)
     body_rig = lbs.Rig(ascii_dir / (chain[0] + ".mdl"), chain, ascii_dir)
     body = Body(ascii_dir, chain[0], parts=config["fit"]["bodyParts"] + ["head"])
+    inputs += [pin(path) for path in body.sources]
     nodes, donor_nodes = skin_nodes(candidate), skin_nodes(donor)
     mapping = np.load(args.node_vertices)
     visible = np.load(args.fit_arrays)["visible"]

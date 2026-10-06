@@ -118,6 +118,7 @@ def main():
     rows, cols = neighbours(tris, len(first), welded)
     oriented = fit_math.rotate_front(verts, config["orientation"]["sourceFront"], config["orientation"]["targetFront"])
     body = Body(args.stock_ascii, config["target"]["prefix"])
+    inputs += [pin(path) for path in body.sources]  # the clearance and separation bodies read subsets of these
     targets = fit_math.stock_targets(body)
     raw_marks = fit_math.outfit_landmarks(oriented, tris, welded)
     scale, offset = fit_math.similarity(raw_marks, targets)
