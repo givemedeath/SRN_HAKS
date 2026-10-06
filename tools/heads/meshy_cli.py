@@ -103,7 +103,8 @@ def dispatch(session, request_file, binding_file, output):
         validate_remesh(payload)
         arguments += ['--topology',payload['topology'],'--target-polycount',str(payload['target_polycount']),'--target-formats','glb']
         if payload.get('input_task_id'): arguments += ['--input-task-id',payload['input_task_id']]
-        else: arguments += ['--model-url',payload['model_url']]
+        elif payload.get('model_url'): arguments += ['--model-url',payload['model_url']]
+        else: raise ValueError('Remesh requires input_task_id or model_url')
     if binding.get("project"):
         arguments += ["--project", binding["project"], "--stage", request["operation"]]
     require(all(isinstance(value, str) for value in arguments), 'CLI arguments must be strings')

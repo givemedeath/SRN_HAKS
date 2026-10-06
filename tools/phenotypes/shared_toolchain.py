@@ -45,7 +45,8 @@ def load(path, migration=None, required=None):
     if migration:
         _verify_migration(path, migration)
         receipt=json.loads(Path(migration).read_text(encoding='utf-8'))
-        if receipt.get('scope')=='head-tools' and not set(data['tools']) <= set(receipt['allowedTools']):
+        requested=set(required) if required is not None else set(data['tools'])
+        if receipt.get('scope')=='head-tools' and not requested <= set(receipt['allowedTools']):
             raise ValueError('Head-only migration does not cover this tool; run its full migration')
     return data
 

@@ -1,17 +1,17 @@
 {
   "kind": "srn-head-review-fixes-validation",
-  "helperTestsPassed": 307,
+  "helperTestsPassed": 309,
   "checks": {
     "head": {
-      "tests": 46,
-      "logSha256": "49709ce79ccc24ca1631a758749e13c48e38b6f71c126216c334623980b927d2"
+      "tests": 47,
+      "logSha256": "671d46fe5af8396da88abf3065dd3641c71ef61d0c51467e5e247c0ed3c33031"
     },
     "gallery": {
       "tests": 9,
       "logSha256": "97a0d03ab7b5edb8df2b857d4bded96df906daadd686aa447be3b490e2009bcd"
     },
     "phenotype": {
-      "tests": 233,
+      "tests": 234,
       "logSha256": "0d40605e94643515b966bcc6ad40efd05dfefe386df63a769c7987baf0d748e9"
     },
     "shared": {
@@ -42,7 +42,9 @@
     "Local dispatch validation before reservation",
     "Direct byte-pinned offline Meshy executable and dependency tree",
     "Empty task history accepted on definite API rejection reconciliation",
-    "Downstream reviews bound to approved fitting review fit pin"
+    "Downstream reviews bound to approved fitting review fit pin",
+    "Local remesh source bound to declared inputs and reviewed donor geometry",
+    "Head-only migration receipts honor requested allowed tools on schema-1 toolchains"
   ],
   "installedKeyReader": {
     "relevantResourceNames": 70106,

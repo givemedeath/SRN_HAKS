@@ -55,5 +55,21 @@ class SharedToolchainTests(unittest.TestCase):
         data['smokeChecksPassed']=False;receipt.write_text(json.dumps(data))
         with self.assertRaisesRegex(ValueError,'Passed shared tool migration'):load(self.path,receipt)
 
+    def test_head_only_migration_receipt_honors_allowed_tool_runs(self):
+        receipt=self.root/'head_migration.json'
+        smoke_file=self.root/'smoke.json';smoke_file.write_text('{}')
+        data={'kind':'phenotype-shared-tool-migration','scope':'head-tools','smokeChecksPassed':True,
+              'allowedTools':['python','blender'],
+              'frozenSmokeFiles':[{'path':str(smoke_file),'sha256':sha(smoke_file)}],
+              'toolchain':{'path':str(self.path),'sha256':sha(self.path)}}
+        receipt.write_text(json.dumps(data))
+        with self.assertRaisesRegex(ValueError,'Head-only migration does not cover this tool'):
+            load(self.path,receipt)
+        with self.assertRaisesRegex(ValueError,'Head-only migration does not cover this tool'):
+            load(self.path,receipt,required=['armory'])
+        self.assertEqual(load(self.path,receipt,required=['python','blender']),self.data)
+        self.assertEqual(load(self.path,receipt,required=['python']),self.data)
+
 
 if __name__=='__main__':unittest.main()
+

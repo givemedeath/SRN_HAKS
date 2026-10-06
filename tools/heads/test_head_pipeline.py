@@ -152,6 +152,41 @@ class HeadTests(unittest.TestCase):
         self.session.reserve('human-male-01','remesh-good','remesh',5,[pin(donor)],recipe)
         self.assertEqual(Session(self.session.root).credit_used(),25)
 
+    def test_remesh_local_model_url_binds_to_reviewed_donor_source(self):
+        self.reserve(); self.complete()
+        donor_model = self.root / 'donor_model.glb'
+        donor_model.write_bytes(b'donor_bytes')
+        donor = self.root / 'donor_with_source.json'
+        write_fresh(donor, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'donor', 'passed': True,
+            'parentReportSha256': pin(self.report)['sha256'], 'inputs': [pin(self.roster), pin(donor_model)],
+            'evidence': [pin(self.report)], 'source': pin(donor_model),
+            'sourceUnmodified': True, 'geometryInspected': True
+        })
+        self.session.review('human-male-01', 'donor', donor)
+
+        sub_model = self.root / 'sub_model.glb'
+        sub_model.write_bytes(b'substituted_bytes')
+
+        remesh_payload = {'model_url': str(donor_model), 'topology': 'triangle',
+                          'target_polycount': 9000, 'target_formats': ['glb']}
+
+        # Undeclared input fails
+        with self.assertRaisesRegex(ValueError, 'Remesh source omitted from declaration'):
+            self.session.reserve('human-male-01', 'remesh-undeclared', 'remesh', 5,
+                                 [pin(donor)], remesh_payload)
+
+        # Declared substituted model fails donor match
+        with self.assertRaisesRegex(ValueError, 'Remesh source must use the exact reviewed donor geometry'):
+            self.session.reserve('human-male-01', 'remesh-substituted', 'remesh', 5,
+                                 [pin(donor), pin(sub_model)],
+                                 {**remesh_payload, 'model_url': str(sub_model)})
+
+        # Declared matching donor model succeeds
+        self.session.reserve('human-male-01', 'remesh-valid', 'remesh', 5,
+                             [pin(donor), pin(donor_model)], remesh_payload)
+        self.assertEqual(Session(self.session.root).credit_used(), 25)
+
     def test_rigid_fit_and_reflection_rejection(self):
         source = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
         result = fit_similarity(source, source * 3 + [4, 5, 6], 1e-8)

@@ -457,6 +457,12 @@ class Session:
                     'Retexture source/reference omitted from declaration')
         if operation == 'remesh':
             validate_remesh(payload)
+            require(bool(payload.get('input_task_id')) != bool(payload.get('model_url')),
+                    'Remesh requires exactly one source: input_task_id or model_url')
+            if payload.get('model_url'):
+                declared = {str(Path(p['path']).resolve()) for p in inputs}
+                require(str(Path(payload['model_url']).resolve()) in declared,
+                        'Remesh source omitted from declaration')
         verify_pins(inputs)
         with self.spending_lock() as owner_path:
             require(self.spending_owner(owner_path) == self.root,
@@ -482,6 +488,11 @@ class Session:
                 owner=next(e for e in requests if e['requestId']==task['requestId'])
                 require(owner['designId']==identity and any(e['kind']=='settled' and e['requestId']==task['requestId']
                         and e['status']=='SUCCEEDED' for e in events),'Remesh source belongs to another or unfinished design')
+            if operation=='remesh' and payload.get('model_url'):
+                donor=read(reviews['donor']['report']['path'])
+                require(donor.get('source') is not None
+                        and Path(payload['model_url']).resolve()==Path(donor['source']['path']).resolve(),
+                        'Remesh source must use the exact reviewed donor geometry')
             if operation == "multi-image-to-3d":
                 require(sum(e["designId"] == identity and e["operation"] == operation for e in requests) < 2,
                         "Two generation attempts per pilot design exhausted")
@@ -559,6 +570,8 @@ class Session:
             if stage == "donor":
                 require(report["sourceUnmodified"] is True and report["geometryInspected"] is True,
                         "Donor geometry inspection required")
+                if "source" in report:
+                    verify_pins([report["source"]])
             if stage in ("fitting", "assembly", "native", "client", "acceptance"):
                 target = validate_target(read(report["target"]["path"]))
                 verify_pins([report["target"]])
