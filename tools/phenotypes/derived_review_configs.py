@@ -30,6 +30,30 @@ MOTION_SAMPLES = [
 ]
 
 
+def connector_vertex_distances(parent: np.ndarray, child: np.ndarray) -> dict:
+    """Symmetric worst-case nearest-vertex distance, with bounded working memory.
+
+    This conservative vertex coverage check does not certify triangle interiors
+    or visible anatomy. Every selected interface vertex must meet the limit.
+    """
+    def directed(a, b):
+        nearest = np.full(len(a), np.inf)
+        for i in range(0, len(a), 250):
+            best = np.full(min(250, len(a) - i), np.inf)
+            for j in range(0, len(b), 250):
+                distances = np.sum((a[i:i+250, None, :] - b[None, j:j+250, :]) ** 2, axis=2)
+                best = np.minimum(best, distances.min(axis=1))
+            nearest[i:i+250] = np.sqrt(best)
+        return nearest
+    if not len(parent) or not len(child):
+        return {"minimum": np.inf, "parentMaximum": np.inf, "childMaximum": np.inf,
+                "maximum": np.inf, "parentCoverage": 0.0, "childCoverage": 0.0}
+    p, c = directed(parent, child), directed(child, parent)
+    return {"minimum": float(min(p.min(), c.min())), "parentMaximum": float(p.max()),
+            "childMaximum": float(c.max()), "maximum": float(max(p.max(), c.max())),
+            "parentCoverage": float(np.mean(p < 0.015)), "childCoverage": float(np.mean(c < 0.015))}
+
+
 def evaluate_connector_motion(
     parent_path: Path,
     child_path: Path,
@@ -61,6 +85,21 @@ def evaluate_connector_motion(
         for s in motion_samples:
             xforms, _ = pose(pose_dir, prefix, s["clip"], s["time"], stock_dir=stock_ascii_dir)
             frames_to_eval.append((s, xforms))
+
+    require(bool(frames_to_eval), "Motion review requires at least one pose")
+    # Freeze interface membership in the standing/reference pose. A vertex that
+    # moves away during motion must remain in the measurement, even outside the
+    # 15 cm neighborhood or the posed axial-overlap interval.
+    reference = next((x for sample, x in frames_to_eval if sample.get("standing")), frames_to_eval[0][1])
+    reference_center = reference[child_joint.lower()][:3, 3]
+    def interface_mask(vertices, joint):
+        frame = reference[joint.lower()]
+        world = vertices @ frame[:3, :3].T + frame[:3, 3]
+        return np.linalg.norm(world - reference_center, axis=1) < 0.15
+    parent_interface = interface_mask(verts_p, parent_joint)
+    child_interface = interface_mask(verts_c, child_joint)
+    worst_surface_clip = None
+    worst_surface_time = None
 
     for s, xforms in frames_to_eval:
         clip = s["clip"]
@@ -96,39 +135,22 @@ def evaluate_connector_motion(
         ol_end = min(float(proj_p.max()), float(proj_c.max()))
         axial_overlap = max(0.0, ol_end - ol_start)
 
-        # Measure surface proximity on vertices near the joint interface (within 15 cm of child joint center)
-        dp = np.linalg.norm(w_p - c_pos, axis=1)
-        dc = np.linalg.norm(w_c - c_pos, axis=1)
-        near_p = w_p[dp < 0.15]
-        near_c = w_c[dc < 0.15]
-
-        # Points in the axial overlap region near the joint
-        in_ax_p = near_p[(near_p @ u_axis >= ol_start) & (near_p @ u_axis <= ol_end)]
-        in_ax_c = near_c[(near_c @ u_axis >= ol_start) & (near_c @ u_axis <= ol_end)]
-
-        pts_c = in_ax_c if (len(in_ax_c) > 0 and len(in_ax_p) > 0) else near_c
-        pts_p = in_ax_p if (len(in_ax_c) > 0 and len(in_ax_p) > 0) else near_p
-
-        min_d2 = float("inf")
-        if len(pts_c) > 0 and len(pts_p) > 0:
-            for i in range(0, len(pts_c), 250):
-                chunk = pts_c[i:i + 250]
-                d2 = np.min(np.sum((chunk[:, None, :] - pts_p[None, :, :]) ** 2, axis=2))
-                if d2 < min_d2:
-                    min_d2 = float(d2)
-
-        min_surface_dist = float(np.sqrt(min_d2)) if min_d2 != float("inf") else float("inf")
+        distances = connector_vertex_distances(w_p[parent_interface], w_c[child_interface])
+        min_surface_dist = distances["minimum"]
+        worst_surface_dist = distances["maximum"]
 
         has_axial_overlap = bool(axial_overlap > 0.005)
-        has_surface_proximity = bool(min_surface_dist < 0.015)
+        has_surface_proximity = bool(worst_surface_dist < 0.015)
         pose_passed = bool(has_3d_overlap and has_axial_overlap and has_surface_proximity)
 
         if axial_overlap < min_axial_overlap:
             min_axial_overlap = axial_overlap
             worst_clip = clip
 
-        if min_surface_dist != float("inf") and min_surface_dist > max_surf_dist:
-            max_surf_dist = min_surface_dist
+        if worst_surface_clip is None or worst_surface_dist > max_surf_dist:
+            max_surf_dist = worst_surface_dist
+            worst_surface_clip = clip
+            worst_surface_time = t
 
         sample_results.append({
             "clip": clip,
@@ -141,6 +163,13 @@ def evaluate_connector_motion(
             "overlapSpanX": float(overlap_span[0]) if has_3d_overlap else 0.0,
             "overlapSpanY": float(overlap_span[1]) if has_3d_overlap else 0.0,
             "minSurfaceDistanceMeters": min_surface_dist if min_surface_dist != float("inf") else None,
+            "maxSurfaceDistanceMeters": worst_surface_dist if np.isfinite(worst_surface_dist) else None,
+            "parentToChildMaxDistanceMeters": distances["parentMaximum"] if np.isfinite(distances["parentMaximum"]) else None,
+            "childToParentMaxDistanceMeters": distances["childMaximum"] if np.isfinite(distances["childMaximum"]) else None,
+            "parentInterfaceCoverage": distances["parentCoverage"],
+            "childInterfaceCoverage": distances["childCoverage"],
+            "parentInterfaceVertexCount": int(parent_interface.sum()),
+            "childInterfaceVertexCount": int(child_interface.sum()),
             "hasAxialOverlap": has_axial_overlap,
             "hasSurfaceProximity": has_surface_proximity,
             "passed": pose_passed,
@@ -153,11 +182,14 @@ def evaluate_connector_motion(
         "childJoint": child_joint,
         "standingOverlapZ": sample_results[0]["axialOverlapZ"],
         "standingAxialOverlap": sample_results[0]["axialOverlapMeters"],
-        "standingSurfaceDistance": sample_results[0]["minSurfaceDistanceMeters"],
+        "standingSurfaceDistance": sample_results[0]["maxSurfaceDistanceMeters"],
         "worstMotionOverlapZ": sample_results[0]["axialOverlapZ"],
         "worstMotionAxialOverlap": min_axial_overlap,
-        "worstMotionSurfaceDistance": max_surf_dist,
-        "worstMotionClip": worst_clip,
+        "surfaceDistancePolicy": "symmetric-worst-case-nearest-interface-vertex",
+        "worstMotionSurfaceDistance": max_surf_dist if np.isfinite(max_surf_dist) else None,
+        "worstMotionClip": worst_surface_clip,
+        "worstMotionSurfaceTime": worst_surface_time,
+        "worstAxialOverlapClip": worst_clip,
         "allPosesHaveOverlap": all(r["has3DOverlap"] for r in sample_results),
         "allPosesHaveAxialOverlap": all(r["hasAxialOverlap"] for r in sample_results),
         "allPosesHaveSurfaceProximity": all(r["hasSurfaceProximity"] for r in sample_results),

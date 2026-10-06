@@ -396,8 +396,10 @@ def main():
         print(f"  Max joint deviation: {receipt['maxJointDeviationMeters']:.6e} m")
         print(f"  Receipt written to {output_dir / 'rig-receipt.json'}")
     else:
-        stock_root = args.stock_root or Path("output/phenotypes/derived-v1/masters/human-male-v1/stock/pmd0.mdl")
-        output_dir = args.output_dir or Path("output/phenotypes/derived-v1/rigs/dwarf-male")
+        prefix = target_data["identity"]["prefix"]
+        gender = target_data["identity"]["gender"]
+        stock_root = args.stock_root or Path(f"output/phenotypes/derived-v1/masters/human-male-v1/stock/{prefix}.mdl")
+        output_dir = args.output_dir or Path(f"output/phenotypes/derived-v1/rigs/{race}-{gender}")
         receipt = derive_stock_family_rig(target_data, stock_root, output_dir)
         print(f"Rig derivation successful: verified {receipt['nodeCount']} nodes.")
         print(f"  Supermodel: {receipt['supermodel']} -> {receipt['animationSupermodel']}")

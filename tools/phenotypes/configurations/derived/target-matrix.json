@@ -3,9 +3,13 @@
   "kind": "phenotype-derived-matrix",
   "pilotTarget": "dwarf-male-fit",
   "policy": {
-    "activeGenderScope": ["male"],
+    "activeGenderScope": [
+      "male"
+    ],
     "femaleBlockReason": "Human female master body paused at checkpoint v24; female master unapproved",
-    "supportedPhenotypes": [0],
+    "supportedPhenotypes": [
+      0
+    ],
     "halfElfPolicy": "shares-human-body",
     "halflingPolicy": "out-of-scope"
   },
@@ -84,14 +88,16 @@
       "phenotype": 0,
       "modelPrefix": "pmg0",
       "masterSource": "human-male-v1",
-      "status": "pilot-accepted",
+      "status": "pending-equipment-validation",
       "rigCandidate": "broadened-scaled",
       "appearanceRow": 2,
       "racialTypeRow": 2,
       "headPrefix": "pmh0_head",
       "neckPrefix": "pmh0_neck",
       "supermodel": "pmg0",
-      "animationSupermodel": "a_ba"
+      "animationSupermodel": "a_ba",
+      "productionAccepted": false,
+      "blocker": "Gate 3 stock armor interface geometry and separate equipped-client standing/motion acceptance are missing"
     },
     "gnome-male-fit": {
       "id": "gnome-male-fit",
@@ -102,9 +108,11 @@
       "phenotype": 0,
       "modelPrefix": "pmg0",
       "masterSource": "human-male-v1",
-      "status": "pilot-accepted",
+      "status": "pending-equipment-validation",
       "appearanceRow": 2,
-      "racialTypeRow": 2
+      "racialTypeRow": 2,
+      "productionAccepted": false,
+      "blocker": "Gate 3 stock armor interface geometry and separate equipped-client standing/motion acceptance are missing"
     },
     "gnome-female-fit": {
       "id": "gnome-female-fit",

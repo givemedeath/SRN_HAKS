@@ -194,8 +194,24 @@ $gameInputs = @('--input-tree', $gameRoot)
   --input-tree output/phenotypes/derived-dwarf-male-v1/candidate/converted `
   -- tools/phenotypes/build_derived_dwarf_fixture.py --game-root $gameRoot --stage output/phenotypes/derived-dwarf-male-v1/test-stage
 
-# 2. Stage stock comparator actor:
-& $python tools/phenotypes/stock_dwarf_control.py --race dwarf --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
+# 2. Freeze mutable input files separately from the outputs they will replace.
+$stage = "output/phenotypes/derived-dwarf-male-v1/test-stage"
+$controlInputs = ".tmp/derived-control-inputs/$([guid]::NewGuid().ToString('N'))"
+New-Item -ItemType Directory -Path $controlInputs | Out-Null
+Copy-Item -LiteralPath "$stage/manifest.json" -Destination "$controlInputs/manifest.json"
+Copy-Item -LiteralPath "$stage/fixture-resources/appearance.2da" -Destination "$controlInputs/appearance.2da"
+$client = "$gameRoot/bin/win32/nwmain.exe"
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input "$controlInputs/manifest.json" --input "$controlInputs/appearance.2da" `
+  --input $client --input tools/vendor/nwnmdlcomp/nwnmdlcomp.exe `
+  --input-tree srn_body `
+  -- tools/phenotypes/stock_dwarf_control.py --race dwarf --output $stage `
+     --game-root $gameRoot --client $client `
+     --manifest-input "$controlInputs/manifest.json" --appearance-input "$controlInputs/appearance.2da"
+if ($LASTEXITCODE) { throw "Stock-control staging failed; preserve its launch and input snapshots." }
 
 # 3. Build test module with launch_shared_tool (bare torso inspection sequence):
 & $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `

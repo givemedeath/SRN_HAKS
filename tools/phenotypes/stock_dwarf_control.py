@@ -109,11 +109,29 @@ CONTROL_SOURCES = {
 }
 
 
-def stage_stock_control(stage_dir: Path, game_root: Path, client: Path, race: str = "dwarf"):
+def stage_stock_control(stage_dir: Path, game_root: Path, client: Path, race: str = "dwarf", *, manifest_input: Path | None = None, appearance_input: Path | None = None):
     source = CONTROL_SOURCES[race]
     source_prefix = source["prefix"]
     alias_prefix = "pmz0"
     stage_dir = stage_dir.resolve()
+    if bool(manifest_input) != bool(appearance_input):
+        raise ValueError("Supply both immutable manifest and appearance inputs")
+    manifest_path = stage_dir / "manifest.json"
+    appearance_path = stage_dir / "fixture-resources/appearance.2da"
+    live_pins = {p: digest(p) for p in (manifest_path, appearance_path) if p.exists()}
+    manifest_source = manifest_input or manifest_path
+    appearance_source = appearance_input or appearance_path
+    manifest_bytes = manifest_source.read_bytes()
+    appearance_bytes = appearance_source.read_bytes() if appearance_source.exists() else None
+    manifest = json.loads(manifest_bytes)
+    frozen_sources = {manifest_source: hashlib.sha256(manifest_bytes).hexdigest()}
+    if appearance_bytes is not None:
+        frozen_sources[appearance_source] = hashlib.sha256(appearance_bytes).hexdigest()
+    # Snapshot inputs must match the live stage they are authorized to replace.
+    if manifest_input:
+        for live, frozen in ((manifest_path, manifest_source), (appearance_path, appearance_source)):
+            if live not in live_pins or live_pins[live] != frozen_sources[frozen]:
+                raise ValueError(f"Stock-control input snapshot differs from live stage: {live}")
     slug = f"stock_{source['race']}_male_fit"
     converted = stage_dir / slug / "converted"
     ascii_dir = converted / "ascii"
@@ -230,7 +248,12 @@ def stage_stock_control(stage_dir: Path, game_root: Path, client: Path, race: st
     raw_app = extract_stock_resource("appearance.2da", temp_userdir, game_root).decode("cp1252")
     fixture_res = stage_dir / "fixture-resources"
     appearance_path = fixture_res / "appearance.2da"
-    row_id = stage_control_appearance(appearance_path, raw_app, source)
+    if any(digest(path) != pin for path, pin in frozen_sources.items()):
+        raise ValueError("Stock-control consumed input changed during compilation")
+    if any(not path.exists() or digest(path) != pin for path, pin in live_pins.items()):
+        raise ValueError("Stock-control live stage changed during compilation")
+    row_id = stage_control_appearance(appearance_path, raw_app, source,
+                                     fixture_text=appearance_bytes.decode("cp1252") if appearance_bytes is not None else None)
 
     # 5. conversion.json
     conversion = {
@@ -249,8 +272,6 @@ def stage_stock_control(stage_dir: Path, game_root: Path, client: Path, race: st
     (converted / "conversion.json").write_text(json.dumps(conversion, indent=2), encoding="utf-8")
 
     # 6. Update manifest.json
-    manifest_path = stage_dir / "manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     owned_slugs = {f"stock_{data['race']}_male_fit" for data in CONTROL_SOURCES.values()}
     manifest["combinations"] = [r for r in manifest["combinations"] if r.get("slug") not in owned_slugs]
     manifest["combinations"].append({
@@ -275,7 +296,7 @@ def stage_stock_control(stage_dir: Path, game_root: Path, client: Path, race: st
     print(f"Stock {source['race']} control staged successfully as row {row_id} with prefix pmz0.")
 
 
-def stage_control_appearance(path: Path, stock_text: str, source: dict) -> int:
+def stage_control_appearance(path: Path, stock_text: str, source: dict, *, fixture_text: str | None = None) -> int:
     def parse(text):
         lines = [line for line in text.splitlines() if line.strip()]
         headers = [line for line in lines if not re.match(r"^\s*\d+\s", line)]
@@ -287,7 +308,7 @@ def stage_control_appearance(path: Path, stock_text: str, source: dict) -> int:
     source_rows = [line.split()[1:] for line in stock_rows if line.split()[0] == str(source["appearance"])]
     if len(source_rows) != 1 or len(source_rows[0]) != len(stock_cols):
         raise ValueError("Missing or malformed stock source appearance row")
-    headers, rows, columns = parse(path.read_text(encoding="cp1252") if path.exists() else stock_text)
+    headers, rows, columns = parse(fixture_text if fixture_text is not None else (path.read_text(encoding="cp1252") if path.exists() else stock_text))
     if columns != stock_cols or not {"LABEL", "STRING_REF", "RACE"}.issubset(columns):
         raise ValueError("Incompatible stock and fixture appearance columns")
     # Replace the private Z row on a rerun, preserving its ID and all target rows.
@@ -311,11 +332,13 @@ def main():
     parser.add_argument("--output", type=Path)
     parser.add_argument("--game-root", type=Path)
     parser.add_argument("--client", type=Path)
+    parser.add_argument("--manifest-input", type=Path, help="Immutable snapshot of the input manifest")
+    parser.add_argument("--appearance-input", type=Path, help="Immutable snapshot of the patched fixture table")
     args = parser.parse_args()
     game_root = resolve_game_root(args.game_root)
     client = resolve_client(args.client, game_root)
     output = args.output or REPO / f"output/phenotypes/derived-{args.race}-male-v1/test-stage"
-    stage_stock_control(output, game_root, client, args.race)
+    stage_stock_control(output, game_root, client, args.race, manifest_input=args.manifest_input, appearance_input=args.appearance_input)
 
 
 if __name__ == "__main__":
