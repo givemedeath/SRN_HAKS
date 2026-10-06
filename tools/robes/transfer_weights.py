@@ -25,7 +25,7 @@ import lbs
 import mdl_ascii
 from mesh_ops import neighbours, smooth_field, weld_ids
 from blender_io import import_single
-from robe_common import FLAGS, fresh_directory, pin, read, require, skin_colour, utc, verify_pins, write_fresh
+from robe_common import FLAGS, fresh_directory, merge_pins, pin, read, require, skin_colour, utc, verify_pins, write_fresh
 from robe_weights import limb_corrections, limit_and_normalize, validate
 from stock_body import SKIN_BONES, Body
 
@@ -122,11 +122,11 @@ def main():
     parser.add_argument("--tolerances", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
+    inputs = [pin(args.config), pin(args.repaired), pin(args.fit / "fit.json"), pin(args.fit / "fit-arrays.npz"),
+              pin(args.extraction), pin(args.tolerances)]
     config, tolerances = read(args.config), read(args.tolerances)
     require(tolerances["kind"] == "srn-robe-control-tolerances" and tolerances["frozen"], "Frozen tolerances required")
     fit_report = read(args.fit / "fit.json")
-    inputs = [pin(args.config), pin(args.repaired), pin(args.fit / "fit.json"), pin(args.fit / "fit-arrays.npz"),
-              pin(args.extraction), pin(args.tolerances)]
     output = fresh_directory(args.output)
     arrays = np.load(args.fit / "fit-arrays.npz")
     obj = import_single(args.repaired)
@@ -151,11 +151,11 @@ def main():
     extraction = read(args.extraction)
     ascii_dir = Path(extraction["asciiDirectory"])
     body = Body(ascii_dir, config["target"]["prefix"])
-    inputs += [pin(path) for path in body.sources]
+    merge_pins(inputs, body.sources)
     plan = config["weights"]
     donor_name = plan["upperDonor"]
     rig = lbs.Rig(ascii_dir / (donor_name + ".mdl"), lbs.chain_for(args.extraction, donor_name), ascii_dir)
-    inputs += [p for p in rig.sources if p["path"] not in {i["path"] for i in inputs}]
+    merge_pins(inputs, rig.sources)
     robe_node = next(n for n in rig.model.nodes if n.kind == "skin")
     offset = body.bind["rootdummy"][:3, 3] - rig.bind["rootdummy"][:3, 3]
     rv, rf, rw, dominant = robe_donor_faces(rig, robe_node, offset)

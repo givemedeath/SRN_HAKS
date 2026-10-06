@@ -53,6 +53,18 @@ def skin_colour(rgb):
     return (r > g) & (g > b) & (saturation > 0.18) & (saturation < 0.75) & (rgb.max(1) > 0.08) & ((r - b) > 0.05)
 
 
+def merge_pins(inputs, pins):
+    """Append pins whose paths are new; a path read twice must have been the same bytes both times."""
+    known = {item["path"]: item["sha256"] for item in inputs}
+    for item in pins:
+        if item["path"] in known:
+            require(known[item["path"]] == item["sha256"], "Input changed between reads: " + item["path"])
+        else:
+            inputs.append(item)
+            known[item["path"]] = item["sha256"]
+    return inputs
+
+
 def verify_pins(pins):
     for item in pins:
         require(Path(item["path"]).is_file(), "Pinned input missing: " + item["path"])

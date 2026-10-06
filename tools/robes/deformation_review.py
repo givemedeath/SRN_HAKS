@@ -18,7 +18,7 @@ import numpy as np
 
 import lbs
 import mdl_ascii
-from robe_common import FLAGS, pin, read, read_pinned, require, sha, utc, verify_pins, write_fresh
+from robe_common import FLAGS, merge_pins, pin, read, read_pinned, require, sha, utc, verify_pins, write_fresh
 from stock_body import Body, closest_on_triangles
 
 FLAG = {"stretch": 1.5, "compression": 0.6, "penetration": 0.02, "collapse": 0.25}
@@ -103,6 +103,7 @@ def donor_baseline(donor, donor_nodes, body_rig, body, samples, cache):
         temporary = stored.with_name(key + ".partial.npz")
         np.savez_compressed(temporary, posed=np.stack(posed_all), faces=faces, penetration=json.dumps(rows))
         temporary.replace(stored)
+        return key, False, posed_all, faces, rows, pin(stored)
     return key, False, posed_all, faces, rows, None
 
 
@@ -122,20 +123,15 @@ def main():
     output = Path(args.output).resolve()
     require(not output.exists(), "Fresh review directory required")
     output.mkdir(parents=True)
-    extraction, config = read(args.extraction), read(args.config)
     inputs = [pin(args.candidate), pin(args.node_vertices), pin(args.fit_arrays), pin(args.extraction), pin(args.config)]
+    extraction, config = read(args.extraction), read(args.config)
     ascii_dir = Path(extraction["asciiDirectory"])
     chain = extraction["bodyChain"]
     candidate = lbs.Rig(args.candidate, [Path(args.candidate).stem.lower(), *chain], ascii_dir)
     donor = lbs.Rig(ascii_dir / (args.donor + ".mdl"), lbs.chain_for(args.extraction, args.donor), ascii_dir)
     body_rig = lbs.Rig(ascii_dir / (chain[0] + ".mdl"), chain, ascii_dir)
     body = Body(ascii_dir, chain[0], parts=config["fit"]["bodyParts"] + ["head"])
-    inputs += [pin(path) for path in body.sources]
-    seen = {i["path"] for i in inputs}
-    for source in candidate.sources + donor.sources + body_rig.sources:
-        if source["path"] not in seen:
-            inputs.append(source)
-            seen.add(source["path"])
+    merge_pins(inputs, body.sources + candidate.sources + donor.sources + body_rig.sources)
     nodes, donor_nodes = skin_nodes(candidate), skin_nodes(donor)
     mapping = np.load(args.node_vertices)
     visible = np.load(args.fit_arrays)["visible"]
@@ -145,7 +141,7 @@ def main():
     samples = lbs.motion_samples(candidate, count=args.samples_per_clip)
     donor_key, donor_reused, donor_posed_all, donor_faces, donor_rows, cache_pin = donor_baseline(
         donor, donor_nodes, body_rig, body, samples, args.donor_cache)
-    if cache_pin:
+    if cache_pin and donor_reused:
         inputs.append(cache_pin)
     rows, saved, families, pause_index = [], {}, {}, None
     for index, sample in enumerate(samples):
@@ -204,7 +200,8 @@ def main():
     report = {"schemaVersion": 1, "kind": "srn-robe-deformation-review", "createdUtc": utc(), "inputs": inputs,
               "candidate": Path(args.candidate).stem, "donor": args.donor, "bodyChain": chain,
               "donorBaseline": {"key": donor_key, "reusedFromCache": donor_reused,
-                                "cache": str(Path(args.donor_cache).resolve()) if args.donor_cache else None},
+                                "cache": str(Path(args.donor_cache).resolve()) if args.donor_cache else None,
+                                "file": cache_pin},
               "method": "numpy linear blend skinning: stock skeleton frames (rig_pose_audit) against the candidate's own rest frames; stock parts posed rigidly",
               "flagThresholds": FLAG, "measuredEdgesAtLeast": MINIMUM_EDGE, "measuredAreasAtLeast": MINIMUM_AREA, "samples": rows, "worstByFamily": worst, "savedSamples": selected,
               "geometry": [pin(p) for p in sorted(geometry.iterdir())], "clientEvidence": False, **FLAGS}

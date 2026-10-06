@@ -67,7 +67,8 @@ def validate_request(request):
             arguments += ["--image-style-url", payload["image_style_url"]]
     else:
         require(payload.get("ai_model") == "nano-banana-pro" and payload.get("prompt"), "Explicit image edit required")
-        require(all(local(image) for image in payload["reference_image_urls"]), "Edit references must be pinned")
+        require(payload.get("reference_image_urls") and all(local(image) for image in payload["reference_image_urls"]),
+                "Edit references must be pinned and non-empty")
         arguments += ["--ai-model", "nano-banana-pro", "--prompt", payload["prompt"],
                       "--reference-image-urls", ",".join(payload["reference_image_urls"])]
     return arguments
@@ -139,6 +140,12 @@ class Session:
                            and e["outfit"] == request["outfit"])
             require(attempts < self.config["maxGenerationAttempts"], "Generation attempt limit reached")
             require(approval_pin is not None, "Recorded reference approval required before 3D generation")
+        source_task = request["payload"].get("input_task_id")
+        if source_task:  # remesh/retexture must build on a successful task this session can attribute
+            succeeded = {e["taskId"] for e in events if e["kind"] == "settled" and e.get("status") == "SUCCEEDED"}
+            attributable = {e["taskId"] for e in events if e["kind"] == "submitted" and e.get("inputsUnchanged", True)}
+            require(source_task in succeeded & attributable,
+                    "input_task_id must be a successful, attributable task of this session: " + str(source_task))
         require(self.committed() + request["estimatedCredits"] <= self.config["creditCap"],
                 "Credit cap would be exceeded")
         return self.append("reserved", requestId=request["requestId"], outfit=request["outfit"],
@@ -209,12 +216,12 @@ def dispatch(session, request_file, binding_file, approval_file, folder):
 
 
 def wait(session, request_id, binding_file, folder):
-    events = session.events()
-    event = next((e for e in events if e["kind"] == "submitted" and e["requestId"] == request_id), None)
-    require(event is not None, "Recorded submission required")
-    require(not any(e["kind"] == "settled" and e["requestId"] == request_id for e in events), "Request already settled")
     lock = session.lock()
-    try:
+    try:  # state is read under the lock, so a second wait cannot repeat a settled task
+        events = session.events()
+        event = next((e for e in events if e["kind"] == "submitted" and e["requestId"] == request_id), None)
+        require(event is not None, "Recorded submission required")
+        require(not any(e["kind"] == "settled" and e["requestId"] == request_id for e in events), "Request already settled")
         code, response = invoke(read(binding_file), [event["resource"], "wait", event["taskId"], "--timeout", "1800",
                                                      "--include-raw", "--save-json",
                                                      str(Path(folder).resolve() / "task.json")], folder)
@@ -232,27 +239,32 @@ def wait(session, request_id, binding_file, folder):
 
 
 def collect(session, request_id, binding_file, folder, bank):
-    events = session.events()
-    submitted = next((e for e in events if e["kind"] == "submitted" and e["requestId"] == request_id), None)
-    require(submitted is not None and submitted.get("inputsUnchanged", True),
-            "Submission inputs changed during upload; the task cannot be collected as source")
-    settled = next((e for e in events if e["kind"] == "settled" and e["requestId"] == request_id), None)
-    require(settled is not None and settled["status"] == "SUCCEEDED" and settled["task"], "Successful task required")
-    verify_pins([settled["task"]])
-    bank = Path(bank).resolve()
-    require(not bank.exists(), "Fresh source bank folder required")
-    code, _ = invoke(read(binding_file), ["download", "--task-json", settled["task"]["path"], "--all",
-                                          "--output-dir", str(bank)], folder)
-    require(code == 0 and bank.exists(), "Download incomplete; keep partial output and reconcile")
-    verify_pins([settled["task"]])  # the CLI read this task record during the download
-    files = [pin(path) for path in sorted(bank.rglob("*")) if path.is_file()]
-    require(any(Path(item["path"]).suffix.lower() == ".glb" for item in files), "GLB master missing")
-    write_fresh(bank.parent / (bank.name + "-collection.json"), {"kind": "srn-robe-meshy-collection",
-                "createdUtc": utc(), "requestId": request_id, "taskId": settled["taskId"],
-                "resource": settled["resource"], "credits": settled["credits"], "task": settled["task"],
-                "files": files, **FLAGS})
-    session.append("collected", requestId=request_id, files=files)
-    return files
+    lock = session.lock()
+    try:  # one collection at a time, decided on the events read under the lock
+        events = session.events()
+        submitted = next((e for e in events if e["kind"] == "submitted" and e["requestId"] == request_id), None)
+        require(submitted is not None and submitted.get("inputsUnchanged", True),
+                "Submission inputs changed during upload; the task cannot be collected as source")
+        settled = next((e for e in events if e["kind"] == "settled" and e["requestId"] == request_id), None)
+        require(settled is not None and settled["status"] == "SUCCEEDED" and settled["task"], "Successful task required")
+        require(not any(e["kind"] == "collected" and e["requestId"] == request_id for e in events), "Request already collected")
+        verify_pins([settled["task"]])
+        bank = Path(bank).resolve()
+        require(not bank.exists(), "Fresh source bank folder required")
+        code, _ = invoke(read(binding_file), ["download", "--task-json", settled["task"]["path"], "--all",
+                                              "--output-dir", str(bank)], folder)
+        require(code == 0 and bank.exists(), "Download incomplete; keep partial output and reconcile")
+        verify_pins([settled["task"]])  # the CLI read this task record during the download
+        files = [pin(path) for path in sorted(bank.rglob("*")) if path.is_file()]
+        require(any(Path(item["path"]).suffix.lower() == ".glb" for item in files), "GLB master missing")
+        write_fresh(bank.parent / (bank.name + "-collection.json"), {"kind": "srn-robe-meshy-collection",
+                    "createdUtc": utc(), "requestId": request_id, "taskId": settled["taskId"],
+                    "resource": settled["resource"], "credits": settled["credits"], "task": settled["task"],
+                    "files": files, **FLAGS})
+        session.append("collected", requestId=request_id, files=files)
+        return files
+    finally:
+        lock.unlink()
 
 
 def main():

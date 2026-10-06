@@ -41,9 +41,10 @@ def main():
     parser.add_argument("--skin-shade-range", type=int, nargs=2, default=[60, 230])
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    inputs = [pin(args.config)]
     config = read(args.config)
     textures = {k: (args.run_root / v).resolve() for k, v in config["source"]["textures"].items()}
-    inputs = [pin(args.config)] + [pin(p) for p in textures.values()]
+    inputs += [pin(p) for p in textures.values()]
     output = Path(args.output).resolve()
     require(not output.exists(), "Fresh material directory required")
     output.mkdir(parents=True)

@@ -20,7 +20,7 @@ from mathutils.bvhtree import BVHTree
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from blender_io import import_single
 from mesh_ops import islands
-from robe_common import FLAGS, fresh_directory, pin, require, sha, utc, write_fresh
+from robe_common import FLAGS, fresh_directory, pin, require, sha, skin_colour, utc, write_fresh
 
 DIRECTIONS = [Vector(v).normalized() for v in
               [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1), (1, 1, 1), (1, 1, -1), (1, -1, 1),
@@ -153,11 +153,7 @@ def skin_estimate(obj, tris, loops, image):
     x = np.clip((uv[:, 0] % 1.0) * (width - 1), 0, width - 1).astype(int)
     y = np.clip((uv[:, 1] % 1.0) * (height - 1), 0, height - 1).astype(int)
     rgb = pixels[y, x]
-    r, g, b = rgb[:, 0], rgb[:, 1], rgb[:, 2]
-    maximum, minimum = rgb.max(1), rgb.min(1)
-    saturation = (maximum - minimum) / np.maximum(maximum, 1e-6)
-    skin = (r > g) & (g > b) & (saturation > 0.18) & (saturation < 0.75) & (maximum > 0.08) & ((r - b) > 0.05)
-    return skin, rgb
+    return skin_colour(rgb), rgb
 
 
 def main():

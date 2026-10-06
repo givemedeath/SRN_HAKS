@@ -13,7 +13,7 @@ import numpy as np
 
 import lbs
 import mdl_ascii
-from robe_common import FLAGS, pin, read, require, utc, verify_pins, write_fresh
+from robe_common import FLAGS, merge_pins, pin, read, require, utc, verify_pins, write_fresh
 
 
 def nearest(reference, query, cell=1e-3):
@@ -175,8 +175,9 @@ def compare(left_path, right_path, left_chain, right_chain, ascii_directory, mot
 
 
 def animation_content(model):
-    """Local clips by name, with numbers rounded so exporter formatting and the model's own name do not count."""
-    clips = {}
+    """Sorted [name, content hash] per local clip; numbers rounded so exporter formatting and the model's
+    own name do not count, and same-named clips each keep an entry."""
+    clips = []
     for clip in model.animations:
         tokens = []
         for token in clip["text"].replace(clip["model"], "<model>").split():
@@ -184,8 +185,8 @@ def animation_content(model):
                 tokens.append(f"{float(token):.4f}")
             except ValueError:
                 tokens.append(token.lower())
-        clips[clip["name"].lower()] = hashlib.sha256(" ".join(tokens).encode()).hexdigest()
-    return clips
+        clips.append([clip["name"].lower(), hashlib.sha256(" ".join(tokens).encode()).hexdigest()])
+    return sorted(clips)
 
 
 def verdict(report, tolerances):
@@ -194,6 +195,9 @@ def verdict(report, tolerances):
         failures.append("structure")
     if report["header"]["supermodel"][0].lower() != report["header"]["supermodel"][1].lower():
         failures.append("supermodel")
+    classification = report["header"].get("classification")  # case is normalized by the writer
+    if classification and str(classification[0]).lower() != str(classification[1]).lower():
+        failures.append("classification")
     scale = report["header"]["animationScale"]
     if abs(float(scale[0]) - float(scale[1])) > 1e-6:
         failures.append("animation scale")
@@ -241,8 +245,8 @@ def main():
     parser.add_argument("--motion-count", type=int, default=9)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    extraction = read(args.extraction)
     inputs = [pin(args.left), pin(args.right), pin(args.extraction)]
+    extraction = read(args.extraction)
     if args.tolerances:
         inputs.append(pin(args.tolerances))
     chain = lbs.chain_for(args.extraction, args.chain_model)
@@ -251,9 +255,7 @@ def main():
     left_chain = [Path(args.left).stem.lower(), *tail]
     right_chain = [Path(args.right).stem.lower(), *tail]
     report = compare(args.left, args.right, left_chain, right_chain, extraction["asciiDirectory"], args.motion_count)
-    for source in report.pop("modelSources"):  # both rigs read the same stock chain; pin each file once
-        if source["path"] not in {i["path"] for i in inputs}:
-            inputs.append(source)
+    merge_pins(inputs, report.pop("modelSources"))  # both rigs read the same stock chain: one pin per file
     if args.tolerances:
         tolerance_file = read(args.tolerances)
         require(tolerance_file["kind"] == "srn-robe-control-tolerances", "Frozen control tolerances required")

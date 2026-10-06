@@ -80,7 +80,7 @@ def load(spec, entry):
         body = Body(entry["stockBody"]["ascii"], entry["stockBody"].get("prefix", "pmh0"),
                     parts=[p for p in entry["stockBody"].get("parts", [])] or None)
         verts, faces, _ = body.posed()
-        sources = body.sources
+        sources = [source["path"] for source in body.sources]
         objects = [from_arrays(entry["name"], verts, faces)]
     mat = material(entry["name"], entry["color"]) if entry.get("color") else None
     for obj in objects:

@@ -44,7 +44,7 @@
   },
   "knownLimits": [
     "Neck may clip into the collar by design (no clearance pass; collar not trimmed).",
-    "Stretch peaks (26x) sit in the narrowed shoulder and outer-elbow seams.",
+    "Offline stretch peaks (7.7x after the r2 limb corrections) sit in the narrowed shoulder and outer-elbow seams.",
     "Exposed forearm skin tints with the creature skin colour; all other materials are fixed colour (no cloth/leather/metal dyeing).",
     "Stock pmh0 phenotype 0 only."
   ]

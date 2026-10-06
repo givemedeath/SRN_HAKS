@@ -133,6 +133,7 @@ def main():
     parser.add_argument("--user-directory", type=Path, required=True, help="Isolated client test userdir")
     parser.add_argument("--staging", type=Path, required=True)
     args = parser.parse_args()
+    inputs, executables = [pin(args.fixture)], {}  # pinned before reading, re-verified before the receipt
     fixture = read(args.fixture)
     require(fixture["kind"] == "srn-robe-fixture", "Robe fixture configuration required")
     run_root, userdir = args.run_root.resolve(), args.user_directory.resolve()
@@ -142,7 +143,6 @@ def main():
         directory.mkdir(parents=True, exist_ok=True)
     require(not any((userdir / "override").iterdir()), "Isolated userdir override must be empty")
     common = ["--root", str(args.game_root), "--userdirectory", str(userdir), "--no-ovr"]
-    inputs, executables = [], {}
 
     def tool(name, arguments):
         if name not in executables:  # every invoked executable is pinned and re-verified with the inputs
@@ -169,9 +169,8 @@ def main():
         tool("nwn_gff", ["-i", path, "-o", out])
         return json.loads(out.read_text(encoding="utf-8"))
 
-    inputs.append(pin(args.fixture))
-    columns, table = read_2da(run_root / fixture["partsRobe"])
     inputs.append(pin(run_root / fixture["partsRobe"]))
+    columns, table = read_2da(run_root / fixture["partsRobe"])
     stock_table = copy.deepcopy(table)  # stock references never see rows this fixture overrides
     for row, spec in fixture["rows"].items():
         hide = spec["hide"] if isinstance(spec["hide"], dict) else stock_hide(stock_table, spec["hide"])
@@ -182,7 +181,9 @@ def main():
         source = run_root / spec["model"]
         inputs.append(pin(source))
         target = resources / (spec["resref"] + ".mdl")
-        if source.read_bytes()[:4] == b"\0\0\0\0":  # client-compiled binary: names are baked in
+        with source.open("rb") as stream:
+            binary_model = stream.read(4) == b"\0\0\0\0"
+        if binary_model:  # client-compiled binary: names are baked in
             require(spec["sourceName"].lower() == spec["resref"].lower(), "Binary models cannot be renamed: " + row)
             shutil.copyfile(source, target)
             continue
@@ -195,10 +196,12 @@ def main():
         shutil.copyfile(source, resources / source.name)
     for path in resources.iterdir():
         require(len(path.stem) <= 16 and path.name == path.name.lower(), "Invalid resref: " + path.name)
-    tileset = installed("ttr01.set").decode("cp1252")
-    tileset = re.sub(r"(?m)^Name=TTR01$", "Name=SR_RT", tileset)
+    # The installed tileset uses CRLF: normalize before the line-anchored edits, write CRLF back unchanged.
+    tileset = installed("ttr01.set").decode("cp1252").replace("\r\n", "\n")
+    tileset, renamed = re.subn(r"(?m)^Name=TTR01$", "Name=SR_RT", tileset)
+    require(renamed == 1, "Tileset name line not found")
     tileset = re.sub(r"(?m)^Density=[^\n]+", "Density=0.000", tileset)
-    (resources / "sr_rt.set").write_text(tileset, encoding="cp1252")
+    (resources / "sr_rt.set").write_text(tileset, encoding="cp1252", newline="\r\n")
     (resources / "sr_rt_edge.2da").write_bytes(installed("ttr01_edge.2da"))
     hak = userdir / "hak" / (fixture["hak"] + ".hak")
     if hak.exists():

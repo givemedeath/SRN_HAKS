@@ -178,8 +178,14 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(verdict(report, tolerances)["failures"], [])
         scaled = dict(report, header=dict(report["header"], animationScale=["1.0", "0.9"]))
         self.assertIn("animation scale", verdict(scaled, tolerances)["failures"])
-        dropped = dict(report, header=dict(report["header"], animationContent=[animation_content(left), {}]))
+        dropped = dict(report, header=dict(report["header"], animationContent=[animation_content(left), []]))
         self.assertIn("local animations", verdict(dropped, tolerances)["failures"])
+        twice = SimpleNamespace(animations=left.animations * 2)
+        self.assertNotEqual(animation_content(twice), animation_content(left))
+        reclassed = dict(report, header=dict(report["header"], classification=["character", "EFFECT"]))
+        self.assertIn("classification", verdict(reclassed, tolerances)["failures"])
+        self.assertNotIn("classification", verdict(dict(report, header=dict(
+            report["header"], classification=["character", "CHARACTER"])), tolerances)["failures"])
 
     def test_review_measures_rank_compression_and_collapse(self):
         from deformation_review import measures
@@ -233,6 +239,39 @@ class MeshyPolicyTests(unittest.TestCase):
                    "inputs": [], "payload": {"input_task_id": "t", "topology": "triangle", "target_polycount": 150000}}
         with self.assertRaises(ValueError):
             validate_request(request)
+
+    def test_image_edit_needs_pinned_references(self):
+        request = {"requestId": "e1", "outfit": "workwear", "operation": "image-to-image", "estimatedCredits": 9,
+                   "inputs": [], "payload": {"ai_model": "nano-banana-pro", "prompt": "A-pose", "reference_image_urls": []}}
+        with self.assertRaises(ValueError):
+            validate_request(request)
+
+    def test_derived_task_must_build_on_an_attributable_success(self):
+        with tempfile.TemporaryDirectory() as folder:
+            session = Session.create(Path(folder) / "session", 60, ["workwear"])
+            request_file = Path(folder) / "request.json"
+            request_file.write_text("{}")
+            remesh = {"requestId": "m1", "outfit": "workwear", "operation": "remesh", "estimatedCredits": 5,
+                      "inputs": [], "payload": {"input_task_id": "t1"}}
+            with self.assertRaises(ValueError):
+                session.reserve(remesh, pin(request_file), None)  # unknown task
+            session.append("submitted", requestId="r0", taskId="t1", resource="image-to-3d", inputsUnchanged=False)
+            session.append("settled", requestId="r0", taskId="t1", resource="image-to-3d", status="SUCCEEDED", credits=30)
+            with self.assertRaises(ValueError):
+                session.reserve(remesh, pin(request_file), None)  # succeeded but not attributable
+            session.append("submitted", requestId="r1", taskId="t2", resource="image-to-3d", inputsUnchanged=True)
+            session.append("settled", requestId="r1", taskId="t2", resource="image-to-3d", status="SUCCEEDED", credits=30)
+            session.reserve(dict(remesh, payload={"input_task_id": "t2"}), pin(request_file), None)
+
+    def test_collect_holds_the_session_lock(self):
+        import meshy_robe
+        with tempfile.TemporaryDirectory() as folder:
+            session = Session.create(Path(folder) / "session", 40, ["workwear"])
+            session.lock()
+            with self.assertRaises(ValueError):
+                meshy_robe.collect(session, "r1", Path(folder) / "binding.json", Path(folder) / "op", Path(folder) / "bank")
+            with self.assertRaises(ValueError):
+                meshy_robe.wait(session, "r1", Path(folder) / "binding.json", Path(folder) / "op2")
 
     def test_session_enforces_cap_approval_and_single_open_job(self):
         with tempfile.TemporaryDirectory() as folder:

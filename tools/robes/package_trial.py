@@ -11,7 +11,7 @@ import json
 import shutil
 from pathlib import Path
 
-from robe_common import pin, read, require, sha, utc, write_fresh
+from robe_common import pin, read, require, sha, utc, verify_pins, write_fresh
 
 GATES = ("referenceApproval", "workingSelection", "nativeValidation", "clientValidation", "productionAcceptance")
 
@@ -45,11 +45,11 @@ Trial package for stock human male phenotype 0. Not registered in srn_2da or hak
 
 ## Contents
 
-- `srn_robetrial.hak`: robe model `{config['model']}.mdl` (client-compiled binary), its skin PLT,
+- `{manifest['hak']}`: robe model `{config['model']}.mdl` (client-compiled binary), its skin PLT,
   fixed-colour MTR/TGA and a `parts_robe.2da` whose row {config['row']} hides {', '.join(manifest['hides']) or 'nothing'}
   and leaves {', '.join(manifest['visible']) or 'nothing'} visible.
 - `{manifest['item']['file']}`: armour item (cloth base) using robe row {config['row']}.
-- `srn_robetrial.mod`: demo module, stock robe004 beside the pilot on light and dark skin and with sword and shield.
+- `{manifest['module']}`: demo module, stock robe004 beside the pilot on light and dark skin and with sword and shield.
 - `parts_robe.2da`: the same table as a loose file. The engine reads 2DA rows by position, so any merge
   must keep row {config['row']} on line {config['row']} (pad unused rows with `****`).
 
@@ -63,7 +63,7 @@ Trial package for stock human male phenotype 0. Not registered in srn_2da or hak
 
 ## Use
 
-Put the HAK in a user `hak` folder and the module in `modules`, then load `srn_robetrial`. Polycount: {manifest['triangles']} triangles.
+Put the HAK in a user `hak` folder and the module in `modules`, then load `{Path(manifest['module']).stem}`. Polycount: {manifest['triangles']} triangles.
 """
 
 
@@ -74,13 +74,17 @@ def main():
     parser.add_argument("--fixture-receipt", type=Path, required=True, help="fixture.json of the final package fixture build")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    run_root = args.run_root.resolve()
+    # Every JSON input is pinned before it is read and re-verified before the manifest names it.
+    config_pin = pin(args.config)
     config = read(args.config)
     require(config["kind"] == "srn-robe-package", "Robe package configuration required")
     require(not config["gates"]["productionAcceptance"]["status"], "Trial packages never claim production acceptance")
     require(set(config["gates"]) == set(GATES), "Gate set must be " + ", ".join(GATES))
-    run_root = args.run_root.resolve()
     output = Path(args.output).resolve()
     require(not output.exists(), "Fresh package directory required")
+    receipt_pin, validated_pin = pin(args.fixture_receipt), pin(run_root / config["validatedFixture"])
+    lineage = {key: pin(run_root / value) for key, value in config["lineage"].items()}
     receipt = read(args.fixture_receipt)
     staging = Path(args.fixture_receipt).resolve().parent
     validated = read(run_root / config["validatedFixture"])
@@ -111,13 +115,14 @@ def main():
     line = row_line(output / "parts_robe.2da", row)
     hides, visible = row_visibility(output / "parts_robe.2da", row)
     model_report = read(run_root / config["lineage"]["model"])
+    verify_pins([config_pin, receipt_pin, validated_pin, *lineage.values()])
     manifest = {"schemaVersion": 1, "kind": "srn-robe-trial-package", "createdUtc": utc(), "outfit": config["outfit"],
                 "title": config["title"], "row": row, "model": model, "triangles": model_report["triangles"],
                 "partsRobeRow": line.split(), "hides": hides, "visible": visible, "item": {"file": item.name, "label": config["itemLabel"]},
+                "hak": hak.name, "module": module.name,
                 "files": {p.name: sha(p) for p in sorted(output.iterdir())},
-                "hakResources": receipt["hakResources"], "validatedAgainst": pin(run_root / config["validatedFixture"]),
-                "fixtureReceipt": pin(args.fixture_receipt), "configuration": pin(args.config),
-                "lineage": {key: pin(run_root / value) for key, value in config["lineage"].items()},
+                "hakResources": receipt["hakResources"], "validatedAgainst": validated_pin,
+                "fixtureReceipt": receipt_pin, "configuration": config_pin, "lineage": lineage,
                 "gates": config["gates"], "knownLimits": config["knownLimits"],
                 "referenceApproved": config["gates"]["referenceApproval"]["status"],
                 "nativeValidated": config["gates"]["nativeValidation"]["status"],

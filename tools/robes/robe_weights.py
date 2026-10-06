@@ -24,15 +24,6 @@ def limit_and_normalize(weights, max_influences=4, prune=0.001):
     return weights / totals[:, None]
 
 
-def quantize(weights, decimals):
-    """Model the ASCII writer: round each weight, then renormalize as NWN reads it."""
-    rounded = np.round(np.asarray(weights, dtype=float), decimals)
-    totals = rounded.sum(axis=1)
-    if np.any(totals <= 0):
-        raise ValueError("Quantization removed every influence of a vertex")
-    return rounded
-
-
 def validate(weights, bones, hierarchy, *, sum_tolerance, max_influences=4, bone_limit=None):
     """Measure weight validity against the effective bind hierarchy."""
     weights = np.asarray(weights, dtype=float)

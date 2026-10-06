@@ -8,6 +8,13 @@ from pathlib import Path
 import numpy as np
 
 import mdl_ascii
+from robe_common import read_pinned
+
+
+def _read(path, sources):
+    data, source = read_pinned(path)
+    sources.append(source)
+    return mdl_ascii.parse(data.decode("cp1252"))
 
 ATTACH = {"head": "head_g", "neck": "neck_g", "chest": "torso_g", "pelvis": "pelvis_g", "belt": "belt_g",
           "bicepl": "lbicep_g", "bicepr": "rbicep_g", "forel": "lforearm_g", "forer": "rforearm_g",
@@ -24,8 +31,8 @@ class Body:
     def __init__(self, ascii_directory, prefix="pmh0", parts=None):
         self.directory = Path(ascii_directory)
         self.prefix = prefix
-        self.model = mdl_ascii.read(self.directory / (prefix + ".mdl"))
-        self.sources = [self.directory / (prefix + ".mdl")]  # every model read, for input pinning
+        self.sources = []  # pins of the exact bytes of every model read
+        self.model = _read(self.directory / (prefix + ".mdl"), self.sources)
         self.bind = mdl_ascii.bind_frames(self.model)
         self.parts = {}
         for part, bone in ATTACH.items():
@@ -34,8 +41,7 @@ class Body:
             path = self.directory / f"{prefix}_{part}001.mdl"
             if not path.is_file():
                 continue
-            model = mdl_ascii.read(path)
-            self.sources.append(path)
+            model = _read(path, self.sources)
             local = mdl_ascii.bind_frames(model)
             meshes = [n for n in model.nodes if n.kind in mdl_ascii.MESHES and "faces" in n.arrays]
             verts, faces, offset = [], [], 0

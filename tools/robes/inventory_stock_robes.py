@@ -57,11 +57,12 @@ def main():
     parser.add_argument("--extraction", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    consumed = [pin(args.extraction)]
     extraction = read(args.extraction)
     require(extraction["kind"] == "srn-robe-stock-extraction", "Stock extraction receipt required")
     ascii_dir, raw_dir = Path(extraction["asciiDirectory"]), Path(extraction["rawDirectory"])
-    consumed = [pin(args.extraction)] + [pin(ascii_dir / name) for name in extraction["resources"]
-                                         if name.endswith(".mdl")] + [pin(raw_dir / "parts_robe.2da")]
+    consumed += [pin(ascii_dir / name) for name in extraction["resources"]
+                 if name.endswith(".mdl")] + [pin(raw_dir / "parts_robe.2da")]
     verify_pins(consumed)
     body = mdl_ascii.read(ascii_dir / (extraction["prefix"] + ".mdl"))
     body_frames = mdl_ascii.bind_frames(body)

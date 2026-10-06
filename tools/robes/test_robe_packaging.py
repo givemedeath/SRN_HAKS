@@ -13,6 +13,7 @@ from build_robe_fixture import read_2da, renamed_model, scripts, write_2da
 from build_robe_model import node_for_faces, skeleton_nodes
 from prepare_robe_materials import plt_bytes
 from prepare_reference import subject_bottom
+from robe_common import merge_pins, sha
 from test_robe_core import SKIN_MODEL
 
 
@@ -83,7 +84,15 @@ class ModelBuildTests(unittest.TestCase):
             part = SKIN_MODEL.replace("probe", "probe_chest001").replace("node skin cloth", "node trimesh cloth")
             (Path(folder) / "probe_chest001.mdl").write_text(part, encoding="cp1252")
             body = Body(folder, "probe")
-            self.assertEqual(sorted(p.name for p in body.sources), ["probe.mdl", "probe_chest001.mdl"])
+            self.assertEqual(sorted(Path(p["path"]).name for p in body.sources), ["probe.mdl", "probe_chest001.mdl"])
+            self.assertEqual(body.sources[0]["sha256"], sha(Path(folder) / "probe.mdl"))
+
+    def test_merge_pins_refuses_two_hashes_for_one_path(self):
+        inputs = [{"path": "a", "sha256": "1"}]
+        merge_pins(inputs, [{"path": "a", "sha256": "1"}, {"path": "b", "sha256": "2"}])
+        self.assertEqual(inputs, [{"path": "a", "sha256": "1"}, {"path": "b", "sha256": "2"}])
+        with self.assertRaises(ValueError):
+            merge_pins(inputs, [{"path": "a", "sha256": "9"}])
 
     def test_node_reindexes_vertices_and_deduplicates_uvs(self):
         verts = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [9, 9, 9]], float)

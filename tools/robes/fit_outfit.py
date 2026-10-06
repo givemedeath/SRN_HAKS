@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fit_math
 from mesh_ops import neighbours, weld_ids
 from blender_io import import_single
-from robe_common import FLAGS, fresh_directory, pin, read, require, utc, verify_pins, write_fresh
+from robe_common import FLAGS, fresh_directory, merge_pins, pin, read, require, utc, verify_pins, write_fresh
 from stock_body import Body, closest_on_triangles
 
 BLENDS = {"shoulder": 0.09, "elbow": 0.05, "wrist": 0.03, "knee": 0.05, "ankle": 0.04, "torsoCoreHalfWidth": 0.10,
@@ -93,9 +93,9 @@ def main():
     parser.add_argument("--stock-ascii", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
+    inputs = [pin(args.config), pin(args.repaired)]
     config = read(args.config)
     require(config["kind"] == "srn-robe-outfit-config", "Outfit config required")
-    inputs = [pin(args.config), pin(args.repaired)]
     output = fresh_directory(args.output)
     fit = config["fit"]
     blends = {**BLENDS, **fit.get("blends", {})}
@@ -106,7 +106,7 @@ def main():
     rows, cols = neighbours(tris, len(first), welded)
     oriented = fit_math.rotate_front(verts, config["orientation"]["sourceFront"], config["orientation"]["targetFront"])
     body = Body(args.stock_ascii, config["target"]["prefix"])
-    inputs += [pin(path) for path in body.sources]  # the clearance and separation bodies read subsets of these
+    merge_pins(inputs, body.sources)
     targets = fit_math.stock_targets(body)
     raw_marks = fit_math.outfit_landmarks(oriented, tris, welded)
     scale, offset = fit_math.similarity(raw_marks, targets)
@@ -133,6 +133,7 @@ def main():
     # and clearing it blew the collar out by up to 27 cm (v5).
     clearance_parts = [p for p in clearance_parts if p not in fit.get("clearanceExclude", [])]
     volume = Body(args.stock_ascii, config["target"]["prefix"], parts=clearance_parts)
+    merge_pins(inputs, volume.sources)  # re-read subsets must be the same bytes
     if volume.parts:
         frames = fit_math.generation_pose_frames(volume.bind, transforms) if space == "generation" else None
         body_verts, body_faces, _ = volume.posed(frames)
@@ -153,6 +154,7 @@ def main():
         # sleeves stay put, so the elbows are not pushed in.
         require(space == "generation", "bindSeparation follows a generation-space fit")
         arms = Body(args.stock_ascii, config["target"]["prefix"], parts=separation["bodyParts"])
+        merge_pins(inputs, arms.sources)
         arm_verts, arm_faces, _ = arms.posed()
         movable = np.isin(labels, [fit_math.SEGMENTS.index(s) for s in separation["segments"]])
         bind_visible = outer_visibility(fitted, tris, welded)[first]
