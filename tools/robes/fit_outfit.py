@@ -140,6 +140,9 @@ def main():
     visible = outer_visibility(clearance_source, tris, welded)
     clearance_parts = (fit_math.visible_parts(config["hide"]) if fit.get("clearanceParts") == "visible"
                        else fit["bodyParts"])
+    # The garment wraps the neck, not the head: a capped Meshy collar sits inside the head volume
+    # and clearing it blew the collar out by up to 27 cm (v5).
+    clearance_parts = [p for p in clearance_parts if p not in fit.get("clearanceExclude", [])]
     volume = Body(args.stock_ascii, config["target"]["prefix"], parts=clearance_parts)
     require(volume.parts, "No stock body parts to clear")
     frames = fit_math.generation_pose_frames(volume.bind, transforms) if space == "generation" else None
