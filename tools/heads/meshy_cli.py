@@ -162,20 +162,33 @@ def collect(session, request_id, binding_file, output):
     return task_fields(read(source))["id"]
 
 
+def reconcile_rejection(session, request_id, response_file, history_file):
+    session.reconcile_rejection(request_id, response_file, history_file)
+    return request_id
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["dispatch", "wait", "collect"])
+    parser.add_argument("command", choices=["dispatch", "wait", "collect", "reconcile-rejection"])
     parser.add_argument("--session", type=Path, required=True)
-    parser.add_argument("--binding", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--binding", type=Path)
+    parser.add_argument("--output", type=Path)
     parser.add_argument("--request", type=Path)
     parser.add_argument("--request-id")
+    parser.add_argument("--response", "--result", dest="response", type=Path)
+    parser.add_argument("--history", type=Path)
     args = parser.parse_args()
     session = Session(args.session)
+    if args.command in ("dispatch", "wait", "collect"):
+        require(args.binding is not None and args.output is not None, "Binding and output paths required")
     if args.command == "dispatch":
         identity = dispatch(session, args.request, args.binding, args.output)
     elif args.command == "wait":
         identity = wait(session, args.request_id, args.binding, args.output)
-    else:
+    elif args.command == "collect":
         identity = collect(session, args.request_id, args.binding, args.output)
+    else:
+        require(args.request_id and args.response and args.history,
+                "Request ID, response and history evidence required")
+        identity = reconcile_rejection(session, args.request_id, args.response, args.history)
     print(identity)

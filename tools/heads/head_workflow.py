@@ -224,6 +224,31 @@ def fit_similarity(source, destination, tolerance):
     return {"matrix": matrix.tolist(), "uniformScale": scale, "maximumLandmarkError": error}
 
 
+def verify_package_payload(package_pin, resources, receipt_pin=None):
+    """Verify the reviewed package contains the native resources, either via receipt or direct HAK decode."""
+    require(bool(resources), "Native review requires non-empty resources")
+    if receipt_pin is not None:
+        verify_pins([receipt_pin])
+        receipt = read(receipt_pin["path"])
+        require(receipt.get("kind") == "srn-head-hak-verification"
+                and receipt.get("payloadHashesVerified") is True
+                and receipt.get("hak", {}).get("sha256") == package_pin["sha256"],
+                "Package payload verification receipt invalid")
+        if "resources" in receipt:
+            require(receipt["resources"] >= len(resources),
+                    "Receipt resource count smaller than native resources")
+        return
+    from verify_head_hak import payload as decode_hak, TYPES
+    archive = decode_hak(package_pin["path"])
+    for res in resources:
+        p = Path(res["path"])
+        ext = p.suffix[1:].lower()
+        require(ext in TYPES, f"Unsupported native resource type: {p.name}")
+        key = (p.stem, TYPES[ext])
+        require(key in archive and archive[key] == res["sha256"],
+                f"Package does not contain verified native resource: {p.name}")
+
+
 class Session:
     """Immutable hash-linked events plus a lock for credit and gate updates."""
     def __init__(self, directory):
@@ -624,6 +649,8 @@ class Session:
                 verify_pins([report["package"]])
                 require(report.get("packageSha256") == report["package"]["sha256"],
                         "Native package hash mismatch")
+                verify_package_payload(report["package"], report["resources"],
+                                       receipt_pin=report.get("payloadVerification"))
             if stage == "client":
                 require(report["clientObserved"] is True and report["slotsSelectable"] is True and report["helmetsReviewed"] is True
                         and report["palettesReviewed"] is True and report["lightingReviewed"] is True, "Actual client checks incomplete")
@@ -660,6 +687,7 @@ class Session:
             if 'neckClosure' in report:verify_pins([report['neckClosure']])
             if 'neckConnector' in report:verify_pins([report['neckConnector']])
             if 'package' in report:verify_pins([report['package']])
+            if 'payloadVerification' in report:verify_pins([report['payloadVerification']])
 
     def publication(self, identities, *, slot_audit=None, repository=None):
         require(bool(identities) and len(set(identities)) == len(identities), "Explicit unique selections required")
@@ -710,6 +738,11 @@ def main():
     adopt = sub.add_parser('adopt-spending')
     adopt.add_argument('--session', type=Path, required=True)
     adopt.add_argument('--proof', type=Path, required=True)
+    reconcile = sub.add_parser('reconcile-rejection')
+    reconcile.add_argument('--session', type=Path, required=True)
+    reconcile.add_argument('--request-id', required=True)
+    reconcile.add_argument('--response', '--result', dest='response', type=Path, required=True)
+    reconcile.add_argument('--history', type=Path, required=True)
     review = sub.add_parser("review")
     review.add_argument("--session", type=Path, required=True)
     review.add_argument("--report", type=Path, required=True)
@@ -738,6 +771,8 @@ def main():
         session.review(report["designId"], report["stage"], arguments.report)
     elif arguments.command == 'adopt-spending':
         session.adopt_spending(arguments.proof)
+    elif arguments.command == 'reconcile-rejection':
+        session.reconcile_rejection(arguments.request_id, arguments.response, arguments.history)
     elif arguments.command in ("reserve", "record-task", "settle"):
         getattr(session, arguments.command.replace("-", "_"))(**read(arguments.record))
     elif arguments.command == "allocate":

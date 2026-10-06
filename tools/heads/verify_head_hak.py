@@ -27,6 +27,25 @@ def payload(path):
     return rows
 
 
+def write_hak(path, entries):
+    count = len(entries)
+    keys_offset = 160
+    res_offset = 160 + 24 * count
+    data_offset = res_offset + 8 * count
+    total_len = data_offset + sum(len(d) for _, _, d in entries)
+    buf = bytearray(total_len)
+    buf[:8] = b"HAK V1.0"
+    struct.pack_into("<I", buf, 16, count)
+    struct.pack_into("<II", buf, 24, keys_offset, res_offset)
+    cur_data = data_offset
+    for i, (name, kind, data) in enumerate(entries):
+        struct.pack_into("<16sIH", buf, keys_offset + 24 * i, name.encode("ascii"), i, kind)
+        struct.pack_into("<II", buf, res_offset + 8 * i, cur_data, len(data))
+        buf[cur_data:cur_data + len(data)] = data
+        cur_data += len(data)
+    Path(path).write_bytes(buf)
+
+
 def verify(hak, manifest, output):
     document=read(manifest)
     require(document["kind"]=="srn-head-publication","Accepted publication manifest required")

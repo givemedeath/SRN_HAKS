@@ -370,9 +370,12 @@ class HeadTests(unittest.TestCase):
         closure_file = self.root / 'closure.json'
         write_fresh(closure_file, {'passed': True, 'neckCutBoundaryEdges': 0, 'uncappedClosedNeckLoops': 0,
                                    'source': pin(fit_geom)})
-        hak_file = self.root / 'test_hak.hak'; hak_file.write_bytes(b'hak_content')
-        other_hak = self.root / 'other_hak.hak'; other_hak.write_bytes(b'other_content')
+        from verify_head_hak import write_hak
         res_file = self.root / 'res.mdl'; res_file.write_bytes(b'res')
+        hak_file = self.root / 'test_hak.hak'
+        write_hak(hak_file, [('res', 2002, b'res')])
+        other_hak = self.root / 'other_hak.hak'
+        write_hak(other_hak, [('other', 2002, b'other')])
 
         native_base = {
             'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'native', 'passed': True,
@@ -396,6 +399,24 @@ class HeadTests(unittest.TestCase):
         write_fresh(bad_hash_native, {**native_base, 'package': pin(hak_file), 'packageSha256': '1'*64})
         with self.assertRaisesRegex(ValueError, 'Native package hash mismatch'):
             self.session.review('human-male-01', 'native', bad_hash_native)
+
+        # Native package missing native resources fails
+        bad_content_native = self.root / 'native_bad_content.json'
+        write_fresh(bad_content_native, {**native_base, 'package': pin(other_hak), 'packageSha256': pin(other_hak)['sha256'],
+                                         'inputs': [pin(self.roster), pin(target_file), pin(fit_file), pin(closure_file), pin(res_file), pin(other_hak)]})
+        with self.assertRaisesRegex(ValueError, 'Package does not contain verified native resource'):
+            self.session.review('human-male-01', 'native', bad_content_native)
+
+        # Bad payload verification receipt fails
+        bad_receipt = self.root / 'bad_receipt.json'
+        write_fresh(bad_receipt, {'kind': 'srn-head-hak-verification', 'hak': pin(other_hak),
+                                  'payloadHashesVerified': True, 'resources': 1})
+        bad_receipt_native = self.root / 'native_bad_receipt.json'
+        write_fresh(bad_receipt_native, {**native_base, 'package': pin(hak_file),
+                                         'payloadVerification': pin(bad_receipt),
+                                         'inputs': [*native_base['inputs'], pin(bad_receipt)]})
+        with self.assertRaisesRegex(ValueError, 'Package payload verification receipt invalid'):
+            self.session.review('human-male-01', 'native', bad_receipt_native)
 
         # Valid native review passes
         good_native = self.root / 'native_good.json'

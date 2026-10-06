@@ -53,6 +53,34 @@ class SubmissionReconciliationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Newest-first owning task history required'):
                 session.reconcile_rejection('second-dispatch',rejected,bad_history)
 
+    def test_reconcile_rejection_cli_commands(self):
+        import subprocess, sys
+        import head_workflow, meshy_cli
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); roster = root / 'roster.json'; write_fresh(roster, make_roster())
+            session = Session.create(root / 'session', roster)
+            session.append('reserved', requestId='cli-test', operation='remesh', estimatedCredits=5)
+            rejected = root / 'rejected.json'; history = root / 'history.json'
+            write_fresh(rejected, {'ok': False, 'result': None, 'error': {'code': 'validation', 'http_status': 400}})
+            write_fresh(history, {'ok': True, 'result': {'items': [], 'page': {'page_num': 1, 'sort_by': '-created_at'}}})
+
+            # CLI via meshy_cli.py
+            cmd_meshy = [sys.executable, str(Path(meshy_cli.__file__).resolve()), 'reconcile-rejection',
+                         '--session', str(session.root), '--request-id', 'cli-test',
+                         '--response', str(rejected), '--history', str(history)]
+            proc = subprocess.run(cmd_meshy, capture_output=True, text=True, check=True)
+            self.assertEqual(proc.stdout.strip(), 'cli-test')
+            self.assertEqual(session.credit_used(), 0)
+
+            # CLI via head_workflow.py
+            session.append('reserved', requestId='workflow-cli-test', operation='remesh', estimatedCredits=5)
+            self.assertEqual(session.credit_used(), 5)
+            cmd_workflow = [sys.executable, str(Path(head_workflow.__file__).resolve()), 'reconcile-rejection',
+                            '--session', str(session.root), '--request-id', 'workflow-cli-test',
+                            '--response', str(rejected), '--history', str(history)]
+            proc = subprocess.run(cmd_workflow, capture_output=True, text=True, check=True)
+            self.assertEqual(session.credit_used(), 0)
+
 
 if __name__=='__main__':unittest.main()
 
