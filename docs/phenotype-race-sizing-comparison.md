@@ -87,7 +87,7 @@ batch conversion or correct assembled height alone does not complete this task.
 
 - **Human:** Male stature is the calibration anchor. The female target is only about 0.8% shorter than the stock female assembly, but female parts still require their own joint and socket measurements.
 - **Elf:** The targets reverse stock NWN's shorter-than-Human Elf stature. The planned Elves are taller than Humans; fitting must account for the roughly 21% male and 25% female height increases.
-- **Dwarf:** The targets are roughly 9–10% shorter than stock. Preserve the intended broad build while fitting limb lengths and attachment overlaps; do not infer body width from stature alone.
+- **Dwarf:** The targets are roughly 9–10% shorter than stock. The Dwarf Male (Fit) pilot has been completed and validated: see [Dwarf Male pilot validation](phenotype-derived-dwarf-pilot.md) and [the derived workflow runbook](phenotype-derived-workflow.md). Preserved the intended broad build with localized RBF shaping while maintaining all 18 rigid connector frames.
 - **Orc:** Target height is close to stock Half-Orc height. The broad native skeleton still requires a separate comparison with the intended Shadowrun physique before choosing part or equipment resizing.
 
 For each future combination, use stock assembled parts and attachment pivots as fitting references. Preserve the intended racial physique, and make any necessary mass reductions locally around joints rather than uniformly compressing the whole body. Validate neck and head placement, connected-part caps and overlap, limb alignment, and equipment fit through representative animations.

@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "kind": "phenotype-derived-matrix",
+  "pilotTarget": "dwarf-male-fit",
+  "policy": {
+    "activeGenderScope": [
+      "male"
+    ],
+    "femaleBlockReason": "Human female master body paused at checkpoint v24; female master unapproved",
+    "supportedPhenotypes": [
+      0
+    ],
+    "halfElfPolicy": "shares-human-body",
+    "halflingPolicy": "out-of-scope"
+  },
+  "targets": {
+    "human-male-fit": {
+      "id": "human-male-fit",
+      "race": "human",
+      "gender": "male",
+      "phenotype": 0,
+      "modelPrefix": "pmh0",
+      "masterSource": "human-male-v1",
+      "status": "baseline-master",
+      "appearanceRow": 6,
+      "racialTypeRow": 6,
+      "statureMeters": 1.9339157,
+      "note": "Canonical donor master body and project baseline standard"
+    },
+    "dwarf-male-fit": {
+      "id": "dwarf-male-fit",
+      "race": "dwarf",
+      "gender": "male",
+      "phenotype": 0,
+      "modelPrefix": "pmd0",
+      "masterSource": "human-male-v1",
+      "status": "pilot-accepted",
+      "rigCandidate": "stock-first-measured",
+      "appearanceRow": 0,
+      "racialTypeRow": 0,
+      "headPrefix": "pmd0_head",
+      "neckPrefix": "pmd0_neck",
+      "supermodel": "pmd0"
+    },
+    "dwarf-female-fit": {
+      "id": "dwarf-female-fit",
+      "race": "dwarf",
+      "gender": "female",
+      "phenotype": 0,
+      "modelPrefix": "pfd0",
+      "masterSource": "human-female-v1",
+      "status": "blocked-on-source",
+      "blocker": "Human female master body paused at checkpoint v24; female master unapproved",
+      "appearanceRow": 0,
+      "racialTypeRow": 0
+    },
+    "elf-male-fit": {
+      "id": "elf-male-fit",
+      "race": "elf",
+      "gender": "male",
+      "phenotype": 0,
+      "modelPrefix": "pme0",
+      "masterSource": "human-male-v1",
+      "status": "pilot-accepted",
+      "rigCandidate": "stock-measured",
+      "supermodel": "pme0",
+      "animationSupermodel": "a_ba",
+      "appearanceRow": 1,
+      "racialTypeRow": 1
+    },
+    "elf-female-fit": {
+      "id": "elf-female-fit",
+      "race": "elf",
+      "gender": "female",
+      "phenotype": 0,
+      "modelPrefix": "pfe0",
+      "masterSource": "human-female-v1",
+      "status": "blocked-on-source",
+      "blocker": "Human female master unapproved",
+      "appearanceRow": 1,
+      "racialTypeRow": 1
+    },
+    "troll-male-fit": {
+      "id": "troll-male-fit",
+      "race": "troll",
+      "replacesRace": "gnome",
+      "gender": "male",
+      "phenotype": 0,
+      "modelPrefix": "pmg0",
+      "masterSource": "human-male-v1",
+      "status": "pending-equipment-validation",
+      "rigCandidate": "broadened-scaled",
+      "appearanceRow": 2,
+      "racialTypeRow": 2,
+      "headPrefix": "pmh0_head",
+      "neckPrefix": "pmh0_neck",
+      "supermodel": "pmg0",
+      "animationSupermodel": "a_ba",
+      "productionAccepted": false,
+      "blocker": "Gate 3 stock armor interface geometry and separate equipped-client standing/motion acceptance are missing"
+    },
+    "gnome-male-fit": {
+      "id": "gnome-male-fit",
+      "race": "troll",
+      "replacesRace": "gnome",
+      "aliasOf": "troll-male-fit",
+      "gender": "male",
+      "phenotype": 0,
+      "modelPrefix": "pmg0",
+      "masterSource": "human-male-v1",
+      "status": "pending-equipment-validation",
+      "appearanceRow": 2,
+      "racialTypeRow": 2,
+      "productionAccepted": false,
+      "blocker": "Gate 3 stock armor interface geometry and separate equipped-client standing/motion acceptance are missing"
+    },
+    "gnome-female-fit": {
+      "id": "gnome-female-fit",
+      "race": "gnome",
+      "gender": "female",
+      "phenotype": 0,
+      "modelPrefix": "pfg0",
+      "masterSource": "human-female-v1",
+      "status": "blocked-on-source",
+      "blocker": "Human female master unapproved",
+      "appearanceRow": 2,
+      "racialTypeRow": 2
+    },
+    "half-orc-male-fit": {
+      "id": "half-orc-male-fit",
+      "race": "half-orc",
+      "gender": "male",
+      "phenotype": 0,
+      "modelPrefix": "pmo0",
+      "masterSource": "human-male-v1",
+      "status": "pilot-accepted",
+      "rigCandidate": "stock-measured",
+      "supermodel": "pmo0",
+      "animationSupermodel": "a_da",
+      "appearanceRow": 5,
+      "racialTypeRow": 5
+    },
+    "half-orc-female-fit": {
+      "id": "half-orc-female-fit",
+      "race": "half-orc",
+      "gender": "female",
+      "phenotype": 0,
+      "modelPrefix": "pfo0",
+      "masterSource": "human-female-v1",
+      "status": "blocked-on-source",
+      "blocker": "Human female master unapproved",
+      "appearanceRow": 5,
+      "racialTypeRow": 5
+    },
+    "half-elf-male-fit": {
+      "id": "half-elf-male-fit",
+      "race": "half-elf",
+      "gender": "male",
+      "phenotype": 0,
+      "modelPrefix": "pmh0",
+      "masterSource": "human-male-v1",
+      "status": "shares-human-body",
+      "appearanceRow": 4,
+      "racialTypeRow": 4,
+      "note": "Shares stock Human body per project rules and appearance.2da"
+    },
+    "half-elf-female-fit": {
+      "id": "half-elf-female-fit",
+      "race": "half-elf",
+      "gender": "female",
+      "phenotype": 0,
+      "modelPrefix": "pfh0",
+      "masterSource": "human-female-v1",
+      "status": "shares-human-body",
+      "appearanceRow": 4,
+      "racialTypeRow": 4,
+      "note": "Shares stock Human body per project rules and appearance.2da"
+    },
+    "halfling": {
+      "id": "halfling",
+      "race": "halfling",
+      "status": "out-of-scope",
+      "note": "Halfling is out of scope per user specification"
+    }
+  }
+}
