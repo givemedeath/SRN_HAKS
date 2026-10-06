@@ -15,7 +15,6 @@ import json
 from pathlib import Path
 import sys
 
-import bpy
 import numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
@@ -25,25 +24,13 @@ import fit_math
 import lbs
 import mdl_ascii
 from mesh_ops import neighbours, smooth_field, weld_ids
+from blender_io import import_single
 from robe_common import FLAGS, fresh_directory, pin, read, require, skin_colour, utc, verify_pins, write_fresh
 from robe_weights import limb_corrections, limit_and_normalize, validate
 from stock_body import SKIN_BONES, Body
 
 ARM_BONES = {"L": {"lbicep_g", "lforearm_g"}, "R": {"rbicep_g", "rforearm_g"}}
 UPPER_BONES = {"torso_g", "pelvis_g"}
-
-
-def import_single(path):
-    for obj in list(bpy.data.objects):
-        bpy.data.objects.remove(obj, do_unlink=True)
-    before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=str(path))
-    meshes = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
-    require(len(meshes) == 1, "Expected one mesh object")
-    obj = meshes[0]
-    obj.data.transform(obj.matrix_world)
-    obj.matrix_world.identity()
-    return obj
 
 
 class Donor:

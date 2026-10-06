@@ -18,24 +18,13 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from blender_io import import_single
+from mesh_ops import islands
 from robe_common import FLAGS, fresh_directory, pin, require, sha, utc, write_fresh
 
 DIRECTIONS = [Vector(v).normalized() for v in
               [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1), (1, 1, 1), (1, 1, -1), (1, -1, 1),
                (1, -1, -1), (-1, 1, 1), (-1, 1, -1), (-1, -1, 1), (-1, -1, -1)]]
-
-
-def load(path):
-    for obj in list(bpy.data.objects):
-        bpy.data.objects.remove(obj, do_unlink=True)
-    before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=str(path))
-    meshes = [obj for obj in bpy.data.objects if obj not in before and obj.type == "MESH"]
-    require(len(meshes) == 1, "Expected one mesh object in the Meshy export")
-    obj = meshes[0]
-    obj.data.transform(obj.matrix_world)
-    obj.matrix_world.identity()
-    return obj
 
 
 def arrays(mesh):
@@ -47,28 +36,6 @@ def arrays(mesh):
     loops = np.empty(len(mesh.loop_triangles) * 3, dtype=np.int64)
     mesh.loop_triangles.foreach_get("loops", loops)
     return verts.reshape(-1, 3), tris.reshape(-1, 3), loops.reshape(-1, 3)
-
-
-def islands(verts, tris, weld=1e-5):
-    keys = np.round(verts / weld).astype(np.int64)
-    _, welded = np.unique(keys, axis=0, return_inverse=True)
-    welded = welded.reshape(-1)
-    parent = np.arange(welded.max() + 1)
-
-    def find(x):
-        while parent[x] != x:
-            parent[x] = parent[parent[x]]
-            x = parent[x]
-        return x
-    for a, b, c in welded[tris]:
-        for u, v in ((a, b), (b, c)):
-            ru, rv = find(u), find(v)
-            if ru != rv:
-                parent[ru] = rv
-    roots = np.array([find(x) for x in range(len(parent))])
-    face_island = roots[welded[tris[:, 0]]]
-    labels, face_island = np.unique(face_island, return_inverse=True)
-    return face_island, welded
 
 
 def edge_topology(welded, tris):
@@ -204,7 +171,7 @@ def main():
     source = args.source.resolve()
     require(sha(source) == args.source_sha256, "Frozen source changed")
     output = fresh_directory(args.output)
-    obj = load(source)
+    obj = import_single(source)
     verts, tris, loops = arrays(obj.data)
     low, high = verts.min(0), verts.max(0)
     size = high - low

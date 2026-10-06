@@ -115,6 +115,12 @@ class ComparisonTests(unittest.TestCase):
         np.testing.assert_array_equal(index, order)
         self.assertLess(gap.max(), 1e-5)
 
+    def test_nearest_handles_points_far_from_every_cell(self):
+        reference = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 2.0, 0.0]])
+        index, gap = nearest(reference, np.array([[0.9, 0.05, 0.0], [0.001, 0.0, 0.0]]))
+        self.assertEqual(index.tolist(), [1, 0])
+        np.testing.assert_allclose(gap, [np.hypot(0.1, 0.05), 0.001])
+
     def test_smoothing_edges_ignore_renumbering(self):
         verts = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0]], float)
         left = np.array([[0, 1, 2, 1, 0, 0, 0, 0], [1, 3, 2, 1, 0, 0, 0, 0]])
@@ -225,6 +231,28 @@ class MeshyPolicyTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 session.reserve(dict(second, estimatedCredits=15), pin(request_file), None)
             self.assertEqual(session.committed(), 30)
+
+    def test_refused_submission_cannot_be_collected_and_settles_once(self):
+        import meshy_robe
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as folder:
+            session = Session.create(Path(folder) / "session", 40, ["workwear"])
+            request = self.request(folder)
+            request_file = Path(folder) / "request.json"
+            request_file.write_text(json.dumps(request))
+            approval = Path(folder) / "approval.json"
+            approval.write_text("{}")
+            session.reserve(request, pin(request_file), pin(approval))
+            session.append("submitted", requestId="r1", taskId="t1", resource="image-to-3d", inputsUnchanged=False)
+            task = Path(folder) / "task.json"
+            task.write_text("{}")
+            session.append("settled", requestId="r1", taskId="t1", resource="image-to-3d", status="SUCCEEDED",
+                           credits=30, task=pin(task))
+            with mock.patch.object(meshy_robe, "invoke", side_effect=AssertionError("CLI must not run")):
+                with self.assertRaises(ValueError):
+                    meshy_robe.collect(session, "r1", Path(folder) / "binding.json", Path(folder) / "op", Path(folder) / "bank")
+                with self.assertRaises(ValueError):
+                    meshy_robe.wait(session, "r1", Path(folder) / "binding.json", Path(folder) / "op2")
 
     def test_dispatch_records_then_refuses_inputs_changed_during_upload(self):
         import meshy_robe

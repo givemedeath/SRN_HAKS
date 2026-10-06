@@ -25,15 +25,24 @@ def nearest(reference, query, cell=1e-3):
     offsets = [(x, y, z) for x in (-1, 0, 1) for y in (-1, 0, 1) for z in (-1, 0, 1)]
     found = np.empty(len(query), dtype=np.int64)
     distance = np.empty(len(query))
+    far = []
     for row, point in enumerate(query):
         base = np.floor(point / cell).astype(np.int64)
         candidates = [i for dx, dy, dz in offsets for i in grid.get((base[0] + dx, base[1] + dy, base[2] + dz), ())]
         if not candidates:
-            candidates = range(len(reference))
+            far.append(row)  # resolved below in one vectorized pass instead of a full scan per point
+            continue
         candidates = np.fromiter(candidates, dtype=np.int64)
         gaps = np.linalg.norm(reference[candidates] - point, axis=1)
         best = int(np.argmin(gaps))
         found[row], distance[row] = candidates[best], gaps[best]
+    far = np.asarray(far, dtype=np.int64)
+    step = max(1, (1 << 24) // max(len(reference), 1))
+    for start in range(0, len(far), step):
+        rows = far[start:start + step]
+        gaps = np.linalg.norm(query[rows][:, None, :] - reference[None, :, :], axis=2)
+        found[rows] = gaps.argmin(axis=1)
+        distance[rows] = gaps[np.arange(len(rows)), found[rows]]
     return found, distance
 
 

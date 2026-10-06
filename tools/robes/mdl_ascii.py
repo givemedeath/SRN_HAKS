@@ -64,6 +64,14 @@ class Model:
         return [node.key for node in self.nodes]
 
 
+def _numeric(token):
+    try:
+        float(token)
+        return True
+    except ValueError:
+        return False
+
+
 def _floats(line):
     return [float(value) for value in line.split()]
 
@@ -124,6 +132,8 @@ def parse(text):
                     continue
                 parts = text_line.split(None, 1)
                 field = parts[0].lower()
+                if _numeric(field):
+                    raise ValueError(f"Unparsed array rows in node {node.name}: an unsupported counted field precedes them")
                 value = parts[1].strip() if len(parts) > 1 else ""
                 if field == "endnode":
                     break

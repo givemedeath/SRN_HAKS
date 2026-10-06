@@ -193,12 +193,13 @@ def dispatch(session, request_file, binding_file, approval_file, folder):
         require(code == 0 and identity, "Submission uncertain; reconcile CLI journal before any retry")
         try:  # an input replaced during upload means the paid task may not match the reserved hashes
             verify_pins(request["inputs"])
-            unchanged = True
-        except ValueError:
-            unchanged = False
+            unchanged, problem = True, None
+        except Exception as error:  # any failure here must not lose the paid task's record
+            unchanged, problem = False, f"{type(error).__name__}: {error}"
         # The task is paid either way, so the submission is recorded before refusing to attribute it.
         session.append("submitted", requestId=request["requestId"], taskId=identity,
-                       resource=request["operation"], response=pin(response), inputsUnchanged=unchanged)
+                       resource=request["operation"], response=pin(response), inputsUnchanged=unchanged,
+                       inputsCheckError=problem)
         require(unchanged, "Inputs changed during submission; task " + identity + " cannot be attributed to the pinned request")
         return identity
     finally:
@@ -206,8 +207,10 @@ def dispatch(session, request_file, binding_file, approval_file, folder):
 
 
 def wait(session, request_id, binding_file, folder):
-    event = next((e for e in session.events() if e["kind"] == "submitted" and e["requestId"] == request_id), None)
+    events = session.events()
+    event = next((e for e in events if e["kind"] == "submitted" and e["requestId"] == request_id), None)
     require(event is not None, "Recorded submission required")
+    require(not any(e["kind"] == "settled" and e["requestId"] == request_id for e in events), "Request already settled")
     lock = session.lock()
     try:
         code, response = invoke(read(binding_file), [event["resource"], "wait", event["taskId"], "--timeout", "1800",
@@ -219,13 +222,19 @@ def wait(session, request_id, binding_file, folder):
                            status=fields["status"], credits=fields["credits"], response=pin(response),
                            task=pin(Path(folder) / "task.json") if (Path(folder) / "task.json").exists() else None)
         require(code == 0 and fields["status"] == "SUCCEEDED", "Task not succeeded; reservation stays until settled")
+        # Settling keeps credit accounting true; a refused submission still cannot become source material.
+        require(event.get("inputsUnchanged", True), "Settled, but the task cannot be attributed to its pinned inputs")
         return fields
     finally:
         lock.unlink()
 
 
 def collect(session, request_id, binding_file, folder, bank):
-    settled = next((e for e in session.events() if e["kind"] == "settled" and e["requestId"] == request_id), None)
+    events = session.events()
+    submitted = next((e for e in events if e["kind"] == "submitted" and e["requestId"] == request_id), None)
+    require(submitted is not None and submitted.get("inputsUnchanged", True),
+            "Submission inputs changed during upload; the task cannot be collected as source")
+    settled = next((e for e in events if e["kind"] == "settled" and e["requestId"] == request_id), None)
     require(settled is not None and settled["status"] == "SUCCEEDED" and settled["task"], "Successful task required")
     verify_pins([settled["task"]])
     bank = Path(bank).resolve()

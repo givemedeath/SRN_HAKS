@@ -29,7 +29,7 @@ def row_line(path, row):
 
 def row_visibility(path, row):
     """Body parts the packaged parts_robe row hides and leaves visible (HIDE* columns)."""
-    from build_robe_fixture import read_2da
+    from parts_robe import read_2da
     columns, rows = read_2da(path)
     flags = {c[4:].lower(): rows[row][c] for c in columns if c.startswith("HIDE")}
     return sorted(p for p, v in flags.items() if v == "1"), sorted(p for p, v in flags.items() if v != "1")

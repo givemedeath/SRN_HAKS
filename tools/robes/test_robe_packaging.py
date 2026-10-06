@@ -43,7 +43,7 @@ class ModelBuildTests(unittest.TestCase):
         np.testing.assert_allclose(rest["upper"], mdl_ascii.bind_frames(stock)["upper"])
 
     def test_axis_angle_round_trips_mdl_orientation(self):
-        from apose_skeleton import axis_angle
+        from build_robe_model import axis_angle
         from retarget import rotations
         for axis, angle in (([0, 0, 1], 0.7), ([1, 2, -0.5], 2.1), ([0, 1, 0], 0.0)):
             matrix = rotations(np.r_[axis, angle])
@@ -138,6 +138,15 @@ class FixtureTests(unittest.TestCase):
             write_2da(path, ["ACBONUS", "HIDENECK", "HIDEHANDL", "HIDECHEST"], {2: {"HIDENECK": 0, "HIDEHANDL": 1, "HIDECHEST": 1}})
             self.assertEqual(row_visibility(path, 2), (["chest", "handl"], ["neck"]))
 
+    def test_stock_hide_reads_the_stock_row_and_rejects_empty_rows(self):
+        from build_robe_fixture import stock_hide
+        from parts_robe import HIDE
+        table = {4: {c: "1" for c in HIDE}, 12: {c: "****" for c in HIDE}}
+        self.assertEqual(stock_hide(table, "stock:4"), {c: "1" for c in HIDE})
+        for reference in ("stock:12", "stock:99", "row:4"):
+            with self.assertRaises(ValueError):
+                stock_hide(table, reference)
+
     def test_rename_keeps_bitmaps(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "pmh0_robe004.mdl"
@@ -164,6 +173,13 @@ class MaterialAndReferenceTests(unittest.TestCase):
         self.assertEqual(data[24:26], bytes([3, 0]))
         with self.assertRaises(ValueError):
             plt_bytes(shades, np.full_like(shades, 12))
+
+    def test_header_above_subject_does_not_end_the_crop(self):
+        image = Image.new("RGB", (40, 120))
+        image.paste((200, 200, 200), (10, 2, 30, 6))     # small header line
+        image.paste((200, 200, 200), (10, 25, 30, 90))   # subject after a gap
+        image.paste((200, 200, 200), (10, 105, 30, 110))  # caption after a gap
+        self.assertEqual(subject_bottom(image, 24, 12), 89)
 
     def test_caption_below_gap_is_excluded(self):
         image = Image.new("RGB", (40, 100))

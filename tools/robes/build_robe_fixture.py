@@ -13,12 +13,10 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from parts_robe import HIDE, read_2da, write_2da
 from robe_common import FLAGS, fresh_directory, pin, read, require, sha, utc, verify_pins, write_fresh
 from tool_runtime import tool as resolved_tool
 
-HIDE = ("HIDEFOOTR", "HIDEFOOTL", "HIDESHINR", "HIDESHINL", "HIDELEGR", "HIDELEGL", "HIDEPELVIS", "HIDECHEST",
-        "HIDEBELT", "HIDENECK", "HIDEFORER", "HIDEFOREL", "HIDEBICEPR", "HIDEBICEPL", "HIDESHOR", "HIDESHOL",
-        "HIDEHANDR", "HIDEHANDL", "HIDEHEAD")
 MOTION = [("idle", "ActionPlayAnimation(ANIMATION_LOOPING_PAUSE2,1.0,5.5);"),
           ("walk", "WALK"), ("run", "RUN"), ("melee", "ATTACK"), ("melee", "ATTACK"),
           ("cast", "ActionPlayAnimation(ANIMATION_LOOPING_CONJURE1,1.0,5.5);"),
@@ -40,20 +38,13 @@ def structure(kind, **values):
     return {"__data_type": kind, **values}
 
 
-def write_2da(path, columns, rows):
-    widths = [max(len(c), 4) + 2 for c in columns]
-    lines = ["2DA V2.0", "", "    " + "".join(c.ljust(w) for c, w in zip(columns, widths))]
-    # The engine indexes 2DA rows by position, not label: gaps are padded with empty rows so labels stay true.
-    for index in range(max(rows) + 1):
-        values = [str(rows.get(index, {}).get(c, "****")) for c in columns]
-        lines.append(str(index).ljust(4) + "".join(v.ljust(w) for v, w in zip(values, widths)))
-    path.write_text("\n".join(lines) + "\n", encoding="ascii")
-
-
-def read_2da(path):
-    lines = [line for line in Path(path).read_text(encoding="cp1252").splitlines() if line.strip()]
-    columns = lines[1].split()
-    return columns, {int(v[0]): dict(zip(columns, v[1:])) for v in (line.split() for line in lines[2:])}
+def stock_hide(table, reference):
+    """HIDE flags of a stock row named as 'stock:<row>' (read from the unmodified stock table)."""
+    source, _, row = reference.partition(":")
+    require(source == "stock" and row.isdigit() and int(row) in table, "Hide reference must be stock:<row>: " + reference)
+    values = {c: table[int(row)].get(c, "****") for c in HIDE}
+    require(all(v in ("0", "1") for v in values.values()), "Stock row has no hide flags: " + reference)
+    return values
 
 
 def renamed_model(source, old, new):
@@ -181,10 +172,10 @@ def main():
     inputs.append(pin(args.fixture))
     columns, table = read_2da(run_root / fixture["partsRobe"])
     inputs.append(pin(run_root / fixture["partsRobe"]))
+    stock_table = copy.deepcopy(table)  # stock references never see rows this fixture overrides
     for row, spec in fixture["rows"].items():
-        hide = spec["hide"] if isinstance(spec["hide"], dict) else \
-            {c: table[int(spec["hide"].split(":")[1])][c] for c in HIDE}
-        stock = table.get(int(row), {})  # an overridden stock row keeps its cost and AC; new rows get none
+        hide = spec["hide"] if isinstance(spec["hide"], dict) else stock_hide(stock_table, spec["hide"])
+        stock = stock_table.get(int(row), {})  # an overridden stock row keeps its cost and AC; new rows get none
         kept = {c: stock[c] if stock.get(c, "****") != "****" else default
                 for c, default in (("COSTMODIFIER", 0), ("ACBONUS", "0.00"))}
         table[int(row)] = {**kept, **{c: int(hide[c]) for c in HIDE}}

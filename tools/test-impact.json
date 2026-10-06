@@ -986,8 +986,12 @@
       "tools/phenotypes/audit_pelvis_package.py"
     ],
     "tools/robes/apose_skeleton.py": [
+      "tools/robes/build_robe_model.py",
       "tools/robes/fit_math.py",
       "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/blender_io.py": [
       "tools/robes/robe_common.py"
     ],
     "tools/robes/blender_roundtrip.py": [
@@ -995,6 +999,7 @@
     ],
     "tools/robes/build_robe_fixture.py": [
       "tools/phenotypes/tool_runtime.py",
+      "tools/robes/parts_robe.py",
       "tools/robes/robe_common.py"
     ],
     "tools/robes/build_robe_model.py": [
@@ -1033,6 +1038,7 @@
       "tools/robes/stock_body.py"
     ],
     "tools/robes/fit_outfit.py": [
+      "tools/robes/blender_io.py",
       "tools/robes/fit_math.py",
       "tools/robes/mesh_ops.py",
       "tools/robes/robe_common.py",
@@ -1042,10 +1048,13 @@
       "tools/robes/robe_common.py"
     ],
     "tools/robes/inspect_source.py": [
+      "tools/robes/blender_io.py",
+      "tools/robes/mesh_ops.py",
       "tools/robes/robe_common.py"
     ],
     "tools/robes/inventory_stock_robes.py": [
       "tools/robes/mdl_ascii.py",
+      "tools/robes/parts_robe.py",
       "tools/robes/robe_common.py",
       "tools/robes/robe_weights.py"
     ],
@@ -1065,7 +1074,10 @@
       "tools/robes/robe_common.py"
     ],
     "tools/robes/package_trial.py": [
-      "tools/robes/build_robe_fixture.py",
+      "tools/robes/parts_robe.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/parts_robe.py": [
       "tools/robes/robe_common.py"
     ],
     "tools/robes/prepare_reference.py": [
@@ -1085,6 +1097,7 @@
       "tools/robes/stock_body.py"
     ],
     "tools/robes/repair_source.py": [
+      "tools/robes/blender_io.py",
       "tools/robes/robe_common.py"
     ],
     "tools/robes/robe_common.py": [],
@@ -1123,12 +1136,12 @@
     ],
     "tools/robes/test_robe_packaging.py": [
       "tools/phenotypes/retarget.py",
-      "tools/robes/apose_skeleton.py",
       "tools/robes/build_robe_fixture.py",
       "tools/robes/build_robe_model.py",
       "tools/robes/fit_math.py",
       "tools/robes/mdl_ascii.py",
       "tools/robes/package_trial.py",
+      "tools/robes/parts_robe.py",
       "tools/robes/prepare_reference.py",
       "tools/robes/prepare_robe_materials.py",
       "tools/robes/robe_node_variant.py",
@@ -1144,6 +1157,7 @@
       "tools/robes/robe_common.py"
     ],
     "tools/robes/transfer_weights.py": [
+      "tools/robes/blender_io.py",
       "tools/robes/fit_math.py",
       "tools/robes/lbs.py",
       "tools/robes/mdl_ascii.py",

@@ -10,25 +10,11 @@ import sys
 
 import bmesh
 import bpy
-import numpy as np
-from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from robe_common import FLAGS, fresh_directory, pin, read, require, sha, utc, write_fresh
-
-
-def import_single(path):
-    for obj in list(bpy.data.objects):
-        bpy.data.objects.remove(obj, do_unlink=True)
-    before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=str(path))
-    meshes = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
-    require(len(meshes) == 1, "Expected one mesh object")
-    obj = meshes[0]
-    obj.data.transform(obj.matrix_world)
-    obj.matrix_world.identity()
-    return obj
+from blender_io import import_single
+from robe_common import FLAGS, fresh_directory, pin, read_pinned, require, sha, utc, verify_pins, write_fresh
 
 
 def weld(obj, distance=1e-6):
@@ -53,7 +39,10 @@ def remove_duplicates(obj):
     bm.from_mesh(obj.data)
     seen, doomed = set(), []
     for face in bm.faces:
-        key = tuple(sorted(v.index for v in face.verts))
+        # Same vertices in the same winding: a reversed face is the back of double-sided cloth, not a copy.
+        ring = [v.index for v in face.verts]
+        start = ring.index(min(ring))
+        key = tuple(ring[start:] + ring[:start])
         if key in seen:
             doomed.append(face)
         seen.add(key)
@@ -103,7 +92,8 @@ def main():
     parser.add_argument("--run-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
-    config = read(args.config)
+    config_bytes, config_pin = read_pinned(args.config)
+    config = json.loads(config_bytes.decode("utf-8-sig"))
     require(config["kind"] == "srn-robe-outfit-config", "Outfit config required")
     source = (args.run_root / config["source"]["working"]).resolve()
     source_pin = pin(source)
@@ -141,8 +131,9 @@ def main():
     bpy.ops.export_scene.gltf(filepath=str(target_path), export_format="GLB", use_selection=True,
                               export_apply=True, export_yup=True)
     require(sha(source) == source_pin["sha256"], "Source changed during repair")
+    verify_pins([config_pin])
     report = {"schemaVersion": 1, "kind": "srn-robe-source-repair", "createdUtc": utc(), "outfit": config["outfit"],
-              "config": pin(args.config), "source": source_pin, "repaired": pin(target_path),
+              "config": config_pin, "source": source_pin, "repaired": pin(target_path),
               "trianglesBefore": before, "trianglesAfter": final, "faceBudget": config["faceBudget"],
               "interventions": interventions, "manualInterventions": [], **FLAGS}
     print(json.dumps(write_fresh(output / "repair.json", report)))

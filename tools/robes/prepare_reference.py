@@ -23,8 +23,10 @@ def subject_bottom(image, threshold, minimum_gap):
     """Last row of the subject: the first content row before a background gap of minimum_gap rows."""
     rows = content_rows(image, threshold)
     require(len(rows) > 0, "Reference image has no visible content")
-    gaps = np.flatnonzero(np.diff(rows) >= minimum_gap)
-    return int(rows[gaps[0]] if len(gaps) else rows[-1])
+    # Content blocks separated by background gaps; the tallest is the subject (a caption or header is small).
+    blocks = np.split(rows, np.flatnonzero(np.diff(rows) >= minimum_gap) + 1)
+    subject = max(blocks, key=lambda block: (int(block[-1] - block[0]), -int(block[0])))
+    return int(subject[-1])
 
 
 def main():

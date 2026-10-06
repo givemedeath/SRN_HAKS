@@ -172,6 +172,13 @@ class RigSourceTests(unittest.TestCase):
             self.assertEqual(rig.sources[1]["sha256"], hashlib.sha256(base.read_bytes()).hexdigest())
 
 
+
+class ParserGuardTests(unittest.TestCase):
+    def test_unknown_counted_field_is_rejected(self):
+        text = SKIN_MODEL.replace("  bitmap probe_tex\n", "  bitmap probe_tex\n  aabb 2\n    0.0 0.0 0.0 1.0 1.0 1.0 -1\n    0.0 0.0 0.0 1.0 1.0 1.0 0\n")
+        with self.assertRaises(ValueError):
+            mdl_ascii.parse(text)
+
 class SharedCorrectionTests(unittest.TestCase):
     def test_rigid_hands_bind_glove_vertices_to_the_hand_past_the_band(self):
         from robe_weights import limb_corrections

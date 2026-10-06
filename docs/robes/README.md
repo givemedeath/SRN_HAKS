@@ -16,6 +16,7 @@ runtime binding and a robe-scoped migration receipt.
 
 | Step | Helper | Notes |
 |---|---|---|
+| Shared | `robe_common.py`, `parts_robe.py`, `blender_io.py`, `mesh_ops.py`, `mdl_ascii.py` | Pinning (`read_pinned` hashes the exact bytes read), `parts_robe.2da` columns and position-true writer, the Blender GLB import, mesh connectivity, skin-aware ASCII MDL (unknown counted arrays are rejected). |
 | Migration | `run_robe_migration.py`, `finalize_robe_migration.py` | Python/Blender scope; stock robe extraction and Neverblender import smokes. Main's equipment finalizer needs an Armory tool that is not on main and is not used here. |
 | Stock extraction | `extract_stock_robes.py` | Every installed `pmh0_robe*`, `parts_robe.2da`, the `pmh0` animation chain and the `*001` body parts, overrides disabled. |
 | Inventory | `inventory_stock_robes.py` | Skin nodes, bones, influences, hide flags, hem coverage; donor proposals. |

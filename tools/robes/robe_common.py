@@ -37,6 +37,13 @@ def pin(path):
     return {"path": str(path), "sha256": sha(path)}
 
 
+def read_pinned(path):
+    """Read a file once; return its bytes and the pin of exactly those bytes (no read/hash gap)."""
+    path = Path(path).resolve()
+    data = path.read_bytes()
+    return data, {"path": str(path), "sha256": hashlib.sha256(data).hexdigest()}
+
+
 def skin_colour(rgb):
     """Exposed-skin colour rule on (n, 3) base-colour values in 0-1 (display-encoded): warm, moderately saturated."""
     import numpy as np

@@ -11,25 +11,12 @@ from pathlib import Path
 import numpy as np
 
 import mdl_ascii
+from parts_robe import HIDE, read_2da
 from robe_common import FLAGS, pin, read, require, utc, verify_pins, write_fresh
 from robe_weights import validate
 
-HIDE = ("HIDEFOOTR", "HIDEFOOTL", "HIDESHINR", "HIDESHINL", "HIDELEGR", "HIDELEGL", "HIDEPELVIS", "HIDECHEST",
-        "HIDEBELT", "HIDENECK", "HIDEFORER", "HIDEFOREL", "HIDEBICEPR", "HIDEBICEPL", "HIDESHOR", "HIDESHOL",
-        "HIDEHANDR", "HIDEHANDL", "HIDEHEAD")
 LEFT_LEG, RIGHT_LEG = {"lthigh_g", "lshin_g", "lfoot_g"}, {"rthigh_g", "rshin_g", "rfoot_g"}
 ARMS = {"lbicep_g", "lforearm_g", "rbicep_g", "rforearm_g", "lhand_g", "rhand_g"}
-
-
-def read_2da(path):
-    lines = [line for line in Path(path).read_text(encoding="cp1252").splitlines() if line.strip()]
-    require(lines[0].startswith("2DA"), "2DA header required")
-    columns = lines[1].split()
-    rows = {}
-    for line in lines[2:]:
-        values = line.split()
-        rows[int(values[0])] = dict(zip(columns, values[1:]))
-    return columns, rows
 
 
 def landmarks(body_frames):

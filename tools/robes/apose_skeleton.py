@@ -13,18 +13,9 @@ import shutil
 import numpy as np
 
 import fit_math
+from build_robe_model import axis_angle
 import mdl_ascii
 from robe_common import FLAGS, pin, require, utc, verify_pins, write_fresh
-
-
-def axis_angle(rotation):
-    """Axis-angle (x, y, z, radians) of a proper rotation, as MDL orientation lines store it."""
-    angle = float(np.arccos(np.clip((np.trace(rotation) - 1) / 2, -1, 1)))
-    if angle < 1e-9:
-        return np.array([0.0, 0.0, 0.0, 0.0])
-    require(np.pi - angle > 1e-6, "Half-turn rest rotations are not expected")
-    axis = np.array([rotation[2, 1] - rotation[1, 2], rotation[0, 2] - rotation[2, 0], rotation[1, 0] - rotation[0, 1]])
-    return np.r_[axis / np.linalg.norm(axis), angle]
 
 
 def generation_rest(model, transforms):

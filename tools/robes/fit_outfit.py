@@ -20,24 +20,12 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fit_math
 from mesh_ops import neighbours, weld_ids
+from blender_io import import_single
 from robe_common import FLAGS, fresh_directory, pin, read, require, utc, verify_pins, write_fresh
-from stock_body import Body
+from stock_body import Body, closest_on_triangles
 
 BLENDS = {"shoulder": 0.09, "elbow": 0.05, "wrist": 0.03, "knee": 0.05, "ankle": 0.04, "torsoCoreHalfWidth": 0.10,
           "armSeedFraction": 0.45, "armSeedRadius": 0.15, "labelSmoothing": 6}
-
-
-def import_single(path):
-    for obj in list(bpy.data.objects):
-        bpy.data.objects.remove(obj, do_unlink=True)
-    before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=str(path))
-    meshes = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
-    require(len(meshes) == 1, "Expected one mesh object")
-    obj = meshes[0]
-    obj.data.transform(obj.matrix_world)
-    obj.matrix_world.identity()
-    return obj
 
 
 def mesh_arrays(obj):
@@ -175,6 +163,14 @@ def main():
         fitted = separated[welded]
     inflated = fitted[first]
     shift_source = clearance_source
+    # The clearance pass may run in the generation pose and be followed by bind separation; measure the
+    # shipped bind-space result against the same parts in bind for the "final" figures.
+    if volume.parts:
+        bind_verts, bind_faces, _ = volume.posed()
+        _, final_gap, _, final_side = closest_on_triangles(inflated, bind_verts, bind_faces)
+        final_signed = final_side * final_gap
+    else:
+        final_signed = np.full(len(first), np.inf)
     obj.data.vertices.foreach_set("co", fitted.ravel())
     obj.data.update()
     obj.name = config["outfit"] + "_fitted"
@@ -191,11 +187,13 @@ def main():
         if mask.any():
             regions[name] = {"vertices": int(mask.sum()), "outerVertices": int((mask & outer).sum()),
                              "outerInitiallyInside": int(((initial < 0) & mask & outer).sum()),
-                             "outerFinalInside": int(((signed < 0) & mask & outer).sum()),
+                             "outerInsideAfterClearance": int(((signed < 0) & mask & outer).sum()),
+                             "outerFinalInside": int(((final_signed < 0) & mask & outer).sum()),
                              "maximumShift": float(shift[mask].max()), "p95Shift": float(np.percentile(shift[mask], 95))}
     np.savez_compressed(output / "fit-arrays.npz", proxyWeights=weights, welded=welded, aligned=aligned, posed=posed,
                         fitted=fitted, tris=tris, visible=visible, segmentLabels=labels[welded],
-                        inflation=shift[welded], signedDistance=signed[welded],
+                        inflation=shift[welded], signedDistance=final_signed[welded],
+                        clearanceSignedDistance=signed[welded],
                         **({"fittedGeneration": generation,
                             "proxyTransforms": np.stack([transforms[n] for n in fit_math.PROXY])}
                            if generation is not None else {}))
