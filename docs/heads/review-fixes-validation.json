@@ -1,9 +1,9 @@
 {
   "kind": "srn-head-review-fixes-validation",
-  "helperTestsPassed": 311,
+  "helperTestsPassed": 313,
   "checks": {
     "head": {
-      "tests": 49,
+      "tests": 51,
       "logSha256": "671d46fe5af8396da88abf3065dd3641c71ef61d0c51467e5e247c0ed3c33031"
     },
     "gallery": {
@@ -47,7 +47,9 @@
     "Head-only migration receipts honor requested allowed tools on schema-1 toolchains",
     "Native and client package hashes bound to pinned package bytes",
     "Mask proposal inputs freeze and verify every consumed source before and after use",
-    "Generated material groups merge compatible dielectric fixed regions to remain within exporter limit"
+    "Generated material groups merge compatible dielectric fixed regions to remain within exporter limit",
+    "GIT creature struct ID set to 4 for interactive test fixture instantiation",
+    "Palette assembly inputs require every consumed PLT, map, and palette file to be declared and pinned"
   ],
   "installedKeyReader": {
     "relevantResourceNames": 70106,

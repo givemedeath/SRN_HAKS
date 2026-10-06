@@ -69,6 +69,26 @@ def fixture_identity(config):
     return target['prefix'],row,row,scale
 
 
+def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_scale,helmet=0):
+    item=copy.deepcopy(template)
+    item.pop('__data_type', None)
+    item['__struct_id'] = 4
+    for key in list(item):
+        if key.startswith('Script'):item[key]=field('resref','')
+    item.update({'Appearance_Type':field('word',appearance),'Race':field('byte',race),'Gender':field('byte',0),'Phenotype':field('int',0),
+        'Tag':field('cexostring',tag),'TemplateResRef':field('resref',tag),'FirstName':field('cexolocstring',{'0':name}),
+        'LastName':field('cexolocstring',{}),'FactionID':field('word',2),'Plot':field('byte',0),
+        'CurrentHitPoints':field('short',100),'MaxHitPoints':field('short',100),'HitPoints':field('short',100),
+        'XPosition':field('float',x),'YPosition':field('float',y),'ZPosition':field('float',0),
+        'XOrientation':field('float',0),'YOrientation':field('float',1),'ItemList':field('list',[]),'Equip_ItemList':field('list',[]),
+        'ScriptSpawn':field('resref','sr_h_spawn'),'ScriptHeartbeat':field('resref','sr_h_hb'),
+        'VarTable':field('list',[{'__struct_id':0,'Name':field('cexostring',key),'Type':field('dword',1),'Value':field('int',value)}
+                               for key,value in (('HEAD_SLOT',slot),('SKIN_ROW',skin),('HAIR_ROW',hair),('HEAD_HELMET',helmet))])})
+    item['VarTable']['value'].append({'__struct_id':0,'Name':field('cexostring','BODY_VISUAL_SCALE'),
+        'Type':field('dword',2),'Value':field('float',visual_scale)})
+    return item
+
+
 def build(config_path,output):
     config=read(config_path);require(config['kind']=='srn-head-client-fixture','Explicit fixture configuration required')
     verify_pins(config['inputs']); bank=read(config['candidates']['path']);verify_pins([config['candidates'],config['bodyManifest']])
@@ -129,21 +149,7 @@ def build(config_path,output):
     require(payload(user/'hak/srn_body.hak')==expected_body,'Protected body HAK payload differs')
     template=read(stock/'nw_humanmerc001.utc.json');actors=[];catalog=[]
     def creature(tag,name,x,y,slot,skin,hair,helmet=0):
-        item=copy.deepcopy(template)
-        for key in list(item):
-            if key.startswith('Script'):item[key]=field('resref','')
-        item.update({'Appearance_Type':field('word',appearance),'Race':field('byte',race),'Gender':field('byte',0),'Phenotype':field('int',0),
-            'Tag':field('cexostring',tag),'TemplateResRef':field('resref',tag),'FirstName':field('cexolocstring',{'0':name}),
-            'LastName':field('cexolocstring',{}),'FactionID':field('word',2),'Plot':field('byte',0),
-            'CurrentHitPoints':field('short',100),'MaxHitPoints':field('short',100),'HitPoints':field('short',100),
-            'XPosition':field('float',x),'YPosition':field('float',y),'ZPosition':field('float',0),
-            'XOrientation':field('float',0),'YOrientation':field('float',1),'ItemList':field('list',[]),'Equip_ItemList':field('list',[]),
-            'ScriptSpawn':field('resref','sr_h_spawn'),'ScriptHeartbeat':field('resref','sr_h_hb'),
-            'VarTable':field('list',[{'__struct_id':0,'Name':field('cexostring',key),'Type':field('dword',1),'Value':field('int',value)}
-                                   for key,value in (('HEAD_SLOT',slot),('SKIN_ROW',skin),('HAIR_ROW',hair),('HEAD_HELMET',helmet))])})
-        item['VarTable']['value'].append({'__struct_id':0,'Name':field('cexostring','BODY_VISUAL_SCALE'),
-            'Type':field('dword',2),'Value':field('float',visual_scale)})
-        return item
+        return make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_scale,helmet)
     for design in bank['designs']:
         for skin in (0,3,12):
             for hair in (0,5,21):

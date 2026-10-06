@@ -123,5 +123,76 @@ class PaletteSamplingTests(unittest.TestCase):
             self.assertIn('node trimesh pmh0_head022p1', text)
             self.assertIn('node trimesh pmh0_head022p2', text)
 
+    def test_prepare_palette_assembly_pins_all_consumed_inputs(self):
+        from pathlib import Path
+        import struct
+        import tempfile
+        from PIL import Image
+        from head_workflow import pin, write_fresh, read
+        from prepare_palette_assembly import prepare
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            native_dir = root / 'native'; native_dir.mkdir()
+            mat_dir = root / 'materials'; mat_dir.mkdir()
+            body_dir = root / 'body'; body_dir.mkdir()
+
+            plt_data = b'PLT V1  ' + b'\x00'*8 + struct.pack('<II', 2, 2) + bytes([0, 0, 0, 1, 0, 0, 0, 1])
+            (native_dir / 'head0.plt').write_bytes(plt_data)
+            (body_dir / 'part.plt').write_bytes(plt_data)
+
+            for name in ('semantic', 'color', 'normal', 'roughness'):
+                img = Image.new('RGB' if name != 'roughness' else 'L', (2, 2), 0)
+                img.save(mat_dir / f'{name}.png')
+
+            pal_img = Image.new('RGB', (256, 1), 100)
+            skin_path = root / 'skin.png'; pal_img.save(skin_path)
+            hair_path = root / 'hair.png'; pal_img.save(hair_path)
+
+            part_source = root / 'part.mdl'; part_source.write_bytes(b'part_bytes')
+            assembly_data = {
+                'heads': [{}],
+                'parts': [{'source': pin(part_source), 'joint': 'neck'}]
+            }
+
+            assembly_file = root / 'assembly.json'
+            write_fresh(assembly_file, assembly_data)
+
+            inputs = [
+                pin(assembly_file), pin(skin_path), pin(hair_path),
+                pin(native_dir / 'head0.plt'),
+                pin(mat_dir / 'semantic.png'), pin(mat_dir / 'color.png'),
+                pin(mat_dir / 'normal.png'), pin(mat_dir / 'roughness.png'),
+                pin(part_source), pin(body_dir / 'part.plt')
+            ]
+
+            cfg = {
+                'assembly': pin(assembly_file),
+                'models': ['head0'],
+                'native': [str(native_dir)],
+                'materials': [str(mat_dir)],
+                'skinPalette': str(skin_path),
+                'hairPalette': str(hair_path),
+                'skinRow': 0, 'hairRow': 0,
+                'body': str(body_dir),
+                'inputs': inputs
+            }
+            cfg_file = root / 'config.json'
+            write_fresh(cfg_file, cfg)
+
+            # Test 1: Omitted input fails
+            bad_cfg = {**cfg, 'inputs': inputs[:-1]}
+            bad_cfg_file = root / 'bad_config.json'
+            write_fresh(bad_cfg_file, bad_cfg)
+            with self.assertRaisesRegex(ValueError, 'Consumed source omitted from declaration'):
+                prepare(bad_cfg_file, root / 'out_fail')
+
+            # Test 2: Valid inputs succeed
+            out = root / 'out_success'
+            prepare(cfg_file, out)
+            res = read(out / 'assembly.json')
+            self.assertTrue(res['palettePreview']['nativeResourcesRead'])
+            self.assertEqual(res['palettePreview']['skinRow'], 0)
+
 
 if __name__=='__main__':unittest.main()

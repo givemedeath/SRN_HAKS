@@ -34,5 +34,12 @@ class FixtureIdentityTests(unittest.TestCase):
         self.assertEqual(fixture_identity({}),('pmh0',6,6,1.0))
         with self.assertRaises(ValueError):fixture_identity({'rigAudit':{'unexpected':True}})
 
+    def test_creature_struct_id_is_four(self):
+        from build_head_fixture import make_creature
+        raw_utc = {'__data_type': 'UTC ', '__struct_id': -1, 'FirstName': {'type': 'cexolocstring', 'value': {}}}
+        c = make_creature(raw_utc, 'tag', 'name', 0, 0, 1, 0, 0, 6, 6, 1.0)
+        self.assertEqual(c['__struct_id'], 4)
+        self.assertNotIn('__data_type', c)
+
 
 if __name__=='__main__':unittest.main()
