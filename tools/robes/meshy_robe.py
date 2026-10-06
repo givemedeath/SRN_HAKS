@@ -22,6 +22,13 @@ IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".webp")
 ESTIMATES = {"image-to-3d": 30, "multi-image-to-3d": 30, "image-to-image": 9, "remesh": 5, "retexture": 10}
 
 
+def model_formats(payload):
+    """Target formats of a remesh/retexture request; GLB is mandatory because collect() requires the master."""
+    formats = payload.get("target_formats", ["glb", "fbx"])
+    require("glb" in formats, "GLB output required for model operations")
+    return formats
+
+
 def validate_request(request):
     """Static policy checks for one paid request; returns the CLI argument list."""
     operation, payload = request["operation"], request["payload"]
@@ -52,7 +59,7 @@ def validate_request(request):
         require(bool(payload.get("input_task_id")), "Remesh the recorded generation task")
         arguments += ["--input-task-id", payload["input_task_id"], "--topology", "triangle",
                       "--target-polycount", str(payload["target_polycount"]),
-                      "--target-formats", ",".join(payload.get("target_formats", ["glb", "fbx"]))]
+                      "--target-formats", ",".join(model_formats(payload))]
     elif operation == "retexture":
         require(payload.get("enable_original_uv") is True and payload.get("enable_pbr") is True
                 and payload.get("texture_resolution") == "4k", "UV-preserving 4K PBR retexture required")
@@ -60,7 +67,7 @@ def validate_request(request):
             ["--model-url", payload["model_url"]]
         require(payload.get("input_task_id") or local(payload["model_url"]), "Retexture source must be pinned")
         arguments += [*source, "--enable-original-uv", "true", "--enable-pbr", "true", "--texture-resolution", "4k",
-                      "--target-formats", ",".join(payload.get("target_formats", ["glb", "fbx"]))]
+                      "--target-formats", ",".join(model_formats(payload))]
         if payload.get("multiview_image_urls"):
             require(all(local(image) for image in payload["multiview_image_urls"]), "Views must be pinned")
             arguments += ["--multiview-image-urls", ",".join(payload["multiview_image_urls"])]

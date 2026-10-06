@@ -148,10 +148,12 @@ def main():
     if generation:
         rv = fit_math.pose_weighted(rv, rw, SKIN_BONES, transforms, fit_report.get("conversionBlend", "linear"))
         frames = fit_math.generation_pose_frames(body.bind, transforms)
-    face_bone = dominant[rf[:, 0]]
+    face_bones = dominant[rf]
 
     def robe_subset(bones):
-        keep = np.isin(face_bone, list(bones))
+        # A boundary triangle joins every subset that one of its vertices dominates, so vertex order never
+        # opens a hole in a donor surface.
+        keep = np.isin(face_bones, list(bones)).any(axis=1)
         return rv, rf[keep], rw
 
     donors = {}

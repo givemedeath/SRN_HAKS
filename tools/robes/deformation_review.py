@@ -11,8 +11,10 @@ import argparse
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import sys
+import uuid
 
 import numpy as np
 
@@ -100,9 +102,13 @@ def donor_baseline(donor, donor_nodes, body_rig, body, samples, cache):
     faces = merged([np.zeros((len(n["rest"]), 3)) for n in donor_nodes], [n["faces"] for n in donor_nodes])[1]
     if stored:
         stored.parent.mkdir(parents=True, exist_ok=True)
-        temporary = stored.with_name(key + ".partial.npz")
-        np.savez_compressed(temporary, posed=np.stack(posed_all), faces=faces, penetration=json.dumps(rows))
-        temporary.replace(stored)
+        # One temporary file per writer, published atomically: parallel reviews cannot interleave or expose a partial archive.
+        temporary = stored.with_name(f"{key}.{os.getpid()}.{uuid.uuid4().hex}.partial.npz")
+        try:
+            np.savez_compressed(temporary, posed=np.stack(posed_all), faces=faces, penetration=json.dumps(rows))
+            temporary.replace(stored)
+        finally:
+            temporary.unlink(missing_ok=True)
         return key, False, posed_all, faces, rows, pin(stored)
     return key, False, posed_all, faces, rows, None
 

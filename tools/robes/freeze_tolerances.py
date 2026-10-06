@@ -45,6 +45,10 @@ def measure(reports):
                 "Control structure changed; investigate before freezing tolerances")
         require(all(m.get("faces", [0, 0])[0] == m.get("faces", [0, 0])[1] for m in report["meshes"]),
                 "Control face count changed; investigate before freezing tolerances")
+        pairing = [f"{m.get('node')}: {key}" for m in report["meshes"]
+                   for key in ("maximumFaceCentroidError", "maximumReferenceFaceGap", "maximumCornerPositionError")
+                   if m.get(key, 0.0) > BOUNDS["position"]]
+        require(not pairing, "Control face pairing differs beyond the representation bound: " + ", ".join(pairing))
         changes = invariant_changes(report)
         require(not changes, "Control changed untoleranced properties; investigate before freezing: " + ", ".join(changes))
         worst["bindTranslation"] = max(worst["bindTranslation"], report["maximumBindTranslationError"])

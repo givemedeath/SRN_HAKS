@@ -144,7 +144,10 @@ class ComparisonTests(unittest.TestCase):
         self.assertAlmostEqual(max(2 * worst["deformation"], BOUNDS["deformation"]), 0.0028)
         dropped = dict(report, meshes=[dict(report["meshes"][0], faces=[12, 11])])
         mesh = report["meshes"][0]
-        lossy = [dict(report, meshes=[dict(mesh, uvPresent=[True, False])]),
+        lossy = [dict(report, meshes=[dict(mesh, maximumCornerPositionError=0.01)]),
+                 dict(report, meshes=[dict(mesh, maximumReferenceFaceGap=0.01)]),
+                 dict(report, meshes=[dict(mesh, maximumFaceCentroidError=0.01)]),
+                 dict(report, meshes=[dict(mesh, uvPresent=[True, False])]),
                  dict(report, meshes=[dict(mesh, render=["0", "1"])]),
                  dict(report, meshes=[dict(mesh, bitmap=["robe", "null"])]),
                  dict(report, header={"supermodel": ["pmh0", "pmh0"], "animationScale": ["1.0", "0.5"]})]
@@ -317,6 +320,14 @@ class MeshyPolicyTests(unittest.TestCase):
                    "inputs": [], "payload": {"ai_model": "nano-banana-pro", "prompt": "A-pose", "reference_image_urls": []}}
         with self.assertRaises(ValueError):
             validate_request(request)
+
+    def test_model_operations_must_request_glb(self):
+        base = {"requestId": "m1", "outfit": "workwear", "operation": "remesh", "estimatedCredits": 5, "inputs": [],
+                "payload": {"input_task_id": "t", "topology": "triangle", "target_polycount": 20000}}
+        self.assertIn("glb,fbx", validate_request(base)[validate_request(base).index("--target-formats") + 1])
+        broken = dict(base, payload=dict(base["payload"], target_formats=["fbx"]))
+        with self.assertRaises(ValueError):
+            validate_request(broken)
 
     def test_derived_task_must_build_on_an_attributable_success(self):
         with tempfile.TemporaryDirectory() as folder:
