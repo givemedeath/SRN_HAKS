@@ -1,9 +1,9 @@
 {
   "kind": "srn-head-review-fixes-validation",
-  "helperTestsPassed": 314,
+  "helperTestsPassed": 315,
   "checks": {
     "head": {
-      "tests": 52,
+      "tests": 53,
       "logSha256": "671d46fe5af8396da88abf3065dd3641c71ef61d0c51467e5e247c0ed3c33031"
     },
     "gallery": {
@@ -51,7 +51,8 @@
     "GIT creature struct ID set to 4 for interactive test fixture instantiation",
     "Palette assembly inputs require every consumed PLT, map, and palette file to be declared and pinned",
     "Definite API rejection reconciliation exposed through workflow and meshy CLI commands",
-    "Native review validates package archive payload contains all declared native resources"
+    "Native review validates package archive payload contains all declared native resources",
+    "Review reports pinned and verified before validation and reverified under session lock before appending"
   ],
   "installedKeyReader": {
     "relevantResourceNames": 70106,

@@ -450,6 +450,35 @@ class HeadTests(unittest.TestCase):
         write_fresh(good_client, {**client_base, 'package': pin(hak_file)})
         self.session.review('human-male-01', 'client', good_client)
 
+    def test_review_pins_exact_bytes_and_rejects_mutation_before_append(self):
+        ref_report = self.root / 'reference_mutation_test.json'
+        write_fresh(ref_report, {
+            'kind': 'srn-head-review', 'designId': 'human-male-02', 'stage': 'reference', 'passed': True,
+            'inputs': [pin(self.roster)], 'evidence': [pin(self.roster)],
+            'views': ['front', 'left', 'back', 'right'], 'sharedScale': True
+        })
+        original_reviews = self.session.reviews
+        def mutating_reviews(identity):
+            ref_report.write_text('{"mutated": true}')
+            return original_reviews(identity)
+        self.session.reviews = mutating_reviews
+        try:
+            with self.assertRaisesRegex(ValueError, 'Frozen input changed'):
+                self.session.review('human-male-02', 'reference', ref_report)
+        finally:
+            self.session.reviews = original_reviews
+
+        ref_report.unlink()
+        write_fresh(ref_report, {
+            'kind': 'srn-head-review', 'designId': 'human-male-02', 'stage': 'reference', 'passed': True,
+            'inputs': [pin(self.roster)], 'evidence': [pin(self.roster)],
+            'views': ['front', 'left', 'back', 'right'], 'sharedScale': True
+        })
+        self.session.review('human-male-02', 'reference', ref_report)
+        recorded = [e for e in self.session.events() if e['kind'] == 'review' and e['designId'] == 'human-male-02']
+        self.assertEqual(len(recorded), 1)
+        self.assertEqual(recorded[0]['report'], pin(ref_report))
+
 
 if __name__ == "__main__": unittest.main()
 

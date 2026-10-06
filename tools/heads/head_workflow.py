@@ -575,7 +575,9 @@ class Session:
     def review(self, identity, stage, report_file):
         self.design(identity)
         require(stage in STAGES, "Unknown acceptance stage")
-        report = read(report_file)
+        report_pin = pin(report_file)
+        verify_pins([report_pin])
+        report = read(report_pin["path"])
         require(report.get("kind") == "srn-head-review" and report["designId"] == identity
                 and report["stage"] == stage and report["passed"] is True, "Wrong or failed review")
         verify_pins(report["inputs"])
@@ -666,7 +668,8 @@ class Session:
                         "Client tested another package")
             if stage == "acceptance":
                 require(report["rightsReviewed"] is True and report["bodyResourcesUnchanged"] is True, "Publication review incomplete")
-            self.append("review", designId=identity, stage=stage, report=pin(report_file))
+            verify_pins([report_pin])
+            self.append("review", designId=identity, stage=stage, report=report_pin)
 
     def verify_review_chain(self, identity, through):
         reviews = self.reviews(identity)
@@ -767,7 +770,9 @@ def main():
     else:
         session = Session(arguments.session)
     if arguments.command == "review":
-        report = read(arguments.report)
+        report_pin = pin(arguments.report)
+        verify_pins([report_pin])
+        report = read(report_pin["path"])
         session.review(report["designId"], report["stage"], arguments.report)
     elif arguments.command == 'adopt-spending':
         session.adopt_spending(arguments.proof)
