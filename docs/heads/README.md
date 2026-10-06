@@ -1,6 +1,6 @@
 # Head production pipeline
 
-The current [gallery checkpoint](checkpoint-gallery-client-layout-main-integrated-v2.md) binds the exact resume ledger.
+The current [current checkpoint](checkpoint-head-review-fixes-v1.md) binds the exact resume ledger.
 The delivery is recorded in [delivery.md](delivery.md), with the
 [seven-design catalog](pilot-catalog.json), [selected 200-entry roster](roster-selected.json),
 [Human target](human-male-target.json), [Troll target](troll-male-target.json),
@@ -188,6 +188,12 @@ selected by the user. `audit_slots.py` pins their inventories and reads installe
 BIC `Appearance_Head` BYTE storage evidence. Slot 0 stays reserved; 1–255 is a
 storage range, with actual selectability still requiring client validation.
 Allocate the lowest collision-free contiguous block of 20 for each race/sex.
+New audits require `--installed-root` as well as the saved installed inventory;
+the audit reads the game's current `data/**/*.key` resource indexes. Publication
+requires `--slot-audit` and the consumer repository. It verifies the audit's input
+pins and enumerates current KEY indexes and repository pack membership again,
+rejecting newly occupied slots and conflicting material resources before copying.
+Legacy audits without an installed root must be refreshed before publication.
 `docs/heads/roster-allocated.json` persists the allocation. Re-audits preserve
 complete allocations and reject collisions or partial blocks; they do not
 silently renumber designs. Naming is `p{sex}{family}0_headNNN`.
@@ -214,6 +220,37 @@ required production tables remain in `srn_2da`. Rebuild the HAK and verify its
 entire payload against publication pins with `verify_head_hak.py`. Keep built
 HAKs outside Git. Before PR readiness run head tests, full shared-tool and
 phenotype helper tests, `Test-Repository.ps1` and `Test-ItemImportTools.ps1`.
+
+Paid operations use one spending owner for the entire revision family. A shared
+`spending.lock` serializes reservations and ownership transfers. Forking the
+active session transfers ownership only after every request is settled or
+definitively reconciled. Sibling review forks remain available for comparison,
+but cannot dispatch paid work. Only the active descendant can pass ownership
+forward; its copied history retains the cumulative ceiling and request IDs.
+
+Legacy families have no owner binding and fail closed for new paid work. Before
+continuing paid production, reconcile every historical branch and run
+`head_workflow.py adopt-spending --session <active-session> --proof <receipt>`
+through the shared launcher with fresh migration evidence and declared inputs.
+The ignored receipt has kind `srn-head-spending-reconciliation`, `approved: true`,
+the active `session` pin, exact `creditUsed` and `creditCap`, and `sessions` and
+`events` arrays pinning every reconciled branch's session file and event files.
+All financial events must already be merged into the selected session and no
+reservation may remain outstanding. The receipt records an explicit operator
+reconciliation; the tool does not infer completeness by choosing recent files.
+Existing source banks and historical receipts remain unchanged.
+
+Meshy bindings now invoke an offline installed CLI directly: `command` contains
+exactly the absolute Node executable and the absolute `meshy` bin entry from the
+`meshy-cli` 0.4.0 package manifest. `dependencyRoot` is the complete local
+`node_modules` tree containing that package and its dependencies. `inputs` pins
+the executable and every file in that tree, including package manifests and the
+entry point. Declare those same files to the outer shared launcher. Bare PATH
+commands and `npm exec`/`npx` package resolution are rejected; historical binding
+files remain evidence and need a fresh replacement for new operations.
+The adapter removes `NODE_OPTIONS` and `NODE_PATH` from the child environment.
+Request validation, writable output setup and payload serialization finish before
+credit reservation. The generated payload is pinned and checked before dispatch.
 
 The current user-authorized stopping point is **before client testing**.
 Client and production acceptance must remain pending in pilot evidence and the

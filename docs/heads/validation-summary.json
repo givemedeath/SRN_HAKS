@@ -905,5 +905,10 @@
     "bodyAndHeadResourcesChanged": false,
     "nativeBuild": "Recorded before tooling integration; exact saved module relaunched successfully",
     "migration": "Prior build migration is historical; refresh before any new production CLI run"
+  },
+  "reviewFixes": {
+    "helperTestsPassed": 305,
+    "validation": "docs/heads/review-fixes-validation.json",
+    "validationSha256": "e96068cf19602723c280504f84d111bb144111ec6c289919052a25dbff5ad382"
   }
 }

@@ -76,6 +76,37 @@ class HeadTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "exhausted"): self.reserve("three")
         self.assertEqual(resumed.credit_used(), 40)
 
+    def test_revision_family_has_one_spending_owner_and_shared_lock(self):
+        self.session.reserve('human-male-01', 'prior', 'multi-image-to-3d', 280,
+                             [pin(p) for p in self.views], self.payload)
+        with self.assertRaisesRegex(ValueError, 'outstanding'):
+            self.session.fork_revision(self.root/'unfinished', ['human-male-01'], 'donor', [pin(self.roster)])
+        self.complete('prior', credits=280)
+        active = self.session.fork_revision(self.root/'active', ['human-male-01'], 'donor', [pin(self.roster)])
+        sibling = self.session.fork_revision(self.root/'sibling', ['human-male-01'], 'donor', [pin(self.roster)])
+        for retired in (self.session, sibling, Session(self.session.root)):
+            with self.assertRaisesRegex(ValueError, 'another active revision'):
+                retired.reserve('human-male-01', 'retry', 'multi-image-to-3d', 20,
+                                [pin(p) for p in self.views], self.payload)
+        with active.spending_lock():
+            with self.assertRaisesRegex(ValueError, 'Spending operation is active'):
+                self.reserve('blocked')
+        active.reserve('human-male-01', 'retry', 'multi-image-to-3d', 20,
+                       [pin(p) for p in self.views], self.payload)
+        self.assertEqual(Session(active.root).credit_used(), 300)
+        with self.assertRaisesRegex(ValueError, 'another active revision'):
+            sibling.reserve('human-male-01', 'retry', 'multi-image-to-3d', 20,
+                            [pin(p) for p in self.views], self.payload)
+        self.session = active
+        self.complete('retry')
+        next_revision = active.fork_revision(self.root/'next', ['human-male-01'], 'donor', [pin(self.roster)])
+        with self.assertRaisesRegex(ValueError, 'Duplicate'):
+            next_revision.reserve('human-male-01', 'retry', 'multi-image-to-3d', 20,
+                                  [pin(p) for p in self.views], self.payload)
+        with self.assertRaisesRegex(ValueError, 'cap exceeded'):
+            next_revision.reserve('human-male-01', 'third', 'multi-image-to-3d', 20,
+                                  [pin(p) for p in self.views], self.payload)
+
     def test_budget_recipe_and_stale_reference_rejection(self):
         with self.assertRaisesRegex(ValueError, "price"):
             self.session.reserve("human-male-01", "cheap", "multi-image-to-3d", 1,

@@ -1,0 +1,53 @@
+{
+  "kind": "srn-head-review-fixes-validation",
+  "helperTestsPassed": 305,
+  "checks": {
+    "head": {
+      "tests": 44,
+      "logSha256": "5a52de92778dca37c5c25e5e9a5b64dbf1ceb0b7929efe6ac0c796ec7b834f6a"
+    },
+    "gallery": {
+      "tests": 9,
+      "logSha256": "97a0d03ab7b5edb8df2b857d4bded96df906daadd686aa447be3b490e2009bcd"
+    },
+    "phenotype": {
+      "tests": 233,
+      "logSha256": "0d40605e94643515b966bcc6ad40efd05dfefe386df63a769c7987baf0d748e9"
+    },
+    "shared": {
+      "tests": 15,
+      "logSha256": "1384b2c26f78f18760c1b6f27b54bc6c4b638f9375730fa77eac96a130a3ef22"
+    },
+    "cleanCheckout": {
+      "tests": 1,
+      "logSha256": "c2354adcd7fe0e655be9f1110e6ac48735f9a45e931247fb47c698e81d3438f2"
+    },
+    "testImpact": {
+      "tests": 3,
+      "logSha256": "09dd7e3d2cccd58a25df7a0f61bc14ee5bff6f08e3a3ea0f03be4f15ef5e4a01"
+    },
+    "repository": {
+      "packs": 26,
+      "passed": true,
+      "logSha256": "a4d85a7a48e94dd564abf55a0215951a83fa0be5a2e90716115f62cbc79392c2"
+    },
+    "itemImport": {
+      "passed": true,
+      "logSha256": "6b76ae2e0a04b8b322e20a69d6e9d29aca779ec639f093c4fdfdc622fea09cd2"
+    }
+  },
+  "reviewFindings": [
+    "Cumulative budget and duplicate dispatch across revision forks",
+    "Current consumer collision audit at publication",
+    "Local dispatch validation before reservation",
+    "Direct byte-pinned offline Meshy executable and dependency tree"
+  ],
+  "installedKeyReader": {
+    "relevantResourceNames": 70106,
+    "keys": 2,
+    "stockHumanHeadFound": true
+  },
+  "paidRequestsMade": 0,
+  "bodyAndHeadResourcesChanged": false,
+  "productionAccepted": false
+}

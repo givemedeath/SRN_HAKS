@@ -4,12 +4,65 @@ from pathlib import Path
 import struct
 import tempfile
 import unittest
-from head_workflow import Session,make_roster,pin,validate_target,write_fresh
+from unittest.mock import patch
+from head_workflow import Session,make_roster,pin,read,validate_target,write_fresh
+from audit_slots import audit
 from publish_head_pack import publish
 from verify_head_hak import payload
 
 
 class TargetAndPublicationTests(unittest.TestCase):
+    def publication_fixture(self, root):
+        roster=root/'roster.json';write_fresh(roster,make_roster())
+        session=Session.create(root/'session',roster)
+        pack=root/'existing';pack.mkdir();(pack/'other.mdl').write_bytes(b'existing')
+        write_fresh(root/'hakbuilder.json',{'HakList':[{'Name':'existing','Path':'existing'}]})
+        game=root/'game';(game/'data').mkdir(parents=True)
+        (game/'data/base.key').write_bytes(self.key('pmh0_head001'))
+        installed=root/'installed.json';write_fresh(installed,[])
+        proof=root/'proof.json';write_fresh(proof,{'Appearance_Head':{'type':'byte'}})
+        slot_audit=root/'audit.json';allocated=root/'allocated.json'
+        audit(installed,proof,root/'hakbuilder.json',root,roster,slot_audit,allocated,installed_root=game)
+        session.allocate(allocated,slot_audit)
+        model='pmh0_head002';source=root/'native';source.mkdir()
+        for suffix in ('.mdl','.plt','n.tga'):(source/(model+suffix)).write_bytes(suffix.encode())
+        native=root/'native.json';write_fresh(native,{'resources':[pin(p) for p in sorted(source.iterdir())]})
+        return session,slot_audit,native,model,game,pack
+
+    @staticmethod
+    def key(model):
+        data=bytearray(86);data[:8]=b'KEY V1  '
+        struct.pack_into('<I',data,12,1);struct.pack_into('<I',data,20,64)
+        struct.pack_into('<16sHI',data,64,model.encode(),2002,0)
+        return bytes(data)
+
+    def test_publication_checks_new_repository_and_installed_collisions_before_mutation(self):
+        for collision in ('repository-model','repository-texture','new-key','changed-key','changed-stack'):
+            with self.subTest(collision=collision),tempfile.TemporaryDirectory() as folder:
+                root=Path(folder);session,slot_audit,native,model,game,pack=self.publication_fixture(root)
+                if collision=='repository-model':(pack/(model.upper()+'.MDL')).write_bytes(b'collision')
+                elif collision=='repository-texture':(pack/(model+'n.tga')).write_bytes(b'collision')
+                elif collision=='new-key':(game/'data/patch.key').write_bytes(self.key(model))
+                elif collision=='changed-key':(game/'data/base.key').write_bytes(self.key(model))
+                else:
+                    extra=root/'extra';extra.mkdir();(extra/(model+'.mdl')).write_bytes(b'collision')
+                    config=read(root/'hakbuilder.json');config['HakList'].append({'Name':'extra','Path':'extra'})
+                    (root/'hakbuilder.json').write_text(__import__('json').dumps(config))
+                before=(root/'hakbuilder.json').read_bytes()
+                # Isolate the inventory gate; review-chain rejection has separate coverage.
+                with patch.object(Session,'verify_review_chain'),patch.object(Session,'reviews',return_value={'native':{'report':pin(native)}}):
+                    with self.assertRaises(ValueError):publish(session.root,['human-male-01'],root,root/'publication.json',slot_audit=slot_audit)
+                self.assertEqual((root/'hakbuilder.json').read_bytes(),before)
+                self.assertFalse((root/'srn_head').exists());self.assertFalse((root/'publication.json').exists())
+
+    def test_publication_with_unchanged_consumer_stack_registers_exact_selected_resources(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);session,slot_audit,native,model,game,pack=self.publication_fixture(root)
+            with patch.object(Session,'verify_review_chain'),patch.object(Session,'reviews',return_value={'native':{'report':pin(native)}}):
+                publish(session.root,['human-male-01'],root,root/'publication.json',slot_audit=slot_audit)
+            self.assertEqual({p.name for p in (root/'srn_head').iterdir()},{model+'.mdl',model+'.plt',model+'n.tga'})
+            self.assertEqual(read(root/'hakbuilder.json')['HakList'][-1]['Name'],'srn_head')
+
     def test_target_rejects_changed_body_neck_palette_and_revision(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder); protected=root/'body.mdl';protected.write_bytes(b'body')

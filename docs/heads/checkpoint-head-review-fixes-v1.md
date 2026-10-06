@@ -1,0 +1,23 @@
+# Head review fixes checkpoint
+
+Resume from the exact ignored ledger
+`output/gallery/local/resume-ledger-head-review-fixes-v1.json`,
+SHA-256 `e1563c0ce3e56e188b9e3160e034e968ac3bb6d3a3cb5b642d9373e73f479749`. Verify its pins. The
+[preceding gallery checkpoint](checkpoint-gallery-client-layout-main-integrated-v2.md)
+remains historical; saved modules, head/body resources and source masters are unchanged.
+
+All four review findings are addressed. Paid work has one active owner per revision
+family; retired/sibling sessions cannot dispatch and unsettled jobs block transfer.
+Publication rechecks live installed KEY names and repository pack membership.
+Meshy dispatch completes local validation and output setup before reservation,
+and runs a direct byte-pinned offline CLI with all dependencies declared.
+
+All 305 helper tests, repository structure and item-import checks pass. See
+[compact evidence](review-fixes-validation.json). No paid requests were submitted.
+Budget remains 345/405 with no outstanding reservations. Full head/clothing fit,
+palette, helmet, motion and production acceptance remain pending.
+
+Before new production CLI work refresh migration evidence. Historical npm-exec
+bindings and slot audits need fresh replacements. Legacy paid-session histories
+need explicit spending reconciliation before adoption; follow the runbook.
+Do not modify historical receipts or infer active selections from file recency.

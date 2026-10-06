@@ -5,25 +5,65 @@ configuration; credentials stay in Meshy's own credential store. No API calls or
 credential reads are performed by this adapter.
 """
 import argparse
+import os
 from pathlib import Path
 import subprocess
 
 from head_workflow import Session, pin, read, require, task_fields, validate_remesh, verify_pins, write_fresh
 
 
-def invoke(binding, arguments, output):
+def validate_binding(binding):
+    """Use a direct offline Node entry point, never PATH/npx package resolution."""
     verify_pins(binding["inputs"])
     command = binding["command"]
-    require("--package=meshy-cli@0.4.0" in command, "Pinned Meshy plugin CLI required")
+    require(isinstance(command, list) and len(command) == 2
+            and all(isinstance(value, str) and Path(value).is_absolute() for value in command),
+            'Direct absolute byte-pinned Node and Meshy entry point required; PATH/npx dispatch is unsupported')
+    declared = {str(Path(item['path']).resolve()) for item in binding['inputs']}
+    require(all(str(Path(value).resolve()) in declared for value in command), 'CLI executable/entry point not declared')
+    root = Path(binding['dependencyRoot']).resolve()
+    package = root / 'meshy-cli'
+    metadata = read(package / 'package.json')
+    require(metadata.get('name') == 'meshy-cli' and metadata.get('version') == '0.4.0', 'Pinned Meshy plugin CLI 0.4.0 required')
+    entry = metadata.get('bin')
+    entry = entry.get('meshy') if isinstance(entry, dict) else entry
+    require(isinstance(entry, str) and (package/entry).resolve().is_relative_to(package)
+            and (package/entry).resolve() == Path(command[1]).resolve(), 'Command differs from the pinned Meshy package entry point')
+    members = {str(path.resolve()) for path in root.rglob('*') if path.is_file()}
+    pinned_members = {path for path in declared if Path(path).is_relative_to(root)}
+    require(members and members == pinned_members, 'Declare the complete offline CLI dependency tree and refresh changed membership')
+    require(isinstance(binding.get('workspace'), str) and Path(binding['workspace']).is_absolute(), 'Absolute ignored CLI workspace required')
+    return command
+
+
+def prepare_output(output):
     output = Path(output)
-    require(not output.exists(), "Fresh CLI operation folder required")
+    require(not output.exists(), 'Fresh CLI operation folder required')
     output.mkdir(parents=True)
-    with (output / "stdout.json").open("x", encoding="utf-8") as stdout, \
-            (output / "stderr.log").open("x", encoding="utf-8") as stderr:
+    for name in ('stdout.json', 'stderr.log'):
+        with (output/name).open('x', encoding='utf-8'):
+            pass
+
+
+def invoke(binding, arguments, output, *, prepared=False, request_inputs=None):
+    command = validate_binding(binding)
+    output = Path(output)
+    if not prepared:
+        prepare_output(output)
+    else:
+        require(output.is_dir() and all((output/name).is_file() and (output/name).stat().st_size == 0
+                for name in ('stdout.json', 'stderr.log')), 'Prepared CLI output changed before dispatch')
+    env = os.environ.copy()
+    for key in ('NODE_OPTIONS', 'NODE_PATH'):
+        env.pop(key, None)
+    if request_inputs:
+        verify_pins(request_inputs)
+    with (output / "stdout.json").open("w", encoding="utf-8") as stdout, \
+            (output / "stderr.log").open("w", encoding="utf-8") as stderr:
         result = subprocess.run([*command, "--output-schema", "v1", "--format", "json",
                                  "--no-update-check", "--workspace", binding["workspace"], *arguments],
-                                stdout=stdout, stderr=stderr, check=False)
-    verify_pins(binding["inputs"])
+                                stdout=stdout, stderr=stderr, env=env, check=False)
+    validate_binding(binding)
     write_fresh(output / "operation.json", {"kind": "srn-head-meshy-cli-operation", "exitCode": result.returncode,
                 "cliInputs": binding["inputs"], "stdout": pin(output / "stdout.json"),
                 "stderr": pin(output / "stderr.log")})
@@ -32,15 +72,13 @@ def invoke(binding, arguments, output):
 
 def dispatch(session, request_file, binding_file, output):
     request, binding = read(request_file), read(binding_file)
+    validate_binding(binding)
     require(request["operation"] in ("multi-image-to-3d", "remesh", "retexture"), "Unsupported operation")
     verify_pins(request["inputs"])
     require(not any(Path(p["path"]).resolve() == Path(request_file).resolve() for p in request["inputs"]),
             "Request cannot pin itself")
-    # The exact request is frozen separately by the outer launcher and this event.
-    session.reserve(request["designId"], request["requestId"], request["operation"],
-                    request["estimatedCredits"], [*request["inputs"], pin(request_file), pin(binding_file)], request["payload"])
     payload = Path(output).with_name(Path(output).name + "-payload.json")
-    write_fresh(payload, request["payload"])
+    require(not payload.exists() and not Path(output).exists(), 'Fresh payload and CLI operation paths required')
     arguments = [request["operation"], "create", "--async", "--operation-id", request["requestId"],
                  "--include-raw", "--data", "@"+str(payload.resolve())]
     if request["operation"] == "multi-image-to-3d":
@@ -68,7 +106,18 @@ def dispatch(session, request_file, binding_file, output):
         else: arguments += ['--model-url',payload['model_url']]
     if binding.get("project"):
         arguments += ["--project", binding["project"], "--stage", request["operation"]]
-    code, response = invoke(binding, arguments, output)
+    require(all(isinstance(value, str) for value in arguments), 'CLI arguments must be strings')
+    # Finish deterministic validation and writable-path setup before reserving.
+    # Output files are kept as evidence if a later gate rejects the request.
+    payload_path = Path(output).with_name(Path(output).name + '-payload.json')
+    write_fresh(payload_path, request['payload'])
+    payload_pin = pin(payload_path)
+    require(read(payload_path) == request['payload'], 'Prepared payload differs from the frozen request')
+    prepare_output(output)
+    request_inputs = [*request['inputs'], *binding['inputs'], pin(request_file), pin(binding_file), payload_pin]
+    session.reserve(request["designId"], request["requestId"], request["operation"],
+                    request["estimatedCredits"], request_inputs, request["payload"])
+    code, response = invoke(binding, arguments, output, prepared=True, request_inputs=request_inputs)
     if code:
         raise ValueError("Meshy submission is uncertain; reconcile CLI journal and task history before another attempt")
     task_id = task_fields(read(response))["id"]

@@ -254,7 +254,75 @@ class Session:
         require(not directory.exists(), "Fresh session directory required")
         write_fresh(directory / "session.json", {"schemaVersion": 1, "kind": "srn-head-session",
                     "roster": pin(roster), "creditCap": budget})
+        write_fresh(directory / 'spending-owner.json', {'kind': 'srn-head-spending-owner',
+                    'session': pin(directory / 'session.json')})
         return cls(directory)
+
+    def spending_root(self):
+        root, configuration, seen = self.root, self.config, {self.root}
+        while configuration.get('parentCheckpoint'):
+            parent = configuration['parentCheckpoint'][0]
+            verify_pins([parent])
+            root = Path(parent['path']).resolve().parent
+            require(root not in seen, 'Cyclic spending ancestry')
+            seen.add(root)
+            configuration = read(root / 'session.json')
+        return root
+
+    @contextmanager
+    def spending_lock(self):
+        root = self.spending_root()
+        path = root / 'spending.lock'
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError as error:
+            raise ValueError('Spending operation is active; reconcile a stale lock explicitly') from error
+        try:
+            os.close(fd)
+            with self.lock():
+                yield root / 'spending-owner.json'
+        finally:
+            path.unlink()
+
+    def spending_owner(self, path):
+        if not path.exists():
+            raise ValueError('Legacy session has no spending owner; migrate ownership explicitly before paid work')
+        owner = read(path)
+        require(owner['kind'] == 'srn-head-spending-owner', 'Wrong spending owner binding')
+        verify_pins([owner['session']])
+        if owner.get('legacyReconciliation'):
+            verify_pins([owner['legacyReconciliation']])
+        return Path(owner['session']['path']).resolve().parent
+
+    def adopt_spending(self, proof_file):
+        """Explicit migration of an already settled legacy revision family."""
+        proof = read(proof_file)
+        require(proof.get('kind') == 'srn-head-spending-reconciliation' and proof.get('approved') is True
+                and proof.get('session') == pin(self.root / 'session.json')
+                and proof.get('creditUsed') == self.credit_used() and proof.get('creditCap') == self.config['creditCap'],
+                'Approved legacy spending reconciliation required')
+        verify_pins(proof['sessions'])
+        verify_pins(proof['events'])
+        require(pin(self.root / 'session.json') in proof['sessions'], 'Active session omitted from reconciliation')
+        kinds = {'reserved', 'submitted', 'settled', 'reconciled-rejection'}
+        financial = {sha(self.root / 'events' / f'{i:06d}.json')
+                     for i, event in enumerate(self.events()) if event['kind'] in kinds}
+        for item in proof['sessions']:
+            member = Session(Path(item['path']).parent)
+            require(member.spending_root() == self.spending_root(), 'Reconciliation crosses spending families')
+            pins = [pin(member.root / 'events' / f'{i:06d}.json') for i in range(len(member.events()))]
+            if pins:
+                verify_pins(pins)
+            require(all(p in proof['events'] for p in pins), 'Legacy event omitted from reconciliation')
+            require(all(pins[i]['sha256'] in financial for i, event in enumerate(member.events()) if event['kind'] in kinds),
+                    'Unmerged legacy spending; reconcile every branch before adoption')
+        terminal = {e['requestId'] for e in self.events() if e['kind'] in ('settled', 'reconciled-rejection')}
+        require(all(e['requestId'] in terminal for e in self.events() if e['kind'] == 'reserved'),
+                'Reconcile outstanding submission before adopting spending ownership')
+        with self.spending_lock() as owner_path:
+            require(not owner_path.exists(), 'Spending owner already established')
+            write_fresh(owner_path, {'kind': 'srn-head-spending-owner', 'session': pin(self.root/'session.json'),
+                                    'legacyReconciliation': pin(proof_file)})
 
     @contextmanager
     def lock(self):
@@ -334,15 +402,26 @@ class Session:
         else:require(budget_approval is None, 'Budget approval requires an explicit new cap')
         verify_pins(inputs);directory=Path(directory)
         require(not directory.exists(),'Fresh descendant session required')
-        with self.lock():
+        with self.spending_lock() as owner_path:
+            owner = self.spending_owner(owner_path)
             events=self.events();files=[self.root/'session.json',*[self.root/'events'/f'{i:06d}.json' for i in range(len(events))]]
+            if owner == self.root:
+                terminal = {e['requestId'] for e in events if e['kind'] in ('settled', 'reconciled-rejection')}
+                require(all(e['requestId'] in terminal for e in events if e['kind'] == 'reserved'),
+                        'Reconcile outstanding submission before transferring spending ownership')
             checkpoint=[pin(path) for path in files]
             write_fresh(directory/'session.json',{**configuration,'parentCheckpoint':checkpoint})
             (directory/'events').mkdir()
             for path in files[1:]:shutil.copyfile(path,directory/'events'/path.name)
             verify_pins(checkpoint)
-        descendant=Session(directory)
-        descendant.append('revision',designs=identities,fromStage=from_stage,inputs=inputs)
+            descendant=Session(directory)
+            with descendant.lock():
+                descendant.append('revision',designs=identities,fromStage=from_stage,inputs=inputs)
+            if owner == self.root:
+                temporary = owner_path.with_suffix('.tmp')
+                owner_binding = read(owner_path)
+                write_fresh(temporary, {**owner_binding, 'session': pin(directory/'session.json')})
+                temporary.replace(owner_path)
         return descendant
 
     def credit_used(self):
@@ -379,7 +458,9 @@ class Session:
         if operation == 'remesh':
             validate_remesh(payload)
         verify_pins(inputs)
-        with self.lock():
+        with self.spending_lock() as owner_path:
+            require(self.spending_owner(owner_path) == self.root,
+                    'Paid work belongs to another active revision; this session is read-only for dispatch')
             events = self.events()
             require(not any(e.get("requestId") == request_id for e in events), "Duplicate paid request")
             requests = [e for e in events if e["kind"] == "reserved"]
@@ -551,7 +632,7 @@ class Session:
             if 'neckClosure' in report:verify_pins([report['neckClosure']])
             if 'neckConnector' in report:verify_pins([report['neckConnector']])
 
-    def publication(self, identities):
+    def publication(self, identities, *, slot_audit=None, repository=None):
         require(bool(identities) and len(set(identities)) == len(identities), "Explicit unique selections required")
         resources = {}
         for identity in identities:
@@ -569,10 +650,14 @@ class Session:
                 require(name not in resources, "Publication resource collision")
                 require(Path(item["path"]).stat().st_size <= 15 * 1024 * 1024, "Resource exceeds size policy")
                 resources[name] = item
+        from audit_slots import verify_publication_inventory
+        require(slot_audit is not None and repository is not None,
+                'Current slot audit and consumer repository required for publication')
+        verify_publication_inventory(slot_audit, repository, self.roster, resources)
         return resources
 
-    def publish(self, identities, output):
-        resources = self.publication(identities)
+    def publish(self, identities, output, *, slot_audit=None, repository=None):
+        resources = self.publication(identities, slot_audit=slot_audit, repository=repository)
         output = Path(output)
         require(not output.exists(), "Fresh publication directory required")
         output.mkdir(parents=True)
@@ -593,6 +678,9 @@ def main():
     init.add_argument("--budget", type=int, default=300)
     status = sub.add_parser("status")
     status.add_argument("--session", type=Path, required=True)
+    adopt = sub.add_parser('adopt-spending')
+    adopt.add_argument('--session', type=Path, required=True)
+    adopt.add_argument('--proof', type=Path, required=True)
     review = sub.add_parser("review")
     review.add_argument("--session", type=Path, required=True)
     review.add_argument("--report", type=Path, required=True)
@@ -609,6 +697,8 @@ def main():
     publish.add_argument("--design", action="append", required=True)
     publish.add_argument("--output", type=Path, required=True)
     publish.add_argument("--manifest", type=Path, required=True)
+    publish.add_argument('--slot-audit', type=Path, required=True)
+    publish.add_argument('--repository', type=Path, required=True)
     arguments = parser.parse_args()
     if arguments.command == "init":
         session = Session.create(arguments.output, arguments.roster, arguments.budget)
@@ -617,13 +707,16 @@ def main():
     if arguments.command == "review":
         report = read(arguments.report)
         session.review(report["designId"], report["stage"], arguments.report)
+    elif arguments.command == 'adopt-spending':
+        session.adopt_spending(arguments.proof)
     elif arguments.command in ("reserve", "record-task", "settle"):
         getattr(session, arguments.command.replace("-", "_"))(**read(arguments.record))
     elif arguments.command == "allocate":
         session.allocate(arguments.roster, arguments.audit)
     elif arguments.command == "publish":
         require(not arguments.manifest.exists(), "Fresh publication manifest required")
-        write_fresh(arguments.manifest, session.publish(arguments.design, arguments.output))
+        write_fresh(arguments.manifest, session.publish(arguments.design, arguments.output,
+                    slot_audit=arguments.slot_audit, repository=arguments.repository))
     print(json.dumps({"session": str(session.root), "reservedOrConsumedCredits": session.credit_used(),
                       "creditCap": session.config["creditCap"], "events": len(session.events())}))
 
