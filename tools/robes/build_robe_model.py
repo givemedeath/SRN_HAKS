@@ -3,10 +3,13 @@
 The skeleton is copied unchanged from the stock phenotype model (local bind
 frames and parents); only nodes needed by the weights are included. Faces are
 split into skin nodes by segment, with exposed-skin faces in their own nodes so
-they can bind a skin-only PLT. Writes <model>.mdl and model.json; approves nothing.
+they can bind a skin-only PLT. The client applies a robe PLT only when it shares
+the model's resref (as stock robes do), so skin nodes use bitmap <model> and
+--skin-plt is copied in as <model>.plt. Writes <model>.mdl and model.json; approves nothing.
 """
 import argparse
 from pathlib import Path
+import shutil
 
 import numpy as np
 
@@ -61,6 +64,7 @@ def main():
     parser.add_argument("--material-prefix", help="Bitmap/material prefix when sharing another candidate's textures")
     parser.add_argument("--tolerances", type=Path, required=True)
     parser.add_argument("--weight-decimals", type=int, default=6)
+    parser.add_argument("--skin-plt", type=Path, help="Skin-only PLT, copied in as <model>.plt")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     require(len(args.model) <= 16 and len(args.prefix) <= 8, "Resref limits exceeded")
@@ -94,7 +98,7 @@ def main():
     material = args.material_prefix or args.prefix
     groups = [(f"{args.prefix}_{SEGMENT_NODES[i]}", (face_segment == i) & ~skin_faces, material + "a")
               for i in range(5)]
-    groups += [(f"{args.prefix}_skin{s}", (face_segment == i) & skin_faces, material + "s")
+    groups += [(f"{args.prefix}_skin{s}", (face_segment == i) & skin_faces, args.model)
                for i, s in ((1, "l"), (2, "r"))]
     for name, selected, bitmap in groups:
         if not selected.any():
@@ -111,6 +115,11 @@ def main():
                         "verts": len(node.arrays["verts"]), "tverts": len(node.arrays["tverts"]),
                         "bones": bones, "boneCount": len(bones)})
     path = output / (args.model + ".mdl")
+    skin_plt = None
+    if args.skin_plt:
+        inputs.append(pin(args.skin_plt))
+        skin_plt = output / (args.model + ".plt")
+        shutil.copyfile(args.skin_plt, skin_plt)
     mdl_ascii.write(path, model, weight_decimals=args.weight_decimals)
     np.savez_compressed(output / "node-vertices.npz", **mapping)
     verify_pins(inputs)
@@ -118,7 +127,8 @@ def main():
               "supermodel": stock.name, "inputs": inputs, "skeleton": [n.name for n in model.nodes[1:]
                                                                        if n.kind == "dummy"],
               "skeletonSource": "stock bind frames copied unchanged", "skinNodes": summary,
-              "materials": {"fixed": material + "a", "skinPlt": material + "s"},
+              "materials": {"fixed": material + "a", "skinPlt": args.model,
+                            "skinPltFile": pin(skin_plt) if skin_plt else None},
               "triangles": int(len(tris)), "file": pin(path), "bindFramesChanged": False, **FLAGS}
     print(write_fresh(output / "model.json", report)["sha256"])
 

@@ -54,6 +54,19 @@ class FitMathTests(unittest.TestCase):
         self.assertLess(history[-1]["violations"], history[0]["violations"])
         self.assertTrue(np.all(moved[:, 2] > points[:, 2]))
 
+    def test_generation_pose_inverts_proxy_transforms_per_bone(self):
+        transforms = {name: np.eye(4) for name in fit_math.PROXY}
+        transforms["fa_L"] = fit_math.segment_transform(np.array([0, 0, 1.0]), np.array([0.5, 0, 0.5]),
+                                                        np.array([0, 0, 1.0]), np.array([0, 0, 0.4]))
+        bind_point = np.array([[0.0, 0.0, 0.7]])
+        posed = fit_math.pose_weighted(bind_point, np.array([[1.0, 0.0]]), ["lforearm_g", "torso_g"], transforms)
+        np.testing.assert_allclose((transforms["fa_L"] @ np.r_[posed[0], 1])[:3], bind_point[0], atol=1e-12)
+        unchanged = fit_math.pose_weighted(bind_point, np.array([[0.0, 1.0]]), ["lforearm_g", "torso_g"], transforms)
+        np.testing.assert_allclose(unchanged, bind_point)
+        frames = fit_math.generation_pose_frames({"lforearm_g": np.eye(4), "pelvis_g": np.eye(4)}, transforms)
+        np.testing.assert_allclose(frames["lforearm_g"], np.linalg.inv(transforms["fa_L"]))
+        np.testing.assert_allclose(frames["pelvis_g"], np.eye(4))
+
     def test_lattice_stops_when_violations_plateau(self):
         body = np.array([[-1, -1, 0], [1, -1, 0], [1, 1, 0], [-1, 1, 0]], float)
         faces = np.array([[0, 1, 2], [0, 2, 3]])

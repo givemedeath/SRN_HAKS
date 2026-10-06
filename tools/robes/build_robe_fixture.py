@@ -270,6 +270,7 @@ def main():
               {"Tile_AnimLoop1": 1, "Tile_AnimLoop2": 1, "Tile_AnimLoop3": 1, "Tile_MainLight1": 0,
                "Tile_MainLight2": 0, "Tile_SrcLight1": 0, "Tile_SrcLight2": 0}.items()}} for _ in range(64)]
     area = fixture["area"]
+    entry = fixture.get("entry", [18.0, 20.0])  # player start; faces the actor row (-Y)
     are = structure("ARE ", Tileset=field("resref", "sr_rt"), Width=field("int", 8), Height=field("int", 8),
                     Name=field("cexolocstring", {"0": "Robe trial floor"}), Tag=field("cexostring", area),
                     ResRef=field("resref", area), Tile_List=field("list", tiles), Version=field("dword", 2),
@@ -285,8 +286,8 @@ def main():
                     Mod_Description=field("cexolocstring", {"0": "Meshy robe trial comparison fixture."}),
                     Mod_Tag=field("cexostring", fixture["module"].upper()), Mod_Version=field("dword", 3),
                     Mod_MinGameVer=field("cexostring", "1.69"), Mod_IsSaveGame=field("byte", 0),
-                    Mod_Entry_Area=field("resref", area), Mod_Entry_X=field("float", 18.0),
-                    Mod_Entry_Y=field("float", 20.0), Mod_Entry_Z=field("float", 0.0),
+                    Mod_Entry_Area=field("resref", area), Mod_Entry_X=field("float", entry[0]),
+                    Mod_Entry_Y=field("float", entry[1]), Mod_Entry_Z=field("float", 0.0),
                     Mod_Entry_Dir_X=field("float", 0.0), Mod_Entry_Dir_Y=field("float", -1.0),
                     Mod_Area_list=field("list", [{"__struct_id": 6, "Area_Name": field("resref", area)}]),
                     Mod_HakList=field("list", [{"__struct_id": 8, "Mod_Hak": field("cexostring", fixture["hak"])}]),

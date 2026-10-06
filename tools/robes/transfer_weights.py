@@ -6,7 +6,9 @@ Transfer is barycentric interpolation at the nearest donor face (Blender BVH,
 equivalent to Data Transfer POLYINTERP_NEAREST), followed by joint/border
 smoothing, influence limiting, normalisation and validation against the
 frozen control tolerances. Exposed skin is detected by colour only inside the
-forearm/hand segments. Writes weights.npz and weights.json; approves nothing.
+forearm/hand segments. When the fit ran in the generation (A-)pose, donors and
+cage are posed into that pose and sampled there, away from the arms-down bind
+pose where hands rest on the belt. Writes weights.npz and weights.json; approves nothing.
 """
 import argparse
 import json
@@ -95,8 +97,8 @@ def robe_donor_faces(rig, node, offset):
     return world, faces, dense, dominant
 
 
-def cage_part(body, part):
-    verts = body.posed_part(part)
+def cage_part(body, part, frames=None):
+    verts = body.posed_part(part, frames)
     dense = np.zeros((len(verts), len(SKIN_BONES)))
     dense[:, SKIN_BONES.index(body.parts[part]["bone"])] = 1.0
     return verts, body.parts[part]["faces"], dense
@@ -159,7 +161,9 @@ def main():
     _, first = np.unique(welded, return_index=True)
     rows, cols = neighbours(tris, len(first), welded)
     labels = arrays["segmentLabels"][first]
-    points = verts[first]
+    generation = "fittedGeneration" in arrays.files
+    points = (arrays["fittedGeneration"] if generation else verts)[first]
+    transforms = dict(zip(fit_math.PROXY, arrays["proxyTransforms"])) if generation else None
     extraction = read(args.extraction)
     ascii_dir = Path(extraction["asciiDirectory"])
     body = Body(ascii_dir, config["target"]["prefix"])
@@ -169,6 +173,10 @@ def main():
     robe_node = next(n for n in rig.model.nodes if n.kind == "skin")
     offset = body.bind["rootdummy"][:3, 3] - rig.bind["rootdummy"][:3, 3]
     rv, rf, rw, dominant = robe_donor_faces(rig, robe_node, offset)
+    frames = None
+    if generation:
+        rv = fit_math.pose_weighted(rv, rw, SKIN_BONES, transforms)
+        frames = fit_math.generation_pose_frames(body.bind, transforms)
     face_bone = dominant[rf[:, 0]]
 
     def robe_subset(bones):
@@ -178,16 +186,16 @@ def main():
     donors = {}
     torso = Donor()
     torso.add(*robe_subset(UPPER_BONES))
-    torso.add(*cage_part(body, "neck"))
+    torso.add(*cage_part(body, "neck", frames))
     donors["torso"] = torso.build()
     for side, lower in (("L", "l"), ("R", "r")):
         arm = Donor()
         arm.add(*robe_subset(ARM_BONES[side]))
-        arm.add(*cage_part(body, "hand" + lower))
+        arm.add(*cage_part(body, "hand" + lower, frames))
         donors["arm_" + side] = arm.build()
         leg = Donor()
         for part in ("leg" + lower, "shin" + lower, "foot" + lower, "pelvis"):
-            leg.add(*cage_part(body, part))
+            leg.add(*cage_part(body, part, frames))
         donors["leg_" + side] = leg.build()
     weights = np.zeros((len(points), len(SKIN_BONES)))
     gaps = np.zeros(len(points))
@@ -252,7 +260,7 @@ def main():
                                  "maximumDonorGap": float(gaps[members].max()),
                                  "p95DonorGap": float(np.percentile(gaps[members], 95))}
     report = {"schemaVersion": 1, "kind": "srn-robe-weights", "createdUtc": utc(), "outfit": config["outfit"],
-              "inputs": inputs, "method": "region-restricted nearest-face barycentric transfer (Blender BVH), "
+              "inputs": inputs, "samplingSpace": "generation" if generation else "bind", "method": "region-restricted nearest-face barycentric transfer (Blender BVH), "
                                          "Laplacian joint/border smoothing, 4-influence limit, normalisation",
               "donors": {"upper": donor_name, "upperOffsetApplied": offset.tolist(), "legs": "body-part cage",
                          "hands": "body-part cage", "neck": "body-part cage"},

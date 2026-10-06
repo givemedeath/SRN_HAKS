@@ -3,7 +3,10 @@
 Orients and scales the outfit from measured landmarks, converts the generation
 pose by geodesic-segmented proxy-rig deformation onto the stock bind joints, then
 inflates it with a smooth lattice field to a configured clearance outside the
-stock body. The stock rig is read only. Writes fitted.glb, fit.json and
+stock body. With fit.space "generation" the clearance pass runs in the outfit's
+own generation (A-)pose against the stock body posed into it, so hanging arms
+never share lattice cells with the torso, and the result is then converted to
+bind. The stock rig is read only. Writes fitted.glb, fit.json and
 fit-arrays.npz; approves nothing.
 """
 import argparse
@@ -130,14 +133,21 @@ def main():
             aligned[first], labels, rows, cols, corrections["segmentOverrides"], blends["labelSmoothing"], joints)
     weights = fit_math.proxy_weights(aligned[first], soft, joints, blends)[welded]
     posed = fit_math.blend(aligned, weights, transforms)
-    visible = outer_visibility(posed, tris, welded)
+    space = fit.get("space", "bind")
+    require(space in ("bind", "generation"), "fit.space must be bind or generation")
+    clearance_source = aligned if space == "generation" else posed
+    visible = outer_visibility(clearance_source, tris, welded)
     volume = Body(args.stock_ascii, config["target"]["prefix"], parts=fit["bodyParts"])
-    body_verts, body_faces, _ = volume.posed()
+    frames = fit_math.generation_pose_frames(volume.bind, transforms) if space == "generation" else None
+    body_verts, body_faces, _ = volume.posed(frames)
     inflated, history, signed, initial = fit_math.lattice_inflate(
-        posed[first], visible[first], body_verts, body_faces, fit["clearance"], fit["latticeCell"],
+        clearance_source[first], visible[first], body_verts, body_faces, fit["clearance"], fit["latticeCell"],
         fit["latticeSigma"], fit["latticeIterations"], fit.get("latticeFade", 0.5),
         min_improvement=fit.get("latticeMinImprovement", 0.01))
-    fitted = inflated[welded]
+    generation = inflated[welded] if space == "generation" else None
+    fitted = fit_math.blend(generation, weights, transforms) if space == "generation" else inflated[welded]
+    inflated = fitted[first]
+    shift_source = clearance_source
     obj.data.vertices.foreach_set("co", fitted.ravel())
     obj.data.update()
     obj.name = config["outfit"] + "_fitted"
@@ -145,7 +155,7 @@ def main():
     bpy.ops.object.select_all(action="DESELECT")
     obj.select_set(True)
     bpy.ops.export_scene.gltf(filepath=str(path), export_format="GLB", use_selection=True, export_yup=True)
-    shift = np.linalg.norm(inflated - posed[first], axis=1)
+    shift = np.linalg.norm((generation[first] if generation is not None else inflated) - shift_source[first], axis=1)
     outer = visible[first]
     dominant = weights[first].argmax(1)
     regions = {}
@@ -158,7 +168,10 @@ def main():
                              "maximumShift": float(shift[mask].max()), "p95Shift": float(np.percentile(shift[mask], 95))}
     np.savez_compressed(output / "fit-arrays.npz", proxyWeights=weights, welded=welded, aligned=aligned, posed=posed,
                         fitted=fitted, tris=tris, visible=visible, segmentLabels=labels[welded],
-                        inflation=shift[welded], signedDistance=signed[welded])
+                        inflation=shift[welded], signedDistance=signed[welded],
+                        **({"fittedGeneration": generation,
+                            "proxyTransforms": np.stack([transforms[n] for n in fit_math.PROXY])}
+                           if generation is not None else {}))
     pose_shift = np.linalg.norm(posed - aligned, axis=1)
     verify_pins(inputs)
     report = {"schemaVersion": 1, "kind": "srn-robe-fit", "createdUtc": utc(), "outfit": config["outfit"],
@@ -174,6 +187,7 @@ def main():
               "poseConversion": {"maximumShift": float(pose_shift.max()), "p95Shift": float(np.percentile(pose_shift, 95)),
                                  "dominantProxyCounts": {name: int((dominant == i).sum())
                                                          for i, name in enumerate(fit_math.PROXY)}},
+              "clearanceSpace": space,
               "inflation": {"bodyParts": fit["bodyParts"], "distance": fit["clearance"], "cell": fit["latticeCell"],
                             "sigma": fit["latticeSigma"], "history": history, "maximumShift": float(shift.max()),
                             "p95Shift": float(np.percentile(shift, 95)), "outerVertices": int(outer.sum()),

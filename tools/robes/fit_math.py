@@ -322,6 +322,35 @@ def blend(verts, weights, transforms):
     return out
 
 
+# Stock bone -> proxy segment, for posing the stock body and donors into the outfit's generation pose.
+BONE_PROXY = {"lbicep_g": "ua_L", "lforearm_g": "fa_L", "lhand_g": "hand_L", "lshoulder_g": "ua_L",
+              "rbicep_g": "ua_R", "rforearm_g": "fa_R", "rhand_g": "hand_R", "rshoulder_g": "ua_R",
+              "lthigh_g": "th_L", "lshin_g": "sh_L", "lfoot_g": "ft_L",
+              "rthigh_g": "th_R", "rshin_g": "sh_R", "rfoot_g": "ft_R"}
+
+
+def generation_pose_matrices(transforms):
+    """Per stock bone, the matrix taking bind-pose geometry back into the outfit's generation (A-)pose."""
+    inverse = {name: np.linalg.inv(matrix) for name, matrix in transforms.items()}
+    return lambda bone: inverse[BONE_PROXY.get(bone.lower(), "torso")]
+
+
+def generation_pose_frames(bind_frames, transforms):
+    """Bind frames re-posed into the generation pose; torso-chain bones are unchanged."""
+    to_pose = generation_pose_matrices(transforms)
+    return {bone: to_pose(bone) @ frame for bone, frame in bind_frames.items()}
+
+
+def pose_weighted(points, weights, bones, transforms):
+    """Linear-blend bind-pose points into the generation pose using their dense bone weights."""
+    to_pose = generation_pose_matrices(transforms)
+    homogeneous = np.c_[points, np.ones(len(points))]
+    out = np.zeros((len(points), 3))
+    for column, bone in enumerate(bones):
+        if np.any(weights[:, column]):
+            out += weights[:, column, None] * (homogeneous @ to_pose(bone).T)[:, :3]
+    return out
+
 def _gaussian_blur(grid, sigma_cells):
     radius = int(np.ceil(3 * sigma_cells))
     kernel = np.exp(-0.5 * (np.arange(-radius, radius + 1) / sigma_cells) ** 2)
