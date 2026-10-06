@@ -22,6 +22,20 @@ class GalleryTests(unittest.TestCase):
             struct.pack_into('<I',header,16,2);struct.pack_into('<II',header,24,160,208)
             path.write_bytes(header+key+key+struct.pack('<II',224,4)*2+b'data')
             with self.assertRaisesRegex(ValueError,'Duplicate'):verify_pack(path,[row])
+    def test_lod_native_type_and_verified_inventory_hashes(self):
+        from build_gallery import RESOURCE_TYPES
+        self.assertEqual(RESOURCE_TYPES['.lod'],2078)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'pack').mkdir();(root/'srn_2da').mkdir();asset=root/'pack/test.lod';asset.write_bytes(b'lod')
+            (root/'hakbuilder.json').write_text(json.dumps({'HakList':[{'Name':'pack','Path':'pack'}]}))
+            for filename,columns in [('placeables','Label ModelName'),('genericdoors','Label ModelName'),('ambientmusic','Resource'),('ambientsound','Resource'),('skyboxes','LABEL DAY')]:
+                (root/'srn_2da'/(filename+'.2da')).write_text('2DA V2.0\n\n'+columns+'\n')
+            import hashlib
+            from unittest.mock import patch
+            digest=hashlib.sha256(b'lod').hexdigest()
+            with patch('catalog.hashlib.sha256',side_effect=AssertionError('redundant source hash')):
+                result=discover(root,{'prestaged':[],'additions':[]},{str(asset.resolve()):digest})
+            self.assertEqual(result['resources'][0]['sha256'],digest)
     def test_unregistered_models_get_test_appearances_and_every_tile_gets_a_page(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);pack=root/'pack';pack.mkdir();tables=root/'srn_2da';tables.mkdir()

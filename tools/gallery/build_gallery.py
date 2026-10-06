@@ -45,7 +45,7 @@ def normalize_archive_date(path,stamp):
 
 
 RESOURCE_TYPES={'.tga':3,'.wav':4,'.plt':6,'.ini':7,'.bmu':8,'.mdl':2002,'.nss':2009,'.ncs':2010,
- '.are':2012,'.set':2013,'.ifo':2014,'.wok':2016,'.2da':2017,'.txi':2022,'.git':2023,'.uti':2025,
+ '.are':2012,'.set':2013,'.ifo':2014,'.wok':2016,'.2da':2017,'.txi':2022,'.git':2023,'.uti':2025,'.lod':2078,
  '.utc':2027,'.itp':2030,'.dds':2033,'.fac':2038,'.utd':2042,'.utp':2044,'.utm':2051,'.dwk':2052,'.pwk':2053,'.mtr':2072}
 
 
@@ -114,10 +114,22 @@ def build(repository,config,binding,output):
     c=read(config);b=read(binding);require(c['schemaVersion']==1 and 1<=c['pageSize']<=24,'Supported gallery configuration required')
     require(c['startingCategory'] in ('placeables','doors','items','creatures','music','sounds','skyboxes','tilesets'),'Unknown starting category')
     require(len(c['prestaged'])<=24,'Starting area supports at most 24 prestaged entries')
-    verify_pins(b['inputs'])
-    if b.get('fixtures'):verify_pins(b['fixtures'])
-    inputs=[pin(p) for p in source_inputs(repository,config,binding)]
-    catalog=discover(repository,c);stage=output/'module';overlay=output/'overlay';user=output/'user'
+    snapshot_path=os.environ.get('SRN_VERIFIED_INPUTS');snapshot=read(snapshot_path) if snapshot_path else None
+    if snapshot:require(snapshot['kind']=='verified-shared-input-snapshot','Wrong launcher snapshot')
+    hashes=snapshot['files'] if snapshot else None
+    def consumed_pin(path):
+        key=str(Path(path).resolve())
+        if hashes is None:return pin(path)
+        require(key in hashes,'Consumed input missing from launcher declaration: '+key)
+        return {'path':key,'sha256':hashes[key]}
+    def checked(pins):
+        if hashes is None:verify_pins(pins)
+        else:
+            for row in pins:require(consumed_pin(row['path'])['sha256']==row['sha256'],'Input differs from binding: '+row['path'])
+    checked(b['inputs'])
+    if b.get('fixtures'):checked(b['fixtures'])
+    inputs=[consumed_pin(p) for p in source_inputs(repository,config,binding)]
+    catalog=discover(repository,c,hashes);stage=output/'module';overlay=output/'overlay';user=output/'user'
     for p in (stage,overlay,user/'hak',user/'modules'):p.mkdir(parents=True)
     def put(name,doc):(stage/name).write_bytes(encode(doc))
     def run(name,args):
@@ -154,7 +166,7 @@ def build(repository,config,binding,output):
             require(all(v['designId'].startswith('human-male-') for v in f['actors']),'Legacy fixture must be the verified Human pilot')
             f={**f,'prefix':'pmh0','appearanceRow':6,'raceId':6,'visualScale':1.0}
         for hak in f['haks']:
-            verify_pins([hak])
+            checked([hak])
             if Path(hak['path']).stem not in ('srn_head','srn_body'):continue
             for (name,kind),payload in archive(hak['path']).items():
                 require(kind in types,'Unexpected candidate HAK resource type')
@@ -237,6 +249,7 @@ def build(repository,config,binding,output):
         run('nwn_script_comp',['--root',b['gameRoot'],'--userdirectory',user,'--no-ovr',stage/(name+'.nss')]);require((stage/(name+'.ncs')).exists(),'Gallery script did not compile')
     test_hak=user/'hak/srn_gallery_test.hak';run('nwn_erf',['-c','-f',test_hak,'-e','HAK',overlay])
     normalize_archive_date(test_hak,c.get('sourceDateUtc','2026-10-05T00:00:00Z'))
+    overlay_audit=verify_pack(test_hak,[{'name':p.name.lower(),'sha256':pin(p)['sha256']} for p in overlay.iterdir()])
     pack_audits=[]
     for name in catalog['haks']:
         source=repository/'output'/(name+'.hak');require(source.is_file(),'Build the registered HAKs before building the gallery: '+name)
@@ -264,11 +277,13 @@ def build(repository,config,binding,output):
     extension_types={'.are':2012,'.git':2023,'.ifo':2014,'.fac':2038,'.utc':2027,'.uti':2025,'.utp':2044,'.utd':2042,'.nss':2009,'.ncs':2010}
     expected={(p.stem.lower(),extension_types[p.suffix]):p.read_bytes() for p in stage.iterdir()}
     require(payload==expected,'Gallery module resource payload differs from the generated source')
-    verify_pins(inputs);catalog['counts']={k:len(v) for k,v in catalog['entries'].items()};catalog['areas']=areas
+    if hashes is None:verify_pins(inputs)
+    catalog['counts']={k:len(v) for k,v in catalog['entries'].items()};catalog['areas']=areas
     write_fresh(output/'catalog.json',catalog)
     report={'kind':'srn-gallery-build','module':pin(module),'testHak':pin(test_hak),'configuration':pin(config),'binding':pin(binding),
         'counts':catalog['counts'],'resourceCount':catalog['resourceCount'],'areas':len(areas),'prestagedHeads':len(heads),
-        'scriptsCompiled':True,'moduleRoundTripVerified':True,'modulePayloadVerified':True,'packPayloads':pack_audits,'clientObserved':False,'productionAccepted':False,'inputs':inputs}
+        'scriptsCompiled':True,'moduleRoundTripVerified':True,'modulePayloadVerified':True,'overlayPayload':overlay_audit,'packPayloads':pack_audits,'clientObserved':False,'productionAccepted':False,'inputs':inputs,
+        'inputVerification':'shared-launcher-before-and-after' if hashes is not None else 'builder-before-and-after'}
     write_fresh(output/'build.json',report);print(json.dumps({k:report[k] for k in ('module','counts','areas','prestagedHeads','clientObserved')}))
 
 

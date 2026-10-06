@@ -22,6 +22,8 @@ def main():
     parser.add_argument('--input',type=Path,action='append',default=[],help='Consumed input, registered and frozen before dispatch')
     parser.add_argument('--input-manifest',type=Path,action='append',default=[],
                         help='JSON array of explicit file path/sha256 pins, for large declared input sets')
+    parser.add_argument('--input-path-list',type=Path,action='append',default=[],
+                        help='JSON array of consumed file paths; the launcher freezes their bytes before dispatch')
     parser.add_argument('--provenance',type=Path,action='append',default=[])
     parser.add_argument('arguments',nargs=argparse.REMAINDER)
     args=parser.parse_args()
@@ -47,22 +49,32 @@ def main():
         command+=['--factory-startup','-b','-t','4','--python-exit-code','1','--python',
                   str(Path(__file__).with_name('bootstrap_shared_blender_addons.py').resolve())]
     command+=argv
-    declared=[]
+    declared=[];verified={}
     for manifest in args.input_manifest:
         rows=json.loads(manifest.read_text(encoding='utf-8'))
         if not isinstance(rows,list) or not rows:raise ValueError('Nonempty explicit input manifest required')
         for row in rows:
             path=Path(row['path']).resolve()
-            if not path.is_file() or sha(path)!=row['sha256']:raise ValueError('Manifest input changed: '+str(path))
+            if not path.is_file():raise ValueError('Manifest input changed: '+str(path))
+            digest=sha(path)
+            if digest!=row['sha256']:raise ValueError('Manifest input changed: '+str(path))
+            verified[str(path)]=digest
             declared.append(path)
+    for manifest in args.input_path_list:
+        rows=json.loads(manifest.read_text(encoding='utf-8'))
+        if not isinstance(rows,list) or not rows or not all(isinstance(row,str) for row in rows):raise ValueError('Nonempty explicit input path list required')
+        declared.extend(Path(row).resolve() for row in rows)
     inputs=[config,Path(__file__).resolve(),Path(__file__).with_name('shared_toolchain.py'),
             Path(__file__).resolve().parents[1]/'shared_tools.py',
-            Path(__file__).resolve().parents[1]/'shared-tools.lock.json',*args.input,*args.input_manifest,*declared]
+            Path(__file__).resolve().parents[1]/'shared-tools.lock.json',*args.input,*args.input_manifest,*args.input_path_list,*declared]
     if data.get('addons'):
         inputs.extend(Path(data['addons']['root'])/rel for rel in data['addons']['files'])
     if args.tool=='blender':inputs.append(Path(__file__).with_name('bootstrap_shared_blender_addons.py'))
     if migration:inputs.append(migration)
-    frozen={str(p.resolve()):sha(p) for p in inputs}
+    frozen={}
+    for p in inputs:
+        key=str(p.resolve())
+        if key not in frozen:frozen[key]=verified[key] if key in verified else sha(p)
     snapshots={};(output/'helper-snapshots').mkdir()
     for path in inputs:
         if path.suffix=='.py':
@@ -70,8 +82,12 @@ def main():
             if sha(copied)!=frozen[str(path.resolve())]:raise ValueError('Helper changed during snapshot')
             snapshots[str(path)]={'snapshot':str(copied),'sha256':sha(copied)}
     repo=Path(__file__).resolve().parents[2]
+    snapshot=output/'verified-inputs.json'
+    snapshot.write_text(json.dumps({'kind':'verified-shared-input-snapshot','files':frozen},indent=2)+'\n',encoding='utf-8')
+    frozen[str(snapshot)]=sha(snapshot)
+    env['SRN_VERIFIED_INPUTS']=str(snapshot)
     dependency=register_run(repo,root=data.get('toolsRoot'),tools=list(data['tools'].values()),
-                            inputs=[{'path':p,'sha256':h} for p,h in frozen.items()],provenance=args.provenance)
+                            inputs=[{'path':p,'sha256':h} for p,h in frozen.items()],provenance=args.provenance,_verified_inputs=frozen)
     begun=time.monotonic()
     with (output/'stdout.log').open('w',encoding='utf-8') as out,(output/'stderr.log').open('w',encoding='utf-8') as err:
         result=subprocess.run(command,env=env,stdout=out,stderr=err,check=False)

@@ -41,13 +41,10 @@ try {
     $destination = [System.IO.Path]::GetFullPath($OutputDirectory)
     if (Test-Path -LiteralPath $destination) { throw 'Use a fresh output directory for each gallery rebuild.' }
     New-Item -ItemType Directory -Path $destination | Out-Null
-    $pins = @($files | Sort-Object -Unique | ForEach-Object {
-        $path = (Get-Item -LiteralPath $_).FullName
-        @{ path=$path; sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() }
-    })
+    $paths = @($files | Sort-Object -Unique | ForEach-Object { (Get-Item -LiteralPath $_).FullName })
     $manifest = Join-Path $destination 'inputs.json'
-    [System.IO.File]::WriteAllText($manifest,($pins | ConvertTo-Json -Depth 6)+"`n",[System.Text.UTF8Encoding]::new($false))
-    & $python.path -B tools/phenotypes/launch_shared_tool.py --toolchain $Toolchain --migration-receipt $MigrationReceipt --tool python --output "$destination/launch" --input-manifest $manifest -- -B tools/gallery/build_gallery.py --repository $repoRoot --config $Configuration --binding $Binding --output "$destination/build"
+    [System.IO.File]::WriteAllText($manifest,($paths | ConvertTo-Json -Depth 6)+"`n",[System.Text.UTF8Encoding]::new($false))
+    & $python.path -B tools/phenotypes/launch_shared_tool.py --toolchain $Toolchain --migration-receipt $MigrationReceipt --tool python --output "$destination/launch" --input-path-list $manifest -- -B tools/gallery/build_gallery.py --repository $repoRoot --config $Configuration --binding $Binding --output "$destination/build"
     if ($LASTEXITCODE) { throw 'Gallery build failed; inspect the retained launch logs.' }
     $result = Get-Content -LiteralPath "$destination/build/build.json" -Raw | ConvertFrom-Json
     Copy-Item -LiteralPath $result.module.path -Destination ./output/srn_gallery.mod -Force

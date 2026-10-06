@@ -8,6 +8,20 @@ animations, or client rendering.
 
 ## Tool resolution
 
+Large jobs may declare consumed file paths with `launch_shared_tool.py
+--input-path-list <json>` instead of generating a separate SHA manifest. The
+launcher freezes every declared file's actual SHA before dispatch and verifies
+the complete snapshot after execution. Existing `--input-manifest` calls still
+reject stale expected hashes. A manifest hash already verified in this launch is
+reused when freezing; dependency registration uses that same synchronous snapshot.
+Other registration callers continue to perform independent byte checks.
+
+The launcher supplies `SRN_VERIFIED_INPUTS` to the child for bookkeeping. The
+gallery checks binding pins against that declared snapshot and reads native HAK
+payloads independently. A failed post-execution verification prevents the wrapper
+from publishing delivery copies. This is per-launch reuse, not a persistent cache
+that trusts timestamps or bypasses stale-input checks.
+
 Both `tools/SrnTools.psm1` and `tools/shared_tools.py` read
 `tools/shared-tools.lock.json`. They return path, version, SHA256, installation
 origin, selected root, root origin and inventory hash. Root precedence is explicit

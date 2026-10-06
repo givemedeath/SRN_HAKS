@@ -21,7 +21,7 @@ def table(path):
     return result
 
 
-def discover(repository, config):
+def discover(repository, config, verified_hashes=None):
     repository=Path(repository).resolve();builder=json.loads((repository/'hakbuilder.json').read_text(encoding='utf-8-sig'))
     packs=[];resources=[];owners={}
     for pack in builder['HakList']:
@@ -31,7 +31,7 @@ def discover(repository, config):
         for path in sorted(root.iterdir()):
             if not path.is_file() or path.name.startswith('.'):continue
             row={'pack':pack['Name'],'path':path.relative_to(repository).as_posix(),'name':path.name.lower(),
-                 'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'bytes':path.stat().st_size}
+                 'sha256':verified_hashes[str(path.resolve())] if verified_hashes is not None else hashlib.sha256(path.read_bytes()).hexdigest(),'bytes':path.stat().st_size}
             resources.append(row);owners.setdefault(row['name'],row)
     entries={key:[] for key in ('placeables','doors','items','creatures','music','sounds','skyboxes','tilesets')}
     used=set()

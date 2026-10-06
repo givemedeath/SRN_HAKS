@@ -62,6 +62,14 @@ This rebuilds all registered HAKs and the TLK, creates fresh pins, and saves
 directory every time; previous receipts remain available. Changes to the
 portable `prestaged` and `additions` lists take effect on the next rebuild.
 
+Opening the finished module in NWN does not run this build pipeline or hash the
+repository. A refresh verifies the bytes of its consumed inputs before and after
+execution. The builder reuses the launcher's verified snapshot for catalog and
+dependency bookkeeping, while independently checking actual HAK payloads. It
+does not reread all source files just to record the same hashes again. Direct
+builder calls retain their own before/after checks. Refresh migration evidence
+when launch helpers change; an older migration receipt is intentionally rejected.
+
 Build the repository HAKs/TLK first with `tools/Build-Haks.ps1`. Prepare the stock
 inputs `ttr01.set`, `ttr01_edge.2da`, and typed `nw_humanmerc001.utc.json` using
 the installed game and pinned resource/GFF tools, as for the head fixture. Create
