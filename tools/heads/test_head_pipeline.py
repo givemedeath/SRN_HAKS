@@ -312,6 +312,123 @@ class HeadTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Fit changed after fitting'):
             self.session.review('human-male-01', 'native', bad_native)
 
+    def test_native_and_client_reviews_bind_package_pin(self):
+        self.reserve(); self.complete()
+        donor = self.root / 'donor_pkg.json'
+        write_fresh(donor, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'donor', 'passed': True,
+            'parentReportSha256': pin(self.report)['sha256'], 'inputs': [pin(self.roster)],
+            'evidence': [pin(self.report)], 'sourceUnmodified': True, 'geometryInspected': True
+        })
+        self.session.review('human-male-01', 'donor', donor)
+
+        protected = self.root / 'body_pkg.mdl'; protected.write_bytes(b'body')
+        manifest = self.root / 'manifest_pkg.json'
+        write_fresh(manifest, {'resources': [{'path': 'body_pkg.mdl', 'sha256': pin(protected)['sha256']}]})
+        stock = []
+        for name in ('rig_p', 'neck_p', 'skin_p', 'hair_p', 'animation_p'):
+            p = self.root / name; p.write_bytes(name.encode()); stock.append(pin(p))
+        target_data = {
+            'schemaVersion': 1, 'kind': 'srn-head-target', 'approved': True, 'race': 'human', 'sex': 'male',
+            'prefix': 'pmh0', 'phenotype': 0, 'bodyRevision': pin(manifest)['sha256'], 'bodyManifest': pin(manifest),
+            'bodyResourceRoot': str(self.root), 'rig': stock[0], 'neckGeometry': stock[1], 'palettes': stock[2:4],
+            'animations': stock[4:], 'headBindMatrix': [[1,0,0,0],[0,1,0,0],[0,0,1,1.75],[0,0,0,1]],
+            'cranialEnvelope': [[-.1,-.1,-.06],[.1,.15,.2]], 'landmarkTolerance': 1e-4, 'protectedResources': stock
+        }
+        target_file = self.root / 'target_pkg.json'; write_fresh(target_file, target_data)
+
+        fit_geom = self.root / 'fit_pkg.glb'; fit_geom.write_bytes(b'fit_geom')
+        src_landmarks = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
+        fit_data = {
+            'kind': 'srn-head-fit', 'source': pin(fit_geom), 'target': pin(target_file),
+            'matrix': np.eye(4).tolist(), 'localMatrix': np.eye(4).tolist(),
+            'sourceLandmarks': src_landmarks.tolist(), 'targetLandmarks': src_landmarks.tolist(),
+            'scale': 1.0, 'reflection': False, 'residualError': 0.0
+        }
+        fit_file = self.root / 'fit_pkg.json'; write_fresh(fit_file, fit_data)
+
+        fitting = self.root / 'fitting_pkg.json'
+        write_fresh(fitting, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'fitting', 'passed': True,
+            'parentReportSha256': pin(donor)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(fit_file), pin(fit_geom)],
+            'evidence': [pin(donor)], 'target': pin(target_file), 'fit': pin(fit_file)
+        })
+        self.session.review('human-male-01', 'fitting', fitting)
+
+        assembly = self.root / 'assembly_pkg.json'
+        write_fresh(assembly, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'assembly', 'passed': True,
+            'parentReportSha256': pin(fitting)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(fit_file)],
+            'evidence': [pin(fitting)], 'target': pin(target_file), 'fit': pin(fit_file),
+            'standingReviewed': True, 'worstCaseMotionReviewed': True, 'bodyResourcesUnchanged': True,
+            'motions': list(MOTION)
+        })
+        self.session.review('human-male-01', 'assembly', assembly)
+
+        closure_file = self.root / 'closure.json'
+        write_fresh(closure_file, {'passed': True, 'neckCutBoundaryEdges': 0, 'uncappedClosedNeckLoops': 0,
+                                   'source': pin(fit_geom)})
+        hak_file = self.root / 'test_hak.hak'; hak_file.write_bytes(b'hak_content')
+        other_hak = self.root / 'other_hak.hak'; other_hak.write_bytes(b'other_content')
+        res_file = self.root / 'res.mdl'; res_file.write_bytes(b'res')
+
+        native_base = {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'native', 'passed': True,
+            'parentReportSha256': pin(assembly)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(fit_file), pin(closure_file), pin(res_file), pin(hak_file)],
+            'evidence': [pin(assembly)], 'target': pin(target_file), 'fit': pin(fit_file),
+            'neckClosure': pin(closure_file),
+            'nativeDecoded': True, 'geometryUvNormalsVerified': True, 'paletteMasksVerified': True,
+            'materialTransportVerified': True, 'triangles': 5000, 'textureSize': 1024,
+            'resources': [pin(res_file)], 'packageSha256': pin(hak_file)['sha256']
+        }
+
+        # Native missing package pin fails
+        no_pkg = self.root / 'native_no_pkg.json'
+        write_fresh(no_pkg, native_base)
+        with self.assertRaisesRegex(ValueError, 'Native package pin required'):
+            self.session.review('human-male-01', 'native', no_pkg)
+
+        # Native mismatched package hash fails
+        bad_hash_native = self.root / 'native_bad_hash.json'
+        write_fresh(bad_hash_native, {**native_base, 'package': pin(hak_file), 'packageSha256': '1'*64})
+        with self.assertRaisesRegex(ValueError, 'Native package hash mismatch'):
+            self.session.review('human-male-01', 'native', bad_hash_native)
+
+        # Valid native review passes
+        good_native = self.root / 'native_good.json'
+        write_fresh(good_native, {**native_base, 'package': pin(hak_file)})
+        self.session.review('human-male-01', 'native', good_native)
+
+        client_base = {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'client', 'passed': True,
+            'parentReportSha256': pin(good_native)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(fit_file), pin(hak_file)],
+            'evidence': [pin(good_native)], 'target': pin(target_file), 'fit': pin(fit_file),
+            'clientObserved': True, 'slotsSelectable': True, 'helmetsReviewed': True,
+            'palettesReviewed': True, 'lightingReviewed': True, 'motions': list(MOTION),
+            'packageSha256': pin(hak_file)['sha256']
+        }
+
+        # Client missing package pin fails
+        no_client_pkg = self.root / 'client_no_pkg.json'
+        write_fresh(no_client_pkg, client_base)
+        with self.assertRaisesRegex(ValueError, 'Client package pin required'):
+            self.session.review('human-male-01', 'client', no_client_pkg)
+
+        # Client tested another package fails
+        diff_client = self.root / 'client_diff_pkg.json'
+        write_fresh(diff_client, {**client_base, 'package': pin(other_hak), 'packageSha256': pin(other_hak)['sha256']})
+        with self.assertRaisesRegex(ValueError, 'Client tested another package'):
+            self.session.review('human-male-01', 'client', diff_client)
+
+        # Valid client review with matching package passes
+        good_client = self.root / 'client_good.json'
+        write_fresh(good_client, {**client_base, 'package': pin(hak_file)})
+        self.session.review('human-male-01', 'client', good_client)
+
 
 if __name__ == "__main__": unittest.main()
 

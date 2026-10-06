@@ -620,11 +620,22 @@ class Session:
                 require(0 < report["triangles"] <= MAX_TRIANGLES and report["textureSize"] == TEXTURE_SIZE,
                         "Runtime head budget exceeded")
                 verify_pins(report["resources"])
+                require("package" in report, "Native package pin required")
+                verify_pins([report["package"]])
+                require(report.get("packageSha256") == report["package"]["sha256"],
+                        "Native package hash mismatch")
             if stage == "client":
                 require(report["clientObserved"] is True and report["slotsSelectable"] is True and report["helmetsReviewed"] is True
                         and report["palettesReviewed"] is True and report["lightingReviewed"] is True, "Actual client checks incomplete")
                 require(set(report["motions"]) >= MOTION, "Client motion coverage incomplete")
-                require(report["packageSha256"] == read(reviews["native"]["report"]["path"])["packageSha256"],
+                require("package" in report, "Client package pin required")
+                verify_pins([report["package"]])
+                require(report.get("packageSha256") == report["package"]["sha256"],
+                        "Client package hash mismatch")
+                native_report = read(reviews["native"]["report"]["path"])
+                require("package" in native_report, "Native review requires pinned package")
+                verify_pins([native_report["package"]])
+                require(report["package"] == native_report["package"],
                         "Client tested another package")
             if stage == "acceptance":
                 require(report["rightsReviewed"] is True and report["bodyResourcesUnchanged"] is True, "Publication review incomplete")
@@ -648,6 +659,7 @@ class Session:
                 verify_pins([read(report["fit"]["path"])["source"]])
             if 'neckClosure' in report:verify_pins([report['neckClosure']])
             if 'neckConnector' in report:verify_pins([report['neckConnector']])
+            if 'package' in report:verify_pins([report['package']])
 
     def publication(self, identities, *, slot_audit=None, repository=None):
         require(bool(identities) and len(set(identities)) == len(identities), "Explicit unique selections required")

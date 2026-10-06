@@ -1,9 +1,9 @@
 {
   "kind": "srn-head-review-fixes-validation",
-  "helperTestsPassed": 309,
+  "helperTestsPassed": 311,
   "checks": {
     "head": {
-      "tests": 47,
+      "tests": 49,
       "logSha256": "671d46fe5af8396da88abf3065dd3641c71ef61d0c51467e5e247c0ed3c33031"
     },
     "gallery": {
@@ -44,7 +44,10 @@
     "Empty task history accepted on definite API rejection reconciliation",
     "Downstream reviews bound to approved fitting review fit pin",
     "Local remesh source bound to declared inputs and reviewed donor geometry",
-    "Head-only migration receipts honor requested allowed tools on schema-1 toolchains"
+    "Head-only migration receipts honor requested allowed tools on schema-1 toolchains",
+    "Native and client package hashes bound to pinned package bytes",
+    "Mask proposal inputs freeze and verify every consumed source before and after use",
+    "Generated material groups merge compatible dielectric fixed regions to remain within exporter limit"
   ],
   "installedKeyReader": {
     "relevantResourceNames": 70106,
