@@ -31,11 +31,11 @@
     },
     "nativeValidation": {
       "status": true,
-      "note": "Compiled by the NWN:EE client's own model compiler ('## compileloadedasciimodels', 'Success: Compiled 7 models'). The CLI compiler rejects skin meshes, so no independent native decode audit exists. Export compare passes except the known 4.9e-6 rad rest-rotation precision (Neverblender 5-decimal export)."
+      "note": "Compiled by the NWN:EE client's own model compiler ('## compileloadedasciimodels', 'Success: Compiled 7 models'). The CLI compiler rejects skin meshes, so no independent native decode audit exists. Export compare passes except the known 8.2e-6 rad rest-rotation precision (Neverblender 5-decimal export)."
     },
     "clientValidation": {
-      "status": false,
-      "note": "Pending operator review of the r2 package module."
+      "status": true,
+      "note": "Operator approved the r2 package module (fixture workwear-final-r2-v1, client-compiled binary) in the client on 2026-10-06: \"approved\"."
     },
     "productionAcceptance": {
       "status": false,
