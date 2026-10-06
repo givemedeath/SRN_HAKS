@@ -90,9 +90,10 @@ graph TD
   - Confirm client binary hash matches compiler binary hash.
 - Request user confirmation prior to launching `nwmain.exe`.
 - Execute interactive test runner `tools/phenotypes/run_derived_dwarf_client_test.py`:
-  - Run 135-second automated inspection sequence.
+  - Run 135-second automated inspection sequence for bare torso and joint alignment.
+  - Execute separate equipment-focused camera run (`--equipment-target`) to inspect equipped armor fit and log markers.
   - Sample process memory and CPU performance metrics.
-  - Extract and verify timestamped `PHENOTYPE_` engine log entries.
+  - Extract and verify timestamped `PHENOTYPE_` engine log entries and require clean client and engine logs.
 
 ### Gate 7: 3-Way Silhouette & Morphological Overlap Audit (Checkpoint CP3)
 - Execute automated 3-way silhouette comparison via `tools/phenotypes/build_silhouette_comparison_sheet.py`.
@@ -185,7 +186,7 @@ python tools/phenotypes/build_derived_dwarf_fixture.py --stage output/phenotypes
 # 2. Stage stock comparator actor:
 python tools/phenotypes/stock_dwarf_control.py --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
 
-# 3. Build test module with launch_shared_tool (includes representative full-equipment actor):
+# 3. Build test module with launch_shared_tool (bare torso inspection sequence):
 python tools/phenotypes/launch_shared_tool.py `
   --toolchain .tmp/runtime-bindings/run-001.json `
   --migration-receipt .tmp/shared-tool-migration.json `
@@ -194,8 +195,20 @@ python tools/phenotypes/launch_shared_tool.py `
   --input output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json `
   -- tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --torso-inspection-sequence --camera-target dwarf_male_fit --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
 
-# Direct CLI invocation:
+# Direct CLI invocation (bare torso sequence):
 python tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --torso-inspection-sequence --camera-target dwarf_male_fit --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
+
+# 4. Build separate equipment-focused test module (focuses camera on full-armor actor):
+python tools/phenotypes/launch_shared_tool.py `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output output/phenotypes/derived-dwarf-male-v1/test-stage `
+  --input output/phenotypes/derived-dwarf-male-v1/test-stage/manifest.json `
+  --input output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json `
+  -- tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --camera-target dwarf_male_fit --camera-equipment-target --camera-pitch 75.0 --camera-distance 4.0 --camera-height 1.2 --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
+
+# Direct CLI invocation (equipment camera target):
+python tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --camera-target dwarf_male_fit --camera-equipment-target --camera-pitch 75.0 --camera-distance 4.0 --camera-height 1.2 --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
 ```
 
 ### Client Preflight & Execution
@@ -203,8 +216,11 @@ python tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_
 # Preflight check without launch:
 python tools/phenotypes/preflight_derived_dwarf_client.py
 
-# Interactive test execution (requires user confirmation):
+# Interactive bare actor torso test execution:
 python tools/phenotypes/run_derived_dwarf_client_test.py
+
+# Interactive equipment-focused actor test execution:
+python tools/phenotypes/run_derived_dwarf_client_test.py --equipment-target
 ```
 
 ---

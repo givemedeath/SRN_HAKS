@@ -58,6 +58,10 @@ def stage_candidate(stage_dir: Path):
     slug_dir = stage_dir / "orc_male_fit" / "converted"
     ascii_dir = slug_dir / "ascii"
     resources_dir = slug_dir / "resources"
+    if ascii_dir.exists():
+        shutil.rmtree(ascii_dir)
+    if resources_dir.exists():
+        shutil.rmtree(resources_dir)
     ascii_dir.mkdir(parents=True, exist_ok=True)
     resources_dir.mkdir(parents=True, exist_ok=True)
 

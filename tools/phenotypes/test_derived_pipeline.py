@@ -1027,6 +1027,42 @@ class StockFamilyEquipmentFallbackTests(unittest.TestCase):
             self.assertEqual(models, ["pmd0_chest016.mdl", "pmd0_legl004.mdl"])
 
 
+class FixtureStagingDirectoryRecreationTests(unittest.TestCase):
+    def test_stage_candidate_clears_stale_files(self):
+        from build_derived_dwarf_fixture import stage_candidate, CANDIDATE_CONVERTED
+        with tempfile.TemporaryDirectory() as tmpdir:
+            stage_dir = Path(tmpdir)
+            stale_ascii = stage_dir / "dwarf_male_fit" / "converted" / "ascii"
+            stale_resources = stage_dir / "dwarf_male_fit" / "converted" / "resources"
+            stale_ascii.mkdir(parents=True)
+            stale_resources.mkdir(parents=True)
+            stale_file_1 = stale_ascii / "stale_old_model.mdl"
+            stale_file_2 = stale_resources / "stale_old_texture.plt"
+            stale_file_1.write_text("stale", encoding="utf-8")
+            stale_file_2.write_text("stale", encoding="utf-8")
+
+            if CANDIDATE_CONVERTED.exists() and (CANDIDATE_CONVERTED / "native-compile.json").exists():
+                stage_candidate(stage_dir)
+                self.assertFalse(stale_file_1.exists())
+                self.assertFalse(stale_file_2.exists())
+
+
+class ClientLogRequirementTests(unittest.TestCase):
+    def test_source_contains_both_logs_required(self):
+        source = Path(__file__).resolve().parent.joinpath("run_derived_dwarf_client_test.py").read_text(encoding="utf-8")
+        self.assertIn("missing_logs = [str(log_p.name) for log_p in [client_log_path, engine_log_path] if not log_p.exists()]", source)
+        self.assertIn("missing required log file(s):", source)
+        self.assertIn("len(source_logs) == 2", source)
+
+    def test_derived_profiles_uses_read_mdl_text(self):
+        source = Path(__file__).resolve().parent.joinpath("derived_profiles.py").read_text(encoding="utf-8")
+        self.assertIn("from derive_rig import read_mdl_text", source)
+        self.assertIn("text = read_mdl_text(supermodel_path)", source)
+        self.assertIn("human_text = read_mdl_text(human_stock_mdl)", source)
+        self.assertIn("elf_text = read_mdl_text(supermodel_path)", source)
+        self.assertIn("orc_text = read_mdl_text(supermodel_path)", source)
+
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -12,6 +12,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from retarget import nodes, transforms
+from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS, validate, require
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configurations" / "derived"
@@ -32,7 +33,7 @@ def build_target_profile(
     animation_supermodel: str = "a_da"
 ) -> dict:
     """Build a validated phenotype-target configuration dictionary."""
-    text = Path(supermodel_path).read_text(encoding="cp1252")
+    text = read_mdl_text(supermodel_path)
     skel = nodes(text)
     xforms = transforms(skel)
     
@@ -146,7 +147,7 @@ def generate_troll_male_target(
     output_config_path: Path | str = CONFIG_DIR / "target-troll-male-fit.json"
 ) -> dict:
     """Generate, validate, and write the broadened reference-scaled Troll male target contract."""
-    human_text = Path(human_stock_mdl).read_text(encoding="cp1252")
+    human_text = read_mdl_text(human_stock_mdl)
     skel = nodes(human_text)
 
     # Rename root model pmh0 -> pmg0
@@ -244,7 +245,7 @@ def generate_elf_male_target(
     output_config_path: Path | str = CONFIG_DIR / "target-elf-male-fit.json"
 ) -> dict:
     """Generate, validate, and write the slender-scaled Elf male target contract."""
-    elf_text = Path(supermodel_path).read_text(encoding="cp1252")
+    elf_text = read_mdl_text(supermodel_path)
     skel = nodes(elf_text)
 
     # Emit rig to output rigs dir
@@ -326,7 +327,7 @@ def generate_orc_male_target(
     output_config_path: Path | str = CONFIG_DIR / "target-orc-male-fit.json"
 ) -> dict:
     """Generate, validate, and write the broad stock-measured Orc male target contract."""
-    orc_text = Path(supermodel_path).read_text(encoding="cp1252")
+    orc_text = read_mdl_text(supermodel_path)
     skel = nodes(orc_text)
 
     # Emit rig to output rigs dir
