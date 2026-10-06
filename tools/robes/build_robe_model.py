@@ -101,6 +101,9 @@ def main():
     parser.add_argument("--rest", choices=["bind", "generation"], default="bind",
                         help="generation: robe rest skeleton at the outfit's A-pose joints (weights dir must be A-pose)")
     parser.add_argument("--fit", type=Path, help="Fit output directory (required for --rest generation)")
+    parser.add_argument("--merge-bone", action="append", default=[], metavar="FROM=TO",
+                        help="Fold one bone's weights into another (repeatable). neck_g=torso_g keeps neck_g out of the "
+                             "robe skeleton: a robe neck_g stops the client drawing the creature's neck part")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     require(len(args.model) <= 16 and len(args.prefix) <= 8, "Resref limits exceeded")
@@ -116,6 +119,15 @@ def main():
     weights, segments, skin_faces = data["weights"], data["segmentLabels"], data["skinFaces"]
     stock = mdl_ascii.read(args.stock_model)
     stock_names = {node.key: node.name for node in stock.nodes}
+    keys = data["bones"].tolist()
+    merged = []
+    for rule in args.merge_bone:
+        source, target = (part.strip().lower() for part in rule.split("="))
+        require(source in keys and target in keys, "Unknown bone in --merge-bone " + rule)
+        weights = weights.copy()
+        weights[:, keys.index(target)] += weights[:, keys.index(source)]
+        weights[:, keys.index(source)] = 0.0
+        merged.append({"from": source, "to": target})
     bone_names = [stock_names[b] for b in data["bones"].tolist()]
     used_bones = [bone_names[i] for i in np.flatnonzero(weights.max(0) > 0)]
     model = mdl_ascii.Model(args.model)
@@ -178,7 +190,7 @@ def main():
               "skeletonSource": "stock bind frames copied unchanged" if rest is None else "limb rest frames at the outfit A-pose joints (rigid part of the proxy transforms)", "skinNodes": summary,
               "materials": {"fixed": material + "a", "skinPlt": args.model,
                             "skinPltFile": pin(skin_plt) if skin_plt else None},
-              "triangles": int(len(tris)), "file": pin(path), "restPose": args.rest,
+              "triangles": int(len(tris)), "file": pin(path), "restPose": args.rest, "mergedBones": merged,
               "bindFramesChanged": args.rest != "bind", "stockRigChanged": False, **FLAGS}
     print(write_fresh(output / "model.json", report)["sha256"])
 
