@@ -13,6 +13,8 @@ import json
 from pathlib import Path
 import re
 import shutil
+import subprocess
+import tempfile
 import sys
 import numpy as np
 
@@ -21,6 +23,30 @@ from retarget import nodes, transforms, geometry, signature, rotation_signature
 from target_contract import PART_JOINTS, require
 
 REPO = Path(__file__).resolve().parents[2]
+
+
+def resolve_mdlcomp() -> Path:
+    try:
+        sys.path.insert(0, str(REPO / "tools"))
+        from shared_tools import resolve_tool
+        return Path(resolve_tool("mdlcomp", REPO)["path"])
+    except Exception:
+        cand = REPO / "tools/vendor/nwnmdlcomp/nwnmdlcomp.exe"
+        if cand.exists():
+            return cand
+        raise
+
+
+def read_mdl_text(path: Path | str) -> str:
+    path = Path(path).resolve()
+    data = path.read_bytes()
+    if data[:4] == b"\0\0\0\0":
+        mdlcomp = resolve_mdlcomp()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_ascii = Path(tmpdir) / (path.stem + ".mdl")
+            subprocess.run([str(mdlcomp), "-d", "-e", str(path), str(out_ascii)], check=True, capture_output=True)
+            return out_ascii.read_text(encoding="cp1252", errors="replace")
+    return data.decode(encoding="cp1252", errors="replace")
 
 
 def sha256_file(path: Path | str) -> str:
@@ -68,7 +94,7 @@ def derive_stock_family_rig(
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    text = stock_root_mdl.read_text(encoding="cp1252")
+    text = read_mdl_text(stock_root_mdl)
     skel = nodes(text)
     xforms = transforms(skel)
 
@@ -120,8 +146,12 @@ def derive_stock_family_rig(
 
     # Copy / establish stock root in rig output directory
     target_mdl = output_dir / stock_root_mdl.name
-    if not target_mdl.exists() or sha256_file(target_mdl) != sha256_file(stock_root_mdl):
-        shutil.copyfile(stock_root_mdl, target_mdl)
+    is_binary = stock_root_mdl.read_bytes()[:4] == b"\0\0\0\0"
+    if is_binary:
+        target_mdl.write_text(text, encoding="cp1252")
+    else:
+        if not target_mdl.exists() or sha256_file(target_mdl) != sha256_file(stock_root_mdl):
+            shutil.copyfile(stock_root_mdl, target_mdl)
 
     receipt = {
         "schemaVersion": 1,
@@ -158,7 +188,7 @@ def derive_broadened_scaled_rig(
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    text = human_root_mdl.read_text(encoding="cp1252")
+    text = read_mdl_text(human_root_mdl)
     skel = nodes(text)
 
     # Rename pmh0 -> pmg0

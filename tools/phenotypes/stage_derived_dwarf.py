@@ -71,11 +71,19 @@ def stage(race: str = "dwarf", prefix: str = "pmd0"):
                 encoding="ascii"
             )
 
-    staged_models = list(ascii_dir.glob("*.mdl"))
-    if len(staged_models) != 14:
-        raise RuntimeError(f"Expected exactly 14 staged models in {ascii_dir}, found {len(staged_models)}")
+    # Stage retargeted rig root for Troll (pmg0.mdl)
+    rig_root = REPO / f"output/phenotypes/derived-v1/rigs/{race}-male/{prefix}.mdl"
+    if race == "troll" and rig_root.is_file():
+        shutil.copyfile(rig_root, ascii_dir / f"{prefix}.mdl")
 
-    print(f"Staged 14 ASCII models and material dependencies for {race} ({prefix}) to {target_root}")
+    expected_count = 15 if (ascii_dir / f"{prefix}.mdl").is_file() else 14
+    staged_models = list(ascii_dir.glob("*.mdl"))
+    if len(staged_models) != expected_count:
+        if len(staged_models) != 14:
+            pass
+        raise RuntimeError(f"Expected exactly {expected_count} staged models in {ascii_dir}, found {len(staged_models)}")
+
+    print(f"Staged {expected_count} ASCII models and material dependencies for {race} ({prefix}) to {target_root}")
 
 
 def main():

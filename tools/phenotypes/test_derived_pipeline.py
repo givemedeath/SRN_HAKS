@@ -838,6 +838,71 @@ class FixtureBuilderCliTests(unittest.TestCase):
         self.assertIn("--stage", res.stdout)
 
 
+class DecompileBinaryMdlTests(unittest.TestCase):
+    def test_read_mdl_text_ascii_and_binary(self):
+        from derive_rig import read_mdl_text
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            ascii_mdl = tmp / "ascii.mdl"
+            ascii_mdl.write_bytes(b"newmodel test\nsetsupermodel test a_ba\n")
+            self.assertEqual(read_mdl_text(ascii_mdl).replace("\r\n", "\n"), "newmodel test\nsetsupermodel test a_ba\n")
+
+            bin_mdl = tmp / "bin.mdl"
+            bin_mdl.write_bytes(b"\0\0\0\0compiled_binary_data")
+            with patch("derive_rig.resolve_mdlcomp") as mock_tool, \
+                 patch("subprocess.run") as mock_run:
+                mock_tool.return_value = Path("dummy_mdlcomp.exe")
+                # When subprocess.run is called, simulate output file creation
+                def fake_run(cmd, **kwargs):
+                    out_path = Path(cmd[4])
+                    out_path.write_bytes(b"newmodel decompiled\n")
+                    return unittest.mock.MagicMock(returncode=0)
+                mock_run.side_effect = fake_run
+                result = read_mdl_text(bin_mdl)
+                self.assertEqual(result.replace("\r\n", "\n"), "newmodel decompiled\n")
+                self.assertTrue(mock_run.called)
+
+
+class TrollRootStagingAndScaleTests(unittest.TestCase):
+    def test_stage_troll_enforces_15_models_with_root(self):
+        source = Path(__file__).resolve().parent.joinpath("stage_derived_dwarf.py").read_text(encoding="utf-8")
+        self.assertIn('expected_count = 15 if (ascii_dir / f"{prefix}.mdl").is_file() else 14', source)
+        self.assertIn('rig_root = REPO / f"output/phenotypes/derived-v1/rigs/{race}-male/{prefix}.mdl"', source)
+
+    def test_troll_fixture_patches_appearance_scale(self):
+        from build_derived_troll_fixture import stage_fixture_resources
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            stage_dir = tmp / "stage"
+            userdir = tmp / "userdir"
+            stage_dir.mkdir(parents=True)
+            userdir.mkdir(parents=True)
+
+            # Create mock appearance.2da with Gnome row 2
+            app_path = tmp / "test_appearance.2da"
+            headers = "LABEL STRING_REF NAME RACE ENVMAP BLOODCOLR MODELTYPE WEAPONSCALE WING_TAIL_SCALE HELMET_SCALE_M HELMET_SCALE_F MOVERATE WALKDIST RUNDIST PERSPACE CREPERSPACE HEIGHT HITDIST PREFATCKDIST TARGETHEIGHT ABORTONPARRY RACIALTYPE HASLEGS HASARMS PORTRAIT SIZECATEGORY PERCEPTIONDIST FOOTSTEPTYPE SOUNDAPPTYPE HEADTRACK HEAD_ARC_H HEAD_ARC_V HEAD_NAME BODY_BAG TARGETABLE"
+            lines = [
+                "2DA V2.0",
+                "      " + headers,
+                "0     Dwarf       1985 Character_model D default R P 1 1 1.15 0.95 NORM 1.06 2.12 0.3 0.5 1.5 0.3 1.4 H 1 6 1 1 **** 3 9 0 0 1 60 30 head_g 6 1",
+                "1     Elf         1986 Character_model E default R P 1 1 0.85 0.8  NORM 1.43 2.86 0.3 0.4 1.75 0.3 1.5 H 1 7 1 1 **** 3 9 0 0 1 60 30 head_g 6 1",
+                "2     Gnome       1987 Character_model G default R P 1 1 0.9  0.82 NORM 1.0  1.94 0.3 0.4 1.5  0.3 1.3 H 1 8 1 1 **** 2 9 0 0 1 60 30 head_g 6 1",
+            ]
+            app_path.write_text("\n".join(lines) + "\n", encoding="cp1252")
+
+            app_hash = stage_fixture_resources(stage_dir, userdir, appearance_path=app_path)
+            patched = (stage_dir / "fixture-resources/appearance.2da").read_text(encoding="cp1252")
+            patched_lines = [l for l in patched.splitlines() if l.strip()]
+            row_2 = patched_lines[4].split()
+            cols = patched_lines[1].split()
+
+            self.assertEqual(row_2[cols.index("LABEL") + 1], "Troll")
+            self.assertEqual(row_2[cols.index("HEIGHT") + 1], "2.7627")
+            self.assertEqual(row_2[cols.index("SIZECATEGORY") + 1], "4")
+            self.assertAlmostEqual(float(row_2[cols.index("WEAPONSCALE") + 1]), 1.42857, places=4)
+            self.assertEqual(app_hash, hashlib.sha256((stage_dir / "fixture-resources/appearance.2da").read_bytes()).hexdigest())
+
+
 if __name__ == "__main__":
     unittest.main()
 
