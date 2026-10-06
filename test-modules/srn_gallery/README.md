@@ -6,6 +6,11 @@ and [the control scripts](../../tools/gallery/scripts). Rebuild after changing
 content; generated modules, HAKs, bindings, catalogs and receipts stay in ignored
 `output/`.
 
+The completed native build is recorded in [validation.json](validation.json):
+75 areas, 29,019 inventoried resources and six male head candidates prestaged.
+All 26 repository HAK payloads, the inspection overlay and saved module copies
+passed byte verification. Interactive client inspection remains pending.
+
 The starting area has labeled category and page controls. The first page appears
 on entry. Search and stage individual appearances with chat commands:
 

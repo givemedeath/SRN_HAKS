@@ -245,18 +245,18 @@
   "regressions": {
     "headHelpers": {
       "passed": true,
-      "logSha256": "ee0963b94770e87c4a9c137ab98c290aeb88627e0dc5fb25dbb77bf39de402fc",
-      "tests": 36
+      "tests": 36,
+      "logSha256": "c07924b77d75c7eeed49fc4f0d5c964d17f7e40b3c7bf5012de3c1e5af1d80ef"
     },
     "sharedHelpers": {
       "passed": true,
-      "logSha256": "f6b385a122d9515d91e9c912bb22ab5ef0d107a0b8e3a10347493338ef7f6928",
-      "tests": 18
+      "tests": 19,
+      "logSha256": "1e9de552d6d031622f34aa08deea260c5acb9d1ba77865794ef44383f6274e25"
     },
     "phenotypeHelpers": {
       "passed": true,
-      "logSha256": "76cb46ec272e6c33fee175fb1728be948e00fd54d9e43a4a9e51670dba64291e",
-      "tests": 175
+      "tests": 176,
+      "logSha256": "d3a32510941248ed9f323dedf47d57928aa984654e2732537a12a590f6784f5d"
     },
     "repository": {
       "passed": true,
@@ -265,13 +265,17 @@
     },
     "itemImport": {
       "passed": true,
-      "logSha256": "c1da1546673a22060967a15427190c39fe1955c7efa7dc32f912e000cc3a44b7",
-      "tests": null
+      "tests": null,
+      "logSha256": "2b18f8cdb13cf9e7009f0da5c4d1e3af47d0e99521775e2c29d119778562f078"
     },
     "galleryHelpers": {
       "passed": true,
-      "tests": 5,
-      "logSha256": "ea0965d286bc71a77f19a4a5bebdde3e577bec9bc37c7e8c56df93afb88133a9"
+      "tests": 6,
+      "logSha256": "382c30f13afbb901d3dc3692e35ccd65ae1d58d92c639fdbe293c2deaa136938"
+    },
+    "repositoryStructure": {
+      "passed": true,
+      "logSha256": "a4d85a7a48e94dd564abf55a0215951a83fa0be5a2e90716115f62cbc79392c2"
     }
   },
   "renderTimings": [
@@ -872,5 +876,13 @@
     }
   },
   "nativeGateReceiptSha256": "91d5f1862db314e34cc4f0c9176cb322446977540d0a2ccc4cc2dabf5764ca1e",
-  "resumeLedgerSha256": "146554cc760c7dfd02dc3c508b7a93ee1d27940f1522b1e5c68be024e101a688"
+  "resumeLedgerSha256": "146554cc760c7dfd02dc3c508b7a93ee1d27940f1522b1e5c68be024e101a688",
+  "gallery": {
+    "validation": "test-modules/srn_gallery/validation.json",
+    "validationSha256": "5c0ae87927151b222eb847bf58706ef64e2432f630b889eecff931a136f93602",
+    "moduleSha256": "265ebe78bba41bcab5f5ca2ac27be7e947511a3d813c5498e7b392e65a3f15c9",
+    "inspectionHakSha256": "818fcdfa85e870ebe54f9ef026749a10c400f4aa814c57604dbc2b8eff144992",
+    "clientObserved": false,
+    "productionAccepted": false
+  }
 }
