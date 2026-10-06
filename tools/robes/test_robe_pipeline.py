@@ -30,6 +30,9 @@ class FitMathTests(unittest.TestCase):
         rotation = fit_math.rotation_between(np.array([1.0, 0, 0]), np.array([0, 1.0, 0]))
         np.testing.assert_allclose(rotation @ [1, 0, 0], [0, 1, 0], atol=1e-12)
         self.assertAlmostEqual(np.linalg.det(rotation), 1.0)
+        flipped = fit_math.rotation_between(np.array([1.0, 0, 0]), np.array([-1.0, 0, 0]))
+        np.testing.assert_allclose(flipped @ [1, 0, 0], [-1, 0, 0], atol=1e-12)
+        self.assertAlmostEqual(np.linalg.det(flipped), 1.0)
 
     def test_front_rotation_is_half_turn(self):
         np.testing.assert_allclose(fit_math.rotate_front(np.array([[1.0, 2.0, 3.0]]), "-Y"), [[-1, -2, 3]])

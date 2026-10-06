@@ -99,7 +99,7 @@ def outfit_landmarks(verts, tris, welded, step=0.005):
                     _, _, vt = np.linalg.svd(planar, full_matrices=False)
                     minor = planar @ vt[-1]
                     radii.append(float((minor.max() - minor.min()) / 2))
-        if len(centres) < 6:
+        if len(centres) < 6 or not radii:
             raise ValueError("Arm centreline not found on side " + side)
         centre, direction = line_fit(centres)
         direction = direction if np.sign(direction[0]) == sign else -direction
@@ -204,7 +204,12 @@ def rotation_between(a, b):
     axis = np.cross(a, b)
     s, c = np.linalg.norm(axis), float(np.clip(a @ b, -1, 1))
     if s < 1e-12:
-        return np.eye(3)
+        if c > 0:
+            return np.eye(3)
+        # Antiparallel: a half turn about any axis perpendicular to a.
+        k = np.cross(a, [1.0, 0.0, 0.0] if abs(a[0]) < 0.9 else [0.0, 1.0, 0.0])
+        k /= np.linalg.norm(k)
+        return 2 * np.outer(k, k) - np.eye(3)
     k = axis / s
     cross = np.array([[0, -k[2], k[1]], [k[2], 0, -k[0]], [-k[1], k[0], 0]])
     return np.eye(3) + s * cross + (1 - c) * cross @ cross

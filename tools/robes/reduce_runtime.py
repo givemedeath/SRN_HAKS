@@ -98,8 +98,9 @@ def main():
     parser.add_argument("--tolerances", type=Path, required=True)
     parser.add_argument("--target-faces", type=int, required=True)
     parser.add_argument("--weld-distance", type=float, default=1e-6)
-    parser.add_argument("--space", choices=["bind", "generation"], default="bind",
-                        help="generation: reduce and emit the outfit in its A-pose (for generation-rest robes)")
+    parser.add_argument("--space", choices=["bind", "generation"], default="generation",
+                        help="generation (default): reduce in the outfit's A-pose, never the arms-down bind pose; "
+                             "bind only for historical bind-space fits")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     fit_json = args.fit_arrays.parent / "fit.json"
@@ -113,7 +114,8 @@ def main():
     fit_arrays = np.load(args.fit_arrays)
     visible = fit_arrays["visible"]
     if args.space == "generation":
-        require("fittedGeneration" in fit_arrays.files, "Generation-space fit arrays required")
+        require("fittedGeneration" in fit_arrays.files,
+                "Generation-space fit arrays required (pass --space bind only for a historical bind-space fit)")
         data = dict(data, verts=fit_arrays["fittedGeneration"])
     require(len(visible) == len(data["verts"]), "Fit arrays do not match the weighted mesh")
     plan = read(args.config)["weights"]

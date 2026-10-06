@@ -96,9 +96,10 @@ class Session:
     def events(self):
         rows, previous = [], sha(self.root / "session.json")
         for path in sorted((self.root / "events").glob("*.json")):
-            event = read(path)
+            data, event_pin = read_pinned(path)  # the chained hash covers the parsed bytes
+            event = json.loads(data.decode("utf-8-sig"))
             require(event["previous"] == previous, "Session event chain broken at " + path.name)
-            previous = sha(path)
+            previous = event_pin["sha256"]
             rows.append(event)
         return rows
 

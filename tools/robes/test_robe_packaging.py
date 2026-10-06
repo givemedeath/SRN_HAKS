@@ -12,7 +12,7 @@ import mdl_ascii
 from build_robe_fixture import read_2da, renamed_model, scripts, write_2da
 from build_robe_model import node_for_faces, skeleton_nodes
 from prepare_robe_materials import plt_bytes
-from prepare_reference import subject_bottom
+from prepare_reference import subject_block, subject_bottom
 from robe_common import merge_pins, sha
 from test_robe_core import SKIN_MODEL
 
@@ -189,6 +189,7 @@ class MaterialAndReferenceTests(unittest.TestCase):
         image.paste((200, 200, 200), (10, 25, 30, 90))   # subject after a gap
         image.paste((200, 200, 200), (10, 105, 30, 110))  # caption after a gap
         self.assertEqual(subject_bottom(image, 24, 12), 89)
+        self.assertEqual(subject_block(image, 24, 12), (25, 89, False))  # the header is cropped too
 
     def test_caption_below_gap_is_excluded(self):
         image = Image.new("RGB", (40, 100))

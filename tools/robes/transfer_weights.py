@@ -24,7 +24,7 @@ import fit_math
 import lbs
 import mdl_ascii
 from mesh_ops import neighbours, smooth_field, weld_ids
-from blender_io import import_single
+from blender_io import base_color_image, face_colours, import_single
 from robe_common import FLAGS, fresh_directory, merge_pins, pin, read, require, skin_colour, utc, verify_pins, write_fresh
 from robe_weights import limb_corrections, limit_and_normalize, validate
 from stock_body import SKIN_BONES, Body
@@ -92,25 +92,10 @@ def cage_part(body, part, frames=None):
 
 
 def skin_mask(obj, tris, loops):
-    image = None
-    for slot in obj.material_slots:
-        material = slot.material
-        if material and material.use_nodes:
-            for node in material.node_tree.nodes:
-                if node.type == "BSDF_PRINCIPLED" and node.inputs["Base Color"].is_linked:
-                    image = getattr(node.inputs["Base Color"].links[0].from_node, "image", None)
+    image = base_color_image(obj)
     if image is None or not obj.data.uv_layers:
         return None
-    width, height = image.size
-    pixels = np.empty(width * height * 4, dtype=np.float32)
-    image.pixels.foreach_get(pixels)
-    pixels = pixels.reshape(height, width, 4)[:, :, :3]
-    uv = np.empty(len(obj.data.loops) * 2)
-    obj.data.uv_layers.active.data.foreach_get("uv", uv)
-    uv = uv.reshape(-1, 2)[loops].mean(axis=1)
-    x = np.clip((uv[:, 0] % 1.0) * (width - 1), 0, width - 1).astype(int)
-    y = np.clip((uv[:, 1] % 1.0) * (height - 1), 0, height - 1).astype(int)
-    return skin_colour(pixels[y, x])
+    return skin_colour(face_colours(obj, loops, image))
 
 
 def main():

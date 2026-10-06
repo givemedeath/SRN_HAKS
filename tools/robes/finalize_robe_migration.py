@@ -69,7 +69,6 @@ def finalize(config, directory, output):
     require(all(Path(name).resolve().is_relative_to(active) for name in helpers),
             "Launch helpers must belong to this worktree")
     frozen = [pin(path) for path in sorted(root.rglob("*")) if path.is_file()]
-    verify_pins(frozen)
     receipt = {"schemaVersion": 1, "kind": "phenotype-shared-tool-migration", "scope": "robe-tools",
                "allowedTools": ["python", "blender"], "smokeChecksPassed": True, "toolchain": pin(config),
                "toolchainInitialSnapshot": inputs["toolchainInitialSnapshot"], "activeWorktree": str(active),

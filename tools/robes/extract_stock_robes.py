@@ -80,12 +80,20 @@ class Extractor:
         for field in ("bitmap", "texture0", "texture1", "texture2", "texture3", "materialname", "renderhint"):
             bitmaps.update(value.lower() for value in
                            re.findall(r"(?mi)^\s*" + field + r"\s+(\S+)", self.text(model)))
-        found = []
-        for bitmap in sorted(bitmaps - {"null", "normalandspecmapped", "normaltangents"}):
+        found, pending, seen = [], sorted(bitmaps - {"null", "normalandspecmapped", "normaltangents"}), set()
+        while pending:
+            bitmap = pending.pop(0)
+            if bitmap in seen:
+                continue
+            seen.add(bitmap)
             for suffix in TEXTURE_SUFFIXES:
                 row = self.fetch(bitmap + suffix, optional=True)
                 if row:
                     found.append(row["name"])
+                    if row["name"].endswith(".mtr"):  # an MTR names its own maps
+                        text = (self.raw / row["name"]).read_text(encoding="cp1252", errors="replace")
+                        pending += [v.lower() for v in re.findall(r"(?mi)^\s*texture\d\s+(\S+)", text)
+                                    if v.lower() != "null"]
         return found
 
 

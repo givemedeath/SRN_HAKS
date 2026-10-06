@@ -18,8 +18,8 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from blender_io import import_single
-from mesh_ops import islands
+from blender_io import base_color_image, face_colours, import_single
+from mesh_ops import edges, islands, slice_loops
 from robe_common import FLAGS, fresh_directory, pin, require, sha, skin_colour, utc, write_fresh
 
 DIRECTIONS = [Vector(v).normalized() for v in
@@ -36,12 +36,6 @@ def arrays(mesh):
     loops = np.empty(len(mesh.loop_triangles) * 3, dtype=np.int64)
     mesh.loop_triangles.foreach_get("loops", loops)
     return verts.reshape(-1, 3), tris.reshape(-1, 3), loops.reshape(-1, 3)
-
-
-def edge_topology(welded, tris):
-    edges = np.sort(np.concatenate([welded[tris[:, [0, 1]]], welded[tris[:, [1, 2]]], welded[tris[:, [2, 0]]]]), axis=1)
-    unique, counts = np.unique(edges, axis=0, return_counts=True)
-    return unique, counts
 
 
 def boundary_loops(unique, counts, welded_positions):
@@ -68,42 +62,11 @@ def boundary_loops(unique, counts, welded_positions):
     return sorted(loops, key=lambda loop: -loop["vertices"])
 
 
-def slice_loops(verts, tris, axis, value, select=None, welded=None):
-    """Connected cross-section components where triangles cross a plane (seam-welded connectivity)."""
-    side = verts[:, axis] - value
-    signs = side[tris]
-    ids = welded if welded is not None else np.arange(len(verts))
-    crossing = np.flatnonzero((signs.min(axis=1) < 0) & (signs.max(axis=1) > 0))
-    if not len(crossing):
-        return []
-    parent = {i: i for i in crossing}
-
-    def find(x):
-        while parent[x] != x:
-            parent[x] = parent[parent[x]]
-            x = parent[x]
-        return x
-    edge_owner = {}
-    for index in crossing:
-        a, b, c = tris[index]
-        for u, v in ((a, b), (b, c), (c, a)):
-            if (side[u] < 0) != (side[v] < 0):
-                key = (min(ids[u], ids[v]), max(ids[u], ids[v]))
-                if key in edge_owner:
-                    parent[find(index)] = find(edge_owner[key])
-                else:
-                    edge_owner[key] = index
-    groups = {}
-    for index in crossing:
-        groups.setdefault(find(index), []).append(index)
-    rows = []
-    for faces in groups.values():
-        points = verts[tris[faces]].reshape(-1, 3)
-        if select is not None and not select(points):
-            continue
-        rows.append({"faces": len(faces), "center": points.mean(0).round(4).tolist(),
-                     "min": points.min(0).round(4).tolist(), "max": points.max(0).round(4).tolist()})
-    return sorted(rows, key=lambda row: row["center"][0])
+def sections(verts, tris, axis, value, select=None, welded=None):
+    """mesh_ops cross-sections as rounded JSON rows (face count, centre and bounds of the cut points)."""
+    return [{"faces": row["faces"], "center": row["center"].round(4).tolist(), "min": row["min"].round(4).tolist(),
+             "max": row["max"].round(4).tolist()}
+            for row in slice_loops(verts, tris, axis, value, select=select, welded=welded)]
 
 
 def hidden_faces(obj, verts, tris, sample):
@@ -128,31 +91,10 @@ def hidden_faces(obj, verts, tris, sample):
     return hidden
 
 
-def base_color(obj):
-    for slot in obj.material_slots:
-        material = slot.material
-        if material and material.use_nodes:
-            for node in material.node_tree.nodes:
-                if node.type == "BSDF_PRINCIPLED" and node.inputs["Base Color"].is_linked:
-                    image = node.inputs["Base Color"].links[0].from_node
-                    if getattr(image, "image", None):
-                        return image.image
-    return None
-
-
-def skin_estimate(obj, tris, loops, image):
+def skin_estimate(obj, loops, image):
     if image is None or not obj.data.uv_layers:
         return None
-    width, height = image.size
-    pixels = np.empty(width * height * 4, dtype=np.float32)
-    image.pixels.foreach_get(pixels)
-    pixels = pixels.reshape(height, width, 4)[:, :, :3]
-    uv = np.empty(len(obj.data.loops) * 2)
-    obj.data.uv_layers.active.data.foreach_get("uv", uv)
-    uv = uv.reshape(-1, 2)[loops].mean(axis=1)
-    x = np.clip((uv[:, 0] % 1.0) * (width - 1), 0, width - 1).astype(int)
-    y = np.clip((uv[:, 1] % 1.0) * (height - 1), 0, height - 1).astype(int)
-    rgb = pixels[y, x]
+    rgb = face_colours(obj, loops, image)
     return skin_colour(rgb), rgb
 
 
@@ -176,7 +118,7 @@ def main():
     main_island = int(np.argmax(island_faces))
     welded_positions = np.zeros((welded.max() + 1, 3))
     welded_positions[welded] = verts
-    unique, counts = edge_topology(welded, tris)
+    unique, counts = edges(tris, welded)
     # Islands: distance from each island to the main island surface (floating fragments).
     main_faces = tris[face_island == main_island]
     tree = BVHTree.FromPolygons([tuple(map(float, v)) for v in verts], [tuple(map(int, f)) for f in main_faces])
@@ -206,17 +148,17 @@ def main():
     ankles = verts[(verts[:, 2] > low[2] + 0.08 * size[2]) & (verts[:, 2] < low[2] + 0.14 * size[2])]
     forward = float(np.median(feet[:, 1]) - np.median(ankles[:, 1])) if len(feet) and len(ankles) else 0.0
     height = float(size[2])
-    legs = {f"{fraction:.2f}": slice_loops(verts, tris, 2, low[2] + fraction * height, welded=welded)
+    legs = {f"{fraction:.2f}": sections(verts, tris, 2, low[2] + fraction * height, welded=welded)
             for fraction in (0.20, 0.30, 0.40, 0.45)}
     arms = {}
     for sign, label in ((1, "left+x"), (-1, "right-x")):
         for fraction in (0.55, 0.70, 0.85):
             plane = sign * fraction * (high[0] if sign > 0 else -low[0])
-            arms[f"{label}@{fraction:.2f}"] = slice_loops(verts, tris, 0, plane,
+            arms[f"{label}@{fraction:.2f}"] = sections(verts, tris, 0, plane,
                                                           select=lambda p: p[:, 2].mean() > low[2] + 0.55 * height,
                                                           welded=welded)
     lengths = np.linalg.norm(welded_positions[unique[:, 0]] - welded_positions[unique[:, 1]], axis=1)
-    estimate = skin_estimate(obj, tris, loops, base_color(obj))
+    estimate = skin_estimate(obj, loops, base_color_image(obj))
     skin = None
     if estimate is not None:
         mask, rgb = estimate

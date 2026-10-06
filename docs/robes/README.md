@@ -16,7 +16,7 @@ runtime binding and a robe-scoped migration receipt.
 
 | Step | Helper | Notes |
 |---|---|---|
-| Shared | `robe_common.py`, `parts_robe.py`, `blender_io.py`, `mesh_ops.py`, `mdl_ascii.py` | Pinning (`read_pinned` hashes the exact bytes read), `parts_robe.2da` columns and position-true writer, the Blender GLB import, mesh connectivity, skin-aware ASCII MDL (unknown counted arrays are rejected). |
+| Shared | `robe_common.py`, `parts_robe.py`, `blender_io.py`, `mesh_ops.py`, `mdl_ascii.py`, `lbs.py`, `stock_body.py`, `robe_weights.py` | Pinning (`read_pinned` hashes the exact bytes read, `merge_pins` refuses one path with two hashes), `parts_robe.2da` columns and position-true writer, the Blender GLB import and base-colour sampling, mesh connectivity, skin-aware ASCII MDL (unknown counted arrays are rejected), linear blend skinning, the stock body parts, weight limits and limb corrections. |
 | Migration | `run_robe_migration.py`, `finalize_robe_migration.py` | Python/Blender scope; stock robe extraction and Neverblender import smokes. Main's equipment finalizer needs an Armory tool that is not on main and is not used here. |
 | Stock extraction | `extract_stock_robes.py` | Every installed `pmh0_robe*`, `parts_robe.2da`, the `pmh0` animation chain and the `*001` body parts, overrides disabled. |
 | Inventory | `inventory_stock_robes.py` | Skin nodes, bones, influences, hide flags, hem coverage; donor proposals. |
@@ -24,19 +24,24 @@ runtime binding and a robe-scoped migration receipt.
 | Meshy | `prepare_reference.py`, `meshy_robe.py` | Pinned `meshy-cli@0.4.0`; credit cap, one open job, two generation attempts per outfit, recorded reference approval before any 3D job. |
 | Inspection | `inspect_source.py` | Budget, islands, duplicates, boundaries, hidden faces, limb sections, skin estimate; defects classified. |
 | Repair | `repair_source.py` | Seam weld, floating/duplicate removal, UV-preserving decimation to the 100k budget. |
-| Fit | `fit_outfit.py`, `fit_math.py` | Landmark similarity, geodesic segmentation, proxy-rig pose conversion to the stock bind joints, lattice inflation to clearance over the naked stock body. |
-| Weights | `transfer_weights.py` | Region-restricted nearest-face barycentric transfer from stock robe and body-part cage donors, smoothing, ≤4 influences, normalisation, validation. |
-| Model | `build_robe_model.py` | Stock bind skeleton copied unchanged; region skin nodes; exposed skin in skin-PLT nodes. |
+| Fit | `fit_outfit.py`, `fit_math.py` | Landmark similarity, geodesic segmentation, proxy-rig pose conversion, optional lattice clearance over the visible stock parts. `fit.space generation` keeps the work in the outfit's A-pose (operator rule: never weight or reduce in the arms-down bind pose). |
+| Weights | `transfer_weights.py` | Region-restricted nearest-face barycentric transfer from stock robe and body-part cage donors, sampled in the A-pose when the fit provides it; smoothing, rigid hands, joint sharpening, ≤4 influences, normalisation, validation. |
+| Runtime | `reduce_runtime.py` | Collapse decimation to a runtime face budget (A-pose by default), then segment masks, rigid hands and joint sharpening re-applied. |
+| Model | `build_robe_model.py` | `--rest generation` (the shipped pilot) gives the robe skeleton limb rest frames at the outfit's A-pose joints, so the A-pose mesh ships unconverted; `--rest bind` copies the stock bind frames. Region skin nodes; exposed-skin nodes use `bitmap <model>` and `<model>.plt`, as stock robes do. |
+| Experiments | `robe_node_variant.py`, `apose_skeleton.py` | Single-difference client probes (bone node kinds, added stock nodes, A-pose rest); historical evidence only. |
 | Review | `deformation_review.py`, `render_review.py`, `contact_sheet.py` | Offline linear blend skinning over the motion matrix against the stock donor; matched renders; stretch/collapse/penetration flags. |
-| Materials | `prepare_robe_materials.py` | 2K fixed-colour TGA/MTR; skin-layer PLT with an MTR that omits `texture0`. |
-| Package | `build_robe_fixture.py` | Trial HAK, `parts_robe` rows, robe items and the comparison module in an isolated userdir. |
+| Materials | `prepare_robe_materials.py` | 2K fixed-colour TGA/MTR; skin-layer PLT, shipped as `<model>.plt` (a prefix-named PLT renders flat grey, so the prefix-named skin MTR is unused). |
+| Package | `build_robe_fixture.py`, `package_trial.py` | Trial HAK, padded `parts_robe` rows, robe items and the comparison module in an isolated userdir; the package folder must be byte-identical to the client-validated fixture. |
 | Client | `Launch-RobeTrialClient.ps1` | Refuses to start beside a running client; records package hashes. |
 
 ## Findings that shape the pipeline
 
 - The EE `compilemodel` command rejects skinmeshes ("not yet initialized"), and
-  every installed `pmh0_robe*` is ASCII, so robes ship as ASCII and native
-  validation is the engine's own load in the client.
+  every installed `pmh0_robe*` is ASCII. The client compiles a loaded skin robe
+  with `## compileloadedasciimodels` (robe in view); the pilot ships that
+  client-compiled binary, and native validation is that compile plus the client load.
+- The engine reads 2DA rows by position: unused rows must be padded with `****`
+  or every later row (and its HIDE flags) shifts.
 - Neverblender 4.1.0 writes 5-decimal positions, 4-decimal UVs and 3-decimal
   weights (renormalised, influences below 0.001 dropped), writes 0 in the
   per-face surface-material column, exports every vertex group as a bone and

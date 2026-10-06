@@ -18,7 +18,7 @@ from mathutils import Vector
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "phenotypes"))
 from pose_preview_render_settings import apply_render_settings
-from robe_common import FLAGS, fresh_directory, pin, read_pinned, require, utc, verify_pins, write_fresh
+from robe_common import FLAGS, fresh_directory, merge_pins, pin, read_pinned, require, utc, verify_pins, write_fresh
 
 VIEWS = {"front": (0.0, 1.0, 0.0), "back": (0.0, -1.0, 0.0), "left": (-1.0, 0.0, 0.0), "right": (1.0, 0.0, 0.0),
          "threequarter": (0.62, 0.78, 0.0), "top": (0.0, 0.05, 1.0)}
@@ -145,7 +145,7 @@ def main():
             pinned = [pin(path) for path in entry_sources(entry)]  # hashed before the files are read
             read_paths = {str(Path(path).resolve()) for path in load(spec, entry)[1]}
             require(read_paths <= {p["path"] for p in pinned}, "Render entry read an unpinned file")
-            inputs += pinned
+            merge_pins(inputs, pinned)  # a file shared by several scenes is pinned once
         for view in spec.get("views", ["front", "left", "back", "threequarter"]):
             direction = Vector(VIEWS[view]).normalized()
             camera.location = centre + direction * 6.0
