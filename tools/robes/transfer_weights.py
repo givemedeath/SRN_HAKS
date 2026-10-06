@@ -175,7 +175,7 @@ def main():
     rv, rf, rw, dominant = robe_donor_faces(rig, robe_node, offset)
     frames = None
     if generation:
-        rv = fit_math.pose_weighted(rv, rw, SKIN_BONES, transforms)
+        rv = fit_math.pose_weighted(rv, rw, SKIN_BONES, transforms, fit_report.get("conversionBlend", "linear"))
         frames = fit_math.generation_pose_frames(body.bind, transforms)
     face_bone = dominant[rf[:, 0]]
 

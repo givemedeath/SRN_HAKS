@@ -313,7 +313,57 @@ def proxy_weights(points, soft, joints, blends):
     return stacked / stacked.sum(1, keepdims=True)
 
 
-def blend(verts, weights, transforms):
+def _quaternion(rotation):
+    """Unit quaternion (w, x, y, z) of a proper rotation matrix."""
+    m = rotation
+    w = np.sqrt(max(0.0, 1 + m[0, 0] + m[1, 1] + m[2, 2])) / 2
+    x = np.copysign(np.sqrt(max(0.0, 1 + m[0, 0] - m[1, 1] - m[2, 2])) / 2, m[2, 1] - m[1, 2])
+    y = np.copysign(np.sqrt(max(0.0, 1 - m[0, 0] + m[1, 1] - m[2, 2])) / 2, m[0, 2] - m[2, 0])
+    z = np.copysign(np.sqrt(max(0.0, 1 - m[0, 0] - m[1, 1] + m[2, 2])) / 2, m[1, 0] - m[0, 1])
+    q = np.array([w, x, y, z])
+    return q / np.linalg.norm(q)
+
+
+def _split(matrix):
+    """Affine matrix -> (rotation, symmetric stretch, translation) with linear = rotation @ stretch."""
+    u, s, vt = np.linalg.svd(matrix[:3, :3])
+    if np.linalg.det(u @ vt) < 0:
+        u[:, -1] *= -1
+        s[-1] *= -1
+    return u @ vt, vt.T @ np.diag(s) @ vt, matrix[:3, 3]
+
+
+def blend_dual_quaternion(verts, weights, matrices):
+    """Dual-quaternion blend of affine segment matrices (stretch blended linearly, applied first).
+
+    Unlike averaging matrices, blending rotations keeps volume across a bent joint, so a
+    40-degree shoulder or elbow conversion does not collapse the armpit or inner elbow.
+    """
+    parts = [_split(m) for m in matrices]
+    stretch = np.einsum("np,pij,nj->ni", weights, np.stack([s for _, s, _ in parts]), verts)
+    real = np.stack([_quaternion(r) for r, _, _ in parts])
+    translation = np.stack([t for _, _, t in parts])
+    tq = np.c_[np.zeros(len(parts)), translation]
+    # dual part = 0.5 * (0, t) * q_real (Hamilton product)
+    dual = 0.5 * np.stack([np.r_[-tv[1:] @ q[1:], tv[0] * q[1:] + q[0] * tv[1:] + np.cross(tv[1:], q[1:])]
+                           for tv, q in zip(tq, real)])
+    reference = real[weights.argmax(1)]
+    signs = np.sign(reference @ real.T)
+    signs[signs == 0] = 1
+    b0 = (weights * signs) @ real
+    be = (weights * signs) @ dual
+    norm = np.linalg.norm(b0, axis=1, keepdims=True)
+    b0, be = b0 / norm, be / norm
+    w0, v0, we, ve = b0[:, :1], b0[:, 1:], be[:, :1], be[:, 1:]
+    rotated = stretch + 2 * w0 * np.cross(v0, stretch) + 2 * np.cross(v0, np.cross(v0, stretch))
+    return rotated + 2 * (w0 * ve - we * v0 + np.cross(v0, ve))
+
+
+def blend(verts, weights, transforms, method="linear"):
+    if method == "dual-quaternion":
+        return blend_dual_quaternion(verts, weights, [transforms[name] for name in PROXY])
+    if method != "linear":
+        raise ValueError("Unknown blend method: " + method)
     homogeneous = np.c_[verts, np.ones(len(verts))]
     out = np.zeros((len(verts), 3))
     for column, name in enumerate(PROXY):
@@ -341,15 +391,26 @@ def generation_pose_frames(bind_frames, transforms):
     return {bone: to_pose(bone) @ frame for bone, frame in bind_frames.items()}
 
 
-def pose_weighted(points, weights, bones, transforms):
-    """Linear-blend bind-pose points into the generation pose using their dense bone weights."""
-    to_pose = generation_pose_matrices(transforms)
-    homogeneous = np.c_[points, np.ones(len(points))]
-    out = np.zeros((len(points), 3))
+def pose_weighted(points, weights, bones, transforms, method="linear"):
+    """Blend bind-pose points into the generation pose using their dense bone weights."""
+    proxy = np.zeros((len(points), len(PROXY)))
     for column, bone in enumerate(bones):
-        if np.any(weights[:, column]):
-            out += weights[:, column, None] * (homogeneous @ to_pose(bone).T)[:, :3]
-    return out
+        proxy[:, PROXY.index(BONE_PROXY.get(bone.lower(), "torso"))] += weights[:, column]
+    inverse = {name: np.linalg.inv(matrix) for name, matrix in transforms.items()}
+    return blend(points, proxy, inverse, method)
+
+
+# Robe HIDE column -> stock body part it hides (pmh0_<part>001).
+HIDE_PARTS = {"HIDENECK": "neck", "HIDEHEAD": "head", "HIDECHEST": "chest", "HIDEPELVIS": "pelvis",
+              "HIDEBELT": "belt", "HIDEBICEPL": "bicepl", "HIDEBICEPR": "bicepr", "HIDEFOREL": "forel",
+              "HIDEFORER": "forer", "HIDEHANDL": "handl", "HIDEHANDR": "handr", "HIDELEGL": "legl",
+              "HIDELEGR": "legr", "HIDESHINL": "shinl", "HIDESHINR": "shinr", "HIDEFOOTL": "footl",
+              "HIDEFOOTR": "footr", "HIDESHOL": "shol", "HIDESHOR": "shor"}
+
+
+def visible_parts(hide):
+    """Stock body parts the robe leaves visible; clearing hidden parts only bloats the garment."""
+    return [part for column, part in HIDE_PARTS.items() if not int(hide.get(column, 0))]
 
 def _gaussian_blur(grid, sigma_cells):
     radius = int(np.ceil(3 * sigma_cells))

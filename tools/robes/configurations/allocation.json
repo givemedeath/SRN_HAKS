@@ -15,6 +15,7 @@
     "18": {"use": "workwear corrected-v2 reduced to a runtime face budget (client equip stall)", "model": "pmh0_robe018"},
     "19": {"use": "workwear corrected-v2 reduced to a 20k runtime face budget", "model": "pmh0_robe019"},
     "35": {"use": "workwear corrected-v3 (A-pose clearance and weights), 20k runtime", "model": "pmh0_robe035"},
-    "36": {"use": "workwear corrected-v4 (v3 plus bind-pose torso/arm separation), 20k runtime", "model": "pmh0_robe036"}
+    "36": {"use": "workwear corrected-v4 (v3 plus bind-pose torso/arm separation), 20k runtime", "model": "pmh0_robe036"},
+    "37": {"use": "workwear corrected-v5 (visible-part clearance, dual-quaternion conversion), 20k runtime", "model": "pmh0_robe037"}
   }
 }

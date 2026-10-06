@@ -67,6 +67,27 @@ class FitMathTests(unittest.TestCase):
         np.testing.assert_allclose(frames["lforearm_g"], np.linalg.inv(transforms["fa_L"]))
         np.testing.assert_allclose(frames["pelvis_g"], np.eye(4))
 
+    def test_dual_quaternion_blend_keeps_joint_volume(self):
+        quarter = np.eye(4)
+        quarter[:3, :3] = fit_math.rotation_between(np.array([1.0, 0, 0]), np.array([0, 1.0, 0]))
+        point, weights = np.array([[1.0, 0.0, 0.0]]), np.array([[0.5, 0.5]])
+        linear = (0.5 * np.eye(4) + 0.5 * quarter) @ np.r_[point[0], 1]
+        dq = fit_math.blend_dual_quaternion(point, weights, [np.eye(4), quarter])
+        self.assertAlmostEqual(np.linalg.norm(linear[:3]), np.sqrt(0.5), places=6)  # averaging collapses
+        self.assertAlmostEqual(np.linalg.norm(dq[0]), 1.0, places=6)               # rotation blend does not
+        shifted = np.eye(4)
+        shifted[:3, 3] = [0.1, -0.2, 0.3]
+        stretched = fit_math.segment_transform(np.zeros(3), np.array([0, 0, 1.0]), np.zeros(3), np.array([0, 0, 1.5]))
+        for matrix in (shifted, stretched):
+            pts = np.random.default_rng(4).normal(size=(5, 3))
+            np.testing.assert_allclose(fit_math.blend_dual_quaternion(pts, np.ones((5, 1)), [matrix]),
+                                       (np.c_[pts, np.ones(5)] @ matrix.T)[:, :3], atol=1e-9)
+
+    def test_visible_parts_follow_hide_flags(self):
+        hide = {column: 1 for column in fit_math.HIDE_PARTS}
+        hide.update(HIDENECK=0, HIDEHEAD=0)
+        self.assertEqual(fit_math.visible_parts(hide), ["neck", "head"])
+
     def test_lattice_moves_only_movable_points(self):
         body = np.array([[-1, -1, 0], [1, -1, 0], [1, 1, 0], [-1, 1, 0]], float)
         faces = np.array([[0, 1, 2], [0, 2, 3]])

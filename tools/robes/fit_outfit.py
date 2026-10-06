@@ -132,12 +132,16 @@ def main():
         labels, soft, override_counts = fit_math.apply_segment_overrides(
             aligned[first], labels, rows, cols, corrections["segmentOverrides"], blends["labelSmoothing"], joints)
     weights = fit_math.proxy_weights(aligned[first], soft, joints, blends)[welded]
-    posed = fit_math.blend(aligned, weights, transforms)
+    method = fit.get("conversionBlend", "linear")
+    posed = fit_math.blend(aligned, weights, transforms, method)
     space = fit.get("space", "bind")
     require(space in ("bind", "generation"), "fit.space must be bind or generation")
     clearance_source = aligned if space == "generation" else posed
     visible = outer_visibility(clearance_source, tris, welded)
-    volume = Body(args.stock_ascii, config["target"]["prefix"], parts=fit["bodyParts"])
+    clearance_parts = (fit_math.visible_parts(config["hide"]) if fit.get("clearanceParts") == "visible"
+                       else fit["bodyParts"])
+    volume = Body(args.stock_ascii, config["target"]["prefix"], parts=clearance_parts)
+    require(volume.parts, "No stock body parts to clear")
     frames = fit_math.generation_pose_frames(volume.bind, transforms) if space == "generation" else None
     body_verts, body_faces, _ = volume.posed(frames)
     inflated, history, signed, initial = fit_math.lattice_inflate(
@@ -145,7 +149,7 @@ def main():
         fit["latticeSigma"], fit["latticeIterations"], fit.get("latticeFade", 0.5),
         min_improvement=fit.get("latticeMinImprovement", 0.01))
     generation = inflated[welded] if space == "generation" else None
-    fitted = fit_math.blend(generation, weights, transforms) if space == "generation" else inflated[welded]
+    fitted = fit_math.blend(generation, weights, transforms, method) if space == "generation" else inflated[welded]
     separation = fit.get("bindSeparation")
     separation_history = None
     if separation:
@@ -202,8 +206,8 @@ def main():
               "poseConversion": {"maximumShift": float(pose_shift.max()), "p95Shift": float(np.percentile(pose_shift, 95)),
                                  "dominantProxyCounts": {name: int((dominant == i).sum())
                                                          for i, name in enumerate(fit_math.PROXY)}},
-              "clearanceSpace": space, "bindSeparation": {"settings": separation, "history": separation_history},
-              "inflation": {"bodyParts": fit["bodyParts"], "distance": fit["clearance"], "cell": fit["latticeCell"],
+              "clearanceSpace": space, "conversionBlend": method, "clearanceParts": sorted(volume.parts), "bindSeparation": {"settings": separation, "history": separation_history},
+              "inflation": {"bodyParts": clearance_parts, "distance": fit["clearance"], "cell": fit["latticeCell"],
                             "sigma": fit["latticeSigma"], "history": history, "maximumShift": float(shift.max()),
                             "p95Shift": float(np.percentile(shift, 95)), "outerVertices": int(outer.sum()),
                             "byDominantProxy": regions},
