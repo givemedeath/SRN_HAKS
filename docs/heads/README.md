@@ -1,19 +1,24 @@
 # Head production pipeline
 
 The current delivery is recorded in [delivery.md](delivery.md), with the
-[four-head catalog](pilot-catalog.json), [selected 200-entry roster](roster-selected.json),
+[seven-design catalog](pilot-catalog.json), [selected 200-entry roster](roster-selected.json),
 [Human target](human-male-target.json), [Troll target](troll-male-target.json),
 [protected Troll body resources](troll-body-resources.json), [slot audit](slot-catalog.json), and
 [validation results](validation-summary.json). Review images are offline evidence.
+Additional portable contracts cover [Elf](elf-male-target.json),
+[Dwarf](dwarf-male-target.json) and [Orc](orc-male-target.json) males. Their
+protected resource hashes are included in the pilot catalog.
 Client testing and production acceptance remain pending under the user's revised scope.
 
 The portable roster reserves 200 designs: 20 male and 20 female for Human, Elf,
 Dwarf, Orc and Troll, phenotype 0. Troll uses NWN's `g` model family. The pilot
-contains two Human males (natural and cyberware), an Elf female and a Troll male.
+contains two Human males (natural and cyberware), one male each for Elf, Dwarf,
+Orc and Troll, and an Elf female donor.
 The merged `codex/derived-phenotypes` branch supplies male body contracts for all
-five races. The existing Human and Troll male pilots have passed native checks.
+five races. All six male candidates have passed native checks.
 The Elf female donor stays pending until an approved female body contract exists.
-This update uses the existing pilots; it does not generate additional male designs.
+The [gallery module](../../test-modules/srn_gallery/README.md) prestages all six
+male candidates alongside its refreshable repository content catalog.
 
 The pilot uses the Meshy plugin CLI at the user's request, superseding the
 original MCP route. CLI 0.4.0's live command schemas were inspected before paid
@@ -62,7 +67,9 @@ remain immutable. A held operation lock requires explicit reconciliation.
    sizing. Use `meshy_cli.py dispatch` through the launcher. The adapter reserves
    estimated credits before invoking the CLI and records the owning task ID.
 3. Run one paid job at a time. Each pilot design permits at most two generation
-   attempts. The session cap is 300 credits. Timeouts and unknown charges retain
+   attempts. The original session cap was 300 credits; the user approved a
+   descendant ceiling of 405 for the three additional male designs. Actual
+   cumulative spend is 345, with no outstanding reservations. Timeouts and unknown charges retain
    their reservation. An uncertain create must be reconciled with the CLI's
    operation journal and task history before another create. An operation ID is
    a local journal key, not server-side idempotency.
@@ -207,7 +214,8 @@ phenotype helper tests, `Test-Repository.ps1` and `Test-ItemImportTools.ps1`.
 
 The current user-authorized stopping point is **before client testing**.
 Client and production acceptance must remain pending in pilot evidence and the
-PR. Elf/Troll have donor evidence only; fitting awaits their approved bodies.
+PR. Only the Elf female donor remains pending a body contract; all male heads
+have fitting, assembly and native evidence.
 
 Before retiring a disposable checkout, preserve verified source masters in a
 durable bank outside it and run the read-only retirement audit. Provenance is

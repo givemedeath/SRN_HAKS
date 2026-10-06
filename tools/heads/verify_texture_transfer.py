@@ -12,7 +12,7 @@ from head_export import triangles
 from head_workflow import pin,read,require,verify_pins,write_fresh
 
 
-def cap_only_omissions(missing,areas,source,fit_file,closure_file):
+def cap_only_omissions(missing,areas,source,fit_file,closure_file,review_file=None):
     fit=read(fit_file);closure=read(closure_file)
     verify_pins([fit['source'],closure['output'],closure['source']])
     require(fit['source']==pin(source)==closure['output'] and closure['kind']=='srn-head-cap-only-closure'
@@ -26,12 +26,23 @@ def cap_only_omissions(missing,areas,source,fit_file,closure_file):
     original=[i for i in missing if i not in caps]
     original_area=sum(area*scale**2 for i,area in zip(missing,areas) if i not in caps)
     cap_area=sum(area*scale**2 for i,area in zip(missing,areas) if i in caps)
-    require(len(original)<=8 and original_area<=1e-6 and cap_area<=1e-5,
+    maximum=8
+    if review_file:
+        reviewed=read(review_file);verify_pins([reviewed['source'],reviewed['fit'],reviewed['closure'],*reviewed['evidence']])
+        require(reviewed['kind']=='srn-head-atlas-omission-review' and reviewed['passed'] is True
+                and reviewed['source']==pin(source) and reviewed['fit']==pin(fit_file)
+                and reviewed['closure']==pin(closure_file),'Atlas omission review belongs to another source or fit')
+        require(reviewed['omittedOriginalFaceIds']==original and 8<len(original)<=64,
+                'Reviewed atlas omission IDs differ or exceed the explicit microface bound')
+        maximum=len(original)
+    require(len(original)<=maximum and original_area<=1e-6 and cap_area<=1e-5,
             'Omitted atlas correspondence exceeds bounded fitted microface/cap areas')
     return {'fit':pin(fit_file),'closure':pin(closure_file),'omittedOriginalFaceIds':original,
             'omittedCapFaceIds':[i for i in missing if i in caps],
             'originalAreaSquareMetres':original_area,'capAreaSquareMetres':cap_area,
-            'allSourceFacesRetained':True,'capAtlasPolicy':'Locally filled from preserved neighboring material; neutral normal'}
+            'allSourceFacesRetained':True,'review':pin(review_file) if review_file else None,
+            'capAtlasPolicy':'Locally filled from preserved neighboring material; neutral normal',
+            'originalAtlasPolicy':'Fill omitted microface material pixels from preserved adjacent faces; retain original normal bake'}
 
 
 def canonical(p,n,uv):
@@ -42,7 +53,7 @@ def canonical(p,n,uv):
     return result
 
 
-def verify(source,returned,output,allow_microfaces=False,position_tolerance=2e-6,fit_file=None,closure_file=None):
+def verify(source,returned,output,allow_microfaces=False,position_tolerance=2e-6,fit_file=None,closure_file=None,review_file=None):
     require(2e-6<=position_tolerance<=.001,'Explicit bounded atlas correspondence tolerance required')
     p,n,uv=triangles(source,np.eye(4));rp,rn,ruv=triangles(returned,np.eye(4))
     low,high=p.min((0,1)),p.max((0,1));rlow,rhigh=rp.min((0,1)),rp.max((0,1))
@@ -71,7 +82,8 @@ def verify(source,returned,output,allow_microfaces=False,position_tolerance=2e-6
     missing=sorted(set(range(len(a)))-used)
     areas=[float(np.linalg.norm(np.cross(p[i,1]-p[i,0],p[i,2]-p[i,0]))/2) for i in missing]
     require(bool(fit_file)==bool(closure_file),'Fitted cap-only allowance needs both fit and closure')
-    allowance=cap_only_omissions(missing,areas,source,fit_file,closure_file) if fit_file else None
+    require(not review_file or fit_file,'Source-specific atlas omission review requires fitted cap-only proof')
+    allowance=cap_only_omissions(missing,areas,source,fit_file,closure_file,review_file) if fit_file else None
     require(not missing or allowance is not None or (allow_microfaces and len(missing)<=4 and sum(areas)<=1e-6),
             f'Returned mesh omits source faces outside explicit microscopic transfer allowance: ids={missing}, areas={areas}')
     write_fresh(output,{'kind':'srn-head-atlas-transfer-verification','source':pin(source),'returned':pin(returned),
@@ -91,4 +103,5 @@ if __name__=='__main__':
     parser.add_argument('--allow-microfaces',action='store_true')
     parser.add_argument('--source-position-tolerance',type=float,default=2e-6)
     parser.add_argument('--fit',type=Path);parser.add_argument('--cap-only-closure',type=Path)
-    args=parser.parse_args();verify(args.source,args.returned,args.output,args.allow_microfaces,args.source_position_tolerance,args.fit,args.cap_only_closure)
+    parser.add_argument('--atlas-omission-review',type=Path)
+    args=parser.parse_args();verify(args.source,args.returned,args.output,args.allow_microfaces,args.source_position_tolerance,args.fit,args.cap_only_closure,args.atlas_omission_review)

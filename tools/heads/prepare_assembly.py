@@ -60,8 +60,12 @@ def prepare(manifest, repository, stock, fits, output, target_path=None):
     samples=[{'label':'standing','frames':{key:value.tolist() for key,value in bind.items()}}]
     for kind,clip in choices.items():
         require(clip in clips,'Missing representative clip: '+clip)
+        # The nearest supermodel owns the clip. A stock Dwarf override can have
+        # a different duration from the generic clip encountered above.
+        initial_frames,initial_receipt=pose(root.parent,prefix,clip,0.,stock/'ascii')
+        duration=initial_receipt.get('length',clips[clip])
         for fraction in np.linspace(0,1,9):
-            frames,receipt=pose(root.parent,prefix,clip,float(fraction*clips[clip]),stock/'ascii')
+            frames,receipt=pose(root.parent,prefix,clip,float(fraction*duration),stock/'ascii')
             samples.append({'label':kind,'clip':clip,'time':receipt['time'],'pose':receipt,
                             'frames':{key:value.tolist() for key,value in frames.items()}})
     neck=np.concatenate([m['position'].reshape(-1,3) for m in mesh_corners(neckpath.read_text(encoding='cp1252'))])

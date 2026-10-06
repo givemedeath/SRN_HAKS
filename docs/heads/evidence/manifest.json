@@ -95,6 +95,66 @@
       "path": "evidence/troll-material-derived-v1.png",
       "sha256": "052d6e05bcaef83bfcc921562a02321d1413ac6f4723c6d2280ada17684a8569",
       "bytes": 460999
+    },
+    {
+      "path": "evidence/elf-male-palette-motion-v1.png",
+      "sha256": "0ad14e51f05c85fe6bc62fd6c78564f468096ad59dd8b16a7e41ae5cfbcc2d26",
+      "bytes": 2128326
+    },
+    {
+      "path": "evidence/reference-elf-male-01.png",
+      "sha256": "d6909e0560c5f310daa2604c2ace531caf1a1e365866b13ea215b7eef10fdd9d",
+      "bytes": 1449274
+    },
+    {
+      "path": "evidence/reference-elf-male-01-prompt.txt",
+      "sha256": "564c5f9ada782504dfc89adf0754fa3909ebf9ccf7274c682f83c3864452464b",
+      "bytes": 1261
+    },
+    {
+      "path": "evidence/donor-elf-male-01.png",
+      "sha256": "f41a287213f349daac9a85a46d0b0e7550d0a2efd6c3d33f6e896e7d945cf538",
+      "bytes": 265094
+    },
+    {
+      "path": "evidence/dwarf-male-palette-motion-v1.png",
+      "sha256": "e86d49d246249d646e129002fea3db9b7553abd201645490da9b2842b50c12a3",
+      "bytes": 2540165
+    },
+    {
+      "path": "evidence/reference-dwarf-male-01.png",
+      "sha256": "ac35785e4fb00ca367ec60d88ed335a352b34b00165006608b0f6c56a3d38d9c",
+      "bytes": 2221175
+    },
+    {
+      "path": "evidence/reference-dwarf-male-01-prompt.txt",
+      "sha256": "2d700c244e774408bba00f8fedf6ae67c1696b090867bc512235353ceaa81e5d",
+      "bytes": 1360
+    },
+    {
+      "path": "evidence/donor-dwarf-male-01.png",
+      "sha256": "2f5c71ff13195c7dcbe99425d6dbc2a0f738e64b74b15fbf40c6570f314488b7",
+      "bytes": 301114
+    },
+    {
+      "path": "evidence/orc-male-palette-motion-v1.png",
+      "sha256": "c11b22c175e34b37a50d58bd7f8654d42d3621fbfc220a7ded6f42dec2111309",
+      "bytes": 2421175
+    },
+    {
+      "path": "evidence/reference-orc-male-01.png",
+      "sha256": "8e6a53595d5bb1512b232055be0be07a0171d802c1ade941d919f639bb8c3862",
+      "bytes": 1743756
+    },
+    {
+      "path": "evidence/reference-orc-male-01-prompt.txt",
+      "sha256": "fdb24a0fc183803dcfeea8d544098b0eed0c873e668edcc1e5155b4d8021aca3",
+      "bytes": 1304
+    },
+    {
+      "path": "evidence/donor-orc-male-01.png",
+      "sha256": "858c582152bc3051017ce7fde6072e53c27321ee1a8055359562b8906188963d",
+      "bytes": 240690
     }
   ],
   "sourceHashes": [
@@ -529,8 +589,8 @@
   ],
   "origins": {
     "reference": "OpenAI-generated SRN isolated skull/jaw references; edited to remove projecting neck. Prompt and parent-image ancestry retained locally.",
-    "geometry": "Meshy 7 generated assets, attributed to Meshy (https://www.meshy.ai/). Human local surface LOD, high-source normals, uniform fit and hole caps; no trim/taper.",
-    "body": "Published SRN custom Human body; locally installed stock neck/rig/palette/animation as review references only.",
+    "geometry": "Meshy 7 generated assets, attributed to Meshy (https://www.meshy.ai/). Selected male heads use local surface LOD, retained high-source normals, uniform fit and hole caps; no trim/taper.",
+    "body": "Published SRN custom Human body and independently copied derived male bodies; locally installed stock neck/rig/palette/animation remain review references only.",
     "rights": "Conditional Meshy CC BY 4.0 attribution; account tier unverified, production rights acceptance pending. See NOTICE.md."
   },
   "clientEvidence": false,

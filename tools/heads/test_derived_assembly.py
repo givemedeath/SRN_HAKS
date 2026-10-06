@@ -38,7 +38,7 @@ class DerivedAssemblyTests(unittest.TestCase):
                  patch('prepare_assembly.decode',return_value=[native]), \
                  patch('prepare_assembly.mesh_corners',return_value=[{'position':positions,'normal':normals,'uv':uv}]), \
                  patch('prepare_assembly.triangles',return_value=(positions,normals,uv)), \
-                 patch('prepare_assembly.pose',side_effect=lambda directory,prefix,clip,t,stock:(frames,{'time':t})) as sample:
+                 patch('prepare_assembly.pose',side_effect=lambda directory,prefix,clip,t,stock:(frames,{'time':t,'length':.5})) as sample:
                 prepare(manifest,root,root,[fit],root/'review',target_path)
             result=read(root/'review/assembly.json')
             self.assertEqual(result['runtimeScale'],10/7)
@@ -46,6 +46,8 @@ class DerivedAssemblyTests(unittest.TestCase):
             self.assertEqual(result['rig'],pin(rig))
             self.assertEqual(len(result['samples']),82)
             self.assertTrue(all(call.args[1]=='pmg0' for call in sample.call_args_list))
+            self.assertEqual(max(call.args[3] for call in sample.call_args_list),.5)
+            self.assertEqual(len(sample.call_args_list),90)
             self.assertFalse(result['productionAccepted'])
 
 

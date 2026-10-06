@@ -289,3 +289,21 @@ native/offline/client evidence, animation sheets and accepted practical limits.
 Generation masters and intermediate maps remain local working assets; packaged
 runtime resources are versioned here. Only an explicitly better validated
 selection should supersede this baseline.
+
+## Head expansion and inspection gallery (2026-10-05)
+
+The [head catalog](docs/heads/pilot-catalog.json) adds Elf, Dwarf and Orc male
+donors generated with Meshy 7 from original OpenAI-generated SRN references.
+Reference prompts, ancestry hashes, task IDs, retained source hashes, local LOD,
+cap-only changes, materials and native candidate resource pins are recorded
+there and in the [evidence notice](docs/heads/evidence/NOTICE.md). Meshy attribution
+and conditional redistribution terms remain explicit. These candidates are
+native validated; client and production acceptance remain pending. No runtime
+heads are published in a production HAK at this checkpoint.
+
+The [gallery source](test-modules/srn_gallery/README.md) is original project
+tooling. It packages existing registered resources and verified candidates in
+an ignored local inspection module. Temporary appearance tables and sanitized
+blueprints support inspection without changing production resources. Installed
+game templates, rigs, animations, palettes and stock floor resources remain
+local build dependencies and are not committed.

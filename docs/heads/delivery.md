@@ -2,7 +2,7 @@
 
 The reusable pipeline covers preparation, Meshy task recording/collection,
 fitting, materials, native validation, client fixtures and gated publication.
-The revised scope stops before interactive client testing. Human and Troll male candidates are
+The revised scope stops before interactive client testing. All six male candidates are
 native validated; client and production acceptance remain pending. Their runtime
 resources and built HAKs remain in the ignored local bank. The publication helper
 registers `srn_head` after acceptance; production configuration and `srn_2da` are
@@ -14,11 +14,15 @@ unchanged at this checkpoint.
 | Cyberware Human male | `pmh0_head083` | 19,000 | Native passed | Client review |
 | Elf female | See slot catalog | Master retained | Donor passed | Approved Elf female body contract |
 | Troll male | `pmg0_head014` | 19,000 | Native passed | Client review |
+| Elf male | `pme0_head019` | 19,000 | Native passed | Client review |
+| Dwarf male | `pmd0_head014` | 19,000 | Native passed | Client review |
+| Orc male | `pmo0_head014` | 19,000 | Native passed | Client review |
 
-Actual Meshy spend is **255 of 300 credits**, including historical pilot jobs
-and the 10-credit Troll retexture job.
+Actual Meshy spend is **345 of 405 credits**, including historical pilot jobs
+and one 20-credit generation plus one 10-credit texture job for each new male.
 All operations are settled or definitively reconciled; no reservations remain.
-Each design used its permitted two generation attempts. Bulk production has no
+The three additional males succeeded on their first generation attempts;
+earlier pilots used their permitted two attempts. Bulk production has no
 budget authorization in this delivery. The final limit is **20,000 triangles**,
 including hair, accessories and caps, superseding the earlier limits.
 
@@ -80,8 +84,8 @@ All five races now have male body contracts. The published Human manifest and al
 72 resource hashes remain unchanged, retaining both Human head fits and native
 checks. The existing Troll donor now uses an independent copy of its fourteen-part
 derived body, with 44 protected runtime resources. The Elf female donor still
-requires a female body contract. Additional Elf/Dwarf/Orc male designs were not
-part of this four-head pilot continuation.
+requires a female body contract. Elf, Dwarf and Orc males now use independent,
+hash-verified copies of those bodies, each preserving 44 protected resources.
 
 The Troll follows the same retained-source LOD and cap-only route: 18,986 surface
 triangles plus 14 tiny caps total 19,000. Horns are excluded from the central scalp
@@ -109,8 +113,36 @@ They have compiled scripts but have not been launched interactively.
 
 ## Review and continuation
 
+The new Elf, Dwarf and Orc references retain the entire skull and jaw without
+an extending neck. Each selected runtime head totals 19,000 triangles after
+cap-only closure. Native decoding verifies positions, UVs, normals, tangents,
+palette masks and material transport. Source palette masks distinguish skin,
+hair and fixed eyes; Orc tusks remain fixed ivory. Source-specific microscopic
+atlas omission reviews preserve every selected runtime face. The original
+high-source normal bake is retained.
+
+Dwarf and Orc cranial envelope lower bounds are separately versioned at -85 mm
+and -95 mm to accommodate intact beard/jaw geometry. Their exact fit matrices,
+source surfaces, body revisions and attachment frames are unchanged. These
+working envelope revisions preserve the earlier standing/motion evidence;
+they do not alter body proportions or authorize production acceptance.
+
+Three [palette and motion sheets](evidence/manifest.json) show front/profile/back,
+full assembly, the measured worst case and nine motion families in two palette
+variants. Six additional isolated fixtures cover ambient/directional lighting,
+11 actors each, palette combinations and helmets. The Dwarf fixture rig also
+verifies preserved animation controller timing, translations and effective
+rotation matrices after native decoding; raw axis-angle values can differ
+through native quantization. Client slot selection, neck joining, shading and
+equipment clearance remain pending.
+
+[srn_gallery](../../test-modules/srn_gallery/README.md) prestages all six male
+candidates and offers a refreshable browser for registered custom content.
+Generated modules, test HAKs and local bindings remain ignored; editable source,
+scripts and portable configuration are committed.
+
 The [evidence manifest](evidence/manifest.json) pins current neckless reference
-sheets/prompts, four donor turntables, Human and Troll motion/material sheets and the
+sheets/prompts, seven donor turntables, male motion/material sheets and the
 unchanged stock-neck control. [NOTICE](evidence/NOTICE.md) records reference
 ancestry, Meshy attribution and conditional redistribution rights. Local preview
 configuration names `light`/`dark` use skin/hair selectors 3/21 and 12/5 respectively;
@@ -118,7 +150,11 @@ the names do not imply palette brightness order. All previews use four threads,
 with timings in the validation record.
 
 Resume ignored operating state from the explicit
-`output/heads/pilot-v1/local/resume-ledger-derived-male-v1.json`. Verify its exact
+`output/heads/male-expansion-v1/local/resume-ledger-male-expansion-v1.json` for
+the new three males and the preserved
+`output/heads/pilot-v1/local/resume-ledger-derived-male-v1.json` for Human/Troll.
+The current descendant session is `session-envelopes-v1`, selected by that
+explicit ledger rather than filename recency. Verify its exact
 session checkpoint, source/native bank, target, fits and fixtures. Historical
 checkpoints are immutable. Source masters/pre-remesh geometry remain hash-verified
 in the primary checkout's ignored source bank. Before any future checkout retirement,

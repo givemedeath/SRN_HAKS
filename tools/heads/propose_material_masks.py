@@ -11,6 +11,29 @@ from head_export import triangles
 from head_workflow import pin,read,require,verify_pins,write_fresh
 
 
+def microface_neighbors(points, identity, original_count, omitted, maximum_distance=.001):
+    """Use shared vertices, or a verified surface within one fitted millimetre."""
+    adjacent=np.zeros(original_count,dtype=bool)
+    for corner in points[identity]:adjacent|=(np.abs(points[:original_count]-corner)<1e-8).all(2).any(1)
+    adjacent[omitted]=False;neighbors=np.flatnonzero(adjacent)
+    if len(neighbors):return neighbors,0.
+    candidates=np.setdiff1d(np.arange(original_count),omitted);require(len(candidates)>0,'No verified textured surface')
+    tri=points[candidates];point=points[identity].mean(0);a=tri[:,0];u=tri[:,1]-a;v=tri[:,2]-a
+    uu=(u*u).sum(1);uv=(u*v).sum(1);vv=(v*v).sum(1);w=point-a
+    uw=(u*w).sum(1);vw=(v*w).sum(1);den=uu*vv-uv*uv;valid=den>1e-24
+    s=np.divide(uw*vv-vw*uv,den,out=np.zeros_like(den),where=valid)
+    t=np.divide(vw*uu-uw*uv,den,out=np.zeros_like(den),where=valid)
+    projected=a+s[:,None]*u+t[:,None]*v
+    distance=np.where(valid&(s>=0)&(t>=0)&(s+t<=1),((projected-point)**2).sum(1),np.inf)
+    for first,last in ((0,1),(1,2),(2,0)):
+        start=tri[:,first];edge=tri[:,last]-start;length=(edge*edge).sum(1)
+        fraction=np.clip(np.divide(((point-start)*edge).sum(1),length,out=np.zeros_like(length),where=length>0),0,1)
+        distance=np.minimum(distance,((start+fraction[:,None]*edge-point)**2).sum(1))
+    index=int(distance.argmin());metres=float(np.sqrt(distance[index]))
+    require(metres<=maximum_distance,'Omitted microface exceeds the verified fitted-distance bound')
+    return candidates[index:index+1],metres
+
+
 def choose_palette_row(values,mask,coverage,palette,layer):
     sample=values[(mask==layer)&coverage]
     require(len(sample)>0,'Missing covered palette sample')
@@ -36,10 +59,11 @@ def propose(config_path,output):
     metallic=metal[pixels[:,1],pixels[:,0]]
     gray=rgb.max(1)-rgb.min(1)<28
     eye_filter=c.get('eyeColorFilter','neutral')
-    require(eye_filter in ('neutral','anatomical'),'Explicit supported eye color filter required')
+    require(eye_filter in ('neutral','ocular','anatomical'),'Explicit supported eye color filter required')
+    ocular=rgb.max(1)-rgb.min(1)<50
     eye=np.zeros(len(p),dtype=bool)
     for bounds in c['eyeBounds']:
-        low,high=np.asarray(bounds);eye|=((center>=low)&(center<=high)).all(1)&(gray if eye_filter=='neutral' else True)
+        low,high=np.asarray(bounds);eye|=((center>=low)&(center<=high)).all(1)&(gray if eye_filter=='neutral' else ocular if eye_filter=='ocular' else True)
     cyber=np.zeros(len(p),dtype=bool)
     for bounds in c['cyberBounds']:
         low,high=np.asarray(bounds);cyber|=((center>=low)&(center<=high)).all(1)&((metallic>80)|(rgb[:,2]>rgb[:,0]+8))
@@ -58,6 +82,7 @@ def propose(config_path,output):
     horns|=bright_accessories
     horns&=~(eye|cyber)
     cap_regions=[]
+    omitted_regions=[]
     if correction.get('kind')=='srn-head-cap-only-closure':
         require(correction['output']==fit['source'],'Cap-only proof differs from selected geometry')
         original_count=correction['inputTriangles']
@@ -71,6 +96,20 @@ def propose(config_path,output):
             horns[ids]=bool(horns[neighbors].mean()>.5)
             layer=2 if eye[ids].any() or cyber[ids].any() or horns[ids].any() else int(face_hair[neighbors].mean()>.5)
             cap_regions.append({'faces':ids,'layer':layer,'neighborColor':np.rint(rgb[neighbors].mean(0)).astype('uint8')})
+        allowance=read(c['atlasTransfer']['path']).get('fittedCapOnlyAtlasAllowance') or {}
+        omitted=allowance.get('omittedOriginalFaceIds',[])
+        distance_limit=c.get('omittedSurfaceDistanceMetres',.001)
+        require(0<distance_limit<=.005,'Microface inheritance distance exceeds five fitted millimetres')
+        require(distance_limit<=.001 or allowance.get('allSourceFacesRetained'),'Extended distance requires a fitted atlas omission proof')
+        for identity in omitted:
+            neighbors,distance=microface_neighbors(p,identity,original_count,omitted,maximum_distance=distance_limit)
+            eye[identity]=bool(eye[neighbors].mean()>.5);cyber[identity]=bool(cyber[neighbors].mean()>.5);horns[identity]=bool(horns[neighbors].mean()>.5)
+            layer=2 if eye[identity] or cyber[identity] or horns[identity] else int(face_hair[neighbors].mean()>.5)
+            region={'faces':[identity],'layer':layer,'neighbors':neighbors.tolist(),'distanceMetres':distance,'neighborColor':np.rint(rgb[neighbors].mean(0)).astype('uint8')}
+            if c.get('roughness'):
+                rough=np.asarray(Image.open(c['roughness']).convert('L'))
+                region['neighborRoughness']=int(np.rint(rough[pixels[neighbors,1],pixels[neighbors,0]].mean()))
+            omitted_regions.append(region)
     groups=[{'kind':'palette','triangles':np.flatnonzero(~(eye|cyber|horns)).tolist()}]
     for ids,suffix,metalness in ((eye,'e',0),(cyber,'c',1),(horns,'a',0)):
         if ids.any():groups.append({'kind':'fixed','suffix':suffix,'metallicness':metalness,'triangles':np.flatnonzero(ids).tolist()})
@@ -92,7 +131,7 @@ def propose(config_path,output):
     for i in cap_ids:capdraw.polygon([tuple(row) for row in uv[i]*[2047,-2047]+[0,2047]],fill=255)
     fixed_mask=np.asarray(fixed)!=0;cap_mask=np.asarray(cap.filter(ImageFilter.MaxFilter(3)))!=0
     mask[fixed_mask]=2;mask[cap_mask]=0;normal[cap_mask]=[128,128,255]
-    for region in cap_regions:
+    for region in cap_regions+omitted_regions:
         region_image=Image.new('L',(2048,2048));region_draw=ImageDraw.Draw(region_image)
         for i in region['faces']:region_draw.polygon([tuple(row) for row in uv[i]*[2047,-2047]+[0,2047]],fill=255)
         region['pixels']=np.asarray(region_image.filter(ImageFilter.MaxFilter(3)))!=0
@@ -112,7 +151,7 @@ def propose(config_path,output):
     # Legacy neck caps use skin; generic holes inherit reviewed neighboring
     # skin/hair/fixed ownership rather than the service's unused-atlas fill.
     palette=np.asarray(Image.open(c['skinPalette']).convert('RGB'));color[cap_mask]=palette[rows['skin'],180]
-    for region in cap_regions:
+    for region in cap_regions+omitted_regions:
         if region['layer']==2:chosen=region['neighborColor']
         else:
             label='hair' if region['layer']==1 else 'skin'
@@ -124,6 +163,8 @@ def propose(config_path,output):
         roughness=np.asarray(Image.open(c['roughness']).convert('L')).copy()
         require(roughness.shape==(2048,2048),'2K connector roughness required')
         roughness[cap_mask]=160;Image.fromarray(roughness).save(output/'selected-roughness.png')
+        for region in omitted_regions:roughness[region['pixels']]=region['neighborRoughness']
+        Image.fromarray(roughness).save(output/'selected-roughness.png')
     write_fresh(output/'proposal.json',{'kind':'srn-head-mask-proposal','config':pin(config_path),
         'mask':pin(output/'semantic.png'),'normal':pin(output/'selected-normal.png'),'color':pin(output/'selected-color.png'),
         'roughness':None if roughness is None else pin(output/'selected-roughness.png'),
@@ -131,7 +172,8 @@ def propose(config_path,output):
         'fixedAccessoryTriangles':int(horns.sum()),
         'paletteSampling':'Selected UV islands only; unused service atlas fill excluded','uvCoverage':pin(output/'uv-coverage.png'),
         'skinPixels':int((mask==0).sum()),'hairPixels':int((mask==1).sum()),'fixedPixels':int((mask==2).sum()),
-        'capMaterialInheritance':[{'faces':r['faces'],'layer':r['layer']} for r in cap_regions],
+            'capMaterialInheritance':[{'faces':r['faces'],'layer':r['layer']} for r in cap_regions],
+            'omittedOriginalMaterialInheritance':[{'faces':r['faces'],'layer':r['layer'],'neighbors':r['neighbors'],'distanceMetres':r['distanceMetres']} for r in omitted_regions],
         'maskReviewed':False,'nativeValidated':False,'clientValidated':False})
     verify_pins(c['inputs'])
 

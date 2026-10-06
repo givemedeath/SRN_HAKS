@@ -842,16 +842,31 @@
       "sex": "male",
       "phenotype": 0,
       "prefix": "pme0",
-      "brief": "male adult; elongated pointed ears and refined facial structure; natural face, short modern hair; neutral closed-mouth expression",
-      "pilot": false,
+      "brief": "Adult Elf male, angular face, pointed ears and modern side-swept hair; full skull and jaw without an extending neck.",
+      "pilot": true,
       "slot": 19,
-      "selectedHashes": {},
+      "selectedHashes": {
+        "reference": "d6909e0560c5f310daa2604c2ace531caf1a1e365866b13ea215b7eef10fdd9d",
+        "master": "253cefa9208374e4fc71de67bb40d18f945c4349c927473d1e30572ed76c3199",
+        "runtime": "48639f0f5ca09afc60030213c1a31d6e3fc5428336e68d5bf50ab1d769205b1a",
+        "nativeResources": {
+          "pme0_head019.mdl": "e61a96be76004a610a8ca8e4d07e81f798fab567cd3e6aeb741f5c9edc127465",
+          "pme0_head019.mtr": "4a4e287b1a7bdd67b38aebe4596341411f2d45c01c84fddc08b79da629e4c01e",
+          "pme0_head019.plt": "432f58fb111ea0058745972f79261bd26f48ac8b03b8024a0fed90ab70017bbc",
+          "pme0_head019e.mtr": "fc775ce1b1cfce003443a3feb91a888c09577c7caf3c1039bc16d411e515a4a8",
+          "pme0_head019e.tga": "64b1f20f236810a11f4e16ae4d44d0f3f711d3f9bae0e253e8ffdb1c27457b6f",
+          "pme0_head019en.tga": "e51c5bcc102ba6629d100df24cc975fa229ae9c40877350efb72348276400a67",
+          "pme0_head019er.tga": "24d6551b6651ba3aaf04b45e03ec43377c55ed5dac915eef730306b9eb13e717",
+          "pme0_head019n.tga": "e51c5bcc102ba6629d100df24cc975fa229ae9c40877350efb72348276400a67",
+          "pme0_head019r.tga": "24d6551b6651ba3aaf04b45e03ec43377c55ed5dac915eef730306b9eb13e717"
+        }
+      },
       "stages": {
-        "reference": "pending",
-        "donor": "pending",
-        "fitting": "pending",
-        "assembly": "pending",
-        "native": "pending",
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
         "client": "pending",
         "acceptance": "pending"
       }
@@ -1645,16 +1660,31 @@
       "sex": "male",
       "phenotype": 0,
       "prefix": "pmd0",
-      "brief": "male adult; broad face and strong jaw; natural face, short modern hair; neutral closed-mouth expression",
-      "pilot": false,
+      "brief": "Adult Dwarf male, broad face, cropped textured hair and full modern beard; full skull and jaw without an extending neck.",
+      "pilot": true,
       "slot": 14,
-      "selectedHashes": {},
+      "selectedHashes": {
+        "reference": "ac35785e4fb00ca367ec60d88ed335a352b34b00165006608b0f6c56a3d38d9c",
+        "master": "192d22fe55cd9d83e4dae306d3f7007d0e401425bec8d38655d1b9b10d49083f",
+        "runtime": "c7a241ce4a7155369dea3500db5fe441438764d249665b0d8d01a0e76bef6fb2",
+        "nativeResources": {
+          "pmd0_head014.mdl": "0e48aca5039ab5acfa527440b4bf6a2266221c77b6ec43fc8ea24e8b1778e8b1",
+          "pmd0_head014.mtr": "872082af4bf8b84a8585c31a52a91fb25853420c39234ddd7795bed7a130a825",
+          "pmd0_head014.plt": "aaeb4045d92199f431f638cded2de8bb46915dd4fa16d0e6924acbfb4cb25cc3",
+          "pmd0_head014e.mtr": "d6f06bc7f16f3d8657f66f5cd34d4b84f62dfdecc4c2ab2cf972586c2182c22f",
+          "pmd0_head014e.tga": "03eab89ee33ccd736e66635584d7b8dcb86257d3bad2655d6fbd8c7fc8cae31a",
+          "pmd0_head014en.tga": "95ac0cda1c9edcd2d900d736c2dcd1426dbcf57412078a0c84068015d827d03c",
+          "pmd0_head014er.tga": "6e7668cdf4ba9fc18460bffed639b3cc1689d21178e5aab0ad592e677534378c",
+          "pmd0_head014n.tga": "95ac0cda1c9edcd2d900d736c2dcd1426dbcf57412078a0c84068015d827d03c",
+          "pmd0_head014r.tga": "6e7668cdf4ba9fc18460bffed639b3cc1689d21178e5aab0ad592e677534378c"
+        }
+      },
       "stages": {
-        "reference": "pending",
-        "donor": "pending",
-        "fitting": "pending",
-        "assembly": "pending",
-        "native": "pending",
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
         "client": "pending",
         "acceptance": "pending"
       }
@@ -2445,16 +2475,35 @@
       "sex": "male",
       "phenotype": 0,
       "prefix": "pmo0",
-      "brief": "male adult; strong jaw and visible lower tusks; natural face, short modern hair; neutral closed-mouth expression",
-      "pilot": false,
+      "brief": "Adult Orc male, heavy brow, wide jaw, short cropped hair and visible ivory tusks; full skull and jaw without an extending neck.",
+      "pilot": true,
       "slot": 14,
-      "selectedHashes": {},
+      "selectedHashes": {
+        "reference": "8e6a53595d5bb1512b232055be0be07a0171d802c1ade941d919f639bb8c3862",
+        "master": "05c84755c8b00b4195617397d55d5919621f1314f705beb02934af2173f65d08",
+        "runtime": "ec4a69669407110225da8561f51cc68bc8bafd525ffa4a43ebe970f8d2e6a7d4",
+        "nativeResources": {
+          "pmo0_head014.mdl": "99ed0cc12b1b6b5649d48a2e99d8f06063294771742a26b7eace2bed70646d83",
+          "pmo0_head014.mtr": "fc4785ee8e9d3cc894eebb078ebf666c00069ab8ce155f4f79d56bda90433f40",
+          "pmo0_head014.plt": "2a0d66082eab392b4435af6338aaf4acc6c15d3aa4733692d18a7c0488cece0d",
+          "pmo0_head014a.mtr": "3845f907ea58d16a7172860388e2a9cbf01a53c17f2a9ab9344c07e65151eaaf",
+          "pmo0_head014a.tga": "a2fd2cf0cd3f54688c177a09d442ea3b74cf11af474bcf674a81b590aeca2306",
+          "pmo0_head014an.tga": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "pmo0_head014ar.tga": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011",
+          "pmo0_head014e.mtr": "c04e50a8147f882f00b7d52a0a815e23507f77ccf2899771f82aa4fcbd251578",
+          "pmo0_head014e.tga": "a2fd2cf0cd3f54688c177a09d442ea3b74cf11af474bcf674a81b590aeca2306",
+          "pmo0_head014en.tga": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "pmo0_head014er.tga": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011",
+          "pmo0_head014n.tga": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "pmo0_head014r.tga": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011"
+        }
+      },
       "stages": {
-        "reference": "pending",
-        "donor": "pending",
-        "fitting": "pending",
-        "assembly": "pending",
-        "native": "pending",
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
         "client": "pending",
         "acceptance": "pending"
       }

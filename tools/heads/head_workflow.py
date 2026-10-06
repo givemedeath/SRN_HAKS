@@ -232,6 +232,14 @@ class Session:
         require(self.config["kind"] == "srn-head-session", "Wrong session binding")
         verify_pins([self.config["roster"]])
         if 'parentCheckpoint' in self.config:verify_pins(self.config['parentCheckpoint'])
+        if 'budgetApproval' in self.config:
+            verify_pins([self.config['budgetApproval']])
+            approval=read(self.config['budgetApproval']['path'])
+            require(approval['kind']=='srn-head-budget-approval' and approval['approved'] is True
+                    and approval['newCap']==self.config['creditCap'] and bool(approval['userInstruction']),
+                    'Explicit budget approval differs from session')
+            verify_pins([self.config['budgetParent']]);parent=read(self.config['budgetParent']['path'])
+            require(approval['previousCap']==parent['creditCap'], 'Budget approval parent differs')
         self.roster = validate_roster(read(self.config["roster"]["path"]))
         allocations = [e for e in self.events() if e["kind"] == "allocation"]
         if allocations:
@@ -308,16 +316,28 @@ class Session:
             elif row['kind']=='review' and row['designId']==identity:result[row['stage']]=row
         return result
 
-    def fork_revision(self, directory, identities, from_stage, inputs):
+    def fork_revision(self, directory, identities, from_stage, inputs, *, credit_cap=None, budget_approval=None):
         require(from_stage in STAGES,'Explicit review stage required for a descendant revision')
         require(identities and len(set(identities))==len(identities),'Explicit unique revision designs required')
         for identity in identities:self.design(identity)
+        configuration=dict(self.config)
+        if credit_cap is not None:
+            require(type(credit_cap) is int and credit_cap>self.config['creditCap'], 'Budget extension must increase the cap')
+            require(budget_approval is not None, 'Explicit user budget approval required')
+            approval_pin=pin(budget_approval);verify_pins([approval_pin]);approval=read(budget_approval)
+            require(approval['kind']=='srn-head-budget-approval' and approval['approved'] is True
+                    and approval['previousCap']==self.config['creditCap'] and approval['newCap']==credit_cap
+                    and set(approval['designs'])==set(identities) and bool(approval['userInstruction']),
+                    'Budget approval scope or ceiling differs')
+            require(approval_pin in inputs, 'Budget approval omitted from frozen inputs')
+            configuration.update(creditCap=credit_cap,budgetApproval=approval_pin,budgetParent=pin(self.root/'session.json'))
+        else:require(budget_approval is None, 'Budget approval requires an explicit new cap')
         verify_pins(inputs);directory=Path(directory)
         require(not directory.exists(),'Fresh descendant session required')
         with self.lock():
             events=self.events();files=[self.root/'session.json',*[self.root/'events'/f'{i:06d}.json' for i in range(len(events))]]
             checkpoint=[pin(path) for path in files]
-            write_fresh(directory/'session.json',{**self.config,'parentCheckpoint':checkpoint})
+            write_fresh(directory/'session.json',{**configuration,'parentCheckpoint':checkpoint})
             (directory/'events').mkdir()
             for path in files[1:]:shutil.copyfile(path,directory/'events'/path.name)
             verify_pins(checkpoint)
@@ -335,6 +355,8 @@ class Session:
 
     def reserve(self, identity, request_id, operation, estimated_credits, inputs, payload):
         self.design(identity)
+        if 'budgetApproval' in self.config:
+            require(identity in read(self.config['budgetApproval']['path'])['designs'], 'Design outside approved budget extension')
         require(re.fullmatch(r"[a-z0-9-]+", request_id), "Invalid request identity")
         require(operation in ("multi-image-to-3d", "retexture", "remesh"), "Unsupported paid operation")
         require(type(estimated_credits) is int and estimated_credits > 0, "Known positive cost required")

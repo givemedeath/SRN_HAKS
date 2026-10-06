@@ -5,9 +5,43 @@ import subprocess
 import sys
 import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'phenotypes'))
-from retarget import nodes, transforms
+from retarget import nodes, transforms, rotations
+from rig_controller_audit import controller_signature, CLIP
 from tool_runtime import tool
 from head_workflow import pin,read,require,sha,verify_pins,write_fresh
+
+
+def animation_error(original, returned):
+    before={v['clip']:v for v in controller_signature(original)}
+    after={v['clip']:v for v in controller_signature(returned)}
+    require(set(before)==set(after),'Native rig animation inventory changed')
+    maximum=0.;rotation_error=0.;controllers=0
+    for name,clip in before.items():
+        a={v['name']:v for v in clip['nodes']};b={v['name']:v for v in after[name]['nodes']}
+        require(set(a)==set(b),'Native animation node inventory changed')
+        for node in a:
+            aa=dict(a[node]['keyed']);bb=dict(b[node]['keyed'])
+            require(set(aa)==set(bb),'Native animation controller inventory changed')
+            for key in aa:
+                x=np.asarray(aa[key]);y=np.asarray(bb[key])
+                require(x.shape==y.shape,'Native animation key counts changed')
+                if key=='orientationkey':
+                    require(x.shape[1]==5,'Unexpected native orientation key encoding')
+                    maximum=max(maximum,float(np.abs(x[:,0]-y[:,0]).max()))
+                    rotation_error=max(rotation_error,max(float(np.abs(rotations(xx[1:])-rotations(yy[1:])).max()) for xx,yy in zip(x,y)))
+                else:maximum=max(maximum,float(np.abs(x-y).max()))
+                controllers+=1
+        def duration(text):
+            import re
+            body=next(v[2] for v in CLIP.finditer(text) if v[1].lower()==name)
+            return float(re.search(r'(?mi)^\s*length\s+(\S+)',body)[1])
+        maximum=max(maximum,abs(duration(original)-duration(returned)))
+    require(maximum<2e-6,'Native animation timing or controller values changed')
+    # mdlcomp compresses near-identity rotation keys to zero. Compare their
+    # effective rotations, rather than their arbitrary axis at zero angle.
+    require(rotation_error<.002,'Native animation rotation exceeds bounded compiler quantization')
+    return {'clips':len(before),'keyedControllers':controllers,'maximumTimingTranslationError':maximum,
+            'maximumRotationMatrixError':rotation_error,'rotationMatrixTolerance':.002}
 
 
 def audit(serialization, output):
@@ -26,10 +60,12 @@ def audit(serialization, output):
     before=transforms(original);after=transforms(returned)
     error=max(float(np.abs(before[name]-after[name]).max()) for name in before)
     require(error<2e-6,'Native attachment frame changed')
+    animation=animation_error(Path(proof['source']['path']).read_text(encoding='cp1252'),decoded.read_text(encoding='cp1252'))
     verify_pins([proof['source'],proof['output']])
     write_fresh(output,{'kind':'srn-head-native-fixture-rig-audit','passed':True,'serialization':pin(serialization),
         'compilation':pin(folder/'native-compile.json'),'binary':pin(binary),'decoded':pin(decoded),
         'nodeCount':len(original),'maximumFrameError':error,'bodyGeometryChanged':False,
+        'animationAudit':animation,
         'sourceRigPreserved':True,'clientValidated':False,'productionAccepted':False})
 
 

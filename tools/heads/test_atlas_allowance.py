@@ -24,6 +24,12 @@ class AtlasAllowanceTests(unittest.TestCase):
             for missing,areas in [([2],[.01]),([10],[.1]),(list(range(9)),[1e-8]*9)]:
                 with self.subTest(missing=missing),self.assertRaisesRegex(ValueError,'bounded'):
                     cap_only_omissions(missing,areas,source,fit,closure)
+            review=root/'review.json'
+            write_fresh(review,{'kind':'srn-head-atlas-omission-review','passed':True,'source':pin(source),'fit':pin(fit),'closure':pin(closure),'evidence':[],'omittedOriginalFaceIds':list(range(9))})
+            approved=cap_only_omissions(list(range(9)),[1e-8]*9,source,fit,closure,review)
+            self.assertEqual(approved['review'],pin(review));self.assertTrue(approved['allSourceFacesRetained'])
+            with self.assertRaisesRegex(ValueError,'IDs differ'):cap_only_omissions(list(range(8)),[1e-8]*8,source,fit,closure,review)
+            with self.assertRaisesRegex(ValueError,'bounded'):cap_only_omissions(list(range(9)),[.01]*9,source,fit,closure,review)
             other=root/'other.glb';other.write_bytes(b'other')
             with self.assertRaisesRegex(ValueError,'matching'):cap_only_omissions([],[],other,fit,closure)
 

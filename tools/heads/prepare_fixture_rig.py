@@ -11,9 +11,9 @@ from head_workflow import pin, require, verify_pins, write_fresh
 
 def prepare(source, output):
     frozen=pin(source);text=Path(source).read_text(encoding='cp1252')
-    require('newanim ' not in text, 'Geometry-only contracted rig required')
+    geometry_text=text.split('endmodelgeom',1)[0]
     model=re.search(r'(?m)^newmodel\s+(\S+)',text)[1]
-    matches=list(NODE.finditer(text)); skel=nodes(text)
+    matches=list(NODE.finditer(geometry_text)); skel=nodes(text)
     require(len(matches)==len(skel) and model.lower() in skel, 'Unique explicit model root required')
     require(skel[model.lower()]['parent']=='null', 'Model root must be unparented')
     blocks={m[2].lower():m[0].strip() for m in matches};ordered=[]; visiting=set();done=set()
@@ -34,8 +34,10 @@ def prepare(source, output):
     output=Path(output);require(not output.exists(),'Fresh rig serialization revision required')
     (output/'ascii').mkdir(parents=True);(output/'resources').mkdir()
     rig=output/'ascii'/(model+'.mdl');rig.write_text(candidate,encoding='cp1252',newline='\n')
-    require({m[2].lower():m[0].strip() for m in NODE.finditer(rig.read_text(encoding='cp1252'))}==blocks,
+    emitted=rig.read_text(encoding='cp1252')
+    require({m[2].lower():m[0].strip() for m in NODE.finditer(emitted.split('endmodelgeom',1)[0])}==blocks,
             'Original node text changed')
+    require(emitted[emitted.index('endmodelgeom'):]==text[end:], 'Rig animation or trailing text changed')
     verify_pins([frozen]);write_fresh(output/'serialization.json',{
         'kind':'srn-head-fixture-rig-serialization','source':frozen,'output':pin(rig),
         'nodeCount':len(skel),'parentFirstOrder':ordered,'nodeTextPreserved':True,

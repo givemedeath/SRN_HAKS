@@ -1,10 +1,10 @@
 {
   "kind": "srn-head-validation-summary",
-  "checkpoint": "derived-male-pre-client",
+  "checkpoint": "all-male-pre-client",
   "runtimeTriangleLimit": 20000,
   "budget": {
-    "cap": 300,
-    "spent": 255,
+    "cap": 405,
+    "spent": 345,
     "outstanding": 0,
     "jobs": [
       {
@@ -190,39 +190,88 @@
         "taskId": "01a10e1e-2c48-7564-8d99-0424e41b92b1",
         "credits": 10,
         "status": "SUCCEEDED"
+      },
+      {
+        "designId": "elf-male-01",
+        "requestId": "elf-male-01-generation-v1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10e5f-8d6e-736b-b624-c7977c9c7593",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "elf-male-01",
+        "requestId": "elf-male-01-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10e6f-8415-7113-a3a4-fcc141ca5b06",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "dwarf-male-01",
+        "requestId": "dwarf-male-01-generation-v1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10e63-3c23-7477-9b42-d01271d1926e",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "dwarf-male-01",
+        "requestId": "dwarf-male-01-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10e78-305e-722d-a7e9-12b374ba749b",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "orc-male-01",
+        "requestId": "orc-male-01-generation-v1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10e6a-d923-7572-a869-3792f6ca9a20",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "orc-male-01",
+        "requestId": "orc-male-01-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10e83-cd80-71ed-947b-56adfe7acd37",
+        "credits": 10,
+        "status": "SUCCEEDED"
       }
-    ]
+    ],
+    "approvalSha256": "6366ce6d7fc8ceaa594709eb6e18f541d572fc6f8160337b234f389a21ccde13"
   },
   "regressions": {
     "headHelpers": {
       "passed": true,
-      "logSha256": "2cf6b0ce160fb87b06bda70756002d04566b6bc741b6e99e4c00c5fcc740a089",
-      "tests": 32,
-      "seconds": 3.699
+      "logSha256": "ee0963b94770e87c4a9c137ab98c290aeb88627e0dc5fb25dbb77bf39de402fc",
+      "tests": 36
     },
     "sharedHelpers": {
       "passed": true,
-      "logSha256": "e19b9f482f5c51ed832921464abfd8e30971665f7a09695c2016ad72af0fe8ec",
-      "tests": 18,
-      "seconds": 44.785
+      "logSha256": "f6b385a122d9515d91e9c912bb22ab5ef0d107a0b8e3a10347493338ef7f6928",
+      "tests": 18
     },
     "phenotypeHelpers": {
       "passed": true,
-      "logSha256": "a37849f679076eae54a6f2dda8e76967b1b9cd38e5810c44c5d485692110bf09",
-      "tests": 175,
-      "seconds": 22.484
+      "logSha256": "76cb46ec272e6c33fee175fb1728be948e00fd54d9e43a4a9e51670dba64291e",
+      "tests": 175
     },
     "repository": {
       "passed": true,
-      "logSha256": "41b9cb9bfe5a7f6d4844843c414f07216d439ac79ed4906a62bf067740a947e8",
-      "tests": null,
-      "seconds": null
+      "logSha256": "2aad7b0955e6249003b2fd3b500da6b09acf17e3fdbf8b291bdafed152801441",
+      "tests": null
     },
     "itemImport": {
       "passed": true,
-      "logSha256": "88f8350ddf2eaa13fc7156306fdcf10bda18869d8c5525bc5327ea3a8503e61b",
-      "tests": null,
-      "seconds": null
+      "logSha256": "c1da1546673a22060967a15427190c39fe1955c7efa7dc32f912e000cc3a44b7",
+      "tests": null
+    },
+    "galleryHelpers": {
+      "passed": true,
+      "tests": 5,
+      "logSha256": "ea0965d286bc71a77f19a4a5bebdde3e577bec9bc37c7e8c56df93afb88133a9"
     }
   },
   "renderTimings": [
@@ -552,5 +601,276 @@
   "derivedCompactEvidenceReceipts": {
     "motion": "4326282224f5444963986f2092685a4de88d8acae64e39c2bc00bbe232e10fb6",
     "material": "173c9a48ada0873f7454e8f0f15b4c0220de8893e1bb8f49855c5f39196816d0"
-  }
+  },
+  "maleExpansion": {
+    "elf": {
+      "model": "pme0_head019",
+      "triangles": 19000,
+      "bodyRevision": "a90fe4d8fcec692763db8b745f9792f95422cc33cf66899f21c1b18d0b0d961e",
+      "protectedResources": 44,
+      "nativeAuditSha256": "e88de125ee47ec03fae47e114e522920aa4914304ef322452ab9e7c08e1a4391",
+      "nativeGateSha256": "fc6cb048933d178657006582a81ed0074c748d3ccfe826a29baea6b6c73bdc38",
+      "neckCapTriangles": 4,
+      "framesReviewed": 30,
+      "motionFamilies": [
+        "idle",
+        "talk",
+        "walk",
+        "run",
+        "cast",
+        "combat",
+        "crouch",
+        "kneel",
+        "death"
+      ],
+      "clientValidated": false,
+      "productionAccepted": false,
+      "fixtures": [
+        {
+          "lighting": "ambient",
+          "receiptSha256": "a96fc9860ba83506f9bce78ed8baf2d90a604f58ac75fec31e6a30cbb4b4b921",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "2abd55d4b085573873e6bac183bb8e3c85ac895c0fde4168c4790b95a2605c18",
+              "bytes": 19320186
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "dd72031144f35427b89bd600c089b4ce2691a4460b68f51d667355c98704250c",
+              "bytes": 527896755
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        },
+        {
+          "lighting": "directional",
+          "receiptSha256": "3c17c16e32a4afb21ff4bb4237f1711e4ca6bbf87328e63ab70e283265ed9e56",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "2abd55d4b085573873e6bac183bb8e3c85ac895c0fde4168c4790b95a2605c18",
+              "bytes": 19320186
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "dd72031144f35427b89bd600c089b4ce2691a4460b68f51d667355c98704250c",
+              "bytes": 527896755
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        }
+      ],
+      "renderTimings": [
+        {
+          "variant": "light",
+          "threads": 4,
+          "seconds": 16.093999999997322,
+          "frames": 15
+        },
+        {
+          "variant": "dark",
+          "threads": 4,
+          "seconds": 16.062999999994645,
+          "frames": 15
+        }
+      ]
+    },
+    "dwarf": {
+      "model": "pmd0_head014",
+      "triangles": 19000,
+      "bodyRevision": "baefd1576f61a74428d8c2700ebddba19b2a85718bdd8236eafa03246b318bc7",
+      "protectedResources": 44,
+      "nativeAuditSha256": "d3744a35e6b55f41eb4e30bd4cd4ed27951784673c1fa1e691295a1458112e5a",
+      "nativeGateSha256": "1c1e50395d07d50bd71c0e1a1e2c910ebe23ae8eb5074dc8cd9b1400002e7813",
+      "neckCapTriangles": 2,
+      "framesReviewed": 30,
+      "motionFamilies": [
+        "idle",
+        "talk",
+        "walk",
+        "run",
+        "cast",
+        "combat",
+        "crouch",
+        "kneel",
+        "death"
+      ],
+      "clientValidated": false,
+      "productionAccepted": false,
+      "fixtures": [
+        {
+          "lighting": "ambient",
+          "receiptSha256": "d9b24bc2071c3ac259d0f2f017a88dc077b83f0eae84f97ad4d2754ddbdc2462",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "1f06dbb4a613dff7fa411825ea67c18e38adcfcf7f017de3850587be4d0a9122",
+              "bytes": 19377210
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "f59f1a05d4a869c988163f989f8f1553795afe68109ea79e6558da4b797dc063",
+              "bytes": 527923299
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        },
+        {
+          "lighting": "directional",
+          "receiptSha256": "5f513d865c66d337bc4b14985ea883fc2e09b012db202968655826e24cc4aad7",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "1f06dbb4a613dff7fa411825ea67c18e38adcfcf7f017de3850587be4d0a9122",
+              "bytes": 19377210
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "f59f1a05d4a869c988163f989f8f1553795afe68109ea79e6558da4b797dc063",
+              "bytes": 527923299
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        }
+      ],
+      "renderTimings": [
+        {
+          "variant": "light",
+          "threads": 4,
+          "seconds": 15.75,
+          "frames": 15
+        },
+        {
+          "variant": "dark",
+          "threads": 4,
+          "seconds": 16.60899999999674,
+          "frames": 15
+        }
+      ]
+    },
+    "orc": {
+      "model": "pmo0_head014",
+      "triangles": 19000,
+      "bodyRevision": "c45487ad1980c001fb7d634554f32354eb7746b0d7e586fba4ea4162ad123323",
+      "protectedResources": 44,
+      "nativeAuditSha256": "cebec75820008e724001d6d0e49d956d54601aa9133d29288317fca836b54fad",
+      "nativeGateSha256": "30a4c72c0c4a58cf216bbb04b41bb7bb93aaa581adcf6a479d6424c4107d1612",
+      "neckCapTriangles": 182,
+      "framesReviewed": 30,
+      "motionFamilies": [
+        "idle",
+        "talk",
+        "walk",
+        "run",
+        "cast",
+        "combat",
+        "crouch",
+        "kneel",
+        "death"
+      ],
+      "clientValidated": false,
+      "productionAccepted": false,
+      "fixtures": [
+        {
+          "lighting": "ambient",
+          "receiptSha256": "c6073fdde32b496389e2e294cf4c0942dd1bdd28fa83ca4bfb7d45aa2c977399",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "d9ce1bc94aee7951c618b9f9dd2d6e8bb7ff1eaa6f8ee98cf6ff7c1bc87c4b90",
+              "bytes": 29096336
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "d322c8bcfd9e536f786f61b1d64b27a649adb5267159c06798f0054b55028e97",
+              "bytes": 527896755
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        },
+        {
+          "lighting": "directional",
+          "receiptSha256": "9c3378fbfceb85d33a9090737e278c78a191ea29d77e43dc95a3a37b330aaa0d",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "d9ce1bc94aee7951c618b9f9dd2d6e8bb7ff1eaa6f8ee98cf6ff7c1bc87c4b90",
+              "bytes": 29096336
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "d322c8bcfd9e536f786f61b1d64b27a649adb5267159c06798f0054b55028e97",
+              "bytes": 527896755
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        }
+      ],
+      "renderTimings": [
+        {
+          "variant": "light",
+          "threads": 4,
+          "seconds": 15.85899999999674,
+          "frames": 15
+        },
+        {
+          "variant": "dark",
+          "threads": 4,
+          "seconds": 16.187999999994645,
+          "frames": 15
+        }
+      ]
+    }
+  },
+  "nativeGateReceiptSha256": "91d5f1862db314e34cc4f0c9176cb322446977540d0a2ccc4cc2dabf5764ca1e",
+  "resumeLedgerSha256": "146554cc760c7dfd02dc3c508b7a93ee1d27940f1522b1e5c68be024e101a688"
 }

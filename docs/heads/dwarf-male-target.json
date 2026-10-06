@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "race": "dwarf",
+  "sex": "male",
+  "prefix": "pmd0",
+  "phenotype": 0,
+  "bodyRevision": "baefd1576f61a74428d8c2700ebddba19b2a85718bdd8236eafa03246b318bc7",
+  "headBindMatrix": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      -0.011517389999999992
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      1.682071694
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "cranialEnvelope": [
+    [
+      -0.16,
+      -0.17,
+      -0.085
+    ],
+    [
+      0.16,
+      0.18,
+      0.23
+    ]
+  ],
+  "landmarkTolerance": 0.035,
+  "approved": true,
+  "runtimeScale": 1.0,
+  "reviewScope": "Working fit only. Natural skull/jaw differs from stock Dwarf cartoon extrema; residual allowance 35mm requires explicit standing and motion review. Envelope and body dependencies unchanged.",
+  "kind": "srn-head-portable-target",
+  "sourceContractSha256": "b4de413bbd20db9cef2ab608db8a6caf6b355a3271eb01367a46a540d94d47ef",
+  "coordinateSpace": "derived working frame; fixture visual scale applied separately",
+  "bodyManifest": {
+    "path": "derived-bank/dwarf-male/body.json",
+    "sha256": "baefd1576f61a74428d8c2700ebddba19b2a85718bdd8236eafa03246b318bc7"
+  },
+  "rig": {
+    "path": "derived-bank/dwarf-male/ascii/pmd0.mdl",
+    "sha256": "23617c9bb5d3cb25a939df870618a52dcbe286cb1596a5087b3247aa4b567960"
+  },
+  "neckGeometry": {
+    "path": "stock/ascii/pmd0_neck001.mdl",
+    "sha256": "dc44f66c78036ef0045d1cff38b2ea50a2650375a5f83fef209ca033f094a98e"
+  },
+  "measurementOrigin": {
+    "path": "stock/ascii/pmd0_head001.mdl",
+    "sha256": "9efc49a9e35ebccaf1f692eeedf19248dfb761b4dfe89a86b7d712d1611481ff"
+  },
+  "derivedContract": {
+    "path": "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
+    "sha256": "c3a9ec730d75659b681e3af1b14b5bba6b0ca532cb79e31198b80273e699e0a3"
+  },
+  "palettes": [
+    {
+      "path": "stock/raw/pal_skin01.tga",
+      "sha256": "78ba81891b576c213390b01c04ed157fed7b9a21f5e67ca1eabb0c830f3ea86c"
+    },
+    {
+      "path": "stock/raw/pal_hair01.tga",
+      "sha256": "1ebf3fb816efe7367afc012de2dc95876fc0f0ae97b78a0eb9db01772f619eda"
+    }
+  ],
+  "animations": [
+    {
+      "path": "derived-bank/dwarf-male/ascii/a_ba_casts.mdl",
+      "sha256": "5b5523cbc6cdab1a5fadbdfac402700e7decbbf0c93aa9a67929dd61931ac91c"
+    },
+    {
+      "path": "derived-bank/dwarf-male/ascii/a_ba_custom.mdl",
+      "sha256": "c29d502d2b9fc830ba90302236fb2247d999dd6c851437e370fc21a936fd23c4"
+    },
+    {
+      "path": "derived-bank/dwarf-male/ascii/a_ba_med_weap.mdl",
+      "sha256": "4b3a823c7b9c2ee35f3e0a948a914569c40a5a36b66d88d42ef782ceebd83777"
+    },
+    {
+      "path": "derived-bank/dwarf-male/ascii/a_ba_non_combat.mdl",
+      "sha256": "e01a07908d1044187d172daf23b9a94811cc18f1315065b3a0394dc037664cd7"
+    },
+    {
+      "path": "derived-bank/dwarf-male/ascii/a_ba.mdl",
+      "sha256": "34b9b69e1cbe8e41bd836b38ffabd99ece11438849c5b512f48501ac12815d8c"
+    },
+    {
+      "path": "derived-bank/dwarf-male/ascii/a_ba2.mdl",
+      "sha256": "c34c573d3fcbc964243811231b63ed152f2426ec423f4a499d05b6c91f79c173"
+    },
+    {
+      "path": "derived-bank/dwarf-male/ascii/a_da.mdl",
+      "sha256": "425e90db160871b5f713209e71f7245d36357f63d60cd8e718bd04e6ca4bc83a"
+    },
+    {
+      "path": "derived-bank/dwarf-male/ascii/a_da2.mdl",
+      "sha256": "ff1ba32337e281c0559d1a25c15ab682cc2f736f61129182aeb0621c4d8e69d3"
+    },
+    {
+      "path": "derived-bank/dwarf-male/ascii/pmd0.mdl",
+      "sha256": "23617c9bb5d3cb25a939df870618a52dcbe286cb1596a5087b3247aa4b567960"
+    }
+  ],
+  "envelopeRevisionNote": "Working cranial envelope only: retain the full beard/jaw below the previous draft bound. Body, neck, rig, attachment frame and fit matrix unchanged. Production/client review pending."
+}
