@@ -246,6 +246,7 @@ def main():
                         "class": "auto-repairable", "repair": "delete faces with no unoccluded ray",
                         "appliedInAutomaticPass": False,
                         "reason": "rest-pose occlusion does not prove faces stay hidden in motion"})
+    require(sha(source) == args.source_sha256, "Frozen source changed during inspection")
     report = {"schemaVersion": 1, "kind": "srn-robe-source-inspection", "createdUtc": utc(), "source": pin(source),
               "blenderVersion": bpy.app.version_string, "importer": "io_scene_gltf2 (Blender bundled)",
               "counts": {"vertices": len(verts), "triangles": len(tris), "faceBudget": args.face_budget,

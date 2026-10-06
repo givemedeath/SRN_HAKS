@@ -18,7 +18,7 @@ from mathutils import Vector
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "phenotypes"))
 from pose_preview_render_settings import apply_render_settings
-from robe_common import FLAGS, fresh_directory, pin, read, require, utc, verify_pins, write_fresh
+from robe_common import FLAGS, fresh_directory, pin, read_pinned, require, utc, verify_pins, write_fresh
 
 VIEWS = {"front": (0.0, 1.0, 0.0), "back": (0.0, -1.0, 0.0), "left": (-1.0, 0.0, 0.0), "right": (1.0, 0.0, 0.0),
          "threequarter": (0.62, 0.78, 0.0), "top": (0.0, 0.05, 1.0)}
@@ -114,7 +114,8 @@ def main():
     parser.add_argument("--spec", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
-    spec = read(args.spec)
+    spec_bytes, spec_pin = read_pinned(args.spec)  # the rendered spec and the recorded spec are the same bytes
+    spec = json.loads(spec_bytes.decode("utf-8-sig"))
     output = fresh_directory(args.output)
     clear()
     scene = bpy.context.scene
@@ -155,8 +156,8 @@ def main():
             require(path.is_file(), "Render missing: " + str(path))
             renders.append({"scene": entry_set["prefix"], "view": view, "image": pin(path),
                             "cameraLocation": list(camera.location), "cameraRotation": list(camera.rotation_euler)})
-    verify_pins(inputs)
-    report = {"schemaVersion": 1, "kind": "srn-robe-review-render", "createdUtc": utc(), "spec": pin(args.spec),
+    verify_pins([spec_pin, *inputs])
+    report = {"schemaVersion": 1, "kind": "srn-robe-review-render", "createdUtc": utc(), "spec": spec_pin,
               "inputs": inputs, "scenes": len(scenes),
               "renderSettings": settings, "cameraScale": camera_data.ortho_scale, "centre": list(centre),
               "renders": renders, "clientEvidence": False, **FLAGS}

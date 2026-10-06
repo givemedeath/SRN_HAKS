@@ -182,9 +182,10 @@ def dispatch(session, request_file, binding_file, approval_file, folder):
     arguments = validate_request(request)
     lock = session.lock()
     try:
-        approval = pin(approval_file) if approval_file else None
-        if approval:
-            record = read(approval_file)
+        approval = None
+        if approval_file:
+            approval_bytes, approval = read_pinned(approval_file)  # validated and reserved bytes are the same
+            record = json.loads(approval_bytes.decode("utf-8-sig"))
             require(record.get("kind") == "srn-robe-reference-approval" and record.get("outfit") == request["outfit"]
                     and record.get("request", {}).get("sha256") == request_pin["sha256"]
                     and bool(record.get("userInstruction")), "Approval does not cover this exact request")
@@ -193,7 +194,7 @@ def dispatch(session, request_file, binding_file, approval_file, folder):
         identity = task_fields(_json(response))["id"] if code == 0 else None
         require(code == 0 and identity, "Submission uncertain; reconcile CLI journal before any retry")
         try:  # an input replaced during upload means the paid task may not match the reserved hashes
-            verify_pins([request_pin, *request["inputs"]])
+            verify_pins([request_pin, *([approval] if approval else []), *request["inputs"]])
             unchanged, problem = True, None
         except Exception as error:  # any failure here must not lose the paid task's record
             unchanged, problem = False, f"{type(error).__name__}: {error}"

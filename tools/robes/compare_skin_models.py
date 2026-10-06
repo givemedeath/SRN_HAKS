@@ -155,6 +155,11 @@ def compare(left_path, right_path, left_chain, right_chain, ascii_directory, mot
     samples = lbs.motion_samples(left_rig, count=motion_count)
     meshes = [compare_mesh(left_rig, right_rig, lnodes[k], rnodes[k], samples) for k in shared
               if lnodes[k].kind in mdl_ascii.MESHES and lnodes[k].get("render", "1") != "0"]
+    # Hidden reference meshes skip the geometry metrics (and their never-drawn bitmap) but still compare
+    # their render state, so an export cannot expose placeholder geometry unnoticed.
+    meshes += [{"node": lnodes[k].name, "kinds": [lnodes[k].kind, rnodes[k].kind], "propertiesOnly": True,
+                "render": [str(lnodes[k].get("render", "1")).strip(), str(rnodes[k].get("render", "1")).strip()]}
+               for k in shared if lnodes[k].kind in mdl_ascii.MESHES and lnodes[k].get("render", "1") == "0"]
     return {"header": {"supermodel": [lm.supermodel, rm.supermodel],
                        "classification": [lm.classification, rm.classification],
                        "animationScale": [lm.animation_scale, rm.animation_scale],
@@ -194,7 +199,7 @@ def verdict(report, tolerances):
             failures.append(f"{mesh['node']}: UV presence")
         if len(set(mesh.get("render", ["1", "1"]))) > 1:
             failures.append(f"{mesh['node']}: render state")
-        if str(mesh["bitmap"][0]).lower() != str(mesh["bitmap"][1]).lower():
+        if "bitmap" in mesh and str(mesh["bitmap"][0]).lower() != str(mesh["bitmap"][1]).lower():
             failures.append(f"{mesh['node']}: bitmap")
         deformation = mesh.get("sampledDeformation")
         if deformation and deformation["maximumDisplacementError"] > tolerances["deformation"]:

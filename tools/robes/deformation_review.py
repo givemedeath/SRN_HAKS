@@ -9,6 +9,7 @@ they never approve appearance, and none of this is client evidence.
 """
 import argparse
 import hashlib
+import io
 import json
 from pathlib import Path
 import sys
@@ -17,7 +18,7 @@ import numpy as np
 
 import lbs
 import mdl_ascii
-from robe_common import FLAGS, pin, read, require, sha, utc, verify_pins, write_fresh
+from robe_common import FLAGS, pin, read, read_pinned, require, sha, utc, verify_pins, write_fresh
 from stock_body import Body, closest_on_triangles
 
 FLAG = {"stretch": 1.5, "compression": 0.6, "penetration": 0.02, "collapse": 0.25}
@@ -87,8 +88,9 @@ def donor_baseline(donor, donor_nodes, body_rig, body, samples, cache):
     key = donor_cache_key(donor, body, samples)
     stored = Path(cache) / (key + ".npz") if cache else None
     if stored and stored.is_file():
-        data = np.load(stored)
-        return key, True, list(data["posed"]), data["faces"], json.loads(str(data["penetration"]))
+        raw, cache_pin = read_pinned(stored)  # the reused baseline is an input like any other
+        data = np.load(io.BytesIO(raw))
+        return key, True, list(data["posed"]), data["faces"], json.loads(str(data["penetration"])), cache_pin
     posed_all, rows = [], []
     for sample in samples:
         posed = np.vstack(pose(donor, donor_nodes, donor.frames(sample["clip"], sample["time"])))
@@ -101,7 +103,7 @@ def donor_baseline(donor, donor_nodes, body_rig, body, samples, cache):
         temporary = stored.with_name(key + ".partial.npz")
         np.savez_compressed(temporary, posed=np.stack(posed_all), faces=faces, penetration=json.dumps(rows))
         temporary.replace(stored)
-    return key, False, posed_all, faces, rows
+    return key, False, posed_all, faces, rows, None
 
 
 def main():
@@ -141,8 +143,10 @@ def main():
     rest_lengths = [np.linalg.norm(n["rest"][n["edges"][:, 0]] - n["rest"][n["edges"][:, 1]], axis=1) for n in nodes]
     rest_areas = [areas(n["rest"], n["faces"]) for n in nodes]
     samples = lbs.motion_samples(candidate, count=args.samples_per_clip)
-    donor_key, donor_reused, donor_posed_all, donor_faces, donor_rows = donor_baseline(
+    donor_key, donor_reused, donor_posed_all, donor_faces, donor_rows, cache_pin = donor_baseline(
         donor, donor_nodes, body_rig, body, samples, args.donor_cache)
+    if cache_pin:
+        inputs.append(cache_pin)
     rows, saved, families, pause_index = [], {}, {}, None
     for index, sample in enumerate(samples):
         # The client animates the creature (stock) skeleton and skins against the robe's own rest frames.
