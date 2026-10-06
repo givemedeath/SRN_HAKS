@@ -25,6 +25,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from retarget import nodes, transforms
+from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS
 from pose_preview_bridge import pose
 
@@ -265,8 +266,8 @@ def main():
     unlit_derived_elf = create_unlit_material("Unlit_DerivedElf", (0.20, 0.45, 0.40))  # Sleek teal/emerald for Elf
 
     # Rig transforms
-    pmh0_text = (args.masters_dir / "stock" / "pmh0.mdl").read_text(encoding="cp1252")
-    pme0_text = args.rig_file.read_text(encoding="cp1252")
+    pmh0_text = read_mdl_text((args.masters_dir / "stock" / "pmh0.mdl"))
+    pme0_text = read_mdl_text(args.rig_file)
 
     hm_rig = transforms(nodes(pmh0_text))
     elf_rig = transforms(nodes(pme0_text))

@@ -85,7 +85,7 @@ def inventory_installed_styles(game_root: Path, user_dir: Path, prefix: str = "p
     }
 
 
-def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0") -> dict:
+def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0", *, target_config: dict | None = None) -> dict:
     """Verify that hands and rig contain weapon and shield attachment dummies."""
     dummy_checks = {}
 
@@ -96,7 +96,8 @@ def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0") ->
     require(handr_path.exists(), f"Missing {handr_path}")
     require(rig_path.exists(), f"Missing rig {rig_path}")
 
-    rig_text = rig_path.read_text(encoding="cp1252")
+    from derive_rig import read_mdl_text
+    rig_text = read_mdl_text(rig_path)
 
     # Match exact dummy node names: "node dummy <node_name>"
     dummy_nodes = {
@@ -117,6 +118,11 @@ def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0") ->
             "rigAttachmentPresent": has_in_rig
         }
 
+    if target_config is not None:
+        from equipment_frames import verify_attachment_frames
+        measured = verify_attachment_frames(rig_path, target_config)
+        for hand, meta in dummy_checks.items():
+            meta.update(measured[hand])
     return dummy_checks
 
 
@@ -143,10 +149,12 @@ def audit_stock_armor_compatibility(
     )
 
     rig_path = REPO / f"output/phenotypes/derived-v1/rigs/{race}-male/{prefix}.mdl"
-    dummies_result = audit_hand_dummies(derived_ascii_dir, rig_path, prefix=prefix)
+    dummies_result = audit_hand_dummies(derived_ascii_dir, rig_path, prefix=prefix, target_config=target_config)
     hand_dummies_valid = all(
-        d.get("rigGripPresent", False) and d.get("rigAttachmentPresent", False)
-        for d in dummies_result.values()
+        dummies_result.get(hand, {}).get("rigGripPresent", False)
+        and dummies_result.get(hand, {}).get("rigAttachmentPresent", False)
+        and dummies_result.get(hand, {}).get("attachmentFramesValid", False)
+        for hand in ("handl", "handr")
     )
     require(hand_dummies_valid, f"Weapon/shield dummy check failed: {dummies_result}")
 
@@ -230,6 +238,9 @@ def audit_stock_armor_compatibility(
         "complete": audit_complete
     }
 
+    for meta in dummies_result.values():
+        for path, expected in meta.get("inputHashes", {}).items():
+            require(sha256_file(path) == expected, f"Equipment frame input changed: {path}")
     output_receipt.parent.mkdir(parents=True, exist_ok=True)
     output_receipt.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
     print(f"Wrote equipment compatibility receipt to {output_receipt}")

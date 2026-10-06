@@ -128,7 +128,7 @@ def stage_candidate(stage_dir: Path):
     print("Candidate elf_male_fit staged successfully.")
 
 
-def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path: Path | None = None, game_root: Path | None = None):
+def _stage_appearance_source(stage_dir: Path, temp_userdir: Path, appearance_path: Path | None = None, game_root: Path | None = None):
     fixture_res_dir = stage_dir / "fixture-resources"
     fixture_res_dir.mkdir(parents=True, exist_ok=True)
     out_app = fixture_res_dir / "appearance.2da"
@@ -168,6 +168,14 @@ def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path
         "Missing appearance.2da: specify --appearance-2da, ensure GAME_ROOT is available, "
         "or provide a verified durable copy in tools/phenotypes/references/fixtures/appearance.2da"
     )
+
+
+
+def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path: Path | None = None, game_root: Path | None = None):
+    from fixture_appearance import patch_appearance
+    _stage_appearance_source(stage_dir, temp_userdir, appearance_path, game_root)
+    target = json.loads((REPO / "tools/phenotypes/configurations/derived/target-elf-male-fit.json").read_text(encoding="utf-8"))
+    return patch_appearance(stage_dir / "fixture-resources/appearance.2da", target)
 
 
 def main():

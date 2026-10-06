@@ -20,6 +20,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from retarget import nodes, transforms
+from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS
 
 
@@ -331,8 +332,8 @@ def main():
     setup_scene(args.threads)
     
     # 3. Load supermodels
-    pmh0_text = (args.masters_dir / "stock" / "pmh0.mdl").read_text(encoding="cp1252")
-    pmd0_text = (args.masters_dir / "stock" / "pmd0.mdl").read_text(encoding="cp1252")
+    pmh0_text = read_mdl_text((args.masters_dir / "stock" / "pmh0.mdl"))
+    pmd0_text = read_mdl_text((args.masters_dir / "stock" / "pmd0.mdl"))
     
     # 4. Load Human Master parts
     master_parts = {}

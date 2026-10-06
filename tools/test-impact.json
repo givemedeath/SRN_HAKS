@@ -77,10 +77,14 @@
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/build_derived_elf_fixture.py": [
+      "tools/phenotypes/configurations/derived/target-elf-male-fit.json",
+      "tools/phenotypes/fixture_appearance.py",
       "tools/phenotypes/stock_dwarf_control.py",
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/build_derived_orc_fixture.py": [
+      "tools/phenotypes/configurations/derived/target-orc-male-fit.json",
+      "tools/phenotypes/fixture_appearance.py",
       "tools/phenotypes/stock_dwarf_control.py",
       "tools/shared_tools.py"
     ],
@@ -155,6 +159,7 @@
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
       "tools/phenotypes/derive_rig.py",
+      "tools/phenotypes/equipment_frames.py",
       "tools/phenotypes/target_contract.py",
       "tools/shared_tools.py"
     ],
@@ -180,6 +185,11 @@
       "tools/phenotypes/stage_stock_part.py",
       "tools/phenotypes/stock_limb_contract.py"
     ],
+    "tools/phenotypes/equipment_frames.py": [
+      "tools/phenotypes/derive_rig.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/target_contract.py"
+    ],
     "tools/phenotypes/extract_filled_exterior.py": [
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/stage_stock_part.py"
@@ -192,6 +202,7 @@
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
     ],
+    "tools/phenotypes/fixture_appearance.py": [],
     "tools/phenotypes/foot_material_contract.py": [
       "tools/phenotypes/compose_stock_limb_offline.py",
       "tools/phenotypes/material_patch_contract.py",
@@ -242,6 +253,7 @@
       "tools/phenotypes/stock_limb_contract.py"
     ],
     "tools/phenotypes/measure_body_assembly.py": [
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
@@ -368,29 +380,35 @@
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
     "tools/phenotypes/render_assembly_comparison.py": [
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/render_derived_dwarf_review.py": [
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/pose_preview_bridge.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/render_derived_elf_review.py": [
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/pose_preview_bridge.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/render_derived_orc_review.py": [
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/render_derived_troll_review.py": [
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/pose_preview_bridge.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/render_human_baseline_review.py": [
+      "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
@@ -532,6 +550,17 @@
       "tools/phenotypes/run_derived_dwarf_client_test.py",
       "tools/phenotypes/stage_derived_dwarf.py",
       "tools/phenotypes/stock_dwarf_control.py"
+    ],
+    "tools/phenotypes/test_derived_review_fixes.py": [
+      "tools/phenotypes/build_derived_elf_fixture.py",
+      "tools/phenotypes/build_derived_orc_fixture.py",
+      "tools/phenotypes/configurations/derived/target-elf-male-fit.json",
+      "tools/phenotypes/derive_rig.py",
+      "tools/phenotypes/derived_equipment.py",
+      "tools/phenotypes/equipment_frames.py",
+      "tools/phenotypes/fixture_appearance.py",
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/run_derived_dwarf_client_test.py"
     ],
     "tools/phenotypes/test_effective_body_contract.py": [
       "tools/phenotypes/effective_body_contract.py"
@@ -710,6 +739,7 @@
     "tools/phenotypes/test_clean_part_retexture.py",
     "tools/phenotypes/test_complete_body_launcher.py",
     "tools/phenotypes/test_derived_pipeline.py",
+    "tools/phenotypes/test_derived_review_fixes.py",
     "tools/phenotypes/test_effective_body_contract.py",
     "tools/phenotypes/test_effective_body_costs.py",
     "tools/phenotypes/test_effective_body_preview.py",

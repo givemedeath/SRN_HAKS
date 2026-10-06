@@ -25,6 +25,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from retarget import nodes, transforms
+from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS
 
 
@@ -264,8 +265,8 @@ def main():
     unlit_derived_orc = create_unlit_material("Unlit_DerivedOrc", (0.25, 0.40, 0.20))  # Deep olive green for Orc
 
     # Rig transforms
-    pmh0_text = (args.masters_dir / "stock" / "pmh0.mdl").read_text(encoding="cp1252")
-    pmo0_text = args.rig_file.read_text(encoding="cp1252")
+    pmh0_text = read_mdl_text((args.masters_dir / "stock" / "pmh0.mdl"))
+    pmo0_text = read_mdl_text(args.rig_file)
 
     hm_rig = transforms(nodes(pmh0_text))
     orc_rig = transforms(nodes(pmo0_text))

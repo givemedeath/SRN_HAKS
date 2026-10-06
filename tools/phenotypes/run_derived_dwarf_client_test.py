@@ -11,6 +11,7 @@ import re
 import subprocess
 import time
 import sys
+import uuid
 
 REPO = Path(__file__).resolve().parents[2]
 STAGE = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage"
@@ -174,6 +175,17 @@ def check_no_nwmain():
         raise RuntimeError(f"An existing nwmain process is already running ({count} found); close it before test launch")
 
 
+def preserve_file(source: Path, destination: Path) -> Path:
+    """Keep exact source bytes in an exclusive, independently verifiable snapshot."""
+    before = sha256_file(source)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open("xb") as out:
+        out.write(source.read_bytes())
+    if sha256_file(destination) != before or sha256_file(source) != before:
+        raise RuntimeError(f"Source changed during evidence snapshot: {source}")
+    return destination
+
+
 def run_client_test(
     max_duration: float = 160.0,
     race: str = "dwarf",
@@ -187,6 +199,8 @@ def run_client_test(
     stage_dir = REPO / f"output/phenotypes/derived-{race}-male-v1/test-stage"
     review_dir = REPO / f"output/phenotypes/derived-{race}-male-v1/review"
     review_dir.mkdir(parents=True, exist_ok=True)
+    review_dir = review_dir / ("client-run-" + uuid.uuid4().hex)
+    review_dir.mkdir(exist_ok=False)
     preflight_receipt_path = review_dir / "client-preflight-receipt.json"
     preflight = run_preflight(stage_dir, client_bin, preflight_receipt_path, race=race, prefix=prefix)
     if not preflight.get("pass"):
@@ -201,23 +215,14 @@ def run_client_test(
 
     # Backup prior logs if present
     if client_log_path.exists():
+        preserve_file(client_log_path, review_dir / "previous-logs" / client_log_path.name)
         client_log_path.unlink()
     if engine_log_path.exists():
+        preserve_file(engine_log_path, review_dir / "previous-logs" / engine_log_path.name)
         engine_log_path.unlink()
 
-    cmd = [
-        str(client_path),
-        "-userdirectory", str(userdir),
-        "+TestNewModule", "srn_pheno_test"
-    ]
-    print(f"Launching client: {' '.join(cmd)}")
-    start_time = time.time()
-    started_iso = datetime.now(timezone.utc).isoformat()
-    proc = subprocess.Popen(cmd, cwd=str(client_path.parent))
-    pid = proc.pid
-    print(f"Client started with PID {pid}")
-
     fixture_receipt_path = stage_dir / "test-module/receipt.json"
+    fixture_receipt_path = preserve_file(fixture_receipt_path, review_dir / "fixture-receipt.json")
     fixture_receipt_sha = sha256_file(fixture_receipt_path)
     fixture_receipt_data = {}
     if fixture_receipt_path.exists():
@@ -230,6 +235,18 @@ def run_client_test(
         fixture_receipt_data.get("cameraEquipmentTarget") or
         fixture_receipt_data.get("configuration", {}).get("cameraEquipmentTarget")
     )
+
+    cmd = [
+        str(client_path),
+        "-userdirectory", str(userdir),
+        "+TestNewModule", "srn_pheno_test"
+    ]
+    print(f"Launching client: {' '.join(cmd)}")
+    start_time = time.time()
+    started_iso = datetime.now(timezone.utc).isoformat()
+    proc = subprocess.Popen(cmd, cwd=str(client_path.parent))
+    pid = proc.pid
+    print(f"Client started with PID {pid}")
 
     launch_data = {
         "processId": pid,
@@ -245,9 +262,8 @@ def run_client_test(
         "equipmentRun": is_equipment_run
     }
 
-    launch_file = stage_dir / f"client-launch-{pid}.json"
+    launch_file = review_dir / f"client-launch-{pid}.json"
     launch_file.write_text(json.dumps(launch_data, indent=2), encoding="utf-8")
-    (review_dir / f"client-launch-{pid}.json").write_text(json.dumps(launch_data, indent=2), encoding="utf-8")
 
     phases_seen = set()
     sequence_complete = False
@@ -355,8 +371,9 @@ def run_client_test(
     source_logs = {}
     detected_errors = []
     for log_p in [client_log_path, engine_log_path]:
-        source_logs[str(log_p)] = sha256_file(log_p)
-        detected_errors.extend(scan_log_for_errors(log_p))
+        saved_log = preserve_file(log_p, review_dir / "source-logs" / log_p.name)
+        source_logs[str(saved_log)] = sha256_file(saved_log)
+        detected_errors.extend(scan_log_for_errors(saved_log))
 
     evidence = {
         "schemaVersion": 1,
@@ -375,6 +392,7 @@ def run_client_test(
         "hakSha256": preflight["hakSha256"],
         "moduleSha256": preflight["moduleSha256"],
         "runtimeMetrics": last_metrics,
+        "runtimeMetricsFile": str(metrics_file),
         "runtimeMetricsSha256": sha256_file(metrics_file),
         "sourceLogs": source_logs,
         "runtimeLogErrors": detected_errors,

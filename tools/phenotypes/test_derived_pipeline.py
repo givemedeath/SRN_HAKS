@@ -634,7 +634,7 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
     @patch("derived_equipment.audit_hand_dummies")
     def test_missing_connector_audit_raises(self, mock_dummies, mock_inventory):
         from derived_equipment import PARTS, audit_stock_armor_compatibility
-        mock_dummies.return_value = {"handl": {"rigGripPresent": True, "rigAttachmentPresent": True}}
+        mock_dummies.return_value = {hand: {"rigGripPresent": True, "rigAttachmentPresent": True, "attachmentFramesValid": True} for hand in ("handl", "handr")}
         mock_inventory.return_value = {
             "parts": {p: [1] for p in PARTS},
             "totalModelsFound": 440,
@@ -657,7 +657,7 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
     @patch("derived_equipment.audit_hand_dummies")
     def test_mismatched_target_connector_audit_raises(self, mock_dummies, mock_inventory):
         from derived_equipment import PARTS, audit_stock_armor_compatibility
-        mock_dummies.return_value = {"handl": {"rigGripPresent": True, "rigAttachmentPresent": True}}
+        mock_dummies.return_value = {hand: {"rigGripPresent": True, "rigAttachmentPresent": True, "attachmentFramesValid": True} for hand in ("handl", "handr")}
         mock_inventory.return_value = {
             "parts": {p: [1] for p in PARTS},
             "totalModelsFound": 440,
@@ -685,7 +685,7 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
     @patch("derived_equipment.audit_hand_dummies")
     def test_matching_passing_connector_audit_succeeds(self, mock_dummies, mock_inventory):
         from derived_equipment import PARTS, audit_stock_armor_compatibility
-        mock_dummies.return_value = {"handl": {"rigGripPresent": True, "rigAttachmentPresent": True}}
+        mock_dummies.return_value = {hand: {"rigGripPresent": True, "rigAttachmentPresent": True, "attachmentFramesValid": True} for hand in ("handl", "handr")}
         mock_inventory.return_value = {
             "parts": {p: [1] for p in PARTS},
             "totalModelsFound": 440,
@@ -720,7 +720,7 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
     @patch("derived_equipment.audit_hand_dummies")
     def test_stale_model_hash_fails(self, mock_dummies, mock_inventory):
         from derived_equipment import PARTS, audit_stock_armor_compatibility
-        mock_dummies.return_value = {"handl": {"rigGripPresent": True, "rigAttachmentPresent": True}}
+        mock_dummies.return_value = {hand: {"rigGripPresent": True, "rigAttachmentPresent": True, "attachmentFramesValid": True} for hand in ("handl", "handr")}
         mock_inventory.return_value = {
             "parts": {p: [1] for p in PARTS},
             "totalModelsFound": 440,
