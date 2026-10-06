@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-fixture",
+  "title": "SRN Robe Trial v10 15k",
+  "module": "srn_rtv10c",
+  "hak": "srn_rtv10c",
+  "area": "sr_rt_floor",
+  "partsRobe": "stock/raw/parts_robe.2da",
+  "templates": {
+    "creature": "nw_humanmerc001",
+    "armor": "nw_cloth001"
+  },
+  "rows": {
+    "46": {
+      "resref": "pmh0_robe046",
+      "sourceName": "pmh0_robe046",
+      "model": "workwear/corrected-v10/runtime-20k-aposerest/compiled/pmh0_robe046.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    },
+    "47": {
+      "resref": "pmh0_robe047",
+      "sourceName": "pmh0_robe047",
+      "model": "workwear/corrected-v10/runtime-aposerest-15k/export/exported/pmh0_robe047.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    }
+  },
+  "resources": [
+    "workwear/materials-skin-v2/ww11a.tga",
+    "workwear/materials-skin-v2/ww11an.tga",
+    "workwear/materials-skin-v2/ww11ar.tga",
+    "workwear/materials-skin-v2/ww11a.mtr",
+    "workwear/corrected-v10/runtime-20k-aposerest/model/pmh0_robe046.plt",
+    "workwear/corrected-v10/runtime-aposerest-15k/model/pmh0_robe047.plt"
+  ],
+  "rowLabels": {
+    "4": "Stock robe 004",
+    "10": "Control robe 004 round-trip",
+    "11": "Workwear auto-v1",
+    "12": "Workwear corrected-v1",
+    "17": "Workwear corrected-v2",
+    "18": "Workwear corrected-v2 runtime 8k",
+    "19": "Workwear corrected-v2 runtime 20k",
+    "35": "Workwear corrected-v3 runtime 20k",
+    "40": "v7 with A-pose robe skeleton",
+    "41": "Workwear corrected-v7 20k",
+    "44": "v9 arms-down rest",
+    "45": "v9 A-pose rest",
+    "46": "v10 A-pose rest",
+    "47": "v10 A-pose rest 15k"
+  },
+  "actors": [
+    {
+      "label": "Stock robe 004",
+      "row": 4,
+      "skin": 3
+    },
+    {
+      "label": "v10 20k compiled",
+      "row": 46,
+      "skin": 3
+    },
+    {
+      "label": "v10 15k",
+      "row": 47,
+      "skin": 3
+    },
+    {
+      "label": "v10 15k dark skin",
+      "row": 47,
+      "skin": 9
+    },
+    {
+      "label": "v10 15k sword+shield",
+      "row": 47,
+      "skin": 3,
+      "weapons": [
+        "nw_wswls001",
+        "nw_ashlw001"
+      ]
+    }
+  ],
+  "purpose": "Client comparison of corrected-v10 at 15k (row 47, ASCII) against the compiled 20k (row 46).",
+  "entry": [
+    11.85,
+    16.2
+  ]
+}
