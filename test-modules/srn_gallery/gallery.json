@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "moduleResRef": "srn_gallery",
+  "moduleName": "Shadowrun Custom Content Gallery",
+  "customTlk": "srn",
+  "pageSize": 24,
+  "startingCategory": "placeables",
+  "sourceDateUtc": "2026-10-05T00:00:00Z",
+  "appearancePacks": {"placeables": ["srn_placeable"], "doors": ["srn_door"]},
+  "prestaged": [],
+  "pilotRows": [
+    {"id": "body", "name": "Body", "equipment": ""},
+    {"id": "clothing1", "name": "Clothing 1", "equipment": "nw_aarcl001"}
+  ],
+  "pilotBay": {"origin": [104, 28], "columnSpacing": 6, "rowSpacing": 12, "arrival": [114, 16]},
+  "additions": [],
+  "description": "Refreshes from hakbuilder.json and production tables. Browse, search and stage content in the starting area; inspect all custom tiles in connected display areas. Pilot resources remain test candidates."
+}

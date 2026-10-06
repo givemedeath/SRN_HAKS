@@ -1,0 +1,914 @@
+{
+  "kind": "srn-head-validation-summary",
+  "checkpoint": "gallery-client-layout-v1",
+  "runtimeTriangleLimit": 20000,
+  "budget": {
+    "cap": 405,
+    "spent": 345,
+    "outstanding": 0,
+    "jobs": [
+      {
+        "designId": "human-male-01",
+        "requestId": "human-male-01-attempt1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10cb2-5c3b-7693-b12f-cc814febfa2b",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human-male-02-attempt1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10cb8-f006-75da-89cb-b4774cd5024b",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "elf-female-01",
+        "requestId": "elf-female-01-attempt1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10cbd-2657-7105-9483-f87846fc914b",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "troll-male-01",
+        "requestId": "troll-male-01-attempt1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10cc1-7b22-73c6-b1c9-199f9c54093e",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human-male-01-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10cf8-606a-76ef-ae56-bfc367f895ea",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human-male-02-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10cf9-192b-76bf-8795-533735f41ed0",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-remesh-9k-v1",
+        "operation": "remesh",
+        "taskId": "01a10d14-ac69-700e-b1ec-5ed9f2aa9148",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-remesh-9k-v1",
+        "operation": "remesh",
+        "taskId": "01a10d15-762a-7719-b371-55eb2778079e",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10d1e-9757-72c0-8eeb-bccce9cae111",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10d20-4b51-77de-acd7-3b8908a37485",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human-male-01-attempt2-neckless",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10d6d-c461-737f-8a89-bcf452f33077",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10d7c-e373-718f-b7ab-94fec42948af",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human-male-02-attempt2-neckless",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10d7f-54dd-73ff-a88b-d792d644395b",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-direct-remesh-v1",
+        "operation": "remesh",
+        "taskId": null,
+        "credits": 0,
+        "status": "RECONCILED_VALIDATION_REJECTION"
+      },
+      {
+        "designId": "elf-female-01",
+        "requestId": "elf-female-01-attempt2-neckless",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10d93-10e2-7349-8ff8-6ce332eaf267",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "troll-male-01",
+        "requestId": "troll-male-01-attempt2-neckless",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10d97-7a84-7574-b1e3-c8fef1dfcb6f",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-upload-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10d9c-bd6a-75bc-be1a-2b380379cd76",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-neckless-upload-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10d9f-9910-73b9-8694-6f59e700474b",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-quad-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10da2-8d5f-719f-93c0-fdd6331c4d99",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-neckless-quad-remesh-v1",
+        "operation": "remesh",
+        "taskId": "01a10da4-e333-75bc-8e71-d6afaaa086bf",
+        "credits": 5,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-01",
+        "requestId": "human1-neckless-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10dc2-8552-7530-a6ad-5dbccb7e5bdb",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "human-male-02",
+        "requestId": "human2-neckless-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10dc5-99d9-76f8-ae52-e0a635fa0c18",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "troll-male-01",
+        "requestId": "troll-neckless-retexture-derived-v1",
+        "operation": "retexture",
+        "taskId": "01a10e1e-2c48-7564-8d99-0424e41b92b1",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "elf-male-01",
+        "requestId": "elf-male-01-generation-v1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10e5f-8d6e-736b-b624-c7977c9c7593",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "elf-male-01",
+        "requestId": "elf-male-01-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10e6f-8415-7113-a3a4-fcc141ca5b06",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "dwarf-male-01",
+        "requestId": "dwarf-male-01-generation-v1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10e63-3c23-7477-9b42-d01271d1926e",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "dwarf-male-01",
+        "requestId": "dwarf-male-01-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10e78-305e-722d-a7e9-12b374ba749b",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "orc-male-01",
+        "requestId": "orc-male-01-generation-v1",
+        "operation": "multi-image-to-3d",
+        "taskId": "01a10e6a-d923-7572-a869-3792f6ca9a20",
+        "credits": 20,
+        "status": "SUCCEEDED"
+      },
+      {
+        "designId": "orc-male-01",
+        "requestId": "orc-male-01-retexture-v1",
+        "operation": "retexture",
+        "taskId": "01a10e83-cd80-71ed-947b-56adfe7acd37",
+        "credits": 10,
+        "status": "SUCCEEDED"
+      }
+    ],
+    "approvalSha256": "6366ce6d7fc8ceaa594709eb6e18f541d572fc6f8160337b234f389a21ccde13"
+  },
+  "regressions": {
+    "headHelpers": {
+      "passed": true,
+      "tests": 36,
+      "logSha256": "36a4b9af58ac907ae375131ba2d3b7db1f1fa118c551d0186271b1708179c61d"
+    },
+    "sharedHelpers": {
+      "passed": true,
+      "tests": 19,
+      "logSha256": "1ffa7afe491ecedcb3eb4ff5d99db6a9fa09490678d6899e41cfd56a24c3ba02"
+    },
+    "phenotypeHelpers": {
+      "passed": true,
+      "tests": 176,
+      "logSha256": "ca5fb5c4264f3cca52820f91862340084e961197b8c6fad3c0320fa8fa2159e1"
+    },
+    "repository": {
+      "passed": true,
+      "logSha256": "2aad7b0955e6249003b2fd3b500da6b09acf17e3fdbf8b291bdafed152801441",
+      "tests": null
+    },
+    "itemImport": {
+      "passed": true,
+      "tests": null,
+      "logSha256": "a62da5789ca16844b7a0127b6917ad57c97b64a3c0ac5cbc788ec1646d73733c"
+    },
+    "galleryHelpers": {
+      "passed": true,
+      "tests": 9,
+      "logSha256": "fe7be7634e7b1db108735a127319bcbf92cb68fd4ef1c0021877f3d80172a132"
+    },
+    "repositoryStructure": {
+      "passed": true,
+      "logSha256": "a4d85a7a48e94dd564abf55a0215951a83fa0be5a2e90716115f62cbc79392c2"
+    }
+  },
+  "renderTimings": [
+    {
+      "designId": "human-male-01",
+      "stage": "neckless-master-donor",
+      "threads": 4,
+      "seconds": 2.0159999999959837,
+      "receiptSha256": "53a77d858ccfdf749b161255339e6ba3da2f60356ac9ff2824648322d680e2f7"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "clay-v1",
+      "threads": 4,
+      "seconds": 13.031000000002678,
+      "receiptSha256": "e26960f213b8bee5771c7e7c154bc8c2dd5a3b202d9422314493a985f1e52065"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "semantic-v1",
+      "threads": 4,
+      "seconds": 13.98399999999674,
+      "receiptSha256": "54265f910fc443fabd1e59a38069f48aaa2ae1f080cdf5c9a3d875e30af3481e"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "palette-light-v2",
+      "threads": 4,
+      "seconds": 10.485000000000582,
+      "receiptSha256": "a2a7b0f4f515139db78b056c81bc44b36d2293c6bf98aad2181a46786f3bd536"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "palette-dark-v2",
+      "threads": 4,
+      "seconds": 10.0,
+      "receiptSha256": "eb7b14000797ca8988b6f881267d95d76358abecc922398f114e7a8264af3a85"
+    },
+    {
+      "designId": "human-male-01",
+      "stage": "runtime-lod-normal-bake",
+      "threads": 4,
+      "seconds": 31.860000000000582,
+      "bakeSeconds": 24.07800000000134,
+      "receiptSha256": "8f7be92972ff1828753e99aa0bfa68c66bfd22452d3f5095021249d181e5a92d"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "neckless-master-donor",
+      "threads": 4,
+      "seconds": 2.813000000001921,
+      "receiptSha256": "a0aed25fe9a2b3ec7397916338b4159e782567d23dedf4381116dac782fffc90"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "clay-v1",
+      "threads": 4,
+      "seconds": 12.921999999998661,
+      "receiptSha256": "e60cba6adbea4813810963c92709a235694e9478b553e3038bfa1d54fd63b924"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "semantic-v1",
+      "threads": 4,
+      "seconds": 15.093000000000757,
+      "receiptSha256": "1d8e381b1b0912188d68b8707df075dc2b261e6d5d137a67c331a8197070a5b0"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "palette-light-v2",
+      "threads": 4,
+      "seconds": 10.781000000002678,
+      "receiptSha256": "07b6fbf08c0315001a551ebf93d600e4fef35c18eedd9d2152397f2c438779c0"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "palette-dark-v2",
+      "threads": 4,
+      "seconds": 10.718999999997322,
+      "receiptSha256": "f1fb2c6d8b90a0e3169433cdc6ae3c9e833b2ed8dcd6698030ab52b18837b569"
+    },
+    {
+      "designId": "human-male-02",
+      "stage": "runtime-lod-normal-bake",
+      "threads": 4,
+      "seconds": 32.609000000004016,
+      "bakeSeconds": 24.640999999995984,
+      "receiptSha256": "53ad731bd58310f17a2e54a19c1d9de13d3f522003e36be9c5da2594b141faac"
+    },
+    {
+      "designId": "elf-female-01",
+      "stage": "neckless-master-donor",
+      "threads": 4,
+      "seconds": 2.3909999999959837,
+      "receiptSha256": "f9ab54e80db0010544cd68b926aff96147c952b2ba58cc44e7e8217877815e43"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "neckless-master-donor",
+      "threads": 4,
+      "seconds": 2.422000000005937,
+      "receiptSha256": "86739c1aa2f200014dfd7279935cc6e68b8f9f975c4ea29f436f30c137798083"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "troll-clay-derived-v1",
+      "threads": 4,
+      "seconds": 11.843999999997322,
+      "receiptSha256": "69c068f36a694ad2e4641d05ac5a520cff1c8b7f7ca7a25525318ae4dc35fb22"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "troll-semantic-derived-v3",
+      "threads": 4,
+      "seconds": 7.811999999998079,
+      "receiptSha256": "c1ee0259daeac8c41208e74c8250e366ba1c1882838497f7e6ddb95eda09add8"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "troll-palette-light-derived-v2",
+      "threads": 4,
+      "seconds": 22.17199999999866,
+      "receiptSha256": "42e2c46ab5ad1e1eed2e271cb451c4c4f55cfb11d3d90ebb721db04776f8bbb6"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "troll-palette-dark-derived-v2",
+      "threads": 4,
+      "seconds": 15.781999999999243,
+      "receiptSha256": "678eade5b8b1f39b581a205a7566781ec43df1a0b39d4286f759a5dc2ed7b32f"
+    },
+    {
+      "designId": "troll-male-01",
+      "stage": "runtime-lod-normal-bake",
+      "threads": 4,
+      "seconds": 29.639999999999418,
+      "bakeSeconds": 21.593999999997322,
+      "receiptSha256": "7eb92d18ae21a18c0a79d35dc6e195a1da17f9970c2b59860c647f009d4295b1"
+    }
+  ],
+  "motion": {
+    "samples": 82,
+    "worstSample": 50,
+    "maximumNeckDisplacementMetres": 0.11464906885113063,
+    "meaning": "Relative stock-neck displacement diagnostic; not a measured visible gap."
+  },
+  "bodyManifest": {
+    "path": "docs/phenotypes/human-male-assets.json",
+    "sha256": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4"
+  },
+  "protectedBodyResources": 72,
+  "bodyResourcesUnchanged": true,
+  "fixtures": [
+    {
+      "lighting": "ambient",
+      "receiptSha256": "216a980f7c645805c869c7ca9cda8fd7eaa6e6c69a365133a0f6c3d95d11a069",
+      "module": {
+        "name": "srn_head_pilot.mod",
+        "sha256": "ae67f9ad10b8059865aea76a4396e4be689565c088399697f98246e3f078caba",
+        "bytes": 93528
+      },
+      "haks": [
+        {
+          "name": "srn_head.hak",
+          "sha256": "1126122975822bf80e0fac6b8df52f4fe5a3aacadd2ec994a40f38c461753dcb",
+          "bytes": 48079546
+        },
+        {
+          "name": "srn_body.hak",
+          "sha256": "88f1be93261dc11b74546840a1c7b14571a24d9f39fcdf5adb9b75cb9867a724",
+          "bytes": 527887587
+        },
+        {
+          "name": "sr_h_fixture.hak",
+          "sha256": "9690a1269d01cb1578fdf95e7d04d359e07840de9178cdc84c80ece78ce05c5d",
+          "bytes": 132116
+        }
+      ],
+      "actorCount": 22,
+      "candidatePayloadVerified": true,
+      "scriptsCompiled": true,
+      "clientObserved": false
+    },
+    {
+      "lighting": "directional",
+      "receiptSha256": "5824f2029abf5ad95205e73887074e0bc35609af7b431e1dd58cac5d416f9c2f",
+      "module": {
+        "name": "srn_head_pilot.mod",
+        "sha256": "43c121393484c9e2af3bbc1b9737e46b78fe6c9979ce9ba87971ea94a92d5050",
+        "bytes": 93528
+      },
+      "haks": [
+        {
+          "name": "srn_head.hak",
+          "sha256": "1126122975822bf80e0fac6b8df52f4fe5a3aacadd2ec994a40f38c461753dcb",
+          "bytes": 48079546
+        },
+        {
+          "name": "srn_body.hak",
+          "sha256": "88f1be93261dc11b74546840a1c7b14571a24d9f39fcdf5adb9b75cb9867a724",
+          "bytes": 527887587
+        },
+        {
+          "name": "sr_h_fixture.hak",
+          "sha256": "9690a1269d01cb1578fdf95e7d04d359e07840de9178cdc84c80ece78ce05c5d",
+          "bytes": 132116
+        }
+      ],
+      "actorCount": 22,
+      "candidatePayloadVerified": true,
+      "scriptsCompiled": true,
+      "clientObserved": false
+    },
+    {
+      "designIds": [
+        "troll-male-01"
+      ],
+      "lighting": "ambient",
+      "receiptSha256": "1fe4fd2401eba4cc4dd869693f638b04d8c52f061efe4619e992ea0a9fa08724",
+      "module": {
+        "name": "srn_head_pilot.mod",
+        "sha256": "deead35707d3d8bf935bed0537e90f1eb149647b77f0ad9b6cd9015812a1b1cb",
+        "bytes": 61529
+      },
+      "haks": [
+        {
+          "name": "srn_head.hak",
+          "sha256": "3a42d3942913246c47e0463af86e7d193e4276b33fb0f5865bcd0c676c906ab7",
+          "bytes": 28848416
+        },
+        {
+          "name": "srn_body.hak",
+          "sha256": "c34b7a960198b9261dc25d75ad72cb6bca4593f5051c8185f397a1c167e59390",
+          "bytes": 527896815
+        },
+        {
+          "name": "sr_h_fixture.hak",
+          "sha256": "9690a1269d01cb1578fdf95e7d04d359e07840de9178cdc84c80ece78ce05c5d",
+          "bytes": 132116
+        }
+      ],
+      "actorCount": 11,
+      "candidatePayloadVerified": true,
+      "bodyPayloadVerified": true,
+      "bodyResourceCount": 73,
+      "scriptsCompiled": true,
+      "visualScale": 1.4285714285714286,
+      "clientObserved": false
+    },
+    {
+      "designIds": [
+        "troll-male-01"
+      ],
+      "lighting": "directional",
+      "receiptSha256": "be34aab701504bcb7fc298926d0720d7634cb2292aa966c846b580ac715b3b68",
+      "module": {
+        "name": "srn_head_pilot.mod",
+        "sha256": "e263f4de99a5c1e35e27a8c4f3edd2caff4cd56895617fef951f5729db8a2537",
+        "bytes": 61529
+      },
+      "haks": [
+        {
+          "name": "srn_head.hak",
+          "sha256": "3a42d3942913246c47e0463af86e7d193e4276b33fb0f5865bcd0c676c906ab7",
+          "bytes": 28848416
+        },
+        {
+          "name": "srn_body.hak",
+          "sha256": "c34b7a960198b9261dc25d75ad72cb6bca4593f5051c8185f397a1c167e59390",
+          "bytes": 527896815
+        },
+        {
+          "name": "sr_h_fixture.hak",
+          "sha256": "9690a1269d01cb1578fdf95e7d04d359e07840de9178cdc84c80ece78ce05c5d",
+          "bytes": 132116
+        }
+      ],
+      "actorCount": 11,
+      "candidatePayloadVerified": true,
+      "bodyPayloadVerified": true,
+      "bodyResourceCount": 73,
+      "scriptsCompiled": true,
+      "visualScale": 1.4285714285714286,
+      "clientObserved": false
+    }
+  ],
+  "clientValidated": false,
+  "productionAccepted": false,
+  "productionResourcesPublished": 0,
+  "compactEvidenceReceiptSha256": "db92f3e20c0c968ef72498aaa122dcd57225da21c80ee4ee691f06295694a9e5",
+  "migrationSha256": "1d9a4e1f35cdac3ba0791b0f071cfbf8081219ba52fc700957a82e78dd00416c",
+  "humanBodyRevalidatedAgainstDerivedBranch": true,
+  "derivedMaleBodies": {
+    "sourceBranch": "codex/derived-phenotypes",
+    "commit": "be6391b437332eeae64ca3df54e952c9749a288d",
+    "availableRaces": [
+      "human",
+      "elf",
+      "dwarf",
+      "orc",
+      "troll"
+    ],
+    "existingMalePilots": [
+      "human-male-01",
+      "human-male-02",
+      "troll-male-01"
+    ],
+    "remainingFemaleDonor": "elf-female-01"
+  },
+  "troll": {
+    "targetContractSha256": "331380741b4235de6758f3235a3359444fbc154b2b58b53d8b5894430c28d5c9",
+    "bodyManifestSha256": "27a401ec8455fb71f226b75cd498140d1cea15cefe052902ffb28ede31243b99",
+    "protectedBodyResources": 44,
+    "bodyResourcesUnchanged": true,
+    "nativeAuditSha256": "42fa201583d776dbceb5197497fcd63eba988d795cba07fcd071aba1a679f292",
+    "triangles": 19000,
+    "motions": 82,
+    "worstSample": 50,
+    "maximumNeckDisplacementMetres": 0.11156796197794042,
+    "fixtureRigAuditSha256": "93e5e5ad87d6b5d112f4c7f98abdbaf5f655558f3b99622f27c4f420d80a9171",
+    "maximumRigFrameError": 2.472328772998991E-07,
+    "runtimeScale": 1.4285714285714286,
+    "clientValidated": false,
+    "productionAccepted": false
+  },
+  "derivedCompletionReceiptSha256": "0f0f22c74123620626acd18fa2fe18d5de87414ce40388140d85866a30ce8fa8",
+  "derivedCompactEvidenceReceipts": {
+    "motion": "4326282224f5444963986f2092685a4de88d8acae64e39c2bc00bbe232e10fb6",
+    "material": "173c9a48ada0873f7454e8f0f15b4c0220de8893e1bb8f49855c5f39196816d0"
+  },
+  "maleExpansion": {
+    "elf": {
+      "model": "pme0_head019",
+      "triangles": 19000,
+      "bodyRevision": "a90fe4d8fcec692763db8b745f9792f95422cc33cf66899f21c1b18d0b0d961e",
+      "protectedResources": 44,
+      "nativeAuditSha256": "e88de125ee47ec03fae47e114e522920aa4914304ef322452ab9e7c08e1a4391",
+      "nativeGateSha256": "fc6cb048933d178657006582a81ed0074c748d3ccfe826a29baea6b6c73bdc38",
+      "neckCapTriangles": 4,
+      "framesReviewed": 30,
+      "motionFamilies": [
+        "idle",
+        "talk",
+        "walk",
+        "run",
+        "cast",
+        "combat",
+        "crouch",
+        "kneel",
+        "death"
+      ],
+      "clientValidated": false,
+      "productionAccepted": false,
+      "fixtures": [
+        {
+          "lighting": "ambient",
+          "receiptSha256": "a96fc9860ba83506f9bce78ed8baf2d90a604f58ac75fec31e6a30cbb4b4b921",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "2abd55d4b085573873e6bac183bb8e3c85ac895c0fde4168c4790b95a2605c18",
+              "bytes": 19320186
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "dd72031144f35427b89bd600c089b4ce2691a4460b68f51d667355c98704250c",
+              "bytes": 527896755
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        },
+        {
+          "lighting": "directional",
+          "receiptSha256": "3c17c16e32a4afb21ff4bb4237f1711e4ca6bbf87328e63ab70e283265ed9e56",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "2abd55d4b085573873e6bac183bb8e3c85ac895c0fde4168c4790b95a2605c18",
+              "bytes": 19320186
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "dd72031144f35427b89bd600c089b4ce2691a4460b68f51d667355c98704250c",
+              "bytes": 527896755
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        }
+      ],
+      "renderTimings": [
+        {
+          "variant": "light",
+          "threads": 4,
+          "seconds": 16.093999999997322,
+          "frames": 15
+        },
+        {
+          "variant": "dark",
+          "threads": 4,
+          "seconds": 16.062999999994645,
+          "frames": 15
+        }
+      ]
+    },
+    "dwarf": {
+      "model": "pmd0_head014",
+      "triangles": 19000,
+      "bodyRevision": "baefd1576f61a74428d8c2700ebddba19b2a85718bdd8236eafa03246b318bc7",
+      "protectedResources": 44,
+      "nativeAuditSha256": "d3744a35e6b55f41eb4e30bd4cd4ed27951784673c1fa1e691295a1458112e5a",
+      "nativeGateSha256": "1c1e50395d07d50bd71c0e1a1e2c910ebe23ae8eb5074dc8cd9b1400002e7813",
+      "neckCapTriangles": 2,
+      "framesReviewed": 30,
+      "motionFamilies": [
+        "idle",
+        "talk",
+        "walk",
+        "run",
+        "cast",
+        "combat",
+        "crouch",
+        "kneel",
+        "death"
+      ],
+      "clientValidated": false,
+      "productionAccepted": false,
+      "fixtures": [
+        {
+          "lighting": "ambient",
+          "receiptSha256": "d9b24bc2071c3ac259d0f2f017a88dc077b83f0eae84f97ad4d2754ddbdc2462",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "1f06dbb4a613dff7fa411825ea67c18e38adcfcf7f017de3850587be4d0a9122",
+              "bytes": 19377210
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "f59f1a05d4a869c988163f989f8f1553795afe68109ea79e6558da4b797dc063",
+              "bytes": 527923299
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        },
+        {
+          "lighting": "directional",
+          "receiptSha256": "5f513d865c66d337bc4b14985ea883fc2e09b012db202968655826e24cc4aad7",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "1f06dbb4a613dff7fa411825ea67c18e38adcfcf7f017de3850587be4d0a9122",
+              "bytes": 19377210
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "f59f1a05d4a869c988163f989f8f1553795afe68109ea79e6558da4b797dc063",
+              "bytes": 527923299
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        }
+      ],
+      "renderTimings": [
+        {
+          "variant": "light",
+          "threads": 4,
+          "seconds": 15.75,
+          "frames": 15
+        },
+        {
+          "variant": "dark",
+          "threads": 4,
+          "seconds": 16.60899999999674,
+          "frames": 15
+        }
+      ]
+    },
+    "orc": {
+      "model": "pmo0_head014",
+      "triangles": 19000,
+      "bodyRevision": "c45487ad1980c001fb7d634554f32354eb7746b0d7e586fba4ea4162ad123323",
+      "protectedResources": 44,
+      "nativeAuditSha256": "cebec75820008e724001d6d0e49d956d54601aa9133d29288317fca836b54fad",
+      "nativeGateSha256": "30a4c72c0c4a58cf216bbb04b41bb7bb93aaa581adcf6a479d6424c4107d1612",
+      "neckCapTriangles": 182,
+      "framesReviewed": 30,
+      "motionFamilies": [
+        "idle",
+        "talk",
+        "walk",
+        "run",
+        "cast",
+        "combat",
+        "crouch",
+        "kneel",
+        "death"
+      ],
+      "clientValidated": false,
+      "productionAccepted": false,
+      "fixtures": [
+        {
+          "lighting": "ambient",
+          "receiptSha256": "c6073fdde32b496389e2e294cf4c0942dd1bdd28fa83ca4bfb7d45aa2c977399",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "d9ce1bc94aee7951c618b9f9dd2d6e8bb7ff1eaa6f8ee98cf6ff7c1bc87c4b90",
+              "bytes": 29096336
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "d322c8bcfd9e536f786f61b1d64b27a649adb5267159c06798f0054b55028e97",
+              "bytes": 527896755
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        },
+        {
+          "lighting": "directional",
+          "receiptSha256": "9c3378fbfceb85d33a9090737e278c78a191ea29d77e43dc95a3a37b330aaa0d",
+          "actors": 11,
+          "haks": [
+            {
+              "name": "srn_head.hak",
+              "sha256": "d9ce1bc94aee7951c618b9f9dd2d6e8bb7ff1eaa6f8ee98cf6ff7c1bc87c4b90",
+              "bytes": 29096336
+            },
+            {
+              "name": "srn_body.hak",
+              "sha256": "d322c8bcfd9e536f786f61b1d64b27a649adb5267159c06798f0054b55028e97",
+              "bytes": 527896755
+            },
+            {
+              "name": "sr_h_fixture.hak",
+              "sha256": "42c8c8a52f9922d0a15e8c1e66e516f84a8c7e948ff946753997af8c2152d340",
+              "bytes": 132116
+            }
+          ],
+          "candidatePayloadVerified": true,
+          "bodyPayloadVerified": true,
+          "clientObserved": false
+        }
+      ],
+      "renderTimings": [
+        {
+          "variant": "light",
+          "threads": 4,
+          "seconds": 15.85899999999674,
+          "frames": 15
+        },
+        {
+          "variant": "dark",
+          "threads": 4,
+          "seconds": 16.187999999994645,
+          "frames": 15
+        }
+      ]
+    }
+  },
+  "nativeGateReceiptSha256": "91d5f1862db314e34cc4f0c9176cb322446977540d0a2ccc4cc2dabf5764ca1e",
+  "resumeLedgerSha256": "146554cc760c7dfd02dc3c508b7a93ee1d27940f1522b1e5c68be024e101a688",
+  "gallery": {
+    "validation": "test-modules/srn_gallery/validation.json",
+    "validationSha256": "872dfbc803799ac46fbd2037721680302e6b4849fda8ffe33e28634e79a704a4",
+    "moduleSha256": "3de44311feef3f648a234e5a50b02c31d0a55a59910062fe4951f12714a84b97",
+    "inspectionHakSha256": "818fcdfa85e870ebe54f9ef026749a10c400f4aa814c57604dbc2b8eff144992",
+    "clientObserved": true,
+    "productionAccepted": false,
+    "clientValidationScope": "Startup, NPC spawning, Clothing 1 equipment and gallery usability only"
+  },
+  "integration": {
+    "mainCommit": "727b14e2e94e117b245eec8f3393c73a5ad0a48d",
+    "helperTestsPassed": 297,
+    "headTests": 36,
+    "phenotypeTests": 233,
+    "galleryTests": 9,
+    "sharedTests": 15,
+    "cleanCheckoutTests": 1,
+    "testImpactTests": 3,
+    "headLogSha256": "99ad22819db38c634cd4b9227da7aa026e8844fbc0f8ccc9e22b065d558adcfa",
+    "phenotypeLogSha256": "352bc0ce023dd5b121c0b04f50550bfe7b9af9855db205ada804af649321664e",
+    "galleryLogSha256": "3d25abc5261bd9eec3f0d6ac791d77fc4f517430df97ad263088e3c215029f97",
+    "sharedLogSha256": "c69ba33db1131414c0963ee16fa45f0ea3a2a986328b2c1267ee5c7e23c4e951",
+    "cleanCheckoutLogSha256": "1934b72a7375918b12ff0156863f8a47e1290cc52c4a428cc95a9d4ba7b69d23",
+    "testImpactLogSha256": "ff0d0dbe9e97f7ce83d30bfb60d23e767643d0c6dcaff36a711af76a43eca06c",
+    "parentFirstRigSerializationRetained": true,
+    "bodyAndHeadResourcesChanged": false,
+    "nativeBuild": "Recorded before tooling integration; exact saved module relaunched successfully",
+    "migration": "Prior build migration is historical; refresh before any new production CLI run"
+  },
+  "reviewFixes": {
+    "helperTestsPassed": 319,
+    "validation": "docs/heads/review-fixes-validation.json",
+    "validationSha256": "ba9a8acdf4c6ef9f66e37d62872953cd5522b7b87aeb564714c259459be53dff"
+  }
+}

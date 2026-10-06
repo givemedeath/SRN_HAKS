@@ -11,7 +11,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from retarget import nodes, transforms
+from retarget import nodes, transforms, geometry
 from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS, validate, require
 
@@ -121,23 +121,10 @@ def emit_ascii_skeleton(model_name: str, supermodel_name: str, skel: dict) -> st
         f"setsupermodel {model_name} {supermodel_name}",
         "classification Character",
         "setanimationscale 1.0",
-        f"beginmodelgeom {model_name}",
-    ]
-    for node_data in skel.values():
-        name = node_data["name"]
-        parent = node_data["parent"]
-        pos = node_data["position"]
-        ori = node_data["orientation"]
-        lines.append(f"node dummy {name}")
-        lines.append(f"  parent {parent}")
-        lines.append(f"  position {pos[0]:.9g} {pos[1]:.9g} {pos[2]:.9g}")
-        lines.append(f"  orientation {ori[0]:.9g} {ori[1]:.9g} {ori[2]:.9g} {ori[3]:.9g}")
-        lines.append("endnode")
-    lines.extend([
-        f"endmodelgeom {model_name}",
+        geometry(model_name, skel, 1),
         f"donemodel {model_name}",
         "",
-    ])
+    ]
     return "\n".join(lines)
 
 
@@ -429,4 +416,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

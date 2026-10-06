@@ -15,6 +15,18 @@ PS=shutil.which('pwsh')
 MODULE=HERE/'SrnTools.psm1'
 
 class SharedToolsTests(unittest.TestCase):
+    def test_launcher_snapshot_registration_avoids_duplicate_input_hashing(self):
+        source=self.repo/'payload.bin';source.write_bytes(b'consumed bytes');digest=sha(source)
+        real_sha=sha
+        with patch('shared_tools.sha',side_effect=real_sha) as hashing:
+            receipt=register_run(self.repo,inputs=[{'path':source,'sha256':digest}],_verified_inputs={str(source.resolve()):digest})
+            self.assertFalse(any(Path(call.args[0]).resolve()==source.resolve() for call in hashing.call_args_list))
+        self.assertEqual(read_json(receipt)['references'][0]['sha256'],digest)
+        with self.assertRaisesRegex(ValueError,'changed'):
+            register_run(self.repo,inputs=[{'path':source,'sha256':'0'*64}],_verified_inputs={str(source.resolve()):digest})
+        source.write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError,'changed'):
+            register_run(self.repo,inputs=[{'path':source,'sha256':digest}])
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory(); self.base=Path(self.tmp.name).resolve()
         self.repo=self.base/'primary space';self.repo.mkdir()

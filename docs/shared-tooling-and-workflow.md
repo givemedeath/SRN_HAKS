@@ -8,6 +8,20 @@ animations, or client rendering.
 
 ## Tool resolution
 
+Large jobs may declare consumed file paths with `launch_shared_tool.py
+--input-path-list <json>` instead of generating a separate SHA manifest. The
+launcher freezes every declared file's actual SHA before dispatch and verifies
+the complete snapshot after execution. Existing `--input-manifest` calls still
+reject stale expected hashes. A manifest hash already verified in this launch is
+reused when freezing; dependency registration uses that same synchronous snapshot.
+Other registration callers continue to perform independent byte checks.
+
+The launcher supplies `SRN_VERIFIED_INPUTS` to the child for bookkeeping. The
+gallery checks binding pins against that declared snapshot and reads native HAK
+payloads independently. A failed post-execution verification prevents the wrapper
+from publishing delivery copies. This is per-launch reuse, not a persistent cache
+that trusts timestamps or bypasses stale-input checks.
+
 Both `tools/SrnTools.psm1` and `tools/shared_tools.py` read
 `tools/shared-tools.lock.json`. They return path, version, SHA256, installation
 origin, selected root, root origin and inventory hash. Root precedence is explicit
@@ -104,12 +118,32 @@ Legacy NWN model text keeps CP1252 where declared.
 
 New launch records freeze helper/configuration/input bytes before dispatch,
 preserve logs and record actual binary hashes, selected root and inventory hash.
+Large input sets may use `--input-manifest <file>`: a nonempty JSON array of
+individual `path`/`sha256` pins. The launcher verifies each file before dispatch,
+freezes the manifest itself, and registers/verifies every enumerated file after
+execution. This avoids Windows command-line length limits without treating a
+directory as a complete input declaration.
 Mid-run changes invalidate the result even if the subprocess exits successfully;
 the rejected launch still retains its original pins and failure reason. Addon
 source files are registered as consumed inputs. Historical schema1 configurations
 remain readable; new launches also enforce the portable Armory/addon pins.
 
 ## Dependency declarations and retirement
+
+### Head-only migration
+
+The rigid head workflow does not transform equipment with Armory. It may use
+`tools/heads/finalize_head_migration.py` with fresh `python-smoke` and
+`blender-smoke` launcher directories and `blender-import.json`. Run
+`smoke_head_tools.py` through the Python launcher and the existing
+`smoke_shared_blender_import.py` through the isolated Blender launcher, each
+using `--migration-smoke` and explicit consumed inputs. The finalizer checks
+actual bundled-Python execution, a real stock import, pinned addon origins,
+launch logs, source preservation and helper bytes. It freezes all smoke files.
+
+This scoped receipt permits Python and Blender only. Armory launches reject it
+and still require the full equipment migration above. It does not approve
+fitting, native resources, equipment compatibility or client rendering.
 
 Automatic registrations write fresh local receipts under
 `.tmp/tool-dependencies` and a consumer record under the shared root's

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "race": "orc",
+  "sex": "male",
+  "prefix": "pmo0",
+  "phenotype": 0,
+  "bodyRevision": "c45487ad1980c001fb7d634554f32354eb7746b0d7e586fba4ea4162ad123323",
+  "headBindMatrix": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      -0.031517399999999994
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      1.893071794
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "cranialEnvelope": [
+    [
+      -0.145,
+      -0.14,
+      -0.095
+    ],
+    [
+      0.145,
+      0.18,
+      0.23
+    ]
+  ],
+  "landmarkTolerance": 0.035,
+  "approved": true,
+  "runtimeScale": 1.0857142857142856,
+  "reviewScope": "User-selected male body; working fit envelope. Standing, worst motion and broader review required before maps; client acceptance remains separate.",
+  "kind": "srn-head-portable-target",
+  "sourceContractSha256": "861308dc65654e7d757344d54953c67b88cc298b54bad1f9c65234f1dc6e49c6",
+  "coordinateSpace": "derived working frame; fixture visual scale applied separately",
+  "bodyManifest": {
+    "path": "derived-bank/orc-male/body.json",
+    "sha256": "c45487ad1980c001fb7d634554f32354eb7746b0d7e586fba4ea4162ad123323"
+  },
+  "rig": {
+    "path": "derived-bank/orc-male/ascii/pmo0.mdl",
+    "sha256": "9d7656914d57d422c1d8803ff42a8f5392d789444278911e3d60b5941ed1d7c6"
+  },
+  "neckGeometry": {
+    "path": "stock/ascii/pmo0_neck001.mdl",
+    "sha256": "170806421aab492d0c3ea63417d5c6a043394d9e061418a074aa349bfe49ce74"
+  },
+  "measurementOrigin": {
+    "path": "stock/ascii/pmh0_head001.mdl",
+    "sha256": "f6dbf4d99cb8a6e886ab381e1e8af7ec3552cb7d5614d9df335b59b62b832676"
+  },
+  "derivedContract": {
+    "path": "tools/phenotypes/configurations/derived/target-orc-male-fit.json",
+    "sha256": "cd22c01fe39de8b053e6448967ddbb782f30d5b79d1bccb669b6568fa13efa1e"
+  },
+  "palettes": [
+    {
+      "path": "stock/raw/pal_skin01.tga",
+      "sha256": "78ba81891b576c213390b01c04ed157fed7b9a21f5e67ca1eabb0c830f3ea86c"
+    },
+    {
+      "path": "stock/raw/pal_hair01.tga",
+      "sha256": "1ebf3fb816efe7367afc012de2dc95876fc0f0ae97b78a0eb9db01772f619eda"
+    }
+  ],
+  "animations": [
+    {
+      "path": "derived-bank/orc-male/ascii/a_ba_casts.mdl",
+      "sha256": "5b5523cbc6cdab1a5fadbdfac402700e7decbbf0c93aa9a67929dd61931ac91c"
+    },
+    {
+      "path": "derived-bank/orc-male/ascii/a_ba_custom.mdl",
+      "sha256": "c29d502d2b9fc830ba90302236fb2247d999dd6c851437e370fc21a936fd23c4"
+    },
+    {
+      "path": "derived-bank/orc-male/ascii/a_ba_med_weap.mdl",
+      "sha256": "4b3a823c7b9c2ee35f3e0a948a914569c40a5a36b66d88d42ef782ceebd83777"
+    },
+    {
+      "path": "derived-bank/orc-male/ascii/a_ba_non_combat.mdl",
+      "sha256": "e01a07908d1044187d172daf23b9a94811cc18f1315065b3a0394dc037664cd7"
+    },
+    {
+      "path": "derived-bank/orc-male/ascii/a_ba.mdl",
+      "sha256": "34b9b69e1cbe8e41bd836b38ffabd99ece11438849c5b512f48501ac12815d8c"
+    },
+    {
+      "path": "derived-bank/orc-male/ascii/a_ba2.mdl",
+      "sha256": "c34c573d3fcbc964243811231b63ed152f2426ec423f4a499d05b6c91f79c173"
+    },
+    {
+      "path": "derived-bank/orc-male/ascii/pmo0.mdl",
+      "sha256": "9d7656914d57d422c1d8803ff42a8f5392d789444278911e3d60b5941ed1d7c6"
+    }
+  ],
+  "envelopeRevisionNote": "Working cranial envelope only: retain the full beard/jaw below the previous draft bound. Body, neck, rig, attachment frame and fit matrix unchanged. Production/client review pending."
+}
