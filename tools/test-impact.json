@@ -577,6 +577,9 @@
     "tools/robes/meshy_robe.py": [
       "tools/robes/robe_common.py"
     ],
+    "tools/robes/package_trial.py": [
+      "tools/robes/robe_common.py"
+    ],
     "tools/robes/prepare_materials.py": [
       "tools/robes/robe_common.py"
     ],
@@ -597,6 +600,10 @@
       "tools/robes/robe_common.py"
     ],
     "tools/robes/robe_common.py": [],
+    "tools/robes/robe_node_variant.py": [
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
     "tools/robes/robe_weights.py": [],
     "tools/robes/run_robe_migration.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
@@ -632,8 +639,10 @@
       "tools/robes/build_robe_model.py",
       "tools/robes/fit_math.py",
       "tools/robes/mdl_ascii.py",
+      "tools/robes/package_trial.py",
       "tools/robes/prepare_materials.py",
       "tools/robes/prepare_reference.py",
+      "tools/robes/robe_node_variant.py",
       "tools/robes/test_robe_core.py"
     ],
     "tools/robes/test_robe_pipeline.py": [
