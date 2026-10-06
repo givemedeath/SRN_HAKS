@@ -93,6 +93,9 @@ class FixtureTests(unittest.TestCase):
             columns, rows = read_2da(path)
             self.assertEqual(columns, ["ACBONUS", "HIDECHEST"])
             self.assertEqual(rows[11], {"ACBONUS": "****", "HIDECHEST": "0"})
+            body = [line.split() for line in path.read_text().splitlines()[3:]]
+            self.assertEqual([int(line[0]) for line in body], list(range(12)))  # engine reads rows by position
+            self.assertEqual(rows[5], {"ACBONUS": "****", "HIDECHEST": "****"})
 
     def test_rename_keeps_bitmaps(self):
         with tempfile.TemporaryDirectory() as folder:

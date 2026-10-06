@@ -43,8 +43,9 @@ def structure(kind, **values):
 def write_2da(path, columns, rows):
     widths = [max(len(c), 4) + 2 for c in columns]
     lines = ["2DA V2.0", "", "    " + "".join(c.ljust(w) for c, w in zip(columns, widths))]
-    for index in sorted(rows):
-        values = [str(rows[index].get(c, "****")) for c in columns]
+    # The engine indexes 2DA rows by position, not label: gaps are padded with empty rows so labels stay true.
+    for index in range(max(rows) + 1):
+        values = [str(rows.get(index, {}).get(c, "****")) for c in columns]
         lines.append(str(index).ljust(4) + "".join(v.ljust(w) for v, w in zip(values, widths)))
     path.write_text("\n".join(lines) + "\n", encoding="ascii")
 
