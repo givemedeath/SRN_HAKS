@@ -49,6 +49,21 @@ class ModelBuildTests(unittest.TestCase):
             matrix = rotations(np.r_[axis, angle])
             np.testing.assert_allclose(rotations(axis_angle(matrix)), matrix, atol=1e-9)
 
+    def test_node_variant_swaps_placeholders_and_adds_stock_nodes(self):
+        from robe_node_variant import variant
+        stock = mdl_ascii.parse(SKIN_MODEL.replace("node skin cloth", "node dummy hand\n  parent upper\n  position 0.0 0.0 -0.4\n"
+                                                   "  orientation 0.0 0.0 0.0 0.0\nendnode\nnode skin cloth", 1))
+        model = variant(mdl_ascii.parse(SKIN_MODEL), "probe2", "trimesh", ["hand"], stock, rename_bitmaps=False)
+        kinds = {n.key: n.kind for n in model.nodes}
+        self.assertEqual(kinds, {"probe2": "dummy", "rootdummy": "trimesh", "upper": "trimesh", "hand": "trimesh",
+                                 "cloth": "skin"})
+        reparsed = mdl_ascii.parse(mdl_ascii.dumps(model))
+        self.assertEqual(reparsed.node("upper").get("render"), "0")
+        np.testing.assert_allclose(mdl_ascii.bind_frames(reparsed)["hand"], mdl_ascii.bind_frames(stock)["hand"])
+        self.assertEqual(reparsed.node("cloth").parent, "probe2")
+        back = variant(reparsed, "probe3", "dummy", [], None, rename_bitmaps=False)
+        self.assertEqual({n.kind for n in back.nodes if n.key != "cloth"}, {"dummy"})
+
     def test_node_reindexes_vertices_and_deduplicates_uvs(self):
         verts = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [9, 9, 9]], float)
         faces = np.array([[0, 1, 2]])

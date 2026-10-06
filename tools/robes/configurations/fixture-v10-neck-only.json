@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-fixture",
+  "title": "SRN Robe Trial v10 neck only",
+  "module": "srn_rtv10m",
+  "hak": "srn_rtv10m",
+  "area": "sr_rt_floor",
+  "partsRobe": "stock/raw/parts_robe.2da",
+  "templates": {
+    "creature": "nw_humanmerc001",
+    "armor": "nw_cloth001"
+  },
+  "rows": {
+    "48": {
+      "resref": "pmh0_robe048",
+      "sourceName": "pmh0_robe048",
+      "model": "workwear/corrected-v10/runtime-20k-aposerest-neck/export/exported/pmh0_robe048.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    }
+  },
+  "resources": [
+    "workwear/materials-skin-v2/ww11a.tga",
+    "workwear/materials-skin-v2/ww11an.tga",
+    "workwear/materials-skin-v2/ww11ar.tga",
+    "workwear/materials-skin-v2/ww11a.mtr",
+    "workwear/corrected-v10/runtime-20k-aposerest-neck/model/pmh0_robe048.plt"
+  ],
+  "rowLabels": {
+    "4": "Stock robe 004",
+    "10": "Control robe 004 round-trip",
+    "11": "Workwear auto-v1",
+    "12": "Workwear corrected-v1",
+    "17": "Workwear corrected-v2",
+    "18": "Workwear corrected-v2 runtime 8k",
+    "19": "Workwear corrected-v2 runtime 20k",
+    "35": "Workwear corrected-v3 runtime 20k",
+    "40": "v7 with A-pose robe skeleton",
+    "41": "Workwear corrected-v7 20k",
+    "44": "v9 arms-down rest",
+    "45": "v9 A-pose rest",
+    "46": "v10 A-pose rest",
+    "48": "v10 20k, no robe neck_g"
+  },
+  "actors": [
+    {
+      "label": "Stock robe 004",
+      "row": 4,
+      "skin": 3
+    },
+    {
+      "label": "v10 no neck_g A",
+      "row": 48,
+      "skin": 3
+    },
+    {
+      "label": "v10 no neck_g B",
+      "row": 48,
+      "skin": 3
+    },
+    {
+      "label": "v10 no neck_g dark",
+      "row": 48,
+      "skin": 9
+    }
+  ],
+  "purpose": "Neck check with only row 48 (no robe neck_g) workwear actors.",
+  "entry": [
+    8.35,
+    16.2
+  ]
+}
