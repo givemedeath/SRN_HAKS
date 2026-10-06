@@ -912,6 +912,15 @@ def main():
                "modelMode":"ascii" if args.ascii_models or args.texture_mode=="rgb" else "native-binary",
                "motionTests":args.motion_tests, "heldPose":args.pose,
                "equipmentChestProof":bool(args.equipment_template),"specimenCount":len(creatures),"engineObserved": False}
+    receipt["fixtureControls"] = []
+    for record in records:
+        if record.get("fixtureControl"):
+            converted = root / record["slug"] / "converted"
+            conversion_path = converted / "conversion.json"
+            control = json.loads(conversion_path.read_text(encoding="utf-8"))
+            receipt["fixtureControls"].append({"slug": record["slug"], "appearance": record["appearance"],
+                "modelPrefix": control["modelPrefix"], "conversionSha256": digest(conversion_path),
+                **{key: control.get(key) for key in ("sourceRace", "sourcePrefix", "sourceAppearance", "controlTargetRace")}})
     receipt["fullEquipmentProof"]=bool(args.full_equipment_template)
     receipt['stockEquipmentProof']=stock_armor_proof if args.full_equipment_template else None
     receipt["actorNames"]=[c["FirstName"]["value"]["0"] for c in creatures]

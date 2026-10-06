@@ -65,9 +65,9 @@ graph TD
 
 ### Gate 3: Equipment Compatibility Audit
 - Inventory available stock equipment models for target race via `tools/phenotypes/derived_equipment.py`.
-- Audit 440 stock models across 18 armor slots for attachment frame alignment.
+- The script inventories stock model names, measures target rig attachments, and verifies the derived body connector receipt. It does not load or measure the inventoried armor geometry.
 - Verify weapon locators match stock engine expectations ($0.000\text{ mm}$ tolerance).
-- Record verified status in `equipment-receipt.json`.
+- Record prerequisite evidence in `equipment-receipt.json`, with `complete: false` and stock armor interfaces marked unmeasured. Complete Gate 3 only after separate armor-interface measurements and standing/motion equipment review; the model inventory cannot establish armor fit.
 
 ### Gate 4: Materials & Native Binary Compilation
 - Stage ASCII models, PLTs, diffuse TGAs, and MTR files via `tools/phenotypes/stage_derived_dwarf.py` (or race equivalent).
@@ -195,7 +195,7 @@ $gameInputs = @('--input-tree', $gameRoot)
   -- tools/phenotypes/build_derived_dwarf_fixture.py --game-root $gameRoot --stage output/phenotypes/derived-dwarf-male-v1/test-stage
 
 # 2. Stage stock comparator actor:
-& $python tools/phenotypes/stock_dwarf_control.py --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
+& $python tools/phenotypes/stock_dwarf_control.py --race dwarf --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
 
 # 3. Build test module with launch_shared_tool (bare torso inspection sequence):
 & $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
@@ -243,6 +243,14 @@ and preserve its separate evidence. The runner infers equipment mode from the
 current fixture receipt; omitting `--equipment-target` after the equipment rebuild
 does not restore the torso sequence. Apply this build/run/build/run order to each
 race, using that target's stage paths and `--race`/`--prefix` client arguments.
+Pass the derived target race to `stock_dwarf_control.py --race <race>` and its stage
+to `--output`. Use `stock_elf_male_fit` for Elf, `stock_orc_male_fit` for Orc, and
+`stock_human_male_fit` for Troll's unchanged Human donor baseline in both the
+`--slugs` list and frozen converted-input directory. Each builder stages
+`baseline/full-armor-template.json`. Stock controls preserve the target's patched
+appearance row and retain their own unmodified source-race sizing. The broadened
+Troll needs separately fitted armor resources for the equipment build; its
+modified rig is outside the stock-family `--stock-equipment-fallback` policy.
 
 ---
 

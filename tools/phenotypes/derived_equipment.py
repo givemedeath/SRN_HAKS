@@ -220,7 +220,9 @@ def audit_stock_armor_compatibility(
     require(audit_complete, "Gate 3 equipment compatibility audit failed")
 
     receipt = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
+        "kind": "derived-equipment-prerequisite-evidence",
+        "evidenceScope": "installed-model-presence, target-rig-frames, derived-body-connectors",
         "target": target_config.get("id", f"{race}-male-fit"),
         "prefix": prefix,
         "race": race,
@@ -231,11 +233,17 @@ def audit_stock_armor_compatibility(
         "totalInstalledModels": inventory_result["totalModelsFound"],
         "handDummies": dummies_result,
         "connectorCompatibility": {
-            "policy": f"stock-family attachment: stock armor pieces mount directly to {prefix} bone frames",
-            "stockConnectorSurfacesPreserved": surfaces_preserved,
-            "measuredOverlapStatus": overlap_status
+            "policy": "Stock armor interfaces require separate geometry measurements and client review",
+            "derivedBodyConnectorSurfacesPassed": surfaces_preserved,
+            "derivedBodyOverlapStatus": overlap_status,
+            "stockConnectorSurfacesPreserved": None,
+            "measuredOverlapStatus": "not-measured-stock-armor"
         },
-        "complete": audit_complete
+        "prerequisiteChecksPassed": audit_complete,
+        "stockArmorGeometryVerified": False,
+        "clientEquipmentFitAccepted": False,
+        "status": "requires-stock-armor-interface-and-client-review",
+        "complete": False
     }
 
     for meta in dummies_result.values():

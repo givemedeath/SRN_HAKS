@@ -51,6 +51,8 @@ def stage_baseline(stage_dir: Path, temp_userdir: Path, game_root: Path | None =
     shutil.copyfile(temp_json, baseline_dir / "human-template.json")
     temp_utc.unlink(missing_ok=True)
     temp_json.unlink(missing_ok=True)
+    from build_derived_dwarf_fixture import stage_armor_template
+    stage_armor_template(baseline_dir, stage_dir, temp_userdir, root)
     print("Baseline fixture resources staged successfully.")
 
 

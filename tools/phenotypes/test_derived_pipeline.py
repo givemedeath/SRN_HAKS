@@ -713,8 +713,11 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
             }), encoding="utf-8")
 
             res = audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
-            self.assertTrue(res["complete"])
-            self.assertEqual(res["connectorCompatibility"]["measuredOverlapStatus"], "verified-positive")
+            self.assertFalse(res["complete"])
+            self.assertTrue(res["prerequisiteChecksPassed"])
+            self.assertFalse(res["stockArmorGeometryVerified"])
+            self.assertIsNone(res["connectorCompatibility"]["stockConnectorSurfacesPreserved"])
+            self.assertEqual(res["connectorCompatibility"]["measuredOverlapStatus"], "not-measured-stock-armor")
 
     @patch("derived_equipment.inventory_installed_styles")
     @patch("derived_equipment.audit_hand_dummies")

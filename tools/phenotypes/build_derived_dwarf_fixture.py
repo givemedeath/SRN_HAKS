@@ -52,12 +52,18 @@ def stage_baseline(stage_dir: Path, temp_userdir: Path, game_root: Path | None =
     temp_utc.unlink(missing_ok=True)
     temp_json.unlink(missing_ok=True)
 
-    # 4. full-armor-template.json (representative full-equipment fixture template)
+    stage_armor_template(baseline_dir, stage_dir, temp_userdir, root)
+    print("Baseline fixture resources staged successfully.")
+
+
+def stage_armor_template(baseline_dir: Path, stage_dir: Path, temp_userdir: Path, root: Path):
+    """Stage the durable armor item template, or extract its stock game source."""
     armor_template_target = baseline_dir / "full-armor-template.json"
     durable_armor = REPO / "tools/phenotypes/references/fixtures/full_armor_template.json"
     if durable_armor.is_file():
         shutil.copyfile(durable_armor, armor_template_target)
     else:
+        gff_tool = resolve_tool("gff", repo=REPO)["path"]
         raw_uti = run_tool("resman_cat", ["--root", str(root), "--userdirectory", str(temp_userdir), "--no-ovr", "nw_aarcl001.uti"])
         temp_uti = stage_dir / "temp_armor.uti"
         temp_armor_json = stage_dir / "temp_armor.uti.json"
@@ -66,8 +72,6 @@ def stage_baseline(stage_dir: Path, temp_userdir: Path, game_root: Path | None =
         shutil.copyfile(temp_armor_json, armor_template_target)
         temp_uti.unlink(missing_ok=True)
         temp_armor_json.unlink(missing_ok=True)
-
-    print("Baseline fixture resources staged successfully.")
 
 
 def stage_candidate(stage_dir: Path):

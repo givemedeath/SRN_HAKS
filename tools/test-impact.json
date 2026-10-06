@@ -77,18 +77,21 @@
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/build_derived_elf_fixture.py": [
+      "tools/phenotypes/build_derived_dwarf_fixture.py",
       "tools/phenotypes/configurations/derived/target-elf-male-fit.json",
       "tools/phenotypes/fixture_appearance.py",
       "tools/phenotypes/stock_dwarf_control.py",
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/build_derived_orc_fixture.py": [
+      "tools/phenotypes/build_derived_dwarf_fixture.py",
       "tools/phenotypes/configurations/derived/target-orc-male-fit.json",
       "tools/phenotypes/fixture_appearance.py",
       "tools/phenotypes/stock_dwarf_control.py",
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/build_derived_troll_fixture.py": [
+      "tools/phenotypes/build_derived_dwarf_fixture.py",
       "tools/phenotypes/stock_dwarf_control.py",
       "tools/shared_tools.py"
     ],
@@ -346,7 +349,8 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/preflight_derived_dwarf_client.py": [
-      "tools/phenotypes/run_derived_dwarf_client_test.py"
+      "tools/phenotypes/run_derived_dwarf_client_test.py",
+      "tools/phenotypes/stock_dwarf_control.py"
     ],
     "tools/phenotypes/prepare_effective_body_fixture.py": [
       "tools/phenotypes/effective_body_contract.py",
@@ -562,6 +566,16 @@
       "tools/phenotypes/retarget.py",
       "tools/phenotypes/run_derived_dwarf_client_test.py"
     ],
+    "tools/phenotypes/test_derived_stock_controls.py": [
+      "tools/phenotypes/build_derived_dwarf_fixture.py",
+      "tools/phenotypes/build_derived_elf_fixture.py",
+      "tools/phenotypes/build_derived_orc_fixture.py",
+      "tools/phenotypes/build_derived_troll_fixture.py",
+      "tools/phenotypes/native_compile.py",
+      "tools/phenotypes/preflight_derived_dwarf_client.py",
+      "tools/phenotypes/references/fixtures/full_armor_template.json",
+      "tools/phenotypes/stock_dwarf_control.py"
+    ],
     "tools/phenotypes/test_effective_body_contract.py": [
       "tools/phenotypes/effective_body_contract.py"
     ],
@@ -740,6 +754,7 @@
     "tools/phenotypes/test_complete_body_launcher.py",
     "tools/phenotypes/test_derived_pipeline.py",
     "tools/phenotypes/test_derived_review_fixes.py",
+    "tools/phenotypes/test_derived_stock_controls.py",
     "tools/phenotypes/test_effective_body_contract.py",
     "tools/phenotypes/test_effective_body_costs.py",
     "tools/phenotypes/test_effective_body_preview.py",
