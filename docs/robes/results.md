@@ -1,4 +1,4 @@
-# Meshy robe trial — results (interim, 2026-10-06)
+# Meshy robe trial — results (interim, 2026-10-06, updated after client round 2)
 
 Status: **workwear pilot in progress; long open coat and layered long robe not
 started** (awaiting their reference files and credit cap). No candidate is yet
@@ -12,7 +12,7 @@ claimed usable: none has passed client review. Run root:
 | Neverblender round trip, `pmh0_robe004` (1 skin) and `pmh0_robe020` (5 skins + dangly) | Structure, supermodel, parents and bind frames preserved |
 | Measured loss | positions ≤ 1.03e-5 m, UV ≤ 5e-5, smoothing edges 0, weights ≤ 1e-3, weight sums ≤ 1e-3, sampled LBS ≤ 1.37 mm |
 | Frozen tolerances (`control/tolerances.json`) | position 2.1e-5, UV 1e-4, weight 2e-3, sum 2e-3, deformation 2.74 mm, smoothing 0, ≤ 4 influences, ≤ 17 bones per skin node |
-| Native compile | **Not possible for skinmeshes**: EE `compilemodel` reports "skinmeshes not yet initialized". Stock robes are ASCII; native validation = engine load in the client |
+| Native compile | CLI `compilemodel` rejects skinmeshes ("skinmeshes not yet initialized"). **In-client compile works**: with the robe actors in view, chat `## compileloadedasciimodels` writes binaries to `<userdir>/modelcompiler/`. Stock robes ship ASCII |
 | Client, control robe (row 10) beside stock robe 004 | Loads and animates in the isolated client; side-by-side visual review pending |
 
 Informational export differences: the per-face surface-material column becomes 0,
@@ -28,7 +28,10 @@ pilot cap. Both outputs preserved unchanged; the 1.87M master is kept for bakes.
 |---|---|---|---|---|
 | auto-v1 (row 11) | Automatic pipeline only | **Pass** | Standing: 0.8 % outer verts inside body (stock robe 10.6 %). Raised arms/cast/melee: webbing sheets, up to ~20k edges stretched >1.5× | Loads, animates, weapons attach. **Fails**: left tool pouch/strap follows the left hand (5,011 belt-zone vertices carry forearm/hand weights, from a geodesic segmentation leak) |
 | corrected-v1 (row 12) | Radial relabel of the left-arm leak (2,147 vertices), per-segment bone masks, torso arm-share cap 0.35, softer hanging-item blend | **Pass** | Flagged edges down 20–45 % in every family; webbing sheets gone in renders; standing deepest penetration 2.7 cm | 252 left belt vertices still carry arm weight. Re-equip stall (below) |
-| corrected-v2 (row 17) | Adds belt-zone relabel after operator client observation | pending | pending | pending |
+| corrected-v2 (row 17) | Adds belt-zone relabel after operator client observation | **Pass** | Belt zone carries no forearm/hand weight (0 vertices); worst stretch 19–27× (v1: 90–143×); bent-arms penetration 4.6 cm (v1: 14.2) | Full 99.5k model not run in client (equip stall, below) |
+| v2 runtime 8k / 20k (rows 18 / 19) | Collapse decimation of v2 carrying weights, labels, outer mask, skin faces and UVs (`reduce_runtime.py`) | **Pass** / **Pass** | Silhouette kept; no cross-atlas UV stretch; standing 0.3 / 1.4 cm | Spawn ~4 s, re-equip ~7 s (stock-like). Operator: sleeve sinks at the left elbow (offline: 9 % of the elbow band 3.4 cm inside the arm), read as a belt piece on the elbow |
+| corrected-v3 20k (row 35) | Clearance lattice and weight sampling in the Meshy A-pose (stock body, robe004 and cage posed in by inverse proxy transforms), converted to bind | **Pass** | Worst stretch 14×; bent arms 4.9 cm; no arm weight in hip/leg zone; but bind 10.9 cm (torso cloth inside the hanging stock arms), chest/armpit sink on conversion, sleeves clip the toolbelt (323 sleeve verts >1 cm inside garment torso vs 72 for v2) | Loads, animates; skin PLT tints by skin colour (model-named PLT). **Client-compiled binary** loads with the same timing as ASCII |
+| corrected-v4 20k (row 36) | v3 plus a bind pass moving only torso/belt/leg cloth 12 mm clear of the stock arms | **Pass** | Bind 6.3 cm, walk 6.3 cm (v3 18.5), but idle 14.4, melee 11.5, kneel 10.2 cm; upper-chest sink larger than v3 | Not yet in client |
 
 Inspection of the remeshed input: no floating fragments or duplicate faces; 171
 non-manifold edges; closed shell (no neck, cuff or hem openings; capped collar sits
@@ -38,13 +41,25 @@ prove faces stay hidden in motion). Automatic repairs: seam weld, decimation to
 PLT node; colour-only detection also matched brown leather, so it is restricted to
 forearm/hand segments.
 
-### Client stall
+### Client findings (round 2)
 
-In the isolated client, after the actors' scripted unequip step, the **re-equip**
-of the ~15 MB ASCII candidate robes hung the client (log stops at the first
-candidate re-equip; no engine error). Initial load also blocked the client for
-~40 s. Isolation fixtures (stock-only, single workwear actor) are built; results
-pending. Until resolved, no workwear candidate passes the client equip/unequip gate.
+- **Equip stall = model size.** The 14 MB ASCII export of the 99.5k-triangle robe
+  blocked the client ~2 min at spawn and ~104 s per re-equip (stock robes: ~7 s).
+  The 8k (0.9 MB) and 20k (2.2 MB) runtime copies spawn in ~4 s and re-equip in
+  ~7 s; the 20k client-compiled binary measured the same. First-cycle client-wide
+  pauses (~50 s, stock actors included) did not repeat.
+- **Missing heads were a fixture bug**: the actor template is a static appearance
+  with no head; actors switched to appearance 6 now set `Appearance_Head`.
+- **Skin PLT**: a PLT named `ww11s` on the skin nodes rendered flat grey (with or
+  without its MTR, at 2048 or 512 px). The client tints it once the skin nodes use
+  `bitmap pmh0_robeNNN` and the PLT is `pmh0_robeNNN.plt`, as stock robes do.
+  Skin shades are remapped to the stock robe004 range (98–185).
+- **Bind-pose proximity** (operator rule since 2026-10-06: weight and fit in A-/T-pose):
+  in bind the hands hang on the toolbelt, which caused the original belt-to-hand
+  weights and, in v2, the elbow sink. Moving the work to the A-pose (v3/v4) removes
+  the weight leak but leaves sleeve/belt self-intersection and a chest/armpit sink
+  from the shoulder conversion. Neither is resolved; operator visual review of v2
+  vs v3 (and v4) in the client is pending.
 
 ## Processing time (workwear, automatic path)
 
@@ -67,7 +82,6 @@ therefore optimistic for the workwear; the coat and robe test generalisation.
   robe with acceptable locomotion, but not unattended quality. Fused accessories
   (pouches, straps touching sleeves) break limb segmentation, and arm-raising
   motions need a correction pass. Classify as **needs correction pass**.
-- Runtime budget: 100k-triangle ASCII skin robes stall the client on re-equip in
-  this trial; a reduced runtime LOD is likely required regardless of conversion
-  quality.
+- Runtime budget: keep the Meshy master (≤100k) for bakes and ship a reduced
+  runtime copy; 20k triangles loads and equips like stock. Precompile in-client.
 - Coat and robe classes: no evidence yet.
