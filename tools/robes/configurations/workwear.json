@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-outfit-config",
+  "outfit": "workwear",
+  "garmentClass": "fitted",
+  "description": "Mechanic coverall with harness, tool pouches, rag, gloves and boots; rolled sleeves with bare forearms.",
+  "target": {"prefix": "pmh0", "phenotype": 0, "supermodel": "pmh0"},
+  "source": {
+    "working": "source-bank/workwear/meshy-remesh-a1/model.glb",
+    "master": "source-bank/workwear/meshy-gen-a1/model.glb",
+    "textures": {
+      "baseColor": "source-bank/workwear/meshy-remesh-a1/texture_0_base_color.png",
+      "normal": "source-bank/workwear/meshy-remesh-a1/texture_0_normal.png",
+      "roughness": "source-bank/workwear/meshy-remesh-a1/texture_0_roughness.png",
+      "metallic": "source-bank/workwear/meshy-remesh-a1/texture_0_metallic.png"
+    }
+  },
+  "faceBudget": 100000,
+  "repair": {"decimateToBudget": true, "budgetMargin": 0.995, "removeFloatingFartherThan": 0.01,
+             "removeDuplicateFaces": true, "removeHiddenFaces": false},
+  "orientation": {"sourceFront": "-Y", "targetFront": "+Y", "up": "+Z"},
+  "fit": {
+    "clearance": 0.006,
+    "bodyParts": ["neck", "chest", "pelvis", "bicepl", "bicepr", "forel", "forer", "handl", "handr",
+                  "legl", "legr", "shinl", "shinr", "footl", "footr"],
+    "bodyPartsBasis": "Naked stock volume; shoulder and belt parts are armour accessories and are hidden by the robe.",
+    "latticeCell": 0.02,
+    "latticeSigma": 0.04,
+    "latticeIterations": 30,
+    "latticeFade": 0.1,
+    "scaleLandmarks": ["floor", "crotch", "collarTop"],
+    "blends": {"shoulder": 0.09, "elbow": 0.05, "wrist": 0.03, "knee": 0.05, "ankle": 0.04}
+  },
+  "regions": {
+    "hands": "beyond wrist landmarks",
+    "feet": "below ankle landmarks",
+    "sleeves": "beyond shoulder blend along arm chains",
+    "legs": "below crotch, split by side",
+    "torso": "remainder",
+    "skin": "texture rule inside forearm and hand regions only"
+  },
+  "weights": {
+    "upperDonor": "pmh0_robe004",
+    "skirtDonor": null,
+    "legs": "body-cage",
+    "handsAndFeet": "body-cage",
+    "neck": "body-cage",
+    "smoothingIterations": 8,
+    "prune": 0.01,
+    "hangingBelowCrotch": {"ramp": 0.25, "maximumLegShare": 0.6},
+    "rigidOrnaments": "none-detected-in-fused-shell"
+  },
+  "hide": {"HIDEFOOTR": 1, "HIDEFOOTL": 1, "HIDESHINR": 1, "HIDESHINL": 1, "HIDELEGR": 1, "HIDELEGL": 1,
+           "HIDEPELVIS": 1, "HIDECHEST": 1, "HIDEBELT": 1, "HIDENECK": 0, "HIDEFORER": 1, "HIDEFOREL": 1,
+           "HIDEBICEPR": 1, "HIDEBICEPL": 1, "HIDESHOR": 1, "HIDESHOL": 1, "HIDEHANDR": 1, "HIDEHANDL": 1,
+           "HIDEHEAD": 0},
+  "hideBasis": "Outfit covers everything below the collar including gloves and boots; stock neck and head stay visible above the collar."
+}

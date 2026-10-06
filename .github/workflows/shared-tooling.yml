@@ -50,6 +50,11 @@ jobs:
         run: |
           & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/phenotypes -p 'test_*.py' -v
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Meshy robe trial helper regressions
+        shell: pwsh
+        run: |
+          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/robes -p 'test_*.py' -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Item import regressions
         shell: pwsh
         run: ./tools/Test-ItemImportTools.ps1

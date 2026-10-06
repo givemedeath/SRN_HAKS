@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-trial-allocation",
+  "table": "parts_robe.2da",
+  "basis": "Stock rows 10-19 are empty (all ****) and no pmh0_robe010-019 model is installed or present in any repository pack (checked 2026-10-06). Trial package only; no srn_2da or hakbuilder registration.",
+  "rows": {
+    "10": {"use": "control: Neverblender round-trip of stock pmh0_robe004", "model": "pmh0_robe010"},
+    "11": {"use": "workwear automatic candidate auto-v1", "model": "pmh0_robe011"},
+    "12": {"use": "workwear corrected candidate", "model": "pmh0_robe012"},
+    "13": {"use": "long open coat automatic candidate", "model": "pmh0_robe013"},
+    "14": {"use": "long open coat corrected candidate", "model": "pmh0_robe014"},
+    "15": {"use": "layered long robe automatic candidate", "model": "pmh0_robe015"},
+    "16": {"use": "layered long robe corrected candidate", "model": "pmh0_robe016"},
+    "17": {"use": "workwear corrected candidate v2 (belt-zone relabel after client review)", "model": "pmh0_robe017"}
+  }
+}

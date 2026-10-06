@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-evidence",
+  "items": [
+    {
+      "file": "workwear-auto-v1-g2-a.png",
+      "sha256": "a3aefc4368ca019c9ceddd870d477afc7a3e5d36cd4d45b6e1b40357d7010d74",
+      "bytes": 540098,
+      "sourceSha256": "2bc32a1ddf1b03f23f20cfaa086fb3a284627aeb37d4dc49f1364c63f8e4a100",
+      "caption": "auto-v1 vs stock robe 004, standing to cast (offline LBS)",
+      "clientEvidence": false
+    },
+    {
+      "file": "workwear-auto-v1-g2-b.png",
+      "sha256": "c5afdfd7ae3d65653bee472d0874bba3c590d054a0f4241603932808a1ea4f63",
+      "bytes": 420174,
+      "sourceSha256": "d6a226847d2a027d0d22ef4f7f696ebe10796156fa3d183cda8054e89554f90c",
+      "caption": "auto-v1 vs stock robe 004, raised arms to knockdown (offline LBS)",
+      "clientEvidence": false
+    },
+    {
+      "file": "workwear-corrected-v1-g2.png",
+      "sha256": "0f02d41bccb19e743515ad921bc123ff66198255b36aeeeb6dc2742b6316a524",
+      "bytes": 353951,
+      "sourceSha256": "f2642302d344df9d5ebd3d4ded5655985e2d4dcd2517210f2a690509d86232f9",
+      "caption": "corrected-v1 worst sample per family (offline LBS)",
+      "clientEvidence": false
+    },
+    {
+      "file": "workwear-client-lineup.jpg",
+      "sha256": "dcd87febda35ae61aeef70c0097cf596189b8ae3059029cdd91053583038a5f3",
+      "bytes": 98802,
+      "sourceSha256": "b571c6cd96a7e89452cd86ba48a38df50c5e22d30b0ab333261b874636cf070d",
+      "caption": "isolated client: stock/control robes and workwear actors loaded",
+      "clientEvidence": true
+    },
+    {
+      "file": "workwear-client-weapons.jpg",
+      "sha256": "5133ff612bbe14366908009054d6eb3a9832979eed554eabe2fd5f99f6e07b10",
+      "bytes": 133639,
+      "sourceSha256": "627c05484950c0f087b5e931748690ef86e169a7f1ce2fce6f712dc2aac5dae5",
+      "caption": "isolated client: workwear actors with sword and shield attached",
+      "clientEvidence": true
+    }
+  ]
+}

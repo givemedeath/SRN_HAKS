@@ -1,0 +1,67 @@
+"""Shared hashing, pinning and fresh-write helpers for the Meshy robe trial.
+
+These helpers make no paid requests and grant no visual, native, client or
+production approval. Every robe receipt states those flags explicitly.
+"""
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+TOOLS = Path(__file__).resolve().parents[1]
+REPO = TOOLS.parent
+for entry in (TOOLS, TOOLS / "phenotypes"):
+    if str(entry) not in sys.path:
+        sys.path.insert(0, str(entry))
+
+FLAGS = {"referenceApproved": False, "nativeValidated": False, "clientValidated": False,
+         "productionAccepted": False, "gameClientTesting": False}
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def pin(path):
+    path = Path(path).resolve()
+    return {"path": str(path), "sha256": sha(path)}
+
+
+def verify_pins(pins):
+    for item in pins:
+        require(Path(item["path"]).is_file(), "Pinned input missing: " + item["path"])
+        require(sha(item["path"]) == item["sha256"], "Pinned input changed: " + item["path"])
+
+
+def read(path):
+    return json.loads(Path(path).read_text(encoding="utf-8-sig"))
+
+
+def write_fresh(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("x", encoding="utf-8", newline="\n") as stream:
+        json.dump(data, stream, indent=2)
+        stream.write("\n")
+    return pin(path)
+
+
+def fresh_directory(path):
+    path = Path(path).resolve()
+    require(not path.exists(), "Fresh output directory required: " + str(path))
+    path.mkdir(parents=True)
+    return path
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()

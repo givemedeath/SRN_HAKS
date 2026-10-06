@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-fixture",
+  "title": "SRN Robe Trial",
+  "module": "srn_robetrial",
+  "hak": "srn_robetrial",
+  "area": "sr_rt_floor",
+  "partsRobe": "stock/raw/parts_robe.2da",
+  "templates": {
+    "creature": "nw_humanmerc001",
+    "armor": "nw_cloth001"
+  },
+  "rows": {
+    "10": {
+      "resref": "pmh0_robe010",
+      "sourceName": "pmh0_robe004",
+      "hide": "stock:4",
+      "model": "control/roundtrip-robe004-v1/exported/pmh0_robe004.mdl"
+    },
+    "11": {
+      "resref": "pmh0_robe011",
+      "sourceName": "pmh0_robe011",
+      "model": "workwear/auto-v1/export-v1/exported/pmh0_robe011.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    },
+    "12": {
+      "resref": "pmh0_robe012",
+      "sourceName": "pmh0_robe012",
+      "model": "workwear/corrected-v1/export/exported/pmh0_robe012.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    },
+    "17": {
+      "resref": "pmh0_robe017",
+      "sourceName": "pmh0_robe017",
+      "model": "workwear/corrected-v2/export/exported/pmh0_robe017.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    }
+  },
+  "resources": [
+    "workwear/auto-v1/materials/ww11a.tga",
+    "workwear/auto-v1/materials/ww11an.tga",
+    "workwear/auto-v1/materials/ww11ar.tga",
+    "workwear/auto-v1/materials/ww11a.mtr",
+    "workwear/auto-v1/materials/ww11s.plt",
+    "workwear/auto-v1/materials/ww11s.mtr"
+  ],
+  "rowLabels": {
+    "4": "Stock robe 004",
+    "10": "Control robe 004 round-trip",
+    "11": "Workwear auto-v1",
+    "12": "Workwear corrected-v1",
+    "17": "Workwear corrected-v2"
+  },
+  "actors": [
+    {
+      "label": "Stock robe 004",
+      "row": 4,
+      "skin": 3
+    },
+    {
+      "label": "Control round-trip 010",
+      "row": 10,
+      "skin": 3
+    },
+    {
+      "label": "Workwear auto-v1",
+      "row": 11,
+      "skin": 3
+    },
+    {
+      "label": "Workwear corrected-v1",
+      "row": 12,
+      "skin": 3
+    },
+    {
+      "label": "Corrected-v1 dark skin",
+      "row": 12,
+      "skin": 9
+    },
+    {
+      "label": "Corrected-v1 sword+shield",
+      "row": 12,
+      "skin": 3,
+      "weapons": [
+        "nw_wswls001",
+        "nw_ashlw001"
+      ]
+    },
+    {
+      "label": "Corrected-v1 greatsword",
+      "row": 12,
+      "skin": 3,
+      "weapons": [
+        "nw_wswgs001"
+      ]
+    },
+    {
+      "label": "Auto-v1 sword+shield",
+      "row": 11,
+      "skin": 3,
+      "weapons": [
+        "nw_wswls001",
+        "nw_ashlw001"
+      ]
+    },
+    {
+      "label": "Workwear corrected-v2",
+      "row": 17,
+      "skin": 3
+    },
+    {
+      "label": "Corrected-v2 sword+shield",
+      "row": 17,
+      "skin": 3,
+      "weapons": [
+        "nw_wswls001",
+        "nw_ashlw001"
+      ]
+    }
+  ]
+}

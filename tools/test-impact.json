@@ -182,7 +182,8 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/pack_purpose_built_cap_atlas.py": [
-      "tools/phenotypes/round_generated_waist_cap.py"
+      "tools/phenotypes/round_generated_waist_cap.py",
+      "tools/robes/configurations/allocation.json"
     ],
     "tools/phenotypes/pipeline.py": [
       "tools/phenotypes/height_targets.json"
@@ -497,6 +498,146 @@
     "tools/phenotypes/verify_published_body.py": [
       "tools/phenotypes/audit_pelvis_package.py"
     ],
+    "tools/robes/blender_roundtrip.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/build_robe_fixture.py": [
+      "tools/phenotypes/tool_runtime.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/build_robe_model.py": [
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/compare_skin_models.py": [
+      "tools/robes/lbs.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/contact_sheet.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/deformation_review.py": [
+      "tools/robes/lbs.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/extract_stock_robes.py": [
+      "tools/phenotypes/tool_runtime.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/finalize_robe_migration.py": [
+      "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/comfy_nodes/srn_orthographic_multiview/__init__.py",
+      "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/fit_math.py": [
+      "tools/robes/mesh_ops.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/fit_outfit.py": [
+      "tools/robes/fit_math.py",
+      "tools/robes/mesh_ops.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/freeze_tolerances.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/inspect_source.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/inventory_stock_robes.py": [
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py"
+    ],
+    "tools/robes/lbs.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/rig_pose_audit.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/mdl_ascii.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py"
+    ],
+    "tools/robes/mesh_ops.py": [],
+    "tools/robes/meshy_robe.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/prepare_materials.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/prepare_reference.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/render_review.py": [
+      "tools/phenotypes/pose_preview_render_settings.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/repair_source.py": [
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/robe_common.py": [],
+    "tools/robes/robe_weights.py": [],
+    "tools/robes/run_robe_migration.py": [
+      "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/smoke_shared_blender_import.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/robes/extract_stock_robes.py",
+      "tools/robes/finalize_robe_migration.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py",
+      "tools/robes/smoke_robe_tools.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/robes/smoke_robe_tools.py": [
+      "tools/robes/robe_weights.py"
+    ],
+    "tools/robes/stock_body.py": [
+      "tools/robes/mdl_ascii.py"
+    ],
+    "tools/robes/test_robe_core.py": [
+      "tools/robes/lbs.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/mesh_ops.py",
+      "tools/robes/robe_weights.py",
+      "tools/robes/stock_body.py"
+    ],
+    "tools/robes/test_robe_packaging.py": [
+      "tools/robes/build_robe_fixture.py",
+      "tools/robes/build_robe_model.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/prepare_materials.py",
+      "tools/robes/prepare_reference.py",
+      "tools/robes/test_robe_core.py"
+    ],
+    "tools/robes/test_robe_pipeline.py": [
+      "tools/robes/compare_skin_models.py",
+      "tools/robes/fit_math.py",
+      "tools/robes/freeze_tolerances.py",
+      "tools/robes/meshy_robe.py",
+      "tools/robes/robe_common.py"
+    ],
+    "tools/robes/transfer_weights.py": [
+      "tools/robes/fit_math.py",
+      "tools/robes/lbs.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/mesh_ops.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py",
+      "tools/robes/stock_body.py"
+    ],
     "tools/shared_tools.py": [
       "tools/shared-tools.lock.json",
       "tools/toolchain.lock.json"
@@ -565,6 +706,9 @@
     "tools/phenotypes/test_stock_palette_binding.py",
     "tools/phenotypes/test_thigh_proximal_cap.py",
     "tools/phenotypes/test_workflow_infrastructure.py",
+    "tools/robes/test_robe_core.py",
+    "tools/robes/test_robe_packaging.py",
+    "tools/robes/test_robe_pipeline.py",
     "tools/test_clean_checkout.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"

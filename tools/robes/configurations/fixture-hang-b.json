@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-fixture",
+  "title": "Robe hang check B (one workwear)",
+  "module": "srn_rthang_b",
+  "hak": "srn_rthang_b",
+  "area": "sr_rt_floor",
+  "partsRobe": "stock/raw/parts_robe.2da",
+  "templates": {
+    "creature": "nw_humanmerc001",
+    "armor": "nw_cloth001"
+  },
+  "rows": {
+    "12": {
+      "resref": "pmh0_robe012",
+      "sourceName": "pmh0_robe012",
+      "model": "workwear/corrected-v1/export/exported/pmh0_robe012.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    }
+  },
+  "resources": [
+    "workwear/auto-v1/materials/ww11a.tga",
+    "workwear/auto-v1/materials/ww11an.tga",
+    "workwear/auto-v1/materials/ww11ar.tga",
+    "workwear/auto-v1/materials/ww11a.mtr",
+    "workwear/auto-v1/materials/ww11s.plt",
+    "workwear/auto-v1/materials/ww11s.mtr"
+  ],
+  "rowLabels": {
+    "4": "Stock robe 004",
+    "10": "Control robe 004 round-trip",
+    "11": "Workwear auto-v1",
+    "12": "Workwear corrected-v1",
+    "17": "Workwear corrected-v2"
+  },
+  "actors": [
+    {
+      "label": "Workwear corrected-v1",
+      "row": 12,
+      "skin": 3
+    }
+  ],
+  "purpose": "Isolate the client stall observed at the re-equip step of fixture-workwear (2026-10-06)."
+}
