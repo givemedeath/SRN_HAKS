@@ -55,7 +55,8 @@ def measure(reports):
         worst["bindRotation"] = max(worst["bindRotation"], report["maximumBindRotationError"])
         for mesh in report["meshes"]:
             for field, key in (("maximumPositionError", "position"), ("maximumUvError", "uv"),
-                               ("maximumWeightError", "weight"), ("rightMaximumSumDeviation", "weightSum"),
+                               ("maximumWeightError", "weight"), ("maximumReverseWeightError", "weight"),
+                               ("rightMaximumSumDeviation", "weightSum"),
                                ("smoothingEdgeMismatches", "smoothingEdges")):
                 if field in mesh:
                     worst[key] = max(worst[key], mesh[field])

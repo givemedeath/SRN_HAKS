@@ -209,6 +209,20 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(reference_coverage(reference, np.stack([back, other, front])), 0.0)
         # Same face count and centroids, but the back face was duplicated as a front face.
         self.assertGreater(reference_coverage(reference, np.stack([front, front, other])), 1e-3)
+        # Distinct coplanar triangles with one centroid and one normal still need their own corners.
+        first = np.array([[0.0, 0, 0], [3, 0, 0], [0, 3, 0]])
+        second = np.array([[2.0, 0, 0], [2, 3, 0], [-1, 0, 0]])
+        self.assertEqual(reference_coverage(np.stack([first, second]), np.stack([second, first])), 0.0)
+        self.assertGreater(reference_coverage(np.stack([first, second]), np.stack([first, first])), 1e-3)
+
+    def test_reverse_weight_error_needs_both_seam_copies(self):
+        from compare_skin_models import reverse_weight_error
+        reference = np.array([[0.0, 0, 0], [0.0, 0, 0], [1.0, 0, 0]])
+        reference_weights = np.array([[1.0, 0], [0.0, 1], [1.0, 0]])
+        both = np.array([[0.0, 0, 0], [0.0, 0, 0], [1.0, 0, 0]])
+        merged = np.array([[0.0, 0, 0], [1.0, 0, 0]])
+        self.assertEqual(reverse_weight_error(reference, both, reference_weights, reference_weights[[1, 0, 2]], [0, 1, 2]), 0.0)
+        self.assertEqual(reverse_weight_error(reference, merged, reference_weights, reference_weights[[0, 2]], [0, 0, 1]), 1.0)
 
     def test_image_edit_collects_images_and_models_need_glb(self):
         import meshy_robe

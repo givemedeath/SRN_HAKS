@@ -30,17 +30,56 @@ def dense_nearest(reference, query, rows=None, budget=1 << 22):
     return found, distance
 
 
-def oriented_features(triangles, normal_scale=1e-2):
-    """Centroid plus scaled unit winding normal: coincident opposite-winding faces differ by 2 x scale."""
-    normals = np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0])
-    normals /= np.maximum(np.linalg.norm(normals, axis=1), 1e-12)[:, None]
-    return np.c_[triangles.mean(axis=1), normals * normal_scale]
+def neighbour_lists(reference, query, cell=1e-3):
+    """For each query point, the reference rows in its own and the 26 adjacent grid cells (empty when none)."""
+    reference, query = np.asarray(reference, float), np.asarray(query, float)
+    grid = {}
+    for index, key in enumerate(map(tuple, np.floor(reference / cell).astype(np.int64))):
+        grid.setdefault(key, []).append(index)
+    offsets = [(x, y, z) for x in (-1, 0, 1) for y in (-1, 0, 1) for z in (-1, 0, 1)]
+    lists = []
+    for point in query:
+        base = np.floor(point / cell).astype(np.int64)
+        found = [i for dx, dy, dz in offsets for i in grid.get((base[0] + dx, base[1] + dy, base[2] + dz), ())]
+        lists.append(np.asarray(found, dtype=np.int64))
+    return lists
 
 
 def reference_coverage(reference_triangles, exported_triangles):
-    """Largest distance from any reference face to its nearest exported face by centroid and winding."""
-    gaps = dense_nearest(oriented_features(exported_triangles), oriented_features(reference_triangles))[1]
-    return float(gaps.max(initial=0.0))
+    """Largest corner distance from any reference face to its best-matching exported face.
+
+    A match needs the same corners in the same winding (cyclic rotations allowed), so a duplicated face
+    cannot stand in for an omitted one even when both share a centroid and a normal."""
+    reference_triangles, exported_triangles = np.asarray(reference_triangles), np.asarray(exported_triangles)
+    candidates = neighbour_lists(exported_triangles.mean(axis=1), reference_triangles.mean(axis=1))
+    rotations = [[(k + r) % 3 for k in range(3)] for r in range(3)]
+    worst = 0.0
+    for index, found in enumerate(candidates):
+        if not len(found):  # no exported centroid within a cell: the face is uncovered by at least the cell size
+            gap = float(dense_nearest(exported_triangles.mean(axis=1), reference_triangles[index:index + 1].mean(axis=1),
+                                      budget=1 << 24)[1][0])
+        else:
+            gap = min(float(np.abs(exported_triangles[found] - reference_triangles[index][order]).max(axis=(1, 2)).min())
+                      for order in rotations)
+        worst = max(worst, gap)
+    return worst
+
+
+def reverse_weight_error(reference_positions, exported_positions, reference_weights, exported_weights, fallback,
+                         radius=1e-4):
+    """Largest weight difference between a reference vertex and its best exported vertex at the same position.
+
+    Coincident exported vertices are all candidates, so a seam pair is covered only when both copies survive
+    with their own weights; a vertex with no coincident exported vertex falls back to `fallback` (its nearest)."""
+    lists = neighbour_lists(exported_positions, reference_positions)
+    worst = 0.0
+    for index, found in enumerate(lists):
+        near = found[np.linalg.norm(exported_positions[found] - reference_positions[index], axis=1) <= radius] \
+            if len(found) else found
+        chosen = near if len(near) else np.array([fallback[index]])
+        error = np.abs(exported_weights[chosen] - reference_weights[index]).max(axis=1).min()
+        worst = max(worst, float(error))
+    return worst
 
 
 def nearest(reference, query, cell=1e-3):
@@ -148,7 +187,8 @@ def compare_mesh(left_rig, right_rig, left, right, samples, index_tolerance=1e-4
         lW, _ = mdl_ascii.skin_matrix(left, bones)
         rW, _ = mdl_ascii.skin_matrix(right, bones)
         delta = np.abs(lW[match] - rW)
-        row.update(bones=[lb, rb], maximumWeightError=float(delta.max()),
+        reverse = float(delta.max(initial=0.0)) if ordered else reverse_weight_error(lw, rw, lW, rW, back)
+        row.update(bones=[lb, rb], maximumWeightError=float(delta.max()), maximumReverseWeightError=reverse,
                    influenceChanges=int(np.sum((lW[match] > 0).sum(1) != (rW > 0).sum(1))),
                    rightMaximumSumDeviation=float(np.abs(rW.sum(1) - 1).max()))
         worst = {"error": 0.0}
@@ -231,7 +271,7 @@ def verdict(report, tolerances):
         failures.append("bind frames")
     for mesh in report["meshes"]:
         checks = [("maximumPositionError", "position"), ("maximumUvError", "uv"),
-                  ("maximumWeightError", "weight")]
+                  ("maximumWeightError", "weight"), ("maximumReverseWeightError", "weight")]
         for field, key in checks:
             if field in mesh and mesh[field] > tolerances[key]:
                 failures.append(f"{mesh['node']}: {key}")
