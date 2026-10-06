@@ -234,8 +234,17 @@ def verify_package_payload(package_pin, resources, receipt_pin=None):
                 and receipt.get("payloadHashesVerified") is True
                 and receipt.get("hak", {}).get("sha256") == package_pin["sha256"],
                 "Package payload verification receipt invalid")
+        require("publication" in receipt, "Package payload verification receipt requires publication pin")
+        verify_pins([receipt["publication"]])
+        pub = read(receipt["publication"]["path"])
+        require(pub.get("kind") == "srn-head-publication", "Publication manifest invalid")
+        pub_resources = {Path(p["path"]).name: p["sha256"] for p in pub.get("resources", [])}
+        for res in resources:
+            name = Path(res["path"]).name
+            require(name in pub_resources and pub_resources[name] == res["sha256"],
+                    f"Receipt publication does not contain verified native resource: {name}")
         if "resources" in receipt:
-            require(receipt["resources"] >= len(resources),
+            require(receipt["resources"] == len(pub.get("resources", [])) and len(pub_resources) >= len(resources),
                     "Receipt resource count smaller than native resources")
         return
     from verify_head_hak import payload as decode_hak, TYPES
@@ -507,6 +516,12 @@ class Session:
                 fitted=read(assembly['fit']['path'])
                 require(Path(payload['model_url']).resolve()==Path(fitted['source']['path']).resolve(),
                         'Retexture must use the exact selected fitted geometry')
+                ref_report = read(reviews["reference"]["report"]["path"])
+                ref_evidence = {str(Path(p["path"]).resolve()): p["sha256"] for p in ref_report.get("evidence", [])}
+                input_pins = {str(Path(p["path"]).resolve()): p["sha256"] for p in inputs}
+                payload_pins = {str(Path(url).resolve()): input_pins.get(str(Path(url).resolve())) for url in payload.get("multiview_image_urls", [])}
+                require(len(payload.get("multiview_image_urls", [])) == 4 and len(ref_evidence) == 4 and payload_pins == ref_evidence,
+                        "Retexture image pins must match approved reference review evidence")
             if operation=='remesh' and payload.get('input_task_id'):
                 task=next((e for e in events if e['kind']=='submitted' and e['taskId']==payload['input_task_id']),None)
                 require(task is not None,'Remesh task source is not recorded')
@@ -703,7 +718,11 @@ class Session:
             if 'neckClosure' in report:verify_pins([report['neckClosure']])
             if 'neckConnector' in report:verify_pins([report['neckConnector']])
             if 'package' in report:verify_pins([report['package']])
-            if 'payloadVerification' in report:verify_pins([report['payloadVerification']])
+            if 'payloadVerification' in report:
+                verify_pins([report['payloadVerification']])
+                pv = read(report['payloadVerification']['path'])
+                if 'publication' in pv:
+                    verify_pins([pv['publication']])
 
     def publication(self, identities, *, slot_audit=None, repository=None):
         require(bool(identities) and len(set(identities)) == len(identities), "Explicit unique selections required")

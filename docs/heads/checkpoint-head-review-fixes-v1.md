@@ -6,7 +6,7 @@ SHA-256 `e1563c0ce3e56e188b9e3160e034e968ac3bb6d3a3cb5b642d9373e73f479749`. Veri
 [preceding gallery checkpoint](checkpoint-gallery-client-layout-main-integrated-v2.md)
 remains historical; saved modules, head/body resources and source masters are unchanged.
 
-All eighteen review findings are addressed. Paid work has one active owner per revision
+All twenty review findings are addressed. Paid work has one active owner per revision
 family; retired/sibling sessions cannot dispatch and unsettled jobs block transfer.
 Publication rechecks live installed KEY names and repository pack membership.
 Meshy dispatch completes local validation and output setup before reservation,
@@ -28,8 +28,11 @@ PLT models, texture maps, and palette files. Review reports are pinned and verif
 before validation and reverified under session lock before appending review events.
 Multi-image generation payload image pins are bound to the approved reference review evidence,
 and fitting review source pins are bound to the approved donor review geometry.
+Native review package payload verification receipts are bound to the exact publication
+manifest resources, and retexture multiview image pins are bound to the approved
+reference review evidence.
 
-All 317 helper tests, repository structure and item-import checks pass. See
+All 319 helper tests, repository structure and item-import checks pass. See
 [compact evidence](review-fixes-validation.json). No paid requests were submitted.
 Budget remains 345/405 with no outstanding reservations. Full head/clothing fit,
 palette, helmet, motion and production acceptance remain pending.

@@ -1,9 +1,9 @@
 {
   "kind": "srn-head-review-fixes-validation",
-  "helperTestsPassed": 317,
+  "helperTestsPassed": 319,
   "checks": {
     "head": {
-      "tests": 55,
+      "tests": 57,
       "logSha256": "671d46fe5af8396da88abf3065dd3641c71ef61d0c51467e5e247c0ed3c33031"
     },
     "gallery": {
@@ -54,7 +54,9 @@
     "Native review validates package archive payload contains all declared native resources",
     "Review reports pinned and verified before validation and reverified under session lock before appending",
     "Multi-image generation payload image pins bound to approved reference review evidence",
-    "Fitting review source pin bound to approved donor review geometry"
+    "Fitting review source pin bound to approved donor review geometry",
+    "Native review package payload verification receipts bound to exact publication manifest resources",
+    "Retexture payload multiview image pins bound to approved reference review evidence"
   ],
   "installedKeyReader": {
     "relevantResourceNames": 70106,

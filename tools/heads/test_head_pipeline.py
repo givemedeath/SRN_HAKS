@@ -10,7 +10,8 @@ from unittest.mock import patch
 import numpy as np
 
 from head_workflow import (MOTION, Session, RECIPE, allocate_slots, fit_similarity, make_roster,
-                           model_name, pin, task_fields, validate_roster, validate_target, write_fresh)
+                           model_name, pin, task_fields, validate_roster, validate_target,
+                           verify_package_payload, write_fresh)
 from head_export import ascii_model, node_matrix, plt_bytes
 
 
@@ -420,7 +421,49 @@ class HeadTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Package payload verification receipt invalid'):
             self.session.review('human-male-01', 'native', bad_receipt_native)
 
-        # Valid native review passes
+        # Receipt missing publication pin fails
+        receipt_no_pub = self.root / 'receipt_no_pub.json'
+        write_fresh(receipt_no_pub, {'kind': 'srn-head-hak-verification', 'hak': pin(hak_file),
+                                     'payloadHashesVerified': True, 'resources': 1})
+        bad_native_no_pub = self.root / 'native_no_pub.json'
+        write_fresh(bad_native_no_pub, {**native_base, 'package': pin(hak_file),
+                                        'payloadVerification': pin(receipt_no_pub),
+                                        'inputs': [*native_base['inputs'], pin(receipt_no_pub)]})
+        with self.assertRaisesRegex(ValueError, 'Package payload verification receipt requires publication pin'):
+            self.session.review('human-male-01', 'native', bad_native_no_pub)
+
+        # Receipt with unrelated publication manifest fails
+        unrelated_pub = self.root / 'unrelated_pub.json'
+        write_fresh(unrelated_pub, {'kind': 'srn-head-publication', 'designs': ['other-01'],
+                                    'resources': [{'path': 'srn_head/other.mdl', 'sha256': '0'*64, 'bytes': 100}]})
+        receipt_unrelated_pub = self.root / 'receipt_unrelated_pub.json'
+        write_fresh(receipt_unrelated_pub, {'kind': 'srn-head-hak-verification', 'hak': pin(hak_file),
+                                            'publication': pin(unrelated_pub),
+                                            'payloadHashesVerified': True, 'resources': 1})
+        bad_native_unrelated = self.root / 'native_unrelated_pub.json'
+        write_fresh(bad_native_unrelated, {**native_base, 'package': pin(hak_file),
+                                           'payloadVerification': pin(receipt_unrelated_pub),
+                                           'inputs': [*native_base['inputs'], pin(receipt_unrelated_pub), pin(unrelated_pub)]})
+        with self.assertRaisesRegex(ValueError, 'Receipt publication does not contain verified native resource'):
+            self.session.review('human-male-01', 'native', bad_native_unrelated)
+
+        # Receipt with matching publication manifest passes
+        matching_pub = self.root / 'matching_pub.json'
+        write_fresh(matching_pub, {'kind': 'srn-head-publication', 'designs': ['human-male-01'],
+                                   'resources': [{'path': 'srn_head/' + res_file.name, 'sha256': pin(res_file)['sha256'],
+                                                  'bytes': len(res_file.read_bytes())}]})
+        good_receipt = self.root / 'good_receipt.json'
+        write_fresh(good_receipt, {'kind': 'srn-head-hak-verification', 'hak': pin(hak_file),
+                                   'publication': pin(matching_pub),
+                                   'payloadHashesVerified': True, 'resources': 1})
+        good_native_receipt = self.root / 'native_good_receipt.json'
+        write_fresh(good_native_receipt, {**native_base, 'package': pin(hak_file),
+                                          'payloadVerification': pin(good_receipt),
+                                          'inputs': [*native_base['inputs'], pin(good_receipt), pin(matching_pub)]})
+        fork_receipt = self.session.fork_revision(self.root / 'fork_receipt', ['human-male-01'], 'native', [pin(self.roster)])
+        fork_receipt.review('human-male-01', 'native', good_native_receipt)
+
+        # Valid direct native review passes
         good_native = self.root / 'native_good.json'
         write_fresh(good_native, {**native_base, 'package': pin(hak_file)})
         self.session.review('human-male-01', 'native', good_native)
@@ -595,6 +638,126 @@ class HeadTests(unittest.TestCase):
             "evidence": [pin(donor_with_source_a)], "target": pin(target_file), "fit": pin(fit_file_a)
         })
         session_fork.review("human-male-01", "fitting", fitting_with_matching_src)
+
+    def test_retexture_reservation_binds_to_approved_reference_evidence_and_fit(self):
+        source_model = self.root / 'retext_src.glb'; source_model.write_bytes(b'retext_src')
+        donor = self.root / 'retext_donor.json'
+        write_fresh(donor, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'donor', 'passed': True,
+            'parentReportSha256': pin(self.report)['sha256'], 'inputs': [pin(self.roster), pin(source_model)],
+            'evidence': [pin(self.report)], 'source': pin(source_model),
+            'sourceUnmodified': True, 'geometryInspected': True
+        })
+        self.session.review('human-male-01', 'donor', donor)
+
+        protected = self.root / 'body_rt.mdl'; protected.write_bytes(b'body')
+        manifest = self.root / 'manifest_rt.json'
+        write_fresh(manifest, {'resources': [{'path': 'body_rt.mdl', 'sha256': pin(protected)['sha256']}]})
+        stock = []
+        for name in ('rig_rt', 'neck_rt', 'skin_rt', 'hair_rt', 'anim_rt'):
+            p = self.root / name; p.write_bytes(name.encode()); stock.append(pin(p))
+        target_data = {
+            'schemaVersion': 1, 'kind': 'srn-head-target', 'approved': True, 'race': 'human', 'sex': 'male',
+            'prefix': 'pmh0', 'phenotype': 0, 'bodyRevision': pin(manifest)['sha256'], 'bodyManifest': pin(manifest),
+            'bodyResourceRoot': str(self.root), 'rig': stock[0], 'neckGeometry': stock[1], 'palettes': stock[2:4],
+            'animations': stock[4:], 'headBindMatrix': [[1,0,0,0],[0,1,0,0],[0,0,1,1.75],[0,0,0,1]],
+            'cranialEnvelope': [[-.1,-.1,-.06],[.1,.15,.2]], 'landmarkTolerance': .025
+        }
+        target_file = self.root / 'target_rt.json'; write_fresh(target_file, target_data)
+
+        landmarks = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+        sim = fit_similarity(np.array(landmarks, dtype=float), np.array(landmarks, dtype=float), target_data['landmarkTolerance'])
+        fit_data = {
+            'target': pin(target_file), 'source': pin(source_model),
+            'sourceLandmarks': landmarks, 'targetLandmarks': landmarks, 'matrix': sim['matrix']
+        }
+        fit_file = self.root / 'fit_rt.json'; write_fresh(fit_file, fit_data)
+
+        fitting = self.root / 'fitting_rt.json'
+        write_fresh(fitting, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'fitting', 'passed': True,
+            'parentReportSha256': pin(donor)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(fit_file), pin(source_model)],
+            'evidence': [pin(donor)], 'target': pin(target_file), 'fit': pin(fit_file)
+        })
+        self.session.review('human-male-01', 'fitting', fitting)
+
+        assembly = self.root / 'assembly_rt.json'
+        write_fresh(assembly, {
+            'kind': 'srn-head-review', 'designId': 'human-male-01', 'stage': 'assembly', 'passed': True,
+            'parentReportSha256': pin(fitting)['sha256'],
+            'inputs': [pin(self.roster), pin(target_file), pin(fit_file)],
+            'evidence': [pin(fitting)], 'target': pin(target_file), 'fit': pin(fit_file),
+            'standingReviewed': True, 'worstCaseMotionReviewed': True, 'bodyResourcesUnchanged': True,
+            'motions': list(MOTION)
+        })
+        self.session.review('human-male-01', 'assembly', assembly)
+
+        sub_model = self.root / 'other_model.glb'; sub_model.write_bytes(b'other')
+        base_retexture = {
+            'model_url': str(source_model), 'multiview_image_urls': [str(p) for p in self.views],
+            'texture_resolution': '2k', 'enable_original_uv': True, 'enable_pbr': True,
+            'ai_model': 'meshy-7', 'remove_lighting': False, 'target_formats': ['glb']
+        }
+
+        # 1. Retexture with substituted model_url fails
+        bad_model_payload = {**base_retexture, 'model_url': str(sub_model)}
+        with self.assertRaisesRegex(ValueError, 'Retexture must use the exact selected fitted geometry'):
+            self.session.reserve('human-male-01', 'bad-model-retext', 'retexture', 10,
+                                 [pin(sub_model), *[pin(p) for p in self.views]], bad_model_payload)
+
+        # 2. Retexture with unapproved multiview images fails
+        other_views = []
+        for name in ('rt_front', 'rt_left', 'rt_back', 'rt_right'):
+            p = self.root / (name + '.png'); p.write_bytes(name.encode()); other_views.append(p)
+        bad_images_payload = {**base_retexture, 'multiview_image_urls': [str(p) for p in other_views]}
+        with self.assertRaisesRegex(ValueError, 'Retexture image pins must match approved reference review evidence'):
+            self.session.reserve('human-male-01', 'bad-imgs-retext', 'retexture', 10,
+                                 [pin(source_model), *[pin(p) for p in other_views]], bad_images_payload)
+
+        # 3. Valid retexture reservation succeeds
+        self.session.reserve('human-male-01', 'good-retext', 'retexture', 10,
+                             [pin(source_model), *[pin(p) for p in self.views]], base_retexture)
+
+    def test_verify_package_payload_validates_receipt_publication_manifest(self):
+        hak_file = self.root / 'pkg_test.hak'; hak_file.write_bytes(b'hak_bytes')
+        res_file = self.root / 'res_test.mdl'; res_file.write_bytes(b'res_bytes')
+
+        # 1. Receipt missing publication pin fails
+        receipt_no_pub = self.root / 'rec_no_pub.json'
+        write_fresh(receipt_no_pub, {'kind': 'srn-head-hak-verification', 'hak': pin(hak_file),
+                                     'payloadHashesVerified': True, 'resources': 1})
+        with self.assertRaisesRegex(ValueError, 'Package payload verification receipt requires publication pin'):
+            verify_package_payload(pin(hak_file), [pin(res_file)], receipt_pin=pin(receipt_no_pub))
+
+        # 2. Receipt publication kind invalid fails
+        bad_pub = self.root / 'bad_pub_kind.json'
+        write_fresh(bad_pub, {'kind': 'wrong', 'resources': []})
+        rec_bad_pub = self.root / 'rec_bad_pub.json'
+        write_fresh(rec_bad_pub, {'kind': 'srn-head-hak-verification', 'hak': pin(hak_file),
+                                  'publication': pin(bad_pub), 'payloadHashesVerified': True, 'resources': 1})
+        with self.assertRaisesRegex(ValueError, 'Publication manifest invalid'):
+            verify_package_payload(pin(hak_file), [pin(res_file)], receipt_pin=pin(rec_bad_pub))
+
+        # 3. Receipt publication resource hash mismatch fails
+        mismatch_pub = self.root / 'mismatch_pub.json'
+        write_fresh(mismatch_pub, {'kind': 'srn-head-publication', 'designs': ['human-male-01'],
+                                   'resources': [{'path': 'srn_head/' + res_file.name, 'sha256': '1'*64, 'bytes': 10}]})
+        rec_mismatch = self.root / 'rec_mismatch.json'
+        write_fresh(rec_mismatch, {'kind': 'srn-head-hak-verification', 'hak': pin(hak_file),
+                                   'publication': pin(mismatch_pub), 'payloadHashesVerified': True, 'resources': 1})
+        with self.assertRaisesRegex(ValueError, 'Receipt publication does not contain verified native resource'):
+            verify_package_payload(pin(hak_file), [pin(res_file)], receipt_pin=pin(rec_mismatch))
+
+        # 4. Matching publication passes
+        good_pub = self.root / 'good_pub.json'
+        write_fresh(good_pub, {'kind': 'srn-head-publication', 'designs': ['human-male-01'],
+                               'resources': [{'path': 'srn_head/' + res_file.name, 'sha256': pin(res_file)['sha256'],
+                                              'bytes': len(res_file.read_bytes())}]})
+        good_rec = self.root / 'good_rec.json'
+        write_fresh(good_rec, {'kind': 'srn-head-hak-verification', 'hak': pin(hak_file),
+                               'publication': pin(good_pub), 'payloadHashesVerified': True, 'resources': 1})
+        verify_package_payload(pin(hak_file), [pin(res_file)], receipt_pin=pin(good_rec))
 
 
 if __name__ == "__main__": unittest.main()
