@@ -67,3 +67,13 @@ jobs:
         if: steps.items.outputs.run == 'true'
         shell: pwsh
         run: ./tools/Test-ItemImportTools.ps1
+      - name: Head pipeline gates and exporter regressions
+        shell: pwsh
+        run: |
+          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/heads -p 'test_*.py' -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Gallery refresh and module encoding regressions
+        shell: pwsh
+        run: |
+          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/gallery -p 'test_*.py' -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }

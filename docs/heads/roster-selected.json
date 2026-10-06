@@ -1,0 +1,4113 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-head-roster",
+  "entries": [
+    {
+      "id": "human-male-01",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "Black man about 40; short crop, close beard and eyebrow scar; natural full skull/jaw, no extending neck.",
+      "pilot": true,
+      "slot": 82,
+      "selectedHashes": {
+        "reference": "855ca889bcfafd2281a3e2280b874e16f8c342bc9d4cfa438eb54c021642b9a0",
+        "master": "108adeef5c2682ed2d0e02a57020b658337b84d09385c6aa25283357475dc163",
+        "runtime": "5bdc231d2f069ec4b939b210117c3fc375a0d51ebe732929afa2638648d3ebce",
+        "nativeResources": {
+          "pmh0_head082.mdl": "cdd8f8e95088137ee64b88871ab4872cfd60e582af0baf4636179ff3dedd27bb",
+          "pmh0_head082.mtr": "17de3f3925ad286fe96be3e74849bc832edfa1a930c0b9871b8a53f63a789c0d",
+          "pmh0_head082.plt": "56d10dbe783148dfa6f97fe1a3d7d87302f142fb781317051e63dbdaf6a08b8b",
+          "pmh0_head082e.mtr": "b2bf33308442173ee71595cc5affcb0559844d85535741cbcd0879673d0fc6c8",
+          "pmh0_head082e.tga": "8d03d2d998ccf36fe977b8be3aaae0ee05637a939aea6fc41304ca29a00f1d37",
+          "pmh0_head082en.tga": "4d86d67bdf2edab7cb3ead31dde93f2365e99d64cbb9cbb2feeda99cff404763",
+          "pmh0_head082er.tga": "498fb35b72cd580e52e66c21768d477e1d98a905c1c7e48ffd8e3a91ee33b8da",
+          "pmh0_head082n.tga": "4d86d67bdf2edab7cb3ead31dde93f2365e99d64cbb9cbb2feeda99cff404763",
+          "pmh0_head082r.tga": "498fb35b72cd580e52e66c21768d477e1d98a905c1c7e48ffd8e3a91ee33b8da"
+        }
+      },
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-02",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "East Asian man about 35; swept undercut and anatomical-left temple/eye cyberware with cyan detail; full skull/jaw, no extending neck.",
+      "pilot": true,
+      "slot": 83,
+      "selectedHashes": {
+        "reference": "6cda16d0d529e30a49f216e3d73d159afb258ebe4cc34212ab915edade727400",
+        "master": "7d89d82d74963ec6a5c73f59ccb2b668171f7e81c8eb25402bbcdf1e1e077607",
+        "runtime": "3a693da5a04ffc60d143a050f7ec12d248592f3407246fbc7e2af29e867e8eb6",
+        "nativeResources": {
+          "pmh0_head083.mdl": "34e4752e71fc93202dadc214a6c16af28f311e275fc96095e4b9d3b30634a6a8",
+          "pmh0_head083.mtr": "7db416c0562a15e4e1788e414d0e7cbae5e37631194145a79899dd72d48034e2",
+          "pmh0_head083.plt": "749ae866b6f4e4dc09f84c24df5510d45792f9b2f829b0769924a5db337aeaa1",
+          "pmh0_head083c.mtr": "09df3315d0c9821ed60ac0dec979887af19ed36a58b65243dcea42c8d82bfb13",
+          "pmh0_head083c.tga": "d1a613b9f942b1e4aeea04a33138d736ffc44eb8f8dcf5febadd1a222ac200cd",
+          "pmh0_head083cn.tga": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "pmh0_head083cr.tga": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c",
+          "pmh0_head083e.mtr": "09ae0a7990ad8917b916e49bf287786b19d0345c3a1f08f8000a1de378877925",
+          "pmh0_head083e.tga": "d1a613b9f942b1e4aeea04a33138d736ffc44eb8f8dcf5febadd1a222ac200cd",
+          "pmh0_head083en.tga": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "pmh0_head083er.tga": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c",
+          "pmh0_head083n.tga": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "pmh0_head083r.tga": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c"
+        }
+      },
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-03",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 84,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-04",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 85,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-05",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 86,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-06",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 87,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-07",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 88,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-08",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 89,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-09",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 90,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-10",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 91,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-11",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 92,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-12",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 93,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-13",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 94,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-14",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 95,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-15",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 96,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-16",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 97,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-17",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 98,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-18",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 99,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-19",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 100,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-male-20",
+      "race": "human",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmh0",
+      "brief": "male adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 101,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-01",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; natural face, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-02",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-03",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 30,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-04",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 31,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-05",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 32,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-06",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 33,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-07",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 34,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-08",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 35,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-09",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 36,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-10",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 37,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-11",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 38,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-12",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 39,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-13",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 40,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-14",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 41,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-15",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 42,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-16",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 43,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-17",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 44,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-18",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 45,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-19",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 46,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "human-female-20",
+      "race": "human",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfh0",
+      "brief": "female adult; Human proportions; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 47,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-01",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "Adult Elf male, angular face, pointed ears and modern side-swept hair; full skull and jaw without an extending neck.",
+      "pilot": true,
+      "slot": 19,
+      "selectedHashes": {
+        "reference": "d6909e0560c5f310daa2604c2ace531caf1a1e365866b13ea215b7eef10fdd9d",
+        "master": "253cefa9208374e4fc71de67bb40d18f945c4349c927473d1e30572ed76c3199",
+        "runtime": "48639f0f5ca09afc60030213c1a31d6e3fc5428336e68d5bf50ab1d769205b1a",
+        "nativeResources": {
+          "pme0_head019.mdl": "e61a96be76004a610a8ca8e4d07e81f798fab567cd3e6aeb741f5c9edc127465",
+          "pme0_head019.mtr": "4a4e287b1a7bdd67b38aebe4596341411f2d45c01c84fddc08b79da629e4c01e",
+          "pme0_head019.plt": "432f58fb111ea0058745972f79261bd26f48ac8b03b8024a0fed90ab70017bbc",
+          "pme0_head019e.mtr": "fc775ce1b1cfce003443a3feb91a888c09577c7caf3c1039bc16d411e515a4a8",
+          "pme0_head019e.tga": "64b1f20f236810a11f4e16ae4d44d0f3f711d3f9bae0e253e8ffdb1c27457b6f",
+          "pme0_head019en.tga": "e51c5bcc102ba6629d100df24cc975fa229ae9c40877350efb72348276400a67",
+          "pme0_head019er.tga": "24d6551b6651ba3aaf04b45e03ec43377c55ed5dac915eef730306b9eb13e717",
+          "pme0_head019n.tga": "e51c5bcc102ba6629d100df24cc975fa229ae9c40877350efb72348276400a67",
+          "pme0_head019r.tga": "24d6551b6651ba3aaf04b45e03ec43377c55ed5dac915eef730306b9eb13e717"
+        }
+      },
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-02",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 20,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-03",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 21,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-04",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 22,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-05",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 23,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-06",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 24,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-07",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 25,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-08",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 26,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-09",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 27,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-10",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-11",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-12",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 30,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-13",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 31,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-14",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 32,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-15",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 33,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-16",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 34,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-17",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 35,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-18",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 36,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-19",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 37,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-male-20",
+      "race": "elf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pme0",
+      "brief": "male adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 38,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-01",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "Brown-skinned Elf woman about 30; auburn bob, pointed ears and complete jaw; no extending neck.",
+      "pilot": true,
+      "slot": 17,
+      "selectedHashes": {
+        "reference": "3d91ee4bc7a41cab4439dd7b9463bea91b07bfa706180991c6d6265036237f5b",
+        "master": "5ae3c856cc64df68c93a1bbfe760bf9c5904d475ab5a78910250f0c1b112d1bc"
+      },
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-02",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 18,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-03",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 19,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-04",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 20,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-05",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 21,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-06",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 22,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-07",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 23,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-08",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 24,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-09",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 25,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-10",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 26,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-11",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 27,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-12",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-13",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-14",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 30,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-15",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 31,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-16",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 32,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-17",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 33,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-18",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 34,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-19",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 35,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "elf-female-20",
+      "race": "elf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfe0",
+      "brief": "female adult; elongated pointed ears and refined facial structure; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 36,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-01",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "Adult Dwarf male, broad face, cropped textured hair and full modern beard; full skull and jaw without an extending neck.",
+      "pilot": true,
+      "slot": 14,
+      "selectedHashes": {
+        "reference": "ac35785e4fb00ca367ec60d88ed335a352b34b00165006608b0f6c56a3d38d9c",
+        "master": "192d22fe55cd9d83e4dae306d3f7007d0e401425bec8d38655d1b9b10d49083f",
+        "runtime": "c7a241ce4a7155369dea3500db5fe441438764d249665b0d8d01a0e76bef6fb2",
+        "nativeResources": {
+          "pmd0_head014.mdl": "0e48aca5039ab5acfa527440b4bf6a2266221c77b6ec43fc8ea24e8b1778e8b1",
+          "pmd0_head014.mtr": "872082af4bf8b84a8585c31a52a91fb25853420c39234ddd7795bed7a130a825",
+          "pmd0_head014.plt": "aaeb4045d92199f431f638cded2de8bb46915dd4fa16d0e6924acbfb4cb25cc3",
+          "pmd0_head014e.mtr": "d6f06bc7f16f3d8657f66f5cd34d4b84f62dfdecc4c2ab2cf972586c2182c22f",
+          "pmd0_head014e.tga": "03eab89ee33ccd736e66635584d7b8dcb86257d3bad2655d6fbd8c7fc8cae31a",
+          "pmd0_head014en.tga": "95ac0cda1c9edcd2d900d736c2dcd1426dbcf57412078a0c84068015d827d03c",
+          "pmd0_head014er.tga": "6e7668cdf4ba9fc18460bffed639b3cc1689d21178e5aab0ad592e677534378c",
+          "pmd0_head014n.tga": "95ac0cda1c9edcd2d900d736c2dcd1426dbcf57412078a0c84068015d827d03c",
+          "pmd0_head014r.tga": "6e7668cdf4ba9fc18460bffed639b3cc1689d21178e5aab0ad592e677534378c"
+        }
+      },
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-02",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 15,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-03",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 16,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-04",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 17,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-05",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 18,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-06",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 19,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-07",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 20,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-08",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 21,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-09",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 22,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-10",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 23,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-11",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 24,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-12",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 25,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-13",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 26,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-14",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 27,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-15",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-16",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-17",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 30,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-18",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 31,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-19",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 32,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-male-20",
+      "race": "dwarf",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmd0",
+      "brief": "male adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 33,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-01",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; natural face, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 13,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-02",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 14,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-03",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 15,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-04",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 16,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-05",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 17,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-06",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 18,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-07",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 19,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-08",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 20,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-09",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 21,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-10",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 22,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-11",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 23,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-12",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 24,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-13",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 25,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-14",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 26,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-15",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 27,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-16",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-17",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-18",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 30,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-19",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 31,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "dwarf-female-20",
+      "race": "dwarf",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfd0",
+      "brief": "female adult; broad face and strong jaw; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 32,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-01",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "Adult Orc male, heavy brow, wide jaw, short cropped hair and visible ivory tusks; full skull and jaw without an extending neck.",
+      "pilot": true,
+      "slot": 14,
+      "selectedHashes": {
+        "reference": "8e6a53595d5bb1512b232055be0be07a0171d802c1ade941d919f639bb8c3862",
+        "master": "05c84755c8b00b4195617397d55d5919621f1314f705beb02934af2173f65d08",
+        "runtime": "ec4a69669407110225da8561f51cc68bc8bafd525ffa4a43ebe970f8d2e6a7d4",
+        "nativeResources": {
+          "pmo0_head014.mdl": "99ed0cc12b1b6b5649d48a2e99d8f06063294771742a26b7eace2bed70646d83",
+          "pmo0_head014.mtr": "fc4785ee8e9d3cc894eebb078ebf666c00069ab8ce155f4f79d56bda90433f40",
+          "pmo0_head014.plt": "2a0d66082eab392b4435af6338aaf4acc6c15d3aa4733692d18a7c0488cece0d",
+          "pmo0_head014a.mtr": "3845f907ea58d16a7172860388e2a9cbf01a53c17f2a9ab9344c07e65151eaaf",
+          "pmo0_head014a.tga": "a2fd2cf0cd3f54688c177a09d442ea3b74cf11af474bcf674a81b590aeca2306",
+          "pmo0_head014an.tga": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "pmo0_head014ar.tga": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011",
+          "pmo0_head014e.mtr": "c04e50a8147f882f00b7d52a0a815e23507f77ccf2899771f82aa4fcbd251578",
+          "pmo0_head014e.tga": "a2fd2cf0cd3f54688c177a09d442ea3b74cf11af474bcf674a81b590aeca2306",
+          "pmo0_head014en.tga": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "pmo0_head014er.tga": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011",
+          "pmo0_head014n.tga": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "pmo0_head014r.tga": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011"
+        }
+      },
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-02",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 15,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-03",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 16,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-04",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 17,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-05",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 18,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-06",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 19,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-07",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 20,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-08",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 21,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-09",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 22,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-10",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 23,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-11",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 24,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-12",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 25,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-13",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 26,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-14",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 27,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-15",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-16",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-17",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 30,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-18",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 31,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-19",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 32,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-male-20",
+      "race": "orc",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmo0",
+      "brief": "male adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 33,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-01",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; natural face, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 13,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-02",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 14,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-03",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 15,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-04",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 16,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-05",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 17,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-06",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 18,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-07",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 19,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-08",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 20,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-09",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 21,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-10",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 22,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-11",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 23,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-12",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 24,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-13",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 25,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-14",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 26,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-15",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 27,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-16",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-17",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-18",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 30,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-19",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 31,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "orc-female-20",
+      "race": "orc",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfo0",
+      "brief": "female adult; strong jaw and visible lower tusks; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 32,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-01",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "Olive-gray Troll man; heavy jaw, horns, tusks and flat-top hair; no extending neck.",
+      "pilot": true,
+      "slot": 14,
+      "selectedHashes": {
+        "reference": "acd1a2ebcdb9f597ad4cec70c0bbbac948e82b6b8af31808d28f3f33a71a6684",
+        "master": "706cee037afcb3ba386ecbd0623a258232a0b2d106dff370a3688c212dc9d7d5",
+        "runtime": "74484766d60fbf4a14cda78650d779c01574583c10d06fa14b3eefb64b4d533a",
+        "nativeResources": {
+          "pmg0_head014.mdl": "6a58b01c565fefba0b23fa688b22e153bfa0b8dd5e3d4df5d1b4333b5891e971",
+          "pmg0_head014.mtr": "8e2946027231b85c7914ffe1212be7b82d06f7fa8ed67fe1463d851bbff387c2",
+          "pmg0_head014.plt": "a7a58f0060edcc918ad12988e10e3a5a6f0af0c52e49b91d2c366cb20cd35f58",
+          "pmg0_head014a.mtr": "366368f677e7ef33cdfccef9a7cc641c4496e60931b5d2a7ec434637a20f6866",
+          "pmg0_head014a.tga": "919d1217d641141d38fe2a56727005a3fac9d22096a08e88e0f67752b7c082e2",
+          "pmg0_head014an.tga": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "pmg0_head014ar.tga": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "pmg0_head014e.mtr": "a32b44c34f4235f064f38f094ceea3bee1ed1eb2ea7b130c34eafa3b749aa0a4",
+          "pmg0_head014e.tga": "919d1217d641141d38fe2a56727005a3fac9d22096a08e88e0f67752b7c082e2",
+          "pmg0_head014en.tga": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "pmg0_head014er.tga": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "pmg0_head014n.tga": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "pmg0_head014r.tga": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0"
+        }
+      },
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-02",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 15,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-03",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 16,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-04",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 17,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-05",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 18,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-06",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 19,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-07",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 20,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-08",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 21,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-09",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 22,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-10",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 23,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-11",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 24,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-12",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 25,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-13",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 26,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-14",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 27,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-15",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-16",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-17",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 30,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-18",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 31,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-19",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 32,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-male-20",
+      "race": "troll",
+      "sex": "male",
+      "phenotype": 0,
+      "prefix": "pmg0",
+      "brief": "male adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 33,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-01",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; natural face, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 10,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-02",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; subtle unilateral cyberware, short modern hair; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 11,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-03",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 12,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-04",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 13,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-05",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 14,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-06",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 15,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-07",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 16,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-08",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 17,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-09",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 18,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-10",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 19,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-11",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 20,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-12",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 21,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-13",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 22,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-14",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 23,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-15",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 24,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-16",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 25,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-17",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 26,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-18",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 27,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-19",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 28,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    },
+    {
+      "id": "troll-female-20",
+      "race": "troll",
+      "sex": "female",
+      "phenotype": 0,
+      "prefix": "pfg0",
+      "brief": "female adult; broad powerful facial structure, tusks and paired horns; distinct adult face and modern hair; vary age, ancestry, scars and piercings; neutral closed-mouth expression",
+      "pilot": false,
+      "slot": 29,
+      "selectedHashes": {},
+      "stages": {
+        "reference": "pending",
+        "donor": "pending",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      }
+    }
+  ],
+  "allocationSha256": "7b3b45a10d312d539923523333df07c88636c96818354ef58ba3e640d3606ccd",
+  "checkpoint": "derived-male-pre-client"
+}

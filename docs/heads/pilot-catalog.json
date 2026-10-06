@@ -1,0 +1,2523 @@
+{
+  "kind": "srn-head-pilot-catalog",
+  "checkpoint": "all-male-pre-client",
+  "runtimeTriangleLimit": 20000,
+  "operatorShapeSelectionSha256": "e5f375232875be7eb35dafd41781888fe062ee9f5f9852cd99b338dd80f5a5ce",
+  "pilots": [
+    {
+      "id": "human-male-01",
+      "race": "human",
+      "sex": "male",
+      "slot": 82,
+      "model": "pmh0_head082",
+      "brief": "Black man about 40; short crop, close beard and eyebrow scar; natural full skull/jaw, no extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "b1e1d56da05c33afa2462526daf70cc0ec604d59fcdf03f7a822f418d181d332",
+        "donor": "04bbfc5cfbd85b13bff7ec473f28768338b02d6b1c8e644f9010011af0f8f7a3",
+        "fitting": "9369cb28c9da9f03f1175f07cce2234e7790e9d74a2cfe4b2913840e4b68b102",
+        "assembly": "4ae0c645a540a43f65a23e2430c9ea14e5faeb3f868dd54143be8ca8ce55a76f",
+        "native": "f7c8199666bbebabeaa1c7bb324b41c40e56a409e905b61de94eaa61bee6d9ed"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "OpenAI-generated SRN references edited to remove extending neck while preserving full skull, chin and mandible; no external face/mesh references",
+        "source": {
+          "name": "source.png",
+          "sha256": "855ca889bcfafd2281a3e2280b874e16f8c342bc9d4cfa438eb54c021642b9a0",
+          "bytes": 2089009
+        },
+        "prompt": {
+          "name": "prompt.txt",
+          "sha256": "fcc45cd774030d2dc3c2eac65a64089c370d14f3fde014246653dec1997d9ba2",
+          "bytes": 1596
+        },
+        "ancestrySha256": "54e158a7d0f598dd4ce682f2dee60a717f59fbf7d47a722e0a3dcce991fdb7de",
+        "normalizationSha256": "e242607723bd463e75c5ca7f3a996f91ac13efcb6e7555b7e6a91a6b9241c86d",
+        "sharedScale": 1.5316239316239317,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "e7135bd068edd528c3fb8248a03268d722dea56190c6c09d568189c7796aab5b",
+            "bytes": 791360
+          },
+          {
+            "name": "left.png",
+            "sha256": "7e08316c6e951965c3ba6eb7156e043e1ce444f730acdbca5a1c09b18544c2d9",
+            "bytes": 1002928
+          },
+          {
+            "name": "back.png",
+            "sha256": "3a5cc522fa9ccea7d2aae8469132f31456fc0d7939a2a0ed18f38c82e48649aa",
+            "bytes": 757448
+          },
+          {
+            "name": "right.png",
+            "sha256": "fbc8db6ae00734d0daf0ac3345c1f8931637cc15784129026686e89e6bbef56b",
+            "bytes": 918739
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10d6d-c461-737f-8a89-bcf452f33077",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 2,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "d2f80690d9f3548412fc7aed77a1943217f5b78280166b83203d74c45eaf1afa",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "108adeef5c2682ed2d0e02a57020b658337b84d09385c6aa25283357475dc163",
+            "bytes": 3599640
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "b03a31b81446c097b3484d12e5ea449abe980e922699324cee6f53e068b59008",
+            "bytes": 183040796
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "03c4dc56cecdad0310a40c124e4e48d77e69338b8d1758452fc24c5ca8f213a3",
+            "bytes": 146624
+          },
+          {
+            "name": "thumbnail_alpha.png",
+            "sha256": "03c4dc56cecdad0310a40c124e4e48d77e69338b8d1758452fc24c5ca8f213a3",
+            "bytes": 146624
+          },
+          {
+            "name": "thumbnail_back.png",
+            "sha256": "6dd6fc2172edcf170d3fe2e73f59138cfe640f790ed0dc47593388ef39d4db95",
+            "bytes": 222675
+          },
+          {
+            "name": "thumbnail_front.png",
+            "sha256": "03c4dc56cecdad0310a40c124e4e48d77e69338b8d1758452fc24c5ca8f213a3",
+            "bytes": 146624
+          },
+          {
+            "name": "thumbnail_left.png",
+            "sha256": "dd0fe2b05ce3bed02e85a728c6219fa133ce033bbe6b674980c3ca420988d251",
+            "bytes": 197251
+          },
+          {
+            "name": "thumbnail_right.png",
+            "sha256": "704b40f80425358b35d437ab92baa7a1a2968892fc44fda3e25ab9767a9371a1",
+            "bytes": 217393
+          }
+        ]
+      },
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "5bdc231d2f069ec4b939b210117c3fc375a0d51ebe732929afa2638648d3ebce",
+        "bytes": 1825088
+      },
+      "candidateResources": [
+        {
+          "name": "pmh0_head082.mdl",
+          "sha256": "cdd8f8e95088137ee64b88871ab4872cfd60e582af0baf4636179ff3dedd27bb",
+          "bytes": 1486900
+        },
+        {
+          "name": "pmh0_head082.mtr",
+          "sha256": "17de3f3925ad286fe96be3e74849bc832edfa1a930c0b9871b8a53f63a789c0d",
+          "bytes": 136
+        },
+        {
+          "name": "pmh0_head082.plt",
+          "sha256": "56d10dbe783148dfa6f97fe1a3d7d87302f142fb781317051e63dbdaf6a08b8b",
+          "bytes": 2097176
+        },
+        {
+          "name": "pmh0_head082e.mtr",
+          "sha256": "b2bf33308442173ee71595cc5affcb0559844d85535741cbcd0879673d0fc6c8",
+          "bytes": 138
+        },
+        {
+          "name": "pmh0_head082e.tga",
+          "sha256": "8d03d2d998ccf36fe977b8be3aaae0ee05637a939aea6fc41304ca29a00f1d37",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head082en.tga",
+          "sha256": "4d86d67bdf2edab7cb3ead31dde93f2365e99d64cbb9cbb2feeda99cff404763",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head082er.tga",
+          "sha256": "498fb35b72cd580e52e66c21768d477e1d98a905c1c7e48ffd8e3a91ee33b8da",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head082n.tga",
+          "sha256": "4d86d67bdf2edab7cb3ead31dde93f2365e99d64cbb9cbb2feeda99cff404763",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head082r.tga",
+          "sha256": "498fb35b72cd580e52e66c21768d477e1d98a905c1c7e48ffd8e3a91ee33b8da",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "e4e78793a830d4b93faecceac8f33aad5a34141b231e105f63e3af183b6161d0",
+      "targetContractSha256": "cf11650b2e793723b1e65199b54f7fc9daad452cb00d5a19f40c426926fc1793",
+      "fit": {
+        "reportSha256": "09e45f146566cc85135fdd9ddb674c7b54d58a8fafaf7d6459bcbf5c7fd60842",
+        "uniformScale": 0.12392716293360939,
+        "maximumLandmarkErrorMetres": 0.020920014552421016,
+        "localMatrix": [
+          [
+            -0.1239165070317744,
+            -0.0011543827928875738,
+            0.0011438523440747612,
+            -0.0023536042966526573
+          ],
+          [
+            0.0012177060064093236,
+            -0.12372000479691789,
+            0.0070582800954568595,
+            0.013540713000073779
+          ],
+          [
+            0.0010761923153019184,
+            0.0070689126597697285,
+            0.12372070965154705,
+            0.05686352305664237
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "2ef2453da98c35e82e62af3e4165f7c5f6247386df423c1506d367cf56f42804",
+        "holesCapped": 1,
+        "capTriangles": 1,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "8f7be92972ff1828753e99aa0bfa68c66bfd22452d3f5095021249d181e5a92d",
+        "method": "Exact coincident-position connectivity weld, explicit voxel surface revision, Blender collapse LOD, consistent smooth normals, new smart-project UV atlas; master-to-selected-LOD tangent normal bake",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "093a9bfc52286d90a2bf6a7eee801b1a4e2f9f22e77d0c578c35ad92d0940909",
+          "bytes": 10584268
+        },
+        "output": {
+          "name": "runtime.glb",
+          "sha256": "4128b7e8c4520c3635a05c0442120d79773224648441a54ee763758ca1a7601a",
+          "bytes": 623272
+        },
+        "normal": {
+          "name": "selected-normal.png",
+          "sha256": "f1e60186847e86d570021cc783d1ca09e01a5e6d1affeb6529bdf77be395568d",
+          "bytes": 2212698
+        },
+        "targetTriangles": 19000,
+        "neckTrimApplied": false,
+        "neckTaperApplied": false
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10dc2-8552-7530-a6ad-5dbccb7e5bdb",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "3877c6955d712d1099d9cbe40993449f44f0ac4d606f194c4ca7acb97ef300b6",
+            "bytes": 5151184
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "1276dd9cf07fe315c83f7aeb73f2f691000ec886485ebc9544468c14c885a356",
+            "bytes": 1510667
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "d37b4ebb3e6ad11fee4011d4becd7ba757ea3c5100ccdfc8a25a452025f0cd4b",
+            "bytes": 62978
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "96d36c7ab8f7d1f50b23d4d539a18cbfae56f7acc28aa02d9b64bd7004dbe62b",
+            "bytes": 1486358
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "235a91110287cad4a2655311a7d54576e16dae8b280d800f0b41ac35bdeeb81b",
+            "bytes": 683654
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "773efa400d3649a3faab9cc99a9e54e216efd0942c511c74af61aa181a79748e",
+            "bytes": 217054
+          }
+        ],
+        "returnedGeometrySelected": false,
+        "returnedNormalsSelected": false,
+        "uvAtlasTransferAuditSha256": "2fef4b215e9392cea785f84523b73de6973fdfe285f5b40f34641e28aa880dc7",
+        "atlasTransfer": {
+          "maximumPositionErrorSourceUnits": 6.715382427913141e-08,
+          "maximumUvError": 0,
+          "omittedSourceFaceIds": [
+            18999
+          ],
+          "omittedSourceAreas": [
+            2.7257071616885386e-07
+          ]
+        },
+        "normalSourceSha256": "f1e60186847e86d570021cc783d1ca09e01a5e6d1affeb6529bdf77be395568d",
+        "normalGreenFlippedForUvTransport": false,
+        "runtimeSize": 1024,
+        "clientAppearancePending": true
+      }
+    },
+    {
+      "id": "human-male-02",
+      "race": "human",
+      "sex": "male",
+      "slot": 83,
+      "model": "pmh0_head083",
+      "brief": "East Asian man about 35; swept undercut and anatomical-left temple/eye cyberware with cyan detail; full skull/jaw, no extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "137bb8961103216701b10ec291581cfee7b48eb15c3b9a3c016f7c31652536b8",
+        "donor": "02e098aa293cdab262eb0c3b68b476df7c0c9935a1df0298c9c3460b7efc96ab",
+        "fitting": "839a27952973a4c479faa703423142fa287103f287a492d8411ccc6ffd4e9256",
+        "assembly": "57230950163338b9dfb9e51ab898d9022b6e5de094703cf3fe45e5b80166724b",
+        "native": "914bac61ca9302ed11bf6e47a57a45c0869a8a9e69ff7ed1c0554e622a3c60e5"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "OpenAI-generated SRN references edited to remove extending neck while preserving full skull, chin and mandible; no external face/mesh references",
+        "source": {
+          "name": "source.png",
+          "sha256": "6cda16d0d529e30a49f216e3d73d159afb258ebe4cc34212ab915edade727400",
+          "bytes": 2050282
+        },
+        "prompt": {
+          "name": "prompt.txt",
+          "sha256": "4af9c92b7444252403b3213e4b6ee3fcfeb8e8c51939a6e630a2be64d09aa1f5",
+          "bytes": 1258
+        },
+        "ancestrySha256": "705bfb55f92a5e04c44dfb57f9d8b9921591f89302c2ca0aa6254769d2c2f620",
+        "normalizationSha256": "3dc2e926fff71936b58a0b877311926d28dac9de3e9338365c51c619b25fbce8",
+        "sharedScale": 1.5033557046979866,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "4b3d43e441e09fa031d04ab72abb139c8fa422ee6ba3af9599ced0ead4efcdab",
+            "bytes": 741863
+          },
+          {
+            "name": "left.png",
+            "sha256": "972586dbccfbab8c309969799b0e9db5eae86d1179031711d493f3797ca0ae23",
+            "bytes": 923281
+          },
+          {
+            "name": "back.png",
+            "sha256": "14dbc3d28c5a8051189308642157a4525a83ecfb3a8971f6433a5aa918f34375",
+            "bytes": 774000
+          },
+          {
+            "name": "right.png",
+            "sha256": "5f5afb1a6037f04ca17f0c2bb902b90787469612b737dbcb17db62f0685c1777",
+            "bytes": 900706
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10d7f-54dd-73ff-a88b-d792d644395b",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 2,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "f750f8e07ef56cbe38d0753b0d3bfe57fd51cf89678a3be4ba083bc6545ed3b3",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "7d89d82d74963ec6a5c73f59ccb2b668171f7e81c8eb25402bbcdf1e1e077607",
+            "bytes": 3428012
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "483ce69b2baa8914ef978a3835ec3723955e42c5bed0a19181c91ba5d04daaf7",
+            "bytes": 188312684
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "27e734556876f233412e588d41d8cb38cc3327a4db35d6958c19894ef1d7f8d6",
+            "bytes": 167595
+          },
+          {
+            "name": "thumbnail_alpha.png",
+            "sha256": "27e734556876f233412e588d41d8cb38cc3327a4db35d6958c19894ef1d7f8d6",
+            "bytes": 167595
+          },
+          {
+            "name": "thumbnail_back.png",
+            "sha256": "2c0b5a9f16cb592f7a0249aa7d8924272adf3f52cef0cd4968f458e6b49c135a",
+            "bytes": 166798
+          },
+          {
+            "name": "thumbnail_front.png",
+            "sha256": "27e734556876f233412e588d41d8cb38cc3327a4db35d6958c19894ef1d7f8d6",
+            "bytes": 167595
+          },
+          {
+            "name": "thumbnail_left.png",
+            "sha256": "887435f1e31bf6270ba9b3f089ae3188bfe796013038824e2e7af53a82d9e131",
+            "bytes": 179203
+          },
+          {
+            "name": "thumbnail_right.png",
+            "sha256": "4fcc81b8fef1c1894e4ef6f72cefc6210df9a7c68362d6babb526cb0a3221421",
+            "bytes": 174723
+          }
+        ]
+      },
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "3a693da5a04ffc60d143a050f7ec12d248592f3407246fbc7e2af29e867e8eb6",
+        "bytes": 1825072
+      },
+      "candidateResources": [
+        {
+          "name": "pmh0_head083.mdl",
+          "sha256": "34e4752e71fc93202dadc214a6c16af28f311e275fc96095e4b9d3b30634a6a8",
+          "bytes": 1501708
+        },
+        {
+          "name": "pmh0_head083.mtr",
+          "sha256": "7db416c0562a15e4e1788e414d0e7cbae5e37631194145a79899dd72d48034e2",
+          "bytes": 136
+        },
+        {
+          "name": "pmh0_head083.plt",
+          "sha256": "749ae866b6f4e4dc09f84c24df5510d45792f9b2f829b0769924a5db337aeaa1",
+          "bytes": 2097176
+        },
+        {
+          "name": "pmh0_head083c.mtr",
+          "sha256": "09df3315d0c9821ed60ac0dec979887af19ed36a58b65243dcea42c8d82bfb13",
+          "bytes": 138
+        },
+        {
+          "name": "pmh0_head083c.tga",
+          "sha256": "d1a613b9f942b1e4aeea04a33138d736ffc44eb8f8dcf5febadd1a222ac200cd",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083cn.tga",
+          "sha256": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083cr.tga",
+          "sha256": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083e.mtr",
+          "sha256": "09ae0a7990ad8917b916e49bf287786b19d0345c3a1f08f8000a1de378877925",
+          "bytes": 138
+        },
+        {
+          "name": "pmh0_head083e.tga",
+          "sha256": "d1a613b9f942b1e4aeea04a33138d736ffc44eb8f8dcf5febadd1a222ac200cd",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083en.tga",
+          "sha256": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083er.tga",
+          "sha256": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083n.tga",
+          "sha256": "a9356de30d728a0b42767aefb75a4ccd5bc1f582ab0fe58abde3360218391673",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmh0_head083r.tga",
+          "sha256": "7718382adba17e281de610f27837e6a922026917f898fce289cc93f0bdf8021c",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "31dd5181196efa7eeef20d7077f99699d57bc492f2f9c2a631040eda98eb35e8",
+      "targetContractSha256": "cf11650b2e793723b1e65199b54f7fc9daad452cb00d5a19f40c426926fc1793",
+      "fit": {
+        "reportSha256": "5d3d1dbe0f440bb3ec841cd30d7a2f45d723ddf82005a8dd2e2de9d78aad57b7",
+        "uniformScale": 0.12913811916882442,
+        "maximumLandmarkErrorMetres": 0.010509989483802643,
+        "localMatrix": [
+          [
+            -0.12913564614779321,
+            0.00012619542813719042,
+            0.0007891711901469563,
+            0.00011053119174890644
+          ],
+          [
+            -0.00018197119511771448,
+            -0.12881138264563233,
+            -0.009178693254822517,
+            0.01063057136653462
+          ],
+          [
+            0.000778204945748962,
+            -0.009179629518444348,
+            0.12880909370625976,
+            0.059769975305246706
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "88cb70e3b01d4956f5b9e6bdecb8f440d51397d9436321349998027d2759776e",
+        "holesCapped": 24,
+        "capTriangles": 24,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "53ad731bd58310f17a2e54a19c1d9de13d3f522003e36be9c5da2594b141faac",
+        "method": "Exact coincident-position connectivity weld, explicit voxel surface revision, Blender collapse LOD, consistent smooth normals, new smart-project UV atlas; master-to-selected-LOD tangent normal bake",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "8d9c545d954e2a13cc4b5e5013cd9bbbef555661349d256feec91a68eb588f40",
+          "bytes": 10606252
+        },
+        "output": {
+          "name": "runtime.glb",
+          "sha256": "121d714e2e4c6b82075859c4c13ef38d4557eaf1b2a2b53547ef4c6b1b6b9df2",
+          "bytes": 625628
+        },
+        "normal": {
+          "name": "selected-normal.png",
+          "sha256": "4acff87a89ad18d8dd49f899fcd7773d899452eebae44347fd6be65074d61d75",
+          "bytes": 2068041
+        },
+        "targetTriangles": 19000,
+        "neckTrimApplied": false,
+        "neckTaperApplied": false
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10dc5-99d9-76f8-ae52-e0a635fa0c18",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "e6c54d8f6ddb7fe21b3145d1c2f9f751509665e1d5182ecb3e0857f75238b7b9",
+            "bytes": 5076396
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "eebbfc6ac021c480786cced748e7b458dacf62b5dbc22025ca65c3d403584d6b",
+            "bytes": 1566640
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "f7d42d09355e14afa793e8b156f2b0fb118ea32a03f294d738f06fb29061c39c",
+            "bytes": 170745
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "8d1e891c9b9fecc8ab34e549f92a10fcfbffad375ad9b212e7ef131fef93621f",
+            "bytes": 1439600
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "d609dc7d0f5164db572c44f05d158104e4c41ab31963e23952206ff8315c7d5f",
+            "bytes": 775909
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "cdd97fe7ca5412d57dfbbc3d4ce2809f1deb36b545e1f457d6ac253c01998501",
+            "bytes": 202330
+          }
+        ],
+        "returnedGeometrySelected": false,
+        "returnedNormalsSelected": false,
+        "uvAtlasTransferAuditSha256": "5e3e6ee40fc7e896ba8f8e07e8cd87ccb4dbbb4730eaf9bb744cd6b71cf2cb4f",
+        "atlasTransfer": {
+          "maximumPositionErrorSourceUnits": 8.521725647359091e-08,
+          "maximumUvError": 0,
+          "omittedSourceFaceIds": [
+            1166,
+            1644,
+            10751,
+            11300,
+            18143,
+            18976,
+            18977,
+            18978,
+            18980,
+            18981,
+            18983,
+            18985,
+            18986,
+            18987,
+            18988,
+            18989,
+            18991,
+            18992,
+            18993,
+            18994,
+            18995,
+            18996,
+            18997,
+            18999
+          ],
+          "omittedSourceAreas": [
+            6.326342628084519e-06,
+            1.1835012539791546e-06,
+            9.414503324994949e-06,
+            8.422124712336391e-07,
+            3.521715781255107e-05,
+            4.983576960405107e-06,
+            9.967279713921992e-06,
+            4.663244745100233e-07,
+            2.1926084559745812e-07,
+            6.098218444044425e-07,
+            3.2154800604982555e-05,
+            1.5740170252220024e-06,
+            1.4162181517961414e-05,
+            3.751088949005161e-06,
+            2.948377828225404e-05,
+            1.2544430388110752e-05,
+            4.888185999477543e-06,
+            6.348458382748406e-06,
+            2.5946945654321194e-06,
+            9.65670433485754e-06,
+            6.717937545051206e-05,
+            5.187101637304052e-07,
+            3.021457345715809e-06,
+            3.10044990274874e-06
+          ]
+        },
+        "normalSourceSha256": "4acff87a89ad18d8dd49f899fcd7773d899452eebae44347fd6be65074d61d75",
+        "normalGreenFlippedForUvTransport": false,
+        "runtimeSize": 1024,
+        "clientAppearancePending": true
+      }
+    },
+    {
+      "id": "elf-female-01",
+      "race": "elf",
+      "sex": "female",
+      "slot": 17,
+      "model": "pfe0_head017",
+      "brief": "Brown-skinned Elf woman about 30; auburn bob, pointed ears and complete jaw; no extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "pending",
+        "assembly": "pending",
+        "native": "pending",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "6c2d04b781e33a09d7e9527c40f66aa9d51d5e3a274cb2b096529b0bf5298002",
+        "donor": "352d2cf91590b67dad6b5fa31a6fbd35e755639bf3cd7143146f184a9a1c62ff"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "OpenAI-generated SRN references edited to remove extending neck while preserving full skull, chin and mandible; no external face/mesh references",
+        "source": {
+          "name": "source.png",
+          "sha256": "3d91ee4bc7a41cab4439dd7b9463bea91b07bfa706180991c6d6265036237f5b",
+          "bytes": 1939242
+        },
+        "prompt": {
+          "name": "prompt.txt",
+          "sha256": "fe46c1689b14afc98bc81cbc9605f110cc2ceec4dc2269fe5a44992a94ef3467",
+          "bytes": 1238
+        },
+        "ancestrySha256": "f8376b0827211a9bc680b93a282a2f5440f8274e7ce8cbe1b8607320ca09aff2",
+        "normalizationSha256": "87c345495c757e6dc2ac9b5b5b3279e9e07da970cbbcd1f0209e2ba25c547390",
+        "sharedScale": 1.5858407079646017,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "70b14d5063fcffcc29f7c9bd6e6451f6d18ae88124a52fb64c1ec1f74a05f638",
+            "bytes": 815078
+          },
+          {
+            "name": "left.png",
+            "sha256": "d3ed006a081cb977c10542e49b1077d308284177ac0bdd061ad173a315d05ec1",
+            "bytes": 913148
+          },
+          {
+            "name": "back.png",
+            "sha256": "b1598342b38600fed16b89ef336f47126e4728a1ba1ad0cce1ed9ba9a64a3416",
+            "bytes": 806979
+          },
+          {
+            "name": "right.png",
+            "sha256": "bc2f3729f8b07ff53ec1f677b23684f69e5ed6f6a557bb755d0153d9f14c2c33",
+            "bytes": 863718
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10d93-10e2-7349-8ff8-6ce332eaf267",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 2,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "58bec49b8bc26e5f121d8d6c171c54dc27a12d74873f920e5d3b3cf4837e1ecf",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "5ae3c856cc64df68c93a1bbfe760bf9c5904d475ab5a78910250f0c1b112d1bc",
+            "bytes": 3378028
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "86794a3feb584b28892911bdf86e14cf13695f30d6481d36fa50a6bef7268dc5",
+            "bytes": 185217356
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "dfaa69c86f044371c7f55ce23116e43220161a0dae9a561354960be0422fa74d",
+            "bytes": 191418
+          },
+          {
+            "name": "thumbnail_alpha.png",
+            "sha256": "dfaa69c86f044371c7f55ce23116e43220161a0dae9a561354960be0422fa74d",
+            "bytes": 191418
+          },
+          {
+            "name": "thumbnail_back.png",
+            "sha256": "032e8fa9d843b4c126431e5fc805b623a21db9c1fa71ef2adcb25c5ad5066477",
+            "bytes": 228200
+          },
+          {
+            "name": "thumbnail_front.png",
+            "sha256": "dfaa69c86f044371c7f55ce23116e43220161a0dae9a561354960be0422fa74d",
+            "bytes": 191418
+          },
+          {
+            "name": "thumbnail_left.png",
+            "sha256": "b2dea6d83e66f687b18915bfea80b49d178a35032424b29ecc80176add516251",
+            "bytes": 289184
+          },
+          {
+            "name": "thumbnail_right.png",
+            "sha256": "8595353e81bc495b2838ec68d925f597a720f5b22f1435ac8b47a07e6ae98483",
+            "bytes": 231776
+          }
+        ]
+      },
+      "pendingDependency": "Approved elf female normal-body target contract"
+    },
+    {
+      "id": "troll-male-01",
+      "race": "troll",
+      "sex": "male",
+      "slot": 14,
+      "model": "pmg0_head014",
+      "brief": "Olive-gray Troll man; heavy jaw, horns, tusks and flat-top hair; no extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "6d9be087d4cc31eae072c0696e65894bfaadbbf995fd147a678849c5abe1b14b",
+        "donor": "9e491780429ffc5ca9797ad22aecfb16df4a29c2b0f152da4d20475994c20aa5",
+        "fitting": "80931accf0cb6fffacd0385cf57d4c0df0f1c58733426b91a33baf965e72fa98",
+        "assembly": "3b747e055d5422bd91a63650a8d1fa392fdbe13ecb9622474469ec065cc6c961",
+        "native": "be8c1c879bc26dbd8a3f328e634dd6cdeddfa4d590affb0bc5a3d8a33608b6ad"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "OpenAI-generated SRN references edited to remove extending neck while preserving full skull, chin and mandible; no external face/mesh references",
+        "source": {
+          "name": "source.png",
+          "sha256": "acd1a2ebcdb9f597ad4cec70c0bbbac948e82b6b8af31808d28f3f33a71a6684",
+          "bytes": 2227017
+        },
+        "prompt": {
+          "name": "prompt.txt",
+          "sha256": "9ad91f06f6125d41a9950dc6dde1ebbb2ec36ed886d04acf90db2ffb19b97c16",
+          "bytes": 1302
+        },
+        "ancestrySha256": "e7d29b67de382bb2409d4f14948e1b4fddc061ebec86ad383a93ec172740fcaa",
+        "normalizationSha256": "aadc2a7a6e3850d91027d98989aedc9148ac9d6f59526ec6e5ab7161d44b2e3a",
+        "sharedScale": 1.52901023890785,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "573e7fa8384aaf369102fe89b358e73927409646fe20679573a0dc0856470f67",
+            "bytes": 894184
+          },
+          {
+            "name": "left.png",
+            "sha256": "25ac93c05742fd1b98f89b5319cb13a61f1f78e17c2dea62d06d823d95034e2d",
+            "bytes": 964376
+          },
+          {
+            "name": "back.png",
+            "sha256": "4880e3b55c35631d7ae0a7ee5f7e0a71203f7bc37dd1f87fa320f7abb272a533",
+            "bytes": 880201
+          },
+          {
+            "name": "right.png",
+            "sha256": "7355f32a8a49088193294ab17c34b37a5bfa8243b8ccc372f31ba1d7f0a8c348",
+            "bytes": 953232
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10d97-7a84-7574-b1e3-c8fef1dfcb6f",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 2,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "ed4aed9033330e8f40e3b5ef5b620508250fa957b3a6effafeecf23e3fe2d304",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "706cee037afcb3ba386ecbd0623a258232a0b2d106dff370a3688c212dc9d7d5",
+            "bytes": 3748032
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "43e46f997a132194b7d078c82f04877eb972f7738d035f40ae2533a94e106885",
+            "bytes": 183174284
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "dc17ec8f00a432d78adf15ded405c6e0faa2f142df31463da5a803fffec6f459",
+            "bytes": 176284
+          },
+          {
+            "name": "thumbnail_alpha.png",
+            "sha256": "dc17ec8f00a432d78adf15ded405c6e0faa2f142df31463da5a803fffec6f459",
+            "bytes": 176284
+          },
+          {
+            "name": "thumbnail_back.png",
+            "sha256": "fda14d89220ac7cb372df2bc3ca42144c1841c197a2c95f05f3c6e817611a30d",
+            "bytes": 169175
+          },
+          {
+            "name": "thumbnail_front.png",
+            "sha256": "dc17ec8f00a432d78adf15ded405c6e0faa2f142df31463da5a803fffec6f459",
+            "bytes": 176284
+          },
+          {
+            "name": "thumbnail_left.png",
+            "sha256": "bf83859647d9a801511ec02cd6b81c743fd32b2c0b6050d660a3d726c65a1842",
+            "bytes": 187220
+          },
+          {
+            "name": "thumbnail_right.png",
+            "sha256": "1c96a0d646fcfc8b9a6994f88ba0d36c80e0ca768fde838d465b7ee59b05a5ae",
+            "bytes": 195008
+          }
+        ]
+      },
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "74484766d60fbf4a14cda78650d779c01574583c10d06fa14b3eefb64b4d533a",
+        "bytes": 1825088
+      },
+      "candidateResources": [
+        {
+          "name": "pmg0_head014.mdl",
+          "sha256": "6a58b01c565fefba0b23fa688b22e153bfa0b8dd5e3d4df5d1b4333b5891e971",
+          "bytes": 1584076
+        },
+        {
+          "name": "pmg0_head014.mtr",
+          "sha256": "8e2946027231b85c7914ffe1212be7b82d06f7fa8ed67fe1463d851bbff387c2",
+          "bytes": 136
+        },
+        {
+          "name": "pmg0_head014.plt",
+          "sha256": "a7a58f0060edcc918ad12988e10e3a5a6f0af0c52e49b91d2c366cb20cd35f58",
+          "bytes": 2097176
+        },
+        {
+          "name": "pmg0_head014a.mtr",
+          "sha256": "366368f677e7ef33cdfccef9a7cc641c4496e60931b5d2a7ec434637a20f6866",
+          "bytes": 138
+        },
+        {
+          "name": "pmg0_head014a.tga",
+          "sha256": "919d1217d641141d38fe2a56727005a3fac9d22096a08e88e0f67752b7c082e2",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014an.tga",
+          "sha256": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014ar.tga",
+          "sha256": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014e.mtr",
+          "sha256": "a32b44c34f4235f064f38f094ceea3bee1ed1eb2ea7b130c34eafa3b749aa0a4",
+          "bytes": 138
+        },
+        {
+          "name": "pmg0_head014e.tga",
+          "sha256": "919d1217d641141d38fe2a56727005a3fac9d22096a08e88e0f67752b7c082e2",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014en.tga",
+          "sha256": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014er.tga",
+          "sha256": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014n.tga",
+          "sha256": "1ce29c06ffff690e5066ffa633d7f5d2b5bc1232c0f9519bb02fe545880bfa78",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmg0_head014r.tga",
+          "sha256": "2279fb79f0746b6e4f16d20a1da5af2714808dbeb54644ab008920b44223ade0",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "42fa201583d776dbceb5197497fcd63eba988d795cba07fcd071aba1a679f292",
+      "targetContractSha256": "331380741b4235de6758f3235a3359444fbc154b2b58b53d8b5894430c28d5c9",
+      "fit": {
+        "reportSha256": "7209adc4ca8f52a037e0c44fbab27eb7111222af39c7894a5aa8de3f3724ac54",
+        "uniformScale": 0.12992263001884558,
+        "maximumLandmarkErrorMetres": 0.03245876447860665,
+        "localMatrix": [
+          [
+            -0.1299211893827553,
+            0.0003182483626112256,
+            -0.0005225498672500245,
+            -0.0016930160627002472
+          ],
+          [
+            -0.00032708672546755753,
+            -0.12990344994230968,
+            0.002208279505340746,
+            0.0209671122856566
+          ],
+          [
+            -0.0005170634952214824,
+            0.002209570564471822,
+            0.12990281072508156,
+            0.047727644105671166
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "06abc8fa4f419cee891c0c160b109db68138677ff5d20d6a8d71531ed0a5c60f",
+        "holesCapped": 14,
+        "capTriangles": 14,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "7eb92d18ae21a18c0a79d35dc6e195a1da17f9970c2b59860c647f009d4295b1",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "07e3362874fe6cfdd45b37279b32a5262f9327fb761ed793ebe293b594592566",
+          "bytes": 10410460
+        },
+        "output": {
+          "name": "runtime.glb",
+          "sha256": "3e5b85affe754bec5a581ebb6719c7eb9f2e11b98b227a7a228eadc70ba4b062",
+          "bytes": 681336
+        },
+        "normal": {
+          "name": "selected-normal.png",
+          "sha256": "4d780a2fc7b544041194e35af2dc35ba5b417f93635b5039671cbe8483992d01",
+          "bytes": 1889574
+        },
+        "targetTriangles": 19000,
+        "neckTrimApplied": false,
+        "neckTaperApplied": false
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10e1e-2c48-7564-8d99-0424e41b92b1",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "cbd223a24d517a89e8c3a07b926373b1c42aa5bc79e522b7cc2f04ce7d093eb8",
+            "bytes": 4539696
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "aa4fcc915f4f39221324db0e2465aff447dac99f751a70dde51ee2d9020e5018",
+            "bytes": 1015264
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "f8fc0a73a83b97f1675ba7c29e24d6a7a4bcbbd16b67e628ef2d9ec95fcf813b",
+            "bytes": 120305
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "60ea7febac2387804b85f1fede125a415f053d022bd7e1972ba87d6d15d716de",
+            "bytes": 1048172
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "42507a1d441e65db72c2fedc85c0e452c37bd7b81ec557294637f131260ad957",
+            "bytes": 584456
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "7bd862cfdfa4ab7f666ff36a9f6d854d1e833d52d18adc992f089d0ca97096ee",
+            "bytes": 227533
+          }
+        ],
+        "returnedGeometrySelected": false,
+        "returnedNormalsSelected": false,
+        "uvAtlasTransferAuditSha256": "1f083103b4159522c07da1875b2e55a0e6f00ad5bec0e7ad6b4bdeb606189270",
+        "normalSourceSha256": "4d780a2fc7b544041194e35af2dc35ba5b417f93635b5039671cbe8483992d01",
+        "normalGreenFlippedForUvTransport": false,
+        "runtimeSize": 1024,
+        "clientAppearancePending": true,
+        "sourceSkinPaletteRow": 4,
+        "automaticSkinPaletteRowHeld": 24,
+        "sourceHairPaletteRow": 75
+      },
+      "body": {
+        "sourceBranchCommit": "be6391b",
+        "manifestSha256": "27a401ec8455fb71f226b75cd498140d1cea15cefe052902ffb28ede31243b99",
+        "protectedResources": 44,
+        "runtimeScale": 1.4285714285714286,
+        "fixtureRigSerialization": "parent-first; original node blocks and transforms preserved"
+      }
+    },
+    {
+      "id": "elf-male-01",
+      "race": "elf",
+      "sex": "male",
+      "slot": 19,
+      "model": "pme0_head019",
+      "brief": "Adult Elf male, angular face, pointed ears and modern side-swept hair; full skull and jaw without an extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "33df13e0d99780bd8f13a01305aa6ec1608983c0a3dc1be5e58884897bb2f1cc",
+        "donor": "dc5a7e8ea02006dc919ad2ec39b1c04621e7bf0f9e70707074f51004f4076cb4",
+        "fitting": "ed83a0a6fc2610969a831ffd3f51dc069a0c0000b267b2e8a5778b61ccc529c6",
+        "assembly": "d4231713fef2d78a245f5defe012d7789c8ea0e74e5f17698702cd182af9b0a1",
+        "native": "fc6cb048933d178657006582a81ed0074c748d3ccfe826a29baea6b6c73bdc38"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "Original OpenAI-generated SRN full skull/jaw isolated head views; no external face or mesh references",
+        "source": {
+          "name": "source-v1.png",
+          "sha256": "d6909e0560c5f310daa2604c2ace531caf1a1e365866b13ea215b7eef10fdd9d",
+          "bytes": 1449274
+        },
+        "prompt": {
+          "name": "prompt-v1.txt",
+          "sha256": "78d5d70b1c6a83d92c16480637e62ab45aff31409693cf5042df03bcdd0e3ebc",
+          "bytes": 1262
+        },
+        "ancestrySha256": "93d92b2de888ac14779e61d2eb8798f4b5095e1782ac52d8f5984f718cff4ee9",
+        "normalizationSha256": "af0fd254c0ee3bcc8b060ed897296ef52045f8f2d14603de859c8614f4d3987c",
+        "sharedScale": 1.7534246575342465,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "0597dc7e87d176112e856d7061f759c58ab507ebaf6b1a2012440a4265dde9a1",
+            "bytes": 652101
+          },
+          {
+            "name": "left.png",
+            "sha256": "f305b044ad992d394acb96ca99e2a57f6367179243dbbaa6ebf2900ec53925c6",
+            "bytes": 816383
+          },
+          {
+            "name": "back.png",
+            "sha256": "3a335e9cc17e7ec6e0c9487d34d26ce016001e99161c14c748adacce6e18b9ff",
+            "bytes": 667472
+          },
+          {
+            "name": "right.png",
+            "sha256": "e5a2df79dca353c16e93eaf0854b01b8494e31ca135cb1f20006320ff0c4be2d",
+            "bytes": 769776
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10e5f-8d6e-736b-b624-c7977c9c7593",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 1,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "b093a3d3f43e15cf145ccd40b65469d66cd715b846c7657d7379dbae0eb8de6b",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "253cefa9208374e4fc71de67bb40d18f945c4349c927473d1e30572ed76c3199",
+            "bytes": 3371768
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "4039be15790a6f24dae3de830fead5957062ef78af45840bff730ac52961cc88",
+            "bytes": 187572380
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "dc7caea1b95dfbdf69c0650a937d21d86005c5ae2ea72dfbc544ae4cea8d59b5",
+            "bytes": 160181
+          }
+        ]
+      },
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "48639f0f5ca09afc60030213c1a31d6e3fc5428336e68d5bf50ab1d769205b1a",
+        "bytes": 1825088
+      },
+      "candidateResources": [
+        {
+          "name": "pme0_head019.mdl",
+          "sha256": "e61a96be76004a610a8ca8e4d07e81f798fab567cd3e6aeb741f5c9edc127465",
+          "bytes": 1493428
+        },
+        {
+          "name": "pme0_head019.mtr",
+          "sha256": "4a4e287b1a7bdd67b38aebe4596341411f2d45c01c84fddc08b79da629e4c01e",
+          "bytes": 136
+        },
+        {
+          "name": "pme0_head019.plt",
+          "sha256": "432f58fb111ea0058745972f79261bd26f48ac8b03b8024a0fed90ab70017bbc",
+          "bytes": 2097176
+        },
+        {
+          "name": "pme0_head019e.mtr",
+          "sha256": "fc775ce1b1cfce003443a3feb91a888c09577c7caf3c1039bc16d411e515a4a8",
+          "bytes": 138
+        },
+        {
+          "name": "pme0_head019e.tga",
+          "sha256": "64b1f20f236810a11f4e16ae4d44d0f3f711d3f9bae0e253e8ffdb1c27457b6f",
+          "bytes": 3145772
+        },
+        {
+          "name": "pme0_head019en.tga",
+          "sha256": "e51c5bcc102ba6629d100df24cc975fa229ae9c40877350efb72348276400a67",
+          "bytes": 3145772
+        },
+        {
+          "name": "pme0_head019er.tga",
+          "sha256": "24d6551b6651ba3aaf04b45e03ec43377c55ed5dac915eef730306b9eb13e717",
+          "bytes": 3145772
+        },
+        {
+          "name": "pme0_head019n.tga",
+          "sha256": "e51c5bcc102ba6629d100df24cc975fa229ae9c40877350efb72348276400a67",
+          "bytes": 3145772
+        },
+        {
+          "name": "pme0_head019r.tga",
+          "sha256": "24d6551b6651ba3aaf04b45e03ec43377c55ed5dac915eef730306b9eb13e717",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "e88de125ee47ec03fae47e114e522920aa4914304ef322452ab9e7c08e1a4391",
+      "targetContractSha256": "23e40af75a059ba8edb7d0908b3f7b2d1c126d9cd034ec74ea599dcdaf025562",
+      "fit": {
+        "uniformScale": 0.11111513540987186,
+        "maximumLandmarkError": 0.01332481542905619,
+        "matrix": [
+          [
+            -0.11111331847100184,
+            0.00040330239002164743,
+            0.0004910424605807351,
+            0.002514409553734102
+          ],
+          [
+            -0.00042989568157819754,
+            -0.11094359183851799,
+            -0.0061569421651860145,
+            0.0021341348328947525
+          ],
+          [
+            0.00046793719541277415,
+            -0.006158741292235588,
+            0.11094333804979288,
+            0.05839982020297246
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "headBindMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            -7.391e-08
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            -0.021517399999999996
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            1.703071594
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "cranialEnvelope": [
+          [
+            -0.108,
+            -0.13,
+            -0.07
+          ],
+          [
+            0.108,
+            0.15,
+            0.205
+          ]
+        ],
+        "bodyRevision": "a90fe4d8fcec692763db8b745f9792f95422cc33cf66899f21c1b18d0b0d961e",
+        "targetRevisionNotes": "Initial reviewed working cranial envelope; runtime/client acceptance pending."
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "015dcad2801d17e960d7c07a398661521fc07fcb940752a71664595f11bdc55c",
+        "holesCapped": 4,
+        "capTriangles": 4,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "a42d297d88e92c201352f63e1fbdac2085bc6648ca9e844ca9c2bcbe0513722b",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "f3a983243af6e104bc82de23280d728616298ae25187d61a555364a44cdeba67",
+          "bytes": 10606184
+        }
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10e6f-8415-7113-a3a4-fcc141ca5b06",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "collectionSha256": "ba3ea9cfee4ced4279309b163c1a7a476d5dc035df069bf8cd06518bdab869bb",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "0fe6bda092d746f429d5b11fb67cee398f864ecca515f48b7b28235418d1e547",
+            "bytes": 4673388
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "21cf2e3514c8cf471e8f1ead5a7f65f857685bc9eae0b247a212b8cdd788eec7",
+            "bytes": 1501227
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "344b966b33d9561b7a7e30f78a842b65a9783cfbab6d476120d1e247f2302691",
+            "bytes": 161177
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "0b1e69e56d2ee7359aa721bb967b08b95f9a5060e208326ed52378a4fda98de9",
+            "bytes": 1398486
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "7c511ce09307178d5a9d8c053418309c539a9e6b718283dbbdfe43d96485ee8e",
+            "bytes": 730939
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "76290af026912c43e6017ec9eb22220a8957e2356c4593c6333e7b5b40c1127d",
+            "bytes": 187699
+          }
+        ],
+        "maskRevision": "v9",
+        "atlasAuditSha256": "48bb8248a0000b21b062f2fa6d070e6fc56a69ddaeb7d325448da0d2c7839922",
+        "runtimeSize": 1024,
+        "selectedUvPreserved": true,
+        "highSourceNormalRetained": true,
+        "returnedGeometrySelected": false,
+        "normalGreenInverted": false
+      },
+      "body": {
+        "sourceBranchCommit": "be6391b437332eeae64ca3df54e952c9749a288d",
+        "manifestSha256": "a90fe4d8fcec692763db8b745f9792f95422cc33cf66899f21c1b18d0b0d961e",
+        "protectedResources": 44,
+        "runtimeScale": 1.0857142857142856,
+        "fixtureRigSerialization": "parent-first; original nodes and animation text preserved",
+        "resources": [
+          {
+            "path": "resources/pme0_bicepl001.mdl",
+            "sha256": "7e1ea7bc5001849d99af86f8a93ddd9699c01dd68bbe9d43a08f95b3f557dd6f"
+          },
+          {
+            "path": "resources/pme0_bicepl001.mtr",
+            "sha256": "dcf38d3e0d114ef3c5d476b0493c6566bbb7561083cc20ec26008931b40fdaa0"
+          },
+          {
+            "path": "resources/pme0_bicepl001.plt",
+            "sha256": "714c44cdbfdd940f278d946db77e0ea2d7e30c3351cba9f2d0ff5ccf06374ecd"
+          },
+          {
+            "path": "resources/pme0_bicepr001.mdl",
+            "sha256": "f19efd2cf2eec4bc2104339956cc2188633cdaa297f4c71b4227582a87c74872"
+          },
+          {
+            "path": "resources/pme0_bicepr001.mtr",
+            "sha256": "5451a0147ba6348122e851025991509227ad26fa501d70ffe95a250b97de449b"
+          },
+          {
+            "path": "resources/pme0_bicepr001.plt",
+            "sha256": "f345d6b907139521acddf297be62ad138689bf634677b9350c4eb1a87caf9935"
+          },
+          {
+            "path": "resources/pme0_chest001.mdl",
+            "sha256": "6ffaabc912b48e830853f1aebec86a8966591db2995b3314b36c30d389363663"
+          },
+          {
+            "path": "resources/pme0_chest001.mtr",
+            "sha256": "a5b910a9324316fabe4ee34b67678340f29bb8a704e41f81064077b89a74d396"
+          },
+          {
+            "path": "resources/pme0_chest001.plt",
+            "sha256": "a1cbede36e7f2e03998152cd336634fb414bc124fafff1966e09c2e99d2d42be"
+          },
+          {
+            "path": "resources/pme0_footl001.mdl",
+            "sha256": "dfa494a4c418637e39d425a9df9a0fdc15b05824f571a04d8e5c13a998ae7766"
+          },
+          {
+            "path": "resources/pme0_footl001.mtr",
+            "sha256": "68997d26d4cbb3d4f65226454c7919b1bad696dabe2b8dc7a5a9c9d19844461c"
+          },
+          {
+            "path": "resources/pme0_footl001.plt",
+            "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c"
+          },
+          {
+            "path": "resources/pme0_footr001.mdl",
+            "sha256": "42a783ea3d8d4049cad2a57590767b52ace1a8990565a59d69ee0aaf52c81789"
+          },
+          {
+            "path": "resources/pme0_footr001.mtr",
+            "sha256": "9181b8ddb022feb47255bb24b82410fd1db81d24b9be748f153a21797493f3f1"
+          },
+          {
+            "path": "resources/pme0_footr001.plt",
+            "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c"
+          },
+          {
+            "path": "resources/pme0_forel001.mdl",
+            "sha256": "41828267d2b5d42a109eaf3c4e1b7dc2ce9f73c7e7cbb1b6ea7a4941f0020cc1"
+          },
+          {
+            "path": "resources/pme0_forel001.mtr",
+            "sha256": "ae06b9e1c2933eea58ad6e60c656cf6c1bffdf1d16c16f413eafd79047934a13"
+          },
+          {
+            "path": "resources/pme0_forel001.plt",
+            "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a"
+          },
+          {
+            "path": "resources/pme0_forer001.mdl",
+            "sha256": "48244479791c7c4942acf8e3e29e1e59de909c4cf63688593224c3d4d0ad2c7d"
+          },
+          {
+            "path": "resources/pme0_forer001.mtr",
+            "sha256": "cb5c157171322e18ace217077f3818b01ed0946de52edb466942eab08de99b85"
+          },
+          {
+            "path": "resources/pme0_forer001.plt",
+            "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a"
+          },
+          {
+            "path": "resources/pme0_handl001.mdl",
+            "sha256": "92411778d7fa35d73bb50265a6b12893c26d1e98d968ecc792d92c527f07f13a"
+          },
+          {
+            "path": "resources/pme0_handl001.mtr",
+            "sha256": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498"
+          },
+          {
+            "path": "resources/pme0_handl001.plt",
+            "sha256": "a12b099def9b886f978e0083b2e9840ad4de8176f258977c50f49e3928a8a6f8"
+          },
+          {
+            "path": "resources/pme0_handr001.mdl",
+            "sha256": "b60100df4a3b60866a7ba61faa3d02ddecce0ea27ff18903c855c92ca802410c"
+          },
+          {
+            "path": "resources/pme0_handr001.mtr",
+            "sha256": "baad8aa75ba04a31ea994a3442ec97eb705524f54c9f3852defc4f5c9806022f"
+          },
+          {
+            "path": "resources/pme0_handr001.plt",
+            "sha256": "103b8cee558c05097dd2cc02a89ee041fe8d529ec18b47780ee155a073d1cbbb"
+          },
+          {
+            "path": "resources/pme0_legl001.mdl",
+            "sha256": "a731b275beff4a64ba8e9b608371c8d4e7f4730dcdf445d1a8a002e69cc5d70b"
+          },
+          {
+            "path": "resources/pme0_legl001.mtr",
+            "sha256": "b566e78518a0087728544238d01a88ec25e56766ce5438ba9a89ef4dba2bc467"
+          },
+          {
+            "path": "resources/pme0_legl001.plt",
+            "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece"
+          },
+          {
+            "path": "resources/pme0_legr001.mdl",
+            "sha256": "b7060d96d4be37923e8e5b2c68e1f7adddc089743cff33c26231f01a36c26256"
+          },
+          {
+            "path": "resources/pme0_legr001.mtr",
+            "sha256": "1741df5e302bc913cc5fa40cc126fdf9832687a2752c713294b20a7a8605d4d8"
+          },
+          {
+            "path": "resources/pme0_legr001.plt",
+            "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece"
+          },
+          {
+            "path": "resources/pme0_pelvis001.mdl",
+            "sha256": "e07eef380fa08e8b5a5644a7850ce42ce8bd86b7e25c97f631c9f7f48538e101"
+          },
+          {
+            "path": "resources/pme0_pelvis001.mtr",
+            "sha256": "fd17a10276d22cab12adcbd265d6878053fcf580bd9931b721c5543d93dc3bf2"
+          },
+          {
+            "path": "resources/pme0_pelvis001.plt",
+            "sha256": "641a251d05ba30297009d0d184f7089dcbaad94e2baabc07405aa033da281d3b"
+          },
+          {
+            "path": "resources/pme0_pelvis001f.mtr",
+            "sha256": "9b30d76a82cd6c446ec452f1c71071fff58c988f6e6ae4aad0477c3b98caf5c8"
+          },
+          {
+            "path": "resources/pme0_pelvis001f.tga",
+            "sha256": "93a8f2faeac57cac7ca745c593c61d54e4e7ad6700b2f368d049213fb3306f17"
+          },
+          {
+            "path": "resources/pme0_shinl001.mdl",
+            "sha256": "15314a928f332471782f801f79acb11a91e60203135ec0dc7c911b6f7ac9671a"
+          },
+          {
+            "path": "resources/pme0_shinl001.mtr",
+            "sha256": "358bbd913357c9fc0648d224cd9363712258ffdcbc5290f4cea136e8552d866b"
+          },
+          {
+            "path": "resources/pme0_shinl001.plt",
+            "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c"
+          },
+          {
+            "path": "resources/pme0_shinr001.mdl",
+            "sha256": "a86194661f909c714e9d6f8aeba8daaa7b01e0fb3ecb06397bc4b7b03e20a264"
+          },
+          {
+            "path": "resources/pme0_shinr001.mtr",
+            "sha256": "62b07d272e095dcb090ae2256137e32ac57558a006f175f0b4719662c0d5158e"
+          },
+          {
+            "path": "resources/pme0_shinr001.plt",
+            "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dwarf-male-01",
+      "race": "dwarf",
+      "sex": "male",
+      "slot": 14,
+      "model": "pmd0_head014",
+      "brief": "Adult Dwarf male, broad face, cropped textured hair and full modern beard; full skull and jaw without an extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "d4b404352e082329f6729db8684d2069a9a6d05e3aa0739550ecbd4e1a1825d0",
+        "donor": "7b2f48100085aa3ecff1200210ee52f21078681771fd30b73aa65ba5a5b41b00",
+        "fitting": "599bf1c4b3dc03ddb14f48af9caaf59072270c387aa1dbfbc5ecaada8b72e68a",
+        "assembly": "e5ccf47f3a0bf7455f48b448ac373b5ef77898c5e482125ca1df0098d85b758c",
+        "native": "1c1e50395d07d50bd71c0e1a1e2c910ebe23ae8eb5074dc8cd9b1400002e7813"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "Original OpenAI-generated SRN full skull/jaw isolated head views; no external face or mesh references",
+        "source": {
+          "name": "source-v1.png",
+          "sha256": "ac35785e4fb00ca367ec60d88ed335a352b34b00165006608b0f6c56a3d38d9c",
+          "bytes": 2221175
+        },
+        "prompt": {
+          "name": "prompt-v1.txt",
+          "sha256": "2b4eeef64a9948ef047521cfcbc8304fa484f27f1722737e44ac63d95153268a",
+          "bytes": 1361
+        },
+        "ancestrySha256": "deccf30d00175dcf1aa7c88d05b79369bd75907305d5d47b7f2367ca292f6971",
+        "normalizationSha256": "2c4bd044fe9f56f7348f4144988ff31e85f07de111f63d696311329e8ddfd266",
+        "sharedScale": 1.8436213991769548,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "fbb512626fe0b1d25e369a9927898e55ba7e191c22c53f3c40e455f4278ce2a5",
+            "bytes": 737835
+          },
+          {
+            "name": "left.png",
+            "sha256": "8853951e2cbfb7b79edaf96fad5ddacf77d36418cb6ba4ef154b6a5f7c15c94d",
+            "bytes": 860682
+          },
+          {
+            "name": "back.png",
+            "sha256": "055b8f8a1225495af6ca7988d4862aa8d65bcf56c53336515d3f2e7601511b48",
+            "bytes": 733767
+          },
+          {
+            "name": "right.png",
+            "sha256": "4c46daa044f48bb44397e984f7ec7b471735f8c44233d211221902589b41de04",
+            "bytes": 895537
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10e63-3c23-7477-9b42-d01271d1926e",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 1,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "333e3e3d42d64476ea4564affd456312e4f9c6651618b78ee6df186cbffd6af0",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "192d22fe55cd9d83e4dae306d3f7007d0e401425bec8d38655d1b9b10d49083f",
+            "bytes": 3791184
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "9c26ee8b0185ea600b32af8f7c8649a5a5d05fc246c7b9bf4a994d09f2199fad",
+            "bytes": 189436652
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "899e66be3213fd6760cf5d58e89293e88db1d93a3dd14aa8a3c64c4927a78309",
+            "bytes": 192427
+          }
+        ]
+      },
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "c7a241ce4a7155369dea3500db5fe441438764d249665b0d8d01a0e76bef6fb2",
+        "bytes": 1825088
+      },
+      "candidateResources": [
+        {
+          "name": "pmd0_head014.mdl",
+          "sha256": "0e48aca5039ab5acfa527440b4bf6a2266221c77b6ec43fc8ea24e8b1778e8b1",
+          "bytes": 1550452
+        },
+        {
+          "name": "pmd0_head014.mtr",
+          "sha256": "872082af4bf8b84a8585c31a52a91fb25853420c39234ddd7795bed7a130a825",
+          "bytes": 136
+        },
+        {
+          "name": "pmd0_head014.plt",
+          "sha256": "aaeb4045d92199f431f638cded2de8bb46915dd4fa16d0e6924acbfb4cb25cc3",
+          "bytes": 2097176
+        },
+        {
+          "name": "pmd0_head014e.mtr",
+          "sha256": "d6f06bc7f16f3d8657f66f5cd34d4b84f62dfdecc4c2ab2cf972586c2182c22f",
+          "bytes": 138
+        },
+        {
+          "name": "pmd0_head014e.tga",
+          "sha256": "03eab89ee33ccd736e66635584d7b8dcb86257d3bad2655d6fbd8c7fc8cae31a",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmd0_head014en.tga",
+          "sha256": "95ac0cda1c9edcd2d900d736c2dcd1426dbcf57412078a0c84068015d827d03c",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmd0_head014er.tga",
+          "sha256": "6e7668cdf4ba9fc18460bffed639b3cc1689d21178e5aab0ad592e677534378c",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmd0_head014n.tga",
+          "sha256": "95ac0cda1c9edcd2d900d736c2dcd1426dbcf57412078a0c84068015d827d03c",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmd0_head014r.tga",
+          "sha256": "6e7668cdf4ba9fc18460bffed639b3cc1689d21178e5aab0ad592e677534378c",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "d3744a35e6b55f41eb4e30bd4cd4ed27951784673c1fa1e691295a1458112e5a",
+      "targetContractSha256": "b4de413bbd20db9cef2ab608db8a6caf6b355a3271eb01367a46a540d94d47ef",
+      "fit": {
+        "uniformScale": 0.14896005079418956,
+        "maximumLandmarkError": 0.03074050206530755,
+        "matrix": [
+          [
+            -0.14895898741646282,
+            0.00020299117339046217,
+            0.0005249714784056663,
+            -0.0035361241069420987
+          ],
+          [
+            -0.00011957125089565485,
+            -0.1471766231470132,
+            0.022980949379117443,
+            -0.005850686695416876
+          ],
+          [
+            0.0005500028959679345,
+            0.022980363927342973,
+            0.1471757354430031,
+            0.07042483260281236
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "headBindMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            -0.011517389999999992
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            1.682071694
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "cranialEnvelope": [
+          [
+            -0.16,
+            -0.17,
+            -0.085
+          ],
+          [
+            0.16,
+            0.18,
+            0.23
+          ]
+        ],
+        "bodyRevision": "baefd1576f61a74428d8c2700ebddba19b2a85718bdd8236eafa03246b318bc7",
+        "targetRevisionNotes": "Working cranial envelope only: retain the full beard/jaw below the previous draft bound. Body, neck, rig, attachment frame and fit matrix unchanged. Production/client review pending."
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "2b3b5db89a568134c2ba1ec8dd813d52487daaa16bfac2949311b02f008220bd",
+        "holesCapped": 2,
+        "capTriangles": 2,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "64c4536b0c660f98eed16fb469e1dd9a31c2d0f7ae15f6adaa80d9a1edb2a390",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "691bd57cf1aed0ae9dc80595f7fee07701e4c06feab531e4a14169ad96cb598c",
+          "bytes": 10738732
+        }
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10e78-305e-722d-a7e9-12b374ba749b",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "collectionSha256": "1c9dcfcfec63ad0975ce4031baed5acef16f6c3230645a54aebba097f444af2a",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "6796cc57be7a265a32816b6f1a6011033f7c9d6631ef652f47997684cb5ab04a",
+            "bytes": 4547344
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "ca31f2b83d8fadb906f28f1955ecad53a481f416cf8b034c721e1c3704ef1a3a",
+            "bytes": 1063451
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "416aca779144d252f27a9871c63d3afb3476385b8964f447b5782593a847917b",
+            "bytes": 70988
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "f618cc4ebb2aa983cf081eccc4cbfd54536e384b550172d4fcb6ec9f25276e5a",
+            "bytes": 1115570
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "ca3910ba1dbd6a3e0e8ed0b4fe7395197d980619a12e84a9c196bc84a30f8055",
+            "bytes": 578317
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "2a161e6a17263043e6fb7f96fa69ed6864c8fa7ea95960be64e552e321a6f4bb",
+            "bytes": 204145
+          }
+        ],
+        "maskRevision": "v7",
+        "atlasAuditSha256": "bc9251272492b5152d54c3fc7d303eba4115041e83a360af3b90b1ef3380302c",
+        "runtimeSize": 1024,
+        "selectedUvPreserved": true,
+        "highSourceNormalRetained": true,
+        "returnedGeometrySelected": false,
+        "normalGreenInverted": false
+      },
+      "body": {
+        "sourceBranchCommit": "be6391b437332eeae64ca3df54e952c9749a288d",
+        "manifestSha256": "baefd1576f61a74428d8c2700ebddba19b2a85718bdd8236eafa03246b318bc7",
+        "protectedResources": 44,
+        "runtimeScale": 1.0,
+        "fixtureRigSerialization": "parent-first; original nodes and animation text preserved",
+        "resources": [
+          {
+            "path": "resources/pmd0_bicepl001.mdl",
+            "sha256": "c176313f2fbfe56e22a978a92c1dbadfe2e56376c68b0dbcc4260db4c045a922"
+          },
+          {
+            "path": "resources/pmd0_bicepl001.mtr",
+            "sha256": "dcf38d3e0d114ef3c5d476b0493c6566bbb7561083cc20ec26008931b40fdaa0"
+          },
+          {
+            "path": "resources/pmd0_bicepl001.plt",
+            "sha256": "714c44cdbfdd940f278d946db77e0ea2d7e30c3351cba9f2d0ff5ccf06374ecd"
+          },
+          {
+            "path": "resources/pmd0_bicepr001.mdl",
+            "sha256": "ce84a03e3d13385e9cc81f671a2a22b9ca574a5616fb23e67e2233c2aab2abb4"
+          },
+          {
+            "path": "resources/pmd0_bicepr001.mtr",
+            "sha256": "5451a0147ba6348122e851025991509227ad26fa501d70ffe95a250b97de449b"
+          },
+          {
+            "path": "resources/pmd0_bicepr001.plt",
+            "sha256": "f345d6b907139521acddf297be62ad138689bf634677b9350c4eb1a87caf9935"
+          },
+          {
+            "path": "resources/pmd0_chest001.mdl",
+            "sha256": "4ff5e254fec6e703344bf1c98146722e9baa8c640448b2b492536d9ae034b998"
+          },
+          {
+            "path": "resources/pmd0_chest001.mtr",
+            "sha256": "a5b910a9324316fabe4ee34b67678340f29bb8a704e41f81064077b89a74d396"
+          },
+          {
+            "path": "resources/pmd0_chest001.plt",
+            "sha256": "a1cbede36e7f2e03998152cd336634fb414bc124fafff1966e09c2e99d2d42be"
+          },
+          {
+            "path": "resources/pmd0_footl001.mdl",
+            "sha256": "7e3599eca62872cf483b68b37a2ee966d1fa76a1b080dc2b31b99ac5c29f75cf"
+          },
+          {
+            "path": "resources/pmd0_footl001.mtr",
+            "sha256": "68997d26d4cbb3d4f65226454c7919b1bad696dabe2b8dc7a5a9c9d19844461c"
+          },
+          {
+            "path": "resources/pmd0_footl001.plt",
+            "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c"
+          },
+          {
+            "path": "resources/pmd0_footr001.mdl",
+            "sha256": "7336144e481c395f4b419cd0a98602ff71cd1c1d35bceb20ef65fedcd0bb4ef3"
+          },
+          {
+            "path": "resources/pmd0_footr001.mtr",
+            "sha256": "9181b8ddb022feb47255bb24b82410fd1db81d24b9be748f153a21797493f3f1"
+          },
+          {
+            "path": "resources/pmd0_footr001.plt",
+            "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c"
+          },
+          {
+            "path": "resources/pmd0_forel001.mdl",
+            "sha256": "e3b868053c6a8f7d38862026e181f736610d6338bc019024d1726db30e802883"
+          },
+          {
+            "path": "resources/pmd0_forel001.mtr",
+            "sha256": "ae06b9e1c2933eea58ad6e60c656cf6c1bffdf1d16c16f413eafd79047934a13"
+          },
+          {
+            "path": "resources/pmd0_forel001.plt",
+            "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a"
+          },
+          {
+            "path": "resources/pmd0_forer001.mdl",
+            "sha256": "132d1c57f7dcf0b286e37cacc5ab001217a2dcec91e26dfb346814bbdbbc0079"
+          },
+          {
+            "path": "resources/pmd0_forer001.mtr",
+            "sha256": "cb5c157171322e18ace217077f3818b01ed0946de52edb466942eab08de99b85"
+          },
+          {
+            "path": "resources/pmd0_forer001.plt",
+            "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a"
+          },
+          {
+            "path": "resources/pmd0_handl001.mdl",
+            "sha256": "1be92eab92510b2bd08e6036f50f622bb4c8f9c0d72fdc458a7e3cea3a49ba0d"
+          },
+          {
+            "path": "resources/pmd0_handl001.mtr",
+            "sha256": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498"
+          },
+          {
+            "path": "resources/pmd0_handl001.plt",
+            "sha256": "a12b099def9b886f978e0083b2e9840ad4de8176f258977c50f49e3928a8a6f8"
+          },
+          {
+            "path": "resources/pmd0_handr001.mdl",
+            "sha256": "ef6b66db3cf1c7a964c796ac9bba0b6000ced6517f45bf1b73a7660e37d37339"
+          },
+          {
+            "path": "resources/pmd0_handr001.mtr",
+            "sha256": "baad8aa75ba04a31ea994a3442ec97eb705524f54c9f3852defc4f5c9806022f"
+          },
+          {
+            "path": "resources/pmd0_handr001.plt",
+            "sha256": "103b8cee558c05097dd2cc02a89ee041fe8d529ec18b47780ee155a073d1cbbb"
+          },
+          {
+            "path": "resources/pmd0_legl001.mdl",
+            "sha256": "7aee1e27ee464c7cd87e5a58f7001ae0585223f8095d4d08ae0be2eaf231bd18"
+          },
+          {
+            "path": "resources/pmd0_legl001.mtr",
+            "sha256": "b566e78518a0087728544238d01a88ec25e56766ce5438ba9a89ef4dba2bc467"
+          },
+          {
+            "path": "resources/pmd0_legl001.plt",
+            "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece"
+          },
+          {
+            "path": "resources/pmd0_legr001.mdl",
+            "sha256": "c89b4bb9f13f3b782e7d99fbe32e8d60c1c2b2f1313295411abee6d1fde727ee"
+          },
+          {
+            "path": "resources/pmd0_legr001.mtr",
+            "sha256": "1741df5e302bc913cc5fa40cc126fdf9832687a2752c713294b20a7a8605d4d8"
+          },
+          {
+            "path": "resources/pmd0_legr001.plt",
+            "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece"
+          },
+          {
+            "path": "resources/pmd0_pelvis001.mdl",
+            "sha256": "5a2df8d98e6fbc6197c6ff3d21a278edc4fd680973a5d1ab74a47de6d0a2946d"
+          },
+          {
+            "path": "resources/pmd0_pelvis001.mtr",
+            "sha256": "fd17a10276d22cab12adcbd265d6878053fcf580bd9931b721c5543d93dc3bf2"
+          },
+          {
+            "path": "resources/pmd0_pelvis001.plt",
+            "sha256": "641a251d05ba30297009d0d184f7089dcbaad94e2baabc07405aa033da281d3b"
+          },
+          {
+            "path": "resources/pmd0_pelvis001f.mtr",
+            "sha256": "c87de2d34dbb471e619df8e740a98d40c56720be08188540d7b788bfe0909c2f"
+          },
+          {
+            "path": "resources/pmd0_pelvis001f.tga",
+            "sha256": "93a8f2faeac57cac7ca745c593c61d54e4e7ad6700b2f368d049213fb3306f17"
+          },
+          {
+            "path": "resources/pmd0_shinl001.mdl",
+            "sha256": "7b00d14d0fcc97f1241c048bb21c8f7a3a555cc0a164874f0f9385043dd054c2"
+          },
+          {
+            "path": "resources/pmd0_shinl001.mtr",
+            "sha256": "358bbd913357c9fc0648d224cd9363712258ffdcbc5290f4cea136e8552d866b"
+          },
+          {
+            "path": "resources/pmd0_shinl001.plt",
+            "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c"
+          },
+          {
+            "path": "resources/pmd0_shinr001.mdl",
+            "sha256": "9bbfefd4258689457fd8f9391aa1c7a0fc2a4b95e1cb787b4ee7a7190af497ff"
+          },
+          {
+            "path": "resources/pmd0_shinr001.mtr",
+            "sha256": "62b07d272e095dcb090ae2256137e32ac57558a006f175f0b4719662c0d5158e"
+          },
+          {
+            "path": "resources/pmd0_shinr001.plt",
+            "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "orc-male-01",
+      "race": "orc",
+      "sex": "male",
+      "slot": 14,
+      "model": "pmo0_head014",
+      "brief": "Adult Orc male, heavy brow, wide jaw, short cropped hair and visible ivory tusks; full skull and jaw without an extending neck.",
+      "stages": {
+        "reference": "passed",
+        "donor": "passed",
+        "fitting": "passed",
+        "assembly": "passed",
+        "native": "passed",
+        "client": "pending",
+        "acceptance": "pending"
+      },
+      "reviewHashes": {
+        "reference": "433d9e78ddc0e09f1ede82f18edba2bf5f5388a81773990f073575cdd4f7f5ca",
+        "donor": "8e849169a2f6620e0b43136a5edc8a4c60f13f33329ae0f40e224e7b2b4304e8",
+        "fitting": "d8870c264ddc0052f808fc988bace101069ea6137a2faddcf09c4580046f1056",
+        "assembly": "120c3014a874c230d79e3db63d6f13f03c9ba850c90fc81ed3857948b7f85582",
+        "native": "30a4c72c0c4a58cf216bbb04b41bb7bb93aaa581adcf6a479d6424c4107d1612"
+      },
+      "clientValidated": false,
+      "productionAccepted": false,
+      "reference": {
+        "origin": "Original OpenAI-generated SRN full skull/jaw isolated head views; no external face or mesh references",
+        "source": {
+          "name": "source-v1.png",
+          "sha256": "8e6a53595d5bb1512b232055be0be07a0171d802c1ade941d919f639bb8c3862",
+          "bytes": 1743756
+        },
+        "prompt": {
+          "name": "prompt-v1.txt",
+          "sha256": "6fff9287d41fa3ea0156e47a8fe105a2a43d5a5b1e435a5b438029c381dcf7a8",
+          "bytes": 1305
+        },
+        "ancestrySha256": "6437d49bab8d9b6a3e191dac3195fc72053da2844f6c82a01659bf8e5f0ae275",
+        "normalizationSha256": "1a84db9ab5143706741ba930f5bf5c6b8ef9fb920a5871bc02659dcd35d1c08a",
+        "sharedScale": 1.6592592592592592,
+        "views": [
+          {
+            "name": "front.png",
+            "sha256": "5772d738c1b4dbe59c262dae99f67d992ba20e7d95a87782f9eb899c3888f1f2",
+            "bytes": 739851
+          },
+          {
+            "name": "left.png",
+            "sha256": "eae922a395ad9193b6886ae1966b6b5632a18fb8f36aaa10c261fc555aea33c9",
+            "bytes": 884008
+          },
+          {
+            "name": "back.png",
+            "sha256": "896b153576e828aa3fcbee1b57082665a745b52c0e1db23bee41d591f650ffd8",
+            "bytes": 739037
+          },
+          {
+            "name": "right.png",
+            "sha256": "5ac894858524d91219c174a9203f5a13776c6d3a45f49fbbaaab54f5402078a4",
+            "bytes": 881485
+          }
+        ]
+      },
+      "generation": {
+        "task": {
+          "id": "01a10e6a-d923-7572-a869-3792f6ca9a20",
+          "status": "SUCCEEDED",
+          "credits": 20
+        },
+        "attempt": 1,
+        "aiModel": "meshy-7",
+        "masterTargetTriangles": 50000,
+        "topology": "triangle",
+        "texturing": false,
+        "preRemeshRetained": true,
+        "collectionSha256": "85a2d64eff7aa8149fa82146f7fe8d8a5df2b381b6a9aff3f333231e69686413",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "05c84755c8b00b4195617397d55d5919621f1314f705beb02934af2173f65d08",
+            "bytes": 3716836
+          },
+          {
+            "name": "model.pre_remeshed.glb",
+            "sha256": "a3ab54f1acbac254942cb71bfd7254a9c5437b5d5cf3c8341816e431353d8f78",
+            "bytes": 188217884
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "948a15ce0e2b9890c3d457cc5f338c982aed3ff6d8bf596c5e734642c5e58521",
+            "bytes": 155629
+          }
+        ]
+      },
+      "triangles": 19000,
+      "selectedSource": {
+        "name": "runtime.glb",
+        "sha256": "ec4a69669407110225da8561f51cc68bc8bafd525ffa4a43ebe970f8d2e6a7d4",
+        "bytes": 1825092
+      },
+      "candidateResources": [
+        {
+          "name": "pmo0_head014.mdl",
+          "sha256": "99ed0cc12b1b6b5649d48a2e99d8f06063294771742a26b7eace2bed70646d83",
+          "bytes": 1831996
+        },
+        {
+          "name": "pmo0_head014.mtr",
+          "sha256": "fc4785ee8e9d3cc894eebb078ebf666c00069ab8ce155f4f79d56bda90433f40",
+          "bytes": 136
+        },
+        {
+          "name": "pmo0_head014.plt",
+          "sha256": "2a0d66082eab392b4435af6338aaf4acc6c15d3aa4733692d18a7c0488cece0d",
+          "bytes": 2097176
+        },
+        {
+          "name": "pmo0_head014a.mtr",
+          "sha256": "3845f907ea58d16a7172860388e2a9cbf01a53c17f2a9ab9344c07e65151eaaf",
+          "bytes": 138
+        },
+        {
+          "name": "pmo0_head014a.tga",
+          "sha256": "a2fd2cf0cd3f54688c177a09d442ea3b74cf11af474bcf674a81b590aeca2306",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmo0_head014an.tga",
+          "sha256": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmo0_head014ar.tga",
+          "sha256": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmo0_head014e.mtr",
+          "sha256": "c04e50a8147f882f00b7d52a0a815e23507f77ccf2899771f82aa4fcbd251578",
+          "bytes": 138
+        },
+        {
+          "name": "pmo0_head014e.tga",
+          "sha256": "a2fd2cf0cd3f54688c177a09d442ea3b74cf11af474bcf674a81b590aeca2306",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmo0_head014en.tga",
+          "sha256": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmo0_head014er.tga",
+          "sha256": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmo0_head014n.tga",
+          "sha256": "0770e12ed6f806453b08bb735dabd457e0dd922bfb9c67acd33b923da9229158",
+          "bytes": 3145772
+        },
+        {
+          "name": "pmo0_head014r.tga",
+          "sha256": "7c70900f51696880b73a8e9d13f1fc5d41fe3a3ea99b1df2a3b856190ed06011",
+          "bytes": 3145772
+        }
+      ],
+      "nativeAuditSha256": "cebec75820008e724001d6d0e49d956d54601aa9133d29288317fca836b54fad",
+      "targetContractSha256": "861308dc65654e7d757344d54953c67b88cc298b54bad1f9c65234f1dc6e49c6",
+      "fit": {
+        "uniformScale": 0.1369448649943576,
+        "maximumLandmarkError": 0.03182639259525942,
+        "matrix": [
+          [
+            -0.13693685977599723,
+            0.0009738005141868608,
+            0.0011154351483935135,
+            -0.00023710719955852722
+          ],
+          [
+            -0.000906795214687602,
+            -0.1367065307108854,
+            0.008024850886788901,
+            0.01700755268295307
+          ],
+          [
+            0.001170557751809764,
+            0.008016995813591674,
+            0.1367049875498233,
+            0.04538455640130524
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "headBindMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            -0.031517399999999994
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            1.893071794
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "cranialEnvelope": [
+          [
+            -0.145,
+            -0.14,
+            -0.095
+          ],
+          [
+            0.145,
+            0.18,
+            0.23
+          ]
+        ],
+        "bodyRevision": "c45487ad1980c001fb7d634554f32354eb7746b0d7e586fba4ea4162ad123323",
+        "targetRevisionNotes": "Working cranial envelope only: retain the full beard/jaw below the previous draft bound. Body, neck, rig, attachment frame and fit matrix unchanged. Production/client review pending."
+      },
+      "neck": {
+        "policy": "neckless-cap-only",
+        "closureSha256": "f74daac358454bbdc545441d13c2f47a50f8baf32d621a4f0f0a124ce4f5dbf5",
+        "holesCapped": 182,
+        "capTriangles": 182,
+        "originalSurfacePreserved": true,
+        "trimApplied": false,
+        "taperApplied": false,
+        "boundaryEdges": 0
+      },
+      "runtimeLod": {
+        "reportSha256": "a34141d7578a8ee751895205abc6f57129e8a6904acde3e3c4336e41e584f12f",
+        "source": {
+          "name": "upload.glb",
+          "sha256": "6af3300f75131d3a5a3c04438c3ae2c4c588f695c5076d2c55584e929863249d",
+          "bytes": 10761172
+        }
+      },
+      "texturing": {
+        "task": {
+          "id": "01a10e83-cd80-71ed-947b-56adfe7acd37",
+          "status": "SUCCEEDED",
+          "credits": 10
+        },
+        "collectionSha256": "9d6a55f34b58fc7e743b6fde9ff85e9fa5b0e519830b7e6ab04a3d375e266499",
+        "outputs": [
+          {
+            "name": "model.glb",
+            "sha256": "370157ad52c82206311e4590bfb60233f54f7a89a5c83dd4adaefceae31a9636",
+            "bytes": 3868552
+          },
+          {
+            "name": "texture_0_base_color.png",
+            "sha256": "f694d29ed02d123b7ce30c58fa1891011229e68d38c944555a9f46b8056696df",
+            "bytes": 546100
+          },
+          {
+            "name": "texture_0_metallic.png",
+            "sha256": "f239cc7e6b1333b595d40ab54ec06630baca6e7a2d9a2312a5886f2632ad4fa4",
+            "bytes": 71313
+          },
+          {
+            "name": "texture_0_normal.png",
+            "sha256": "a1b90c94268600b493cd8f061c930385061214d09b65fd04b15d1bd5204669ff",
+            "bytes": 680286
+          },
+          {
+            "name": "texture_0_roughness.png",
+            "sha256": "944443e0a6dfa9fcddfad38da0f758362b5e3834699693eb1d1ba9c0aa3c5108",
+            "bytes": 387406
+          },
+          {
+            "name": "thumbnail.png",
+            "sha256": "bda6844b37e8d33f7c2de582deba9829038caa2f786bf481dcb6212ec448aa2d",
+            "bytes": 189708
+          }
+        ],
+        "maskRevision": "v2",
+        "atlasAuditSha256": "d06b42451a4e02e92cf25e7d1a8a3fc30278e5b272b150cc406c0ea2cf001c4d",
+        "runtimeSize": 1024,
+        "selectedUvPreserved": true,
+        "highSourceNormalRetained": true,
+        "returnedGeometrySelected": false,
+        "normalGreenInverted": false
+      },
+      "body": {
+        "sourceBranchCommit": "be6391b437332eeae64ca3df54e952c9749a288d",
+        "manifestSha256": "c45487ad1980c001fb7d634554f32354eb7746b0d7e586fba4ea4162ad123323",
+        "protectedResources": 44,
+        "runtimeScale": 1.0857142857142856,
+        "fixtureRigSerialization": "parent-first; original nodes and animation text preserved",
+        "resources": [
+          {
+            "path": "resources/pmo0_bicepl001.mdl",
+            "sha256": "2b51f76c7de46f468b0f071b5c991c53f53b2e93a1e2eedd9aa4b2f0bceb66b5"
+          },
+          {
+            "path": "resources/pmo0_bicepl001.mtr",
+            "sha256": "dcf38d3e0d114ef3c5d476b0493c6566bbb7561083cc20ec26008931b40fdaa0"
+          },
+          {
+            "path": "resources/pmo0_bicepl001.plt",
+            "sha256": "714c44cdbfdd940f278d946db77e0ea2d7e30c3351cba9f2d0ff5ccf06374ecd"
+          },
+          {
+            "path": "resources/pmo0_bicepr001.mdl",
+            "sha256": "108b0e60e26bd41ffead619c6c1633d68f284917e2862313573d3fd2f2b3e6db"
+          },
+          {
+            "path": "resources/pmo0_bicepr001.mtr",
+            "sha256": "5451a0147ba6348122e851025991509227ad26fa501d70ffe95a250b97de449b"
+          },
+          {
+            "path": "resources/pmo0_bicepr001.plt",
+            "sha256": "f345d6b907139521acddf297be62ad138689bf634677b9350c4eb1a87caf9935"
+          },
+          {
+            "path": "resources/pmo0_chest001.mdl",
+            "sha256": "e3a86e0d453b0b9c28ed6d797fc52071c31858d9dda250bc7ad047ab53c1f4ee"
+          },
+          {
+            "path": "resources/pmo0_chest001.mtr",
+            "sha256": "a5b910a9324316fabe4ee34b67678340f29bb8a704e41f81064077b89a74d396"
+          },
+          {
+            "path": "resources/pmo0_chest001.plt",
+            "sha256": "a1cbede36e7f2e03998152cd336634fb414bc124fafff1966e09c2e99d2d42be"
+          },
+          {
+            "path": "resources/pmo0_footl001.mdl",
+            "sha256": "2de37e99607f02a74e23e6087576e80b54e3c194fe2493db9f22bb0a1b65faa7"
+          },
+          {
+            "path": "resources/pmo0_footl001.mtr",
+            "sha256": "68997d26d4cbb3d4f65226454c7919b1bad696dabe2b8dc7a5a9c9d19844461c"
+          },
+          {
+            "path": "resources/pmo0_footl001.plt",
+            "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c"
+          },
+          {
+            "path": "resources/pmo0_footr001.mdl",
+            "sha256": "130fdb74ead805a1d786cd90fa2375d66a2ee8877a4235a2078cf59768d29d51"
+          },
+          {
+            "path": "resources/pmo0_footr001.mtr",
+            "sha256": "9181b8ddb022feb47255bb24b82410fd1db81d24b9be748f153a21797493f3f1"
+          },
+          {
+            "path": "resources/pmo0_footr001.plt",
+            "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c"
+          },
+          {
+            "path": "resources/pmo0_forel001.mdl",
+            "sha256": "d3099e74d4890068cca8d055a5d80878ae2684f39c10b4ab574f738565581730"
+          },
+          {
+            "path": "resources/pmo0_forel001.mtr",
+            "sha256": "ae06b9e1c2933eea58ad6e60c656cf6c1bffdf1d16c16f413eafd79047934a13"
+          },
+          {
+            "path": "resources/pmo0_forel001.plt",
+            "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a"
+          },
+          {
+            "path": "resources/pmo0_forer001.mdl",
+            "sha256": "97e957f8dea1afa3cecee5ec1c63ae33d12294f7396465d0dbe18c099b2ebf81"
+          },
+          {
+            "path": "resources/pmo0_forer001.mtr",
+            "sha256": "cb5c157171322e18ace217077f3818b01ed0946de52edb466942eab08de99b85"
+          },
+          {
+            "path": "resources/pmo0_forer001.plt",
+            "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a"
+          },
+          {
+            "path": "resources/pmo0_handl001.mdl",
+            "sha256": "c9a8ea6898b3059cc66bfecac8b154ee80bdbaaf370436fb0c949fe224f247ae"
+          },
+          {
+            "path": "resources/pmo0_handl001.mtr",
+            "sha256": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498"
+          },
+          {
+            "path": "resources/pmo0_handl001.plt",
+            "sha256": "a12b099def9b886f978e0083b2e9840ad4de8176f258977c50f49e3928a8a6f8"
+          },
+          {
+            "path": "resources/pmo0_handr001.mdl",
+            "sha256": "e783e6f4f9be6c05ed50d4bf0cc293b7cbf11765a0c762a34cffe5c4eeb7ca70"
+          },
+          {
+            "path": "resources/pmo0_handr001.mtr",
+            "sha256": "baad8aa75ba04a31ea994a3442ec97eb705524f54c9f3852defc4f5c9806022f"
+          },
+          {
+            "path": "resources/pmo0_handr001.plt",
+            "sha256": "103b8cee558c05097dd2cc02a89ee041fe8d529ec18b47780ee155a073d1cbbb"
+          },
+          {
+            "path": "resources/pmo0_legl001.mdl",
+            "sha256": "36e88994996fcb18c69f2967ce58e5e648c70ac6033a8af15a6de4e818e9527a"
+          },
+          {
+            "path": "resources/pmo0_legl001.mtr",
+            "sha256": "b566e78518a0087728544238d01a88ec25e56766ce5438ba9a89ef4dba2bc467"
+          },
+          {
+            "path": "resources/pmo0_legl001.plt",
+            "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece"
+          },
+          {
+            "path": "resources/pmo0_legr001.mdl",
+            "sha256": "f209134cffff9315c38033f8c6bc89739625ae2d6775ebcedbcf754d07ae42c1"
+          },
+          {
+            "path": "resources/pmo0_legr001.mtr",
+            "sha256": "1741df5e302bc913cc5fa40cc126fdf9832687a2752c713294b20a7a8605d4d8"
+          },
+          {
+            "path": "resources/pmo0_legr001.plt",
+            "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece"
+          },
+          {
+            "path": "resources/pmo0_pelvis001.mdl",
+            "sha256": "b14856bd2a71cdd2aebe45922e26332344d0878df4ce902aecd8f383df4f7ca0"
+          },
+          {
+            "path": "resources/pmo0_pelvis001.mtr",
+            "sha256": "fd17a10276d22cab12adcbd265d6878053fcf580bd9931b721c5543d93dc3bf2"
+          },
+          {
+            "path": "resources/pmo0_pelvis001.plt",
+            "sha256": "641a251d05ba30297009d0d184f7089dcbaad94e2baabc07405aa033da281d3b"
+          },
+          {
+            "path": "resources/pmo0_pelvis001f.mtr",
+            "sha256": "29d64b03802be80d2e074f77510e79088836980b90f1e19672e4d2d30d524055"
+          },
+          {
+            "path": "resources/pmo0_pelvis001f.tga",
+            "sha256": "93a8f2faeac57cac7ca745c593c61d54e4e7ad6700b2f368d049213fb3306f17"
+          },
+          {
+            "path": "resources/pmo0_shinl001.mdl",
+            "sha256": "b56927f00b191df6dcab5af37766a32e425d9100fc36952dcdd63c1e4c3396ae"
+          },
+          {
+            "path": "resources/pmo0_shinl001.mtr",
+            "sha256": "358bbd913357c9fc0648d224cd9363712258ffdcbc5290f4cea136e8552d866b"
+          },
+          {
+            "path": "resources/pmo0_shinl001.plt",
+            "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c"
+          },
+          {
+            "path": "resources/pmo0_shinr001.mdl",
+            "sha256": "8c48dd022d77ff1301c7f0775ae38ff57a812f8a214959581062d6ef0f8dc80c"
+          },
+          {
+            "path": "resources/pmo0_shinr001.mtr",
+            "sha256": "62b07d272e095dcb090ae2256137e32ac57558a006f175f0b4719662c0d5158e"
+          },
+          {
+            "path": "resources/pmo0_shinr001.plt",
+            "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c"
+          }
+        ]
+      }
+    }
+  ]
+}

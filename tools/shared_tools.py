@@ -244,14 +244,27 @@ def reference(path, role='input', expected=None):
     return {'path': str(path), 'role': role, 'sha256': actual}
 
 
-def register_run(repo, root=None, tools=(), inputs=(), provenance=(), *, complete=False):
+def register_run(repo, root=None, tools=(), inputs=(), provenance=(), *, complete=False, _verified_inputs=None):
     repo = Path(repo).resolve()
     bank, origin = tools_root(repo, root)
     consumer_id = hashlib.sha256(os.path.normcase(str(repo)).encode('utf-8')).hexdigest()
     folder = bank / 'consumers' / consumer_id
     refs = [reference(row['path'], 'tool', row['sha256']) for row in tools]
-    refs += [reference(row['path'], row.get('role', 'input'), row.get('sha256'))
-             if isinstance(row, dict) else reference(row) for row in inputs]
+    def input_reference(row):
+        path=Path(row['path'] if isinstance(row,dict) else row).resolve()
+        role=row.get('role','input') if isinstance(row,dict) else 'input'
+        expected=row.get('sha256') if isinstance(row,dict) else None
+        # Only the synchronous launcher supplies its freshly verified snapshot.
+        # Other callers retain independent byte verification. The launcher
+        # verifies the complete snapshot again after the child exits.
+        if _verified_inputs is not None and str(path) in _verified_inputs:
+            digest=_verified_inputs[str(path)]
+            if role not in ('tool','input','provenance') or not path.is_file():raise ValueError('Invalid verified input')
+            if not isinstance(digest,str) or len(digest)!=64 or any(c not in '0123456789abcdef' for c in digest):raise ValueError('Invalid verified input digest')
+            if expected is not None and expected!=digest:raise ValueError('Dependency changed: '+str(path))
+            return {'path':str(path),'role':role,'sha256':digest}
+        return reference(path,role,expected)
+    refs += [input_reference(row) for row in inputs]
     refs += [reference(path, 'provenance') for path in provenance]
     if complete and any(row['role']!='provenance' and row['sha256'] is None for row in refs):
         raise ValueError('Complete declarations require individual existing file hashes; enumerate directory inputs')

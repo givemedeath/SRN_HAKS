@@ -12,6 +12,13 @@ from shared_toolchain import load, sha
 from shared_tools import register_run, write_json, tools_root, resolve_tool, resolve_addon
 
 
+def tree_files(root):
+    root = Path(root).resolve()
+    if not root.is_dir():
+        raise ValueError(f"Input tree does not exist: {root}")
+    return sorted(p.resolve() for p in root.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--toolchain',type=Path,required=True)
@@ -20,6 +27,11 @@ def main():
     parser.add_argument('--tool',choices=('python','blender','armory'),required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--input',type=Path,action='append',default=[],help='Consumed input, registered and frozen before dispatch')
+    parser.add_argument('--input-manifest',type=Path,action='append',default=[],
+                        help='JSON array of explicit file path/sha256 pins, for large declared input sets')
+    parser.add_argument('--input-path-list',type=Path,action='append',default=[],
+                        help='JSON array of consumed file paths; the launcher freezes their bytes before dispatch')
+    parser.add_argument('--input-tree',type=Path,action='append',default=[],help='Freeze every file and membership of a consumed input directory')
     parser.add_argument('--provenance',type=Path,action='append',default=[])
     parser.add_argument('arguments',nargs=argparse.REMAINDER)
     args=parser.parse_args()
@@ -45,14 +57,35 @@ def main():
         command+=['--factory-startup','-b','-t','4','--python-exit-code','1','--python',
                   str(Path(__file__).with_name('bootstrap_shared_blender_addons.py').resolve())]
     command+=argv
+    declared=[];verified={}
+    for manifest in args.input_manifest:
+        rows=json.loads(manifest.read_text(encoding='utf-8'))
+        if not isinstance(rows,list) or not rows:raise ValueError('Nonempty explicit input manifest required')
+        for row in rows:
+            path=Path(row['path']).resolve()
+            if not path.is_file():raise ValueError('Manifest input changed: '+str(path))
+            digest=sha(path)
+            if digest!=row['sha256']:raise ValueError('Manifest input changed: '+str(path))
+            verified[str(path)]=digest
+            declared.append(path)
+    for manifest in args.input_path_list:
+        rows=json.loads(manifest.read_text(encoding='utf-8'))
+        if not isinstance(rows,list) or not rows or not all(isinstance(row,str) for row in rows):raise ValueError('Nonempty explicit input path list required')
+        declared.extend(Path(row).resolve() for row in rows)
     inputs=[config,Path(__file__).resolve(),Path(__file__).with_name('shared_toolchain.py'),
             Path(__file__).resolve().parents[1]/'shared_tools.py',
-            Path(__file__).resolve().parents[1]/'shared-tools.lock.json',*args.input]
+            Path(__file__).resolve().parents[1]/'shared-tools.lock.json',*args.input,*args.input_manifest,*args.input_path_list,*declared]
     if data.get('addons'):
         inputs.extend(Path(data['addons']['root'])/rel for rel in data['addons']['files'])
     if args.tool=='blender':inputs.append(Path(__file__).with_name('bootstrap_shared_blender_addons.py'))
     if migration:inputs.append(migration)
-    frozen={str(p.resolve()):sha(p) for p in inputs}
+    trees={str(root.resolve()):tree_files(root) for root in args.input_tree}
+    for files in trees.values():inputs.extend(files)
+    inputs=list(dict.fromkeys(inputs))
+    frozen={}
+    for p in inputs:
+        key=str(p.resolve())
+        if key not in frozen:frozen[key]=verified[key] if key in verified else sha(p)
     snapshots={};(output/'helper-snapshots').mkdir()
     for path in inputs:
         if path.suffix=='.py':
@@ -60,14 +93,19 @@ def main():
             if sha(copied)!=frozen[str(path.resolve())]:raise ValueError('Helper changed during snapshot')
             snapshots[str(path)]={'snapshot':str(copied),'sha256':sha(copied)}
     repo=Path(__file__).resolve().parents[2]
+    snapshot=output/'verified-inputs.json'
+    snapshot.write_text(json.dumps({'kind':'verified-shared-input-snapshot','files':frozen},indent=2)+'\n',encoding='utf-8')
+    frozen[str(snapshot)]=sha(snapshot)
+    env['SRN_VERIFIED_INPUTS']=str(snapshot)
     dependency=register_run(repo,root=data.get('toolsRoot'),tools=list(data['tools'].values()),
-                            inputs=[{'path':p,'sha256':h} for p,h in frozen.items()],provenance=args.provenance)
+                            inputs=[{'path':p,'sha256':h} for p,h in frozen.items()],provenance=args.provenance,_verified_inputs=frozen)
     begun=time.monotonic()
     with (output/'stdout.log').open('w',encoding='utf-8') as out,(output/'stderr.log').open('w',encoding='utf-8') as err:
         result=subprocess.run(command,env=env,stdout=out,stderr=err,check=False)
     verification_error=None
     try:
         load(config,migration,required=[args.tool])
+        if any(tree_files(root)!=files for root,files in trees.items()):raise ValueError("Input directory membership changed during execution; result invalid")
         if any(sha(p)!=h for p,h in frozen.items()):raise ValueError('Input/helper changed during execution; result invalid')
     except (ValueError,OSError) as error:verification_error=str(error)
     receipt={'schemaVersion':1,'kind':'verified-shared-tool-launch','createdUtc':datetime.now(timezone.utc).isoformat(),
@@ -76,6 +114,7 @@ def main():
         'preMigrationSmoke':args.migration_smoke,'command':command,'workingDirectory':str(Path.cwd()),
         'toolBinary':data['tools'][args.tool],'exitCode':result.returncode,'elapsedSeconds':time.monotonic()-begun,
         'inputsUnchanged':verification_error is None,'verificationError':verification_error,
+        'inputTrees':{root:[str(p) for p in files] for root,files in trees.items()},
         'frozenInputs':frozen,'helperSnapshots':snapshots,'dependencyReceipt':str(dependency),
         'selectedRoot':str(tools_root(repo,data.get('toolsRoot'))[0]),
         'inventorySha256':sha(repo/'tools/shared-tools.lock.json'),

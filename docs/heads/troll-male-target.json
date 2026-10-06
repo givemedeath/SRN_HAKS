@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "race": "troll",
+  "sex": "male",
+  "prefix": "pmg0",
+  "phenotype": 0,
+  "bodyRevision": "27a401ec8455fb71f226b75cd498140d1cea15cefe052902ffb28ede31243b99",
+  "headBindMatrix": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      -2.9999999999930256e-09
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      -0.03151729999999999
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      1.7530716940000002
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "cranialEnvelope": [
+    [
+      -0.17,
+      -0.17,
+      -0.085
+    ],
+    [
+      0.17,
+      0.2,
+      0.25
+    ]
+  ],
+  "landmarkTolerance": 0.035,
+  "approved": true,
+  "runtimeScale": 1.4285714285714286,
+  "kind": "srn-head-portable-target",
+  "sourceContractSha256": "331380741b4235de6758f3235a3359444fbc154b2b58b53d8b5894430c28d5c9",
+  "bodyManifest": {
+    "path": "derived-bank/troll-male/body.json",
+    "sha256": "27a401ec8455fb71f226b75cd498140d1cea15cefe052902ffb28ede31243b99"
+  },
+  "derivedContract": {
+    "path": "tools/phenotypes/configurations/derived/target-troll-male-fit.json",
+    "sha256": "dc9d78b605eb7d59d61b553fdea27e992eb87355599d6d914125b61d111bf884"
+  },
+  "coordinateSpace": "derived working frame; fixture visual scale applied separately",
+  "reviewScope": "Offline fitting contract only; native/client/production gates remain separate.",
+  "rig": {
+    "path": "stock/ascii/pmg0.mdl",
+    "sha256": "6908a4fd5f519c107bc8de451fa73244b8157c9560905bda99fb4a754e8b182a"
+  },
+  "neckGeometry": {
+    "path": "stock/ascii/pmg0_neck001.mdl",
+    "sha256": "b29f1649207ca39951b89d8b90fee8ec347833202787a2c4f81c0793bc59596f"
+  },
+  "measurementOrigin": {
+    "path": "stock/ascii/pmh0_head001.mdl",
+    "sha256": "f6dbf4d99cb8a6e886ab381e1e8af7ec3552cb7d5614d9df335b59b62b832676"
+  },
+  "palettes": [
+    {
+      "path": "stock/raw/pal_skin01.tga",
+      "sha256": "78ba81891b576c213390b01c04ed157fed7b9a21f5e67ca1eabb0c830f3ea86c"
+    },
+    {
+      "path": "stock/raw/pal_hair01.tga",
+      "sha256": "1ebf3fb816efe7367afc012de2dc95876fc0f0ae97b78a0eb9db01772f619eda"
+    }
+  ],
+  "animations": [
+    {
+      "path": "stock/ascii/a_ba_casts.mdl",
+      "sha256": "5b5523cbc6cdab1a5fadbdfac402700e7decbbf0c93aa9a67929dd61931ac91c"
+    },
+    {
+      "path": "stock/ascii/a_ba_custom.mdl",
+      "sha256": "c29d502d2b9fc830ba90302236fb2247d999dd6c851437e370fc21a936fd23c4"
+    },
+    {
+      "path": "stock/ascii/a_ba_med_weap.mdl",
+      "sha256": "4b3a823c7b9c2ee35f3e0a948a914569c40a5a36b66d88d42ef782ceebd83777"
+    },
+    {
+      "path": "stock/ascii/a_ba_non_combat.mdl",
+      "sha256": "e01a07908d1044187d172daf23b9a94811cc18f1315065b3a0394dc037664cd7"
+    },
+    {
+      "path": "stock/ascii/a_ba.mdl",
+      "sha256": "34b9b69e1cbe8e41bd836b38ffabd99ece11438849c5b512f48501ac12815d8c"
+    },
+    {
+      "path": "stock/ascii/a_ba2.mdl",
+      "sha256": "c34c573d3fcbc964243811231b63ed152f2426ec423f4a499d05b6c91f79c173"
+    },
+    {
+      "path": "stock/ascii/pmg0.mdl",
+      "sha256": "6908a4fd5f519c107bc8de451fa73244b8157c9560905bda99fb4a754e8b182a"
+    }
+  ]
+}
