@@ -236,7 +236,8 @@ focused selection is a convenience, not a release gate. Refresh the tracked
 `tools/test-impact.json` when helpers change.
 
 Before PR readiness run both full Python suites, full repository verification,
-item-import regressions, clean-checkout tests and affected native tool smokes.
+clean-checkout tests and affected native tool smokes. Item-import regressions run only
+when `tools/Test-ItemImportScope.ps1` finds item-import changes; CI applies the same gate.
 Windows/Linux CI uses an explicit selected interpreter, an explicit shared cache
 root and cache keys derived from both tool locks. The copied manual Armory/Blender
 installs are verified locally; CI does not download them or launch NWN.
