@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-robe-fixture",
+  "title": "SRN Robe Trial workwear pilot",
+  "module": "srn_robetrial",
+  "hak": "srn_robetrial",
+  "area": "sr_rt_floor",
+  "partsRobe": "stock/raw/parts_robe.2da",
+  "templates": {
+    "creature": "nw_humanmerc001",
+    "armor": "nw_cloth001"
+  },
+  "rows": {
+    "46": {
+      "resref": "pmh0_robe046",
+      "sourceName": "pmh0_robe046",
+      "model": "workwear/corrected-v10/runtime-20k-aposerest/compiled/pmh0_robe046.mdl",
+      "hide": {
+        "HIDEFOOTR": 1,
+        "HIDEFOOTL": 1,
+        "HIDESHINR": 1,
+        "HIDESHINL": 1,
+        "HIDELEGR": 1,
+        "HIDELEGL": 1,
+        "HIDEPELVIS": 1,
+        "HIDECHEST": 1,
+        "HIDEBELT": 1,
+        "HIDENECK": 0,
+        "HIDEFORER": 1,
+        "HIDEFOREL": 1,
+        "HIDEBICEPR": 1,
+        "HIDEBICEPL": 1,
+        "HIDESHOR": 1,
+        "HIDESHOL": 1,
+        "HIDEHANDR": 1,
+        "HIDEHANDL": 1,
+        "HIDEHEAD": 0
+      }
+    }
+  },
+  "resources": [
+    "workwear/corrected-v10/runtime-20k-aposerest/model/pmh0_robe046.plt",
+    "workwear/materials-skin-v2/ww11a.mtr",
+    "workwear/materials-skin-v2/ww11a.tga",
+    "workwear/materials-skin-v2/ww11an.tga",
+    "workwear/materials-skin-v2/ww11ar.tga"
+  ],
+  "rowLabels": {
+    "4": "Stock robe 004",
+    "46": "Workwear (Meshy pilot)"
+  },
+  "actors": [
+    {
+      "label": "Stock robe 004",
+      "row": 4,
+      "skin": 3
+    },
+    {
+      "label": "Workwear pilot",
+      "row": 46,
+      "skin": 3
+    },
+    {
+      "label": "Workwear pilot dark skin",
+      "row": 46,
+      "skin": 9
+    },
+    {
+      "label": "Workwear pilot sword+shield",
+      "row": 46,
+      "skin": 3,
+      "weapons": [
+        "nw_wswls001",
+        "nw_ashlw001"
+      ]
+    }
+  ],
+  "purpose": "Final workwear pilot package: the client-compiled corrected-v10 20k robe (row 46) beside stock robe004.",
+  "entry": [
+    11.85,
+    16.2
+  ]
+}

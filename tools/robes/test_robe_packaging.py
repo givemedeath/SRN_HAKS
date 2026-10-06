@@ -97,6 +97,19 @@ class FixtureTests(unittest.TestCase):
             self.assertEqual([int(line[0]) for line in body], list(range(12)))  # engine reads rows by position
             self.assertEqual(rows[5], {"ACBONUS": "****", "HIDECHEST": "****"})
 
+    def test_package_checks_validated_bytes_and_row_position(self):
+        from package_trial import row_line, validated_matches
+        self.assertEqual(validated_matches({"a.mdl": "1", "a.plt": "2"}, {"a.mdl": "1", "a.plt": "3"}, ["a.mdl", "a.plt"]),
+                         ["a.plt"])
+        self.assertEqual(validated_matches({"a.mdl": "1"}, {}, ["a.mdl", "b.tga"]), ["a.mdl", "b.tga"])
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "parts_robe.2da"
+            write_2da(path, ["HIDENECK"], {0: {"HIDENECK": 0}, 3: {"HIDENECK": 1}})
+            self.assertEqual(row_line(path, 3).split(), ["3", "1"])
+            path.write_text("2DA V2.0\n\n    HIDENECK\n0   0\n3   1\n", encoding="ascii")
+            with self.assertRaises(Exception):
+                row_line(path, 1)
+
     def test_rename_keeps_bitmaps(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "pmh0_robe004.mdl"
