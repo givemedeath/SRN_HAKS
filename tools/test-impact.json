@@ -498,6 +498,11 @@
     "tools/phenotypes/verify_published_body.py": [
       "tools/phenotypes/audit_pelvis_package.py"
     ],
+    "tools/robes/apose_skeleton.py": [
+      "tools/robes/fit_math.py",
+      "tools/robes/mdl_ascii.py",
+      "tools/robes/robe_common.py"
+    ],
     "tools/robes/blender_roundtrip.py": [
       "tools/robes/robe_common.py"
     ],
@@ -620,6 +625,8 @@
       "tools/robes/stock_body.py"
     ],
     "tools/robes/test_robe_packaging.py": [
+      "tools/phenotypes/retarget.py",
+      "tools/robes/apose_skeleton.py",
       "tools/robes/build_robe_fixture.py",
       "tools/robes/build_robe_model.py",
       "tools/robes/mdl_ascii.py",

@@ -24,6 +24,13 @@ class ModelBuildTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             skeleton_nodes(stock, ["missing_g"])
 
+    def test_axis_angle_round_trips_mdl_orientation(self):
+        from apose_skeleton import axis_angle
+        from retarget import rotations
+        for axis, angle in (([0, 0, 1], 0.7), ([1, 2, -0.5], 2.1), ([0, 1, 0], 0.0)):
+            matrix = rotations(np.r_[axis, angle])
+            np.testing.assert_allclose(rotations(axis_angle(matrix)), matrix, atol=1e-9)
+
     def test_node_reindexes_vertices_and_deduplicates_uvs(self):
         verts = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [9, 9, 9]], float)
         faces = np.array([[0, 1, 2]])

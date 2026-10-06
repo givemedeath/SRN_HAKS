@@ -144,13 +144,17 @@ def main():
     # and clearing it blew the collar out by up to 27 cm (v5).
     clearance_parts = [p for p in clearance_parts if p not in fit.get("clearanceExclude", [])]
     volume = Body(args.stock_ascii, config["target"]["prefix"], parts=clearance_parts)
-    require(volume.parts, "No stock body parts to clear")
-    frames = fit_math.generation_pose_frames(volume.bind, transforms) if space == "generation" else None
-    body_verts, body_faces, _ = volume.posed(frames)
-    inflated, history, signed, initial = fit_math.lattice_inflate(
-        clearance_source[first], visible[first], body_verts, body_faces, fit["clearance"], fit["latticeCell"],
-        fit["latticeSigma"], fit["latticeIterations"], fit.get("latticeFade", 0.5),
-        min_improvement=fit.get("latticeMinImprovement", 0.01))
+    if volume.parts:
+        frames = fit_math.generation_pose_frames(volume.bind, transforms) if space == "generation" else None
+        body_verts, body_faces, _ = volume.posed(frames)
+        inflated, history, signed, initial = fit_math.lattice_inflate(
+            clearance_source[first], visible[first], body_verts, body_faces, fit["clearance"], fit["latticeCell"],
+            fit["latticeSigma"], fit["latticeIterations"], fit.get("latticeFade", 0.5),
+            min_improvement=fit.get("latticeMinImprovement", 0.01))
+    else:
+        # Nothing visible to clear (e.g. the open-ended neck tube made pushes accumulate): keep Meshy's shape.
+        inflated, history = clearance_source[first].copy(), []
+        signed = initial = np.full(len(first), np.inf)
     generation = inflated[welded] if space == "generation" else None
     fitted = fit_math.blend(generation, weights, transforms, method) if space == "generation" else inflated[welded]
     separation = fit.get("bindSeparation")

@@ -18,6 +18,7 @@
     "36": {"use": "workwear corrected-v4 (v3 plus bind-pose torso/arm separation), 20k runtime", "model": "pmh0_robe036"},
     "37": {"use": "workwear corrected-v5 (visible-part clearance, dual-quaternion conversion), 20k runtime", "model": "pmh0_robe037"},
     "39": {"use": "workwear corrected-v6 (v5 without head clearance), 20k runtime; appended after stock row 38", "model": "pmh0_robe039"},
-    "40": {"use": "experiment: corrected-v6 with an A-pose robe skeleton (does the client skin against the robe's own rest frames?)", "model": "pmh0_robe040"}
+    "40": {"use": "experiment: corrected-v7 with an A-pose robe skeleton (does the client skin against the robe's own rest frames?)", "model": "pmh0_robe040"},
+    "41": {"use": "workwear corrected-v7 (no clearance pass, dual-quaternion conversion), 20k runtime", "model": "pmh0_robe041"}
   }
 }
