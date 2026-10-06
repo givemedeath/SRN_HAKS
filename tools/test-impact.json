@@ -577,6 +577,11 @@
     "tools/robes/prepare_reference.py": [
       "tools/robes/robe_common.py"
     ],
+    "tools/robes/reduce_runtime.py": [
+      "tools/robes/fit_math.py",
+      "tools/robes/robe_common.py",
+      "tools/robes/robe_weights.py"
+    ],
     "tools/robes/render_review.py": [
       "tools/phenotypes/pose_preview_render_settings.py",
       "tools/robes/robe_common.py",

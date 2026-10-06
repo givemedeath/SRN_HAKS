@@ -226,6 +226,8 @@ def main():
         weapons = actor.get("weapons", [])
         creature.update({"Appearance_Type": field("word", 6), "Race": field("byte", 6), "Gender": field("byte", 0),
                          "Phenotype": field("int", 0), "FirstName": field("cexolocstring", {"0": actor["label"]}),
+                         # The static-appearance template has no head; dynamic appearance 6 needs one.
+                         "Appearance_Head": field("byte", actor.get("head", 1)),
                          "LastName": field("cexolocstring", {}), "Tag": field("cexostring", f"sr_rt_a{index}"),
                          "TemplateResRef": field("resref", f"sr_rt_a{index}"), "FactionID": field("word", 2),
                          "Plot": field("byte", 1), "Conversation": field("resref", ""),
