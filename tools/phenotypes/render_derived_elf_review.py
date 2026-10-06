@@ -25,6 +25,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from retarget import nodes, transforms
+from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS
 from pose_preview_bridge import pose
 
@@ -265,8 +266,8 @@ def main():
     unlit_derived_elf = create_unlit_material("Unlit_DerivedElf", (0.20, 0.45, 0.40))  # Sleek teal/emerald for Elf
 
     # Rig transforms
-    pmh0_text = (args.masters_dir / "stock" / "pmh0.mdl").read_text(encoding="cp1252")
-    pme0_text = args.rig_file.read_text(encoding="cp1252")
+    pmh0_text = read_mdl_text((args.masters_dir / "stock" / "pmh0.mdl"))
+    pme0_text = read_mdl_text(args.rig_file)
 
     hm_rig = transforms(nodes(pmh0_text))
     elf_rig = transforms(nodes(pme0_text))
@@ -279,7 +280,12 @@ def main():
         if part in ("head", "neck"):
             hm_p = args.masters_dir / "stock" / f"pmh0_{part}001.mdl"
             master_parts[part] = decode_binary_mdl(hm_p, f"pmh0_{part}001g".encode())
-            derived_elf_parts[part] = master_parts[part]
+
+            elf_p = args.masters_dir / "stock" / f"pme0_{part}001.mdl"
+            if elf_p.exists():
+                derived_elf_parts[part] = decode_binary_mdl(elf_p, f"pme0_{part}001g".encode())
+            else:
+                derived_elf_parts[part] = master_parts[part]
         else:
             hm_p = args.masters_dir / "ascii" / f"pmh0_{part}001.mdl"
             master_parts[part] = decode_ascii_mdl(hm_p)

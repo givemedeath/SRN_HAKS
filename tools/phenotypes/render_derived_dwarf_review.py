@@ -26,6 +26,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from retarget import nodes, transforms
+from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS
 from pose_preview_bridge import pose
 
@@ -271,8 +272,8 @@ def main():
     unlit_derived_dwarf = create_unlit_material("UnlitDerivedDwarf", (0.92, 0.35, 0.35)) # coral red
 
     # Load Rig transforms
-    pmh0_text = (args.masters_dir / "stock" / "pmh0.mdl").read_text(encoding="cp1252")
-    pmd0_text = (args.masters_dir / "stock" / "pmd0.mdl").read_text(encoding="cp1252")
+    pmh0_text = read_mdl_text((args.masters_dir / "stock" / "pmh0.mdl"))
+    pmd0_text = read_mdl_text((args.masters_dir / "stock" / "pmd0.mdl"))
 
     hm_rig = transforms(nodes(pmh0_text))
     dwarf_rig = transforms(nodes(pmd0_text))

@@ -85,7 +85,7 @@ def inventory_installed_styles(game_root: Path, user_dir: Path, prefix: str = "p
     }
 
 
-def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0") -> dict:
+def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0", *, target_config: dict | None = None) -> dict:
     """Verify that hands and rig contain weapon and shield attachment dummies."""
     dummy_checks = {}
 
@@ -96,12 +96,20 @@ def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0") ->
     require(handr_path.exists(), f"Missing {handr_path}")
     require(rig_path.exists(), f"Missing rig {rig_path}")
 
-    rig_text = rig_path.read_text(encoding="cp1252")
+    from derive_rig import read_mdl_text
+    rig_text = read_mdl_text(rig_path)
+
+    # Match exact dummy node names: "node dummy <node_name>"
+    dummy_nodes = {
+        m.strip().lower()
+        for m in re.findall(r"(?mi)^\s*node\s+dummy\s+(\S+)", rig_text)
+    }
 
     for p_name, path, hook in [("handl", handl_path, "lhand"), ("handr", handr_path, "rhand")]:
         text = path.read_text(encoding="cp1252")
-        has_in_rig = f"node dummy {hook}" in rig_text.lower()
-        has_g_in_rig = f"node dummy {hook}_g" in rig_text.lower()
+        hook_lower = hook.lower()
+        has_in_rig = hook_lower in dummy_nodes
+        has_g_in_rig = f"{hook_lower}_g" in dummy_nodes
         dummy_checks[p_name] = {
             "model": path.name,
             "attachmentNode": hook,
@@ -110,6 +118,11 @@ def audit_hand_dummies(ascii_dir: Path, rig_path: Path, prefix: str = "pmd0") ->
             "rigAttachmentPresent": has_in_rig
         }
 
+    if target_config is not None:
+        from equipment_frames import verify_attachment_frames
+        measured = verify_attachment_frames(rig_path, target_config)
+        for hand, meta in dummy_checks.items():
+            meta.update(measured[hand])
     return dummy_checks
 
 
@@ -118,6 +131,7 @@ def audit_stock_armor_compatibility(
     derived_ascii_dir: Path,
     output_receipt: Path,
     game_root: Path | None = None,
+    connector_audit_path: Path | None = None,
 ) -> dict:
     """Audit stock armor connector compatibility with derived parts."""
     prefix = target_config["identity"]["prefix"]
@@ -135,10 +149,12 @@ def audit_stock_armor_compatibility(
     )
 
     rig_path = REPO / f"output/phenotypes/derived-v1/rigs/{race}-male/{prefix}.mdl"
-    dummies_result = audit_hand_dummies(derived_ascii_dir, rig_path, prefix=prefix)
+    dummies_result = audit_hand_dummies(derived_ascii_dir, rig_path, prefix=prefix, target_config=target_config)
     hand_dummies_valid = all(
-        d.get("rigGripPresent", False) and d.get("rigAttachmentPresent", False)
-        for d in dummies_result.values()
+        dummies_result.get(hand, {}).get("rigGripPresent", False)
+        and dummies_result.get(hand, {}).get("rigAttachmentPresent", False)
+        and dummies_result.get(hand, {}).get("attachmentFramesValid", False)
+        for hand in ("handl", "handr")
     )
     require(hand_dummies_valid, f"Weapon/shield dummy check failed: {dummies_result}")
 
@@ -155,24 +171,58 @@ def audit_stock_armor_compatibility(
     missing_frames = [f for f in required_frames if f not in frames]
     require(len(missing_frames) == 0, f"Missing required armor mount frames: {missing_frames}")
 
-    # Inspect connector compatibility evidence if available
-    conn_audit_file = derived_ascii_dir / "connector-audit.json"
-    if not conn_audit_file.exists():
-        conn_audit_file = REPO / f"output/phenotypes/derived-{race}-male-v1/review/connector-audit.json"
+    # Require present, passing, target-bound connector audit evidence
+    target_id = target_config.get("id", f"{race}-male-fit")
+    if connector_audit_path is not None and Path(connector_audit_path).is_file():
+        conn_audit_file = Path(connector_audit_path)
+    else:
+        candidate_paths = [
+            derived_ascii_dir / "connector-audit.json",
+            derived_ascii_dir.parent / "review" / "connector-audit.json",
+            REPO / f"output/phenotypes/derived-{race}-male-v1/review/connector-audit.json",
+        ]
+        conn_audit_file = next((p for p in candidate_paths if p.is_file()), None)
 
-    surfaces_preserved = True
-    overlap_status = "verified-positive"
-    if conn_audit_file.exists():
-        conn_audit = json.loads(conn_audit_file.read_text(encoding="utf-8"))
-        surfaces_preserved = bool(conn_audit.get("allConnectorsPassed", False))
-        overlap_status = "verified-positive" if surfaces_preserved else "failed-overlap"
-        require(surfaces_preserved, f"Connector audit failed in {conn_audit_file}")
+    require(
+        conn_audit_file is not None,
+        f"Gate 3 requires a present connector audit receipt: missing connector-audit.json for target '{target_id}'"
+    )
+
+    conn_audit = json.loads(conn_audit_file.read_text(encoding="utf-8"))
+    conn_target = conn_audit.get("targetId")
+    if conn_target:
+        require(
+            conn_target == target_id,
+            f"Connector audit target mismatch in {conn_audit_file}: expected '{target_id}', got '{conn_target}'"
+        )
+
+    audited_parts = conn_audit.get("parts", {})
+    require(bool(audited_parts), f"Connector audit {conn_audit_file} missing parts metadata")
+    for part_name, meta in audited_parts.items():
+        model_name = meta.get("model", f"{prefix}_{part_name}001")
+        model_file = derived_ascii_dir / f"{model_name}.mdl"
+        require(
+            model_file.is_file(),
+            f"Gate 3 connector audit mismatch: model {model_file} not found in {derived_ascii_dir}",
+        )
+        current_sha = sha256_file(model_file)
+        expected_sha = meta.get("sha256")
+        require(
+            current_sha == expected_sha,
+            f"Gate 3 connector audit hash mismatch for {model_file}: expected {expected_sha}, got {current_sha}",
+        )
+
+    surfaces_preserved = bool(conn_audit.get("allConnectorsPassed", False))
+    require(surfaces_preserved, f"Connector audit failed in {conn_audit_file}")
+    overlap_status = "verified-positive" if surfaces_preserved else "failed-overlap"
 
     audit_complete = bool(len(missing_stock) == 0 and hand_dummies_valid and len(missing_frames) == 0 and surfaces_preserved)
     require(audit_complete, "Gate 3 equipment compatibility audit failed")
 
     receipt = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
+        "kind": "derived-equipment-prerequisite-evidence",
+        "evidenceScope": "installed-model-presence, target-rig-frames, derived-body-connectors",
         "target": target_config.get("id", f"{race}-male-fit"),
         "prefix": prefix,
         "race": race,
@@ -183,13 +233,22 @@ def audit_stock_armor_compatibility(
         "totalInstalledModels": inventory_result["totalModelsFound"],
         "handDummies": dummies_result,
         "connectorCompatibility": {
-            "policy": f"stock-family attachment: stock armor pieces mount directly to {prefix} bone frames",
-            "stockConnectorSurfacesPreserved": surfaces_preserved,
-            "measuredOverlapStatus": overlap_status
+            "policy": "Stock armor interfaces require separate geometry measurements and client review",
+            "derivedBodyConnectorSurfacesPassed": surfaces_preserved,
+            "derivedBodyOverlapStatus": overlap_status,
+            "stockConnectorSurfacesPreserved": None,
+            "measuredOverlapStatus": "not-measured-stock-armor"
         },
-        "complete": audit_complete
+        "prerequisiteChecksPassed": audit_complete,
+        "stockArmorGeometryVerified": False,
+        "clientEquipmentFitAccepted": False,
+        "status": "requires-stock-armor-interface-and-client-review",
+        "complete": False
     }
 
+    for meta in dummies_result.values():
+        for path, expected in meta.get("inputHashes", {}).items():
+            require(sha256_file(path) == expected, f"Equipment frame input changed: {path}")
     output_receipt.parent.mkdir(parents=True, exist_ok=True)
     output_receipt.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
     print(f"Wrote equipment compatibility receipt to {output_receipt}")
@@ -205,6 +264,7 @@ def main():
     parser.add_argument("--gender", type=str, default="male", help="Target gender (default: male)")
     parser.add_argument("--game-root", type=Path, default=None, help="Path to NWN game installation root")
     parser.add_argument("--ascii-dir", type=Path, default=None)
+    parser.add_argument("--connector-audit", type=Path, default=None, help="Explicit path to connector-audit.json")
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
@@ -226,7 +286,13 @@ def main():
         else None
     )
 
-    audit_stock_armor_compatibility(config, ascii_dir, output_path, game_root=game_root)
+    audit_stock_armor_compatibility(
+        config,
+        ascii_dir,
+        output_path,
+        game_root=game_root,
+        connector_audit_path=args.connector_audit,
+    )
 
 
 if __name__ == "__main__":

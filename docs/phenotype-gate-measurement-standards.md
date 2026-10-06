@@ -323,7 +323,7 @@ Before submitting a pull request to promote a derived phenotype from experimenta
 - [ ] **Gate 1:** Skeleton deviation $\max \Delta = 0.000000\text{ m}$; weapon locators verified.
 - [ ] **Gate 2:** $\min J > 0.0$ on all parts; volume delta within $\pm 0.9\%$; zero displacement outside support radius ($< 10^{-12}\text{ m}$).
 - [ ] **Gate 2b:** Positive axial overlap ($\ge +0.7\text{ mm}$) across all 13 joints; zero tearing.
-- [ ] **Gate 3:** All 440 stock equipment models audited; locator frames verified.
+- [ ] **Gate 3:** All 440 stock equipment models audited; locator frames verified; stock armor geometry & client fit accepted.
 - [ ] **Gate 4:** 14/14 binary models compiled; 100% unit tangents ($|T|=1.0$) and normals ($|N|=1.0$).
 - [ ] **Gate 5:** Standalone HAK and test module staged with clean SHA256 hashes.
 - [ ] **Gate 6:** Override directory verified at 0 files; client test executed cleanly.
@@ -334,7 +334,7 @@ Before submitting a pull request to promote a derived phenotype from experimenta
 
 ## 5. Validated Race Benchmark Audit Records
 
-The derived phenotype pipeline maintains concrete benchmark measurement records for all validated models. The foundational Human Male (`pmh0`) master baseline, Dwarf Male (`pmd0`) pilot, Troll Male (`pmg0`) pilot, Elf Male (`pme0`) pilot, and Orc Male (`pmo0`) pilot have all been audited against the strict criteria for all eight gates:
+The derived phenotype pipeline maintains concrete benchmark measurement records for all validated models. The foundational Human Male (`pmh0`) master baseline, Dwarf Male (`pmd0`) pilot, Troll Male (`pmg0`) pilot, Elf Male (`pme0`) pilot, and Orc Male (`pmo0`) pilot have all been audited against the derivation gate measurement standards (with Gate 3 stock armor geometry and equipped-client fit pending separate review):
 
 ### Comprehensive Gate Audit Matrix
 
@@ -344,7 +344,7 @@ The derived phenotype pipeline maintains concrete benchmark measurement records 
 | **Gate 1** | Rig Retargeting (CP1) | $\max \Delta p \le 0.000000\text{ m}$ (56 nodes) | $\max \Delta = 0.000000\text{ m}$, exact | $\max \Delta = 0.000000\text{ m}$, exact | $\max \Delta = 0.000000\text{ m}$, exact | $\max \Delta = 0.000000\text{ m}$, exact | $\max \Delta = 0.000000\text{ m}$, exact | **PASS** |
 | **Gate 2** | Localized Shaping (CP2) | $\min J > 0$, $\Delta V \le \pm 1.0\%$, leakage $=0$ | $J \equiv 1.0$, frozen read-only donor | $\min J = 0.6277$, $\Delta V = -0.28\%$ | $\min J = 0.5066$, $\Delta V = \pm 0.9\%$ | $\min J = 0.8327$, $\Delta V = \pm 0.24\%$ | $\min J = 0.4827$, $\Delta V \le \pm 0.44\%$ | **PASS** |
 | **Gate 2b**| Joint Connectors | $\Delta z_{\text{axial}} > 0\text{ mm}$ (13/13 joints) | $+40.4\text{ mm}$ to $+426.8\text{ mm}$ (13/13) | $+0.7\text{ mm}$ to $+40.1\text{ mm}$ (13/13) | $+0.7\text{ mm}$ to $+15.2\text{ mm}$ (13/13) | $+39.8\text{ mm}$ to $+426.8\text{ mm}$ (13/13) | $+48.6\text{ mm}$ to $+582.3\text{ mm}$ (13/13) | **PASS** |
-| **Gate 3** | Stock Equipment | 0 missing locators, 0 offset drift | 512 models audited, 0 drift | 440 models audited, 0 drift | 440 models audited, 0 drift | 445 models audited, 0 drift | 440 models audited, 0 drift | **PASS** |
+| **Gate 3** | Stock Equipment | Stock armor geometry & client fit | 512 models baseline (prerequisite only) | PENDING (prerequisites only; geometry/client unmeasured) | PENDING (prerequisites only; geometry/client unmeasured) | PENDING (prerequisites only; geometry/client unmeasured) | PENDING (prerequisites only; geometry/client unmeasured) | **PENDING** |
 | **Gate 4** | Native Compilation | 14/14 compiled, unit tangents/normals | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | 14/14 compiled, 100% unit tangents | **PASS** |
 | **Gate 5** | Packaging & Fixture | Clean ERF hashes, 0 stage collisions | Master staged, clean SHA256 | 44 entries in HAK, clean MOD SHA256 | 47 entries in HAK, clean MOD SHA256 | 44 entries in HAK, clean MOD SHA256 | 44 entries in HAK, clean MOD SHA256 | **PASS** |
 | **Gate 6** | Client Preflight | 0 override files, binary hash match | 0 overrides, engine baseline pass | 0 overrides, 135s live client pass | 0 overrides, 135s live client pass | 0 overrides, 135s live client pass | 0 overrides, 142s live client pass (7/7) | **PASS** |

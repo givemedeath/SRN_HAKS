@@ -11,9 +11,11 @@ import sys
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from shared_tools import resolve_tool
+from stock_dwarf_control import resolve_game_root
 
-GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
+DEFAULT_GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
 PYTHON = Path(sys.executable)
 
 CANDIDATE_CONVERTED = REPO / "output/phenotypes/derived-orc-male-v1/candidate/converted"
@@ -26,20 +28,21 @@ def run_tool(name: str, args: list[str]) -> bytes:
     return res.stdout
 
 
-def stage_baseline(stage_dir: Path, temp_userdir: Path):
+def stage_baseline(stage_dir: Path, temp_userdir: Path, game_root: Path | None = None):
     baseline_dir = stage_dir / "baseline"
     baseline_dir.mkdir(parents=True, exist_ok=True)
+    root = resolve_game_root(game_root)
 
     # 1. ttr01.set
-    set_data = run_tool("resman_cat", ["--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", "ttr01.set"])
+    set_data = run_tool("resman_cat", ["--root", str(root), "--userdirectory", str(temp_userdir), "--no-ovr", "ttr01.set"])
     (baseline_dir / "ttr01.set").write_bytes(set_data)
 
     # 2. ttr01_edge.2da
-    edge_data = run_tool("resman_cat", ["--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", "ttr01_edge.2da"])
+    edge_data = run_tool("resman_cat", ["--root", str(root), "--userdirectory", str(temp_userdir), "--no-ovr", "ttr01_edge.2da"])
     (baseline_dir / "ttr01_edge.2da").write_bytes(edge_data)
 
     # 3. human-template.json (from nw_commale.utc)
-    raw_utc = run_tool("resman_cat", ["--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", "nw_commale.utc"])
+    raw_utc = run_tool("resman_cat", ["--root", str(root), "--userdirectory", str(temp_userdir), "--no-ovr", "nw_commale.utc"])
     temp_utc = stage_dir / "temp_peasant.utc"
     temp_json = stage_dir / "temp_peasant.utc.json"
     temp_utc.write_bytes(raw_utc)
@@ -48,6 +51,8 @@ def stage_baseline(stage_dir: Path, temp_userdir: Path):
     shutil.copyfile(temp_json, baseline_dir / "human-template.json")
     temp_utc.unlink(missing_ok=True)
     temp_json.unlink(missing_ok=True)
+    from build_derived_dwarf_fixture import stage_armor_template
+    stage_armor_template(baseline_dir, stage_dir, temp_userdir, root)
     print("Baseline fixture resources staged successfully.")
 
 
@@ -55,6 +60,10 @@ def stage_candidate(stage_dir: Path):
     slug_dir = stage_dir / "orc_male_fit" / "converted"
     ascii_dir = slug_dir / "ascii"
     resources_dir = slug_dir / "resources"
+    if ascii_dir.exists():
+        shutil.rmtree(ascii_dir)
+    if resources_dir.exists():
+        shutil.rmtree(resources_dir)
     ascii_dir.mkdir(parents=True, exist_ok=True)
     resources_dir.mkdir(parents=True, exist_ok=True)
 
@@ -95,7 +104,7 @@ def stage_candidate(stage_dir: Path):
         ],
         "textures": {},
         "geometryStatus": "derived-phenotype",
-        "rigMode": "retargeted",
+        "rigMode": "stock-family",
         "stockOtherPartsFromGame": True,
         "diagnosticOnly": False,
         "clientAccepted": False
@@ -121,7 +130,7 @@ def stage_candidate(stage_dir: Path):
     print("Candidate orc_male_fit staged successfully.")
 
 
-def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path: Path | None = None):
+def _stage_appearance_source(stage_dir: Path, temp_userdir: Path, appearance_path: Path | None = None, game_root: Path | None = None):
     fixture_res_dir = stage_dir / "fixture-resources"
     fixture_res_dir.mkdir(parents=True, exist_ok=True)
     out_app = fixture_res_dir / "appearance.2da"
@@ -132,13 +141,17 @@ def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path
         print(f"Staged explicitly supplied appearance.2da from {appearance_path}")
         return
 
-    # 2. Extract base appearance.2da using resman_cat from GAME_ROOT
-    if GAME_ROOT.exists():
-        raw_app = run_tool("resman_cat", ["--root", str(GAME_ROOT), "--userdirectory", str(temp_userdir), "--no-ovr", "appearance.2da"])
-        if raw_app.startswith(b"2DA"):
-            out_app.write_bytes(raw_app)
-            print(f"Extracted and staged appearance.2da ({len(raw_app)} bytes) to {out_app}")
-            return
+    # 2. Extract base appearance.2da using resman_cat from resolved game root
+    try:
+        root = resolve_game_root(game_root)
+        if root.exists():
+            raw_app = run_tool("resman_cat", ["--root", str(root), "--userdirectory", str(temp_userdir), "--no-ovr", "appearance.2da"])
+            if raw_app.startswith(b"2DA"):
+                out_app.write_bytes(raw_app)
+                print(f"Extracted and staged appearance.2da ({len(raw_app)} bytes) to {out_app}")
+                return
+    except Exception:
+        pass
 
     # 3. Verified durable/fallback copy with explicit SHA256 verification
     durable_copies = [
@@ -159,18 +172,27 @@ def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path
     )
 
 
+
+def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path: Path | None = None, game_root: Path | None = None):
+    from fixture_appearance import patch_appearance
+    _stage_appearance_source(stage_dir, temp_userdir, appearance_path, game_root)
+    target = json.loads((REPO / "tools/phenotypes/configurations/derived/target-orc-male-fit.json").read_text(encoding="utf-8"))
+    return patch_appearance(stage_dir / "fixture-resources/appearance.2da", target)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", type=Path, default=STAGE_ROOT)
+    parser.add_argument("--game-root", type=Path, default=None, help="NWN game root directory")
     parser.add_argument("--appearance-2da", type=Path, default=None, help="Explicit appearance.2da path")
     args = parser.parse_args()
 
     stage_dir = args.stage.resolve()
     temp_userdir = REPO / "output/phenotypes/derived-orc-male-v1/compiler-userdir"
 
-    stage_baseline(stage_dir, temp_userdir)
+    stage_baseline(stage_dir, temp_userdir, game_root=args.game_root)
     stage_candidate(stage_dir)
-    stage_fixture_resources(stage_dir, temp_userdir, appearance_path=args.appearance_2da)
+    stage_fixture_resources(stage_dir, temp_userdir, appearance_path=args.appearance_2da, game_root=args.game_root)
     print("Staging complete. Ready to build test module.")
 
 

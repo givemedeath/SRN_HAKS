@@ -152,7 +152,7 @@ configuration names `light`/`dark` use skin/hair selectors 3/21 and 12/5 respect
 the names do not imply palette brightness order. All previews use four threads,
 with timings in the validation record.
 
-Resume current gallery state from [this checkpoint](checkpoint-gallery-client-layout-v1.md).
+Resume current gallery state from [this checkpoint](checkpoint-gallery-client-layout-main-integrated-v2.md).
 Resume preserved head operating state from the explicit
 `output/heads/male-expansion-v1/local/resume-ledger-male-expansion-v1.json` for
 the new three males and the preserved

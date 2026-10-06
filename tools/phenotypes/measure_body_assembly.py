@@ -13,6 +13,7 @@ import numpy as np
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from retarget import nodes, transforms
+from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS
 
 # 15 joint pairs for overlap and clearance analysis
@@ -309,8 +310,8 @@ def measure_assembly(name: str, part_models: dict[str, dict], supermodel_text: s
 def build_comparison_report(master_dir: Path, stock_dir: Path) -> dict:
     """Build full comparative measurement report across Human master, Stock Human, and Stock Dwarf."""
     # 1. Load human supermodel and dwarf supermodel
-    pmh0_text = (master_dir / "stock" / "pmh0.mdl").read_text(encoding="cp1252")
-    pmd0_text = (master_dir / "stock" / "pmd0.mdl").read_text(encoding="cp1252")
+    pmh0_text = read_mdl_text((master_dir / "stock" / "pmh0.mdl"))
+    pmd0_text = read_mdl_text((master_dir / "stock" / "pmd0.mdl"))
     
     # 2. Load master parts (14 from ascii + 2 stock head/neck)
     master_parts = {}

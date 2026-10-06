@@ -194,19 +194,39 @@ def evaluate_gate7_compliance(race_key: str, race_data: dict) -> dict:
     width_passed = (min_width <= front_width <= max_width)
     gain_passed = (max_gain > 0.0) or (race_key == "dwarf_male" and max_direct >= 85.0)
 
-    # Evaluate required turnaround views if present
+    # Evaluate required turnaround views
+    REQUIRED_TURNAROUND_VIEWS = ("side", "rear")
     turnaround_passed = True
     turnaround_reports = {}
-    for view_key in ("side", "rear"):
-        if view_key in race_data and isinstance(race_data[view_key], dict) and "derived_vs_target" in race_data[view_key]:
-            v_reg = race_data[view_key]["derived_vs_target"].get("regional", {})
-            v_torso = v_reg.get("Chest & Upper Torso (15-38%)", {}).get("dice", 0.0)
-            v_pelvis = v_reg.get("Pelvis & Hands (38-60%)", {}).get("dice", 0.0)
-            # Turnaround views must achieve at least core baseline threshold (>= 70.0%)
-            v_ok = (v_torso >= 70.0 or v_torso == 0.0) and (v_pelvis >= 70.0 or v_pelvis == 0.0)
-            turnaround_reports[view_key] = {"torsoDice": v_torso, "pelvisDice": v_pelvis, "passed": v_ok}
-            if not v_ok:
-                turnaround_passed = False
+    for view_key in REQUIRED_TURNAROUND_VIEWS:
+        if view_key not in race_data or not isinstance(race_data[view_key], dict) or "derived_vs_target" not in race_data[view_key]:
+            turnaround_passed = False
+            turnaround_reports[view_key] = {
+                "torsoDice": 0.0,
+                "pelvisDice": 0.0,
+                "passed": False,
+                "error": f"Missing required turnaround view: '{view_key}'",
+            }
+            continue
+
+        v_reg = race_data[view_key]["derived_vs_target"].get("regional", {})
+        has_torso = "Chest & Upper Torso (15-38%)" in v_reg
+        has_pelvis = "Pelvis & Hands (38-60%)" in v_reg
+        v_torso = v_reg["Chest & Upper Torso (15-38%)"].get("dice", 0.0) if has_torso else None
+        v_pelvis = v_reg["Pelvis & Hands (38-60%)"].get("dice", 0.0) if has_pelvis else None
+
+        # Turnaround views must achieve at least core baseline threshold (>= 70.0%) for present regions.
+        # Zero score represents complete disjointness (no overlap), NOT missing data, and must fail.
+        torso_ok = (v_torso >= 70.0) if v_torso is not None else False
+        pelvis_ok = (v_pelvis >= 70.0) if v_pelvis is not None else False
+        v_ok = bool(torso_ok and pelvis_ok)
+        turnaround_reports[view_key] = {
+            "torsoDice": round(v_torso, 2) if v_torso is not None else 0.0,
+            "pelvisDice": round(v_pelvis, 2) if v_pelvis is not None else 0.0,
+            "passed": v_ok,
+        }
+        if not v_ok:
+            turnaround_passed = False
 
     all_passed = bool(torso_passed and pelvis_passed and width_passed and gain_passed and turnaround_passed)
 
@@ -319,6 +339,13 @@ def main():
         s_dwarf_s = fg_ds[:, 900:1500]
         d_dwarf_s = fg_ds[:, 1600:2300]
 
+        dr_rear = (ref_root / "cp2_unlit_rear.png") if (ref_root / "cp2_unlit_rear.png").exists() else (ARTIFACT_DIR / "cp2_unlit_rear.png")
+        im_dr = load_image(dr_rear)
+        fg_dr = np.any(np.abs(np.array(im_dr)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
+        c_dwarf_r = fg_dr[:, 200:800]
+        s_dwarf_r = fg_dr[:, 900:1500]
+        d_dwarf_r = fg_dr[:, 1600:2300]
+
         results["dwarf_male"] = {
             "front": {
                 "derived_vs_target": align_and_compare(d_dwarf_f, c_dwarf_f),
@@ -329,6 +356,11 @@ def main():
                 "derived_vs_target": align_and_compare(d_dwarf_s, c_dwarf_s),
                 "stock_vs_target": align_and_compare(s_dwarf_s, c_dwarf_s),
                 "derived_vs_stock": align_and_compare(d_dwarf_s, s_dwarf_s),
+            },
+            "rear": {
+                "derived_vs_target": align_and_compare(d_dwarf_r, c_dwarf_r),
+                "stock_vs_target": align_and_compare(s_dwarf_r, c_dwarf_r),
+                "derived_vs_stock": align_and_compare(d_dwarf_r, s_dwarf_r),
             },
         }
 
@@ -401,8 +433,8 @@ def main():
 
         im_er = load_image(REPO_ROOT / "output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_rear.png")
         fg_er = np.any(np.abs(np.array(im_er)[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
-        d_elf_r = fg_er[:, 1200:]
-        s_elf_r = fg_er[:, :1200]
+        d_elf_r = fg_er[:, :1200]
+        s_elf_r = fg_er[:, 1200:]
 
         results["elf_male"] = {
             "front": {
@@ -450,8 +482,8 @@ def main():
         arr_or = np.array(im_or)
         bg_or = arr_or[10, 10, :3].astype(int)
         fg_or = np.any(np.abs(arr_or[:, :, :3].astype(int) - bg_or) > 25, axis=2)
-        d_orc_r = fg_or[:, 1200:]
-        s_orc_r = fg_or[:, :1200]
+        d_orc_r = fg_or[:, :1200]
+        s_orc_r = fg_or[:, 1200:]
 
         results["orc_male"] = {
             "front": {

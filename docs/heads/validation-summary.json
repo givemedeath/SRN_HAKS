@@ -885,5 +885,25 @@
     "clientObserved": true,
     "productionAccepted": false,
     "clientValidationScope": "Startup, NPC spawning, Clothing 1 equipment and gallery usability only"
+  },
+  "integration": {
+    "mainCommit": "727b14e2e94e117b245eec8f3393c73a5ad0a48d",
+    "helperTestsPassed": 297,
+    "headTests": 36,
+    "phenotypeTests": 233,
+    "galleryTests": 9,
+    "sharedTests": 15,
+    "cleanCheckoutTests": 1,
+    "testImpactTests": 3,
+    "headLogSha256": "99ad22819db38c634cd4b9227da7aa026e8844fbc0f8ccc9e22b065d558adcfa",
+    "phenotypeLogSha256": "352bc0ce023dd5b121c0b04f50550bfe7b9af9855db205ada804af649321664e",
+    "galleryLogSha256": "3d25abc5261bd9eec3f0d6ac791d77fc4f517430df97ad263088e3c215029f97",
+    "sharedLogSha256": "c69ba33db1131414c0963ee16fa45f0ea3a2a986328b2c1267ee5c7e23c4e951",
+    "cleanCheckoutLogSha256": "1934b72a7375918b12ff0156863f8a47e1290cc52c4a428cc95a9d4ba7b69d23",
+    "testImpactLogSha256": "ff0d0dbe9e97f7ce83d30bfb60d23e767643d0c6dcaff36a711af76a43eca06c",
+    "parentFirstRigSerializationRetained": true,
+    "bodyAndHeadResourcesChanged": false,
+    "nativeBuild": "Recorded before tooling integration; exact saved module relaunched successfully",
+    "migration": "Prior build migration is historical; refresh before any new production CLI run"
   }
 }

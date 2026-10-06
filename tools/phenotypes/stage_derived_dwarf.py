@@ -17,8 +17,16 @@ def stage(race: str = "dwarf", prefix: str = "pmd0"):
 
     ascii_dir = target_root / "ascii"
     resources_dir = target_root / "resources"
+    if ascii_dir.exists():
+        shutil.rmtree(ascii_dir)
+    if resources_dir.exists():
+        shutil.rmtree(resources_dir)
     ascii_dir.mkdir(parents=True, exist_ok=True)
     resources_dir.mkdir(parents=True, exist_ok=True)
+
+    for stale in target_root.glob("native-compile*"):
+        if stale.is_file():
+            stale.unlink()
 
     for part in PARTS:
         model_name = f"{prefix}_{part}001.mdl"
@@ -63,7 +71,24 @@ def stage(race: str = "dwarf", prefix: str = "pmd0"):
                 encoding="ascii"
             )
 
-    print(f"Staged 14 ASCII models and material dependencies for {race} ({prefix}) to {target_root}")
+    # Stage retargeted rig root for Troll (pmg0.mdl)
+    rig_root = REPO / f"output/phenotypes/derived-v1/rigs/{race}-male/{prefix}.mdl"
+    if race == "troll":
+        if not rig_root.is_file():
+            raise FileNotFoundError(
+                f"Required Troll retargeted rig root not found at {rig_root}. "
+                "Gate 1 rig derivation must be run before staging Troll models."
+            )
+        shutil.copyfile(rig_root, ascii_dir / f"{prefix}.mdl")
+
+    expected_count = 15 if race == "troll" or (ascii_dir / f"{prefix}.mdl").is_file() else 14
+    staged_models = list(ascii_dir.glob("*.mdl"))
+    if len(staged_models) != expected_count:
+        if len(staged_models) != 14:
+            pass
+        raise RuntimeError(f"Expected exactly {expected_count} staged models in {ascii_dir}, found {len(staged_models)}")
+
+    print(f"Staged {expected_count} ASCII models and material dependencies for {race} ({prefix}) to {target_root}")
 
 
 def main():

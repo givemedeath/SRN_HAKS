@@ -42,6 +42,9 @@ def evaluate_target_eligibility(matrix: dict, target_id: str) -> tuple[bool, str
     if status in ("in-progress-pilot", "in-progress", "active"):
         return True, "Active target ready for derivation"
     
+    if status == "pending-equipment-validation":
+        return True, "Derivation/review allowed; production acceptance pending equipment geometry and client gates"
+
     if status == "blocked-on-source":
         blocker = target.get("blocker", "Blocked on source master")
         return False, f"BLOCKED: {blocker}"

@@ -25,6 +25,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from retarget import nodes, transforms
+from derive_rig import read_mdl_text
 from target_contract import PART_JOINTS
 
 
@@ -263,7 +264,7 @@ def main():
     unlit_master = create_unlit_material("UnlitMasterHuman", (0.0, 0.82, 0.63))   # Bright emerald/cyan
 
     # Load Rig transforms
-    pmh0_text = (args.masters_dir / "stock" / "pmh0.mdl").read_text(encoding="cp1252")
+    pmh0_text = read_mdl_text((args.masters_dir / "stock" / "pmh0.mdl"))
     hm_rig = transforms(nodes(pmh0_text))
 
     # Load parts

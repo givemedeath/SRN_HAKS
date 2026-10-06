@@ -1,6 +1,6 @@
 # Head production pipeline
 
-The current [gallery checkpoint](checkpoint-gallery-client-layout-v1.md) binds the exact resume ledger.
+The current [gallery checkpoint](checkpoint-gallery-client-layout-main-integrated-v2.md) binds the exact resume ledger.
 The delivery is recorded in [delivery.md](delivery.md), with the
 [seven-design catalog](pilot-catalog.json), [selected 200-entry roster](roster-selected.json),
 [Human target](human-male-target.json), [Troll target](troll-male-target.json),

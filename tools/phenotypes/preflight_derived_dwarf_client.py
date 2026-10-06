@@ -25,6 +25,30 @@ def require(cond: bool, msg: str):
         raise ValueError(msg)
 
 
+def verify_stock_controls(build_receipt: dict, hak_entries: list[str], stage_dir: Path, race: str):
+    from stock_dwarf_control import CONTROL_SOURCES, PARTS
+    controls = build_receipt.get("fixtureControls", [])
+    if not controls and "stock_dwarf_male_fit" in build_receipt.get("specimens", []):
+        require(race == "dwarf", "Dwarf control cannot validate another race")
+        controls = [{"modelPrefix": "pmz0"}]  # Readable historical Dwarf receipts.
+    for control in controls:
+        if control.get("sourceRace") is not None:
+            expected = CONTROL_SOURCES[race]
+            require(control.get("controlTargetRace") == race and control.get("sourceRace") == expected["race"]
+                    and control.get("sourcePrefix") == expected["prefix"] and control.get("sourceAppearance") == expected["appearance"],
+                    "Stock comparator race/source mismatch")
+            path = stage_dir / control["slug"] / "converted/conversion.json"
+            require(path.is_file() and sha256_file(path) == control["conversionSha256"], "Stock comparator conversion hash mismatch")
+        else:
+            require(race == "dwarf", "Missing race-correct comparator source metadata")
+        prefix = control["modelPrefix"]
+        for part in PARTS:
+            for extension in ("mdl", "plt"):
+                name = f"{prefix}_{part}001.{extension}"
+                require(name in hak_entries, f"Missing {name} in HAK")
+        require(f"{prefix}.mdl" in hak_entries, f"Missing {prefix}.mdl supermodel in HAK")
+
+
 def run_preflight(stage_dir: Path = STAGE, client_path: Path = CLIENT, output_receipt: Path | None = None, race: str = "dwarf", prefix: str = "pmd0") -> dict:
     stage_dir = stage_dir.resolve()
     userdir = stage_dir / "userdir"
@@ -34,6 +58,7 @@ def run_preflight(stage_dir: Path = STAGE, client_path: Path = CLIENT, output_re
     require(receipt_path.exists(), f"Missing build receipt: {receipt_path}")
 
     build_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    specimens = build_receipt.get("specimens", [])
 
     # Verify HAK and MOD files
     hak_path = userdir / "hak/srn_pheno_test.hak"
@@ -81,13 +106,8 @@ def run_preflight(stage_dir: Path = STAGE, client_path: Path = CLIENT, output_re
         require(f"{prefix}_{part}001.plt" in hak_entries, f"Missing {prefix}_{part}001.plt in HAK")
         require(f"{prefix}_{part}001.mtr" in hak_entries, f"Missing {prefix}_{part}001.mtr in HAK")
 
-    # Verify stock comparator parts if present in build receipt
-    specimens = build_receipt.get("specimens", [])
-    if "stock_dwarf_male_fit" in specimens:
-        for part in ["bicepl", "bicepr", "chest", "footl", "footr", "forel", "forer", "handl", "handr", "head", "neck", "legl", "legr", "pelvis", "shinl", "shinr", "belt", "shol", "shor"]:
-            require(f"pmz0_{part}001.mdl" in hak_entries, f"Missing pmz0_{part}001.mdl in HAK")
-            require(f"pmz0_{part}001.plt" in hak_entries, f"Missing pmz0_{part}001.plt in HAK")
-        require("pmz0.mdl" in hak_entries, "Missing pmz0.mdl supermodel in HAK")
+    # Verify receipt-bound race-correct controls, including the Human donor for Troll.
+    verify_stock_controls(build_receipt, hak_entries, stage_dir, race)
 
     require("appearance.2da" in hak_entries, "Missing fixture appearance.2da in HAK")
 
@@ -97,6 +117,7 @@ def run_preflight(stage_dir: Path = STAGE, client_path: Path = CLIENT, output_re
         "target": f"{race}-male-stock-family",
         "pass": True,
         "specimens": specimens,
+        "fixtureControls": build_receipt.get("fixtureControls", []),
         "stage": str(stage_dir),
         "userDirectory": str(userdir),
         "hak": str(hak_path),
@@ -133,7 +154,8 @@ if __name__ == "__main__":
     prefix = args.prefix or default_prefixes.get(race, "pmd0")
     stage = args.stage or (REPO / f"output/phenotypes/derived-{race}-male-v1/test-stage")
     receipt = args.output_receipt or (REPO / f"output/phenotypes/derived-{race}-male-v1/review/client-preflight-receipt.json")
-    client = args.client or CLIENT
+    from run_derived_dwarf_client_test import resolve_client
+    client = resolve_client(args.client)
 
     res = run_preflight(stage_dir=stage, client_path=client, output_receipt=receipt, race=race, prefix=prefix)
     print(f"Preflight passed: {res['pass']}, HAK entries: {res['totalHakEntries']}")

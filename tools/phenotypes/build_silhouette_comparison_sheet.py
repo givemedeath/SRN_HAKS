@@ -482,9 +482,9 @@ def main():
         diff_rr = np.abs(arr_rr[:, :, :3].astype(int) - np.array([55, 55, 73]))
         fg_rr = np.any(diff_rr > 30, axis=2)
 
-        # In rear view, HM is on left, Derived Troll is on right
-        stock_rear_mask = fg_rr[:, :1200]
-        derived_rear_mask = fg_rr[:, 1200:]
+        # In rear view, camera at -Y reverses screen X: Derived is on left (:1200), Stock is on right (1200:)
+        stock_rear_mask = fg_rr[:, 1200:]
+        derived_rear_mask = fg_rr[:, :1200]
 
         out_rear_runtime = args.output_dir / "troll_silhouette_3way_comparison_rear.png"
         compose_3way_silhouette_sheet(
@@ -540,8 +540,8 @@ def main():
         im_elf_rear_render = Image.open("output/phenotypes/derived-elf-male-v1/review/renders/elf_unlit_rear.png")
         arr_err = np.array(im_elf_rear_render)
         fg_err = np.any(np.abs(arr_err[:, :, :3].astype(int) - np.array([55, 55, 73])) > 30, axis=2)
-        stock_elf_rear_mask = fg_err[:, :1200]
-        derived_elf_rear_mask = fg_err[:, 1200:]
+        stock_elf_rear_mask = fg_err[:, 1200:]
+        derived_elf_rear_mask = fg_err[:, :1200]
 
         elf_stock_meta = {
             "title": "Stock Human Male Master (pmh0)",
@@ -684,8 +684,8 @@ def main():
         arr_orr = np.array(im_orc_rear_render)
         bg_orr = arr_orr[10, 10, :3].astype(int)
         fg_orr = np.any(np.abs(arr_orr[:, :, :3].astype(int) - bg_orr) > 25, axis=2)
-        stock_orc_rear_mask = fg_orr[:, :1200]
-        derived_orc_rear_mask = fg_orr[:, 1200:]
+        stock_orc_rear_mask = fg_orr[:, 1200:]
+        derived_orc_rear_mask = fg_orr[:, :1200]
 
         orc_stock_meta = {
             "title": "Stock Human Male Master (pmh0)",

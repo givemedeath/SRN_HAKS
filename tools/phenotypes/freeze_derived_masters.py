@@ -293,7 +293,9 @@ def freeze_human_male_master(
         ud.mkdir(parents=True, exist_ok=True)
         stock_models = [
             'pmh0.mdl', 'a_ba.mdl', 'pmh0_head001.mdl', 'pmh0_neck001.mdl',
-            'pmd0.mdl', 'pmd0_head001.mdl', 'pmd0_neck001.mdl'
+            'pmd0.mdl', 'pmd0_head001.mdl', 'pmd0_neck001.mdl',
+            'pme0.mdl', 'pme0_head001.mdl', 'pme0_neck001.mdl',
+            'pmo0.mdl', 'pmo0_head001.mdl', 'pmo0_neck001.mdl'
         ]
         for sm in stock_models:
             target = stock_out / sm

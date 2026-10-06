@@ -13,6 +13,8 @@ import json
 from pathlib import Path
 import re
 import shutil
+import subprocess
+import tempfile
 import sys
 import numpy as np
 
@@ -21,6 +23,30 @@ from retarget import nodes, transforms, geometry, signature, rotation_signature
 from target_contract import PART_JOINTS, require
 
 REPO = Path(__file__).resolve().parents[2]
+
+
+def resolve_mdlcomp() -> Path:
+    try:
+        sys.path.insert(0, str(REPO / "tools"))
+        from shared_tools import resolve_tool
+        return Path(resolve_tool("mdlcomp", REPO)["path"])
+    except Exception:
+        cand = REPO / "tools/vendor/nwnmdlcomp/nwnmdlcomp.exe"
+        if cand.exists():
+            return cand
+        raise
+
+
+def read_mdl_text(path: Path | str) -> str:
+    path = Path(path).resolve()
+    data = path.read_bytes()
+    if data[:4] == b"\0\0\0\0":
+        mdlcomp = resolve_mdlcomp()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_ascii = Path(tmpdir) / (path.stem + ".mdl")
+            subprocess.run([str(mdlcomp), "-d", "-e", str(path), str(out_ascii)], check=True, capture_output=True)
+            return out_ascii.read_text(encoding="cp1252", errors="replace")
+    return data.decode(encoding="cp1252", errors="replace")
 
 
 def sha256_file(path: Path | str) -> str:
@@ -68,7 +94,7 @@ def derive_stock_family_rig(
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    text = stock_root_mdl.read_text(encoding="cp1252")
+    text = read_mdl_text(stock_root_mdl)
     skel = nodes(text)
     xforms = transforms(skel)
 
@@ -120,8 +146,12 @@ def derive_stock_family_rig(
 
     # Copy / establish stock root in rig output directory
     target_mdl = output_dir / stock_root_mdl.name
-    if not target_mdl.exists() or sha256_file(target_mdl) != sha256_file(stock_root_mdl):
-        shutil.copyfile(stock_root_mdl, target_mdl)
+    is_binary = stock_root_mdl.read_bytes()[:4] == b"\0\0\0\0"
+    if is_binary:
+        target_mdl.write_text(text, encoding="cp1252")
+    else:
+        if not target_mdl.exists() or sha256_file(target_mdl) != sha256_file(stock_root_mdl):
+            shutil.copyfile(stock_root_mdl, target_mdl)
 
     receipt = {
         "schemaVersion": 1,
@@ -158,7 +188,7 @@ def derive_broadened_scaled_rig(
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    text = human_root_mdl.read_text(encoding="cp1252")
+    text = read_mdl_text(human_root_mdl)
     skel = nodes(text)
 
     # Rename pmh0 -> pmg0
@@ -216,10 +246,23 @@ def derive_broadened_scaled_rig(
         f"setsupermodel {declared_root} {declared_sm}",
         "classification Character",
         "setanimationscale 1.0",
-        geometry(declared_root, skel, 1),
+        f"beginmodelgeom {declared_root}",
+    ]
+    for node_data in skel.values():
+        name = node_data["name"]
+        parent = node_data["parent"]
+        pos = node_data["position"]
+        ori = node_data["orientation"]
+        lines.append(f"node dummy {name}")
+        lines.append(f"  parent {parent}")
+        lines.append(f"  position {pos[0]:.9g} {pos[1]:.9g} {pos[2]:.9g}")
+        lines.append(f"  orientation {ori[0]:.9g} {ori[1]:.9g} {ori[2]:.9g} {ori[3]:.9g}")
+        lines.append("endnode")
+    lines.extend([
+        f"endmodelgeom {declared_root}",
         f"donemodel {declared_root}",
         "",
-    ]
+    ])
     target_mdl.write_text("\n".join(lines), encoding="cp1252")
 
     receipt = {
@@ -353,8 +396,10 @@ def main():
         print(f"  Max joint deviation: {receipt['maxJointDeviationMeters']:.6e} m")
         print(f"  Receipt written to {output_dir / 'rig-receipt.json'}")
     else:
-        stock_root = args.stock_root or Path("output/phenotypes/derived-v1/masters/human-male-v1/stock/pmd0.mdl")
-        output_dir = args.output_dir or Path("output/phenotypes/derived-v1/rigs/dwarf-male")
+        prefix = target_data["identity"]["prefix"]
+        gender = target_data["identity"]["gender"]
+        stock_root = args.stock_root or Path(f"output/phenotypes/derived-v1/masters/human-male-v1/stock/{prefix}.mdl")
+        output_dir = args.output_dir or Path(f"output/phenotypes/derived-v1/rigs/{race}-{gender}")
         receipt = derive_stock_family_rig(target_data, stock_root, output_dir)
         print(f"Rig derivation successful: verified {receipt['nodeCount']} nodes.")
         print(f"  Supermodel: {receipt['supermodel']} -> {receipt['animationSupermodel']}")

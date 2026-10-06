@@ -1,22 +1,22 @@
 # Derived Troll Male (Fit) Pilot Validation Report
 
-**Document Version:** 1.0  
+**Document Version:** 1.1
 **Date:** 2026-10-05  
 **Target:** Troll Male Fit (`pmg0`, Appearance row 2, RacialType row 2, Gnome replacement slot)  
 **Parent Source:** Human Male Master Body (`pmh0`, Appearance 0)  
-**Status:** Pilot Validation Complete (Gates 0 through 7 Certified, Standalone Package Built, In-Engine Client Inspection Verified)
+**Status:** Pilot evidence retained; production acceptance pending Gate 3 armor interfaces and equipped-client standing/motion review
 
 ---
 
 ## 1. Executive Summary
 
-This report certifies the successful top-down derivation of the Troll Male (Fit phenotype 0, model prefix `pmg0`) variant from the accepted Human Male master body (`pmh0`). The Troll Male derivation proves the end-to-end scalability of the derived phenotype pipeline to heavily muscular, large-stature humanoid phenotypes without modifying donor master bytes.
+This report retains historical Troll derivation measurements and checkpoints. It does not certify production acceptance. The equipment inventory and locator checks did not measure stock armor interfaces, and the recorded bare-body client sequence does not establish equipped fit on the broadened rig. Gate 3 and equipped-client acceptance remain pending. Historical receipts below are preserved as reference evidence.
 
 ### Core Achievements
 1. **Rig Retargeting & Stature (Gates 0 & 1 - Approved):** Calibrated working height $1.9339\text{ m}$ scaled to runtime stature $2.7627\text{ m}$ via standard engine appearance scaling ($S_{\text{runtime}} = 10/7 \approx 1.4285714$). 56-node skeleton retargeting achieved exact $\max \Delta p = 0.000000\text{ m}$ deviation, preserving broad $0.5399\text{ m}$ shoulder span and exact stock weapon dummy locators (`rhand`, `lhand`).
-2. **Localized Shaping (Gate 2 - Approved):** Wendland $C^2$ localized radial basis function (RBF) deformation successfully sculpted massive troll anatomy—including forward pectorals ($+25\text{ mm}$), heavy trapezius slope ($+22\text{ mm}$), deltoid lateral flare ($\pm 15\text{ mm}$), collar-like neck rim ($+18\text{ mm}$), $150\%$ enlarged hands, and $120\%$ feet—while maintaining strictly positive Jacobians ($\min J = 0.5066 > 0$), volume conservation within $\pm 0.9\%$, and zero displacement at connector boundaries ($< 10^{-12}\text{ m}$).
+2. **Localized Shaping (Gate 2 - Approved):** Wendland $C^2$ localized radial basis function (RBF) deformation successfully sculpted massive troll anatomyâ€”including forward pectorals ($+25\text{ mm}$), heavy trapezius slope ($+22\text{ mm}$), deltoid lateral flare ($\pm 15\text{ mm}$), collar-like neck rim ($+18\text{ mm}$), $150\%$ enlarged hands, and $120\%$ feetâ€”while maintaining strictly positive Jacobians ($\min J = 0.5066 > 0$), volume conservation within $\pm 0.9\%$, and zero displacement at connector boundaries ($< 10^{-12}\text{ m}$).
 3. **Joint Interface Overlap (Gate 2b - Passed):** All 13 primary joint interfaces certified with positive axial overlap ($+0.7\text{ mm}$ to $+15.2\text{ mm}$), completely resolving the severe joint fluting and donor cap tearing observed in the purpose-built method.
-4. **Equipment Compatibility (Gate 3 - Passed):** Audited across all 440 stock `pmg0` equipment models across 18 slots; weapon locators `rhand`/`lhand` verified exact with $0.000\text{ mm}$ drift.
+4. **Equipment Compatibility (Gate 3 - Pending):** The 440 model count is an inventory. Locator checks are prerequisite evidence; stock armor geometry and visible equipped fit remain unverified.
 5. **Native NWN Binary Compilation (Gate 4 - Passed):** 14/14 trimesh models compiled cleanly using `nwmain.exe` in isolated staging, verifying 100% normalized MikkTSpace tangent spaces ($|T|=1.0$) and normals ($|N|=1.0$) with multi-node pelvis and shared human normal/roughness map linkage (`pmh0_*n`, `pmh0_*r`), saving ~340 MiB distribution footprint.
 6. **Packaging & In-Engine Client Inspection (Gates 5 & 6 - Passed):** Built standalone distribution HAK (`srn_derived_troll_test.hak`, 44 resources), test module (`srn_pheno_test.mod`), and test HAK (`srn_pheno_test.hak`, 47 resources) with verified SHA256 hashes and 0 client override files. Automated 135-second multi-phase client inspection sequence verified live in-engine.
 7. **3-Way Silhouette Overlap Audit (Gate 7 - Passed):** Evaluated against canonical Shadowrun 4A concept art across Front, Side, Rear, and Proportional views. Upper Torso DICE match reached **$82.92\%$** (exceeding the $\ge 80\%$ gate), Pelvis DICE reached **$79.64\%$** (exceeding the $\ge 75\%$ gate), and Stance Width Ratio matched engine A-pose targets at **$85.40\%$**, achieving a **$+7.28\%$ convergence gain** over the stock baseline.
@@ -33,7 +33,7 @@ All verification gates comply with the formal engineering protocols and mathemat
 | **Gate 1** | Rig (CP1) | 56-node skeleton deviation | `output/phenotypes/derived-v1/rigs/troll-male/rig-receipt.json` | $\max \Delta = 0.000000\text{ m}$, locators exact | $\le 0.000000\text{ m}$ | **Approved** |
 | **Gate 2** | Shaping (CP2) | Jacobians & volume delta | `output/phenotypes/derived-v1/parts/troll-male/ascii/refinement-proof.json` | $\min J = 0.5066$, $\Delta V = \pm 0.9\%$ | $J > 0$, $\Delta V \le \pm 1\%$ | **Approved** |
 | **Gate 2b**| Connectors | Axial overlap across 13 joints | `output/phenotypes/derived-v1/parts/troll-male/ascii/connector-audit.json` | $+0.7\text{ mm}$ to $+15.2\text{ mm}$ (13/13) | $\Delta z > 0\text{ mm}$ (0 tears) | **Passed** |
-| **Gate 3** | Equipment | 440 stock armor models & locators | `output/phenotypes/derived-troll-male-v1/review/equipment-receipt.json` | 440 models, 0 locator drift | 100% locator match | **Passed** |
+| **Gate 3** | Equipment | Stock armor interfaces and equipped fit | `output/phenotypes/derived-troll-male-v1/review/equipment-receipt.json` | Inventory/locator prerequisites only; `complete: false` | Interface geometry and equipped-client standing/motion acceptance | **Pending** |
 | **Gate 4** | Compilation | Trimesh decode & MikkTSpace | `output/phenotypes/derived-troll-male-v1/review/native-shading-audit.json` | 14/14 compiled, 100% unit tangents | 100% unit tangents/normals | **Passed** |
 | **Gate 5** | Packaging | Standalone HAK & test module | `output/phenotypes/derived-troll-male-v1/package/srn_derived_troll_test.hak` | 44 entries, clean SHA256 | Clean ERF hashes | **Passed** |
 | **Gate 6** | Client Run | Override check & live run | `output/phenotypes/derived-troll-male-v1/review/client-evidence-run-13932.json` | 0 overrides, 135s sequence complete | 0 overrides, matching binary | **Passed** |
@@ -79,11 +79,11 @@ All verification gates comply with the formal engineering protocols and mathemat
   - `shinl`/`shinr` $\leftrightarrow$ `footl`/`footr` (ankles): axial overlap $+0.7\text{ mm}$, $has3DOverlap = true$.
 - **Result:** 13/13 joints verified with positive axial overlap ($has3DOverlap = true$, 0 tearing, 0 dark banding). Receipt: `output/phenotypes/derived-v1/parts/troll-male/ascii/connector-audit.json`.
 
-### 3.4 Gate 3: Equipment Compatibility Audit
-- Evaluated against 440 stock `pmg0` armor and weapon models extracted from base game data across 18 slots.
-- Rigid attachment transforms match stock placement precisely.
-- Weapon seating matches stock hand orientation with zero locator offset drift.
-- Receipt: `output/phenotypes/derived-troll-male-v1/review/equipment-receipt.json`.
+### 3.4 Gate 3: Equipment Compatibility â€” Pending
+- The 440 stock `pmg0` model filenames establish presence, not compatible armor surfaces.
+- Target rig locators and derived-body connectors are prerequisite checks only.
+- `equipment-receipt.json` records `complete: false` and unmeasured stock armor interfaces.
+- The broadened Troll needs separately fitted armor, measured interfaces, and a separate equipped-client standing and motion review. The historical bare-body sequence in section 3.7 cannot satisfy that gate.
 
 ### 3.5 Gate 4: Native Binary Compilation & Shading Audit
 - Compiled with clean `nwmain.exe` in isolated staging directory `output/phenotypes/derived-troll-male-v1/compiler-userdir`.
@@ -133,11 +133,14 @@ Evaluated via `build_silhouette_comparison_sheet.py` and `calculate_silhouette_d
 
 ---
 
-## 4. Production Acceptance Conclusion
+## 4. Production Acceptance â€” Pending
 
-The Troll Male (`pmg0`) derivation fulfills all engineering, geometric, and visual acceptance criteria:
-- **Zero changes to `srn_body` master bytes.**
-- **Zero regression in existing human male, female, or dwarf baselines.**
-- **Zero joint fluting, zero dark bands, zero donor cap seams.**
-- **All 14 derived body models render cleanly with full normal mapping in native NWN:EE.**
-- **Troll Male is certified production-accepted.**
+The Troll Male (`pmg0`) is not production-accepted. Existing rig, shaping, native,
+silhouette and bare-client records remain historical checkpoints. The target and
+its Gnome alias have matrix status `pending-equipment-validation` with
+`productionAccepted: false`; their proportions and rig remain unchanged.
+
+Acceptance requires separate Troll armor-interface measurements and an equipped
+client review covering standing and worst-case motion, followed by reconciliation
+of the cumulative assembly, native and client evidence. Inventory counts and
+locator matches do not close those gates.

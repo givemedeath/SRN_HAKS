@@ -65,9 +65,9 @@ graph TD
 
 ### Gate 3: Equipment Compatibility Audit
 - Inventory available stock equipment models for target race via `tools/phenotypes/derived_equipment.py`.
-- Audit 440 stock models across 18 armor slots for attachment frame alignment.
+- The script inventories stock model names, measures target rig attachments, and verifies the derived body connector receipt. It does not load or measure the inventoried armor geometry.
 - Verify weapon locators match stock engine expectations ($0.000\text{ mm}$ tolerance).
-- Record verified status in `equipment-receipt.json`.
+- Record prerequisite evidence in `equipment-receipt.json`, with `complete: false` and stock armor interfaces marked unmeasured. Complete Gate 3 only after separate armor-interface measurements and standing/motion equipment review; the model inventory cannot establish armor fit.
 
 ### Gate 4: Materials & Native Binary Compilation
 - Stage ASCII models, PLTs, diffuse TGAs, and MTR files via `tools/phenotypes/stage_derived_dwarf.py` (or race equivalent).
@@ -90,9 +90,10 @@ graph TD
   - Confirm client binary hash matches compiler binary hash.
 - Request user confirmation prior to launching `nwmain.exe`.
 - Execute interactive test runner `tools/phenotypes/run_derived_dwarf_client_test.py`:
-  - Run 135-second automated inspection sequence.
+  - Run 135-second automated inspection sequence for bare torso and joint alignment.
+  - Execute separate equipment-focused camera run (`--equipment-target`) to inspect equipped armor fit and log markers.
   - Sample process memory and CPU performance metrics.
-  - Extract and verify timestamped `PHENOTYPE_` engine log entries.
+  - Extract and verify timestamped `PHENOTYPE_` engine log entries and require clean client and engine logs.
 
 ### Gate 7: 3-Way Silhouette & Morphological Overlap Audit (Checkpoint CP3)
 - Execute automated 3-way silhouette comparison via `tools/phenotypes/build_silhouette_comparison_sheet.py`.
@@ -120,7 +121,7 @@ python tools/phenotypes/derived_matrix.py
 python tools/phenotypes/launch_shared_tool.py `
   --toolchain .tmp/runtime-bindings/run-001.json `
   --migration-receipt .tmp/shared-tool-migration.json `
-  --tool python --output output/phenotypes/derived-v1/rigs/dwarf-male `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
   --input tools/phenotypes/configurations/derived/target-dwarf-male-stock.json `
   --input output/phenotypes/derived-v1/masters/human-male-v1/stock/pmd0.mdl `
   -- tools/phenotypes/derive_rig.py tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
@@ -135,7 +136,7 @@ python tools/phenotypes/derive_rig.py tools/phenotypes/configurations/derived/ta
 python tools/phenotypes/launch_shared_tool.py `
   --toolchain .tmp/runtime-bindings/run-001.json `
   --migration-receipt .tmp/shared-tool-migration.json `
-  --tool python --output output/phenotypes/derived-v1/parts/dwarf-male `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
   --input tools/phenotypes/configurations/derived/target-dwarf-male-stock.json `
   -- tools/phenotypes/localized_refine.py --target tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
 
@@ -154,7 +155,7 @@ python tools/phenotypes/render_derived_dwarf_review.py
 python tools/phenotypes/launch_shared_tool.py `
   --toolchain .tmp/runtime-bindings/run-001.json `
   --migration-receipt .tmp/shared-tool-migration.json `
-  --tool python --output output/phenotypes/derived-dwarf-male-v1/review `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
   --input tools/phenotypes/configurations/derived/target-dwarf-male-stock.json `
   -- tools/phenotypes/derived_equipment.py --config tools/phenotypes/configurations/derived/target-dwarf-male-stock.json
 
@@ -171,18 +172,121 @@ python tools/phenotypes/audit_derived_dwarf_native.py
 
 ### Comparison Fixture Construction
 ```powershell
-python tools/phenotypes/stock_dwarf_control.py --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
-python tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --torso-inspection-sequence --staging output/phenotypes/derived-dwarf-male-v1/test-stage --userdir output/phenotypes/derived-dwarf-male-v1/test-stage/userdir --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe"
+# Use the Python path from the current byte-bound runtime binding.
+$binding = Get-Content .tmp/runtime-bindings/run-001.json -Raw | ConvertFrom-Json
+$python = if ($binding.runtimes) { $binding.runtimes.python.path } else { $binding.tools.python.path }
+$gameRoot = "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition"
+# Freeze maintained helpers, their portable configs and durable reference assets.
+# Overdeclare tracked tool inputs so transitive helper imports are also covered.
+$helperInputs = @()
+git ls-files -- tools | ForEach-Object { $helperInputs += @('--input', $_) }
+# Resource extraction and fallback can read the installed game archives and loose
+# resources. Freeze this read-only installation, including directory membership.
+# This hashes the installation once before and once after each launch.
+$gameInputs = @('--input-tree', $gameRoot)
+# Keep launch receipts separate from the reusable fixture stage. Each wrapper
+# below allocates a fresh UUID receipt directory, even when rerunning a step.
+# 1. Initialize fixture stage, baseline resources, and candidate staging:
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/candidate/converted `
+  -- tools/phenotypes/build_derived_dwarf_fixture.py --game-root $gameRoot --stage output/phenotypes/derived-dwarf-male-v1/test-stage
+
+# 2. Freeze mutable input files separately from the outputs they will replace.
+$stage = "output/phenotypes/derived-dwarf-male-v1/test-stage"
+$controlInputs = ".tmp/derived-control-inputs/$([guid]::NewGuid().ToString('N'))"
+New-Item -ItemType Directory -Path $controlInputs | Out-Null
+Copy-Item -LiteralPath "$stage/manifest.json" -Destination "$controlInputs/manifest.json"
+Copy-Item -LiteralPath "$stage/fixture-resources/appearance.2da" -Destination "$controlInputs/appearance.2da"
+$client = "$gameRoot/bin/win32/nwmain.exe"
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input "$controlInputs/manifest.json" --input "$controlInputs/appearance.2da" `
+  --input $client --input tools/vendor/nwnmdlcomp/nwnmdlcomp.exe `
+  --input-tree srn_body `
+  -- tools/phenotypes/stock_dwarf_control.py --race dwarf --output $stage `
+     --game-root $gameRoot --client $client `
+     --manifest-input "$controlInputs/manifest.json" --appearance-input "$controlInputs/appearance.2da"
+if ($LASTEXITCODE) { throw "Stock-control staging failed; preserve its launch and input snapshots." }
+
+# 3. Build test module with launch_shared_tool (bare torso inspection sequence):
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input output/phenotypes/derived-dwarf-male-v1/test-stage/manifest.json `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/test-stage/baseline `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/test-stage/fixture-resources `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/test-stage/dwarf_male_fit/converted `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/test-stage/stock_dwarf_male_fit/converted `
+  -- tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --torso-inspection-sequence --camera-target dwarf_male_fit --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
+
+# 4. Preflight and run the bare torso module BEFORE the equipment rebuild:
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input $client --input-tree $stage `
+  -- tools/phenotypes/preflight_derived_dwarf_client.py
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input $client --input-tree $stage `
+  -- tools/phenotypes/run_derived_dwarf_client_test.py
+if ($LASTEXITCODE) { throw "Bare torso inspection failed; retain this module for diagnosis." }
+
+# 5. Build separate equipment-focused test module (focuses camera on full-armor actor):
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input output/phenotypes/derived-dwarf-male-v1/test-stage/manifest.json `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/test-stage/baseline `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/test-stage/fixture-resources `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/test-stage/dwarf_male_fit/converted `
+  --input-tree output/phenotypes/derived-dwarf-male-v1/test-stage/stock_dwarf_male_fit/converted `
+  -- tools/phenotypes/build_test_module.py --slugs dwarf_male_fit,stock_dwarf_male_fit --full-equipment-template output/phenotypes/derived-dwarf-male-v1/test-stage/baseline/full-armor-template.json --stock-equipment-fallback --camera-target dwarf_male_fit --camera-equipment-target --camera-pitch 75.0 --camera-distance 4.0 --camera-height 1.2 --game-root "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition" --output output/phenotypes/derived-dwarf-male-v1/test-stage
+
+# 6. Preflight and run the equipment-focused module after its rebuild:
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input $client --input-tree $stage `
+  -- tools/phenotypes/preflight_derived_dwarf_client.py
+& $python tools/phenotypes/launch_shared_tool.py @helperInputs @gameInputs `
+  --toolchain .tmp/runtime-bindings/run-001.json `
+  --migration-receipt .tmp/shared-tool-migration.json `
+  --tool python --output ".tmp/derived-launches/$([guid]::NewGuid().ToString('N'))" `
+  --input $client --input-tree $stage `
+  -- tools/phenotypes/run_derived_dwarf_client_test.py --equipment-target
+if ($LASTEXITCODE) { throw "Equipment inspection failed; retain this module for diagnosis." }
 ```
 
-### Client Preflight & Execution
-```powershell
-# Preflight check without launch:
-python tools/phenotypes/preflight_derived_dwarf_client.py
+Each client run preserves its preflight, fixture receipt, full client and engine logs,
+launch record, filtered log and metrics under a fresh `review/client-run-<uuid>`
+directory. These paths remain verifiable after the fixture is rebuilt.
 
-# Interactive test execution (requires user confirmation):
-python tools/phenotypes/run_derived_dwarf_client_test.py
-```
+Both builds publish the same live `srn_pheno_test.mod`, HAK and fixture receipt.
+Complete step 4 and preserve its build receipt, logs and seven-phase torso evidence
+before step 5 replaces that module. Complete step 6 against the equipment build
+and preserve its separate evidence. The runner infers equipment mode from the
+current fixture receipt; omitting `--equipment-target` after the equipment rebuild
+does not restore the torso sequence. Apply this build/run/build/run order to each
+race, using that target's stage paths and `--race`/`--prefix` client arguments.
+Pass the derived target race to `stock_dwarf_control.py --race <race>` and its stage
+to `--output`. Use `stock_elf_male_fit` for Elf, `stock_orc_male_fit` for Orc, and
+`stock_human_male_fit` for Troll's unchanged Human donor baseline in both the
+`--slugs` list and frozen converted-input directory. Each builder stages
+`baseline/full-armor-template.json`. Stock controls preserve the target's patched
+appearance row and retain their own unmodified source-race sizing. The broadened
+Troll needs separately fitted armor resources for the equipment build; its
+modified rig is outside the stock-family `--stock-equipment-fallback` policy.
 
 ---
 
