@@ -156,6 +156,7 @@ class ComparisonTests(unittest.TestCase):
         clean = dict(report, addedNodes=[], meshes=[mesh])
         loose = {"position": 1e-5, "uv": 1e-4, "weight": 1e-3, "weightSum": 2e-3, "deformation": 1e-3, **tolerances}
         self.assertEqual(verdict(clean, loose)["failures"], [])
+        self.assertIn("cloth: render state", verdict(dict(clean, meshes=[dict(mesh, render=["1", "0"])]), loose)["failures"])
         self.assertIn("cloth: UV presence", verdict(dict(clean, meshes=[dict(mesh, uvPresent=[True, False])]), loose)["failures"])
         self.assertIn("cloth: face pairing",
                       verdict(dict(clean, meshes=[dict(mesh, maximumCornerPositionError=0.01)]), loose)["failures"])

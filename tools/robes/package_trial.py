@@ -85,10 +85,14 @@ def main():
     staging = Path(args.fixture_receipt).resolve().parent
     validated = read(run_root / config["validatedFixture"])
     row, model = config["row"], config["model"]
-    shipped = [model + ".mdl", model + ".plt"] + sorted(n for n in receipt["hakResources"]
+    # Both inventories count: a rebuild may neither change nor drop a model, palette or material the operator tested.
+    shipped = [model + ".mdl", model + ".plt"] + sorted(n for n in {*receipt["hakResources"], *validated["hakResources"]}
                                                          if n.endswith((".mtr", ".tga")))
     mismatched = validated_matches(receipt["hakResources"], validated["hakResources"], shipped)
     require(not mismatched, "Not the client-validated bytes: " + ", ".join(mismatched))
+    require(receipt["hak"]["sha256"] == validated["hak"]["sha256"] and
+            receipt["module"]["sha256"] == validated["module"]["sha256"],
+            "The HAK and demo module must be the ones reviewed in the client")
     require(receipt["partsRobeRows"][str(row)] == validated["partsRobeRows"][str(row)], "parts_robe row differs from the validated build")
     output.mkdir(parents=True)
     hak, module = Path(receipt["hak"]["path"]), Path(receipt["module"]["path"])

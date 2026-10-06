@@ -11,7 +11,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from robe_common import FLAGS, pin, read, require, sha, utc, verify_pins, write_fresh
+from robe_common import FLAGS, pin, read, read_pinned, require, sha, utc, verify_pins, write_fresh
 
 CLI_PACKAGE = "--package=meshy-cli@0.4.0"
 MAX_FACES = 100000
@@ -176,7 +176,8 @@ def _json(path):
 
 
 def dispatch(session, request_file, binding_file, approval_file, folder):
-    request, binding = read(request_file), read(binding_file)
+    request_bytes, request_pin = read_pinned(request_file)  # the arguments and the reservation name the same bytes
+    request, binding = json.loads(request_bytes.decode("utf-8-sig")), read(binding_file)
     verify_pins(request["inputs"])
     arguments = validate_request(request)
     lock = session.lock()
@@ -185,14 +186,14 @@ def dispatch(session, request_file, binding_file, approval_file, folder):
         if approval:
             record = read(approval_file)
             require(record.get("kind") == "srn-robe-reference-approval" and record.get("outfit") == request["outfit"]
-                    and record.get("request", {}).get("sha256") == sha(request_file)
+                    and record.get("request", {}).get("sha256") == request_pin["sha256"]
                     and bool(record.get("userInstruction")), "Approval does not cover this exact request")
-        session.reserve(request, pin(request_file), approval)
+        session.reserve(request, request_pin, approval)
         code, response = invoke(binding, arguments, folder)
         identity = task_fields(_json(response))["id"] if code == 0 else None
         require(code == 0 and identity, "Submission uncertain; reconcile CLI journal before any retry")
         try:  # an input replaced during upload means the paid task may not match the reserved hashes
-            verify_pins(request["inputs"])
+            verify_pins([request_pin, *request["inputs"]])
             unchanged, problem = True, None
         except Exception as error:  # any failure here must not lose the paid task's record
             unchanged, problem = False, f"{type(error).__name__}: {error}"
