@@ -62,6 +62,15 @@ forearm/hand segments.
   the weight leak but leaves sleeve/belt self-intersection and a chest/armpit sink
   from the shoulder conversion. Neither is resolved; operator visual review of v2
   vs v3 (and v4) in the client is pending.
+- **Missing creature neck was a 2DA packaging bug.** The engine indexes
+  `parts_robe.2da` rows by position, not label. The fixture writer skipped absent
+  rows, so every trial row past the stock table's last row (38) landed on the wrong
+  line and the client read it as missing, hiding the neck part. Isolation (rows
+  49–52): robe004 with dummy bones or extra hand/foot nodes, and robe004's own ASCII
+  merely renamed to row 52, all lost the neck; the same ASCII under row 4 kept it.
+  With gaps padded by `****` rows, row 52 and the selected compiled v10 (row 46)
+  show the neck with no model change. Production 2DA registration must pad gaps too.
+  A renamed robe004 also lost its texture, consistent with the PLT/resref rule above.
 
 ## Processing time (workwear, automatic path)
 

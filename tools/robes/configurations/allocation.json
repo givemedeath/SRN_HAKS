@@ -93,7 +93,7 @@
       "model": "pmh0_robe047"
     },
     "48": {
-      "use": "workwear corrected-v10, A-pose rest, 20k runtime, neck_g folded into torso_g (creature neck part visible)",
+      "use": "workwear corrected-v10, A-pose rest, 20k runtime, neck_g folded into torso_g (diagnostic; the hidden neck was the unpadded 2DA, not neck_g)",
       "model": "pmh0_robe048"
     },
     "49": {
