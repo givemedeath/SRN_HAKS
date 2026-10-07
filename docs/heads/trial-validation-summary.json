@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-head-quality-pipeline-validation-summary",
+  "generatedAt": "2026-10-06T22:55:00Z",
+  "triangleLimit": 20000,
+  "pipelineVersion": "1.0.0",
+  "trials": {
+    "human-female-01": {
+      "race": "human",
+      "sex": "female",
+      "donor": {
+        "path": "D:\\source\\repos\\SRN_HAKS\\output\\heads\\comfy-human-female-long-back-v5\\artifacts\\textured-head_00001.glb",
+        "sha256": "6b337a935d371a3d018df1c5b8a805566d1d8bfd61b911be2711eb4f565be98c",
+        "triangles": 98504
+      },
+      "cleanedDonorTriangles": 98504,
+      "runtimeTriangles": 18999,
+      "withinCeiling": true,
+      "boundaryEdges": 349,
+      "nonManifoldEdges": 0,
+      "uvBounds": [
+        [0.0, 0.0],
+        [1.0, 1.0]
+      ],
+      "uvClamped": true,
+      "bottomViewPitchDeg": -80,
+      "deliberateLoopsPreserved": {
+        "eyelids": true,
+        "lips": true,
+        "nostrils": true,
+        "jaw": true
+      },
+      "gates": {
+        "donorAudit": "passed",
+        "components": "passed",
+        "cleanup": "passed",
+        "retopology": "passed",
+        "reviewRenders": "passed",
+        "facialShape": "passed",
+        "eyeOpenings": "passed",
+        "jawIntegrity": "passed",
+        "hairSilhouette": "passed",
+        "textureQuality": "passed",
+        "fitting": "pending_body_contract",
+        "assembly": "pending_body_contract",
+        "nativeValidation": "pending_body_contract"
+      },
+      "comparisonWithRejections": {
+        "v1": "Fixed 20,388 open boundary edges by welding coincident geometry within 1e-7 while preserving UV seams",
+        "v4": "Fixed non-wrapping UV overflow [-0.0007, 1.0001] by strict [0, 1] clamping and mesh validation; fixed misoriented crown view with negative pitch -80 deg jaw bottom view"
+      }
+    },
+    "human-male-01": {
+      "race": "human",
+      "sex": "male",
+      "donor": {
+        "path": "D:\\source\\repos\\SRN_HAKS\\output\\heads\\pilot-v1\\meshy\\source-bank\\human1-neckless-retexture-collect-v1\\model.glb",
+        "sha256": "9557bf8f0607da69b8aeaa2fe5c11099f4be672e87a2c68f18fa19e34676fe4f",
+        "triangles": 18999
+      },
+      "cleanedDonorTriangles": 18999,
+      "runtimeTriangles": 19000,
+      "withinCeiling": true,
+      "boundaryEdges": 0,
+      "nonManifoldEdges": 0,
+      "uvBounds": [
+        [0.0, 0.0],
+        [1.0, 1.0]
+      ],
+      "targetContract": {
+        "path": "docs/heads/human-male-target.json",
+        "sha256": "cf11650b2e793723b1e65199b54f7fc9daad452cb00d5a19f40c426926fc1793"
+      },
+      "fitting": {
+        "uniformScale": 0.123927,
+        "maximumLandmarkError": 0.02092,
+        "landmarkTolerance": 0.025,
+        "withinTolerance": true,
+        "cranialEnvelopeCleared": true,
+        "fittedBoundsMin": [-0.10449, -0.10842, -0.06984],
+        "fittedBoundsMax": [0.09922, 0.13514, 0.18295]
+      },
+      "nativeAudit": {
+        "slot": 82,
+        "model": "pmh0_head082.mdl",
+        "passed": true,
+        "triangles": 19000,
+        "maximumAttributeError": 2.98e-8,
+        "tangentUnitLengths": [0.999, 1.001],
+        "tangentOrthogonality": 0.001,
+        "materialTransportVerified": true,
+        "paletteMasksVerified": true
+      },
+      "gates": {
+        "donorAudit": "passed",
+        "components": "passed",
+        "cleanup": "passed",
+        "retopology": "passed",
+        "reviewRenders": "passed",
+        "fitting": "passed",
+        "standingAssembly": "passed",
+        "worstCaseMotion": "passed",
+        "nativeCompilation": "passed",
+        "nativeAudit": "passed"
+      }
+    },
+    "troll-male-01": {
+      "race": "troll",
+      "sex": "male",
+      "donor": {
+        "path": "D:\\source\\repos\\SRN_HAKS\\output\\heads\\pilot-v1\\meshy\\source-bank\\troll-neckless-retexture-derived-collect-v1\\model.glb",
+        "sha256": "a937078310c8f152d1264c7ff592036ba1e05d048479e0a2d21a2245b0a34079",
+        "triangles": 18984
+      },
+      "cleanedDonorTriangles": 18984,
+      "runtimeTriangles": 18998,
+      "withinCeiling": true,
+      "boundaryEdges": 0,
+      "nonManifoldEdges": 0,
+      "uvBounds": [
+        [0.0095, 0.0039],
+        [0.9905, 0.9904]
+      ],
+      "targetContract": {
+        "path": "docs/heads/troll-male-target.json",
+        "sha256": "331380741b4235de6758f3235a3359444fbc154b2b58b53d8b5894430c28d5c9"
+      },
+      "fitting": {
+        "uniformScale": 0.129923,
+        "maximumLandmarkError": 0.03246,
+        "landmarkTolerance": 0.035,
+        "withinTolerance": true,
+        "cranialEnvelopeCleared": true,
+        "fittedBoundsMin": [-0.12326, -0.10717, -0.08388],
+        "fittedBoundsMax": [0.11994, 0.14918, 0.17663]
+      },
+      "nativeAudit": {
+        "slot": 14,
+        "model": "pmg0_head014.mdl",
+        "passed": true,
+        "triangles": 18998,
+        "maximumAttributeError": 2.98e-8,
+        "tangentUnitLengths": [0.999, 1.001],
+        "tangentOrthogonality": 0.001,
+        "materialTransportVerified": true,
+        "paletteMasksVerified": true
+      },
+      "gates": {
+        "donorAudit": "passed",
+        "components": "passed",
+        "cleanup": "passed",
+        "retopology": "passed",
+        "reviewRenders": "passed",
+        "fitting": "passed",
+        "standingAssembly": "passed",
+        "worstCaseMotion": "passed",
+        "nativeCompilation": "passed",
+        "nativeAudit": "passed"
+      }
+    }
+  }
+}
