@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-head-texture-reprojection-validation-summary",
+  "generatedAt": "2026-10-07T03:26:00Z",
+  "pipelineVersion": "1.0.0",
+  "pilot": {
+    "trialId": "human-female-01",
+    "subject": "human female long-hair-back",
+    "mesh": {
+      "path": "output/heads/trials/human-female-01/cleanup/cleaned_donor.glb",
+      "sha256": "793b533c972c3ec6d975b30ba3d59668c18a1b06c7b0c11c3755902468042a4b",
+      "triangles": 98504
+    },
+    "donorTexture": {
+      "path": "output/heads/trials/human-female-01/cleanup/donor_base_color_2k.png",
+      "sha256": "f4522b9093c3fc7ffc9bde96b6eb9312068a918f4ea96bfb98ebae4539ada64c"
+    },
+    "repairedAtlas2K": {
+      "path": "output/heads/trials/human-female-01/reprojection/repaired_atlas_2k.png",
+      "sha256": "e1625bbd2c0b5d460ef5229c1b13bab6c36f591977e663961bcd4455e2dee229"
+    },
+    "previewGlb": {
+      "path": "output/heads/trials/human-female-01/reprojection/textured_preview.glb",
+      "sha256": "3ede69a9632fb6cdaf4bc66287919bef701657473855abfeb1fea35dd408169f"
+    },
+    "references": {
+      "front": {
+        "path": "output/heads/trials/human-female-01/references/front.png",
+        "sha256": "c9ea329df1f3eb81b985c8005bda8dd9362b2ac6b3b1864c6ef79d869178b8b3"
+      },
+      "left": {
+        "path": "output/heads/trials/human-female-01/references/left.png",
+        "sha256": "1e209c0c524c68bf7b6f7f3c91ed264dba77f3e5053f16c7064b82618e34e5e2"
+      },
+      "back": {
+        "path": "output/heads/trials/human-female-01/references/back.png",
+        "sha256": "d00d0b271529243c321e4b4135e7e73c52aa225677e0815188734b781302d3dd"
+      },
+      "right": {
+        "path": "output/heads/trials/human-female-01/references/right.png",
+        "sha256": "9070735ce3231803f5a0c1525a3026808e1c912660c0c8aa0c966bcb7d4b10cf"
+      }
+    },
+    "cameraCalibration": {
+      "orthoSpan": 1.080,
+      "center": [0.0, -0.0029, -0.0013]
+    },
+    "coverage": {
+      "totalMappedTexels": 2349205,
+      "totalSurfaceAreaM2": 3.8347,
+      "directlyProjectedPercent": 70.14,
+      "blendedPercent": 14.59,
+      "paintedClonedPercent": 14.82,
+      "unresolvedPercent": 0.0,
+      "skin": {
+        "surfaceAreaM2": 0.8069,
+        "directlyProjectedPercent": 71.89,
+        "blendedPercent": 19.93,
+        "paintedClonedPercent": 8.19,
+        "unresolvedPercent": 0.0
+      },
+      "hair": {
+        "surfaceAreaM2": 2.8604,
+        "directlyProjectedPercent": 70.81,
+        "blendedPercent": 12.50,
+        "paintedClonedPercent": 16.69,
+        "unresolvedPercent": 0.0
+      },
+      "eyes": {
+        "surfaceAreaM2": 0.1503,
+        "directlyProjectedPercent": 56.13,
+        "blendedPercent": 27.27,
+        "paintedClonedPercent": 16.60,
+        "unresolvedPercent": 0.0
+      }
+    },
+    "runtimeMaterials": {
+      "textureSize": 1024,
+      "skinPaletteRow": 7,
+      "hairPaletteRow": 65,
+      "fixedEyeOwnershipPreserved": true,
+      "normalTangentsPreserved": true,
+      "roughnessPreserved": true,
+      "aoExportOmitted": true,
+      "paletteRecoloringVerified": true
+    },
+    "gates": {
+      "facialFeatures": "passed",
+      "skinToScalpTransitions": "passed",
+      "sharpHairDetail": "passed",
+      "hairFlowDirection": "passed",
+      "noProjectionSeams": "passed",
+      "noBackgroundContamination": "passed",
+      "noExposedDefectiveFallback": "passed",
+      "jawUndersideClosure": "passed",
+      "crownCoverage": "passed"
+    },
+    "verdict": "PASSED"
+  }
+}

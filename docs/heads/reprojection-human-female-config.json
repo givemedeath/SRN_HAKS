@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-head-reprojection-config",
+  "trialId": "human-female-01",
+  "notes": "Whole-head turnaround reference texture reprojection for Human female donor. Replaces defective generated donor base color using pinned front, left, back, and right reference panels. Preserves baked shading for NWN:EE.",
+  "mesh": {
+    "path": "output/heads/trials/human-female-01/cleanup/cleaned_donor.glb",
+    "sha256": "793b533c972c3ec6d975b30ba3d59668c18a1b06c7b0c11c3755902468042a4b"
+  },
+  "donorTexture": {
+    "path": "output/heads/trials/human-female-01/cleanup/donor_base_color_2k.png",
+    "sha256": "f4522b9093c3fc7ffc9bde96b6eb9312068a918f4ea96bfb98ebae4539ada64c"
+  },
+  "views": {
+    "front": {
+      "path": "output/heads/trials/human-female-01/references/front.png",
+      "sha256": "c9ea329df1f3eb81b985c8005bda8dd9362b2ac6b3b1864c6ef79d869178b8b3",
+      "camera": {
+        "center": [0.0, -0.0029, -0.0013],
+        "orthoSpan": 1.080,
+        "offsets": {
+          "skin": [0.0, 0.0],
+          "hair": [0.0, 0.0]
+        }
+      }
+    },
+    "left": {
+      "path": "output/heads/trials/human-female-01/references/left.png",
+      "sha256": "1e209c0c524c68bf7b6f7f3c91ed264dba77f3e5053f16c7064b82618e34e5e2",
+      "camera": {
+        "center": [0.0, -0.0029, -0.0013],
+        "orthoSpan": 1.080,
+        "offsets": {
+          "skin": [0.0, 0.0],
+          "hair": [0.0, 0.0]
+        }
+      }
+    },
+    "back": {
+      "path": "output/heads/trials/human-female-01/references/back.png",
+      "sha256": "d00d0b271529243c321e4b4135e7e73c52aa225677e0815188734b781302d3dd",
+      "camera": {
+        "center": [0.0, -0.0029, -0.0013],
+        "orthoSpan": 1.080,
+        "offsets": {
+          "skin": [0.0, 0.0],
+          "hair": [0.0, 0.0]
+        }
+      }
+    },
+    "right": {
+      "path": "output/heads/trials/human-female-01/references/right.png",
+      "sha256": "9070735ce3231803f5a0c1525a3026808e1c912660c0c8aa0c966bcb7d4b10cf",
+      "camera": {
+        "center": [0.0, -0.0029, -0.0013],
+        "orthoSpan": 1.080,
+        "offsets": {
+          "skin": [0.0, 0.0],
+          "hair": [0.0, 0.0]
+        }
+      }
+    }
+  },
+  "componentClassification": {
+    "path": "output/heads/trials/human-female-01/components/components.json",
+    "sha256": "45e9b7ab59f3266460d0bf488110128bb7d1e51a0007258225969bf3054b9406"
+  },
+  "landmarks": {
+    "noseTip": [0.0058, 0.0873, 0.3360],
+    "crown": [0.0180, 0.4934, 0.0154],
+    "chinTip": [-0.0055, -0.1178, 0.0848],
+    "leftEar": [0.2305, -0.0439, -0.0610],
+    "rightEar": [-0.2299, -0.0397, -0.0615],
+    "leftEye": [0.0874, 0.1672, 0.2315],
+    "rightEye": [-0.0846, 0.1660, 0.2311],
+    "mouthCenter": [0.0016, -0.0519, 0.2744]
+  },
+  "repairLayers": [
+    {
+      "name": "jaw_cap",
+      "type": "subdued_mandibular_closure",
+      "predicate": "pos_y < -0.075 and component == 'skin'",
+      "notes": "Subdued neighboring submental chin skin gradient for watertight neck/mandible closure"
+    },
+    {
+      "name": "crown",
+      "type": "sagittal_crest_hair_flow",
+      "predicate": "pos_y > 0.35 and component == 'hair' and norm_y > 0.25",
+      "notes": "Sagittal crest hair flow cloned from cranial apex of back/side panels"
+    },
+    {
+      "name": "behind_ears",
+      "type": "mastoid_crevice_closure",
+      "predicate": "abs(pos_x) > 0.12 and pos_z < 0.05 and pos_z > -0.15",
+      "notes": "Cloned mastoid skin and hair boundary behind auricle"
+    },
+    {
+      "name": "inner_hair_recesses",
+      "type": "internal_fiber_cavity",
+      "predicate": "component == 'hair' and unprojected",
+      "notes": "Dark fiber texture from rear hair curtain for concealed interior locks"
+    }
+  ],
+  "blendSettings": {
+    "dominanceThreshold": 0.80,
+    "grazingAngleMin": 0.15,
+    "depthTolerance": 0.035,
+    "featurePriorities": {
+      "centralFace": 12.0,
+      "leftEar": 10.0,
+      "rightEar": 10.0,
+      "rearHairCurtain": 10.0
+    }
+  },
+  "outputDir": "output/heads/trials/human-female-01/reprojection"
+}
