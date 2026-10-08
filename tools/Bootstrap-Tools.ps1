@@ -12,10 +12,11 @@ $platform = $lock.platforms[$platformKey]
 $destination = Join-Path $root "neverwinter/$($lock.releaseTag)/$platformKey"
 $locks = Join-Path $root 'locks'; New-Item -ItemType Directory -Force -Path $locks | Out-Null
 $stream = [IO.File]::Open((Join-Path $locks "neverwinter-$($lock.releaseTag)-$platformKey.lock"), 'OpenOrCreate', 'ReadWrite', 'ReadWrite')
-if (-not $stream.Length) { $stream.WriteByte(48); $stream.Flush() }
 $acquired=$false; $stage=$null; $backup=$null; $end=[DateTime]::UtcNow.AddMinutes(5)
 try {
     while (-not $acquired) { try { $stream.Lock(0,1); $acquired=$true } catch { if ([DateTime]::UtcNow -ge $end) { throw }; Start-Sleep -Milliseconds 100 } }
+    # Initialization writes belong to the byte-range critical section.
+    if (-not $stream.Length) { $stream.WriteByte(48); $stream.Flush() }
     # Force never replaces a byte-verified installation. Markers are informational.
     $valid=$true
     foreach ($name in $platform.executables.Keys) { try { $null=Resolve-SrnTool -Name $name -ToolsRoot $root } catch { $valid=$false; break } }

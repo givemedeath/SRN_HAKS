@@ -1,0 +1,32 @@
+{
+ "kind": "candidate-published-body-verification",
+ "results": {
+  "female": {
+   "pack": "srn_body",
+   "prefix": "pfh0",
+   "models": 14,
+   "resources": 70,
+   "materialLayout": "single-plt-per-part-v1",
+   "payloadBytes": 472733746,
+   "sourceAssetsExactTestedPayload": true,
+   "clientRerun": false,
+   "rebuiltHakSha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325",
+   "rebuiltPayloadExactTestedSelection": true
+  },
+  "male": {
+   "pack": "srn_body",
+   "prefix": "pmh0",
+   "models": 14,
+   "resources": 70,
+   "materialLayout": "single-plt-per-part-v1",
+   "payloadBytes": 472936894,
+   "sourceAssetsExactTestedPayload": true,
+   "clientRerun": false,
+   "rebuiltHakSha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325",
+   "rebuiltPayloadExactTestedSelection": true
+  }
+ },
+ "hakSha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325",
+ "promoted": false,
+ "clientAccepted": false
+}

@@ -4,7 +4,7 @@
   "sex": "male",
   "prefix": "pmh0",
   "phenotype": 0,
-  "bodyRevision": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4",
+  "bodyRevision": "46ec4840188f764c0c545bb3fa3b3c7fae78ead7e6cda73d2563b1ec57c62d75",
   "headBindMatrix": [
     [
       1.0,
@@ -48,9 +48,12 @@
   "kind": "srn-head-portable-target",
   "sourceContractSha256": "cf11650b2e793723b1e65199b54f7fc9daad452cb00d5a19f40c426926fc1793",
   "parentContractSha256": "7a351bcce29b8b2b67c28d706c67649789e08cb18c036febcf4adacd1dfc7290",
+  "bodyPinHistory": [
+    {"path": "docs/phenotypes/human-male-assets.json", "sha256": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4", "superseded": "2026-10-08", "reason": "Human male v2 body promoted; stock head bind frame, neck and envelope unchanged"}
+  ],
   "bodyManifest": {
-    "path": "docs/phenotypes/human-male-assets.json",
-    "sha256": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4"
+    "path": "docs/phenotypes/human-male-v2-assets.json",
+    "sha256": "46ec4840188f764c0c545bb3fa3b3c7fae78ead7e6cda73d2563b1ec57c62d75"
   },
   "rig": {
     "path": "stock/ascii/pmh0.mdl",

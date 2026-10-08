@@ -102,3 +102,21 @@ history and are not copied into current assembly inventories.
 The [repository publication check](phenotypes/evidence/human-male-publication-v1/validation.json)
 records the 26-pack rebuild, 107 passing unit tests, repository regression check
 and exact rebuilt Human payload verification.
+
+## Human male v2 (2026-10-08)
+
+The male fixes (textures, hands, neck/end openings, bicep shoulder, posterior
+thigh/shin crease) were rebuilt through the tracked LEAN pipeline as a
+single-PLT-per-part body: 70 resources, 38,250 triangles, garments dyeable on
+the cloth layers. Gate 3 sheets were accepted as-is; Gate 4 client checks
+passed (palettes, dyes, motions, HAK smoke, character creation via
+`+LoadNewModule`). The exact tested bytes are promoted into `srn_body` and pinned by
+[the male v2 manifest](phenotypes/human-male-v2-assets.json) (`46ec4840188f...`); the combined pack builds
+HAK `b1d4112e4cb6...`. The [v2 delivery ledger](phenotypes/evidence/human-body-completion-v1/human-male-v2-delivery.json)
+and [client session](phenotypes/evidence/human-body-completion-v1/client-session-v2.json) hold the pins.
+
+The v1 manifest above remains as published history; it no longer verifies against the tracked pack by design.
+Derived races keep the frozen v1 parent (`output/phenotypes/derived-v1/masters/human-male-v1`, 72 resources,
+decompile parity passed). The Human head target now pins the v2 manifest; its stock head frame, neck and envelope are unchanged.
+Known accepted issues: the brief waistband top edge is ragged in kneel-front, and a dark band shows at the
+waistband in rear/crouch views. Final approval, push and PR are pending (Gate 5).

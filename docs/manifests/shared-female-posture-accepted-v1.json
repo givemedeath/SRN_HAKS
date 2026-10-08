@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "kind": "explicit-user-shared-female-posture-acceptance",
+  "createdUtc": "2026-10-06T00:50:58.812108+00:00",
+  "userStatement": "posture adjustment changes are fully accepted. no need for any further in game tests",
+  "selection": "hips level + original upper lean/breathing",
+  "scope": "All races using shared female animations; normal and Large pause1/pause2",
+  "overlay": {
+    "path": "output/phenotypes/human-female-fit-purposebuilt-v1/shared-female-posture-executed-overlay-v1/overlay.json",
+    "sha256": "669cd38aa1ae3fe96e1444edd6cbe89bde82e2f06ed225fa8eb4baacdc595f2e"
+  },
+  "nativeVerification": {
+    "path": "output/phenotypes/human-female-fit-purposebuilt-v1/shared-female-posture-actual-overlay-verification-v2/verification.json",
+    "sha256": "33387d1bee901b99d02306b68ddc3ef6f397bbd97101ef4d462b9be4e33e0c75"
+  },
+  "resourceHashes": {
+    "pfh0.mdl": "98a151c44608a541dfa476108dee0ac9b74fdd5acaad15f68678de3b7bcbe5c6",
+    "srn_fa_h0.mdl": "19435776bf8557fa0df736f477df69c9fc3e58150d5c844862aafcf4812e7112",
+    "pfa0.mdl": "d7b382bb2f713abe3dc3f01859a7aaea1e8cf8f7d4bc2c1704dd32a84a2c2625",
+    "srn_fa_a0.mdl": "41afe224b2e72d3b3600a46f0154a39dca37228ae52f72a4d4c93e208acc6385",
+    "pfa2.mdl": "72c7217a274c3d48a21251b0d1896fda69e783c3a9506ce92d5b7bd2f03f1007",
+    "srn_fa_a2.mdl": "ef6cf59f714f5fd2dd5b89a6182a4dd272c5d8c7625c0c54825c2d9855bdb7c3",
+    "pfd0.mdl": "106781735317aef9c2e8024c0f05b0a550455ed0dbbe500d206d34d1b0dfbe01",
+    "srn_fa_d0.mdl": "b51ff2e55f154f5217b9cedeb6e670a6c67bf3765af51cc2669b37abcb73f5a0",
+    "pfd2.mdl": "900899bea9dfa52b7372acc62b682870c1f205210eea67262d167f274b886bc3",
+    "srn_fa_d2.mdl": "f72ea90b3484acbc7c2aa83337621ba798580c5bfd1984256163a199a78a6914",
+    "pfe0.mdl": "540b165a122f1547556dcf5b02ebbdcbfb5d339f26a2a2eb3d1e6a2f2f7e7149",
+    "srn_fa_e0.mdl": "157b7c6fcf6c228047b94f69e89c6176e04abd06478acd3933ac6896bb8ef559",
+    "pfe2.mdl": "fc68451afc16e7d2d7eba8f927fbf5a322b3053917d791f688d082fdbe2420ea",
+    "srn_fa_e2.mdl": "d98fa5381315fbd4b9412f3b3d2b025f18c3a02c66b991120a91e55effa3c05d",
+    "pfg0.mdl": "87bfd99c2baa2e2e7c77255d9b592e91055767f218dd5fb8b214e56c7baf08cc",
+    "srn_fa_g0.mdl": "6b9c36012d06fa8d02c97a80f05eb28417fad5bc30dd92cde8eec885167163d8",
+    "pfg2.mdl": "6f1e444c69ffe069c9e0c6716a803a8f26b64d79d29cf16f3bfeceb68f1b954a",
+    "srn_fa_g2.mdl": "0cdaa714355883a57c12e5b79b1f0a94dfd35fe6480af2412c48a2c738dfafbe",
+    "pfh2.mdl": "1548dc558b4a0a037508b1eb1255f211f55bff9d6e342a8bbe9db65a6893d58f",
+    "srn_fa_h2.mdl": "f826f57fc02f674597e080e60556aec6aa503f1856e382026f59c5dd6be340ac",
+    "pfo0.mdl": "36fe3478a9907a9ff9888f1f8ced3fad0e057e1f39b9f31ae0d66d76d7d77999",
+    "srn_fa_o0.mdl": "c4464e5a5fa861372b1af2fe589ed59e4c70ac5336c0f98af77d6dc2f3d13f76",
+    "pfo2.mdl": "65ccb7765c830afe53449ef28d3269674eada79ab9457836786b1c8a10855814",
+    "srn_fa_o2.mdl": "6c7364d572c5059ce3492aaaff21c838a41e055cdf1a847285215465f2bc27ea"
+  },
+  "allRacePostureAccepted": true,
+  "animationAccepted": true,
+  "furtherInGamePostureTestsRequired": false,
+  "focusedSkippedRaces": [
+    "Gnome",
+    "Half-Elf",
+    "Halfling"
+  ],
+  "acceptanceBasis": "Explicit user acceptance with preserved native, automated and partial discrete client evidence. Missed views and occluded equipment regions remain disclosed; no complete continuous observation inferred.",
+  "bodyAccepted": false,
+  "productionAccepted": false,
+  "publishApproved": false,
+  "resources": {
+    "pfh0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/human-posture-executed-overlay-v1/root/pfh0.mdl",
+      "sha256": "98a151c44608a541dfa476108dee0ac9b74fdd5acaad15f68678de3b7bcbe5c6"
+    },
+    "srn_fa_h0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/human-posture-source-native-restored-v1/native/srn_fa_h0.mdl",
+      "sha256": "19435776bf8557fa0df736f477df69c9fc3e58150d5c844862aafcf4812e7112"
+    },
+    "pfa0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfa0/root/pfa0.mdl",
+      "sha256": "d7b382bb2f713abe3dc3f01859a7aaea1e8cf8f7d4bc2c1704dd32a84a2c2625"
+    },
+    "srn_fa_a0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfa0/native/srn_fa_a0.mdl",
+      "sha256": "41afe224b2e72d3b3600a46f0154a39dca37228ae52f72a4d4c93e208acc6385"
+    },
+    "pfa2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfa2/root/pfa2.mdl",
+      "sha256": "72c7217a274c3d48a21251b0d1896fda69e783c3a9506ce92d5b7bd2f03f1007"
+    },
+    "srn_fa_a2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfa2/native/srn_fa_a2.mdl",
+      "sha256": "ef6cf59f714f5fd2dd5b89a6182a4dd272c5d8c7625c0c54825c2d9855bdb7c3"
+    },
+    "pfd0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfd0/root/pfd0.mdl",
+      "sha256": "106781735317aef9c2e8024c0f05b0a550455ed0dbbe500d206d34d1b0dfbe01"
+    },
+    "srn_fa_d0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfd0/native/srn_fa_d0.mdl",
+      "sha256": "b51ff2e55f154f5217b9cedeb6e670a6c67bf3765af51cc2669b37abcb73f5a0"
+    },
+    "pfd2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfd2/root/pfd2.mdl",
+      "sha256": "900899bea9dfa52b7372acc62b682870c1f205210eea67262d167f274b886bc3"
+    },
+    "srn_fa_d2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfd2/native/srn_fa_d2.mdl",
+      "sha256": "f72ea90b3484acbc7c2aa83337621ba798580c5bfd1984256163a199a78a6914"
+    },
+    "pfe0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfe0/root/pfe0.mdl",
+      "sha256": "540b165a122f1547556dcf5b02ebbdcbfb5d339f26a2a2eb3d1e6a2f2f7e7149"
+    },
+    "srn_fa_e0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfe0/native/srn_fa_e0.mdl",
+      "sha256": "157b7c6fcf6c228047b94f69e89c6176e04abd06478acd3933ac6896bb8ef559"
+    },
+    "pfe2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfe2/root/pfe2.mdl",
+      "sha256": "fc68451afc16e7d2d7eba8f927fbf5a322b3053917d791f688d082fdbe2420ea"
+    },
+    "srn_fa_e2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfe2/native/srn_fa_e2.mdl",
+      "sha256": "d98fa5381315fbd4b9412f3b3d2b025f18c3a02c66b991120a91e55effa3c05d"
+    },
+    "pfg0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfg0/root/pfg0.mdl",
+      "sha256": "87bfd99c2baa2e2e7c77255d9b592e91055767f218dd5fb8b214e56c7baf08cc"
+    },
+    "srn_fa_g0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfg0/native/srn_fa_g0.mdl",
+      "sha256": "6b9c36012d06fa8d02c97a80f05eb28417fad5bc30dd92cde8eec885167163d8"
+    },
+    "pfg2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfg2/root/pfg2.mdl",
+      "sha256": "6f1e444c69ffe069c9e0c6716a803a8f26b64d79d29cf16f3bfeceb68f1b954a"
+    },
+    "srn_fa_g2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfg2/native/srn_fa_g2.mdl",
+      "sha256": "0cdaa714355883a57c12e5b79b1f0a94dfd35fe6480af2412c48a2c738dfafbe"
+    },
+    "pfh2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfh2/root/pfh2.mdl",
+      "sha256": "1548dc558b4a0a037508b1eb1255f211f55bff9d6e342a8bbe9db65a6893d58f"
+    },
+    "srn_fa_h2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfh2/native/srn_fa_h2.mdl",
+      "sha256": "f826f57fc02f674597e080e60556aec6aa503f1856e382026f59c5dd6be340ac"
+    },
+    "pfo0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfo0/root/pfo0.mdl",
+      "sha256": "36fe3478a9907a9ff9888f1f8ced3fad0e057e1f39b9f31ae0d66d76d7d77999"
+    },
+    "srn_fa_o0.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfo0/native/srn_fa_o0.mdl",
+      "sha256": "c4464e5a5fa861372b1af2fe589ed59e4c70ac5336c0f98af77d6dc2f3d13f76"
+    },
+    "pfo2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-executed-root-links-v1/pfo2/root/pfo2.mdl",
+      "sha256": "65ccb7765c830afe53449ef28d3269674eada79ab9457836786b1c8a10855814"
+    },
+    "srn_fa_o2.mdl": {
+      "path": "output/phenotypes/human-female-fit-purposebuilt-v1/posture-family-native-restored-batch-v1/pfo2/native/srn_fa_o2.mdl",
+      "sha256": "6c7364d572c5059ce3492aaaff21c838a41e055cdf1a847285215465f2bc27ea"
+    }
+  }
+}

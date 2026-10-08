@@ -181,6 +181,31 @@ class BootstrapTests(unittest.TestCase):
         write_json(self.tools/'toolchain.lock.json',self.lock);write_json(self.tools/'shared-tools.lock.json',self.inventory)
     def tearDown(self):self.tmp.cleanup()
     def process(self):return subprocess.Popen([PS,'-NoProfile','-File',str(self.tools/'Bootstrap-Tools.ps1'),'-ToolsRoot',str(self.root),'-Force'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    def test_existing_empty_lock_initialization_waits_for_its_owner(self):
+        import time
+        lock=self.root/'locks'/f'neverwinter-test-{self.key}.lock'
+        lock.parent.mkdir(parents=True)
+        with lock.open('w+b') as stream:
+            if os.name=='nt':
+                import msvcrt
+                msvcrt.locking(stream.fileno(),msvcrt.LK_NBLCK,1)
+            else:
+                import fcntl
+                fcntl.lockf(stream,fcntl.LOCK_EX|fcntl.LOCK_NB,1,0,os.SEEK_SET)
+            job=self.process()
+            try:
+                time.sleep(1)
+                # The child must wait instead of writing/flushing a locked byte.
+                self.assertIsNone(job.poll(),"Bootstrap tried to initialize another owner's lock")
+                self.assertEqual(lock.stat().st_size,0)
+            finally:
+                stream.seek(0)
+                if os.name=='nt':msvcrt.locking(stream.fileno(),msvcrt.LK_UNLCK,1)
+                else:fcntl.lockf(stream,fcntl.LOCK_UN,1,0,os.SEEK_SET)
+            out,err=job.communicate(timeout=45)
+            self.assertEqual(job.returncode,0,err.decode())
+            self.assertEqual(lock.read_bytes(),b'0')
+
     def test_concurrent_cache_reuse_ignores_interrupted_staging(self):
         abandoned=self.root/'staging/abandoned';abandoned.mkdir(parents=True);(abandoned/'partial').write_bytes(b'bad')
         jobs=[self.process(),self.process()]

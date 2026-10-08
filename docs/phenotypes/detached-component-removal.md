@@ -1,0 +1,9 @@
+# Detached generator component removal
+
+`remove_target_detached_components.py` creates an index-only working-space diagnostic from an original proper uniform fit. It removes complete components explicitly identified by source face seed, face count, SHA-256 of ordered face IDs, and an observed reason. Connectivity uses exact source positions and includes point contacts; it never coordinate-welds the output or infers an inner-sheet deletion.
+
+Use the verified shared-tool launcher and bundled workspace Python. Freeze a `target-detached-component-measurement` with the exact target/part/source/parent binding and independently reproducible component catalogue. A `target-detached-component-removal` configuration pins that receipt and declares `removedComponents` plus `maximumRemovedFaceFraction` (at most 0.10). The largest anatomical component is protected. Unknown controls, partial/repeated membership, stale measurement, point contacts and repeated repairs fail closed.
+
+The helper appends only an index accessor. All original attribute accessors, source BIN prefix, UVs, authored normals/tangents, colors, material definitions and embedded maps remain exact. Double-precision native corner rows are selected from the parent with original face lineage. Catalogue bounds use the raw GLTF detached-local axes; areas are in square metres. Removal must introduce no new boundary, nonmanifold edge/link, winding or zero-area defect; existing defects remain measured and unresolved.
+
+Independently inspect component separation, retained bytes and cumulative motion. A detached-bar cleanup does not accept connected interior sheets, anatomy, garment cut/paint, connector coverage, native shading or client behavior. Keep the original fit and masters immutable, and treat every output as unselected until its affected acceptance checks pass.

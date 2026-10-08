@@ -1,0 +1,138 @@
+{
+ "kind": "gate4-client-session",
+ "schemaVersion": 1,
+ "recordedAt": "2026-10-08",
+ "clientLaunchedBy": "user / coordinator session (not this agent)",
+ "candidateHak": {
+  "sha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325",
+  "standIn": {
+   "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\candidate-hak\\srn_body.hak",
+   "sha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325"
+  },
+  "buildHaks": {
+   "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\buildhaks-v1.json",
+   "sha256": "a62f9832e4a12459fa4f72308943f5dab201305c3229e6fedac4aa8ea9bc51d2"
+  }
+ },
+ "gate3Acceptance": {
+  "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\user-directions\\2026-10-08-gate3-lean-accept.json",
+  "sha256": "3711fdffd8416d3b678f19b0a52d06e78b4c104ab5fabe1281c47453cbb9fe76"
+ },
+ "fixtures": {
+  "female-palette": {
+   "receipt": {
+    "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\female-palette\\test-module\\receipt.json",
+    "sha256": "a612510fd8332afeba0c5a99d729288edddb2e62bc1b07b685194da5cf28557b"
+   },
+   "preflights": [
+    {
+     "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\female-palette\\client-preflight-507041692f2b4b15a3150ad95bb4fbbe.json",
+     "sha256": "451be96c3302702e647f6dffb1e9f53971afddae309c904e1b5244f1643aa2c8"
+    },
+    {
+     "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\female-palette\\client-preflight-a771664935e84edd9c41a26fecfda964.json",
+     "sha256": "451be96c3302702e647f6dffb1e9f53971afddae309c904e1b5244f1643aa2c8"
+    }
+   ]
+  },
+  "female-matrix": {
+   "receipt": {
+    "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\female-matrix\\test-module\\receipt.json",
+    "sha256": "521732ca0597745ff0ed55ee98a17aed232d29a1df2881b50c7d2204ca9dc788"
+   },
+   "preflights": [
+    {
+     "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\female-matrix\\client-preflight-68097104fe4e4a0b81fae623bf7481f5.json",
+     "sha256": "98c95e5595c90765b1ccfe8d211d43d859abf3dad1c7f4392aa54c878f9c199d"
+    },
+    {
+     "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\female-matrix\\client-preflight-7f180bfeffec453d89a75c77b6904b25.json",
+     "sha256": "98c95e5595c90765b1ccfe8d211d43d859abf3dad1c7f4392aa54c878f9c199d"
+    }
+   ]
+  },
+  "male-palette": {
+   "receipt": {
+    "path": "output\\phenotypes\\human-male-muscular-purposebuilt-v2\\gate4-v1\\fixtures\\male-palette\\test-module\\receipt.json",
+    "sha256": "2b2da5da1e4a12fa78f1f475211051b77edf45f9871f4b628d2c821f4c1e41bd"
+   },
+   "preflights": [
+    {
+     "path": "output\\phenotypes\\human-male-muscular-purposebuilt-v2\\gate4-v1\\fixtures\\male-palette\\client-preflight-d08ab138577a4ecab1b77e902867289c.json",
+     "sha256": "6dc013eb51ab36fd6b73cc7dce27d101ca7662c090ea5532f4a6e58fd1c02587"
+    },
+    {
+     "path": "output\\phenotypes\\human-male-muscular-purposebuilt-v2\\gate4-v1\\fixtures\\male-palette\\client-preflight-e7a3ac21b0f5455389f491166622571c.json",
+     "sha256": "6dc013eb51ab36fd6b73cc7dce27d101ca7662c090ea5532f4a6e58fd1c02587"
+    }
+   ]
+  },
+  "male-matrix": {
+   "receipt": {
+    "path": "output\\phenotypes\\human-male-muscular-purposebuilt-v2\\gate4-v1\\fixtures\\male-matrix\\test-module\\receipt.json",
+    "sha256": "f0ab55cd6fe1f48ead2eaea0ed280e28610361864519b73282efea515b449fa4"
+   },
+   "preflights": [
+    {
+     "path": "output\\phenotypes\\human-male-muscular-purposebuilt-v2\\gate4-v1\\fixtures\\male-matrix\\client-preflight-114b2c195970484bab963c75589e83c6.json",
+     "sha256": "250f6c985e96e8db75784d90923a8485308a17f24f89e82f4df7c9eace99810d"
+    },
+    {
+     "path": "output\\phenotypes\\human-male-muscular-purposebuilt-v2\\gate4-v1\\fixtures\\male-matrix\\client-preflight-b759334c2fff4293afc1d6e5c745f150.json",
+     "sha256": "250f6c985e96e8db75784d90923a8485308a17f24f89e82f4df7c9eace99810d"
+    }
+   ]
+  },
+  "hak-smoke": {
+   "receipt": {
+    "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\hak-smoke\\test-module\\receipt.json",
+    "sha256": "42d749311969b096232a12fa85b3a144bb5cb2d58cc61a279a8210a4beab116f"
+   },
+   "engineLog": {
+    "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\hak-smoke\\userdir\\logs\\nwengineLog.txt",
+    "sha256": "78ab215b4f3c740323e7ca681592b76247d894efe4c7eeacbb6a022981be3147"
+   }
+  }
+ },
+ "results": {
+  "female-palette": {
+   "pass": true,
+   "observed": "palettes 3/8; dyes red (88), blue (26) and undyed fine"
+  },
+  "female-matrix": {
+   "pass": true,
+   "observed": "walk, run, cast, crouch, kneel, death and resurrection"
+  },
+  "male-palette": {
+   "pass": true,
+   "observed": "dyes red and blue fine; neck and head fine"
+  },
+  "male-matrix": {
+   "pass": true,
+   "observed": "motion schedule"
+  },
+  "hak-smoke": {
+   "pass": true,
+   "observed": "both sexes render from the built srn_body.hak; no model or texture errors in the client log"
+  },
+  "character-creation": {
+   "pass": null,
+   "tested": false,
+   "reason": "Untested: in the isolated fixture userdir the New Game > Local module list was empty and the Options panel lists were blank. See gate4-v1/character-creation-investigation.md."
+  }
+ },
+ "screenshots": {
+  "repository": "output\\phenotypes\\poly-budget-lean-ingame-v1\\client-review-v4",
+  "note": "Gate 4 captures are held in the coordinator session; client-review-v4 holds the earlier review captures."
+ },
+ "knownAcceptedIssues": [
+  "male brief waistband top edge ragged in kneel-front; dark band at the waistband in rear/crouch",
+  "female cream blotching, bra-back flecks, right upper-back dash (deferred)"
+ ],
+ "gate4Complete": false,
+ "pendingForGate4": [
+  "character creation with both sexes"
+ ],
+ "productionAccepted": false,
+ "promoted": false
+}

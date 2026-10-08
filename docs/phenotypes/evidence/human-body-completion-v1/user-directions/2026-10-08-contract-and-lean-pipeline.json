@@ -1,0 +1,11 @@
+﻿{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-08",
+  "context": "LEAN v2b in-game check passed for the dyed garments (female red/blue, male red), visible clothed actors, and the dark band gone. Evidence: output/phenotypes/poly-budget-lean-ingame-v1/client-review-v4.",
+  "userMessage": "go straight to the contract update and pipeline work",
+  "directions": {
+    "next": "Update the repository body contract for single-PLT-per-part with dyeable garments (70 resources per sex), then productionize the LEAN reduction pipeline: re-seal (current10), restage, compile, audits and Gate 3 sheets for both sexes.",
+    "deferred": "Small visual issues (cream blotching, white bra-back flecks, the right upper-back dash present since v1) are deferred, not dropped."
+  },
+  "notApproved": "No visual acceptance, client validation of production builds or publication."
+}

@@ -1,0 +1,1 @@
+{"kind":"srn-body-tracked-build","tool":"pwsh tools/Build-Haks.ps1 -Pack srn_body -SkipTlk","pwsh":"7.6.6","hakSha256":"b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325","matchesCandidate":true,"resources":140,"seconds":12.2}

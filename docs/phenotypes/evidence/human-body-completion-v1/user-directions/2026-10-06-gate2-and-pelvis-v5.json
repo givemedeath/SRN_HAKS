@@ -1,0 +1,34 @@
+{
+ "kind": "completionV1-user-directions",
+ "date": "2026-10-06",
+ "female": {
+  "waistCap": "Adopt rounded cap (z25d95: z0 0.025, depth 0.095, frontDeg 0, backDeg 135, c 0.95) -> chest-waist-cap-rounded-diagnostic-v1",
+  "pelvis": "Adopt pelvis-rebuild-v5 as base; fix residuals (far-side front lip, +x hip band, right crouch notch) and trim the brief tie tabs at the top of each hip.",
+  "briefExactnessException": "User allows a minimal edit of ONLY the brief tie-tab faces at the top of each hip; all other brief faces stay byte-exact on compiler slot 4.",
+  "thighs": "Very slight buttock lower-edge extension plus slimmed upper-back thigh to meet (pelvis-rebuild-v5/thighs).",
+  "briefBowKnot": "cleanup this small defect on the front of the pelvis (centre-front bow knot on the brief top edge); minimal brief-face exception for the knot faces only",
+  "resume": "User paused, then said resume; agents resumed from their reported safe points.",
+  "pelvisSelection": "Adopt v6 (pelvis-rebuild-v6-final: tabs trimmed 166, bow knot 60, brief 10,356 faces; slimmed thighs v6 params); far-side hem ridge accepted for now, revisit at offline/client gates",
+  "shinRGB": "2026-10-07: Add RGB route + re-seal: keep derived knee RGB on both shins via a shin-only rgbDescendant calibration route; re-seal authority (current9)",
+  "gate3": "2026-10-07: Approve renormalising non-unit authored normals (direction unchanged) as versioned descendants. Fix before client: waist/hip tone seams (incl. dark speckle above brief edge), thigh streaks, knee/ankle/elbow cuff lines (texture/shading side; approved shapes kept). Crouch buttock lumps not selected.",
+  "creaseFairing": "2026-10-07: Smooth the back of the female thighs and shins to hide the large creases, similar to what was done for male",
+  "fixpassReview": "2026-10-07: fix-pass prototypes A-E look good; show them through the reduced poly budget comparison (1-15k per part) before any rebuild"
+ },
+ "male": {
+  "bicep": "p10 (~10% dome reduction, pinch filled)",
+  "keptAsBuilt": [
+   "neck dome cap",
+   "bicep p10",
+   "thigh/calf crease fairing (to be strengthened)"
+  ],
+  "rework": "Knee, elbow, wrist, ankle and waist junctions until no shelf; foot parts stay byte-exact.",
+  "creases": "smooth the backs of the upper thigh and the upper shins more also. There are still large creases on those",
+  "gate2b": "v2g reviewed; Fix knee bend, then go: remove deep-bend knee wedge (no worse than v1 in crouch/kneel), soften ankle ring/kneel flap; thin seam lines at knee/elbow/wrist accepted; then M4 materials",
+  "gate2c": "2026-10-07: Accept, go to build: knee build-v2n compromise, current (v2g) ankle, M4 textures compose-v2n-c accepted for build; proceed to male staging/compile/offline (Gate 3)",
+  "gate3Tone": "2026-10-07: Match neck + v1 brightness: recalibrate male v2 skin toward v1/stock brightness at palettes 3/8, keep contrast/continuity, blend chest neckline into stock neck tone, restore nipple contrast",
+  "m6": "2026-10-07: m6 tone fix delivered (compose-v3/stage-v3/audit-v2); candidate for combined Gate 3"
+ },
+ "grantsNoAcceptance": true,
+ "concurrency": "2026-10-07: parallelize future runs 3 at a time",
+ "polyBudget": "2026-10-07: scope a 1-15k budget per part (size/complexity); halt work not improving process or masters until comparison reviewed"
+}

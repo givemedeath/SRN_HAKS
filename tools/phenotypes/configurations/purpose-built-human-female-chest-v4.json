@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "name": "purpose-built-human-female-chest-v4",
+  "part": "chest",
+  "workflow": "SR_NWN_3d_pixal3d_multi_views.json",
+  "service": "http://127.0.0.1:8188",
+  "viewOrder": [
+    "front",
+    "left",
+    "back",
+    "right",
+    "top",
+    "bottom"
+  ],
+  "viewAzimuthDegrees": [
+    0,
+    90,
+    180,
+    270,
+    0,
+    0
+  ],
+  "imageSize": 1024,
+  "shapeResolution": 1024,
+  "textureSize": 2048,
+  "masterTriangleBudget": 50000,
+  "remesh": {
+    "resolution": 384,
+    "sign_mode": "udf",
+    "sign_mode.qef": false,
+    "sign_mode.drop_inverted_components": true,
+    "sign_mode.drop_enclosed_components": true,
+    "band": 1,
+    "project_back": 0,
+    "fix_poles": false,
+    "smooth_iters": 3,
+    "drop_small_components": 0.01,
+    "precluster_max_verts": 2000000
+  },
+  "seeds": {
+    "structure": 61,
+    "shape": 47,
+    "texture": 48
+  },
+  "normalBakeSize": 2048,
+  "postFitNormalStrength": 1,
+  "compactBakeReference": true,
+  "retainRawMaster": true,
+  "designConstraints": [
+    "Use exact user-approved midpoint-v10 chest design; common warm skin and strong painted muscle shading authority remains original approved chest-v5.",
+    "Simple charcoal opaque bra on chest. Moderate chest volume. Preserve skin tone, muscles and current covered garment design.",
+    "Source side-slot ambiguity corrected by explicit normalization permutation. Generated output anterior must be verified from anatomy, not assumed.",
+    "Stock female pfh0 rig, head, neck, stature and identity equipment remain authoritative.",
+    "Diagnostic source only; holes, volume loss, anatomy defects or garment contamination block selection.",
+    "Diagnostic controlled variant: all six shape cameras unchanged; texture stage alone uses four canonical cardinal cameras. Exact approved art, target, seeds, remesh, compact triangle and map budgets retained.",
+    "Axial texture cues are excluded to test duplicated garment painting. This does not assert improvement or repair shape defects; compare exact masters and garment coverage independently."
+  ],
+  "viewElevationDegrees": [
+    0,
+    0,
+    0,
+    0,
+    90,
+    -90
+  ],
+  "projection": "orthographic-six-view",
+  "orthoSpan": 1.1,
+  "conditioningDependencies": {
+    "<comfyui>\\custom_nodes\\srn_orthographic_multiview\\__init__.py": "b7a8605b71ae1cde49a7abf6ea8feec1ee6eeb1cb5055c4dae6c7bbeb248b3e1",
+    "<comfyui>\\comfy\\ldm\\trellis2\\model.py": "baa8b081de2eada84754b867282bd21d498233816326f8842943857fe1d07e0c",
+    "<comfyui>\\comfy_extras\\nodes_trellis2.py": "5d99f8fd2d1a1cc252b860d941717fc4e53cfbc48b623730c9fdd9139dd7f98c"
+  },
+  "targetContract": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\stock-target-v1\\target-contract.json",
+  "targetContractSha256": "a1690d2f14255377602b02f4baa6be545c9fa9444dc6ff42ac3c115fc4ec9807",
+  "sourceReference": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\reference-attempts\\chest-midpoint-v10\\source.png",
+  "sourceReferenceSha256": "e07f9ba27df593796739e4169ddad3b0878500afb8e1490106e36a37fc0ff4f4",
+  "styleReference": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\references\\approved-chest-style-v1\\source.png",
+  "styleReferenceSha256": "a8b9944ffbcdb64203b7265e7e26f73ea20ccb81319c93e3be5e6aba4d3008ff",
+  "referenceMethod": "Exact human-approved midpoint-v10 full sheet. One shared isotropic scale, explicit observed side-slot permutation. Generated axial magnification differs ~12-13% from cardinal views; inspect actual reconstruction independently. No auxiliary row replacement.",
+  "textureViewOrder": [
+    "front",
+    "left",
+    "back",
+    "right"
+  ]
+}

@@ -1,0 +1,6 @@
+renderhint NormalTangents
+texture1 pfh0_pelvis001n
+texture3 pfh0_pelvis001r
+parameter float Roughness 0
+parameter float Specularity 0.04
+parameter float Metallicness 0.001

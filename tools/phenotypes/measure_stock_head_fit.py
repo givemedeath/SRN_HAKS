@@ -10,10 +10,11 @@ from retarget import NODE,nodes,transforms
 from inspect_stock_joints import JOINTS
 
 
-def measure(baseline, target_heights=None):
+def measure(baseline, target_heights=None, source_prefix='pmh0'):
+    if source_prefix not in ('pmh0','pfh0'):raise ValueError('Installed Human male/female source prefix required')
     if target_heights is None:
         target_heights=sorted({height for race in RACES.values() for height in race["height"].values()})
-    directory=baseline/'ascii';prefix='pmh0'
+    directory=baseline/'ascii';prefix=source_prefix
     skeleton=directory/(prefix+'.mdl')
     world=transforms(nodes(skeleton.read_text(encoding='cp1252')))
     coordinates={};inputs={str(skeleton.resolve()):digest(skeleton)}
@@ -76,8 +77,12 @@ def measure(baseline, target_heights=None):
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--baseline',type=Path,required=True)
-    parser.add_argument('--output',type=Path,required=True);args=parser.parse_args()
-    result=measure(args.baseline);save_json(args.output,result);print(json.dumps(result))
+    parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--source-prefix',choices=('pmh0','pfh0'),default='pmh0')
+    parser.add_argument('--target-height',type=float,action='append',help='Measured height(s); stock-exact targets provide the original stock height only')
+    args=parser.parse_args()
+    if args.output.exists():raise ValueError('Fresh stock head-fit measurement required')
+    result=measure(args.baseline,args.target_height,args.source_prefix);save_json(args.output,result);print(json.dumps(result))
 
 
 if __name__=='__main__':main()

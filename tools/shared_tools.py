@@ -199,8 +199,6 @@ def locked(path, timeout=30):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     stream = path.open('a+b')
-    if not path.stat().st_size:
-        stream.write(b'0'); stream.flush()
     end = time.monotonic() + timeout
     acquired = False
     try:
@@ -221,6 +219,8 @@ def locked(path, timeout=30):
                 if time.monotonic() >= end:
                     raise TimeoutError('Dependency lock is held: ' + str(path))
                 time.sleep(.05)
+        if not path.stat().st_size:
+            stream.write(b'0'); stream.flush()
         yield
     finally:
         if acquired:
