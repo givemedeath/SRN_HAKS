@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 
@@ -55,6 +56,69 @@ class VerifyPublishedBodyTests(unittest.TestCase):
             root = Path(temporary)
             with self.assertRaisesRegex(Exception, 'Incomplete body payload'):
                 verify(root, publish(root, prefix='pmh0', gender='male', kind='published-validated-human-male-body', other_owner=False))
+
+
+REPO = Path(__file__).resolve().parents[2]
+EVIDENCE = 'docs/phenotypes/evidence/human-body-completion-v1'
+
+
+def committed_bytes(rel):
+    """Bytes of a tracked file as stored in git (index == commit), so eol=lf checkouts and CRLF work trees agree."""
+    try:
+        return subprocess.run(['git', '-C', str(REPO), 'show', ':' + rel], capture_output=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError):  # source export without git: normalise like eol=lf
+        data = (REPO / rel).read_bytes()
+        return data if b'\0' in data else data.replace(b'\r\n', b'\n')
+
+
+def committed_sha(rel):
+    return hashlib.sha256(committed_bytes(rel)).hexdigest()
+
+
+def pins(node):
+    """Every {path, sha256} pin inside a JSON document that names an existing repository file."""
+    if isinstance(node, dict):
+        if isinstance(node.get('path'), str) and isinstance(node.get('sha256'), str) and (REPO / node['path']).is_file():
+            yield node
+        for value in node.values():
+            yield from pins(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from pins(value)
+
+
+class CommittedEvidencePinTests(unittest.TestCase):
+    """Pins over tracked text must hash the committed (LF) blob, never CRLF working-tree bytes (PR #42 review)."""
+    MANIFESTS = ('docs/phenotypes/human-female-assets.json', 'docs/phenotypes/human-male-v2-assets.json')
+
+    def test_publication_manifests_pin_committed_evidence_bytes(self):
+        for rel in self.MANIFESTS:
+            with self.subTest(manifest=rel):
+                manifest = json.loads(committed_bytes(rel))
+                self.assertEqual(committed_sha(manifest['sourceBodyReceipt']), manifest['sourceBodyReceiptSha256'])
+                self.assertEqual(committed_sha(manifest['clientEvidence']), manifest['clientEvidenceSha256'])
+                self.assertTrue(manifest['productionAccepted'] is True and 'final-user-approved' in manifest['status'])
+
+    def test_evidence_index_ledger_and_heads_pin_committed_bytes(self):
+        index = json.loads(committed_bytes(EVIDENCE + '/index.json'))
+        for name, row in index['files'].items():
+            data = committed_bytes(EVIDENCE + '/' + name)
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (row['sha256'], row['bytes']), name)
+        for rel in (EVIDENCE + '/index.json', EVIDENCE + '/human-male-v2-delivery.json', 'docs/heads/human-male-target.json'):
+            for pin in pins(json.loads(committed_bytes(rel))):
+                if pin['path'].startswith(('srn_body/', 'stock/')):
+                    continue
+                self.assertEqual(committed_sha(pin['path']), pin['sha256'], rel + ' -> ' + pin['path'])
+        target = json.loads(committed_bytes('docs/heads/human-male-target.json'))
+        self.assertEqual(target['bodyRevision'], committed_sha('docs/phenotypes/human-male-v2-assets.json'))
+
+    def test_quoted_manifest_hashes_in_closure_docs_are_current(self):
+        for manifest in self.MANIFESTS:
+            current = committed_sha(manifest)
+            for doc in ('docs/phenotype-human-female-source-adoption-checkpoint.md', 'docs/phenotype-human-male-delivery.md'):
+                text = committed_bytes(doc).decode('utf-8')
+                if manifest.rsplit('/', 1)[1] in text:
+                    self.assertTrue(current in text or current[:12] + '...' in text, doc + ' quotes a stale ' + manifest)
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@
   "sex": "male",
   "prefix": "pmh0",
   "phenotype": 0,
-  "bodyRevision": "46ec4840188f764c0c545bb3fa3b3c7fae78ead7e6cda73d2563b1ec57c62d75",
+  "bodyRevision": "991157756558c623d3b542b5b19f18d7c6cc00104ea76e607864edadf74fc0c7",
   "headBindMatrix": [
     [
       1.0,
@@ -53,7 +53,7 @@
   ],
   "bodyManifest": {
     "path": "docs/phenotypes/human-male-v2-assets.json",
-    "sha256": "46ec4840188f764c0c545bb3fa3b3c7fae78ead7e6cda73d2563b1ec57c62d75"
+    "sha256": "991157756558c623d3b542b5b19f18d7c6cc00104ea76e607864edadf74fc0c7"
   },
   "rig": {
     "path": "stock/ascii/pmh0.mdl",

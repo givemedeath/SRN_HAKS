@@ -1,0 +1,12 @@
+﻿{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-08",
+  "gate": "Gate 5 (final PR approval)",
+  "userAnswers": {
+    "pr": "Approve: push and open PR (includes the heads target pin move to male v2; known issues accepted)",
+    "repoSize": "Keep srn_body as-is without LFS",
+    "mainSync": "Merge origin/main before push, regenerate tools/test-impact.json, re-run affected tests",
+    "dwarfHelpers": "Follow-up task: repoint stage_derived_dwarf.py / stock_dwarf_control.py to the frozen male v1 master"
+  },
+  "notApproved": "No merge of the PR; no auto-merge."
+}

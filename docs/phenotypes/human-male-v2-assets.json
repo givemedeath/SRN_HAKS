@@ -3,7 +3,7 @@
   "kind": "published-validated-target-body",
   "pack": "srn_body",
   "materialLayout": "single-plt-per-part-v1",
-  "status": "gate4-client-validated-pending-final-user-approval",
+  "status": "gate4-client-validated-final-user-approved-2026-10-08",
   "validatedDate": "2026-10-08",
   "stockNeckHeadPreserved": true,
   "equipmentPolicy": "stock-identity",
@@ -12,10 +12,10 @@
   "resourceIdentityPolicy": "Exact Gate-4-tested candidate bytes promoted by byte copy; no recompression or recompilation. Blender reduction is nondeterministic, so these bytes (not a re-run) are the publication.",
   "sourceBodyHakSha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325",
   "clientEvidence": "docs/phenotypes/evidence/human-body-completion-v1/client-session-v2.json",
-  "clientEvidenceSha256": "44fb5b11d02b2162c2404da45e493cbcb9c62f92cafefaa646096e26f77e3bdb",
+  "clientEvidenceSha256": "c3c3c7cc6aea48bd4f53ec1537d8f16edb6f3cc622402c595d003247bd4ec8f4",
   "evidenceIndex": "docs/phenotypes/evidence/human-body-completion-v1/index.json",
   "sourceImplementationCommit": "de58007928730116630c2fbe8281984d7eede195",
-  "productionAccepted": false,
+  "productionAccepted": true,
   "prefix": "pmh0",
   "gender": "male",
   "payloadBytes": 472936894,
@@ -31,7 +31,7 @@
   },
   "limits": "Accepted with known issues: brief waistband top edge ragged in kneel-front; dark band at the waistband in rear/crouch views. See docs/phenotype-human-male-delivery.md.",
   "sourceBodyReceipt": "docs/phenotypes/evidence/human-body-completion-v1/body-hak-male.json",
-  "sourceBodyReceiptSha256": "b0e395d1465a1bf66e9022f2ddffadccc284e15c472dc61f1d3981f5f50221ff",
+  "sourceBodyReceiptSha256": "ec0012297c675484df8eea40be925e68d399854103bafdd40f60c7a87671d55e",
   "resources": [
     {
       "path": "srn_body/pmh0_bicepl001.mdl",
@@ -383,5 +383,10 @@
       "bytes": 12582956,
       "sha256": "f9ef38468856c763a8be3c2389b204b5eff0ffd5628a72e5e373da04ec6e95d9"
     }
-  ]
+  ],
+  "finalUserApproval": {
+    "date": "2026-10-08",
+    "direction": "user-directions/2026-10-08-production-accepted.json",
+    "gate5": "user-directions/2026-10-08-gate5-approval.json"
+  }
 }

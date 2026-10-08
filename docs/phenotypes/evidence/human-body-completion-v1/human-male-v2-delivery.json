@@ -3,7 +3,7 @@
  "date": "2026-10-08",
  "manifest": {
   "path": "docs/phenotypes/human-male-v2-assets.json",
-  "sha256": "46ec4840188f764c0c545bb3fa3b3c7fae78ead7e6cda73d2563b1ec57c62d75"
+  "sha256": "991157756558c623d3b542b5b19f18d7c6cc00104ea76e607864edadf74fc0c7"
  },
  "supersedesManifest": {
   "path": "docs/phenotypes/human-male-assets.json",
@@ -28,11 +28,11 @@
  },
  "clientEvidence": {
   "path": "docs/phenotypes/evidence/human-body-completion-v1/client-session-v2.json",
-  "sha256": "44fb5b11d02b2162c2404da45e493cbcb9c62f92cafefaa646096e26f77e3bdb"
+  "sha256": "c3c3c7cc6aea48bd4f53ec1537d8f16edb6f3cc622402c595d003247bd4ec8f4"
  },
  "gate3Sheets": {
   "path": "docs/phenotypes/evidence/human-body-completion-v1/male/gate3-sheets.json",
-  "sha256": "d3f7a6e78163fb838e47f8b47e5f09c4f1832de185fc4f71ef36c5b36abed529"
+  "sha256": "241bda76a073ff912bfbfef797a44af2f8e6d0ed6b1084b9d2730a64bd232de7"
  },
  "knownAcceptedIssues": [
   "brief waistband top edge ragged in kneel-front",
@@ -42,9 +42,9 @@
   "gate3": "user-accepted 2026-10-08 (as-is, known issues recorded)",
   "gate4": "client-validated 2026-10-08 (palettes, dyes, motions, HAK smoke, character creation via +LoadNewModule)",
   "promotion": "exact tested bytes promoted into tracked srn_body; tracked pwsh Build-Haks HAK b1d4112e... identical",
-  "productionAccepted": false,
-  "finalUserApproval": "pending (Gate 5)",
-  "pushed": false,
-  "pullRequest": "drafted only"
+  "productionAccepted": true,
+  "finalUserApproval": "approved 2026-10-08 (Gate 5; productionAccepted per user direction)",
+  "pushed": "PR #42",
+  "pullRequest": "opened as #42"
  }
 }
