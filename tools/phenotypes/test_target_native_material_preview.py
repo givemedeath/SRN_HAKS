@@ -45,7 +45,7 @@ def file_pin(path):
 
 class NativePreviewTests(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(); self.root = Path(self.temp.name)
+        self.temp = tempfile.TemporaryDirectory(); self.root = Path(self.temp.name).resolve()
         self.tp, self.target = female_fixture.stock_fixture(self.root)
         data, _, _ = stock_native()
         self.model = self.root/'pfh0_neck001.mdl'; self.model.write_bytes(data)

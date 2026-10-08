@@ -44,7 +44,7 @@ def width_parents(root,part):
 
 
 class HistoricalWidthAncestorTests(unittest.TestCase):
-    def setUp(self):self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
+    def setUp(self):self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name).resolve()
     def tearDown(self):self.tmp.cleanup()
     def prepare(self,part='legl'):
         self.f=facefixtures.fixture(self.root,part=part,parent_factory=width_parents);return self.current()

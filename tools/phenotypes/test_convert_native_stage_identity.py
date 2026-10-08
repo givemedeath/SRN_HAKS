@@ -18,7 +18,7 @@ def pin(path):
 
 class IdentityConversionTests(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
+        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name).resolve()
         self.target_path,self.target=stock_fixture(self.root)
 
     def tearDown(self):self.tmp.cleanup()

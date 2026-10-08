@@ -104,7 +104,7 @@ class SourceDetailMathTests(unittest.TestCase):
 
 class SourceDetailBindingTests(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.tp,self.target=stock_fixture(self.root)
+        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name).resolve();self.tp,self.target=stock_fixture(self.root)
         doc,binary=fixture();self.source=self.root/'shin.glb';write_glb(self.source,doc,binary)
         extra={};p,n,uv,_=raw_corners(doc,binary,extra=extra);t=np.concatenate(extra['TANGENT']['rows']);nu=uv.copy();nu[:,:,1]=1-nu[:,:,1]
         archive=self.root/'corners.npz';np.savez_compressed(archive,positions=p,normals=n,uvGltf=uv,uvNative=nu,tangents=t)

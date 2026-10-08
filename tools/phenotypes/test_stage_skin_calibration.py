@@ -78,7 +78,7 @@ class CalibrationMathTests(unittest.TestCase):
 class CalibrationSourceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.tmp=tempfile.TemporaryDirectory();cls.root=Path(cls.tmp.name);cls.tp,cls.target,cls.rp,cls.source=fit_fixture(cls.root)
+        cls.tmp=tempfile.TemporaryDirectory();cls.root=Path(cls.tmp.name).resolve();cls.tp,cls.target,cls.rp,cls.source=fit_fixture(cls.root)
         cls.doc,cls.binary=read_glb(cls.source);cls.parent={'mode':'original-materialRoles-skin','controls':{'materialRoles':{'0':'skin'}}}
         cls.original,cls.transport=stage.material_inputs(cls.doc,cls.binary,{0:'skin'},'bicepl',0,c.fixed_garment_parts(cls.target))
         cls.value=recipe_value(cls.tp,cls.target,cls.rp,cls.source,'bicepl',cls.parent,cls.original['skin']['intensity']);cls.counter=0
@@ -162,20 +162,20 @@ class CalibrationSourceTests(unittest.TestCase):
 
     def test_skin_only_cannot_bypass_fixed_garment_ownership(self):
         with tempfile.TemporaryDirectory() as temp:
-            root=Path(temp);tp,t,rp,source=fit_fixture(root,part='chest');d,b=read_glb(source);rows,_=stage.material_inputs(d,b,{0:'skin'},'chest',0,c.fixed_garment_parts(t))
+            root=Path(temp).resolve();tp,t,rp,source=fit_fixture(root,part='chest');d,b=read_glb(source);rows,_=stage.material_inputs(d,b,{0:'skin'},'chest',0,c.fixed_garment_parts(t))
             v=recipe_value(tp,t,rp,source,'chest',self.parent,rows['skin']['intensity']);p=save(root/'recipe.json',v)
             with self.assertRaisesRegex(ValueError,'outside fixed garments'):cal.staging_inputs({'mode':cal.MODE,'recipe':cal.file_row(p)},tp,t,'chest','working',source,rp,None,0)
 
     def test_hand_absent_authored_tangent_is_truthfully_supported(self):
         with tempfile.TemporaryDirectory() as temp:
-            root=Path(temp);tp,t,rp,source=fit_fixture(root,part='handr',no_tangent=True);d,b=read_glb(source);rows,_=stage.material_inputs(d,b,{0:'skin'},'handr',0,c.fixed_garment_parts(t))
+            root=Path(temp).resolve();tp,t,rp,source=fit_fixture(root,part='handr',no_tangent=True);d,b=read_glb(source);rows,_=stage.material_inputs(d,b,{0:'skin'},'handr',0,c.fixed_garment_parts(t))
             value=recipe_value(tp,t,rp,source,'handr',self.parent,rows['skin']['intensity']);p=save(root/'recipe.json',value)
             v=cal.staging_inputs({'mode':cal.MODE,'recipe':cal.file_row(p)},tp,t,'handr','working',source,rp,None,0)
             self.assertEqual(v['proof']['originalSourceTangentsStatus'],'absent');self.assertIsNone(v['proof']['sourceFingerprints']['authoredTangentsFloat32'])
 
     def test_new_mode_does_not_restrict_legacy_male_target(self):
         with tempfile.TemporaryDirectory() as temp:
-            root=Path(temp);tp,t,rp,source=fit_fixture(root,male=True);d,b=read_glb(source);rows,_=stage.material_inputs(d,b,{0:'skin'},'bicepl',0,c.fixed_garment_parts(t))
+            root=Path(temp).resolve();tp,t,rp,source=fit_fixture(root,male=True);d,b=read_glb(source);rows,_=stage.material_inputs(d,b,{0:'skin'},'bicepl',0,c.fixed_garment_parts(t))
             value=recipe_value(tp,t,rp,source,'bicepl',self.parent,rows['skin']['intensity']);p=save(root/'recipe.json',value)
             v=cal.staging_inputs({'mode':cal.MODE,'recipe':cal.file_row(p)},tp,t,'bicepl','working',source,rp,None,0)
             self.assertEqual(v['sourceReceipt']['targetId'],'test-troll');self.assertFalse(v['proof']['selected'])

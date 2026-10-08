@@ -16,7 +16,7 @@ import target_skin_lighting_contract as lighting
 
 class SkinLightingContractTests(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
+        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name).resolve()
         self.target_path,self.target=stock_fixture(self.root)
         self.source=self.root/'source.glb';write_glb(self.source,*textured_fixture())
         job=self.root/'generation.json';job.write_text(json.dumps({'state':'success','promptId':'diagnostic-test',

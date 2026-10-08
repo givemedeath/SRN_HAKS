@@ -56,7 +56,7 @@ def fixture(root,part='shinl',parent_factory=None):
 
 
 class SourceFaceLineageTests(unittest.TestCase):
-    def setUp(self):self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.f=fixture(self.root)
+    def setUp(self):self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name).resolve();self.f=fixture(self.root)
     def tearDown(self):self.tmp.cleanup()
     def current(self):
         f=self.f;return cal.geometry_input(cal.file_row(f['source']),cal.file_row(f['rp']),f['tp'],f['target'],'shinl','working')

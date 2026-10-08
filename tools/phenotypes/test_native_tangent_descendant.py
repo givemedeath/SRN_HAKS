@@ -81,7 +81,7 @@ class NativeTangentDescendantTests(unittest.TestCase):
 
     def test_stale_relative_and_conflicting_pins_reject(self):
         with tempfile.TemporaryDirectory() as temp:
-            p=Path(temp)/'parent.json';p.write_text('original');row=writer.file_row(p)
+            p=Path(temp).resolve()/'parent.json';p.write_text('original');row=writer.file_row(p)
             with self.assertRaises(ValueError):writer.exact({**row,'path':'parent.json'},{})
             with self.assertRaises(ValueError):writer.exact(row,{str(p):'0'*64})
             p.write_text('tampered')
@@ -90,7 +90,7 @@ class NativeTangentDescendantTests(unittest.TestCase):
     def test_cross_target_rig_reject_before_loading_audit_configuration(self):
         import test_human_female_stock_exact as female
         with tempfile.TemporaryDirectory() as temp:
-            tp,target=female.stock_fixture(Path(temp));base={'schemaVersion':1,'kind':writer.CONFIG,'diagnosticOnly':True,
+            tp,target=female.stock_fixture(Path(temp).resolve());base={'schemaVersion':1,'kind':writer.CONFIG,'diagnosticOnly':True,
               'targetContract':writer.file_row(tp),'targetId':target['id'],'rigRevision':target['rig']['revision'],'part':'chest',
               'coordinateSpace':'working','sourceAuditConfiguration':{},'installedShaderSupplement':{},'policy':writer.POLICY}
             for field in ('targetId','rigRevision'):

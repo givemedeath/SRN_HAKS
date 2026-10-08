@@ -35,7 +35,7 @@ def target_fixture():
 
 class TargetPartPipelineTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name)
+        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name).resolve()
         self.target = self.root/'target.json'; self.target.write_text(json.dumps(target_fixture()))
         doc, blob = fixture(); self.source = self.root/'raw.glb'; write_glb(self.source, doc, blob)
         self.job = self.root/'job.json'

@@ -15,7 +15,7 @@ from test_human_female_stock_exact import stock_fixture
 
 class DerivedNativePreviewTests(unittest.TestCase):
     def setUp(self):
-        self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name)
+        self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name).resolve()
         self.tp,self.target=stock_fixture(self.root);self.model=c.model(self.target,'chest')
         data,old,names,nodes,raw,native,roles=source_fixture();data=bytearray(data)
         put_name(data,20,64,self.model)

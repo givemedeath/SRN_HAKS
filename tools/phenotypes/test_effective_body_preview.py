@@ -37,7 +37,7 @@ class EffectivePreviewTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='effective-body-preview-test-')
         self.addCleanup(self.temp.cleanup)
-        self.path = Path(self.temp.name)
+        self.path = Path(self.temp.name).resolve()
         self.inputs = {}
 
     def resolver(self):

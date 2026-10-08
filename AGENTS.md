@@ -25,7 +25,7 @@ Review the actual geometry in matched front, side and rear views and in the affe
 
 Current female infrastructure checkpoint: `docs/phenotype-human-female-infrastructure-adoption.md`. Historical v24 checkpoint and receipts remain unchanged; this adoption does not resume the paused body goal.
 
-Current additive source-adoption progress checkpoint: docs/phenotype-human-female-source-adoption-checkpoint.md. Read its explicit ledger bindings before continuation. Historical adoption checkpoints remain unchanged. Further animation preparation and game-client work await the pending direct user authorization after automatic approval review rejected the attached resume evidence. This pointer grants no asset or publication approval.
+Current additive source-adoption progress checkpoint: docs/phenotype-human-female-source-adoption-checkpoint.md. Read its explicit ledger bindings before continuation. Historical adoption checkpoints remain unchanged. Its completionV1 closure v1 section (top of that file) supersedes the earlier historical stop on further animation preparation and game-client work (a pending authorization after an automatic approval review rejected attached resume evidence): Gate 4 and Gate 5 are complete (user approval 2026-10-08) and the Human bodies ship as PR #42, so that stop no longer holds follow-up work. This pointer grants no new asset or publication approval.
 
 ## Archives of retired worktrees
 

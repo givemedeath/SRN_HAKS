@@ -36,7 +36,7 @@ def shared_uv_fixture():
 
 class FaceGarmentOwnershipTests(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.tp,self.target=stock_fixture(self.root)
+        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name).resolve();self.tp,self.target=stock_fixture(self.root)
         raw=self.root/'raw.glb';write_glb(raw,*shared_uv_fixture());job=self.root/'job.json';job.write_text(json.dumps({'state':'success','promptId':'fixture','outputs':[{'localPath':str(raw),'sha256':c.sha(raw)}]}))
         fit={'schemaVersion':2,'operation':'fit','part':'chest','coordinateSpace':'working','targetContract':str(self.tp),'targetContractSha256':c.sha(self.tp),'source':str(raw),'sourceSha256':c.sha(raw),'sourceReceipt':str(job),'sourceReceiptSha256':c.sha(job),'uniformScale':.7,'rotationDegreesXYZ':[3,4,5],'sourceAnchorNwn':[0,0,0],'targetAnchorLocal':[0,0,0]}
         cfg=self.root/'fit.json';cfg.write_text(json.dumps(fit));self.rp=execute(cfg,self.root/'fit');self.parent=json.loads(self.rp.read_text());self.source=Path(self.parent['candidate'])

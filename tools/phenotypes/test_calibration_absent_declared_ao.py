@@ -36,7 +36,7 @@ class AbsentDeclaredAOTests(unittest.TestCase):
     def test_literal_meshy_hand_declaration_all_siblings_identical_and_originals_protected(self):
         for part in ('handl','handr'):
             with self.subTest(part=part),tempfile.TemporaryDirectory() as temp:
-                root=Path(temp)
+                root=Path(temp).resolve()
                 with patch.object(fixtures,'textured_fixture',side_effect=meshy_no_ao_fixture):tp,t,rp,source=fixtures.fit_fixture(root,part=part,no_tangent=True)
                 before=source.read_bytes();doc,binary=read_glb(source);self.assertEqual(doc['materials'],[MESHY_MATERIAL]);maps=embedded_maps(doc,binary)
                 original,_=stage.material_inputs(doc,binary,{0:'skin'},part,0,c.fixed_garment_parts(t));parent={'mode':'original-materialRoles-skin','controls':{'materialRoles':{'0':'skin'}}}

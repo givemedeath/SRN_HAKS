@@ -29,7 +29,7 @@ def fixture(root):
 
 class StockDiagnosticTests(unittest.TestCase):
     def setUp(self):
-        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name).resolve()
         self.path,self.target,self.stock=fixture(self.root)
 
     def test_sixteen_fallbacks_and_rig_chain_are_byte_exact_and_identified(self):

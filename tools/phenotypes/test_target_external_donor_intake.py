@@ -19,7 +19,7 @@ from test_target_part_pipeline import target_fixture
 
 class ExternalDonorIntakeTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name)
+        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name).resolve()
         self.target = self.root/'target.json'; self.target.write_text(json.dumps(target_fixture()))
         self.target_data = contract.load(self.target)
         self.origin = self.root/'user-download.glb'; self.source = self.root/'frozen-donor.glb'

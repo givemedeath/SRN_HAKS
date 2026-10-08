@@ -17,7 +17,7 @@ class TargetBodyLauncherTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix='female fixture guard ')
         self.addCleanup(temporary.cleanup)
-        self.root = Path(temporary.name)
+        self.root = Path(temporary.name).resolve()
         self.helpers = self.root/'tools/phenotypes'
         self.helpers.mkdir(parents=True)
         self.fixture = self.root/'fixture with spaces'

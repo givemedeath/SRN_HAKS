@@ -98,7 +98,7 @@ class IntensityReplayMathTests(unittest.TestCase):
 
 class IntensityGeometryAncestryTests(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);tp,target=stock_fixture(self.root)
+        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name).resolve();tp,target=stock_fixture(self.root)
         doc,binary=cap_fixture();source=self.root/'source.glb';write_glb(source,doc,binary)
         extra={};p,n,uv,_=raw_corners(doc,binary,extra=extra);t=np.concatenate(extra['TANGENT']['rows'])
         base={'schemaVersion':2,'kind':'target-part-geometry',**c.binding(tp,target,'working'),

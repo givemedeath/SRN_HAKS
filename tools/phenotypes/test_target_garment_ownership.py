@@ -43,7 +43,7 @@ def two_faces():
 
 class GarmentOwnershipTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name)
+        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name).resolve()
         self.target_path, self.target = stock_fixture(self.root)
         source = self.root/'raw.glb'; write_glb(source, *two_faces())
         job = self.root/'job.json'; job.write_text(json.dumps({'state':'success', 'promptId':'test',

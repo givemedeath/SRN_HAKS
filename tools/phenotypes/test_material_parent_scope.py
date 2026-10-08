@@ -8,7 +8,7 @@ import target_part_stage as stage
 import target_contract as c
 class ParentScope(unittest.TestCase):
  def setUp(self):
-  self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name);self.pin=lambda p:{'path':str(p),'sha256':c.sha(p)}
+  self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name).resolve();self.pin=lambda p:{'path':str(p),'sha256':c.sha(p)}
   def save(name,v):
    p=self.root/name;p.write_text(json.dumps(v));return self.pin(p)
   self.geo=save('geo.json',{'kind':'target-part-geometry','part':'chest','coordinateSpace':'working','statureApplications':0,'candidate':str(self.root/'source'),'candidateSha256':'0'*64});(self.root/'source').write_bytes(b'raw');g=json.loads(Path(self.geo['path']).read_text());g['candidateSha256']=c.sha(self.root/'source');self.geo=save('geo.json',g)
@@ -84,7 +84,7 @@ class MirrorConfigurationEnumeration(unittest.TestCase):
   import numpy as np
   from types import SimpleNamespace
   with tempfile.TemporaryDirectory() as tmp:
-   root=Path(tmp);left_source=root/'left.glb';left_source.write_bytes(b'left');left_receipt=root/'left.json';left_receipt.write_text('{}')
+   root=Path(tmp).resolve();left_source=root/'left.glb';left_source.write_bytes(b'left');left_receipt=root/'left.json';left_receipt.write_text('{}')
    right_receipt=root/'right.json';configuration=root/'operation.json';target_path=root/'target.json';target_path.write_text('{}');target={'id':'synthetic-mirror-target'}
    rec={'operation':'mirror','part':'footr','sourcePart':'footl','source':str(left_source),'sourceReceipt':str(left_receipt),'sourceReceiptSha256':c.sha(left_receipt),'sourceSha256':c.sha(left_source),'sourceToAttachmentLocal':np.eye(4).tolist(),'reflectionWorld':np.eye(4).tolist()}
    cfg={**rec,'planeOriginWorld':[0,0,0],'planeNormalWorld':[1,0,0]};right_receipt.write_text(json.dumps(rec));configuration.write_text(json.dumps(cfg))

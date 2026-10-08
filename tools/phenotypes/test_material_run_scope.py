@@ -8,7 +8,7 @@ import phenotype_material_run_scope as run
 import target_contract as c
 class RunScope(unittest.TestCase):
  def setUp(self):
-  self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
+  self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name).resolve()
   def save(name,value):
    p=self.root/name;p.write_text(json.dumps(value));return {'path':str(p),'sha256':c.sha(p)}
   self.pin=lambda p:{'path':str(p),'sha256':c.sha(p)};self.save=save

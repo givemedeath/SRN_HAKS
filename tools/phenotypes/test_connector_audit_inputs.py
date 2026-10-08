@@ -29,7 +29,7 @@ class ConnectorInputTests(unittest.TestCase):
 
     def test_pinned_female_config_accepts_only_proven_stock_head_neck_and_geometry_frames(self):
         with tempfile.TemporaryDirectory() as directory:
-            root=Path(directory);target_path,target=stock_fixture(root)
+            root=Path(directory).resolve();target_path,target=stock_fixture(root)
             proof_path=Path(target['rig']['stockReferenceReceipt']['path']);proof=json.loads(proof_path.read_text())
             stock_parts={}
             for part in ('head','neck'):
@@ -56,14 +56,14 @@ class ConnectorInputTests(unittest.TestCase):
 
     def test_frozen_source_and_pose_pins_reject_stale_or_cross_target_inputs(self):
         with tempfile.TemporaryDirectory() as directory:
-            path=Path(directory)/'target.json';path.write_text('{}')
+            path=Path(directory).resolve()/'target.json';path.write_text('{}')
             target={'id':'female-fit','rig':{'revision':'female-stock'}}
-            source=Path(directory)/'pfh0_neck001.mdl';source.write_text('stock')
+            source=Path(directory).resolve()/'pfh0_neck001.mdl';source.write_text('stock')
             frozen={'path':str(source),'sha256':contract.sha(source)};self.assertEqual(pinned(frozen),source)
             receipts={'chest':{'candidateSha256':'body-a'}};stock={'neck':source};pins={str(source):contract.sha(source)}
             specimen={'target':contract.binding(path,target,'working'),'displayScale':1,'targetPartReceipts':[{'part':'chest','candidateSha256':'body-a'}],'partInputs':pins.copy()}
             verify_pose(specimen,path,target,receipts,stock,pins)
-            copied=Path(directory)/'diagnostic/pfh0_neck001.mdl';copied.parent.mkdir();copied.write_bytes(source.read_bytes())
+            copied=Path(directory).resolve()/'diagnostic/pfh0_neck001.mdl';copied.parent.mkdir();copied.write_bytes(source.read_bytes())
             exact_copy=copy.deepcopy(specimen);exact_copy['partInputs']={str(copied):contract.sha(copied)}
             verify_pose(exact_copy,path,target,receipts,stock,pins)
             self.assertIn(str(copied),pins)

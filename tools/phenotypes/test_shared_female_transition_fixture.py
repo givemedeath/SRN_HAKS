@@ -73,7 +73,7 @@ class TransitionFixture(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve()
         self.area = self.root / "output/phenotypes" / transition.TARGET
         self.area.mkdir(parents=True)
         self.target_path = self.area / "target.json"

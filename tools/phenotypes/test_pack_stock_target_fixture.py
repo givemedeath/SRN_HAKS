@@ -12,7 +12,7 @@ from test_target_part_pipeline import target_fixture
 class StockFixturePackageTests(unittest.TestCase):
     def test_wrong_target_binding_and_unsafe_module_or_output_fail_before_mutation(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); helper=root/'tools/phenotypes/pack_stock_target_fixture.py'; helper.parent.mkdir(parents=True)
+            root=Path(temporary).resolve(); helper=root/'tools/phenotypes/pack_stock_target_fixture.py'; helper.parent.mkdir(parents=True)
             target=target_fixture(); target['rig']['mode']='stock-exact'; target['identity'].update(gender='female',prefix='pfh0',raceId=6,appearanceRow=6)
             target_path=root/'target.json'; target_path.write_text('{}'); prepared=root/'prepared.json'
             valid={'kind':'target-fixture-source',**contract.binding(target_path,target,'runtime'),'moduleName':'srn_female_test'}
@@ -73,7 +73,7 @@ class AnimationOverlayPackageTests(unittest.TestCase):
         from types import SimpleNamespace
         from unittest.mock import Mock
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.fixture(root); entry,report=fixture[-2:]
             verify=Mock(return_value=report)
             with patch.dict('sys.modules',{'target_animation_overlay':SimpleNamespace(verify_animation_overlay=verify)}):
                 receipt=self.run_pack(root,fixture,'with-overlay',entry); data=json.loads(receipt.read_text())
@@ -90,7 +90,7 @@ class AnimationOverlayPackageTests(unittest.TestCase):
         from types import SimpleNamespace
         from unittest.mock import Mock
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.fixture(root); entry,report=fixture[-2:]
             verify=Mock(side_effect=ValueError('stale or cross-target overlay'))
             with patch.dict('sys.modules',{'target_animation_overlay':SimpleNamespace(verify_animation_overlay=verify)}),self.assertRaisesRegex(ValueError,'cross-target'):
                 self.run_pack(root,fixture,'rejected',entry)
@@ -106,7 +106,7 @@ class AnimationOverlayPackageTests(unittest.TestCase):
         from types import SimpleNamespace
         from unittest.mock import Mock
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.fixture(root); entry,report=fixture[-2:]; target_path=fixture[2]
+            root=Path(temporary).resolve(); fixture=self.fixture(root); entry,report=fixture[-2:]; target_path=fixture[2]
             with self.assertRaisesRegex(ValueError,'exact receipt'): verified_animation_overlay({'path':entry['path'],'sha256':entry['sha256'],'trusted':True},target_path)
             bad={**report,'resourceHashes':{**report['resourceHashes'],'a_fa.mdl':'0'*64}}
             with patch.dict('sys.modules',{'target_animation_overlay':SimpleNamespace(verify_animation_overlay=Mock(return_value=bad))}),self.assertRaisesRegex(ValueError,'exactly'):
@@ -230,7 +230,7 @@ class SharedFemaleOverlayPackageTests(unittest.TestCase):
 
     def test_exact_shared_candidate_and_matching_stock_keep_stock_body_and_native_roster(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             with self.guards(report):
                 candidate=json.loads(self.run_pack(root,fixture,'shared-candidate',entry,self.roster_pin).read_text())
                 stock=json.loads(self.run_pack(root,fixture,'shared-stock',posture_roster=self.roster_pin).read_text())
@@ -255,7 +255,7 @@ class SharedFemaleOverlayPackageTests(unittest.TestCase):
     def test_explicit_receipt_kind_and_hash_are_required(self):
         from pack_stock_target_fixture import verified_animation_overlay
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             receipt=Path(entry['path']); receipt.write_text(json.dumps({'kind':'generic-rig-exemption'}))
             entry['sha256']=contract.sha(receipt); report['frozenInputs'][str(receipt)]=entry['sha256']
             with self.guards(report),self.assertRaisesRegex(ValueError,'Human receipt kind'):
@@ -270,7 +270,7 @@ class SharedFemaleOverlayPackageTests(unittest.TestCase):
         import copy
         from pack_stock_target_fixture import verified_animation_overlay
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             variants=[]
             missing=copy.deepcopy(report);missing['resourceHashes'].pop('pfo2.mdl');variants.append(missing)
             extra=copy.deepcopy(report);extra['resourceHashes']['a_fa.mdl']='0'*64;variants.append(extra)
@@ -286,7 +286,7 @@ class SharedFemaleOverlayPackageTests(unittest.TestCase):
     def test_shared_overlay_requires_roster_and_rejects_custom_body_before_native_body_read(self):
         from unittest.mock import Mock
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             with self.guards(report),self.assertRaisesRegex(ValueError,'explicit roster'):
                 self.run_pack(root,fixture,'no-roster',entry)
             self.assertFalse((root/'output/phenotypes'/fixture[1]['id']/'no-roster').exists())
@@ -301,7 +301,7 @@ class SharedFemaleOverlayPackageTests(unittest.TestCase):
     def test_roster_pin_source_scene_and_fixture_dependencies_must_match(self):
         import copy
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             original=json.loads(fixture[3].read_text())
             data=copy.deepcopy(original);data['postureRoster']={**self.roster_pin,'sha256':'0'*64}
             fixture[3].write_text(json.dumps(data))
@@ -324,7 +324,7 @@ class SharedFemaleOverlayPackageTests(unittest.TestCase):
     def test_actual_native_actor_head_race_phenotype_and_schedule_are_checked_before_copy(self):
         import copy
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             cases=[('missing-head',None),('wrong-race',('Race',{'type':'byte','value':6})),
                 ('wrong-phenotype',('Phenotype',{'type':'int','value':2})),
                 ('wrong-head-type',('Appearance_Head',{'type':'word','value':1}))]
@@ -344,7 +344,7 @@ class SharedFemaleOverlayPackageTests(unittest.TestCase):
     def test_redecode_copied_native_module_catches_late_actor_drift_without_final_receipt(self):
         import copy
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             bad=copy.deepcopy(self.native_rows);bad[0]['Appearance_Head']['value']=2
             with self.guards(report),self.assertRaisesRegex(ValueError,'Native typed actor'):
                 self.actor_reader.side_effect=[self.native_rows,bad]
@@ -367,7 +367,7 @@ class SharedFemaleStockBindingPackageTests(unittest.TestCase):
 
     def test_binding_propagates_exact_coverage_proof_and_actual_consumed_inputs(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             with self.guards(report):
                 data=json.loads(self.run_pack(root,fixture,'bound',entry,self.roster_pin).read_text())
                 self.assertEqual(self.basis_verify.call_count,2)
@@ -383,7 +383,7 @@ class SharedFemaleStockBindingPackageTests(unittest.TestCase):
 
     def test_missing_unbound_and_mismatched_binding_reject_before_copy(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             with self.guards(report),self.assertRaisesRegex(ValueError,'explicit installed stock binding'):
                 self.run_pack(root,fixture,'missing-binding',entry,self.roster_pin,posture_stock_binding=None)
             with self.guards(report),self.assertRaisesRegex(ValueError,'posture roster'):
@@ -401,7 +401,7 @@ class SharedFemaleStockBindingPackageTests(unittest.TestCase):
 
     def test_guard_rejection_and_wrong_verified_pin_or_kind_block_packing(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             with self.guards(report),self.assertRaisesRegex(ValueError,'installed archive changed'):
                 self.basis_verify.side_effect=ValueError('installed archive changed')
                 self.run_pack(root,fixture,'guard-failure',entry,self.roster_pin)
@@ -415,7 +415,7 @@ class SharedFemaleStockBindingPackageTests(unittest.TestCase):
     def test_proof_parent_roster_and_operation_lineage_must_match(self):
         import copy
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             original=json.loads(self.source_proof_path.read_text())
             for key,value in (('postureRoster',{}),('postureStockBinding',{}),('parentSourcePreparation',{}),
                               ('nativeGITEncodeCalls',2),('clientAccepted',True)):
@@ -428,7 +428,7 @@ class SharedFemaleStockBindingPackageTests(unittest.TestCase):
     def test_protected_resource_bytes_and_authorized_actor_fields_are_independently_checked(self):
         import copy
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             original=json.loads(self.source_proof_path.read_text())
             bad=copy.deepcopy(original);bad['protected14ModuleResourceHashes']['module.ifo']='a'*64
             self.update_proof(fixture,bad)
@@ -442,7 +442,7 @@ class SharedFemaleStockBindingPackageTests(unittest.TestCase):
     def test_full_native_git_change_rejects_even_with_claimed_pass_and_matching_actor_rows(self):
         import copy
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             original=copy.deepcopy(self.decoded_document)
             changed=copy.deepcopy(original);changed['Waypoint List']['value']=[{'hidden':'change'}]
             proof=json.loads(self.source_proof_path.read_text())
@@ -456,7 +456,7 @@ class SharedFemaleStockBindingPackageTests(unittest.TestCase):
     def test_only_pose_palette_values_can_change_inside_ordered_actor_locals(self):
         import copy
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             original=copy.deepcopy(self.decoded_document)
             unrelated={'Name':{'type':'cexostring','value':'UNCHANGED_LOCAL'},
                 'Type':{'type':'dword','value':1},'Value':{'type':'int','value':17}}
@@ -479,7 +479,7 @@ class SharedFemaleStockBindingPackageTests(unittest.TestCase):
                 self.assertFalse((root/'output/phenotypes'/fixture[1]['id']/label).exists())
     def test_after_copy_binding_input_drift_leaves_partial_output_without_receipt(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
+            root=Path(temporary).resolve(); fixture=self.shared_fixture(root); entry,report=fixture[-2:]
             calls=0
             def verify(*args,**kwargs):
                 nonlocal calls

@@ -12,7 +12,7 @@ from test_target_part_pipeline import target_fixture
 
 class TargetPreviewReceiptTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name)
+        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name).resolve()
         self.target = target_fixture(); self.path = self.root/'target.json'
         self.path.write_text(json.dumps(self.target))
         self.source = self.root/'donor.glb'; self.source.write_bytes(b'original donor')

@@ -64,7 +64,7 @@ class SourceDetailDispatchTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
-        cls.root = Path(cls.tmp.name)
+        cls.root = Path(cls.tmp.name).resolve()
         cls.tp, cls.target = female_fixture.stock_fixture(cls.root)
         cls.raw = cls.root/'raw.glb'
         write_glb(cls.raw, *material_fixture.textured_fixture())
