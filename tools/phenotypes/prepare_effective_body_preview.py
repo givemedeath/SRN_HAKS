@@ -16,9 +16,11 @@ import struct
 import numpy as np
 from PIL import Image
 
+import target_contract as contract
 from audit_geometry import arrays
 from run_preparation import PreparationContext
-from retarget import NODE, nodes, transforms
+from retarget import NODE, nodes
+from rig_controller_audit import world_frames
 from place_purposebuilt_pelvis import BASIS, accessor, read_glb, write_glb
 
 
@@ -62,6 +64,8 @@ class Resolver:
             if path.exists():
                 require(name in hashes and sha(path) == hashes[name], 'Unpinned/changed resource: '+str(path))
                 self.inputs[str(path.resolve())] = hashes[name]
+                if self.context is not None:
+                    self.context.read(path)
                 return path
         if optional:
             return None
@@ -123,7 +127,7 @@ def mtr_fields(text):
 
 def mesh_corners(text, authored_required=False):
     """Expand independent position/UV indices without welding or shape alterations."""
-    local_frames = transforms(nodes(text))
+    local_frames = world_frames(nodes(text))
     result = []
     for match in NODE.finditer(text.split('endmodelgeom', 1)[0]):
         if match[1].lower() != 'trimesh':
@@ -329,14 +333,34 @@ def export_part(path, meshes, resolver, selectors):
             'sourceCornerArchiveSha256': sha(archive), 'meshes': records}
 
 
+def preview_identity(config, expected):
+    """A new family requires the exact pinned stock rig; legacy male stays unchanged."""
+    if 'targetContract' not in config:
+        require(config.get('sourcePrefix', 'pmh0') == 'pmh0', 'Female preview requires a pinned stock target contract')
+        return 'pmh0', 1.9339157, None, None
+    binding = config['targetContract']
+    require(isinstance(binding, dict) and set(binding) == {'path', 'sha256'}, 'Explicit target contract path/hash required')
+    path = Path(binding['path']).resolve()
+    require(expected.get(str(path)) == binding['sha256'] and sha(path) == binding['sha256'], 'Changed or unpinned preview target contract')
+    target = contract.load(path)
+    require(contract.rig_mode(target) == 'stock-exact', 'Effective native Human preview requires stock-exact rig')
+    return target['identity']['prefix'], target['heightMeters'], path, target
+
+
+def stock_inventory_hashes(index, stock):
+    if 'resources' in index:
+        return ({row['name']:row['sha256'] for row in index['resources']},
+                {row['name']:row['asciiSha256'] for row in index['resources'] if row.get('asciiSha256')})
+    prefix = stock.name + '/'
+    files = index['files']
+    return ({key[len(prefix+'raw/'):]:value['sha256'] for key,value in files.items() if key.startswith(prefix+'raw/')},
+            {key[len(prefix+'ascii/'):]:value['sha256'] for key,value in files.items() if key.startswith(prefix+'ascii/')})
+
+
 def run(config_path, output):
     config_path, output = Path(config_path).resolve(), Path(output).resolve()
     require(not output.exists(), 'Use a fresh preview output directory')
     config = json.loads(config_path.read_text(encoding='utf-8'))
-    preparation=PreparationContext(target_revision=config.get('targetRevision','stock-human-male'),
-        rig_revision=config.get('rigRevision','stock-exact'),animation_revision='material-export-no-pose',
-        settings=config,dependencies=[config_path,Path(__file__).resolve(),
-            *[Path(__file__).with_name(name) for name in ['audit_geometry.py','retarget.py','place_purposebuilt_pelvis.py']]])
     require(config.get('schemaVersion') == 1, 'Preview config schema1 required')
     converted = Path(config['converted']).resolve()
     require(output != converted and converted not in output.parents, 'Output must not alter native converted directory')
@@ -351,19 +375,27 @@ def run(config_path, output):
     inputs.update(expected)
     require(str(inventory_path) in expected and str(stock_inventory_path) in expected,
             'Explicit body/stock inventory hash pins required')
+    model_prefix,stock_height,target_path,target = preview_identity(config,expected)
+    preparation=PreparationContext(target_revision=sha(target_path) if target_path else config.get('targetRevision','stock-human-male'),
+        rig_revision=target['rig']['revision'] if target else config.get('rigRevision','stock-exact'),
+        animation_revision='material-export-no-pose',settings=config,
+        dependencies=[config_path,*helpers,*[Path(p) for p in expected]])
     inventory = json.loads(inventory_path.read_text())
-    require(inventory['kind'] == 'effective-native-body-inventory', 'Effective runtime inventory required')
-    body_hashes = inventory['resourceHashes']
+    if inventory.get('kind') == 'target-body-composition':
+        require(target_path is not None and inventory_path == converted/'conversion.json', 'Target preview requires its actual composition receipt')
+        from target_body_inventory import verify_native_body
+        _,verified,body_hashes = verify_native_body(converted,target_path,require_complete=False)
+        require(inventory == verified, 'Preview composition input differs')
+    else:
+        require(inventory.get('kind') == 'effective-native-body-inventory', 'Effective runtime inventory required')
+        body_hashes = inventory['resourceHashes']
     require({p.name for p in (converted/'resources').iterdir()} == set(body_hashes), 'Native resource inventory differs')
     require(all(sha(converted/'resources'/n) == digest for n,digest in body_hashes.items()), 'Native resource bytes changed')
-    require(not any(n.endswith('.2da') or n == 'pmh0.mdl' or n.startswith(('a_ba','a_fa','sr_a')) for n in body_hashes),
+    require(not any(n.endswith('.2da') or n in ('pmh0.mdl','pfh0.mdl') or n.startswith(('a_ba','a_fa','sr_a')) for n in body_hashes),
             'Body preview requires isolated parts without table/root/animation overrides')
     for name,digest in body_hashes.items():
         inputs[str((converted/'resources'/name).resolve())] = digest
-    stock_index = json.loads(stock_inventory_path.read_text())['files']
-    prefix = stock.name+'/'
-    stock_hashes = {k[len(prefix+'raw/'):]: v['sha256'] for k,v in stock_index.items() if k.startswith(prefix+'raw/')}
-    stock_ascii = {k[len(prefix+'ascii/'):]: v['sha256'] for k,v in stock_index.items() if k.startswith(prefix+'ascii/')}
+    stock_hashes,stock_ascii = stock_inventory_hashes(json.loads(stock_inventory_path.read_text()),stock)
     banks = []
     for bank in config.get('resourceBanks', []):
         receipt = Path(bank['inventory']).resolve()
@@ -387,7 +419,7 @@ def run(config_path, output):
     require(set(model_parts.values()).issubset(PARTS), 'Unknown effective body part')
     source_rows = {}
     for model, part in model_parts.items():
-        require(model == 'pmh0_'+part+'001.mdl' and model in native_rows, 'Non-stock Human style001 model mapping')
+        require(model == model_prefix+'_'+part+'001.mdl' and model in native_rows, 'Non-stock Human style001 model mapping')
         ascii_path = converted/'ascii'/model
         require(sha(ascii_path) == native_rows[model]['sourceSha256']
                 and body_hashes[model] == native_rows[model]['binarySha256'], 'ASCII/native compile association differs')
@@ -401,7 +433,7 @@ def run(config_path, output):
             'Ten explicit layer selector rows required')
     parsed = {}
     for part in PARTS:
-        name = 'pmh0_'+part+'001.mdl'
+        name = model_prefix+'_'+part+'001.mdl'
         path = stock/'ascii'/name
         require(name in stock_ascii and sha(path) == stock_ascii[name], 'Unpinned actual stock ASCII part')
         inputs[str(path.resolve())] = stock_ascii[name]
@@ -425,15 +457,16 @@ def run(config_path, output):
                 row = export_part(directory/(part+'.glb'), parsed[('native' if effective else 'stock', part)],
                                   candidate if effective else comparator, chosen)
                 row.update(sourceKind='effective selected native ASCII' if effective else 'actual stock comparator fallback',
-                           sourceAscii=str((source_rows[part]['ascii'] if effective else stock/'ascii'/('pmh0_'+part+'001.mdl')).resolve()))
+                           sourceAscii=str((source_rows[part]['ascii'] if effective else stock/'ascii'/(model_prefix+'_'+part+'001.mdl')).resolve()))
                 parts[part] = row['glb']; rows[part] = row
             preview = directory/'stock-replacement.json'
             save(preview, {'label': ('Effective native body' if kind == 'native' else 'Stock Human effective palette')+' skin'+str(skin),
-                          'modelPrefix':'pmh0', 'height':1.9339157, 'shoulderStyle':0, 'parts':parts})
+                          'modelPrefix':model_prefix, 'height':stock_height, 'shoulderStyle':0, 'parts':parts})
             configurations.append({'path':str(preview.resolve()),'sha256':sha(preview)})
             results.append({'kind':kind,'skinRow':skin,'layerSelectors':chosen,'parts':rows})
     require(all(sha(p) == digest for p,digest in inputs.items()), 'Preview input changed during export')
     report = {'schemaVersion':1,'readOnlySourceInputs':True,'pass':True,'sourceInventory':str(inventory_path),
+              'modelPrefix':model_prefix,'stockHeightMeters':stock_height,
               'effectiveResourceCount':len(body_hashes),'effectiveNativeParts':sorted(source_rows),
               'stockFallbackParts':sorted(set(PARTS)-set(source_rows)), 'inputHashes':inputs,
               'sourceResourcesBytesUnchanged':True,'previewConfigs':configurations,'variants':results,

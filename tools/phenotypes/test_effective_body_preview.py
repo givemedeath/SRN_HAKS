@@ -1,5 +1,6 @@
 """Behavioral regression tests for frozen-runtime CPU material previews."""
 from io import BytesIO
+from unittest.mock import patch
 import json
 from pathlib import Path
 import struct
@@ -11,7 +12,7 @@ from PIL import Image
 
 from prepare_effective_body_preview import (Resolver, colorize_plt, export_part,
                                            material_inputs, mesh_corners, mtr_fields,
-                                           plt_pixels, sha)
+                                           plt_pixels, sha, preview_identity, stock_inventory_hashes)
 from place_purposebuilt_pelvis import accessor, read_glb
 
 
@@ -36,7 +37,7 @@ class EffectivePreviewTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='effective-body-preview-test-')
         self.addCleanup(self.temp.cleanup)
-        self.path = Path(self.temp.name)
+        self.path = Path(self.temp.name).resolve()
         self.inputs = {}
 
     def resolver(self):
@@ -57,6 +58,20 @@ class EffectivePreviewTests(unittest.TestCase):
     def skin(self):
         self.stock_palettes()
         self.path.joinpath('skin.plt').write_bytes(plt_bytes(np.array([[[17,0],[23,0]],[[31,0],[41,0]]],np.uint8)))
+
+    def test_female_identity_requires_pinned_stock_contract_and_measured_height(self):
+        path=self.path/'female-target.json';path.write_text('{}');pin=sha(path)
+        target={'identity':{'prefix':'pfh0'},'heightMeters':1.837937046,'rig':{'mode':'stock-exact'}}
+        config={'targetContract':{'path':str(path),'sha256':pin}}
+        with patch('prepare_effective_body_preview.contract.load',return_value=target):
+            self.assertEqual(preview_identity(config,{str(path):pin})[:2],('pfh0',1.837937046))
+            with self.assertRaises(RuntimeError):preview_identity(config,{})
+        with self.assertRaises(RuntimeError):preview_identity({'sourcePrefix':'pfh0'},{})
+        self.assertEqual(preview_identity({}, {})[:2],('pmh0',1.9339157))
+
+    def test_fresh_stock_baseline_native_and_decompiled_hashes(self):
+        raw,ascii=stock_inventory_hashes({'resources':[{'name':'pfh0.mdl','sha256':'native','asciiSha256':'decompiled'},{'name':'pal_skin01.tga','sha256':'palette'}]},self.path)
+        self.assertEqual(raw,{'pfh0.mdl':'native','pal_skin01.tga':'palette'});self.assertEqual(ascii,{'pfh0.mdl':'decompiled'})
 
     def test_plt_origin_exact_rows_layers_and_transparency(self):
         top = np.array([[[1,0],[2,1]],[[3,0],[0,255]]],np.uint8)

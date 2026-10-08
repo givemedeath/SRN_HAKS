@@ -1,0 +1,50 @@
+{
+ "kind": "human-male-v2-delivery-ledger",
+ "date": "2026-10-08",
+ "manifest": {
+  "path": "docs/phenotypes/human-male-v2-assets.json",
+  "sha256": "991157756558c623d3b542b5b19f18d7c6cc00104ea76e607864edadf74fc0c7"
+ },
+ "supersedesManifest": {
+  "path": "docs/phenotypes/human-male-assets.json",
+  "sha256": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4"
+ },
+ "v1DeliveryReceiptsPreserved": [
+  "docs/phenotypes/evidence/human-male-complete-goal-v1/final-delivery-v1.json",
+  "docs/phenotypes/evidence/human-male-publication-v1/validation.json"
+ ],
+ "derivedRaceParent": {
+  "freezeCopy": {
+   "path": "docs/phenotypes/evidence/human-body-completion-v1/male-v1-parent-freeze.json",
+   "sha256": "787c917cb94fc1fca7734450b5682107b0c573269aeab1f540e434c00b8ead83"
+  },
+  "resources": 72,
+  "decompileParity": "passed"
+ },
+ "headsTarget": {
+  "path": "docs/heads/human-male-target.json",
+  "bodyPin": "docs/phenotypes/human-male-v2-assets.json",
+  "bindValidation": "bind_target.py + validate_target pass; head bind frame, envelope, neck, rig unchanged"
+ },
+ "clientEvidence": {
+  "path": "docs/phenotypes/evidence/human-body-completion-v1/client-session-v2.json",
+  "sha256": "c3c3c7cc6aea48bd4f53ec1537d8f16edb6f3cc622402c595d003247bd4ec8f4"
+ },
+ "gate3Sheets": {
+  "path": "docs/phenotypes/evidence/human-body-completion-v1/male/gate3-sheets.json",
+  "sha256": "241bda76a073ff912bfbfef797a44af2f8e6d0ed6b1084b9d2730a64bd232de7"
+ },
+ "knownAcceptedIssues": [
+  "brief waistband top edge ragged in kneel-front",
+  "dark band at the waistband in rear/crouch views"
+ ],
+ "status": {
+  "gate3": "user-accepted 2026-10-08 (as-is, known issues recorded)",
+  "gate4": "client-validated 2026-10-08 (palettes, dyes, motions, HAK smoke, character creation via +LoadNewModule)",
+  "promotion": "exact tested bytes promoted into tracked srn_body; tracked pwsh Build-Haks HAK b1d4112e... identical",
+  "productionAccepted": true,
+  "finalUserApproval": "approved 2026-10-08 (Gate 5; productionAccepted per user direction)",
+  "pushed": "PR #42",
+  "pullRequest": "opened as #42"
+ }
+}

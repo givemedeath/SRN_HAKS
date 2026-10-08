@@ -1,0 +1,9 @@
+﻿{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-08",
+  "gate": "Gate 3 (offline sheets, production LEAN v1, both sexes)",
+  "evidence": ["output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/lean-v1/gate3-sheets", "output/phenotypes/human-male-fix-v2/lean-v1/gate3-sheets"],
+  "userMessage": "1 (accept as-is and go to the in-game check, Gate 4)",
+  "acceptedWithKnownIssues": ["male brief waistband top edge ragged in kneel-front, dark band at the waistband in rear/crouch views", "female cream blotching, bra-back flecks, right upper-back dash (deferred)"],
+  "notApproved": "Gate 4 client session still needs explicit launch permission; no promotion, push or PR."
+}

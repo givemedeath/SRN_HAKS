@@ -33,6 +33,55 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def complete_components(source, names, layout_names, columns, rows,
+                        opaque_black_background, end_view_min_area_ratio):
+    """Validate an entire sheet and retain each complete component independently."""
+    w, h = source.size
+    rgba = np.asarray(source)
+    alpha = rgba[:, :, 3] > 8
+    if opaque_black_background:
+        rgb = rgba[:, :, :3]
+        if np.max(rgb[[0, -1], :, :]) > 8 or np.max(rgb[:, [0, -1], :]) > 8:
+            raise RuntimeError('Reviewed black-background sheet must have a black outer border')
+        alpha = rgb.max(axis=2) > 8
+        rgba = rgba.copy(); rgba[:, :, 3] = np.where(alpha, 255, 0)
+    if alpha.mean() > .9:
+        raise RuntimeError('Meaningful transparent alpha required, not an opaque sheet')
+    components, count = label(alpha)
+    sizes = np.bincount(components.ravel()); sizes[0] = 0
+    chosen = np.argsort(sizes)[-len(names):]
+    if count < len(names):
+        raise RuntimeError('Require '+str(len(names))+' substantial detached object components')
+    other = sizes.copy(); other[chosen] = 0
+    if other.max() > sizes.max() * .05:
+        raise RuntimeError('Ambiguous extra substantial component; inspect source layout')
+    assigned = {}
+    component_areas = {}
+    for component in chosen:
+        ys, xs = np.nonzero(components == component)
+        column, row = min(columns-1, int(xs.mean()*columns/w)), min(rows-1, int(ys.mean()*rows/h))
+        name = layout_names[row * columns + column]
+        if name in assigned:
+            raise RuntimeError('Two source objects assigned to the same view')
+        area_ratio = float(sizes[component] / sizes.max())
+        minimum = end_view_min_area_ratio if name in ('top', 'bottom') else .25
+        if area_ratio < minimum:
+            raise RuntimeError('Require substantial detached object component for '+name+': ratio '+str(area_ratio)+' below '+str(minimum))
+        box = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
+        x0, y0, x1, y1 = box
+        if x0 == 0 or y0 == 0 or x1 == w or y1 == h:
+            raise RuntimeError('Silhouette touches source boundary: '+name)
+        component_areas[name] = {'alphaPixels': int(sizes[component]), 'areaRatio': area_ratio,
+                                 'minimumAreaRatio': minimum}
+        crop = rgba[y0:y1, x0:x1].copy()
+        crop[components[y0:y1, x0:x1] != component] = 0
+        clean = Image.fromarray(crop)
+        assigned[name] = (name, box, clean, (0, 0, x1-x0, y1-y0), 0)
+    if set(assigned) != set(names):
+        raise RuntimeError('Missing view in source layout')
+    return assigned, component_areas
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source', type=Path, required=True)
@@ -48,6 +97,9 @@ def main():
                    help='Reviewed minimum alpha area/max area for top/bottom only; .05-.25. Long-axis views of elongated donors can be smaller. Other views remain .25.')
     p.add_argument('--layout-columns', type=int, choices=(2, 3), default=2,
                    help='Explicit observed sheet columns; three is only supported for six complete components. View names remain row-major front,left,back,right,top,bottom.')
+    p.add_argument('--opaque-black-background', action='store_true', help='Explicit reviewed black-background sheet; derive framing mask from nonblack pixels without recoloring the foreground')
+    p.add_argument('--axial-source', type=Path, help='Reviewed same-size six-view camera descendant; select its complete top/bottom components while retaining complete primary cardinal components')
+    p.add_argument('--view-order', help='Explicit observed row-major semantic names, comma separated; must be a permutation of declared cameras')
     a = p.parse_args()
     if a.six_views and (not a.layout_components or not a.center_origin):
         raise RuntimeError('Six orthographic views require complete components and centered origin')
@@ -56,50 +108,43 @@ def main():
     if a.layout_columns == 3 and not a.six_views:
         raise RuntimeError('Three-column layout requires six complete views')
     names = ('front', 'left', 'back', 'right', 'top', 'bottom') if a.six_views else ('front', 'left', 'back', 'right')
+    layout_names = tuple(a.view_order.split(',')) if a.view_order else names
+    if len(layout_names) != len(names) or set(layout_names) != set(names):
+        raise RuntimeError('Observed view order must name each declared camera exactly once')
+    if a.opaque_black_background and not a.layout_components:
+        raise RuntimeError('Opaque black framing requires complete component layout')
     columns = a.layout_columns
     rows = len(names) // columns
     if a.output.exists():
         raise RuntimeError('Fresh output required')
     source = Image.open(a.source).convert('RGBA')
     w, h = source.size
+    if a.axial_source:
+        if not a.six_views or columns != 2 or layout_names[-2:] != ('top', 'bottom'):
+            raise RuntimeError('Axial source requires explicit two-column six-view layout with top/bottom final row')
+        axial = Image.open(a.axial_source).convert('RGBA')
+        if axial.size != source.size:
+            raise RuntimeError('Axial source must preserve original sheet dimensions and pixel magnification')
     panels = []
     if a.layout_components:
-        rgba = np.asarray(source)
-        alpha = rgba[:, :, 3] > 8
-        if alpha.mean() > .9:
-            raise RuntimeError('Meaningful transparent alpha required, not an opaque sheet')
-        components, count = label(alpha)
-        sizes = np.bincount(components.ravel()); sizes[0] = 0
-        chosen = np.argsort(sizes)[-len(names):]
-        if count < len(names):
-            raise RuntimeError('Require '+str(len(names))+' substantial detached object components')
-        other = sizes.copy(); other[chosen] = 0
-        if other.max() > sizes.max() * .05:
-            raise RuntimeError('Ambiguous extra substantial component; inspect source layout')
-        assigned = {}
-        component_areas = {}
-        for component in chosen:
-            ys, xs = np.nonzero(components == component)
-            column, row = min(columns-1, int(xs.mean()*columns/w)), min(rows-1, int(ys.mean()*rows/h))
-            name = names[row * columns + column]
-            if name in assigned:
-                raise RuntimeError('Two source objects assigned to the same view')
-            area_ratio = float(sizes[component] / sizes.max())
-            minimum = a.end_view_min_area_ratio if name in ('top', 'bottom') else .25
-            if area_ratio < minimum:
-                raise RuntimeError('Require substantial detached object component for '+name+': ratio '+str(area_ratio)+' below '+str(minimum))
-            box = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
-            x0, y0, x1, y1 = box
-            if x0 == 0 or y0 == 0 or x1 == w or y1 == h:
-                raise RuntimeError('Silhouette touches source boundary: '+name)
-            component_areas[name] = {'alphaPixels': int(sizes[component]), 'areaRatio': area_ratio,
-                                     'minimumAreaRatio': minimum}
-            crop = rgba[y0:y1, x0:x1].copy()
-            crop[components[y0:y1, x0:x1] != component] = 0
-            clean = Image.fromarray(crop)
-            assigned[name] = (name, box, clean, (0, 0, x1-x0, y1-y0), 0)
-        if set(assigned) != set(names):
-            raise RuntimeError('Missing view in source layout')
+        assigned, component_areas = complete_components(
+            source, names, layout_names, columns, rows,
+            a.opaque_black_background, a.end_view_min_area_ratio)
+        if a.axial_source:
+            axial_assigned, axial_component_areas = complete_components(
+                axial, names, layout_names, columns, rows,
+                a.opaque_black_background, a.end_view_min_area_ratio)
+            primary_component_areas = {name: row.copy() for name, row in component_areas.items()}
+            # Complete source objects can cross the sheet's nominal row boundary.
+            # Select detached components, never paste rectangular sheet rows.
+            for name in ('top', 'bottom'):
+                assigned[name] = axial_assigned[name]
+                component_areas[name] = axial_component_areas[name].copy()
+            maximum = max(row['alphaPixels'] for row in component_areas.values())
+            for name, row in component_areas.items():
+                row['areaRatio'] = row['alphaPixels'] / maximum
+                if row['areaRatio'] < row['minimumAreaRatio']:
+                    raise RuntimeError('Require substantial detached object component for '+name+': ratio '+str(row['areaRatio'])+' below '+str(row['minimumAreaRatio']))
         panels = [assigned[name] for name in names]
     for name, box in ([] if a.layout_components else zip(('front', 'left', 'back', 'right'),
                          ((0, 0, w//2, h//2), (w//2, 0, w, h//2),
@@ -123,6 +168,7 @@ def main():
     common_scale = 896 / max(max(b[2]-b[0], b[3]-b[1]) for _, _, _, b, _ in panels)
     a.output.mkdir(parents=True)
     shutil.copyfile(a.source, a.output/'source.png')
+    if a.axial_source: shutil.copyfile(a.axial_source, a.output/'axial-source.png')
     shutil.copyfile(__file__, a.output/'executed-normalizer.py')
     views = {}
     for name, box, panel, bound, removed in panels:
@@ -140,11 +186,22 @@ def main():
         views[name] = {'panelCrop': box, 'alphaBounds': bound, 'detachedAlphaPixelsRemoved': removed,
                        'normalizedBounds': [*origin, resized.width, resized.height],
                        'sha256': sha(target)}
+        if a.axial_source:
+            origin_source = a.axial_source if name in ('top', 'bottom') else a.source
+            views[name]['source'] = str(origin_source.resolve())
+            views[name]['sourceSha256'] = sha(origin_source)
     record = {'schemaVersion': 1, 'source': str(a.source.resolve()), 'sourceSha256': sha(a.source),
-              'layout': str(columns)+'x'+str(rows)+': '+ '/'.join(','.join(names[i:i+columns]) for i in range(0,len(names),columns)), 'imagegenMode': 'built-in',
+              'layout': str(columns)+'x'+str(rows)+': '+ '/'.join(','.join(layout_names[i:i+columns]) for i in range(0,len(names),columns)), 'imagegenMode': 'built-in',
               'scale': common_scale, 'normalization': 'shared isotropic scale, '+('bounds-centered' if a.center_origin else 'top-aligned')+' translation only',
-              'layoutMethod': 'complete alpha components assigned by centroid' if a.layout_components else 'fixed quadrants with clipping guard',
+              'layoutMethod': ('complete nonblack components assigned by centroid' if a.opaque_black_background else 'complete alpha components assigned by centroid') if a.layout_components else 'fixed quadrants with clipping guard',
+              'framingMask': 'RGB maximum > 8, black border verified; foreground RGB unchanged before isotropic resampling' if a.opaque_black_background else 'authored alpha',
+              'observedViewOrder': list(layout_names),
               'notes': a.notes, 'views': views, 'clientAccepted': False}
+    if a.axial_source:
+        record['auxiliarySources'] = {'axial':{'source':str(a.axial_source.resolve()),'sha256':sha(a.axial_source),
+            'usedRows':[2], 'usedViews':['top','bottom'], 'selectionMethod':'complete components from independently validated sheets',
+            'cardinalSourcePixelsReplaced':False, 'componentAreas':axial_component_areas}}
+        record['primaryComponentAreas'] = primary_component_areas
     if a.layout_components:
         record['componentAreas'] = component_areas
         record['endViewMinimumAreaRatio'] = a.end_view_min_area_ratio

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "name": "purpose-built-human-female-pelvis-v3",
+  "part": "pelvis",
+  "workflow": "SR_NWN_3d_pixal3d_multi_views.json",
+  "service": "http://127.0.0.1:8188",
+  "viewOrder": [
+    "front",
+    "left",
+    "back",
+    "right",
+    "top",
+    "bottom"
+  ],
+  "viewAzimuthDegrees": [
+    0,
+    90,
+    180,
+    270,
+    0,
+    0
+  ],
+  "imageSize": 1024,
+  "shapeResolution": 1024,
+  "textureSize": 2048,
+  "masterTriangleBudget": 50000,
+  "remesh": {
+    "resolution": 384,
+    "sign_mode": "udf",
+    "sign_mode.qef": false,
+    "sign_mode.drop_inverted_components": true,
+    "sign_mode.drop_enclosed_components": true,
+    "band": 1,
+    "project_back": 0,
+    "fix_poles": false,
+    "smooth_iters": 3,
+    "drop_small_components": 0.01,
+    "precluster_max_verts": 2000000
+  },
+  "seeds": {
+    "structure": 61,
+    "shape": 47,
+    "texture": 48
+  },
+  "normalBakeSize": 2048,
+  "postFitNormalStrength": 1,
+  "compactBakeReference": true,
+  "retainRawMaster": true,
+  "designConstraints": [
+    "Use exact approved warm skin and strong painted muscle shading, natural athletic silhouette, original normal pixels and ORM roughness.",
+    "Charcoal opaque bra belongs only to chest; regular bikini-cut briefs belong only to pelvis, no oversized briefs or boyshorts.",
+    "Stock female pfh0 rig, head, neck, stature and equipment identity remain authoritative.",
+    "Source design accepted by human; generated camera angle imperfections are recorded in reference review and require reconstruction inspection.",
+    "Each reconstruction is a diagnostic source; no selection, native or actual-client acceptance implied.",
+    "Diagnostic texture trial: six shape cameras retained while texture alone receives four canonical cardinal cameras. Compare garment coverage, atlas and actual source geometry independently.",
+    "Source waist-band/bar artifacts, full anatomy and motion remain blocking if reproduced. No owner selection or production acceptance."
+  ],
+  "viewElevationDegrees": [
+    0,
+    0,
+    0,
+    0,
+    90,
+    -90
+  ],
+  "projection": "orthographic-six-view",
+  "orthoSpan": 1.1,
+  "conditioningDependencies": {
+    "<comfyui>\\custom_nodes\\srn_orthographic_multiview\\__init__.py": "b7a8605b71ae1cde49a7abf6ea8feec1ee6eeb1cb5055c4dae6c7bbeb248b3e1",
+    "<comfyui>\\comfy\\ldm\\trellis2\\model.py": "baa8b081de2eada84754b867282bd21d498233816326f8842943857fe1d07e0c",
+    "<comfyui>\\comfy_extras\\nodes_trellis2.py": "5d99f8fd2d1a1cc252b860d941717fc4e53cfbc48b623730c9fdd9139dd7f98c"
+  },
+  "targetContract": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\stock-target-v1\\target-contract.json",
+  "targetContractSha256": "a1690d2f14255377602b02f4baa6be545c9fa9444dc6ff42ac3c115fc4ec9807",
+  "sourceReference": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\reference-attempts\\pelvis-v1\\source.png",
+  "sourceReferenceSha256": "3e66ceb27b81c9bcc60ffde97a5090aea93e22ed2faa746defd566182d042eda",
+  "styleReference": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\references\\approved-chest-style-v1\\source.png",
+  "styleReferenceSha256": "a8b9944ffbcdb64203b7265e7e26f73ea20ccb81319c93e3be5e6aba4d3008ff",
+  "cameraReference": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\reference-attempts\\pelvis-camera-v2\\source.png",
+  "referenceMethod": "Exact approved regular bikini cardinal source; independently extracted complete auxiliary top/bottom components under the fixed normalizer. Shared isotropic scale. Axial magnification differs roughly 18-25 percent; treat as an explicit generative input limitation.",
+  "textureViewOrder": [
+    "front",
+    "left",
+    "back",
+    "right"
+  ]
+}

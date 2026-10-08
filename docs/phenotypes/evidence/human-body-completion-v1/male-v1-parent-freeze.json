@@ -1,0 +1,570 @@
+{
+  "schemaVersion": 1,
+  "kind": "derived-master-freeze",
+  "target": "human-male",
+  "status": "user-accepted-current-human-male-baseline",
+  "replaces": "Stock Human male phenotype 0 bare part001 resources only",
+  "stockRig": "pmh0; stock male supermodel and animation chain",
+  "assemblyHeightMetres": 1.9339157,
+  "sourceManifest": "docs\\phenotypes\\human-male-assets.json",
+  "sourceManifestSha256": "804dc8741308225ce49ee46a7f85c3d6ea65aa4a1a0d6068d046feefe08519b4",
+  "sourceImplementationCommit": "ed74212cf8251fb32c85e74b979d810d1bc3c8f5",
+  "resourceCount": 72,
+  "resources": {
+    "pmh0_bicepl001.mdl": {
+      "sha256": "7870dff3505d0667699e91b5a07448dad44a80a11486dab55e33408801676e3d",
+      "bytes": 3240472,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepl001.mdl"
+    },
+    "pmh0_bicepl001.mtr": {
+      "sha256": "dcf38d3e0d114ef3c5d476b0493c6566bbb7561083cc20ec26008931b40fdaa0",
+      "bytes": 178,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepl001.mtr"
+    },
+    "pmh0_bicepl001.plt": {
+      "sha256": "714c44cdbfdd940f278d946db77e0ea2d7e30c3351cba9f2d0ff5ccf06374ecd",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepl001.plt"
+    },
+    "pmh0_bicepl001n.tga": {
+      "sha256": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepl001n.tga"
+    },
+    "pmh0_bicepl001r.tga": {
+      "sha256": "5f763a3a7723270afa4ca96c5c9983336dd7cb737fe113c04e85ee9d1fa27ac1",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepl001r.tga"
+    },
+    "pmh0_bicepr001.mdl": {
+      "sha256": "abad51abdc6fe1f55d0e0fc216d70724a27e3fa5156754b2dfe7ffc65f8acae7",
+      "bytes": 3240472,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepr001.mdl"
+    },
+    "pmh0_bicepr001.mtr": {
+      "sha256": "5451a0147ba6348122e851025991509227ad26fa501d70ffe95a250b97de449b",
+      "bytes": 178,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepr001.mtr"
+    },
+    "pmh0_bicepr001.plt": {
+      "sha256": "f345d6b907139521acddf297be62ad138689bf634677b9350c4eb1a87caf9935",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepr001.plt"
+    },
+    "pmh0_bicepr001n.tga": {
+      "sha256": "c320e4e013251fb4edf22414bcc0bfd88476eba87086156602d4704f85c92354",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepr001n.tga"
+    },
+    "pmh0_bicepr001r.tga": {
+      "sha256": "5f763a3a7723270afa4ca96c5c9983336dd7cb737fe113c04e85ee9d1fa27ac1",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_bicepr001r.tga"
+    },
+    "pmh0_chest001.mdl": {
+      "sha256": "8afdd1e81bd7b695b18ce5b88d5f1fa265e7c34043c5bc838bd012a55fb3e1be",
+      "bytes": 3976864,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_chest001.mdl"
+    },
+    "pmh0_chest001.mtr": {
+      "sha256": "a5b910a9324316fabe4ee34b67678340f29bb8a704e41f81064077b89a74d396",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_chest001.mtr"
+    },
+    "pmh0_chest001.plt": {
+      "sha256": "a1cbede36e7f2e03998152cd336634fb414bc124fafff1966e09c2e99d2d42be",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_chest001.plt"
+    },
+    "pmh0_chest001n.tga": {
+      "sha256": "ae5c744affad92c96aeea540eb0a5d74e576d3c3f7f77dc66b115938bdfca9bc",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_chest001n.tga"
+    },
+    "pmh0_chest001r.tga": {
+      "sha256": "c383792c60b91173037315a43e8a6bd243c1e018dfe773a8b0e1d6df04e77744",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_chest001r.tga"
+    },
+    "pmh0_footl001.mdl": {
+      "sha256": "9e84eb4ef52a8e037f459a3fe0ac9638bcafcd4ae78731b1bdc3735dc18fa16d",
+      "bytes": 3334616,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footl001.mdl"
+    },
+    "pmh0_footl001.mtr": {
+      "sha256": "68997d26d4cbb3d4f65226454c7919b1bad696dabe2b8dc7a5a9c9d19844461c",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footl001.mtr"
+    },
+    "pmh0_footl001.plt": {
+      "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footl001.plt"
+    },
+    "pmh0_footl001n.tga": {
+      "sha256": "cdeb1b3170e130f2891782b87744bebd3f132f4db8b79642042b8b0b19f3c78e",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footl001n.tga"
+    },
+    "pmh0_footl001r.tga": {
+      "sha256": "cb34d51e5d543521376a0825e4f1c8fb21d12fa10fb35c7ebdd804573eabaf5a",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footl001r.tga"
+    },
+    "pmh0_footr001.mdl": {
+      "sha256": "607bfafd8175c44b35d6c25a9e07de306a076a33ba2716e36ac4d473ec4fde2d",
+      "bytes": 3334616,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footr001.mdl"
+    },
+    "pmh0_footr001.mtr": {
+      "sha256": "9181b8ddb022feb47255bb24b82410fd1db81d24b9be748f153a21797493f3f1",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footr001.mtr"
+    },
+    "pmh0_footr001.plt": {
+      "sha256": "2f3da6ce603e190cc00f7be4f501a72168902194cb1a622ac6603d9618011a5c",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footr001.plt"
+    },
+    "pmh0_footr001n.tga": {
+      "sha256": "cdeb1b3170e130f2891782b87744bebd3f132f4db8b79642042b8b0b19f3c78e",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footr001n.tga"
+    },
+    "pmh0_footr001r.tga": {
+      "sha256": "cb34d51e5d543521376a0825e4f1c8fb21d12fa10fb35c7ebdd804573eabaf5a",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_footr001r.tga"
+    },
+    "pmh0_forel001.mdl": {
+      "sha256": "77b01bdbbd09fe1417c7065f2c004afeb8f956a76f21ef617a82aa141d0d87b7",
+      "bytes": 3237852,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forel001.mdl"
+    },
+    "pmh0_forel001.mtr": {
+      "sha256": "ae06b9e1c2933eea58ad6e60c656cf6c1bffdf1d16c16f413eafd79047934a13",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forel001.mtr"
+    },
+    "pmh0_forel001.plt": {
+      "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forel001.plt"
+    },
+    "pmh0_forel001n.tga": {
+      "sha256": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forel001n.tga"
+    },
+    "pmh0_forel001r.tga": {
+      "sha256": "3947f8f7140f1b43e1f9595a25c3314f77fdda443261c9736abe9aff57939266",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forel001r.tga"
+    },
+    "pmh0_forer001.mdl": {
+      "sha256": "615fb8386d72589441fc23f82c90f9dd3ab891b15ac555701a1936669a604c9c",
+      "bytes": 3237852,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forer001.mdl"
+    },
+    "pmh0_forer001.mtr": {
+      "sha256": "cb5c157171322e18ace217077f3818b01ed0946de52edb466942eab08de99b85",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forer001.mtr"
+    },
+    "pmh0_forer001.plt": {
+      "sha256": "be75b3a445a754dea5bc8c99bfba80c6ea818476ad2c508fbcc85a15c3aed38a",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forer001.plt"
+    },
+    "pmh0_forer001n.tga": {
+      "sha256": "692898052f0ec9e19210a2a0bf0aac7b8b85044aa97d5f83a3ca3c9a970f52d2",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forer001n.tga"
+    },
+    "pmh0_forer001r.tga": {
+      "sha256": "3947f8f7140f1b43e1f9595a25c3314f77fdda443261c9736abe9aff57939266",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_forer001r.tga"
+    },
+    "pmh0_handl001.mdl": {
+      "sha256": "5a2c3539fb081d7c826339ffa8b04b64c6d6c506a5d563bd034bc739c629a266",
+      "bytes": 3438256,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handl001.mdl"
+    },
+    "pmh0_handl001.mtr": {
+      "sha256": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handl001.mtr"
+    },
+    "pmh0_handl001.plt": {
+      "sha256": "a12b099def9b886f978e0083b2e9840ad4de8176f258977c50f49e3928a8a6f8",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handl001.plt"
+    },
+    "pmh0_handl001n.tga": {
+      "sha256": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handl001n.tga"
+    },
+    "pmh0_handl001r.tga": {
+      "sha256": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handl001r.tga"
+    },
+    "pmh0_handr001.mdl": {
+      "sha256": "539a6dbc11a02d96b9c122b7931ca064e6ced22a1aabe93d1d0f6ca6e8374164",
+      "bytes": 3438256,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handr001.mdl"
+    },
+    "pmh0_handr001.mtr": {
+      "sha256": "baad8aa75ba04a31ea994a3442ec97eb705524f54c9f3852defc4f5c9806022f",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handr001.mtr"
+    },
+    "pmh0_handr001.plt": {
+      "sha256": "103b8cee558c05097dd2cc02a89ee041fe8d529ec18b47780ee155a073d1cbbb",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handr001.plt"
+    },
+    "pmh0_handr001n.tga": {
+      "sha256": "777a69f3475e4999d32a6ab98e0922c901fcf213c59cec174e94b7241e020ee1",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handr001n.tga"
+    },
+    "pmh0_handr001r.tga": {
+      "sha256": "9db18b23306e6bb5343d7217f0a776634378b44c2ff4fe801cdbe14abd9d3fb1",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_handr001r.tga"
+    },
+    "pmh0_legl001.mdl": {
+      "sha256": "e82617d80230c5ac3496093de84bb01ceefdb16f2c25c4b96450cd995333126c",
+      "bytes": 3276956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legl001.mdl"
+    },
+    "pmh0_legl001.mtr": {
+      "sha256": "b566e78518a0087728544238d01a88ec25e56766ce5438ba9a89ef4dba2bc467",
+      "bytes": 174,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legl001.mtr"
+    },
+    "pmh0_legl001.plt": {
+      "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legl001.plt"
+    },
+    "pmh0_legl001n.tga": {
+      "sha256": "cc4151d87b0e25a18d4a2f55340beddc718ecbf9d2298b5085d4d2b63852bd8c",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legl001n.tga"
+    },
+    "pmh0_legl001r.tga": {
+      "sha256": "3bd3d1c9d451bd19efb15d7714d80058e81b34618b75832c6d9f2b5a04927171",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legl001r.tga"
+    },
+    "pmh0_legr001.mdl": {
+      "sha256": "cfd6d71f11594756fbb54a8710f3dc687f556c63bb69dde3a5998f7abef6f033",
+      "bytes": 3276956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legr001.mdl"
+    },
+    "pmh0_legr001.mtr": {
+      "sha256": "1741df5e302bc913cc5fa40cc126fdf9832687a2752c713294b20a7a8605d4d8",
+      "bytes": 174,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legr001.mtr"
+    },
+    "pmh0_legr001.plt": {
+      "sha256": "8b5c1c681b7c1cad51869df08409dc1b7c99df9e210877483d2b5929f9a41ece",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legr001.plt"
+    },
+    "pmh0_legr001n.tga": {
+      "sha256": "cc4151d87b0e25a18d4a2f55340beddc718ecbf9d2298b5085d4d2b63852bd8c",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legr001n.tga"
+    },
+    "pmh0_legr001r.tga": {
+      "sha256": "3bd3d1c9d451bd19efb15d7714d80058e81b34618b75832c6d9f2b5a04927171",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_legr001r.tga"
+    },
+    "pmh0_pelvis001.mdl": {
+      "sha256": "c0d87495e6405254fa9dfb9b5ec1d144ed098ccd06a6e6290b36fced9a1a428a",
+      "bytes": 1988920,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_pelvis001.mdl"
+    },
+    "pmh0_pelvis001.mtr": {
+      "sha256": "fd17a10276d22cab12adcbd265d6878053fcf580bd9931b721c5543d93dc3bf2",
+      "bytes": 178,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_pelvis001.mtr"
+    },
+    "pmh0_pelvis001.plt": {
+      "sha256": "641a251d05ba30297009d0d184f7089dcbaad94e2baabc07405aa033da281d3b",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_pelvis001.plt"
+    },
+    "pmh0_pelvis001f.mtr": {
+      "sha256": "30eed31a1cabedba960023a116e658a388c53bc095fa20fc179438a6169c90a5",
+      "bytes": 181,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_pelvis001f.mtr"
+    },
+    "pmh0_pelvis001f.tga": {
+      "sha256": "93a8f2faeac57cac7ca745c593c61d54e4e7ad6700b2f368d049213fb3306f17",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_pelvis001f.tga"
+    },
+    "pmh0_pelvis001n.tga": {
+      "sha256": "a932887e8d65c9f1869a8f97d309c7d92224bebdb90396de6623dc40ef6b3d20",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_pelvis001n.tga"
+    },
+    "pmh0_pelvis001r.tga": {
+      "sha256": "7d2dce54154ccf706c0b318ebdec92135ad076e1e51e7026499a5e16b9f476cd",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_pelvis001r.tga"
+    },
+    "pmh0_shinl001.mdl": {
+      "sha256": "3d4eb3c94fb8ce73114c5293e70a5edf9bf7647b32a46357e9abd9fb99e4ff63",
+      "bytes": 3256908,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinl001.mdl"
+    },
+    "pmh0_shinl001.mtr": {
+      "sha256": "358bbd913357c9fc0648d224cd9363712258ffdcbc5290f4cea136e8552d866b",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinl001.mtr"
+    },
+    "pmh0_shinl001.plt": {
+      "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinl001.plt"
+    },
+    "pmh0_shinl001n.tga": {
+      "sha256": "dbc72949e74962fd698794b73829c291c63e6b24358a19a86b6c9baa6ca0aa19",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinl001n.tga"
+    },
+    "pmh0_shinl001r.tga": {
+      "sha256": "f9ef38468856c763a8be3c2389b204b5eff0ffd5628a72e5e373da04ec6e95d9",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinl001r.tga"
+    },
+    "pmh0_shinr001.mdl": {
+      "sha256": "282e55060fb333789ad8b6670d5fe83d9153df67be5756829d9b07195eb278a9",
+      "bytes": 3256908,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinr001.mdl"
+    },
+    "pmh0_shinr001.mtr": {
+      "sha256": "62b07d272e095dcb090ae2256137e32ac57558a006f175f0b4719662c0d5158e",
+      "bytes": 176,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinr001.mtr"
+    },
+    "pmh0_shinr001.plt": {
+      "sha256": "4ea6f25e37284ab4769de21af4a2d7b07a971aceab21ba42b67b55c43aa6d02c",
+      "bytes": 8388632,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinr001.plt"
+    },
+    "pmh0_shinr001n.tga": {
+      "sha256": "dbc72949e74962fd698794b73829c291c63e6b24358a19a86b6c9baa6ca0aa19",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinr001n.tga"
+    },
+    "pmh0_shinr001r.tga": {
+      "sha256": "f9ef38468856c763a8be3c2389b204b5eff0ffd5628a72e5e373da04ec6e95d9",
+      "bytes": 12582956,
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\native\\pmh0_shinr001r.tga"
+    }
+  },
+  "decompileParity": {
+    "pmh0_bicepl001": {
+      "totalVertices": 27922,
+      "totalFaces": 49978,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "4579e521d9581a8d45e7a8b6ff291a3ee77c45ce1a480a269aa561339212b5e4"
+    },
+    "pmh0_bicepr001": {
+      "totalVertices": 27922,
+      "totalFaces": 49978,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "5b58ca361535b95cd1983fd305f495b85ea49cd5844a086417229efa22b87c6c"
+    },
+    "pmh0_chest001": {
+      "totalVertices": 36338,
+      "totalFaces": 58726,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "6eff620dec682073be9d2f339892e79086eda1065779bf85de25e5e82ff10b6e"
+    },
+    "pmh0_footl001": {
+      "totalVertices": 29915,
+      "totalFaces": 49938,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "46a31284e246bb37c16456bd2f547c74d31d612d4889e091e7dafbf40bc02eb0"
+    },
+    "pmh0_footr001": {
+      "totalVertices": 29915,
+      "totalFaces": 49938,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "2d43b2ee82747724db3f22a1f658a992c3cb2bc9be4087fb14e4be5e77239dc1"
+    },
+    "pmh0_forel001": {
+      "totalVertices": 27850,
+      "totalFaces": 50000,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "c460a62b7fdf49f282cc06abd3ee0fbf017ce221de1f5fba937d5d339b7f3ad4"
+    },
+    "pmh0_forer001": {
+      "totalVertices": 27850,
+      "totalFaces": 50000,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "7935485d71cc5db65aa029c7c0ed7894f9aca847f8938da0351e842e565ce3bc"
+    },
+    "pmh0_handl001": {
+      "totalVertices": 32033,
+      "totalFaces": 49990,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "bb124aea74fd8657c2792221cb26bb5756047bdb2b1bb23e0ecaa8459c901dcb"
+    },
+    "pmh0_handr001": {
+      "totalVertices": 32033,
+      "totalFaces": 49990,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "f41d18dabce621ec7d38b199505edf8eaccf2eff131c63420048dba9f0dee59a"
+    },
+    "pmh0_legl001": {
+      "totalVertices": 28671,
+      "totalFaces": 49992,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "2da6db991fb548172d857d43955f59808070ddcc621a5aa7999e8a450513642e"
+    },
+    "pmh0_legr001": {
+      "totalVertices": 28671,
+      "totalFaces": 49992,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "f48264090180116c9e4002b65a927ddeea4c979fa56394485411042e8cb8ad33"
+    },
+    "pmh0_pelvis001": {
+      "totalVertices": 19608,
+      "totalFaces": 27526,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "3232f68fcb7be43267c4a2bb34b97eb52bb44545b6194bba3a27bc4e368a1bea"
+    },
+    "pmh0_shinl001": {
+      "totalVertices": 28247,
+      "totalFaces": 50000,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "03bea07521acef241ca17f14189f4e7c2b8b2a8e064a2e623dee0e2cb5896840"
+    },
+    "pmh0_shinr001": {
+      "totalVertices": 28247,
+      "totalFaces": 50000,
+      "maxPositionError": 0.0,
+      "maxNormalError": 0.0,
+      "maxUvError": 0.0,
+      "passed": true,
+      "asciiSha256": "e85869b374bba55c58d4037ff23557b34a44e8eaf1722f9e1abee12858157ca9"
+    }
+  },
+  "stockReferences": {
+    "pmh0.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmh0.mdl",
+      "sha256": "23fc893a8d18df461052ef978f33b7805da9188546833c0620b3a6014117d45a",
+      "bytes": 9081
+    },
+    "a_ba.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\a_ba.mdl",
+      "sha256": "a38c9f0de00a7e401419d1e668ad1b9d825cfc9635712cdb9ae63e840104ee2b",
+      "bytes": 5990990
+    },
+    "pmh0_head001.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmh0_head001.mdl",
+      "sha256": "7b470dafaf568abc5c2c1f929d46cd71cd4dac827d96a310a70b25fc736c6e27",
+      "bytes": 15176
+    },
+    "pmh0_neck001.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmh0_neck001.mdl",
+      "sha256": "fd2c5a552602985186fad6e39129d8c18bd504601c060304d7fd97e7f9d61449",
+      "bytes": 2596
+    },
+    "pmd0.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmd0.mdl",
+      "sha256": "23617c9bb5d3cb25a939df870618a52dcbe286cb1596a5087b3247aa4b567960",
+      "bytes": 54325
+    },
+    "pmd0_head001.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmd0_head001.mdl",
+      "sha256": "7b0411a8417b4757eda28cd5e640f9a5750803390cf8c54f934f0f1f6c997995",
+      "bytes": 13936
+    },
+    "pmd0_neck001.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmd0_neck001.mdl",
+      "sha256": "661d2c23bee07df3f276e6bd47b075a5e91268be322821a57dd3fb9cc9dcd7cd",
+      "bytes": 2596
+    },
+    "pme0.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pme0.mdl",
+      "sha256": "cf0ed843a58977fba26cf864d413e28b50becf64ade00446d32a7f8929537843",
+      "bytes": 9221
+    },
+    "pme0_head001.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pme0_head001.mdl",
+      "sha256": "10c8551d7dee1fbb29d2f58c733ece3ac94867379e935f70f48a7e5dd9bb282d",
+      "bytes": 16068
+    },
+    "pme0_neck001.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pme0_neck001.mdl",
+      "sha256": "bcef98ff2ab366160555899d0c4a01f01b05a954c35bac7503b9c77649eda4c2",
+      "bytes": 2596
+    },
+    "pmo0.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmo0.mdl",
+      "sha256": "9d7656914d57d422c1d8803ff42a8f5392d789444278911e3d60b5941ed1d7c6",
+      "bytes": 9086
+    },
+    "pmo0_head001.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmo0_head001.mdl",
+      "sha256": "f74fddba58e13985ead688c988138a5374e3870104a78fe65edf19a07c2770ab",
+      "bytes": 12724
+    },
+    "pmo0_neck001.mdl": {
+      "path": "output\\phenotypes\\derived-v1\\masters\\human-male-v1\\stock\\pmo0_neck001.mdl",
+      "sha256": "4ff2d78bb3b329253bb0e32e47a6cbfdf09b429ec34fdc852cbe9c32504b1062",
+      "bytes": 2596
+    }
+  }
+}

@@ -1,0 +1,12 @@
+﻿{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-08",
+  "context": "Client A/B: dark band above the female brief appears on gate3 HIGH and LEAN, and persists with creature shadows and SSAO off; it sits on the pelvis skin1/skin2 nodes, which have their own PLTs (pfh0_pelviss1/2). Evidence: output/phenotypes/poly-budget-lean-ingame-v1/client-review-v2.",
+  "userMessage": "each part model should have it's entire texture self contained in a single PLT files named the same as the model filename",
+  "directions": {
+    "textureRule": "One PLT per part model, named exactly like the model file; all nodes of that model (including skin1/skin2 overlay shells and garment/brief/bra regions) sample that single PLT.",
+    "appliesTo": "All body part models (female and male, LEAN build first, then the production pipeline)."
+  },
+  "interpretationToConfirm": "Garment colour (brief/bra) moves into PLT layers of the part PLT, the stock NWN convention; normal/roughness maps stay one per model (<model>n.tga / <model>r.tga).",
+  "notApproved": "No visual acceptance or publication."
+}

@@ -1,0 +1,129 @@
+{
+  "kind": "candidate-hak-chargen-fixture",
+  "moduleId": {
+    "type": "void",
+    "value64": "KAXSfHotQxaVCGFA1F7XiQ=="
+  },
+  "stockIfoReference": {
+    "path": "<nwn-install>\\data\\mod\\The Dark Ranger's Treasure.mod",
+    "sha256": "172c06cd5a2178af46cc5c2828985eab65fb5dd68898241333b391ab4fc26019"
+  },
+  "stockFieldsPresentAndTyped": true,
+  "moduleName": "srn_hak_chargen",
+  "module": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\hak-chargen-v1\\userdir\\modules\\srn_hak_chargen.mod",
+  "moduleSha256": "a268357c419c581f1c5dad67e7028cf11bb4340639a73ce61ea59e7e71085171",
+  "srnBodyHak": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\hak-chargen-v1\\userdir\\hak\\srn_body.hak",
+  "srnBodyHakSha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325",
+  "candidateBuild": {
+    "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\candidate-hak\\build.json",
+    "sha256": "cf1d633af665518020426a5b38bfbe147957deccdc58e26349a52df5b887dfbd"
+  },
+  "fixtureHak": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\hak-chargen-v1\\userdir\\hak\\srn_hak_chargen.hak",
+  "fixtureHakSha256": "bd842c07987211062a8892ebf0a7252eeca86cea10e2fbdc910efeb9e9e05fa6",
+  "userDirectory": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixtures\\hak-chargen-v1\\userdir",
+  "actors": [
+    [
+      "tm_0",
+      1,
+      6,
+      6,
+      0,
+      3
+    ],
+    [
+      "tm_1",
+      1,
+      6,
+      6,
+      0,
+      8
+    ],
+    [
+      "tm_2",
+      1,
+      6,
+      6,
+      0,
+      3
+    ],
+    [
+      "tm_3",
+      1,
+      6,
+      6,
+      0,
+      8
+    ],
+    [
+      "tm_4",
+      0,
+      6,
+      6,
+      0,
+      3
+    ],
+    [
+      "tm_5",
+      0,
+      6,
+      6,
+      0,
+      8
+    ],
+    [
+      "tm_6",
+      0,
+      6,
+      6,
+      0,
+      3
+    ],
+    [
+      "tm_7",
+      0,
+      6,
+      6,
+      0,
+      8
+    ]
+  ],
+  "dressedActors": {
+    "tm_0": {
+      "Cloth1Color": 88,
+      "Cloth2Color": 88,
+      "Leather1Color": 30,
+      "Leather2Color": 58,
+      "Metal1Color": 2,
+      "Metal2Color": 2
+    },
+    "tm_5": {
+      "Cloth1Color": 26,
+      "Cloth2Color": 26,
+      "Leather1Color": 58,
+      "Leather2Color": 30,
+      "Metal1Color": 2,
+      "Metal2Color": 2
+    }
+  },
+  "sourcePreparation": {
+    "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\fixture-sources\\female\\candidate-human-female-palette\\test-module\\preparation.json",
+    "sha256": "6b35bdbc5fd652623729279736bcc839ad39a07e86ca6b18db67d4023555f872"
+  },
+  "executedCodeSha256": "8a21bec510379e5f5e940bfae2deaeac2780ffa598aa9a9302b239f72801ad5d",
+  "preflight": {
+    "pass": true,
+    "overrideEmpty": true,
+    "aliasesIsolated": true,
+    "hakPayloadExact": true,
+    "moduleHakList": [
+      "srn_hak_chargen",
+      "srn_body"
+    ],
+    "genders": {
+      "female": 4,
+      "male": 4
+    }
+  },
+  "clientLaunched": false,
+  "clientAccepted": false
+}

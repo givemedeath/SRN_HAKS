@@ -17,10 +17,14 @@ from mathutils import Matrix, Quaternion, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_geometry import arrays
-from pose_preview_bridge import pose
+from pose_preview_bridge import pose, freeze_helpers, verify_helpers
 from run_preparation import PreparationContext
 from pose_preview_render_settings import apply_render_settings
-from retarget import NODE, nodes, transforms, rotations
+from retarget import NODE, nodes, rotations
+from rig_controller_audit import world_frames
+from target_contract import load as load_target, verify_binding, sha as target_sha
+from rig_pose_audit import interpolate as sample_controller
+from pose_preview_target_parts import select_receipts as select_target_parts
 
 JOINTS = dict(head="head_g", neck="neck_g", chest="torso_g", pelvis="pelvis_g",
               bicepl="lbicep_g", bicepr="rbicep_g", forel="lforearm_g", forer="rforearm_g",
@@ -30,24 +34,14 @@ OPTIONAL_JOINTS = dict(shol="lshoulder_g", shor="rshoulder_g")
 
 
 def controller(rows, time, rotation=False):
-    rows = np.array(rows)
-    left = max(0, int(np.searchsorted(rows[:, 0], time, side="right")) - 1)
-    right = min(left + 1, len(rows) - 1)
-    t0, t1 = rows[left, 0], rows[right, 0]
-    mix = min(1., max(0., (time-t0)/(t1-t0))) if t1 > t0 else 0.
-    if rotation:
-        def quat(values):
-            axis = Vector(values[:3])
-            return Quaternion(axis.normalized(), float(values[3])) if axis.length > 1e-9 else Quaternion()
-        q = quat(rows[left, 1:]).slerp(quat(rows[right, 1:]), mix)
-        axis, angle = q.to_axis_angle()
-        return [*axis, angle]
-    return rows[left, 1:4]*(1-mix) + rows[right, 1:4]*mix
+    value=sample_controller(rows,time,rotation)
+    return value if rotation else np.asarray(value)
 
 
 def stock_part(path, name):
     result = []
     text = path.read_text(encoding="cp1252")
+    local_frames = world_frames(nodes(text))
     for match in NODE.finditer(text.split("endmodelgeom")[0]):
         coords, faces = arrays(match[3], "verts"), arrays(match[3], "faces")
         if not coords or not faces:
@@ -57,11 +51,9 @@ def stock_part(path, name):
         mesh.update()
         obj = bpy.data.objects.new(name, mesh)
         bpy.context.collection.objects.link(obj)
-        # Preserve local mesh transforms in the stock part file.
-        local = nodes("node "+match[1]+" "+match[2]+"\n"+match[3]+"endnode")[match[2].lower()]
-        matrix = np.eye(4)
-        matrix[:3,:3] = rotations(local["orientation"])
-        matrix[:3,3] = local["position"]
+        # Include every stock mesh ancestor before the body attachment frame.
+        # Stock-exact sources preserve the installed node hierarchy byte for byte.
+        matrix = local_frames[match[2].lower()]
         mesh.transform(Matrix(matrix))
         for polygon in mesh.polygons:
             polygon.use_smooth = True
@@ -74,12 +66,19 @@ def main():
     parser.add_argument("--converted", type=Path, action="append", default=[])
     parser.add_argument("--baseline", type=Path, default=Path("output/phenotypes/baseline"))
     parser.add_argument("--stock-prefix",default="pmh0",help="Actual stock comparator rig/model prefix")
+    parser.add_argument('--target-contract',type=Path,help='Explicit hash-bound target for a diagnostic assembly')
+    parser.add_argument('--target-assembly',type=Path,help='Stock diagnostic with declared target ownership')
+    parser.add_argument('--target-part-receipt',type=Path,action='append',default=[],
+                        help='Repeatable v2 target-part-geometry receipt; replaces only its declared assembly part')
+    parser.add_argument('--coordinate-space',choices=('working','runtime'),help='Required for a declared target')
     parser.add_argument("--stock-height",type=float,help="Measured target stock bind height; display reference only")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--clip", default="getlowlp")
     parser.add_argument("--time", type=float, default=0)
     parser.add_argument("--material-mode", choices=("clay", "color", "ownership", "attachments"), default="clay",
                         help="attachments highlights replacement ends separately from retained donor surfaces")
+    parser.add_argument('--render-engine',choices=('eevee','cycles-cpu'),default='eevee',
+                        help='cycles-cpu uses four CPU threads and16 samples; default preserves Eevee previews')
     parser.add_argument("--include-heads", action="store_true")
     parser.add_argument("--shoulder-style",type=int,choices=(0,1),default=0,
                         help="Actual bare fixture defaults0: no separate shoulder meshes.1 renders the measured optional stock shoulder001 diagnostic.")
@@ -98,9 +97,14 @@ def main():
         dependencies=[Path(__file__).resolve()])
     if args.camera_scale is not None and args.camera_scale<=0:
         raise RuntimeError('Camera scale must be positive')
+    if args.target_part_receipt and not args.target_assembly:
+        raise RuntimeError('Target part receipts require an explicit target assembly')
     args.output.mkdir(parents=True, exist_ok=False)
     code=Path(__file__).read_bytes();code_hash=hashlib.sha256(code).hexdigest()
     (args.output/"executed-pose-preview.py").write_bytes(code)
+    helper_manifest=freeze_helpers(args.output,[Path(__file__).with_name('audit_geometry.py'),
+                                              Path(__file__).with_name('pose_preview_render_settings.py'),
+                                              Path(__file__).with_name('pose_preview_target_parts.py')])
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
     stock_height=args.stock_height if args.stock_height is not None else 2.
@@ -112,9 +116,27 @@ def main():
     if stock_height<=0:raise RuntimeError("Stock height must be positive")
     if args.label and len(args.label)!=len(args.converted):
         raise RuntimeError("Provide one label per converted candidate")
-    stock_label="Stock Human" if args.stock_prefix=="pmh0" else "Stock "+args.stock_prefix
+    stock_label={"pmh0":"Stock Human male","pfh0":"Stock Human female"}.get(args.stock_prefix,"Stock "+args.stock_prefix)
     specimens = [] if args.no_stock else [(stock_label, None, stock_height, args.stock_prefix, args.baseline/"ascii")]
     stock_replacements={}
+    target_index=None;target_receipt=None;target_replacements={'parts':{}}
+    if args.target_assembly:
+        if not args.target_contract or not args.coordinate_space:
+            raise RuntimeError('Target assembly requires its contract and explicit coordinate space')
+        target=load_target(args.target_contract)
+        target_receipt=json.loads((args.target_assembly/'diagnostic.json').read_text())
+        verify_binding(target_receipt['target'],args.target_contract,target,args.coordinate_space)
+        for resource,pin in target_receipt['resources'].items():
+            if target_sha(args.target_assembly/'ascii'/resource)!=pin:
+                raise RuntimeError('Target diagnostic resource changed: '+resource)
+        target_replacements=select_target_parts(args.target_part_receipt,args.target_contract,
+                                               target,args.coordinate_space,target_receipt)
+        target_index=len(specimens)
+        target_label=target['id']+(' candidate assembly' if target_replacements['parts'] else ' stock diagnostic')
+        specimens.append((target_label+' / '+args.coordinate_space,None,target_receipt['height'],
+                          target['identity']['prefix'],args.target_assembly/'ascii'))
+    elif args.target_contract or args.coordinate_space:
+        raise RuntimeError('Declared target requires an explicit assembly')
     for i,directory in enumerate(args.converted):
         report = json.loads((directory/"conversion.json").read_text())
         label=args.label[i] if args.label else directory.parent.parent.name
@@ -135,7 +157,7 @@ def main():
             raise RuntimeError('Declared shoulder replacement requires shoulderStyle1')
         stock_replacements[len(specimens)]={"parts":replacements,"config":config_path,"shoulderStyle":shoulder_style}
         specimens.append((candidate["label"],None,candidate.get("height",stock_height),
-                          candidate.get("modelPrefix","pmh0"),args.baseline/"ascii"))
+                          candidate.get("modelPrefix",args.stock_prefix),args.baseline/"ascii"))
     receipts = [];specimen_objects=[]
     hues = [(0.20,0.43,0.75,1),(.76,.32,.14,1),(.22,.58,.31,1),(.65,.38,.66,1)]
     for index, (label, directory, height, prefix, ascii_dir) in enumerate(specimens):
@@ -143,27 +165,35 @@ def main():
         matrices, receipt = pose(ascii_dir, prefix, args.clip, args.time, args.baseline/"ascii", context=preparation)
         root_path=(ascii_dir/(prefix+".mdl")).resolve()
         input_hashes = {str(root_path):hashlib.sha256(root_path.read_bytes()).hexdigest()}
+        input_hashes.update({row['file']:row['sha256'] for row in receipt['sourceInheritance']})
         receipt["attachmentMaterialFaces"]={}
         receipt["attachmentHighlightColors"]={}
-        replacement_spec=stock_replacements.get(index,{"parts":{}})
+        replacement_spec=target_replacements if index==target_index else stock_replacements.get(index,{"parts":{}})
         shoulder_style=replacement_spec.get('shoulderStyle',args.shoulder_style)
         active_joints=dict(JOINTS)
         if shoulder_style:active_joints.update(OPTIONAL_JOINTS)
         receipt['bareAccessoryPolicy']={'shoulders':shoulder_style,'belt':0}
         receipt["jointWorldMatrices"]={joint:matrices[joint].tolist() for joint in active_joints.values()}
         if replacement_spec["parts"]:
-            config_path=replacement_spec["config"]
-            input_hashes[str(config_path)]=hashlib.sha256(config_path.read_bytes()).hexdigest()
-            receipt["assemblyMode"]="actual-stock-parts-with-explicit-replacements"
+            if index==target_index:
+                input_hashes.update(replacement_spec['inputs'])
+                receipt['assemblyMode']='declared-target-parts-with-verified-geometry-receipts'
+                receipt['targetPartReceipts']=replacement_spec['receipts']
+                receipt['retainedTargetStockParts']=replacement_spec['retainedTargetStockParts']
+                receipt['allOtherPartsFromDeclaredTargetStockAscii']=True
+            else:
+                config_path=replacement_spec["config"]
+                input_hashes[str(config_path)]=hashlib.sha256(config_path.read_bytes()).hexdigest()
+                receipt["assemblyMode"]="actual-stock-parts-with-explicit-replacements"
+                receipt["allOtherPartsFromStockAscii"]=True
             receipt["replacedParts"]=list(replacement_spec["parts"])
-            receipt["allOtherPartsFromStockAscii"]=True
         if directory:
             input_hashes[str((directory/'conversion.json').resolve())] = hashlib.sha256((directory/'conversion.json').read_bytes()).hexdigest()
             if json.loads((directory/'conversion.json').read_text()).get("rigMode")=="stock-exact":
-                stock_root=(args.baseline/'ascii'/(args.stock_prefix+'.mdl')).resolve()
+                stock_root=(args.baseline/'ascii'/(prefix+'.mdl')).resolve()
                 if root_path.read_bytes()!=stock_root.read_bytes():
                     raise RuntimeError("Exact stock candidate has a changed root")
-                stock_matrices,_=pose(args.baseline/'ascii',args.stock_prefix,args.clip,args.time,context=preparation)
+                stock_matrices,_=pose(args.baseline/'ascii',prefix,args.clip,args.time,context=preparation)
                 discrepancy=max(float(np.max(abs(matrices[j]-stock_matrices[j]))) for j in active_joints.values())
                 if discrepancy>1e-10:
                     raise RuntimeError("Candidate preview joint transforms differ from stock")
@@ -241,12 +271,26 @@ def main():
         receipt.update(label=label, height=height, displayScale=scale,
                        displayScalePolicy="legacy-converted-height-normalization" if directory else "native-stock-coordinates",
                        partInputs=input_hashes)
+        if index==target_index:
+            receipt['target']=target_receipt['target']
+            receipt['stockDiagnosticOnly']=not bool(replacement_spec['parts'])
+            receipt['diagnosticOnly']=True
+            receipt['rigPilotAccepted']=False
+            receipt['clientAccepted']=False
+            receipt['displayScalePolicy']='declared-target-native-coordinates'
+            receipt['partSourceClassification']={p:('verified-target-local-glb' if p in replacement_spec['parts']
+                                                     else 'declared-target-stock-ascii')
+                                                 for p in active_joints if p!='head' or args.include_heads}
+            receipt['partInputs'][str((args.target_assembly/'diagnostic.json').resolve())]=target_sha(args.target_assembly/'diagnostic.json')
+            receipt['partInputs'][str(args.target_contract.resolve())]=target_receipt['target']['targetContractSha256']
+            for resource,pin in target_receipt['resources'].items():
+                receipt['partInputs'][str((args.target_assembly/'ascii'/resource).resolve())]=pin
+        for input_path in receipt['partInputs']:
+            preparation.read(input_path)
         receipts.append(receipt)
         specimen_objects.append(display_objects)
     scene=bpy.context.scene
-    render_settings=apply_render_settings(scene,'eevee')
-    scene.eevee.use_gtao=True
-    scene.eevee.gtao_distance=.08
+    render_settings=apply_render_settings(scene,args.render_engine)
     scene.world.color=(.15,.15,.15)
     scene.view_settings.view_transform="Standard"
     scene.view_settings.look="Medium High Contrast"
@@ -356,10 +400,13 @@ def main():
             if hashlib.sha256(Path(path).read_bytes()).hexdigest() != expected:
                 raise RuntimeError('Preview input changed during rendering: '+path)
     if hashlib.sha256(Path(__file__).read_bytes()).hexdigest()!=code_hash:raise RuntimeError("Preview code changed during rendering")
+    verify_helpers(helper_manifest)
     preparation.verify()
-    (args.output/"comparison.json").write_text(json.dumps({"specimens":receipts,"focus":args.focus,"preparation":preparation.receipt(),"renderSettings":render_settings,
+    (args.output/"comparison.json").write_text(json.dumps({"specimens":receipts,"focus":args.focus,"preparation":preparation.receipt(),
         "cameraViews":[{"name":name,"direction":directions[name],"labelsOutsideProjectedGeometry":name in ("top","rear-top","left","right"),"specimenDisplayOffsetAxis":"Y" if name in ("left","right") else "X"} for name in args.view or ("front","rear","oblique")],
         "materialMode":args.material_mode,"codeSnapshot":"executed-pose-preview.py","codeSha256":code_hash,
+        'importedHelperSnapshots':helper_manifest,
+        'renderSettings':render_settings,
         'cameras':camera_receipts,
         "note":"Offline stock-controller comparison. Color uses declared GLB materials; undeclared stock ASCII fallback is clay. Actual client lighting/playback remain separate evidence."},indent=2)+"\n",encoding="utf-8")
     print(json.dumps(receipts))

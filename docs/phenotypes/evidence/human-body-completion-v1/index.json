@@ -1,0 +1,195 @@
+{
+ "kind": "curated-evidence-index",
+ "files": {
+  "body-hak-female.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/verification/candidate-body-female.json",
+   "sha256": "321d8688eaf2d696e3aacc593aa130dd6feda2cfb9c9ac8e613ed6d171cc9b30",
+   "bytes": 7394
+  },
+  "body-hak-male.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/verification/candidate-body-male.json",
+   "sha256": "ec0012297c675484df8eea40be925e68d399854103bafdd40f60c7a87671d55e",
+   "bytes": 7343
+  },
+  "candidate-verification.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/verification/verification.json",
+   "sha256": "b7a2037803efb04efc7d1905c41a16459f72b7e001f027eef854c53eca40af7d",
+   "bytes": 960
+  },
+  "client-session-v1.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-session-v1.json",
+   "sha256": "54ee19f5650e86ddac547e8a541aefa73f594742c73cd1cc6d7be610db12ff91",
+   "bytes": 6131
+  },
+  "client-session-v2.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-session-v2.json",
+   "sha256": "c3c3c7cc6aea48bd4f53ec1537d8f16edb6f3cc622402c595d003247bd4ec8f4",
+   "bytes": 9037
+  },
+  "character-creation-investigation.md": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/character-creation-investigation.md",
+   "sha256": "d84ad6e24cd0f79355a91c2802ede5848704ff23ee9e0c07367e68174092ba23",
+   "bytes": 4706
+  },
+  "gate4-ready.md": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/GATE4-READY.md",
+   "sha256": "4e7f5901c934335a9cae892b03a94092126a2514c412314d9299a8c63cefe18a",
+   "bytes": 7496
+  },
+  "candidate-diff-manifest.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/candidate/diff-manifest.json",
+   "sha256": "14bf9f19b6e73eeb9cd85d3c7544714889bb9d9e4d0e405608eafd9e2a45f2eb",
+   "bytes": 31270
+  },
+  "candidate-hak-build.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/candidate-hak/build.json",
+   "sha256": "daf4d6a9bcd970da54f41c5d3f98f24a5433325330ae14f9177ef5225d7caa36",
+   "bytes": 13934
+  },
+  "buildhaks-isolated-v1.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/buildhaks-v1.json",
+   "sha256": "76e3015693f8ba8a01ce57d4b7cdfaa9f3b38154cfc5273b24a64d1b0f39a8af",
+   "bytes": 1659
+  },
+  "promotion.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/promotion/promotion.json",
+   "sha256": "cf78e4b4e7fd1c736e1477d8d5d8127c88b0c218e32c8c2f984c954514c95e4e",
+   "bytes": 16056
+  },
+  "tracked-build.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/promotion/tracked-build.json",
+   "sha256": "284e74b65cc358fb323cc57e443ed44dec3395efe6da749c4e22dfd064714bde",
+   "bytes": 242
+  },
+  "test-repository-allpacks-gate4.log": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/test-repository-allpacks.log",
+   "sha256": "9d39375b7643f74bb2c60f586f5ea46245a3b6d43d1b17bfc4c6ca5484809bb6",
+   "bytes": 3551
+  },
+  "hak-chargen-v1-receipt.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/fixtures/hak-chargen-v1/test-module/receipt.json",
+   "sha256": "3cc11f31c3e2d911d089546ab140a829cf910d2555b9db78b7d9bd260e9c7555",
+   "bytes": 3129
+  },
+  "male-v1-parent-freeze.json": {
+   "source": "output/phenotypes/derived-v1/masters/human-male-v1/master-freeze.json",
+   "sha256": "787c917cb94fc1fca7734450b5682107b0c573269aeab1f540e434c00b8ead83",
+   "bytes": 24893
+  },
+  "female/gate3-sheets.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/lean-v1/gate3-sheets/sheets.json",
+   "sha256": "2e6f1d07e9631d2094e4a5269d06339e17bff4d72f07ef3b6525d9fa79717d66",
+   "bytes": 112380
+  },
+  "female/gate3-sheet-01-full-body-idle.png": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/lean-v1/gate3-sheets/sheet-01-full-body-idle.png",
+   "sha256": "0f9cc33b198655cb452e8206da7cb0e7eebc91ca17fd320846034cfefbab44ea",
+   "bytes": 1199488
+  },
+  "female/gate3-sheet-03-pelvis-hips-waistband.png": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/lean-v1/gate3-sheets/sheet-03-pelvis-hips-waistband-far-sides-centre.png",
+   "sha256": "58830cf8a915963c5dd8225fd1dc4f11db04cd7fe218b390ecf78944bd87dace",
+   "bytes": 3838491
+  },
+  "male/gate3-sheets.json": {
+   "source": "output/phenotypes/human-male-fix-v2/lean-v1/gate3-sheets/sheets.json",
+   "sha256": "241bda76a073ff912bfbfef797a44af2f8e6d0ed6b1084b9d2730a64bd232de7",
+   "bytes": 64429
+  },
+  "male/gate3-sheet-01-full-body-idle.png": {
+   "source": "output/phenotypes/human-male-fix-v2/lean-v1/gate3-sheets/sheet-01-full-body-idle.png",
+   "sha256": "1eb756144eafbd2b3c772e471fb0705cf53bd76fe3f287a940ef543efd709cb1",
+   "bytes": 1414021
+  },
+  "male/gate3-sheet-03-pelvis-brief-and-waist.png": {
+   "source": "output/phenotypes/human-male-fix-v2/lean-v1/gate3-sheets/sheet-03-pelvis-brief-and-waist.png",
+   "sha256": "e19fd33656546b19c3fa8839840e95929b6f4537019960ad2b6829ec2daed90f",
+   "bytes": 4060417
+  },
+  "user-directions/2026-10-06-gate2-and-pelvis-v5.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/user-directions/2026-10-06-gate2-and-pelvis-v5.json",
+   "sha256": "a7799d25365e36c825ad2c0974881bb6662622cad6c088044303a37ec44a420b",
+   "bytes": 3333
+  },
+  "user-directions/2026-10-08-contract-and-lean-pipeline.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/user-directions/2026-10-08-contract-and-lean-pipeline.json",
+   "sha256": "c1fd5059fbaa97070574b46cf16e0c296192fc6e55a1e7dca5e78e0fcaaa4e97",
+   "bytes": 868
+  },
+  "user-directions/2026-10-08-garments-dyeable.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/user-directions/2026-10-08-garments-dyeable.json",
+   "sha256": "5fb0c3722a64d69c94d2ec7498280f65830a2f4d920632b393e537d38f3632ac",
+   "bytes": 463
+  },
+  "user-directions/2026-10-08-gate3-lean-accept.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/user-directions/2026-10-08-gate3-lean-accept.json",
+   "sha256": "b8445512deeacf9f103d5ced4293e09ecd4aaa09ac01b1f8794e02e3772649f1",
+   "bytes": 685
+  },
+  "user-directions/2026-10-08-lean-budget-selection.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/user-directions/2026-10-08-lean-budget-selection.json",
+   "sha256": "f9c1eceab89f576807feda721b27325554d1348e7b1768ccbebda1f761a3067b",
+   "bytes": 829
+  },
+  "user-directions/2026-10-08-single-plt-per-part.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/user-directions/2026-10-08-single-plt-per-part.json",
+   "sha256": "a1cb06fb39c71ff05512db4fd298d26e5b2025b1235e29a82448bf3eb53f0145",
+   "bytes": 1082
+  },
+  "client-screens/chargen-female.jpg": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-screens/chargen-female.jpg",
+   "sha256": "4b3f224df23ede7720d2d972a710a3ffa66a15a22b9b3ffec162e5736e479d4b",
+   "bytes": 69800
+  },
+  "client-screens/chargen-male.jpg": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-screens/chargen-male.jpg",
+   "sha256": "34af3b04cd4fad8cc91d7d94e897dd7bd5d0b925273157e9b1f9a8cf7068d039",
+   "bytes": 122197
+  },
+  "client-screens/female-palette-red.jpg": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-screens/female-palette-red.jpg",
+   "sha256": "cafcd34fcfb2aa96d14ab79f275f2fd2db8f53aef6a163352c73707df40e1bbb",
+   "bytes": 45493
+  },
+  "client-screens/female-palette-undyed.jpg": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-screens/female-palette-undyed.jpg",
+   "sha256": "5f691bd00077ecf3527c333785d37f3e2ddf4dff643350d7a722e6d217345089",
+   "bytes": 47071
+  },
+  "client-screens/hak-smoke-male-blue.jpg": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-screens/hak-smoke-male-blue.jpg",
+   "sha256": "803e33857969b049fed73e979b5b6d00f618bb937838030ce8fd9fe0a10f1f94",
+   "bytes": 4933
+  },
+  "client-screens/male-palette-blue-p8.jpg": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-screens/male-palette-blue-p8.jpg",
+   "sha256": "0b92db5a7aa1ab96ce55e1d4f8b84d6a021370756a7ceee92888c68e3737d712",
+   "bytes": 143327
+  },
+  "client-screens/male-palette-red.jpg": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/gate4-v1/client-screens/male-palette-red.jpg",
+   "sha256": "1ade33643d8c7b37c2fa2285db38e836438691c9c50dd70e5377572304307b3d",
+   "bytes": 48864
+  },
+  "user-directions/2026-10-08-gate5-approval.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/user-directions/2026-10-08-gate5-approval.json",
+   "sha256": "e0d5b170719936e02436326e12b4aa311b4ec19247e7de68ae894b79c572ce94",
+   "bytes": 568
+  },
+  "user-directions/2026-10-08-production-accepted.json": {
+   "source": "output/phenotypes/human-female-fit-purposebuilt-v1/completion-v1/user-directions/2026-10-08-production-accepted.json",
+   "sha256": "b50c366f09d2f56704c63be1a93727995f5b2018148f207e4dc7dd63c74f7626",
+   "bytes": 411
+  }
+ },
+ "manifests": {
+  "female": {
+   "path": "docs/phenotypes/human-female-assets.json",
+   "sha256": "8198e667a32235b3d27db40a837659dd30a922769dd5e23351e38835539e7f88"
+  },
+  "male": {
+   "path": "docs/phenotypes/human-male-v2-assets.json",
+   "sha256": "991157756558c623d3b542b5b19f18d7c6cc00104ea76e607864edadf74fc0c7"
+  }
+ }
+}

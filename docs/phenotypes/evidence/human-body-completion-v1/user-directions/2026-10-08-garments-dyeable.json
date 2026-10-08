@@ -1,0 +1,7 @@
+﻿{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-08",
+  "userMessage": "garments should be dyeable",
+  "directions": { "garments": "Brief, bra/chest garment and any other body-part garment regions are encoded in PLT dye layers (cloth/leather) of the part's single PLT so they take the creature's colour channels, following stock NWN underwear." },
+  "confirms": "2026-10-08-single-plt-per-part.json interpretationToConfirm (garment colour into PLT layers)."
+}

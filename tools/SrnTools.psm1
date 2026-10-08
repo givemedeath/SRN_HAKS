@@ -115,10 +115,10 @@ function Register-SrnToolUse {
     $id = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($identity))).ToLowerInvariant()
     $folder = Join-Path $Tool.toolsRoot "consumers/$id"; New-Item -ItemType Directory -Force -Path $folder | Out-Null
     $lock = [IO.File]::Open((Join-Path $folder 'registration.lock'), 'OpenOrCreate', 'ReadWrite', 'ReadWrite')
-    if (-not $lock.Length) { $lock.WriteByte(48); $lock.Flush() }
     $acquired=$false; $end=[DateTime]::UtcNow.AddSeconds(30)
     try {
         while (-not $acquired) { try { $lock.Lock(0, 1); $acquired=$true } catch { if ([DateTime]::UtcNow -ge $end) { throw }; Start-Sleep -Milliseconds 50 } }
+        if (-not $lock.Length) { $lock.WriteByte(48); $lock.Flush() }
         $refs = @(@{path=$Tool.path; role='tool'; sha256=$Tool.sha256})
         foreach ($input in $Inputs) { $p=Resolve-SrnRealPath $input; $refs+=@{path=$p; role='input'; sha256=$(if (Test-Path $p -PathType Leaf) { (Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant() } else { $null })} }
         $current=Join-Path $folder 'current.json'

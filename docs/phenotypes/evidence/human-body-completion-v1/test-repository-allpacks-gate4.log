@@ -1,0 +1,56 @@
+Repository structure validated (26 registered HAK pack(s)).
+Built output\srn.tlk
+N [2026-10-08T11:14:30] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_common.hak (916 resources)
+N [2026-10-08T11:14:31] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_net01.hak (106 resources)
+N [2026-10-08T11:14:31] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_tbx78.hak (284 resources)
+N [2026-10-08T11:14:32] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_tjsb0.hak (528 resources)
+N [2026-10-08T11:14:32] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_vac01.hak (56 resources)
+N [2026-10-08T11:14:32] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_door.hak (335 resources)
+N [2026-10-08T11:14:33] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_2da.hak (18 resources)
+N [2026-10-08T11:14:33] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_dgt04.hak (797 resources)
+N [2026-10-08T11:14:34] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_fcx01.hak (1096 resources)
+N [2026-10-08T11:14:34] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_fifi.hak (128 resources)
+N [2026-10-08T11:14:35] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_flow_pa.hak (122 resources)
+N [2026-10-08T11:14:35] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_nac01.hak (60 resources)
+N [2026-10-08T11:14:35] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_shp02.hak (2095 resources)
+N [2026-10-08T11:14:36] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_sjm01.hak (464 resources)
+N [2026-10-08T11:14:37] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_srt04.hak (18 resources)
+N [2026-10-08T11:14:37] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_tfb01.hak (1531 resources)
+N [2026-10-08T11:14:38] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_udp1.hak (2108 resources)
+N [2026-10-08T11:14:40] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_udp2.hak (758 resources)
+N [2026-10-08T11:14:40] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_vmp01.hak (1233 resources)
+N [2026-10-08T11:14:41] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_vmr01.hak (601 resources)
+N [2026-10-08T11:14:42] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_t_zsf01.hak (257 resources)
+N [2026-10-08T11:14:43] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_skybox.hak (32 resources)
+N [2026-10-08T11:14:43] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_music.hak (142 resources)
+N [2026-10-08T11:14:46] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_sound.hak (17 resources)
+N [2026-10-08T11:14:52] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_placeable.hak (15245 resources)
+N [2026-10-08T11:15:17] erf: out erf header type set from filename to HAK
+Built and reopened output\srn_body.hak (72 resources)
+Repository verification passed.
+exit=0 seconds=258

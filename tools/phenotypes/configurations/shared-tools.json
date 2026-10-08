@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "kind": "phenotype-shared-toolchain",
+  "portability": "Historical schema-1 lock; machine paths are placeholders and hashes are unchanged. New runs bind installed runtimes in an ignored local binding created by tools/phenotypes/bind_shared_runtimes.py.",
+  "retiringWorktree": "<worktree-3a21>",
+  "tools": {
+    "armory": {
+      "path": "<tools-root>\\nwnarmory\\v1.3.4\\nwnarmory.exe",
+      "sha256": "08480e535e38d712a831575ea78cc8ed952629ee4705ae8d505cdba31fc01f7f"
+    },
+    "blender": {
+      "path": "<blender>",
+      "sha256": "e025451da5235c299660145e16cc219a8e09bc8ffda0affe6233dfe0e4949622"
+    },
+    "python": {
+      "path": "<python>",
+      "sha256": "372c2eae555b344520bf147be0096e009069aeca4e7f78d6aecea6d53158056a"
+    }
+  },
+  "addons": {
+    "root": "<tools-root>\\blender-addons",
+    "files": {
+      "neverblender/__init__.py": "f033d7b2d6fb1135be5db159dae9ae9609ed1d3f01a8a49a742d6ff0cbb17a67",
+      "neverblender/COPYING": "5220a7ab700b568136ff65182b41e9658f1a980c50fba36425f0ede86ac68652",
+      "neverblender/nvb_aabb.py": "165c2186160fa1545fb8e1b3658543b03019751724f1d110201d31790fceefaa",
+      "neverblender/nvb_anim.py": "442597c14f5fc071639c41987d9c8ad802754443087e644755de6471c7722059",
+      "neverblender/nvb_animnode.py": "e663d72adbaea9dcd826943dc029e10a0629b8e22dc6ccf27bf4f9d910ab2bcf",
+      "neverblender/nvb_def.py": "ab7f8eb6049d12fc20579545e1439d3050a7ed7f3a53724400b929c788e958e3",
+      "neverblender/nvb_material.py": "8f5487151d45fe3b6963dba9c8698f215e33cf36add7f016a4c9fc490f8a7d63",
+      "neverblender/nvb_materialnode.py": "01ee49cd117f29c70b4867e435a1628e88dc64b38805244a67829d8c54b3c0c9",
+      "neverblender/nvb_mdl.py": "05b6ddaed5768e03ae0ef4766656cfe5a6da6de1829414dc9561eee36a8814dd",
+      "neverblender/nvb_mtr.py": "6164e59fc252fee3821781b243376aa731ce29649153651c01515dbf0d53369c",
+      "neverblender/nvb_node.py": "92db2c7ab168a8fe5620e2b116bcbd4c64d753edd00101f63e6f21221ecd2b3a",
+      "neverblender/nvb_ops.py": "a7d8e1d8444d43687f940099a9fb2450ca95aab5cba8b2175b8796545ea4a491",
+      "neverblender/nvb_ops_amt.py": "42cfa3d46d8b69c658d1641cafa7595c2914f66dde7589d9b3d229543ed32fe6",
+      "neverblender/nvb_ops_anim.py": "666aad9cef8c4fcfea3c606eb417ac2dd314c865cf98831bd24aa1e3bcd85dad",
+      "neverblender/nvb_ops_io.py": "6276e82f148f506f2b6c229e7fb1e00941d4dce652e1d4e444bcb643efb05188",
+      "neverblender/nvb_ops_mtr.py": "1a52135d2347919946f74352fe0d62cdf036db37617b34fec7f6130db86e26f9",
+      "neverblender/nvb_ops_node.py": "540c71822dc444b9502881f666bb373d15ece37a78c14e5e19dd87113884f9c0",
+      "neverblender/nvb_ops_set.py": "edd0ca3987b54a90aa6edbdebdf16d78802a2337da906130c75c587d19d0ee6a",
+      "neverblender/nvb_parse.py": "62718d47c3a61736a8dec8683723161442966f5dd306c607b9665e80f9c95570",
+      "neverblender/nvb_props.py": "d19dde2f5939952cebd2fad6a8e7f3594921137351b55f270347e950865a7675",
+      "neverblender/nvb_ui.py": "2db3db9ef19e02e48369ffdfd9631815542f8d2ebb175a909dc1b7b899730ae8",
+      "neverblender/nvb_utils.py": "024219a8a136775f2791b7cf011d1bc1c6c17331e1c587d82653550c6c5bf7f1"
+    },
+    "cachePolicy": "Derived __pycache__/pyc/pyo excluded; every source/license file is pinned."
+  },
+  "launchPolicy": "New CLI runs use launch_shared_tool.py with this configuration and the completed migration receipt. Blender uses factory background startup and verified shared addon bootstrap; no user preference changes."
+}

@@ -1,0 +1,31 @@
+{
+ "kind": "candidate-srn_body-buildhaks-run",
+ "command": "pwsh -NoProfile -File <root>\\tools\\Build-Haks.ps1 -Pack srn_body -SkipTlk  (SRN_TOOLS_ROOT=<tools-root>)",
+ "pwsh": "<pwsh> (7.6.6)",
+ "root": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\buildhaks-root-v1",
+ "rootNote": "Isolated build root: byte-identical copies of the tracked tools (Build-Haks.ps1, SrnHaks.Common.psm1, SrnTools.psm1, Bootstrap-Tools.ps1, shared_tools.py, toolchain/shared-tools locks) and a hakbuilder.json registering only srn_body -> ./srn_body (hard links of the staging copy), output ./output/. Tracked hakbuilder.json, srn_body and hak/ untouched.",
+ "toolCopiesIdentical": {
+  "Bootstrap-Tools.ps1": true,
+  "Build-Haks.ps1": true,
+  "shared-tools.lock.json": true,
+  "shared_tools.py": true,
+  "SrnHaks.Common.psm1": true,
+  "SrnTools.psm1": true,
+  "toolchain.lock.json": true
+ },
+ "hakbuilder": {
+  "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\buildhaks-root-v1\\hakbuilder.json",
+  "sha256": "b65c58c1587186a6709884418688cce2feadd4e5cfe5cb03ea77f92e60d034f2"
+ },
+ "hak": {
+  "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\buildhaks-root-v1\\output\\srn_body.hak",
+  "sha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325"
+ },
+ "standInHak": {
+  "path": "output\\phenotypes\\human-female-fit-purposebuilt-v1\\completion-v1\\gate4-v1\\candidate-hak\\srn_body.hak",
+  "sha256": "b1d4112e4cb6f140d813f7740351c5f46718504662b1853375c1bff38c835325"
+ },
+ "byteIdenticalToStandIn": true,
+ "resources": 140,
+ "clientLaunched": false
+}

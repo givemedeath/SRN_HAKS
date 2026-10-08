@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-08",
+  "context": "After the in-game LEAN prototype test (poly-budget-lean-ingame-v1, client-review-v1).",
+  "userMessage": "1, 2, and 3: LEAN but fix the female defects",
+  "directions": {
+    "budgetTier": "LEAN (female ~36.0k, male ~38.25k triangles) selected for both sexes",
+    "femaleDefects": "Investigate and fix the dark ragged specks on skin at the brief edge (front waistband, hip, buttock) seen in client",
+    "diskCleanup": "Archive-verify-remove the ~26 GB of remaining male m3 draft renders (renders-v2e, renders-v2h/i/j/k/l-cmp, build-v1b) despite their historical shared-tool input declarations"
+  },
+  "notApproved": "No geometry, material, client or production acceptance of the LEAN bodies; no publication. Final PR still requires explicit user approval."
+}

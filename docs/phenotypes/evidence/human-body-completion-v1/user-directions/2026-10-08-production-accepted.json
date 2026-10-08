@@ -1,0 +1,7 @@
+﻿{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-08",
+  "context": "PR #42 review: female manifest productionAccepted was false while the PR would ship the bodies.",
+  "userMessage": "productionAccepted set to true",
+  "directions": { "productionAccepted": "Set productionAccepted to true in the published Human body manifests (female and male v2) in PR #42; status text updated to final-user-approved." }
+}
