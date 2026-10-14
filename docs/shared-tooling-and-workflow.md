@@ -16,9 +16,9 @@ reject stale expected hashes. A manifest hash already verified in this launch is
 reused when freezing; dependency registration uses that same synchronous snapshot.
 Other registration callers continue to perform independent byte checks.
 
-The launcher supplies `SRN_VERIFIED_INPUTS` to the child for bookkeeping. The
-gallery checks binding pins against that declared snapshot and reads native HAK
-payloads independently. A failed post-execution verification prevents the wrapper
+The launcher supplies `SRN_VERIFIED_INPUTS` to the child for bookkeeping. A
+child may check binding pins against that declared snapshot and must read native
+HAK payloads independently. A failed post-execution verification prevents the wrapper
 from publishing delivery copies. This is per-launch reuse, not a persistent cache
 that trusts timestamps or bypasses stale-input checks.
 
@@ -270,7 +270,7 @@ package-qualified with the invoking interpreter. Unknown or uncovered changes,
 unresolved dependencies, shared infrastructure listed in `tools/ci-scope.json`
 and shared helpers trigger the full Python suite. A helper or configuration is
 shared when its dependent tests span more than one suite folder (phenotypes,
-heads, robes, gallery, the PhenoMorpher package or root tools). Markdown that no test reads selects no helper tests;
+heads, robes, the PhenoMorpher package or root tools). Markdown that no test reads selects no helper tests;
 `srn_*` asset changes select tests that name that pack. Dynamic dependencies still
 require full-suite review; focused selection is a convenience, not a release gate.
 Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers

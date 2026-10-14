@@ -19,9 +19,8 @@ Orc and Troll, and an Elf female donor.
 The merged `codex/derived-phenotypes` branch supplies male body contracts for all
 five races. All six male candidates have passed native checks.
 The Elf female donor stays pending until an approved female body contract exists.
-The [gallery module](../../test-modules/srn_gallery/README.md) prestages all six
-male candidates in separate body and Clothing 1 rows alongside its refreshable
-repository content catalog. See the [startup investigation](../gallery/startup-investigation.md).
+The gallery module that prestaged all six male candidates was removed on
+2026-10-14 pending a redesign. See the historical [startup investigation](../gallery/startup-investigation.md).
 
 The pilot uses the Meshy plugin CLI at the user's request, superseding the
 original MCP route. CLI 0.4.0's live command schemas were inspected before paid
