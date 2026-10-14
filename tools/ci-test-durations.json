@@ -1,7 +1,6 @@
 {
  "source": "Local Windows run of every helper suite with unittest --durations 0 (2026-10-14, main ba77021a); seconds per test module. Two modules re-measured after content-keyed import caches.",
  "seconds": {
-  "tools/gallery/test_gallery.py": 0.4,
   "tools/heads/test_atlas_allowance.py": 0.13,
   "tools/heads/test_budget_extension.py": 0.26,
   "tools/heads/test_derived_assembly.py": 0.11,

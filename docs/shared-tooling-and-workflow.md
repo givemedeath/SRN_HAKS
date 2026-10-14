@@ -16,9 +16,9 @@ reject stale expected hashes. A manifest hash already verified in this launch is
 reused when freezing; dependency registration uses that same synchronous snapshot.
 Other registration callers continue to perform independent byte checks.
 
-The launcher supplies `SRN_VERIFIED_INPUTS` to the child for bookkeeping. The
-gallery checks binding pins against that declared snapshot and reads native HAK
-payloads independently. A failed post-execution verification prevents the wrapper
+The launcher supplies `SRN_VERIFIED_INPUTS` to the child for bookkeeping. A
+child may check binding pins against that declared snapshot and must read native
+HAK payloads independently. A failed post-execution verification prevents the wrapper
 from publishing delivery copies. This is per-launch reuse, not a persistent cache
 that trusts timestamps or bypasses stale-input checks.
 
