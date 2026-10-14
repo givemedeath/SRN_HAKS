@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from .audit_geometry import arrays
 from .retarget import NODE
-from .silhouette_model import decode,frames,ascii_model
+from .silhouette_model import decode,frames,ascii_model,native_node_name
 from .target_contract import PART_JOINTS
 
 def require(value,message):
@@ -40,15 +40,16 @@ def native_attributes(data,model,expected_meshes):
         off,n,cap=struct.unpack_from('<III',data,at)
         require(n<=cap,'Native array capacity differs');region(off,n*width)
         return off,n
-    root=u32(12+0x48);pending=[root];seen=set();names=set();records={}
+    root=u32(12+0x48);pending=[root];seen=set();names=set();source_names={};records={}
     while pending:
         off=pending.pop();require(off not in seen and len(seen)<4096,'Native cycle/shared child')
         seen.add(off);at=region(off,0x70)
         blob=data[at+0x20:at+0x40];require(b'\0' in blob,'Unterminated node name')
-        name=blob.split(b'\0',1)[0].decode('ascii').lower();require(name not in names,'Duplicate native node');names.add(name)
+        name=blob.split(b'\0',1)[0].decode('ascii').lower()
         flags=u32(at+0x6c);require(flags in (1,33,289),'Unsupported rigid native node')
         children,nchildren=array(at+0x48,4)
-        pending.extend(u32(region(children+4*i,4)) for i in range(nchildren))
+        name=native_node_name(name,flags,nchildren,source_names,names)
+        pending.extend(u32(region(children+4*i,4)) for i in reversed(range(nchildren)))
         if flags==1:continue
         region(off,0x264);face_off,nfaces=array(at+0x78,32)
         n,uv_count=struct.unpack_from('<HH',data,at+0x230)

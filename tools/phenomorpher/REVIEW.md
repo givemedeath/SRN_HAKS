@@ -51,3 +51,16 @@ the existing NWN geometry decoder; regression coverage exercises an accented
 material name and a Windows-1252 comment through the public API and CLI. The
 intended tolerance signs and gate range are restored as UTF-8. See the additive
 follow-up validation receipt; the original release receipt remains unchanged.
+
+## Second PR review follow-up
+
+Native geometry and attribute readers now share one naming policy for duplicate
+unreferenced leaf dummies and reject synthetic-name collisions. Attribute
+traversal follows geometry child order; tests cover full source-attribute attachment
+as well as preservation of both distinct attachment transforms.
+
+Measurement migration verification now requires the exact Python-only allowlist
+and unchanged frozen smoke files, and rejects uncovered explicit or default tool
+requests. Broader/head and historical unscoped migration behavior remains separately
+validated. See the additive second follow-up receipt for the complete helper run
+and the real 57-node Human Female native inspection.

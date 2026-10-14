@@ -130,7 +130,8 @@ Run the complete package tests with:
 ```
 
 The [pre-publication review](REVIEW.md) records resolved implementation findings.
-The [review follow-up receipt](review-followup-validation.json) covers later corrections.
+The [first review follow-up](review-followup-validation.json) and
+[second review follow-up](review-followup-2-validation.json) cover later corrections.
 The original release [validation receipt](validation.json) records tests, real-asset smokes
 and wheel isolation. `source-lineage.json` pins the adopted project modules; their
 numerical algorithms are retained with package-relative imports. Historical

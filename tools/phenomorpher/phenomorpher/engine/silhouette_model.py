@@ -90,6 +90,23 @@ def ascii_model(text):
     return skeleton, meshes
 
 
+def native_node_name(name, flags, child_count, source_names, internal_names):
+    """One identity policy for geometry and attribute traversal of rigid native trees."""
+    require(name, 'Empty native node name')
+    original = name
+    if original in source_names:
+        previous_flags, previous_children, copies = source_names[original]
+        require(flags == previous_flags == 1 and child_count == previous_children == 0
+                and original not in PART_JOINTS.values(), 'Duplicate native mesh/joint/parent name')
+        source_names[original] = (flags, child_count, copies + 1)
+        name += '__duplicate_' + str(copies + 1)
+    else:
+        source_names[original] = (flags, child_count, 1)
+    require(name not in internal_names, 'Duplicate internal native node name')
+    internal_names.add(name)
+    return name
+
+
 def native_model(data, model):
     require(len(data) >= 12, 'Truncated native header')
     zero, raw_offset, raw_size = struct.unpack_from('<III', data)
@@ -109,6 +126,7 @@ def native_model(data, model):
     root, declared_count = struct.unpack_from('<II', data, block(0, 0x50) + 0x48)
     skeleton, meshes, visited = {}, [], set()
     source_names = {}
+    node_names = set()
 
     def visit(offset, parent):
         require(offset not in visited and len(visited) < 4096, 'Native node cycle/shared child/excessive tree')
@@ -117,17 +135,8 @@ def native_model(data, model):
         flags = struct.unpack_from('<I', data, node + 0x6c)[0]
         require(flags in (1, 33, 289), 'Unsupported native node flags: ' + str(flags))
         name = data[node + 32:node + 64].split(b'\0')[0].decode('ascii').lower()
-        require(name, 'Empty native node name')
         children, nchildren = array(node, 0x48, 4)
-        if name in source_names:
-            previous_flags, previous_children, copies = source_names[name]
-            require(flags == previous_flags == 1 and nchildren == previous_children == 0
-                    and name not in PART_JOINTS.values(), 'Duplicate native mesh/joint/parent name')
-            source_names[name] = (flags, nchildren, copies + 1)
-            name += '__duplicate_' + str(copies + 1)
-            require(name not in skeleton, 'Duplicate internal native node name')
-        else:
-            source_names[name] = (flags, nchildren, 1)
+        name = native_node_name(name, flags, nchildren, source_names, node_names)
         row = {'parent': parent, 'position': np.zeros(3), 'orientation': [0, 0, 0, 0], 'scale': 1.0}
         keys, count = array(node, 0x54, 12)
         values, nvalues = array(node, 0x60, 4)

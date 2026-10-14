@@ -103,3 +103,44 @@ class PortableCliTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'stale source binding'):
                     cli.main(['replay','--release',str(root),'--output',str(root/'out')])
             self.assertFalse((root/'out').exists())
+
+    def test_attribute_reader_keeps_stock_duplicate_attachments_with_mesh_attributes(self):
+        from .engine.test_phenomorpher_scene_v15a import fixture
+        from .engine.phenomorpher_scene_v15b import attach_source_attributes
+        from .engine.silhouette_model import assemble
+        data=bytearray(fixture())
+        struct.pack_into('<I',data,12+0x4c,5)
+        struct.pack_into('<III',data,12+0xe8+0x48,0x550,3,3)
+        struct.pack_into('<III',data,12+0x550,0x158,0x580,0x5f0)
+        for offset,key_offset,value_offset,x in ((0x580,0x660,0x680,1.),(0x5f0,0x690,0x6b0,2.)):
+            at=12+offset;data[at+32:at+39]=b'Impact\0'
+            struct.pack_into('<I',data,at+0x6c,1)
+            struct.pack_into('<III',data,at+0x54,key_offset,1,1)
+            struct.pack_into('<III',data,at+0x60,value_offset,3,3)
+            struct.pack_into('<ihhhbb',data,12+key_offset,8,1,0,0,3,0)
+            struct.pack_into('<fff',data,12+value_offset,x,0,0)
+        with tempfile.TemporaryDirectory() as tmp:
+            source=Path(tmp)/'test.mdl';source.write_bytes(data)
+            skeleton,attributes,_=api.read_attributes(source)
+            self.assertEqual(len(skeleton),5)
+            np.testing.assert_array_equal(skeleton['impact']['position'],[1,0,0])
+            np.testing.assert_array_equal(skeleton['impact__duplicate_2']['position'],[2,0,0])
+            np.testing.assert_array_equal(attributes['mesh']['faces'],[[0,1,2]])
+            np.testing.assert_array_equal(attributes['mesh']['color'].reshape(-1),[0xffffffff,0x01234567,0x89abcdef])
+            meshes,_=assemble(source,{})
+            attached=attach_source_attributes(meshes,meshes,{'rig':source,'parts':{}})
+            self.assertEqual(len(attached),1)
+            np.testing.assert_array_equal(attached[0]['sourceAttributes']['faces'],attributes['mesh']['faces'])
+            self.assertEqual(source.read_bytes(),bytes(data))
+
+    def test_both_native_traversals_reject_ambiguous_duplicates_and_internal_collisions(self):
+        from .engine.phenomorpher_scene_v15b import native_attributes
+        collision=bytearray(duplicate_fixture())
+        struct.pack_into('<I',collision,12+0x4c,4)
+        struct.pack_into('<III',collision,12+0xe8+0x48,0x500,3,3)
+        struct.pack_into('<III',collision,12+0x500,0x158,0x1c8,0x238)
+        at=12+0x238;name=b'impact__duplicate_2\0';collision[at+32:at+32+len(name)]=name
+        struct.pack_into('<I',collision,at+0x6c,1)
+        for payload in (duplicate_fixture(second_flags=33),duplicate_fixture(name='pelvis_g'),duplicate_fixture(first_has_child=True),bytes(collision)):
+            for read in (lambda:native_model(payload,'test'),lambda:native_attributes(payload,'test',set())):
+                with self.subTest(),self.assertRaisesRegex(ValueError,'Duplicate'):read()

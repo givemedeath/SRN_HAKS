@@ -208,8 +208,8 @@
       "module": "phenomorpher_scene_v15b",
       "source": "phenomorpher_scene_v15b.py",
       "sourceSHA256": "547110dca8fdf100f15e3b5a1e7db8690731205bd5c72aa097caa0ad28071931",
-      "packagedSHA256": "6db8112335f20c8a97d7c471038390708bdf2863b1ddbcd512e183a7bf6d61a9",
-      "modifications": "Package-relative imports and LF encoding; ASCII attribute reading uses CP1252 to match the NWN geometry decoder. Native decoding, numerical geometry and source attributes remain unchanged."
+      "packagedSHA256": "9671e567035d0f033c62b5922fefd060c963671d11850d0a8b37c300b08bd9bd",
+      "modifications": "Package-relative imports and LF encoding; ASCII attribute reading uses CP1252 to match the NWN geometry decoder. Native decoding, numerical geometry and source attributes remain unchanged. Geometry and attribute traversal share one safe duplicate native leaf identity policy, including collision rejection; attributes follow geometry traversal order."
     },
     {
       "module": "pipeline",
@@ -271,8 +271,8 @@
       "module": "silhouette_model",
       "source": "silhouette_model.py",
       "sourceSHA256": "ebc943c11334cfabe39863f2fdb2074f1c80177d157bd121fd245624be55b522",
-      "packagedSHA256": "7caad7eb53f0f5e9d27a7ea2426f3eb31472ac2328b50356d4c66d32a5f43aec",
-      "modifications": "Package-relative imports; preserve duplicate unreferenced native leaf dummies as distinct internal nodes, matching existing ASCII handling. Mesh, joint and parent duplicate names remain rejected."
+      "packagedSHA256": "26ac2db20c97451327b72d6dca8a5fa83cfcbaa40919ab91c0e654beb5a8a8da",
+      "modifications": "Package-relative imports; preserve duplicate unreferenced native leaf dummies as distinct internal nodes, matching existing ASCII handling. Mesh, joint and parent duplicate names remain rejected. Geometry and attribute traversal share one safe duplicate native leaf identity policy, including collision rejection; attributes follow geometry traversal order."
     },
     {
       "module": "silhouette_reference",

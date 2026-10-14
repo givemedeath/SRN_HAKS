@@ -70,6 +70,31 @@ class SharedToolchainTests(unittest.TestCase):
         self.assertEqual(load(self.path,receipt,required=['python','blender']),self.data)
         self.assertEqual(load(self.path,receipt,required=['python']),self.data)
 
+    def measurement_receipt(self):
+        smoke=self.root/'measurement-smoke.json';smoke.write_text('{}',encoding='utf-8')
+        data={'kind':'phenotype-shared-tool-migration','scope':'measurement-tools','smokeChecksPassed':True,
+              'allowedTools':['python'],'frozenSmokeFiles':[{'path':str(smoke),'sha256':sha(smoke)}],
+              'toolchain':{'path':str(self.path),'sha256':sha(self.path)}}
+        receipt=self.root/'measurement-migration.json';receipt.write_text(json.dumps(data),encoding='utf-8')
+        return receipt,data,smoke
+
+    def test_measurement_only_migration_rejects_every_uncovered_tool_and_default_inventory(self):
+        receipt,_,_=self.measurement_receipt()
+        self.assertEqual(load(self.path,receipt,required=['python']),self.data)
+        for required in (None,[],['blender'],['armory'],['python','blender']):
+            with self.subTest(required=required),self.assertRaisesRegex(ValueError,'Measurement-only migration does not cover'):
+                load(self.path,receipt,required=required)
+
+    def test_measurement_scope_requires_exact_allowlist_frozen_smoke_and_unchanged_bytes(self):
+        receipt,original,smoke=self.measurement_receipt()
+        for changes in ({'allowedTools':['python','blender']},{'allowedTools':[]},{'allowedTools':'python'},{'frozenSmokeFiles':[]}):
+            receipt.write_text(json.dumps({**original,**changes}),encoding='utf-8')
+            with self.subTest(changes=changes),self.assertRaisesRegex(ValueError,'Python-only scope and frozen smokes'):
+                load(self.path,receipt,required=['python'])
+        receipt.write_text(json.dumps(original),encoding='utf-8');smoke.write_text('changed',encoding='utf-8')
+        with self.assertRaisesRegex(ValueError,'Measurement migration smoke changed'):
+            load(self.path,receipt,required=['python'])
+
 
 if __name__=='__main__':unittest.main()
 

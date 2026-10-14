@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "kind": "PhenoMorpher-review-followup-2-validation",
+  "baseCommit": "a4b59d8141f15540191fd3e5fa4ba1d92bcd3af2",
+  "reviewFindings": [
+    4266259490,
+    4266259495
+  ],
+  "fixes": [
+    "Native geometry and attribute readers share duplicate-leaf identity policy and traversal order.",
+    "Measurement-only migration receipts permit Python only and require unchanged frozen smokes."
+  ],
+  "tests": [
+    {
+      "suite": "package",
+      "testsRun": 87,
+      "passed": true,
+      "skipped": 0,
+      "logSHA256": "ffe0e177bcf6130e688badd442e8c31286c224bd792afb1c5b4993cddfb120f7"
+    },
+    {
+      "suite": "installed-wheel",
+      "testsRun": 87,
+      "passed": true,
+      "skipped": 0,
+      "logSHA256": "ad3748aa0d102b7cab50493b0b8fafd262b39a3858a832c730baaf067ebece1d"
+    },
+    {
+      "suite": "full-phenotype-helpers",
+      "testsRun": 1332,
+      "passed": true,
+      "skipped": 2,
+      "logSHA256": "115f69f7885a3223479ae12aad335030c5312dbf6ce028ce0e7d2f00b231f35f"
+    }
+  ],
+  "wheel": {
+    "name": "srn_phenomorpher-1.0.0-py3-none-any.whl",
+    "bytes": 242445,
+    "sha256": "36fdad6e4768ac361326dc9bcfe9852edd606757e68d5f98eb61b64456dc86af",
+    "isolatedInstallation": true
+  },
+  "sourceLineageSHA256": "96099f694e67672c4b0f6fd60e4de2ca55e698c2aa84b472d54d2edc508ce78e",
+  "sharedVerifierSHA256": "4998cb964e59f138df4bac8569d0625ccba030a1784fad49539c5ef38db4a805",
+  "registeredSmokes": [
+    {
+      "id": "pr44-round2-doctor-smoke",
+      "receiptSHA256": "ffb5889cc2430e9c0b5bdf5f5ff5cecfd89520c877b3c0059a261491795892f6",
+      "exitCode": 0,
+      "inputsUnchanged": true
+    },
+    {
+      "id": "pr44-round2-female-native-info",
+      "receiptSHA256": "76e7d81d42141423225e5b26d9a470a167ec5e1d7127cae0c7be169d3d6630c0",
+      "exitCode": 0,
+      "inputsUnchanged": true
+    }
+  ],
+  "realFemaleRig": {
+    "nodes": 57,
+    "meshes": [
+      {
+        "node": "rootdummy",
+        "vertices": 8,
+        "triangles": 12,
+        "attributes": [
+          "normal"
+        ]
+      }
+    ],
+    "sourceSHA256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+    "sourceUnchanged": true
+  },
+  "scopeCases": [
+    "Explicit Python permitted.",
+    "Explicit Blender and Armory denied.",
+    "Default/all-tool and empty-required requests denied on broader configurations.",
+    "Broadened/missing allowlist and missing/drifted smoke rejected."
+  ],
+  "pr45Changed": false,
+  "bodiesOrRigsChanged": false,
+  "gameClientUsed": false,
+  "subagentsUsed": false,
+  "priorValidationReceiptsChanged": false
+}
