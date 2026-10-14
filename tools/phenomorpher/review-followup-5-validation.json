@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "PhenoMorpher-review-followup",
+  "round": 5,
+  "findings": [
+    "Use shared absolute tolerance for coplanar vertices and horizontal edges",
+    "Correct release links: shipped Human donors PR42, separate full phenotype assets PR45"
+  ],
+  "validation": {
+    "sourcePackageTests": 91,
+    "installedWheelTests": 91,
+    "repositoryFinalizerTests": 4,
+    "sourceLineageHashes": "passed",
+    "sharedRepositoryHelpersChanged": false
+  },
+  "wheelSha256": "ac8733de5174e459a83ab7592554a612e0eb629ae0039985d61b143c482803c7",
+  "limits": {
+    "bodyAssetsShapesRigsChanged": false,
+    "clientTesting": false,
+    "PR45Changed": false
+  }
+}

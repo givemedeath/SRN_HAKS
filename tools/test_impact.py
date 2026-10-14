@@ -9,23 +9,42 @@ import sys
 REPO=Path(__file__).resolve().parent.parent
 
 def catalog(repo=REPO):
-    files=sorted((repo/'tools').rglob('*.py'))
-    files=[p for p in files if 'vendor' not in p.parts and '__pycache__' not in p.parts]
+    all_files=sorted(p for p in (repo/'tools').rglob('*') if p.is_file()
+                     and not set(p.parts)&{'vendor','__pycache__','build','dist','.venv'}
+                     and not any(part.endswith('.egg-info') for part in p.parts))
+    files=[p for p in all_files if p.suffix=='.py'];file_set=set(files)
+    literal_index={}
+    for p in all_files:literal_index.setdefault(p.name,[]).append(p)
     dependencies={};unresolved=[]
     for path in files:
         rel=path.relative_to(repo).as_posix();edges=set()
         tree=ast.parse(path.read_text(encoding='utf-8-sig'))
         for node in ast.walk(tree):
-            names=[]
-            if isinstance(node,ast.Import):names=[row.name for row in node.names]
-            if isinstance(node,ast.ImportFrom) and node.module:names=[node.module]
-            for name in names:
-                leaf=name.split('.')[0];matches=[p for p in files if p.stem==leaf]
+            imports=[]
+            if isinstance(node,ast.Import):imports=[(row.name,0) for row in node.names]
+            if isinstance(node,ast.ImportFrom):
+                imports=[(node.module,node.level)] if node.module else []
+                imports.extend(((node.module+'.' if node.module else '')+row.name,node.level) for row in node.names if row.name!='*')
+            for name,level in imports:
+                base=path.parent
+                if level:
+                    for _ in range(level-1):base=base.parent
+                candidates=[base.joinpath(*name.split('.')).with_suffix('.py'),base.joinpath(*name.split('.'))/'__init__.py']
+                local=[p for p in candidates if p in file_set]
+                if local:matches=local
+                elif level:matches=[]
+                else:
+                    module_suffix='/'.join(name.split('.'))
+                    matches=[p for p in files if p.as_posix().endswith('/'+module_suffix+'.py') or p.as_posix().endswith('/'+module_suffix+'/__init__.py')]
                 if len(matches)>1:unresolved.append(rel)
                 edges.update(p.relative_to(repo).as_posix() for p in matches)
             if isinstance(node,ast.Constant) and isinstance(node.value,str) and not any(c in node.value for c in '*?[') and node.value.endswith(('.py','.json','.ps1','.psm1')):
                 # Match unique tracked literals, including helper launches and with_name configs.
-                matches=[p for p in (repo/'tools').rglob(Path(node.value).name) if p.is_file() and 'vendor' not in p.parts]
+                literal=Path(node.value);qualified=repo/literal;relative=path.parent/literal
+                if qualified.is_file():matches=[qualified]
+                elif relative.is_file():matches=[relative]
+                elif (path.parent/literal.name).is_file():matches=[path.parent/literal.name]
+                else:matches=literal_index.get(literal.name,[])
                 if len(matches)>1:unresolved.append(rel)
                 edges.update(p.relative_to(repo).as_posix() for p in matches)
         dependencies[rel]=sorted(edges-{rel})

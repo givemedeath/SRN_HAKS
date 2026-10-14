@@ -19,6 +19,43 @@ def tree_files(root):
     return sorted(p.resolve() for p in root.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
 
 
+def manifest_inputs(manifests):
+    expected = {}
+    for manifest in manifests:
+        rows = json.loads(manifest.read_text(encoding='utf-8'))
+        if not isinstance(rows, list) or not rows:
+            raise ValueError('Nonempty explicit input manifest required')
+        for row in rows:
+            path = Path(row['path']).resolve()
+            if path in expected and expected[path] != row['sha256']:
+                raise ValueError('Conflicting manifest input pin: ' + str(path))
+            expected[path] = row['sha256']
+    verified = {}
+    for path, expected_digest in expected.items():
+        if not path.is_file():
+            raise ValueError('Manifest input changed: ' + str(path))
+        digest = sha(path)
+        if digest != expected_digest:
+            raise ValueError('Manifest input changed: ' + str(path))
+        verified[str(path)] = digest
+    return list(expected), verified
+
+
+def helper_snapshots(inputs, frozen, output):
+    snapshots = {}
+    (output / 'helper-snapshots').mkdir()
+    for path in inputs:
+        if path.suffix == '.py':
+            digest = frozen[str(path.resolve())]
+            copied = output / 'helper-snapshots' / (digest[:12] + '-' + path.name)
+            shutil.copyfile(path, copied)
+            copied_digest = sha(copied)
+            if copied_digest != digest:
+                raise ValueError('Helper changed during snapshot')
+            snapshots[str(path)] = {'snapshot': str(copied), 'sha256': copied_digest}
+    return snapshots
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--toolchain',type=Path,required=True)
@@ -57,17 +94,7 @@ def main():
         command+=['--factory-startup','-b','-t','4','--python-exit-code','1','--python',
                   str(Path(__file__).with_name('bootstrap_shared_blender_addons.py').resolve())]
     command+=argv
-    declared=[];verified={}
-    for manifest in args.input_manifest:
-        rows=json.loads(manifest.read_text(encoding='utf-8'))
-        if not isinstance(rows,list) or not rows:raise ValueError('Nonempty explicit input manifest required')
-        for row in rows:
-            path=Path(row['path']).resolve()
-            if not path.is_file():raise ValueError('Manifest input changed: '+str(path))
-            digest=sha(path)
-            if digest!=row['sha256']:raise ValueError('Manifest input changed: '+str(path))
-            verified[str(path)]=digest
-            declared.append(path)
+    declared,verified=manifest_inputs(args.input_manifest)
     for manifest in args.input_path_list:
         rows=json.loads(manifest.read_text(encoding='utf-8'))
         if not isinstance(rows,list) or not rows or not all(isinstance(row,str) for row in rows):raise ValueError('Nonempty explicit input path list required')
@@ -81,17 +108,12 @@ def main():
     if migration:inputs.append(migration)
     trees={str(root.resolve()):tree_files(root) for root in args.input_tree}
     for files in trees.values():inputs.extend(files)
-    inputs=list(dict.fromkeys(inputs))
+    inputs=list(dict.fromkeys(p.resolve() for p in inputs))
     frozen={}
     for p in inputs:
         key=str(p.resolve())
         if key not in frozen:frozen[key]=verified[key] if key in verified else sha(p)
-    snapshots={};(output/'helper-snapshots').mkdir()
-    for path in inputs:
-        if path.suffix=='.py':
-            copied=output/'helper-snapshots'/(sha(path)[:12]+'-'+path.name);shutil.copyfile(path,copied)
-            if sha(copied)!=frozen[str(path.resolve())]:raise ValueError('Helper changed during snapshot')
-            snapshots[str(path)]={'snapshot':str(copied),'sha256':sha(copied)}
+    snapshots=helper_snapshots(inputs,frozen,output)
     repo=Path(__file__).resolve().parents[2]
     snapshot=output/'verified-inputs.json'
     snapshot.write_text(json.dumps({'kind':'verified-shared-input-snapshot','files':frozen},indent=2)+'\n',encoding='utf-8')

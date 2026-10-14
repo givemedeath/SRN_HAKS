@@ -1,0 +1,166 @@
+"""Managed PhenoMorpher CLI. Inspect/help are harmless; data runs use run.py."""
+import argparse
+import contextlib
+import io
+import json
+import os
+import sys
+from pathlib import Path
+import numpy as np
+from PIL import Image
+from . import __version__
+from . import api
+
+
+def read(path):
+    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
+
+
+_PINS = None
+
+
+def snapshot():
+    global _PINS
+    if _PINS is None:
+        path = os.environ.get('SRN_VERIFIED_INPUTS')
+        if not path:
+            raise ValueError('Use run.py with a passed shared-tool migration')
+        _PINS = read(path)['files']
+    return _PINS
+
+
+def declared(path):
+    receipt_path = os.environ.get('SRN_VERIFIED_INPUTS')
+    if not receipt_path:
+        raise ValueError('Use the repository run.py entry point with a passed shared-tool migration')
+    pins = snapshot()
+    resolved = str(Path(path).resolve())
+    if resolved not in pins:
+        raise ValueError('Consumed file is undeclared or changed: ' + resolved)
+
+
+def fresh(path):
+    result = Path(path)
+    result.mkdir(parents=True, exist_ok=False)
+    return result
+
+
+def assembly(root, path):
+    declared(path)
+    data = read(path)
+    if data.get('kind') != 'PhenoMorpher-assembly' or data.get('schemaVersion') != 1:
+        raise ValueError('Versioned assembly required')
+    rig = api.bound(root, data['rig'], snapshot())
+    parts = {n: api.bound(root, row, snapshot()) for n, row in data['parts'].items()}
+    for file in [rig, *parts.values()]:
+        declared(file)
+    return data, rig, parts
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--version', action='version', version='PhenoMorpher ' + __version__)
+    sub = parser.add_subparsers(dest='command', required=True)
+    sub.add_parser('doctor')
+    for command in ('catalog', 'verify-assets'):
+        p = sub.add_parser(command); p.add_argument('--manifest', type=Path, required=True)
+        p.add_argument('--root', type=Path, required=True)
+    p = sub.add_parser('measure'); p.add_argument('--assembly', type=Path, required=True)
+    p.add_argument('--root', type=Path, required=True); p.add_argument('--output', type=Path, required=True)
+    p = sub.add_parser('native-info'); p.add_argument('--input', type=Path, required=True)
+    p = sub.add_parser('candidate'); p.add_argument('--bundle', type=Path, required=True)
+    p.add_argument('--output', type=Path, required=True)
+    p = sub.add_parser('replay'); p.add_argument('--release', type=Path, required=True)
+    p.add_argument('--output', type=Path, required=True)
+    p = sub.add_parser('convert-clothing')
+    for name in ('release', 'profile', 'source-binding', 'input', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--class', dest='garment_class', choices=['modular-close','modular-loose','rigid-island'], required=True)
+    a = parser.parse_args(argv)
+    if a.command == 'doctor':
+        declared(__file__)
+        from .engine.measurement_workflow import smoke
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            smoke()
+        result = json.loads(output.getvalue())
+        result['loadedPackageSources'] = {
+            name: {'path': str(Path(module.__file__).resolve()), 'sha256': api.digest(module.__file__)}
+            for name, module in sorted(sys.modules.items())
+            if (name == 'phenomorpher' or name.startswith('phenomorpher.'))
+            and getattr(module, '__file__', None)
+        }
+        print(json.dumps(result)); return
+    if a.command in ('catalog', 'verify-assets'):
+        declared(a.manifest); m = read(a.manifest)
+        if a.command == 'catalog':
+            print(json.dumps({'version': m['version'], 'targets': m['targets']})); return
+        for row in m['resources']: declared(a.root / row['path'])
+        print(json.dumps(api.verify_assets(a.root, a.manifest, snapshot()))); return
+    if a.command == 'native-info':
+        declared(a.input); skeleton, attributes, source_pin = api.read_attributes(a.input)
+        print(json.dumps({'nodes': len(skeleton), 'meshes': [{'node': n, 'vertices': len(row['position']),
+            'triangles': len(row['faces']), 'attributes': [k for k in ('normal','uv','tangent','sign','color') if k in row]}
+            for n, row in attributes.items()], 'sourcePin': source_pin})); return
+    if a.command == 'measure':
+        data, rig, parts = assembly(a.root, a.assembly)
+        meshes, joints = api.assemble(rig, parts); out = fresh(a.output)
+        report = api.measure(meshes, joints)
+        report.update(space='bind/rest geometry', includesHead='head' in parts,
+                      runtimeStatureVerified=False, assetApprovalCreated=False)
+        views = {}
+        for view in ('front','left','back','right'):
+            mask, _, dimensions = api.rasterize(meshes, view)
+            Image.fromarray((mask * 255).astype(np.uint8)).save(out / (view + '.png'))
+            views[view] = dimensions
+        api.save_recipe(out/'measurements.json', report); api.save_recipe(out/'views.json', views)
+        print(json.dumps(report)); return
+    if a.command == 'candidate':
+        declared(a.bundle); data = api.load_recipe(a.bundle)
+        for path, expected in data['motion'].get('inputPins', {}).items():
+            declared(path)
+            if snapshot()[str(Path(path).resolve())] != expected:
+                raise ValueError('Candidate motion source pin changed: ' + path)
+        for mesh in data['bindMeshes']:
+            if 'sourceAttributes' not in mesh:
+                raise ValueError('Original sourceAttributes required for candidate scene export')
+            if mesh.get('sourceAttributePin'):
+                pin=mesh['sourceAttributePin'];declared(pin['path'])
+                if snapshot()[str(Path(pin['path']).resolve())] != pin['sha256']:
+                    raise ValueError('Candidate source attribute pin changed')
+        first, second = api.fit_candidate(data['bindMeshes'], data['bindFrames'], data['motion'],
+                                         data['reference'], data.get('policy'))
+        out = fresh(a.output)
+        api.save_recipe(out/'first-pass.json', first); api.save_recipe(out/'morphed-proposal.json', second)
+        api.save_recipe(out/'connector-report.json', api.audit_connectors(
+            first['sourceStandingMeshes'], second['standingMeshes'],
+            first['sourceStandingFrames'], second['standingFrames'], second['partScales']))
+        api.display_scene(second, {n: row['parent'] for n, row in data['motion']['skeleton'].items()}, out/'proposal-clay.glb')
+        print(json.dumps(second['receipt'], default=api.encode)); return
+    if a.command == 'replay':
+        manifest=a.release/'recipes/manifest.json';declared(manifest)
+        for row in read(manifest)['targets']:
+            recipe=api.bound(a.release,row['recipe'],snapshot());declared(recipe)
+            data=read(recipe)
+            for name in ('highDetail','metadata','correspondence','reducedGeometry'):
+                declared(api.bound(a.release,data[name],snapshot()))
+        from .engine.replay_bodies import run
+        print(json.dumps(run(a.release, a.output))); return
+    if a.command == 'convert-clothing':
+        for path in (a.profile,a.source_binding,a.input):declared(path)
+        data=read(a.profile)
+        for name in ('sourceBody','targetBody'):
+            body=api.bound(a.release,data[name],snapshot());declared(body)
+            for row in read(body)['files'].values():declared(api.bound(a.release,row,snapshot()))
+        from .engine.convert_model import main as convert
+        old = sys.argv
+        try:
+            sys.argv = ['convert'] + sum(([f'--{name}', str(getattr(a, name.replace('-', '_')))]
+                for name in ('release','profile','source-binding','input','output')), []) + ['--class',a.garment_class]
+            convert()
+        finally:
+            sys.argv = old
+
+
+if __name__ == '__main__':
+    main()

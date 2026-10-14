@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "PhenoMorpher-review-followup",
+  "round": 4,
+  "findings": [
+    "Reject duplicate resolved publication resource paths",
+    "Include coplanar triangle vertices in section extrema"
+  ],
+  "validation": {
+    "sourcePackageTests": 90,
+    "installedWheelTests": 90,
+    "repositoryFinalizerTests": 4,
+    "sourceLineageHashes": "passed",
+    "sharedRepositoryHelpersChanged": false
+  },
+  "wheelSha256": "aae8fe64fd4e9ed782aaf477cb38d4ff527c8d27f626b4585120ca88059d1466",
+  "limits": {
+    "bodyAssetsShapesRigsChanged": false,
+    "clientTesting": false,
+    "PR45Changed": false
+  }
+}

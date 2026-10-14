@@ -92,3 +92,7 @@ masters, working maps and built HAKs remain outside Git. Reproduction needs the
 frozen source assets identified by the receipts.
 Never rerun a completed job merely because its large outputs are absent in a
 new checkout. Do not rewrite immutable historical receipts when improving tools.
+
+## PhenoMorpher toolkit
+
+The maintained measurement, conservative fitting and static clothing-transfer interface is documented in [PhenoMorpher](../phenomorpher/README.md). Its source package is independent of the game-ready body assets. New runs still use the shared-tool launcher and explicit consumed input bindings.

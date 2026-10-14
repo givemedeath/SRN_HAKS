@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "kind": "PhenoMorpher-toolkit-validation",
+  "version": "1.0.0",
+  "tests": [
+    {
+      "suite": "package",
+      "testsRun": 84,
+      "passed": true,
+      "skipped": 0,
+      "logSHA256": "6de1bc6832f854e3fe041f1bb3d285e5096c290b74c2e76a1b5fd2599435dd1f"
+    },
+    {
+      "suite": "installed-wheel",
+      "testsRun": 84,
+      "passed": true,
+      "skipped": 0,
+      "logSHA256": "c7e9bc1c8705243fe2a2e8c50d55b76d39227494fb04ab7561211b944b8f36ae"
+    },
+    {
+      "suite": "phenotype-helpers",
+      "testsRun": 1330,
+      "passed": true,
+      "skipped": 2,
+      "logSHA256": "24a8074b6fb45c2fa64dabd21d59e14e22615b6d94814af393611706a595b34f"
+    },
+    {
+      "suite": "shared-tools",
+      "testsRun": 22,
+      "passed": true,
+      "skipped": 0,
+      "logSHA256": "2a81666afa3367a3c2994a4276f19d0bf15c33e4738b735fa4eb104fdeba7f61"
+    }
+  ],
+  "libraries": {
+    "numpy": "2.3.5",
+    "Pillow": "12.3.0"
+  },
+  "wheel": {
+    "name": "srn_phenomorpher-1.0.0-py3-none-any.whl",
+    "bytes": 241126,
+    "sha256": "58be5099dd55b0ea98ca08290bbd1b93287f0062630141173df7a584dbf2338d",
+    "isolatedInstallation": true,
+    "engineModulesImported": 52
+  },
+  "sourceLineageSHA256": "e8f75d43e3b7d9ccebd7200b4670045282135e68598b32da4c91e92c35af57c7",
+  "managedSmokes": [
+    {
+      "id": "doctor-c",
+      "receiptSHA256": "2acccdc06ef06dedbe55b7887ec27e18463b9bc2517cc1403b67a3c135258305",
+      "exitCode": 0,
+      "inputsUnchanged": true,
+      "elapsedSeconds": 0.6090000000003783,
+      "inputCount": 71
+    },
+    {
+      "id": "native-info-reviewed",
+      "receiptSHA256": "dc13a3f64c7f12b37ba6babd2cece2e2b6a4c1555b67a5b6107d443c49a8d456",
+      "exitCode": 0,
+      "inputsUnchanged": true,
+      "elapsedSeconds": 0.5620000000017171,
+      "inputCount": 74
+    },
+    {
+      "id": "measure-f",
+      "receiptSHA256": "53f28eb682bb9be91efffe0916518f7088b828536e60e2e8005d6a0f45004fc2",
+      "exitCode": 0,
+      "inputsUnchanged": true,
+      "elapsedSeconds": 1.75,
+      "inputCount": 89
+    },
+    {
+      "id": "replay-reviewed",
+      "receiptSHA256": "bafbb462b528c1ae4a5204789068d6739a57fd5bbe114983e980723d458356bd",
+      "exitCode": 0,
+      "inputsUnchanged": true,
+      "elapsedSeconds": 1.7340000000003783,
+      "inputCount": 124
+    },
+    {
+      "id": "clothing-reviewed",
+      "receiptSHA256": "9a4d5ed5e74389981d18e9793aac900f44e6160e7e6ef4fe0705331e4269378c",
+      "exitCode": 0,
+      "inputsUnchanged": true,
+      "elapsedSeconds": 0.7350000000005821,
+      "inputCount": 87
+    }
+  ],
+  "realAssembly": {
+    "target": "dwarf_female_fit",
+    "includesHead": true,
+    "space": "bind/rest",
+    "statureMeters": 1.299688172760881,
+    "meshCount": 21,
+    "maskViews": [
+      "front",
+      "left",
+      "back",
+      "right"
+    ],
+    "metresPerPixel": 0.002,
+    "runtimeStatureVerified": false
+  },
+  "frozenReplay": {
+    "targets": [
+      {
+        "target": "human_male_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5494
+      },
+      {
+        "target": "human_female_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5482
+      },
+      {
+        "target": "dwarf_male_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5494
+      },
+      {
+        "target": "dwarf_female_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5482
+      },
+      {
+        "target": "elf_male_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5494
+      },
+      {
+        "target": "elf_female_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5482
+      },
+      {
+        "target": "orc_male_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5494
+      },
+      {
+        "target": "orc_female_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5482
+      },
+      {
+        "target": "troll_male_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5494
+      },
+      {
+        "target": "troll_female_large",
+        "everyGeometryArrayExact": true,
+        "triangles": 5482
+      }
+    ],
+    "everyGeometryArrayExact": true,
+    "sourceBodiesWritten": false
+  },
+  "clothing": {
+    "uniformScale": 0.8724494226319126,
+    "radialEasePolicy": "source exterior distance times structural segment scale; body replacement respected",
+    "morphApplications": 1,
+    "runtimeApplications": 0,
+    "meshes": 1,
+    "vertices": 392,
+    "maximumDisplacementMetres": 0.07359327795250853,
+    "completeHierarchyRetained": true,
+    "topologyUVMaterialsRetained": true,
+    "sourceModelSha256": "b96301518555fa0f38e73b50c054706d51f9df3a77f23741cbb1a98ae119cb92",
+    "profileSha256": "6820216336fe9190bb3d2f801b0cce069a25b91500743357814294241830ccc6",
+    "outputSha256": "5133df2ca5112820be0669f26be0883411ad29b9e6890568f685e6ad8e9c696d",
+    "bodyWritten": false,
+    "runtimeScaleApplications": 0,
+    "clientValidated": false
+  },
+  "codeReview": {
+    "manual": true,
+    "subagentsUsed": false,
+    "blockingFindingsRemaining": 0,
+    "findings": "REVIEW.md"
+  },
+  "gameClientUsed": false,
+  "bodyAssetsChanged": false,
+  "rigsChanged": false,
+  "assetApprovalCreated": false,
+  "limits": [
+    "Numerical tests and offline proposals do not approve anatomy or client behavior.",
+    "Native export, textured baking, weighted clothing and client gates remain separate."
+  ]
+}
