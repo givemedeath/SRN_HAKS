@@ -6,19 +6,12 @@ param(
 # Prints run=true|false (also to GITHUB_OUTPUT when present). Fails safe: a missing,
 # all-zero or undiffable base runs the regressions.
 $ErrorActionPreference = 'Stop'
-$scope = @(
-  '^tools/(Test-ItemImportTools|Test-ItemImportScope|Import-Hak|Analyze-ItemHak|Analyze-ItemBlueprintErf|Stage-ItemMatches)\.ps1$',
-  '^\.github/workflows/(verify|shared-tooling)\.yml$',
-  '^tools/(SrnHaks\.Common|SrnTools)\.psm1$',
-  '^tools/(toolchain|shared-tools)\.lock\.json$',
-  '^tools/import-profiles/',
-  '^docs/imports/',
-  '^srn_item/'
-)
+# Patterns are shared with the CI scope planner (tools/ci_scope.py).
+$scope = @((Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ci-scope.json') -Raw | ConvertFrom-Json).itemImport)
 $run = $true
 $reason = 'no comparable base; running item-import regressions'
 if (-not [string]::IsNullOrWhiteSpace($BaseSha) -and $BaseSha -notmatch '^0+$') {
-  $changed = @(git diff --name-only "$BaseSha...$HeadSha" 2>$null)
+  $changed = @(git diff --name-only --no-renames "$BaseSha...$HeadSha" 2>$null)
   if ($LASTEXITCODE -eq 0) {
     $matched = @($changed | Where-Object { $path = $_; $scope | Where-Object { $path -match $_ } })
     $run = $matched.Count -gt 0

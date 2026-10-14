@@ -1,18 +1,22 @@
 name: Shared tools and phenotype helpers
+# Called by ci.yml with the run's single scope plan; it never discovers scope itself.
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      plan:
+        description: Compact JSON plan from tools/ci_scope.py
+        type: string
+        required: true
 permissions:
   contents: read
 jobs:
-  helpers:
+  tests:
+    name: ${{ matrix.os }} ${{ matrix.group }}
+    if: fromJSON(inputs.plan).helperMatrix[0] != null
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        include: ${{ fromJSON(inputs.plan).helperMatrix }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     env:
@@ -20,67 +24,74 @@ jobs:
       PYTHONIOENCODING: utf-8
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
+      # Scope already diffed history; tests read only HEAD and the index.
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Bind the explicit CI cache root
-        shell: pwsh
-        run: |
-          $taskCacheRoot = Join-Path $env:RUNNER_TEMP 'srn-shared-tools'
-          "SRN_TOOLS_ROOT=$taskCacheRoot" | Out-File -LiteralPath $env:GITHUB_ENV -Encoding utf8 -Append
       - uses: actions/setup-python@v6
         id: interpreter
         with:
           python-version: '3.12'
-      - uses: actions/cache@v6
-        with:
-          path: ${{ env.SRN_TOOLS_ROOT }}
-          key: srn-tools-${{ runner.os }}-${{ hashFiles('tools/toolchain.lock.json', 'tools/shared-tools.lock.json') }}
+      - uses: ./.github/actions/srn-tools
       - name: Install helper dependencies with the selected interpreter
         shell: pwsh
         run: '& ''${{ steps.interpreter.outputs.python-path }}'' -m pip install -r tools/phenotypes/requirements.txt'
-      - name: Bootstrap byte-verified shared utilities
-        shell: pwsh
-        run: ./tools/Bootstrap-Tools.ps1
-      - name: Resolver, installation, retirement and clean-checkout tests
-        shell: pwsh
-        run: |
-          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools -p 'test_*.py' -v
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-      - name: Full extracted and existing phenotype regressions
-        shell: pwsh
-        run: |
-          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/phenotypes -p 'test_*.py' -v
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-      - name: PhenoMorpher package regressions
-        shell: pwsh
-        run: |
-          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/phenomorpher -p test_finalize_runtime.py -v
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/phenomorpher/phenomorpher -t tools/phenomorpher -v
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-      - name: Meshy robe trial helper regressions
-        shell: pwsh
-        run: |
-          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/robes -p 'test_*.py' -v
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-      - name: Decide whether item import changed
-        id: items
+      - name: Run the selected tests from their import roots
         shell: pwsh
         env:
-          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-        run: ./tools/Test-ItemImportScope.ps1 -BaseSha $env:BASE_SHA
+          TESTS: ${{ toJSON(matrix.tests) }}
+        run: |
+          $list = Join-Path $env:RUNNER_TEMP 'selected-tests.json'
+          [IO.File]::WriteAllText($list, $env:TESTS)
+          & '${{ steps.interpreter.outputs.python-path }}' -B tools/test_impact.py --tests-from $list --timings (Join-Path $env:RUNNER_TEMP 'test-timings.json')
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Upload per-test durations
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-timings-${{ matrix.os }}-${{ matrix.group }}
+          path: ${{ runner.temp }}/test-timings.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  item-import:
+    name: item-import ${{ matrix.os }}
+    # The only owner of Test-ItemImportTools.ps1; verification and test shards never run it.
+    if: fromJSON(inputs.plan).itemImport
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(inputs.plan).operatingSystems }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/srn-tools
       - name: Item import regressions
-        if: steps.items.outputs.run == 'true'
         shell: pwsh
         run: ./tools/Test-ItemImportTools.ps1
-      - name: Head pipeline gates and exporter regressions
-        shell: pwsh
+
+  wheel:
+    name: wheel
+    if: fromJSON(inputs.plan).wheel
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        id: interpreter
+        with:
+          python-version: '3.12'
+      - name: Build, install and test PhenoMorpher outside the checkout
+        shell: bash
         run: |
-          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/heads -p 'test_*.py' -v
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-      - name: Gallery refresh and module encoding regressions
-        shell: pwsh
-        run: |
-          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/gallery -p 'test_*.py' -v
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          set -euo pipefail
+          work="$RUNNER_TEMP/phenomorpher-wheel"
+          mkdir -p "$work/dist" "$work/cwd"
+          '${{ steps.interpreter.outputs.python-path }}' -m pip wheel --no-deps tools/phenomorpher -w "$work/dist"
+          '${{ steps.interpreter.outputs.python-path }}' -m venv "$work/venv"
+          venv="$work/venv/bin/python"
+          "$venv" -m pip install "$work"/dist/*.whl
+          cd "$work/cwd"
+          # -I drops the checkout, cwd, PYTHONPATH and user site, so only the installed wheel can be imported.
+          site=$("$venv" -I -c 'import pathlib,phenomorpher,sysconfig;p=pathlib.Path(phenomorpher.__file__).resolve();s=pathlib.Path(sysconfig.get_paths()["purelib"]).resolve();assert p.is_relative_to(s),(p,s);print(s)')
+          "$venv" -I -m unittest discover -s "$site/phenomorpher" -t "$site" -v
+          "$work/venv/bin/phenomorpher" --help > /dev/null

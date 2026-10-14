@@ -1,0 +1,19 @@
+name: SRN shared tools
+description: Bind the explicit CI tool root, restore the shared verified tool cache and bootstrap pinned utilities.
+runs:
+  using: composite
+  steps:
+    - name: Bind the explicit CI cache root
+      shell: pwsh
+      run: |
+        $taskCacheRoot = Join-Path $env:RUNNER_TEMP 'srn-shared-tools'
+        "SRN_TOOLS_ROOT=$taskCacheRoot" | Out-File -LiteralPath $env:GITHUB_ENV -Encoding utf8 -Append
+    # The single cache-key format shared by every job on the same runner OS.
+    - name: Restore the verified tool archive and extraction
+      uses: actions/cache@v6
+      with:
+        path: ${{ env.SRN_TOOLS_ROOT }}
+        key: srn-tools-${{ runner.os }}-${{ hashFiles('tools/toolchain.lock.json', 'tools/shared-tools.lock.json') }}
+    - name: Bootstrap byte-verified shared utilities
+      shell: pwsh
+      run: ./tools/Bootstrap-Tools.ps1
