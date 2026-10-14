@@ -10,8 +10,9 @@ builder. Generation masters and local ComfyUI/game installations are separate
 dependencies.
 
 The SRN inspection gallery was removed on 2026-10-14 pending a redesign. Its
-historical checkpoints remain under `docs/heads` and `docs/gallery`; the code is
-in Git history.
+historical checkpoints remain under `docs/heads` and `docs/gallery`, and the
+validation records they cite remain in `test-modules/srn_gallery`; the code is in
+Git history.
 
 
 SRN_HAKS is the public, curated source repository for Neverwinter Nights: Enhanced Edition HAK
