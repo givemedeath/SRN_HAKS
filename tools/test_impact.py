@@ -113,7 +113,11 @@ def dependents(paths,data):
         impacted.update(p for p,edges in data['dependencies'].items() if impacted.intersection(edges))
         if len(impacted)==before:return impacted
 
-def select(changed,data,config=None):
+def deleted_paths(changed,repo=REPO):
+    """Changed paths absent from the checked-out revision."""
+    return {p for p in changed if not (repo/p).exists()}
+
+def select(changed,data,config=None,deleted=()):
     """Select tests for changed paths; anything not provably covered selects the full suite."""
     if not changed:return full(data,'No comparison data; full suite required')
     shared=[p for p in changed if config and any(re.search(r,p) for r in config['sharedInfrastructure'])]
@@ -130,6 +134,8 @@ def select(changed,data,config=None):
     for path in changed:
         first=path.split('/')[0]
         if path in known:impacted.add(path);code.append(path)
+        # The head catalog cannot see literals that read a deleted document, so its readers are unknown.
+        elif path.lower().endswith('.md') and path in deleted:return full(data,'Deleted document; its former readers are unknown: '+path)
         elif path.lower().endswith('.md'):documentation.append(path)
         elif re.fullmatch(r'srn_[a-z0-9_]+',first) and len(path.split('/'))>1:changed_packs.add(first)
         else:return full(data,'Unknown/configuration dependency; full suite required: '+path)
@@ -180,7 +186,7 @@ def main():
         raise SystemExit(run_tests(tests,timings=a.timings) if tests else 0)
     data=catalog()
     if a.write_catalog:a.write_catalog.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8',newline='\n')
-    result=select(a.changed,data,load_config());print(json.dumps(result),flush=True)
+    result=select(a.changed,data,load_config(),deleted_paths(a.changed));print(json.dumps(result),flush=True)
     if a.run and result['tests']:raise SystemExit(run_tests(result['tests'],timings=a.timings))
 
 if __name__=='__main__':main()

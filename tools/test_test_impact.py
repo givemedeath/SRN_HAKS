@@ -109,6 +109,15 @@ class SelectionPolicyTests(unittest.TestCase):
         self.assertEqual(select(['docs/read.md'],self.fixture)['tests'],['tools/a/test_doc.py'])
         mixed=select(['README.md','docs/read.md','tools/a/helper.py'],self.fixture)
         self.assertEqual(mixed['tests'],['tools/a/test_doc.py','tools/a/test_helper.py'])
+    def test_deleted_documents_select_the_full_suite(self):
+        # A refreshed head catalog no longer sees literals that read a deleted document.
+        result=select(['docs/read-before.md'],self.fixture,deleted={'docs/read-before.md'})
+        self.assertTrue(result['fullSuite']);self.assertIn('Deleted document',result['reason'])
+        self.assertFalse(select(['docs/other.md'],self.fixture,deleted=set())['fullSuite'])
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);write(root,{'docs/kept.md':'x'})
+            from test_impact import deleted_paths
+            self.assertEqual(deleted_paths(['docs/kept.md','docs/gone.md'],root),{'docs/gone.md'})
     def test_pack_assets_select_only_tests_that_reference_the_pack(self):
         self.assertEqual(select(['srn_body/x.mdl'],self.fixture)['tests'],['tools/b/test_pack.py'])
         self.assertEqual(select(['srn_item/x.uti'],self.fixture)['tests'],[])

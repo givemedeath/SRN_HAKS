@@ -42,6 +42,15 @@ class ResultTests(unittest.TestCase):
         self.assertTrue(evaluate(PLAN,rerun,NEEDS)[0])
         again=jobs+[job('Helpers / ubuntu-latest core','failure',attempt=2,ident=50)]
         self.assertFalse(evaluate(PLAN,again,NEEDS)[0])
+    def test_jobs_retained_from_an_earlier_attempt_count_after_rerunning_failed_jobs(self):
+        # filter=all: attempt 1 holds every job; attempt 2 only re-ran the failed shard.
+        first=passing();first[3]['conclusion']='failure'
+        rerun=first+[job('Helpers / windows-latest core','success',attempt=2,ident=60),job('CI result',None,attempt=2,status='in_progress',ident=61)]
+        self.assertEqual(evaluate(PLAN,rerun,NEEDS),(True,[]))
+    def test_stale_unselected_failures_from_older_attempts_are_ignored(self):
+        stale=[{**j,'run_attempt':2} for j in passing()]+[job('Helpers / wheel','failure',attempt=1,ident=70)]
+        self.assertTrue(evaluate(PLAN,stale,NEEDS)[0])
+        self.assertFalse(evaluate(PLAN,stale+[job('Helpers / wheel','failure',attempt=2,ident=71)],NEEDS)[0])
     def test_unfinished_selected_job_fails(self):
         jobs=passing();jobs[1]['status']='in_progress';jobs[1]['conclusion']=None
         self.assertFalse(evaluate(PLAN,jobs,NEEDS)[0])

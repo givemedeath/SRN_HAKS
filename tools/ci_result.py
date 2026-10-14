@@ -26,13 +26,15 @@ def evaluate(plan,jobs,needs,self_name='CI result'):
         elif job.get('status')!='completed':problems.append(f'Selected job not completed: {name} ({job.get("status")})')
         elif job.get('conclusion') not in PASSING:problems.append(f'Selected job {job.get("conclusion")}: {name}')
     expected=set(plan['expectedJobs'])|{self_name}
+    # Jobs come from every attempt; an unselected job only counts when it ran in the newest attempt.
+    newest=max((job.get('run_attempt',1) for job in jobs),default=1)
     for name,job in sorted(current.items()):
-        if name not in expected and job.get('conclusion') in ('failure','cancelled','timed_out','action_required'):
+        if name not in expected and job.get('run_attempt',1)==newest and job.get('conclusion') in ('failure','cancelled','timed_out','action_required'):
             problems.append(f'Unselected job {job["conclusion"]}: {name}')
     return not problems,problems
 
 def read_jobs(text):
-    """Accept a jobs API page, a list of jobs, or JSON lines from `gh api --paginate --jq '.jobs[]'`."""
+    """Accept a jobs API page, a list of jobs, or JSON lines from `gh api --paginate --jq '.jobs[]'` (filter=all)."""
     try:value=json.loads(text)
     except json.JSONDecodeError:return [json.loads(line) for line in text.splitlines() if line.strip()]
     if isinstance(value,dict):return value.get('jobs',[value])

@@ -28,11 +28,11 @@ def shards(tests,count,durations):
         target=min(bins,key=lambda b:(b[0],b[1]));target[0]+=durations.get(test,default);target[2].append(test)
     return [sorted(b[2]) for b in bins]
 
-def plan(changed,data,config,durations=None,full_reason=None,base=''):
+def plan(changed,data,config,durations=None,full_reason=None,base='',deleted=()):
     durations=durations or {}
     if full_reason:selection=test_impact.full(data,full_reason)
     elif changed is None:selection=test_impact.full(data,'Missing or undiffable comparison base; full suite required')
-    else:selection=test_impact.select(changed,data,config)
+    else:selection=test_impact.select(changed,data,config,deleted)
     tests=selection['tests'];paths=changed or []
     everything=selection['fullSuite']
     groups={g['name']:[] for g in config['groups']}
@@ -83,7 +83,9 @@ def main():
         committed=json.loads((REPO/'tools/test-impact.json').read_text(encoding='utf-8'))
         if committed!=data:raise SystemExit('tools/test-impact.json is stale; run: python -B tools/test_impact.py --write-catalog tools/test-impact.json')
     durations=json.loads((REPO/DURATIONS).read_text(encoding='utf-8'))['seconds'] if (REPO/DURATIONS).is_file() else {}
-    result=plan(None if a.full_reason else changed_files(a.base,a.head),data,config,durations,a.full_reason or None,a.base)
+    changed=None if a.full_reason else changed_files(a.base,a.head)
+    # The checkout is the head revision, so a changed path missing here was deleted.
+    result=plan(changed,data,config,durations,a.full_reason or None,a.base,test_impact.deleted_paths(changed or []))
     a.output.write_text(json.dumps(result,indent=1)+'\n',encoding='utf-8')
     if a.github_output:
         with a.github_output.open('a',encoding='utf-8') as f:f.write('plan='+json.dumps(result,separators=(',',':'))+'\n')
