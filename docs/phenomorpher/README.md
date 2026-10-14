@@ -81,3 +81,7 @@ variants retain their stock table entries but are outside this body release's
 client validation. See [table verification](table-validation.json).
 
 The runtime folders contain only the selected dependency closure. The 84 superseded Human maps/materials were removed from packaging and remain recoverable in Git history. No model, palette, rig or selected material/map payload was changed by this cleanup.
+
+## File review
+
+[ASSETS.md](ASSETS.md) provides the complete clickable runtime inventory. The large generated appearance table and hash manifest have their raw diffs suppressed for GitHub review; their file contents remain available and byte-for-byte unchanged. Race/phenotype changes and validation summaries retain readable diffs.
