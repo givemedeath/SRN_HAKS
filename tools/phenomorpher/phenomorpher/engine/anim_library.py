@@ -58,7 +58,8 @@ class NativeModel(Reader):
                     'timeRange': (12+fo+4*to, 12+fo+4*(to+rows)), 'dataRange': (12+fo+4*vo, 12+fo+4*(vo+rows*cols))}
             out[name] = {'parent': parent, 'flags': self.u32(off+0x6c), 'controls': controls}
             children, n = self.array(off+72, 4)
-            queue.extend((self.u32(children+4*i), name) for i in range(n))
+            # Preorder in stored child order, so a rewritten model keeps the original hierarchy order.
+            queue.extend(reversed([(self.u32(children+4*i), name) for i in range(n)]))
         return out
 
     def decode(self):
@@ -72,7 +73,8 @@ class NativeModel(Reader):
             if name in clips or not np.isfinite([length, transition, *(t for t, _ in events)]).all() or length < 0:
                 raise ValueError('Invalid animation ' + name)
             clips[name] = {'length': float(length), 'transition': float(transition), 'animroot': self.text(at+0x78, 64),
-                           'events': events, 'nodes': self.tree(self.u32(at+72))}
+                           'events': events, 'eventsRange': (12+events_at, 12+events_at+36*events_count),
+                           'nodes': self.tree(self.u32(at+72))}
         return {'format': 'binary', 'name': self.text(8, 64), 'parent': self.text(0xa8, 64),
                 'scale': float(struct.unpack('<f', self.data(0xa4, 4))[0]), 'nodes': nodes, 'clips': clips}
 
@@ -283,19 +285,29 @@ def compare_clip(a, a_model, b, b_model, time_tolerance=1e-5):
             'metadata': meta, 'positionMetres': position, 'rotationDegrees': rotation, 'otherMax': other}
 
 
+RIG_ROLES = ('fitted-rig', 'rig-inheritance')
+
+
+def release_models(root, manifest, stock, stock_paths):
+    """Decoded pack rigs/carriers plus the installed stock chain; pack resources shadow stock names."""
+    models = {}; origins = {}
+    for row in manifest['resources']:
+        if row['role'] in RIG_ROLES:
+            name = Path(row['path']).stem.lower(); models[name] = load_model(root/row['path'])
+            origins[name] = {'origin': 'pack', 'path': row['path'], 'sha256': row['sha256']}
+    for name, path in stock_paths.items():
+        if name not in models:
+            models[name] = load_model(path)
+            origins[name] = {'origin': 'installed-game', 'path': 'stock:' + stock['models'][name]['path'],
+                             'sha256': stock['models'][name]['sha256']}
+    return models, origins
+
+
 def inventory(root, manifest_path, stock_manifest):
     root = Path(root).resolve(); manifest = json.loads(Path(manifest_path).read_text(encoding='utf-8-sig'))
     stock, stock_paths = stock_files(stock_manifest)
     resources = {Path(r['path']).name.lower(): r for r in manifest['resources']}
-    rigs = [r for r in manifest['resources'] if r['role'] in ('fitted-rig', 'rig-inheritance')]
-    models = {}; origins = {}
-    for row in rigs:
-        name = Path(row['path']).stem.lower(); models[name] = load_model(root/row['path'])
-        origins[name] = {'origin': 'pack', 'path': row['path'], 'sha256': row['sha256']}
-    for name, path in stock_paths.items():
-        if name not in models:
-            models[name] = load_model(path); origins[name] = {'origin': 'installed-game', 'path': 'stock:' + stock['models'][name]['path'],
-                                                              'sha256': stock['models'][name]['sha256']}
+    models, origins = release_models(root, manifest, stock, stock_paths)
     stock_effective = {}
     for seed in stock['seeds']:
         names = chain(seed, models)
@@ -361,3 +373,291 @@ def inventory(root, manifest_path, stock_manifest):
                 'storedPrivateClips': sum(len(c['clips']) for c in carriers.values()),
                 'texturesAbove1024': sorted(n for n, t in textures.items() if max(t['width'], t['height']) > 1024)},
             'assetApprovalCreated': False}
+
+
+# Library build: stock-structured thin library over a_fa/a_ba, compiled by the EE client,
+# then restored to the exact source controller payload bytes.
+
+PLAN_KIND = 'PhenoMorpher-library-restoration-plan'
+DEFAULT_TOLERANCES = {'positionMetres': 1e-4, 'rotationDegrees': 0.05, 'assembledDriftMetres': 1e-3}
+PARENT_FIELD = (12+0xa8, 12+0xa8+64)
+
+
+def original_name(name):
+    return name.split('__duplicate_')[0]
+
+
+def quaternion_axis_angle(q):
+    x, y, z, w = np.asarray(q, float)/np.linalg.norm(q)
+    if w < 0:
+        x, y, z, w = -x, -y, -z, -w
+    s = math.sqrt(max(0.0, 1-w*w))
+    return [1.0, 0.0, 0.0, 0.0] if s < 1e-9 else [x/s, y/s, z/s, 2*math.acos(min(1.0, w))]
+
+
+def fmt(values):
+    # Nine significant digits round-trip every float32.
+    return ' '.join('%.9g' % float(v) for v in values)
+
+
+def ascii_node(lines, name, node, pad, keyed):
+    parent = original_name(node['parent']) if node['parent'] else 'NULL'
+    lines += [f'{pad}node dummy {original_name(name)}', f'{pad}  parent {parent}']
+    for kind, word in ((8, 'position'), (20, 'orientation')):
+        if kind not in node['controls']:
+            continue
+        c = node['controls'][kind]
+        convert = (lambda r: r) if kind == 8 else quaternion_axis_angle
+        if keyed:
+            lines.append(f'{pad}  {word}key')
+            lines += [f'{pad}    {fmt([t, *convert(r)])}' for t, r in zip(c['times'], c['values'])]
+            lines.append(f'{pad}  endlist')
+        else:
+            lines.append(f'{pad}  {word} {fmt(convert(c["values"][0]))}')
+    lines.append(f'{pad}endnode')
+
+
+def library_text(name, parent, scale, geometry, clips):
+    lines = [f'newmodel {name}', f'setsupermodel {name} {parent}', 'classification character',
+             f'setanimationscale {fmt([scale])}', f'beginmodelgeom {name}']
+    for node, row in geometry.items():
+        ascii_node(lines, node, row, '', False)
+    lines.append(f'endmodelgeom {name}')
+    for clip_name, clip in clips.items():
+        lines += [f'newanim {clip_name} {name}', f'  length {fmt([clip["length"]])}',
+                  f'  transtime {fmt([clip["transition"]])}', f'  animroot {clip["animroot"]}']
+        lines += [f'  event {fmt([t])} {e}' for t, e in clip['events']]
+        for node, row in clip['nodes'].items():
+            ascii_node(lines, node, row, '  ', True)
+        lines.append(f'doneanim {clip_name} {name}')
+    lines.append(f'donemodel {name}')
+    return '\n'.join(lines) + '\n'
+
+
+def preorder(nodes):
+    """Hierarchy preorder, children in insertion order: the order the compiler writes."""
+    children = {}
+    for name, row in nodes.items():
+        children.setdefault(row['parent'], []).append(name)
+    order = []; stack = list(reversed(children.get(None, [])))
+    while stack:
+        name = stack.pop(); order.append(name); stack.extend(reversed(children.get(name, [])))
+    if len(order) != len(nodes):
+        raise ValueError('Library node tree is not a single rooted hierarchy')
+    return {name: nodes[name] for name in order}
+
+
+def rename(nodes, old, new):
+    return {(new if n == old else n): {**row, 'parent': new if row['parent'] == old else row['parent']} for n, row in nodes.items()}
+
+
+def assembled_drift(rig, rig_root, a, a_model, b, b_model):
+    """Worst world-position difference of any rig node between two clips at keys, midpoints and ends."""
+    from .native_motion import sample, sample_times
+    first = {(rig_root if n == a_model else n): row for n, row in a['nodes'].items()}
+    second = {(rig_root if n == b_model else n): row for n, row in b['nodes'].items()}
+    worst = {'metres': 0.0, 'node': None, 'time': None}
+    for time in sorted(set(sample_times(a)) | set(sample_times(b))):
+        wa = sample(rig, first, time); wb = sample(rig, second, time)
+        for node in rig:
+            d = float(np.linalg.norm(wa[node][:3, 3]-wb[node][:3, 3]))
+            if d > worst['metres']:
+                worst = {'metres': d, 'node': node, 'time': float(time)}
+    return worst
+
+
+def clips_equal(a, a_model, b, b_model):
+    """Exact payload, metadata and stored event order."""
+    ra, rb = clip_row(a, a_model), clip_row(b, b_model)
+    return all(ra[k] == rb[k] for k in ('length', 'transition', 'animrootRaw', 'events', 'keyedNodes', 'controllerSignature'))
+
+
+def classify(models, rigs, owner, stock_owner, clip, tolerances):
+    source = models[owner]['clips'][clip]
+    if stock_owner is None:
+        return {'inherit': False, 'reason': 'not in stock'}
+    stock = models[stock_owner]['clips'][clip]
+    result = compare_clip(source, owner, stock, stock_owner)
+    within = (result['structure'] and result['positionMetres'] <= tolerances['positionMetres']
+              and result['rotationDegrees'] <= tolerances['rotationDegrees'])
+    result['assembledDrift'] = None
+    if within:
+        drifts = {r: assembled_drift(models[r]['nodes'], r, source, owner, stock, stock_owner) for r in rigs}
+        result['assembledDrift'] = drifts
+        within = max(d['metres'] for d in drifts.values()) <= tolerances['assembledDriftMetres']
+    result['inherit'] = within
+    result['reason'] = 'within tolerance' if within else 'override'
+    return result
+
+
+def build(root, manifest_path, stock_manifest, fit, large, name, output, allowed=(), tolerances=None):
+    """Classify the Fit chain against stock and write the library ASCII plus a restoration plan."""
+    tolerances = {**DEFAULT_TOLERANCES, **(tolerances or {})}
+    root = Path(root).resolve(); output = Path(output)
+    manifest = json.loads(Path(manifest_path).read_text(encoding='utf-8-sig'))
+    if len(name) > 15 or not re.fullmatch(r'[a-z0-9_]+', name):
+        raise ValueError('Library resource name must be a lowercase resref')
+    stock, stock_paths = stock_files(stock_manifest); models, origins = release_models(root, manifest, stock, stock_paths)
+    if large[1] != fit[1]:
+        raise ValueError('Fit and Large roots must share a gender')
+    seed = 'a_fa' if fit[1] == 'f' else 'a_ba'
+    fit_chain, large_chain = chain(fit, models), chain(large, models)
+    fit_clips, large_clips = effective(fit_chain, models), effective(large_chain, models)
+    if set(fit_clips) != set(large_clips):
+        raise ValueError('Fit and Large clip sets differ')
+    differences = sorted(c for c in fit_clips if not clips_equal(
+        models[fit_clips[c]['owner']]['clips'][c], fit_clips[c]['owner'],
+        models[large_clips[c]['owner']]['clips'][c], large_clips[c]['owner']))
+    if set(differences) - set(allowed):
+        raise ValueError('Unauthorized Fit/Large difference: ' + ', '.join(sorted(set(differences)-set(allowed))))
+    stock_clips = effective(chain(seed, models), models)
+    rows = {}
+    for clip, row in fit_clips.items():
+        stock_owner = stock_clips.get(clip, {}).get('owner')
+        rows[clip] = {'owner': row['owner'], 'stockOwner': stock_owner,
+                      **classify(models, (fit, large), row['owner'], stock_owner, clip, tolerances)}
+    carrier, large_carrier = fit_chain[1], large_chain[1]
+    if origins[carrier]['origin'] != 'pack' or origins[large_carrier]['origin'] != 'pack':
+        raise ValueError('Fit and Large roots must use private carriers')
+    geometry = rename(models[carrier]['nodes'], carrier, name)
+    other = rename(models[large_carrier]['nodes'], large_carrier, name)
+    if list(other) != list(geometry) or any(geometry[n]['parent'] != other[n]['parent'] for n in geometry):
+        raise ValueError('Fit and Large carrier node trees differ')
+    retained = [c for c in fit_clips if not rows[c]['inherit']]
+    clips = {}; sources = {n: (carrier, carrier if n == name else n) for n in geometry}
+    # Library nodes are dummies: carrier meshes keep only their static position/orientation.
+    dropped = {n: sorted(set(row['controls']) - {8, 20}) for n, row in geometry.items()}
+    geometry = {n: {**row, 'controls': {k: v for k, v in row['controls'].items() if k in (8, 20)}} for n, row in geometry.items()}
+    for clip in retained:
+        owner = rows[clip]['owner']; source = models[owner]['clips'][clip]
+        nodes = rename(source['nodes'], owner, name)
+        # Deeper carriers add nodes (e.g. belt_pelvis); take them, as dummies, from the owner's own tree.
+        for node in nodes:
+            if node not in geometry:
+                row = models[owner]['nodes'].get(node)
+                if row is None or row['parent'] not in rename(models[owner]['nodes'], owner, name):
+                    raise ValueError('Clip node missing from library geometry: ' + clip)
+                added = rename({node: row}, owner, name)[node]
+                dropped[node] = sorted(set(added['controls']) - {8, 20})
+                geometry[node] = {**added, 'controls': {k: v for k, v in added['controls'].items() if k in (8, 20)}}
+                sources[node] = (owner, node)
+                if geometry[node]['parent'] not in geometry:
+                    raise ValueError('Added library node has no parent in the library: ' + node)
+        if any(set(n['controls']) - {8, 20} for n in nodes.values()):
+            raise ValueError('Unsupported clip controller: ' + clip)
+        clips[clip] = {**source, 'nodes': nodes}
+    geometry = preorder(geometry)
+    if any(set(row['controls']) - {8, 20} or any(len(c['times']) != 1 for c in row['controls'].values())
+           for row in geometry.values()):
+        raise ValueError('Library geometry must be static position/orientation dummies')
+    text = library_text(name, seed, models[carrier]['scale'], geometry, clips)
+    ascii_dir = output/'converted/ascii'; ascii_dir.mkdir(parents=True, exist_ok=False)
+    (output/'converted/resources').mkdir()
+    (ascii_dir/(name+'.mdl')).write_text(text, encoding='ascii', newline='\n')
+    if ascii_model(text)['clips'].keys() != clips.keys():
+        raise ValueError('Library ASCII does not round-trip its clip set')
+    owners = sorted({s for s, _ in sources.values()} | {rows[c]['owner'] for c in retained})
+    plan = {'schemaVersion': 1, 'kind': PLAN_KIND, 'library': name, 'parent': seed, 'scale': models[carrier]['scale'],
+            'ascii': {'path': 'converted/ascii/' + name + '.mdl', 'sha256': digest(text.encode('ascii'))},
+            'sources': {o: {'path': origins[o]['path'], 'sha256': origins[o]['sha256']} for o in owners},
+            'geometry': {'carrier': carrier, 'nodes': {n: list(sources[n]) for n in geometry},
+                         'droppedStaticMeshControllers': {n: k for n, k in dropped.items() if k}},
+            'clips': {c: {'source': rows[c]['owner'],
+                          'nodes': {n: (rows[c]['owner'] if n == name else n) for n in clips[c]['nodes']}} for c in retained}}
+    classification = {'schemaVersion': 1, 'kind': 'PhenoMorpher-library-classification', 'library': name, 'parent': seed,
+                      'fit': {'root': fit, 'chain': fit_chain}, 'large': {'root': large, 'chain': large_chain},
+                      'fitLargeDifferences': differences, 'authorizedFitClips': sorted(allowed), 'tolerances': tolerances,
+                      'retained': len(retained), 'inherited': len(fit_clips)-len(retained), 'clips': rows,
+                      'assetApprovalCreated': False}
+    (output/'restoration-plan.json').write_text(json.dumps(plan, indent=1)+'\n', encoding='utf-8', newline='\n')
+    (output/'classification.json').write_text(json.dumps(classification, indent=1)+'\n', encoding='utf-8', newline='\n')
+    return classification
+
+
+def restore(root, plan_path, compiled_path, output):
+    """Copy the exact source controller bytes into the compiled library; layouts must match."""
+    root = Path(root).resolve(); plan_path = Path(plan_path); plan = json.loads(plan_path.read_text(encoding='utf-8'))
+    if plan.get('kind') != PLAN_KIND:
+        raise ValueError('Library restoration plan required')
+    if digest((plan_path.parent/plan['ascii']['path']).read_bytes()) != plan['ascii']['sha256']:
+        raise ValueError('Library ASCII changed after planning')
+    output = Path(output)
+    if output.exists():
+        raise ValueError('Fresh restored library output required')
+    compiled = Path(compiled_path).read_bytes(); blob = bytearray(compiled); model = NativeModel(compiled).decode()
+    if (model['name'], model['parent']) != (plan['library'], plan['parent']):
+        raise ValueError('Compiled library name or supermodel differs')
+    sources = {}
+    for owner, pin in plan['sources'].items():
+        data = (root/pin['path']).read_bytes()
+        if digest(data) != pin['sha256']:
+            raise ValueError('Restoration source changed: ' + owner)
+        sources[owner] = (data, NativeModel(data).decode())
+    ranges = []; before = [0.0]; reordered = []
+    def copy(target, data, source, label):
+        if set(target) != set(source):
+            raise ValueError('Compiled controller kinds differ: ' + label)
+        for kind in source:
+            t, s = target[kind], source[kind]
+            if t['values'].shape != s['values'].shape or len(t['times']) != len(s['times']):
+                raise ValueError(f'Compiled controller layout differs: {label} {kind}')
+            before[0] = max(before[0], float(np.abs(t['values']-s['values']).max()), float(np.abs(t['times']-s['times']).max()))
+            for field in ('timeRange', 'dataRange'):
+                (a, b), (c, d) = t[field], s[field]
+                blob[a:b] = data[c:d]; ranges.append((a, b))
+    if list(model['nodes']) != list(plan['geometry']['nodes']):
+        raise ValueError('Compiled library geometry differs')
+    for node, (owner, original) in plan['geometry']['nodes'].items():
+        data, source = sources[owner]
+        transforms = {k: v for k, v in source['nodes'][original]['controls'].items() if k in (8, 20)}
+        copy(model['nodes'][node]['controls'], data, transforms, 'geometry ' + node)
+    if set(model['clips']) != set(plan['clips']):
+        raise ValueError('Compiled library clip set differs')
+    for clip, row in plan['clips'].items():
+        data, source = sources[row['source']]; target = model['clips'][clip]
+        if list(target['nodes']) != list(row['nodes']):
+            raise ValueError('Compiled clip node tree differs: ' + clip)
+        for node, name in row['nodes'].items():
+            copy(target['nodes'][node]['controls'], data, source['clips'][clip]['nodes'][name]['controls'], f'{clip} {node}')
+        # The compiler sorts simultaneous events; restore the stored order of an identical event set.
+        original = source['clips'][clip]
+        if sorted(target['events']) != sorted(original['events']):
+            raise ValueError('Compiled events differ: ' + clip)
+        if target['events'] != original['events']:
+            (a, b), (c, d) = target['eventsRange'], original['eventsRange']
+            blob[a:b] = data[c:d]; ranges.append((a, b)); reordered.append(clip)
+    restored = bytes(blob); mask = np.zeros(len(blob), bool)
+    for a, b in ranges:
+        mask[a:b] = True
+    changed = np.frombuffer(restored, np.uint8) != np.frombuffer(compiled, np.uint8)
+    if (changed & ~mask).any():
+        raise ValueError('Restoration changed bytes outside controller and event ranges')
+    result = NativeModel(restored).decode()
+    for clip, row in plan['clips'].items():
+        if not clips_equal(result['clips'][clip], plan['library'], sources[row['source']][1]['clips'][clip], row['source']):
+            raise ValueError('Restored clip differs from its source: ' + clip)
+    for node, (owner, original) in plan['geometry']['nodes'].items():
+        ours = result['nodes'][node]['controls']; theirs = sources[owner][1]['nodes'][original]['controls']
+        if any(not np.array_equal(np.float32(ours[k]['values']), np.float32(theirs[k]['values'])) for k in theirs if k in (8, 20)):
+            raise ValueError('Restored geometry differs from its source: ' + node)
+    output.parent.mkdir(parents=True, exist_ok=True); output.write_bytes(restored)
+    receipt = {'schemaVersion': 1, 'kind': 'PhenoMorpher-library-restoration', 'library': plan['library'],
+               'plan': {'sha256': digest(plan_path.read_bytes())}, 'compiled': {'sha256': digest(compiled), 'bytes': len(compiled)},
+               'restored': {'sha256': digest(restored), 'bytes': len(restored)}, 'restoredRanges': len(ranges),
+               'restoredBytes': int(mask.sum()), 'changedBytes': int(changed.sum()), 'maxCompileDifference': before[0], 'eventOrderRestored': reordered,
+               'clips': len(plan['clips']), 'exactSourcePayload': True, 'assetApprovalCreated': False}
+    output.with_suffix('.restoration.json').write_text(json.dumps(receipt, indent=1)+'\n', encoding='utf-8', newline='\n')
+    return receipt
+
+
+def repoint(blob, parent):
+    """Change only the fixed-width supermodel field of a native root."""
+    data = parent.lower().encode('ascii')
+    if not 0 < len(data) < 64:
+        raise ValueError('Supermodel name must fit the native field')
+    before = NativeModel(blob).decode(); a, b = PARENT_FIELD
+    result = blob[:a] + data.ljust(64, b'\0') + blob[b:]
+    after = NativeModel(result).decode()
+    if after['parent'] != parent.lower() or after['name'] != before['name'] or len(result) != len(blob):
+        raise ValueError('Root repoint changed more than the supermodel field')
+    return result

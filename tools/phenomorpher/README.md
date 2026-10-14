@@ -74,6 +74,10 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 | `convert-clothing` | Profile, source binding, ASCII garment and frozen body references | Fresh converted model and preservation receipt |
 | `anim-library extract-stock` | Pinned `resman_cat`, installed game (`--no-ovr`) and seed models | Fresh stock-chain folder with `stock-models.json` hash pins |
 | `anim-library inventory` | Body manifest, its rigs/carriers/textures/materials and the stock pins | Root chains, nearest clip owners, stock deltas, texture headers and usage |
+| `anim-library build` | Body manifest rigs/carriers, stock pins, Fit/Large roots | Library ASCII, clip classification and restoration plan |
+| `anim-library restore` | Plan, its ASCII and source carriers, EE-compiled library | Library with exact source controller and event bytes |
+| `anim-library repoint` | One native root | Root with only its supermodel field changed |
+| `compare-motion` | Body manifest rigs/carriers, stock pins, library and repointed root | Per-clip exact/inherited/authorized status and assembled drift |
 
 An assembly sidecar is schemaVersion 1, kind `PhenoMorpher-assembly`, with `rig`
 and `parts` hash pins. Paths resolve inside the explicit `--root`. Part keys use

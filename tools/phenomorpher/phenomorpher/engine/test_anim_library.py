@@ -167,7 +167,100 @@ class InventoryTests(unittest.TestCase):
             self.assertTrue({(stock_dir/'a_ba.mdl').resolve(), (root/'srn_body/p_carrier.mdl').resolve(),
                              (root/'srn_body_tex/skin.mtr').resolve()} <= declared)
             with self.assertRaisesRegex(ValueError, 'Unknown anim-library action'):
-                consumed(['anim-library', 'build'])
+                consumed(['anim-library', 'bogus'])
+
+
+def simulated_compile(text):
+    """Stand-in for the EE compiler: same layout, axis-angle rounding and time-sorted events."""
+    model = lib.ascii_model(text)
+    def specs(nodes):
+        named = {}
+        for name, row in nodes.items():
+            named[name] = name.replace('__duplicate_', '#')
+        return [(named[n], named.get(r['parent'], ''), {k: (list(c['times']), [list(v) for v in c['values']])
+                for k, c in r['controls'].items()}) for n, r in nodes.items()]
+    clips = [{'name': n, 'animroot': c['animroot'], 'length': c['length'], 'transition': c['transition'],
+              'events': sorted(c['events']), 'nodes': specs(c['nodes'])} for n, c in model['clips'].items()]
+    return native(model['name'], model['parent'], specs(model['nodes']), clips, model['scale'])
+
+
+class LibraryBuildTests(unittest.TestCase):
+    def release(self, root, large_slash=7.0):
+        """Female Fit/Large roots on private carriers, plus the stock a_fa > a_ba chain."""
+        (root/'srn_body').mkdir(); stock_dir = root/'stock'; stock_dir.mkdir(); stock = {}; resources = []
+        for name, parent, clips in (('a_fa', 'a_ba', [clip('pause1', 'a_fa')]),
+                                    ('a_ba', 'null', [clip('walk', 'a_ba', animroot='a_ba'), clip('run', 'a_ba', animroot='a_ba')])):
+            data = native(name, parent, GEOMETRY(name), clips); (stock_dir/(name+'.mdl')).write_bytes(data)
+            stock[name] = {'path': name+'.mdl', 'sha256': hashlib.sha256(data).hexdigest(), 'parent': parent}
+        (stock_dir/'stock-models.json').write_text(json.dumps({'schemaVersion': 1, 'kind': lib.STOCK_KIND, 'seeds': ['a_fa'], 'models': stock}))
+        for root_name, carrier, slash in (('pfx0', 'pcf0', 5.0), ('pfx2', 'pcf2', large_slash)):
+            for name, parent, clips, role in ((root_name, carrier, [], 'fitted-rig'), (carrier, 'null', [
+                    clip('walk', carrier, angle=0.01, animroot='a_ba', events=((0.5, 'blur_end'), (0.5, 'hit'))),
+                    clip('run', carrier, angle=4, animroot='a_ba'), clip('pause1', carrier, angle=3), clip('slash', carrier, angle=slash)],
+                    'rig-inheritance')):
+                data = native(name, parent, GEOMETRY(name), clips); (root/'srn_body'/(name+'.mdl')).write_bytes(data)
+                resources.append({'path': f'srn_body/{name}.mdl', 'sha256': hashlib.sha256(data).hexdigest(), 'role': role})
+        (root/'manifest.json').write_text(json.dumps({'version': '1.0.0', 'resources': resources, 'targets': [], 'modelDependencies': []}))
+        return root/'manifest.json', stock_dir/'stock-models.json'
+
+    def test_build_restore_repoint_and_compare_motion(self):
+        from .motion_compare import compare
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest, stock = self.release(root); out = root/'build'
+            with self.assertRaisesRegex(ValueError, 'Unauthorized Fit/Large difference: slash'):
+                lib.build(root, manifest, stock, 'pfx0', 'pfx2', 'srn_an_xf', root/'refused')
+            result = lib.build(root, manifest, stock, 'pfx0', 'pfx2', 'srn_an_xf', out, allowed=['slash'])
+            self.assertEqual((result['retained'], result['inherited'], result['fitLargeDifferences']), (3, 1, ['slash']))
+            walk = result['clips']['walk']
+            self.assertTrue(walk['inherit'] and walk['eventOrderChanged'])
+            self.assertLess(max(d['metres'] for d in walk['assembledDrift'].values()), 1e-3)
+            self.assertEqual(result['clips']['slash']['reason'], 'not in stock')
+            text = (out/'converted/ascii/srn_an_xf.mdl').read_text()
+            self.assertIn('setsupermodel srn_an_xf a_fa', text); self.assertNotIn('newanim walk', text)
+            compiled = out/'converted/resources/srn_an_xf.mdl'; compiled.write_bytes(simulated_compile(text))
+            receipt = lib.restore(root, out/'restoration-plan.json', compiled, root/'restored/srn_an_xf.mdl')
+            self.assertTrue(receipt['exactSourcePayload']); self.assertEqual(receipt['clips'], 3)
+            restored = lib.NativeModel((root/'restored/srn_an_xf.mdl').read_bytes()).decode()
+            carrier = lib.load_model(root/'srn_body/pcf0.mdl')
+            for name in ('run', 'pause1', 'slash'):
+                self.assertTrue(lib.clips_equal(restored['clips'][name], 'srn_an_xf', carrier['clips'][name], 'pcf0'))
+            reports = {}
+            for target, allowed in (('pfx0', ()), ('pfx2', ('slash',))):
+                repointed = root/f'{target}.mdl'; repointed.write_bytes(lib.repoint((root/'srn_body'/f'{target}.mdl').read_bytes(), 'srn_an_xf'))
+                reports[target] = compare(root, manifest, stock, target, root/'restored/srn_an_xf.mdl', repointed, allowed)
+            self.assertTrue(reports['pfx0']['passed'])
+            self.assertEqual(reports['pfx0']['newChain'], ['pfx0', 'srn_an_xf', 'a_fa', 'a_ba'])
+            self.assertEqual(reports['pfx0']['counts'], {'exact': 3, 'inherited-within-tolerance': 1})
+            self.assertEqual(reports['pfx2']['clips']['slash']['status'], 'authorized-fit-clip')
+
+    def test_layout_changes_and_tampering_fail_instead_of_resampling(self):
+        from .motion_compare import compare
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest, stock = self.release(root); out = root/'build'
+            lib.build(root, manifest, stock, 'pfx0', 'pfx2', 'srn_an_xf', out, allowed=['slash'])
+            text = (out/'converted/ascii/srn_an_xf.mdl').read_text()
+            # A compiler that dropped a key must stop the restore.
+            lines = text.splitlines(); first = lines.index('    positionkey') + 1; del lines[first]
+            compiled = out/'converted/resources/srn_an_xf.mdl'; compiled.write_bytes(simulated_compile('\n'.join(lines)))
+            with self.assertRaisesRegex(ValueError, 'layout differs'):
+                lib.restore(root, out/'restoration-plan.json', compiled, root/'bad.mdl')
+            compiled.write_bytes(simulated_compile(text))
+            lib.restore(root, out/'restoration-plan.json', compiled, root/'good.mdl')
+            blob = bytearray((root/'good.mdl').read_bytes()); model = lib.NativeModel(bytes(blob)).decode()
+            a, b = model['clips']['run']['nodes']['rootdummy']['controls'][20]['dataRange']; blob[a:a+4] = struct.pack('<f', 0.5)
+            (root/'tampered.mdl').write_bytes(bytes(blob)); repointed = root/'pfx0.mdl'
+            repointed.write_bytes(lib.repoint((root/'srn_body/pfx0.mdl').read_bytes(), 'srn_an_xf'))
+            report = compare(root, manifest, stock, 'pfx0', root/'tampered.mdl', repointed)
+            self.assertEqual((report['passed'], report['failures']), (False, ['run']))
+            moved = bytearray(repointed.read_bytes()); moved[20] ^= 1; (root/'moved.mdl').write_bytes(bytes(moved))
+            with self.assertRaisesRegex(ValueError, 'outside the supermodel field'):
+                compare(root, manifest, stock, 'pfx0', root/'good.mdl', root/'moved.mdl')
+
+    def test_repoint_changes_only_the_supermodel_field(self):
+        blob = native('pfx0', 'pcf0', GEOMETRY('pfx0'))
+        result = lib.repoint(blob, 'srn_an_xf'); a, b = lib.PARENT_FIELD
+        self.assertEqual((result[:a], result[b:]), (blob[:a], blob[b:]))
+        self.assertEqual(lib.NativeModel(result).decode()['parent'], 'srn_an_xf')
 
 
 if __name__ == '__main__':

@@ -3,7 +3,8 @@ import json
 from pathlib import Path
 
 
-ANIMATION_ROLES = ('fitted-rig', 'rig-inheritance', 'selected-palette', 'selected-map', 'selected-material')
+RIG_ROLES = ('fitted-rig', 'rig-inheritance')
+ANIMATION_ROLES = RIG_ROLES + ('selected-palette', 'selected-map', 'selected-material')
 
 
 def read(path):
@@ -56,15 +57,27 @@ def consumed(arguments):
         for name in ('sourceBody','targetBody'):
             body = rooted(root, data[name]['path']); files.add(body)
             files.update(rooted(root, row['path']) for row in read(body)['files'].values())
-    elif command == 'anim-library':
-        action = arguments[1] if len(arguments) > 1 else ''
-        if action == 'extract-stock':
-            files.add(option('resman-cat'))
-        elif action == 'inventory':
+    elif command in ('anim-library', 'compare-motion'):
+        action = command if command == 'compare-motion' else arguments[1] if len(arguments) > 1 else ''
+        def release(roles):
             manifest = option('manifest'); stock = option('stock'); root = option('root')
             files.update([manifest, stock])
             files.update((stock.parent/row['path']).resolve() for row in read(stock)['models'].values())
-            files.update(rooted(root, x['path']) for x in read(manifest)['resources'] if x['role'] in ANIMATION_ROLES)
+            files.update(rooted(root, x['path']) for x in read(manifest)['resources'] if x['role'] in roles)
+        if action == 'extract-stock':
+            files.add(option('resman-cat'))
+        elif action == 'inventory':
+            release(ANIMATION_ROLES)
+        elif action == 'build':
+            release(RIG_ROLES)
+        elif action == 'compare-motion':
+            release(RIG_ROLES); files.update([option('library'), option('repointed')])
+        elif action == 'restore':
+            plan = option('plan'); root = option('root'); data = read(plan)
+            files.update([plan, option('compiled'), (plan.parent/data['ascii']['path']).resolve()])
+            files.update(rooted(root, row['path']) for row in data['sources'].values())
+        elif action == 'repoint':
+            files.add(option('input'))
         else:
             raise ValueError('Unknown anim-library action: '+action)
     else:

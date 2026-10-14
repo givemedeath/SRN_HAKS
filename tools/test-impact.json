@@ -303,6 +303,7 @@
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/convert_model.py",
       "tools/phenomorpher/phenomorpher/engine/measurement_workflow.py",
+      "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
       "tools/phenomorpher/phenomorpher/engine/replay_bodies.py",
       "tools/phenomorpher/phenomorpher/inputs.py"
     ],
@@ -426,6 +427,9 @@
       "tools/phenomorpher/phenomorpher/engine/target_animation_overlay.py",
       "tools/phenomorpher/phenomorpher/engine/target_contract.py"
     ],
+    "tools/phenomorpher/phenomorpher/engine/motion_compare.py": [
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py"
+    ],
     "tools/phenomorpher/phenomorpher/engine/native_motion.py": [],
     "tools/phenomorpher/phenomorpher/engine/nwn_part_measurements.py": [
       "tools/phenomorpher/phenomorpher/engine/silhouette_model.py",
@@ -491,6 +495,7 @@
     ],
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py": [
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
       "tools/phenomorpher/phenomorpher/inputs.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_check_connector_surfaces_v15.py": [

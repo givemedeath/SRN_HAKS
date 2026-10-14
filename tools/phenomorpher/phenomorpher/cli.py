@@ -83,6 +83,21 @@ def main(argv=None):
     s = actions.add_parser('inventory')
     for name in ('root', 'manifest', 'stock', 'output'):
         s.add_argument('--' + name, type=Path, required=True)
+    s = actions.add_parser('build')
+    for name in ('root', 'manifest', 'stock', 'output'):
+        s.add_argument('--' + name, type=Path, required=True)
+    for name in ('fit', 'large', 'name'):
+        s.add_argument('--' + name, required=True)
+    s.add_argument('--authorized-fit-clip', action='append', default=[])
+    s = actions.add_parser('restore')
+    for name in ('root', 'plan', 'compiled', 'output'):
+        s.add_argument('--' + name, type=Path, required=True)
+    s = actions.add_parser('repoint'); s.add_argument('--input', type=Path, required=True)
+    s.add_argument('--parent', required=True); s.add_argument('--output', type=Path, required=True)
+    p = sub.add_parser('compare-motion')
+    for name in ('root', 'manifest', 'stock', 'library', 'repointed', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--target', required=True); p.add_argument('--authorized-fit-clip', action='append', default=[])
     a = parser.parse_args(argv)
     if a.command == 'doctor':
         declared(__file__)
@@ -153,18 +168,35 @@ def main(argv=None):
                 declared(api.bound(a.release,data[name],snapshot()))
         from .engine.replay_bodies import run
         print(json.dumps(run(a.release, a.output))); return
-    if a.command == 'anim-library':
+    if a.command in ('anim-library', 'compare-motion'):
         from .engine import anim_library
         from .inputs import consumed
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
-        if a.action == 'extract-stock':
+        action = a.command if a.command == 'compare-motion' else a.action
+        if action == 'extract-stock':
             result = anim_library.extract_stock(a.resman_cat, a.game_root, a.seed, a.output)
             print(json.dumps({'models': len(result['models']), 'seeds': result['seeds']})); return
-        if a.output.exists(): raise ValueError('Fresh inventory output required')
-        result = anim_library.inventory(a.root, a.manifest, a.stock)
+        if action == 'build':
+            result = anim_library.build(a.root, a.manifest, a.stock, a.fit, a.large, a.name, a.output, a.authorized_fit_clip)
+            print(json.dumps({k: result[k] for k in ('library', 'retained', 'inherited', 'fitLargeDifferences')})); return
+        if action == 'restore':
+            result = anim_library.restore(a.root, a.plan, a.compiled, a.output)
+            print(json.dumps({k: v for k, v in result.items() if k != 'eventOrderRestored'})); return
+        if a.output.exists(): raise ValueError('Fresh output required')
         a.output.parent.mkdir(parents=True, exist_ok=True)
+        if action == 'repoint':
+            data = anim_library.repoint(a.input.read_bytes(), a.parent); a.output.write_bytes(data)
+            print(json.dumps({'output': str(a.output), 'sha256': anim_library.digest(data)})); return
+        if action == 'compare-motion':
+            from .engine.motion_compare import compare
+            result = compare(a.root, a.manifest, a.stock, a.target, a.library, a.repointed, a.authorized_fit_clip)
+            summary = {k: result[k] for k in ('target', 'newChain', 'counts', 'failures', 'passed')}
+        else:
+            result = anim_library.inventory(a.root, a.manifest, a.stock); summary = result['summary']
         a.output.write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8', newline='\n')
-        print(json.dumps(result['summary'])); return
+        print(json.dumps(summary))
+        if not result.get('passed', True): raise SystemExit(1)
+        return
     if a.command == 'convert-clothing':
         for path in (a.profile,a.source_binding,a.input):declared(path)
         data=read(a.profile)
