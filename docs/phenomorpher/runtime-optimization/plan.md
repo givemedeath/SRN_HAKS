@@ -320,3 +320,13 @@ Then the full set (header scan decides; expected 25 PLT + 56 maps). Each unique 
   - `docs/phenomorpher/{game-ready-assets.json,ASSETS.md,retired-runtime-resources.json,README.md}`;
   - `srn_body/*` (20 roots, 8 libraries, 25 downsampled PLTs; carriers removed), `srn_body_tex/*` (56 downsampled maps);
   - pin consumers found in Phase 1.
+
+## Revision 2026-10-14 — Phase 3 unkeyed-node gate
+
+User decision after Phase 3: the native client probe for unkeyed nodes moves into the
+Phase 7 client session instead of a separate Phase 3 module. Phase 3 records the stock-game
+evidence instead ([libraries.md](libraries.md)): stock `pmd0 > a_da > a_ba` plays `a_ba` walk/talk
+with dwarf shins that differ by 157 mm from both `a_da` and `a_ba`, so unkeyed nodes take
+the root frames. Phase 7 adds an explicit stop-gate on inherited clips: Troll, Elf and Orc
+`walk_swordr`/`run_swordl`, talk (`tlknorm`), `salute`, `greeting`, and Dwarf `torchl`, baseline
+vs candidate. A visible difference there stops the work as the original stop point does.
