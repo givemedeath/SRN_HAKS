@@ -284,6 +284,15 @@ CI runs one entry workflow, `.github/workflows/ci.yml`:
    plan; neither diffs the base itself. Each helper shard is its own job per OS,
    item import has one owner job per OS, and the wheel job installs PhenoMorpher
    in an isolated venv and runs its packaged tests outside the checkout.
+   Helper jobs use blobless cone-mode sparse checkouts. Test shards check out
+   `testCheckout` from `tools/ci-scope.json` plus root files; the `packs` group
+   collects every test whose transitive catalog closure names an `srn_*` pack, and
+   only that leg checks those packs out. Item import checks out `.github` and
+   `tools`; the wheel job checks out `tools/phenomorpher`. Scope uses the
+   `testCheckout` folders with full blobless history; verification keeps the
+   complete tree. `tools/test_impact.py` catalogs pack names from HEAD as
+   well as disk, and its runner fails a leg when a test looks at a committed pack
+   folder the checkout omitted, so a missing pack cannot pass silently.
 3. **CI result** passes only when every selected job succeeded. It rejects
    failures, cancellations and selected jobs that were skipped or missing, and
    re-evaluates after "Re-run failed jobs".
