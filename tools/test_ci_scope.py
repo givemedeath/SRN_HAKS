@@ -1,5 +1,6 @@
 import json
 import re
+import subprocess
 import unittest
 from pathlib import Path
 import ci_scope
@@ -185,6 +186,13 @@ class WorkflowWiringTests(unittest.TestCase):
         self.assertNotIn('sparse-checkout-cone-mode',self.helpers)
         # Verification builds every pack, so it keeps the complete working tree.
         verify=self.checkout('verify',self.ci);self.assertIn('fetch-depth: 0\n',verify);self.assertNotIn('sparse-checkout',verify)
+    def test_scope_checks_out_every_folder_the_catalog_reads(self):
+        scope=self.checkout('scope',self.ci);base=load_config()['testCheckout']
+        self.assertIn('fetch-depth: 0\n',scope);self.assertIn('filter: blob:none\n',scope)
+        self.assertIn('sparse-checkout: |\n'+''.join(' '*12+p+'\n' for p in base),scope)
+        # The catalog walks every non-pack folder for tools and Markdown, so a new top-level folder must join the set.
+        top=subprocess.run(['git','-C',str(REPO),'ls-tree','-d','--name-only','HEAD'],capture_output=True,text=True,check=True).stdout.split()
+        self.assertEqual(sorted(base),sorted(d for d in top if not re.fullmatch(r'srn_[a-z0-9_]+',d)))
     def test_helpers_consume_the_plan_and_never_rediscover_scope(self):
         self.assertIn('workflow_call:',self.helpers);self.assertNotIn('pull_request',self.helpers)
         self.assertNotIn('discover -s tools',self.helpers);self.assertNotIn('git diff',self.helpers)

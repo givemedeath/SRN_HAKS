@@ -288,8 +288,9 @@ CI runs one entry workflow, `.github/workflows/ci.yml`:
    `testCheckout` from `tools/ci-scope.json` plus root files; the `packs` group
    collects every test whose transitive catalog closure names an `srn_*` pack, and
    only that leg checks those packs out. Item import checks out `.github` and
-   `tools`; the wheel job checks out `tools/phenomorpher`. Verification and Scope
-   keep the complete tree. `tools/test_impact.py` catalogs pack names from HEAD as
+   `tools`; the wheel job checks out `tools/phenomorpher`. Scope uses the
+   `testCheckout` folders with full blobless history; verification keeps the
+   complete tree. `tools/test_impact.py` catalogs pack names from HEAD as
    well as disk, and its runner fails a leg when a test looks at a committed pack
    folder the checkout omitted, so a missing pack cannot pass silently.
 3. **CI result** passes only when every selected job succeeded. It rejects
