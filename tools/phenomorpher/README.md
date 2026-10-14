@@ -79,6 +79,7 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 | `anim-library repoint` | One native root | Root with only its supermodel field changed |
 | `compare-motion` | Body manifest rigs/carriers, stock pins, library and repointed root | Per-clip exact/inherited/authorized status and assembled drift |
 | `downsample-textures` | Body manifest palettes, maps and materials | Fresh folder of 2:1-reduced textures above the size cap and a receipt |
+| `adopt-runtime` | Adoption plan pins: base contract, libraries, roots, comparisons, texture receipt, stock | Staged pack files, next contract, retired list, inventory index and removal list |
 
 An assembly sidecar is schemaVersion 1, kind `PhenoMorpher-assembly`, with `rig`
 and `parts` hash pins. Paths resolve inside the explicit `--root`. Part keys use

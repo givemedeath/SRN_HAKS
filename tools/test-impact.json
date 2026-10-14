@@ -284,6 +284,7 @@
       "tools/phenomorpher/phenomorpher/engine/measurement_workflow.py",
       "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
       "tools/phenomorpher/phenomorpher/engine/replay_bodies.py",
+      "tools/phenomorpher/phenomorpher/engine/runtime_release.py",
       "tools/phenomorpher/phenomorpher/engine/texture_downsample.py",
       "tools/phenomorpher/phenomorpher/inputs.py"
     ],
@@ -451,6 +452,10 @@
       "tools/phenomorpher/phenomorpher/engine/rig_controller_audit.py",
       "tools/phenomorpher/phenomorpher/engine/target_contract.py"
     ],
+    "tools/phenomorpher/phenomorpher/engine/runtime_release.py": [
+      "docs/phenomorpher/ASSETS.md",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py"
+    ],
     "tools/phenomorpher/phenomorpher/engine/shared_female_native_contract.py": [
       "tools/phenomorpher/phenomorpher/engine/target_animation_overlay.py",
       "tools/phenomorpher/phenomorpher/engine/target_contract.py"
@@ -504,6 +509,13 @@
     "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15b.py": [
       "tools/phenomorpher/phenomorpher/engine/phenomorpher_scene_v15b.py",
       "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15a.py"
+    ],
+    "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py": [
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
+      "tools/phenomorpher/phenomorpher/engine/runtime_release.py",
+      "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/texture_downsample.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_texture_downsample.py": [
       "tools/phenomorpher/phenomorpher/engine/texture_downsample.py",
@@ -3072,9 +3084,16 @@
     "tools/heads/build_head_fixture.py": [
       "srn_body"
     ],
+    "tools/phenomorpher/phenomorpher/engine/runtime_release.py": [
+      "srn_2da",
+      "srn_body"
+    ],
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py": [
       "srn_body",
       "srn_body_tex"
+    ],
+    "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py": [
+      "srn_body"
     ],
     "tools/phenotypes/freeze_derived_masters.py": [
       "srn_body"
@@ -3122,6 +3141,7 @@
     "tools/phenomorpher/phenomorpher/engine/test_morph_preview_pose_v13.py",
     "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15a.py",
     "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15b.py",
+    "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py",
     "tools/phenomorpher/phenomorpher/engine/test_texture_downsample.py",
     "tools/phenomorpher/phenomorpher/test_cli_contract.py",
     "tools/phenomorpher/phenomorpher/test_public_api.py",

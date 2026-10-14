@@ -55,6 +55,17 @@ def consumed(arguments):
         manifest = option('manifest'); root = option('root'); files.add(manifest)
         files.update(rooted(root, x['path']) for x in read(manifest)['resources']
                      if x['role'] in ('selected-palette', 'selected-map', 'selected-material'))
+    elif command == 'adopt-runtime':
+        plan = option('plan'); root = option('root'); data = read(plan); files.add(plan)
+        pins = [data['baseContract'], data['retiredResources'], data['stock'], data['textures']]
+        pins += data['libraries'] + [row['restoration'] for row in data['libraries']]
+        pins += data['roots'] + [row['comparison'] for row in data['roots']]
+        files.update(rooted(root, pin['path']) for pin in pins)
+        contract = rooted(root, data['baseContract']['path']); stock = rooted(root, data['stock']['path'])
+        files.update(rooted(root, row['path']) for row in read(contract)['resources'])
+        files.update((stock.parent/row['path']).resolve() for row in read(stock)['models'].values())
+        receipt = rooted(root, data['textures']['path'])
+        files.update((receipt.parent/row['path']).resolve() for row in read(receipt)['resources'])
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)

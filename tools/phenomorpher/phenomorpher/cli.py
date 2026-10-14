@@ -103,6 +103,9 @@ def main(argv=None):
     for name in ('root', 'manifest', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--max-size', type=int, default=1024)
+    p = sub.add_parser('adopt-runtime')
+    for name in ('root', 'plan', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
     a = parser.parse_args(argv)
     if a.command == 'doctor':
         declared(__file__)
@@ -207,6 +210,11 @@ def main(argv=None):
         from .inputs import consumed
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         print(json.dumps(downsample(a.root, a.manifest, a.output, a.max_size)['summary'])); return
+    if a.command == 'adopt-runtime':
+        from .engine.runtime_release import adopt
+        from .inputs import consumed
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        print(json.dumps(adopt(a.root, a.plan, a.output)['summary'])); return
     if a.command == 'convert-clothing':
         for path in (a.profile,a.source_binding,a.input):declared(path)
         data=read(a.profile)

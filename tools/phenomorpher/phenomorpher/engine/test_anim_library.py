@@ -191,7 +191,7 @@ class LibraryBuildTests(unittest.TestCase):
         for name, parent, clips in (('a_fa', 'a_ba', [clip('pause1', 'a_fa')]),
                                     ('a_ba', 'null', [clip('walk', 'a_ba', animroot='a_ba'), clip('run', 'a_ba', animroot='a_ba')])):
             data = native(name, parent, GEOMETRY(name), clips); (stock_dir/(name+'.mdl')).write_bytes(data)
-            stock[name] = {'path': name+'.mdl', 'sha256': hashlib.sha256(data).hexdigest(), 'parent': parent}
+            stock[name] = {'path': name+'.mdl', 'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data), 'format': 'binary', 'parent': parent}
         (stock_dir/'stock-models.json').write_text(json.dumps({'schemaVersion': 1, 'kind': lib.STOCK_KIND, 'seeds': ['a_fa'], 'models': stock}))
         for root_name, carrier, slash in (('pfx0', 'pcf0', 5.0), ('pfx2', 'pcf2', large_slash)):
             for name, parent, clips, role in ((root_name, carrier, [], 'fitted-rig'), (carrier, 'null', [

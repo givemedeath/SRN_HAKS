@@ -1,8 +1,9 @@
 # PhenoMorpher game-ready bodies
 
-Version 1.0 publishes twenty reviewed bodies: Human, Dwarf, Elf, Orc and Troll,
-female and male, Fit and Large. Use
-[game-ready-assets.json](game-ready-assets.json) as the current resource and
+Version 1.0 published twenty reviewed bodies: Human, Dwarf, Elf, Orc and Troll,
+female and male, Fit and Large. Version 1.1.0 keeps those shapes, UVs and rigs and
+optimizes their runtime resources (see [Runtime optimization](#runtime-optimization-110)).
+Use [game-ready-assets.json](game-ready-assets.json) as the current resource and
 target contract. Previous Human delivery manifests remain historical records.
 
 The user approved these shapes and requested publication on 2026-10-13 after
@@ -12,7 +13,7 @@ The selected female posture is **hips level + original upper lean/breathing**.
 
 ## Build and consume
 
-Native models, PLTs and private fitted animation closures land
+Native models, PLTs, the eight shared animation libraries and `srn_fa_h0` land
 in the flat `srn_body` pack. Required material descriptors and new skin maps land in `srn_body_tex`, keeping the body pack below the bundler's 2 GB limit. Appearance, race and phenotype tables land in `srn_2da`.
 
 ```powershell
@@ -35,10 +36,31 @@ share Human resources, and Halflings are outside the release.
 The selected Fit model237 and its palette are promoted to part001. Only fixed
 model/node name fields change in those model binaries; raw geometry, UVs,
 lighting attributes, transforms and animation data remain exact. Large native
-models, fitted rigs and selected texture payloads are copied byte-for-byte.
+models and fitted rigs are copied byte-for-byte apart from the 1.1.0 supermodel
+field; texture payloads above 1024 px are 1.1.0 reductions of the selected ones.
 The dependency inventory records original archive and payload hashes. No
 diagnostic garments, alternate skin comparisons, test areas or global stock
 animation overrides are published.
+
+## Runtime optimization (1.1.0)
+
+Bodies now follow the stock supermodel structure. Each non-Human Fit and Large root
+names one shared library, `srn_an_<race><gender>` (`dm`, `df`, `em`, `ef`, `om`, `of`,
+`gm`, `gf`; Troll uses slot G), over the installed `a_fa` (female) or `a_ba` (male) chain.
+Human Large roots name `srn_fa_h0` (female) or `a_ba` (male), like Human Fit. Each library holds
+only the clips stock cannot supply; they are byte-exact copies of the published clips.
+The clips inherited from stock had identical keys in the published chains. The female
+Large `2hslashl` now uses the Fit clip, as authorized. The 108 private carrier models are retired.
+
+Body palettes and skin maps above 1024 px are reduced 2:1 by area with their names,
+formats, materials and PLT files unchanged. The published payload falls from 1.66 GB
+to 847 MB. The installed `a_fa`/`a_ba` chain observed at build time is pinned in
+`installedAnimationChain`.
+
+Evidence: [plan](runtime-optimization/plan.md), [baseline](runtime-optimization/baseline.md),
+[pilot libraries](runtime-optimization/pilots.md), [all libraries](runtime-optimization/libraries.md)
+and [textures](runtime-optimization/textures.md). Client validation of 1.1.0 is pending;
+rollback is contract 1.0.0 and its resources at commit `0866bcaf`.
 
 ## Validation and limits
 

@@ -1,6 +1,6 @@
 # PhenoMorpher runtime file inventory
 
-This index lists all 1031 selected runtime resources. The [full hash manifest](game-ready-assets.json) and [appearance table](../../srn_2da/appearance.2da) remain available as files; their large generated line diffs are suppressed so GitHub can display this PR. Asset contents, body shapes and rigs are unchanged.
+This index lists all 931 selected runtime resources. The [full hash manifest](game-ready-assets.json) and [appearance table](../../srn_2da/appearance.2da) remain available as files; their large generated line diffs are suppressed so GitHub can display this PR. Body shapes, UVs and rigs are unchanged; contract 1.1.0 replaces the private animation carriers with shared libraries and caps body textures at 1024 px.
 
 Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](../../srn_2da/phenotype.2da), [table validation](table-validation.json) and [publication validation](publication-validation.json) separately.
 
@@ -12,118 +12,10 @@ Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](..
 | [phenotype.2da](../../srn_2da/phenotype.2da) |
 | [racialtypes.2da](../../srn_2da/racialtypes.2da) |
 
-## srn_body (765 files)
+## srn_body (665 files)
 
 | Resource |
 |---|
-| [p17_00_01.mdl](../../srn_body/p17_00_01.mdl) |
-| [p17_00_02.mdl](../../srn_body/p17_00_02.mdl) |
-| [p17_00_03.mdl](../../srn_body/p17_00_03.mdl) |
-| [p17_00_04.mdl](../../srn_body/p17_00_04.mdl) |
-| [p17_00_05.mdl](../../srn_body/p17_00_05.mdl) |
-| [p17_00_06.mdl](../../srn_body/p17_00_06.mdl) |
-| [p17_00_07.mdl](../../srn_body/p17_00_07.mdl) |
-| [p17_02_01.mdl](../../srn_body/p17_02_01.mdl) |
-| [p17_02_02.mdl](../../srn_body/p17_02_02.mdl) |
-| [p17_02_03.mdl](../../srn_body/p17_02_03.mdl) |
-| [p17_02_04.mdl](../../srn_body/p17_02_04.mdl) |
-| [p17_02_05.mdl](../../srn_body/p17_02_05.mdl) |
-| [p17_04_01.mdl](../../srn_body/p17_04_01.mdl) |
-| [p17_04_02.mdl](../../srn_body/p17_04_02.mdl) |
-| [p17_04_03.mdl](../../srn_body/p17_04_03.mdl) |
-| [p17_04_04.mdl](../../srn_body/p17_04_04.mdl) |
-| [p17_04_05.mdl](../../srn_body/p17_04_05.mdl) |
-| [p17_04_06.mdl](../../srn_body/p17_04_06.mdl) |
-| [p17_04_07.mdl](../../srn_body/p17_04_07.mdl) |
-| [p17_06_01.mdl](../../srn_body/p17_06_01.mdl) |
-| [p17_06_02.mdl](../../srn_body/p17_06_02.mdl) |
-| [p17_06_03.mdl](../../srn_body/p17_06_03.mdl) |
-| [p17_06_04.mdl](../../srn_body/p17_06_04.mdl) |
-| [p17_06_05.mdl](../../srn_body/p17_06_05.mdl) |
-| [p17_12_01.mdl](../../srn_body/p17_12_01.mdl) |
-| [p17_12_02.mdl](../../srn_body/p17_12_02.mdl) |
-| [p17_12_03.mdl](../../srn_body/p17_12_03.mdl) |
-| [p17_12_04.mdl](../../srn_body/p17_12_04.mdl) |
-| [p17_12_05.mdl](../../srn_body/p17_12_05.mdl) |
-| [p17_12_06.mdl](../../srn_body/p17_12_06.mdl) |
-| [p17_12_07.mdl](../../srn_body/p17_12_07.mdl) |
-| [p17_14_01.mdl](../../srn_body/p17_14_01.mdl) |
-| [p17_14_02.mdl](../../srn_body/p17_14_02.mdl) |
-| [p17_14_03.mdl](../../srn_body/p17_14_03.mdl) |
-| [p17_14_04.mdl](../../srn_body/p17_14_04.mdl) |
-| [p17_14_05.mdl](../../srn_body/p17_14_05.mdl) |
-| [p17_16_01.mdl](../../srn_body/p17_16_01.mdl) |
-| [p17_16_02.mdl](../../srn_body/p17_16_02.mdl) |
-| [p17_16_03.mdl](../../srn_body/p17_16_03.mdl) |
-| [p17_16_04.mdl](../../srn_body/p17_16_04.mdl) |
-| [p17_16_05.mdl](../../srn_body/p17_16_05.mdl) |
-| [p17_16_06.mdl](../../srn_body/p17_16_06.mdl) |
-| [p17_16_07.mdl](../../srn_body/p17_16_07.mdl) |
-| [p17_18_01.mdl](../../srn_body/p17_18_01.mdl) |
-| [p17_18_02.mdl](../../srn_body/p17_18_02.mdl) |
-| [p17_18_03.mdl](../../srn_body/p17_18_03.mdl) |
-| [p17_18_04.mdl](../../srn_body/p17_18_04.mdl) |
-| [p17_18_05.mdl](../../srn_body/p17_18_05.mdl) |
-| [p25l00_00.mdl](../../srn_body/p25l00_00.mdl) |
-| [p25l00_01.mdl](../../srn_body/p25l00_01.mdl) |
-| [p25l00_02.mdl](../../srn_body/p25l00_02.mdl) |
-| [p25l00_03.mdl](../../srn_body/p25l00_03.mdl) |
-| [p25l00_04.mdl](../../srn_body/p25l00_04.mdl) |
-| [p25l00_05.mdl](../../srn_body/p25l00_05.mdl) |
-| [p25l00_06.mdl](../../srn_body/p25l00_06.mdl) |
-| [p25l01_00.mdl](../../srn_body/p25l01_00.mdl) |
-| [p25l01_01.mdl](../../srn_body/p25l01_01.mdl) |
-| [p25l01_02.mdl](../../srn_body/p25l01_02.mdl) |
-| [p25l01_03.mdl](../../srn_body/p25l01_03.mdl) |
-| [p25l01_04.mdl](../../srn_body/p25l01_04.mdl) |
-| [p25l02_00.mdl](../../srn_body/p25l02_00.mdl) |
-| [p25l02_01.mdl](../../srn_body/p25l02_01.mdl) |
-| [p25l02_02.mdl](../../srn_body/p25l02_02.mdl) |
-| [p25l02_03.mdl](../../srn_body/p25l02_03.mdl) |
-| [p25l02_04.mdl](../../srn_body/p25l02_04.mdl) |
-| [p25l02_05.mdl](../../srn_body/p25l02_05.mdl) |
-| [p25l02_06.mdl](../../srn_body/p25l02_06.mdl) |
-| [p25l03_00.mdl](../../srn_body/p25l03_00.mdl) |
-| [p25l03_01.mdl](../../srn_body/p25l03_01.mdl) |
-| [p25l03_02.mdl](../../srn_body/p25l03_02.mdl) |
-| [p25l03_03.mdl](../../srn_body/p25l03_03.mdl) |
-| [p25l03_04.mdl](../../srn_body/p25l03_04.mdl) |
-| [p25l04_00.mdl](../../srn_body/p25l04_00.mdl) |
-| [p25l04_01.mdl](../../srn_body/p25l04_01.mdl) |
-| [p25l04_02.mdl](../../srn_body/p25l04_02.mdl) |
-| [p25l04_03.mdl](../../srn_body/p25l04_03.mdl) |
-| [p25l04_04.mdl](../../srn_body/p25l04_04.mdl) |
-| [p25l04_05.mdl](../../srn_body/p25l04_05.mdl) |
-| [p25l04_07.mdl](../../srn_body/p25l04_07.mdl) |
-| [p25l05_00.mdl](../../srn_body/p25l05_00.mdl) |
-| [p25l05_01.mdl](../../srn_body/p25l05_01.mdl) |
-| [p25l05_02.mdl](../../srn_body/p25l05_02.mdl) |
-| [p25l05_03.mdl](../../srn_body/p25l05_03.mdl) |
-| [p25l05_04.mdl](../../srn_body/p25l05_04.mdl) |
-| [p25l06_00.mdl](../../srn_body/p25l06_00.mdl) |
-| [p25l06_01.mdl](../../srn_body/p25l06_01.mdl) |
-| [p25l06_02.mdl](../../srn_body/p25l06_02.mdl) |
-| [p25l06_03.mdl](../../srn_body/p25l06_03.mdl) |
-| [p25l06_04.mdl](../../srn_body/p25l06_04.mdl) |
-| [p25l06_05.mdl](../../srn_body/p25l06_05.mdl) |
-| [p25l06_06.mdl](../../srn_body/p25l06_06.mdl) |
-| [p25l07_00.mdl](../../srn_body/p25l07_00.mdl) |
-| [p25l07_01.mdl](../../srn_body/p25l07_01.mdl) |
-| [p25l07_02.mdl](../../srn_body/p25l07_02.mdl) |
-| [p25l07_03.mdl](../../srn_body/p25l07_03.mdl) |
-| [p25l07_04.mdl](../../srn_body/p25l07_04.mdl) |
-| [p25l08_00.mdl](../../srn_body/p25l08_00.mdl) |
-| [p25l08_01.mdl](../../srn_body/p25l08_01.mdl) |
-| [p25l08_02.mdl](../../srn_body/p25l08_02.mdl) |
-| [p25l08_03.mdl](../../srn_body/p25l08_03.mdl) |
-| [p25l08_04.mdl](../../srn_body/p25l08_04.mdl) |
-| [p25l08_05.mdl](../../srn_body/p25l08_05.mdl) |
-| [p25l08_06.mdl](../../srn_body/p25l08_06.mdl) |
-| [p25l09_00.mdl](../../srn_body/p25l09_00.mdl) |
-| [p25l09_01.mdl](../../srn_body/p25l09_01.mdl) |
-| [p25l09_02.mdl](../../srn_body/p25l09_02.mdl) |
-| [p25l09_03.mdl](../../srn_body/p25l09_03.mdl) |
-| [p25l09_04.mdl](../../srn_body/p25l09_04.mdl) |
 | [pfd0.mdl](../../srn_body/pfd0.mdl) |
 | [pfd0_bicepl001.mdl](../../srn_body/pfd0_bicepl001.mdl) |
 | [pfd0_bicepl001.plt](../../srn_body/pfd0_bicepl001.plt) |
@@ -780,6 +672,14 @@ Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](..
 | [pmo2_shinl001.plt](../../srn_body/pmo2_shinl001.plt) |
 | [pmo2_shinr001.mdl](../../srn_body/pmo2_shinr001.mdl) |
 | [pmo2_shinr001.plt](../../srn_body/pmo2_shinr001.plt) |
+| [srn_an_df.mdl](../../srn_body/srn_an_df.mdl) |
+| [srn_an_dm.mdl](../../srn_body/srn_an_dm.mdl) |
+| [srn_an_ef.mdl](../../srn_body/srn_an_ef.mdl) |
+| [srn_an_em.mdl](../../srn_body/srn_an_em.mdl) |
+| [srn_an_gf.mdl](../../srn_body/srn_an_gf.mdl) |
+| [srn_an_gm.mdl](../../srn_body/srn_an_gm.mdl) |
+| [srn_an_of.mdl](../../srn_body/srn_an_of.mdl) |
+| [srn_an_om.mdl](../../srn_body/srn_an_om.mdl) |
 | [srn_fa_h0.mdl](../../srn_body/srn_fa_h0.mdl) |
 
 ## srn_body_tex (263 files)

@@ -502,5 +502,1139 @@
     "sha256": "f9ef38468856c763a8be3c2389b204b5eff0ffd5628a72e5e373da04ec6e95d9",
     "bytes": 12582956,
     "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/p17_00_01.mdl",
+    "sha256": "d06196f5b7844953b27a95bc2854770eff6402d65796dff79f81056c4600bae0",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_00_02.mdl",
+    "sha256": "99f31c2e889ef37395252bf17398f755a924801b13f4935f2ab177c92d5d54d9",
+    "bytes": 1917524,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_00_03.mdl",
+    "sha256": "aace2dd722516a164582305973b80a3e10cb42e31605d82900865c4cfabba45d",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_00_04.mdl",
+    "sha256": "9bb7b7ffde31f91f78d70473c2d7c5b2eef65f1e4752ec2e5bd98d03c8047473",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_00_05.mdl",
+    "sha256": "245c52b067bcd56a710fcfa2a64ecc1d9a316ca38c1199d183d02515b5ecd5c3",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_00_06.mdl",
+    "sha256": "58edce0781ede937b84f2f8f4198876f85d787111d49b92a22076eff21d3def8",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_00_07.mdl",
+    "sha256": "6f25f5ca6710357fcc19d9ffe19c9c172849ea479f2bf6c339587c744e001deb",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l00_00.mdl",
+    "sha256": "601bbfbac9b2e34b74d42adb7139e1d7adea8e15d92e894888876fc19d5e2eca",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l00_01.mdl",
+    "sha256": "8cd2956ab0eb248a08e491476493717d5c9848b09b2beb74f34abc6c6951fb50",
+    "bytes": 1917524,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l00_02.mdl",
+    "sha256": "f9ea5e2bde4be00a8400be98b58a342ab279b7af5e6cc109112aa1fc5b5c4775",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l00_03.mdl",
+    "sha256": "2a4eed53a9b57a59d5ff2b6b5d920cf8dd5d4b84e849d2810fb5510f18f56db8",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l00_04.mdl",
+    "sha256": "9831abf900a86b61c01a5e8d13117abbc7cf6125f59d8237b452d8c4ac5ab954",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l00_05.mdl",
+    "sha256": "90d546855c73ad07ec91a9412f12bfcda00c8e1497bae3c0ee64bbb392a93db5",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l00_06.mdl",
+    "sha256": "c7e2e078614207e61733a3bf044960b5c703b36a579efe59b20a063f9cdaa0f8",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_02_01.mdl",
+    "sha256": "ec620bc120e0c1926628bb71371f5abc0e67c9c365eb7319f1d4fab76387d325",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_02_02.mdl",
+    "sha256": "93a8c65856de576178a405138edf4f4cf570bee32672504546fdbc39f0b80a6d",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_02_03.mdl",
+    "sha256": "c0c3bc7141ebc5a22e5fbb8292220f33128d89bc9ce33f0e1d24d9c53fc19fbb",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_02_04.mdl",
+    "sha256": "abcc6e97b74e82b72665e36a469f224cec9fef5e568450805b578fd3457e1a33",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_02_05.mdl",
+    "sha256": "a36d2bd245b10b89644b45ca7d1ca0cc3d58354fef95e057edac6f3ad58acb94",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l01_00.mdl",
+    "sha256": "f7b5b2295ad49d9a4cf6c1e020d4b25a73e4d9415dfe215cedf5d87c9d3b96ea",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l01_01.mdl",
+    "sha256": "c0ce2a70e4d384de0908f0b618f3ab4e89fdcf29b92cc33635ece784d8bac3e7",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l01_02.mdl",
+    "sha256": "ed00698af28d1f3cb3e9029dda02327cdadac5e0afd2b294d50fa8758c4b0a21",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l01_03.mdl",
+    "sha256": "2b66dcc3d0bd0a4d38c239b13c9bd19cd8bb2b71d65b6d56706c5fb9ddcdbffd",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l01_04.mdl",
+    "sha256": "2209ccbedecc0e3fa78f257ee1f4c5a02dd5e030cb225f4e20f8cdc537d7c5ce",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_04_01.mdl",
+    "sha256": "150061d490fa8b7b82d569a120de96481cfccfa3d027cbe912dad0d6a589a778",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_04_02.mdl",
+    "sha256": "97b308bc5d4ccad4a09919036798380c9ec2598bc0e33c958f21a55529b4345f",
+    "bytes": 1917524,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_04_03.mdl",
+    "sha256": "d64a3dc59e45e549b6defae037d55ff7b98ad6b39d3dfc7a7e199b2a52801efe",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_04_04.mdl",
+    "sha256": "d2ce15215bf5deeb868f6b22f75684d2f1fcad01ed38cafc750b2b8a3ec5bbfb",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_04_05.mdl",
+    "sha256": "f7622c35c13c9b28087d5c779436d62131bc024f4647567658ea0ac3316c6966",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_04_06.mdl",
+    "sha256": "62c5c7628716825442caff8d8284f0d6352e1f9296abcb23841dfe7965ec1d45",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_04_07.mdl",
+    "sha256": "17ed2f9a37c785a9525838c56d6f637f9a274d7c942bb960eacd2cf5580d2f5d",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l02_00.mdl",
+    "sha256": "6a67458c83a602a75fdd9de285e5b3da7fa54b5618f2464f493a138652897de0",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l02_01.mdl",
+    "sha256": "3f994047332622a125543ff9b3ab5b2127368ff1d798271ecc344763fa67783c",
+    "bytes": 1917524,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l02_02.mdl",
+    "sha256": "c5f429142691467fe5f2529deb69ee89b80f76c6be62dbe74998e9950085cd42",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l02_03.mdl",
+    "sha256": "345918bbd1cd2309f96082cc6e056608526cfbe957fcaf58ad3507f8d2fbffae",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l02_04.mdl",
+    "sha256": "35bb894ebd46a3807bbf4601c5b20484760e2bd8dbe00144d77ec8900885b7be",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l02_05.mdl",
+    "sha256": "35db6c95e0acfa02ae1316f8f25322cb82ae9583b065e9731c1cfa5f974aedde",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l02_06.mdl",
+    "sha256": "6d9a98926ff2fbf8e452e0083e3eac2c1172f2726f74f4b708afbddd81240d10",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_06_01.mdl",
+    "sha256": "a7a3325b898da0e05eabc8474d8599587cc712172d06229bf307054db8364b8e",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_06_02.mdl",
+    "sha256": "c4aba8d23e974be99149cdb0346411262f58fdd23b058ed216cae2cfc9d7e4f5",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_06_03.mdl",
+    "sha256": "d7e008d96297f285e30d0b289df8c470a6cb6b04e3204f71244e9161cb403bf8",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_06_04.mdl",
+    "sha256": "ba246ec2bfbf07da32fcac85e972fc9cfffc007a1dac42345337d43469b9076d",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_06_05.mdl",
+    "sha256": "e0cab2467d00e1d1f5bf524f75421c254ad599976152275f84f9f994f1639f62",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l03_00.mdl",
+    "sha256": "d0b5a45d22b0dfcde3fcd255de0f57ea38eb709bb847082cf64d49674b6c0e18",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l03_01.mdl",
+    "sha256": "10316f84cd6644ca9304ca8f8b70d0fe46f4f187efb961854ca87cbdcee88e91",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l03_02.mdl",
+    "sha256": "2f831ea7e178454192e3b11bc3ded812356e6e1d72871ac876c3693b944d9d49",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l03_03.mdl",
+    "sha256": "267a8aa0211110b38de2ef3cd523578639bdc59cd6a8590bf500a28f7392d707",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l03_04.mdl",
+    "sha256": "2a94d89cbe054e12b2fc33855f97959ce10b153ff638262a72e76890fa9974f2",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l04_07.mdl",
+    "sha256": "3007945d1c73f8cc99b219d0076527397269ff961d9e23bc313185b83dba2c59",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l04_05.mdl",
+    "sha256": "785a101651ab4b690717ae948f6ff0050af29fa0a59248982b33cbe0eed56012",
+    "bytes": 1951016,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l04_00.mdl",
+    "sha256": "9edcb4c18b9e88a2b3c959324a46e2b7ad81c456a881ceca9a211194c931bed4",
+    "bytes": 5990990,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l04_04.mdl",
+    "sha256": "0ae247057bac148220ec413eb17349d6d98fcc5d02d60e3d1dde43b29040842a",
+    "bytes": 402644,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l04_03.mdl",
+    "sha256": "cb1b3c8e8747aef4e92bdb474c807b6936dc9de65e4ea5981b556f53a94986df",
+    "bytes": 530376,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l04_02.mdl",
+    "sha256": "292155bb9665f777c7cde6b44fbce6cf6c16b8fc15a0dfe3e01d81abc667d4e3",
+    "bytes": 119480,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l04_01.mdl",
+    "sha256": "e8bb31c103f2e95f7832941a01c5a2bd3b83ff859ea41d28cb8c85273f7a9392",
+    "bytes": 200504,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l05_00.mdl",
+    "sha256": "8dc4450cec9b98fcefd599ae9a086a7f69e931e42dc863305c7b1c1c67d70a7d",
+    "bytes": 5990990,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l05_04.mdl",
+    "sha256": "701d09a88131f4810fb6e3a1b4abbe885f273c87bf21e0b1ddda840abe161999",
+    "bytes": 402644,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l05_03.mdl",
+    "sha256": "80595f3240e255edb326fefe5af0a565db8e705c9eff62f8b9b8d763d9629554",
+    "bytes": 530376,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l05_02.mdl",
+    "sha256": "fd26cb6962b85231afb29162e0cc5be1f179e1e33494dfa41667833a5c831461",
+    "bytes": 119480,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l05_01.mdl",
+    "sha256": "ff223e16a3d63fc6f50c748dcc796066ab17c6241614fb04bd3ec80fa8858ab9",
+    "bytes": 200504,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_12_01.mdl",
+    "sha256": "a80674af3a8927a2ea0c934055d2e656da0d63a378d663586db95dd23be0740f",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_12_02.mdl",
+    "sha256": "f2048aac8caee9570deeaa62d95b51f0925ddeb6cfb7878c8fa8b770236693f6",
+    "bytes": 1917524,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_12_03.mdl",
+    "sha256": "5005d306485d581d46994ba9858cb4291f2b7af60b7e3c2a61592a56076bfb3a",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_12_04.mdl",
+    "sha256": "b05a1b3167f3f042ba01864683610deb734056e32ee61bc439e2542314c1c4d4",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_12_05.mdl",
+    "sha256": "dea00be98c2dac0a7d092236a707029a19351c487296e3ec23c541a1abe6d78a",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_12_06.mdl",
+    "sha256": "2ee9694569b2039a46f76a90d24116c5e8d5b51cdcf30d5b94ca2299bb6ebda0",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_12_07.mdl",
+    "sha256": "a70675d1eca5c874e0a5a1b72d90b5bb225184dcf10fe00e845ec2c0bbcb8393",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l06_00.mdl",
+    "sha256": "7595dc59c76814850abc6e9c83e96c3cf742830c63382accb95d348348075cd4",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l06_01.mdl",
+    "sha256": "11cfaa1205c0accf4b8164019f5b33a47b138692ac9cf6d4c34473f3ccbaff9b",
+    "bytes": 1917524,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l06_02.mdl",
+    "sha256": "6cfdddf34501a16506aac84c77b35f4bef7bb5339fa02a95026c8ec0673e4a2f",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l06_03.mdl",
+    "sha256": "f0788fd4bf59900a882d645da05340c006a95672cca738e13abb7b512bb488da",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l06_04.mdl",
+    "sha256": "cf038698249e52e5d67ca8fa29972346468b96fe48f907c9bd709e13b7edfc5b",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l06_05.mdl",
+    "sha256": "ad4c4d349ad5fb326ca86b44ca2789e710afb23bc80688f42bc100da2b7cf643",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l06_06.mdl",
+    "sha256": "a486753cff34e3a75244239ebb311f3ebc1d0b13690b284476eb48255e4f84aa",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_14_01.mdl",
+    "sha256": "22c6ae225a7cc6fc7a29d747eca8bf03eedf4deb165068160a986a247c907148",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_14_02.mdl",
+    "sha256": "bf0a2b5938ec27177ff7af23b599aefb1c956b06e0ac676dd084d3c71f354eb7",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_14_03.mdl",
+    "sha256": "210a5d50bc6ce02f891305575311951f7612e215abb00d4d9dc2d4d02f59712c",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_14_04.mdl",
+    "sha256": "1a734477f7ba2ffbe8a926672d7ce63f4a4effda7e16197a62fcb7552c3b9a9a",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_14_05.mdl",
+    "sha256": "1e9652ec92fb593d825d808baefb610f8e16db3934819202ffd0fcbfa1323f2c",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l07_00.mdl",
+    "sha256": "9db392981217d3b532fe30288a00c934f0daf16372a73a0ba465ba6e9476226d",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l07_01.mdl",
+    "sha256": "2a73e9488e59a5346fa8c09e71fed1e5b6f1e7c1de882ae114bcda3393327dae",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l07_02.mdl",
+    "sha256": "8c2d85ab4fc6e9dee5a6e5b8a6a696a15ebece36c4fc0ddf187d037681475872",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l07_03.mdl",
+    "sha256": "48a208fc5fea6e5f926586e1a268f24a6b1af1736c03135f462d2f3e025bfe9b",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l07_04.mdl",
+    "sha256": "a99e3b5b622ea9868d3cba287e737cda251ad499523ef8f69e09961ed3dcbde4",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_16_01.mdl",
+    "sha256": "2dfb54c0fb67ed1561e554b7dc6aa8cc03f341eb4f1fa28f1bf524ecf7220e3f",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_16_02.mdl",
+    "sha256": "48563aed0f5ea3cd9463a29af8dfca0e3e9dead48f5b5e72afcacbe94f208e0b",
+    "bytes": 1917524,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_16_03.mdl",
+    "sha256": "444db14fa18e2f589ea070dcf7649debe58ae8ea47792d586dae5c4927074884",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_16_04.mdl",
+    "sha256": "c1fc43bdfd79d053b9606b0c7cf83da51c34d7b062ae7a89ff0c0899dcf6483e",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_16_05.mdl",
+    "sha256": "f942306dee321ffcf72de9e63f5b28685022ebbf766f350882028a4e3f216a1b",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_16_06.mdl",
+    "sha256": "be4c57af8b9a016d3d42f63b0afade2af23716875c958fe3ca29b8590f1a0422",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_16_07.mdl",
+    "sha256": "2297d4e388c97adb71f31ab603ce5c5b76188b0755d346e8f37eb1fe50e09f76",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l08_00.mdl",
+    "sha256": "d5d4b8f0e055e977aaff26459b6742473ef5329638f880c05922d4c80d13fa70",
+    "bytes": 112600,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l08_01.mdl",
+    "sha256": "a74ff0b3688b19c0fb3504f2a3ce84779bc089b3a9d59ed040c18ef1d38b328e",
+    "bytes": 1917524,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l08_02.mdl",
+    "sha256": "02d0e6f83d42f2b8ff0791754203a0ae3ec73055cfb33dedd38cec9cb62b9311",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l08_03.mdl",
+    "sha256": "a68905e8ffd6af37112d238e965fb43ce314ae2dbf8187ca648c2635d4759020",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l08_04.mdl",
+    "sha256": "c7e4b6d58b9db6acd3f1535e87d91975e8f4eee97414293ca8748090231285d8",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l08_05.mdl",
+    "sha256": "ac9c2d2f33993a6b289a1148fb1a003556dbd22beb8b0da13b718af7629c7898",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l08_06.mdl",
+    "sha256": "d61a50b892ad5d6dfff7bb1dc58705b63ff9796b41e2106986d69a5db43f9d31",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_18_01.mdl",
+    "sha256": "ea926b390a161ff3843f3b6be0a9893c74fdc27371f5a22856cb35fff9432a8a",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_18_02.mdl",
+    "sha256": "e097d48a93bbe83ebd45b6b61e7bdd98fce6436bd403f3fd5cbd82a04f9214dd",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_18_03.mdl",
+    "sha256": "f295aa05ae0da6b98c915220281b0b1d123df50fd85f003f177a3e2c03a3932d",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_18_04.mdl",
+    "sha256": "6d5c6e3a52f28934a5fccc2e31f8fb0054ed37d54089d54519bc97604e9dbbee",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p17_18_05.mdl",
+    "sha256": "f4753ef6133f8808af25e533fe085979674dfbe26fa85288fe429c99bf092793",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l09_00.mdl",
+    "sha256": "511f678ca9bd84d1d7c83e9ad9435a5e5e20b3313d7d5c02d22982b973910bdb",
+    "bytes": 5960294,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l09_01.mdl",
+    "sha256": "645f0ca709d23a7c26e82231d22ea6a47a25e4c5d54ac3ff01de2909c242a291",
+    "bytes": 385724,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l09_02.mdl",
+    "sha256": "578ac0a45f165728acaadf8a771d553468406b3944f4602e715bc213cf01f3cc",
+    "bytes": 519036,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l09_03.mdl",
+    "sha256": "36bb3fa0c03621380243ac1317e602a99b98532c20740e17a91544c1bafb75e5",
+    "bytes": 119540,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/p25l09_04.mdl",
+    "sha256": "43f48bdfb4673b52621b2840a0c25edfb76cf083913387f50e1e435e6cf985ec",
+    "bytes": 189260,
+    "reason": "Private animation carrier replaced by a shared stock-structured library (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfd0_chest001.plt",
+    "sha256": "1aa69699a0895e9c49d783f1810384083ddc8397085a556374cf9fdadcdc4fa7",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfd0_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfd2_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfe0_chest001.plt",
+    "sha256": "1aa69699a0895e9c49d783f1810384083ddc8397085a556374cf9fdadcdc4fa7",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfe0_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfe2_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfg0_chest001.plt",
+    "sha256": "1aa69699a0895e9c49d783f1810384083ddc8397085a556374cf9fdadcdc4fa7",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfg0_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfg2_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfh0_chest001.plt",
+    "sha256": "1aa69699a0895e9c49d783f1810384083ddc8397085a556374cf9fdadcdc4fa7",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfh0_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfh2_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfo0_chest001.plt",
+    "sha256": "1aa69699a0895e9c49d783f1810384083ddc8397085a556374cf9fdadcdc4fa7",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfo0_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pfo2_pelvis001.plt",
+    "sha256": "62585992341d072c21b6c2368655b919cbb833a309c74655e983ca6d6a7ea5a1",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pmd0_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pmd2_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pme0_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pme2_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pmg0_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pmg2_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pmh0_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pmh2_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pmo0_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body/pmo2_pelvis001.plt",
+    "sha256": "0f893cf196eed4043ac5903e592a2ec28d551a89c2ae45f385ccd1a13b2f86af",
+    "bytes": 8388632,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_bicepln.tga",
+    "sha256": "ae06496fc5cc0ad249b7565c0b9b8bef086efbc514bb586eb99fdd24ea014373",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_biceplr.tga",
+    "sha256": "c2508673b81bdc1e80ea542952f7c914ed8d93d53702b1354f9a0b30ddd245e2",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_biceprn.tga",
+    "sha256": "e14c105258b42194ac01a3e8f5664509ef1d004c69ac18b81dfbbd847067861f",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_biceprr.tga",
+    "sha256": "c2508673b81bdc1e80ea542952f7c914ed8d93d53702b1354f9a0b30ddd245e2",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_chestn.tga",
+    "sha256": "4b73dcd79903e4d99034ae6e2b59e4e941a86c1fc94481aa206630fe38297a90",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_chestr.tga",
+    "sha256": "acc1ee8222a320c90622fa51bf4db9e80e1cd898fdbe9c1280ade34ef76f33e4",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_footln.tga",
+    "sha256": "2948dc15528dd1a382e763f5a5e542cb6970719fe8b5ed40d139e049034ac60f",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_footlr.tga",
+    "sha256": "1430f123f6f82e554f2444d5f438cc6886f90f183ffcc9078edbc019b8be9b2b",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_footrn.tga",
+    "sha256": "56f9495ec4e6248dddfb8acd63825f4b0dbb58228dfeaf488e345932f5235762",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_footrr.tga",
+    "sha256": "1e3e669332208f635d1d1d45a9b1c973a7949531493ff059999faa9c5f9127e2",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_foreln.tga",
+    "sha256": "e96c3839a8ae3ca3561ccd2248b303e8361d980f1684d6c8978635cc6f8f7473",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_forelr.tga",
+    "sha256": "84b9be77e79f74e7e3da77a63861e2976b0c0d8b7643a278a188a90c85c7d9dc",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_forern.tga",
+    "sha256": "2bb98cd6099a78e1c7a35fa1bbe41ba7d84dc39c95eba1945b973073f384cc9e",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_forerr.tga",
+    "sha256": "84b9be77e79f74e7e3da77a63861e2976b0c0d8b7643a278a188a90c85c7d9dc",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_handln.tga",
+    "sha256": "b486eb4200a724b2489ece35f0f2df9f99924f8fa04e6dcd029b6623e3dd79e0",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_handlr.tga",
+    "sha256": "929c7e81a5388da4d439253d56188897af971a32d490a06fbd78d872ade8134c",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_handrn.tga",
+    "sha256": "aafd09ae1e05f37c496edf1b3a178d143cc4a3ecca3d32e7fe409f191f23cb90",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_handrr.tga",
+    "sha256": "eb61c5602b0fd02b0791ad401860af90e3380ab250930a4af51184b4fbdc0170",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_legln.tga",
+    "sha256": "2096cdfbddb008e7e6daceef0b81c998d57e9f9ec62c7827e505f237f7b96838",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_leglr.tga",
+    "sha256": "e028367b2b888083e02c332d3542220c1054af9b0caf1c9b7a0aa63818a3110e",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_legrn.tga",
+    "sha256": "c6e94caa06a4ed691d2e645a5cdeb6b08db7b2114b31eb5d1d8aee0c7bc9d6d9",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_legrr.tga",
+    "sha256": "2602ec8062819620933733fa1ef913ac2d035911dd84b7ea9da85c3eb5656e3c",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_pelvisn.tga",
+    "sha256": "1141dc0fdec62dd508e8d7d81ccb0886406dcb9c7da6fec41f9c915d366bc3e4",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_pelvisr.tga",
+    "sha256": "9f9532368b607fa7a5ff43926ae99b3aebabdd5e3efc12f5d07bcfa177d572b6",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_shinln.tga",
+    "sha256": "2e9f572dde97b177e77b4dddabfebc45dcb85488df86b6b88643a0f60bb50f33",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_shinlr.tga",
+    "sha256": "195c45131c03acaf70226fcb20d4fe8e605b32a19e05bc80d606fdb81f68986f",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_shinrn.tga",
+    "sha256": "79bd07f2d6b81c1c7f1678621d05cd63fd055eca5214e6c8394c6985330b5c9f",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20f_shinrr.tga",
+    "sha256": "3af888e2326690ee030c09e69027956daa4952814ea59dae787094a1fec42c06",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_bicepln.tga",
+    "sha256": "fb685585712f1b06c4d9ff030d4290229c269d1b8be2ef4025b44a4a1b09aa95",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_biceplr.tga",
+    "sha256": "c2db30cd560659dbf5be312c76c234ae3fa1917c077f12240b1ead055fe1094f",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_biceprn.tga",
+    "sha256": "2e4448f8bd0ca34779d43563a68a41260c0bce2e1b167d0c0606d740e3d11d4f",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_biceprr.tga",
+    "sha256": "d5f08611cfc7d73878477df8a40de93aef9fda09242d468d0f23617c127a77f8",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_chestn.tga",
+    "sha256": "a9ee4e40aea7de0e898782508b3be702c1803b0422277c80d4538f6b6cb05f4d",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_chestr.tga",
+    "sha256": "eb50892f43ba0c07699d86fbf80a4c4c901e7ad9e05719feaf7548db4b93940e",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_footln.tga",
+    "sha256": "caa55111fb095a49ecb3d21bf5d6cdb9796cd2cbc2ab9eb0bd3eb07ea9cc5721",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_footlr.tga",
+    "sha256": "cd5512c8e97901a7fd1f9e0e0e2767dd6bae85c3c0628eceee1430c32e6d4154",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_footrn.tga",
+    "sha256": "ac9eb278b8a90d2aac59f415804b4cfd8dc8582c7e5e0988ac0c52eec2d2b590",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_footrr.tga",
+    "sha256": "3ec32341e08e3d21737aad4036a5394c2862c3a5cb5216240ab52a1f1977a66f",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_foreln.tga",
+    "sha256": "7d4f9cbc108af83d716ed3b00307cf981a6b152fce2c41903b4e60d38a9e9ec7",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_forelr.tga",
+    "sha256": "81417d41d5c4220adeac153ceb96ae123cbabdc4c9a0e1607b21419995a3aa4f",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_forern.tga",
+    "sha256": "9e114477c718fac0c097ae838412aaf89e5997407a2bbef8889964d90b240ffd",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_forerr.tga",
+    "sha256": "b17d48b44c0e922ca5f8321927efd6aa9c2263b590b03529efe4e8d6c2ec531b",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_handln.tga",
+    "sha256": "c8ea77214489fb11c19cccf0b66a4a0c84e924a001a57808e743445363e15b06",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_handlr.tga",
+    "sha256": "c39dc8aa74aef59f8126e54a1c01284b581ea4db67e0757c8f1044a0450a486a",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_handrn.tga",
+    "sha256": "47d5de1679b8f0b96a32d3e2329dcdb1013021f8c102d167a057b8f53731c7a0",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_handrr.tga",
+    "sha256": "b7e92e9d206517ba4a161f41f8a88d3c72473358220d0301d9c0adec56ad6d36",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_legln.tga",
+    "sha256": "fe3b597c7f5281112e854a8cda057cf8c8952472b912f42475301d5515c61c34",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_leglr.tga",
+    "sha256": "3bd3d1c9d451bd19efb15d7714d80058e81b34618b75832c6d9f2b5a04927171",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_legrn.tga",
+    "sha256": "c0728a32d36cf6033ca99d9180ba311b78f9dbc0499859d4cedb0ff00226dd3a",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_legrr.tga",
+    "sha256": "3bd3d1c9d451bd19efb15d7714d80058e81b34618b75832c6d9f2b5a04927171",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_pelvisn.tga",
+    "sha256": "e399a9d33a5377f95c079449ea505b8b10c4aae0cc31d3df70b3a603d1cdbbb1",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_pelvisr.tga",
+    "sha256": "2b7097a3a2195406ae7db8e6b9659d489dc9a260a24f5ca1a24883e65512d254",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_shinln.tga",
+    "sha256": "e03b0c1de40fc756fd5f111cea8b2847f36d188bc5a126db3a67458ace7fbfd6",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_shinlr.tga",
+    "sha256": "dfdbfa4c6f0885562ea41eb0304d9a04b875aba0cca3b897961eb581fb0b96f2",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_shinrn.tga",
+    "sha256": "d05c7c5f8c21d03963bf468dc338e550f8da48cc0c68a308dc8cdc51fb772831",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
+  },
+  {
+    "path": "srn_body_tex/s20m_shinrr.tga",
+    "sha256": "b5f688c581c8fed33d67470c7e4ade73db18a4420d0da43e98bdd0afad03fbf9",
+    "bytes": 12582956,
+    "reason": "2048 px payload replaced in place by its 1024 px reduction (contract 1.1.0)"
   }
 ]
