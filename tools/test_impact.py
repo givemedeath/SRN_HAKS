@@ -30,8 +30,27 @@ def markdown_files(repo):
         found.extend(Path(top)/n for n in names if n.lower().endswith('.md'))
     return sorted(found)
 
+def committed_packs(repo):
+    """Pack folders in HEAD; empty outside a Git checkout."""
+    if not (repo/'.git').exists():return set()
+    result=subprocess.run(['git','-C',str(repo),'ls-tree','-d','--name-only','HEAD'],capture_output=True,text=True)
+    return {n for n in result.stdout.splitlines() if re.fullmatch(r'srn_[a-z0-9_]+',n)} if not result.returncode else set()
+
 def packs(repo):
-    return sorted(p.name for p in repo.iterdir() if p.is_dir() and re.fullmatch(r'srn_[a-z0-9_]+',p.name))
+    """Pack folders on disk or in HEAD, so a sparse checkout catalogs the same pack names as a full one."""
+    return sorted({p.name for p in repo.iterdir() if p.is_dir() and re.fullmatch(r'srn_[a-z0-9_]+',p.name)}|committed_packs(repo))
+
+def absent_packs(repo=REPO):
+    """Committed pack folders that this (sparse) checkout did not materialise."""
+    return sorted(repo/name for name in committed_packs(repo) if not (repo/name).is_dir())
+
+def pack_needs(data,test):
+    """Packs named by a file in the test's transitive dependency closure, including the test itself."""
+    seen={test};stack=[test]
+    while stack:
+        for edge in data['dependencies'].get(stack.pop(),[]):
+            if edge not in seen:seen.add(edge);stack.append(edge)
+    return sorted({pack for path in seen for pack in data.get('packReferences',{}).get(path,[])})
 
 def catalog(repo=REPO):
     all_files=sorted(p for p in (repo/'tools').rglob('*') if p.is_file()
@@ -149,16 +168,42 @@ def select(changed,data,config=None,deleted=()):
     elif changed_packs and not code:reason='Pack assets; tests referencing '+', '.join(sorted(changed_packs))
     return {'fullSuite':False,'reason':reason,'tests':tests,'documentation':sorted(documentation),'packs':sorted(changed_packs)}
 
-CHILD='''import json,sys,unittest
+CHILD='''import json,os,sys,unittest
 out,names=sys.argv[1],sys.argv[2:]
-result=unittest.TextTestRunner(verbosity=2,durations=0).run(unittest.defaultTestLoader.loadTestsFromNames(names))
+# Sparse checkouts: any in-process look at a pack folder this checkout omitted fails the run instead of passing silently.
+absent=[os.path.normcase(p) for p in os.environ.get('SRN_ABSENT_PACKS','').split(os.pathsep) if p]
+touched=set();current=['']
+if absent:
+    def hit(path):
+        if isinstance(path,int):return
+        try:full=os.path.normcase(os.path.abspath(os.fsdecode(os.fspath(path))))
+        except (TypeError,ValueError):return
+        if any(full==p or full.startswith(p+os.sep) for p in absent):touched.add((current[0],full))
+    def hook(event,args):
+        if event in ('open','os.listdir','os.scandir') and args:hit(args[0])
+    sys.addaudithook(hook)
+    def guard(original):
+        def checked(path,*rest,**options):
+            hit(path);return original(path,*rest,**options)
+        return checked
+    for module,name in ((os,'stat'),(os,'lstat'),(os.path,'exists'),(os.path,'lexists'),(os.path,'isfile'),(os.path,'isdir')):
+        setattr(module,name,guard(getattr(module,name)))
+class Result(unittest.TextTestResult):
+    def startTest(self,test):
+        current[0]=test.id();super().startTest(test)
+    def stopTest(self,test):
+        super().stopTest(test);current[0]=''
+result=unittest.TextTestRunner(verbosity=2,durations=0,resultclass=Result).run(unittest.defaultTestLoader.loadTestsFromNames(names))
 if out:
     with open(out,'w',encoding='utf-8') as f:json.dump([[n,round(t,3)] for n,t in result.collectedDurations],f)
-sys.exit(0 if result.wasSuccessful() and result.testsRun else 1)
+for test,path in sorted(touched):print('Absent pack accessed by '+(test or 'module import/fixture')+': '+path,file=sys.stderr)
+sys.exit(0 if result.wasSuccessful() and result.testsRun and not touched else 1)
 '''
 
-def run_tests(tests,python=None,repo=REPO,timings=None):
+def run_tests(tests,python=None,repo=REPO,timings=None,absent=None):
     """Run tests from their import roots, package-qualified where needed; return the first failing exit code."""
+    absent=absent_packs(repo) if absent is None else absent
+    env={**os.environ,'SRN_ABSENT_PACKS':os.pathsep.join(str(Path(p).resolve()) for p in absent)}
     groups={}
     for rel in tests:
         root,name=import_root(repo/rel);groups.setdefault(root,[]).append(name)
@@ -167,7 +212,7 @@ def run_tests(tests,python=None,repo=REPO,timings=None):
         # Absolute, because the child runs from the import root.
         out=str(Path(timings).resolve().with_suffix(f'.{index}.json')) if timings else ''
         # -c keeps sys.path[0] at the import root, exactly as `python -m unittest` from that folder.
-        result=subprocess.call([python or sys.executable,'-B','-c',CHILD,out,*names],cwd=root)
+        result=subprocess.call([python or sys.executable,'-B','-c',CHILD,out,*names],cwd=root,env=env)
         if out and Path(out).is_file():
             rows=json.loads(Path(out).read_text(encoding='utf-8'));Path(out).unlink()
             records.extend({'root':Path(root).relative_to(repo).as_posix(),'test':n,'seconds':t} for n,t in rows)

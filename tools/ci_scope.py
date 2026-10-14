@@ -36,8 +36,11 @@ def plan(changed,data,config,durations=None,full_reason=None,base='',deleted=())
     tests=selection['tests'];paths=changed or []
     everything=selection['fullSuite']
     groups={g['name']:[] for g in config['groups']}
-    for test in data['tests'] if everything else tests:
-        group=next((g['name'] for g in config['groups'] if re.search(g['pattern'],test)),None)
+    planned=data['tests'] if everything else tests
+    needs={t:test_impact.pack_needs(data,t) for t in planned}
+    for test in planned:
+        # A packTests group collects every test that reaches a pack, so the other legs never check packs out.
+        group=next((g['name'] for g in config['groups'] if (needs[test] if g.get('packTests') else re.search(g['pattern'],test))),None)
         if group is None:raise ValueError('Test belongs to no CI group: '+test)
         groups[group].append(test)
     jobs=[];matrix=[]
@@ -45,8 +48,10 @@ def plan(changed,data,config,durations=None,full_reason=None,base='',deleted=())
         for index,part in enumerate(shards(groups[g['name']],g['shards'],durations)):
             if not part:continue
             name=g['name'] if g['shards']==1 else f"{g['name']}-{index+1}"
+            packs=sorted({p for t in part for p in needs[t]})
             for os_name in config['operatingSystems']:
-                matrix.append({'os':os_name,'group':name,'tests':part})
+                # checkout is the cone-mode sparse set; root files are always included.
+                matrix.append({'os':os_name,'group':name,'tests':part,'packs':packs,'checkout':'\n'.join(config['testCheckout']+packs)})
                 jobs.append(f'Helpers / {os_name} {name}')
     # Case-insensitive, matching PowerShell -match in Test-ItemImportScope.ps1.
     item=everything or any(re.search(r,p,re.I) for p in paths for r in config['itemImport'])
@@ -64,11 +69,11 @@ def summary(result):
         f"- Item import: {result['itemImport']}; wheel: {result['wheel']}"]
     if result['documentation']:lines.append('- Documentation only (no helper tests): '+', '.join(result['documentation']))
     if result['packs']:lines.append('- Pack assets: '+', '.join(result['packs']))
-    lines+=['','| Job | Tests |','|---|---:|']
+    lines+=['','| Job | Tests | Checked-out packs |','|---|---:|---|']
     seen=set()
     for row in result['helperMatrix']:
         if row['group'] in seen:continue
-        seen.add(row['group']);lines.append(f"| {row['group']} | {len(row['tests'])} |")
+        seen.add(row['group']);lines.append(f"| {row['group']} | {len(row['tests'])} | {', '.join(row['packs']) or 'none'} |")
     return '\n'.join(lines)+'\n'
 
 def main():

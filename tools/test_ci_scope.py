@@ -7,7 +7,7 @@ from test_impact import REPO,catalog,load_config
 
 CONFIG={'sharedInfrastructure':[r'^tools/shared_tools\.py$'],'itemImport':[r'^srn_item/'],'wheel':[r'^tools/kit/'],
     'groups':[{'name':'phenotypes','pattern':'^tools/phenotypes/','shards':2},{'name':'core','pattern':'^tools/','shards':1}],
-    'operatingSystems':['ubuntu-latest','windows-latest']}
+    'operatingSystems':['ubuntu-latest','windows-latest'],'testCheckout':['.github','docs','tools']}
 DATA={'dependencies':{'tools/phenotypes/a.py':[],'tools/phenotypes/test_a.py':['tools/phenotypes/a.py'],
     'tools/phenotypes/test_b.py':[],'tools/phenotypes/test_c.py':[],'tools/kit/test_k.py':[],'tools/test_root.py':[]},
     'unresolved':[],'packReferences':{},
@@ -69,6 +69,54 @@ class ScopedPlanTests(unittest.TestCase):
         self.assertLessEqual(abs(sum(durations[t] for t in parts[0])-sum(durations[t] for t in parts[1])),durations['e']*2)
         self.assertEqual(ci_scope.shards(['x','y'],3,{}),[['x'],['y'],[]])
 
+def reached_packs(data,test):
+    """Independent closure: packs named by the test or anything it reaches through catalogued edges."""
+    seen={test};stack=[test]
+    while stack:
+        for edge in data['dependencies'].get(stack.pop(),[]):
+            if edge not in seen:seen.add(edge);stack.append(edge)
+    return {p for path in seen for p in data['packReferences'].get(path,[])}
+
+class PackCheckoutTests(unittest.TestCase):
+    """Every test that reaches a pack, directly or transitively, runs in a leg whose sparse checkout includes it."""
+    def assert_covered(self,plan,data,config):
+        for row in plan['helperMatrix']:
+            checkout=row['checkout'].split('\n')
+            self.assertEqual(checkout[:len(config['testCheckout'])],config['testCheckout'])
+            self.assertEqual(sorted(p for p in checkout if p.startswith('srn_')),row['packs'])
+            for test in row['tests']:
+                self.assertLessEqual(reached_packs(data,test),set(checkout),(row['os'],row['group'],test))
+    def test_transitive_pack_reference_selects_a_pack_leg_and_other_legs_stay_pack_free(self):
+        config={**CONFIG,'groups':[{'name':'packs','packTests':True,'shards':1},*CONFIG['groups']]}
+        data={**DATA,'dependencies':{**DATA['dependencies'],'tools/phenotypes/a.py':['tools/phenotypes/deep.py'],'tools/phenotypes/deep.py':[]},
+            'packReferences':{'tools/phenotypes/deep.py':['srn_alpha'],'tools/kit/test_k.py':['srn_beta']}}
+        for plan in (ci_scope.plan(None,data,config),ci_scope.plan(['srn_alpha/x.mdl'],data,config),ci_scope.plan(['tools/phenotypes/deep.py'],data,config)):
+            self.assert_covered(plan,data,config)
+        rows=legs(ci_scope.plan(None,data,config))
+        self.assertEqual(rows[('ubuntu-latest','packs')],['tools/kit/test_k.py','tools/phenotypes/test_a.py'])
+        full=ci_scope.plan(None,data,config)['helperMatrix']
+        self.assertEqual({r['group']:r['packs'] for r in full},{'packs':['srn_alpha','srn_beta'],'phenotypes-1':[],'phenotypes-2':[],'core':[]})
+        self.assertEqual(next(r['checkout'] for r in full if r['group']=='core'),'.github\ndocs\ntools')
+    def test_without_a_pack_group_the_pattern_leg_checks_out_the_pack(self):
+        data={**DATA,'packReferences':{'tools/phenotypes/a.py':['srn_alpha']}}
+        plan=ci_scope.plan(None,data,CONFIG);self.assert_covered(plan,data,CONFIG)
+        self.assertIn('srn_alpha',next(r['packs'] for r in plan['helperMatrix'] if 'tools/phenotypes/test_a.py' in r['tests']))
+    def test_live_catalog_every_pack_test_is_checked_out_with_its_packs_in_full_and_scoped_plans(self):
+        data=catalog();config=load_config()
+        needing={t for t in data['tests'] if reached_packs(data,t)}
+        # Guard against a vacuous pass: some tests name a pack themselves, others reach one only through helpers.
+        direct={t for t in needing if data['packReferences'].get(t)}
+        self.assertTrue(direct);self.assertTrue(needing-direct)
+        plans=[ci_scope.plan(None,data,config)]
+        plans+=[ci_scope.plan([test],data,config) for test in sorted(needing)]
+        plans+=[ci_scope.plan([pack+'/changed.bin'],data,config) for pack in sorted({p for t in needing for p in reached_packs(data,t)})]
+        for plan in plans:
+            self.assert_covered(plan,data,config)
+            for row in plan['helperMatrix']:
+                if row['group']!='packs':self.assertEqual(row['packs'],[],row['group'])
+        ran={t for row in plans[0]['helperMatrix'] if row['group']=='packs' for t in row['tests']}
+        self.assertEqual(ran,needing)
+
 class LiveConfigurationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):cls.data=catalog();cls.config=load_config()
@@ -123,6 +171,20 @@ class WorkflowWiringTests(unittest.TestCase):
         self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}",self.ci)
         self.assertIn("format('pr-{0}', github.event.pull_request.number)",self.ci)
         self.assertIn("format('{0}-{1}', github.ref, github.sha)",self.ci)
+    def checkout(self,job,text):
+        """The indented settings of a job's actions/checkout step."""
+        body=re.search(r'(?ms)^  '+job+r':\n(.*?)(?=^  [a-z]|\Z)',text)[1]
+        return re.search(r'(?m)^ *(?:- )?uses: actions/checkout@v\d+\n((?:        .*\n)*)',body)[1]
+    def test_helper_jobs_use_bounded_sparse_blobless_checkouts(self):
+        tests=self.checkout('tests',self.helpers)
+        self.assertIn('sparse-checkout: ${{ matrix.checkout }}\n',tests);self.assertIn('filter: blob:none\n',tests)
+        item=self.checkout('item-import',self.helpers)
+        self.assertIn('sparse-checkout: |\n            .github\n            tools\n',item);self.assertIn('filter: blob:none\n',item)
+        wheel=self.checkout('wheel',self.helpers)
+        self.assertIn('sparse-checkout: tools/phenomorpher\n',wheel);self.assertIn('filter: blob:none\n',wheel)
+        self.assertNotIn('sparse-checkout-cone-mode',self.helpers)
+        # Verification builds every pack, so it keeps the complete working tree.
+        verify=self.checkout('verify',self.ci);self.assertIn('fetch-depth: 0\n',verify);self.assertNotIn('sparse-checkout',verify)
     def test_helpers_consume_the_plan_and_never_rediscover_scope(self):
         self.assertIn('workflow_call:',self.helpers);self.assertNotIn('pull_request',self.helpers)
         self.assertNotIn('discover -s tools',self.helpers);self.assertNotIn('git diff',self.helpers)
