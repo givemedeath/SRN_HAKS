@@ -93,6 +93,15 @@ class PublicContractTests(unittest.TestCase):
         self.assertEqual(api.cross_section([mesh],2.,0),0.)
         self.assertEqual(api.cross_section([mesh],1.5,0),2.5)
 
+    def test_coplanar_sections_tolerate_roundoff_without_relative_height_slop(self):
+        for height, plane in ((.3,.1+.2),(1000.,1000.+5e-13)):
+            mesh={'position':np.array([[-3.,-2.,height],[4.,-2.,height],[0.,5.,height]]),
+                  'faces':np.array([[0,1,2]])}
+            for axis in (0,1):
+                with self.subTest(height=height,axis=axis):
+                    self.assertEqual(api.cross_section([mesh],plane,axis),7.)
+                    self.assertIsNone(api.cross_section([mesh],height+3e-12,axis))
+
     def test_recipe_roundtrip_preserves_source_float32_motion_hash_and_unsigned_colors(self):
         motion={'clips':{'pause1':{'length':1.,'nodes':{'root':{'controls':{8:{
             'times':np.array([0,1],dtype='<f4'),'values':np.array([[0,0,0],[0,0,1]],dtype='<f4')}}}}}}}

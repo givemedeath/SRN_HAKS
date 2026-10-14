@@ -264,6 +264,7 @@ def rasterize(meshes, view, metres_per_pixel=0.002):
 
 def cross_section(meshes, z, axis):
     """Exact projected extent of triangle/plane intersections, in metres."""
+    tolerance = 1e-12
     hits = []
     for mesh in meshes:
         if not mesh.get('render', True):
@@ -271,12 +272,12 @@ def cross_section(meshes, z, axis):
         triangle = mesh['position'][mesh['faces']]
         # Plane vertices include horizontal faces/edges, which have no
         # nonzero vertical edge distance but still contribute section extrema.
-        hits.extend(triangle[:, :, axis][triangle[:, :, 2] == z].tolist())
+        hits.extend(triangle[:, :, axis][np.abs(triangle[:, :, 2] - z) <= tolerance].tolist())
         for a, b in ((0, 1), (1, 2), (2, 0)):
             left, right = triangle[:, a], triangle[:, b]
             distance = right[:, 2] - left[:, 2]
             select = (np.minimum(left[:, 2], right[:, 2]) <= z) & (np.maximum(left[:, 2], right[:, 2]) >= z)
-            select &= np.abs(distance) > 1e-12
+            select &= np.abs(distance) > tolerance
             amount = (z - left[select, 2]) / distance[select]
             hits.extend((left[select, axis] + amount * (right[select, axis] - left[select, axis])).tolist())
     return float(max(hits) - min(hits)) if hits else None

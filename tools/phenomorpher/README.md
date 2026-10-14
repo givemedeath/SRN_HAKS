@@ -4,7 +4,9 @@ PhenoMorpher is the project's maintained Python toolkit for measuring NWN bodies
 making conservative phenotype proposals and transferring static modular clothing.
 Version 1.0 packages the established numerical backends behind a stable CLI/API.
 It uses NumPy and Pillow; it adds no service, automatic landmark detector or new rig
-system. The [game-ready bodies are a separate release](https://github.com/givemedeath/SRN_HAKS/pull/43).
+system. The [shipped Human bodies](https://github.com/givemedeath/SRN_HAKS/pull/42)
+provide the donor assets. The [full phenotype body release](https://github.com/givemedeath/SRN_HAKS/pull/45)
+is packaged separately; its manifest and assets are not included in this toolkit.
 
 ## Setup and entry point
 
@@ -136,6 +138,8 @@ The [first review follow-up](review-followup-validation.json) and
 The [third follow-up](review-followup-3-validation.json) verifies the migration doctor contract.
 The [fourth follow-up](review-followup-4-validation.json) covers resolved-path inventory
 uniqueness and coplanar section extents.
+The [fifth follow-up](review-followup-5-validation.json) covers floating-point
+coplanarity and current body-release links.
 The original release [validation receipt](validation.json) records tests, real-asset smokes
 and wheel isolation. `source-lineage.json` pins the adopted project modules; their
 numerical algorithms are retained with package-relative imports. Historical
