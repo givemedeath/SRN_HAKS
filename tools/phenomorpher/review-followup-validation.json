@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "PhenoMorpher-review-followup-validation",
+  "baseCommit": "34cb4239a42635f83b7c3a83054522e320493874",
+  "reviewFindings": [
+    4266058013,
+    4266058018
+  ],
+  "fixes": [
+    "CP1252 ASCII attribute decoding agrees with geometry decoding.",
+    "UTF-8 plus/minus tolerances and gate range restored."
+  ],
+  "tests": [
+    {
+      "suite": "source",
+      "testsRun": 85,
+      "passed": true,
+      "logSHA256": "b5c95e16233158ea94c659e47e09ed3c88bb6adab5718dfe186c327a0fceb4da"
+    },
+    {
+      "suite": "installed-wheel",
+      "testsRun": 85,
+      "passed": true,
+      "logSHA256": "61d4579613059d4ecfee8fed5e22c43007308e3424c462b09d5e0c4a03601679"
+    }
+  ],
+  "wheel": {
+    "name": "srn_phenomorpher-1.0.0-py3-none-any.whl",
+    "bytes": 241607,
+    "sha256": "7da5a9edfc3d1ca04f4b6ce263b7749f8c9a3871d30543a90604583cb1a5a072",
+    "isolatedInstallation": true,
+    "allPythonFilesExactToTestedInstallation": true,
+    "utf8ReadmeMetadataVerified": true
+  },
+  "sourceLineageSHA256": "b77f239af1a20bda5dfc5157bda42837881bb2b96e592540fd455f2a2d0c5aaa",
+  "utf8DocumentationVerified": true,
+  "protectedBodiesOrRigsChanged": false,
+  "pr45ChangedByThisFollowup": false,
+  "subagentsUsed": false,
+  "gameClientUsed": false,
+  "originalValidationReceiptChanged": false
+}

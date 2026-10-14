@@ -45,9 +45,11 @@ def load(path, migration=None, required=None):
     if migration:
         _verify_migration(path, migration)
         receipt=json.loads(Path(migration).read_text(encoding='utf-8'))
-        requested=set(required) if required is not None else set(data['tools'])
+        requested=set(required or data['tools'])
         if receipt.get('scope')=='head-tools' and not requested <= set(receipt['allowedTools']):
             raise ValueError('Head-only migration does not cover this tool; run its full migration')
+        if receipt.get('scope')=='measurement-tools' and not requested <= set(receipt['allowedTools']):
+            raise ValueError('Measurement-only migration does not cover this tool; run its full migration')
     return data
 
 
@@ -71,6 +73,12 @@ def _verify_migration(path, migration):
         for helper,expected in receipt.get('launchHelpers',{}).items():
             if sha(helper)!=expected['sha256']:
                 raise ValueError('Migrated launch helper changed; freeze a new receipt: '+helper)
+        if receipt.get('scope')=='measurement-tools':
+            if receipt.get('allowedTools') != ['python'] or not receipt.get('frozenSmokeFiles'):
+                raise ValueError('Measurement migration needs Python-only scope and frozen smokes')
+            for item in receipt['frozenSmokeFiles']:
+                if sha(item['path']) != item['sha256']:
+                    raise ValueError('Measurement migration smoke changed: '+item['path'])
         if receipt.get('scope')=='head-tools':
             if set(receipt.get('allowedTools',[])) != {'python','blender'} or not receipt.get('frozenSmokeFiles'):
                 raise ValueError('Head migration needs explicit bounded scope and frozen smokes')

@@ -6,10 +6,41 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
+import launch_shared_tool as launch
 from shared_toolchain import sha
 from shared_tools import write_json
 
 class LaunchTests(unittest.TestCase):
+    def test_duplicate_resolved_manifest_pins_hash_once_and_conflicts_fail_first(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);source=root/'input.txt';source.write_bytes(b'parent')
+            manifest=root/'pins.json';digest=sha(source)
+            write_json(manifest,[{'path':str(source),'sha256':digest},
+                {'path':str(root/'child/../input.txt'),'sha256':digest}],fresh=True)
+            with patch.object(launch,'sha',wraps=sha) as hash_file:
+                declared,verified=launch.manifest_inputs([manifest,manifest])
+                self.assertEqual(declared,[source.resolve()]);self.assertEqual(hash_file.call_count,1)
+                self.assertEqual(verified,{str(source.resolve()):digest})
+            rows=json.loads(manifest.read_text());rows[1]['sha256']='0'*64;manifest.write_text(json.dumps(rows))
+            with patch.object(launch,'sha',wraps=sha) as hash_file:
+                with self.assertRaisesRegex(ValueError,'Conflicting manifest input pin'):
+                    launch.manifest_inputs([manifest])
+                hash_file.assert_not_called()
+
+    def test_helper_copy_hash_once_uses_frozen_name_and_rejects_drift(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);source=root/'helper.py';source.write_bytes(b'parent')
+            digest=sha(source);output=root/'unchanged';output.mkdir()
+            with patch.object(launch,'sha',wraps=sha) as hash_file:
+                result=launch.helper_snapshots([source],{str(source.resolve()):digest},output)
+                copied=output/'helper-snapshots'/(digest[:12]+'-helper.py')
+                hash_file.assert_called_once_with(copied)
+                self.assertEqual(result[str(source)]['sha256'],digest)
+            source.write_bytes(b'changed after freeze');output=root/'changed';output.mkdir()
+            with self.assertRaisesRegex(ValueError,'Helper changed during snapshot'):
+                launch.helper_snapshots([source],{str(source.resolve()):digest},output)
+
     def test_manifest_pins_and_path_lists_retain_drift_guards(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);config=root/'binding.json';input=root/'input.txt';input.write_text('parent')

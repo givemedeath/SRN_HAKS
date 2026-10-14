@@ -1,0 +1,393 @@
+{
+  "schemaVersion": 1,
+  "modules": [
+    {
+      "module": "anatomy_policy_v15",
+      "source": "anatomy_policy_v15.py",
+      "sourceSHA256": "bf2750fe3ead10f87ae2d3df72e0125a9db907108df83f4484e8693fd6cc0c3e",
+      "packagedSHA256": "bf2750fe3ead10f87ae2d3df72e0125a9db907108df83f4484e8693fd6cc0c3e",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "audit_geometry",
+      "source": "audit_geometry.py",
+      "sourceSHA256": "d77f641a4fb4325d7e2d04e81d88ae916dffe37d973e70af68a590015be33177",
+      "packagedSHA256": "d77f641a4fb4325d7e2d04e81d88ae916dffe37d973e70af68a590015be33177",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "build_silhouette_comparison_sheet",
+      "source": "build_silhouette_comparison_sheet.py",
+      "sourceSHA256": "298c39a35c8ad7d86f2b9e3ffe6101ca9e2445f789927d420b7e80f7a9e6f89e",
+      "packagedSHA256": "931e058978226534b9fc15eaaaf317421f5fbed1618201a0912bd603b99a2a28",
+      "modifications": "Relative imports, portable output default and environment-based Windows font lookup; numerical projection unchanged."
+    },
+    {
+      "module": "check_connector_surfaces_v15",
+      "source": "check_connector_surfaces_v15.py",
+      "sourceSHA256": "3aa7f955ab830e35028eb1ca0c88bfaab5fb8ad09c62a7de6a0306f50c92267f",
+      "packagedSHA256": "b14e8ff26e2d4175534ecb0cf3346d19953d42746556732b746548a0c67a1b8c",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "check_terminal_connectivity_v13",
+      "source": "check_terminal_connectivity_v13.py",
+      "sourceSHA256": "2fb10727b9955a4126175deffda312db44c11bb1af496cba7fe44fa1039a8117",
+      "packagedSHA256": "2fb10727b9955a4126175deffda312db44c11bb1af496cba7fe44fa1039a8117",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "check_terminal_connectivity_v13a",
+      "source": "check_terminal_connectivity_v13a.py",
+      "sourceSHA256": "c685ee512d655f10dcb129d937a5abc65c2076392900282596c1b4b7749a0dbc",
+      "packagedSHA256": "bb0f06e4701e8e9cc5c942ad1e9c41ce1386bd4187351c780e946041d1e4a8ac",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "check_terminal_connectivity_v13b",
+      "source": "check_terminal_connectivity_v13b.py",
+      "sourceSHA256": "d65e757202ed2198626632a87119f7fe655f77428c7b588ec3849d0bd773516d",
+      "packagedSHA256": "e154f555f9112dac59af8b541a3a82be997b8b48c72cfe511af7c07af8e636e9",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "check_terminal_connectivity_v13c",
+      "source": "check_terminal_connectivity_v13c.py",
+      "sourceSHA256": "ef4ae58408277e21d2e6604827f831d0b57134da292e3bdbe518fb89eb314fa6",
+      "packagedSHA256": "de217a81d1ed314d0c3b1ae4c9b0ed374cabba20ff7a4aa485316ff75ea0aa0c",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "clothing_core",
+      "source": "clothing_core.py",
+      "sourceSHA256": "4770700b10688f4e6f9f0597b2dc30a305ab72c936f4e255d4cad815e0320d65",
+      "packagedSHA256": "4770700b10688f4e6f9f0597b2dc30a305ab72c936f4e255d4cad815e0320d65",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "convert_clothing",
+      "source": "convert_clothing.py",
+      "sourceSHA256": "87e1945bea2452b611cb3d51e84887ab740d4730f48dffaa47875645efd2a199",
+      "packagedSHA256": "d5ebb8f80b5a1bdcd6c7a94f669e59d050a33437f666f33dc754a036e3048e7a",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "convert_model",
+      "source": "convert_model.py",
+      "sourceSHA256": "612c6b5de5324acf9d7d18e1c926e446fd0b6f0b74ec3be0f32d4c961f4796c7",
+      "packagedSHA256": "ed6a7dcf6ebf8bf1d170a522e31692a36e93c2ccb3960d9ea8976ecca573644e",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "fit_anatomy_stage1_v15a",
+      "source": "fit_anatomy_stage1_v15a.py",
+      "sourceSHA256": "255f63e1898c85688345656aa5ec67ad5becc35252be1facb3b4f37e8e6f1637",
+      "packagedSHA256": "5031f325ea3441299ce9d5c850450d79543de58266ff2bf09e71f633f96c8760",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "fit_morph_preview_v11",
+      "source": "fit_morph_preview_v11.py",
+      "sourceSHA256": "c0f96f0a3e3fbb9ea25aadf50d65a07b5d2151f1951fab6b2d2405ffaeffce89",
+      "packagedSHA256": "4bbb26051e26a4a0e5099f14f92589e1b3053cc3011661f2e3f58fbcd3061d6d",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "fit_scale_position_v12d",
+      "source": "fit_scale_position_v12d.py",
+      "sourceSHA256": "b89fedb1af6d3fd03969033c4aba407fec80212576919c1ef4b67a5351f8a1e0",
+      "packagedSHA256": "42fbaeebcbae0769ff4426c8da996de46e513791d7a763b0a89a1928ba33a518",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "fit_scale_position_v13a",
+      "source": "fit_scale_position_v13a.py",
+      "sourceSHA256": "c81d8bf92d42451426417c68f1db7020e124bef0fd6ed05f34b5e8636f070f61",
+      "packagedSHA256": "ac4b7787c0557288bad84d89cb9e5ff0f9cda79a7f9005305b91bfa3af745ff0",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "measurement_common",
+      "source": "measurement_common.py",
+      "sourceSHA256": "8235a269dc266d13dfe90ead7105111c0df9583c7a55e1450bc5aea0d5759f0d",
+      "packagedSHA256": "8235a269dc266d13dfe90ead7105111c0df9583c7a55e1450bc5aea0d5759f0d",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "measurement_stock",
+      "source": "measurement_stock.py",
+      "sourceSHA256": "4f65b31b762a3ba8aca0a20e8374f47974a65a8f58ae419626baea2828cb6a57",
+      "packagedSHA256": "24be4d9f566e3871af1bd6edb81d07b87a1c52141d89fd3866cf694df1f1d30a",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "measurement_workflow",
+      "source": "measurement_workflow.py",
+      "sourceSHA256": "0616c391de19853dbac952d2ef3b99febc6504c10ccb1fa8b92a4aead4b490a4",
+      "packagedSHA256": "424671412468f5d5da1e1d98a3466d2b7581faf34c8429a235d9035439d50042",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "morph_anatomy_v15c",
+      "source": "morph_anatomy_v15c.py",
+      "sourceSHA256": "199f5a2d91a689c25d4ed5fec525158e0aa4530e06653b4dd5ef522720c2fbb3",
+      "packagedSHA256": "042b084340d798597f005dfd1e15b497956ff9a4a7a5a72021c9aea1c51b999a",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "morph_coupled_v12a",
+      "source": "morph_coupled_v12a.py",
+      "sourceSHA256": "adb887d9e3bec288aed34f29cdda9d8bef599c92816d708c3b58eae0d97efc52",
+      "packagedSHA256": "f7a61a1c7d809cdb547a11dbcadf8c0fb050d1d2dc311aa0204bd9a81412fdc4",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "morph_coupled_v12c",
+      "source": "morph_coupled_v12c.py",
+      "sourceSHA256": "c9f40ede32b76177cec22c48fd23a2151e051ceb570c78d95693860c4056cd6a",
+      "packagedSHA256": "4f30f8bb17010427e2ae39464503b4121d0b4b69f74bd02c64a1b628edfa1703",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "morph_coupled_v12d",
+      "source": "morph_coupled_v12d.py",
+      "sourceSHA256": "a02db06867fefe9b1451e016a3e81cfc86c073c7066d87e5d3298fde38a09955",
+      "packagedSHA256": "cbd3c28b55387af0238a0be3d48b01c14282035c908dbd8542d5b0cc14e07605",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "morph_motion_evidence_v14a",
+      "source": "morph_motion_evidence_v14a.py",
+      "sourceSHA256": "25d52e53221d007adb4a5f415e356d032070e1ef5d38326b71ca4a41874d4dcd",
+      "packagedSHA256": "8fc5074b0f1c63c4f0aed3729ef7b6524783adebb18496dd84dbd5ed360c2205",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "morph_preview_pose_constraints_v14a",
+      "source": "morph_preview_pose_constraints_v14a.py",
+      "sourceSHA256": "b9875f609932455eac278b867a5d5ca50d37cde17b36b6c9d0a45176f18bb67b",
+      "packagedSHA256": "365f64c3f577e3049650e1bc68be4569a2c474fd48aace575febcad9a43f88ca",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "morph_preview_pose_v10",
+      "source": "morph_preview_pose_v10.py",
+      "sourceSHA256": "745c173aecc8543efb43aa7409ca414eed90b6554ca05212418c397ff35a5c76",
+      "packagedSHA256": "dd784f61f964da0639ba0a835faa7f481bc36ea5f8ea94a95d0247e1502a9731",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "morph_preview_pose_v13",
+      "source": "morph_preview_pose_v13.py",
+      "sourceSHA256": "da1a1466d90e7a5d8eaa1fb2d8520911013d562167eaea5d54a53e99b8c121f8",
+      "packagedSHA256": "6a59b9be596d1af7f4c26621c563366013c19de8b8273bb60186e73238ef07f7",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "native_motion",
+      "source": "native_motion.py",
+      "sourceSHA256": "263b74036640a97f853d5cd32a61bf9403586fd85bca97d971f8300d392dc73b",
+      "packagedSHA256": "263b74036640a97f853d5cd32a61bf9403586fd85bca97d971f8300d392dc73b",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "nwn_part_measurements",
+      "source": "nwn_part_measurements.py",
+      "sourceSHA256": "5f54fa1dfc3ca41aee6e21d67d014ce99d431735dc2922d9a61458b8615961aa",
+      "packagedSHA256": "db147c96281f3765b91711745093d0555ec7bf66ab1e3d57f8a17fc4305fa245",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "phenomorpher_scene_v15a",
+      "source": "phenomorpher_scene_v15a.py",
+      "sourceSHA256": "1beea58b8d0f3fc20597ab9f7bc8fdd8e6f24488debf1aa893a18e79721d0b45",
+      "packagedSHA256": "54c45b2f4b3fae29352b1edb5663818cadedb4ea68028fbaf5e81bab17ac56ae",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "phenomorpher_scene_v15b",
+      "source": "phenomorpher_scene_v15b.py",
+      "sourceSHA256": "547110dca8fdf100f15e3b5a1e7db8690731205bd5c72aa097caa0ad28071931",
+      "packagedSHA256": "9671e567035d0f033c62b5922fefd060c963671d11850d0a8b37c300b08bd9bd",
+      "modifications": "Package-relative imports and LF encoding; ASCII attribute reading uses CP1252 to match the NWN geometry decoder. Native decoding, numerical geometry and source attributes remain unchanged. Geometry and attribute traversal share one safe duplicate native leaf identity policy, including collision rejection; attributes follow geometry traversal order."
+    },
+    {
+      "module": "pipeline",
+      "source": "pipeline.py",
+      "sourceSHA256": "4ca3781410b92529dfa9470cb8677f8e23133d913072327053e150e961cd4daf",
+      "packagedSHA256": "81f4860f88ef1e26bd9d4547337a7c6665a04aabc92145832b4bfb3eb9d16c16",
+      "modifications": "Extracted digest, save_json and detect_view_spans unchanged; omitted service generation and legacy height defaults."
+    },
+    {
+      "module": "proportion_targets",
+      "source": "proportion_targets.py",
+      "sourceSHA256": "0d0a3007116b8f9b2f065fde36934dd5922e000cc30ab66e92b51b58cb6826e6",
+      "packagedSHA256": "1dfa364168a6b80d6fdb86cc302ee877ac70b9e9f453a7facebc4f9ec18c7034",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "refine_stage1_motion_v14",
+      "source": "refine_stage1_motion_v14.py",
+      "sourceSHA256": "b17762b7f7e14ea2baddaeb10b98c59d17541095a12c292042462b18f2e2d4d4",
+      "packagedSHA256": "d240433a5eed9fe9adbe73f5684df2b5fb5eac1a54fed563a84f060d161e6895",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "replay_bodies",
+      "source": "replay_bodies.py",
+      "sourceSHA256": "31fa26813ebbfe5f24a394d07fc1dc4efa71ab79c9cd2b5f86a2935cc9455e4c",
+      "packagedSHA256": "31fa26813ebbfe5f24a394d07fc1dc4efa71ab79c9cd2b5f86a2935cc9455e4c",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "retarget",
+      "source": "retarget.py",
+      "sourceSHA256": "3bc4d6dc8fa80e6a6624d27e37ab06021d665b7c5e8ce008b6914201caa63b4c",
+      "packagedSHA256": "ca5ef1cfbce30f2beb7b89cfbb821813973da850a9fa879f49aa772174244ab0",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "rig_controller_audit",
+      "source": "rig_controller_audit.py",
+      "sourceSHA256": "7808503f63c4b89a63c5ebe6490d915019f77cbb77d00052d9f034359b9d48d8",
+      "packagedSHA256": "1bc78ef0731b0c53db9765acbb4ed349859ab58e4e04e3544b9ee2d2ef118f58",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "rig_pose_audit",
+      "source": "rig_pose_audit.py",
+      "sourceSHA256": "ebe02eb511b717fbd64412a5f296e36f518a3a6b1b991454d007fd699dde5813",
+      "packagedSHA256": "e1fc2d0eb9372323b5e52404c85cb1cca15d90cb0b0a09ed13dacbf541b99778",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "shared_female_native_contract",
+      "source": "shared_female_native_contract.py",
+      "sourceSHA256": "ddbaa98b2853b393c34718d04950d28f2d965f8a14a4d883a0348ec04a8dfc6e",
+      "packagedSHA256": "07b54099499374c7f28ecbd437e7a2c09b4b2213f3f4dcacb7af910756ef04de",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "silhouette_model",
+      "source": "silhouette_model.py",
+      "sourceSHA256": "ebc943c11334cfabe39863f2fdb2074f1c80177d157bd121fd245624be55b522",
+      "packagedSHA256": "91ddfcad4fb7c6b7c03066f2ce79704dc64c3101622d66d4675c4caaaad982bd",
+      "modifications": "Package-relative imports; preserve duplicate unreferenced native leaf dummies as distinct internal nodes, matching existing ASCII handling. Mesh, joint and parent duplicate names remain rejected. Geometry and attribute traversal share one safe duplicate native leaf identity policy, including collision rejection; attributes follow geometry traversal order. Include plane vertices in exact cross-section extents so coplanar faces and edges are measured. Coplanar vertex detection uses the horizontal-edge absolute tolerance (1e-12 metres)."
+    },
+    {
+      "module": "silhouette_reference",
+      "source": "silhouette_reference.py",
+      "sourceSHA256": "ab24bd84804f8d370e5e7db1589d6b2875309adcca8590a32e851354bf99c9c0",
+      "packagedSHA256": "84ad9cb172f9105b47fcc1c8d9f7343dbb45dd5de97d091f3ccf88f136aded71",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "target_animation_overlay",
+      "source": "target_animation_overlay.py",
+      "sourceSHA256": "7a758d333e2c077734c623ab5c84a4bdc08d4425fee91076b1073b6af3c599c4",
+      "packagedSHA256": "2e95ad055ff0978c90a075825ac920015425bbc6eef28b14c80e74fa695fc36c",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "target_contract",
+      "source": "target_contract.py",
+      "sourceSHA256": "a52f43add93fd1526d6c1446fe81622bd9bd0c08f16f15d6fe13ec59e44de4cc",
+      "packagedSHA256": "a5859dddb0ab6dd6ff8e9ba62004f7cd5437ac1d3cbfc68718cc964af0b470f2",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "test_check_connector_surfaces_v15",
+      "source": "test_check_connector_surfaces_v15.py",
+      "sourceSHA256": "5762a25e75407df67ad963705277d255c8a74ab60186eea6d5d8f6599432f3eb",
+      "packagedSHA256": "9f12842a4be0f0861def53bf0f0a5499e5cc62d69a5d94ce47c5f174df2fc0ab",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "test_fit_anatomy_stage1_v15a",
+      "source": "test_fit_anatomy_stage1_v15a.py",
+      "sourceSHA256": "1f049e2d1facf575c69350dedb8b1ff6133bc7913efcca6527586d6bec8e6ee4",
+      "packagedSHA256": "2558b57e2c647251ebba60cbc5bc9eceed762dc15d3d6b74cab43152ab500ed2",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "test_morph_anatomy_v15c",
+      "source": "test_morph_anatomy_v15c.py",
+      "sourceSHA256": "757f820f77e25d342cb664dea1d272d6a76d40e094f383ebc73562d921040f98",
+      "packagedSHA256": "63f1180c079a490e2fdd51eb50af2572233c85eaf7e141c4c539a8752bb6a286",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "test_phenomorpher_scene_v15a",
+      "source": "test_phenomorpher_scene_v15a.py",
+      "sourceSHA256": "e3ec634cfddbfb45818a889dcc9a84a3f34c89fabb3903b0634d390e604f7de3",
+      "packagedSHA256": "3921fa4752d92e7965dcf7c796defb20fcee816ff77a23a46b8609dd01e60df6",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "test_phenomorpher_scene_v15b",
+      "source": "test_phenomorpher_scene_v15b.py",
+      "sourceSHA256": "334e3b4ddb9194bf1b0c96c0261ee4adeec0ce8d2f65287e5b522bde3e560b59",
+      "packagedSHA256": "1f09e450e8e366f75f19873ab3c85a090841e82ed92dbfd51b0645c0599529bc",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "warp_segments_v12",
+      "source": "warp_segments_v12.py",
+      "sourceSHA256": "3a1b7ea2b2401fe893f0ab716470c7dcbc38aa8a3a40945d355ae894d7fa09b1",
+      "packagedSHA256": "3a1b7ea2b2401fe893f0ab716470c7dcbc38aa8a3a40945d355ae894d7fa09b1",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "warp_torso_support_v12",
+      "source": "warp_torso_support_v12.py",
+      "sourceSHA256": "0f0ec8ff71cad26c400a0d480fb033f318280059634aa5380669314fdb7b0d84",
+      "packagedSHA256": "0f0ec8ff71cad26c400a0d480fb033f318280059634aa5380669314fdb7b0d84",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
+      "module": "test_morph_preview_pose_v13",
+      "source": "test_morph_preview_pose_v13.py",
+      "sourceSHA256": "faf00bfaa690cf17ddc7abefe19b8c8367c1345dc9209ee6f124523cde207fd4",
+      "packagedSHA256": "7cf4877a07e1e5492cae01b91dd3c462805bc850f2d3cfa98d0a2d81c0705c76",
+      "modifications": "Relative imports; original stage1 regressions target maintained v15a fitter."
+    },
+    {
+      "module": "test_morph_preview_pose_constraints_v14a",
+      "source": "test_morph_preview_pose_constraints_v14a.py",
+      "sourceSHA256": "1aeb98115a732c67be7aa4a206112022161a5069864289146655c4c82c74e8dd",
+      "packagedSHA256": "f0182bc3b619c211775a3868e8ec28a20d523a3eb419a1bb248aa2d22b55cc67",
+      "modifications": "Relative imports; original stage1 regressions target maintained v15a fitter."
+    },
+    {
+      "module": "test_fit_anatomy_stage1_v15",
+      "source": "test_fit_anatomy_stage1_v15.py",
+      "sourceSHA256": "ea8a32e0d0ef2a34d7785488f8336658961209027d36c38f0dd4c6f00d57a381",
+      "packagedSHA256": "542e4e0657ea2ccddaac573a53697368140bc415290aa7ea3db8e5fd3fd5d0cf",
+      "modifications": "Relative imports; original stage1 regressions target maintained v15a fitter."
+    }
+  ],
+  "externalImports": [
+    "PIL",
+    "__future__",
+    "argparse",
+    "collections",
+    "copy",
+    "dataclasses",
+    "hashlib",
+    "html",
+    "json",
+    "math",
+    "numpy",
+    "os",
+    "pathlib",
+    "re",
+    "struct",
+    "sys",
+    "tempfile",
+    "time",
+    "unittest",
+    "urllib",
+    "uuid"
+  ],
+  "sourceLocationsPrivate": true
+}

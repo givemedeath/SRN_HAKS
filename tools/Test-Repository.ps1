@@ -216,12 +216,12 @@ if ($AllPacks -or [string]::IsNullOrWhiteSpace($ChangedSince)) {
     foreach ($name in $registeredNames) { [void]$packsToBuild.Add($name) }
 }
 else {
-    $changedPaths = @(& git -C $repoRoot diff --name-only "$ChangedSince...HEAD")
+    $changedPaths = @(& git -C $repoRoot diff --name-only --no-renames "$ChangedSince...HEAD")
     if ($LASTEXITCODE -ne 0) { throw "Unable to determine changes since '$ChangedSince'." }
     $mustBuildAll = $false
     foreach ($changedPath in $changedPaths) {
         $normalized = $changedPath.Replace('\\', '/')
-        if ($normalized -match '^hakbuilder\.json$|^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\.Common)\.|^tools/toolchain\.lock\.json$|^\.github/workflows/verify\.yml$') { $mustBuildAll = $true }
+        if ($normalized -match '^hakbuilder\.json$|^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\.Common)\.|^tools/toolchain\.lock\.json$|^\.github/(workflows/ci\.yml|actions/srn-tools/)') { $mustBuildAll = $true }
         $firstSegment = $normalized.Split('/')[0]
         if ($packByName.ContainsKey($firstSegment)) { [void]$packsToBuild.Add($firstSegment) }
     }
