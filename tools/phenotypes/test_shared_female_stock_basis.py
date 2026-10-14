@@ -32,6 +32,8 @@ def write(path, document):
 class StockBasisTests(unittest.TestCase):
     def setUp(self):
         area = basis.REPO/"output/phenotypes"/overlay.TARGET
+        # Create the ignored parent here; never rely on another test having created it first.
+        area.mkdir(parents=True, exist_ok=True)
         temporary = tempfile.TemporaryDirectory(dir=area, prefix="stock-basis-test-")
         self.addCleanup(temporary.cleanup)
         self.area = Path(temporary.name).resolve()
