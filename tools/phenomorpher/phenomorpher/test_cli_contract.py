@@ -88,6 +88,24 @@ class PortableCliTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'escaped explicit root'):
                 runner.consumed(['replay','--release',str(release)])
 
+    def test_runtime_commands_run_only_through_the_managed_runner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);plan=root/'plan.json';plan.write_text('{}');blob=root/'r.mdl';blob.write_bytes(b'x')
+            calls=[['anim-library','repoint','--input',str(blob),'--parent','a_ba','--output',str(root/'o.mdl')],
+                   ['downsample-textures','--root',str(root),'--manifest',str(plan),'--output',str(root/'t')]]
+            with patch.dict('os.environ',{'SRN_VERIFIED_INPUTS':''}),patch.object(cli,'_PINS',None):
+                for argv in calls:
+                    with self.assertRaisesRegex(ValueError,'run.py'):cli.main(argv)
+            self.assertFalse((root/'o.mdl').exists() or (root/'t').exists())
+
+    def test_runner_rejects_root_escape_in_adoption_plans(self):
+        from . import inputs as runner
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);pin={'path':'../outside.json','sha256':'0'*64}
+            (root/'plan.json').write_text(json.dumps({'baseContract':pin,'retiredResources':pin,'stock':pin,'textures':pin,'libraries':[],'roots':[]}))
+            with self.assertRaisesRegex(ValueError,'escaped explicit root'):
+                runner.consumed(['adopt-runtime','--root',str(root),'--plan',str(root/'plan.json'),'--output',str(root/'x')])
+
     def test_runner_declares_source_attribute_files_in_addition_to_motion(self):
         from . import inputs as runner
         with tempfile.TemporaryDirectory() as tmp:

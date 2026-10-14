@@ -80,6 +80,17 @@ class AdoptionTests(unittest.TestCase):
             retired = json.loads((root/'staged/retired-runtime-resources.json').read_text())
             self.assertEqual(sorted(r['reason'] for r in retired), ['carrier', 'carrier', 'texture'])
             self.assertTrue((root/'staged/ASSETS.md').read_text().startswith('# PhenoMorpher runtime file inventory\n\nAll 4 resources.'))
+            # The adopted release inventories as root > library > stock with no private carriers.
+            for path in (root/'staged/files').rglob('*'):
+                if path.is_file():
+                    (root/path.relative_to(root/'staged/files')).write_bytes(path.read_bytes())
+            for row in removed:
+                (root/row['path']).unlink()
+            inventory = lib.inventory(root, root/'staged/game-ready-assets.json', root/'stock/stock-models.json')
+            self.assertEqual([t['chain'] for t in inventory['targets']],
+                             [['pfx0', 'srn_an_xf', 'a_fa', 'a_ba'], ['pfx2', 'srn_an_xf', 'a_fa', 'a_ba']])
+            self.assertEqual((inventory['summary']['privateCarriers'], inventory['summary']['animationLibraries']), (0, ['srn_an_xf']))
+            self.assertEqual(inventory['targets'][0]['libraries'], ['srn_an_xf'])
 
     def test_failed_comparisons_and_unrepointed_roots_stop_adoption(self):
         with tempfile.TemporaryDirectory() as tmp:

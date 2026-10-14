@@ -285,7 +285,7 @@ def compare_clip(a, a_model, b, b_model, time_tolerance=1e-5):
             'metadata': meta, 'positionMetres': position, 'rotationDegrees': rotation, 'otherMax': other}
 
 
-RIG_ROLES = ('fitted-rig', 'rig-inheritance')
+RIG_ROLES = ('fitted-rig', 'rig-inheritance', 'animation-library')
 
 
 def release_models(root, manifest, stock, stock_paths):
@@ -294,7 +294,7 @@ def release_models(root, manifest, stock, stock_paths):
     for row in manifest['resources']:
         if row['role'] in RIG_ROLES:
             name = Path(row['path']).stem.lower(); models[name] = load_model(root/row['path'])
-            origins[name] = {'origin': 'pack', 'path': row['path'], 'sha256': row['sha256']}
+            origins[name] = {'origin': 'pack', 'path': row['path'], 'sha256': row['sha256'], 'role': row['role']}
     for name, path in stock_paths.items():
         if name not in models:
             models[name] = load_model(path)
@@ -326,18 +326,21 @@ def inventory(root, manifest_path, stock_manifest):
         prefix = target['modelPrefix']; names = chain(prefix, models); used.update(names)
         # Stock donors: females inherit a_fa, males a_ba.
         seed = 'a_fa' if prefix[1] == 'f' else 'a_ba'
-        clips = effective(names, models); private = [n for n in names[1:] if origins[n]['origin'] == 'pack']
+        clips = effective(names, models)
+        private = [n for n in names[1:] if origins[n]['origin'] == 'pack' and origins[n]['role'] != 'animation-library']
         stored = sum(len(models[n]['clips']) for n in private)
         targets.append({'target': target['target'], 'root': prefix, 'rootScale': models[prefix]['scale'], 'chain': names,
             'privateCarriers': private, 'storedPrivateClips': stored, 'effectiveClips': len(clips),
+            'libraries': [n for n in names[1:] if origins[n].get('role') == 'animation-library'],
             'rootNodes': sorted(models[prefix]['nodes']),
             # Clip metadata lives with its owner; rows keep the owner, payload signature and stock deltas.
             'clips': {c: {'owner': r['owner'], 'shadowed': r['shadowed'],
                           'controllerSignature': clip_row(models[r['owner']]['clips'][c], r['owner'])['controllerSignature'],
                           'stock': stock_comparison(c, r['owner'], seed)} for c, r in clips.items()}})
     carriers = {n: {**origins[n], 'parent': models[n]['parent'], 'scale': models[n]['scale'], 'clips': sorted(models[n]['clips']),
-                    'nodes': sorted(models[n]['nodes'])} for n in sorted(models) if origins[n]['origin'] == 'pack' and n not in
-                {t['modelPrefix'] for t in manifest['targets']}}
+                    'nodes': sorted(models[n]['nodes'])} for n in sorted(models) if origins[n]['origin'] == 'pack'
+                and origins[n]['role'] == 'rig-inheritance'}
+    libraries = sorted(n for n in models if origins[n].get('role') == 'animation-library')
     unused = sorted(n for n in carriers if n not in used)
     textures = {}
     for name, row in sorted(resources.items()):
@@ -369,7 +372,7 @@ def inventory(root, manifest_path, stock_manifest):
             'targets': targets, 'privateCarriers': carriers, 'unusedPrivateCarriers': unused,
             'textures': textures, 'materials': materials, 'textureUsage': usage,
             'unreferencedTextures': sorted(set(textures) - referenced),
-            'summary': {'privateCarriers': len(carriers), 'privateCarrierBytes': sum(resources[n+'.mdl']['bytes'] for n in carriers),
+            'summary': {'animationLibraries': libraries, 'privateCarriers': len(carriers), 'privateCarrierBytes': sum(resources[n+'.mdl']['bytes'] for n in carriers),
                 'storedPrivateClips': sum(len(c['clips']) for c in carriers.values()),
                 'texturesAbove1024': sorted(n for n, t in textures.items() if max(t['width'], t['height']) > 1024)},
             'assetApprovalCreated': False}

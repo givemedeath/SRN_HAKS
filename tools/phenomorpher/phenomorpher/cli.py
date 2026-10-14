@@ -179,6 +179,7 @@ def main(argv=None):
     if a.command in ('anim-library', 'compare-motion'):
         from .engine import anim_library
         from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         action = a.command if a.command == 'compare-motion' else a.action
         if action == 'extract-stock':
@@ -208,11 +209,13 @@ def main(argv=None):
     if a.command == 'downsample-textures':
         from .engine.texture_downsample import downsample
         from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         print(json.dumps(downsample(a.root, a.manifest, a.output, a.max_size)['summary'])); return
     if a.command == 'adopt-runtime':
         from .engine.runtime_release import adopt
         from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         print(json.dumps(adopt(a.root, a.plan, a.output)['summary'])); return
     if a.command == 'convert-clothing':

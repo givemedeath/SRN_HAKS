@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 
-RIG_ROLES = ('fitted-rig', 'rig-inheritance')
+RIG_ROLES = ('fitted-rig', 'rig-inheritance', 'animation-library')
 ANIMATION_ROLES = RIG_ROLES + ('selected-palette', 'selected-map', 'selected-material')
 
 

@@ -533,7 +533,8 @@
       "tools/phenomorpher/phenomorpher/engine/silhouette_model.py",
       "tools/phenomorpher/phenomorpher/engine/target_contract.py",
       "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15a.py",
-      "tools/phenomorpher/phenomorpher/inputs.py"
+      "tools/phenomorpher/phenomorpher/inputs.py",
+      "tools/phenomorpher/run.py"
     ],
     "tools/phenomorpher/phenomorpher/test_public_api.py": [
       "tools/phenomorpher/phenomorpher/api.py",
