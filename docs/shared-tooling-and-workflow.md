@@ -262,12 +262,34 @@ The validation record pins the committed helper bytes, and clean-checkout tests
 verify the complete declared helper set. This avoids binding evidence to local
 line endings that differ from the committed files. Preserve older run receipts.
 
-`tools/test_impact.py` builds a catalog of local imports, literal helper launches
-and configuration dependencies. Use `--changed <repository-relative-file> --run`
-for iterations. Unknown or uncovered changes and unresolved dependencies trigger
-the full Python suite. Dynamic dependencies still require full-suite review;
-focused selection is a convenience, not a release gate. Refresh the tracked
-`tools/test-impact.json` when helpers change.
+`tools/test_impact.py` builds a catalog of local imports, literal helper launches,
+configuration dependencies and documents read by literal path. Use
+`--changed <repository-relative-file> --run` for iterations. Tests run from their
+import root, so package tests such as `tools/phenomorpher/phenomorpher/**` run
+package-qualified with the invoking interpreter. Unknown or uncovered changes,
+unresolved dependencies and shared infrastructure listed in `tools/ci-scope.json`
+trigger the full Python suite. Markdown that no test reads selects no helper tests;
+`srn_*` asset changes select tests that name that pack. Dynamic dependencies still
+require full-suite review; focused selection is a convenience, not a release gate.
+Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers
+change; CI rejects a stale catalog.
+
+CI runs one entry workflow, `.github/workflows/ci.yml`:
+1. **Scope** runs `tools/ci_scope.py` once. It publishes the changed files, the
+   selected suites with reasons, the item-import and wheel decisions, and the
+   duration-balanced shards from `tools/ci-test-durations.json`.
+2. **Repository verification** and the reusable `shared-tooling.yml` consume that
+   plan; neither diffs the base itself. Each helper shard is its own job per OS,
+   item import has one owner job per OS, and the wheel job installs PhenoMorpher
+   in an isolated venv and runs its packaged tests outside the checkout.
+3. **CI result** passes only when every selected job succeeded. It rejects
+   failures, cancellations and selected jobs that were skipped or missing, and
+   re-evaluates after "Re-run failed jobs".
+
+Pushes to `main` and manual runs with `full` keep full coverage. A newer commit
+cancels the older run of the same pull request. All jobs share one tool-cache key
+per runner OS through `.github/actions/srn-tools`. Per-test durations are uploaded
+as artifacts; refresh `tools/ci-test-durations.json` from them when shards drift.
 
 Before PR readiness select validation from the changed files and their dependencies:
 focused affected tests for helper, configuration and documentation changes, the full
@@ -275,7 +297,7 @@ helper suites when shared helpers change, clean-checkout tests and affected nati
 smokes. Reserve full repository verification and all-pack rebuilds for unknown dependency
 coverage, repository-wide build changes, release checks or an explicit request.
 Item-import regressions run only when `tools/Test-ItemImportScope.ps1` finds item-import
-changes; CI applies the same gate.
+changes; CI applies the same patterns from `tools/ci-scope.json`.
 Windows/Linux CI uses an explicit selected interpreter, an explicit shared cache
 root and cache keys derived from both tool locks. The copied manual Armory/Blender
 installs are verified locally; CI does not download them or launch NWN.

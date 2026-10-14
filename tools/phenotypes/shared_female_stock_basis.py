@@ -71,6 +71,23 @@ class Inputs:
         return dict(self.files)
 
 
+_TOP_LEVEL_IMPORTS = {}
+
+
+def top_level_imports(path):
+    """Top-level import names of one helper; keyed by its exact text, so any edit is re-parsed."""
+    text = path.read_text(encoding="utf-8-sig")
+    if text not in _TOP_LEVEL_IMPORTS:
+        imports = set()
+        for node in ast.walk(ast.parse(text, filename=str(path))):
+            if isinstance(node, ast.Import):
+                imports.update(x.name.split(".")[0] for x in node.names)
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                imports.add(node.module.split(".")[0])
+        _TOP_LEVEL_IMPORTS[text] = frozenset(imports)
+    return _TOP_LEVEL_IMPORTS[text]
+
+
 def helper_closure(inputs):
     """Freeze current loaded repository helpers and their local import closure."""
     pending = [Path(__file__).resolve(), Path(contract.__file__).resolve(),
@@ -85,13 +102,7 @@ def helper_closure(inputs):
         seen.add(path)
         contract.require(path.is_relative_to(REPO/"tools"), "Loaded helper is outside consuming checkout")
         inputs.add(path)
-        imports = set()
-        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))):
-            if isinstance(node, ast.Import):
-                imports.update(x.name.split(".")[0] for x in node.names)
-            elif isinstance(node, ast.ImportFrom) and node.module:
-                imports.add(node.module.split(".")[0])
-        for name in imports:
+        for name in top_level_imports(path):
             found = next((p for root in roots if (p := root/(name+".py")).is_file()), None)
             if found is not None:
                 pending.append(found.resolve())

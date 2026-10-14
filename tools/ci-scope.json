@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "sharedInfrastructure": [
+    "^\\.github/",
+    "^tools/(shared_tools|test_impact|ci_scope|ci_result)\\.py$",
+    "^tools/(ci-scope|ci-test-durations|test-impact|toolchain\\.lock|shared-tools\\.lock)\\.json$",
+    "^tools/(SrnTools|SrnHaks\\.Common)\\.psm1$",
+    "^tools/Bootstrap-Tools\\.ps1$",
+    "^tools/phenotypes/(requirements\\.txt|launch_shared_tool\\.py)$"
+  ],
+  "itemImport": [
+    "^tools/(Test-ItemImportTools|Test-ItemImportScope|Import-Hak|Analyze-ItemHak|Analyze-ItemBlueprintErf|Stage-ItemMatches)\\.ps1$",
+    "^\\.github/",
+    "^tools/(SrnHaks\\.Common|SrnTools)\\.psm1$",
+    "^tools/(toolchain|shared-tools)\\.lock\\.json$",
+    "^tools/ci-scope\\.json$",
+    "^tools/import-profiles/",
+    "^docs/imports/",
+    "^srn_item/"
+  ],
+  "wheel": [
+    "^tools/phenomorpher/"
+  ],
+  "groups": [
+    {"name": "phenotypes", "pattern": "^tools/phenotypes/", "shards": 3},
+    {"name": "core", "pattern": "^tools/", "shards": 1}
+  ],
+  "operatingSystems": ["ubuntu-latest", "windows-latest"]
+}

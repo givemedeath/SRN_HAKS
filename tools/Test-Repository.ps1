@@ -221,7 +221,7 @@ else {
     $mustBuildAll = $false
     foreach ($changedPath in $changedPaths) {
         $normalized = $changedPath.Replace('\\', '/')
-        if ($normalized -match '^hakbuilder\.json$|^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\.Common)\.|^tools/toolchain\.lock\.json$|^\.github/workflows/verify\.yml$') { $mustBuildAll = $true }
+        if ($normalized -match '^hakbuilder\.json$|^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\.Common)\.|^tools/toolchain\.lock\.json$|^\.github/(workflows/ci\.yml|actions/srn-tools/)') { $mustBuildAll = $true }
         $firstSegment = $normalized.Split('/')[0]
         if ($packByName.ContainsKey($firstSegment)) { [void]$packsToBuild.Add($firstSegment) }
     }

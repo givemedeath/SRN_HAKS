@@ -1,0 +1,126 @@
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      full:
+        description: Run every suite regardless of changed files
+        type: boolean
+        default: true
+permissions:
+  contents: read
+# A newer commit cancels the older run of the same PR; main pushes are grouped per commit and never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('{0}-{1}', github.ref, github.sha) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  scope:
+    name: Scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      plan: ${{ steps.plan.outputs.plan }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # History for diffs without downloading every historical binary blob.
+          filter: blob:none
+      - uses: actions/setup-python@v6
+        id: interpreter
+        with:
+          python-version: '3.12'
+      - name: Compute the change scope plan
+        id: plan
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          FULL_REASON: ${{ github.event_name == 'workflow_dispatch' && inputs.full && 'Explicit full run' || github.event_name == 'push' && 'Push to main; post-merge full run' || '' }}
+        run: |
+          $plan = Join-Path $env:RUNNER_TEMP 'ci-plan.json'
+          & '${{ steps.interpreter.outputs.python-path }}' -B tools/ci_scope.py --check-catalog --base "$env:BASE_SHA" --full-reason "$env:FULL_REASON" --output $plan --github-output $env:GITHUB_OUTPUT | Out-File -LiteralPath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Tail 40
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ci-plan
+          path: ${{ runner.temp }}/ci-plan.json
+          retention-days: 7
+
+  verify:
+    name: Repository verification
+    needs: scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # History for diffs without downloading every historical binary blob.
+          filter: blob:none
+          lfs: false
+      - uses: ./.github/actions/srn-tools
+      - name: Verify repository
+        shell: pwsh
+        env:
+          PLAN: ${{ needs.scope.outputs.plan }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $plan = $env:PLAN | ConvertFrom-Json
+          if ($null -eq $plan.changed) {
+            ./tools/Test-Repository.ps1 -AllPacks *>&1 | Tee-Object -FilePath verify.log
+          }
+          else {
+            ./tools/Test-Repository.ps1 -ChangedSince $plan.base *>&1 | Tee-Object -FilePath verify.log
+          }
+      - name: Upload compact verification log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-log
+          path: verify.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+  helpers:
+    name: Helpers
+    needs: scope
+    uses: ./.github/workflows/shared-tooling.yml
+    with:
+      plan: ${{ needs.scope.outputs.plan }}
+
+  result:
+    name: CI result
+    if: always()
+    needs: [scope, verify, helpers]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools/ci_result.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v6
+        id: interpreter
+        with:
+          python-version: '3.12'
+      - name: Require every selected job to pass
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PLAN: ${{ needs.scope.outputs.plan }}
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$PLAN" > "$RUNNER_TEMP/plan.json"
+          printf '%s' "$NEEDS" > "$RUNNER_TEMP/needs.json"
+          # filter=latest keeps carried-over results and replaces re-run jobs with their newest attempt.
+          gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs?filter=latest&per_page=100" --paginate --jq '.jobs[]' > "$RUNNER_TEMP/jobs.jsonl"
+          '${{ steps.interpreter.outputs.python-path }}' -B tools/ci_result.py --plan "$RUNNER_TEMP/plan.json" --jobs "$RUNNER_TEMP/jobs.jsonl" --needs "$RUNNER_TEMP/needs.json"

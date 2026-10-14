@@ -74,6 +74,20 @@ def read_json(path):
     return decode_json(Path(path).read_text(encoding='utf-8-sig'))
 
 
+_IMPORT_NAMES={}
+
+
+def imported_names(text):
+    """Import names of one source text; keyed by the exact text, so any edit is re-parsed."""
+    if text not in _IMPORT_NAMES:
+        names=[]
+        for node in ast.walk(ast.parse(text)):
+            names.extend([x.name for x in node.names] if isinstance(node,ast.Import) else
+                         [node.module] if isinstance(node,ast.ImportFrom) and node.module else [])
+        _IMPORT_NAMES[text]=tuple(names)
+    return _IMPORT_NAMES[text]
+
+
 def current_helper_paths():
     """Static local import closure, including lazy imports; never import archives."""
     bank=Path(__file__).resolve().parent
@@ -82,14 +96,10 @@ def current_helper_paths():
         p=pending.pop()
         if p in found:continue
         found.add(p)
-        tree=ast.parse(p.read_text(encoding='utf-8-sig'))
-        for node in ast.walk(tree):
-            names=([x.name for x in node.names] if isinstance(node,ast.Import) else
-                   [node.module] if isinstance(node,ast.ImportFrom) and node.module else [])
-            for name in names:
-                for base in (bank,bank.parent):
-                    child=base/(name.split('.')[0]+'.py')
-                    if child.is_file():pending.append(child.resolve());break
+        for name in imported_names(p.read_text(encoding='utf-8-sig')):
+            for base in (bank,bank.parent):
+                child=base/(name.split('.')[0]+'.py')
+                if child.is_file():pending.append(child.resolve());break
     return tuple(sorted(found))
 
 
