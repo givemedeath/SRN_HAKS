@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 
 
+ANIMATION_ROLES = ('fitted-rig', 'rig-inheritance', 'selected-palette', 'selected-map', 'selected-material')
+
+
 def read(path):
     return json.loads(Path(path).read_text(encoding='utf-8-sig'))
 
@@ -53,6 +56,17 @@ def consumed(arguments):
         for name in ('sourceBody','targetBody'):
             body = rooted(root, data[name]['path']); files.add(body)
             files.update(rooted(root, row['path']) for row in read(body)['files'].values())
+    elif command == 'anim-library':
+        action = arguments[1] if len(arguments) > 1 else ''
+        if action == 'extract-stock':
+            files.add(option('resman-cat'))
+        elif action == 'inventory':
+            manifest = option('manifest'); stock = option('stock'); root = option('root')
+            files.update([manifest, stock])
+            files.update((stock.parent/row['path']).resolve() for row in read(stock)['models'].values())
+            files.update(rooted(root, x['path']) for x in read(manifest)['resources'] if x['role'] in ANIMATION_ROLES)
+        else:
+            raise ValueError('Unknown anim-library action: '+action)
     else:
         raise ValueError('Unknown command: '+command)
     return {p.resolve() for p in files}

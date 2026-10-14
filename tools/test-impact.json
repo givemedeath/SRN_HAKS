@@ -299,12 +299,18 @@
     ],
     "tools/phenomorpher/phenomorpher/cli.py": [
       "tools/phenomorpher/phenomorpher/api.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/convert_model.py",
       "tools/phenomorpher/phenomorpher/engine/measurement_workflow.py",
-      "tools/phenomorpher/phenomorpher/engine/replay_bodies.py"
+      "tools/phenomorpher/phenomorpher/engine/replay_bodies.py",
+      "tools/phenomorpher/phenomorpher/inputs.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/__init__.py": [],
     "tools/phenomorpher/phenomorpher/engine/anatomy_policy_v15.py": [],
+    "tools/phenomorpher/phenomorpher/engine/anim_library.py": [
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
     "tools/phenomorpher/phenomorpher/engine/audit_geometry.py": [],
     "tools/phenomorpher/phenomorpher/engine/build_silhouette_comparison_sheet.py": [],
     "tools/phenomorpher/phenomorpher/engine/check_connector_surfaces_v15.py": [
@@ -482,6 +488,10 @@
     "tools/phenomorpher/phenomorpher/engine/target_contract.py": [
       "tools/phenomorpher/phenomorpher/engine/retarget.py",
       "tools/phenomorpher/phenomorpher/engine/rig_controller_audit.py"
+    ],
+    "tools/phenomorpher/phenomorpher/engine/test_anim_library.py": [
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/inputs.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_check_connector_surfaces_v15.py": [
       "tools/phenomorpher/phenomorpher/engine/check_connector_surfaces_v15.py"
@@ -3085,6 +3095,10 @@
     "tools/heads/build_head_fixture.py": [
       "srn_body"
     ],
+    "tools/phenomorpher/phenomorpher/engine/test_anim_library.py": [
+      "srn_body",
+      "srn_body_tex"
+    ],
     "tools/phenotypes/freeze_derived_masters.py": [
       "srn_body"
     ],
@@ -3123,6 +3137,7 @@
     "tools/heads/test_palette_sampling.py",
     "tools/heads/test_submission_reconciliation.py",
     "tools/heads/test_target_and_publication.py",
+    "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
     "tools/phenomorpher/phenomorpher/engine/test_check_connector_surfaces_v15.py",
     "tools/phenomorpher/phenomorpher/engine/test_fit_anatomy_stage1_v15.py",
     "tools/phenomorpher/phenomorpher/engine/test_fit_anatomy_stage1_v15a.py",

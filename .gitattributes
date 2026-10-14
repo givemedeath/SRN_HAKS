@@ -49,3 +49,4 @@ srn_body_tex/** -text
 # Keep GitHub reviews within diff limits; these generated text payloads remain ordinary exact-byte files.
 docs/phenomorpher/game-ready-assets.json -diff linguist-generated=true
 srn_2da/appearance.2da -diff linguist-generated=true
+docs/phenomorpher/runtime-optimization/baseline.json -diff linguist-generated=true
