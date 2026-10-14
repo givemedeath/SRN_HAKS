@@ -51,6 +51,10 @@ def consumed(arguments):
             recipe = rooted(root, row['recipe']['path']); files.add(recipe)
             data = read(recipe)
             files.update(rooted(root, data[name]['path']) for name in ('highDetail','metadata','correspondence','reducedGeometry'))
+    elif command == 'downsample-textures':
+        manifest = option('manifest'); root = option('root'); files.add(manifest)
+        files.update(rooted(root, x['path']) for x in read(manifest)['resources']
+                     if x['role'] in ('selected-palette', 'selected-map', 'selected-material'))
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)

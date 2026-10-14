@@ -99,6 +99,10 @@ def main(argv=None):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--library', type=Path, help='Library the root names; omit when it names a stock model')
     p.add_argument('--target', required=True); p.add_argument('--authorized-fit-clip', action='append', default=[])
+    p = sub.add_parser('downsample-textures')
+    for name in ('root', 'manifest', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--max-size', type=int, default=1024)
     a = parser.parse_args(argv)
     if a.command == 'doctor':
         declared(__file__)
@@ -198,6 +202,11 @@ def main(argv=None):
         print(json.dumps(summary))
         if not result.get('passed', True): raise SystemExit(1)
         return
+    if a.command == 'downsample-textures':
+        from .engine.texture_downsample import downsample
+        from .inputs import consumed
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        print(json.dumps(downsample(a.root, a.manifest, a.output, a.max_size)['summary'])); return
     if a.command == 'convert-clothing':
         for path in (a.profile,a.source_binding,a.input):declared(path)
         data=read(a.profile)

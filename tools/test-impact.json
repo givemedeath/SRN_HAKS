@@ -284,6 +284,7 @@
       "tools/phenomorpher/phenomorpher/engine/measurement_workflow.py",
       "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
       "tools/phenomorpher/phenomorpher/engine/replay_bodies.py",
+      "tools/phenomorpher/phenomorpher/engine/texture_downsample.py",
       "tools/phenomorpher/phenomorpher/inputs.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/__init__.py": [],
@@ -504,6 +505,11 @@
       "tools/phenomorpher/phenomorpher/engine/phenomorpher_scene_v15b.py",
       "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15a.py"
     ],
+    "tools/phenomorpher/phenomorpher/engine/test_texture_downsample.py": [
+      "tools/phenomorpher/phenomorpher/engine/texture_downsample.py",
+      "tools/phenomorpher/phenomorpher/inputs.py"
+    ],
+    "tools/phenomorpher/phenomorpher/engine/texture_downsample.py": [],
     "tools/phenomorpher/phenomorpher/engine/warp_segments_v12.py": [],
     "tools/phenomorpher/phenomorpher/engine/warp_torso_support_v12.py": [],
     "tools/phenomorpher/phenomorpher/inputs.py": [],
@@ -3116,6 +3122,7 @@
     "tools/phenomorpher/phenomorpher/engine/test_morph_preview_pose_v13.py",
     "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15a.py",
     "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15b.py",
+    "tools/phenomorpher/phenomorpher/engine/test_texture_downsample.py",
     "tools/phenomorpher/phenomorpher/test_cli_contract.py",
     "tools/phenomorpher/phenomorpher/test_public_api.py",
     "tools/phenomorpher/test_finalize_runtime.py",
