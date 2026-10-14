@@ -57,6 +57,42 @@ def profile():
 
 
 class PublicContractTests(unittest.TestCase):
+    def test_inventory_rejects_aliases_of_one_resolved_resource(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); (root/'sub').mkdir()
+            source=root/'part.mdl'; source.write_bytes(b'fixture')
+            manifest=root/'manifest.json'
+            row={'path':'part.mdl','sha256':api.digest(source),'bytes':source.stat().st_size}
+            for alias in ('part.mdl','sub/../part.mdl','./part.mdl'):
+                data={'schemaVersion':1,'kind':'PhenoMorpher-game-ready-bodies','version':'1',
+                      'targets':[{'target':'control'}],'resources':[row,{**row,'path':alias}]}
+                manifest.write_text(json.dumps(data),encoding='utf-8')
+                for snapshot in (None,{str(source.resolve()):api.digest(source)}):
+                    with self.subTest(alias=alias,snapshot=snapshot is not None),self.assertRaisesRegex(ValueError,'Duplicate'):
+                        api.verify_assets(root,manifest,snapshot)
+            other=root/'other.mdl';other.write_bytes(source.read_bytes())
+            data['resources']=[row,{**row,'path':'other.mdl'}]
+            manifest.write_text(json.dumps(data),encoding='utf-8')
+            self.assertEqual(api.verify_assets(root,manifest)['resources'],2)
+
+    def test_sections_include_coplanar_faces_and_patch_extrema(self):
+        horizontal={'position':np.array([[-3.,-2.,1.],[4.,-2.,1.],[0.,5.,1.]]),
+                    'faces':np.array([[0,1,2]])}
+        crossing={'position':np.array([[-.5,0.,0.],[.5,0.,2.],[0.,1.,0.]]),
+                  'faces':np.array([[0,1,2]])}
+        for meshes in ([horizontal],[crossing,horizontal]):
+            self.assertEqual(api.cross_section(meshes,1.,0),7.)
+            self.assertEqual(api.cross_section(meshes,1.,1),7.)
+        self.assertIsNone(api.cross_section([horizontal],1.1,0))
+        self.assertIsNone(api.cross_section([{**horizontal,'render':False}],1.,0))
+
+    def test_sections_keep_edge_vertex_and_ordinary_intersections(self):
+        mesh={'position':np.array([[-2.,0.,1.],[3.,0.,1.],[0.,2.,2.]]),
+              'faces':np.array([[0,1,2]])}
+        self.assertEqual(api.cross_section([mesh],1.,0),5.)
+        self.assertEqual(api.cross_section([mesh],2.,0),0.)
+        self.assertEqual(api.cross_section([mesh],1.5,0),2.5)
+
     def test_recipe_roundtrip_preserves_source_float32_motion_hash_and_unsigned_colors(self):
         motion={'clips':{'pause1':{'length':1.,'nodes':{'root':{'controls':{8:{
             'times':np.array([0,1],dtype='<f4'),'values':np.array([[0,0,0],[0,0,1]],dtype='<f4')}}}}}}}

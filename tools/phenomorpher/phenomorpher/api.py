@@ -38,10 +38,10 @@ def verify_assets(root, manifest, verified_snapshot=None):
         raise ValueError('Nonempty target and resource inventory required')
     identities = set()
     for row in data['resources']:
-        if row['path'] in identities:
-            raise ValueError('Duplicate publication resource')
-        identities.add(row['path'])
         path = bound(root, row, verified_snapshot)
+        if path in identities:
+            raise ValueError('Duplicate publication resource')
+        identities.add(path)
         if path.stat().st_size != row['bytes']:
             raise ValueError('Resource length mismatch')
     return {'version': data['version'], 'targets': len(data['targets']),

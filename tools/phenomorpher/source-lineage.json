@@ -271,8 +271,8 @@
       "module": "silhouette_model",
       "source": "silhouette_model.py",
       "sourceSHA256": "ebc943c11334cfabe39863f2fdb2074f1c80177d157bd121fd245624be55b522",
-      "packagedSHA256": "26ac2db20c97451327b72d6dca8a5fa83cfcbaa40919ab91c0e654beb5a8a8da",
-      "modifications": "Package-relative imports; preserve duplicate unreferenced native leaf dummies as distinct internal nodes, matching existing ASCII handling. Mesh, joint and parent duplicate names remain rejected. Geometry and attribute traversal share one safe duplicate native leaf identity policy, including collision rejection; attributes follow geometry traversal order."
+      "packagedSHA256": "f5e0a6cb19f3060a8ab4e76eb82ceea3e470bd1f8bb7a756f2b2a543c5c19f6d",
+      "modifications": "Package-relative imports; preserve duplicate unreferenced native leaf dummies as distinct internal nodes, matching existing ASCII handling. Mesh, joint and parent duplicate names remain rejected. Geometry and attribute traversal share one safe duplicate native leaf identity policy, including collision rejection; attributes follow geometry traversal order. Include plane vertices in exact cross-section extents so coplanar faces and edges are measured."
     },
     {
       "module": "silhouette_reference",

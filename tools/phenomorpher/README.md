@@ -134,6 +134,8 @@ The [pre-publication review](REVIEW.md) records resolved implementation findings
 The [first review follow-up](review-followup-validation.json) and
 [second review follow-up](review-followup-2-validation.json) cover later corrections.
 The [third follow-up](review-followup-3-validation.json) verifies the migration doctor contract.
+The [fourth follow-up](review-followup-4-validation.json) covers resolved-path inventory
+uniqueness and coplanar section extents.
 The original release [validation receipt](validation.json) records tests, real-asset smokes
 and wheel isolation. `source-lineage.json` pins the adopted project modules; their
 numerical algorithms are retained with package-relative imports. Historical

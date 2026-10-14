@@ -269,6 +269,9 @@ def cross_section(meshes, z, axis):
         if not mesh.get('render', True):
             continue
         triangle = mesh['position'][mesh['faces']]
+        # Plane vertices include horizontal faces/edges, which have no
+        # nonzero vertical edge distance but still contribute section extrema.
+        hits.extend(triangle[:, :, axis][triangle[:, :, 2] == z].tolist())
         for a, b in ((0, 1), (1, 2), (2, 0)):
             left, right = triangle[:, a], triangle[:, b]
             distance = right[:, 2] - left[:, 2]
