@@ -322,3 +322,39 @@ test module stay in ignored `output/robes/`. Committed evidence under
 carries the attribution in its NOTICE. Stock NWN:EE robes, body parts, rig and
 animations were read from the installed game as dimensional and weight references
 and are not redistributed. Production use requires a separate rights review.
+
+## PhenoMorpher reviewed body phenotypes (2026-10-13)
+
+The selected twenty Human/Dwarf/Elf/Orc/Troll female/male Fit/Large bodies
+are published into `srn_body`; their appearance routing is in `srn_2da`.
+Contributor: SRN project operator, with Codex-assisted fitting, UV/material
+processing, native verification and client review. The latest published Human
+male v2 and female body donors are retained as the derivation basis. Fit
+shapes/rigs and selected Large shapes remain unchanged in this publication.
+
+The new Large chest sources were commissioned through the operator's local
+ComfyUI purpose-built Pixal3D/Trellis workflow from approved original SRN
+references, fitted to the existing bodies, UV-mapped to their materials and
+reduced to 5,494 male / 5,482 female triangles. Generated masters, prompts and
+operational receipts remain ignored working data. No Meshy source is used for
+these replacement chests. Original generated anatomy/material contributions
+retain the repository's applicable original-content license.
+
+Private fitted animation closures and stock head routing aliases are NWN
+compatibility derivatives, retaining installed-game authorship rather than
+claiming original ownership of stock geometry or animations. Unmodified global
+stock `a_*` animations and original Human heads/textures are installed-game
+dependencies. A licensed NWN:EE installation is required. This record does not
+license third-party platform content under the repository's original-content
+license.
+
+The exact source archive/payload hashes, published byte counts, target routing,
+name-only Fit promotions and dependency closure are recorded in
+`docs/phenomorpher/game-ready-assets.json`. The operator requested publication
+after client review. Representative literal client screenshots and coverage are
+included alongside that contract; no image-generation edits were made to them.
+Diagnostic clothing, material comparison variants, game profiles, credentials,
+raw crash dumps and test module resources are excluded. Every resource is below
+15 MiB; no size exception is required.
+
+srn_body_tex contains the exact-byte selected new skin normal/roughness maps. The stock-exact phenotype.2da and whitelisted racialtypes.2da changes, including disabled Half-Elf/Halfling player selection, are recorded in docs/phenomorpher/table-validation.json. Eight permanent Troll/Orc display strings are allocated in srn_tlk; ability/feat/gameplay rules retain installed values.

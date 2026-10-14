@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "nextId": 136,
+  "nextId": 144,
   "allocations": [
     {
       "id": 0,
@@ -846,6 +846,54 @@
       "id": 135,
       "key": "mdrnee.placeable_palette.s33607_tapestries",
       "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 136,
+      "key": "phenomorpher.race.troll.name",
+      "owner": "SR_NWN",
+      "status": "active"
+    },
+    {
+      "id": 137,
+      "key": "phenomorpher.race.troll.lower",
+      "owner": "SR_NWN",
+      "status": "active"
+    },
+    {
+      "id": 138,
+      "key": "phenomorpher.race.troll.plural",
+      "owner": "SR_NWN",
+      "status": "active"
+    },
+    {
+      "id": 139,
+      "key": "phenomorpher.race.troll.description",
+      "owner": "SR_NWN",
+      "status": "active"
+    },
+    {
+      "id": 140,
+      "key": "phenomorpher.race.orc.name",
+      "owner": "SR_NWN",
+      "status": "active"
+    },
+    {
+      "id": 141,
+      "key": "phenomorpher.race.orc.lower",
+      "owner": "SR_NWN",
+      "status": "active"
+    },
+    {
+      "id": 142,
+      "key": "phenomorpher.race.orc.plural",
+      "owner": "SR_NWN",
+      "status": "active"
+    },
+    {
+      "id": 143,
+      "key": "phenomorpher.race.orc.description",
+      "owner": "SR_NWN",
       "status": "active"
     }
   ]
