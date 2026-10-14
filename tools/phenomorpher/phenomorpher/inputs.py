@@ -71,7 +71,9 @@ def consumed(arguments):
         elif action == 'build':
             release(RIG_ROLES)
         elif action == 'compare-motion':
-            release(RIG_ROLES); files.update([option('library'), option('repointed')])
+            release(RIG_ROLES); files.add(option('repointed'))
+            if '--library' in arguments:
+                files.add(option('library'))
         elif action == 'restore':
             plan = option('plan'); root = option('root'); data = read(plan)
             files.update([plan, option('compiled'), (plan.parent/data['ascii']['path']).resolve()])

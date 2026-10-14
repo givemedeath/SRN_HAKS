@@ -256,6 +256,23 @@ class LibraryBuildTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'outside the supermodel field'):
                 compare(root, manifest, stock, 'pfx0', root/'good.mdl', root/'moved.mdl')
 
+    def test_root_repointed_straight_to_stock_compares_without_a_library(self):
+        from .motion_compare import compare
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest, stock = self.release(root); data = json.loads(manifest.read_text())
+            for name, parent, clips, role in (('pmx2', 'pcm2', [], 'fitted-rig'), ('pcm2', 'null', [
+                    clip('walk', 'pcm2', animroot='a_ba'), clip('run', 'pcm2', animroot='a_ba', offset=2e-5)], 'rig-inheritance')):
+                blob = native(name, parent, GEOMETRY(name), clips); (root/'srn_body'/(name+'.mdl')).write_bytes(blob)
+                data['resources'].append({'path': f'srn_body/{name}.mdl', 'sha256': hashlib.sha256(blob).hexdigest(), 'role': role})
+            manifest.write_text(json.dumps(data)); repointed = root/'pmx2.mdl'
+            repointed.write_bytes(lib.repoint((root/'srn_body/pmx2.mdl').read_bytes(), 'a_ba'))
+            report = compare(root, manifest, stock, 'pmx2', None, repointed)
+            self.assertEqual((report['newChain'], report['library'], report['passed']), (['pmx2', 'a_ba'], None, True))
+            self.assertEqual(report['counts'], {'inherited-exact': 1, 'inherited-within-tolerance': 1})
+            (root/'odd.mdl').write_bytes(lib.repoint((root/'srn_body/pmx2.mdl').read_bytes(), 'pcf0'))
+            with self.assertRaisesRegex(ValueError, 'installed stock model'):
+                compare(root, manifest, stock, 'pmx2', None, root/'odd.mdl')
+
     def test_repoint_changes_only_the_supermodel_field(self):
         blob = native('pfx0', 'pcf0', GEOMETRY('pfx0'))
         result = lib.repoint(blob, 'srn_an_xf'); a, b = lib.PARENT_FIELD

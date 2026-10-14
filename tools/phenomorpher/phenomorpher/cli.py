@@ -95,8 +95,9 @@ def main(argv=None):
     s = actions.add_parser('repoint'); s.add_argument('--input', type=Path, required=True)
     s.add_argument('--parent', required=True); s.add_argument('--output', type=Path, required=True)
     p = sub.add_parser('compare-motion')
-    for name in ('root', 'manifest', 'stock', 'library', 'repointed', 'output'):
+    for name in ('root', 'manifest', 'stock', 'repointed', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--library', type=Path, help='Library the root names; omit when it names a stock model')
     p.add_argument('--target', required=True); p.add_argument('--authorized-fit-clip', action='append', default=[])
     a = parser.parse_args(argv)
     if a.command == 'doctor':
