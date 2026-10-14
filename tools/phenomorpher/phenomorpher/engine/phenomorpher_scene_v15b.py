@@ -88,7 +88,7 @@ def read_attributes(path):
             row['unavailableSourceAttributes']=[k for k in ('normal','uv','tangent','sign','color') if k not in row]
             result[mesh['name']]=row
     else:
-        text=data.decode('utf-8-sig');parsed={m[2].lower():m[3] for m in NODE.finditer(text.split('endmodelgeom',1)[0]) if m[1].lower() in ('trimesh','danglymesh')}
+        text=data.decode('cp1252');parsed={m[2].lower():m[3] for m in NODE.finditer(text.split('endmodelgeom',1)[0]) if m[1].lower() in ('trimesh','danglymesh')}
         for mesh in geometry:
             body=parsed[mesh['name']];f=np.asarray(arrays(body,'faces'),int);n=np.asarray(arrays(body,'normals'),float);uv=np.asarray(arrays(body,'tverts'),float)
             require(np.array_equal(f[:,:3],mesh['faces']),'ASCII geometry/attribute face mismatch')

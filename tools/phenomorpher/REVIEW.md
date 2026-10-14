@@ -42,3 +42,12 @@ No unresolved blocking implementation finding remained at publication. The tool
 still produces offline proposals. Textured baking, native export, weighted clothing,
 client validation and visible anatomy approval retain their separate gates. The
 body PR remains independent and unmerged for the user's requested follow-up fixes.
+
+## PR review follow-up
+
+The external PR review identified a mismatched ASCII encoding in attribute reading
+and corrupted Unicode documentation. ASCII MDL attributes now use CP1252, matching
+the existing NWN geometry decoder; regression coverage exercises an accented
+material name and a Windows-1252 comment through the public API and CLI. The
+intended tolerance signs and gate range are restored as UTF-8. See the additive
+follow-up validation receipt; the original release receipt remains unchanged.

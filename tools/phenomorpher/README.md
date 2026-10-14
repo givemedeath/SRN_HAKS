@@ -116,7 +116,7 @@ and cloaks need a separate bind-aware route. Solid joint overlap is expected.
 
 Sound joints and natural motion take priority over race/build character, stature
 and closer reference agreement. Keep measurement uncertainty separate from design
-flexibility; defaults are Ãƒâ€šÃ‚Â±5% segment lengths and Ãƒâ€šÃ‚Â±10% width/depth preferences.
+flexibility; defaults are ±5% segment lengths and ±10% width/depth preferences.
 A connector must slope continuously: visible shelves, cuffs and pinches block it.
 Do not stack failed taper corrections, chase individual scanlines or use preview
 IK to conceal unsuitable raw donor motion. Surface coverage/penetration checks
@@ -130,7 +130,8 @@ Run the complete package tests with:
 ```
 
 The [pre-publication review](REVIEW.md) records resolved implementation findings.
-The release [validation receipt](validation.json) records tests, real-asset smokes
+The [review follow-up receipt](review-followup-validation.json) covers later corrections.
+The original release [validation receipt](validation.json) records tests, real-asset smokes
 and wheel isolation. `source-lineage.json` pins the adopted project modules; their
 numerical algorithms are retained with package-relative imports. Historical
 version suffixes inside `engine` are implementation lineage, not public commands

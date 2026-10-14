@@ -208,8 +208,8 @@
       "module": "phenomorpher_scene_v15b",
       "source": "phenomorpher_scene_v15b.py",
       "sourceSHA256": "547110dca8fdf100f15e3b5a1e7db8690731205bd5c72aa097caa0ad28071931",
-      "packagedSHA256": "1f85ca0d969b5b51e67642fe8f34ad128b30f56633ed166f94cc3a36494420bb",
-      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+      "packagedSHA256": "6db8112335f20c8a97d7c471038390708bdf2863b1ddbcd512e183a7bf6d61a9",
+      "modifications": "Package-relative imports and LF encoding; ASCII attribute reading uses CP1252 to match the NWN geometry decoder. Native decoding, numerical geometry and source attributes remain unchanged."
     },
     {
       "module": "pipeline",

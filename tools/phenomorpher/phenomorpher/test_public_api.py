@@ -1,10 +1,13 @@
 import hashlib
+import contextlib
+import io
+from unittest.mock import patch
 import json
 from pathlib import Path
 import tempfile
 import unittest
 import numpy as np
-from . import api
+from . import api, cli
 from .engine.convert_model import convert_text, array, parse, MARKER
 from .engine.morph_preview_pose_v13 import native_keys_hash
 
@@ -111,3 +114,23 @@ class PublicContractTests(unittest.TestCase):
         a=array(parse(MODEL)[0][-1][3],'verts');b=array(parse(text.replace(MARKER,''))[0][-1][3],'verts')
         np.testing.assert_allclose(np.linalg.norm(b[:,None]-b[None,:],axis=2),
             np.linalg.norm(a[:,None]-a[None,:],axis=2)*receipt['uniformScale'],atol=1e-10)
+
+    def test_cp1252_ascii_attributes_and_native_info_retain_data_and_source_bytes(self):
+        material='peau_caf\u00e9'
+        payload=('# Skin \u2014 caf\u00e9\n'+MODEL.replace('bitmap skin','bitmap '+material)).encode('cp1252')
+        with tempfile.TemporaryDirectory() as tmp:
+            source=Path(tmp)/'sample.mdl';source.write_bytes(payload)
+            skeleton,attrs,source_pin=api.read_attributes(source)
+            self.assertEqual(set(skeleton),{'sample','surface'})
+            self.assertEqual(attrs['surface']['material'],[material,'skin'])
+            np.testing.assert_array_equal(attrs['surface']['faces'],[[0,1,2]])
+            np.testing.assert_array_equal(attrs['surface']['uv'],[[0,0],[1,0],[0,1]])
+            np.testing.assert_array_equal(attrs['surface']['normal'],[[0,-1,0]]*3)
+            out=io.StringIO()
+            with patch.object(cli,'declared'),contextlib.redirect_stdout(out):
+                cli.main(['native-info','--input',str(source)])
+            result=json.loads(out.getvalue())
+            self.assertEqual(result['sourcePin'],source_pin)
+            self.assertEqual(result['meshes'][0]['vertices'],3)
+            self.assertEqual(result['meshes'][0]['triangles'],1)
+            self.assertEqual(source.read_bytes(),payload)

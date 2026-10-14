@@ -44,7 +44,7 @@ own target measurements and validation.
 
 For racial variants derived from accepted Human master bodies, see:
 - [The Derived Workflow Runbook](../../docs/phenotype-derived-workflow.md)
-- [Gate Measurement Process & Verification Standards](../../docs/phenotype-gate-measurement-standards.md) (Authoritative engineering thresholds for Gates 0â€“7)
+- [Gate Measurement Process & Verification Standards](../../docs/phenotype-gate-measurement-standards.md) (Authoritative engineering thresholds for Gates 0–7)
 - [Silhouette Generation & Overlap Audit Runbook](../../docs/phenotype-silhouette-workflow.md)
 - [Dwarf Male Pilot Validation](../../docs/phenotype-derived-dwarf-pilot.md)
 - [Troll Male Comparison Report](../../docs/phenotype-derived-troll-male-comparison.md)
