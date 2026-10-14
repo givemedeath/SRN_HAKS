@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PhenoMorpher pinned bind/rest assembly",
+  "type": "object",
+  "required": ["schemaVersion", "kind", "rig", "parts"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "kind": {"const": "PhenoMorpher-assembly"},
+    "rig": {"$ref": "#/$defs/pin"},
+    "parts": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/pin"}}
+  },
+  "$defs": {
+    "pin": {
+      "type": "object", "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    }
+  }
+}

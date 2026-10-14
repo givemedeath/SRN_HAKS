@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PhenoMorpher source-owned candidate inputs",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "bindMeshes",
+    "bindFrames",
+    "motion",
+    "reference"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "PhenoMorpher-candidate-inputs"
+    },
+    "bindMeshes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "part",
+          "name",
+          "position",
+          "faces",
+          "sourceAttributes"
+        ],
+        "properties": {
+          "sourceAttributes": {
+            "type": "object",
+            "required": [
+              "position",
+              "faces"
+            ]
+          }
+        }
+      }
+    },
+    "bindFrames": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "motion": {
+      "type": "object",
+      "required": [
+        "skeleton",
+        "clips",
+        "row",
+        "inputPins"
+      ]
+    },
+    "reference": {
+      "type": "object",
+      "required": [
+        "slug",
+        "targetStatureMeters"
+      ]
+    },
+    "policy": {
+      "type": "object"
+    }
+  }
+}

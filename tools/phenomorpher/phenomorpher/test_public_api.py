@@ -1,0 +1,113 @@
+import hashlib
+import json
+from pathlib import Path
+import tempfile
+import unittest
+import numpy as np
+from . import api
+from .engine.convert_model import convert_text, array, parse, MARKER
+from .engine.morph_preview_pose_v13 import native_keys_hash
+
+MODEL = '''newmodel sample
+setsupermodel sample NULL
+beginmodelgeom sample
+node dummy sample
+parent NULL
+position 0 0 0
+orientation 0 0 1 0
+endnode
+node trimesh surface
+parent sample
+position 0.1 0 0
+orientation 0 0 1 0
+bitmap skin
+materialname skin
+verts 3
+0 0 0
+1 0 0
+0 0 1
+normals 3
+0 -1 0
+0 -1 0
+0 -1 0
+tangents 3
+1 0 0 1
+1 0 0 1
+1 0 0 1
+tverts 3
+0 0 0
+1 0 0
+0 1 0
+faces 1
+0 1 2 0 0 1 2 1
+endnode
+endmodelgeom sample
+donemodel sample
+'''
+
+
+def profile():
+    a={'lowerZ':0.,'length':1.,'stations':[0.,1.],
+       'centers':[[0.,0.],[0.,0.]],'radii':[[1.,1.],[1.,1.]]}
+    b={**a,'radii':[[1.1,1.2],[1.1,1.2]]}
+    return {'sourceEnvelope':a,'targetEnvelope':b,'identity':False}
+
+
+class PublicContractTests(unittest.TestCase):
+    def test_recipe_roundtrip_preserves_source_float32_motion_hash_and_unsigned_colors(self):
+        motion={'clips':{'pause1':{'length':1.,'nodes':{'root':{'controls':{8:{
+            'times':np.array([0,1],dtype='<f4'),'values':np.array([[0,0,0],[0,0,1]],dtype='<f4')}}}}}}}
+        before=native_keys_hash(motion)
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp)/'recipe.json'; api.save_recipe(p,{'schemaVersion':1,'kind':'PhenoMorpher-candidate-inputs',
+                'motion':motion,'colors':np.array([0xffffffff],dtype='<u4')})
+            actual=api.load_recipe(p)
+        self.assertEqual(native_keys_hash(actual['motion']),before)
+        self.assertEqual(actual['colors'].dtype,np.dtype('<u4'))
+        self.assertEqual(int(actual['colors'][0]),0xffffffff)
+
+    def test_recipe_rejects_object_arrays_and_wrong_shape(self):
+        with self.assertRaises(ValueError):
+            api.array_hook({'$array':['bad'],'dtype':'O','shape':[1]})
+        with self.assertRaises(ValueError):
+            api.array_hook({'$array':[1.],'dtype':'<f4','shape':[2]})
+
+    def test_runtime_inventory_detects_drift_and_has_no_approval_side_effect(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);file=root/'part.mdl';file.write_bytes(b'actual native fixture')
+            manifest=root/'manifest.json';manifest.write_text(json.dumps({'schemaVersion':1,
+                'kind':'PhenoMorpher-game-ready-bodies','version':'1.0.0','targets':[{'target':'control'}],
+                'resources':[{'path':'part.mdl','sha256':api.digest(file),'bytes':file.stat().st_size}]}))
+            self.assertFalse(api.verify_assets(root,manifest)['assetApprovalCreated'])
+            file.write_bytes(b'changed')
+            with self.assertRaises(ValueError): api.verify_assets(root,manifest)
+
+    def test_escaped_binding_rejected_before_read(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(ValueError,'escaped'):
+                api.bound(Path(tmp),{'path':'../outside.mdl','sha256':'0'*64})
+
+    def test_repeated_or_weighted_clothing_conversion_is_rejected(self):
+        with self.assertRaisesRegex(ValueError,'Repeated'):
+            convert_text(MARKER+'\n'+MODEL,profile(),'modular-close')
+        with self.assertRaisesRegex(ValueError,'weighted'):
+            convert_text(MODEL.replace('verts 3','weights 3\nverts 3'),profile(),'modular-close')
+
+    def test_clothing_transfers_detail_preserves_uv_faces_hierarchy_and_tangent_signs(self):
+        text,receipt=convert_text(MODEL,profile(),'modular-close')
+        before=parse(MODEL)[0][-1]; after=parse(text.replace(MARKER,''))[0][-1]
+        np.testing.assert_array_equal(array(before[3],'faces'),array(after[3],'faces'))
+        np.testing.assert_array_equal(array(before[3],'tverts'),array(after[3],'tverts'))
+        normals=array(after[3],'normals'); tangents=array(after[3],'tangents')
+        np.testing.assert_allclose(np.linalg.norm(normals,axis=1),1,atol=1e-10)
+        np.testing.assert_allclose(np.linalg.norm(tangents[:,:3],axis=1),1,atol=1e-10)
+        np.testing.assert_allclose((normals*tangents[:,:3]).sum(1),0,atol=1e-10)
+        np.testing.assert_array_equal(tangents[:,3],1)
+        self.assertIn('position 0.1 0 0',after[3]); self.assertIn('materialname skin',after[3])
+        self.assertTrue(receipt['completeHierarchyRetained'])
+
+    def test_rigid_island_keeps_all_pairwise_lengths_at_one_scale(self):
+        text,receipt=convert_text(MODEL,profile(),'rigid-island')
+        a=array(parse(MODEL)[0][-1][3],'verts');b=array(parse(text.replace(MARKER,''))[0][-1][3],'verts')
+        np.testing.assert_allclose(np.linalg.norm(b[:,None]-b[None,:],axis=2),
+            np.linalg.norm(a[:,None]-a[None,:],axis=2)*receipt['uniformScale'],atol=1e-10)

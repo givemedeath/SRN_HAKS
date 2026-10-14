@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "srn-phenomorpher"
+version = "1.0.0"
+description = "Source-bound NWN phenotype measurement, conservative fitting and clothing transfer"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+dependencies = ["numpy>=1.24,<3", "Pillow>=10,<13"]
+
+[project.scripts]
+phenomorpher = "phenomorpher.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["phenomorpher*"]
+
+[tool.setuptools.package-data]
+phenomorpher = ["schemas/*.json", "source-lineage.json"]

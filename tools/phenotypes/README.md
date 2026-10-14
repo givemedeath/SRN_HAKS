@@ -44,7 +44,7 @@ own target measurements and validation.
 
 For racial variants derived from accepted Human master bodies, see:
 - [The Derived Workflow Runbook](../../docs/phenotype-derived-workflow.md)
-- [Gate Measurement Process & Verification Standards](../../docs/phenotype-gate-measurement-standards.md) (Authoritative engineering thresholds for Gates 0–7)
+- [Gate Measurement Process & Verification Standards](../../docs/phenotype-gate-measurement-standards.md) (Authoritative engineering thresholds for Gates 0â€“7)
 - [Silhouette Generation & Overlap Audit Runbook](../../docs/phenotype-silhouette-workflow.md)
 - [Dwarf Male Pilot Validation](../../docs/phenotype-derived-dwarf-pilot.md)
 - [Troll Male Comparison Report](../../docs/phenotype-derived-troll-male-comparison.md)
@@ -92,3 +92,7 @@ masters, working maps and built HAKs remain outside Git. Reproduction needs the
 frozen source assets identified by the receipts.
 Never rerun a completed job merely because its large outputs are absent in a
 new checkout. Do not rewrite immutable historical receipts when improving tools.
+
+## PhenoMorpher toolkit
+
+The maintained measurement, conservative fitting and static clothing-transfer interface is documented in [PhenoMorpher](../phenomorpher/README.md). Its source package is independent of the game-ready body assets. New runs still use the shared-tool launcher and explicit consumed input bindings.
