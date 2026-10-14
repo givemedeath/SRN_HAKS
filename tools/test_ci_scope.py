@@ -66,13 +66,17 @@ class LiveConfigurationTests(unittest.TestCase):
             self.assertEqual(sorted(ran),sorted(self.data['tests']));self.assertEqual(len(ran),len(set(ran)))
         durations=json.loads((REPO/ci_scope.DURATIONS).read_text(encoding='utf-8'))['seconds']
         self.assertLessEqual(set(durations),set(self.data['tests']),'Prune durations for removed tests')
-    def test_shared_helper_change_selects_dependents_across_folders(self):
+    def test_shared_helper_change_runs_the_full_helper_suite(self):
+        # retarget.py is consumed by phenotype, head and robe helpers (AGENTS.md: shared helpers run the full suite).
         plan=ci_scope.plan(['tools/phenotypes/retarget.py'],self.data,self.config)
+        self.assertTrue(plan['fullSuite']);self.assertIn('Shared helper changed: tools/phenotypes/retarget.py',plan['reason'])
         selected={t for row in plan['helperMatrix'] for t in row['tests']}
+        self.assertEqual(selected,set(self.data['tests']))
+    def test_single_folder_helper_change_stays_focused(self):
+        plan=ci_scope.plan(['tools/phenotypes/pose_preview_render_settings.py'],self.data,self.config)
         self.assertFalse(plan['fullSuite'])
-        self.assertTrue(any(t.startswith('tools/heads/') for t in selected))
-        self.assertTrue(any(t.startswith('tools/robes/') for t in selected))
-        self.assertTrue(any(t.startswith('tools/phenotypes/') for t in selected))
+        selected={t for row in plan['helperMatrix'] for t in row['tests']}
+        self.assertTrue(selected and all(t.startswith('tools/phenotypes/') for t in selected))
 
 class WorkflowWiringTests(unittest.TestCase):
     """Text checks; GitHub Actions YAML is not parsed by the standard library."""

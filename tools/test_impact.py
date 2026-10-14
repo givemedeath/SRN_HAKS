@@ -43,6 +43,9 @@ def catalog(repo=REPO):
     literal_index={}
     for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files)]:literal_index.setdefault(p.name,[]).append(p)
     pack_names=set(packs(repo))
+    config=repo/CONFIG
+    # The selector's own tests name helper paths as data; those strings are not reads of the helpers.
+    data_only=set(json.loads(config.read_text(encoding='utf-8')).get('literalsAreData',[])) if config.is_file() else set()
     dependencies={};unresolved=[];pack_references={}
     for path in files:
         rel=path.relative_to(repo).as_posix();edges=set();mentioned=set()
@@ -69,8 +72,8 @@ def catalog(repo=REPO):
                 if len(matches)>1:unresolved.append(rel)
                 edges.update(p.relative_to(repo).as_posix() for p in matches)
             if isinstance(node,ast.Constant) and isinstance(node.value,str):
-                mentioned.update(set(PACK.findall(node.value))&pack_names)
-                if any(c in node.value for c in '*?[') or not node.value.endswith(LITERAL_SUFFIXES):continue
+                if rel not in data_only:mentioned.update(set(PACK.findall(node.value))&pack_names)
+                if rel in data_only or any(c in node.value for c in '*?[') or not node.value.endswith(LITERAL_SUFFIXES):continue
                 # Match unique tracked literals, including helper launches, with_name configs and read documents.
                 literal=Path(node.value.replace('\\','/').lstrip('/'));qualified_path=repo/literal;relative=path.parent/literal
                 if len(literal.parts)<=1 and literal.name.lower() in GENERIC_LITERALS:matches=[]
@@ -98,12 +101,31 @@ def load_config(repo=REPO):
 def full(data,reason):
     return {'fullSuite':True,'reason':reason,'tests':data['tests'],'documentation':[],'packs':[]}
 
+def suite(path):
+    """Helper-suite folder of a repository path: tools/<folder>, or tools for root helpers."""
+    parts=path.split('/')
+    return '/'.join(parts[:2]) if len(parts)>2 and parts[0]=='tools' else parts[0]
+
+def dependents(paths,data):
+    impacted=set(paths)
+    while True:
+        before=len(impacted)
+        impacted.update(p for p,edges in data['dependencies'].items() if impacted.intersection(edges))
+        if len(impacted)==before:return impacted
+
 def select(changed,data,config=None):
     """Select tests for changed paths; anything not provably covered selects the full suite."""
     if not changed:return full(data,'No comparison data; full suite required')
     shared=[p for p in changed if config and any(re.search(r,p) for r in config['sharedInfrastructure'])]
     if shared:return full(data,'Shared infrastructure changed: '+', '.join(shared))
+    # A helper whose tests span several suite folders is shared; static imports cannot prove
+    # coverage of its dynamic or indirect consumers, so it keeps the full helper suite.
     known=set(data['dependencies'])|{p for rows in data['dependencies'].values() for p in rows}
+    tests_set=set(data['tests'])
+    for path in changed:
+        if path in known and path not in tests_set:
+            folders={suite(t) for t in dependents([path],data)&tests_set}
+            if len(folders)>1:return full(data,f'Shared helper changed: {path} (tests in {", ".join(sorted(folders))})')
     impacted=set();documentation=[];changed_packs=set();code=[]
     for path in changed:
         first=path.split('/')[0]
@@ -112,10 +134,7 @@ def select(changed,data,config=None):
         elif re.fullmatch(r'srn_[a-z0-9_]+',first) and len(path.split('/'))>1:changed_packs.add(first)
         else:return full(data,'Unknown/configuration dependency; full suite required: '+path)
     impacted.update(p for p,rows in data.get('packReferences',{}).items() if changed_packs&set(rows))
-    while True:
-        before=len(impacted)
-        impacted.update(p for p,edges in data['dependencies'].items() if impacted.intersection(edges))
-        if len(impacted)==before:break
+    impacted=dependents(impacted,data)
     tests=sorted(set(data['tests'])&impacted)
     if set(data['unresolved'])&impacted:return full(data,'Unresolved dependency; full suite required')
     if code and not tests:return full(data,'Changed code has no covering test; full suite required')

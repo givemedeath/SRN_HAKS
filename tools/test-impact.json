@@ -3042,11 +3042,7 @@
       "tools/ci_result.py"
     ],
     "tools/test_ci_scope.py": [
-      "tools/Test-ItemImportScope.ps1",
-      "tools/Test-ItemImportTools.ps1",
       "tools/ci_scope.py",
-      "tools/phenotypes/retarget.py",
-      "tools/shared_tools.py",
       "tools/test_impact.py"
     ],
     "tools/test_clean_checkout.py": [
@@ -3068,36 +3064,7 @@
       "tools/toolchain.lock.json"
     ],
     "tools/test_test_impact.py": [
-      "hakbuilder.json",
-      "tools/Bootstrap-Tools.ps1",
-      "tools/SrnHaks.Common.psm1",
-      "tools/SrnTools.psm1",
-      "tools/ci-scope.json",
-      "tools/ci-test-durations.json",
-      "tools/ci_result.py",
-      "tools/ci_scope.py",
-      "tools/phenomorpher/phenomorpher/engine/retarget.py",
-      "tools/phenomorpher/phenomorpher/engine/test_morph_anatomy_v15c.py",
-      "tools/phenomorpher/phenomorpher/test_public_api.py",
-      "tools/phenotypes/audit_pelvis_package.py",
-      "tools/phenotypes/bootstrap_shared_blender_addons.py",
-      "tools/phenotypes/height_targets.json",
-      "tools/phenotypes/launch_shared_tool.py",
-      "tools/phenotypes/native_compile.py",
-      "tools/phenotypes/pose_preview_render_settings.py",
-      "tools/phenotypes/retarget.py",
-      "tools/phenotypes/rig_pose_audit.py",
-      "tools/phenotypes/test_generate_purpose_built_part_cli.py",
-      "tools/phenotypes/test_lean_pipeline.py",
-      "tools/phenotypes/test_pose_preview_bridge.py",
-      "tools/phenotypes/test_shared_caller_dependencies.py",
-      "tools/robes/lbs.py",
-      "tools/shared-tools.lock.json",
-      "tools/shared_tools.py",
-      "tools/test-impact.json",
-      "tools/test_impact.py",
-      "tools/test_shared_tools.py",
-      "tools/toolchain.lock.json"
+      "tools/test_impact.py"
     ]
   },
   "unresolved": [],
@@ -3138,9 +3105,6 @@
     ],
     "tools/robes/package_trial.py": [
       "srn_2da"
-    ],
-    "tools/test_test_impact.py": [
-      "srn_body"
     ]
   },
   "tests": [

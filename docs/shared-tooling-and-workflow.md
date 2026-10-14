@@ -267,8 +267,10 @@ configuration dependencies and documents read by literal path. Use
 `--changed <repository-relative-file> --run` for iterations. Tests run from their
 import root, so package tests such as `tools/phenomorpher/phenomorpher/**` run
 package-qualified with the invoking interpreter. Unknown or uncovered changes,
-unresolved dependencies and shared infrastructure listed in `tools/ci-scope.json`
-trigger the full Python suite. Markdown that no test reads selects no helper tests;
+unresolved dependencies, shared infrastructure listed in `tools/ci-scope.json`
+and shared helpers trigger the full Python suite. A helper or configuration is
+shared when its dependent tests span more than one suite folder (phenotypes,
+heads, robes, gallery, the PhenoMorpher package or root tools). Markdown that no test reads selects no helper tests;
 `srn_*` asset changes select tests that name that pack. Dynamic dependencies still
 require full-suite review; focused selection is a convenience, not a release gate.
 Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers

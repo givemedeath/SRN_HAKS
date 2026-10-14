@@ -3,7 +3,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from test_impact import REPO,catalog,import_root,load_config,run_tests,select
+from test_impact import REPO,catalog,dependents,import_root,load_config,run_tests,select
 
 def write(root,files):
     for name,text in files.items():
@@ -46,9 +46,11 @@ class PackageImpactTests(unittest.TestCase):
                 'tools/first/build/core':'BROKEN GENERATED'}
             for name,text in files.items():
                 p=root/(name+'.py');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
-            data=catalog(root);selected=select(['tools/first/core.py'],data)
-            self.assertFalse(selected['fullSuite'])
-            self.assertEqual(set(selected['tests']),{'tools/first/test_local.py','tools/first/test_context.py','tools/test_literal.py'})
+            data=catalog(root)
+            self.assertEqual(dependents(['tools/first/core.py'],data)&set(data['tests']),
+                {'tools/first/test_local.py','tools/first/test_context.py','tools/test_literal.py'})
+            # Its tests span tools/first and root tools, so the change is a shared-helper (full) run.
+            self.assertIn('Shared helper changed',select(['tools/first/core.py'],data)['reason'])
             self.assertNotIn('tools/first/build/core.py',data['dependencies'])
             self.assertEqual(data['unresolved'],[])
 
@@ -115,6 +117,16 @@ class SelectionPolicyTests(unittest.TestCase):
             self.assertTrue(select(changed,self.fixture)['fullSuite'],changed)
         uncovered={**self.fixture,'dependencies':{**self.fixture['dependencies'],'tools/a/lonely.py':[]}}
         self.assertTrue(select(['tools/a/lonely.py'],uncovered)['fullSuite'])
+    def test_helpers_or_configs_used_by_several_suite_folders_select_the_full_suite(self):
+        shared={**self.fixture,'dependencies':{**self.fixture['dependencies'],
+            'tools/a/common.py':[],'tools/a/test_common.py':['tools/a/common.py'],'tools/b/test_common.py':['tools/a/common.py'],
+            'tools/a/test_config.py':['tools/a/config.json'],'tools/test_root.py':['tools/a/config.json']},
+            'tests':sorted(self.fixture['tests']+['tools/a/test_common.py','tools/b/test_common.py','tools/a/test_config.py','tools/test_root.py'])}
+        for path in ('tools/a/common.py','tools/a/config.json'):
+            result=select([path],shared);self.assertTrue(result['fullSuite'],path);self.assertIn('Shared helper changed',result['reason'])
+        # A helper confined to one suite folder stays focused.
+        self.assertEqual(select(['tools/a/helper.py'],shared),{**select(['tools/a/helper.py'],self.fixture)})
+        self.assertFalse(select(['tools/a/helper.py'],shared)['fullSuite'])
     def test_every_shared_infrastructure_file_selects_the_full_suite(self):
         config=load_config()
         for path in ('.github/workflows/ci.yml','.github/workflows/shared-tooling.yml','.github/actions/srn-tools/action.yml',
