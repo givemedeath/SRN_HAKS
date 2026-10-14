@@ -775,7 +775,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_chest.mtr",
+      "path": "srn_body_tex/pm25f_chest.mtr",
       "sha256": "66a384ef80ddb979f722453329266f06704a3a873ed6ff2357cfa3bee1e6e2f7",
       "bytes": 170,
       "role": "selected-material",
@@ -838,7 +838,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_pelvis.mtr",
+      "path": "srn_body_tex/pm25f_pelvis.mtr",
       "sha256": "9e94378dfc42bfd8a99c341cfb79b3122cd2fc190b21b10d52bb3ffaf3b916c1",
       "bytes": 172,
       "role": "selected-material",
@@ -901,7 +901,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_bicepl.mtr",
+      "path": "srn_body_tex/pm25f_bicepl.mtr",
       "sha256": "591633aa24bf775e236535670aef7eeb204881f82e8934d28be907ff5a90f912",
       "bytes": 172,
       "role": "selected-material",
@@ -964,7 +964,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_bicepr.mtr",
+      "path": "srn_body_tex/pm25f_bicepr.mtr",
       "sha256": "35050351d04a71fab3a208f5e3c7a7313c3927648215433d0fba2f1d20f1ec50",
       "bytes": 172,
       "role": "selected-material",
@@ -1027,7 +1027,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_forel.mtr",
+      "path": "srn_body_tex/pm25f_forel.mtr",
       "sha256": "2603ddcbbb9d1d033258d7de0e67960067dd78bd3b2b0dd033b373ebf21400f0",
       "bytes": 170,
       "role": "selected-material",
@@ -1090,7 +1090,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_forer.mtr",
+      "path": "srn_body_tex/pm25f_forer.mtr",
       "sha256": "63a64ab5909cb0e132b05dc6615c3bdd8c8cf6454b1da5f927c8cf78a3c2967e",
       "bytes": 170,
       "role": "selected-material",
@@ -1153,7 +1153,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_handl.mtr",
+      "path": "srn_body_tex/pm25f_handl.mtr",
       "sha256": "c1f362154c39a6c13662bfc7f0115c62ba52bcdefb379c98a43a06e1d8609cc3",
       "bytes": 170,
       "role": "selected-material",
@@ -1216,7 +1216,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_handr.mtr",
+      "path": "srn_body_tex/pm25f_handr.mtr",
       "sha256": "4c180f2dd25b75d21737534d03270e52c68dde215103a0b10ba858e612006c02",
       "bytes": 170,
       "role": "selected-material",
@@ -1279,7 +1279,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_legl.mtr",
+      "path": "srn_body_tex/pm25f_legl.mtr",
       "sha256": "7926a7c35912a0dcc38f5a7a9a47417eb59918525cf6a0e873e1254965cd328e",
       "bytes": 168,
       "role": "selected-material",
@@ -1342,7 +1342,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_legr.mtr",
+      "path": "srn_body_tex/pm25f_legr.mtr",
       "sha256": "f7d5e90f0a9b4598ebccc272c83024a4573a0f5a68464dc08fd9d51816de0f09",
       "bytes": 168,
       "role": "selected-material",
@@ -1405,7 +1405,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_shinl.mtr",
+      "path": "srn_body_tex/pm25f_shinl.mtr",
       "sha256": "30278dc1ea0cc569bd990268107eba9fc74194ec041d5edecca5fc4ebee98df6",
       "bytes": 170,
       "role": "selected-material",
@@ -1468,7 +1468,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_shinr.mtr",
+      "path": "srn_body_tex/pm25f_shinr.mtr",
       "sha256": "a666e6124c7f4d2d4e9824bb71355451c0eac571f653d09182ae62b1057ad6e2",
       "bytes": 170,
       "role": "selected-material",
@@ -1531,7 +1531,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_footl.mtr",
+      "path": "srn_body_tex/pm25f_footl.mtr",
       "sha256": "508a3ae37d5b63150c1b9023da776aefb1d20cf39b667d4bd5b6985902e8a888",
       "bytes": 170,
       "role": "selected-material",
@@ -1594,7 +1594,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25f_footr.mtr",
+      "path": "srn_body_tex/pm25f_footr.mtr",
       "sha256": "292381cf50d727c0c6509233460262647794ae1626346cadabb931fae81d61c1",
       "bytes": 170,
       "role": "selected-material",
@@ -1744,7 +1744,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_neck001.mtr",
+      "path": "srn_body_tex/pfd2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -1784,7 +1784,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_chest001.mtr",
+      "path": "srn_body_tex/pfd2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -1814,7 +1814,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_pelvis001.mtr",
+      "path": "srn_body_tex/pfd2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -1844,7 +1844,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_bicepl001.mtr",
+      "path": "srn_body_tex/pfd2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -1874,7 +1874,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_bicepr001.mtr",
+      "path": "srn_body_tex/pfd2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -1904,7 +1904,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_forel001.mtr",
+      "path": "srn_body_tex/pfd2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -1934,7 +1934,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_forer001.mtr",
+      "path": "srn_body_tex/pfd2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -1964,7 +1964,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_handl001.mtr",
+      "path": "srn_body_tex/pfd2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -1994,7 +1994,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_handr001.mtr",
+      "path": "srn_body_tex/pfd2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -2024,7 +2024,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_legl001.mtr",
+      "path": "srn_body_tex/pfd2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -2054,7 +2054,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_legr001.mtr",
+      "path": "srn_body_tex/pfd2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -2084,7 +2084,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_shinl001.mtr",
+      "path": "srn_body_tex/pfd2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -2114,7 +2114,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_shinr001.mtr",
+      "path": "srn_body_tex/pfd2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -2144,7 +2144,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_footl001.mtr",
+      "path": "srn_body_tex/pfd2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -2174,7 +2174,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfd2_footr001.mtr",
+      "path": "srn_body_tex/pfd2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -2330,7 +2330,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_chest.mtr",
+      "path": "srn_body_tex/pm25m_chest.mtr",
       "sha256": "4f1c3a2a8f1e4807ec6f73ff60b8402dcbb8e8f54696c77eafecefa5e111e2aa",
       "bytes": 168,
       "role": "selected-material",
@@ -2393,7 +2393,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_pelvis.mtr",
+      "path": "srn_body_tex/pm25m_pelvis.mtr",
       "sha256": "876b23e072c45162cbc148cc2460dbe1a8cfa4adb920615da69464ab90d746f5",
       "bytes": 170,
       "role": "selected-material",
@@ -2456,7 +2456,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_bicepl.mtr",
+      "path": "srn_body_tex/pm25m_bicepl.mtr",
       "sha256": "3921d5b05f3520de0b84de6609b2b9ced475a0facf16d8a7425c6675af189618",
       "bytes": 170,
       "role": "selected-material",
@@ -2519,7 +2519,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_bicepr.mtr",
+      "path": "srn_body_tex/pm25m_bicepr.mtr",
       "sha256": "087e5ba1f9e40bec351200fb66575f904e701bcd87a0f584d2608f70b996e7c8",
       "bytes": 170,
       "role": "selected-material",
@@ -2582,7 +2582,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_forel.mtr",
+      "path": "srn_body_tex/pm25m_forel.mtr",
       "sha256": "bc5583015bc835476307aa7255a344fa6558f2590b7c9bb8fa2d36f1d37e67fe",
       "bytes": 168,
       "role": "selected-material",
@@ -2645,7 +2645,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_forer.mtr",
+      "path": "srn_body_tex/pm25m_forer.mtr",
       "sha256": "bff2753abf73c396e605efbda275fd75c2c056f98420c3ba6588b9fcdd7d1f91",
       "bytes": 168,
       "role": "selected-material",
@@ -2708,7 +2708,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_handl.mtr",
+      "path": "srn_body_tex/pm25m_handl.mtr",
       "sha256": "977143250109dd495fe38c263e1a3617d192540d246a37e5acbabe5d7334beaf",
       "bytes": 168,
       "role": "selected-material",
@@ -2771,7 +2771,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_handr.mtr",
+      "path": "srn_body_tex/pm25m_handr.mtr",
       "sha256": "d50f7d89c948d24e6c08e73a4cb4cdd3d89f885b5d2cc834be559ccb1a1b0191",
       "bytes": 168,
       "role": "selected-material",
@@ -2834,7 +2834,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_legl.mtr",
+      "path": "srn_body_tex/pm25m_legl.mtr",
       "sha256": "4efeb27ad7a7e9b03b8fc934d9e6a4ffd322bdd45e0986d973191436cb2ab494",
       "bytes": 166,
       "role": "selected-material",
@@ -2897,7 +2897,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_legr.mtr",
+      "path": "srn_body_tex/pm25m_legr.mtr",
       "sha256": "ed56da7db07bd01d0c5376e7806ab8e0bf4b640c8c419b840cd938ef63dfe7cf",
       "bytes": 166,
       "role": "selected-material",
@@ -2960,7 +2960,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_shinl.mtr",
+      "path": "srn_body_tex/pm25m_shinl.mtr",
       "sha256": "52742208906f5542424416bcf7c8a329580c8b7836768658ca9401b5ab23a6e6",
       "bytes": 168,
       "role": "selected-material",
@@ -3023,7 +3023,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_shinr.mtr",
+      "path": "srn_body_tex/pm25m_shinr.mtr",
       "sha256": "d7468d0496096ae74fb78f218d05cf17dd58cdd2a3745f80b01d8ea0edf20a1f",
       "bytes": 168,
       "role": "selected-material",
@@ -3086,7 +3086,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_footl.mtr",
+      "path": "srn_body_tex/pm25m_footl.mtr",
       "sha256": "4be031f5c1fa9ac4b61359d2ba33cf137daf0f49d965d1d3a1369553594392eb",
       "bytes": 168,
       "role": "selected-material",
@@ -3149,7 +3149,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pm25m_footr.mtr",
+      "path": "srn_body_tex/pm25m_footr.mtr",
       "sha256": "0f1c42f818edfce0fe4ab712686cb431603c7f2c3b34cca447e3c498f42b3132",
       "bytes": 168,
       "role": "selected-material",
@@ -3279,7 +3279,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_neck001.mtr",
+      "path": "srn_body_tex/pmd2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3309,7 +3309,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_chest001.mtr",
+      "path": "srn_body_tex/pmd2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3339,7 +3339,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_pelvis001.mtr",
+      "path": "srn_body_tex/pmd2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3369,7 +3369,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_bicepl001.mtr",
+      "path": "srn_body_tex/pmd2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3399,7 +3399,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_bicepr001.mtr",
+      "path": "srn_body_tex/pmd2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3429,7 +3429,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_forel001.mtr",
+      "path": "srn_body_tex/pmd2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3459,7 +3459,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_forer001.mtr",
+      "path": "srn_body_tex/pmd2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3489,7 +3489,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_handl001.mtr",
+      "path": "srn_body_tex/pmd2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3519,7 +3519,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_handr001.mtr",
+      "path": "srn_body_tex/pmd2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3549,7 +3549,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_legl001.mtr",
+      "path": "srn_body_tex/pmd2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3579,7 +3579,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_legr001.mtr",
+      "path": "srn_body_tex/pmd2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3609,7 +3609,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_shinl001.mtr",
+      "path": "srn_body_tex/pmd2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3639,7 +3639,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_shinr001.mtr",
+      "path": "srn_body_tex/pmd2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3669,7 +3669,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_footl001.mtr",
+      "path": "srn_body_tex/pmd2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -3699,7 +3699,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmd2_footr001.mtr",
+      "path": "srn_body_tex/pmd2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4424,7 +4424,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_neck001.mtr",
+      "path": "srn_body_tex/pfe2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4454,7 +4454,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_chest001.mtr",
+      "path": "srn_body_tex/pfe2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4484,7 +4484,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_pelvis001.mtr",
+      "path": "srn_body_tex/pfe2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4514,7 +4514,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_bicepl001.mtr",
+      "path": "srn_body_tex/pfe2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4544,7 +4544,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_bicepr001.mtr",
+      "path": "srn_body_tex/pfe2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4574,7 +4574,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_forel001.mtr",
+      "path": "srn_body_tex/pfe2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4604,7 +4604,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_forer001.mtr",
+      "path": "srn_body_tex/pfe2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4634,7 +4634,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_handl001.mtr",
+      "path": "srn_body_tex/pfe2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4664,7 +4664,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_handr001.mtr",
+      "path": "srn_body_tex/pfe2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4694,7 +4694,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_legl001.mtr",
+      "path": "srn_body_tex/pfe2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4724,7 +4724,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_legr001.mtr",
+      "path": "srn_body_tex/pfe2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4754,7 +4754,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_shinl001.mtr",
+      "path": "srn_body_tex/pfe2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4784,7 +4784,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_shinr001.mtr",
+      "path": "srn_body_tex/pfe2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4814,7 +4814,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_footl001.mtr",
+      "path": "srn_body_tex/pfe2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -4844,7 +4844,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfe2_footr001.mtr",
+      "path": "srn_body_tex/pfe2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5529,7 +5529,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_neck001.mtr",
+      "path": "srn_body_tex/pme2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5559,7 +5559,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_chest001.mtr",
+      "path": "srn_body_tex/pme2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5589,7 +5589,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_pelvis001.mtr",
+      "path": "srn_body_tex/pme2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5619,7 +5619,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_bicepl001.mtr",
+      "path": "srn_body_tex/pme2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5649,7 +5649,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_bicepr001.mtr",
+      "path": "srn_body_tex/pme2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5679,7 +5679,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_forel001.mtr",
+      "path": "srn_body_tex/pme2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5709,7 +5709,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_forer001.mtr",
+      "path": "srn_body_tex/pme2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5739,7 +5739,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_handl001.mtr",
+      "path": "srn_body_tex/pme2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5769,7 +5769,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_handr001.mtr",
+      "path": "srn_body_tex/pme2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5799,7 +5799,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_legl001.mtr",
+      "path": "srn_body_tex/pme2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5829,7 +5829,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_legr001.mtr",
+      "path": "srn_body_tex/pme2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5859,7 +5859,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_shinl001.mtr",
+      "path": "srn_body_tex/pme2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5889,7 +5889,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_shinr001.mtr",
+      "path": "srn_body_tex/pme2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5919,7 +5919,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_footl001.mtr",
+      "path": "srn_body_tex/pme2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -5949,7 +5949,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pme2_footr001.mtr",
+      "path": "srn_body_tex/pme2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -6083,7 +6083,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_chest.mtr",
+      "path": "srn_body_tex/s20f_chest.mtr",
       "sha256": "66a384ef80ddb979f722453329266f06704a3a873ed6ff2357cfa3bee1e6e2f7",
       "bytes": 170,
       "role": "selected-material",
@@ -6150,7 +6150,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_pelvis.mtr",
+      "path": "srn_body_tex/s20f_pelvis.mtr",
       "sha256": "9e94378dfc42bfd8a99c341cfb79b3122cd2fc190b21b10d52bb3ffaf3b916c1",
       "bytes": 172,
       "role": "selected-material",
@@ -6199,7 +6199,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_bicepl.mtr",
+      "path": "srn_body_tex/s20f_bicepl.mtr",
       "sha256": "591633aa24bf775e236535670aef7eeb204881f82e8934d28be907ff5a90f912",
       "bytes": 172,
       "role": "selected-material",
@@ -6248,7 +6248,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_bicepr.mtr",
+      "path": "srn_body_tex/s20f_bicepr.mtr",
       "sha256": "35050351d04a71fab3a208f5e3c7a7313c3927648215433d0fba2f1d20f1ec50",
       "bytes": 172,
       "role": "selected-material",
@@ -6297,7 +6297,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_forel.mtr",
+      "path": "srn_body_tex/s20f_forel.mtr",
       "sha256": "2603ddcbbb9d1d033258d7de0e67960067dd78bd3b2b0dd033b373ebf21400f0",
       "bytes": 170,
       "role": "selected-material",
@@ -6346,7 +6346,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_forer.mtr",
+      "path": "srn_body_tex/s20f_forer.mtr",
       "sha256": "63a64ab5909cb0e132b05dc6615c3bdd8c8cf6454b1da5f927c8cf78a3c2967e",
       "bytes": 170,
       "role": "selected-material",
@@ -6395,7 +6395,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_handl.mtr",
+      "path": "srn_body_tex/s20f_handl.mtr",
       "sha256": "c1f362154c39a6c13662bfc7f0115c62ba52bcdefb379c98a43a06e1d8609cc3",
       "bytes": 170,
       "role": "selected-material",
@@ -6444,7 +6444,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_handr.mtr",
+      "path": "srn_body_tex/s20f_handr.mtr",
       "sha256": "4c180f2dd25b75d21737534d03270e52c68dde215103a0b10ba858e612006c02",
       "bytes": 170,
       "role": "selected-material",
@@ -6493,7 +6493,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_legl.mtr",
+      "path": "srn_body_tex/s20f_legl.mtr",
       "sha256": "7926a7c35912a0dcc38f5a7a9a47417eb59918525cf6a0e873e1254965cd328e",
       "bytes": 168,
       "role": "selected-material",
@@ -6542,7 +6542,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_legr.mtr",
+      "path": "srn_body_tex/s20f_legr.mtr",
       "sha256": "f7d5e90f0a9b4598ebccc272c83024a4573a0f5a68464dc08fd9d51816de0f09",
       "bytes": 168,
       "role": "selected-material",
@@ -6591,7 +6591,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_shinl.mtr",
+      "path": "srn_body_tex/s20f_shinl.mtr",
       "sha256": "30278dc1ea0cc569bd990268107eba9fc74194ec041d5edecca5fc4ebee98df6",
       "bytes": 170,
       "role": "selected-material",
@@ -6640,7 +6640,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_shinr.mtr",
+      "path": "srn_body_tex/s20f_shinr.mtr",
       "sha256": "a666e6124c7f4d2d4e9824bb71355451c0eac571f653d09182ae62b1057ad6e2",
       "bytes": 170,
       "role": "selected-material",
@@ -6689,7 +6689,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_footl.mtr",
+      "path": "srn_body_tex/s20f_footl.mtr",
       "sha256": "508a3ae37d5b63150c1b9023da776aefb1d20cf39b667d4bd5b6985902e8a888",
       "bytes": 170,
       "role": "selected-material",
@@ -6738,7 +6738,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20f_footr.mtr",
+      "path": "srn_body_tex/s20f_footr.mtr",
       "sha256": "292381cf50d727c0c6509233460262647794ae1626346cadabb931fae81d61c1",
       "bytes": 170,
       "role": "selected-material",
@@ -6848,7 +6848,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_neck001.mtr",
+      "path": "srn_body_tex/pfh2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -6878,7 +6878,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_chest001.mtr",
+      "path": "srn_body_tex/pfh2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -6908,7 +6908,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_pelvis001.mtr",
+      "path": "srn_body_tex/pfh2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -6938,7 +6938,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_bicepl001.mtr",
+      "path": "srn_body_tex/pfh2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -6968,7 +6968,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_bicepr001.mtr",
+      "path": "srn_body_tex/pfh2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -6998,7 +6998,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_forel001.mtr",
+      "path": "srn_body_tex/pfh2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7028,7 +7028,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_forer001.mtr",
+      "path": "srn_body_tex/pfh2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7058,7 +7058,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_handl001.mtr",
+      "path": "srn_body_tex/pfh2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7088,7 +7088,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_handr001.mtr",
+      "path": "srn_body_tex/pfh2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7118,7 +7118,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_legl001.mtr",
+      "path": "srn_body_tex/pfh2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7148,7 +7148,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_legr001.mtr",
+      "path": "srn_body_tex/pfh2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7178,7 +7178,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_shinl001.mtr",
+      "path": "srn_body_tex/pfh2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7208,7 +7208,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_shinr001.mtr",
+      "path": "srn_body_tex/pfh2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7238,7 +7238,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_footl001.mtr",
+      "path": "srn_body_tex/pfh2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7268,7 +7268,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfh2_footr001.mtr",
+      "path": "srn_body_tex/pfh2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -7386,7 +7386,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_chest.mtr",
+      "path": "srn_body_tex/s20m_chest.mtr",
       "sha256": "4f1c3a2a8f1e4807ec6f73ff60b8402dcbb8e8f54696c77eafecefa5e111e2aa",
       "bytes": 168,
       "role": "selected-material",
@@ -7441,7 +7441,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_pelvis.mtr",
+      "path": "srn_body_tex/s20m_pelvis.mtr",
       "sha256": "876b23e072c45162cbc148cc2460dbe1a8cfa4adb920615da69464ab90d746f5",
       "bytes": 170,
       "role": "selected-material",
@@ -7490,7 +7490,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_bicepl.mtr",
+      "path": "srn_body_tex/s20m_bicepl.mtr",
       "sha256": "3921d5b05f3520de0b84de6609b2b9ced475a0facf16d8a7425c6675af189618",
       "bytes": 170,
       "role": "selected-material",
@@ -7539,7 +7539,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_bicepr.mtr",
+      "path": "srn_body_tex/s20m_bicepr.mtr",
       "sha256": "087e5ba1f9e40bec351200fb66575f904e701bcd87a0f584d2608f70b996e7c8",
       "bytes": 170,
       "role": "selected-material",
@@ -7588,7 +7588,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_forel.mtr",
+      "path": "srn_body_tex/s20m_forel.mtr",
       "sha256": "bc5583015bc835476307aa7255a344fa6558f2590b7c9bb8fa2d36f1d37e67fe",
       "bytes": 168,
       "role": "selected-material",
@@ -7637,7 +7637,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_forer.mtr",
+      "path": "srn_body_tex/s20m_forer.mtr",
       "sha256": "bff2753abf73c396e605efbda275fd75c2c056f98420c3ba6588b9fcdd7d1f91",
       "bytes": 168,
       "role": "selected-material",
@@ -7686,7 +7686,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_handl.mtr",
+      "path": "srn_body_tex/s20m_handl.mtr",
       "sha256": "977143250109dd495fe38c263e1a3617d192540d246a37e5acbabe5d7334beaf",
       "bytes": 168,
       "role": "selected-material",
@@ -7735,7 +7735,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_handr.mtr",
+      "path": "srn_body_tex/s20m_handr.mtr",
       "sha256": "d50f7d89c948d24e6c08e73a4cb4cdd3d89f885b5d2cc834be559ccb1a1b0191",
       "bytes": 168,
       "role": "selected-material",
@@ -7784,7 +7784,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_legl.mtr",
+      "path": "srn_body_tex/s20m_legl.mtr",
       "sha256": "4efeb27ad7a7e9b03b8fc934d9e6a4ffd322bdd45e0986d973191436cb2ab494",
       "bytes": 166,
       "role": "selected-material",
@@ -7833,7 +7833,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_legr.mtr",
+      "path": "srn_body_tex/s20m_legr.mtr",
       "sha256": "ed56da7db07bd01d0c5376e7806ab8e0bf4b640c8c419b840cd938ef63dfe7cf",
       "bytes": 166,
       "role": "selected-material",
@@ -7882,7 +7882,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_shinl.mtr",
+      "path": "srn_body_tex/s20m_shinl.mtr",
       "sha256": "52742208906f5542424416bcf7c8a329580c8b7836768658ca9401b5ab23a6e6",
       "bytes": 168,
       "role": "selected-material",
@@ -7931,7 +7931,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_shinr.mtr",
+      "path": "srn_body_tex/s20m_shinr.mtr",
       "sha256": "d7468d0496096ae74fb78f218d05cf17dd58cdd2a3745f80b01d8ea0edf20a1f",
       "bytes": 168,
       "role": "selected-material",
@@ -7980,7 +7980,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_footl.mtr",
+      "path": "srn_body_tex/s20m_footl.mtr",
       "sha256": "4be031f5c1fa9ac4b61359d2ba33cf137daf0f49d965d1d3a1369553594392eb",
       "bytes": 168,
       "role": "selected-material",
@@ -8029,7 +8029,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/s20m_footr.mtr",
+      "path": "srn_body_tex/s20m_footr.mtr",
       "sha256": "0f1c42f818edfce0fe4ab712686cb431603c7f2c3b34cca447e3c498f42b3132",
       "bytes": 168,
       "role": "selected-material",
@@ -8119,7 +8119,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_neck001.mtr",
+      "path": "srn_body_tex/pmh2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8149,7 +8149,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_chest001.mtr",
+      "path": "srn_body_tex/pmh2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8179,7 +8179,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_pelvis001.mtr",
+      "path": "srn_body_tex/pmh2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8209,7 +8209,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_bicepl001.mtr",
+      "path": "srn_body_tex/pmh2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8239,7 +8239,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_bicepr001.mtr",
+      "path": "srn_body_tex/pmh2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8269,7 +8269,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_forel001.mtr",
+      "path": "srn_body_tex/pmh2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8299,7 +8299,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_forer001.mtr",
+      "path": "srn_body_tex/pmh2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8329,7 +8329,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_handl001.mtr",
+      "path": "srn_body_tex/pmh2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8359,7 +8359,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_handr001.mtr",
+      "path": "srn_body_tex/pmh2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8389,7 +8389,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_legl001.mtr",
+      "path": "srn_body_tex/pmh2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8419,7 +8419,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_legr001.mtr",
+      "path": "srn_body_tex/pmh2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8449,7 +8449,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_shinl001.mtr",
+      "path": "srn_body_tex/pmh2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8479,7 +8479,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_shinr001.mtr",
+      "path": "srn_body_tex/pmh2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8509,7 +8509,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_footl001.mtr",
+      "path": "srn_body_tex/pmh2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -8539,7 +8539,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmh2_footr001.mtr",
+      "path": "srn_body_tex/pmh2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9264,7 +9264,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_neck001.mtr",
+      "path": "srn_body_tex/pfo2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9294,7 +9294,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_chest001.mtr",
+      "path": "srn_body_tex/pfo2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9324,7 +9324,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_pelvis001.mtr",
+      "path": "srn_body_tex/pfo2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9354,7 +9354,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_bicepl001.mtr",
+      "path": "srn_body_tex/pfo2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9384,7 +9384,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_bicepr001.mtr",
+      "path": "srn_body_tex/pfo2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9414,7 +9414,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_forel001.mtr",
+      "path": "srn_body_tex/pfo2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9444,7 +9444,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_forer001.mtr",
+      "path": "srn_body_tex/pfo2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9474,7 +9474,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_handl001.mtr",
+      "path": "srn_body_tex/pfo2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9504,7 +9504,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_handr001.mtr",
+      "path": "srn_body_tex/pfo2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9534,7 +9534,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_legl001.mtr",
+      "path": "srn_body_tex/pfo2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9564,7 +9564,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_legr001.mtr",
+      "path": "srn_body_tex/pfo2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9594,7 +9594,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_shinl001.mtr",
+      "path": "srn_body_tex/pfo2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9624,7 +9624,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_shinr001.mtr",
+      "path": "srn_body_tex/pfo2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9654,7 +9654,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_footl001.mtr",
+      "path": "srn_body_tex/pfo2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -9684,7 +9684,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfo2_footr001.mtr",
+      "path": "srn_body_tex/pfo2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10369,7 +10369,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_neck001.mtr",
+      "path": "srn_body_tex/pmo2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10399,7 +10399,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_chest001.mtr",
+      "path": "srn_body_tex/pmo2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10429,7 +10429,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_pelvis001.mtr",
+      "path": "srn_body_tex/pmo2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10459,7 +10459,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_bicepl001.mtr",
+      "path": "srn_body_tex/pmo2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10489,7 +10489,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_bicepr001.mtr",
+      "path": "srn_body_tex/pmo2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10519,7 +10519,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_forel001.mtr",
+      "path": "srn_body_tex/pmo2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10549,7 +10549,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_forer001.mtr",
+      "path": "srn_body_tex/pmo2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10579,7 +10579,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_handl001.mtr",
+      "path": "srn_body_tex/pmo2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10609,7 +10609,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_handr001.mtr",
+      "path": "srn_body_tex/pmo2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10639,7 +10639,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_legl001.mtr",
+      "path": "srn_body_tex/pmo2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10669,7 +10669,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_legr001.mtr",
+      "path": "srn_body_tex/pmo2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10699,7 +10699,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_shinl001.mtr",
+      "path": "srn_body_tex/pmo2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10729,7 +10729,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_shinr001.mtr",
+      "path": "srn_body_tex/pmo2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10759,7 +10759,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_footl001.mtr",
+      "path": "srn_body_tex/pmo2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -10789,7 +10789,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmo2_footr001.mtr",
+      "path": "srn_body_tex/pmo2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11514,7 +11514,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_neck001.mtr",
+      "path": "srn_body_tex/pfg2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11544,7 +11544,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_chest001.mtr",
+      "path": "srn_body_tex/pfg2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11574,7 +11574,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_pelvis001.mtr",
+      "path": "srn_body_tex/pfg2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11604,7 +11604,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_bicepl001.mtr",
+      "path": "srn_body_tex/pfg2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11634,7 +11634,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_bicepr001.mtr",
+      "path": "srn_body_tex/pfg2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11664,7 +11664,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_forel001.mtr",
+      "path": "srn_body_tex/pfg2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11694,7 +11694,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_forer001.mtr",
+      "path": "srn_body_tex/pfg2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11724,7 +11724,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_handl001.mtr",
+      "path": "srn_body_tex/pfg2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11754,7 +11754,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_handr001.mtr",
+      "path": "srn_body_tex/pfg2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11784,7 +11784,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_legl001.mtr",
+      "path": "srn_body_tex/pfg2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11814,7 +11814,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_legr001.mtr",
+      "path": "srn_body_tex/pfg2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11844,7 +11844,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_shinl001.mtr",
+      "path": "srn_body_tex/pfg2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11874,7 +11874,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_shinr001.mtr",
+      "path": "srn_body_tex/pfg2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11904,7 +11904,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_footl001.mtr",
+      "path": "srn_body_tex/pfg2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -11934,7 +11934,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pfg2_footr001.mtr",
+      "path": "srn_body_tex/pfg2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12619,7 +12619,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_neck001.mtr",
+      "path": "srn_body_tex/pmg2_neck001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12649,7 +12649,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_chest001.mtr",
+      "path": "srn_body_tex/pmg2_chest001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12679,7 +12679,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_pelvis001.mtr",
+      "path": "srn_body_tex/pmg2_pelvis001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12709,7 +12709,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_bicepl001.mtr",
+      "path": "srn_body_tex/pmg2_bicepl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12739,7 +12739,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_bicepr001.mtr",
+      "path": "srn_body_tex/pmg2_bicepr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12769,7 +12769,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_forel001.mtr",
+      "path": "srn_body_tex/pmg2_forel001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12799,7 +12799,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_forer001.mtr",
+      "path": "srn_body_tex/pmg2_forer001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12829,7 +12829,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_handl001.mtr",
+      "path": "srn_body_tex/pmg2_handl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12859,7 +12859,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_handr001.mtr",
+      "path": "srn_body_tex/pmg2_handr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12889,7 +12889,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_legl001.mtr",
+      "path": "srn_body_tex/pmg2_legl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12919,7 +12919,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_legr001.mtr",
+      "path": "srn_body_tex/pmg2_legr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12949,7 +12949,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_shinl001.mtr",
+      "path": "srn_body_tex/pmg2_shinl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -12979,7 +12979,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_shinr001.mtr",
+      "path": "srn_body_tex/pmg2_shinr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -13009,7 +13009,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_footl001.mtr",
+      "path": "srn_body_tex/pmg2_footl001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",
@@ -13039,7 +13039,7 @@
       "nameOnlyChanges": []
     },
     {
-      "path": "srn_body/pmg2_footr001.mtr",
+      "path": "srn_body_tex/pmg2_footr001.mtr",
       "sha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f",
       "bytes": 151,
       "role": "selected-material",

@@ -761,14 +761,14 @@
   "packs": [
     {
       "pack": "srn_body",
-      "sha256": "ab9f63190d237938dcbd32c1eb991ea183d7ee0b70bb3a523c4adcad395c6156",
-      "resources": 1055,
+      "sha256": "4630de26d7d2da4517f3f55c223673a91427d492d806fea84071351f9ff03b14",
+      "resources": 765,
       "publishedPayloadsExact": true
     },
     {
       "pack": "srn_body_tex",
-      "sha256": "c2883129a27f3d923921e473ac91e9a02687345309c480e65f5f6a0a328b1a22",
-      "resources": 57,
+      "sha256": "877f2d919fc9e9f21c63465312872c137e069a30a4d468f8ab716a939f4ff5ea",
+      "resources": 263,
       "publishedPayloadsExact": true
     },
     {
@@ -782,6 +782,5 @@
   "limits": [
     "Promotion from reviewed part237 to part001 is name-only and palette-copy exact, not another in-game test.",
     "Unmodified installed-game stock animation and head resources remain prerequisites."
-  ],
-  "tableEndings": "Repository LF normalized; all published 2DA payloads independently rechecked after final table build."
+  ]
 }

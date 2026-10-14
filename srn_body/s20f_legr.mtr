@@ -1,6 +1,0 @@
-renderhint NormalTangents
-texture1 s20f_legrn
-texture3 s20f_legrr
-parameter float Roughness 0
-parameter float Specularity 0.04
-parameter float Metallicness 0.001

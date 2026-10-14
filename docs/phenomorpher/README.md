@@ -12,8 +12,8 @@ The selected female posture is **hips level + original upper lean/breathing**.
 
 ## Build and consume
 
-Native models, PLTs, materials and private fitted animation closures land
-in the flat `srn_body` pack. The new skin maps land in `srn_body_tex`, keeping the body pack below the bundler's 2 GB limit. Appearance, race and phenotype tables land in `srn_2da`.
+Native models, PLTs and private fitted animation closures land
+in the flat `srn_body` pack. Required material descriptors and new skin maps land in `srn_body_tex`, keeping the body pack below the bundler's 2 GB limit. Appearance, race and phenotype tables land in `srn_2da`.
 
 ```powershell
 ./tools/Build-Haks.ps1 -Pack srn_body,srn_body_tex,srn_2da
@@ -79,3 +79,5 @@ rewrite existing creature instances.
 name and fallback 0, and 2 Large. No Skinny body set is added. Mounted/joust
 variants retain their stock table entries but are outside this body release's
 client validation. See [table verification](table-validation.json).
+
+The runtime folders contain only the selected dependency closure. The 84 superseded Human maps/materials were removed from packaging and remain recoverable in Git history. No model, palette, rig or selected material/map payload was changed by this cleanup.

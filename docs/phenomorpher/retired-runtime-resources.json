@@ -1,0 +1,506 @@
+[
+  {
+    "path": "srn_body/pfh0_bicepl001.mtr",
+    "sha256": "ad30761ec10c14c36b67bf2d3c7cfda04633ef38149e50ccce1b5cc49efd16fd",
+    "bytes": 178,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_bicepl001n.tga",
+    "sha256": "39120056f3ed120ecd5dfae9e3c4ab984ba3bb558e91b2c7b1416961cfb8f394",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_bicepl001r.tga",
+    "sha256": "c2508673b81bdc1e80ea542952f7c914ed8d93d53702b1354f9a0b30ddd245e2",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_bicepr001.mtr",
+    "sha256": "60cc7a0938f53057264ca97398751a95f5ed6b14abf5e23e93c16c7973201249",
+    "bytes": 178,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_bicepr001n.tga",
+    "sha256": "d1f7c455c9b97d10fd09c819b2e0b46fdac432abbadaa49cae0aa02ca73c36b0",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_bicepr001r.tga",
+    "sha256": "c2508673b81bdc1e80ea542952f7c914ed8d93d53702b1354f9a0b30ddd245e2",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_chest001.mtr",
+    "sha256": "d793d94ef80dac9903da59d3f4ee0e6b2b0f911363fbc301558fe7e94702a2a9",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_chest001n.tga",
+    "sha256": "672b5a61c4964d6c40d586598a7381ad51c65db42b1943bb6d5c208f56b67eab",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_chest001r.tga",
+    "sha256": "40b34b8d5b325f297673da345bf14181a8c95b96d0fb31ed5f30ffc79408d3ac",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_footl001.mtr",
+    "sha256": "2b9a63508a19aa73a7c26e47219d1fa0085127ff711b4a30c065b9e23b57b377",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_footl001n.tga",
+    "sha256": "520e12e53aa77e70873e29d60b30cf470ce47d8f030b475b6f9c6e404761f88b",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_footl001r.tga",
+    "sha256": "2eb2abaa0169dbad7d0ffdcfa55638d2efd7a3497465b973de91fa7de78f6dc5",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_footr001.mtr",
+    "sha256": "0333d08b93985e374ba465cb9bd57292fc7d0e4be8a5a623273a21870eb06891",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_footr001n.tga",
+    "sha256": "e8472c00f9533545f0875a0737ebda361df584e8d26fb36a91c12efed444f0fc",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_footr001r.tga",
+    "sha256": "2eb2abaa0169dbad7d0ffdcfa55638d2efd7a3497465b973de91fa7de78f6dc5",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_forel001.mtr",
+    "sha256": "3be93e02ece7ec93c211e24bd9f58167703f9ca7c112810453f3f5a0f42ab403",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_forel001n.tga",
+    "sha256": "60c80e44e36c99f1d49b1d70f90138bb73bd220755df260b417ca815acd96cc6",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_forel001r.tga",
+    "sha256": "84b9be77e79f74e7e3da77a63861e2976b0c0d8b7643a278a188a90c85c7d9dc",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_forer001.mtr",
+    "sha256": "9c4bf339d033d9dbcd74ae2359e49fcd3d198027b0e6df5e42ee175d5b417728",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_forer001n.tga",
+    "sha256": "6f17e8ac0717154fca63ff124e6f6c6ecf973bceb61ae785a4fcfd640822e2fa",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_forer001r.tga",
+    "sha256": "84b9be77e79f74e7e3da77a63861e2976b0c0d8b7643a278a188a90c85c7d9dc",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_handl001.mtr",
+    "sha256": "f7900449930a6e149d5014267675926bff535f91645667bb0bc106ff03acc3f9",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_handl001n.tga",
+    "sha256": "211631e2daa71d1b26108e0bf10664b59b462129a237dc0e16ec900ea3bb1b0a",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_handl001r.tga",
+    "sha256": "468006657e74887c9ecfaf071a69e4a2866306e1dac412d7c2660b33bddb3f3f",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_handr001.mtr",
+    "sha256": "d1a3fc62d75d7defe307867f4f77cc838d2c8176152f01c767bbf340283b0a7f",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_handr001n.tga",
+    "sha256": "059258a7a3e9a5383299ab142ea8b0d57f8444312878e885a257f60e0f22e604",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_handr001r.tga",
+    "sha256": "468006657e74887c9ecfaf071a69e4a2866306e1dac412d7c2660b33bddb3f3f",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_legl001.mtr",
+    "sha256": "f37cbc6e8bc37c02ef9e258f7e371c68d3b2f0cba22f38c574b7677f556c9adc",
+    "bytes": 174,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_legl001n.tga",
+    "sha256": "dc24be08a00af9afe010f2ffae1da050754624d40902ee669060b2932423ff12",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_legl001r.tga",
+    "sha256": "1cedfab0bef4ca73d05d011b02be69cf04fa27d0ede912f7a275c2d066b12779",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_legr001.mtr",
+    "sha256": "c8f3cd4d40f56eee4e025d066f5aa5493c8cd35edec570c750a3fab691879a2e",
+    "bytes": 174,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_legr001n.tga",
+    "sha256": "098be0a99bf4ae638ba1889a70642bb362f88232352acdb7daef7141979ee98b",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_legr001r.tga",
+    "sha256": "1cedfab0bef4ca73d05d011b02be69cf04fa27d0ede912f7a275c2d066b12779",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_pelvis001.mtr",
+    "sha256": "8a6a45e3badfa545428104dc9e5964de304bbaf0fd15ea0a1bcc94765bfcd9e2",
+    "bytes": 178,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_pelvis001n.tga",
+    "sha256": "fa22956410afba46bbf4551ed82667d8549685232222e47ced05543f6012b0ac",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_pelvis001r.tga",
+    "sha256": "9f9532368b607fa7a5ff43926ae99b3aebabdd5e3efc12f5d07bcfa177d572b6",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_shinl001.mtr",
+    "sha256": "c47037bf11b6e3f3aa273705e4bc787f40fd56b07ff6c8b427012a775f92f10d",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_shinl001n.tga",
+    "sha256": "e0f559d35a8beccb41da2c52fb5f3c71dcfab0859bf6d32706437204b991f4bd",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_shinl001r.tga",
+    "sha256": "9d772efafa581f3d53ee1dcb9be72d980d84cbf52363048fb440f65507b4a9ee",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_shinr001.mtr",
+    "sha256": "0f06ef05f33fd4da4a5c3f71d7c5149e1452e63b4dbb0a9c3cadcff812f0f4db",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_shinr001n.tga",
+    "sha256": "f2f6fbb32dc82d86b8d5551b5296fb3c46192ce74db5d8ae71859a5a5042adc9",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pfh0_shinr001r.tga",
+    "sha256": "9d772efafa581f3d53ee1dcb9be72d980d84cbf52363048fb440f65507b4a9ee",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_bicepl001.mtr",
+    "sha256": "dcf38d3e0d114ef3c5d476b0493c6566bbb7561083cc20ec26008931b40fdaa0",
+    "bytes": 178,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_bicepl001n.tga",
+    "sha256": "806367b461d6605102c8037abef812c8eecd48a27b0be43683f5f948e4f16f09",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_bicepl001r.tga",
+    "sha256": "5f763a3a7723270afa4ca96c5c9983336dd7cb737fe113c04e85ee9d1fa27ac1",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_bicepr001.mtr",
+    "sha256": "5451a0147ba6348122e851025991509227ad26fa501d70ffe95a250b97de449b",
+    "bytes": 178,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_bicepr001n.tga",
+    "sha256": "a3d53f92bcf9883194a1f1e9cc0321968d4621693bbf19d8c5d13fe3b7511648",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_bicepr001r.tga",
+    "sha256": "5f763a3a7723270afa4ca96c5c9983336dd7cb737fe113c04e85ee9d1fa27ac1",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_chest001.mtr",
+    "sha256": "a5b910a9324316fabe4ee34b67678340f29bb8a704e41f81064077b89a74d396",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_chest001n.tga",
+    "sha256": "44ee530e8c9ed48ee2bc0c02ff5d6d4b510b4c983c9d011ca92830f41ddb7ecb",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_chest001r.tga",
+    "sha256": "d969ee0c17bc1fff48063405ce2ec4c12df43d5a130d62043bcb59ae466aab52",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_footl001.mtr",
+    "sha256": "68997d26d4cbb3d4f65226454c7919b1bad696dabe2b8dc7a5a9c9d19844461c",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_footl001n.tga",
+    "sha256": "95fd40e24d185de17b35820664575500d3951cf9110c9f6dc5a37d240bca9015",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_footl001r.tga",
+    "sha256": "cb34d51e5d543521376a0825e4f1c8fb21d12fa10fb35c7ebdd804573eabaf5a",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_footr001.mtr",
+    "sha256": "9181b8ddb022feb47255bb24b82410fd1db81d24b9be748f153a21797493f3f1",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_footr001n.tga",
+    "sha256": "344ac03746ef7f78f45a286826d5b0166182f307439034465174c0c097eab9e9",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_footr001r.tga",
+    "sha256": "cb34d51e5d543521376a0825e4f1c8fb21d12fa10fb35c7ebdd804573eabaf5a",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_forel001.mtr",
+    "sha256": "ae06b9e1c2933eea58ad6e60c656cf6c1bffdf1d16c16f413eafd79047934a13",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_forel001n.tga",
+    "sha256": "59bcab36f56fc899847244933d4e6dbef3fed79febe56649aa6f4c9d8e576f92",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_forel001r.tga",
+    "sha256": "3947f8f7140f1b43e1f9595a25c3314f77fdda443261c9736abe9aff57939266",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_forer001.mtr",
+    "sha256": "cb5c157171322e18ace217077f3818b01ed0946de52edb466942eab08de99b85",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_forer001n.tga",
+    "sha256": "4424c5eb225896c8c63b93e421232a3c84b775ac454c94c61baa83c1181b8c6d",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_forer001r.tga",
+    "sha256": "3947f8f7140f1b43e1f9595a25c3314f77fdda443261c9736abe9aff57939266",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_handl001.mtr",
+    "sha256": "a35fe4c557da32046d6f0905cfe24e8f9066eb706eefd92217cba8021efea498",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_handl001n.tga",
+    "sha256": "e6edfb5d5d9643a454de82d5908af8fa0ea485e86e56a91181b7ddbe6920c8a6",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_handl001r.tga",
+    "sha256": "5bb272ffae14affbaade973606918223622f13c7581d6dd05f821a8eab826d7c",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_handr001.mtr",
+    "sha256": "baad8aa75ba04a31ea994a3442ec97eb705524f54c9f3852defc4f5c9806022f",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_handr001n.tga",
+    "sha256": "e8248ad7abd8ccd3f0686524cdb0fc6f2053b733e7c96b894eb62dfaf7137295",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_handr001r.tga",
+    "sha256": "5bb272ffae14affbaade973606918223622f13c7581d6dd05f821a8eab826d7c",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_legl001.mtr",
+    "sha256": "b566e78518a0087728544238d01a88ec25e56766ce5438ba9a89ef4dba2bc467",
+    "bytes": 174,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_legl001n.tga",
+    "sha256": "cc563c62f24c36ea7d7eac8d3f57356fcc685cc616168fb6be66629aded4ab72",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_legl001r.tga",
+    "sha256": "3bd3d1c9d451bd19efb15d7714d80058e81b34618b75832c6d9f2b5a04927171",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_legr001.mtr",
+    "sha256": "1741df5e302bc913cc5fa40cc126fdf9832687a2752c713294b20a7a8605d4d8",
+    "bytes": 174,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_legr001n.tga",
+    "sha256": "de91e9d90e661ed81ad10325fbf6da414c74dbd6846eaebd07b856a4d5660f4c",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_legr001r.tga",
+    "sha256": "3bd3d1c9d451bd19efb15d7714d80058e81b34618b75832c6d9f2b5a04927171",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_pelvis001.mtr",
+    "sha256": "fd17a10276d22cab12adcbd265d6878053fcf580bd9931b721c5543d93dc3bf2",
+    "bytes": 178,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_pelvis001n.tga",
+    "sha256": "13661c3ecbc80120ea079b20a1f31db98fd87324abf5a4c32d8b4652c03268d5",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_pelvis001r.tga",
+    "sha256": "2b7097a3a2195406ae7db8e6b9659d489dc9a260a24f5ca1a24883e65512d254",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_shinl001.mtr",
+    "sha256": "358bbd913357c9fc0648d224cd9363712258ffdcbc5290f4cea136e8552d866b",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_shinl001n.tga",
+    "sha256": "d8c5f01478e6c97d25f01c5128ca75de9c86767d7379727737f714541999df6b",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_shinl001r.tga",
+    "sha256": "f9ef38468856c763a8be3c2389b204b5eff0ffd5628a72e5e373da04ec6e95d9",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_shinr001.mtr",
+    "sha256": "62b07d272e095dcb090ae2256137e32ac57558a006f175f0b4719662c0d5158e",
+    "bytes": 176,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_shinr001n.tga",
+    "sha256": "4da61033253ae02e21e245242865e64de6347f1710c6c2c516b9b6b14077de5f",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  },
+  {
+    "path": "srn_body/pmh0_shinr001r.tga",
+    "sha256": "f9ef38468856c763a8be3c2389b204b5eff0ffd5628a72e5e373da04ec6e95d9",
+    "bytes": 12582956,
+    "reason": "Superseded Human material/map, outside the selected publication dependency closure"
+  }
+]
