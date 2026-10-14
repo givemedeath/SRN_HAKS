@@ -7,27 +7,6 @@
       "tools/test-impact.json",
       "tools/test_impact.py"
     ],
-    "tools/gallery/build_gallery.py": [
-      "hakbuilder.json",
-      "tools/gallery/catalog.py",
-      "tools/gallery/gff.py",
-      "tools/gallery/inspection_tileset.py",
-      "tools/heads/head_workflow.py",
-      "tools/phenotypes/tool_runtime.py",
-      "tools/shared_tools.py"
-    ],
-    "tools/gallery/catalog.py": [
-      "hakbuilder.json"
-    ],
-    "tools/gallery/gff.py": [],
-    "tools/gallery/inspection_tileset.py": [],
-    "tools/gallery/test_gallery.py": [
-      "hakbuilder.json",
-      "tools/gallery/build_gallery.py",
-      "tools/gallery/catalog.py",
-      "tools/gallery/gff.py",
-      "tools/gallery/inspection_tileset.py"
-    ],
     "tools/heads/audit_fixture_rig.py": [
       "tools/heads/head_workflow.py",
       "tools/phenotypes/retarget.py",
@@ -3084,19 +3063,6 @@
   },
   "unresolved": [],
   "packReferences": {
-    "tools/gallery/build_gallery.py": [
-      "srn_2da",
-      "srn_body"
-    ],
-    "tools/gallery/catalog.py": [
-      "srn_2da",
-      "srn_door",
-      "srn_placeable"
-    ],
-    "tools/gallery/test_gallery.py": [
-      "srn_2da",
-      "srn_placeable"
-    ],
     "tools/heads/build_head_fixture.py": [
       "srn_body"
     ],
@@ -3127,7 +3093,6 @@
     ]
   },
   "tests": [
-    "tools/gallery/test_gallery.py",
     "tools/heads/test_atlas_allowance.py",
     "tools/heads/test_budget_extension.py",
     "tools/heads/test_derived_assembly.py",

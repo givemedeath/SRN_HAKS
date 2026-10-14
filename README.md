@@ -9,11 +9,10 @@ are versioned in `srn_body`; build `output/srn_body.hak` with the normal HAK
 builder. Generation masters and local ComfyUI/game installations are separate
 dependencies.
 
-The [SRN gallery](test-modules/srn_gallery/README.md) builds
-`output/srn_gallery.mod` for inspecting the registered custom content. Its
-starting area supports browsing, searching and persistent staging; refresh it
-after adding assets. Verified head candidates are prestaged for later client
-testing.
+The SRN inspection gallery was removed on 2026-10-14 pending a redesign. Its
+historical checkpoints remain under `docs/heads` and `docs/gallery`, and the
+validation records they cite remain in `test-modules/srn_gallery`; the code is in
+Git history.
 
 
 SRN_HAKS is the public, curated source repository for Neverwinter Nights: Enhanced Edition HAK

@@ -24,8 +24,13 @@ jobs:
       PYTHONIOENCODING: utf-8
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
-      # Scope already diffed history; tests read only HEAD and the index.
+      # Scope already diffed history; tests read only HEAD and the index. The plan's cone-mode sparse set is
+      # testCheckout from tools/ci-scope.json, root files and only the packs this leg's tests reach; blob:none
+      # downloads nothing else. The runner fails the leg if a test touches an omitted pack.
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: ${{ matrix.checkout }}
+          filter: blob:none
       - uses: actions/setup-python@v6
         id: interpreter
         with:
@@ -63,7 +68,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
+      # The regressions copy tools into a .quarantine fixture; they read no docs or packs.
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            .github
+            tools
+          filter: blob:none
       - uses: ./.github/actions/srn-tools
       - name: Item import regressions
         shell: pwsh
@@ -76,6 +87,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools/phenomorpher
+          filter: blob:none
       - uses: actions/setup-python@v6
         id: interpreter
         with:

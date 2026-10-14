@@ -27,8 +27,14 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          # History for diffs without downloading every historical binary blob.
+          # History for diffs without downloading every historical binary blob. Diffs need only trees; the
+          # catalog reads tools and Markdown outside packs and takes pack names from HEAD (testCheckout set).
           filter: blob:none
+          sparse-checkout: |
+            .github
+            docs
+            test-modules
+            tools
       - uses: actions/setup-python@v6
         id: interpreter
         with:

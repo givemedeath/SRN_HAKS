@@ -301,12 +301,10 @@ and conditional redistribution terms remain explicit. These candidates are
 native validated; client and production acceptance remain pending. No runtime
 heads are published in a production HAK at this checkpoint.
 
-The [gallery source](test-modules/srn_gallery/README.md) is original project
-tooling. It packages existing registered resources and verified candidates in
-an ignored local inspection module. Temporary appearance tables and sanitized
-blueprints support inspection without changing production resources. Installed
-game templates, rigs, animations, palettes and stock floor resources remain
-local build dependencies and are not committed.
+The gallery source was original project tooling that packaged registered
+resources and verified candidates in an ignored local inspection module. It was
+removed from the repository on 2026-10-14 pending a redesign; it committed no
+installed game resources.
 
 ## Meshy robe trial (2026-10-06)
 

@@ -136,7 +136,7 @@ rotation matrices after native decoding; raw axis-angle values can differ
 through native quantization. Client slot selection, neck joining, shading and
 equipment clearance remain pending.
 
-[srn_gallery](../../test-modules/srn_gallery/README.md) prestages all six male
+[srn_gallery](https://github.com/givemedeath/SRN_HAKS/blob/affbe01d95817e958c737e63fa5e7e386497cbaa/test-modules/srn_gallery/README.md) (removed 2026-10-14) prestages all six male
 candidates in two rows of six, one showing bodies and one wearing Clothing 1,
 in a separate eastern bay. Floor levers and `.gallery pilots` provide navigation.
 The [startup investigation](../gallery/startup-investigation.md) records the controlled
