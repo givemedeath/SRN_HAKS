@@ -24,7 +24,8 @@ that real smoke using:
   --output .tmp/pheno-migration.json
 ```
 
-The finalizer verifies the executed launch, interpreter and frozen helper/input
+The finalizer requires the exact doctor command, all local package Python/JSON inputs,
+and byte-matched loaded package origins. It verifies the interpreter and frozen helper/input
 hashes. This CPU-only migration cannot authorize Blender, native export or client
 work. For an existing wider migration, continue to use its explicit scope.
 
@@ -132,6 +133,7 @@ Run the complete package tests with:
 The [pre-publication review](REVIEW.md) records resolved implementation findings.
 The [first review follow-up](review-followup-validation.json) and
 [second review follow-up](review-followup-2-validation.json) cover later corrections.
+The [third follow-up](review-followup-3-validation.json) verifies the migration doctor contract.
 The original release [validation receipt](validation.json) records tests, real-asset smokes
 and wheel isolation. `source-lineage.json` pins the adopted project modules; their
 numerical algorithms are retained with package-relative imports. Historical

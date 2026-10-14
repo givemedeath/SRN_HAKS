@@ -15,6 +15,25 @@ def pin(path):
     return {'path':str(path),'sha256':sha(path)}
 
 
+def verify_doctor(launch, result):
+    """Require the prescribed command, local source coverage and loaded origins."""
+    if launch['command'][1:] != ['-B', '-m', 'phenomorpher', 'doctor']:
+        raise ValueError('Exact PhenoMorpher doctor command required')
+    package = Path(__file__).resolve().parent/'phenomorpher'
+    expected = {p.resolve() for pattern in ('*.py', '*.json') for p in package.rglob(pattern)}
+    frozen = {Path(p).resolve(): h for p, h in launch['frozenInputs'].items()}
+    if any(frozen.get(p) != sha(p) for p in expected):
+        raise ValueError('All local package Python/JSON inputs must be frozen at current bytes')
+    loaded = result.get('loadedPackageSources', {})
+    required = {'phenomorpher', 'phenomorpher.cli', 'phenomorpher.engine.measurement_workflow'}
+    if not required.issubset(loaded):
+        raise ValueError('Doctor loaded package source evidence required')
+    for name, row in loaded.items():
+        path = Path(row['path']).resolve()
+        if not name.startswith('phenomorpher') or path not in expected or row['sha256'] != frozen[path]:
+            raise ValueError('Doctor loaded another package or changed source')
+
+
 def finalize(toolchain, smoke, output):
     toolchain, smoke, output = map(lambda p:Path(p).resolve(),(toolchain,smoke,output))
     if output.exists():
@@ -22,6 +41,7 @@ def finalize(toolchain, smoke, output):
     tools = load(toolchain, required=['python'])
     launch = verify_launch(smoke, 'python', toolchain, tools)
     result = json.loads((smoke/'stdout.log').read_text(encoding='utf-8'))
+    verify_doctor(launch, result)
     if result.get('kind')!='phenotype-measurement-python-smoke' or not result.get('checksPassed'):
         raise ValueError('Real PhenoMorpher doctor smoke required')
     if Path(result['executable']).resolve()!=Path(tools['tools']['python']['path']).resolve():

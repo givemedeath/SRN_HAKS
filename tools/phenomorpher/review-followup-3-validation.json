@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "kind": "PhenoMorpher-review-followup",
+  "round": 3,
+  "finding": "Bind migration receipt to prescribed doctor argv, local declared package sources and actually loaded module origins",
+  "validation": {
+    "repositoryFinalizerTests": 4,
+    "sourcePackageTests": 87,
+    "installedWheelTests": 87,
+    "realManagedDoctorAndMigration": "passed",
+    "sharedHelpersChanged": false,
+    "priorFullHelperSuite": {
+      "tests": 1332,
+      "skips": 2,
+      "receipt": "review-followup-2-validation.json"
+    }
+  },
+  "evidence": {
+    "doctorLaunchSha256": "d714e7fa8f7b86f02c17462fb4012877179f9879a22bb87a0b1ce6a6d2da050c",
+    "migrationSha256": "f5e056021e81490c99a717a42b7262270ec5fc83897a20977e49452efd17a526",
+    "wheelSha256": "4c70198dd805272aa7edc366db85b34546b76351be7b6dd7b3a5cbe34a3e202a"
+  },
+  "limits": {
+    "clientTesting": false,
+    "bodyAssetsShapesRigsChanged": false,
+    "PR45Changed": false
+  }
+}

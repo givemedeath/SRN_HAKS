@@ -55,6 +55,8 @@ jobs:
       - name: PhenoMorpher package regressions
         shell: pwsh
         run: |
+          & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/phenomorpher -p test_finalize_runtime.py -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           & '${{ steps.interpreter.outputs.python-path }}' -B -m unittest discover -s tools/phenomorpher/phenomorpher -t tools/phenomorpher -v
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Meshy robe trial helper regressions

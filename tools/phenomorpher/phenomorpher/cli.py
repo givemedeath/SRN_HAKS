@@ -1,7 +1,10 @@
 """Managed PhenoMorpher CLI. Inspect/help are harmless; data runs use run.py."""
 import argparse
+import contextlib
+import io
 import json
 import os
+import sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -77,7 +80,17 @@ def main(argv=None):
     if a.command == 'doctor':
         declared(__file__)
         from .engine.measurement_workflow import smoke
-        smoke(); return
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            smoke()
+        result = json.loads(output.getvalue())
+        result['loadedPackageSources'] = {
+            name: {'path': str(Path(module.__file__).resolve()), 'sha256': api.digest(module.__file__)}
+            for name, module in sorted(sys.modules.items())
+            if (name == 'phenomorpher' or name.startswith('phenomorpher.'))
+            and getattr(module, '__file__', None)
+        }
+        print(json.dumps(result)); return
     if a.command in ('catalog', 'verify-assets'):
         declared(a.manifest); m = read(a.manifest)
         if a.command == 'catalog':
@@ -140,7 +153,6 @@ def main(argv=None):
             body=api.bound(a.release,data[name],snapshot());declared(body)
             for row in read(body)['files'].values():declared(api.bound(a.release,row,snapshot()))
         from .engine.convert_model import main as convert
-        import sys
         old = sys.argv
         try:
             sys.argv = ['convert'] + sum(([f'--{name}', str(getattr(a, name.replace('-', '_')))]
