@@ -133,8 +133,13 @@ def dependents(paths,data):
         if len(impacted)==before:return impacted
 
 def deleted_paths(changed,repo=REPO):
-    """Changed paths absent from the checked-out revision."""
-    return {p for p in changed if not (repo/p).exists()}
+    """Changed paths absent from the checked-out revision; sparse-omitted (skip-worktree) entries still exist."""
+    missing=[p for p in changed if not (repo/p).exists()]
+    if not missing or not (repo/'.git').exists():return set(missing)
+    listed=subprocess.run(['git','-C',str(repo),'ls-files','-t','-z'],capture_output=True)
+    if listed.returncode:return set(missing)
+    sparse={row[2:].decode('utf-8') for row in listed.stdout.split(b'\0') if row.startswith(b'S ')}
+    return set(missing)-sparse
 
 def select(changed,data,config=None,deleted=()):
     """Select tests for changed paths; anything not provably covered selects the full suite."""
