@@ -216,7 +216,7 @@ if ($AllPacks -or [string]::IsNullOrWhiteSpace($ChangedSince)) {
     foreach ($name in $registeredNames) { [void]$packsToBuild.Add($name) }
 }
 else {
-    $changedPaths = @(& git -C $repoRoot diff --name-only "$ChangedSince...HEAD")
+    $changedPaths = @(& git -C $repoRoot diff --name-only --no-renames "$ChangedSince...HEAD")
     if ($LASTEXITCODE -ne 0) { throw "Unable to determine changes since '$ChangedSince'." }
     $mustBuildAll = $false
     foreach ($changedPath in $changedPaths) {

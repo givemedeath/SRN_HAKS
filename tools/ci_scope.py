@@ -16,7 +16,7 @@ VERIFY='Repository verification'
 def changed_files(base,head='HEAD',repo=REPO):
     """Return changed paths, or None when there is no usable comparison base."""
     if not base or re.fullmatch(r'0+',base):return None
-    result=subprocess.run(['git','-C',str(repo),'diff','--name-only',f'{base}...{head}'],capture_output=True,text=True)
+    result=subprocess.run(['git','-C',str(repo),'diff','--name-only','--no-renames',f'{base}...{head}'],capture_output=True,text=True)
     if result.returncode:return None
     return sorted({line.strip().replace('\\','/') for line in result.stdout.splitlines() if line.strip()})
 

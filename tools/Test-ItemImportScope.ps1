@@ -11,7 +11,7 @@ $scope = @((Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ci-scope.json') -
 $run = $true
 $reason = 'no comparable base; running item-import regressions'
 if (-not [string]::IsNullOrWhiteSpace($BaseSha) -and $BaseSha -notmatch '^0+$') {
-  $changed = @(git diff --name-only "$BaseSha...$HeadSha" 2>$null)
+  $changed = @(git diff --name-only --no-renames "$BaseSha...$HeadSha" 2>$null)
   if ($LASTEXITCODE -eq 0) {
     $matched = @($changed | Where-Object { $path = $_; $scope | Where-Object { $path -match $_ } })
     $run = $matched.Count -gt 0

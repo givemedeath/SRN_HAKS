@@ -30,6 +30,19 @@ class FallbackTests(unittest.TestCase):
         self.assert_full(ci_scope.plan(['README.md'],DATA,CONFIG,full_reason='Explicit full run'))
         unresolved={**DATA,'unresolved':['tools/phenotypes/a.py']}
         self.assert_full(ci_scope.plan(['tools/phenotypes/a.py'],unresolved,CONFIG))
+    def test_renamed_document_reports_both_paths_and_the_old_one_as_deleted(self):
+        import subprocess,tempfile
+        from test_impact import deleted_paths
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            def git(*args):return subprocess.run(['git','-C',str(root),'-c','user.name=t','-c','user.email=t@t',*args],check=True,capture_output=True,text=True).stdout.strip()
+            git('init','-q');(root/'docs').mkdir();(root/'docs/read.md').write_text('same text\n'*20)
+            git('add','-A');git('commit','-qm','base');base=git('rev-parse','HEAD')
+            git('mv','docs/read.md','docs/moved.md');git('commit','-qm','rename')
+            changed=ci_scope.changed_files(base,'HEAD',root)
+            self.assertEqual(changed,['docs/moved.md','docs/read.md'])
+            self.assertEqual(deleted_paths(changed,root),{'docs/read.md'})
+            self.assertTrue(ci_scope.plan(changed,DATA,CONFIG,deleted=deleted_paths(changed,root))['fullSuite'])
     def test_missing_zero_or_undiffable_comparison_base_is_reported_as_missing(self):
         self.assertIsNone(ci_scope.changed_files(''))
         self.assertIsNone(ci_scope.changed_files('0'*40))
