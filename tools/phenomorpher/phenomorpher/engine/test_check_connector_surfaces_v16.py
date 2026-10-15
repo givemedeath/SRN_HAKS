@@ -41,6 +41,27 @@ class ConnectorV16Tests(unittest.TestCase):
         r = penetration(np.zeros((1, 3)), np.zeros((1, 3)), np.ones(1), (triangles, report), (triangles, report), 1.)
         self.assertEqual(r['status'], 'unavailable')
 
+    def test_a_submesh_seam_crack_within_tolerance_counts_as_joined(self):
+        whole = box('pelvis', (0, 0, 0), (1, 1, 1))
+        def split(gap):
+            second = whole['position'].copy(); second[7, 0] += gap
+            return [{**whole, 'name': 'p1', 'faces': whole['faces'][:6]}, {**whole, 'name': 'p3', 'position': second, 'faces': whole['faces'][6:]}]
+        triangles, report = closed_oriented_triangles(split(2.7e-5), 'pelvis')
+        self.assertIsNotNone(triangles)
+        self.assertEqual((report['surface'], report['exactUnbalancedEdges'], report['seamJoinedPositions']), ('closed-manifold', 4, 1))
+        self.assertAlmostEqual(report['seamMaximumGapMeters'], 2.7e-5)
+        # The exact positions are kept for the winding number.
+        self.assertIn(1 + 2.7e-5, triangles[:, :, 0])
+        triangles, report = closed_oriented_triangles(split(5e-4), 'pelvis')
+        self.assertIsNone(triangles); self.assertEqual((report['surface'], report['seamJoinedPositions']), ('open', 0))
+
+    def test_close_positions_inside_one_mesh_are_never_joined(self):
+        whole = box('pelvis', (0, 0, 0), (1, 1, 1)); p = whole['position'].copy(); p[7, 0] += 2.7e-5
+        cracked = {**whole, 'position': np.vstack([whole['position'], p[7:]]), 'faces': np.where(np.arange(12)[:, None] >= 6,
+                   np.where(whole['faces'] == 7, 8, whole['faces']), whole['faces'])}
+        triangles, report = closed_oriented_triangles([cracked], 'pelvis')
+        self.assertIsNone(triangles); self.assertEqual((report['surface'], report['seamJoinedPositions']), ('open', 0))
+
     def test_neck_links_are_measured_from_the_assembly_frames(self):
         meshes = [box('chest', (-.2, -.1, 0.), (.2, .1, 1.)), box('neck', (-.05, -.05, .98), (.05, .05, 1.2)),
                   box('head', (-.1, -.1, 1.18), (.1, .1, 1.45))]

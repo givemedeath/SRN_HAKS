@@ -3,7 +3,8 @@
 Changes from v15:
 * Penetration needs a closed, consistently oriented surface, not a 2-manifold: every geometric
   edge's directed uses must cancel. Non-manifold seams where submeshes meet (female pelvis, feet)
-  keep a well-defined winding number, so the same solid-angle test applies.
+  keep a well-defined winding number, so the same solid-angle test applies. Submesh seams with
+  gaps up to 0.1 mm count as joined for that edge test (reported per surface); positions are unchanged.
 * Neck links: chest-neck and neck-head, measured on the assembly's own frames.
 * A mesh lineage or topology difference makes only the affected link unavailable.
 Diagnostic only: no anatomy, motion, native or client approval.
@@ -27,27 +28,76 @@ def controls(left, right, frames):
     return source_controls(left, right, frames)
 
 
-def closed_oriented_triangles(meshes, part):
+SEAM_TOLERANCE_METERS = 1e-4
+
+
+def seam_representatives(positions, owners, tolerance):
+    """Map each exact position to one representative. Positions closer than the tolerance are joined
+    only when no mesh owns both, so a crack between submeshes closes and in-mesh detail never merges."""
+    parent = list(range(len(positions)))
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]; i = parent[i]
+        return i
+    cells = {}; joined = []
+    for i, p in enumerate(positions):
+        cells.setdefault(tuple(np.floor(p/tolerance).astype(int)), []).append(i)
+    for (x, y, z), members in cells.items():
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for dz in (-1, 0, 1):
+                    for j in cells.get((x+dx, y+dy, z+dz), ()):
+                        for i in members:
+                            if i < j and not owners[i] & owners[j]:
+                                distance = float(np.linalg.norm(positions[i]-positions[j]))
+                                if distance <= tolerance and find(i) != find(j):
+                                    parent[find(i)] = find(j); joined.append(distance)
+    return [find(i) for i in range(len(positions))], joined
+
+
+def closed_oriented_triangles(meshes, part, tolerance=SEAM_TOLERANCE_METERS):
     """Rendered triangles of a part when every geometric edge's directed uses cancel; else None.
 
-    Returns (triangles, report). Exact coincident positions across UV splits share an edge; this is
-    a read-only test and never welds topology."""
-    triangles = []; edges = {}
-    for m in meshes:
+    Returns (triangles, report). Exact coincident positions across UV splits share an edge. Positions
+    of different submeshes within the seam tolerance also share one, for this edge count only; the
+    returned triangles and the winding number keep the exact positions, and no topology is welded."""
+    triangles = []; owner = []
+    for index, m in enumerate(meshes):
         if m['part'] != part or not m.get('render', True):
             continue
-        tri = np.asarray(m['position'], float)[np.asarray(m['faces'], int)]; triangles.extend(tri)
-        for t in tri:
-            for i, j in ((0, 1), (1, 2), (2, 0)):
-                a = tuple(t[i]); b = tuple(t[j]); key = tuple(sorted((a, b)))
-                edges.setdefault(key, []).append(1 if a <= b else -1)
+        tri = np.asarray(m['position'], float)[np.asarray(m['faces'], int)]; triangles.extend(tri); owner.extend([index]*len(tri))
     if not triangles:
         return None, {'part': part, 'status': 'absent'}
+    triangles = np.asarray(triangles, float)
+    exact = {}; owners = []
+    for t, index in zip(triangles, owner):
+        for v in t:
+            key = tuple(v)
+            if key not in exact:
+                exact[key] = len(exact); owners.append(set())
+            owners[exact[key]].add(index)
+    def count(rep):
+        edges = {}; collapsed = 0
+        for t in triangles:
+            ids = [rep[exact[tuple(v)]] for v in t]
+            for i, j in ((0, 1), (1, 2), (2, 0)):
+                a, b = ids[i], ids[j]
+                if a == b:
+                    collapsed += 1; continue
+                edges.setdefault((min(a, b), max(a, b)), []).append(1 if a < b else -1)
+        return edges, collapsed
+    # Exact edges use the first-seen position order; only the cancellation sum matters.
+    exact_edges, _ = count(list(range(len(exact))))
+    exact_open = sum(1 for v in exact_edges.values() if sum(v) != 0)
+    rep, joined = seam_representatives(np.array(list(exact)), owners, tolerance) if exact_open else (list(range(len(exact))), [])
+    edges, collapsed = count(rep) if joined else (exact_edges, 0)
     open_edges = sum(1 for v in edges.values() if sum(v) != 0)
     non_manifold = sum(1 for v in edges.values() if len(v) != 2)
     report = {'part': part, 'edges': len(edges), 'unbalancedEdges': open_edges, 'nonManifoldEdges': non_manifold,
-              'surface': 'open' if open_edges else ('closed-manifold' if not non_manifold else 'closed-oriented-nonmanifold')}
-    return (None if open_edges else np.asarray(triangles, float)), report
+              'surface': 'open' if open_edges else ('closed-manifold' if not non_manifold else 'closed-oriented-nonmanifold'),
+              'exactUnbalancedEdges': exact_open, 'seamToleranceMeters': tolerance, 'seamJoinedPositions': len(joined),
+              'seamMaximumGapMeters': max(joined, default=0.), 'seamCollapsedEdgeUses': collapsed}
+    return (None if open_edges or collapsed else triangles), report
 
 
 def penetration(source_points, candidate_points, weights, source_closed, candidate_closed, scale, epsilon=1e-8):
@@ -104,7 +154,8 @@ def audit(source, candidate, source_frames, candidate_frames, part_scales=None, 
             'links': [list(link) for link in links],
             'allRequestedConnectorsMeasured': all(r['status'] == 'measured' for r in rows),
             'sourceTerminalAuthority': 'Exact source native proximal/distal 25% clipped triangles with identical candidate barycentric transport; no candidate re-detection',
-            'penetrationSurfacePolicy': 'closed oriented surface (directed edge uses cancel); non-manifold edges allowed',
+            'penetrationSurfacePolicy': 'closed oriented surface (directed edge uses cancel); non-manifold edges allowed; '
+                                        'submesh seam gaps up to 0.1 mm count as joined for the edge test only',
             'candidateFramesUsedToRedetectTerminals': False, 'coverageAcceptanceThresholdInvented': False, 'rasterAllowanceAdded': False,
             'assetApprovalCreated': False, 'anatomyAcceptance': False, 'motionAcceptance': False, 'nativeValidated': False,
             'clientValidated': False, 'productionAccepted': False}
