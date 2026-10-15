@@ -392,7 +392,8 @@ def inventory(root, manifest_path, stock_manifest):
 # then restored to the exact source controller payload bytes.
 
 PLAN_KIND = 'PhenoMorpher-library-restoration-plan'
-DEFAULT_TOLERANCES = {'positionMetres': 1e-4, 'rotationDegrees': 0.05, 'assembledDriftMetres': 1e-3}
+# Scale, alpha and every other controller kind must match exactly for a clip to be inherited.
+DEFAULT_TOLERANCES = {'positionMetres': 1e-4, 'rotationDegrees': 0.05, 'assembledDriftMetres': 1e-3, 'otherControllers': 0.0}
 PARENT_FIELD = (12+0xa8, 12+0xa8+64)
 
 
@@ -492,7 +493,8 @@ def classify(models, rigs, owner, stock_owner, clip, tolerances):
     stock = models[stock_owner]['clips'][clip]
     result = compare_clip(source, owner, stock, stock_owner)
     within = (result['structure'] and result['positionMetres'] <= tolerances['positionMetres']
-              and result['rotationDegrees'] <= tolerances['rotationDegrees'])
+              and result['rotationDegrees'] <= tolerances['rotationDegrees']
+              and result['otherMax'] <= tolerances['otherControllers'])
     result['assembledDrift'] = None
     if within:
         drifts = {r: assembled_drift(models[r]['nodes'], r, source, owner, stock, stock_owner) for r in rigs}

@@ -48,6 +48,7 @@ def compare(root, manifest_path, stock_manifest, target, library_path, repointed
         else:
             within = (row['structure'] and row['positionMetres'] <= tolerances['positionMetres']
                       and row['rotationDegrees'] <= tolerances['rotationDegrees']
+                      and row['otherMax'] <= tolerances['otherControllers']
                       and row['assembledDrift']['metres'] <= tolerances['assembledDriftMetres'])
             row['status'] = 'inherited-exact' if exact else 'inherited-within-tolerance' if within else 'inherited-outside-tolerance'
         if clip in authorized and row['status'] not in ('exact', 'inherited-exact'):

@@ -123,6 +123,16 @@ class ComparisonTests(unittest.TestCase):
         self.assertAlmostEqual(near['rotationDegrees'], 0.04, places=3); self.assertAlmostEqual(near['positionMetres'], 5e-5, places=6)
         self.assertFalse(lib.compare_clip(self.decode('lib', clip('walk', 'lib', keys=1)), 'lib', stock, 'a_ba')['structure'])
 
+    def test_scale_or_other_controller_differences_are_never_inherited(self):
+        def scaled(root, value):
+            c = clip('walk', root); c['nodes'][1][2][36] = ([0.0, 1.0], [[value]]*2); return c
+        source, stock = self.decode('lib', scaled('lib', 1.0)), self.decode('a_ba', scaled('a_ba', 1.2))
+        row = lib.compare_clip(source, 'lib', stock, 'a_ba')
+        self.assertTrue(row['structure']); self.assertEqual(row['positionMetres'], 0.0); self.assertAlmostEqual(row['otherMax'], 0.2, places=5)
+        models = {'lib': {'clips': {'walk': source}}, 'a_ba': {'clips': {'walk': stock}}}
+        result = lib.classify(models, [], 'lib', 'a_ba', 'walk', lib.DEFAULT_TOLERANCES)
+        self.assertFalse(result['inherit']); self.assertEqual(result['reason'], 'override')
+
 
 class InventoryTests(unittest.TestCase):
     def test_inventory_records_chains_owners_stock_deltas_and_own_palette_routing(self):
