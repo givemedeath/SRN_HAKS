@@ -12,7 +12,8 @@ from .anim_library import (DEFAULT_TOLERANCES, PARENT_FIELD, NativeModel, assemb
 
 def compare(root, manifest_path, stock_manifest, target, library_path, repointed_path, authorized=(), tolerances=None):
     tolerances = {**DEFAULT_TOLERANCES, **(tolerances or {})}
-    root = Path(root).resolve(); manifest = json.loads(Path(manifest_path).read_text(encoding='utf-8-sig'))
+    root = Path(root).resolve(); manifest_bytes = Path(manifest_path).read_bytes()
+    manifest = json.loads(manifest_bytes.decode('utf-8-sig'))
     stock, stock_paths = stock_files(stock_manifest); old, origins = release_models(root, manifest, stock, stock_paths)
     published = (root/origins[target]['path']).read_bytes(); repointed = Path(repointed_path).read_bytes()
     # Without a library the root names a stock model directly (Human male Large > a_ba).
@@ -30,6 +31,8 @@ def compare(root, manifest_path, stock_manifest, target, library_path, repointed
     elif new[target]['parent'] not in new or origins.get(new[target]['parent'], {}).get('origin') != 'installed-game':
         raise ValueError('Repointed root must name the library or an installed stock model')
     old_chain, new_chain = chain(target, old), chain(target, new)
+    # Pin every model the old motion came from (release_models verified pack files against the contract).
+    pinned = [{'name': n, 'origin': origins[n]['origin'], 'path': origins[n]['path'], 'sha256': origins[n]['sha256']} for n in old_chain]
     old_clips, new_clips = effective(old_chain, old), effective(new_chain, new)
     if set(old_clips) != set(new_clips):
         raise ValueError('Effective clip set changed')
@@ -57,6 +60,8 @@ def compare(root, manifest_path, stock_manifest, target, library_path, repointed
         counts[row['status']] = counts.get(row['status'], 0) + 1
     worst = max(rows.items(), key=lambda kv: kv[1]['assembledDrift']['metres'] if kv[1]['status'] != 'authorized-fit-clip' else -1)
     return {'schemaVersion': 1, 'kind': 'PhenoMorpher-motion-comparison', 'target': target,
+            'inputs': {'manifest': {'sha256': digest(manifest_bytes)},
+                       'stockManifest': {'sha256': digest(Path(stock_manifest).read_bytes())}, 'oldChain': pinned},
             'oldChain': old_chain, 'newChain': new_chain, 'library': {'name': library['name'], 'sha256': digest(library_blob)} if library else None,
             'repointedRoot': {'sha256': digest(repointed), 'parent': new[target]['parent'], 'onlySupermodelFieldChanged': True},
             'tolerances': tolerances, 'authorized': sorted(authorized), 'counts': counts,

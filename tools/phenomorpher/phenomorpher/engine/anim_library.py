@@ -181,6 +181,14 @@ def extract_stock(resman_cat, game_root, seeds, output):
     return manifest
 
 
+def contained(base, name):
+    """A manifest-relative path that must stay inside its manifest folder."""
+    base = Path(base).resolve(); result = (base/name).resolve()
+    if not result.is_relative_to(base):
+        raise ValueError('Manifest path escapes its folder: ' + str(name))
+    return result
+
+
 def stock_files(path):
     """Verified stock model paths from an extraction manifest."""
     path = Path(path); data = json.loads(path.read_text(encoding='utf-8'))
@@ -188,7 +196,7 @@ def stock_files(path):
         raise ValueError('Stock model manifest required')
     files = {}
     for name, row in data['models'].items():
-        file = (path.parent/row['path']).resolve()
+        file = contained(path.parent, row['path'])
         if digest(file.read_bytes()) != row['sha256']:
             raise ValueError('Stock model changed: ' + name)
         files[name] = file
@@ -293,6 +301,8 @@ def release_models(root, manifest, stock, stock_paths):
     models = {}; origins = {}
     for row in manifest['resources']:
         if row['role'] in RIG_ROLES:
+            if digest((root/row['path']).read_bytes()) != row['sha256']:
+                raise ValueError('Published model differs from the manifest: ' + row['path'])
             name = Path(row['path']).stem.lower(); models[name] = load_model(root/row['path'])
             origins[name] = {'origin': 'pack', 'path': row['path'], 'sha256': row['sha256'], 'role': row['role']}
     for name, path in stock_paths.items():
@@ -582,7 +592,7 @@ def restore(root, plan_path, compiled_path, output):
     root = Path(root).resolve(); plan_path = Path(plan_path); plan = json.loads(plan_path.read_text(encoding='utf-8'))
     if plan.get('kind') != PLAN_KIND:
         raise ValueError('Library restoration plan required')
-    if digest((plan_path.parent/plan['ascii']['path']).read_bytes()) != plan['ascii']['sha256']:
+    if digest(contained(plan_path.parent, plan['ascii']['path']).read_bytes()) != plan['ascii']['sha256']:
         raise ValueError('Library ASCII changed after planning')
     output = Path(output)
     if output.exists():

@@ -10,7 +10,7 @@ import json
 from copy import deepcopy
 from pathlib import Path
 
-from .anim_library import NativeModel, chain, load_model, stock_files
+from .anim_library import NativeModel, chain, contained, load_model, stock_files
 
 PLAN_KIND = 'PhenoMorpher-runtime-adoption-plan'
 CONTRACT_KIND = 'PhenoMorpher-game-ready-bodies'
@@ -55,7 +55,7 @@ def adopt(root, plan_path, output):
     if base.get('kind') != CONTRACT_KIND:
         raise ValueError('Game-ready body contract required')
     _, retired_bytes = pinned(root, plan['retiredResources'], 'retired resources'); retired = json.loads(retired_bytes)
-    stock_path, _ = pinned(root, plan['stock'], 'stock manifest'); stock, stock_paths = stock_files(stock_path)
+    stock_path, stock_bytes = pinned(root, plan['stock'], 'stock manifest'); stock, stock_paths = stock_files(stock_path)
     rows = {r['path']: r for r in base['resources']}
     for row in base['resources']:
         if digest((root/row['path']).read_bytes()) != row['sha256']:
@@ -86,6 +86,18 @@ def adopt(root, plan_path, output):
         model = NativeModel(data).decode()
         if not report.get('passed') or report['target'] + '.mdl' != item['resource'] or report['repointedRoot']['sha256'] != item['sha256']:
             raise ValueError('Root lacks a passing comparison for these bytes: ' + target)
+        # The comparison must have read exactly this base contract, stock chain and old-chain payloads.
+        inputs = report.get('inputs') or {}
+        if (inputs.get('manifest', {}).get('sha256') != plan['baseContract']['sha256']
+                or inputs.get('stockManifest', {}).get('sha256') != digest(stock_bytes)):
+            raise ValueError('Comparison was not made against this base contract and stock chain: ' + target)
+        for entry in inputs.get('oldChain', []):
+            expected = (rows.get(entry['path'], {}).get('sha256') if entry['origin'] == 'pack'
+                        else stock['models'].get(entry['name'], {}).get('sha256'))
+            if expected is None or expected != entry['sha256']:
+                raise ValueError('Comparison used different old-chain motion: ' + target + ' ' + entry['name'])
+        if [e['name'] for e in inputs.get('oldChain', [])] != report.get('oldChain'):
+            raise ValueError('Comparison does not pin its whole old chain: ' + target)
         parent = model['parent']
         if report['library'] and report['library']['name'] != parent:
             raise ValueError('Comparison library differs from the root supermodel: ' + target)
@@ -98,10 +110,10 @@ def adopt(root, plan_path, output):
     # Textures: each downsampled file must come from the published payload it replaces.
     receipt_path, receipt_bytes = pinned(root, plan['textures'], 'texture receipt'); texture_receipt = json.loads(receipt_bytes)
     for row in texture_receipt['resources']:
-        old = rows.get(row['path'])
+        source = contained(receipt_path.parent, row['path']); old = rows.get(row['path'])
         if not old or old['sha256'] != row['sourceSHA256']:
             raise ValueError('Downsampled texture does not replace its published payload: ' + row['path'])
-        data = (receipt_path.parent/row['path']).read_bytes()
+        data = source.read_bytes()
         if digest(data) != row['sha256']:
             raise ValueError('Downsampled texture changed after its receipt: ' + row['path'])
         staged[row['path']] = data

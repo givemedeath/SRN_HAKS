@@ -106,6 +106,25 @@ class PortableCliTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'escaped explicit root'):
                 runner.consumed(['adopt-runtime','--root',str(root),'--plan',str(root/'plan.json'),'--output',str(root/'x')])
 
+    def test_runner_rejects_nested_stock_and_receipt_paths_outside_their_folders(self):
+        from . import inputs as runner
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);pin=lambda p:{'path':p,'sha256':'0'*64}
+            (root/'contract.json').write_text(json.dumps({'resources':[]}))
+            (root/'stock').mkdir();(root/'tex').mkdir()
+            for stock_row,receipt_row,label in (({'a_ba':{'path':'../../outside.mdl'}},[],'stock'),
+                                                ({},[{'path':'../../outside.plt'}],'receipt')):
+                (root/'stock/stock.json').write_text(json.dumps({'models':stock_row}))
+                (root/'tex/receipt.json').write_text(json.dumps({'resources':receipt_row}))
+                (root/'plan.json').write_text(json.dumps({'baseContract':pin('contract.json'),'retiredResources':pin('contract.json'),
+                    'stock':pin('stock/stock.json'),'textures':pin('tex/receipt.json'),'libraries':[],'roots':[]}))
+                with self.subTest(label),self.assertRaisesRegex(ValueError,'escaped explicit root'):
+                    runner.consumed(['adopt-runtime','--root',str(root),'--plan',str(root/'plan.json'),'--output',str(root/'x')])
+            (root/'stock/stock.json').write_text(json.dumps({'models':{'a_ba':{'path':'../../outside.mdl'}}}))
+            with self.assertRaisesRegex(ValueError,'escaped explicit root'):
+                runner.consumed(['anim-library','inventory','--root',str(root),'--manifest',str(root/'contract.json'),
+                                 '--stock',str(root/'stock/stock.json'),'--output',str(root/'y')])
+
     def test_runner_declares_source_attribute_files_in_addition_to_motion(self):
         from . import inputs as runner
         with tempfile.TemporaryDirectory() as tmp:

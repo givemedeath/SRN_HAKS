@@ -107,6 +107,38 @@ class AdoptionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Pinned input changed'):
                 adopt(root, root/'plan.json', root/'c')
 
+    def test_comparisons_must_pin_the_contract_stock_chain_and_old_motion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); plan = self.release(root); report = root/'compare-pfx0.json'; good = report.read_text()
+            self.assertEqual([e['name'] for e in json.loads(good)['inputs']['oldChain']], json.loads(good)['oldChain'])
+            for change, message in ((lambda d: d['inputs']['manifest'].update(sha256='0'*64), 'base contract and stock chain'),
+                                    (lambda d: d['inputs']['stockManifest'].update(sha256='0'*64), 'base contract and stock chain'),
+                                    (lambda d: d['inputs']['oldChain'][1].update(sha256='0'*64), 'different old-chain motion'),
+                                    (lambda d: d['inputs'].update(oldChain=d['inputs']['oldChain'][:1]), 'whole old chain'),
+                                    (lambda d: d.pop('inputs'), 'base contract and stock chain')):
+                data = json.loads(good); change(data); report.write_text(json.dumps(data))
+                plan['roots'][0]['comparison']['sha256'] = sha(report); (root/'plan.json').write_text(json.dumps(plan))
+                with self.subTest(message), self.assertRaisesRegex(ValueError, message):
+                    adopt(root, root/'plan.json', root/'out')
+            # A carrier edited after the contract cannot be compared at all.
+            carrier = root/'srn_body/pcf0.mdl'; carrier.write_bytes(carrier.read_bytes() + b'\0')
+            with self.assertRaisesRegex(ValueError, 'differs from the manifest'):
+                compare(root, root/plan['baseContract']['path'], root/plan['stock']['path'], 'pfx0',
+                        root/'restored/srn_an_xf.mdl', root/'roots/pfx0.mdl')
+
+    def test_nested_stock_and_texture_paths_cannot_escape_their_folders(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); plan = self.release(root)
+            receipt = root/plan['textures']['path']; data = json.loads(receipt.read_text())
+            data['resources'][0]['path'] = '../../outside.plt'; receipt.write_text(json.dumps(data))
+            plan['textures']['sha256'] = sha(receipt); (root/'plan.json').write_text(json.dumps(plan))
+            with self.assertRaisesRegex(ValueError, 'escapes its folder'):
+                adopt(root, root/'plan.json', root/'a')
+            stock = root/plan['stock']['path']; data = json.loads(stock.read_text())
+            next(iter(data['models'].values()))['path'] = '../outside.mdl'; stock.write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError, 'escapes its folder'):
+                lib.stock_files(stock)
+
 
 if __name__ == '__main__':
     unittest.main()

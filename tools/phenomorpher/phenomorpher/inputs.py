@@ -63,9 +63,9 @@ def consumed(arguments):
         files.update(rooted(root, pin['path']) for pin in pins)
         contract = rooted(root, data['baseContract']['path']); stock = rooted(root, data['stock']['path'])
         files.update(rooted(root, row['path']) for row in read(contract)['resources'])
-        files.update((stock.parent/row['path']).resolve() for row in read(stock)['models'].values())
+        files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
         receipt = rooted(root, data['textures']['path'])
-        files.update((receipt.parent/row['path']).resolve() for row in read(receipt)['resources'])
+        files.update(rooted(receipt.parent, row['path']) for row in read(receipt)['resources'])
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)
@@ -77,7 +77,7 @@ def consumed(arguments):
         def release(roles):
             manifest = option('manifest'); stock = option('stock'); root = option('root')
             files.update([manifest, stock])
-            files.update((stock.parent/row['path']).resolve() for row in read(stock)['models'].values())
+            files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
             files.update(rooted(root, x['path']) for x in read(manifest)['resources'] if x['role'] in roles)
         if action == 'extract-stock':
             files.add(option('resman-cat'))
@@ -91,7 +91,7 @@ def consumed(arguments):
                 files.add(option('library'))
         elif action == 'restore':
             plan = option('plan'); root = option('root'); data = read(plan)
-            files.update([plan, option('compiled'), (plan.parent/data['ascii']['path']).resolve()])
+            files.update([plan, option('compiled'), rooted(plan.parent, data['ascii']['path'])])
             files.update(rooted(root, row['path']) for row in data['sources'].values())
         elif action == 'repoint':
             files.add(option('input'))
