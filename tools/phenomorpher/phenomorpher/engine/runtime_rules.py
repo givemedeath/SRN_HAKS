@@ -77,6 +77,9 @@ def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, p
         prefix = target['modelPrefix'].lower(); names = [prefix]
         if prefix not in models:
             fail('target-root', prefix, 'root model is not a published rig'); continue
+        # Root-local clips win effective resolution over the shared library, so roots carry none.
+        if models[prefix]['clips']:
+            fail('root-clips', prefix, 'root stores its own clips: ' + ', '.join(sorted(models[prefix]['clips'])))
         while names[-1] in models:
             parent = models[names[-1]]['parent'].lower()
             if parent == 'null' or parent in names:

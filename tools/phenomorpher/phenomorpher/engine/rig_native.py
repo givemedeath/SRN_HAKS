@@ -61,7 +61,8 @@ def static_rig(model, blob):
             c = row['controls']
             q = np.asarray(c[20]['values'][0], float) if 20 in c else IDENTITY
             rig[name.lower()] = {'parent': row['parent'].lower() if row['parent'] else None, 'type': NODE_TYPES.get(row['flags'], f'flags{row["flags"]}'),
-                                 'position': np.asarray(c[8]['values'][0], float) if 8 in c else np.zeros(3), 'orientation': q}
+                                 'position': np.asarray(c[8]['values'][0], float) if 8 in c else np.zeros(3), 'orientation': q,
+                                 'scale': float(c[36]['values'][0][0]) if 36 in c else 1.0}
         return rig
     rig = {}; node = None; inside = False
     for raw in blob.decode('cp1252').splitlines():
@@ -80,7 +81,7 @@ def static_rig(model, blob):
                 if original != 'impact':
                     raise ValueError('Ambiguous anatomical node ' + name)
                 name = original + '__duplicate_' + str(i); i += 1
-            node = rig[name] = {'parent': None, 'type': row[1].lower(), 'position': np.zeros(3), 'orientation': IDENTITY}
+            node = rig[name] = {'parent': None, 'type': row[1].lower(), 'position': np.zeros(3), 'orientation': IDENTITY, 'scale': 1.0}
         elif inside and word == 'endnode':
             node = None
         elif node is not None and word == 'parent':
@@ -89,6 +90,8 @@ def static_rig(model, blob):
             node['position'] = np.array([float(v) for v in row[1:4]])
         elif node is not None and word == 'orientation':
             node['orientation'] = np.array(axis_angle_quaternion([float(v) for v in row[1:5]]))
+        elif node is not None and word == 'scale':
+            node['scale'] = float(row[1])
     return rig
 
 
@@ -109,6 +112,9 @@ def compare_static(a, b, tol):
         position, rotation = max(position, d), max(rotation, r)
         if not np.isfinite([d, r]).all() or d > tol['positionMetres'] or r > tol['rotationDegrees']:
             differences.append(f'{name}: bind transform differs ({d:.3g} m, {r:.3g} deg)')
+        # Static scale feeds the bind hierarchy that every pose is sampled from.
+        if not (np.isfinite([x['scale'], y['scale']]).all() and f32(x['scale']) == f32(y['scale'])):
+            differences.append(f'{name}: bind scale {x["scale"]:.6g} != {y["scale"]:.6g}')
     return {'nodes': len(a), 'positionMetres': position, 'rotationDegrees': rotation, 'differences': differences}
 
 

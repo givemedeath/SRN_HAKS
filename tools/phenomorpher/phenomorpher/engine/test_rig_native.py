@@ -71,6 +71,9 @@ class NativeControllerTests(unittest.TestCase):
             report = variant('moved.mdl', text[line:end] + '\n  position 0 0 0.01')
             self.assertFalse(report['passed']); self.assertEqual(report['failures'], [])
             self.assertEqual(report['staticRig']['differences'], [f'{child}: bind transform differs (0.01 m, 0 deg)'])
+            # So does a static bind scale.
+            report = variant('scaled.mdl', text[line:end] + '\n  scale 1.5')
+            self.assertFalse(report['passed']); self.assertEqual(report['staticRig']['differences'], [f'{child}: bind scale 1 != 1.5'])
             # So does a reparented node.
             report = variant('reparented.mdl', 'parent ' + model['name'])
             self.assertFalse(report['passed']); self.assertTrue(report['staticRig']['differences'][0].startswith(f'{child}: parent'))

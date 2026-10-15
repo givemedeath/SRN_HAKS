@@ -67,6 +67,20 @@ class RuntimeRuleTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Unsupported texture format'):
                 lib.texture_header(root/'srn_body/x.dds')
 
+    def test_target_roots_may_not_store_clips(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); _, contract, overlay = staged(root)
+            library = lib.load_model('fixture', overlay['srn_body/pfx0.mdl'])['parent']
+            text = (f'newmodel pfx0\nsetsupermodel pfx0 {library}\nclassification CHARACTER\nsetanimationscale 1\n'
+                    'beginmodelgeom pfx0\nnode dummy pfx0\n  parent NULL\nendnode\nendmodelgeom pfx0\n'
+                    'newanim walk pfx0\n  length 1\n  transtime 0.25\n  animroot pfx0\n  node dummy pfx0\n    parent NULL\n  endnode\n'
+                    'doneanim walk pfx0\ndonemodel pfx0\n').encode('ascii')
+            c = json.loads(json.dumps(contract)); o = {**overlay, 'srn_body/pfx0.mdl': text}
+            next(r for r in c['resources'] if r['path'] == 'srn_body/pfx0.mdl')['sha256'] = hashlib.sha256(text).hexdigest()
+            report = check(root, c, overlay=o)
+            self.assertEqual(rules(report), ['root-clips'])
+            self.assertEqual(report['violations'][0]['detail'], 'root stores its own clips: walk')
+
     def test_only_declared_posture_layers_are_exempt(self):
         def layer(clips):
             text = 'newmodel srn_px_f\nsetsupermodel srn_px_f a_fa\nclassification CHARACTER\nsetanimationscale 1\n' \
