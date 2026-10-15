@@ -133,7 +133,9 @@ def compare(published, source, tolerances=None):
         # NaN deltas would vanish in compare_clip's max() reductions, so malformed keys fail first.
         invalid = {'published': malformed(x), 'source': malformed(y)}
         r = compare_clip(x, a['name'], y, b['name'], tol['timeSeconds'])
-        ok = (not invalid['published'] and not invalid['source'] and r['structure'] and r['metadata']
+        # The ASCII reader keeps only position/orientation keys; any other published controller (e.g. scale)
+        # would go unchecked, so it fails rather than passing unseen.
+        ok = (not native_only and not invalid['published'] and not invalid['source'] and r['structure'] and r['metadata']
               and r['positionMetres'] <= tol['positionMetres'] and r['rotationDegrees'] <= tol['rotationDegrees']
               and r['otherMax'] <= tol['otherControllers'])
         rows[clip] = {'status': 'equal' if ok else 'different', **{k: r[k] for k in ('structure', 'metadata', 'positionMetres', 'rotationDegrees', 'otherMax', 'eventOrderChanged')},

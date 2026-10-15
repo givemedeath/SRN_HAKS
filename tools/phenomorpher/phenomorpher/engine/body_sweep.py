@@ -112,10 +112,18 @@ def aligned(source, candidate):
 def connectors(source, candidate, scales):
     s, c, dropped = aligned(source['meshes'], candidate['meshes'])
     minimum = terminal.audit_minimum(s, c, source['frames'], candidate['frames'], scales)
-    # A minimum measured without some of a part's meshes is partial for that link.
+    # A minimum measured without some of a part's meshes is partial: that link becomes unavailable,
+    # and the aggregate gates are recomputed so partial geometry can never pass them.
     partial = {d.split('/')[0] for d in dropped}
-    for row in minimum['connectors']:
+    for i, row in enumerate(minimum['connectors']):
         row['lineageComplete'] = not partial & set(row['parts'])
+        if not row['lineageComplete'] and row['status'] == 'measured':
+            minimum['connectors'][i] = {'parts': row['parts'], 'status': 'unavailable', 'lineageComplete': False,
+                                        'reason': 'Incomplete mesh lineage for ' + '/'.join(sorted(partial & set(row['parts']))),
+                                        'partialMeasurement': row}
+    rows = minimum['connectors']
+    minimum['allRequiredSourceCalibratedTerminalGates'] = all(r.get('sourceCalibratedClearanceGate', False) for r in rows)
+    minimum['allRequiredTerminalContacts'] = all(r.get('candidateActualContact', False) for r in rows)
     # v16 checks lineage per link, so a donor topology difference drops only that link.
     area = surfaces.audit(source['meshes'], candidate['meshes'], source['frames'], candidate['frames'], scales)
     return {'droppedForLineage': dropped, 'minimum': minimum, 'surfaces': area}
@@ -162,9 +170,15 @@ def motion(models, b, donor, clips):
                 excess = ours['minimumTriangleClearanceMeters'] - theirs['minimumTriangleClearanceMeters']*b['scale']
                 key = f'{link[0]}-{link[1]}'
                 if key not in worst or excess > worst[key]['excessMeters']:
+                    keep = {k: worst[key][k] for k in worst.get(key, {}) if k.startswith('maxIntersections')}
                     worst[key] = {'excessMeters': excess, 'clearanceMeters': ours['minimumTriangleClearanceMeters'],
                                   'donorClearanceMeters': theirs['minimumTriangleClearanceMeters'], 'time': float(t),
-                                  'intersections': ours['intersectingTrianglePairCount'], 'donorIntersections': theirs['intersectingTrianglePairCount']}
+                                  'intersections': ours['intersectingTrianglePairCount'], 'donorIntersections': theirs['intersectingTrianglePairCount'], **keep}
+                # Collision severity is tracked on its own: the clearance extreme can be a gapped frame.
+                row = worst[key]
+                if 'maxIntersections' not in row or ours['intersectingTrianglePairCount'] > row['maxIntersections']:
+                    row.update(maxIntersections=ours['intersectingTrianglePairCount'], maxIntersectionsTime=float(t),
+                               maxIntersectionsDonor=theirs['intersectingTrianglePairCount'])
         low = min(sole, key=lambda r: r[0])
         clip_rows[clip_name] = {'owner': owner, 'donorOwner': donor_owner, 'samples': len(sample_times(clip)), 'connectors': worst,
                                 'lowestSoleBelowStandingMeters': low[0], 'donorLowestSoleBelowStandingMeters': min(r[1] for r in sole), 'lowestSoleTime': low[2]}

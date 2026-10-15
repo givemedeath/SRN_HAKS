@@ -75,6 +75,23 @@ class NativeControllerTests(unittest.TestCase):
             report = variant('reparented.mdl', 'parent ' + model['name'])
             self.assertFalse(report['passed']); self.assertTrue(report['staticRig']['differences'][0].startswith(f'{child}: parent'))
 
+    def test_published_controllers_the_ascii_source_cannot_hold_fail(self):
+        from unittest.mock import patch
+        import numpy as np
+        from . import rig_native
+        with tempfile.TemporaryDirectory() as tmp:
+            binary, ascii_path = self.library(Path(tmp))
+            def scaled(path, blob=None):
+                model = lib.load_model(path, blob)
+                if model['format'] == 'binary':
+                    node = next(iter(model['clips']['run']['nodes'].values()))
+                    node['controls'][36] = {'times': np.array([0.]), 'values': np.array([[1.5]])}
+                return model
+            with patch.object(rig_native, 'load_model', side_effect=scaled):
+                report = compare(binary, ascii_path)
+            self.assertFalse(report['passed']); self.assertEqual(report['failures'], ['run'])
+            self.assertEqual(report['clips']['run']['notComparedControllers'], ['controller36'])
+
 
 if __name__ == '__main__':
     unittest.main()
