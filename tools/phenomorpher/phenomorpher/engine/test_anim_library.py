@@ -254,6 +254,11 @@ class LibraryBuildTests(unittest.TestCase):
             compiled = out/'converted/resources/srn_an_xf.mdl'; compiled.write_bytes(simulated_compile('\n'.join(lines)))
             with self.assertRaisesRegex(ValueError, 'layout differs'):
                 lib.restore(root, out/'restoration-plan.json', compiled, root/'bad.mdl')
+            # A compiled scale other than the planned setanimationscale must stop it too.
+            scaled = text.replace('setanimationscale 1\n', 'setanimationscale 0.5\n', 1); self.assertNotEqual(scaled, text)
+            compiled.write_bytes(simulated_compile(scaled))
+            with self.assertRaisesRegex(ValueError, 'animation scale differs'):
+                lib.restore(root, out/'restoration-plan.json', compiled, root/'bad.mdl')
             compiled.write_bytes(simulated_compile(text))
             lib.restore(root, out/'restoration-plan.json', compiled, root/'good.mdl')
             blob = bytearray((root/'good.mdl').read_bytes()); model = lib.NativeModel(bytes(blob)).decode()

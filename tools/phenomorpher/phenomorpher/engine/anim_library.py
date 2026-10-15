@@ -602,6 +602,8 @@ def restore(root, plan_path, compiled_path, output):
     compiled = Path(compiled_path).read_bytes(); blob = bytearray(compiled); model = NativeModel(compiled).decode()
     if (model['name'], model['parent']) != (plan['library'], plan['parent']):
         raise ValueError('Compiled library name or supermodel differs')
+    if np.float32(model['scale']) != np.float32(plan['scale']):
+        raise ValueError('Compiled library animation scale differs')
     sources = {}
     for owner, pin in plan['sources'].items():
         data = (root/pin['path']).read_bytes()
