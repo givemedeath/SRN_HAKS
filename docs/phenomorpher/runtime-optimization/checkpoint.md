@@ -12,7 +12,7 @@ contract 1.0.0 and its resources at `0866bcaf`. Phase 9 (the toolkit upfit) is a
 | Binding | Value |
 |---|---|
 | Branch | `codex/phenomorpher-runtime-optimization` (remote has only the plan commit `adb0689e`) |
-| Base release | `codex/phenomorpher-bodies-v1` @ `0866bcaf5931735ce7cc4489681b9c933ee9257c` (PR #45, open) |
+| Base release | `codex/phenomorpher-bodies-v1` @ `0866bcaf5931735ce7cc4489681b9c933ee9257c` (kept as the 1.0.0 rollback anchor; PR #45 closed, superseded by this branch's PR) |
 | `main` merged | `ea0b6678a340435c2b43bae5fc489f8f6fb13498` (via `df008031`) |
 | Phase commits | baseline `6a5249db`, pilots `c08d85d2`, libraries `12a0bced`, textures `14b48832`, contract `7c163844`, inventory/managed commands `d44c6d20`, offline review `8951f1ae`, client `3e6e8160`, this checkpoint (next commit) |
 | Plan | [plan.md](plan.md) SHA-256 `14f052a9368e50879e7cdf80367853f7606c1256ab9a85adb607fec72ec695a1` (with dated revisions) |
@@ -79,12 +79,12 @@ attachments, female posture and skin tone are unchanged.
 | Read-only sweep | nothing new in 1.1.0; F1–F4 inspect, F5–F6 tooling | [review.md](review.md) |
 | Client | stop-gate passed; textures equal; no regression | [client.md](client.md) |
 | User acceptance | accepted 2026-10-14 | this checkpoint |
-| Push / PR | **not done**; needs explicit user approval | — |
+| Push / PR | approved 2026-10-14: this branch replaces PR #45 with one PR to `main` | the PR description |
 
 ## Open items
 
-1. Push and PR: needs approval, including whether the PR stacks on #45 (`codex/phenomorpher-bodies-v1`) or
-   targets `main` after #45 merges.
+1. PR to `main`: it replaces PR #45. GitHub stopped processing #45 after its last push (stuck on `1bdcd2ae`).
+   Keep `codex/phenomorpher-bodies-v1` as the 1.0.0 rollback anchor.
 2. Phase 9, the toolkit upfit (generate and enforce), as a separate PR ([plan.md](plan.md)). Fold in the tooling findings:
    * F5: neck connectors;
    * F6: penetration on open bands;
