@@ -91,6 +91,31 @@ def consumed(arguments):
         files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
         receipt = rooted(root, data['textures']['path'])
         files.update(rooted(receipt.parent, row['path']) for row in read(receipt)['resources'])
+    elif command == 'audit-native':
+        files.update([option('published'), option('source')])
+    elif command == 'sweep':
+        manifest = option('manifest'); root = option('root'); data = read(manifest); files.add(manifest)
+        pack = {row['path'] for row in data['resources']}
+        targets = {t['modelPrefix']: t for t in data['targets']}
+        prefixes = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--target']
+        for prefix in set(prefixes) | {f'p{p[1]}h{p[3]}' for p in prefixes}:
+            if prefix not in targets:
+                raise ValueError('Unknown sweep target: ' + prefix)
+            files.add(rooted(root, f'srn_body/{prefix}.mdl'))
+            files.update(rooted(root, 'srn_body/' + name) for name in targets[prefix]['parts'])
+            if f'srn_body/{prefix}_head001.mdl' in pack:
+                files.add(rooted(root, f'srn_body/{prefix}_head001.mdl'))
+        if '--motion' in arguments or '--motion-only' in arguments:
+            stock = option('stock'); files.add(stock)
+            files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
+            files.update(rooted(root, x['path']) for x in data['resources'] if x['role'] in RIG_ROLES)
+    elif command == 'verify-runtime':
+        manifest = option('manifest'); root = option('root'); files.add(manifest)
+        files.update(rooted(root, x['path']) for x in read(manifest)['resources']
+                     if x['role'] in RIG_ROLES + ('selected-palette', 'selected-map'))
+        if '--stock' in arguments:
+            stock = option('stock'); files.add(stock)
+            files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)

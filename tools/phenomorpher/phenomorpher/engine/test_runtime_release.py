@@ -141,6 +141,22 @@ class AdoptionTests(unittest.TestCase):
                 with self.subTest(message), self.assertRaisesRegex(ValueError, message):
                     adopt(root, root/'plan.json', root/'out')
 
+    def test_intermediate_bases_drop_unpublished_carriers_and_anchor_is_configurable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); plan = self.release(root)
+            plan.update(baseKind='intermediate', libraryAnchor='srn_body/pfx0.mdl'); (root/'plan.json').write_text(json.dumps(plan))
+            receipt = adopt(root, root/'plan.json', root/'staged')
+            self.assertEqual((receipt['summary']['baseKind'], receipt['summary']['retiredCarriers']), ('intermediate', 2))
+            retired = json.loads((root/'staged/retired-runtime-resources.json').read_text())
+            self.assertEqual([r['reason'] for r in retired], ['texture'])
+            paths = [r['path'] for r in json.loads((root/'staged/game-ready-assets.json').read_text())['resources']]
+            self.assertEqual(paths[paths.index('srn_body/pfx0.mdl') + 1], 'srn_body/srn_an_xf.mdl')
+            for change, message in ((dict(baseKind='published', libraryAnchor='srn_body/pcf0.mdl'), 'not a retained rig row'),
+                                    (dict(baseKind='draft', libraryAnchor=None), 'Unknown base kind')):
+                plan.update(change); (root/'plan.json').write_text(json.dumps(plan))
+                with self.subTest(message), self.assertRaisesRegex(ValueError, message):
+                    adopt(root, root/'plan.json', root/'other')
+
     def test_nested_stock_and_texture_paths_cannot_escape_their_folders(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); plan = self.release(root)

@@ -141,8 +141,8 @@ def ascii_model(text):
     return model
 
 
-def load_model(path):
-    blob = Path(path).read_bytes()
+def load_model(path, blob=None):
+    blob = Path(path).read_bytes() if blob is None else blob
     return NativeModel(blob).decode() if blob[:4] == b'\0\0\0\0' else ascii_model(blob.decode('cp1252'))
 
 
@@ -203,8 +203,9 @@ def stock_files(path):
     return data, files
 
 
-def texture_header(path):
-    data = Path(path).read_bytes()[:24]
+def texture_header(path, data=None):
+    """PLT/TGA header from a file, or from its bytes when given; any other format is an error."""
+    path = Path(path); data = (path.read_bytes() if data is None else data)[:24]
     if path.suffix.lower() == '.plt':
         if data[:8] != b'PLT V1  ':
             raise ValueError('Invalid PLT header: ' + str(path))
@@ -212,7 +213,7 @@ def texture_header(path):
     if path.suffix.lower() == '.tga':
         image_type, = struct.unpack_from('<B', data, 2); width, height, bits = struct.unpack_from('<HHB', data, 12)
         return {'format': 'tga', 'imageType': image_type, 'width': width, 'height': height, 'bitsPerPixel': bits}
-    return None
+    raise ValueError('Unsupported texture format: ' + str(path))
 
 
 def material_textures(path):

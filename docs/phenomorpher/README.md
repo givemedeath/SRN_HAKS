@@ -89,6 +89,11 @@ separate work. Bind stature is measured; absolute client height is not calibrate
 The previously observed client exit crash remains unsymbolicated and was also
 present before this package; the final checks had no in-session crash.
 
+The earlier Human body asset records no longer match these files and are kept as history; see
+[superseded Human records](../phenotypes/human-assets-superseded.md). The toolkit's `verify-runtime`
+checks the 1.1.0 runtime layout rules (no private animation carriers, stock-terminated chains, textures
+at most 1024 px); see [Phase 9](runtime-optimization/phase9.md).
+
 PhenoMorpher tooling is delivered in a separate PR. This asset pack can be built
 and consumed using the repository's existing HAK bundler without that toolkit.
 

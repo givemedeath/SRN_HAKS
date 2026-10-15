@@ -11,6 +11,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from .anim_library import NativeModel, chain, contained, load_model, stock_files
+from .runtime_rules import check as check_rules
 
 PLAN_KIND = 'PhenoMorpher-runtime-adoption-plan'
 CONTRACT_KIND = 'PhenoMorpher-game-ready-bodies'
@@ -152,9 +153,11 @@ def adopt(root, plan_path, output):
     removed_paths = {r['path'] for r in removed}
     # Contract.
     contract = deepcopy(base); contract['version'] = plan['version']; resources = []
-    # Libraries follow the retained Human library, or the last retained rig row.
+    # Libraries follow the plan's anchor row; by default the retained Human library, or the last retained rig row.
     kept = [r['path'] for r in base['resources'] if r['role'] in ('fitted-rig', 'rig-inheritance') and r['path'] not in removed_paths]
-    anchor = 'srn_body/srn_fa_h0.mdl' if 'srn_body/srn_fa_h0.mdl' in kept else kept[-1]
+    anchor = plan.get('libraryAnchor') or ('srn_body/srn_fa_h0.mdl' if 'srn_body/srn_fa_h0.mdl' in kept else kept[-1])
+    if anchor not in kept:
+        raise ValueError('Library anchor is not a retained rig row: ' + anchor)
     anchor_model = Path(anchor).stem
     for row in base['resources']:
         if row['path'] in removed_paths:
@@ -189,10 +192,20 @@ def adopt(root, plan_path, output):
     contract['runtimeOptimization'] = plan['runtimeOptimization']
     for key, value in plan.get('contractFields', {}).items():
         contract[key] = value
-    retired_rows = retired + [{'path': r['path'], 'sha256': r['sha256'], 'bytes': r['bytes'], 'reason': plan['retiredCarrierReason']}
-                              for r in removed]
+    # An intermediate base (a new body's unpublished carrier release) never shipped its carriers,
+    # so they are dropped without a retirement record; a published base retires them.
+    base_kind = plan.get('baseKind', 'published')
+    if base_kind not in ('published', 'intermediate'):
+        raise ValueError('Unknown base kind: ' + str(base_kind))
+    retired_rows = retired + ([] if base_kind == 'intermediate' else
+                              [{'path': r['path'], 'sha256': r['sha256'], 'bytes': r['bytes'], 'reason': plan['retiredCarrierReason']} for r in removed])
     retired_rows += [{'path': p, 'sha256': e['downsampledFrom']['sha256'], 'bytes': e['downsampledFrom']['bytes'],
                       'reason': plan['retiredTextureReason']} for p, e in sorted(evidence.items()) if 'downsampledFrom' in e]
+    # The staged release (staged files over the published root) must satisfy the runtime rules.
+    rules = check_rules(root, contract, max_texture=plan.get('maxTexture', 1024), overlay=staged)
+    if not rules['passed']:
+        raise ValueError('Staged release breaks the runtime rules: ' + '; '.join(
+            f"{v['rule']} {v['subject']}" for v in rules['violations'][:5]))
     # Stage.
     output.mkdir(parents=True, exist_ok=False)
     for path, data in staged.items():
@@ -203,10 +216,11 @@ def adopt(root, plan_path, output):
     (output/'remove.json').write_text(dump([{'path': r['path'], 'sha256': r['sha256']} for r in removed]), encoding='utf-8', newline='\n')
     summary = {'version': plan['version'], 'libraries': len(libraries), 'repointedRoots': len(roots),
                'downsampledTextures': sum('downsampledFrom' in e for e in evidence.values()), 'retiredCarriers': len(removed),
-               'retiredCarrierBytes': sum(r['bytes'] for r in removed),
+               'retiredCarrierBytes': sum(r['bytes'] for r in removed), 'baseKind': base_kind,
                'resourcesBefore': len(base['resources']), 'resourcesAfter': len(resources),
                'bytesBefore': sum(r['bytes'] for r in base['resources']), 'bytesAfter': sum(r['bytes'] for r in resources)}
     receipt = {'schemaVersion': 1, 'kind': 'PhenoMorpher-runtime-adoption', 'plan': {'sha256': digest(plan_path.read_bytes())},
-               'contract': {'sha256': digest(dump(contract).encode())}, 'summary': summary, 'assetApprovalCreated': False}
+               'contract': {'sha256': digest(dump(contract).encode())}, 'summary': summary,
+               'runtimeRules': {'passed': True, 'mode': rules['mode'], 'chains': rules['chains']}, 'assetApprovalCreated': False}
     (output/'adoption-receipt.json').write_text(dump(receipt), encoding='utf-8', newline='\n')
     return receipt
