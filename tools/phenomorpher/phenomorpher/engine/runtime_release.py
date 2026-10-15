@@ -98,13 +98,20 @@ def adopt(root, plan_path, output):
                 raise ValueError('Comparison used different old-chain motion: ' + target + ' ' + entry['name'])
         if [e['name'] for e in inputs.get('oldChain', [])] != report.get('oldChain'):
             raise ValueError('Comparison does not pin its whole old chain: ' + target)
-        parent = model['parent']
-        if report['library'] and report['library']['name'] != parent:
-            raise ValueError('Comparison library differs from the root supermodel: ' + target)
-        if parent in libraries and report['library']['sha256'] != digest(staged['srn_body/' + parent + '.mdl']):
-            raise ValueError('Comparison used a different library build: ' + target)
-        if parent not in libraries and parent not in stock_paths and ('srn_body/' + parent + '.mdl') not in rows:
+        # The compared library must be the one that ships: staged, retained published or installed stock.
+        parent = model['parent']; compared = report['library']; published = rows.get('srn_body/' + parent + '.mdl')
+        if parent in libraries:
+            shipped = digest(staged['srn_body/' + parent + '.mdl'])
+        elif published:
+            shipped = published['sha256']
+        elif parent in stock_paths:
+            shipped = stock['models'][parent]['sha256'] if compared else None
+        else:
             raise ValueError('Root supermodel is neither adopted, published nor stock: ' + target)
+        if (compared['name'] if compared else None) != (parent if shipped else None):
+            raise ValueError('Comparison library differs from the root supermodel: ' + target)
+        if compared and compared['sha256'] != shipped:
+            raise ValueError('Comparison used a different library build: ' + target)
         roots[target] = parent; staged[target] = data
         evidence[target] = {'comparisonSHA256': item['comparison']['sha256'], 'supermodel': {'from': load_model(root/target)['parent'], 'to': parent}}
     # Textures: each downsampled file must come from the published payload it replaces.

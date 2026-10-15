@@ -34,7 +34,8 @@ The accepted contract differs from the adopted one only in `runtimeOptimization`
 `adopt-runtime` itself still writes `false` for both flags. Acceptance is a separate, recorded user decision.
 
 After review on PR #49, `compare-motion` reports pin the contract, the stock manifest and every old-chain model they
-compared, and `adopt-runtime` requires those pins to match its plan. The Phase 5 comparison reports predate this.
+compared, and `adopt-runtime` requires those pins to match its plan. It also requires the compared library to be the one
+that ships, including a retained published library such as `srn_fa_h0`. The Phase 5 comparison reports predate this.
 They stay valid historical evidence for the adopted files, but a new adoption needs freshly generated comparisons.
 
 ### Local evidence (ignored `.tmp/`; machine-local)

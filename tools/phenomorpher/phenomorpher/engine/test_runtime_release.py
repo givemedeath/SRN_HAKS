@@ -126,6 +126,21 @@ class AdoptionTests(unittest.TestCase):
                 compare(root, root/plan['baseContract']['path'], root/plan['stock']['path'], 'pfx0',
                         root/'restored/srn_an_xf.mdl', root/'roots/pfx0.mdl')
 
+    def test_retained_published_libraries_must_match_the_compared_build(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); plan = self.release(root); report = root/'compare-pfx2.json'
+            # pfx2 keeps a published parent (as Human Large keeps srn_fa_h0) instead of a staged library.
+            path = root/'roots/pfx2.mdl'; path.write_bytes(lib.repoint(path.read_bytes(), 'pcf2'))
+            plan['roots'][1]['sha256'] = sha(path); good = json.loads(report.read_text())
+            good['repointedRoot']['sha256'] = sha(path)
+            for library, message in (({'name': 'pcf2', 'sha256': '0'*64}, 'different library build'),
+                                     (None, 'differs from the root supermodel'),
+                                     ({'name': 'pcf2', 'sha256': sha(root/'srn_body/pcf2.mdl')}, 'do not reach the installed stock chain: pfx2')):
+                report.write_text(json.dumps({**good, 'library': library}))
+                plan['roots'][1]['comparison']['sha256'] = sha(report); (root/'plan.json').write_text(json.dumps(plan))
+                with self.subTest(message), self.assertRaisesRegex(ValueError, message):
+                    adopt(root, root/'plan.json', root/'out')
+
     def test_nested_stock_and_texture_paths_cannot_escape_their_folders(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); plan = self.release(root)
