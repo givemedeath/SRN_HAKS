@@ -32,5 +32,16 @@ class BodySweepClipTests(unittest.TestCase):
             self.assertFalse(output.exists())
 
 
+class LineageDropTests(unittest.TestCase):
+    def test_meshes_on_either_side_only_are_reported(self):
+        import numpy as np
+        mesh = lambda part, name: {'part': part, 'name': name, 'position': np.zeros((3, 3)), 'faces': np.array([[0, 1, 2]])}
+        source = [mesh('neck', 'neckg'), mesh('head', 'head001g'), mesh('head', 'eyes')]
+        candidate = [mesh('neck', 'neckg'), mesh('head', 'head001g'), mesh('chest', 'extra')]
+        keep_s, keep_c, dropped = bs.aligned(source, candidate)
+        self.assertEqual([m['name'] for m in keep_s], ['neckg', 'head001g']); self.assertEqual(len(keep_c), 2)
+        self.assertEqual(dropped, ['chest/extra', 'head/eyes (source only)'])
+
+
 if __name__ == '__main__':
     unittest.main()

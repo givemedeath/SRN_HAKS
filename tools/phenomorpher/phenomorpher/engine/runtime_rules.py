@@ -17,6 +17,12 @@ POSTURE_CLIPS = {'pause1', 'pause2'}
 STOCK_PARENTS = {'f': 'a_fa', 'm': 'a_ba'}
 TEXTURE_ROLES = ('selected-palette', 'selected-map')
 HEX64 = re.compile(r'^[0-9a-f]{64}$')
+# Approved posture layers, by name and pinned bytes. Clip names alone never exempt a carrier.
+DECLARED_POSTURE_LAYERS = {
+    'srn_fa_h0': {'sha256': '19435776bf8557fa0df736f477df69c9fc3e58150d5c844862aafcf4812e7112',
+                  'evidence': 'docs/phenotype-human-female-source-adoption-checkpoint.md (Human female shared posture, '
+                              'user approval 2026-10-08, shipped in #42)'},
+}
 
 
 def stock_graph(manifest):
@@ -28,9 +34,11 @@ def stock_graph(manifest):
     return {n: None for n in names}
 
 
-def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None):
-    """manifest: contract path or parsed contract. overlay: {resource path: bytes} staged over root."""
+def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, posture_layers=None):
+    """manifest: contract path or parsed contract. overlay: {resource path: bytes} staged over root.
+    posture_layers: {name: {'sha256': ...}} declared posture layers (default DECLARED_POSTURE_LAYERS)."""
     root = Path(root).resolve(); overlay = overlay or {}
+    declared = DECLARED_POSTURE_LAYERS if posture_layers is None else posture_layers
     if not isinstance(manifest, dict):
         manifest = json.loads(Path(manifest).read_text(encoding='utf-8-sig'))
     def read(rel):
@@ -60,8 +68,10 @@ def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None):
             raise ValueError('Published model differs from the contract: ' + row['path'])
         models[name] = load_model(row['path'], blob); roles[name] = row['role']; rows[name] = row
     def posture(name):
+        """A declared layer (name and bytes) that still has the posture shape: idle clips over a_fa/a_ba."""
         m = models[name]
-        return roles[name] == 'rig-inheritance' and m['parent'] in ('a_fa', 'a_ba') and set(m['clips']) <= POSTURE_CLIPS
+        return (name in declared and rows[name]['sha256'] == declared[name]['sha256'] and roles[name] == 'rig-inheritance'
+                and m['parent'] in ('a_fa', 'a_ba') and bool(m['clips']) and set(m['clips']) <= POSTURE_CLIPS)
     chains, used_by = {}, {}
     for target in manifest['targets']:
         prefix = target['modelPrefix'].lower(); names = [prefix]

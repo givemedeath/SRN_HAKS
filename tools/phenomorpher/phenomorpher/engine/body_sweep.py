@@ -103,12 +103,19 @@ def aligned(source, candidate):
             keep_s.append(other); keep_c.append(m)
         else:
             dropped.append(m['part']+'/'+m['name'])
+    # Source meshes the candidate lacks are dropped too, and must be reported as well.
+    c_keys = {(m['part'], m['name']) for m in candidate}
+    dropped += [m['part']+'/'+m['name']+' (source only)' for m in source if (m['part'], m['name']) not in c_keys]
     return keep_s, keep_c, dropped
 
 
 def connectors(source, candidate, scales):
     s, c, dropped = aligned(source['meshes'], candidate['meshes'])
     minimum = terminal.audit_minimum(s, c, source['frames'], candidate['frames'], scales)
+    # A minimum measured without some of a part's meshes is partial for that link.
+    partial = {d.split('/')[0] for d in dropped}
+    for row in minimum['connectors']:
+        row['lineageComplete'] = not partial & set(row['parts'])
     # v16 checks lineage per link, so a donor topology difference drops only that link.
     area = surfaces.audit(source['meshes'], candidate['meshes'], source['frames'], candidate['frames'], scales)
     return {'droppedForLineage': dropped, 'minimum': minimum, 'surfaces': area}

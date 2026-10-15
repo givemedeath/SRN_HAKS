@@ -67,6 +67,39 @@ class RuntimeRuleTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Unsupported texture format'):
                 lib.texture_header(root/'srn_body/x.dds')
 
+    def test_only_declared_posture_layers_are_exempt(self):
+        def layer(clips):
+            text = 'newmodel srn_px_f\nsetsupermodel srn_px_f a_fa\nclassification CHARACTER\nsetanimationscale 1\n' \
+                   'beginmodelgeom srn_px_f\nnode dummy srn_px_f\n  parent NULL\nendnode\nendmodelgeom srn_px_f\n'
+            for clip in clips:
+                text += f'newanim {clip} srn_px_f\n  length 1\n  transtime 0.25\n  animroot srn_px_f\n' \
+                        f'  node dummy srn_px_f\n    parent NULL\n  endnode\ndoneanim {clip} srn_px_f\n'
+            return (text + 'donemodel srn_px_f\n').encode('ascii')
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); _, contract, overlay = staged(root)
+            def release(blob):
+                """Both roots name the layer instead of the shared library, which is dropped."""
+                c = json.loads(json.dumps(contract)); o = dict(overlay)
+                c['resources'] = [r for r in c['resources'] if r['role'] != 'animation-library']
+                c['resources'].append({'path': 'srn_body/srn_px_f.mdl', 'sha256': hashlib.sha256(blob).hexdigest(), 'role': 'rig-inheritance'})
+                o['srn_body/srn_px_f.mdl'] = blob
+                for path in ('srn_body/pfx0.mdl', 'srn_body/pfx2.mdl'):
+                    o[path] = lib.repoint(overlay[path], 'srn_px_f')
+                    next(r for r in c['resources'] if r['path'] == path)['sha256'] = hashlib.sha256(o[path]).hexdigest()
+                return c, o
+            posture = layer(['pause1', 'pause2'])
+            c, o = release(posture)
+            declared = {'srn_px_f': {'sha256': hashlib.sha256(posture).hexdigest()}}
+            report = check(root, c, overlay=o, posture_layers=declared)
+            self.assertTrue(report['passed'], report['violations']); self.assertEqual(report['postureLayers'], ['srn_px_f'])
+            # Undeclared, or declared with other bytes, it is a private carrier despite its idle clips.
+            self.assertEqual(check(root, c, overlay=o, posture_layers={})['violationCounts'], {'private-carrier': 2})
+            self.assertEqual(check(root, c, overlay=o, posture_layers={'srn_px_f': {'sha256': '0'*64}})['violationCounts'], {'private-carrier': 2})
+            # A declared name with no clips is not a posture layer either.
+            empty = layer([]); c, o = release(empty)
+            report = check(root, c, overlay=o, posture_layers={'srn_px_f': {'sha256': hashlib.sha256(empty).hexdigest()}})
+            self.assertEqual(report['violationCounts'], {'private-carrier': 2})
+
     def test_adoption_refuses_a_release_that_breaks_the_rules(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); plan = fixtures.AdoptionTests().release(root); plan['maxTexture'] = 2
