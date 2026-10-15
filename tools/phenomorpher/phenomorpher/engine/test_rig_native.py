@@ -57,6 +57,24 @@ class NativeControllerTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Nonfinite controller'):
                 compare(patched(float('nan')), ascii_path)
 
+    def test_static_hierarchy_and_bind_transforms_are_compared(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary, ascii_path = self.library(Path(tmp))
+            report = compare(binary, ascii_path)
+            self.assertEqual(report['staticRig']['differences'], []); self.assertGreater(report['staticRig']['nodes'], 1)
+            model = lib.NativeModel(binary.read_bytes()).decode(); text = ascii_path.read_text()
+            child = next(n for n, row in model['nodes'].items() if row['parent'] and row['parent'] != model['name'])
+            line = text.index('parent ', text.index(f'node dummy {child}\n')); end = text.index('\n', line)
+            def variant(name, replacement):
+                path = Path(tmp)/name; path.write_text(text[:line] + replacement + text[end:]); return compare(binary, path)
+            # A moved bind position fails although every clip is unchanged.
+            report = variant('moved.mdl', text[line:end] + '\n  position 0 0 0.01')
+            self.assertFalse(report['passed']); self.assertEqual(report['failures'], [])
+            self.assertEqual(report['staticRig']['differences'], [f'{child}: bind transform differs (0.01 m, 0 deg)'])
+            # So does a reparented node.
+            report = variant('reparented.mdl', 'parent ' + model['name'])
+            self.assertFalse(report['passed']); self.assertTrue(report['staticRig']['differences'][0].startswith(f'{child}: parent'))
+
 
 if __name__ == '__main__':
     unittest.main()

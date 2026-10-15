@@ -81,7 +81,7 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 | `downsample-textures` | Body manifest palettes, maps and materials | Fresh folder of 2:1-reduced textures above the size cap and a receipt |
 | `adopt-runtime` | Adoption plan pins: base contract, libraries, roots, comparisons, texture receipt, stock | Staged pack files, next contract, retired list, inventory index and removal list; refuses a staged release that breaks the runtime rules |
 | `verify-runtime` | Contract, its rigs/libraries/carriers and palettes/maps; optional stock pins | Runtime layout rules: no private carriers, stock-terminated chains, library parent and evidence, Fit/Large supermodel, textures at most 1024 px |
-| `audit-native` | One published binary model and its source (ASCII or binary) | Normalised controller comparison, quaternions up to sign |
+| `audit-native` | One published binary model and its source (ASCII or binary) | Normalised clip controller and static rig (hierarchy, node types, bind transforms) comparison, quaternions up to sign |
 | `sweep` | Contract, the targets' and donors' rigs, parts and head aliases; for motion also every rig and the stock pins | Per-body native, geometry, measurement and v16 connector (neck, penetration) report, optional motion connectors; an explicit `--clip` that a chain cannot resolve fails the run, and default clips that cannot are listed as unavailable |
 | `retarget-v2` | Fit (and optional Large) `conversion.json`, stock `baseline.json`, the Human rig of that gender and the stock `a_fa`/`a_ba` chain | Fit-fitted carrier chain, Fit and Large roots naming its top carrier, and `retarget-v2.json` |
 

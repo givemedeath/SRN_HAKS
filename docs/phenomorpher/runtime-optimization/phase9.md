@@ -13,7 +13,7 @@ any code was written.
 | Enforce | `verify-runtime` runs the runtime layout rules: no private carriers except declared posture layers (by name and pinned bytes; idle clips alone never exempt a carrier), at most one pack layer before stock, first installed link `a_fa` (female) or `a_ba` (male), installed chain reaches `a_ba`, library parent by gender plus `restorationSHA256`, shared Fit/Large supermodel, PLT/TGA at most 1024 px. A structural mode needs no game install; a deep mode also checks installed bytes. `adopt-runtime` refuses a staged release that breaks these rules. | `engine/runtime_rules.py` |
 | Generate | Motion is fitted once, from the Fit body, over `a_fa`/`a_ba`. The Large root names the same top carrier, so Fit and Large can share one library. `adopt-runtime` gains `baseKind: intermediate`, which drops never-published carriers without a retirement record, and `libraryAnchor`. The release recipe is in the [toolkit README](../../../tools/phenomorpher/README.md). | `engine/retarget_v2.py`, `engine/runtime_release.py` |
 | Motion baselines | New consumers resolve the published chain the way the client does. The v13/v14a loaders and `shared_female_native_contract` stay pinned to their historical sources. | `engine/motion_baseline_v2.py` |
-| Rig audits | `audit-native` compares a published binary with its source, with quaternions up to sign and float32 tolerances. The ASCII-only `rig_controller_audit`/`rig_pose_audit` stay for retarget sources. | `engine/rig_native.py` |
+| Rig audits | `audit-native` compares a published binary with its source: clips and the static rig (hierarchy, node types, bind transforms), with quaternions up to sign and float32 tolerances. The ASCII-only `rig_controller_audit`/`rig_pose_audit` stay for retarget sources. | `engine/rig_native.py` |
 | F5 necks | Chest–neck and neck–head links. Neck–head uses the `head001` routing alias, is diagnostic only, and is unavailable for Human Fit, which uses installed heads. | `engine/check_connector_surfaces_v16.py` |
 | F6 penetration | Penetration now needs only a closed, consistently oriented surface (directed edge uses cancel), so non-manifold seams qualify. Submesh seam gaps up to 0.1 mm count as joined for that test, and are reported. | `engine/check_connector_surfaces_v16.py` |
 | Sweep | The Phase 6 script is promoted to the `sweep` command, uses v16, and adds the head alias when the pack has one. | `engine/body_sweep.py` |
@@ -36,9 +36,9 @@ review.md stays historical.
 | `verify-runtime` 1.1.0, structural | passes; 375 textures |
 | `verify-runtime` 1.1.0, deep (installed stock) | passes |
 | `verify-runtime` 1.0.0 (export of `0866bcaf`) | fails as expected. Private carriers: 18 roots. Chain depth: 18. Stock closure: 18. Fit/Large divergence: 10. Textures above 1024 px: 81. |
-| `audit-native`, 8 libraries against their pinned ASCII sources | all pass; worst 3×10⁻⁶° and 5×10⁻⁸ m; no zero-length or non-finite quaternions in any published or source library |
+| `audit-native`, 8 libraries against their pinned ASCII sources | all pass, clips and static rig (60 nodes each: hierarchy, node types, bind transforms within 5×10⁻⁹ m and 2×10⁻⁶°); worst clip key 3×10⁻⁶° and 5×10⁻⁸ m; no zero-length or non-finite quaternions in any published or source library |
 | `anim-library extract-stock` | the key files and 33 model BIFs are frozen as inputs; the 6 stock models match the Phase 1 baseline byte for byte |
-| Package suite | 143 tests pass |
+| Package suite | 144 tests pass |
 | Root tools (`test_test_impact`, `test_ci_scope`, `test_ci_result`) | 48 tests pass; catalog regenerated |
 
 ### Sweep rerun on 1.1.0
