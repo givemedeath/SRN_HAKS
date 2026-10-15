@@ -183,3 +183,11 @@ separate output path. `tools/Resolve-MdrneeTextureResolution.ps1` applies the do
 higher-resolution selection rule to cross-HAK MDRNEE texture variants after import.
 `tools/Resolve-MdrneeEquivalentTextures.ps1` then applies the reviewed equal-resolution
 exception registry.
+
+## Current game-ready phenotypes
+
+The [PhenoMorpher body release](docs/phenomorpher/README.md) publishes all twenty
+reviewed Fit/Large bodies in `srn_body`, with routing in `srn_2da`. Use its target
+contract for downstream body, head and clothing tasks.
+
+Build srn_body_tex alongside srn_body and srn_2da, and use custom TLK srn for the release race names.

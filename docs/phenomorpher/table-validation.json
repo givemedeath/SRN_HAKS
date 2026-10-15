@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "sourceTables": [
+    {
+      "resource": "phenotype.2da",
+      "key": "nwn_base.key",
+      "bif": "base_2da.bif",
+      "sha256": "0403b3862e95c3bcf8418526d82192b83b27601a8b207b76379db1c016329ab5"
+    },
+    {
+      "resource": "appearance.2da",
+      "key": "nwn_base.key",
+      "bif": "base_2da.bif",
+      "sha256": "815c0b3bce0895e9f17d4b92cb02a6d34366267b5a4b9081dece0f4eee7d7a1a"
+    },
+    {
+      "resource": "racialtypes.2da",
+      "key": "nwn_retail.key",
+      "bif": "ovr.bif",
+      "sha256": "450dc70dbd971195638e308a97a420e1aa301454021fabee2b88b2f230f26e76"
+    }
+  ],
+  "changes": [
+    {
+      "race": 0,
+      "field": "Appearance",
+      "before": "0",
+      "after": "15101"
+    },
+    {
+      "race": 1,
+      "field": "Appearance",
+      "before": "1",
+      "after": "15102"
+    },
+    {
+      "race": 2,
+      "field": "Label",
+      "before": "Gnome",
+      "after": "Troll"
+    },
+    {
+      "race": 2,
+      "field": "Abrev",
+      "before": "Gn",
+      "after": "Tr"
+    },
+    {
+      "race": 2,
+      "field": "Name",
+      "before": "26",
+      "after": "16777352"
+    },
+    {
+      "race": 2,
+      "field": "ConverName",
+      "before": "26",
+      "after": "16777352"
+    },
+    {
+      "race": 2,
+      "field": "ConverNameLower",
+      "before": "4919",
+      "after": "16777353"
+    },
+    {
+      "race": 2,
+      "field": "NamePlural",
+      "before": "27",
+      "after": "16777354"
+    },
+    {
+      "race": 2,
+      "field": "Description",
+      "before": "253",
+      "after": "16777355"
+    },
+    {
+      "race": 2,
+      "field": "Appearance",
+      "before": "2",
+      "after": "15104"
+    },
+    {
+      "race": 3,
+      "field": "PlayerRace",
+      "before": "1",
+      "after": "0"
+    },
+    {
+      "race": 4,
+      "field": "PlayerRace",
+      "before": "1",
+      "after": "0"
+    },
+    {
+      "race": 5,
+      "field": "Label",
+      "before": "HalfOrc",
+      "after": "Orc"
+    },
+    {
+      "race": 5,
+      "field": "Abrev",
+      "before": "Ho",
+      "after": "Or"
+    },
+    {
+      "race": 5,
+      "field": "Name",
+      "before": "32",
+      "after": "16777356"
+    },
+    {
+      "race": 5,
+      "field": "ConverName",
+      "before": "32",
+      "after": "16777356"
+    },
+    {
+      "race": 5,
+      "field": "ConverNameLower",
+      "before": "4922",
+      "after": "16777357"
+    },
+    {
+      "race": 5,
+      "field": "NamePlural",
+      "before": "33",
+      "after": "16777358"
+    },
+    {
+      "race": 5,
+      "field": "Description",
+      "before": "256",
+      "after": "16777359"
+    },
+    {
+      "race": 5,
+      "field": "Appearance",
+      "before": "5",
+      "after": "15103"
+    },
+    {
+      "race": 6,
+      "field": "Appearance",
+      "before": "6",
+      "after": "15100"
+    }
+  ],
+  "allOtherCellsExact": true,
+  "gameplayFieldsUnchanged": true,
+  "retainedRaceRows": true,
+  "halfElfAndHalflingSelectable": false,
+  "phenotype1": "Stock hidden Skinny row; unset name; Normal fallback; no new body set.",
+  "customTLKReferences": {
+    "phenomorpher.race.troll.name": "16777352",
+    "phenomorpher.race.troll.lower": "16777353",
+    "phenomorpher.race.troll.plural": "16777354",
+    "phenomorpher.race.troll.description": "16777355",
+    "phenomorpher.race.orc.name": "16777356",
+    "phenomorpher.race.orc.lower": "16777357",
+    "phenomorpher.race.orc.plural": "16777358",
+    "phenomorpher.race.orc.description": "16777359"
+  },
+  "phenotypeCellsExact": true,
+  "phenotypeTextExactAfterLFNormalization": true
+}

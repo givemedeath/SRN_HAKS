@@ -1,6 +1,12 @@
 """Enumerate consumed data inputs without runtime paths or generated directory scans."""
 import json
 from pathlib import Path
+import struct
+
+
+MODEL_TYPE = 2002
+RIG_ROLES = ('fitted-rig', 'rig-inheritance', 'animation-library')
+ANIMATION_ROLES = RIG_ROLES + ('selected-palette', 'selected-map', 'selected-material')
 
 
 def read(path):
@@ -13,6 +19,29 @@ def rooted(root, name):
     if not result.is_relative_to(root):
         raise ValueError('Consumed input escaped explicit root: ' + str(name))
     return result
+
+
+def installed_models(game_root):
+    """Installed key files and every BIF they route a model to: what resman_cat --no-ovr reads models from."""
+    game_root = Path(game_root).resolve(); files = set()
+    for key in sorted((game_root/'data').glob('*.key')):
+        data = key.read_bytes(); files.add(key)
+        if data[:8] != b'KEY V1  ':
+            raise ValueError('Unsupported key file: ' + key.name)
+        bifs, keys, bif_table, key_table = struct.unpack_from('<IIII', data, 8)
+        holding = set()
+        for entry in range(key_table, key_table + 22*keys, 22):
+            kind, resource = struct.unpack_from('<HI', data, entry + 16)
+            if kind == MODEL_TYPE:
+                holding.add(resource >> 20)
+        for index in sorted(holding):
+            if index >= bifs:
+                raise ValueError('Key routes a model to a missing BIF entry: ' + key.name)
+            _, offset, size, _ = struct.unpack_from('<IIHH', data, bif_table + 12*index)
+            files.add(rooted(game_root, data[offset:offset+size].rstrip(b'\0').decode('ascii').replace('\\', '/')))
+    if not files:
+        raise ValueError('No installed key files under --game-root')
+    return files
 
 
 def consumed(arguments):
@@ -47,12 +76,52 @@ def consumed(arguments):
             recipe = rooted(root, row['recipe']['path']); files.add(recipe)
             data = read(recipe)
             files.update(rooted(root, data[name]['path']) for name in ('highDetail','metadata','correspondence','reducedGeometry'))
+    elif command == 'downsample-textures':
+        manifest = option('manifest'); root = option('root'); files.add(manifest)
+        files.update(rooted(root, x['path']) for x in read(manifest)['resources']
+                     if x['role'] in ('selected-palette', 'selected-map', 'selected-material'))
+    elif command == 'adopt-runtime':
+        plan = option('plan'); root = option('root'); data = read(plan); files.add(plan)
+        pins = [data['baseContract'], data['retiredResources'], data['stock'], data['textures']]
+        pins += data['libraries'] + [row['restoration'] for row in data['libraries']]
+        pins += data['roots'] + [row['comparison'] for row in data['roots']]
+        files.update(rooted(root, pin['path']) for pin in pins)
+        contract = rooted(root, data['baseContract']['path']); stock = rooted(root, data['stock']['path'])
+        files.update(rooted(root, row['path']) for row in read(contract)['resources'])
+        files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
+        receipt = rooted(root, data['textures']['path'])
+        files.update(rooted(receipt.parent, row['path']) for row in read(receipt)['resources'])
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)
         for name in ('sourceBody','targetBody'):
             body = rooted(root, data[name]['path']); files.add(body)
             files.update(rooted(root, row['path']) for row in read(body)['files'].values())
+    elif command in ('anim-library', 'compare-motion'):
+        action = command if command == 'compare-motion' else arguments[1] if len(arguments) > 1 else ''
+        def release(roles):
+            manifest = option('manifest'); stock = option('stock'); root = option('root')
+            files.update([manifest, stock])
+            files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
+            files.update(rooted(root, x['path']) for x in read(manifest)['resources'] if x['role'] in roles)
+        if action == 'extract-stock':
+            files.add(option('resman-cat')); files.update(installed_models(option('game-root')))
+        elif action == 'inventory':
+            release(ANIMATION_ROLES)
+        elif action == 'build':
+            release(RIG_ROLES)
+        elif action == 'compare-motion':
+            release(RIG_ROLES); files.add(option('repointed'))
+            if '--library' in arguments:
+                files.add(option('library'))
+        elif action == 'restore':
+            plan = option('plan'); root = option('root'); data = read(plan)
+            files.update([plan, option('compiled'), rooted(plan.parent, data['ascii']['path'])])
+            files.update(rooted(root, row['path']) for row in data['sources'].values())
+        elif action == 'repoint':
+            files.add(option('input'))
+        else:
+            raise ValueError('Unknown anim-library action: '+action)
     else:
         raise ValueError('Unknown command: '+command)
     return {p.resolve() for p in files}

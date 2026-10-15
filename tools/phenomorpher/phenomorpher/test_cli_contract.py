@@ -88,6 +88,63 @@ class PortableCliTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'escaped explicit root'):
                 runner.consumed(['replay','--release',str(release)])
 
+    def test_runtime_commands_run_only_through_the_managed_runner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);plan=root/'plan.json';plan.write_text('{}');blob=root/'r.mdl';blob.write_bytes(b'x')
+            calls=[['anim-library','repoint','--input',str(blob),'--parent','a_ba','--output',str(root/'o.mdl')],
+                   ['downsample-textures','--root',str(root),'--manifest',str(plan),'--output',str(root/'t')]]
+            with patch.dict('os.environ',{'SRN_VERIFIED_INPUTS':''}),patch.object(cli,'_PINS',None):
+                for argv in calls:
+                    with self.assertRaisesRegex(ValueError,'run.py'):cli.main(argv)
+            self.assertFalse((root/'o.mdl').exists() or (root/'t').exists())
+
+    def test_runner_rejects_root_escape_in_adoption_plans(self):
+        from . import inputs as runner
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);pin={'path':'../outside.json','sha256':'0'*64}
+            (root/'plan.json').write_text(json.dumps({'baseContract':pin,'retiredResources':pin,'stock':pin,'textures':pin,'libraries':[],'roots':[]}))
+            with self.assertRaisesRegex(ValueError,'escaped explicit root'):
+                runner.consumed(['adopt-runtime','--root',str(root),'--plan',str(root/'plan.json'),'--output',str(root/'x')])
+
+    def test_runner_rejects_nested_stock_and_receipt_paths_outside_their_folders(self):
+        from . import inputs as runner
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);pin=lambda p:{'path':p,'sha256':'0'*64}
+            (root/'contract.json').write_text(json.dumps({'resources':[]}))
+            (root/'stock').mkdir();(root/'tex').mkdir()
+            for stock_row,receipt_row,label in (({'a_ba':{'path':'../../outside.mdl'}},[],'stock'),
+                                                ({},[{'path':'../../outside.plt'}],'receipt')):
+                (root/'stock/stock.json').write_text(json.dumps({'models':stock_row}))
+                (root/'tex/receipt.json').write_text(json.dumps({'resources':receipt_row}))
+                (root/'plan.json').write_text(json.dumps({'baseContract':pin('contract.json'),'retiredResources':pin('contract.json'),
+                    'stock':pin('stock/stock.json'),'textures':pin('tex/receipt.json'),'libraries':[],'roots':[]}))
+                with self.subTest(label),self.assertRaisesRegex(ValueError,'escaped explicit root'):
+                    runner.consumed(['adopt-runtime','--root',str(root),'--plan',str(root/'plan.json'),'--output',str(root/'x')])
+            (root/'stock/stock.json').write_text(json.dumps({'models':{'a_ba':{'path':'../../outside.mdl'}}}))
+            with self.assertRaisesRegex(ValueError,'escaped explicit root'):
+                runner.consumed(['anim-library','inventory','--root',str(root),'--manifest',str(root/'contract.json'),
+                                 '--stock',str(root/'stock/stock.json'),'--output',str(root/'y')])
+
+    def test_runner_freezes_the_installed_keys_and_model_bifs_for_stock_extraction(self):
+        from . import inputs as runner
+        def key(bifs,entries):
+            names=b''.join(n.encode()+b'\0' for n in bifs);table=24+40;strings=table+12*len(bifs);keys=strings+len(names)
+            head=b'KEY V1  '+struct.pack('<IIII',len(bifs),len(entries),table,keys)+bytes(40)
+            offset=strings;rows=b''
+            for n in bifs:
+                rows+=struct.pack('<IIHH',0,offset,len(n)+1,0);offset+=len(n)+1
+            return head+rows+names+b''.join(struct.pack('<16sHI',r.encode(),t,i<<20) for r,t,i in entries)
+        with tempfile.TemporaryDirectory() as tmp:
+            game=Path(tmp)/'game';(game/'data').mkdir(parents=True);tool=Path(tmp)/'resman_cat.exe';tool.write_bytes(b'x')
+            for name in ('models.bif','sounds.bif'):
+                (game/'data'/name).write_bytes(b'BIFFV1  ')
+            (game/'data/base.key').write_bytes(key(['data\\models.bif','data\\sounds.bif'],[('a_ba',2002,0),('step',4,1)]))
+            argv=['anim-library','extract-stock','--resman-cat',str(tool),'--game-root',str(game),'--seed','a_ba','--output',str(Path(tmp)/'o')]
+            self.assertEqual(runner.consumed(argv),{p.resolve() for p in (tool,game/'data/base.key',game/'data/models.bif')})
+            (game/'data/base.key').write_bytes(key(['..\\outside.bif'],[('a_ba',2002,0)]))
+            with self.assertRaisesRegex(ValueError,'escaped explicit root'):
+                runner.consumed(argv)
+
     def test_runner_declares_source_attribute_files_in_addition_to_motion(self):
         from . import inputs as runner
         with tempfile.TemporaryDirectory() as tmp:

@@ -76,6 +76,36 @@ def main(argv=None):
     for name in ('release', 'profile', 'source-binding', 'input', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--class', dest='garment_class', choices=['modular-close','modular-loose','rigid-island'], required=True)
+    p = sub.add_parser('anim-library'); actions = p.add_subparsers(dest='action', required=True)
+    s = actions.add_parser('extract-stock'); s.add_argument('--resman-cat', type=Path, required=True)
+    s.add_argument('--game-root', type=Path, required=True); s.add_argument('--seed', action='append', required=True)
+    s.add_argument('--output', type=Path, required=True)
+    s = actions.add_parser('inventory')
+    for name in ('root', 'manifest', 'stock', 'output'):
+        s.add_argument('--' + name, type=Path, required=True)
+    s = actions.add_parser('build')
+    for name in ('root', 'manifest', 'stock', 'output'):
+        s.add_argument('--' + name, type=Path, required=True)
+    for name in ('fit', 'large', 'name'):
+        s.add_argument('--' + name, required=True)
+    s.add_argument('--authorized-fit-clip', action='append', default=[])
+    s = actions.add_parser('restore')
+    for name in ('root', 'plan', 'compiled', 'output'):
+        s.add_argument('--' + name, type=Path, required=True)
+    s = actions.add_parser('repoint'); s.add_argument('--input', type=Path, required=True)
+    s.add_argument('--parent', required=True); s.add_argument('--output', type=Path, required=True)
+    p = sub.add_parser('compare-motion')
+    for name in ('root', 'manifest', 'stock', 'repointed', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--library', type=Path, help='Library the root names; omit when it names a stock model')
+    p.add_argument('--target', required=True); p.add_argument('--authorized-fit-clip', action='append', default=[])
+    p = sub.add_parser('downsample-textures')
+    for name in ('root', 'manifest', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--max-size', type=int, default=1024)
+    p = sub.add_parser('adopt-runtime')
+    for name in ('root', 'plan', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
     a = parser.parse_args(argv)
     if a.command == 'doctor':
         declared(__file__)
@@ -146,6 +176,48 @@ def main(argv=None):
                 declared(api.bound(a.release,data[name],snapshot()))
         from .engine.replay_bodies import run
         print(json.dumps(run(a.release, a.output))); return
+    if a.command in ('anim-library', 'compare-motion'):
+        from .engine import anim_library
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        action = a.command if a.command == 'compare-motion' else a.action
+        if action == 'extract-stock':
+            result = anim_library.extract_stock(a.resman_cat, a.game_root, a.seed, a.output)
+            print(json.dumps({'models': len(result['models']), 'seeds': result['seeds']})); return
+        if action == 'build':
+            result = anim_library.build(a.root, a.manifest, a.stock, a.fit, a.large, a.name, a.output, a.authorized_fit_clip)
+            print(json.dumps({k: result[k] for k in ('library', 'retained', 'inherited', 'fitLargeDifferences')})); return
+        if action == 'restore':
+            result = anim_library.restore(a.root, a.plan, a.compiled, a.output)
+            print(json.dumps({k: v for k, v in result.items() if k != 'eventOrderRestored'})); return
+        if a.output.exists(): raise ValueError('Fresh output required')
+        a.output.parent.mkdir(parents=True, exist_ok=True)
+        if action == 'repoint':
+            data = anim_library.repoint(a.input.read_bytes(), a.parent); a.output.write_bytes(data)
+            print(json.dumps({'output': str(a.output), 'sha256': anim_library.digest(data)})); return
+        if action == 'compare-motion':
+            from .engine.motion_compare import compare
+            result = compare(a.root, a.manifest, a.stock, a.target, a.library, a.repointed, a.authorized_fit_clip)
+            summary = {k: result[k] for k in ('target', 'newChain', 'counts', 'failures', 'passed')}
+        else:
+            result = anim_library.inventory(a.root, a.manifest, a.stock); summary = result['summary']
+        a.output.write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8', newline='\n')
+        print(json.dumps(summary))
+        if not result.get('passed', True): raise SystemExit(1)
+        return
+    if a.command == 'downsample-textures':
+        from .engine.texture_downsample import downsample
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        print(json.dumps(downsample(a.root, a.manifest, a.output, a.max_size)['summary'])); return
+    if a.command == 'adopt-runtime':
+        from .engine.runtime_release import adopt
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        print(json.dumps(adopt(a.root, a.plan, a.output)['summary'])); return
     if a.command == 'convert-clothing':
         for path in (a.profile,a.source_binding,a.input):declared(path)
         data=read(a.profile)

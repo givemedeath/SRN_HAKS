@@ -72,6 +72,14 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 | `candidate` | Typed geometry/frame/native-motion bundle and soft guides | Frozen first pass, morph proposal, connector report and neutral clay GLB |
 | `replay` | Portable frozen reduction recipes and their source arrays | Independent exact reduced geometry replay |
 | `convert-clothing` | Profile, source binding, ASCII garment and frozen body references | Fresh converted model and preservation receipt |
+| `anim-library extract-stock` | Pinned `resman_cat`, installed game (`--no-ovr`; its key files and every model BIF are frozen as inputs) and seed models | Fresh stock-chain folder with `stock-models.json` hash pins |
+| `anim-library inventory` | Body manifest, its rigs/carriers/textures/materials and the stock pins | Root chains, nearest clip owners, stock deltas, texture headers and usage |
+| `anim-library build` | Body manifest rigs/carriers, stock pins, Fit/Large roots | Library ASCII, clip classification and restoration plan |
+| `anim-library restore` | Plan, its ASCII and source carriers, EE-compiled library | Library with exact source controller and event bytes |
+| `anim-library repoint` | One native root | Root with only its supermodel field changed |
+| `compare-motion` | Body manifest rigs/carriers, stock pins, library and repointed root | Per-clip exact/inherited/authorized status and assembled drift |
+| `downsample-textures` | Body manifest palettes, maps and materials | Fresh folder of 2:1-reduced textures above the size cap and a receipt |
+| `adopt-runtime` | Adoption plan pins: base contract, libraries, roots, comparisons, texture receipt, stock | Staged pack files, next contract, retired list, inventory index and removal list |
 
 An assembly sidecar is schemaVersion 1, kind `PhenoMorpher-assembly`, with `rig`
 and `parts` hash pins. Paths resolve inside the explicit `--root`. Part keys use

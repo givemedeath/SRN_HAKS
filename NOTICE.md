@@ -35,3 +35,10 @@ Shemsu-Heru, Aenea, The Barbarian, Zwerkule, and Den of Assassins. The companion
 `d20modernupdate.erf` is used only to identify 669 item-blueprint consumers; its unrelated module
 resources are not imported. Detailed hashes, friendly categories, and unresolved licensing and
 dependency findings are recorded in `docs/imports/mdrnee_item-analysis.md`.
+
+## PhenoMorpher body compatibility derivatives
+
+Private fitted controller closures and stock head routing aliases retain NWN
+platform authorship. They require a licensed NWN:EE installation; the original
+content license does not relicense stock geometry or animations. See the
+PhenoMorpher entry in PROVENANCE.md and its per-resource source inventory.

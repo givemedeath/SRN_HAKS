@@ -1,0 +1,307 @@
+{
+ "kind": "runtime-optimization-phase7-client-sheets",
+ "pairs": {
+  "stopgate-elf": [
+   {
+    "view": "sword idle",
+    "v100": "mcp-computer-use-blob-1792029135581-z6nace.jpg",
+    "v110": "mcp-computer-use-blob-1792029513244-cgon5p.jpg"
+   },
+   {
+    "view": "sword walk (walk_swordr)",
+    "v100": "mcp-computer-use-blob-1792029135582-hx5379.jpg",
+    "v110": "mcp-computer-use-blob-1792029513245-7zxf55.jpg"
+   },
+   {
+    "view": "sword run (run_swordr)",
+    "v100": "mcp-computer-use-blob-1792029135582-wtgtxh.jpg",
+    "v110": "mcp-computer-use-blob-1792029513245-1dl4kl.jpg"
+   },
+   {
+    "view": "dual walk (walk_swordl)",
+    "v100": "mcp-computer-use-blob-1792029194509-afpeay.jpg",
+    "v110": "mcp-computer-use-blob-1792029564352-ovw2k6.jpg"
+   },
+   {
+    "view": "dual run (run_swordl)",
+    "v100": "mcp-computer-use-blob-1792029194509-nkvmcy.jpg",
+    "v110": "mcp-computer-use-blob-1792029564352-ahestj.jpg"
+   },
+   {
+    "view": "talk (tlknorm)",
+    "v100": "mcp-computer-use-blob-1792029194509-zl6bjp.jpg",
+    "v110": "mcp-computer-use-blob-1792029564352-oa58xe.jpg"
+   },
+   {
+    "view": "torch (torchl)",
+    "v100": "mcp-computer-use-blob-1792029194510-vgnlyy.jpg",
+    "v110": "mcp-computer-use-blob-1792029564352-3345we.jpg"
+   },
+   {
+    "view": "torch walk",
+    "v100": "mcp-computer-use-blob-1792029194510-vzhy60.jpg",
+    "v110": "mcp-computer-use-blob-1792029564352-pq1q9r.jpg"
+   }
+  ],
+  "stopgate-orc": [
+   {
+    "view": "sword idle",
+    "v100": "mcp-computer-use-blob-1792029248962-2b3gzl.jpg",
+    "v110": "mcp-computer-use-blob-1792029681813-45t64q.jpg"
+   },
+   {
+    "view": "sword walk (walk_swordr)",
+    "v100": "mcp-computer-use-blob-1792029248962-qc5adi.jpg",
+    "v110": "mcp-computer-use-blob-1792029681813-m6nnti.jpg"
+   },
+   {
+    "view": "dual run (run_swordl)",
+    "v100": "mcp-computer-use-blob-1792029248962-swl0kd.jpg",
+    "v110": "mcp-computer-use-blob-1792029681813-9a2nwc.jpg"
+   },
+   {
+    "view": "talk (tlknorm)",
+    "v100": "mcp-computer-use-blob-1792029248962-exbw8y.jpg",
+    "v110": "mcp-computer-use-blob-1792029681813-mu0gac.jpg"
+   },
+   {
+    "view": "greeting",
+    "v100": "mcp-computer-use-blob-1792029248963-stjtga.jpg",
+    "v110": "mcp-computer-use-blob-1792029681813-91c8cr.jpg"
+   },
+   {
+    "view": "torch (torchl)",
+    "v100": "mcp-computer-use-blob-1792029248963-szdtuy.jpg",
+    "v110": "mcp-computer-use-blob-1792029681813-h74n3m.jpg"
+   }
+  ],
+  "stopgate-troll": [
+   {
+    "view": "sword idle",
+    "v100": "mcp-computer-use-blob-1792029303935-6y5eg8.jpg",
+    "v110": "mcp-computer-use-blob-1792029752689-1dctxx.jpg"
+   },
+   {
+    "view": "sword walk (walk_swordr)",
+    "v100": "mcp-computer-use-blob-1792029303935-dhhyix.jpg",
+    "v110": "mcp-computer-use-blob-1792029752690-fjjvul.jpg"
+   },
+   {
+    "view": "dual run (run_swordl)",
+    "v100": "mcp-computer-use-blob-1792029303935-6nonbw.jpg",
+    "v110": "mcp-computer-use-blob-1792029752690-eldzkq.jpg"
+   },
+   {
+    "view": "greeting",
+    "v100": "mcp-computer-use-blob-1792029303935-ddqaxe.jpg",
+    "v110": "mcp-computer-use-blob-1792029752690-61aabl.jpg"
+   },
+   {
+    "view": "torch (torchl)",
+    "v100": "mcp-computer-use-blob-1792029303935-4zl9p0.jpg",
+    "v110": "mcp-computer-use-blob-1792029752690-rg594n.jpg"
+   }
+  ],
+  "stopgate-dwarf": [
+   {
+    "view": "torch (torchl)",
+    "v100": "mcp-computer-use-blob-1792029347615-0h1xxh.jpg",
+    "v110": "mcp-computer-use-blob-1792029752690-2wng7g.jpg"
+   },
+   {
+    "view": "torch walk",
+    "v100": "mcp-computer-use-blob-1792029347615-m3le7a.jpg",
+    "v110": "mcp-computer-use-blob-1792029752690-pap212.jpg"
+   },
+   {
+    "view": "crossbow idle (xbowr)",
+    "v100": "mcp-computer-use-blob-1792029347615-ljzl9c.jpg",
+    "v110": "mcp-computer-use-blob-1792029752690-v4eeb7.jpg"
+   },
+   {
+    "view": "bow run (run_bowl)",
+    "v100": "mcp-computer-use-blob-1792029347615-t1lh8v.jpg",
+    "v110": "mcp-computer-use-blob-1792029752690-3rt9o6.jpg"
+   }
+  ],
+  "textures": [
+   {
+    "view": "Human F Fit white",
+    "v100": "mcp-computer-use-blob-1792029408383-votn1f.jpg",
+    "v110": "mcp-computer-use-blob-1792029817364-n8vp1r.jpg"
+   },
+   {
+    "view": "Human M Fit white",
+    "v100": "mcp-computer-use-blob-1792029408383-yrp9a4.jpg",
+    "v110": "mcp-computer-use-blob-1792029782655-diqk7l.jpg"
+   },
+   {
+    "view": "Human M Fit legs",
+    "v100": "mcp-computer-use-blob-1792029408383-j8guhi.jpg",
+    "v110": "mcp-computer-use-blob-1792029782655-pn2xrv.jpg"
+   },
+   {
+    "view": "Human M Fit rear",
+    "v100": "mcp-computer-use-blob-1792029408383-9mo79p.jpg",
+    "v110": "mcp-computer-use-blob-1792029782655-r3lytm.jpg"
+   },
+   {
+    "view": "Human F Fit warm",
+    "v100": "mcp-computer-use-blob-1792029438076-5d7m7p.jpg",
+    "v110": "mcp-computer-use-blob-1792029817364-q7iuz7.jpg"
+   },
+   {
+    "view": "Human M Fit outdoor",
+    "v100": "mcp-computer-use-blob-1792029438076-ag9391.jpg",
+    "v110": "mcp-computer-use-blob-1792029817365-8qi9ww.jpg"
+   },
+   {
+    "view": "Troll M Fit white",
+    "v100": "mcp-computer-use-blob-1792029438076-6w04xr.jpg",
+    "v110": "mcp-computer-use-blob-1792029817365-wr23eh.jpg"
+   },
+   {
+    "view": "Dwarf M Fit ankles",
+    "v100": "mcp-computer-use-blob-1792029438076-aqh1d0.jpg",
+    "v110": "mcp-computer-use-blob-1792029817365-nif47c.jpg"
+   }
+  ],
+  "stock-clothing": [
+   {
+    "view": "Elf row, stock nw_cloth001",
+    "v100": "mcp-computer-use-blob-1792030260899-nc2u4w.jpg",
+    "v110": "mcp-computer-use-blob-1792030195968-exydbz.jpg"
+   }
+  ]
+ },
+ "singles": {
+  "v110-coverage": [
+   {
+    "view": "greeting at 0.3 s",
+    "v110": "mcp-computer-use-blob-1792029597681-wi5ceq.jpg"
+   },
+   {
+    "view": "Orc low walk",
+    "v110": "mcp-computer-use-blob-1792029864621-cnvtrb.jpg"
+   },
+   {
+    "view": "Orc low run",
+    "v110": "mcp-computer-use-blob-1792029864621-556qo1.jpg"
+   },
+   {
+    "view": "Orc unarmed combat",
+    "v110": "mcp-computer-use-blob-1792029882447-jxoxhz.jpg"
+   },
+   {
+    "view": "Troll cast",
+    "v110": "mcp-computer-use-blob-1792029941921-5jgb59.jpg"
+   },
+   {
+    "view": "Troll knockdown",
+    "v110": "mcp-computer-use-blob-1792029941921-lvybix.jpg"
+   },
+   {
+    "view": "Troll death",
+    "v110": "mcp-computer-use-blob-1792029941922-fxcx0i.jpg"
+   },
+   {
+    "view": "Elf clothing walk",
+    "v110": "mcp-computer-use-blob-1792030128140-i6pbbn.jpg"
+   },
+   {
+    "view": "Elf plate",
+    "v110": "mcp-computer-use-blob-1792030128140-f2cv76.jpg"
+   },
+   {
+    "view": "Elf robe and cloak",
+    "v110": "mcp-computer-use-blob-1792030128140-k2o10z.jpg"
+   },
+   {
+    "view": "Elf death in robes",
+    "v110": "mcp-computer-use-blob-1792030180218-pjjrdl.jpg"
+   },
+   {
+    "view": "Elf resurrected",
+    "v110": "mcp-computer-use-blob-1792030180219-wvbs7k.jpg"
+   }
+  ]
+ },
+ "sources": {
+  "mcp-computer-use-blob-1792029135581-z6nace.jpg": "a7726e00b69ebbeac9c564d2714bd828e26f3731f2ad93dac29104a80b9fd29f",
+  "mcp-computer-use-blob-1792029513244-cgon5p.jpg": "287dad2b8d85ff97944710ca50f10918d182c5c54d5cfe894d787acebb44c0aa",
+  "mcp-computer-use-blob-1792029135582-hx5379.jpg": "ff887a0a6d20f1e43e7382e4d0323b749c36d2d5f90248dab1121f414fbe55d3",
+  "mcp-computer-use-blob-1792029513245-7zxf55.jpg": "44d6b5c555bb6a88280a7df8e907f50f05cd83b452c0da1abf884658bbbd9556",
+  "mcp-computer-use-blob-1792029135582-wtgtxh.jpg": "dd3308a2203fd375e52bd8b90b1535c0e9478d8e3c6ee5470263b3dc54c3c406",
+  "mcp-computer-use-blob-1792029513245-1dl4kl.jpg": "fc41b5146eda64401477e383d3d1df23e1fb16045771e3556f699dee309532cd",
+  "mcp-computer-use-blob-1792029194509-afpeay.jpg": "ff9e2e408d379c813e4904e5a92536e5e565f04835f0d9956bdbf063ca2025dc",
+  "mcp-computer-use-blob-1792029564352-ovw2k6.jpg": "cf300e14429d0db08f7749657f8fccbe07edc3bad909afbaf5a29dc5011700c5",
+  "mcp-computer-use-blob-1792029194509-nkvmcy.jpg": "19816743a04ad09f32af130470f4c14cf4f0cfb6bb24fd4d69daeb0eef619f32",
+  "mcp-computer-use-blob-1792029564352-ahestj.jpg": "78e563e39dbefc4c11aac3ab1718c29162a87802f6e8ae8e7a77831d0f43d07a",
+  "mcp-computer-use-blob-1792029194509-zl6bjp.jpg": "86df739111854dd3f83432367f3c56a20eaa155f8c9b02d6e4e47b9c525be036",
+  "mcp-computer-use-blob-1792029564352-oa58xe.jpg": "6b5f2f1a56564aa4ac040b1284b6c836e60f0cda145d645938f6314be0def1a4",
+  "mcp-computer-use-blob-1792029194510-vgnlyy.jpg": "d899483458bfe8401fae7c09c55511e9b4a94e3023b527c8aea0c4ed61190fa4",
+  "mcp-computer-use-blob-1792029564352-3345we.jpg": "f8f9f959756b49684f89eb5ea9dd959d567fb35bd03803a2985ebfc6ac237419",
+  "mcp-computer-use-blob-1792029194510-vzhy60.jpg": "826327c6d289c79868aade047fdb9e2d285c81336795fa299e99891276d5f11b",
+  "mcp-computer-use-blob-1792029564352-pq1q9r.jpg": "4316dc65b91c223d728532756865630170d0c168512c638e078b7914e9392b3e",
+  "mcp-computer-use-blob-1792029248962-2b3gzl.jpg": "487307e3819dad488da52b38802ea9acdbb774eb03b2dd6aa85ed3a11d2d300d",
+  "mcp-computer-use-blob-1792029681813-45t64q.jpg": "575a1f807c01d4459a8e326f0470f1de697997b6a88a3b306f52ab3cf5135c73",
+  "mcp-computer-use-blob-1792029248962-qc5adi.jpg": "4846f425f8a8451331817e7b6c673ef5643af6f0180d90917e64aa344a8b5719",
+  "mcp-computer-use-blob-1792029681813-m6nnti.jpg": "bc202eabaf0f6f0aa6b9d2dd967052b1377075f0b53b9d3beed965708f8741f7",
+  "mcp-computer-use-blob-1792029248962-swl0kd.jpg": "5be8a0e1f2805a2054cd0340a7a186d3defceffb0917402eeacfb809cffbacd2",
+  "mcp-computer-use-blob-1792029681813-9a2nwc.jpg": "57c02094488e51ca59161391ff5d794ebd50261cfa176852c73803f6b406ee25",
+  "mcp-computer-use-blob-1792029248962-exbw8y.jpg": "1ed209f56f810750e4c0074d35952ffc3b2d4fd18b26d87d84e464596bf3c9d4",
+  "mcp-computer-use-blob-1792029681813-mu0gac.jpg": "20277fa793a7a1098bf20d4e6fba114d36705194b5ac2bd9f5f181001e97438d",
+  "mcp-computer-use-blob-1792029248963-stjtga.jpg": "79c0bf4a4f3f28cc1a2c4f5016831e4eac5f248b13b997028339a17622c4eae7",
+  "mcp-computer-use-blob-1792029681813-91c8cr.jpg": "cefd5b49e835b6a5fdbb8cf041ea70dd0edac3149548b47375bbc203a546f1eb",
+  "mcp-computer-use-blob-1792029248963-szdtuy.jpg": "5372244989e12da4a41ac72b4a7392f80643a604f144213baa68f623bcf5d937",
+  "mcp-computer-use-blob-1792029681813-h74n3m.jpg": "c265ebe0d99cfaca8fb737b9ba4ea8041f650fcaa16f52bdfaa89d6554398aac",
+  "mcp-computer-use-blob-1792029303935-6y5eg8.jpg": "af7ea77b1998760500c3d4bf4ccf0c42a10153fa26c351389319931acd93ad41",
+  "mcp-computer-use-blob-1792029752689-1dctxx.jpg": "e7c459c6f903c58f6c5b164bf39423ceb985b0fb9fa0a2f1fbadbbe8ab387733",
+  "mcp-computer-use-blob-1792029303935-dhhyix.jpg": "9f1a138f0a57fc30bdc16cfcee7907b1f56ca8aa8cf7f7ed1d5ee32cd80271dd",
+  "mcp-computer-use-blob-1792029752690-fjjvul.jpg": "00b7bcade68273553b5a5c048105749215408c5502545412fd17f413019b20c8",
+  "mcp-computer-use-blob-1792029303935-6nonbw.jpg": "4dc78f9f4bfb50475bbe6025379cd3c90c0f7ab0bbb6328887f294e15c4fbe95",
+  "mcp-computer-use-blob-1792029752690-eldzkq.jpg": "9a44d70a4a9e7d52bddb33b47473bf95502c6f7334cc5f719df4b0593287aed5",
+  "mcp-computer-use-blob-1792029303935-ddqaxe.jpg": "98b821ec10618e0786ec81f402a459a5f65065a828d37d807f25b70282f5ff06",
+  "mcp-computer-use-blob-1792029752690-61aabl.jpg": "bae68a44b07494fbc5d7aa2bd38fd8d8e5d84ac3f3097cd17200645dc5d9d093",
+  "mcp-computer-use-blob-1792029303935-4zl9p0.jpg": "bb82391598db63e6d53cd3265fd30def4f8b8c3331cb401115bb77b6421b4e3e",
+  "mcp-computer-use-blob-1792029752690-rg594n.jpg": "38a5bedfdd1b59f52794337f6598fdad7295d230b544a0a67de34c5c3f1a3259",
+  "mcp-computer-use-blob-1792029347615-0h1xxh.jpg": "e72a283bb4a1dbed4b1681493623d57288752dbe45499878e1b06ac8e9818f28",
+  "mcp-computer-use-blob-1792029752690-2wng7g.jpg": "f2cf161fc27bba4e671337d8f5f6cedc49649eaf0087908fb8708e55197f3f6f",
+  "mcp-computer-use-blob-1792029347615-m3le7a.jpg": "8d4d126bab29de9701dfc16766e2edbdb35f7e7b6c435b3984cf2d01f2cf21de",
+  "mcp-computer-use-blob-1792029752690-pap212.jpg": "90203fe6b6e128251c319a6133f0084bffa3bfd11d0d1caa27f04d1c3908dfec",
+  "mcp-computer-use-blob-1792029347615-ljzl9c.jpg": "05c9b858b6edb3f590e505558103d83ed04e63bc267d177d213395e297964d40",
+  "mcp-computer-use-blob-1792029752690-v4eeb7.jpg": "ddb0996e63763c5189d86e4f1151e9fb882d397f8be121a797dc9381564b4016",
+  "mcp-computer-use-blob-1792029347615-t1lh8v.jpg": "6bf3b06f48ab9f91d8aeda6c8cef662303688c88730b2cb2fc96f229970374ab",
+  "mcp-computer-use-blob-1792029752690-3rt9o6.jpg": "931b6a01baede28f39d3f70d1bb5aa3b497f613771faacf9fd7412175bb02017",
+  "mcp-computer-use-blob-1792029408383-votn1f.jpg": "4b498ced74651efdd0a2ac73b76cd47ded80456144a36e222adb92732d43dfca",
+  "mcp-computer-use-blob-1792029817364-n8vp1r.jpg": "b3b3a967c602b1c202b8e4c2b83d0df1d4b5f329939f247fdd16cef08c14e1cb",
+  "mcp-computer-use-blob-1792029408383-yrp9a4.jpg": "f61d304004fb41d287a305ed6a50306748337d7f9ee0f45d79708b83306fce9e",
+  "mcp-computer-use-blob-1792029782655-diqk7l.jpg": "3bbc89764e1f5120c345602bf8f6526ea1681fbb46b177706e614ac7dbadc55e",
+  "mcp-computer-use-blob-1792029408383-j8guhi.jpg": "d3e868fef4dabc99f3e6b6fc3645e067c0ff25857d1ed77418624568b2c92494",
+  "mcp-computer-use-blob-1792029782655-pn2xrv.jpg": "0d67de6cf204248a5930fbf6119dac890f61e419d5bbd8d6d758fdf8e0a1c88e",
+  "mcp-computer-use-blob-1792029408383-9mo79p.jpg": "77105cedda29f5421b8e3974097ef612aabbdc542f4bae8e99627359e6c83b1e",
+  "mcp-computer-use-blob-1792029782655-r3lytm.jpg": "a3ac90209d309c4fd6a1a104f0723033ae0bee0c70f7db38bb903c5a76a99311",
+  "mcp-computer-use-blob-1792029438076-5d7m7p.jpg": "553c1751f50c067f13c4983c666d5b9be7d0459fe91acf444a67d92a4ec768e6",
+  "mcp-computer-use-blob-1792029817364-q7iuz7.jpg": "4b08abf9b82b3999452508e1135b3b4ca50bf5c6770be0703286cc7fc661920f",
+  "mcp-computer-use-blob-1792029438076-ag9391.jpg": "d90fdbda4d35a30ff4e74d0343d3ac69f5757e6dee5bf4142ccd7c32191dd682",
+  "mcp-computer-use-blob-1792029817365-8qi9ww.jpg": "37208dd4a74d8f54fb994fe4dcd6df8862910d838aff3bed2683bbe448c10a2a",
+  "mcp-computer-use-blob-1792029438076-6w04xr.jpg": "57d5df9f5c4de2f8f913df0dbbb65e8f40363f1579e010c10be0dff2b2b61038",
+  "mcp-computer-use-blob-1792029817365-wr23eh.jpg": "c8d237f8023e4bb72e909175a25135d3b0d4df1f02c02004cd9d66df3323fc2a",
+  "mcp-computer-use-blob-1792029438076-aqh1d0.jpg": "57fcca10791157adb08e187a1038ab03b175ad057f3e59a4d3bf83cb684d10a7",
+  "mcp-computer-use-blob-1792029817365-nif47c.jpg": "21d9dc8964e4bed60c64a40f43b97eacf49385e26f715b1660927557311fcafb",
+  "mcp-computer-use-blob-1792030260899-nc2u4w.jpg": "2ae434e0ac94ba5ce526f52591a9c93d67c7256301a022ddb95d30404c45b7a4",
+  "mcp-computer-use-blob-1792030195968-exydbz.jpg": "15e92901a8eeeb00adc5a58f145ebc4a98f8b7d64fd7365b659c9b239f0d5735",
+  "mcp-computer-use-blob-1792029597681-wi5ceq.jpg": "5bba9ea933ea3dc2bc074ca6427fa2091b62e61164a13d49f04e3c157e554952",
+  "mcp-computer-use-blob-1792029864621-cnvtrb.jpg": "f34309956a90e06dfb3e00d15c4c91be0305f68be05ee4689c5596c4a7b15c70",
+  "mcp-computer-use-blob-1792029864621-556qo1.jpg": "7cf3e2e1f3e19846ab6b5e06c5330efa918e25c904d54062561fbad2ee46f716",
+  "mcp-computer-use-blob-1792029882447-jxoxhz.jpg": "6681c3fcd0984e5e78e0a869a8e9b084f51aa19f83b9db407ca1b6346158911c",
+  "mcp-computer-use-blob-1792029941921-5jgb59.jpg": "e0c98548464e1ac9acd9c75b956b64d1bcc44b10b877d196f7e30abda331e16f",
+  "mcp-computer-use-blob-1792029941921-lvybix.jpg": "6b13a3265b89473b7fcb0c59086ade0476624850da3cc621c0d1e088b5e60cf2",
+  "mcp-computer-use-blob-1792029941922-fxcx0i.jpg": "4f1d26b42b3f295f2550d7640bf32f3721e3824dfd27f8d0c20a10bbda57f6bc",
+  "mcp-computer-use-blob-1792030128140-i6pbbn.jpg": "d7f27f55593b2668f5a2df81d28f4a4d1ee6a4d5ae0f45280f8665571d144385",
+  "mcp-computer-use-blob-1792030128140-f2cv76.jpg": "20e55c597d671ee21e1770842b3b069bd0d364d31bf91cdb3c2f951a8ebe24a8",
+  "mcp-computer-use-blob-1792030128140-k2o10z.jpg": "d6c05e95e8849b0d3a5ab57560eb8888165344ad93840e5a019e022e01276f35",
+  "mcp-computer-use-blob-1792030180218-pjjrdl.jpg": "eb1d89b0ca6147009d4d2d79b5c2618014d7465277b5e95451cd6d9849ecf425",
+  "mcp-computer-use-blob-1792030180219-wvbs7k.jpg": "ffff55fdf061fff441a1852d47612438afa69783d120a01a62a6e755034699e3"
+ }
+}

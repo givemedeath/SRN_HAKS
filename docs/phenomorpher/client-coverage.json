@@ -1,0 +1,995 @@
+{
+  "schemaVersion": 1,
+  "targets": [
+    {
+      "target": "dwarf_female_fit",
+      "actor": "pm_0",
+      "appearance": 15101,
+      "phenotype": 0,
+      "bindStatureMeters": 1.2996881943822254,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        96,
+        98
+      ],
+      "activeCombatReadbacks": 11,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "dwarf_female_large",
+      "actor": "pm_1",
+      "appearance": 15101,
+      "phenotype": 2,
+      "bindStatureMeters": 1.2996909183857848,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        96,
+        98
+      ],
+      "activeCombatReadbacks": 11,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "dwarf_male_fit",
+      "actor": "pm_2",
+      "appearance": 15101,
+      "phenotype": 0,
+      "bindStatureMeters": 1.343420264002769,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        96,
+        98
+      ],
+      "activeCombatReadbacks": 11,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "dwarf_male_large",
+      "actor": "pm_3",
+      "appearance": 15101,
+      "phenotype": 2,
+      "bindStatureMeters": 1.3535650447486465,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        96,
+        98
+      ],
+      "activeCombatReadbacks": 11,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "elf_female_fit",
+      "actor": "pm_4",
+      "appearance": 15102,
+      "phenotype": 0,
+      "bindStatureMeters": 2.0891849128158473,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        96,
+        98
+      ],
+      "activeCombatReadbacks": 11,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "elf_female_large",
+      "actor": "pm_5",
+      "appearance": 15102,
+      "phenotype": 2,
+      "bindStatureMeters": 2.089184813003774,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        96,
+        98
+      ],
+      "activeCombatReadbacks": 11,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "elf_male_fit",
+      "actor": "pm_6",
+      "appearance": 15102,
+      "phenotype": 0,
+      "bindStatureMeters": 2.125350018409489,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        96,
+        98
+      ],
+      "activeCombatReadbacks": 11,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "elf_male_large",
+      "actor": "pm_7",
+      "appearance": 15102,
+      "phenotype": 2,
+      "bindStatureMeters": 2.1409360122973426,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        96,
+        98
+      ],
+      "activeCombatReadbacks": 11,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "human_female_fit",
+      "actor": "pm_8",
+      "appearance": 15100,
+      "phenotype": 0,
+      "bindStatureMeters": 1.8380404908080061,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        90,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "human_female_large",
+      "actor": "pm_9",
+      "appearance": 15100,
+      "phenotype": 2,
+      "bindStatureMeters": 1.8380404908080061,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        90,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "human_male_fit",
+      "actor": "pm_10",
+      "appearance": 15100,
+      "phenotype": 0,
+      "bindStatureMeters": 1.9339278815538408,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        90,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "human_male_large",
+      "actor": "pm_11",
+      "appearance": 15100,
+      "phenotype": 2,
+      "bindStatureMeters": 1.9557895098270854,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        90,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "orc_female_fit",
+      "actor": "pm_12",
+      "appearance": 15103,
+      "phenotype": 0,
+      "bindStatureMeters": 2.0326815941566334,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        94,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "orc_female_large",
+      "actor": "pm_13",
+      "appearance": 15103,
+      "phenotype": 2,
+      "bindStatureMeters": 2.0326907080389507,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        94,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "orc_male_fit",
+      "actor": "pm_14",
+      "appearance": 15103,
+      "phenotype": 0,
+      "bindStatureMeters": 2.1246469630199076,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        94,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "orc_male_large",
+      "actor": "pm_15",
+      "appearance": 15103,
+      "phenotype": 2,
+      "bindStatureMeters": 2.1406841770941907,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        94,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "troll_female_fit",
+      "actor": "pm_16",
+      "appearance": 15104,
+      "phenotype": 0,
+      "bindStatureMeters": 2.597186785061422,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        92,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "troll_female_large",
+      "actor": "pm_17",
+      "appearance": 15104,
+      "phenotype": 2,
+      "bindStatureMeters": 2.5971969232065706,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        92,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "troll_male_fit",
+      "actor": "pm_18",
+      "appearance": 15104,
+      "phenotype": 0,
+      "bindStatureMeters": 2.795568339466211,
+      "skinSelection": 237,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        91,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    },
+    {
+      "target": "troll_male_large",
+      "actor": "pm_19",
+      "appearance": 15104,
+      "phenotype": 2,
+      "bindStatureMeters": 2.816615517675751,
+      "skinSelection": 1,
+      "headSelection": 1,
+      "skinPalette": 3,
+      "sampledClientChecks": [
+        "white indoor front/rear",
+        "warm indoor rear",
+        "outdoor front",
+        "idle1",
+        "idle2",
+        "walk",
+        "run",
+        "left kick 0.25x diagnostic",
+        "right kick 0.25x diagnostic",
+        "actual spellcast",
+        "close clothing front/rear/walk",
+        "loose torso front/run",
+        "rigid plate front/spellcast",
+        "sword combat",
+        "greatsword combat",
+        "bow firing",
+        "sword/shield combat"
+      ],
+      "clothingChestModels": [
+        181,
+        182,
+        183
+      ],
+      "weaponsReadback": [
+        "empty",
+        "nw_wbwln001",
+        "nw_wswgs001",
+        "nw_wswls001"
+      ],
+      "bowAmmoObservedRange": [
+        91,
+        98
+      ],
+      "activeCombatReadbacks": 12,
+      "reviewResult": "No obvious new gross connector or assembly defect in inspected sampled views; expected donor overlap retained.",
+      "runtimePhysicalHeightCalibrated": false,
+      "fullFrameClientMotionCertification": false,
+      "productionAccepted": false
+    }
+  ],
+  "all20RoutedAndObserved": true,
+  "fitSkinRouteCorrection": "All ten Fit body/neck groups select tone237; stock heads unchanged. Eight non-Human routes independently replayed against original native geometry.",
+  "clothingScope": "320 diagnostic solid-part models: 280 close parts and 40 loose/plate chests. Clothing replaces body geometry. Finished wardrobe/all stock items not certified.",
+  "limitations": [
+    "Sampled screenshots and short observations supplement independent offline replay; not every frame, lighting palette or equipment item was inspected.",
+    "Rear panel occludes part of leftmost actor; some extended rightmost limbs reach the screen edge.",
+    "Kicks are 0.25x diagnostic playback. Normal idles, locomotion and engine combat remain uncorrected donor motion.",
+    "Runtime scale readback is 1.0; absolute physical stature is not independently calibrated in the engine.",
+    "Local exit access violation remains documented separately; it is not a clean exit."
+  ]
+}
