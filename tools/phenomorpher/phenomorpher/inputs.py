@@ -1,8 +1,10 @@
 """Enumerate consumed data inputs without runtime paths or generated directory scans."""
 import json
 from pathlib import Path
+import struct
 
 
+MODEL_TYPE = 2002
 RIG_ROLES = ('fitted-rig', 'rig-inheritance', 'animation-library')
 ANIMATION_ROLES = RIG_ROLES + ('selected-palette', 'selected-map', 'selected-material')
 
@@ -17,6 +19,29 @@ def rooted(root, name):
     if not result.is_relative_to(root):
         raise ValueError('Consumed input escaped explicit root: ' + str(name))
     return result
+
+
+def installed_models(game_root):
+    """Installed key files and every BIF they route a model to: what resman_cat --no-ovr reads models from."""
+    game_root = Path(game_root).resolve(); files = set()
+    for key in sorted((game_root/'data').glob('*.key')):
+        data = key.read_bytes(); files.add(key)
+        if data[:8] != b'KEY V1  ':
+            raise ValueError('Unsupported key file: ' + key.name)
+        bifs, keys, bif_table, key_table = struct.unpack_from('<IIII', data, 8)
+        holding = set()
+        for entry in range(key_table, key_table + 22*keys, 22):
+            kind, resource = struct.unpack_from('<HI', data, entry + 16)
+            if kind == MODEL_TYPE:
+                holding.add(resource >> 20)
+        for index in sorted(holding):
+            if index >= bifs:
+                raise ValueError('Key routes a model to a missing BIF entry: ' + key.name)
+            _, offset, size, _ = struct.unpack_from('<IIHH', data, bif_table + 12*index)
+            files.add(rooted(game_root, data[offset:offset+size].rstrip(b'\0').decode('ascii').replace('\\', '/')))
+    if not files:
+        raise ValueError('No installed key files under --game-root')
+    return files
 
 
 def consumed(arguments):
@@ -80,7 +105,7 @@ def consumed(arguments):
             files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
             files.update(rooted(root, x['path']) for x in read(manifest)['resources'] if x['role'] in roles)
         if action == 'extract-stock':
-            files.add(option('resman-cat'))
+            files.add(option('resman-cat')); files.update(installed_models(option('game-root')))
         elif action == 'inventory':
             release(ANIMATION_ROLES)
         elif action == 'build':

@@ -125,6 +125,26 @@ class PortableCliTests(unittest.TestCase):
                 runner.consumed(['anim-library','inventory','--root',str(root),'--manifest',str(root/'contract.json'),
                                  '--stock',str(root/'stock/stock.json'),'--output',str(root/'y')])
 
+    def test_runner_freezes_the_installed_keys_and_model_bifs_for_stock_extraction(self):
+        from . import inputs as runner
+        def key(bifs,entries):
+            names=b''.join(n.encode()+b'\0' for n in bifs);table=24+40;strings=table+12*len(bifs);keys=strings+len(names)
+            head=b'KEY V1  '+struct.pack('<IIII',len(bifs),len(entries),table,keys)+bytes(40)
+            offset=strings;rows=b''
+            for n in bifs:
+                rows+=struct.pack('<IIHH',0,offset,len(n)+1,0);offset+=len(n)+1
+            return head+rows+names+b''.join(struct.pack('<16sHI',r.encode(),t,i<<20) for r,t,i in entries)
+        with tempfile.TemporaryDirectory() as tmp:
+            game=Path(tmp)/'game';(game/'data').mkdir(parents=True);tool=Path(tmp)/'resman_cat.exe';tool.write_bytes(b'x')
+            for name in ('models.bif','sounds.bif'):
+                (game/'data'/name).write_bytes(b'BIFFV1  ')
+            (game/'data/base.key').write_bytes(key(['data\\models.bif','data\\sounds.bif'],[('a_ba',2002,0),('step',4,1)]))
+            argv=['anim-library','extract-stock','--resman-cat',str(tool),'--game-root',str(game),'--seed','a_ba','--output',str(Path(tmp)/'o')]
+            self.assertEqual(runner.consumed(argv),{p.resolve() for p in (tool,game/'data/base.key',game/'data/models.bif')})
+            (game/'data/base.key').write_bytes(key(['..\\outside.bif'],[('a_ba',2002,0)]))
+            with self.assertRaisesRegex(ValueError,'escaped explicit root'):
+                runner.consumed(argv)
+
     def test_runner_declares_source_attribute_files_in_addition_to_motion(self):
         from . import inputs as runner
         with tempfile.TemporaryDirectory() as tmp:
