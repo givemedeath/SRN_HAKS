@@ -7,8 +7,11 @@ penetration on closed oriented (also non-manifold) parts. Writes one JSON file p
 """
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
+import shutil
+import tempfile
 
 import numpy as np
 
@@ -216,28 +219,36 @@ def sweep(root, manifest_path, output, prefixes, stock_manifest=None, with_motio
         # Explicitly requested clips must all be measurable; the default set records gaps per body instead.
         if clips and (missing := unresolved_clips(models, prefixes, clips)):
             raise ValueError('Requested clip cannot be resolved: ' + ', '.join(missing))
-    output.mkdir(parents=True, exist_ok=False); cache = {}; written = []
+    if output.exists():
+        raise FileExistsError('Fresh output required: ' + str(output))
+    # Reports are written to a scratch folder and published together only after every target succeeded.
+    output.parent.mkdir(parents=True, exist_ok=True)
+    scratch = Path(tempfile.mkdtemp(prefix='.' + output.name + '-', dir=output.parent)); cache = {}; written = []
     def load(prefix):
         if prefix not in cache:
             cache[prefix] = body(root, contract, prefix)
         return cache[prefix]
-    for prefix in prefixes:
-        b = load(prefix); donor = load(donor_of(prefix))
-        stature = sil.measure([m for m in b['meshes'] if m['part'] != 'head'], b['joints']).get('bindStatureMeters')
-        donor_stature = sil.measure([m for m in donor['meshes'] if m['part'] != 'head'], donor['joints']).get('bindStatureMeters')
-        b['scale'] = stature/donor_stature; scales = {p: b['scale'] for p in sil.PART_JOINTS}
-        result = {'schemaVersion': 1, 'kind': KIND, 'release': label, 'contract': contract['version'],
-                  'target': next(t['target'] for t in contract['targets'] if t['modelPrefix'] == prefix), 'prefix': prefix,
-                  'donor': donor['prefix'], 'statureRatioToDonor': b['scale'], 'headIncluded': 'head' in b['parts']}
-        if not motion_only:
-            result.update({'nativeInfo': native_info(b), 'geometry': geometry_audit(b['meshes']), 'measurements': measurements(b),
-                           'connectorsSelf': connectors(b, b, None),
-                           'connectorsVsDonor': connectors(donor, b, scales) if prefix != donor['prefix'] else None})
-        if with_motion:
-            result['motion'] = motion(models, b, donor, clips or (CORE + GATE))
-        result['assetApprovalCreated'] = False
-        path = output/f'{prefix}.json'
-        path.write_text(json.dumps(result, indent=1, default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)) + '\n',
-                        encoding='utf-8', newline='\n')
-        written.append(path.name)
+    try:
+        for prefix in prefixes:
+            b = load(prefix); donor = load(donor_of(prefix))
+            stature = sil.measure([m for m in b['meshes'] if m['part'] != 'head'], b['joints']).get('bindStatureMeters')
+            donor_stature = sil.measure([m for m in donor['meshes'] if m['part'] != 'head'], donor['joints']).get('bindStatureMeters')
+            b['scale'] = stature/donor_stature; scales = {p: b['scale'] for p in sil.PART_JOINTS}
+            result = {'schemaVersion': 1, 'kind': KIND, 'release': label, 'contract': contract['version'],
+                      'target': next(t['target'] for t in contract['targets'] if t['modelPrefix'] == prefix), 'prefix': prefix,
+                      'donor': donor['prefix'], 'statureRatioToDonor': b['scale'], 'headIncluded': 'head' in b['parts']}
+            if not motion_only:
+                result.update({'nativeInfo': native_info(b), 'geometry': geometry_audit(b['meshes']), 'measurements': measurements(b),
+                               'connectorsSelf': connectors(b, b, None),
+                               'connectorsVsDonor': connectors(donor, b, scales) if prefix != donor['prefix'] else None})
+            if with_motion:
+                result['motion'] = motion(models, b, donor, clips or (CORE + GATE))
+            result['assetApprovalCreated'] = False
+            path = scratch/f'{prefix}.json'
+            path.write_text(json.dumps(result, indent=1, default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)) + '\n',
+                            encoding='utf-8', newline='\n')
+            written.append(path.name)
+        os.replace(scratch, output)
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)  # gone already when published
     return {'kind': KIND, 'contract': contract['version'], 'bodies': written, 'motion': with_motion, 'assetApprovalCreated': False}

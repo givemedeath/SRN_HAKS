@@ -32,6 +32,29 @@ class BodySweepClipTests(unittest.TestCase):
             self.assertFalse(output.exists())
 
 
+class PublicationTests(unittest.TestCase):
+    def test_a_later_failure_publishes_no_reports(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest = root/'contract.json'; output = root/'runs/out'
+            manifest.write_text(json.dumps({'version': '1.1.0', 'resources': [],
+                                            'targets': [{'modelPrefix': p, 'target': p} for p in ('pfd0', 'pfh0', 'pfe0')]}))
+            def body(_root, _contract, prefix):
+                if prefix == 'pfe0':
+                    raise ValueError('broken pfe0')
+                return {'prefix': prefix, 'meshes': [], 'joints': {}, 'parts': {}}
+            with patch.object(bs, 'consumed', return_value=[]), patch.object(bs, 'body', side_effect=body), \
+                    patch.object(bs.sil, 'measure', return_value={'bindStatureMeters': 1.}), \
+                    patch.object(bs, 'native_info', return_value={}), patch.object(bs, 'geometry_audit', return_value={}), \
+                    patch.object(bs, 'measurements', return_value={}), patch.object(bs, 'connectors', return_value={}):
+                with self.assertRaisesRegex(ValueError, 'broken pfe0'):
+                    bs.sweep(root, manifest, output, ['pfd0', 'pfe0'])
+                self.assertEqual(list((root/'runs').iterdir()), [])  # neither the report nor the scratch folder remains
+                self.assertEqual(bs.sweep(root, manifest, output, ['pfd0'])['bodies'], ['pfd0.json'])
+                self.assertEqual(sorted(p.name for p in (root/'runs').iterdir()), ['out'])
+                with self.assertRaisesRegex(FileExistsError, 'Fresh output required'):
+                    bs.sweep(root, manifest, output, ['pfd0'])
+
+
 class LineageDropTests(unittest.TestCase):
     def test_meshes_on_either_side_only_are_reported(self):
         import numpy as np
