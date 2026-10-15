@@ -95,6 +95,24 @@ class NativeControllerTests(unittest.TestCase):
             self.assertFalse(report['passed']); self.assertEqual(report['failures'], ['run'])
             self.assertEqual(report['clips']['run']['notComparedControllers'], ['controller36'])
 
+    def test_keyed_bind_controllers_fail(self):
+        from unittest.mock import patch
+        import numpy as np
+        from . import rig_native
+        with tempfile.TemporaryDirectory() as tmp:
+            binary, ascii_path = self.library(Path(tmp))
+            def keyed(path, blob=None):
+                model = lib.load_model(path, blob)
+                if model['format'] == 'binary':
+                    name, node = next((n, row) for n, row in model['nodes'].items() if row['parent'])
+                    node['controls'][8] = {'times': np.array([0., 1.]), 'values': np.array([[0., 0., 0.], [0., 0., .5]])}
+                    keyed.node = name
+                return model
+            with patch.object(rig_native, 'load_model', side_effect=keyed):
+                report = compare(binary, ascii_path)
+            self.assertFalse(report['passed']); self.assertEqual(report['failures'], [])
+            self.assertEqual(report['staticRig']['differences'], [f'{keyed.node}: published bind controllers keyed over time: position'])
+
 
 if __name__ == '__main__':
     unittest.main()

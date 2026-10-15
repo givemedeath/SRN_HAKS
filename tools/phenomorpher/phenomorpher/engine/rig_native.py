@@ -62,7 +62,9 @@ def static_rig(model, blob):
             q = np.asarray(c[20]['values'][0], float) if 20 in c else IDENTITY
             rig[name.lower()] = {'parent': row['parent'].lower() if row['parent'] else None, 'type': NODE_TYPES.get(row['flags'], f'flags{row["flags"]}'),
                                  'position': np.asarray(c[8]['values'][0], float) if 8 in c else np.zeros(3), 'orientation': q,
-                                 'scale': float(c[36]['values'][0][0]) if 36 in c else 1.0}
+                                 'scale': float(c[36]['values'][0][0]) if 36 in c else 1.0,
+                                 # native_motion samples geometry controllers over time, so a bind transform has one key.
+                                 'keyed': sorted(TRANSFORMS.get(k, k) for k in (8, 20, 36) if k in c and len(c[k]['times']) != 1)}
         return rig
     rig = {}; node = None; inside = False
     for raw in blob.decode('cp1252').splitlines():
@@ -102,6 +104,9 @@ def compare_static(a, b, tol):
         differences.append(f'{name}: only in {"published" if name in a else "source"}')
     for name in sorted(set(a) & set(b)):
         x, y = a[name], b[name]
+        for side, row in (('published', x), ('source', y)):
+            if row.get('keyed'):
+                differences.append(f'{name}: {side} bind controllers keyed over time: ' + ', '.join(row['keyed']))
         for field in ('parent', 'type'):
             if x[field] != y[field]:
                 differences.append(f'{name}: {field} {x[field]} != {y[field]}')
