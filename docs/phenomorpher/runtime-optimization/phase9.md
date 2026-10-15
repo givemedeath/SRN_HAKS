@@ -42,8 +42,28 @@ review.md stays historical.
 | Root tools (`test_test_impact`, `test_ci_scope`, `test_ci_result`) | 48 tests pass; catalog regenerated |
 
 ### Sweep rerun on 1.1.0
-_Pending: all 20 bodies, static and motion, three jobs. Expected deltas from Phase 6: neck links
-reported, and female pelvis/foot penetration measured._
+All 20 bodies, static and motion (12 clips), in three managed jobs. Every job exited 0 with its inputs
+unchanged. Compared with the Phase 6 sweep of the same release:
+
+| Item | Result |
+|---|---|
+| Motion, geometry, measurements, minimum-gap audit, surface distances | identical to Phase 6 |
+| Penetration directions measured before | 846, values identical (only the limitation text changed) |
+| Female pelvis/foot penetration (F6) | 85 directions now measured on the 10 female bodies; 6 stay unavailable on `pfd2` (below) |
+| Neck links (F5) | chest–neck measured on all 20 bodies; neck–head measured on 18, unavailable on Human Fit (installed heads) |
+| Neck links against the Human donor | chest–neck measured on 10 of the 16 non-Human bodies; unavailable on the Elf, Troll and Orc Fit bodies, whose neck lineage differs. Neck–head measured only on the 4 female Large bodies; elsewhere the head mesh count or lineage differs |
+| Penetration overall | 1,025 of 1,040 directions measured |
+
+The 15 unavailable directions are two asset findings. Both are diagnostic only; no asset changes.
+* **`pfd2` pelvis seam:** 4 vertex pairs where `pelvis001p1` meets `pelvis001p3`, near the right hip, are
+  19–27 µm apart instead of exactly coincident. That leaves 6 unbalanced edges, so penetration against
+  the pelvis is unavailable for chest–pelvis and both pelvis–thigh links (self and donor). `pfd0` shares
+  all 133 seam vertices exactly. The crack is far below visible size, and the check does not weld.
+* **Male `head001` aliases:** the 9 male heads carry two 5-edge open loops at the eyes of the
+  `head001g` mesh, so neck–head penetration is unavailable on them. The female heads are closed.
+
+Motion values are unchanged from Phase 6: the Elf male `walk` shin–foot clearance is up to 0.6 mm worse
+than the scaled donor, and the shorter bodies' soles dip up to 3.4 cm lower in motion than the donor's.
 
 ## Ledger bindings (local `.tmp`, machine-local)
 
@@ -58,7 +78,12 @@ reported, and female pelvis/foot penetration measured._
 | `upfit/launch-verify-runtime-100/launch.json` | `0bb178c725499b1930f1fd242326db3a39ae1a816afcebb957c2d901f9804d3b` |
 | `upfit/library-ascii/provenance.json` (8 copies, each equal to its restoration-plan pin) | `ea388610a8f9e7b0850486e9cbc1228402bfa91e2fd046d57a22727341662d97` |
 
-The `audit-native` launches are `upfit/launch-audit-native-<lib>/launch.json`, one per library.
+| `upfit/launch-sweep-1/launch.json` (`pfd0 pmd2 pfe2 pme0 pfo0 pmo2 pfg2`) | `e98a916543a3d62f73b6bc38e7eec8e0be7e7633f5158559fb88b896fc39d37e` |
+| `upfit/launch-sweep-2/launch.json` (`pfd2 pmd0 pfe0 pme2 pfo2 pmo0 pmg2`) | `b91d3ed6f750c3c8079d8eda2cbff461a20d125103b0eafc43c28713ad4ba158` |
+| `upfit/launch-sweep-3/launch.json` (`pfh0 pmh0 pfh2 pmh2 pfg0 pmg0`) | `d88d58069b6204cb95bc382d8054775adaec2f22f0ce33bfb462e18a55655172` |
+
+The `audit-native` launches are `upfit/launch-audit-native-<lib>/launch.json`, one per library. Sweep
+outputs are in `upfit/sweep-{1,2,3}/<prefix>.json`.
 
 ## Limits
 * Motion connector checks still use the 13 v13 links. The neck links are standing-only.
