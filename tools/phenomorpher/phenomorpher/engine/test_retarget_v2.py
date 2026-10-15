@@ -100,6 +100,21 @@ class RetargetV2Tests(unittest.TestCase):
             # Both refusals happen before anything is written.
             self.assertFalse((fit/'ascii').exists() or (large/'ascii').exists() or (other/'ascii').exists())
 
+    def test_a_late_failure_publishes_nothing_and_a_fixed_rerun_succeeds(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); baseline, fit, large = self.fixture(root)
+            report = json.loads((large/'conversion.json').read_text()); report['bindPoseNormalization'] = False
+            (large/'conversion.json').write_text(json.dumps(report))
+            with self.assertRaisesRegex(RuntimeError, 'Normalize sliced generation'):
+                retarget(fit, baseline, large)
+            # The carriers and Fit root were generated before the Large root failed, but none was published.
+            self.assertEqual(sorted(p.name for p in fit.iterdir()), ['conversion.json'])
+            self.assertEqual(sorted(p.name for p in large.iterdir()), ['conversion.json'])
+            report['bindPoseNormalization'] = True; (large/'conversion.json').write_text(json.dumps(report))
+            self.assertEqual(retarget(fit, baseline, large)['topCarrier'], 'sr_afd_0')
+            self.assertEqual(sorted(p.name for p in (fit/'ascii').iterdir()), ['pfd0.mdl', 'sr_afd_0.mdl', 'sr_afd_1.mdl'])
+            self.assertEqual(sorted(p.name for p in fit.iterdir()), ['ascii', 'conversion.json', 'retarget-v2.json'])
+
     def test_a_rerun_refuses_to_replace_earlier_results(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); baseline, fit, large = self.fixture(root)

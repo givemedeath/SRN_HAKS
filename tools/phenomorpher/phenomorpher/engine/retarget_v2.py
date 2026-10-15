@@ -10,8 +10,11 @@ turns them into one shared library and adopt-runtime retires them.
 from __future__ import annotations
 import argparse
 import json
+import os
 from pathlib import Path
 import re
+import shutil
+import tempfile
 
 import numpy as np
 
@@ -143,15 +146,32 @@ def retarget(fit_converted, baseline, large_converted=None):
     report = json.loads((large_converted/'conversion.json').read_text()) if large_converted is not None else None
     if report is not None and (report['modelPrefix'][:3] != fit_report['modelPrefix'][:3] or report['modelPrefix'][3] != '2'):
         raise RuntimeError('Large body must share race and gender with the Fit body: ' + report['modelPrefix'])
-    prefix, top, carriers, scale = carrier_chain(fit_report, baseline, fit_converted/'ascii')
-    roots = [root_model(fit_report, baseline, top, fit_converted/'ascii')]
-    if report is not None:
-        roots.append(root_model(report, baseline, top, large_converted/'ascii'))
-    receipt = {'schemaVersion': 1, 'kind': KIND, 'motionSource': prefix, 'stockTop': 'a_fa' if prefix[1] == 'f' else 'a_ba',
-               'topCarrier': top, 'carriers': carriers, 'roots': roots, 'motionHeightScale': scale,
-               'fitLargeShareMotion': True, 'carriersPublished': False, 'timingEventsUnchanged': True,
-               'rotationControllersUnchanged': True, 'engineObserved': False, 'assetApprovalCreated': False}
-    (fit_converted/'retarget-v2.json').write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8', newline='\n')
+    # Everything is generated in scratch folders first; nothing reaches a destination unless all of it succeeded.
+    fit_scratch = Path(tempfile.mkdtemp(prefix='.retarget-v2-', dir=fit_converted))
+    large_scratch = Path(tempfile.mkdtemp(prefix='.retarget-v2-', dir=large_converted)) if report is not None else None
+    try:
+        prefix, top, carriers, scale = carrier_chain(fit_report, baseline, fit_scratch/'ascii')
+        roots = [root_model(fit_report, baseline, top, fit_scratch/'ascii')]
+        if report is not None:
+            roots.append(root_model(report, baseline, top, large_scratch/'ascii'))
+        receipt = {'schemaVersion': 1, 'kind': KIND, 'motionSource': prefix, 'stockTop': 'a_fa' if prefix[1] == 'f' else 'a_ba',
+                   'topCarrier': top, 'carriers': carriers, 'roots': roots, 'motionHeightScale': scale,
+                   'fitLargeShareMotion': True, 'carriersPublished': False, 'timingEventsUnchanged': True,
+                   'rotationControllersUnchanged': True, 'engineObserved': False, 'assetApprovalCreated': False}
+        (fit_scratch/'retarget-v2.json').write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8', newline='\n')
+        moves = [(p, fit_converted/p.relative_to(fit_scratch)) for p in sorted(fit_scratch.rglob('*')) if p.is_file()]
+        if large_scratch is not None:
+            moves += [(p, large_converted/p.relative_to(large_scratch)) for p in sorted(large_scratch.rglob('*')) if p.is_file()]
+        if sorted(str(d) for _, d in moves) != sorted(str(p) for p in destinations(fit_report, baseline, fit_converted, large_converted)):
+            raise RuntimeError('Retarget outputs differ from the preflighted destinations')
+        # The receipt moves last, so its presence means every model is in place.
+        moves.sort(key=lambda m: m[1].name == 'retarget-v2.json')
+        for source, target in moves:
+            target.parent.mkdir(parents=True, exist_ok=True); os.replace(source, target)
+    finally:
+        shutil.rmtree(fit_scratch, ignore_errors=True)
+        if large_scratch is not None:
+            shutil.rmtree(large_scratch, ignore_errors=True)
     return receipt
 
 

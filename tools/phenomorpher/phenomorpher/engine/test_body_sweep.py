@@ -81,6 +81,28 @@ class MotionCollisionTests(unittest.TestCase):
         self.assertEqual((row['time'], row['intersections'], row['excessMeters']), (1., 0, .005))
         self.assertEqual((row['maxIntersections'], row['maxIntersectionsTime'], row['maxIntersectionsDonor']), (2, 0., 0))
 
+    def test_donor_only_keys_are_sampled(self):
+        import numpy as np
+        foot = {'part': 'footl', 'name': 'f', 'position': np.zeros((3, 3)), 'faces': np.array([[0, 1, 2]])}
+        b = {'prefix': 'pmd0', 'meshes': [foot], 'frames': {'j': np.eye(4)}, 'scale': 1.}
+        donor = {'prefix': 'pmh0', 'meshes': [dict(foot)], 'frames': {'j': np.eye(4)}}
+        clips = {'pmd0': {'length': 2., 'keys': [0., 2.]}, 'pmh0': {'length': 1., 'keys': [0., .5, 1.]}}
+        now = {}; ours, theirs = [foot], [dict(foot)]
+        def posed(models, prefix, clip, t):
+            now[prefix] = t; return {}, clips[prefix], 'a_ba'
+        # The donor closes its gap only at its own mid key, which the target's schedule never reaches.
+        def contact(meshes, inventory):
+            gap = 0. if meshes is ours else (0. if now['pmh0'] == .5 else .003)
+            return {'minimumTriangleClearanceMeters': gap, 'intersectingTrianglePairCount': 0}
+        with patch.object(bs, 'LINKS', [('shinl', 'footl')]), patch.object(bs, 'sample', return_value={'j': np.eye(4)}), \
+                patch.object(bs, 'terminal_inventory', return_value='inv'), patch.object(bs, 'posed_frames', side_effect=posed), \
+                patch.object(bs, 'sample_times', side_effect=lambda clip: clip['keys']), patch.object(bs, 'terminal_contact', side_effect=contact), \
+                patch.object(bs, 'pose_rigid_meshes', side_effect=lambda meshes, *_: ours if meshes is b['meshes'] else theirs):
+            walk = bs.motion({'pmd0': {'nodes': {}}}, b, donor, ['walk'])['clips']['walk']
+        row = walk['connectors']['shinl-footl']
+        self.assertEqual(walk['samples'], 3)
+        self.assertEqual((row['time'], row['donorClearanceMeters'], row['excessMeters']), (1., 0., 0.))
+
 
 if __name__ == '__main__':
     unittest.main()

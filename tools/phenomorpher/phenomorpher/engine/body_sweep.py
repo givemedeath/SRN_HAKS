@@ -158,8 +158,11 @@ def motion(models, b, donor, clips):
         except KeyError:
             missing[clip_name] = 'absent from the donor chain'; continue
         worst = {}; sole = []
-        for t in sample_times(clip):
-            fraction = t/clip['length'] if clip['length'] else 0.
+        # Sample both key schedules in normalized time, so a donor-only key is evaluated as well.
+        fractions = sorted({round(t/clip['length'], 9) if clip['length'] else 0. for t in sample_times(clip)}
+                           | {round(t/donor_clip['length'], 9) if donor_clip['length'] else 0. for t in sample_times(donor_clip)})
+        for fraction in fractions:
+            t = fraction*clip['length']
             posed = posed_frames(models, prefix, clip_name, t)[0]
             donor_posed = posed_frames(models, donor['prefix'], clip_name, fraction*donor_clip['length'])[0]
             mesh_t = pose_rigid_meshes(b['meshes'], b['frames'], {**b['frames'], **posed})
@@ -180,7 +183,7 @@ def motion(models, b, donor, clips):
                     row.update(maxIntersections=ours['intersectingTrianglePairCount'], maxIntersectionsTime=float(t),
                                maxIntersectionsDonor=theirs['intersectingTrianglePairCount'])
         low = min(sole, key=lambda r: r[0])
-        clip_rows[clip_name] = {'owner': owner, 'donorOwner': donor_owner, 'samples': len(sample_times(clip)), 'connectors': worst,
+        clip_rows[clip_name] = {'owner': owner, 'donorOwner': donor_owner, 'samples': len(fractions), 'connectors': worst,
                                 'lowestSoleBelowStandingMeters': low[0], 'donorLowestSoleBelowStandingMeters': min(r[1] for r in sole), 'lowestSoleTime': low[2]}
     return {'bindFrameAgreement': drift, 'unavailableLinks': rows, 'clips': clip_rows, 'unavailableClips': missing,
             'requestedClips': list(clips), 'scale': b['scale']}

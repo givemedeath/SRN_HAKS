@@ -38,7 +38,7 @@ review.md stays historical.
 | `verify-runtime` 1.0.0 (export of `0866bcaf`) | fails as expected. Private carriers: 18 roots. Chain depth: 18. Stock closure: 18. Fit/Large divergence: 10. Textures above 1024 px: 81. |
 | `audit-native`, 8 libraries against their pinned ASCII sources | all pass, clips and static rig (60 nodes each: hierarchy, node types, bind scale and transforms within 5×10⁻⁹ m and 2×10⁻⁶°); worst clip key 3×10⁻⁶° and 5×10⁻⁸ m; no zero-length or non-finite quaternions in any published or source library |
 | `anim-library extract-stock` | the key files and 33 model BIFs are frozen as inputs; the 6 stock models match the Phase 1 baseline byte for byte |
-| Package suite | 148 tests pass |
+| Package suite | 150 tests pass |
 | Root tools (`test_test_impact`, `test_ci_scope`, `test_ci_result`) | 48 tests pass; catalog regenerated |
 
 ### Sweep rerun on 1.1.0
@@ -71,6 +71,12 @@ No asset changes.
 
 Motion values are unchanged from Phase 6, so review.md findings F1–F4 (ankle overlap, sole depth, Elf
 male ankle seam) stand as recorded there and in [client.md](client.md).
+
+These runs used the sweep as first promoted (`51bd530`). PR review then tightened it: motion now samples
+the union of the target's and donor's key times and keeps each connector's worst collision sample, and a
+minimum-gap link whose parts lost meshes becomes unavailable. The standing results above are unaffected
+(the only lineage drops are neck and head meshes, which no minimum-gap link uses); the motion figures are
+from target-key sampling until the motion sweep is rerun.
 
 ## Ledger bindings (local `.tmp`, machine-local)
 
