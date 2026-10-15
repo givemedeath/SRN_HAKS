@@ -42,6 +42,21 @@ class NativeControllerTests(unittest.TestCase):
             repointed = Path(tmp)/'repointed.mdl'; repointed.write_bytes(lib.repoint(binary.read_bytes(), 'a_ba'))
             self.assertEqual(compare(repointed, ascii_path)['headerDifferences'], {'parent': ('a_ba', 'a_fa')})
 
+    def test_zero_length_or_non_finite_quaternions_fail(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary, ascii_path = self.library(Path(tmp))
+            blob = bytes(binary.read_bytes()); model = lib.NativeModel(blob).decode()
+            a, b = model['clips']['run']['nodes']['rootdummy']['controls'][20]['dataRange']
+            def patched(value):
+                bad = bytearray(blob); bad[a:b] = struct.pack(f'<{(b-a)//4}f', *[value]*((b-a)//4))
+                path = Path(tmp)/'bad.mdl'; path.write_bytes(bytes(bad)); return path
+            report = compare(patched(0.), ascii_path)
+            self.assertFalse(report['passed']); self.assertEqual(report['failures'], ['run'])
+            self.assertEqual(report['clips']['run']['invalidControllers'], {'published': ['rootdummy:orientation:zero-quaternion'], 'source': []})
+            # The native reader already refuses non-finite keys outright.
+            with self.assertRaisesRegex(ValueError, 'Nonfinite controller'):
+                compare(patched(float('nan')), ascii_path)
+
 
 if __name__ == '__main__':
     unittest.main()

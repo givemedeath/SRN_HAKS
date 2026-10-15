@@ -28,6 +28,19 @@ def inventory(model):
     return {'name': model['name'], 'parent': model['parent'], 'scale': f32(model['scale']), 'format': model['format'], 'clips': clips}
 
 
+def malformed(clip):
+    """Controllers whose keys cannot be compared: non-finite values or quaternions of near-zero length."""
+    bad = []
+    for node, row in clip['nodes'].items():
+        for kind, c in row['controls'].items():
+            values = np.asarray(c['values'], float); times = np.asarray(c['times'], float)
+            if not (np.isfinite(values).all() and np.isfinite(times).all()):
+                bad.append(f'{node}:{TRANSFORMS.get(kind, kind)}:non-finite')
+            elif kind == 20 and values.size and (np.linalg.norm(values.reshape(len(times), -1), axis=1) < 1e-6).any():
+                bad.append(f'{node}:{TRANSFORMS.get(kind, kind)}:zero-quaternion')
+    return bad
+
+
 def restricted(clip, kinds):
     """Clip copy keeping only the controller kinds both readers can represent."""
     nodes = {n: {**row, 'controls': {k: c for k, c in row['controls'].items() if k in kinds}} for n, row in clip['nodes'].items()}
@@ -50,11 +63,14 @@ def compare(published, source, tolerances=None):
         native_only = sorted({f'controller{k}' for row in x['nodes'].values() for k in row['controls'] if shared_kinds and k not in shared_kinds})
         if shared_kinds:
             x, y = restricted(x, shared_kinds), restricted(y, shared_kinds)
+        # NaN deltas would vanish in compare_clip's max() reductions, so malformed keys fail first.
+        invalid = {'published': malformed(x), 'source': malformed(y)}
         r = compare_clip(x, a['name'], y, b['name'], tol['timeSeconds'])
-        ok = (r['structure'] and r['metadata'] and r['positionMetres'] <= tol['positionMetres']
-              and r['rotationDegrees'] <= tol['rotationDegrees'] and r['otherMax'] <= tol['otherControllers'])
+        ok = (not invalid['published'] and not invalid['source'] and r['structure'] and r['metadata']
+              and r['positionMetres'] <= tol['positionMetres'] and r['rotationDegrees'] <= tol['rotationDegrees']
+              and r['otherMax'] <= tol['otherControllers'])
         rows[clip] = {'status': 'equal' if ok else 'different', **{k: r[k] for k in ('structure', 'metadata', 'positionMetres', 'rotationDegrees', 'otherMax', 'eventOrderChanged')},
-                      'notComparedControllers': native_only}
+                      'invalidControllers': invalid, 'notComparedControllers': native_only}
         if not ok:
             failures.append(clip)
     return {'schemaVersion': 1, 'kind': KIND, 'published': {'path': str(Path(published)), 'format': a['format']},

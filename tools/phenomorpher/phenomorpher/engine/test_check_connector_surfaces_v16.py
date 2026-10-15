@@ -62,6 +62,17 @@ class ConnectorV16Tests(unittest.TestCase):
         triangles, report = closed_oriented_triangles([cracked], 'pelvis')
         self.assertIsNone(triangles); self.assertEqual((report['surface'], report['seamJoinedPositions']), ('open', 0))
 
+    def test_a_third_mesh_cannot_join_two_positions_of_one_mesh(self):
+        # p1 and p2 belong to mesh a, 60 um apart; q of mesh b lies within tolerance of both.
+        from .check_connector_surfaces_v16 import seam_representatives
+        p1, p2, q = np.array([0., 0, 0]), np.array([6e-5, 0, 0]), np.array([3e-5, 1e-5, 0])
+        a = {'part': 'pelvis', 'name': 'a', 'position': np.array([p1, p2, [0, 1, 0], [1, 0, 0]]), 'faces': np.array([[0, 2, 3], [1, 3, 2]])}
+        b = {'part': 'pelvis', 'name': 'b', 'position': np.array([q, [0, 0, 1], [0, 1, 0]]), 'faces': np.array([[0, 1, 2]])}
+        _, report = closed_oriented_triangles([a, b], 'pelvis')
+        self.assertEqual(report['seamJoinedPositions'], 1)  # q joins only one of p1/p2
+        rep, joined = seam_representatives(np.array([p1, p2, q]), [{0}, {0}, {1}], 1e-4)
+        self.assertEqual(len(joined), 1); self.assertNotEqual(rep[0], rep[1])
+
     def test_neck_links_are_measured_from_the_assembly_frames(self):
         meshes = [box('chest', (-.2, -.1, 0.), (.2, .1, 1.)), box('neck', (-.05, -.05, .98), (.05, .05, 1.2)),
                   box('head', (-.1, -.1, 1.18), (.1, .1, 1.45))]

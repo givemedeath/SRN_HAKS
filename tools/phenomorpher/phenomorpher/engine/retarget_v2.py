@@ -118,15 +118,34 @@ def root_model(report, baseline, top, output):
     return {'model': prefix, 'supermodel': top, 'heightScale': height_scale, 'joints': {k: list(v[:3, 3]) for k, v in world.items()}}
 
 
+def destinations(fit_report, baseline, fit_converted, large_converted=None):
+    """Every file a run writes: carriers, roots and the receipt."""
+    prefix = fit_report['modelPrefix']; stock = json.loads((baseline/'baseline.json').read_text())
+    current = 'a_fa' if prefix[1] == 'f' else 'a_ba'; count = 0
+    while current != 'null':
+        count += 1; current = stock['animations'][current]['supermodel']
+    paths = [fit_converted/'ascii'/f'sr_a{prefix[1:3]}_{i}.mdl' for i in range(count)]
+    paths += [fit_converted/'ascii'/(prefix + '.mdl'), fit_converted/'retarget-v2.json']
+    if large_converted is not None:
+        large = json.loads((large_converted/'conversion.json').read_text())['modelPrefix']
+        paths.append(large_converted/'ascii'/(large + '.mdl'))
+    return paths
+
+
 def retarget(fit_converted, baseline, large_converted=None):
     fit_report = json.loads((fit_converted/'conversion.json').read_text())
+    # Earlier results are evidence: refuse before writing anything rather than replace them.
+    existing = [str(p) for p in destinations(fit_report, baseline, fit_converted, large_converted) if p.exists()]
+    if existing:
+        raise RuntimeError('Retarget output already exists: ' + ', '.join(existing))
+    if fit_report['modelPrefix'][3] != '0':
+        raise RuntimeError('The motion source must be the Fit (phenotype 0) body: ' + fit_report['modelPrefix'])
+    report = json.loads((large_converted/'conversion.json').read_text()) if large_converted is not None else None
+    if report is not None and (report['modelPrefix'][:3] != fit_report['modelPrefix'][:3] or report['modelPrefix'][3] != '2'):
+        raise RuntimeError('Large body must share race and gender with the Fit body: ' + report['modelPrefix'])
     prefix, top, carriers, scale = carrier_chain(fit_report, baseline, fit_converted/'ascii')
     roots = [root_model(fit_report, baseline, top, fit_converted/'ascii')]
-    if large_converted is not None:
-        report = json.loads((large_converted/'conversion.json').read_text())
-        large = report['modelPrefix']
-        if large[:3] != prefix[:3] or large[3] != '2':
-            raise RuntimeError('Large body must share race and gender with the Fit body: ' + large)
+    if report is not None:
         roots.append(root_model(report, baseline, top, large_converted/'ascii'))
     receipt = {'schemaVersion': 1, 'kind': KIND, 'motionSource': prefix, 'stockTop': 'a_fa' if prefix[1] == 'f' else 'a_ba',
                'topCarrier': top, 'carriers': carriers, 'roots': roots, 'motionHeightScale': scale,

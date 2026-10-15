@@ -33,25 +33,32 @@ SEAM_TOLERANCE_METERS = 1e-4
 
 def seam_representatives(positions, owners, tolerance):
     """Map each exact position to one representative. Positions closer than the tolerance are joined
-    only when no mesh owns both, so a crack between submeshes closes and in-mesh detail never merges."""
-    parent = list(range(len(positions)))
+    only when no mesh owns positions on both sides, so a crack between submeshes closes and in-mesh
+    detail never merges, not even through a third mesh. Closest pairs join first."""
+    parent = list(range(len(positions))); members = [set(o) for o in owners]
     def find(i):
         while parent[i] != i:
             parent[i] = parent[parent[i]]; i = parent[i]
         return i
-    cells = {}; joined = []
+    cells = {}; pairs = []
     for i, p in enumerate(positions):
         cells.setdefault(tuple(np.floor(p/tolerance).astype(int)), []).append(i)
-    for (x, y, z), members in cells.items():
+    for (x, y, z), cell in cells.items():
         for dx in (-1, 0, 1):
             for dy in (-1, 0, 1):
                 for dz in (-1, 0, 1):
                     for j in cells.get((x+dx, y+dy, z+dz), ()):
-                        for i in members:
+                        for i in cell:
                             if i < j and not owners[i] & owners[j]:
                                 distance = float(np.linalg.norm(positions[i]-positions[j]))
-                                if distance <= tolerance and find(i) != find(j):
-                                    parent[find(i)] = find(j); joined.append(distance)
+                                if distance <= tolerance:
+                                    pairs.append((distance, i, j))
+    joined = []
+    for distance, i, j in sorted(pairs):
+        a, b = find(i), find(j)
+        # A component's accumulated owners must stay disjoint, or two positions of one mesh would merge.
+        if a != b and not members[a] & members[b]:
+            parent[a] = b; members[b] |= members[a]; joined.append(distance)
     return [find(i) for i in range(len(positions))], joined
 
 

@@ -97,6 +97,22 @@ class RetargetV2Tests(unittest.TestCase):
             (baseline/'ascii/pmh0.mdl').write_text(stock('pmh0', 'a_ba'))
             with self.assertRaisesRegex(RuntimeError, 'share race and gender'):
                 retarget(fit, baseline, other)
+            # Both refusals happen before anything is written.
+            self.assertFalse((fit/'ascii').exists() or (large/'ascii').exists() or (other/'ascii').exists())
+
+    def test_a_rerun_refuses_to_replace_earlier_results(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); baseline, fit, large = self.fixture(root)
+            retarget(fit, baseline, large)
+            before = {p: p.read_bytes() for p in [*fit.rglob('*.mdl'), *large.rglob('*.mdl'), fit/'retarget-v2.json']}
+            with self.assertRaisesRegex(RuntimeError, 'already exists'):
+                retarget(fit, baseline, large)
+            self.assertEqual({p: p.read_bytes() for p in before}, before)
+            # A Large-only leftover also blocks the run.
+            (fit/'retarget-v2.json').unlink(); [p.unlink() for p in (fit/'ascii').glob('*.mdl')]
+            with self.assertRaisesRegex(RuntimeError, 'pfd2.mdl'):
+                retarget(fit, baseline, large)
+            self.assertFalse(list((fit/'ascii').glob('*.mdl')))
 
 
 if __name__ == '__main__':
