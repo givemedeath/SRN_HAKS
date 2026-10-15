@@ -58,9 +58,13 @@ to 847 MB. The installed `a_fa`/`a_ba` chain observed at build time is pinned in
 `installedAnimationChain`.
 
 Evidence: [plan](runtime-optimization/plan.md), [baseline](runtime-optimization/baseline.md),
-[pilot libraries](runtime-optimization/pilots.md), [all libraries](runtime-optimization/libraries.md)
-and [textures](runtime-optimization/textures.md). Client validation of 1.1.0 is pending;
-rollback is contract 1.0.0 and its resources at commit `0866bcaf`.
+[pilot libraries](runtime-optimization/pilots.md), [all libraries](runtime-optimization/libraries.md),
+[textures](runtime-optimization/textures.md), [packaging](runtime-optimization/packaging.md),
+[offline review](runtime-optimization/review.md) and [client comparison](runtime-optimization/client.md).
+1.1.0 was compared with 1.0.0 in the client and accepted on 2026-10-14; see the
+[checkpoint](runtime-optimization/checkpoint.md). Rollback is contract 1.0.0 and its resources at
+commit `0866bcaf`. Stock clothing on these rigs still needs conversion through nwnarmory with the new
+phenotype profiles (separate work).
 
 ## Validation and limits
 

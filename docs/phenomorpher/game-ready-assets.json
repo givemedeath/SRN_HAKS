@@ -17917,11 +17917,16 @@
       "docs/phenomorpher/runtime-optimization/baseline.md",
       "docs/phenomorpher/runtime-optimization/pilots.md",
       "docs/phenomorpher/runtime-optimization/libraries.md",
-      "docs/phenomorpher/runtime-optimization/textures.md"
+      "docs/phenomorpher/runtime-optimization/textures.md",
+      "docs/phenomorpher/runtime-optimization/packaging.md",
+      "docs/phenomorpher/runtime-optimization/review.md",
+      "docs/phenomorpher/runtime-optimization/client.md"
     ],
     "textureCap": 1024,
-    "clientValidated": false,
-    "userAccepted": false,
+    "clientValidated": true,
+    "clientEvidence": "docs/phenomorpher/runtime-optimization/client.md",
+    "userAccepted": true,
+    "userAcceptedOn": "2026-10-14",
     "rollback": "Restore contract 1.0.0 and its resources from commit 0866bcaf."
   }
 }
