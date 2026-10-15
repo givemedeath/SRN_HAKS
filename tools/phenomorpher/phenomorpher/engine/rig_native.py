@@ -128,6 +128,9 @@ def compare(published, source, tolerances=None):
     tol = {**DEFAULT_TOLERANCES, **(tolerances or {})}
     blob_a = Path(published).read_bytes(); blob_b = Path(source).read_bytes()
     a = load_model(published, blob_a); b = load_model(source, blob_b)
+    # The gate is about native bytes; an ASCII "published" input would pass without examining any.
+    if a['format'] != 'binary':
+        raise ValueError('The published model must be a native binary: ' + str(published))
     header = {k: (a[k], b[k]) for k in ('name', 'parent') if a[k] != b[k]}
     geometry = compare_static(static_rig(a, blob_a), static_rig(b, blob_b), tol)
     if f32(a['scale']) != f32(b['scale']):

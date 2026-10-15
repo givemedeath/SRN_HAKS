@@ -23,6 +23,10 @@ class NativeControllerTests(unittest.TestCase):
             report = compare(binary, ascii_path)
             self.assertTrue(report['passed'], report['failures'])
             self.assertEqual(report['publishedInventory']['parent'], 'a_fa')
+            # An ASCII "published" input is refused, even when it equals the source or the inputs are swapped.
+            for published, source in ((ascii_path, ascii_path), (ascii_path, binary)):
+                with self.subTest(published=published.name), self.assertRaisesRegex(ValueError, 'must be a native binary'):
+                    compare(published, source)
             # Negating every component of a stored quaternion is the same rotation.
             blob = bytearray(binary.read_bytes()); model = lib.NativeModel(bytes(blob)).decode()
             a, b = model['clips']['run']['nodes']['rootdummy']['controls'][20]['dataRange']
