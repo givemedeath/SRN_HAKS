@@ -62,8 +62,8 @@ The 15 unavailable directions are two asset findings. Both are diagnostic only; 
 * **Male `head001` aliases:** the 9 male heads carry two 5-edge open loops at the eyes of the
   `head001g` mesh, so neck–head penetration is unavailable on them. The female heads are closed.
 
-Motion values are unchanged from Phase 6: the Elf male `walk` shin–foot clearance is up to 0.6 mm worse
-than the scaled donor, and the shorter bodies' soles dip up to 3.4 cm lower in motion than the donor's.
+Motion values are unchanged from Phase 6, so review.md findings F1–F4 (ankle overlap, sole depth, Elf
+male ankle seam) stand as recorded there and in [client.md](client.md).
 
 ## Ledger bindings (local `.tmp`, machine-local)
 
