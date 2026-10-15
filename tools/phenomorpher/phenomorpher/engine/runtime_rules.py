@@ -58,6 +58,10 @@ def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, p
             recorded = next((r for r in manifest.get('installedAnimationChain', []) if Path(r['resource']).stem.lower() == name), None)
             if recorded and recorded['sha256'] != row['sha256']:
                 fail('installed-chain', name, 'installed bytes differ from the contract')
+    # A pack model named after an installed-chain model replaces it at runtime, whatever its role.
+    for row in manifest['resources']:
+        if Path(row['path']).suffix.lower() == '.mdl' and Path(row['path']).stem.lower() in stock:
+            fail('stock-shadow', row['path'], 'pack model shadows the installed ' + Path(row['path']).stem.lower())
     # Published rigs, libraries and carriers, decoded from the pack bytes the contract pins.
     models, roles, rows = {}, {}, {}
     for row in manifest['resources']:

@@ -67,6 +67,16 @@ class RuntimeRuleTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Unsupported texture format'):
                 lib.texture_header(root/'srn_body/x.dds')
 
+    def test_pack_models_may_not_shadow_installed_chain_models(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); _, contract, overlay = staged(root)
+            stock_name = next(iter(r for r in contract['installedAnimationChain']))['resource']
+            shadow = json.loads(json.dumps(contract)); blob = b'unused stock shadow'
+            shadow['resources'].append({'path': 'srn_body/' + Path(stock_name).name, 'sha256': hashlib.sha256(blob).hexdigest(), 'role': 'body-part'})
+            report = check(root, shadow, overlay={**overlay, 'srn_body/' + Path(stock_name).name: blob})
+            self.assertEqual(rules(report), ['stock-shadow'])
+            self.assertEqual(report['violations'][0]['subject'], 'srn_body/' + Path(stock_name).name)
+
     def test_target_roots_may_not_store_clips(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); _, contract, overlay = staged(root)
