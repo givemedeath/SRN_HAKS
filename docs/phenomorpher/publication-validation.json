@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "kind": "PhenoMorpher-publication-validation",
+  "contractVersion": "1.1.0",
+  "contract": {
+    "path": "docs/phenomorpher/game-ready-assets.json",
+    "sha256": "582c25d1908854477fdff7a6b89655f6d6bef5a76c607875f0a909a681e1672a"
+  },
+  "supersedes": {
+    "contractVersion": "1.0.0",
+    "commit": "0866bcaf",
+    "file": "publication-validation-1.0.0.json"
+  },
+  "targets": 20,
+  "resources": 931,
+  "verifyAssets": {
+    "resourcesVerified": 931,
+    "allHashesMatch": true,
+    "receipt": {
+      "path": ".tmp/runtime-optimization/phase8/launch-verify-110-accepted/launch.json (local)",
+      "sha256": "54ebcc36c7e0f909989d670f10a913ba2ed321a819d4b8aded1d97e03d6fe8d0"
+    }
+  },
+  "changesFrom100": {
+    "classes": {
+      "added-animation-library": 8,
+      "downsampled": 81,
+      "identical-appearance-routing": 1,
+      "identical-body-part": 300,
+      "identical-fitted-rig": 2,
+      "identical-race-selection-routing": 1,
+      "identical-rig-inheritance": 1,
+      "identical-selected-map": 1,
+      "identical-selected-material": 206,
+      "identical-selected-palette": 293,
+      "identical-stock-head-routing-alias": 18,
+      "identical-stock-phenotype-contract": 1,
+      "retired-rig-inheritance": 108,
+      "supermodel-only": 18
+    },
+    "unexplainedChanges": [],
+    "bodyPartsByteIdentical": true
+  },
+  "fitNamePromotions": {
+    "count": 150,
+    "carriedUnchangedFrom": "publication-validation-1.0.0.json"
+  },
+  "allDeclaredRigChainsResolved": true,
+  "privateAnimationCarriers": 1,
+  "allTargetChainsEndInInstalledStockChain": true,
+  "allBodyPalettesAndMapsResolved": true,
+  "texturesChecked": 375,
+  "texturesAbove1024": 0,
+  "shapesRigsUVsAndRetainedAnimationUnchanged": true,
+  "packs": [
+    {
+      "pack": "srn_body",
+      "hakSHA256": "ebe5dd7697f9feaa02410b997c93e4f95a1739561aa5b63ce8978b098c65a779",
+      "hakBytes": 667871456,
+      "resources": 665,
+      "publishedPayloadsExact": true
+    },
+    {
+      "pack": "srn_body_tex",
+      "hakSHA256": "ef036cc27238d54828d0e42840448507f22184a6de05477555ed12d0668b3fdd",
+      "hakBytes": 176204022,
+      "resources": 263,
+      "publishedPayloadsExact": true
+    },
+    {
+      "pack": "srn_2da",
+      "hakSHA256": "d810ea84237315ef55ff91c4f87832246e4b592afea97be2671a8b4e5366fece",
+      "hakBytes": 7677339,
+      "resources": 21,
+      "publishedPayloadsExact": true
+    }
+  ],
+  "packBuild": "tools/Build-Haks.ps1 -Pack srn_body,srn_body_tex,srn_2da; HAK hashes include the ERF build date, resource payloads are exact",
+  "clientValidated": true,
+  "clientEvidence": "docs/phenomorpher/runtime-optimization/client.md",
+  "userAccepted": true,
+  "limits": [
+    "Promotion from reviewed part237 to part001 is name-only and palette-copy exact, not another in-game test.",
+    "Unmodified installed-game stock animation and head resources remain prerequisites.",
+    "Stock clothing parts are authored for stock rigs; converting them through nwnarmory with the new phenotype profiles is separate work."
+  ]
+}

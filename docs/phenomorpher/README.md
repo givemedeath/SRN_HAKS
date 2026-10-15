@@ -69,7 +69,8 @@ phenotype profiles (separate work).
 ## Validation and limits
 
 [Client coverage](client-coverage.json) records the original reviewed selections.
-[Publication verification](publication-validation.json) records source matching,
+[Publication verification](publication-validation.json) covers contract 1.1.0. The 1.0.0 record is kept as
+[publication-validation-1.0.0.json](publication-validation-1.0.0.json); it records source matching,
 dependency closure and the rebuilt pack inventories. The coverage's historical
 `productionAccepted: false` fields describe the earlier review fixture, not the
 later user instruction to publish this selected release.
