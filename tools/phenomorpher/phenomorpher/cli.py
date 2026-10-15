@@ -117,6 +117,9 @@ def main(argv=None):
     p.add_argument('--motion', action='store_true'); p.add_argument('--motion-only', action='store_true')
     p.add_argument('--clip', action='append', help='Restrict the motion sweep to these clips')
     p.add_argument('--label')
+    p = sub.add_parser('retarget-v2')
+    p.add_argument('--fit-converted', type=Path, required=True); p.add_argument('--large-converted', type=Path)
+    p.add_argument('--baseline', type=Path, required=True, help='Extracted stock baseline (baseline.json and ascii/)')
     p = sub.add_parser('verify-runtime')
     for name in ('root', 'manifest', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
@@ -250,6 +253,14 @@ def main(argv=None):
         snapshot()  # Managed launches only, before any declared file is parsed.
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         print(json.dumps(sweep(a.root, a.manifest, a.output, a.target, a.stock, a.motion or a.motion_only, a.motion_only, a.clip, a.label)))
+        return
+    if a.command == 'retarget-v2':
+        from .engine.retarget_v2 import retarget
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        receipt = retarget(a.fit_converted, a.baseline, a.large_converted)
+        print(json.dumps({k: receipt[k] for k in ('motionSource', 'topCarrier', 'fitLargeShareMotion')}))
         return
     if a.command == 'verify-runtime':
         from .engine.runtime_rules import check

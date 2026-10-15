@@ -116,6 +116,15 @@ def consumed(arguments):
         if '--stock' in arguments:
             stock = option('stock'); files.add(stock)
             files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
+    elif command == 'retarget-v2':
+        baseline = option('baseline'); fit = option('fit-converted')
+        reports = [fit/'conversion.json'] + ([option('large-converted')/'conversion.json'] if '--large-converted' in arguments else [])
+        files.update(reports); files.add(rooted(baseline, 'baseline.json'))
+        gender = read(reports[0])['modelPrefix'][1]; stock = read(rooted(baseline, 'baseline.json'))['animations']
+        files.add(rooted(baseline, f'ascii/p{gender}h0.mdl'))
+        current = 'a_fa' if gender == 'f' else 'a_ba'
+        while current != 'null':
+            files.add(rooted(baseline, f'ascii/{current}.mdl')); current = stock[current]['supermodel']
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)

@@ -82,16 +82,19 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 | `adopt-runtime` | Adoption plan pins: base contract, libraries, roots, comparisons, texture receipt, stock | Staged pack files, next contract, retired list, inventory index and removal list; refuses a staged release that breaks the runtime rules |
 | `verify-runtime` | Contract, its rigs/libraries/carriers and palettes/maps; optional stock pins | Runtime layout rules: no private carriers, stock-terminated chains, library parent and evidence, Fit/Large supermodel, textures at most 1024 px |
 | `audit-native` | One published binary model and its source (ASCII or binary) | Normalised controller comparison, quaternions up to sign |
-| `sweep` | Contract, the targets' and donors' rigs, parts and head aliases; for motion also every rig and the stock pins | Per-body native, geometry, measurement and v16 connector (neck, penetration) report, optional motion connectors |
+| `sweep` | Contract, the targets' and donors' rigs, parts and head aliases; for motion also every rig and the stock pins | Per-body native, geometry, measurement and v16 connector (neck, penetration) report, optional motion connectors; an explicit `--clip` that a chain cannot resolve fails the run, and default clips that cannot are listed as unavailable |
+| `retarget-v2` | Fit (and optional Large) `conversion.json`, stock `baseline.json`, the Human rig of that gender and the stock `a_fa`/`a_ba` chain | Fit-fitted carrier chain, Fit and Large roots naming its top carrier, and `retarget-v2.json` |
 
 ## Runtime release recipe (new or regenerated bodies)
 
-Every step runs through `run.py` with fresh migration evidence:
+Every PhenoMorpher step runs through `run.py` with fresh migration evidence; client compiles run
+`tools/phenotypes/native_compile.py` through `launch_shared_tool.py`. No step runs a module directly.
 
-1. Retarget with `engine/retarget_v2.py`. It fits one carrier chain from the Fit body over `a_fa`/`a_ba`, and the Large root
-   names the same top carrier. The carriers are an unpublished intermediate.
-2. Compile the carriers and roots in the EE client (`tools/phenotypes/native_compile.py`) and list them in an
-   intermediate manifest. Keep that manifest as durable evidence.
+1. Run `retarget-v2 --fit-converted <fit> --large-converted <large> --baseline <stock baseline>`. It fits one carrier
+   chain from the Fit body over `a_fa`/`a_ba`, and the Large root names the same top carrier. The carriers are an
+   unpublished intermediate.
+2. Compile the carriers and roots in the EE client and list them in an intermediate manifest. Keep that manifest as
+   durable evidence.
 3. Run `anim-library build` (with `--authorized-fit-clip` where approved), compile the library in the client, then
    `anim-library restore`.
 4. Run `anim-library repoint` for the Fit and Large roots, then `compare-motion` for each.

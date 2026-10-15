@@ -285,6 +285,7 @@
       "tools/phenomorpher/phenomorpher/engine/measurement_workflow.py",
       "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
       "tools/phenomorpher/phenomorpher/engine/replay_bodies.py",
+      "tools/phenomorpher/phenomorpher/engine/retarget_v2.py",
       "tools/phenomorpher/phenomorpher/engine/rig_native.py",
       "tools/phenomorpher/phenomorpher/engine/runtime_release.py",
       "tools/phenomorpher/phenomorpher/engine/runtime_rules.py",
@@ -517,6 +518,9 @@
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
       "tools/phenomorpher/phenomorpher/inputs.py"
+    ],
+    "tools/phenomorpher/phenomorpher/engine/test_body_sweep.py": [
+      "tools/phenomorpher/phenomorpher/engine/body_sweep.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_check_connector_surfaces_v15.py": [
       "tools/phenomorpher/phenomorpher/engine/check_connector_surfaces_v15.py"
@@ -3206,6 +3210,7 @@
     "tools/heads/test_submission_reconciliation.py",
     "tools/heads/test_target_and_publication.py",
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
+    "tools/phenomorpher/phenomorpher/engine/test_body_sweep.py",
     "tools/phenomorpher/phenomorpher/engine/test_check_connector_surfaces_v15.py",
     "tools/phenomorpher/phenomorpher/engine/test_check_connector_surfaces_v16.py",
     "tools/phenomorpher/phenomorpher/engine/test_fit_anatomy_stage1_v15.py",

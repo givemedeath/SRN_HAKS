@@ -132,13 +132,16 @@ def motion(models, b, donor, clips):
         except ValueError as error:
             rows[f'{left}-{right}'] = {'status': 'unavailable', 'reason': str(error)}
     feet = lambda meshes: min(float(np.asarray(m['position'])[:, 2].min()) for m in meshes if m['part'] in ('footl', 'footr') and m.get('render', True))
-    floor = feet(b['meshes']); donor_floor = feet(donor['meshes']); clip_rows = {}
+    floor = feet(b['meshes']); donor_floor = feet(donor['meshes']); clip_rows = {}; missing = {}
     for clip_name in clips:
         try:
             _, clip, owner = posed_frames(models, prefix, clip_name, 0.)
+        except KeyError:
+            missing[clip_name] = 'absent from the target chain'; continue
+        try:
             _, donor_clip, donor_owner = posed_frames(models, donor['prefix'], clip_name, 0.)
         except KeyError:
-            continue
+            missing[clip_name] = 'absent from the donor chain'; continue
         worst = {}; sole = []
         for t in sample_times(clip):
             fraction = t/clip['length'] if clip['length'] else 0.
@@ -158,7 +161,17 @@ def motion(models, b, donor, clips):
         low = min(sole, key=lambda r: r[0])
         clip_rows[clip_name] = {'owner': owner, 'donorOwner': donor_owner, 'samples': len(sample_times(clip)), 'connectors': worst,
                                 'lowestSoleBelowStandingMeters': low[0], 'donorLowestSoleBelowStandingMeters': min(r[1] for r in sole), 'lowestSoleTime': low[2]}
-    return {'bindFrameAgreement': drift, 'unavailableLinks': rows, 'clips': clip_rows, 'scale': b['scale']}
+    return {'bindFrameAgreement': drift, 'unavailableLinks': rows, 'clips': clip_rows, 'unavailableClips': missing,
+            'requestedClips': list(clips), 'scale': b['scale']}
+
+
+def unresolved_clips(models, prefixes, clips):
+    """Requested clips that some target or donor chain cannot resolve."""
+    missing = []
+    for prefix in sorted(set(prefixes) | {donor_of(p) for p in prefixes}):
+        effective = lib.effective(lib.chain(prefix, models), models)
+        missing += [f'{prefix}:{clip}' for clip in clips if clip not in effective]
+    return missing
 
 
 def sweep(root, manifest_path, output, prefixes, stock_manifest=None, with_motion=False, motion_only=False, clips=None, label=None):
@@ -176,6 +189,9 @@ def sweep(root, manifest_path, output, prefixes, stock_manifest=None, with_motio
     models = None
     if with_motion:
         stock, stock_paths = lib.stock_files(stock_manifest); models, _ = lib.release_models(root, contract, stock, stock_paths)
+        # Explicitly requested clips must all be measurable; the default set records gaps per body instead.
+        if clips and (missing := unresolved_clips(models, prefixes, clips)):
+            raise ValueError('Requested clip cannot be resolved: ' + ', '.join(missing))
     output.mkdir(parents=True, exist_ok=False); cache = {}; written = []
     def load(prefix):
         if prefix not in cache:
