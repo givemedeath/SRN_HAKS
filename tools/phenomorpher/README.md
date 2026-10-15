@@ -79,7 +79,29 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 | `anim-library repoint` | One native root | Root with only its supermodel field changed |
 | `compare-motion` | Body manifest rigs/carriers, stock pins, library and repointed root | Per-clip exact/inherited/authorized status and assembled drift |
 | `downsample-textures` | Body manifest palettes, maps and materials | Fresh folder of 2:1-reduced textures above the size cap and a receipt |
-| `adopt-runtime` | Adoption plan pins: base contract, libraries, roots, comparisons, texture receipt, stock | Staged pack files, next contract, retired list, inventory index and removal list |
+| `adopt-runtime` | Adoption plan pins: base contract, libraries, roots, comparisons, texture receipt, stock | Staged pack files, next contract, retired list, inventory index and removal list; refuses a staged release that breaks the runtime rules |
+| `verify-runtime` | Contract, its rigs/libraries/carriers and palettes/maps; optional stock pins | Runtime layout rules: no private carriers, stock-terminated chains, library parent and evidence, Fit/Large supermodel, textures at most 1024 px |
+| `audit-native` | One published binary model and its source (ASCII or binary) | Normalised clip controller and static rig (hierarchy, node types, bind transforms) comparison, quaternions up to sign |
+| `sweep` | Contract, the targets' and donors' rigs, parts and head aliases; for motion also every rig and the stock pins | Per-body native, geometry, measurement and v16 connector (neck, penetration) report, optional motion connectors; an explicit `--clip` that a chain cannot resolve fails the run, and default clips that cannot are listed as unavailable |
+| `retarget-v2` | Fit (and optional Large) `conversion.json`, stock `baseline.json`, the Human rig of that gender and the stock `a_fa`/`a_ba` chain | Fit-fitted carrier chain, Fit and Large roots naming its top carrier, and `retarget-v2.json` |
+
+## Runtime release recipe (new or regenerated bodies)
+
+Every PhenoMorpher step runs through `run.py` with fresh migration evidence; client compiles run
+`tools/phenotypes/native_compile.py` through `launch_shared_tool.py`. No step runs a module directly.
+
+1. Run `retarget-v2 --fit-converted <fit> --large-converted <large> --baseline <stock baseline>`. It fits one carrier
+   chain from the Fit body over `a_fa`/`a_ba`, and the Large root names the same top carrier. The carriers are an
+   unpublished intermediate.
+2. Compile the carriers and roots in the EE client and list them in an intermediate manifest. Keep that manifest as
+   durable evidence.
+3. Run `anim-library build` (with `--authorized-fit-clip` where approved), compile the library in the client, then
+   `anim-library restore`.
+4. Run `anim-library repoint` for the Fit and Large roots, then `compare-motion` for each.
+5. Run `downsample-textures` for every palette or map above 1024 px.
+6. Run `adopt-runtime` with `baseKind: intermediate` for a new body, or `published` to replace a release. It refuses a
+   staged release that breaks the runtime rules.
+7. Run `verify-runtime` on the adopted contract, then `verify-assets` and the client review.
 
 An assembly sidecar is schemaVersion 1, kind `PhenoMorpher-assembly`, with `rig`
 and `parts` hash pins. Paths resolve inside the explicit `--root`. Part keys use

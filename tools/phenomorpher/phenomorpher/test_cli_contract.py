@@ -125,6 +125,39 @@ class PortableCliTests(unittest.TestCase):
                 runner.consumed(['anim-library','inventory','--root',str(root),'--manifest',str(root/'contract.json'),
                                  '--stock',str(root/'stock/stock.json'),'--output',str(root/'y')])
 
+    def test_runner_declares_rigs_textures_and_stock_for_runtime_verification(self):
+        from . import inputs as runner
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'stock').mkdir()
+            rows=[{'path':'srn_body/r.mdl','role':'fitted-rig'},{'path':'srn_body/l.mdl','role':'animation-library'},
+                  {'path':'srn_body/r.plt','role':'selected-palette'},{'path':'srn_body/r001.mdl','role':'body-part'}]
+            (root/'c.json').write_text(json.dumps({'resources':rows}))
+            (root/'stock/s.json').write_text(json.dumps({'models':{'a_ba':{'path':'a_ba.mdl'}}}))
+            argv=['verify-runtime','--root',str(root),'--manifest',str(root/'c.json'),'--output',str(root/'o.json')]
+            expected={(root/p).resolve() for p in ('c.json','srn_body/r.mdl','srn_body/l.mdl','srn_body/r.plt')}
+            self.assertEqual(runner.consumed(argv),expected)
+            self.assertEqual(runner.consumed(argv+['--stock',str(root/'stock/s.json')]),
+                             expected|{(root/'stock/s.json').resolve(),(root/'stock/a_ba.mdl').resolve()})
+            with patch.dict('os.environ',{'SRN_VERIFIED_INPUTS':''}),patch.object(cli,'_PINS',None):
+                with self.assertRaisesRegex(ValueError,'run.py'):cli.main(argv)
+            self.assertFalse((root/'o.json').exists())
+
+    def test_runner_declares_reports_human_rig_and_stock_chain_for_retarget_v2(self):
+        from . import inputs as runner
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'fit').mkdir();(root/'large').mkdir();(root/'base/ascii').mkdir(parents=True)
+            (root/'fit/conversion.json').write_text(json.dumps({'modelPrefix':'pfd0'}))
+            (root/'large/conversion.json').write_text(json.dumps({'modelPrefix':'pfd2'}))
+            (root/'base/baseline.json').write_text(json.dumps({'animations':{'a_fa':{'supermodel':'a_ba'},'a_ba':{'supermodel':'null'},
+                                                                              'a_fa2':{'supermodel':'a_ba2'}}}))
+            argv=['retarget-v2','--fit-converted',str(root/'fit'),'--baseline',str(root/'base')]
+            expected={(root/p).resolve() for p in ('fit/conversion.json','base/baseline.json','base/ascii/pfh0.mdl','base/ascii/a_fa.mdl','base/ascii/a_ba.mdl')}
+            self.assertEqual(runner.consumed(argv),expected)
+            self.assertEqual(runner.consumed(argv+['--large-converted',str(root/'large')]),expected|{(root/'large/conversion.json').resolve()})
+            with patch.dict('os.environ',{'SRN_VERIFIED_INPUTS':''}),patch.object(cli,'_PINS',None):
+                with self.assertRaisesRegex(ValueError,'run.py'):cli.main(argv)
+            self.assertFalse((root/'fit/retarget-v2.json').exists())
+
     def test_runner_freezes_the_installed_keys_and_model_bifs_for_stock_extraction(self):
         from . import inputs as runner
         def key(bifs,entries):

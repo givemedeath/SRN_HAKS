@@ -106,6 +106,25 @@ def main(argv=None):
     p = sub.add_parser('adopt-runtime')
     for name in ('root', 'plan', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
+    p = sub.add_parser('audit-native')
+    for name in ('published', 'source', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p = sub.add_parser('sweep')
+    for name in ('root', 'manifest', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--target', action='append', required=True, help='Model prefix; repeat per body')
+    p.add_argument('--stock', type=Path, help='Extracted stock manifest; required for --motion')
+    p.add_argument('--motion', action='store_true'); p.add_argument('--motion-only', action='store_true')
+    p.add_argument('--clip', action='append', help='Restrict the motion sweep to these clips')
+    p.add_argument('--label')
+    p = sub.add_parser('retarget-v2')
+    p.add_argument('--fit-converted', type=Path, required=True); p.add_argument('--large-converted', type=Path)
+    p.add_argument('--baseline', type=Path, required=True, help='Extracted stock baseline (baseline.json and ascii/)')
+    p = sub.add_parser('verify-runtime')
+    for name in ('root', 'manifest', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--stock', type=Path, help='Extracted stock manifest for the deep installed-chain check')
+    p.add_argument('--max-texture', type=int, default=1024)
     a = parser.parse_args(argv)
     if a.command == 'doctor':
         declared(__file__)
@@ -218,6 +237,43 @@ def main(argv=None):
         snapshot()  # Managed launches only, before any declared file is parsed.
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         print(json.dumps(adopt(a.root, a.plan, a.output)['summary'])); return
+    if a.command == 'audit-native':
+        from .engine.rig_native import compare
+        for path in (a.published, a.source): declared(path)
+        if a.output.exists(): raise ValueError('Fresh output required')
+        result = compare(a.published, a.source)
+        a.output.parent.mkdir(parents=True, exist_ok=True)
+        a.output.write_text(json.dumps(result, indent=1) + chr(10), encoding='utf-8', newline=chr(10))
+        print(json.dumps({k: result[k] for k in ('failures', 'headerDifferences', 'passed')}))
+        if not result['passed']: raise SystemExit(1)
+        return
+    if a.command == 'sweep':
+        from .engine.body_sweep import sweep
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        print(json.dumps(sweep(a.root, a.manifest, a.output, a.target, a.stock, a.motion or a.motion_only, a.motion_only, a.clip, a.label)))
+        return
+    if a.command == 'retarget-v2':
+        from .engine.retarget_v2 import retarget
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        receipt = retarget(a.fit_converted, a.baseline, a.large_converted)
+        print(json.dumps({k: receipt[k] for k in ('motionSource', 'topCarrier', 'fitLargeShareMotion')}))
+        return
+    if a.command == 'verify-runtime':
+        from .engine.runtime_rules import check
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        if a.output.exists(): raise ValueError('Fresh output required')
+        result = check(a.root, a.manifest, a.stock, a.max_texture)
+        a.output.parent.mkdir(parents=True, exist_ok=True)
+        a.output.write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8', newline='\n')
+        print(json.dumps({k: result[k] for k in ('contractVersion', 'mode', 'violationCounts', 'passed')}))
+        if not result['passed']: raise SystemExit(1)
+        return
     if a.command == 'convert-clothing':
         for path in (a.profile,a.source_binding,a.input):declared(path)
         data=read(a.profile)
