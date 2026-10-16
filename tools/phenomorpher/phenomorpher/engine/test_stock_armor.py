@@ -47,11 +47,12 @@ class InventoryTests(unittest.TestCase):
     def test_extraction_pins_models_textures_and_flags_unresolved_references(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); (root/'game/data').mkdir(parents=True)
+            bare = [('pfd0', 2002)] + [(f'pfd0_{part}001', 2002) for part in armor.BARE]
             key_file(root/'game/data/nwn_base.key', [('pfd0_chest005', 2002), ('pfd0_belt002', 2002), ('pmh0_chest005', 2002),
-                                                     ('pfd0_chest005', 6), ('pfh0_chest001', 6)])
+                                                     ('pfd0_chest005', 6), ('pfh0_chest001', 6), *bare])
             texts = {'pfd0_chest005.mdl': MODEL.format(n='pfd0_chest005', kind='danglymesh', bitmap='pfd0_chest005'),
                      'pfd0_belt002.mdl': MODEL.format(n='pfd0_belt002', kind='trimesh', bitmap='missing_tex'),
-                     'pfd0_chest005.plt': 'PLT', 'pfh0_chest001.plt': 'PLT'}
+                     'pfd0_chest005.plt': 'PLT', 'pfh0_chest001.plt': 'PLT', **{n + '.mdl': 'native' for n, _ in bare}}
             def run(command, **_):
                 out = Path(command[command.index('-d') + 1])
                 for name in command[command.index('-d') + 2:]:
@@ -62,7 +63,8 @@ class InventoryTests(unittest.TestCase):
             with patch.object(armor.subprocess, 'run', side_effect=run):
                 manifest = armor.extract(tool, dec, root/'game', root/'out', ['pfd0'])
             self.assertEqual(sorted(manifest['models']), ['pfd0_belt002.mdl', 'pfd0_chest005.mdl'])
-            self.assertEqual(manifest['counts'], {'models': 2, 'textures': 1, 'danglymesh': 1, 'unsupportedMeshTypes': []})
+            self.assertEqual(manifest['counts'], {'models': 2, 'textures': 1, 'fitReferences': 16, 'danglymesh': 1, 'unsupportedMeshTypes': []})
+            self.assertIn('pfd0.mdl', manifest['fitReferences']); self.assertNotIn('pfd0_chest001.mdl', manifest['models'])
             self.assertEqual(manifest['models']['pfd0_belt002.mdl']['unresolvedReferences'], ['missing_tex'])
             self.assertEqual(sorted(manifest['textures']), ['pfd0_chest005.plt'])
             self.assertEqual(json.loads((root/'out/stock-armor.json').read_text())['override'], False)

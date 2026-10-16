@@ -64,6 +64,15 @@ def selected(resources, slots):
     return dict(sorted(rows.items()))
 
 
+def fit_references(resources, slots):
+    """Per slot, the stock rig and bare style-001 parts the affine profiles are fitted from (never converted)."""
+    names = [f'{slot}.mdl' for slot in slots] + [f'{slot}_{part}001.mdl' for slot in slots for part in BARE]
+    missing = [n for n in names if n not in resources]
+    if missing:
+        raise ValueError('Installed fit reference missing: ' + ', '.join(missing[:10]))
+    return sorted(names)
+
+
 def resman_extract(tool, game_root, names, output, batch=400):
     """Extract named resources with overrides ignored and an empty user folder, in command-line-sized batches."""
     names = sorted(names)
@@ -82,16 +91,19 @@ def references(text):
 
 
 def extract(extract_tool, decompiler, game_root, output, slots=SLOTS):
-    """Fresh folder: raw/ (installed bytes), ascii/ (decompiled), textures/ and stock-armor.json pins."""
+    """Fresh folder: raw/ (installed bytes), ascii/ (decompiled), textures/, reference/ (stock rigs and bare
+    style-001 parts, native) and stock-armor.json pins."""
     output = Path(output); slots = tuple(slots)
     if set(slots) - set(SLOTS):
         raise ValueError('Unknown body slot: ' + ', '.join(sorted(set(slots) - set(SLOTS))))
     output.mkdir(parents=True, exist_ok=False)
     resources = key_resources(game_root); models = selected(resources, slots)
-    raw, ascii_dir, textures = output/'raw', output/'ascii', output/'textures'
-    for folder in (raw, ascii_dir, textures):
+    raw, ascii_dir, textures, reference = output/'raw', output/'ascii', output/'textures', output/'reference'
+    for folder in (raw, ascii_dir, textures, reference):
         folder.mkdir()
     resman_extract(extract_tool, game_root, models, raw)
+    fit = fit_references(resources, slots); resman_extract(extract_tool, game_root, fit, reference)
+    fit_pins = {n: {'sha256': digest((reference/n).read_bytes()), 'keys': resources[n]} for n in fit}
     referenced = {}
     for name, row in models.items():
         source, target = raw/name, ascii_dir/name; data = source.read_bytes()
@@ -121,8 +133,8 @@ def extract(extract_tool, decompiler, game_root, output, slots=SLOTS):
                 'tools': {'resmanExtract': {'path': str(Path(extract_tool).resolve()), 'sha256': digest(Path(extract_tool).read_bytes())},
                           'decompiler': {'path': str(Path(decompiler).resolve()), 'sha256': digest(Path(decompiler).read_bytes())}},
                 'excluded': {'robe': 'skinned; separate route', 'bareStyle001': list(BARE)},
-                'models': models, 'textures': pins,
-                'counts': {'models': len(models), 'textures': len(pins),
+                'models': models, 'textures': pins, 'fitReferences': fit_pins,
+                'counts': {'models': len(models), 'textures': len(pins), 'fitReferences': len(fit_pins),
                            'danglymesh': sum('danglymesh' in r['meshTypes'] for r in models.values()),
                            'unsupportedMeshTypes': sorted({t for r in models.values() for t in r['meshTypes']} - {'trimesh', 'danglymesh'})},
                 'assetApprovalCreated': False}
