@@ -3175,6 +3175,7 @@
       "srn_body"
     ],
     "tools/phenomorpher/phenomorpher/engine/stock_armor.py": [
+      "srn_armor",
       "srn_body"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py": [
@@ -3188,6 +3189,7 @@
       "srn_body"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_stock_armor.py": [
+      "srn_armor",
       "srn_body"
     ],
     "tools/phenomorpher/phenomorpher/inputs.py": [
