@@ -49,6 +49,13 @@ class FallbackTests(unittest.TestCase):
         self.assertIsNone(ci_scope.changed_files('0'*40))
         self.assertIsNone(ci_scope.changed_files('f'*40))
 
+    def test_job_output_carries_the_changed_count_and_keeps_an_unknown_base_null(self):
+        many=[f'srn_body/p{i:05d}.mdl' for i in range(6000)]
+        compact=json.loads(ci_scope.job_output(ci_scope.plan(many,DATA,CONFIG)))
+        self.assertEqual(compact['changed'],6000)
+        self.assertLess(len(ci_scope.job_output(ci_scope.plan(many,DATA,CONFIG))),len(json.dumps(many)))
+        self.assertIsNone(json.loads(ci_scope.job_output(ci_scope.plan(None,DATA,CONFIG)))['changed'])
+
 class ScopedPlanTests(unittest.TestCase):
     def test_documentation_only_change_keeps_verification_but_selects_no_helper_jobs(self):
         plan=ci_scope.plan(['README.md'],DATA,CONFIG)

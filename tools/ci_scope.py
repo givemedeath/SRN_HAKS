@@ -63,6 +63,12 @@ def plan(changed,data,config,durations=None,full_reason=None,base='',deleted=())
         'helperMatrix':matrix,'itemImport':item,'wheel':wheel,'operatingSystems':config['operatingSystems'],
         'expectedJobs':['Scope',VERIFY,*jobs]}
 
+def job_output(result):
+    """Compact plan for job outputs. Large changes (thousands of pack assets) would exceed the runner's
+    argument limit, so the changed paths become their count; the plan file keeps the full list."""
+    changed=result['changed']
+    return json.dumps({**result,'changed':None if changed is None else len(changed)},separators=(',',':'))
+
 def summary(result):
     lines=['## CI scope plan','',f"- Full suite: **{result['fullSuite']}**; {result['reason']}",
         f"- Changed files: {'unknown' if result['changed'] is None else len(result['changed'])}",
@@ -93,7 +99,7 @@ def main():
     result=plan(changed,data,config,durations,a.full_reason or None,a.base,test_impact.deleted_paths(changed or []))
     a.output.write_text(json.dumps(result,indent=1)+'\n',encoding='utf-8')
     if a.github_output:
-        with a.github_output.open('a',encoding='utf-8') as f:f.write('plan='+json.dumps(result,separators=(',',':'))+'\n')
+        with a.github_output.open('a',encoding='utf-8') as f:f.write('plan='+job_output(result)+'\n')
     print(summary(result))
 
 if __name__=='__main__':main()

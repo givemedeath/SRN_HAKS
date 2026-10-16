@@ -138,35 +138,74 @@ class ProfileTests(unittest.TestCase):
             armor.source_slot('pfh0')
 
 
+def native(model, tail=b''):
+    """Minimal native model: a root dummy and one mesh child; `tail` lands after texture1's terminator."""
+    data = bytearray(12 + 0x200 + 0x264)
+    struct.pack_into('<III', data, 0, 0, 0x200 + 0x264, 0)
+    data[12 + 0x08:12 + 0x08 + len(model)] = model.encode(); data[12 + 0xa8:12 + 0xac] = b'NULL'
+    struct.pack_into('<II', data, 12 + 0x48, 0x100, 2)
+    root, mesh = 12 + 0x100, 12 + 0x200
+    data[root + 0x20:root + 0x20 + len(model)] = model.encode(); struct.pack_into('<I', data, root + 0x6c, 1)
+    struct.pack_into('<III', data, root + 0x48, 0x180, 1, 1); struct.pack_into('<I', data, 12 + 0x180, 0x200)
+    data[mesh + 0x20:mesh + 0x21 + len(model)] = (model + 'g').encode(); struct.pack_into('<I', data, mesh + 0x6c, 33)
+    data[mesh + 0xe8:mesh + 0xe8 + len(model)] = model.encode()
+    data[mesh + 0x129:mesh + 0x129 + len(tail)] = tail
+    return bytes(data)
+
+
+class SanitizeTests(unittest.TestCase):
+    def test_string_tails_are_zeroed_and_nothing_else_changes(self):
+        dirty = native('pfd0_chest005', b'Authorization: Bearer abc')
+        self.assertEqual(armor.leaked_text(dirty), ['string field tails are not zeroed', 'header- or credential-like text'])
+        clean = armor.sanitize_binary(dirty)
+        self.assertEqual(armor.leaked_text(clean), [])
+        self.assertEqual(clean, native('pfd0_chest005'))
+        self.assertEqual(armor.sanitize_binary(clean), clean)
+
+    def test_header_text_outside_string_fields_is_reported(self):
+        data = bytearray(native('pfd0_chest005')); data[12 + 0x190:12 + 0x19a] = b'X-Session:'
+        self.assertEqual(armor.leaked_text(bytes(data)), ['header- or credential-like text'])
+
+
 class PackTests(unittest.TestCase):
-    def fixture(self, root):
-        """One converted, compiled part for pfd0 and its body contract."""
+    def fixture(self, root, slots=armor.TARGETS, tail=b''):
+        """One converted, compiled chest005 per body slot, and the body contract."""
         from .anim_library import digest
-        compiled = root/'compiled'; res = compiled/'pfd0/converted/resources'; res.mkdir(parents=True)
-        binary = b'\0\0\0\0compiled'; (res/'pfd0_chest005.mdl').write_bytes(binary)
-        (compiled/'pfd0/converted/native-compile.json').write_text(json.dumps({'complete': True, 'clientSha256': 'c', 'models': [
-            {'name': 'pfd0_chest005.mdl', 'sourceSha256': 'a', 'binarySha256': digest(binary)}]}))
+        compiled = root/'compiled'; models = {}
+        for slot in slots:
+            res = compiled/slot/'converted/resources'; res.mkdir(parents=True); name = f'{slot}_chest005'
+            binary = native(name, tail); (res/(name + '.mdl')).write_bytes(binary)
+            (compiled/slot/'converted/native-compile.json').write_text(json.dumps({'complete': True, 'clientSha256': 'c', 'models': [
+                {'name': name + '.mdl', 'sourceSha256': 'a', 'binarySha256': digest(binary)}]}))
+            models[slot] = {'source': armor.source_slot(slot), 'models': {name + '.mdl': {
+                'source': armor.source_slot(slot) + '_chest005.mdl', 'part': 'chest', 'style': 5, 'sourceAsciiSHA256': 'x',
+                'asciiSHA256': 'a', 'meshTypes': ['trimesh'], 'textureReferences': [armor.source_slot(slot) + '_chest005']}}}
         conversion = root/'conversion.json'
         conversion.write_text(json.dumps({'kind': armor.CONVERT_KIND, 'stockInventorySHA256': 's', 'profilesSHA256': 'p',
-            'armory': {'sha256': armor.ARMORY_SHA256}, 'slots': {'pfd0': {'source': 'pfh0', 'models': {'pfd0_chest005.mdl': {
-                'source': 'pfh0_chest005.mdl', 'part': 'chest', 'style': 5, 'sourceAsciiSHA256': 'x', 'asciiSHA256': 'a',
-                'meshTypes': ['trimesh'], 'textureReferences': ['pfh0_chest005']}}}}}))
+            'armory': {'sha256': armor.ARMORY_SHA256}, 'slots': models}))
         body = root/'body.json'; body.write_text(json.dumps({'resources': [{'path': 'srn_body/pfd0_chest001.mdl'}]}))
         return conversion, compiled, body
 
-    def test_published_pack_verifies_and_rejects_drift(self):
+    def test_published_pack_is_sanitized_verifies_and_rejects_drift(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp); conversion, compiled, body = self.fixture(root); manifest = root/'armor.json'
+            root = Path(tmp); conversion, compiled, body = self.fixture(root, tail=b'Authorization: Bearer abc'); manifest = root/'armor.json'
             result = armor.publish([(conversion, compiled)], body, root, manifest)
-            self.assertEqual((result['resources'], result['targets']), (1, 1))
-            self.assertEqual((root/'srn_armor/pfd0_chest005.mdl').read_bytes(), b'\0\0\0\0compiled')
+            self.assertEqual((result['resources'], result['targets']), (16, 16))
+            published = (root/'srn_armor/pfd0_chest005.mdl').read_bytes()
+            self.assertEqual(published, native('pfd0_chest005')); self.assertNotIn(b'Bearer', published)
+            row = json.loads(manifest.read_text())['resources'][0]
+            self.assertNotEqual(row['sha256'], row['compiledSHA256'])
             self.assertRaises(FileExistsError, armor.publish, [(conversion, compiled)], body, root, manifest)
             (root/'srn_armor/pfd0_chest006.mdl').write_bytes(b'\0\0\0\0x')
             self.assertRaisesRegex(ValueError, 'outside its contract', armor.verify_pack, root, manifest)
-            (root/'srn_armor/pfd0_chest006.mdl').unlink(); (root/'srn_armor/pfd0_chest005.mdl').write_bytes(b'\0\0\0\0changed')
+            (root/'srn_armor/pfd0_chest006.mdl').unlink()
+            (root/'srn_armor/pfd0_chest005.mdl').write_bytes(native('pfd0_chest005', b'Authorization: Bearer abc'))
             self.assertRaisesRegex(ValueError, 'differs', armor.verify_pack, root, manifest)
 
-    def test_publish_refuses_binaries_from_other_sources(self):
+    def test_publish_refuses_partial_packs_and_mismatched_binaries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); conversion, compiled, body = self.fixture(root, slots=armor.TARGETS[:15])
+            self.assertRaisesRegex(ValueError, 'missing: ' + armor.TARGETS[15], armor.publish, [(conversion, compiled)], body, root, root/'m.json')
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); conversion, compiled, body = self.fixture(root)
             data = json.loads(conversion.read_text()); data['slots']['pfd0']['models']['pfd0_chest005.mdl']['asciiSHA256'] = 'b'

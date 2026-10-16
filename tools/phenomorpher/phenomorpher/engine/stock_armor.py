@@ -477,6 +477,57 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
 
 PACK_KIND = 'PhenoMorpher-stock-armor-pack'
 PACK = 'srn_armor'
+# The NWN:EE client compiler leaves the bytes after the terminator of fixed string fields uninitialised, and they
+# can hold its process memory (GOG Galaxy HTTP session headers were found there). Published binaries carry zeroed
+# tails, and no text that looks like a protocol header or credential may appear anywhere in them.
+LEAK = re.compile(rb'(?i)(authori[sz]ation|bearer|x-session|cookie|user-agent|http/1\.|https?://|gog\.com|password|token)')
+
+
+def native_nodes(data):
+    """(file offset, flags) of every node reachable from a native model's root."""
+    root = struct.unpack_from('<I', data, 12 + 0x48)[0]; stack, seen, out = [root], set(), []
+    while stack:
+        offset = stack.pop()
+        if offset in seen or len(seen) > 4096:
+            raise ValueError('Native node cycle or excessive tree')
+        seen.add(offset); node = 12 + offset; out.append((node, struct.unpack_from('<I', data, node + 0x6c)[0]))
+        children, count, _ = struct.unpack_from('<III', data, node + 0x48)
+        stack += struct.unpack_from('<' + 'I'*count, data, 12 + children)
+    return out
+
+
+def string_fields(data):
+    """(offset, size) of the fixed string fields: model and supermodel names, node names and mesh textures 0-3."""
+    fields = [(12 + 0x08, 64), (12 + 0xa8, 64)]
+    for node, flags in native_nodes(data):
+        fields.append((node + 0x20, 32))
+        if flags & 0x20:
+            fields += [(node + 0xe8 + 64*k, 64) for k in range(4)]
+    return fields
+
+
+def sanitize_binary(data):
+    """Zero every string field after its terminator; geometry and every other byte are unchanged."""
+    out = bytearray(data)
+    for start, size in string_fields(data):
+        end = out[start:start + size].find(0)
+        if end < 0:
+            raise ValueError('Unterminated native string field')
+        out[start + end:start + size] = bytes(size - end)
+    return bytes(out)
+
+
+def leaked_text(data):
+    """Reasons a published binary may carry process memory: unzeroed string tails, or header- or credential-like
+    text anywhere. Diffing two client compiles of the same 1,840 sources showed the compiler's other
+    uninitialised bytes are runtime pointers and single pad bytes, which cannot hold text
+    (docs/phenomorpher/clothing/full.md)."""
+    reasons = []
+    if sanitize_binary(data) != data:
+        reasons.append('string field tails are not zeroed')
+    if LEAK.search(data):
+        reasons.append('header- or credential-like text')
+    return reasons
 
 
 def compile_receipt(compiled, slot):
@@ -519,14 +570,19 @@ def publish(pairs, body_manifest, root, manifest):
                     raise ValueError('Compiled binary does not match its conversion: ' + name)
                 if name.lower() in body_names or len(Path(name).stem) > 16:
                     raise ValueError('Armour name shadows a body resource or exceeds 16 characters: ' + name)
+                content = sanitize_binary(content)
+                if leaked_text(content):
+                    raise ValueError('Compiled binary still carries unexpected text: ' + name + ': ' + ', '.join(leaked_text(content)))
                 contents[name] = content
-                rows.append({'path': f'{PACK}/{name}', 'sha256': entry['binarySha256'], 'bytes': len(content),
+                rows.append({'path': f'{PACK}/{name}', 'sha256': digest(content), 'compiledSHA256': entry['binarySha256'], 'bytes': len(content),
                              'slot': slot, 'part': model['part'], 'style': model['style'], 'source': model['source'],
                              'sourceAsciiSHA256': model['sourceAsciiSHA256'], 'asciiSHA256': model['asciiSHA256'],
                              'meshTypes': model['meshTypes'], 'textureReferences': model['textureReferences'],
                              'nameOnlyChanges': model.get('nameOnlyChanges', [])})
     if len(clients) != 1:
         raise ValueError('Binaries must come from one native compiler build')
+    if slots != set(TARGETS):
+        raise ValueError('Every target body must be published; missing: ' + ', '.join(sorted(set(TARGETS) - slots)))
     pack.mkdir(parents=True, exist_ok=True)
     for name, content in contents.items():
         (pack/name).write_bytes(content)
@@ -559,6 +615,10 @@ def verify_pack(root, manifest, verified=None):
         actual = digest(content) if verified is None else verified.get(str(path))
         if actual != row['sha256'] or len(content) != row['bytes'] or content[:4] != b'\0\0\0\0':
             raise ValueError('Armour resource differs from its contract or is not a native binary: ' + name)
+        if leaked_text(content):
+            raise ValueError('Armour resource may carry compiler process memory: ' + name + ': ' + ', '.join(leaked_text(content)))
+    if sorted(data['targets']) != sorted(TARGETS) or {row['slot'] for row in data['resources']} != set(TARGETS):
+        raise ValueError('The pack must cover every target body')
     if {p.name for p in pack.iterdir()} != seen:
         raise ValueError('Pack folder holds files outside its contract')
     return {'pack': data['pack'], 'resources': len(seen), 'targets': len(data['targets']), 'verified': True,
