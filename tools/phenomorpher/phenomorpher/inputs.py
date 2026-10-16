@@ -21,8 +21,9 @@ def rooted(root, name):
     return result
 
 
-def installed_models(game_root):
-    """Installed key files and every BIF they route a model to: what resman_cat --no-ovr reads models from."""
+def installed_models(game_root, kinds=(MODEL_TYPE,)):
+    """Installed key files and every BIF they route one of these resource types to (models by default):
+    what resman --no-ovr reads them from."""
     game_root = Path(game_root).resolve(); files = set()
     for key in sorted((game_root/'data').glob('*.key')):
         data = key.read_bytes(); files.add(key)
@@ -32,7 +33,7 @@ def installed_models(game_root):
         holding = set()
         for entry in range(key_table, key_table + 22*keys, 22):
             kind, resource = struct.unpack_from('<HI', data, entry + 16)
-            if kind == MODEL_TYPE:
+            if kind in kinds:
                 holding.add(resource >> 20)
         for index in sorted(holding):
             if index >= bifs:
@@ -125,6 +126,9 @@ def consumed(arguments):
         current = 'a_fa' if gender == 'f' else 'a_ba'
         while current != 'null':
             files.add(rooted(baseline, f'ascii/{current}.mdl')); current = stock[current]['supermodel']
+    elif command == 'armor-extract':
+        files.update([option('resman-extract'), option('decompiler')])
+        files.update(installed_models(option('game-root'), (MODEL_TYPE, 3, 6, 2033, 2036)))
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)

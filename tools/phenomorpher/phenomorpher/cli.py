@@ -117,6 +117,10 @@ def main(argv=None):
     p.add_argument('--motion', action='store_true'); p.add_argument('--motion-only', action='store_true')
     p.add_argument('--clip', action='append', help='Restrict the motion sweep to these clips')
     p.add_argument('--label')
+    p = sub.add_parser('armor-extract')
+    for name in ('resman-extract', 'decompiler', 'game-root', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all 20)')
     p = sub.add_parser('retarget-v2')
     p.add_argument('--fit-converted', type=Path, required=True); p.add_argument('--large-converted', type=Path)
     p.add_argument('--baseline', type=Path, required=True, help='Extracted stock baseline (baseline.json and ascii/)')
@@ -254,6 +258,13 @@ def main(argv=None):
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         print(json.dumps(sweep(a.root, a.manifest, a.output, a.target, a.stock, a.motion or a.motion_only, a.motion_only, a.clip, a.label)))
         return
+    if a.command == 'armor-extract':
+        from .engine.stock_armor import SLOTS, extract
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        result = extract(a.resman_extract, a.decompiler, a.game_root, a.output, a.slot or SLOTS)
+        print(json.dumps(result['counts'])); return
     if a.command == 'retarget-v2':
         from .engine.retarget_v2 import retarget
         from .inputs import consumed
