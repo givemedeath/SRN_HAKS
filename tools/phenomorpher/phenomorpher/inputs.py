@@ -21,8 +21,9 @@ def rooted(root, name):
     return result
 
 
-def installed_models(game_root):
-    """Installed key files and every BIF they route a model to: what resman_cat --no-ovr reads models from."""
+def installed_models(game_root, kinds=(MODEL_TYPE,)):
+    """Installed key files and every BIF they route one of these resource types to (models by default):
+    what resman --no-ovr reads them from."""
     game_root = Path(game_root).resolve(); files = set()
     for key in sorted((game_root/'data').glob('*.key')):
         data = key.read_bytes(); files.add(key)
@@ -32,7 +33,7 @@ def installed_models(game_root):
         holding = set()
         for entry in range(key_table, key_table + 22*keys, 22):
             kind, resource = struct.unpack_from('<HI', data, entry + 16)
-            if kind == MODEL_TYPE:
+            if kind in kinds:
                 holding.add(resource >> 20)
         for index in sorted(holding):
             if index >= bifs:
@@ -125,6 +126,34 @@ def consumed(arguments):
         current = 'a_fa' if gender == 'f' else 'a_ba'
         while current != 'null':
             files.add(rooted(baseline, f'ascii/{current}.mdl')); current = stock[current]['supermodel']
+    elif command == 'armor-extract':
+        files.update([option('resman-extract'), option('decompiler')])
+        files.update(installed_models(option('game-root'), (MODEL_TYPE, 3, 6, 2033, 2036)))
+    elif command == 'armor-profiles':
+        from .engine.stock_armor import BARE, TARGETS, source_slot
+        root = option('root'); manifest = option('manifest'); stock = option('stock'); files.update([manifest, stock])
+        slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(TARGETS)
+        for slot in slots:
+            src = source_slot(slot)
+            files.update(rooted(stock.parent, f'reference/{name}') for name in [src + '.mdl'] + [f'{src}_{p}001.mdl' for p in BARE])
+            files.update(rooted(root, f'srn_body/{name}') for name in [slot + '.mdl'] + [f'{slot}_{p}001.mdl' for p in BARE])
+    elif command == 'armor-convert':
+        from .engine.stock_armor import TARGETS, source_slot, style_set
+        stock = option('stock'); styles = option('styles'); files.update([stock, option('profiles'), option('armory'), styles])
+        slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(TARGETS)
+        files.update(rooted(stock.parent, f'ascii/{source_slot(slot)}_{p}{s:03d}.mdl') for slot in slots for p, s in style_set(styles))
+    elif command == 'armor-publish':
+        files.add(option('body-manifest'))
+        pairs = zip(*([Path(arguments[i+1]).resolve() for i, a in enumerate(arguments[:-1]) if a == '--' + name]
+                      for name in ('conversion', 'compiled')))
+        for conversion, compiled in pairs:
+            files.add(conversion)
+            for slot in read(conversion)['slots']:
+                receipt = rooted(compiled, f'{slot}/converted/native-compile.json'); files.add(receipt)
+                files.update(rooted(compiled, f'{slot}/converted/resources/{row["name"]}') for row in read(receipt)['models'])
+    elif command == 'verify-armor':
+        manifest = option('manifest'); root = option('root'); files.add(manifest)
+        files.update(rooted(root, row['path']) for row in read(manifest)['resources'])
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)

@@ -117,6 +117,26 @@ def main(argv=None):
     p.add_argument('--motion', action='store_true'); p.add_argument('--motion-only', action='store_true')
     p.add_argument('--clip', action='append', help='Restrict the motion sweep to these clips')
     p.add_argument('--label')
+    p = sub.add_parser('armor-extract')
+    for name in ('resman-extract', 'decompiler', 'game-root', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all)')
+    p = sub.add_parser('armor-profiles')
+    for name in ('root', 'manifest', 'stock', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all)')
+    p = sub.add_parser('armor-convert')
+    for name in ('stock', 'profiles', 'armory', 'styles', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all)')
+    p = sub.add_parser('armor-publish')
+    p.add_argument('--conversion', type=Path, action='append', required=True, help='conversion.json; pair each with --compiled')
+    p.add_argument('--compiled', type=Path, action='append', required=True, help='Compile root holding <slot>/converted')
+    for name in ('body-manifest', 'root', 'manifest'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p = sub.add_parser('verify-armor')
+    for name in ('manifest', 'root'):
+        p.add_argument('--' + name, type=Path, required=True)
     p = sub.add_parser('retarget-v2')
     p.add_argument('--fit-converted', type=Path, required=True); p.add_argument('--large-converted', type=Path)
     p.add_argument('--baseline', type=Path, required=True, help='Extracted stock baseline (baseline.json and ascii/)')
@@ -254,6 +274,40 @@ def main(argv=None):
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         print(json.dumps(sweep(a.root, a.manifest, a.output, a.target, a.stock, a.motion or a.motion_only, a.motion_only, a.clip, a.label)))
         return
+    if a.command == 'armor-extract':
+        from .engine.stock_armor import SOURCES, extract
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        result = extract(a.resman_extract, a.decompiler, a.game_root, a.output, a.slot or SOURCES)
+        print(json.dumps(result['counts'])); return
+    if a.command == 'armor-profiles':
+        from .engine.stock_armor import TARGETS, fit_profiles
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        result = fit_profiles(a.root, a.manifest, a.stock, a.output, a.slot or TARGETS)
+        print(json.dumps({'slots': len(result['slots']), 'flagged': result['flagged']})); return
+    if a.command == 'armor-convert':
+        from .engine.stock_armor import TARGETS, convert, style_set
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        result = convert(a.stock, a.profiles, a.armory, a.output, a.slot or TARGETS, style_set(a.styles))
+        print(json.dumps({**result['counts'], 'worstWorldTransformError': result['worstWorldTransformError']})); return
+    if a.command == 'armor-publish':
+        from .engine.stock_armor import publish
+        from .inputs import consumed
+        if len(a.conversion) != len(a.compiled):
+            raise ValueError('Pair every --conversion with one --compiled root')
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        print(json.dumps(publish(list(zip(a.conversion, a.compiled)), a.body_manifest, a.root, a.manifest))); return
+    if a.command == 'verify-armor':
+        from .engine.stock_armor import verify_pack
+        declared(a.manifest)
+        for row in read(a.manifest)['resources']: declared(a.root / row['path'])
+        print(json.dumps(verify_pack(a.root, a.manifest, snapshot()))); return
     if a.command == 'retarget-v2':
         from .engine.retarget_v2 import retarget
         from .inputs import consumed

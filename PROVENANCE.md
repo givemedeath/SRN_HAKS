@@ -356,3 +356,24 @@ raw crash dumps and test module resources are excluded. Every resource is below
 15 MiB; no size exception is required.
 
 srn_body_tex contains the exact-byte selected new skin normal/roughness maps. The stock-exact phenotype.2da and whitelisted racialtypes.2da changes, including disabled Half-Elf/Halfling player selection, are recorded in docs/phenomorpher/table-validation.json. Eight permanent Troll/Orc display strings are allocated in srn_tlk; ability/feat/gameplay rules retain installed values.
+
+## PhenoMorpher stock armour conversion (2026-10-16)
+
+`srn_armor` contains 6,180 native armour part models for the 16 non-Human
+PhenoMorpher bodies (Dwarf, Elf, Orc and Troll; female/male Fit/Large). Each is
+an installed stock NWN:EE Human armour part of the same gender and build, moved
+onto the new body by one measured scale/rotation/translation per body part with
+the pinned NWNArmory 1.3.4, renamed to the target body's stock part name and
+compiled by the NWN:EE client. They are NWN compatibility derivatives and retain
+installed-game authorship; the repository's original-content license does not
+relicense this stock geometry. Their textures are not redistributed: every part
+keeps its stock texture references, which resolve to the installed game. A
+licensed NWN:EE installation is required.
+
+Contributor: SRN project operator, with Codex-assisted fitting, conversion and
+native/client verification. The operator approved the pilot client review and
+requested the full conversion. Per-resource source, profile, conversion and
+compile hashes are in `docs/phenomorpher/clothing/srn-armor-assets.json`;
+method and evidence are in `docs/phenomorpher/clothing/`. Robes, cloaks, heads
+and the bare body parts in `srn_body` are excluded. Every resource is below
+15 MiB; no size exception is required.
