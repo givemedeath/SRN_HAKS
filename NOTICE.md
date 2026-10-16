@@ -42,3 +42,10 @@ Private fitted controller closures and stock head routing aliases retain NWN
 platform authorship. They require a licensed NWN:EE installation; the original
 content license does not relicense stock geometry or animations. See the
 PhenoMorpher entry in PROVENANCE.md and its per-resource source inventory.
+
+## PhenoMorpher stock armour derivatives
+
+`srn_armor` holds stock NWN:EE Human armour parts transformed onto the
+PhenoMorpher bodies. They retain NWN platform authorship and require a licensed
+NWN:EE installation; the original content license does not relicense stock
+geometry. See the stock armour entry in PROVENANCE.md.
