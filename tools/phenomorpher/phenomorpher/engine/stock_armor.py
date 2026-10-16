@@ -308,3 +308,139 @@ def fit_profiles(root, manifest, stock_manifest, output, slots=SLOTS):
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8', newline='\n')
     return result
+
+
+# --- Step 5: conversion through the pinned NWNArmory ----------------------------------------------
+
+CONVERT_KIND = 'PhenoMorpher-stock-armor-conversion'
+ARMORY_SHA256 = '08480e535e38d712a831575ea78cc8ed952629ee4705ae8d505cdba31fc01f7f'
+ARMORY_VERSION = 'nwnarmory 1.3.4'
+TEXTURE_LINE = re.compile(r'(?mi)^\s*(?:bitmap|texture\d|materialname)\s')
+
+
+def armory_ini(entries):
+    """Lineage copy of stage_target_rigid_equipment.armory_ini: one exact-name rule per model."""
+    text = '[Global]\nntransforms=' + str(len(entries)) + '\n'
+    for index, (name, transform) in enumerate(entries):
+        text += f'[s{index}]\nmatch={name}\nsubstitute=*\n'
+        for key, default in (('scale', None), ('rotate', [0, 0, 0]), ('translate', None)):
+            text += key + '=(' + ','.join(format(float(v), '.17g') for v in transform.get(key, default)) + ')\n'
+    return text
+
+
+def renamed(text, old, new):
+    """Rename the model and its nodes (also suffixed mesh names such as <model>g); texture and material
+    references keep their stock names."""
+    if old == new:
+        return text
+    pattern = re.compile(r'(?i)\b' + re.escape(old) + r'(?=[a-z_]*\b)')
+    return ''.join(line if TEXTURE_LINE.match(line) else pattern.sub(new, line) for line in text.splitlines(keepends=True))
+
+
+def armory_values(armory, source, fitted):
+    """NWNArmory's own fit between two same-topology models: (scale, rotate, translate, max vertex residual)."""
+    result = subprocess.run([str(armory), '--values', str(source), str(fitted)], capture_output=True, text=True)
+    if result.returncode:
+        raise ValueError('Armory --values failed: ' + result.stderr.strip())
+    vector = lambda key: [float(v) for v in re.search(r'(?m)^' + key + r'=\(([^)]*)\)', result.stdout)[1].split(',')]
+    residual = float(re.search(r'verts fit: n=\d+ max_residual=([\d.eE+\-]+)', result.stdout)[1])
+    return vector('scale'), vector('rotate'), vector('translate'), residual, result.stdout
+
+
+def style_set(path):
+    """(part, style) pairs of a style-set file; robes and bare style-001 parts are refused."""
+    data = json.loads(Path(path).read_text(encoding='utf-8'))
+    if data.get('kind') != 'PhenoMorpher-stock-armor-style-set':
+        raise ValueError('Style set required')
+    pairs = [(p, int(s)) for p, s in data['styles']]
+    bad = [f'{p}{s:03d}' for p, s in pairs if p not in PARTS or p == 'robe' or (p in BARE and s == 1)]
+    if bad or len(set(pairs)) != len(pairs):
+        raise ValueError('Style set holds parts that are not converted, or duplicates: ' + ', '.join(bad))
+    return pairs
+
+
+def convert(stock_manifest, profiles_path, armory, output, slots, styles):
+    """Convert the selected (part, style) rigid parts for each slot. Each profile is first calibrated:
+    NWNArmory must recover it from a Python-transformed copy of a normalised source part. Then one batch
+    per slot, correct_rigid (hierarchy baked once, vertex/topology/UV/material proof) and the final resref."""
+    from .armory_rigid import arrays, correct_rigid, profile_affine, replace_array
+    armory = Path(armory).resolve(); output = Path(output)
+    if digest(armory.read_bytes()) != ARMORY_SHA256:
+        raise ValueError('Pinned NWNArmory 1.3.4 executable required')
+    version = subprocess.run([str(armory), '--version'], capture_output=True, text=True).stdout.strip()
+    if version != ARMORY_VERSION:
+        raise ValueError('Pinned NWNArmory version differs: ' + version)
+    if output.exists():
+        raise FileExistsError('Fresh output required: ' + str(output))
+    stock_manifest = Path(stock_manifest); stock = json.loads(stock_manifest.read_text(encoding='utf-8'))
+    profiles = json.loads(Path(profiles_path).read_text(encoding='utf-8'))
+    if profiles.get('kind') != PROFILE_KIND or profiles['stockInventorySHA256'] != digest(stock_manifest.read_bytes()):
+        raise ValueError('Profiles must be fitted from this stock inventory')
+    def source_ascii(name):
+        path = stock_manifest.parent/'ascii'/name
+        if digest(path.read_bytes()) != stock['models'][name]['asciiSHA256']:
+            raise ValueError('Stock armour source changed: ' + name)
+        return path
+    output.mkdir(parents=True); rows = {}
+    for slot in slots:
+        src = source_slot(slot); profile = profiles['slots'][slot]['parts']
+        work = output/'work'/slot; folders = {k: work/k for k in ('source', 'raw', 'calibration')}
+        for folder in folders.values():
+            folder.mkdir(parents=True)
+        final = output/slot/'ascii'; final.mkdir(parents=True)
+        selection = [(part, style, f'{src}_{part}{style:03d}.mdl', f'{slot}_{part}{style:03d}.mdl') for part, style in styles]
+        calibration = {}
+        for part in sorted({p for p, _ in styles}):
+            transform = profile[part]['transform']; linear, translate = profile_affine(transform)
+            name = next(s for p, _, s, _ in selection if p == part); text = source_ascii(name).read_text(encoding='cp1252')
+            base = folders['calibration']/part; base.mkdir()
+            normal = base/name; normal.write_text(text, encoding='cp1252'); copy = base/('identity-' + name); copy.write_text(text, encoding='cp1252')
+            correct_rigid(normal, copy, {'scale': [1, 1, 1], 'translate': [0, 0, 0]})  # bake frames: attachment-local meshes
+            normal.write_text(copy.read_text(encoding='ascii'), encoding='ascii'); copy.unlink()
+            fitted = base/'fitted'/name; fitted.parent.mkdir(); body = normal.read_text(encoding='ascii')
+            for block in reversed(list(re.finditer(r'(?ms)^node\s+(trimesh|danglymesh)\s+\S+\n.*?^endnode', body))):
+                verts = np.asarray(arrays(block[0], 'verts'), float)
+                if verts.size:
+                    body = body[:block.start()] + replace_array(block[0], 'verts', verts @ linear.T + translate) + body[block.end():]
+            fitted.write_text(body, encoding='ascii')
+            scale, rotate, shift, residual, log = armory_values(armory, normal, fitted)
+            (base/'values.log').write_text(log, encoding='utf-8')
+            # --values prints four (scale/translate) and two (rotate) decimals.
+            agreement = {'scale': max(abs(a - b) for a, b in zip(scale, transform['scale'])),
+                         'rotateDegrees': max(abs(a - b) for a, b in zip(rotate, transform['rotate'])),
+                         'translate': max(abs(a - b) for a, b in zip(shift, transform['translate']))}
+            if residual > 1e-5 or agreement['scale'] > 6e-5 or agreement['rotateDegrees'] > 6e-3 or agreement['translate'] > 6e-5:
+                raise ValueError(f'Armory calibration disagrees with the profile: {slot} {part} {residual} {agreement}')
+            calibration[part] = {'model': name, 'maxResidual': residual, 'agreement': agreement}
+        for _, _, name, _ in selection:
+            (folders['source']/name).write_bytes(source_ascii(name).read_bytes())
+        ini = work/'batch.ini'; ini.write_text(armory_ini([(Path(n).stem, profile[p]['transform']) for p, _, n, _ in selection]), encoding='ascii')
+        batch = subprocess.run([str(armory), str(ini), str(folders['source']), str(folders['raw'])], capture_output=True, text=True)
+        (work/'batch.log').write_text(batch.stdout + batch.stderr, encoding='utf-8')
+        if batch.returncode or {p.name for p in folders['raw'].iterdir()} != {n for _, _, n, _ in selection}:
+            raise ValueError('Armory batch failed or omitted outputs: ' + slot)
+        models = {}
+        for part, style, name, target in selection:
+            corrected = work/'corrected'/name; corrected.parent.mkdir(exist_ok=True)
+            corrected.write_bytes((folders['raw']/name).read_bytes())
+            proof = correct_rigid(folders['source']/name, corrected, profile[part]['transform'])
+            text = renamed(corrected.read_text(encoding='ascii'), Path(name).stem, Path(target).stem)
+            (final/target).write_text(text, encoding='ascii', newline='\n')
+            if len(Path(target).stem) > 16:
+                raise ValueError('Resref exceeds 16 characters: ' + target)
+            models[target] = {'source': name, 'part': part, 'style': style, 'sourceAsciiSHA256': stock['models'][name]['asciiSHA256'],
+                              'asciiSHA256': digest((final/target).read_bytes()), 'meshTypes': proof['meshTypes'],
+                              'maximumWorldTransformError': proof['maximumWorldTransformError'],
+                              'maximumWorldNormalError': proof['maximumWorldNormalError'],
+                              'textureReferences': stock['models'][name]['references']}
+        rows[slot] = {'source': src, 'calibration': calibration, 'models': models,
+                      'batchIniSHA256': digest(ini.read_bytes())}
+    result = {'schemaVersion': 1, 'kind': CONVERT_KIND, 'armory': {'path': str(armory), 'sha256': ARMORY_SHA256, 'version': version},
+              'stockInventorySHA256': digest(stock_manifest.read_bytes()), 'profilesSHA256': digest(Path(profiles_path).read_bytes()),
+              'styles': [list(s) for s in styles], 'slots': rows,
+              'counts': {'models': sum(len(r['models']) for r in rows.values()),
+                         'danglymesh': sum('danglymesh' in m['meshTypes'] for r in rows.values() for m in r['models'].values())},
+              'worstWorldTransformError': max(m['maximumWorldTransformError'] for r in rows.values() for m in r['models'].values()),
+              'nativeCompiled': False, 'clientValidated': False, 'assetApprovalCreated': False}
+    (output/'conversion.json').write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8', newline='\n')
+    return result

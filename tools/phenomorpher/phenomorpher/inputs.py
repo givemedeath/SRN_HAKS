@@ -137,6 +137,11 @@ def consumed(arguments):
             src = source_slot(slot)
             files.update(rooted(stock.parent, f'reference/{name}') for name in [src + '.mdl'] + [f'{src}_{p}001.mdl' for p in BARE])
             files.update(rooted(root, f'srn_body/{name}') for name in [slot + '.mdl'] + [f'{slot}_{p}001.mdl' for p in BARE])
+    elif command == 'armor-convert':
+        from .engine.stock_armor import SLOTS, source_slot, style_set
+        stock = option('stock'); styles = option('styles'); files.update([stock, option('profiles'), option('armory'), styles])
+        slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(SLOTS)
+        files.update(rooted(stock.parent, f'ascii/{source_slot(slot)}_{p}{s:03d}.mdl') for slot in slots for p, s in style_set(styles))
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)
