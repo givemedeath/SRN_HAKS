@@ -179,3 +179,13 @@ class PublicContractTests(unittest.TestCase):
             self.assertEqual(result['meshes'][0]['vertices'],3)
             self.assertEqual(result['meshes'][0]['triangles'],1)
             self.assertEqual(source.read_bytes(),payload)
+
+
+class LineageManifestTests(unittest.TestCase):
+    def test_packaged_lineage_matches_the_launcher_copy_and_every_engine_module(self):
+        package = Path(__file__).resolve().parent
+        packaged = (package/'source-lineage.json').read_bytes()
+        self.assertEqual(packaged, (package.parent/'source-lineage.json').read_bytes())
+        for row in json.loads(packaged)['modules']:
+            module = (package/'engine'/(row['module'] + '.py')).read_bytes().replace(b'\r\n', b'\n')
+            self.assertEqual(hashlib.sha256(module).hexdigest(), row['packagedSHA256'], row['module'])

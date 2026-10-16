@@ -9,6 +9,13 @@
       "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
     },
     {
+      "module": "armory_rigid",
+      "source": "armory_rigid.py",
+      "sourceSHA256": "828421bc2a13631995cfa8979353936914390fbd2627e88d83486bc339b42522",
+      "packagedSHA256": "b3f4228674c042e65c3a7a2ab6bc7679aa07d1ab19d0fab0221c596cb17c0ff6",
+      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+    },
+    {
       "module": "audit_geometry",
       "source": "audit_geometry.py",
       "sourceSHA256": "d77f641a4fb4325d7e2d04e81d88ae916dffe37d973e70af68a590015be33177",

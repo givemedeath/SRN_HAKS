@@ -622,7 +622,8 @@
       "tools/phenomorpher/phenomorpher/api.py",
       "tools/phenomorpher/phenomorpher/cli.py",
       "tools/phenomorpher/phenomorpher/engine/convert_model.py",
-      "tools/phenomorpher/phenomorpher/engine/morph_preview_pose_v13.py"
+      "tools/phenomorpher/phenomorpher/engine/morph_preview_pose_v13.py",
+      "tools/phenomorpher/phenomorpher/source-lineage.json"
     ],
     "tools/phenomorpher/run.py": [
       "tools/phenomorpher/phenomorpher/inputs.py",
