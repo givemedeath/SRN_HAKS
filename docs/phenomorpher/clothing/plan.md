@@ -78,3 +78,17 @@ rotation, drops danglymesh and silently falls back to Python.
 ## Critical files
 New `tools/phenomorpher/phenomorpher/engine/stock_armor.py` plus tests and CLI/`inputs.py` entries;
 `docs/phenomorpher/clothing/*`; `srn_armor/` and its `hakbuilder.json` registration.
+
+## Revision 2026-10-15: Human parts are the only source
+User direction: convert the Human male and female parts to the other races only, since the other
+race bodies were built from the Human bodies.
+* **Sources:** the stock Human parts and rigs, `p{f,m}h{0,2}`, same gender and build as the target.
+  Stock Dwarf, Elf, Orc and Gnome parts are no longer converted.
+* **Targets:** the 16 non-Human bodies (Dwarf, Elf, Orc, Troll in the Gnome slot). The Human bodies are
+  sources only.
+* Profiles fit each stock Human `<part>001` to the target body's `<part>001`; resrefs follow the target
+  slot, and texture/material references keep their Human names.
+* Pilot size: 115 rigid parts on 16 bodies, 1,840 models.
+* Findings so far: a client compile of a stock danglymesh part preserves vertices (4e-8 m), faces,
+  UVs, constraints and dangly parameters. A Human/Gnome comparison showed matching style numbers
+  (1,374 of 1,526 pairs identical in mesh types, faces and textures).

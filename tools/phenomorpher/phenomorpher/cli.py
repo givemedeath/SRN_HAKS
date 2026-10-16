@@ -120,15 +120,15 @@ def main(argv=None):
     p = sub.add_parser('armor-extract')
     for name in ('resman-extract', 'decompiler', 'game-root', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
-    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all 20)')
+    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all)')
     p = sub.add_parser('armor-profiles')
     for name in ('root', 'manifest', 'stock', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
-    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all 20)')
+    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all)')
     p = sub.add_parser('armor-convert')
     for name in ('stock', 'profiles', 'armory', 'styles', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
-    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all 20)')
+    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all)')
     p = sub.add_parser('retarget-v2')
     p.add_argument('--fit-converted', type=Path, required=True); p.add_argument('--large-converted', type=Path)
     p.add_argument('--baseline', type=Path, required=True, help='Extracted stock baseline (baseline.json and ascii/)')
@@ -267,25 +267,25 @@ def main(argv=None):
         print(json.dumps(sweep(a.root, a.manifest, a.output, a.target, a.stock, a.motion or a.motion_only, a.motion_only, a.clip, a.label)))
         return
     if a.command == 'armor-extract':
-        from .engine.stock_armor import SLOTS, extract
+        from .engine.stock_armor import SOURCES, extract
         from .inputs import consumed
         snapshot()  # Managed launches only, before any declared file is parsed.
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
-        result = extract(a.resman_extract, a.decompiler, a.game_root, a.output, a.slot or SLOTS)
+        result = extract(a.resman_extract, a.decompiler, a.game_root, a.output, a.slot or SOURCES)
         print(json.dumps(result['counts'])); return
     if a.command == 'armor-profiles':
-        from .engine.stock_armor import SLOTS, fit_profiles
+        from .engine.stock_armor import TARGETS, fit_profiles
         from .inputs import consumed
         snapshot()  # Managed launches only, before any declared file is parsed.
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
-        result = fit_profiles(a.root, a.manifest, a.stock, a.output, a.slot or SLOTS)
+        result = fit_profiles(a.root, a.manifest, a.stock, a.output, a.slot or TARGETS)
         print(json.dumps({'slots': len(result['slots']), 'flagged': result['flagged']})); return
     if a.command == 'armor-convert':
-        from .engine.stock_armor import SLOTS, convert, style_set
+        from .engine.stock_armor import TARGETS, convert, style_set
         from .inputs import consumed
         snapshot()  # Managed launches only, before any declared file is parsed.
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
-        result = convert(a.stock, a.profiles, a.armory, a.output, a.slot or SLOTS, style_set(a.styles))
+        result = convert(a.stock, a.profiles, a.armory, a.output, a.slot or TARGETS, style_set(a.styles))
         print(json.dumps({**result['counts'], 'worstWorldTransformError': result['worstWorldTransformError']})); return
     if a.command == 'retarget-v2':
         from .engine.retarget_v2 import retarget
