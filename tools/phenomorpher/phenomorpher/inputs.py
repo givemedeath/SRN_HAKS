@@ -142,6 +142,18 @@ def consumed(arguments):
         stock = option('stock'); styles = option('styles'); files.update([stock, option('profiles'), option('armory'), styles])
         slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(TARGETS)
         files.update(rooted(stock.parent, f'ascii/{source_slot(slot)}_{p}{s:03d}.mdl') for slot in slots for p, s in style_set(styles))
+    elif command == 'armor-publish':
+        files.add(option('body-manifest'))
+        pairs = zip(*([Path(arguments[i+1]).resolve() for i, a in enumerate(arguments[:-1]) if a == '--' + name]
+                      for name in ('conversion', 'compiled')))
+        for conversion, compiled in pairs:
+            files.add(conversion)
+            for slot in read(conversion)['slots']:
+                receipt = rooted(compiled, f'{slot}/converted/native-compile.json'); files.add(receipt)
+                files.update(rooted(compiled, f'{slot}/converted/resources/{row["name"]}') for row in read(receipt)['models'])
+    elif command == 'verify-armor':
+        manifest = option('manifest'); root = option('root'); files.add(manifest)
+        files.update(rooted(root, row['path']) for row in read(manifest)['resources'])
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)

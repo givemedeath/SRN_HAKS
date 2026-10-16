@@ -138,5 +138,44 @@ class ProfileTests(unittest.TestCase):
             armor.source_slot('pfh0')
 
 
+class PackTests(unittest.TestCase):
+    def fixture(self, root):
+        """One converted, compiled part for pfd0 and its body contract."""
+        from .anim_library import digest
+        compiled = root/'compiled'; res = compiled/'pfd0/converted/resources'; res.mkdir(parents=True)
+        binary = b'\0\0\0\0compiled'; (res/'pfd0_chest005.mdl').write_bytes(binary)
+        (compiled/'pfd0/converted/native-compile.json').write_text(json.dumps({'complete': True, 'clientSha256': 'c', 'models': [
+            {'name': 'pfd0_chest005.mdl', 'sourceSha256': 'a', 'binarySha256': digest(binary)}]}))
+        conversion = root/'conversion.json'
+        conversion.write_text(json.dumps({'kind': armor.CONVERT_KIND, 'stockInventorySHA256': 's', 'profilesSHA256': 'p',
+            'armory': {'sha256': armor.ARMORY_SHA256}, 'slots': {'pfd0': {'source': 'pfh0', 'models': {'pfd0_chest005.mdl': {
+                'source': 'pfh0_chest005.mdl', 'part': 'chest', 'style': 5, 'sourceAsciiSHA256': 'x', 'asciiSHA256': 'a',
+                'meshTypes': ['trimesh'], 'textureReferences': ['pfh0_chest005']}}}}}))
+        body = root/'body.json'; body.write_text(json.dumps({'resources': [{'path': 'srn_body/pfd0_chest001.mdl'}]}))
+        return conversion, compiled, body
+
+    def test_published_pack_verifies_and_rejects_drift(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); conversion, compiled, body = self.fixture(root); manifest = root/'armor.json'
+            result = armor.publish([(conversion, compiled)], body, root, manifest)
+            self.assertEqual((result['resources'], result['targets']), (1, 1))
+            self.assertEqual((root/'srn_armor/pfd0_chest005.mdl').read_bytes(), b'\0\0\0\0compiled')
+            self.assertRaises(FileExistsError, armor.publish, [(conversion, compiled)], body, root, manifest)
+            (root/'srn_armor/pfd0_chest006.mdl').write_bytes(b'\0\0\0\0x')
+            self.assertRaisesRegex(ValueError, 'outside its contract', armor.verify_pack, root, manifest)
+            (root/'srn_armor/pfd0_chest006.mdl').unlink(); (root/'srn_armor/pfd0_chest005.mdl').write_bytes(b'\0\0\0\0changed')
+            self.assertRaisesRegex(ValueError, 'differs', armor.verify_pack, root, manifest)
+
+    def test_publish_refuses_binaries_from_other_sources(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); conversion, compiled, body = self.fixture(root)
+            data = json.loads(conversion.read_text()); data['slots']['pfd0']['models']['pfd0_chest005.mdl']['asciiSHA256'] = 'b'
+            conversion.write_text(json.dumps(data))
+            self.assertRaisesRegex(ValueError, 'does not match', armor.publish, [(conversion, compiled)], body, root, root/'m.json')
+            body.write_text(json.dumps({'resources': [{'path': 'srn_body/pfd0_chest005.mdl'}]})); data['slots']['pfd0']['models']['pfd0_chest005.mdl']['asciiSHA256'] = 'a'
+            conversion.write_text(json.dumps(data))
+            self.assertRaisesRegex(ValueError, 'shadows', armor.publish, [(conversion, compiled)], body, root, root/'m.json')
+
+
 if __name__ == '__main__':
     unittest.main()
