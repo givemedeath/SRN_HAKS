@@ -1,0 +1,1064 @@
+{
+ "schemaVersion": 1,
+ "kind": "PhenoMorpher-stock-armor-style-set",
+ "name": "pilot-nw_cloth001-029",
+ "derivation": "ArmorPart_* fields of the installed nw_cloth001-nw_cloth029.uti (overrides ignored); robes and the bare style-001 parts srn_body overrides are excluded; belt and shoulder 001 kept.",
+ "robeItemsPartial": {
+  "nw_cloth005": 6,
+  "nw_cloth007": 3,
+  "nw_cloth008": 4,
+  "nw_cloth012": 4,
+  "nw_cloth020": 5,
+  "nw_cloth026": 5
+ },
+ "items": {
+  "nw_cloth001": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 1,
+   "footl": 6,
+   "handl": 1,
+   "shinl": 16,
+   "shol": 0,
+   "legl": 4,
+   "neck": 1,
+   "pelvis": 17,
+   "bicepr": 1,
+   "forer": 1,
+   "footr": 6,
+   "handr": 1,
+   "shinr": 16,
+   "shor": 0,
+   "legr": 4,
+   "chest": 50
+  },
+  "nw_cloth002": {
+   "belt": 15,
+   "bicepl": 8,
+   "forel": 8,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 8,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 35,
+   "bicepr": 8,
+   "forer": 8,
+   "footr": 4,
+   "handr": 1,
+   "shinr": 8,
+   "shor": 0,
+   "legr": 3,
+   "chest": 39
+  },
+  "nw_cloth003": {
+   "belt": 0,
+   "bicepl": 8,
+   "forel": 8,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 3,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 8,
+   "forer": 8,
+   "footr": 4,
+   "handr": 1,
+   "shinr": 3,
+   "shor": 0,
+   "legr": 3,
+   "chest": 50
+  },
+  "nw_cloth004": {
+   "belt": 11,
+   "bicepl": 10,
+   "forel": 3,
+   "footl": 4,
+   "handl": 4,
+   "shinl": 14,
+   "shol": 0,
+   "legl": 15,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 10,
+   "forer": 3,
+   "footr": 4,
+   "handr": 4,
+   "shinr": 14,
+   "shor": 0,
+   "legr": 15,
+   "chest": 19
+  },
+  "nw_cloth005": {
+   "belt": 11,
+   "bicepl": 15,
+   "forel": 8,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 16,
+   "shol": 0,
+   "legl": 8,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 15,
+   "forer": 8,
+   "footr": 4,
+   "handr": 1,
+   "robe": 6,
+   "shinr": 16,
+   "shor": 0,
+   "legr": 8,
+   "chest": 19
+  },
+  "nw_cloth006": {
+   "belt": 0,
+   "bicepl": 3,
+   "forel": 3,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 13,
+   "shol": 0,
+   "legl": 15,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 3,
+   "forer": 3,
+   "footr": 4,
+   "handr": 1,
+   "shinr": 13,
+   "shor": 0,
+   "legr": 15,
+   "chest": 50
+  },
+  "nw_cloth007": {
+   "belt": 0,
+   "bicepl": 11,
+   "forel": 1,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 9,
+   "shol": 0,
+   "legl": 4,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 11,
+   "forer": 1,
+   "footr": 4,
+   "handr": 1,
+   "robe": 3,
+   "shinr": 9,
+   "shor": 0,
+   "legr": 4,
+   "chest": 50
+  },
+  "nw_cloth008": {
+   "belt": 0,
+   "bicepl": 3,
+   "forel": 10,
+   "footl": 4,
+   "handl": 3,
+   "shinl": 14,
+   "shol": 0,
+   "legl": 8,
+   "neck": 1,
+   "pelvis": 10,
+   "bicepr": 3,
+   "forer": 10,
+   "footr": 4,
+   "handr": 3,
+   "robe": 4,
+   "shinr": 14,
+   "shor": 0,
+   "legr": 8,
+   "chest": 19
+  },
+  "nw_cloth009": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 1,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 13,
+   "shol": 0,
+   "legl": 1,
+   "neck": 1,
+   "pelvis": 18,
+   "bicepr": 1,
+   "forer": 1,
+   "footr": 4,
+   "handr": 1,
+   "shinr": 13,
+   "shor": 0,
+   "legr": 1,
+   "chest": 8
+  },
+  "nw_cloth010": {
+   "belt": 13,
+   "bicepl": 6,
+   "forel": 4,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 16,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 6,
+   "forer": 4,
+   "footr": 4,
+   "handr": 1,
+   "shinr": 16,
+   "shor": 0,
+   "legr": 3,
+   "chest": 50
+  },
+  "nw_cloth011": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 1,
+   "footl": 11,
+   "handl": 1,
+   "shinl": 4,
+   "shol": 0,
+   "legl": 16,
+   "neck": 1,
+   "pelvis": 27,
+   "bicepr": 6,
+   "forer": 5,
+   "footr": 11,
+   "handr": 4,
+   "shinr": 4,
+   "shor": 12,
+   "legr": 16,
+   "chest": 6
+  },
+  "nw_cloth012": {
+   "belt": 11,
+   "bicepl": 8,
+   "forel": 22,
+   "footl": 8,
+   "handl": 1,
+   "shinl": 14,
+   "shol": 11,
+   "legl": 8,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 8,
+   "forer": 22,
+   "footr": 8,
+   "handr": 1,
+   "robe": 4,
+   "shinr": 14,
+   "shor": 11,
+   "legr": 8,
+   "chest": 19
+  },
+  "nw_cloth013": {
+   "belt": 0,
+   "bicepl": 13,
+   "forel": 1,
+   "footl": 7,
+   "handl": 1,
+   "shinl": 9,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 13,
+   "bicepr": 13,
+   "forer": 1,
+   "footr": 7,
+   "handr": 1,
+   "shinr": 9,
+   "shor": 0,
+   "legr": 3,
+   "chest": 50
+  },
+  "nw_cloth014": {
+   "belt": 11,
+   "bicepl": 10,
+   "forel": 3,
+   "footl": 4,
+   "handl": 3,
+   "shinl": 9,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 10,
+   "forer": 3,
+   "footr": 4,
+   "handr": 3,
+   "shinr": 9,
+   "shor": 0,
+   "legr": 3,
+   "chest": 5
+  },
+  "nw_cloth015": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 14,
+   "footl": 6,
+   "handl": 3,
+   "shinl": 13,
+   "shol": 6,
+   "legl": 1,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 1,
+   "forer": 14,
+   "footr": 6,
+   "handr": 3,
+   "shinr": 13,
+   "shor": 6,
+   "legr": 1,
+   "chest": 6
+  },
+  "nw_cloth016": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 1,
+   "footl": 6,
+   "handl": 1,
+   "shinl": 9,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 1,
+   "forer": 1,
+   "footr": 6,
+   "handr": 1,
+   "shinr": 9,
+   "shor": 0,
+   "legr": 3,
+   "chest": 9
+  },
+  "nw_cloth017": {
+   "belt": 11,
+   "bicepl": 3,
+   "forel": 3,
+   "footl": 6,
+   "handl": 4,
+   "shinl": 13,
+   "shol": 0,
+   "legl": 4,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 3,
+   "forer": 3,
+   "footr": 6,
+   "handr": 4,
+   "shinr": 13,
+   "shor": 0,
+   "legr": 4,
+   "chest": 50
+  },
+  "nw_cloth018": {
+   "belt": 0,
+   "bicepl": 4,
+   "forel": 22,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 10,
+   "shol": 3,
+   "legl": 4,
+   "neck": 1,
+   "pelvis": 16,
+   "bicepr": 4,
+   "forer": 22,
+   "footr": 4,
+   "handr": 1,
+   "shinr": 10,
+   "shor": 3,
+   "legr": 4,
+   "chest": 50
+  },
+  "nw_cloth019": {
+   "belt": 11,
+   "bicepl": 15,
+   "forel": 16,
+   "footl": 6,
+   "handl": 6,
+   "shinl": 15,
+   "shol": 0,
+   "legl": 4,
+   "neck": 1,
+   "pelvis": 14,
+   "bicepr": 15,
+   "forer": 16,
+   "footr": 6,
+   "handr": 6,
+   "shinr": 15,
+   "shor": 0,
+   "legr": 4,
+   "chest": 50
+  },
+  "nw_cloth020": {
+   "belt": 11,
+   "bicepl": 3,
+   "forel": 9,
+   "footl": 7,
+   "handl": 8,
+   "shinl": 3,
+   "shol": 4,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 3,
+   "forer": 9,
+   "footr": 7,
+   "handr": 8,
+   "robe": 5,
+   "shinr": 3,
+   "shor": 4,
+   "legr": 3,
+   "chest": 19
+  },
+  "nw_cloth021": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 1,
+   "footl": 6,
+   "handl": 1,
+   "shinl": 13,
+   "shol": 0,
+   "legl": 4,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 1,
+   "forer": 1,
+   "footr": 6,
+   "handr": 1,
+   "shinr": 13,
+   "shor": 0,
+   "legr": 4,
+   "chest": 9
+  },
+  "nw_cloth022": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 1,
+   "footl": 6,
+   "handl": 1,
+   "shinl": 16,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 1,
+   "forer": 1,
+   "footr": 6,
+   "handr": 1,
+   "shinr": 16,
+   "shor": 0,
+   "legr": 3,
+   "chest": 39
+  },
+  "nw_cloth023": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 1,
+   "footl": 6,
+   "handl": 1,
+   "shinl": 8,
+   "shol": 0,
+   "legl": 1,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 1,
+   "forer": 1,
+   "footr": 6,
+   "handr": 1,
+   "shinr": 8,
+   "shor": 0,
+   "legr": 1,
+   "chest": 8
+  },
+  "nw_cloth024": {
+   "belt": 0,
+   "bicepl": 4,
+   "forel": 11,
+   "footl": 6,
+   "handl": 1,
+   "shinl": 13,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 37,
+   "bicepr": 4,
+   "forer": 11,
+   "footr": 6,
+   "handr": 1,
+   "shinr": 13,
+   "shor": 0,
+   "legr": 3,
+   "chest": 39
+  },
+  "nw_cloth025": {
+   "belt": 14,
+   "bicepl": 4,
+   "forel": 14,
+   "footl": 4,
+   "handl": 1,
+   "shinl": 4,
+   "shol": 24,
+   "legl": 4,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 4,
+   "forer": 14,
+   "footr": 4,
+   "handr": 1,
+   "shinr": 4,
+   "shor": 24,
+   "legr": 4,
+   "chest": 50
+  },
+  "nw_cloth026": {
+   "belt": 0,
+   "bicepl": 3,
+   "forel": 3,
+   "footl": 6,
+   "handl": 1,
+   "shinl": 14,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 3,
+   "forer": 3,
+   "footr": 6,
+   "handr": 1,
+   "robe": 5,
+   "shinr": 14,
+   "shor": 0,
+   "legr": 3,
+   "chest": 39
+  },
+  "nw_cloth027": {
+   "belt": 0,
+   "bicepl": 1,
+   "forel": 1,
+   "footl": 6,
+   "handl": 1,
+   "shinl": 9,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 37,
+   "bicepr": 1,
+   "forer": 1,
+   "footr": 6,
+   "handr": 1,
+   "shinr": 9,
+   "shor": 0,
+   "legr": 3,
+   "chest": 39
+  },
+  "nw_cloth028": {
+   "belt": 0,
+   "bicepl": 8,
+   "forel": 8,
+   "footl": 3,
+   "handl": 1,
+   "shinl": 3,
+   "shol": 0,
+   "legl": 8,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 8,
+   "forer": 8,
+   "footr": 3,
+   "handr": 1,
+   "shinr": 3,
+   "shor": 0,
+   "legr": 8,
+   "chest": 50
+  },
+  "nw_cloth029": {
+   "belt": 11,
+   "bicepl": 10,
+   "forel": 3,
+   "footl": 4,
+   "handl": 3,
+   "shinl": 9,
+   "shol": 0,
+   "legl": 3,
+   "neck": 1,
+   "pelvis": 3,
+   "bicepr": 10,
+   "forer": 3,
+   "footr": 4,
+   "handr": 3,
+   "shinr": 9,
+   "shor": 0,
+   "legr": 3,
+   "chest": 5
+  }
+ },
+ "styles": [
+  [
+   "belt",
+   11
+  ],
+  [
+   "belt",
+   13
+  ],
+  [
+   "belt",
+   14
+  ],
+  [
+   "belt",
+   15
+  ],
+  [
+   "bicepl",
+   3
+  ],
+  [
+   "bicepl",
+   4
+  ],
+  [
+   "bicepl",
+   6
+  ],
+  [
+   "bicepl",
+   8
+  ],
+  [
+   "bicepl",
+   10
+  ],
+  [
+   "bicepl",
+   11
+  ],
+  [
+   "bicepl",
+   13
+  ],
+  [
+   "bicepl",
+   15
+  ],
+  [
+   "bicepr",
+   3
+  ],
+  [
+   "bicepr",
+   4
+  ],
+  [
+   "bicepr",
+   6
+  ],
+  [
+   "bicepr",
+   8
+  ],
+  [
+   "bicepr",
+   10
+  ],
+  [
+   "bicepr",
+   11
+  ],
+  [
+   "bicepr",
+   13
+  ],
+  [
+   "bicepr",
+   15
+  ],
+  [
+   "chest",
+   5
+  ],
+  [
+   "chest",
+   6
+  ],
+  [
+   "chest",
+   8
+  ],
+  [
+   "chest",
+   9
+  ],
+  [
+   "chest",
+   19
+  ],
+  [
+   "chest",
+   39
+  ],
+  [
+   "chest",
+   50
+  ],
+  [
+   "footl",
+   3
+  ],
+  [
+   "footl",
+   4
+  ],
+  [
+   "footl",
+   6
+  ],
+  [
+   "footl",
+   7
+  ],
+  [
+   "footl",
+   8
+  ],
+  [
+   "footl",
+   11
+  ],
+  [
+   "footr",
+   3
+  ],
+  [
+   "footr",
+   4
+  ],
+  [
+   "footr",
+   6
+  ],
+  [
+   "footr",
+   7
+  ],
+  [
+   "footr",
+   8
+  ],
+  [
+   "footr",
+   11
+  ],
+  [
+   "forel",
+   3
+  ],
+  [
+   "forel",
+   4
+  ],
+  [
+   "forel",
+   8
+  ],
+  [
+   "forel",
+   9
+  ],
+  [
+   "forel",
+   10
+  ],
+  [
+   "forel",
+   11
+  ],
+  [
+   "forel",
+   14
+  ],
+  [
+   "forel",
+   16
+  ],
+  [
+   "forel",
+   22
+  ],
+  [
+   "forer",
+   3
+  ],
+  [
+   "forer",
+   4
+  ],
+  [
+   "forer",
+   5
+  ],
+  [
+   "forer",
+   8
+  ],
+  [
+   "forer",
+   9
+  ],
+  [
+   "forer",
+   10
+  ],
+  [
+   "forer",
+   11
+  ],
+  [
+   "forer",
+   14
+  ],
+  [
+   "forer",
+   16
+  ],
+  [
+   "forer",
+   22
+  ],
+  [
+   "handl",
+   3
+  ],
+  [
+   "handl",
+   4
+  ],
+  [
+   "handl",
+   6
+  ],
+  [
+   "handl",
+   8
+  ],
+  [
+   "handr",
+   3
+  ],
+  [
+   "handr",
+   4
+  ],
+  [
+   "handr",
+   6
+  ],
+  [
+   "handr",
+   8
+  ],
+  [
+   "legl",
+   3
+  ],
+  [
+   "legl",
+   4
+  ],
+  [
+   "legl",
+   8
+  ],
+  [
+   "legl",
+   15
+  ],
+  [
+   "legl",
+   16
+  ],
+  [
+   "legr",
+   3
+  ],
+  [
+   "legr",
+   4
+  ],
+  [
+   "legr",
+   8
+  ],
+  [
+   "legr",
+   15
+  ],
+  [
+   "legr",
+   16
+  ],
+  [
+   "pelvis",
+   3
+  ],
+  [
+   "pelvis",
+   10
+  ],
+  [
+   "pelvis",
+   13
+  ],
+  [
+   "pelvis",
+   14
+  ],
+  [
+   "pelvis",
+   16
+  ],
+  [
+   "pelvis",
+   17
+  ],
+  [
+   "pelvis",
+   18
+  ],
+  [
+   "pelvis",
+   27
+  ],
+  [
+   "pelvis",
+   35
+  ],
+  [
+   "pelvis",
+   37
+  ],
+  [
+   "shinl",
+   3
+  ],
+  [
+   "shinl",
+   4
+  ],
+  [
+   "shinl",
+   8
+  ],
+  [
+   "shinl",
+   9
+  ],
+  [
+   "shinl",
+   10
+  ],
+  [
+   "shinl",
+   13
+  ],
+  [
+   "shinl",
+   14
+  ],
+  [
+   "shinl",
+   15
+  ],
+  [
+   "shinl",
+   16
+  ],
+  [
+   "shinr",
+   3
+  ],
+  [
+   "shinr",
+   4
+  ],
+  [
+   "shinr",
+   8
+  ],
+  [
+   "shinr",
+   9
+  ],
+  [
+   "shinr",
+   10
+  ],
+  [
+   "shinr",
+   13
+  ],
+  [
+   "shinr",
+   14
+  ],
+  [
+   "shinr",
+   15
+  ],
+  [
+   "shinr",
+   16
+  ],
+  [
+   "shol",
+   3
+  ],
+  [
+   "shol",
+   4
+  ],
+  [
+   "shol",
+   6
+  ],
+  [
+   "shol",
+   11
+  ],
+  [
+   "shol",
+   24
+  ],
+  [
+   "shor",
+   3
+  ],
+  [
+   "shor",
+   4
+  ],
+  [
+   "shor",
+   6
+  ],
+  [
+   "shor",
+   11
+  ],
+  [
+   "shor",
+   12
+  ],
+  [
+   "shor",
+   24
+  ]
+ ]
+}

@@ -90,6 +90,37 @@ class ProfileTests(unittest.TestCase):
         np.testing.assert_allclose(rebuilt, frame, atol=1e-12)
         self.assertAlmostEqual(armor.armory_rotate(frame)[0], -28.6)
 
+    def test_renaming_keeps_texture_references(self):
+        text = ('newmodel pmh2_chest005\nsetsupermodel pmh2_chest005 NULL\nnode dummy pmh2_chest005\n  parent NULL\nendnode\n'
+                'node trimesh pmh2_chest005g\n  parent pmh2_chest005\n  bitmap pmh2_chest005\n  materialname pmh2_chest005\nendnode\n'
+                'node dummy pmh2_chest0051\nendnode\n')
+        out = armor.renamed(text, 'pmh2_chest005', 'pmg2_chest005')
+        self.assertIn('newmodel pmg2_chest005\n', out); self.assertIn('node trimesh pmg2_chest005g\n', out)
+        self.assertIn('  parent pmg2_chest005\n', out); self.assertIn('  bitmap pmh2_chest005\n', out)
+        self.assertIn('  materialname pmh2_chest005\n', out); self.assertIn('node dummy pmh2_chest0051\n', out)
+        self.assertEqual(armor.renamed(text, 'pmh2_chest005', 'pmh2_chest005'), text)
+
+    def test_armory_values_output_is_parsed(self):
+        log = ('scale=(1.2000, 1.1000, 1.3000)\nrotate=(5.00, -3.00, 2.00)\ntranslate=(0.0100, 0.0200, -0.0300)\n'
+               '; verts fit: n=66 max_residual=0.00000 mean_residual=0.00000 (note)\n; tverts fit: n=67 max_residual=0.5\n')
+        class Result: returncode = 0; stdout = log; stderr = ''
+        with patch.object(armor.subprocess, 'run', return_value=Result()):
+            scale, rotate, shift, residual, _ = armor.armory_values('armory', 'a.mdl', 'b.mdl')
+        self.assertEqual((scale, rotate, shift, residual), ([1.2, 1.1, 1.3], [5., -3., 2.], [.01, .02, -.03], 0.))
+
+    def test_style_sets_refuse_robes_and_bare_parts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)/'set.json'
+            for styles, ok in (([['chest', 5], ['belt', 1]], True), ([['robe', 3]], False), ([['chest', 1]], False), ([['chest', 5], ['chest', 5]], False)):
+                path.write_text(json.dumps({'kind': 'PhenoMorpher-stock-armor-style-set', 'styles': styles}))
+                with self.subTest(styles=styles):
+                    if ok:
+                        self.assertEqual(armor.style_set(path), [('chest', 5), ('belt', 1)])
+                    else:
+                        self.assertRaisesRegex(ValueError, 'not converted', armor.style_set, path)
+        ini = armor.armory_ini([('pmh0_chest005', {'scale': [1, 2, 3], 'translate': [0, 0, .5]})])
+        self.assertEqual(ini, '[Global]\nntransforms=1\n[s0]\nmatch=pmh0_chest005\nsubstitute=*\nscale=(1,2,3)\nrotate=(0,0,0)\ntranslate=(0,0,0.5)\n')
+
     def test_troll_slots_take_human_sources(self):
         self.assertEqual([armor.source_slot(s) for s in ('pmg2', 'pfg0', 'pfd2')], ['pmh2', 'pfh0', 'pfd2'])
 
