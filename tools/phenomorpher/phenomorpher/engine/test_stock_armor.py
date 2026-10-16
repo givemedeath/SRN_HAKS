@@ -121,8 +121,11 @@ class ProfileTests(unittest.TestCase):
         ini = armor.armory_ini([('pmh0_chest005', {'scale': [1, 2, 3], 'translate': [0, 0, .5]})])
         self.assertEqual(ini, '[Global]\nntransforms=1\n[s0]\nmatch=pmh0_chest005\nsubstitute=*\nscale=(1,2,3)\nrotate=(0,0,0)\ntranslate=(0,0,0.5)\n')
 
-    def test_troll_slots_take_human_sources(self):
-        self.assertEqual([armor.source_slot(s) for s in ('pmg2', 'pfg0', 'pfd2')], ['pmh2', 'pfh0', 'pfd2'])
+    def test_every_non_human_body_converts_human_parts(self):
+        self.assertEqual([armor.source_slot(s) for s in ('pmg2', 'pfg0', 'pfd2', 'pme0', 'pfo2')], ['pmh2', 'pfh0', 'pfh2', 'pmh0', 'pfh2'])
+        self.assertEqual((len(armor.TARGETS), armor.SOURCES), (16, ('pfh0', 'pfh2', 'pmh0', 'pmh2')))
+        with self.assertRaisesRegex(ValueError, 'Human bodies are sources only'):
+            armor.source_slot('pfh0')
 
 
 if __name__ == '__main__':

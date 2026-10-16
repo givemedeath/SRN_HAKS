@@ -24,6 +24,10 @@ PARTS = ('belt', 'bicepl', 'bicepr', 'chest', 'footl', 'footr', 'forel', 'forer'
 BARE = ('neck', 'chest', 'pelvis', 'bicepl', 'bicepr', 'forel', 'forer', 'handl', 'handr',
         'legl', 'legr', 'shinl', 'shinr', 'footl', 'footr')
 SLOTS = tuple(f'p{g}{r}{b}' for g in 'fm' for r in 'dehog' for b in '02')
+# The non-Human bodies were built from the Human bodies, so Human parts are the only conversion source
+# and only the non-Human bodies are targets (user direction, 2026-10-15).
+SOURCES = tuple(s for s in SLOTS if s[2] == 'h')
+TARGETS = tuple(s for s in SLOTS if s[2] != 'h')
 MODEL = 2002
 TEXTURES = {3: '.tga', 6: '.plt', 2033: '.dds', 2036: '.mtr'}
 NAME = re.compile(r'^(p[fm][a-z][0-9])_([a-z]+?)(\d{3})$')
@@ -93,7 +97,7 @@ def references(text):
     return sorted({m.lower() for m in BITMAP.findall(text) if m.lower() not in ('null', '****')})
 
 
-def extract(extract_tool, decompiler, game_root, output, slots=SLOTS):
+def extract(extract_tool, decompiler, game_root, output, slots=SOURCES):
     """Fresh folder: raw/ (installed bytes), ascii/ (decompiled), textures/, reference/ (stock rigs and bare
     style-001 parts, native) and stock-armor.json pins."""
     output = Path(output); slots = tuple(slots)
@@ -160,8 +164,10 @@ ANISOTROPY_FLAG = 2.0
 
 
 def source_slot(slot):
-    """Troll replaces the Gnome slot and wears Human parts of the same style and build."""
-    return slot[:2] + 'h' + slot[3] if slot[2] == 'g' else slot
+    """Every non-Human body converts the Human parts of its gender and build (Troll uses the Gnome slot)."""
+    if slot not in TARGETS:
+        raise ValueError('Not a conversion target (Human bodies are sources only): ' + slot)
+    return slot[:2] + 'h' + slot[3]
 
 
 def surface_samples(path, count=SAMPLES, seed=7):
@@ -250,7 +256,7 @@ def profile_row(fit, frame_rotation, axis_choice, candidates):
             'anisotropy': float(ratio), 'flags': ['anisotropy'] if ratio > ANISOTROPY_FLAG else []}
 
 
-def fit_profiles(root, manifest, stock_manifest, output, slots=SLOTS):
+def fit_profiles(root, manifest, stock_manifest, output, slots=TARGETS):
     """Measured affine per target slot x armour part, from the source slot's stock bare part to the
     published body part. Long limbs keep the ring-axis correction only when it lowers the mean residual."""
     root = Path(root).resolve(); output = Path(output)

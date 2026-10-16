@@ -130,17 +130,17 @@ def consumed(arguments):
         files.update([option('resman-extract'), option('decompiler')])
         files.update(installed_models(option('game-root'), (MODEL_TYPE, 3, 6, 2033, 2036)))
     elif command == 'armor-profiles':
-        from .engine.stock_armor import BARE, SLOTS, source_slot
+        from .engine.stock_armor import BARE, TARGETS, source_slot
         root = option('root'); manifest = option('manifest'); stock = option('stock'); files.update([manifest, stock])
-        slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(SLOTS)
+        slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(TARGETS)
         for slot in slots:
             src = source_slot(slot)
             files.update(rooted(stock.parent, f'reference/{name}') for name in [src + '.mdl'] + [f'{src}_{p}001.mdl' for p in BARE])
             files.update(rooted(root, f'srn_body/{name}') for name in [slot + '.mdl'] + [f'{slot}_{p}001.mdl' for p in BARE])
     elif command == 'armor-convert':
-        from .engine.stock_armor import SLOTS, source_slot, style_set
+        from .engine.stock_armor import TARGETS, source_slot, style_set
         stock = option('stock'); styles = option('styles'); files.update([stock, option('profiles'), option('armory'), styles])
-        slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(SLOTS)
+        slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(TARGETS)
         files.update(rooted(stock.parent, f'ascii/{source_slot(slot)}_{p}{s:03d}.mdl') for slot in slots for p, s in style_set(styles))
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
