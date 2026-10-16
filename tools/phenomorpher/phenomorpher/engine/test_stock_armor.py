@@ -100,6 +100,16 @@ class ProfileTests(unittest.TestCase):
         self.assertIn('  materialname pmh2_chest005\n', out); self.assertIn('node dummy pmh2_chest0051\n', out)
         self.assertEqual(armor.renamed(text, 'pmh2_chest005', 'pmh2_chest005'), text)
 
+    def test_a_mesh_named_like_its_model_is_renamed_once(self):
+        text = ('newmodel pmh2_footl014\nnode dummy pmh2_footl014\n  parent NULL\nendnode\n'
+                'node trimesh pmh2_footl014\n  parent pmh2_footl014\n  bitmap pmh2_footl014\nendnode\n')
+        out, changes = armor.unique_mesh_names(text, 'pmh2_footl014')
+        self.assertIn('node trimesh pmh2_footl014g\n  parent pmh2_footl014\n  bitmap pmh2_footl014\n', out)
+        self.assertEqual(changes, [{'node': 'pmh2_footl014', 'type': 'trimesh', 'renamedTo': 'pmh2_footl014g'}])
+        self.assertEqual(armor.unique_mesh_names(out, 'pmh2_footl014'), (out, []))
+        child = text + 'node dummy hook\n  parent pmh2_footl014\nendnode\n'
+        self.assertRaisesRegex(ValueError, 'Ambiguous', armor.unique_mesh_names, child, 'pmh2_footl014')
+
     def test_armory_values_output_is_parsed(self):
         log = ('scale=(1.2000, 1.1000, 1.3000)\nrotate=(5.00, -3.00, 2.00)\ntranslate=(0.0100, 0.0200, -0.0300)\n'
                '; verts fit: n=66 max_residual=0.00000 mean_residual=0.00000 (note)\n; tverts fit: n=67 max_residual=0.5\n')

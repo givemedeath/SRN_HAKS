@@ -343,6 +343,23 @@ def renamed(text, old, new):
     return ''.join(line if TEXTURE_LINE.match(line) else pattern.sub(new, line) for line in text.splitlines(keepends=True))
 
 
+def unique_mesh_names(text, model):
+    """A few stock parts name their mesh like the model's root dummy (e.g. pmh2_footl014); the game resolves
+    it, but frame proofs need unique names. Rename such a childless mesh to <model>g, as its sibling parts
+    spell it. Returns the text and the name-only changes."""
+    nodes = re.findall(r'(?mi)^node\s+(\S+)\s+(\S+)\s*$', text)
+    clash = [kind for kind, name in nodes if name.lower() == model.lower() and kind.lower() != 'dummy']
+    if not clash:
+        return text, []
+    # Only the mesh itself may name the model as parent; a child of the mesh would be ambiguous.
+    parented = re.findall(r'(?mi)^\s*parent\s+' + re.escape(model) + r'\s*$', text)
+    if len(clash) != 1 or len(parented) != 1 or any(name.lower() == model.lower() + 'g' for _, name in nodes):
+        raise ValueError('Ambiguous duplicate node names: ' + model)
+    pattern = r'(?mi)^(node\s+' + re.escape(clash[0]) + r'\s+)' + re.escape(model) + r'(\s*)$'
+    return (re.sub(pattern, lambda m: m[1] + model + 'g' + m[2], text, count=1),
+            [{'node': model, 'type': clash[0], 'renamedTo': model + 'g'}])
+
+
 def armory_values(armory, source, fitted):
     """NWNArmory's own fit between two same-topology models: (scale, rotate, translate, max vertex residual)."""
     result = subprocess.run([str(armory), '--values', str(source), str(fitted)], capture_output=True, text=True)
@@ -382,6 +399,12 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
     profiles = json.loads(Path(profiles_path).read_text(encoding='utf-8'))
     if profiles.get('kind') != PROFILE_KIND or profiles['stockInventorySHA256'] != digest(stock_manifest.read_bytes()):
         raise ValueError('Profiles must be fitted from this stock inventory')
+    renames = {}
+    def source_text(name):
+        text, changes = unique_mesh_names(source_ascii(name).read_text(encoding='cp1252'), Path(name).stem)
+        if changes:
+            renames[name] = changes
+        return text
     def source_ascii(name):
         path = stock_manifest.parent/'ascii'/name
         if digest(path.read_bytes()) != stock['models'][name]['asciiSHA256']:
@@ -398,7 +421,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
         calibration = {}
         for part in sorted({p for p, _ in styles}):
             transform = profile[part]['transform']; linear, translate = profile_affine(transform)
-            name = next(s for p, _, s, _ in selection if p == part); text = source_ascii(name).read_text(encoding='cp1252')
+            name = next(s for p, _, s, _ in selection if p == part); text = source_text(name)
             base = folders['calibration']/part; base.mkdir()
             normal = base/name; normal.write_text(text, encoding='cp1252'); copy = base/('identity-' + name); copy.write_text(text, encoding='cp1252')
             correct_rigid(normal, copy, {'scale': [1, 1, 1], 'translate': [0, 0, 0]})  # bake frames: attachment-local meshes
@@ -419,7 +442,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
                 raise ValueError(f'Armory calibration disagrees with the profile: {slot} {part} {residual} {agreement}')
             calibration[part] = {'model': name, 'maxResidual': residual, 'agreement': agreement}
         for _, _, name, _ in selection:
-            (folders['source']/name).write_bytes(source_ascii(name).read_bytes())
+            (folders['source']/name).write_text(source_text(name), encoding='cp1252', newline='')
         ini = work/'batch.ini'; ini.write_text(armory_ini([(Path(n).stem, profile[p]['transform']) for p, _, n, _ in selection]), encoding='ascii')
         batch = subprocess.run([str(armory), str(ini), str(folders['source']), str(folders['raw'])], capture_output=True, text=True)
         (work/'batch.log').write_text(batch.stdout + batch.stderr, encoding='utf-8')
@@ -438,7 +461,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
                               'asciiSHA256': digest((final/target).read_bytes()), 'meshTypes': proof['meshTypes'],
                               'maximumWorldTransformError': proof['maximumWorldTransformError'],
                               'maximumWorldNormalError': proof['maximumWorldNormalError'],
-                              'textureReferences': stock['models'][name]['references']}
+                              'textureReferences': stock['models'][name]['references'], 'nameOnlyChanges': renames.get(name, [])}
         rows[slot] = {'source': src, 'calibration': calibration, 'models': models,
                       'batchIniSHA256': digest(ini.read_bytes())}
     result = {'schemaVersion': 1, 'kind': CONVERT_KIND, 'armory': {'path': str(armory), 'sha256': ARMORY_SHA256, 'version': version},
