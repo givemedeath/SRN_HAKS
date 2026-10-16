@@ -473,3 +473,93 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
               'nativeCompiled': False, 'clientValidated': False, 'assetApprovalCreated': False}
     (output/'conversion.json').write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8', newline='\n')
     return result
+
+
+PACK_KIND = 'PhenoMorpher-stock-armor-pack'
+PACK = 'srn_armor'
+
+
+def compile_receipt(compiled, slot):
+    """The complete native-compile receipt of one staged slot: {model name: entry}."""
+    receipt = json.loads((Path(compiled)/slot/'converted'/'native-compile.json').read_text(encoding='utf-8'))
+    if not receipt.get('complete'):
+        raise ValueError('Native compile incomplete: ' + slot)
+    return receipt, {row['name']: row for row in receipt['models']}
+
+
+def publish(pairs, body_manifest, root, manifest):
+    """Write the srn_armor pack and its contract from (conversion.json, compile root) pairs. Every compiled
+    binary must come from its conversion's ASCII and match its compile receipt; each body slot is
+    published once; no name may shadow a body resource. Nothing here approves an asset."""
+    root = Path(root).resolve(); pack = root/PACK; manifest = Path(manifest)
+    if pack.exists() and any(pack.iterdir()):
+        raise FileExistsError('Fresh pack folder required: ' + str(pack))
+    body = json.loads(Path(body_manifest).read_text(encoding='utf-8-sig'))
+    body_names = {Path(row['path']).name.lower() for row in body['resources']}
+    rows, sources, clients, slots, common, contents = [], {}, set(), set(), {}, {}
+    for conversion_path, compiled in pairs:
+        conversion_path = Path(conversion_path); conversion = json.loads(conversion_path.read_text(encoding='utf-8'))
+        if conversion.get('kind') != CONVERT_KIND:
+            raise ValueError('Stock armour conversion required: ' + str(conversion_path))
+        for key in ('stockInventorySHA256', 'profilesSHA256'):
+            if common.setdefault(key, conversion[key]) != conversion[key]:
+                raise ValueError('Conversions disagree on ' + key)
+        if common.setdefault('armory', conversion['armory']['sha256']) != conversion['armory']['sha256']:
+            raise ValueError('Conversions disagree on the NWNArmory build')
+        for slot, row in sorted(conversion['slots'].items()):
+            if slot in slots or slot not in TARGETS:
+                raise ValueError('Body slot published twice or not a target: ' + slot)
+            slots.add(slot); receipt, compiled_rows = compile_receipt(compiled, slot); clients.add(receipt['clientSha256'])
+            if set(compiled_rows) != set(row['models']):
+                raise ValueError('Compiled models differ from the conversion: ' + slot)
+            sources.setdefault(row['source'], {'conversionSHA256': digest(conversion_path.read_bytes()), 'slots': []})['slots'].append(slot)
+            for name, model in sorted(row['models'].items()):
+                entry = compiled_rows[name]; content = (Path(compiled)/slot/'converted'/'resources'/name).read_bytes()
+                if entry['sourceSha256'] != model['asciiSHA256'] or digest(content) != entry['binarySha256']:
+                    raise ValueError('Compiled binary does not match its conversion: ' + name)
+                if name.lower() in body_names or len(Path(name).stem) > 16:
+                    raise ValueError('Armour name shadows a body resource or exceeds 16 characters: ' + name)
+                contents[name] = content
+                rows.append({'path': f'{PACK}/{name}', 'sha256': entry['binarySha256'], 'bytes': len(content),
+                             'slot': slot, 'part': model['part'], 'style': model['style'], 'source': model['source'],
+                             'sourceAsciiSHA256': model['sourceAsciiSHA256'], 'asciiSHA256': model['asciiSHA256'],
+                             'meshTypes': model['meshTypes'], 'textureReferences': model['textureReferences'],
+                             'nameOnlyChanges': model.get('nameOnlyChanges', [])})
+    if len(clients) != 1:
+        raise ValueError('Binaries must come from one native compiler build')
+    pack.mkdir(parents=True, exist_ok=True)
+    for name, content in contents.items():
+        (pack/name).write_bytes(content)
+    contract = {'schemaVersion': 1, 'kind': PACK_KIND, 'pack': PACK, 'bodyContractSHA256': digest(Path(body_manifest).read_bytes()),
+                'stockInventorySHA256': common['stockInventorySHA256'], 'profilesSHA256': common['profilesSHA256'],
+                'armory': {'sha256': common['armory'], 'version': ARMORY_VERSION}, 'nativeCompilerSHA256': clients.pop(),
+                'sources': sources, 'targets': sorted(slots),
+                'counts': {'models': len(rows), 'danglymesh': sum('danglymesh' in r['meshTypes'] for r in rows)},
+                'resources': rows, 'clientValidated': False, 'assetApprovalCreated': False}
+    manifest.write_text(json.dumps(contract, indent=1) + '\n', encoding='utf-8', newline='\n')
+    return verify_pack(root, manifest)
+
+
+def verify_pack(root, manifest, verified=None):
+    """The committed srn_armor pack matches its contract exactly: inventory, hashes, lengths, native binaries,
+    stock armour names on target bodies, and no name shared with the body pack."""
+    root = Path(root).resolve(); data = json.loads(Path(manifest).read_text(encoding='utf-8-sig'))
+    if data.get('kind') != PACK_KIND or data.get('schemaVersion') != 1 or not data.get('resources'):
+        raise ValueError('Nonempty stock armour pack contract required')
+    pack = root/data['pack']; seen = set()
+    for row in data['resources']:
+        path = (root/row['path']).resolve(); name = path.name
+        if path.parent != pack or name in seen:
+            raise ValueError('Armour resource outside the pack or duplicated: ' + row['path'])
+        seen.add(name)
+        found = classify(path.stem)
+        if path.suffix != '.mdl' or not found or found[0] not in TARGETS or found[1:] != (row['part'], row['style']) or found[0] != row['slot']:
+            raise ValueError('Not a converted armour part of a target body: ' + name)
+        content = path.read_bytes()
+        actual = digest(content) if verified is None else verified.get(str(path))
+        if actual != row['sha256'] or len(content) != row['bytes'] or content[:4] != b'\0\0\0\0':
+            raise ValueError('Armour resource differs from its contract or is not a native binary: ' + name)
+    if {p.name for p in pack.iterdir()} != seen:
+        raise ValueError('Pack folder holds files outside its contract')
+    return {'pack': data['pack'], 'resources': len(seen), 'targets': len(data['targets']), 'verified': True,
+            'assetApprovalCreated': False}

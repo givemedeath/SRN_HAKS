@@ -84,6 +84,11 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 | `audit-native` | One published binary model and its source (ASCII or binary) | Normalised clip controller and static rig (hierarchy, node types, bind transforms) comparison, quaternions up to sign |
 | `sweep` | Contract, the targets' and donors' rigs, parts and head aliases; for motion also every rig and the stock pins | Per-body native, geometry, measurement and v16 connector (neck, penetration) report, optional motion connectors; an explicit `--clip` that a chain cannot resolve fails the run, and default clips that cannot are listed as unavailable |
 | `retarget-v2` | Fit (and optional Large) `conversion.json`, stock `baseline.json`, the Human rig of that gender and the stock `a_fa`/`a_ba` chain | Fit-fitted carrier chain, Fit and Large roots naming its top carrier, and `retarget-v2.json` |
+| `armor-extract` | Pinned extractor and decompiler, installed game (`--no-ovr`; key files and the BIFs holding models and textures) | Fresh stock Human armour parts (ASCII), their textures and fit references, with `stock-armor.json` pins |
+| `armor-profiles` | Body manifest, its target rigs and bare parts, the stock inventory and its Human references | One scale/rotate/translate per target body and part, with residuals and anisotropy flags |
+| `armor-convert` | Stock inventory and the selected Human parts, profiles, pinned NWNArmory, a style set | Calibrated Armory batch per body, corrected and renamed ASCII parts, `conversion.json` |
+| `armor-publish` | Body manifest, `conversion.json` files each paired with its compile root (receipts and binaries) | The `srn_armor` pack folder and its hash-pinned contract |
+| `verify-armor` | Armour contract and every pack resource | Exact pack inventory, hashes, lengths, native binaries and target-body names |
 
 ## Runtime release recipe (new or regenerated bodies)
 
@@ -102,6 +107,18 @@ Every PhenoMorpher step runs through `run.py` with fresh migration evidence; cli
 6. Run `adopt-runtime` with `baseKind: intermediate` for a new body, or `published` to replace a release. It refuses a
    staged release that breaks the runtime rules.
 7. Run `verify-runtime` on the adopted contract, then `verify-assets` and the client review.
+
+## Stock armour recipe (`srn_armor`)
+
+Converts the stock Human armour parts onto the 16 non-Human bodies, which were built from the Human bodies
+(plan and evidence: `docs/phenomorpher/clothing/`).
+
+1. `armor-extract` the stock Human parts, then `armor-profiles` against the body manifest.
+2. `armor-convert` once per Human source with its style set (`docs/phenomorpher/clothing/full-set-<source>.json`)
+   and its four `--slot` bodies.
+3. Compile each body's parts in the EE client with `tools/phenotypes/native_compile.py`.
+4. `armor-publish` every conversion with its compile root, then `verify-armor`, `Build-Haks -Pack srn_armor` and
+   the client review.
 
 An assembly sidecar is schemaVersion 1, kind `PhenoMorpher-assembly`, with `rig`
 and `parts` hash pins. Paths resolve inside the explicit `--root`. Part keys use

@@ -593,6 +593,7 @@
       "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_stock_armor.py": [
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/retarget.py",
       "tools/phenomorpher/phenomorpher/engine/stock_armor.py"
     ],
@@ -3184,6 +3185,9 @@
       "srn_body"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_runtime_rules.py": [
+      "srn_body"
+    ],
+    "tools/phenomorpher/phenomorpher/engine/test_stock_armor.py": [
       "srn_body"
     ],
     "tools/phenomorpher/phenomorpher/inputs.py": [

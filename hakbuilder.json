@@ -137,6 +137,11 @@
       "Name": "srn_body_tex",
       "Path": "./srn_body_tex/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_armor",
+      "Path": "./srn_armor/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": [
