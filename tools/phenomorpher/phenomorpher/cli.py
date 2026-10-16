@@ -121,6 +121,10 @@ def main(argv=None):
     for name in ('resman-extract', 'decompiler', 'game-root', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all 20)')
+    p = sub.add_parser('armor-profiles')
+    for name in ('root', 'manifest', 'stock', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all 20)')
     p = sub.add_parser('retarget-v2')
     p.add_argument('--fit-converted', type=Path, required=True); p.add_argument('--large-converted', type=Path)
     p.add_argument('--baseline', type=Path, required=True, help='Extracted stock baseline (baseline.json and ascii/)')
@@ -265,6 +269,13 @@ def main(argv=None):
         for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
         result = extract(a.resman_extract, a.decompiler, a.game_root, a.output, a.slot or SLOTS)
         print(json.dumps(result['counts'])); return
+    if a.command == 'armor-profiles':
+        from .engine.stock_armor import SLOTS, fit_profiles
+        from .inputs import consumed
+        snapshot()  # Managed launches only, before any declared file is parsed.
+        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        result = fit_profiles(a.root, a.manifest, a.stock, a.output, a.slot or SLOTS)
+        print(json.dumps({'slots': len(result['slots']), 'flagged': result['flagged']})); return
     if a.command == 'retarget-v2':
         from .engine.retarget_v2 import retarget
         from .inputs import consumed

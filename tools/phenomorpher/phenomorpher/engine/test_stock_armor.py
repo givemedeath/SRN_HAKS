@@ -72,5 +72,27 @@ class InventoryTests(unittest.TestCase):
                 armor.extract(tool, dec, root/'game', root/'out2', ['pfa0'])
 
 
+class ProfileTests(unittest.TestCase):
+    def test_a_known_scale_rotation_and_translation_is_recovered(self):
+        import numpy as np
+        from .retarget import rotations
+        rng = np.random.default_rng(1)
+        # An elongated limb-like cloud along -z; the new part is scaled, then rotated by a joint frame change, then moved.
+        stock = rng.normal(size=(4000, 3))*[.04, .03, .0] + np.c_[np.zeros((4000, 2)), -rng.random(4000)*.3]
+        frame = rotations([1, 0, 0, np.deg2rad(28.6)]); scale = np.array([.6, .7, 1.3]); shift = np.array([.002, -.004, .006])
+        new = stock @ (frame @ np.diag(scale)).T + shift
+        fit = armor.fit_part(stock, new, frame, False)
+        np.testing.assert_allclose(fit['scale'], scale, rtol=1e-6); np.testing.assert_allclose(fit['translate'], shift, atol=1e-9)
+        self.assertLess(fit['residualMm']['stockToNewMean'], 1e-6)
+        # Armory rebuilds the same rotation from the recorded degrees (X, Y, Z with X/Y negated).
+        x, y, z = np.deg2rad(armor.armory_rotate(fit['rotation']))
+        rebuilt = rotations([0, 0, 1, z]) @ rotations([0, 1, 0, -y]) @ rotations([1, 0, 0, -x])
+        np.testing.assert_allclose(rebuilt, frame, atol=1e-12)
+        self.assertAlmostEqual(armor.armory_rotate(frame)[0], -28.6)
+
+    def test_troll_slots_take_human_sources(self):
+        self.assertEqual([armor.source_slot(s) for s in ('pmg2', 'pfg0', 'pfd2')], ['pmh2', 'pfh0', 'pfd2'])
+
+
 if __name__ == '__main__':
     unittest.main()

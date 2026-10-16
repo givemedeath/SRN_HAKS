@@ -129,6 +129,14 @@ def consumed(arguments):
     elif command == 'armor-extract':
         files.update([option('resman-extract'), option('decompiler')])
         files.update(installed_models(option('game-root'), (MODEL_TYPE, 3, 6, 2033, 2036)))
+    elif command == 'armor-profiles':
+        from .engine.stock_armor import BARE, SLOTS, source_slot
+        root = option('root'); manifest = option('manifest'); stock = option('stock'); files.update([manifest, stock])
+        slots = [arguments[i+1] for i, a in enumerate(arguments[:-1]) if a == '--slot'] or list(SLOTS)
+        for slot in slots:
+            src = source_slot(slot)
+            files.update(rooted(stock.parent, f'reference/{name}') for name in [src + '.mdl'] + [f'{src}_{p}001.mdl' for p in BARE])
+            files.update(rooted(root, f'srn_body/{name}') for name in [slot + '.mdl'] + [f'{slot}_{p}001.mdl' for p in BARE])
     elif command == 'convert-clothing':
         root = option('release'); profile = option('profile'); files.update([profile,option('source-binding'),option('input')])
         data = read(profile)
