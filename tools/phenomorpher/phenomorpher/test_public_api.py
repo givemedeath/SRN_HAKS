@@ -185,7 +185,9 @@ class LineageManifestTests(unittest.TestCase):
     def test_packaged_lineage_matches_the_launcher_copy_and_every_engine_module(self):
         package = Path(__file__).resolve().parent
         packaged = (package/'source-lineage.json').read_bytes()
-        self.assertEqual(packaged, (package.parent/'source-lineage.json').read_bytes())
+        launcher = package.parent/'source-lineage.json'
+        if launcher.is_file():  # source checkout; an installed wheel ships only the packaged copy
+            self.assertEqual(packaged, launcher.read_bytes())
         for row in json.loads(packaged)['modules']:
             module = (package/'engine'/(row['module'] + '.py')).read_bytes().replace(b'\r\n', b'\n')
             self.assertEqual(hashlib.sha256(module).hexdigest(), row['packagedSHA256'], row['module'])
