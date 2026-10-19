@@ -384,7 +384,9 @@ Original SRN-generated references and Pixal3D geometry/appearance, locally clean
 UV-mapped, fitted and encoded as NWN:EE native models with 1024-square PLTs.
 User-approved heads: attempt63 `pfg0_head032`, attempt68 Samurai `pfg0_head090`,
 attempt73 Bob `pfg0_head091`, and attempt74 Undercut `pfg0_head092`.
-Each head has 20,000 triangles. This batch contains only four compiled MDL/PLT
+Each head has 20,000 triangles. Fixed-string compiler tails are zeroed using the
+existing armour sanitizer; geometry, material references and PLTs are unchanged.
+This batch contains only four compiled MDL/PLT
 pairs; source images, masters, trial tools, demo modules and generated HAKs stay
 outside the production source pack. Approval does not establish exhaustive
 animation, equipment or palette-combination coverage.
