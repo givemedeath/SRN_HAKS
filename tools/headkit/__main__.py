@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 import shutil
 import uuid
-from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins
+from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins
 from . import comfy
 
 
@@ -98,7 +98,7 @@ def main():
                 result=runner.review(a.stage,a.decision,a.notes) if a.command=='review' else runner.execute('prepare' if a.command=='prepare' else a.stage)
     elif a.command=='inputs':
         data=manifest(a.manifest);local=bindings(a.bindings)
-        pins=code_pins()+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,p) for p in data['inputs'].values()]
+        pins=code_pins()+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,p) for p in data['inputs'].values()]+python_package_pins(local)
         for name in ('toolchain','migrationReceipt'):
             if name in local:pins.append(pin(local[name]))
         for name in ('python','blender','client','embree'):

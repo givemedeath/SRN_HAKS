@@ -368,12 +368,36 @@ class MeshTests(Temporary):
     def test_transformed_mesh_rejected(self):
         p,f=self.tetra();out=self.root/'mesh.glb';write_mesh(out,p,f);d,b,_=load(out.read_bytes());d['nodes'][0]['translation']=[1,0,0]
         with self.assertRaises(ValueError):load(encode(d,b))
+    def test_duplicate_visible_mesh_instances_rejected(self):
+        p,f=self.tetra();out=self.root/'mesh.glb';write_mesh(out,p,f);d,b,_=load(out.read_bytes())
+        d['nodes'].append({'mesh':0});d['scenes'][0]['nodes'].append(1)
+        with self.assertRaisesRegex(ValueError,'Exactly one visible mesh instance'):
+            load(encode(d,b))
     def test_uv_surface_uses_barycentric_positions_not_vertices(self):
         p=np.array([[0,0,0],[1,0,0],[0,1,0]],float);value={'positions':p,'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
         positions,ids,_=surface(value,16);self.assertEqual(ids[2,2],0);np.testing.assert_allclose(positions[2,2],[2.5/16,2.5/16,0])
     def test_padding_fills_only_unmapped_pixels_and_preserves_black(self):
         values=np.zeros((4,4,3),np.uint8);values[1,1]=[0,0,0];values[2,2]=[80,90,100];mask=np.zeros((4,4),bool);mask[1,1]=mask[2,2]=True
         result=pad(values,mask);np.testing.assert_array_equal(result[mask],values[mask]);np.testing.assert_array_equal(result[0,0],[0,0,0])
+
+
+class InputInventoryTests(Temporary):
+    def test_inputs_lists_all_python_package_files(self):
+        from headkit.__main__ import main
+        from headkit.common import sha
+        source=self.file('geometry.glb')
+        manifest_path=self.root/'manifest.json'
+        write(manifest_path,{'schemaVersion':1,'id':'input-inventory',
+              'inputs':{'geometry':{'path':source.name,'sha256':sha(source)}}})
+        local=self.bindings_data()
+        bindings_path=self.root/'bindings.json';write(bindings_path,local)
+        output=self.root/'inputs.json'
+        with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),
+              '--bindings',str(bindings_path),'--output',str(output)]):
+            main()
+        paths=json.loads(output.read_text())
+        for item in local['pythonPackages']['files']:
+            self.assertIn(str(Path(item['path']).resolve()),paths)
 
 
 class LocalBindingSecurityTests(Temporary):
