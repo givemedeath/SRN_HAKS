@@ -1,4 +1,5 @@
 """Source snapshots and loaded Python-code checks for the installed Comfy adapter."""
+import ast
 import hashlib
 import json
 import marshal
@@ -120,6 +121,64 @@ def _code_tree_hashes(code):
         if isinstance(item,types.CodeType):yield from _code_tree_hashes(item)
 
 
+def _literal_signature(value,depth=0,budget=None):
+    if budget is None:budget=[100000]
+    budget[0]-=1
+    if depth>64 or budget[0]<0:raise ValueError('Module constant exceeds the safe fingerprint limits')
+    if value is None:return ['none']
+    if type(value) is bool:return ['bool',value]
+    if type(value) is int:return ['int',value]
+    if type(value) is float:return ['float',value.hex()]
+    if type(value) is str:return ['str',value]
+    if type(value) is bytes:return ['bytes',value.hex()]
+    if type(value) in (tuple,list):
+        return [type(value).__name__,[_literal_signature(item,depth+1,budget) for item in value]]
+    if type(value) is dict:
+        rows=[(_literal_signature(key,depth+1,budget),_literal_signature(item,depth+1,budget))
+              for key,item in value.items()]
+        rows.sort(key=lambda row:json.dumps(row[0],sort_keys=True,separators=(',',':')))
+        return ['dict',rows]
+    if type(value) in (set,frozenset):
+        values=[_literal_signature(item,depth+1,budget) for item in value]
+        values.sort(key=lambda item:json.dumps(item,sort_keys=True,separators=(',',':')))
+        return [type(value).__name__,values]
+    raise ValueError('Module constant is not a supported literal value')
+
+
+def _literal_hash(values):
+    payload=json.dumps([(name,_literal_signature(value)) for name,value in sorted(values.items())],
+                       sort_keys=True,separators=(',',':'))
+    return hashlib.sha256(payload.encode()).hexdigest()
+
+
+def _immutable_literal(value):
+    if value is None or type(value) in (bool,int,float,str,bytes):return True
+    if type(value) in (tuple,frozenset):return all(_immutable_literal(item) for item in value)
+    return False
+
+
+def _source_constants(source):
+    assignments={}
+    for statement in ast.parse(source).body:
+        if isinstance(statement,ast.Assign):
+            targets=statement.targets;value=statement.value
+        elif isinstance(statement,ast.AnnAssign):
+            targets=[statement.target];value=statement.value
+        elif isinstance(statement,ast.AugAssign):
+            targets=[statement.target];value=None
+        else:continue
+        for target in targets:
+            if isinstance(target,ast.Name) and target.id.isupper():
+                assignments.setdefault(target.id,[]).append(value)
+    constants={}
+    for name,values in assignments.items():
+        if len(values)!=1 or values[0] is None:continue
+        try:value=ast.literal_eval(values[0])
+        except (ValueError,TypeError,MemoryError,RecursionError):continue
+        if name.isupper() or _immutable_literal(value):constants[name]=value
+    return constants
+
+
 def _loaded_codes(value,seen):
     marker=id(value)
     if marker in seen:return
@@ -150,12 +209,18 @@ def _loaded_codes(value,seen):
 
 
 def loaded_source_code(roots):
-    """Verify loaded source-defined callables against disk and return a stable code summary."""
+    """Verify loaded callables and literal module constants against source and return a stable summary."""
     roots=[Path(root).resolve(strict=True) for root in roots]
-    loaded={}
+    loaded={};module_namespaces={}
     for module in tuple(sys.modules.values()):
         namespace=getattr(module,'__dict__',None)
         if not isinstance(namespace,dict):continue
+        module_file=namespace.get('__file__')
+        if isinstance(module_file,(str,os.PathLike)):
+            try:module_path=Path(module_file).resolve(strict=True)
+            except (OSError,RuntimeError):module_path=None
+            if module_path is not None and module_path.suffix.lower()=='.py' and _inside(module_path,roots):
+                module_namespaces.setdefault(module_path,[]).append(namespace)
         seen=set()
         for value in tuple(namespace.values()):
             for code in _loaded_codes(value,seen):
@@ -164,10 +229,21 @@ def loaded_source_code(roots):
                 if path.suffix.lower()!='.py' or not _inside(path,roots):continue
                 loaded.setdefault(path,set()).add(_code_hash(code))
     rows=[]
-    for path,loaded_hashes in sorted(loaded.items(),key=lambda item:str(item[0]).casefold()):
+    for path in sorted(set(loaded)|set(module_namespaces),key=lambda value:str(value).casefold()):
+        loaded_hashes=loaded.setdefault(path,set())
         source=path.read_bytes()
         compiled=compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
         expected=set(_code_tree_hashes(compiled))
+        constants=_source_constants(source)
+        expected.add(_literal_hash(constants))
+        for namespace in module_namespaces.get(path,()):
+            try:
+                actual={name:namespace[name] for name in constants}
+                require(_literal_hash(actual)==_literal_hash(constants),
+                        'Loaded Comfy module constants differ from their source on disk')
+            except (KeyError,TypeError,ValueError):
+                require(False,'Loaded Comfy module constants differ from their source on disk')
+            loaded_hashes.add(_literal_hash(actual))
         require(loaded_hashes<=expected,'Loaded Comfy Python code differs from its source on disk')
         loaded_digest=hashlib.sha256(json.dumps(sorted(loaded_hashes),separators=(',',':')).encode()).hexdigest()
         rows.append({'path':str(path),'sourceSha256':hashlib.sha256(source).hexdigest(),'loadedCodeSha256':loaded_digest})
