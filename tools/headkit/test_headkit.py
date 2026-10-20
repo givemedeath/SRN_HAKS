@@ -336,6 +336,34 @@ class UvBindingTests(Temporary):
         with patch('headkit.common.importlib.import_module') as importer:
             with self.assertRaisesRegex(ValueError,'Stale file pin'):unwrap({},bindings)
             importer.assert_not_called()
+    def test_library_rejects_unpinned_package_and_native_files(self):
+        from headkit.common import library
+        directory=self.root/'tools-bank'/'libraries';package=directory/'pymeshlab';package.mkdir(parents=True)
+        entry=package/'__init__.py';entry.write_text('from . import helper')
+        helper=package/'helper.py';helper.write_text('value = 1')
+        native=package/'pymeshlab.pyd';native.write_bytes(b'native extension')
+        bindings={'toolsRoot':str(self.root/'tools-bank'),'libraries':{'pymeshlab':{
+            'directory':str(directory),'files':[pin(entry)]}}}
+        with patch('headkit.common.importlib.import_module') as importer:
+            with self.assertRaisesRegex(ValueError,'complete installation membership'):
+                library(bindings,'pymeshlab')
+            importer.assert_not_called()
+    def test_library_accepts_exact_recursive_inventory_and_restores_import_state(self):
+        from headkit.common import library
+        directory=self.root/'tools-bank'/'libraries';package=directory/'xatlas';package.mkdir(parents=True)
+        entry=package/'__init__.py';entry.write_text('from . import helper')
+        helper=package/'helper.py';helper.write_text('value = 1')
+        native=package/'xatlas.pyd';native.write_bytes(b'native extension')
+        files=[pin(path) for path in sorted(directory.rglob('*')) if path.is_file()]
+        bindings={'toolsRoot':str(self.root/'tools-bank'),'libraries':{'xatlas':{
+            'directory':str(directory),'files':files}}}
+        module=SimpleNamespace(__file__=str(entry.resolve()))
+        import sys
+        write_bytecode=sys.dont_write_bytecode
+        with patch('headkit.common.importlib.import_module',return_value=module) as importer:
+            self.assertIs(library(bindings,'xatlas'),module)
+            importer.assert_called_once_with('xatlas')
+        self.assertEqual(sys.dont_write_bytecode,write_bytecode)
     def test_uv_import_rejects_cached_module_from_another_installation(self):
         from headkit.uv import unwrap
         bindings=self.fixture(self.root/'tools-bank'/'libraries');unexpected=self.file('unexpected-xatlas.py')
@@ -551,6 +579,15 @@ class LedgerTests(Temporary):
     def test_request_is_frozen_before_submission(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'New environment');request=self.prepared();Path(request['inputs'][0]['path']).write_text('changed')
         with self.assertRaisesRegex(ValueError,'Stale'):self.submit(FakeClient(),ledger,request,self.root/'job')
+    def test_existing_intent_receipt_does_not_publish_ledger_intent(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'New environment')
+        request=self.prepared();client=FakeClient();output=self.root/'job';output.mkdir()
+        receipt=output/'submission-intent.json';receipt.write_text('preserve historical receipt')
+        with self.assertRaises(FileExistsError):self.submit(client,ledger,request,output)
+        self.assertEqual(read(ledger)['jobs'],[])
+        self.assertEqual(receipt.read_text(),'preserve historical receipt')
+        self.assertEqual(client.posts,0)
+        self.assertNotIn('/prompt',[route for route,_ in client.routes])
     def test_dispatch_requires_the_prepared_runtime_bindings_and_endpoint(self):
         for mismatch in ('runtime','bindings','endpoint'):
             with self.subTest(mismatch=mismatch):

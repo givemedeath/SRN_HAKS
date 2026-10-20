@@ -21,28 +21,28 @@
   },
   "libraries": {
     "igl": {
-      "directory": "<installation under toolsRoot>",
+      "directory": "<dedicated installation root under toolsRoot>",
       "files": [
         {
-          "path": "<every consumed Python/native library file>",
+          "path": "<every file under the installation root, recursively>",
           "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
         }
       ]
     },
     "xatlas": {
-      "directory": "<installation under toolsRoot>",
+      "directory": "<dedicated installation root under toolsRoot>",
       "files": [
         {
-          "path": "<every consumed Python/native library file>",
+          "path": "<every file under the installation root, recursively>",
           "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
         }
       ]
     },
     "pymeshlab": {
-      "directory": "<installation under toolsRoot>",
+      "directory": "<dedicated installation root under toolsRoot>",
       "files": [
         {
-          "path": "<every consumed Python/native library file>",
+          "path": "<every file under the installation root, recursively>",
           "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
         }
       ]

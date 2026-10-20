@@ -200,8 +200,10 @@ def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_
         token = prepared['token']
         require(not any(j['token']==token for j in state['jobs']), 'This prepared request was already submitted')
         job = {'token':token,'state':'intent','stage':prepared['stage'],'requestSha256':digest(prepared),'started':time.time()}
-        state['jobs'].append(job); write(ledger,state)
+        # Reserve the immutable local receipt before publishing a counted ledger intent.
+        # Its exclusive create prevents a known path collision from stranding an unsent job.
         write(Path(output)/'submission-intent.json', {'prepared':prepared,'job':job}, fresh=True)
+        state['jobs'].append(job); write(ledger,state)
         try:
             verify(prepared['inputs']);request_sources(prepared);verify_loader_models(client,prepared)
         except Exception as exc:

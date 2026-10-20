@@ -97,19 +97,50 @@ def manifest(path):
 
 
 def library(bindings, name):
-    """Load only the explicitly byte-bound installation; never another worktree's copy."""
+    """Load only a completely inventoried, byte-bound installation."""
     row = bindings.get('libraries', {}).get(name)
-    require(isinstance(row, dict) and row.get('files'), 'Missing local library binding: ' + name)
+    require(isinstance(row, dict) and isinstance(row.get('directory'), str)
+            and isinstance(row.get('files'), list) and row['files'],
+            'Missing local library binding: ' + name)
     verify(row['files'])
-    directory = Path(row['directory']).resolve()
+    directory = Path(row['directory']).resolve(strict=True)
     tools_root = Path(bindings['toolsRoot']).resolve()
     require(directory.is_relative_to(tools_root), 'Library must be inside the declared durable tools bank')
+    require(directory.is_dir(), 'Library installation root must be a directory')
+
+    def inventory():
+        paths=set()
+        is_junction=getattr(os.path,'isjunction',lambda path:False)
+        for path in directory.rglob('*'):
+            require(not path.is_symlink() and not is_junction(path),
+                    'Library installation cannot contain unpinned links')
+            if path.is_file():
+                resolved=path.resolve(strict=True)
+                require(resolved.is_relative_to(directory),
+                        'Library file escapes its installation root')
+                paths.add(resolved)
+        return paths
+
+    pinned=[Path(item['path']).resolve(strict=True) for item in row['files']]
+    pinned_set=set(pinned)
+    require(len(pinned)==len(pinned_set) and all(path.is_relative_to(directory) for path in pinned_set)
+            and pinned_set==inventory(),
+            'Library file pins must enumerate the complete installation membership')
+
     sys.path.insert(0, str(directory))
+    write_bytecode=sys.dont_write_bytecode
+    sys.dont_write_bytecode=True
     try:
-        module = importlib.import_module(name)
+        try:
+            module = importlib.import_module(name)
+        finally:
+            sys.path.pop(0)
     finally:
-        sys.path.pop(0)
-    require(Path(module.__file__).resolve() in {Path(p['path']).resolve() for p in row['files']},
+        sys.dont_write_bytecode=write_bytecode
+    verify(row['files'])
+    require(pinned_set==inventory(),
+            'Library installation membership changed while importing: ' + name)
+    require(Path(module.__file__).resolve(strict=True) in pinned_set,
             'Imported library is not the byte-bound module: ' + name)
     return module
 
