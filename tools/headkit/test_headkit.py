@@ -524,6 +524,55 @@ class ResumeTests(Temporary):
         with self.assertRaises(ValueError):asset(self.root/'manifest.json',{'path':'../escape','sha256':'0'*64})
 
 
+class ImportedOwnershipTests(Temporary):
+    def fixture(self,derived_uv=False):
+        base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
+        uv=base/'uv.glb';uv.write_text('frozen UV mesh');inputs={}
+        for role,mode,size in [('ownership1k','L',1024),('ownership4k','L',4096),('runtimeColor','RGB',1024),('basecolor4k','RGB',4096),('runtimeShades','L',1024)]:
+            path=base/(role+'.png');Image.new(mode,(size,size)).save(path);inputs[role]={'path':path.name,'sha256':pin(path)['sha256']}
+        inputs['repairedMesh' if derived_uv else 'uvMesh']={'path':uv.name,'sha256':pin(uv)['sha256']}
+        data={'schemaVersion':1,'id':'ownership-binding','inputs':inputs,'ownership':{'reviewed':True,'sourceSha256':pin(uv)['sha256']},
+              'palette':{'inputs':{},'rows':{}},'tone':{},'fit':{'model':'head'}}
+        write(base/'manifest.json',data);write(base/'bindings.json',{'schemaVersion':1,'toolsRoot':str(base)})
+        return Runner(base/'manifest.json',base/'bindings.json',base/'run')
+    def test_imported_masks_need_review_and_exact_mesh_hash(self):
+        runner=self.fixture();valid=copy.deepcopy(runner.data['ownership'])
+        for config in ({},dict(valid,reviewed=False),dict(valid,sourceSha256='0'*64)):
+            runner.data['ownership']=config
+            for role in ('ownership1k','ownership4k'):
+                with self.subTest(config=config,role=role):
+                    with self.assertRaisesRegex(ValueError,'ownership'):runner.input(role)
+        runner.data['ownership']=valid
+        for role in ('ownership1k','ownership4k'):
+            self.assertEqual(Path(runner.input(role)),Path(asset(runner.manifest_path,runner.data['inputs'][role])['path']))
+    def test_tone_palette_and_direct_export_do_not_consume_unreviewed_masks(self):
+        runner=self.fixture();runner.data['ownership']['reviewed']=False
+        for stage,target in [('tone','headkit.textures.tone_match'),('palette','headkit.palette.quantize'),('export','headkit.native.prepare')]:
+            with self.subTest(stage=stage),patch(target) as operation:
+                with self.assertRaisesRegex(ValueError,'Imported ownership'):runner._execute(stage,runner.run)
+                operation.assert_not_called()
+    def test_imported_masks_require_uv_dependency_when_not_imported(self):
+        runner=self.fixture(derived_uv=True)
+        with patch.object(runner,'_execute') as work:
+            for stage in ('tone','palette'):
+                with self.subTest(stage=stage):
+                    with self.assertRaisesRegex(ValueError,'Stage not completed: unwrap'):runner.execute(stage)
+            work.assert_not_called()
+    def test_cached_palette_tracks_and_respects_unwrap_review(self):
+        runner=self.fixture(derived_uv=True)
+        def unwrap(stage,folder):
+            target=folder/'uv.glb';target.write_text('frozen UV mesh');return {'mesh':pin(target)}
+        with patch.object(runner,'_execute',side_effect=unwrap):runner.execute('unwrap')
+        runner.review('unwrap','approved','Reviewed current UV mesh')
+        with patch('headkit.palette.quantize',return_value={'fixture':True}):runner.execute('palette')
+        runner.review('palette','approved','Reviewed matching ownership')
+        receipt=read(runner.state['stages']['palette']['path']);self.assertIn('unwrap',receipt['dependencies'])
+        runner.review('unwrap','rejected','UV review revoked')
+        with patch('headkit.palette.quantize') as quantizer:
+            with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('palette')
+            quantizer.assert_not_called()
+
+
 class ReviewGateTests(Temporary):
     fixture=ResumeTests.fixture
     def completed(self,stage,folder):

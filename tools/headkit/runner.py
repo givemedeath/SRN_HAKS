@@ -22,6 +22,12 @@ class Runner:
 
     def input(self,name):
         require(name in self.data['inputs'],'Missing manifest input: '+name)
+        if name in ('ownership1k','ownership4k'):
+            config=self.data.get('ownership',{})
+            require(config.get('reviewed') is True,'Imported ownership needs reviewed UV-mesh binding')
+            source=self.source('uvMesh','unwrap','mesh')
+            require(config.get('sourceSha256')==pin(source)['sha256'],
+                    'Imported ownership review must bind the exact UV mesh')
         return asset(self.manifest_path,self.data['inputs'][name])['path']
 
     def result(self,stage,*,require_review=True,_checked=None):
@@ -76,6 +82,9 @@ class Runner:
             'native':['export'], 'render':[] if 'uvMesh' in self.data['inputs'] else ['unwrap']}
         if stage=='tone' and 'ownership4k' not in self.data['inputs']:dependencies[stage].append('ownership')
         if stage=='palette' and 'ownership1k' not in self.data['inputs']:dependencies[stage].append('ownership')
+        imported_mask={'tone':'ownership4k','palette':'ownership1k','export':'ownership1k'}.get(stage)
+        if imported_mask in self.data['inputs'] and 'uvMesh' not in self.data['inputs'] and 'unwrap' not in dependencies[stage]:
+            dependencies[stage].append('unwrap')
         dependency_pins={}
         for dependency in dependencies[stage]:
             self.result(dependency);row=self.state['stages'][dependency]

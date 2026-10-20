@@ -42,3 +42,6 @@ Collection/render-example/imported-shade review: **69 focused toolkit tests pass
 
 
 Ownership image-mode review: imported labels now require eight-bit `L` images in quantization, native export, tone matching and source-view ownership projection. RGB, palette-indexed and higher-bit images are rejected before label conversion; valid0..9 IDs remain unchanged. **74 affected tests pass** plus dependency-catalog consistency, with explicit non-L regressions and an all-ten-channel preservation check. A fresh shared-launcher CPU replay of retained #74 still reproduces the native/PLT bytes exactly, without GPU work or production changes.
+
+
+Imported-ownership binding review: imported1K and4K masks now require explicit review tied to the active UV mesh SHA in every consuming runner path, including tone, palette and direct runtime-shade export. When the UV mesh is derived, consumers record the approved unwrap dependency so cached outputs cannot bypass a revoked UV review. **78 affected tests pass**, plus dependency-catalog consistency. A fresh shared-launcher CPU export of retained #74 reproduces its approved PLT bytes exactly using reviewed imported ownership; all inputs, outputs and durable copies were hash-verified. No GPU or production assets were changed.
