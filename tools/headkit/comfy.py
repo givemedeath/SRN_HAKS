@@ -12,7 +12,7 @@ import urllib.error
 from urllib.parse import urlparse
 import uuid
 from .common import read, write, require, pin, verify, digest
-from .source_inventory import request_sources,verify_sources
+from .source_inventory import request_sources,verify_sources,validate_comfy_runtime
 
 TEMPLATES = Path(__file__).parent / 'templates'
 _LOCAL_LOCKS=set()
@@ -69,7 +69,8 @@ class Client:
     def request(self, route, data=None):
         payload = None if data is None else json.dumps(data,allow_nan=False).encode()
         request = urllib.request.Request(self.url + route, data=payload, headers={'Content-Type':'application/json'})
-        with urllib.request.urlopen(request, timeout=30) as response: return json.load(response)
+        timeout=300 if route=='/headkit/runtime-identity' else 30
+        with urllib.request.urlopen(request, timeout=timeout) as response: return json.load(response)
 
     def idle(self):
         queue = self.request('/queue')
@@ -183,6 +184,16 @@ def verify_loader_models(client, prepared):
             'ComfyUI loader resolved checkpoint paths or bytes different from the reviewed pins; install/restart the current adapter and prepare again')
 
 
+def verify_comfy_runtime(client, prepared):
+    expected=validate_comfy_runtime(prepared.get('comfyRuntimeIdentity'),
+                                    prepared.get('comfySourceInventory',{}).get('roots'))
+    actual=client.request('/headkit/runtime-identity')
+    actual=validate_comfy_runtime(actual,expected['coveredSourceRoots'])
+    require(actual==expected,
+            'Running ComfyUI Python/Torch/CUDA runtime differs from the prepared request; prepare again')
+    return actual
+
+
 def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_path=None):
     """An uncertain POST stays counted and blocks subsequent dispatch until reconciled."""
     require(bindings_path is not None, 'Prepared bindings are required for dispatch')
@@ -205,7 +216,7 @@ def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_
         write(Path(output)/'submission-intent.json', {'prepared':prepared,'job':job}, fresh=True)
         state['jobs'].append(job); write(ledger,state)
         try:
-            verify(prepared['inputs']);request_sources(prepared);verify_loader_models(client,prepared)
+            verify(prepared['inputs']);request_sources(prepared);verify_comfy_runtime(client,prepared);verify_loader_models(client,prepared)
         except Exception as exc:
             job.update(state='preflight-rejected',preflightError=str(exc))
             write(ledger,state)
@@ -236,7 +247,7 @@ def _record_collection(ledger, token, output, result):
         target=output/'collection.json'
         if target.exists():
             existing=read(target)
-            stable=('state','token','promptId','error','outputs','inputs','history','memorySamples','comfySourceInventory')
+            stable=('state','token','promptId','error','outputs','inputs','history','memorySamples','comfySourceInventory','comfyRuntimeIdentity')
             require(all(existing.get(key)==result.get(key) for key in stable
                         if key in existing or key in result),'Existing partial collection receipt differs; preserve it for investigation')
             verify([existing['history'],existing['memorySamples'],*existing.get('inputs',[]),*existing.get('outputs',[])])
@@ -328,7 +339,9 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
     verify(intent['prepared']['inputs']);verify(pins)
     result={'state':'complete' if success else 'failed','token':token,'promptId':job['promptId'],'outputs':pins,
             'inputs':[pin(output/'submission-intent.json'),*intent['prepared']['inputs']],'history':pin(output/'history.json'),
-            'elapsedSinceSubmissionSeconds':time.time()-job['started'],'memorySamples':pin(output/'memory-samples.json'),'comfySourceInventory':intent['prepared']['comfySourceInventory']}
+            'elapsedSinceSubmissionSeconds':time.time()-job['started'],'memorySamples':pin(output/'memory-samples.json'),
+            'comfySourceInventory':intent['prepared']['comfySourceInventory'],
+            'comfyRuntimeIdentity':intent['prepared']['comfyRuntimeIdentity']}
     return _record_collection(ledger,token,output,result)
 
 

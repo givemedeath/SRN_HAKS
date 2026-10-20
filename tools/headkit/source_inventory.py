@@ -1,7 +1,8 @@
 """Membership and byte snapshots of the configured Comfy/Pixal implementation trees."""
 import os
 from pathlib import Path
-from .common import require,verify
+import re
+from .common import digest,require,verify
 
 # Generated data and model weights have their own inputs; execution code/config/native binaries do not.
 EXTENSIONS={'.py','.pyx','.pyi','.json','.yaml','.yml','.toml','.pyd','.so','.dll','.dylib','.ptx','.cubin','.h','.hpp','.c','.cpp','.cu','.cuh'}
@@ -43,6 +44,44 @@ def verify_sources(inventory):
     return inventory
 
 
+def validate_comfy_runtime(identity, source_roots=None):
+    """Validate the live Comfy interpreter/Torch identity returned by its installed adapter."""
+    required={'schemaVersion','python','torch','coveredSourceRoots','roots','files','fingerprint'}
+    require(isinstance(identity,dict) and set(identity)==required and identity['schemaVersion']==1,
+            'Complete live Comfy runtime identity required')
+    payload={key:value for key,value in identity.items() if key!='fingerprint'}
+    require(isinstance(identity['fingerprint'],str) and digest(payload)==identity['fingerprint'],
+            'Live Comfy runtime fingerprint is invalid')
+    python=identity['python'];torch=identity['torch'];files=identity['files']
+    require(isinstance(python,dict) and set(python)=={'path','sha256','version','implementation','cacheTag','prefix','basePrefix'}
+            and isinstance(torch,dict) and set(torch)=={'path','sha256','version','cuda','hip','cudnn'},
+            'Live Comfy Python/Torch details are incomplete')
+    require(isinstance(identity['coveredSourceRoots'],list) and identity['coveredSourceRoots']
+            and isinstance(identity['roots'],list) and identity['roots']
+            and all(isinstance(path,str) and Path(path).is_absolute() for path in identity['coveredSourceRoots']+identity['roots']),
+            'Live Comfy runtime roots must be absolute')
+    if source_roots is not None:
+        expected={str(Path(value).resolve()) for value in source_roots}
+        require(len(identity['coveredSourceRoots'])==1 and identity['coveredSourceRoots'][0] in expected,
+                'Comfy runtime source coverage differs from the request')
+    require(isinstance(files,list) and files,'Live Comfy runtime file inventory required')
+    require(all(isinstance(row,dict) and set(row)=={'path','sha256'} and Path(row['path']).is_absolute()
+                and re.fullmatch(r'[0-9a-f]{64}',row['sha256']) for row in files),
+            'Malformed live Comfy runtime file inventory')
+    paths=[row['path'] for row in files]
+    require(len(paths)==len(set(paths)) and paths==sorted(paths,key=str.casefold),
+            'Live Comfy runtime file inventory must be unique and sorted')
+    by_path={row['path']:row['sha256'] for row in files}
+    require(by_path.get(python['path'])==python['sha256'] and by_path.get(torch['path'])==torch['sha256'],
+            'Live Comfy runtime omits the executing Python or Torch module')
+    require(isinstance(python['version'],str) and isinstance(torch['version'],str)
+            and (torch['cuda'] is None or isinstance(torch['cuda'],str))
+            and (torch['hip'] is None or isinstance(torch['hip'],str))
+            and (torch['cudnn'] is None or type(torch['cudnn']) is int),
+            'Live Comfy runtime versions are malformed')
+    return identity
+
+
 def freeze_sources(local):
     require(local.get('comfyRoot') and local.get('comfySources'),'Complete Comfy source tree bindings required')
     core=Path(local['comfyRoot']).resolve()
@@ -56,6 +95,8 @@ def freeze_sources(local):
 
 def request_sources(prepared):
     inventory=verify_sources(prepared.get('comfySourceInventory'))
+    runtime=validate_comfy_runtime(prepared.get('comfyRuntimeIdentity'),inventory['roots'])
     inputs={(str(Path(p['path']).resolve()),p['sha256']) for p in prepared['inputs']}
     require(all((row['path'],row['sha256']) in inputs for row in inventory['files']),'Source inventory is absent from frozen request inputs')
+    require(all((row['path'],row['sha256']) in inputs for row in runtime['files']),'Comfy runtime inventory is absent from frozen request inputs')
     return inventory

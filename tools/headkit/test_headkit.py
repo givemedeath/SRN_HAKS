@@ -15,7 +15,7 @@ from unittest.mock import patch
 import numpy as np
 from PIL import Image,ImageDraw
 from headkit import comfy
-from headkit.common import write,read,pin,asset,manifest,source_version
+from headkit.common import write,read,pin,asset,manifest,source_version,digest
 from headkit.gltf import mesh,write_mesh,load,encode
 from headkit.images import similarity,prepare,prepare_multiview
 from headkit.field import GeneratedField
@@ -39,8 +39,23 @@ class Temporary(unittest.TestCase):
             path=root/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('fixture implementation')
         rows=[pin(p) for p in sorted(root.rglob('*')) if p.is_file() and p.suffix in EXTENSIONS]
         return freeze_sources({'comfyRoot':str(root),'comfyCustomNodes':str(root/'custom_nodes'),'comfySources':rows})
+    def comfy_runtime_identity(self,source_roots):
+        executable=pin(sys.executable);torch_file=self.root/'comfy-runtime'/'torch'/'_C.pyd'
+        torch_file.parent.mkdir(parents=True,exist_ok=True);torch_file.write_bytes(b'torch fixture bytes')
+        torch_pin=pin(torch_file);files=sorted([executable,torch_pin],key=lambda row:row['path'].casefold())
+        identity={'schemaVersion':1,
+                  'python':{'path':executable['path'],'sha256':executable['sha256'],'version':'3.12 fixture',
+                            'implementation':'cpython','cacheTag':'cpython-312','prefix':str(self.root),'basePrefix':str(self.root)},
+                  'torch':{'path':torch_pin['path'],'sha256':torch_pin['sha256'],'version':'2.7 fixture',
+                           'cuda':'12.8','hip':None,'cudnn':8900},
+                  'coveredSourceRoots':[str(Path(source_roots[0]).resolve())],
+                  'roots':[str(self.root.resolve())],'files':files}
+        identity['fingerprint']=digest(identity)
+        return identity
     def freeze_request(self,prepared):
-        inventory=self.inventory();prepared['comfySourceInventory']=inventory;prepared['inputs']+=inventory['files'];return prepared
+        inventory=self.inventory();runtime=self.comfy_runtime_identity(inventory['roots'])
+        prepared['comfySourceInventory']=inventory;prepared['comfyRuntimeIdentity']=runtime
+        prepared['inputs']+=inventory['files']+runtime['files'];return prepared
     def runtime_identity(self):
         return {'toolchain':pin(self.file('runtime-toolchain.json')),
                 'migrationReceipt':pin(self.file('runtime-migration.json')),'python':pin(sys.executable),
@@ -62,12 +77,17 @@ class Temporary(unittest.TestCase):
         if not bindings.exists():bindings.write_text('{}')
         identity=self.runtime_identity();binding_pin=pin(bindings)
         prepared.update(runtimeIdentity=identity,bindings=binding_pin,comfyEndpoint=endpoint)
+        if 'comfyRuntimeIdentity' not in prepared:
+            prepared['comfyRuntimeIdentity']=self.comfy_runtime_identity(prepared['comfySourceInventory']['roots'])
+        for row in prepared['comfyRuntimeIdentity']['files']:
+            if row not in prepared['inputs']:prepared['inputs'].append(row)
         if binding_pin not in prepared['inputs']:prepared['inputs'].append(binding_pin)
         prepared['inputs'].extend(row for row in (identity['toolchain'],identity['migrationReceipt'],identity['python']) if row not in prepared['inputs'])
         return identity,bindings
     def submit(self,client,ledger,prepared,output,*,runtime_identity=None,bindings_path=None):
         if bindings_path is None:
             runtime_identity,bindings_path=self.bind_dispatch(prepared,client.url)
+            client.server_runtime=prepared['comfyRuntimeIdentity']
         return comfy.submit(client,ledger,prepared,output,runtime_identity=runtime_identity,bindings_path=bindings_path)
     def pair(self):
         image=Image.new('RGBA',(128,128));ImageDraw.Draw(image).ellipse((20,10,108,118),fill=(180,150,120,255))
@@ -133,9 +153,11 @@ class GeometryApprovalTests(Temporary):
         from headkit.__main__ import request_stage
         write(self.root/'manifest.json',data)
         runtime=self.runtime_identity()
-        if stage=='export':return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json',runtime=runtime)
+        from headkit.source_inventory import freeze_sources
+        server_runtime=self.comfy_runtime_identity(freeze_sources(read(self.root/'bindings.json'))['roots'])
+        if stage=='export':return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json',runtime=runtime,comfy_runtime=server_runtime)
         with patch('headkit.__main__.comfy.compile_graph',return_value={}):
-            return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json',runtime=runtime)
+            return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json',runtime=runtime,comfy_runtime=server_runtime)
     def approval(self,data):
         return {'decision':'approved','notes':'Inspected generated clay and accessories',
                 'geometryRawSha256':data['inputs']['geometryRaw']['sha256'],'shapeSha256':data['inputs']['shape']['sha256']}
@@ -170,7 +192,7 @@ class GeometryApprovalTests(Temporary):
             return original_read(path)
         with patch('headkit.__main__.comfy.compile_graph',return_value=graph), patch('headkit.__main__.read',side_effect=read_with_fixture_profile):
             from headkit.__main__ import request_stage
-            result=request_stage(self.root/'manifest.json',self.root/'bindings.json','appearance',self.root/'request.json',runtime=self.runtime_identity())
+            result=request_stage(self.root/'manifest.json',self.root/'bindings.json','appearance',self.root/'request.json',runtime=self.runtime_identity(),comfy_runtime=self.comfy_runtime_identity(__import__('headkit.source_inventory',fromlist=['freeze_sources']).freeze_sources(read(self.root/'bindings.json'))['roots']))
         self.assertEqual(result['loaderModels'],[{'category':'diffusion_models','name':name,
             'pathIdentity':__import__('headkit.comfy_nodes.model_resolution',fromlist=['path_identity']).path_identity(model),
             'sha256':pin(model)['sha256']}])
@@ -290,6 +312,45 @@ class PythonPackagePinTests(Temporary):
         self.assertEqual(failed['state'],'failed')
 
 
+class ComfyServerRuntimeTests(Temporary):
+    def test_server_snapshot_hashes_python_torch_and_native_runtime_files(self):
+        from headkit.comfy_nodes.runtime_identity import capture_runtime_identity
+        app=self.root/'comfy';app.mkdir()
+        stdlib=self.root/'embedded'/'Lib';site=stdlib/'site-packages'
+        package=site/'torch';native=package/'lib'/'cudnn.dll'
+        native.parent.mkdir(parents=True);torch_file=package/'__init__.py'
+        torch_file.write_text('torch fixture');native.write_bytes(b'CUDA native fixture')
+        stdlib_file=stdlib/'os.py';stdlib_file.parent.mkdir(parents=True,exist_ok=True);stdlib_file.write_text('stdlib fixture')
+        executable=self.root/'embedded'/'python.exe';executable.parent.mkdir(parents=True,exist_ok=True);executable.write_bytes(b'python fixture')
+        torch=SimpleNamespace(__file__=str(torch_file),__version__='2.7 fixture',
+              version=SimpleNamespace(cuda='12.8',hip=None),
+              backends=SimpleNamespace(cudnn=SimpleNamespace(version=lambda:8900)))
+        paths={'stdlib':str(stdlib),'platstdlib':str(stdlib),'purelib':str(site),'platlib':str(site)}
+        with patch('headkit.comfy_nodes.runtime_identity.sys.executable',str(executable)), \
+             patch('headkit.comfy_nodes.runtime_identity.sys.prefix',str(executable.parent)), \
+             patch('headkit.comfy_nodes.runtime_identity.sys.base_prefix',str(executable.parent)), \
+             patch('headkit.comfy_nodes.runtime_identity.sys.path',[str(site)]), \
+             patch('headkit.comfy_nodes.runtime_identity.sysconfig.get_paths',return_value=paths), \
+             patch.dict(sys.modules,{'torch':torch}):
+            result=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            before=result['fingerprint'];native.write_bytes(b'changed CUDA native fixture')
+            changed=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+        paths_in={row['path'] for row in result['files']}
+        self.assertIn(str(executable.resolve()),paths_in)
+        self.assertIn(str(native.resolve()),paths_in)
+        self.assertNotEqual(before,changed['fingerprint'])
+
+    def test_server_runtime_snapshot_is_hash_bound_and_sources_must_match(self):
+        from headkit.source_inventory import validate_comfy_runtime
+        roots=self.inventory()['roots'];snapshot=self.comfy_runtime_identity(roots)
+        self.assertEqual(validate_comfy_runtime(snapshot,roots),snapshot)
+        changed=copy.deepcopy(snapshot);changed['torch']['version']='different torch'
+        with self.assertRaisesRegex(ValueError,'fingerprint'):
+            validate_comfy_runtime(changed,roots)
+        with self.assertRaisesRegex(ValueError,'source coverage'):
+            validate_comfy_runtime(snapshot,[str(self.root/'other-source')])
+
+
 class SourceInventoryTests(Temporary):
     def test_example_declares_inventory_and_launcher_bindings(self):
         example=read(Path(__file__).parent/'examples'/'local-bindings.example.json')
@@ -373,6 +434,15 @@ class MeshTests(Temporary):
         d['nodes'].append({'mesh':0});d['scenes'][0]['nodes'].append(1)
         with self.assertRaisesRegex(ValueError,'Exactly one visible mesh instance'):
             load(encode(d,b))
+    def test_comfy_loader_validates_the_active_scene_mesh_instance(self):
+        from headkit.comfy_nodes.gltf import load as comfy_load
+        p,f=self.tetra();out=self.root/'mesh.glb';write_mesh(out,p,f);d,b,_=load(out.read_bytes())
+        d['nodes'].append({'mesh':0});d['scenes'][0]['nodes'].append(1)
+        with self.assertRaisesRegex(ValueError,'Exactly one visible mesh instance'):
+            comfy_load(encode(d,b))
+        d,b,_=load(out.read_bytes());d['scenes'][0]['nodes']=[]
+        with self.assertRaisesRegex(ValueError,'Exactly one visible mesh instance'):
+            comfy_load(encode(d,b))
     def test_uv_surface_uses_barycentric_positions_not_vertices(self):
         p=np.array([[0,0,0],[1,0,0],[0,1,0]],float);value={'positions':p,'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
         positions,ids,_=surface(value,16);self.assertEqual(ids[2,2],0);np.testing.assert_allclose(positions[2,2],[2.5/16,2.5/16,0])
@@ -641,13 +711,14 @@ class LoaderResolutionTests(Temporary):
 
 class FakeClient:
     def __init__(self,fail=False,on_idle=None,model_result=None):
-        self.fail=fail;self.posts=0;self.url='http://127.0.0.1:8188';self.on_idle=on_idle;self.model_result=model_result;self.routes=[]
+        self.fail=fail;self.posts=0;self.url='http://127.0.0.1:8188';self.on_idle=on_idle;self.model_result=model_result;self.routes=[];self.server_runtime=None
     def idle(self):
         if self.on_idle:self.on_idle()
         return True
     def request(self,route,data=None):
         self.routes.append((route,data))
         if route=='/object_info':return {'Example':{},'UNETLoader':{},'HeadkitVerifiedUNETLoaderV1':{}}
+        if route=='/headkit/runtime-identity':return self.server_runtime
         if route=='/headkit/verify-loader-models':
             return self.model_result if self.model_result is not None else {'verified':True,'count':len(data['models'])}
         if route=='/prompt':
@@ -706,6 +777,30 @@ class LedgerTests(Temporary):
         next_request=self.prepared('token-after-preflight');next_client=FakeClient()
         self.submit(next_client,ledger,next_request,self.root/'valid-dispatch')
         self.assertEqual(next_client.posts,1);self.assertEqual(read(ledger)['jobs'][-1]['state'],'submitted')
+    def test_comfy_runtime_files_are_pinned_and_reverified_under_lock_before_dispatch(self):
+        ledger=self.root/'runtime-inputs.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')
+        request=self.prepared();runtime_file=request['comfyRuntimeIdentity']['torch']['path']
+        client=FakeClient(on_idle=lambda:Path(runtime_file).write_bytes(b'changed after runtime snapshot'))
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):
+            self.submit(client,ledger,request,self.root/'runtime-input-preflight')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+        self.assertIn((runtime_file,request['comfyRuntimeIdentity']['torch']['sha256']),
+                      {(row['path'],row['sha256']) for row in request['inputs']})
+
+    def test_live_comfy_runtime_mismatch_is_preflight_rejected(self):
+        from headkit.common import digest
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')
+        request=self.prepared();client=FakeClient();_,bindings=self.bind_dispatch(request,client.url)
+        changed=copy.deepcopy(request['comfyRuntimeIdentity']);changed['torch']['version']='different loaded Torch'
+        payload={key:value for key,value in changed.items() if key!='fingerprint'}
+        changed['fingerprint']=digest(payload);client.server_runtime=changed
+        with self.assertRaisesRegex(ValueError,'runtime differs'):
+            comfy.submit(client,ledger,request,self.root/'runtime-mismatch',runtime_identity=request['runtimeIdentity'],bindings_path=bindings)
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+        self.assertIn('/headkit/runtime-identity',[route for route,_ in client.routes])
+
     def test_loader_resolved_checkpoint_mismatch_is_preflight_rejected(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed count')
         request=self.prepared();model=self.file('pixal3d_int8_convrot.safetensors','reviewed bytes')

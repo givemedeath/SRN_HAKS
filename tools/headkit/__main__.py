@@ -7,7 +7,7 @@ from .common import read,write,pin,verify,require,manifest,bindings,asset,source
 from . import comfy
 
 
-def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
+def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None, comfy_runtime=None):
     data=manifest(manifest_path);local=bindings(bindings_path)
     require(data.get('approval',{}).get('inputReviewComplete') is True,'Review measured input overlays and feature inventory before GPU preparation')
     profile=data.get('profile','pixal-single-v1');camera=data.get('camera',{})
@@ -52,7 +52,9 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
     graph=bind_loader_models(graph,models)
     from .source_inventory import freeze_sources
     inventory=freeze_sources(local)
-    pins+=inventory['files']
+    from .source_inventory import validate_comfy_runtime
+    comfy_runtime=validate_comfy_runtime(comfy_runtime,inventory['roots'])
+    pins+=inventory['files']+comfy_runtime['files']
     adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
     for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):
         installed=adapter/code.name;require(pin(installed)['sha256']==pin(code)['sha256'],'Installed headkit nodes differ; install current adapters and restart ComfyUI')
@@ -63,7 +65,7 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
         if row not in pins:pins.append(row)
     result={'stage':stage,'profile':profile,'token':token,'prompt':graph,'inputs':pins,'codeVersion':source_version(),
             'timeoutSeconds':2700,'generationCeiling':100,'expectedGeometry':expected_mesh,'comfySourceInventory':inventory,
-            'runtimeIdentity':runtime,'bindings':binding_pin,'comfyEndpoint':comfy.Client(local['comfyUrl']).url,
+            'comfyRuntimeIdentity':comfy_runtime,'runtimeIdentity':runtime,'bindings':binding_pin,'comfyEndpoint':comfy.Client(local['comfyUrl']).url,
             'loaderModels':models}
     write(output,result,fresh=True);return result
 
@@ -113,7 +115,10 @@ def main():
             for row in state['stages'].values():
                 pins.append(row);pins+=read(row['path'])['inputs']+read(row['path'])['outputs']
         verify(pins);paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}
-    elif a.command=='request':result=request_stage(a.manifest,a.bindings,a.stage,a.output,runtime=runtime)
+    elif a.command=='request':
+        local=bindings(a.bindings)
+        server_runtime=comfy.Client(local['comfyUrl']).request('/headkit/runtime-identity')
+        result=request_stage(a.manifest,a.bindings,a.stage,a.output,runtime=runtime,comfy_runtime=server_runtime)
     elif a.command=='ledger-init':comfy.initialize_ledger(a.ledger,a.prior_count,a.evidence);result={'ledger':str(a.ledger)}
     elif a.command=='replay':
         from .replay import replay

@@ -20,8 +20,28 @@ def load(payload):
  if len(d.get('meshes',[]))!=1 or len(d['meshes'][0].get('primitives',[]))!=1:raise ValueError('One primitive required')
  p=d['meshes'][0]['primitives'][0]
  if p.get('mode',4)!=4 or p.get('targets') or p.get('extensions') or 'indices' not in p:raise ValueError('Unsupported primitive')
- for node in d.get('nodes',[]):
+ nodes=d.get('nodes',[]);scenes=d.get('scenes',[]);scene_index=d.get('scene',0)
+ if not isinstance(nodes,list) or not nodes or not isinstance(scenes,list) or type(scene_index)!=int or not 0<=scene_index<len(scenes):raise ValueError('Active scene nodes required')
+ for node in nodes:
+  if not isinstance(node,dict):raise ValueError('Invalid scene node')
   if any(k in node for k in ('matrix','rotation','translation','scale')):raise ValueError('Transformed node unsupported')
+ active=scenes[scene_index]
+ roots=active.get('nodes') if isinstance(active,dict) else None
+ if not isinstance(roots,list):raise ValueError('Active scene roots required')
+ visited=set();instances=0
+ def visit(index):
+  nonlocal instances
+  if type(index)!=int or not 0<=index<len(nodes):raise ValueError('Invalid scene node reference')
+  if index in visited:raise ValueError('Multiply-instanced or cyclic scene node')
+  visited.add(index);node=nodes[index]
+  if 'mesh' in node:
+   if type(node['mesh'])!=int or node['mesh']!=0:raise ValueError('Unsupported mesh reference')
+   instances+=1
+  children=node.get('children',[])
+  if not isinstance(children,list):raise ValueError('Invalid scene children')
+  for child in children:visit(child)
+ for root in roots:visit(root)
+ if instances!=1:raise ValueError('Exactly one visible mesh instance required')
  return d,b,p
 
 def accessor(d,b,index):
