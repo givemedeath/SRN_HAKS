@@ -510,6 +510,11 @@ class LoaderResolutionTests(Temporary):
         with self.assertRaisesRegex(ValueError,'Unsupported Comfy model loader field'):
             loader_models(graph,{}, {})
 
+    def test_sampler_name_is_an_algorithm_selector_not_a_model_file(self):
+        from headkit.comfy_nodes.model_resolution import loader_models
+        graph={'1':{'class_type':'KSampler','inputs':{'sampler_name':'euler','steps':12}}}
+        self.assertEqual(loader_models(graph,{},{}),[])
+
 
 class FakeClient:
     def __init__(self,fail=False,on_idle=None,model_result=None):

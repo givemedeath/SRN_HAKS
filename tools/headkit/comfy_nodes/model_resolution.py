@@ -24,6 +24,8 @@ VERIFIED_MODEL_FIELDS = {
 MODEL_FIELDS = {**STANDARD_MODEL_FIELDS, **VERIFIED_MODEL_FIELDS}
 MODEL_FIELD_NAMES = frozenset(field for _, field in MODEL_FIELDS)
 MODEL_PIN_FIELDS = ('headkit_model_sha256', 'headkit_model_path_identity')
+# These selectors contain the word "name" but select algorithms, not model files.
+NON_FILE_NAME_FIELDS = frozenset({'sampler_name'})
 
 
 def _simple_filename(name):
@@ -43,7 +45,8 @@ def model_choices(graph):
         class_type = node.get('class_type')
         for field, name in node.get('inputs', {}).items():
             if field not in MODEL_FIELD_NAMES:
-                if isinstance(field, str) and (field.endswith('_name') or field in ('ckpt_name', 'checkpoint')):
+                if isinstance(field, str) and field not in NON_FILE_NAME_FIELDS and \
+                        (field.endswith('_name') or field in ('ckpt_name', 'checkpoint')):
                     raise ValueError(f'Unsupported Comfy model loader field: {class_type}.{field}')
                 continue
             category = MODEL_FIELDS.get((class_type, field))
