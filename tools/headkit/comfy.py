@@ -2,8 +2,10 @@
 from contextlib import contextmanager
 from pathlib import Path
 import copy
+import errno
 import json
 import os
+import threading
 import time
 import urllib.request
 import urllib.error
@@ -13,6 +15,8 @@ from .common import read, write, require, pin, verify, digest
 from .source_inventory import request_sources,verify_sources
 
 TEMPLATES = Path(__file__).parent / 'templates'
+_LOCAL_LOCKS=set()
+_LOCAL_LOCKS_GUARD=threading.Lock()
 
 
 def compile_graph(stage, profile, images, prefix, *, fov=None, shape=None, source=None):
@@ -75,11 +79,55 @@ class Client:
 @contextmanager
 def locked(ledger):
     path = Path(str(ledger)+'.lock'); path.parent.mkdir(parents=True,exist_ok=True)
-    descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    # Windows mutexes are abandoned automatically when their owning process exits.
+    if os.name=='nt':
+        import ctypes
+        kernel32=ctypes.WinDLL('kernel32',use_last_error=True)
+        kernel32.CreateMutexW.argtypes=[ctypes.c_void_p,ctypes.c_int,ctypes.c_wchar_p]
+        kernel32.CreateMutexW.restype=ctypes.c_void_p
+        kernel32.WaitForSingleObject.argtypes=[ctypes.c_void_p,ctypes.c_uint]
+        kernel32.WaitForSingleObject.restype=ctypes.c_uint
+        kernel32.ReleaseMutex.argtypes=[ctypes.c_void_p]
+        kernel32.CloseHandle.argtypes=[ctypes.c_void_p]
+        name='Local\\SRNHeadkit-'+uuid.uuid5(uuid.NAMESPACE_URL,os.path.normcase(str(path.resolve()))).hex
+        with _LOCAL_LOCKS_GUARD:
+            if name in _LOCAL_LOCKS:raise FileExistsError(f'Ledger is locked: {path}')
+        handle=kernel32.CreateMutexW(None,False,name)
+        if not handle:raise ctypes.WinError(ctypes.get_last_error())
+        acquired=False
+        try:
+            state=kernel32.WaitForSingleObject(handle,0)
+            if state==0x102:raise FileExistsError(f'Ledger is locked: {path}')
+            if state not in (0,0x80):raise ctypes.WinError(ctypes.get_last_error())
+            acquired=True
+            with _LOCAL_LOCKS_GUARD:_LOCAL_LOCKS.add(name)
+            yield
+        finally:
+            if acquired:
+                with _LOCAL_LOCKS_GUARD:_LOCAL_LOCKS.discard(name)
+                kernel32.ReleaseMutex(handle)
+            kernel32.CloseHandle(handle)
+        return
+    # Keep a stable Unix lock-file inode; flock is released on process exit.
+    stream=path.open('a+b');acquired=False
     try:
-        os.write(descriptor, str(os.getpid()).encode()); os.close(descriptor)
+        stream.seek(0,os.SEEK_END)
+        if stream.tell()==0:stream.write(b'\0');stream.flush()
+        stream.seek(0)
+        try:
+            import fcntl
+            fcntl.flock(stream.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+            acquired=True
+        except OSError as exc:
+            busy={errno.EACCES,errno.EAGAIN,getattr(errno,'EDEADLK',-1)}
+            if exc.errno in busy:raise FileExistsError(f'Ledger is locked: {path}') from exc
+            raise
         yield
-    finally: path.unlink()
+    finally:
+        if acquired:
+            import fcntl
+            fcntl.flock(stream.fileno(),fcntl.LOCK_UN)
+        stream.close()
 
 
 def initialize_ledger(path, count, evidence):
@@ -152,7 +200,15 @@ def _record_collection(ledger, token, output, result):
         state=read(ledger);job=next(j for j in state['jobs'] if j['token']==token)
         require(job['state'] in ('submitted','timed-out') and not job.get('collection'),
                 'Collection already terminal; preserve the original receipt')
-        target=output/'collection.json';write(target,result,fresh=True)
+        target=output/'collection.json'
+        if target.exists():
+            existing=read(target)
+            stable=('state','token','promptId','error','outputs','inputs','history','memorySamples','comfySourceInventory')
+            require(all(existing.get(key)==result.get(key) for key in stable
+                        if key in existing or key in result),'Existing partial collection receipt differs; preserve it for investigation')
+            verify([existing['history'],existing['memorySamples'],*existing.get('inputs',[]),*existing.get('outputs',[])])
+            result=existing
+        else:write(target,result,fresh=True)
         job.update(state=result['state'],collection=pin(target));write(ledger,state)
     return result
 
@@ -190,8 +246,18 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
         if not wait: return {'state':'running','promptId':job['promptId']}
         time.sleep(5)
     output=Path(output);output.mkdir(parents=True,exist_ok=True)
-    write(output/'history.json',found,fresh=True)
-    write(output/'memory-samples.json',{'samples':samples,'scope':'collect monitoring window only; sampled device occupancy, not exact process peak'},fresh=True)
+    history_path=output/'history.json'
+    if history_path.exists():require(read(history_path)==found,'Existing partial Comfy history differs; preserve it for investigation')
+    else:write(history_path,found,fresh=True)
+    samples_path=output/'memory-samples.json'
+    if samples_path.exists():
+        memory_evidence=read(samples_path)
+        require(isinstance(memory_evidence,dict) and isinstance(memory_evidence.get('samples'),list)
+                and memory_evidence.get('scope')=='collect monitoring window only; sampled device occupancy, not exact process peak',
+                'Existing partial memory evidence is invalid; preserve it for investigation')
+    else:
+        memory_evidence={'samples':samples,'scope':'collect monitoring window only; sampled device occupancy, not exact process peak'}
+        write(samples_path,memory_evidence,fresh=True)
     try:
         intent=read(output/'submission-intent.json')
         require(intent['job']['token']==token and digest(intent['prepared'])==job['requestSha256'],'Submission receipt mismatch')

@@ -61,6 +61,24 @@ def mesh(path):
             'uv': attributes.get('TEXCOORD_0', np.zeros((len(vertices), 2), np.float32))[faces]}
 
 
+def require_textured_uvs(path):
+    """Reject a textured render unless every source triangle has real UV area."""
+    from pathlib import Path
+    document, binary, primitive = load(Path(path).read_bytes())
+    if 'TEXCOORD_0' not in primitive.get('attributes', {}):
+        raise ValueError('Textured render requires a TEXCOORD_0 UV attribute')
+    _, faces, attributes = arrays(document, binary, primitive)
+    uv = attributes['TEXCOORD_0']
+    if uv.shape != (len(attributes['POSITION']), 2) or np.any((uv < 0) | (uv > 1)):
+        raise ValueError('Textured render requires atlas UVs in [0,1]')
+    corners = uv[faces]
+    twice_area = np.abs((corners[:, 1, 0]-corners[:, 0, 0])*(corners[:, 2, 1]-corners[:, 0, 1])
+                        -(corners[:, 1, 1]-corners[:, 0, 1])*(corners[:, 2, 0]-corners[:, 0, 0]))
+    if not np.all(twice_area > 0):
+        raise ValueError('Textured render requires nondegenerate UVs on every triangle')
+    return True
+
+
 def write_mesh(path, vertices, faces, uv=None, normals=None):
     """Write explicit triangle corners, preserving winding and supplied corner normals."""
     from pathlib import Path

@@ -1,12 +1,15 @@
 """Synthetic regressions for reusable input, dispatch, mesh, palette and resume contracts."""
 import copy
 from contextlib import ExitStack
+import os
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
 from types import SimpleNamespace
 import tempfile
 import sys
+import time
 import unittest
 from unittest.mock import patch
 import numpy as np
@@ -461,10 +464,23 @@ class LedgerTests(Temporary):
         next_request=self.prepared('token-after-preflight');next_client=FakeClient()
         self.submit(next_client,ledger,next_request,self.root/'valid-dispatch')
         self.assertEqual(next_client.posts,1);self.assertEqual(read(ledger)['jobs'][-1]['state'],'submitted')
-    def test_existing_lock_is_not_stolen(self):
-        path=self.root/'ledger.json';Path(str(path)+'.lock').write_text('owner')
-        with self.assertRaises(FileExistsError):
-            with comfy.locked(path):pass
+    def test_live_lock_is_exclusive_and_terminated_owner_is_recoverable(self):
+        ledger=self.root/'ledger.json';marker=self.root/'locked';env=os.environ.copy()
+        tools_root=str(Path(__file__).resolve().parents[1]);env['PYTHONPATH']=tools_root+os.pathsep+env.get('PYTHONPATH','')
+        script=('from headkit.comfy import locked; from pathlib import Path; import sys,time; '
+                'p=Path(sys.argv[1]); marker=Path(sys.argv[2]); '
+                'ctx=locked(p); ctx.__enter__(); marker.write_text("ready"); time.sleep(30)')
+        owner=subprocess.Popen([sys.executable,'-c',script,str(ledger),str(marker)],env=env)
+        try:
+            deadline=time.monotonic()+10
+            while not marker.exists() and owner.poll() is None and time.monotonic()<deadline:time.sleep(.05)
+            self.assertTrue(marker.exists(),'child did not acquire the ledger lock')
+            with self.assertRaises(FileExistsError):
+                with comfy.locked(ledger):pass
+        finally:
+            owner.terminate();owner.wait(timeout=10)
+        if os.name!='nt':self.assertTrue(Path(str(ledger)+'.lock').exists())
+        with comfy.locked(ledger):pass
     def test_remote_endpoint_not_allowed(self):
         with self.assertRaises(ValueError):comfy.Client('https://untrusted.example')
 
@@ -497,6 +513,17 @@ class CollectionReceiptTests(Temporary):
         with patch.object(client,'request',side_effect=AssertionError('terminal collection must not poll')):
             self.assertEqual(comfy.collect(client,ledger,token,output,job),first)
         self.assertEqual([p.read_bytes() for p in paths],before);self.assertEqual(read(ledger)['jobs'][0]['collection'],pin(job/'collection.json'))
+    def test_partial_history_and_memory_evidence_resume_without_overwrite(self):
+        client,ledger,token,output,job,_=self.fixture()
+        history=client.request('/history/prompt-1')['prompt-1']
+        write(job/'history.json',history)
+        write(job/'memory-samples.json',{'samples':[{'timestamp':1.0,'devices':[]}],
+              'scope':'collect monitoring window only; sampled device occupancy, not exact process peak'})
+        before=[(job/name).read_bytes() for name in ('history.json','memory-samples.json')]
+        result=comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(result['state'],'complete')
+        self.assertEqual(before,[(job/name).read_bytes() for name in ('history.json','memory-samples.json')])
+        self.assertEqual(read(ledger)['jobs'][0]['collection'],pin(job/'collection.json'))
     def test_changed_terminal_evidence_or_output_cannot_be_reused(self):
         for name in ('history.json','memory-samples.json','collection.json','artifact'):
             with self.subTest(name=name):
@@ -505,7 +532,7 @@ class CollectionReceiptTests(Temporary):
                 with patch.object(client,'request',side_effect=AssertionError('must not overwrite from server')):
                     with self.assertRaisesRegex(ValueError,'Stale file pin'):comfy.collect(client,ledger,token,output,job)
                 self.assertEqual(target.read_bytes(),b'changed')
-    def test_legacy_terminal_or_partial_evidence_is_preserved(self):
+    def test_unpinned_terminal_receipt_is_preserved_and_submitted_partial_receipt_recovers(self):
         client,ledger,token,output,job,_=self.fixture();comfy.collect(client,ledger,token,output,job)
         state=read(ledger);state['jobs'][0].pop('collection');write(ledger,state)
         before={p.name:p.read_bytes() for p in job.iterdir() if p.is_file()}
@@ -513,7 +540,9 @@ class CollectionReceiptTests(Temporary):
             with self.assertRaisesRegex(ValueError,'historical evidence'):comfy.collect(client,ledger,token,output,job)
         self.assertEqual(before,{p.name:p.read_bytes() for p in job.iterdir() if p.is_file()})
         state['jobs'][0]['state']='submitted';write(ledger,state)
-        with self.assertRaises(FileExistsError):comfy.collect(client,ledger,token,output,job)
+        recovered=comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(recovered['state'],'complete')
+        self.assertEqual(read(ledger)['jobs'][0]['collection'],pin(job/'collection.json'))
         self.assertEqual(before,{p.name:p.read_bytes() for p in job.iterdir() if p.is_file()})
     def test_terminal_collection_requires_its_original_directory(self):
         client,ledger,token,output,job,_=self.fixture();comfy.collect(client,ledger,token,output,job)
@@ -548,7 +577,7 @@ class ReleaseTests(Temporary):
             events.append('free');blocked_submit();return {'freed':True}
         releaser.idle=idle;releaser.request=free
         self.assertEqual(comfy.release(releaser,ledger),{'freed':True});self.assertEqual(events,['idle','free'])
-        self.assertFalse(Path(str(ledger)+'.lock').exists())
+        if os.name!='nt':self.assertTrue(Path(str(ledger)+'.lock').exists())
         self.submit(submitter,ledger,request,self.root/'job');self.assertEqual(submitter.posts,1)
     def test_submission_holds_same_lock_against_release(self):
         ledger,request=self.fixture();submitter=FakeClient();releaser=FakeClient()
@@ -567,11 +596,12 @@ class ReleaseTests(Temporary):
             with patch.object(client,'idle',return_value=False):
                 with self.assertRaisesRegex(ValueError,'not idle'):comfy.release(client,ledger)
             free.assert_not_called()
-    def test_failed_release_drops_only_its_own_lock(self):
+    def test_failed_release_releases_os_lock_but_keeps_stable_sidecar(self):
         ledger,_=self.fixture();client=FakeClient()
         with patch.object(client,'idle',side_effect=OSError('offline')):
             with self.assertRaises(OSError):comfy.release(client,ledger)
-        self.assertFalse(Path(str(ledger)+'.lock').exists());self.assertEqual(comfy.release(client,ledger),{})
+        if os.name!='nt':self.assertTrue(Path(str(ledger)+'.lock').exists())
+        self.assertEqual(comfy.release(client,ledger),{})
 
 
 class NativeShadeTests(Temporary):
@@ -904,6 +934,22 @@ class RenderPlanTests(Temporary):
         for bad in ([],records[:-1],records[:-1]+[records[0]]):
             with self.subTest(count=len(bad)):
                 with self.assertRaisesRegex(ValueError,'frames'):validate_frames(config,bad)
+    def test_production_requires_all_material_modes_and_diagnostic_subset_is_explicit(self):
+        from headkit.review_images import render_plan
+        with self.assertRaisesRegex(ValueError,'Production render plans'):
+            render_plan({'cameras':[self.camera()],'modes':['clay']})
+        self.assertEqual(len(render_plan({'cameras':[self.camera()],'modes':['clay'],'diagnostic':True})),2)
+
+    def test_textured_render_requires_present_non_degenerate_uvs(self):
+        from headkit.gltf import require_textured_uvs
+        vertices=np.array([[0,0,0],[1,0,0],[0,1,0]],np.float32);faces=np.array([[0,1,2]])
+        valid=np.array([[[0,0],[1,0],[0,1]]],np.float32)
+        path=self.root/'with-uv.glb';write_mesh(path,vertices,faces,uv=valid)
+        self.assertTrue(require_textured_uvs(path))
+        missing=self.root/'missing-uv.glb';write_mesh(missing,vertices,faces)
+        with self.assertRaisesRegex(ValueError,'TEXCOORD_0'):require_textured_uvs(missing)
+        flat=self.root/'flat-uv.glb';write_mesh(flat,vertices,faces,uv=np.zeros((1,3,2),np.float32))
+        with self.assertRaisesRegex(ValueError,'nondegenerate UVs'):require_textured_uvs(flat)
     def test_runner_rejects_empty_plan_before_atlas_or_blender_work(self):
         path=self.file('uv.glb');data={'schemaVersion':1,'id':'empty-render','inputs':{'uvMesh':{'path':path.name,'sha256':pin(path)['sha256']}},
             'render':{'cameras':[],'mapInputs':{}}}
