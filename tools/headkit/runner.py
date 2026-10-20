@@ -28,6 +28,18 @@ class Runner:
             source=self.source('uvMesh','unwrap','mesh')
             require(config.get('sourceSha256')==pin(source)['sha256'],
                     'Imported ownership review must bind the exact UV mesh')
+        if name=='field':
+            review=self.data.get('approval',{}).get('appearanceField',{})
+            geometry_role=next((role for role in ('uvMesh','repairedMesh','comfyExport')
+                                if role in self.data['inputs']),None)
+            require(geometry_role is not None,'Generated field needs an active geometry input')
+            geometry=asset(self.manifest_path,self.data['inputs'][geometry_role])
+            field=self.data['inputs'][name]
+            require(review.get('decision')=='approved' and isinstance(review.get('notes'),str)
+                    and review['notes'].strip() and review.get('geometryInput')==geometry_role
+                    and review.get('geometrySha256')==geometry['sha256']
+                    and review.get('fieldSha256')==field['sha256'],
+                    'Generated field approval must bind its exact bytes to the active geometry input: '+geometry_role)
         atlas_roles={'basecolor4k','runtimeColor','runtimeShades'}|set(self.data.get('render',{}).get('mapInputs',{}).values())
         if name in atlas_roles:
             review=self.data.get('approval',{}).get('textureMaps',{}).get(name,{})

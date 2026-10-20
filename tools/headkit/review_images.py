@@ -23,6 +23,8 @@ def render_plan(config):
     require(isinstance(modes,list) and modes and all(x in ('clay','color-only','material-lit') for x in modes)
             and len(set(modes))==len(modes),'Render modes must be nonempty, known and unique')
     require(type(config.get('diagnostic',False)) is bool,'Diagnostic render flag must be boolean')
+    require('size' not in config or config.get('diagnostic') is True,
+            'Single-size render plans require diagnostic: true')
     require(set(modes)=={'clay','color-only','material-lit'} or config.get('diagnostic') is True,
             'Production render plans require clay, color-only and material-lit; mark a reduced plan diagnostic explicitly')
     names=[]

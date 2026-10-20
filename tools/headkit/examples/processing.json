@@ -170,6 +170,13 @@
     }
   },
   "approval": {
+    "appearanceField": {
+      "decision": "pending",
+      "geometryInput": "comfyExport",
+      "geometrySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "fieldSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "notes": "Review the generated field against this exact active geometry input."
+    },
     "textureMaps": {
       "inspectionColor": {
         "decision": "pending",

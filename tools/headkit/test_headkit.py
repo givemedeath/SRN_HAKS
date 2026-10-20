@@ -1060,6 +1060,50 @@ class ReviewGateTests(Temporary):
         with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
 
 
+class GeneratedFieldLineageTests(Temporary):
+    def fixture(self,geometry_roles=('uvMesh',)):
+        inputs={}
+        for role in geometry_roles:
+            path=self.file(role+'.glb',role)
+            inputs[role]={'path':path.name,'sha256':pin(path)['sha256']}
+        field=self.file('field.npz','generated field')
+        inputs['field']={'path':field.name,'sha256':pin(field)['sha256']}
+        geometry_role=next(role for role in ('uvMesh','repairedMesh','comfyExport') if role in inputs)
+        data={'schemaVersion':1,'id':'field-lineage','inputs':inputs,'approval':{'appearanceField':{
+            'decision':'approved','geometryInput':geometry_role,'geometrySha256':inputs[geometry_role]['sha256'],
+            'fieldSha256':inputs['field']['sha256'],'notes':'Verified this field against the active geometry.'}}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root)})
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+
+    def test_field_approval_binds_to_the_active_mesh_source(self):
+        for roles in (('uvMesh',),('comfyExport',),('comfyExport','repairedMesh'),('comfyExport','uvMesh')):
+            with self.subTest(roles=roles):
+                runner=self.fixture(roles)
+                expected=runner.data['inputs']['field']['path']
+                self.assertEqual(Path(runner.input('field')),runner.manifest_path.parent/expected)
+
+    def test_field_rejects_missing_or_mismatched_approval(self):
+        runner=self.fixture(('uvMesh','comfyExport'));valid=copy.deepcopy(runner.data['approval']['appearanceField'])
+        invalid=({},dict(valid,decision='pending'),dict(valid,notes=' '),dict(valid,geometryInput='comfyExport'),
+                 dict(valid,geometrySha256='0'*64),dict(valid,fieldSha256='0'*64))
+        for review in invalid:
+            with self.subTest(review=review):
+                runner.data['approval']['appearanceField']=review
+                with self.assertRaisesRegex(ValueError,'Generated field approval'):
+                    runner.input('field')
+        runner.data['approval']['appearanceField']=valid
+        field=runner.manifest_path.parent/runner.data['inputs']['field']['path'];field.write_text('changed field')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):
+            runner.input('field')
+
+    def test_bake_rejects_unapproved_field_before_sampling(self):
+        runner=self.fixture();runner.data['approval']['appearanceField']['decision']='pending'
+        with patch('headkit.textures.bake') as bake:
+            with self.assertRaisesRegex(ValueError,'Generated field approval'):
+                runner._execute('bake',runner.run)
+            bake.assert_not_called()
+
+
 class RenderPlanTests(Temporary):
     def camera(self):return {'name':'front','eye':[0,0,2],'target':[0,0,0],'orthoScale':2}
     def test_empty_camera_and_mode_plans_are_rejected(self):
@@ -1079,6 +1123,12 @@ class RenderPlanTests(Temporary):
         with self.assertRaisesRegex(ValueError,'Production render plans'):
             render_plan({'cameras':[self.camera()],'modes':['clay']})
         self.assertEqual(len(render_plan({'cameras':[self.camera()],'modes':['clay'],'diagnostic':True})),2)
+
+    def test_single_size_render_is_always_diagnostic(self):
+        from headkit.review_images import render_plan
+        with self.assertRaisesRegex(ValueError,'Single-size render plans'):
+            render_plan({'cameras':[self.camera()],'size':768})
+        self.assertEqual(len(render_plan({'cameras':[self.camera()],'size':768,'diagnostic':True})),3)
 
     def test_textured_render_requires_present_non_degenerate_uvs(self):
         from headkit.gltf import require_textured_uvs
