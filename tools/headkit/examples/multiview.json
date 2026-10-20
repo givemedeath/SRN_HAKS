@@ -293,6 +293,11 @@
       "geometryRawSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "shapeSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "notes": "Review generated clay from all sides before approving these exact outputs."
+    },
+    "exportGeometry": {
+      "decision": "pending",
+      "exportSourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "notes": "Review clay of the exact export source, including any precluster changes."
     }
   }
 }

@@ -25,6 +25,12 @@ def request_stage(manifest_path, bindings_path, stage, output):
                 and review.get('geometryRawSha256')==expected_mesh['sha256']
                 and review.get('shapeSha256')==shape['sha256'],
                 'Approve generated clay with geometryRaw and shape hashes before appearance preparation')
+    export_source=asset(manifest_path,data['inputs']['exportSource']) if stage=='export' else None
+    if stage=='export':
+        review=data.get('approval',{}).get('exportGeometry',{})
+        require(review.get('decision')=='approved' and bool(review.get('notes','').strip())
+                and review.get('exportSourceSha256')==export_source['sha256'],
+                'Approve generated clay with the exact exportSource hash before export preparation')
     root=Path(local['comfyInput']).resolve();token=uuid.uuid4().hex;staging=root/'headkit'/token;staging.mkdir(parents=True,exist_ok=False)
     images={};pins=[pin(manifest_path),pin(bindings_path)]+code_pins()
     for name in names:
@@ -36,10 +42,9 @@ def request_stage(manifest_path, bindings_path, stage, output):
         else:
             background=Image.new('RGBA',image.size,(0,0,0,255));background.alpha_composite(image);background.convert('RGB').save(target)
         images[name]=target.relative_to(root).as_posix();pins.append(pin(target))
-    source=asset(manifest_path,data['inputs']['exportSource']) if stage=='export' else None
-    pins += [p for p in (shape,source) if p]
+    pins += [p for p in (shape,export_source) if p]
     if expected_mesh:pins.append(expected_mesh)
-    graph=comfy.compile_graph(stage,profile,images,'headkit/'+token,fov=camera.get('fovDegrees'),shape=shape,source=source)
+    graph=comfy.compile_graph(stage,profile,images,'headkit/'+token,fov=camera.get('fovDegrees'),shape=shape,source=export_source)
     require(local.get('comfySources'),'Pin the installed Comfy execution sources before GPU preparation')
     verify(local['comfySources']);pins+=local['comfySources']
     adapter=Path(local['comfyCustomNodes'])/'srn_headkit'

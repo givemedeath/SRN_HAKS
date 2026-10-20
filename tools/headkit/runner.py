@@ -169,8 +169,12 @@ class Runner:
         if stage=='tone':
             from .textures import tone_match
             color=self.source('basecolor4k','bake','unused') if 'basecolor4k' in m['inputs'] else self.result('bake')['maps']['basecolor-4096.png']['path']
-            output=folder/'tone-4096.png';result=tone_match(color,self.input('ownership4k') if 'ownership4k' in m['inputs'] else self.result('ownership')['fourk']['path'],self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
+            ownership=self.input('ownership4k') if 'ownership4k' in m['inputs'] else self.result('ownership')['fourk']['path']
+            for path in (color,ownership):
+                with Image.open(path) as image:require(image.size==(4096,4096),'Tone inputs must be actual 4096x4096 images')
+            output=folder/'tone-4096.png';result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
             image=Image.open(output)
+            require(image.size==(4096,4096),'Tone output must be actual 4096x4096 before deriving review maps')
             result['maps']={}
             for size in (2048,1024):
                 path=folder/f'tone-{size}.png';image.resize((size,size),Image.Resampling.BOX).save(path);result['maps'][str(size)]=pin(path)

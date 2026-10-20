@@ -86,11 +86,12 @@ class GeometryApprovalTests(Temporary):
         write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root),'comfyInput':str(self.root/'comfy-input'),
               'comfyCustomNodes':str(adapter.parent),'comfySources':[source]})
         return data
-    def request(self,data):
+    def request(self,data,stage='appearance'):
         from headkit.__main__ import request_stage
         write(self.root/'manifest.json',data)
+        if stage=='export':return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json')
         with patch('headkit.__main__.comfy.compile_graph',return_value={}):
-            return request_stage(self.root/'manifest.json',self.root/'bindings.json','appearance',self.root/'request.json')
+            return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json')
     def approval(self,data):
         return {'decision':'approved','notes':'Inspected generated clay and accessories',
                 'geometryRawSha256':data['inputs']['geometryRaw']['sha256'],'shapeSha256':data['inputs']['shape']['sha256']}
@@ -108,6 +109,24 @@ class GeometryApprovalTests(Temporary):
         self.assertEqual(result['expectedGeometry']['sha256'],data['inputs']['geometryRaw']['sha256'])
         self.assertIn(data['inputs']['shape']['sha256'],[row['sha256'] for row in result['inputs']])
         self.assertEqual(read(self.root/'request.json'),result)
+
+
+    def test_export_requires_review_bound_to_exact_source_before_staging(self):
+        data=self.fixture();data['inputs']['exportSource']=data['inputs']['geometryRaw']
+        valid={'decision':'approved','notes':'Reviewed exact oriented export clay','exportSourceSha256':data['inputs']['exportSource']['sha256']}
+        data['approval']['generatedGeometry']=self.approval(data)
+        for review in (None,dict(valid,decision='rejected'),dict(valid,exportSourceSha256='0'*64),dict(valid,notes=' ')):
+            with self.subTest(review=review):
+                if review is not None:data['approval']['exportGeometry']=review
+                with self.assertRaisesRegex(ValueError,'Approve generated clay'):self.request(data,'export')
+                self.assertFalse((self.root/'comfy-input').exists());self.assertFalse((self.root/'request.json').exists())
+    def test_export_freezes_reviewed_source_and_rejects_changed_mesh(self):
+        data=self.fixture();data['inputs']['exportSource']=data['inputs']['geometryRaw']
+        data['approval']['exportGeometry']={'decision':'approved','notes':'Reviewed exact oriented export clay','exportSourceSha256':data['inputs']['exportSource']['sha256']}
+        result=self.request(data,'export');self.assertIn(data['inputs']['exportSource']['sha256'],[p['sha256'] for p in result['inputs']])
+        self.assertEqual(result['prompt']['1']['inputs']['sha256'],data['inputs']['exportSource']['sha256'])
+        (self.root/'raw.glb').write_text('changed after review')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):self.request(data,'export')
 
 
 class ImageTests(Temporary):
@@ -528,7 +547,7 @@ class ImportedOwnershipTests(Temporary):
     def fixture(self,derived_uv=False):
         base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
         uv=base/'uv.glb';uv.write_text('frozen UV mesh');inputs={}
-        for role,mode,size in [('ownership1k','L',1024),('ownership4k','L',4096),('runtimeColor','RGB',1024),('basecolor4k','RGB',4096),('runtimeShades','L',1024)]:
+        for role,mode,size in [('ownership1k','L',1024),('ownership4k','L',4096),('runtimeColor','RGB',1024),('basecolor4k','RGB',4096),('runtimeShades','L',1024),('detail','RGB',1024)]:
             path=base/(role+'.png');Image.new(mode,(size,size)).save(path);inputs[role]={'path':path.name,'sha256':pin(path)['sha256']}
         inputs['repairedMesh' if derived_uv else 'uvMesh']={'path':uv.name,'sha256':pin(uv)['sha256']}
         data={'schemaVersion':1,'id':'ownership-binding','inputs':inputs,'ownership':{'reviewed':True,'sourceSha256':pin(uv)['sha256']},
@@ -571,6 +590,33 @@ class ImportedOwnershipTests(Temporary):
         with patch('headkit.palette.quantize') as quantizer:
             with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('palette')
             quantizer.assert_not_called()
+
+
+
+class ToneResolutionTests(Temporary):
+    fixture=ImportedOwnershipTests.fixture
+    def test_tone_rejects_lower_resolution_imports_before_matching(self):
+        for color_size,mask_size in ((1024,1024),(2048,2048),(4096,1024),(1024,4096)):
+            runner=self.fixture()
+            for role,size in [('basecolor4k',color_size),('ownership4k',mask_size)]:
+                path=Path(runner.manifest_path).parent/runner.data['inputs'][role]['path']
+                mode='RGB' if role=='basecolor4k' else 'L';Image.new(mode,(size,size)).save(path)
+                runner.data['inputs'][role]['sha256']=pin(path)['sha256']
+            with self.subTest(color=color_size,mask=mask_size),patch('headkit.textures.tone_match') as matcher:
+                with self.assertRaisesRegex(ValueError,'Tone inputs must be actual 4096'):runner._execute('tone',runner.run)
+                matcher.assert_not_called();self.assertFalse((runner.run/'tone-2048.png').exists())
+    def test_tone_checks_output_before_derivatives(self):
+        runner=self.fixture()
+        def match(*args):Image.new('RGB',(1024,1024)).save(args[-1]);return {}
+        with patch('headkit.textures.tone_match',side_effect=match):
+            with self.assertRaisesRegex(ValueError,'Tone output must be actual 4096'):runner._execute('tone',runner.run)
+        self.assertFalse((runner.run/'tone-2048.png').exists())
+    def test_4k_tone_produces_only_downsampled_2k_and_1k_maps(self):
+        runner=self.fixture()
+        def match(*args):Image.new('RGB',(4096,4096),(128,96,64)).save(args[-1]);return {'output':pin(args[-1])}
+        with patch('headkit.textures.tone_match',side_effect=match):result=runner._execute('tone',runner.run)
+        for size in (2048,1024):
+            with Image.open(result['maps'][str(size)]['path']) as image:self.assertEqual(image.size,(size,size))
 
 
 class ReviewGateTests(Temporary):
