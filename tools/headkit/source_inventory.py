@@ -23,6 +23,7 @@ def members(core,roots):
                 require((current/name).resolve()==(current/name).absolute(),'Linked source directories need an explicit unlinked installation')
             for name in files:
                 path=current/name
+                if path.name=='source-roots.json' and path.parent.name=='srn_headkit':continue
                 if path.suffix.lower() in EXTENSIONS:
                     require(path.resolve()==path.absolute(),'Linked Comfy source file is unsupported')
                     found.add(path.resolve())
@@ -44,10 +45,28 @@ def verify_sources(inventory):
     return inventory
 
 
-def validate_comfy_runtime(identity, source_roots=None):
+def capture_sources(core,roots):
+    core=Path(core).resolve();roots=[Path(root).resolve() for root in roots]
+    paths=members(core,roots)
+    return {'core':str(core),'roots':[str(root) for root in roots],
+            'files':[pin(path) for path in sorted(paths,key=lambda value:str(value).casefold())]}
+
+
+def _same_inventory(left,right):
+    if not isinstance(left,dict) or not isinstance(right,dict):return False
+    if set(left)!={'core','roots','files'} or set(right)!={'core','roots','files'}:return False
+    try:
+        left_files={row['path']:row['sha256'] for row in left['files']}
+        right_files={row['path']:row['sha256'] for row in right['files']}
+    except (TypeError,KeyError):return False
+    return left['core']==right['core'] and left['roots']==right['roots'] and left_files==right_files \
+        and len(left_files)==len(left['files']) and len(right_files)==len(right['files'])
+
+
+def validate_comfy_runtime(identity, source_roots=None, source_inventory=None):
     """Validate the live Comfy interpreter/Torch identity returned by its installed adapter."""
-    required={'schemaVersion','python','torch','coveredSourceRoots','roots','files','fingerprint'}
-    require(isinstance(identity,dict) and set(identity)==required and identity['schemaVersion']==1,
+    required={'schemaVersion','python','torch','coveredSourceRoots','roots','files','comfySourceInventory','loadedSourceCode','fingerprint'}
+    require(isinstance(identity,dict) and set(identity)==required and identity['schemaVersion']==2,
             'Complete live Comfy runtime identity required')
     payload={key:value for key,value in identity.items() if key!='fingerprint'}
     require(isinstance(identity['fingerprint'],str) and digest(payload)==identity['fingerprint'],
@@ -60,10 +79,34 @@ def validate_comfy_runtime(identity, source_roots=None):
             and isinstance(identity['roots'],list) and identity['roots']
             and all(isinstance(path,str) and Path(path).is_absolute() for path in identity['coveredSourceRoots']+identity['roots']),
             'Live Comfy runtime roots must be absolute')
+    inventory=identity['comfySourceInventory']
+    require(isinstance(inventory,dict) and set(inventory)=={'core','roots','files'}
+            and isinstance(inventory['core'],str) and Path(inventory['core']).is_absolute()
+            and isinstance(inventory['roots'],list) and inventory['roots']
+            and all(isinstance(path,str) and Path(path).is_absolute() for path in inventory['roots'])
+            and isinstance(inventory['files'],list),'Live Comfy source snapshot is incomplete')
+    if source_inventory is not None:
+        require(_same_inventory(inventory,source_inventory),
+                'Comfy startup source snapshot differs from the prepared source inventory')
     if source_roots is not None:
         expected={str(Path(value).resolve()) for value in source_roots}
         require(len(identity['coveredSourceRoots'])==1 and identity['coveredSourceRoots'][0] in expected,
                 'Comfy runtime source coverage differs from the request')
+    source_by_path={row.get('path'):row.get('sha256') for row in inventory['files'] if isinstance(row,dict)}
+    require(len(source_by_path)==len(inventory['files']) and all(isinstance(path,str) and Path(path).is_absolute()
+            and isinstance(value,str) and re.fullmatch(r'[0-9a-f]{64}',value) for path,value in source_by_path.items()),
+            'Live Comfy source snapshot contains malformed file pins')
+    loaded=identity['loadedSourceCode']
+    require(isinstance(loaded,list) and all(isinstance(row,dict) and set(row)=={'path','sourceSha256','loadedCodeSha256'}
+            and isinstance(row['path'],str) and Path(row['path']).is_absolute()
+            and isinstance(row['sourceSha256'],str) and re.fullmatch(r'[0-9a-f]{64}',row['sourceSha256'])
+            and isinstance(row['loadedCodeSha256'],str) and re.fullmatch(r'[0-9a-f]{64}',row['loadedCodeSha256']) for row in loaded),
+            'Loaded Comfy Python code identity is malformed')
+    loaded_paths=[row['path'] for row in loaded]
+    require(len(loaded_paths)==len(set(loaded_paths)) and loaded_paths==sorted(loaded_paths,key=str.casefold),
+            'Loaded Comfy Python code identity must be unique and sorted')
+    require(all(source_by_path.get(row['path'])==row['sourceSha256'] for row in loaded),
+            'Loaded Comfy Python code is not bound to its reviewed source file')
     require(isinstance(files,list) and files,'Live Comfy runtime file inventory required')
     require(all(isinstance(row,dict) and set(row)=={'path','sha256'} and Path(row['path']).is_absolute()
                 and re.fullmatch(r'[0-9a-f]{64}',row['sha256']) for row in files),
@@ -95,7 +138,7 @@ def freeze_sources(local):
 
 def request_sources(prepared):
     inventory=verify_sources(prepared.get('comfySourceInventory'))
-    runtime=validate_comfy_runtime(prepared.get('comfyRuntimeIdentity'),inventory['roots'])
+    runtime=validate_comfy_runtime(prepared.get('comfyRuntimeIdentity'),inventory['roots'],inventory)
     inputs={(str(Path(p['path']).resolve()),p['sha256']) for p in prepared['inputs']}
     require(all((row['path'],row['sha256']) in inputs for row in inventory['files']),'Source inventory is absent from frozen request inputs')
     require(all((row['path'],row['sha256']) in inputs for row in runtime['files']),'Comfy runtime inventory is absent from frozen request inputs')

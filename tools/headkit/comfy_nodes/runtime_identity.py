@@ -26,7 +26,21 @@ def _inside(path, roots):
     return any(path==root or path.is_relative_to(root) for root in roots)
 
 
-def capture_runtime_identity(folder_paths):
+def seal_runtime_identity(payload):
+    payload=dict(payload)
+    payload.pop('fingerprint',None)
+    payload['fingerprint']=hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+    return payload
+
+
+def same_runtime_environment(current, baseline):
+    """Compare stable interpreter/runtime pins while allowing verified lazy imports."""
+    ignored={'fingerprint','loadedSourceCode'}
+    return ({key:value for key,value in current.items() if key not in ignored}
+            == {key:value for key,value in baseline.items() if key not in ignored})
+
+
+def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_source_code=None):
     """Hash interpreter, standard library and active Python import roots, excluding separately pinned Comfy source."""
     import torch
     core=Path(folder_paths.base_path).resolve(strict=True)
@@ -84,7 +98,7 @@ def capture_runtime_identity(folder_paths):
     except Exception:pass
     executable=str(Path(sys.executable).resolve(strict=True))
     payload={
-        'schemaVersion':1,
+        'schemaVersion':2,
         'python':{'path':executable,'sha256':next(item['sha256'] for item in file_pins if item['path']==executable),
                   'version':sys.version,'implementation':sys.implementation.name,'cacheTag':sys.implementation.cache_tag,
                   'prefix':str(Path(sys.prefix).resolve()),'basePrefix':str(Path(sys.base_prefix).resolve())},
@@ -94,6 +108,7 @@ def capture_runtime_identity(folder_paths):
         'coveredSourceRoots':covered,
         'roots':[str(path) for path in unique_roots],
         'files':file_pins,
+        'comfySourceInventory':comfy_source_inventory,
+        'loadedSourceCode':loaded_source_code or [],
     }
-    payload['fingerprint']=hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
-    return payload
+    return seal_runtime_identity(payload)

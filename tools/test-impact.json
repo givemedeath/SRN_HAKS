@@ -32,6 +32,7 @@
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/runtime_identity.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
       "tools/headkit/comfy_nodes/verified_loaders.py"
     ],
     "tools/headkit/comfy_nodes/gltf.py": [],
@@ -41,6 +42,9 @@
       "tools/headkit/comfy_nodes/transport.py"
     ],
     "tools/headkit/comfy_nodes/runtime_identity.py": [],
+    "tools/headkit/comfy_nodes/source_snapshot.py": [
+      "tools/headkit/comfy_nodes/nodes.py"
+    ],
     "tools/headkit/comfy_nodes/transport.py": [],
     "tools/headkit/comfy_nodes/verified_loaders.py": [
       "tools/headkit/comfy_nodes/model_resolution.py"
@@ -114,6 +118,11 @@
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/common.py"
     ],
+    "tools/headkit/test_comfy_runtime_snapshot.py": [
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/runtime_identity.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py"
+    ],
     "tools/headkit/test_headkit.py": [
       "tools/headkit/__init__.py",
       "tools/headkit/__main__.py",
@@ -123,6 +132,7 @@
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/runtime_identity.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
       "tools/headkit/comfy_nodes/transport.py",
       "tools/headkit/comfy_nodes/verified_loaders.py",
       "tools/headkit/common.py",
@@ -3399,6 +3409,7 @@
     ]
   },
   "tests": [
+    "tools/headkit/test_comfy_runtime_snapshot.py",
     "tools/headkit/test_headkit.py",
     "tools/heads/test_atlas_allowance.py",
     "tools/heads/test_budget_extension.py",

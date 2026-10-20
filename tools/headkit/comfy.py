@@ -186,9 +186,10 @@ def verify_loader_models(client, prepared):
 
 def verify_comfy_runtime(client, prepared):
     expected=validate_comfy_runtime(prepared.get('comfyRuntimeIdentity'),
-                                    prepared.get('comfySourceInventory',{}).get('roots'))
+                                    prepared.get('comfySourceInventory',{}).get('roots'),
+                                    prepared.get('comfySourceInventory'))
     actual=client.request('/headkit/runtime-identity')
-    actual=validate_comfy_runtime(actual,expected['coveredSourceRoots'])
+    actual=validate_comfy_runtime(actual,expected['coveredSourceRoots'],prepared.get('comfySourceInventory'))
     require(actual==expected,
             'Running ComfyUI Python/Torch/CUDA runtime differs from the prepared request; prepare again')
     return actual

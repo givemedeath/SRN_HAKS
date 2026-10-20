@@ -53,9 +53,13 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None, 
     from .source_inventory import freeze_sources
     inventory=freeze_sources(local)
     from .source_inventory import validate_comfy_runtime
-    comfy_runtime=validate_comfy_runtime(comfy_runtime,inventory['roots'])
+    comfy_runtime=validate_comfy_runtime(comfy_runtime,inventory['roots'],inventory)
     pins+=inventory['files']+comfy_runtime['files']
     adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
+    source_config=adapter/'source-roots.json'
+    require(read(source_config)=={'schemaVersion':1,'inventory':inventory},
+            'Installed Comfy source snapshot differs; reinstall the current adapter and restart ComfyUI')
+    pins.append(pin(source_config))
     for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):
         installed=adapter/code.name;require(pin(installed)['sha256']==pin(code)['sha256'],'Installed headkit nodes differ; install current adapters and restart ComfyUI')
         pins.append(pin(installed))
@@ -68,6 +72,20 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None, 
             'comfyRuntimeIdentity':comfy_runtime,'runtimeIdentity':runtime,'bindings':binding_pin,'comfyEndpoint':comfy.Client(local['comfyUrl']).url,
             'loaderModels':models}
     write(output,result,fresh=True);return result
+
+
+def install_nodes(destination,local):
+    require(destination.name=='srn_headkit' and destination.parent.name=='custom_nodes',
+            'Use a new custom_nodes/srn_headkit folder')
+    require(destination.parent.resolve()==Path(local['comfyCustomNodes']).resolve(),
+            'Install destination must match the bound Comfy custom_nodes folder')
+    from .source_inventory import capture_sources,freeze_sources
+    initial=freeze_sources(local)
+    shutil.copytree(Path(__file__).parent/'comfy_nodes',destination,ignore=shutil.ignore_patterns('__pycache__'))
+    inventory=capture_sources(initial['core'],initial['roots'])
+    write(destination/'source-roots.json',{'schemaVersion':1,'inventory':inventory},fresh=True)
+    return {'installed':str(destination),'sourceSnapshot':str(destination/'source-roots.json'),
+            'restartRequired':True,'comfyRestarted':False}
 
 
 def main():
@@ -88,7 +106,7 @@ def main():
         if name=='collect':p.add_argument('--wait',action='store_true')
     p=sub.add_parser('replay');p.add_argument('--config',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('inputs');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--run',type=Path)
-    p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path)
+    p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
     a=parser.parse_args()
     runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs') else None
     if a.command in ('prepare','run','resume','status','review'):
@@ -123,10 +141,7 @@ def main():
     elif a.command=='replay':
         from .replay import replay
         result=replay(read(a.config),a.output)
-    elif a.command=='install-nodes':
-        require(a.destination.name=='srn_headkit' and a.destination.parent.name=='custom_nodes','Use a new custom_nodes/srn_headkit folder')
-        shutil.copytree(Path(__file__).parent/'comfy_nodes',a.destination,ignore=shutil.ignore_patterns('__pycache__'))
-        result={'installed':str(a.destination),'restartRequired':True,'comfyRestarted':False}
+    elif a.command=='install-nodes':result=install_nodes(a.destination,bindings(a.bindings))
     else:
         local=bindings(a.bindings);client=comfy.Client(local['comfyUrl'])
         if a.command=='release':result=comfy.release(client,a.ledger)
