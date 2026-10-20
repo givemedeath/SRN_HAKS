@@ -17,6 +17,14 @@ def request_stage(manifest_path, bindings_path, stage, output):
     if profile=='pixal-multiview-v1' and stage=='geometry':names=['front','left','back','right']
     require(stage!='geometry' or (data.get('features') and all(x.get('placementReviewed') is True for x in data['features'])),
             'Review hairstyle routing, all accessories and counts before generation')
+    shape=asset(manifest_path,data['inputs']['shape']) if stage=='appearance' else None
+    expected_mesh=asset(manifest_path,data['inputs']['geometryRaw']) if stage=='appearance' else None
+    if stage=='appearance':
+        review=data.get('approval',{}).get('generatedGeometry',{})
+        require(review.get('decision')=='approved' and bool(review.get('notes','').strip())
+                and review.get('geometryRawSha256')==expected_mesh['sha256']
+                and review.get('shapeSha256')==shape['sha256'],
+                'Approve generated clay with geometryRaw and shape hashes before appearance preparation')
     root=Path(local['comfyInput']).resolve();token=uuid.uuid4().hex;staging=root/'headkit'/token;staging.mkdir(parents=True,exist_ok=False)
     images={};pins=[pin(manifest_path),pin(bindings_path)]+code_pins()
     for name in names:
@@ -28,10 +36,8 @@ def request_stage(manifest_path, bindings_path, stage, output):
         else:
             background=Image.new('RGBA',image.size,(0,0,0,255));background.alpha_composite(image);background.convert('RGB').save(target)
         images[name]=target.relative_to(root).as_posix();pins.append(pin(target))
-    shape=asset(manifest_path,data['inputs']['shape']) if stage=='appearance' else None
     source=asset(manifest_path,data['inputs']['exportSource']) if stage=='export' else None
     pins += [p for p in (shape,source) if p]
-    expected_mesh=asset(manifest_path,data['inputs']['geometryRaw']) if stage=='appearance' else None
     if expected_mesh:pins.append(expected_mesh)
     graph=comfy.compile_graph(stage,profile,images,'headkit/'+token,fov=camera.get('fovDegrees'),shape=shape,source=source)
     require(local.get('comfySources'),'Pin the installed Comfy execution sources before GPU preparation')
@@ -76,12 +82,11 @@ def main():
     if a.command not in ('status','inputs'):launched()
     if a.command in ('prepare','run','resume','status','review'):
         from .runner import Runner
-        runner=Runner(a.manifest,a.bindings,a.run)
-        if a.command=='status':result=runner.status()
-        elif a.command=='review':result=runner.review(a.stage,a.decision,a.notes)
+        if a.command=='status':result=Runner(a.manifest,a.bindings,a.run).status()
         else:
             with comfy.locked(a.run/'runner'):
-                result=runner.execute('prepare' if a.command=='prepare' else a.stage)
+                runner=Runner(a.manifest,a.bindings,a.run)
+                result=runner.review(a.stage,a.decision,a.notes) if a.command=='review' else runner.execute('prepare' if a.command=='prepare' else a.stage)
     elif a.command=='inputs':
         data=manifest(a.manifest);local=bindings(a.bindings)
         pins=code_pins()+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,p) for p in data['inputs'].values()]
@@ -95,7 +100,8 @@ def main():
             pins += [pin(p) for p in (Path(local['comfyCustomNodes'])/'srn_headkit').glob('*.py')]
         if a.run and (a.run/'state.json').exists():
             pins.append(pin(a.run/'state.json'))
-            for row in read(a.run/'state.json')['stages'].values():
+            state=read(a.run/'state.json');pins+=list(state.get('reviews',{}).values())
+            for row in state['stages'].values():
                 pins.append(row);pins+=read(row['path'])['inputs']+read(row['path'])['outputs']
         verify(pins);paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}
     elif a.command=='request':result=request_stage(a.manifest,a.bindings,a.stage,a.output)

@@ -72,6 +72,42 @@ class GraphTests(Temporary):
         with self.assertRaises(ValueError):comfy.compile_graph('appearance','pixal-single-v1',{'detail':'detail.png'},'headkit/run',fov=42,shape=shape)
 
 
+class GeometryApprovalTests(Temporary):
+    def fixture(self):
+        self.pair();raw=pin(self.file('raw.glb'));shape=pin(self.file('shape.npz'))
+        data={'schemaVersion':1,'id':'geometry-review','inputs':{name:{'path':Path(row['path']).name,'sha256':row['sha256']}
+              for name,row in {'detail':pin(self.root/'detail.png'),'geometryRaw':raw,'shape':shape}.items()},
+              'camera':{'reviewed':True,'fovDegrees':42},'approval':{'inputReviewComplete':True}}
+        source=pin(self.file('comfy.py'))
+        adapter=self.root/'custom_nodes'/'srn_headkit';adapter.mkdir(parents=True)
+        for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):(adapter/code.name).write_bytes(code.read_bytes())
+        write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root),'comfyInput':str(self.root/'comfy-input'),
+              'comfyCustomNodes':str(adapter.parent),'comfySources':[source]})
+        return data
+    def request(self,data):
+        from headkit.__main__ import request_stage
+        write(self.root/'manifest.json',data)
+        with patch('headkit.__main__.comfy.compile_graph',return_value={}):
+            return request_stage(self.root/'manifest.json',self.root/'bindings.json','appearance',self.root/'request.json')
+    def approval(self,data):
+        return {'decision':'approved','notes':'Inspected generated clay and accessories',
+                'geometryRawSha256':data['inputs']['geometryRaw']['sha256'],'shapeSha256':data['inputs']['shape']['sha256']}
+    def test_missing_rejected_and_stale_geometry_reviews_block_before_staging(self):
+        data=self.fixture()
+        cases=[None,dict(self.approval(data),decision='rejected'),dict(self.approval(data),geometryRawSha256='0'*64),
+               dict(self.approval(data),shapeSha256='0'*64),dict(self.approval(data),notes=' ')]
+        for review in cases:
+            with self.subTest(review=review):
+                if review is not None:data['approval']['generatedGeometry']=review
+                with self.assertRaisesRegex(ValueError,'Approve generated clay'):self.request(data)
+                self.assertFalse((self.root/'comfy-input').exists());self.assertFalse((self.root/'request.json').exists())
+    def test_approved_geometry_and_saved_shape_are_frozen_in_request(self):
+        data=self.fixture();data['approval']['generatedGeometry']=self.approval(data);result=self.request(data)
+        self.assertEqual(result['expectedGeometry']['sha256'],data['inputs']['geometryRaw']['sha256'])
+        self.assertIn(data['inputs']['shape']['sha256'],[row['sha256'] for row in result['inputs']])
+        self.assertEqual(read(self.root/'request.json'),result)
+
+
 class ImageTests(Temporary):
     def test_positive_similarity_is_scale_and_rotation_invariant(self):
         a=np.array([[0,0],[1,0],[.3,1]]);rotation=np.array([[0,-1],[1,0]]);b=a@rotation*2+[4,6]
@@ -243,6 +279,85 @@ class ResumeTests(Temporary):
         self.assertEqual(read(self.root/'run'/'prepare'/'attempt-01'/'receipt.json')['state'],'failed')
     def test_portable_paths_reject_escape(self):
         with self.assertRaises(ValueError):asset(self.root/'manifest.json',{'path':'../escape','sha256':'0'*64})
+
+
+class ReviewGateTests(Temporary):
+    fixture=ResumeTests.fixture
+    def completed(self,stage,folder):
+        target=folder/'artifact.txt';target.write_text(stage);return {'artifact':pin(target)}
+    def test_review_is_persisted_and_gates_every_processing_dependency(self):
+        runner=self.fixture()
+        with patch.object(runner,'_execute',side_effect=self.completed):
+            for stage in ('repair','unwrap','bake','ownership','tone','palette','export','native'):
+                runner.execute(stage)
+                with self.assertRaisesRegex(ValueError,'pending'):runner.result(stage)
+                runner.review(stage,'rejected','Visible defect')
+                with self.assertRaisesRegex(ValueError,'rejected'):runner.result(stage)
+                runner.review(stage,'approved','Inspected corrected output')
+                self.assertIn('artifact',runner.result(stage))
+        restored=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertIn('artifact',restored.result('native'));self.assertEqual(restored.status()['stages']['native']['review'],'approved')
+    def test_missing_or_rejected_review_blocks_work_not_just_result_reads(self):
+        for decision in (None,'rejected'):
+            with self.subTest(decision=decision):
+                runner=self.fixture()
+                with patch.object(runner,'_execute',side_effect=self.completed) as work:
+                    runner.execute('repair')
+                    if decision:runner.review('repair',decision,'Visible geometry defect')
+                    with self.assertRaisesRegex(ValueError,'review'):runner.execute('unwrap')
+                    self.assertEqual(work.call_count,1)
+                # Each subcase uses its own run, retaining all its failed/complete evidence.
+                self.root= self.root/('case-'+str(decision));self.root.mkdir()
+    def test_rejecting_ancestor_blocks_cached_native_package_after_restart(self):
+        runner=self.fixture()
+        with patch.object(runner,'_execute',side_effect=self.completed):
+            for stage in ('repair','unwrap','bake','ownership','tone','palette','export','native'):
+                runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+        runner.review('repair','rejected','Found an accessory defect')
+        restored=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        with patch.object(restored,'_execute') as work:
+            with self.assertRaisesRegex(ValueError,'rejected'):restored.execute('native')
+            work.assert_not_called()
+    def test_review_bound_to_old_receipt_or_modified_review_is_rejected(self):
+        runner=self.fixture();runner.execute('prepare');review_pin=runner.review('prepare','approved','Reviewed input overlays')
+        old=read(review_pin['path']);old['stageReceipt']['sha256']='0'*64
+        write(review_pin['path'],old);runner.state['reviews']['prepare']=pin(review_pin['path'])
+        with self.assertRaisesRegex(ValueError,'Stale visual review'):runner.result('prepare')
+        runner.review('prepare','approved','Re-reviewed current receipt');current=runner.state['reviews']['prepare']
+        Path(current['path']).write_text('{}')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
+
+
+class ReviewImageTests(Temporary):
+    def test_default_and_example_deliver_both_native_resolutions(self):
+        from headkit.review_images import resolutions
+        self.assertEqual(resolutions({}),[2048,1024])
+        example=read(Path(__file__).parent/'examples'/'processing.json')
+        self.assertEqual(resolutions(example['render']),[2048,1024])
+        with self.assertRaises(ValueError):resolutions({'sizes':[768]})
+        with self.assertRaises(ValueError):resolutions({'sizes':[2048,1024],'size':768})
+    def test_atlases_are_filtered_to_actual_1k_and_hashed(self):
+        from headkit.review_images import atlas_sets
+        # Alternating pixels average to midgray; this catches nearest-neighbor derivatives.
+        values=np.tile(np.array([0,255],np.uint8),(2048,1024));Image.fromarray(values).save(self.root/'texture.png')
+        sets,records=atlas_sets({'maps':{'roughness':str(self.root/'texture.png')}},self.root/'atlases',[2048,1024])
+        self.assertEqual(len(records),2)
+        with Image.open(sets[2048]['roughness']) as image:np.testing.assert_array_equal(np.asarray(image),values)
+        with Image.open(sets[1024]['roughness']) as image:self.assertEqual(image.size,(1024,1024));self.assertTrue(np.all(np.asarray(image)==128))
+        with self.assertRaisesRegex(ValueError,'no upsampling'):atlas_sets({'maps':{'roughness':sets[1024]['roughness']}},self.root/'bad',[2048])
+    def test_sheets_preserve_native_view_pixels_and_reject_wrong_dimensions(self):
+        from headkit.review_images import sheets
+        records=[]
+        for size in (2048,1024):
+            image=Image.new('RGB',(size,size),(20,50,90));path=self.root/f'frame-{size}.png';image.save(path)
+            records.append({'size':size,'mode':'clay','view':'front','image':pin(path)})
+            (self.root/'sheets'/str(size)).mkdir(parents=True)
+        result=sheets(records,self.root/'sheets',20000);self.assertEqual(len(result['sheets']),2)
+        for row in result['sheets']:
+            with Image.open(row['image']['path']) as image:
+                self.assertEqual(image.size,(row['size'],row['size']+32));self.assertEqual(image.getpixel((0,32)),(20,50,90))
+        records[0]['size']=1024
+        with self.assertRaisesRegex(ValueError,'dimensions'):sheets(records,self.root/'sheets',20000)
 
 
 if __name__=='__main__':unittest.main()

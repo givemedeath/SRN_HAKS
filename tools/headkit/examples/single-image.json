@@ -76,6 +76,12 @@
   },
   "approval": {
     "referenceDesignReviewed": false,
-    "inputReviewComplete": false
+    "inputReviewComplete": false,
+    "generatedGeometry": {
+      "decision": "pending",
+      "geometryRawSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "shapeSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "notes": "Review generated clay from all sides before approving these exact outputs."
+    }
   }
 }

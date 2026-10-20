@@ -20,3 +20,13 @@ The retained-head replay **does not recompute generation, reduction, tones or se
 No fresh GPU generation was submitted, and the newly named ComfyUI adapters were not installed into or used to restart the shared instance. Adapter installation/restart and an operator-reviewed trial remain prerequisites for a first live use of the extracted toolkit. The multiview graph is retained from a successful historical route; the newer smooth-clay preparation has not been validated end-to-end with it.
 
 The initial generic profile intentionally rejects transformed/multiple-primitive/rigged GLBs. It does not claim automatic anatomical repair, universal race support, perfect semantic masks or automatic production readiness. A numerical pass never substitutes for the prescribed clay, texture, channel, fit and in-game review.
+
+
+## PR review hardening (2026-10-20)
+
+- Appearance request preparation rejects missing/rejected/stale generated-clay approval before staging. Approval binds both the raw mesh and saved-shape hashes; input-reference review alone is insufficient.
+- Runner decisions persist as immutable hash-pinned reviews in state. Pending/rejected/stale reviews block consumers, including cached native packaging through transitive dependencies. Tests include restart, changed review bytes and mismatched receipt bindings.
+- The processing example/default now produces 2048 and 1024 pixel renders, actual BOX-filtered texture derivatives, native-resolution labeled sheets and atlas images. Pillow processing stays in bundled Python; Blender needs no added image-library dependency.
+- **47 focused toolkit tests pass**, plus **18 dependency-catalog regressions**. The catalogue was regenerated for the new review-image helper.
+- An actual shared-launcher CPU `render` stage used the retained #74 20,000-triangle UV mesh and generated material maps. Front-view clay, color-only and material-lit renders passed at both 2048 and 1024: **6 frames, 6 sheets, 8 atlas images**, four threads, **51.0 seconds including evidence processing**, no GPU. Every emitted image hash and dimension was independently verified. This is a front-view integration smoke, not a new all-angle visual acceptance or production replacement.
+- The initial direct Blender smoke failed because Blender lacked Pillow; that failed receipt is preserved. The subsequent full runner smoke passed after moving atlas/sheet work to bundled Python.

@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins
 
+# Every stage produces evidence that needs an explicit operator decision before consumption.
 STAGES=('prepare','precluster','repair','unwrap','bake','ownership','tone','palette','export','native','render')
 
 
@@ -23,12 +24,24 @@ class Runner:
         require(name in self.data['inputs'],'Missing manifest input: '+name)
         return asset(self.manifest_path,self.data['inputs'][name])['path']
 
-    def result(self,stage):
+    def result(self,stage,*,require_review=True,_checked=None):
+        if _checked is None:_checked={'results':{},'codeVersion':source_version()}
+        if stage in _checked['results']:return _checked['results'][stage]
         row=self.state['stages'].get(stage);require(row is not None,'Stage not completed: '+stage)
         receipt=read(row['path']);verify([row]);verify(receipt['outputs']);verify(receipt['inputs'])
-        require(receipt['codeVersion']==source_version() and receipt['manifestHash']==digest(self.data)
+        require(receipt['codeVersion']==_checked['codeVersion'] and receipt['manifestHash']==digest(self.data)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
         require(receipt['state']=='complete','Failed stage: '+stage)
+        for dependency,expected in receipt.get('dependencies',{}).items():
+            require(self.state['stages'].get(dependency)==expected,'Changed dependency; rerun stage: '+stage)
+            self.result(dependency,_checked=_checked)
+        if require_review:
+            review_pin=self.state.get('reviews',{}).get(stage)
+            require(review_pin is not None,'Visual review pending: '+stage)
+            verify([review_pin]);review=read(review_pin['path'])
+            require(review.get('stageReceipt')==row,'Stale visual review: '+stage)
+            require(review.get('decision')=='approved','Visual review rejected: '+stage)
+            _checked['results'][stage]=receipt['result']
         return receipt['result']
 
     def source(self,provided,stage,key):
@@ -39,14 +52,13 @@ class Runner:
     def execute(self,stage):
         require(stage in STAGES,'Unknown CPU stage')
         if stage in self.state['stages']:
-            try:return {'reused':True,'result':self.result(stage)}
+            try:return {'reused':True,'result':self.result(stage,require_review=False)}
             except (ValueError,OSError):pass
         parent=self.run/stage;parent.mkdir(exist_ok=True)
         old=list(parent.glob('attempt-*/receipt.json'))
         failures=[read(p) for p in old if read(p).get('manifestHash')==digest(self.data)
                   and read(p).get('codeVersion')==source_version() and read(p).get('state')=='failed']
         require(len(failures)<2,'Two stage failures retained; fix the manifest or request a bounded exception before more trials')
-        folder=parent/f'attempt-{len(list(parent.glob("attempt-*")))+1:02d}';folder.mkdir()
         inputs=[pin(self.manifest_path),pin(self.bindings_path)]+code_pins()
         inputs += [asset(self.manifest_path,p) for p in self.data['inputs'].values()]
         for row in self.bindings.get('libraries',{}).values():inputs.extend(row['files'])
@@ -64,11 +76,15 @@ class Runner:
             'native':['export'], 'render':[] if 'uvMesh' in self.data['inputs'] else ['unwrap']}
         if stage=='tone' and 'ownership4k' not in self.data['inputs']:dependencies[stage].append('ownership')
         if stage=='palette' and 'ownership1k' not in self.data['inputs']:dependencies[stage].append('ownership')
+        dependency_pins={}
         for dependency in dependencies[stage]:
             self.result(dependency);row=self.state['stages'][dependency]
+            dependency_pins[dependency]=row
             previous=read(row['path']);inputs.append(row);inputs.extend(previous['outputs'])
+            inputs.append(self.state['reviews'][dependency])
+        folder=parent/f'attempt-{len(list(parent.glob("attempt-*")))+1:02d}';folder.mkdir()
         begun=time.monotonic();receipt={'stage':stage,'manifestHash':digest(self.data),'bindingsHash':digest(self.bindings),
-            'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[]}
+            'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins}
         write(folder/'intent.json',receipt,fresh=True)
         try:
             result=self._execute(stage,folder);digest(result);verify(inputs)
@@ -168,13 +184,17 @@ class Runner:
         if stage=='render':
             import subprocess,sys
             from .common import ROOT
+            from .review_images import resolutions,atlas_sets,sheets
+            begun=time.monotonic()
             source=self.source('uvMesh','unwrap','mesh');cfg=dict(m['render'])
             if 'cameras' not in cfg:
                 from .cameras import review_cameras
                 from .gltf import mesh
                 cfg['cameras']=review_cameras(mesh(source)['positions'],cfg['frontAngleDegrees'])
             cfg.update(mesh=source,output=str(folder/'renders'),maps={name:self.input(role) for name,role in cfg['mapInputs'].items()})
-            cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()]]
+            texture_sets,atlases=atlas_sets(cfg,folder/'renders',resolutions(cfg))
+            cfg.update(textureSets={str(size):maps for size,maps in texture_sets.items()},atlases=atlases)
+            cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()],*[row['image'] for row in atlases]]
             write(folder/'render-config.json',cfg,fresh=True)
             command=[sys.executable,str(ROOT/'tools/phenotypes/launch_shared_tool.py'),'--toolchain',b['toolchain'],
                 '--migration-receipt',b['migrationReceipt'],'--tool','blender','--output',str(folder/'blender-launch')]
@@ -182,19 +202,31 @@ class Runner:
             command+=['--','--python',str(Path(__file__).parent/'blender_render.py'),'--','--config',str(folder/'render-config.json')]
             execution=subprocess.run(command,capture_output=True,text=True,timeout=1800,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
             (folder/'blender.log').write_text(execution.stdout+'\n'+execution.stderr);require(execution.returncode==0,'CPU render failed; inspect log')
-            return read(folder/'renders'/'renders.json')
+            result=read(folder/'renders'/'renders.json')
+            result.update(sheets(result['views'],folder/'renders',result['triangles']),elapsedWithEvidenceSeconds=time.monotonic()-begun)
+            write(folder/'renders'/'renders.json',result);return result
         raise ValueError('Stage not implemented')
 
     def review(self,stage,decision,notes):
         require(decision in ('approved','rejected') and notes.strip(),'Explicit visual decision and notes required')
-        self.result(stage);target=self.run/'reviews'/f'{stage}-{uuid.uuid4().hex}.json'
+        self.result(stage,require_review=False);target=self.run/'reviews'/f'{stage}-{uuid.uuid4().hex}.json'
         result={'stageReceipt':self.state['stages'][stage],'decision':decision,'notes':notes,'productionAccepted':False}
-        write(target,result,fresh=True);return pin(target)
+        write(target,result,fresh=True);review_pin=pin(target)
+        self.state.setdefault('reviews',{})[stage]=review_pin;write(self.state_path,self.state)
+        return review_pin
 
     def status(self):
         result={}
         for stage in STAGES:
             if stage not in self.state['stages']:result[stage]='not-run';continue
-            try:self.result(stage);result[stage]='complete'
+            try:
+                self.result(stage,require_review=False)
+                review_pin=self.state.get('reviews',{}).get(stage)
+                if review_pin:
+                    verify([review_pin]);review=read(review_pin['path'])
+                    require(review.get('stageReceipt')==self.state['stages'][stage],'Stale visual review: '+stage)
+                    decision=review['decision']
+                else:decision='pending'
+                result[stage]={'state':'complete','review':decision}
             except (ValueError,OSError) as exc:result[stage]={'staleOrFailed':str(exc)}
         return {'id':self.data['id'],'stages':result,'next':'Explicitly choose the next stage; no GPU job is started by status/resume'}

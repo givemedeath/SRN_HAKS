@@ -142,7 +142,7 @@
   },
   "render": {
     "frontAngleDegrees": -90,
-    "size": 768,
+    "sizes": [2048, 1024],
     "mapInputs": {
       "basecolor": "inspectionColor",
       "roughness": "inspectionRoughness",
