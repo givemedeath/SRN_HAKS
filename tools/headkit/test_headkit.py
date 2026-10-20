@@ -321,7 +321,8 @@ class ReplayPinTests(Temporary):
     def test_missing_each_consumed_pin_fails_before_processing(self):
         from headkit.replay import replay
         for role in ('source','shades','layers','binary','expectedPlt'):
-            config=self.fixture();config['inputs']=[p for p in config['inputs'] if p['path']!=config[role]]
+            config=self.fixture();config['inputs']=[p for p in config['inputs'] if Path(p['path']).resolve()!=Path(config[role]).resolve()]
+            self.assertEqual(len(config['inputs']),4)
             with patch('headkit.replay.mesh') as mesh:
                 with self.assertRaisesRegex(ValueError,'Missing replay input pin: '+role):replay(config,self.root/'missing')
                 mesh.assert_not_called();self.assertFalse((self.root/'missing').exists())
