@@ -118,8 +118,12 @@ def bindings(path):
     data = read(path)
     require(data.get('schemaVersion') == 1 and isinstance(data.get('toolsRoot'), str), 'Local bindings version/root required')
     require(Path(data['toolsRoot']).is_absolute(), 'Local tools root must be absolute')
+    tools_root = Path(data['toolsRoot']).resolve()
     for key in ('python', 'blender', 'client', 'embree'):
         if key in data:
+            if key == 'embree':
+                require(Path(data[key]['path']).resolve().is_relative_to(tools_root),
+                        'Embree DLL must be inside the declared durable tools bank')
             verify([data[key]])
     for row in data.get('libraries', {}).values():
         verify(row['files'])

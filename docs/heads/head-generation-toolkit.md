@@ -66,7 +66,7 @@ Freeze the manifest, local bindings, toolkit/helper versions, model/library file
 | `release --bindings B --ledger L` | Hold the submission ledger lock, require reconciled jobs and an idle queue, then unload ComfyUI models |
 | `replay --config C --output R` | Read-only roundtrip of retained reviewed artifacts; not regeneration or automatic acceptance |
 
-The local `toolchain`, `migrationReceipt`, `python` and `toolsRoot` bindings must exactly match the verified launcher and running Python; processing refuses mixed runtime identities and records the matched identity in stage receipts.
+The local `toolchain`, `migrationReceipt`, `python` and `toolsRoot` bindings must exactly match the verified launcher and running Python; processing refuses mixed runtime identities and records the matched identity in stage receipts. Install and restart the headkit ComfyUI adapters before preparing a request: model loader nodes carry the reviewed checkpoint hash and resolved path identity in their cache signature, then recheck the bytes immediately before loading. The Embree DLL must resolve inside the declared durable shared tools root.
 
 Each prepared ComfyUI request is bound to that runtime identity, the exact local bindings-file hash and the normalized ComfyUI endpoint. Submission rejects any mismatch and rehashes every frozen request input under the ledger lock immediately before dispatch. If that final check fails, the ledger records `preflight-rejected`; it does not consume a generation attempt.
 

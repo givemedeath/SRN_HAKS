@@ -47,8 +47,9 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
     pins += [p for p in (shape,export_source) if p]
     if expected_mesh:pins.append(expected_mesh)
     graph=comfy.compile_graph(stage,profile,images,'headkit/'+token,fov=camera.get('fovDegrees'),shape=shape,source=export_source)
-    from .comfy_nodes.model_resolution import loader_models
+    from .comfy_nodes.model_resolution import loader_models,bind_loader_models
     models=loader_models(graph,local.get('models',{}),read(Path(__file__).parent/'checkpoints.json'))
+    graph=bind_loader_models(graph,models)
     from .source_inventory import freeze_sources
     inventory=freeze_sources(local)
     pins+=inventory['files']

@@ -30,7 +30,8 @@
     ],
     "tools/headkit/comfy_nodes/__init__.py": [
       "tools/headkit/comfy_nodes/model_resolution.py",
-      "tools/headkit/comfy_nodes/nodes.py"
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/verified_loaders.py"
     ],
     "tools/headkit/comfy_nodes/gltf.py": [],
     "tools/headkit/comfy_nodes/model_resolution.py": [],
@@ -39,6 +40,9 @@
       "tools/headkit/comfy_nodes/transport.py"
     ],
     "tools/headkit/comfy_nodes/transport.py": [],
+    "tools/headkit/comfy_nodes/verified_loaders.py": [
+      "tools/headkit/comfy_nodes/model_resolution.py"
+    ],
     "tools/headkit/common.py": [
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py",
@@ -116,6 +120,7 @@
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/transport.py",
+      "tools/headkit/comfy_nodes/verified_loaders.py",
       "tools/headkit/common.py",
       "tools/headkit/examples/local-bindings.example.json",
       "tools/headkit/examples/processing.json",

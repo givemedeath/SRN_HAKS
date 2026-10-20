@@ -162,6 +162,10 @@ class GeometryApprovalTests(Temporary):
         self.assertEqual(result['loaderModels'],[{'category':'diffusion_models','name':name,
             'pathIdentity':__import__('headkit.comfy_nodes.model_resolution',fromlist=['path_identity']).path_identity(model),
             'sha256':pin(model)['sha256']}])
+        loader=result['prompt']['319']
+        self.assertEqual(loader['class_type'],'HeadkitVerifiedUNETLoaderV1')
+        self.assertEqual(loader['inputs']['headkit_model_sha256'],pin(model)['sha256'])
+        self.assertEqual(loader['inputs']['headkit_model_path_identity'],result['loaderModels'][0]['pathIdentity'])
         self.assertIn(pin(model),result['inputs'])
 
 
@@ -299,6 +303,19 @@ class MeshTests(Temporary):
     def test_padding_fills_only_unmapped_pixels_and_preserves_black(self):
         values=np.zeros((4,4,3),np.uint8);values[1,1]=[0,0,0];values[2,2]=[80,90,100];mask=np.zeros((4,4),bool);mask[1,1]=mask[2,2]=True
         result=pad(values,mask);np.testing.assert_array_equal(result[mask],values[mask]);np.testing.assert_array_equal(result[0,0],[0,0,0])
+
+
+class LocalBindingSecurityTests(Temporary):
+    def test_embree_must_resolve_inside_declared_tools_root(self):
+        from headkit.common import bindings
+        tools=self.root/'tools';tools.mkdir();inside=tools/'embree.dll';inside.write_bytes(b'bound Embree')
+        outside=self.root/'outside'/'embree.dll';outside.parent.mkdir();outside.write_bytes(b'other Embree')
+        path=self.root/'bindings.json'
+        write(path,{'schemaVersion':1,'toolsRoot':str(tools),'embree':pin(inside)})
+        self.assertEqual(bindings(path)['embree'],pin(inside))
+        write(path,{'schemaVersion':1,'toolsRoot':str(tools),'embree':pin(outside)})
+        with self.assertRaisesRegex(ValueError,'Embree DLL must be inside'):
+            bindings(path)
 
 
 class UvBindingTests(Temporary):
@@ -442,15 +459,50 @@ class LoaderResolutionTests(Temporary):
             def get_full_path_or_raise(cls,category,filename):
                 self.assertEqual((category,filename),('diffusion_models',name))
                 return cls.selected
-        with self.assertRaisesRegex(ValueError,'different checkpoint path'):
+        with self.assertRaisesRegex(ValueError,'different model path'):
             verify_loader_models(expected,FolderPaths)
         FolderPaths.selected=bound
-        self.assertEqual(verify_loader_models(expected,FolderPaths),{'verified':True,'count':1})
+        bound_graph=__import__('headkit.comfy_nodes.model_resolution',fromlist=['bind_loader_models']).bind_loader_models(graph,expected)
+        self.assertEqual(verify_loader_models(expected,FolderPaths,bound_graph),{'verified':True,'count':1})
+        with self.assertRaisesRegex(ValueError,'hash-keyed headkit adapter'):
+            verify_loader_models(expected,FolderPaths,graph)
+        tampered=copy.deepcopy(bound_graph);tampered['1']['inputs']['headkit_model_sha256']='0'*64
+        with self.assertRaisesRegex(ValueError,'inputs differ'):
+            verify_loader_models(expected,FolderPaths,tampered)
         shadow.write_bytes(b'modified after resolution')
         FolderPaths.selected=shadow
         expected[0]['pathIdentity']=__import__('headkit.comfy_nodes.model_resolution',fromlist=['path_identity']).path_identity(shadow)
         with self.assertRaisesRegex(ValueError,'bytes differ'):
             verify_loader_models(expected,FolderPaths)
+
+    def test_model_hash_is_bound_into_loader_type_and_cache_signature(self):
+        from headkit.comfy_nodes.model_resolution import loader_models,bind_loader_models,validate_bound_loader_nodes
+        from headkit.comfy_nodes.verified_loaders import verified_loader_mappings
+        name='pixal3d_int8_convrot.safetensors';model=self.root/name;model.write_bytes(b'reviewed model')
+        standard={'1':{'class_type':'UNETLoader','inputs':{'unet_name':name,'weight_dtype':'default'}}}
+        expected=loader_models(standard,{name:pin(model)},{name:pin(model)['sha256']})
+        graph=bind_loader_models(standard,expected);node=graph['1']
+        self.assertEqual(node['class_type'],'HeadkitVerifiedUNETLoaderV1')
+        self.assertTrue(validate_bound_loader_nodes(graph,expected))
+        self.assertEqual(node['inputs']['headkit_model_sha256'],expected[0]['sha256'])
+        class FolderPaths:
+            @classmethod
+            def get_full_path_or_raise(cls,category,filename):return model
+        class CoreLoader:
+            RETURN_TYPES=('MODEL',);FUNCTION='load_unet'
+            @classmethod
+            def INPUT_TYPES(cls):return {'required':{'unet_name':(['model.safetensors'],),'weight_dtype':(['default'],)}}
+            def load_unet(self,unet_name,weight_dtype):return ('loaded',unet_name,weight_dtype)
+        wrapper=verified_loader_mappings({'UNETLoader':CoreLoader},FolderPaths)['HeadkitVerifiedUNETLoaderV1']
+        first=wrapper.IS_CHANGED(expected[0]['sha256'],expected[0]['pathIdentity'])
+        changed=wrapper.IS_CHANGED('0'*64,expected[0]['pathIdentity'])
+        self.assertNotEqual(first,changed)
+        self.assertEqual(wrapper().load_verified(expected[0]['sha256'],expected[0]['pathIdentity'],
+            unet_name=name,weight_dtype='default'),('loaded',name,'default'))
+        model.write_bytes(b'replaced model')
+        with self.assertRaisesRegex(ValueError,'bytes different'):
+            wrapper().load_verified(expected[0]['sha256'],expected[0]['pathIdentity'],
+                unet_name=name,weight_dtype='default')
 
     def test_unrecognized_model_loader_fields_fail_closed(self):
         from headkit.comfy_nodes.model_resolution import loader_models
@@ -467,7 +519,7 @@ class FakeClient:
         return True
     def request(self,route,data=None):
         self.routes.append((route,data))
-        if route=='/object_info':return {'Example':{},'UNETLoader':{}}
+        if route=='/object_info':return {'Example':{},'UNETLoader':{},'HeadkitVerifiedUNETLoaderV1':{}}
         if route=='/headkit/verify-loader-models':
             return self.model_result if self.model_result is not None else {'verified':True,'count':len(data['models'])}
         if route=='/prompt':
@@ -522,9 +574,11 @@ class LedgerTests(Temporary):
         request=self.prepared();model=self.file('pixal3d_int8_convrot.safetensors','reviewed bytes')
         from headkit.comfy_nodes.model_resolution import path_identity
         row=pin(model);request['inputs'].append(row)
-        request['prompt']={'1':{'class_type':'UNETLoader','inputs':{'unet_name':model.name}}}
+        from headkit.comfy_nodes.model_resolution import bind_loader_models
+        standard={'1':{'class_type':'UNETLoader','inputs':{'unet_name':model.name}}}
         request['loaderModels']=[{'category':'diffusion_models','name':model.name,
             'pathIdentity':path_identity(model),'sha256':row['sha256']}]
+        request['prompt']=bind_loader_models(standard,request['loaderModels'])
         client=FakeClient(model_result={'verified':False})
         original_read=comfy.read
         def read_with_test_profile(path):
