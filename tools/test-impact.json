@@ -13,7 +13,8 @@
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
       "tools/headkit/replay.py",
-      "tools/headkit/runner.py"
+      "tools/headkit/runner.py",
+      "tools/headkit/source_inventory.py"
     ],
     "tools/headkit/blender_render.py": [],
     "tools/headkit/cameras.py": [
@@ -21,7 +22,8 @@
     ],
     "tools/headkit/comfy.py": [
       "tools/headkit/common.py",
-      "tools/headkit/gltf.py"
+      "tools/headkit/gltf.py",
+      "tools/headkit/source_inventory.py"
     ],
     "tools/headkit/comfy_nodes/__init__.py": [
       "tools/headkit/comfy_nodes/nodes.py"
@@ -97,12 +99,18 @@
       "tools/headkit/uv.py",
       "tools/phenotypes/launch_shared_tool.py"
     ],
+    "tools/headkit/source_inventory.py": [
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/common.py"
+    ],
     "tools/headkit/test_headkit.py": [
       "tools/headkit/__init__.py",
       "tools/headkit/__main__.py",
       "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/transport.py",
       "tools/headkit/common.py",
+      "tools/headkit/examples/local-bindings.example.json",
       "tools/headkit/examples/processing.json",
       "tools/headkit/field.py",
       "tools/headkit/gltf.py",
@@ -113,6 +121,7 @@
       "tools/headkit/replay.py",
       "tools/headkit/review_images.py",
       "tools/headkit/runner.py",
+      "tools/headkit/source_inventory.py",
       "tools/headkit/textures.py",
       "tools/headkit/uv.py"
     ],

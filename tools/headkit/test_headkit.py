@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
+import sys
 import unittest
 from unittest.mock import patch
 import numpy as np
@@ -27,6 +28,16 @@ class Temporary(unittest.TestCase):
     def tearDown(self):self.directory.cleanup()
     def file(self,name,text='fixture'):
         path=self.root/name;path.write_text(text);return path
+    def inventory(self):
+        from headkit.source_inventory import EXTENSIONS,freeze_sources
+        root=self.root/f'comfy-{len(list(self.root.glob("comfy-*")))}';root.mkdir()
+        for relative in ['main.py','execution.py','nodes.py','server.py','folder_paths.py','comfy/model.py',
+                         'comfy_extras/nodes_trellis2.py','custom_nodes/plugin/flexgemm.py','custom_nodes/plugin/kernel.pyd']:
+            path=root/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('fixture implementation')
+        rows=[pin(p) for p in sorted(root.rglob('*')) if p.is_file() and p.suffix in EXTENSIONS]
+        return freeze_sources({'comfyRoot':str(root),'comfyCustomNodes':str(root/'custom_nodes'),'comfySources':rows})
+    def freeze_request(self,prepared):
+        inventory=self.inventory();prepared['comfySourceInventory']=inventory;prepared['inputs']+=inventory['files'];return prepared
     def pair(self):
         image=Image.new('RGBA',(128,128));ImageDraw.Draw(image).ellipse((20,10,108,118),fill=(180,150,120,255))
         image.save(self.root/'clay.png');image.save(self.root/'detail.png')
@@ -80,11 +91,11 @@ class GeometryApprovalTests(Temporary):
         data={'schemaVersion':1,'id':'geometry-review','inputs':{name:{'path':Path(row['path']).name,'sha256':row['sha256']}
               for name,row in {'detail':pin(self.root/'detail.png'),'geometryRaw':raw,'shape':shape}.items()},
               'camera':{'reviewed':True,'fovDegrees':42},'approval':{'inputReviewComplete':True}}
-        source=pin(self.file('comfy.py'))
-        adapter=self.root/'custom_nodes'/'srn_headkit';adapter.mkdir(parents=True)
+        inventory=self.inventory();core=Path(inventory['core'])
+        adapter=core/'custom_nodes'/'srn_headkit';adapter.mkdir(parents=True)
         for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):(adapter/code.name).write_bytes(code.read_bytes())
         write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root),'comfyInput':str(self.root/'comfy-input'),
-              'comfyCustomNodes':str(adapter.parent),'comfySources':[source]})
+              'comfyRoot':str(core),'comfyCustomNodes':str(adapter.parent),'comfySources':[pin(p) for p in sorted(core.rglob('*')) if p.is_file()]})
         return data
     def request(self,data,stage='appearance'):
         from headkit.__main__ import request_stage
@@ -127,6 +138,75 @@ class GeometryApprovalTests(Temporary):
         self.assertEqual(result['prompt']['1']['inputs']['sha256'],data['inputs']['exportSource']['sha256'])
         (self.root/'raw.glb').write_text('changed after review')
         with self.assertRaisesRegex(ValueError,'Stale file pin'):self.request(data,'export')
+
+
+class RuntimeIdentityTests(Temporary):
+    def fixture(self):
+        toolchain=self.file('toolchain.json');migration=self.file('migration.json')
+        active={'toolsRoot':str(self.root),'tools':{'python':pin(sys.executable)}}
+        local={'schemaVersion':1,'toolsRoot':str(self.root),'toolchain':str(toolchain),'migrationReceipt':str(migration),'python':pin(sys.executable)}
+        return toolchain,migration,active,local
+    def launch(self,local,toolchain,migration,active):
+        from headkit.common import launched
+        write(self.root/'bindings.json',local)
+        with patch.dict('os.environ',{'SRN_SHARED_TOOLCHAIN':str(toolchain),'SRN_SHARED_TOOL_MIGRATION':str(migration)}), \
+             patch.dict(sys.modules,{'shared_toolchain':SimpleNamespace(load=lambda *a,**k:active)}):
+            return launched(self.root/'bindings.json')
+    def test_runtime_identity_matches_and_is_returned(self):
+        toolchain,migration,active,local=self.fixture();identity=self.launch(local,toolchain,migration,active)
+        self.assertEqual(identity,{'toolchain':pin(toolchain),'migrationReceipt':pin(migration),'python':pin(sys.executable),'toolsRoot':str(self.root.resolve())})
+    def test_rejects_different_toolchain_migration_python_or_tools_bank(self):
+        toolchain,migration,active,local=self.fixture()
+        for name,value in [('toolchain',str(self.file('other-toolchain'))),('migrationReceipt',str(self.file('other-migration'))),
+                           ('python',pin(self.file('other-python.exe'))),('toolsRoot',str(self.root/'other-bank'))]:
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(ValueError,'differs|differ'):self.launch(dict(local,**{name:value}),toolchain,migration,active)
+        blender=pin(self.file('blender.exe'));other=pin(self.file('other-blender.exe'));active['runtimes']={'blender':blender}
+        with self.assertRaisesRegex(ValueError,'Blender differs'):self.launch(dict(local,blender=other),toolchain,migration,active)
+        wrong=copy.deepcopy(active);wrong['tools']['python']=pin(self.file('fake-python.exe'))
+        with self.assertRaisesRegex(ValueError,'Executing Python'):self.launch(local,toolchain,migration,wrong)
+    def test_runner_receipt_records_actual_runtime_and_rejects_other_runtime(self):
+        runner=ResumeTests.fixture(self);runner.runtime={'verifiedRuntime':'A'};runner.execute('prepare')
+        receipt=read(runner.state['stages']['prepare']['path']);self.assertEqual(receipt['runtimeIdentity'],runner.runtime)
+        other=Runner(runner.manifest_path,runner.bindings_path,runner.run,runtime={'verifiedRuntime':'B'})
+        with self.assertRaisesRegex(ValueError,'runtime differs'):other.result('prepare',require_review=False)
+
+
+class SourceInventoryTests(Temporary):
+    def test_example_declares_inventory_and_launcher_bindings(self):
+        example=read(Path(__file__).parent/'examples'/'local-bindings.example.json')
+        self.assertTrue({'comfyRoot','comfyDependencyRoots','comfySources','toolchain','migrationReceipt','python'}<=set(example))
+    def test_incomplete_or_unrelated_source_pins_are_rejected(self):
+        from headkit.source_inventory import freeze_sources,verify_sources
+        inventory=self.inventory();local={'comfyRoot':inventory['core'],'comfyCustomNodes':str(Path(inventory['core'])/'custom_nodes'),'comfySources':inventory['files'][:1]}
+        with self.assertRaisesRegex(ValueError,'incomplete'):freeze_sources(local)
+        local['comfySources']=[pin(self.file('unrelated.py'))]
+        with self.assertRaisesRegex(ValueError,'incomplete'):freeze_sources(local)
+        self.assertEqual(verify_sources(inventory),inventory)
+    def test_changed_deleted_and_added_source_files_invalidate_inventory(self):
+        from headkit.source_inventory import verify_sources
+        for change in ('changed','deleted','added'):
+            inventory=self.inventory();root=Path(inventory['core'])
+            if change=='changed':(root/'nodes.py').write_text('modified')
+            elif change=='deleted':(root/'nodes.py').unlink()
+            else:(root/'comfy'/'new_loader.py').write_text('new loader')
+            with self.subTest(change=change):
+                with self.assertRaises(ValueError):verify_sources(inventory)
+    def test_submit_rejects_incomplete_inventory_before_server_contact(self):
+        request=self.freeze_request({'token':'missing-inventory','stage':'geometry','prompt':{},'inputs':[]})
+        request['comfySourceInventory']['files'].pop();client=FakeClient()
+        with patch.object(client,'request') as server:
+            with self.assertRaisesRegex(ValueError,'incomplete'):comfy.submit(client,self.root/'ledger.json',request,self.root/'job')
+            server.assert_not_called()
+    def test_added_source_is_rejected_during_collection_and_on_terminal_reuse(self):
+        for terminal in (False,True):
+            client,ledger,token,output,job,_=CollectionReceiptTests.fixture(self)
+            if terminal:comfy.collect(client,ledger,token,output,job)
+            inventory=read(job/'submission-intent.json')['prepared']['comfySourceInventory']
+            (Path(inventory['core'])/'new_node.py').write_text('new implementation')
+            with self.subTest(terminal=terminal):
+                with self.assertRaisesRegex(ValueError,'membership'):comfy.collect(client,ledger,token,output,job)
+            if not terminal:self.assertEqual(read(job/'collection.json')['state'],'failed-validation')
 
 
 class ImageTests(Temporary):
@@ -319,7 +399,7 @@ class FakeClient:
 
 
 class LedgerTests(Temporary):
-    def prepared(self):return {'token':'token-1','stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]}
+    def prepared(self):return self.freeze_request({'token':'token-1','stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]})
     def test_ambiguous_submission_stays_counted_and_blocks_duplicates(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,74,'Reviewed retained ledger');request=self.prepared();client=FakeClient(True)
         with self.assertRaises(TimeoutError):comfy.submit(client,ledger,request,self.root/'job')
@@ -357,7 +437,7 @@ class CollectionReceiptTests(Temporary):
     def fixture(self):
         base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
         source=base/'input';source.write_text('frozen input');ledger=base/'ledger.json';job=base/'job';output=base/'comfy-output';token='collect-test'
-        prepared={'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(source)]}
+        prepared=self.freeze_request({'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(source)]})
         comfy.initialize_ledger(ledger,0,'Reconciled fixture');client=FakeClient();comfy.submit(client,ledger,prepared,job)
         artifact=output/'headkit'/token/'mesh.glb';artifact.parent.mkdir(parents=True);artifact.write_bytes(b'exported fixture')
         history={'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'mesh.glb','subfolder':'headkit/'+token,'type':'output'}]}}}
@@ -407,7 +487,7 @@ class CollectionReceiptTests(Temporary):
 class ReleaseTests(Temporary):
     def fixture(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reconciled test ledger')
-        request={'token':'release-race','stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]}
+        request=self.freeze_request({'token':'release-race','stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]})
         return ledger,request
     def test_release_holds_submission_lock_through_idle_check_and_free(self):
         ledger,request=self.fixture();submitter=FakeClient();releaser=FakeClient();events=[]
@@ -704,6 +784,31 @@ class ReviewGateTests(Temporary):
         runner.review('prepare','approved','Re-reviewed current receipt');current=runner.state['reviews']['prepare']
         Path(current['path']).write_text('{}')
         with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
+
+
+class RenderPlanTests(Temporary):
+    def camera(self):return {'name':'front','eye':[0,0,2],'target':[0,0,0],'orthoScale':2}
+    def test_empty_camera_and_mode_plans_are_rejected(self):
+        from headkit.review_images import render_plan
+        for config in ({'cameras':[]},{'cameras':[self.camera()],'modes':[]}):
+            with self.subTest(config=config):
+                with self.assertRaisesRegex(ValueError,'nonempty'):render_plan(config)
+    def test_complete_plan_requires_all_unique_frames(self):
+        from headkit.review_images import render_plan,validate_frames
+        config={'cameras':[self.camera()]};expected=render_plan(config);self.assertEqual(len(expected),6)
+        records=[{'size':s,'mode':m,'view':v} for s,m,v in expected];validate_frames(config,records)
+        for bad in ([],records[:-1],records[:-1]+[records[0]]):
+            with self.subTest(count=len(bad)):
+                with self.assertRaisesRegex(ValueError,'frames'):validate_frames(config,bad)
+    def test_runner_rejects_empty_plan_before_atlas_or_blender_work(self):
+        path=self.file('uv.glb');data={'schemaVersion':1,'id':'empty-render','inputs':{'uvMesh':{'path':path.name,'sha256':pin(path)['sha256']}},
+            'render':{'cameras':[],'mapInputs':{}}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root)})
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+        with patch('headkit.review_images.atlas_sets') as atlases,patch('subprocess.run') as blender:
+            with self.assertRaisesRegex(ValueError,'nonempty'):runner._execute('render',runner.run)
+            atlases.assert_not_called();blender.assert_not_called()
+        self.assertFalse((runner.run/'renders').exists())
 
 
 class ReviewImageTests(Temporary):

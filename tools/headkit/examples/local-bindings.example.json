@@ -54,7 +54,7 @@
   "comfyCustomNodes": "<absolute instance custom_nodes folder>",
   "comfySources": [
     {
-      "path": "<actual executing nodes_trellis2.py, flexgemm.py, model.py and extension files; list each>",
+      "path": "<every implementation/config/native file under comfyRoot and dependency roots; exact inventory required>",
       "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
     }
   ],
@@ -83,5 +83,9 @@
       "path": "<actual executing model root>/moge_2_vitl_normal_fp16.safetensors",
       "sha256": "cb1a692d03235671e959e81360d7b4d9f44aefadb1f852d6ca6aa17799d5e31f"
     }
-  }
+  },
+  "comfyRoot": "<absolute executing ComfyUI source root>",
+  "comfyDependencyRoots": [
+    "<absolute external Pixal/FlexGEMM implementation root, if outside comfyRoot>"
+  ]
 }

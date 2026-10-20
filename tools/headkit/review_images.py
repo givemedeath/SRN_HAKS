@@ -1,6 +1,8 @@
 """CPU-only atlas derivatives and labeled review sheets for actual rendered images."""
 from pathlib import Path
 import time
+import math
+import re
 from .common import require, pin, verify
 
 
@@ -13,6 +15,32 @@ def resolutions(config):
     sizes=config.get('sizes',[2048,1024])
     require(sizes==[2048,1024], 'Production review requires sizes [2048, 1024]')
     return sizes
+
+
+def render_plan(config):
+    cameras=config.get('cameras');modes=config.get('modes',['clay','color-only','material-lit'])
+    require(isinstance(cameras,list) and cameras,'Render cameras must be a nonempty list')
+    require(isinstance(modes,list) and modes and all(x in ('clay','color-only','material-lit') for x in modes)
+            and len(set(modes))==len(modes),'Render modes must be nonempty, known and unique')
+    names=[]
+    for view in cameras:
+        require(isinstance(view,dict) and re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_-]*',view.get('name','')) is not None,
+                'Safe camera name required')
+        for field in ('eye','target'):
+            require(isinstance(view.get(field),list) and len(view[field])==3 and all(type(x) in (int,float) and math.isfinite(x) for x in view[field]),
+                    'Finite camera eye and target required')
+        require(view['eye']!=view['target'] and type(view.get('orthoScale')) in (int,float)
+                and math.isfinite(view['orthoScale']) and view['orthoScale']>0,'Valid camera scale and direction required')
+        names.append(view['name'])
+    require(len(set(names))==len(names),'Unique camera names required')
+    return {(size,mode,name) for size in resolutions(config) for mode in modes for name in names}
+
+
+def validate_frames(config,records):
+    expected=render_plan(config)
+    require(isinstance(records,list) and len(records)==len(expected)
+            and {(row['size'],row['mode'],row['view']) for row in records}==expected,
+            'Rendered frames do not cover the nonempty inspection plan')
 
 
 def atlas_sets(config, output, sizes):

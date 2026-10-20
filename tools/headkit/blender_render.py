@@ -11,8 +11,9 @@ def main():
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);cfg=json.loads(args.config.read_text())
     sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
     from tools.headkit.gltf import mesh
-    from tools.headkit.review_images import resolutions
+    from tools.headkit.review_images import resolutions,render_plan,validate_frames
     from tools.headkit.common import verify,pin,write,require
+    render_plan(cfg)
     verify(cfg['inputs']);value=mesh(cfg['mesh']);out=Path(cfg['output'])
     sizes=resolutions(cfg)
     require('size' in cfg or cfg.get('textureSets'),'Prepare production atlases through the headkit render stage')
@@ -56,6 +57,7 @@ def main():
                 camera.rotation_euler=(Vector(target)-camera.location).to_track_quat('-Z','Y').to_euler();camera_data.ortho_scale=view['orthoScale']
                 scene.render.filepath=str(out/str(size)/mode/(view['name']+'.png'));begun=time.monotonic();bpy.ops.render.render(write_still=True)
                 records.append({'size':size,'mode':mode,'view':view['name'],'seconds':time.monotonic()-begun,'image':pin(scene.render.filepath)})
+    validate_frames(cfg,records)
     verify(cfg['inputs']);write(out/'renders.json',{'threads':4,'gpuUsed':False,'elapsedSeconds':time.monotonic()-start,
         'views':records,'atlases':cfg.get('atlases',[]),'sizes':sizes,'triangles':len(faces),'aoAdded':False,'visualApprovalRequired':True},fresh=True)
 

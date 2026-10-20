@@ -10,6 +10,7 @@ import urllib.error
 from urllib.parse import urlparse
 import uuid
 from .common import read, write, require, pin, verify, digest
+from .source_inventory import request_sources,verify_sources
 
 TEMPLATES = Path(__file__).parent / 'templates'
 
@@ -88,7 +89,7 @@ def initialize_ledger(path, count, evidence):
 
 def submit(client, ledger, prepared, output):
     """An uncertain POST stays counted and blocks subsequent dispatch until reconciled."""
-    verify(prepared['inputs'])
+    verify(prepared['inputs']);request_sources(prepared)
     graph = prepared['prompt']; info = client.request('/object_info')
     require(all(n['class_type'] in info for n in graph.values()), 'Install/restart missing nodes before dispatch')
     with locked(ledger):
@@ -97,6 +98,7 @@ def submit(client, ledger, prepared, output):
         require(client.idle(), 'Shared queue is busy; leave its jobs untouched')
         count = state['priorGenerationAttempts'] + sum(j['stage']=='geometry' for j in state['jobs'])
         require(prepared['stage'] != 'geometry' or count < 100, '100 generation attempts reached')
+        request_sources(prepared)
         token = prepared['token']
         require(not any(j['token']==token for j in state['jobs']), 'This prepared request was already submitted')
         job = {'token':token,'state':'intent','stage':prepared['stage'],'requestSha256':digest(prepared),'started':time.time()}
@@ -142,6 +144,7 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
             require(result['state']==job['state'] and result['promptId']==job['promptId'] and result['token']==token,
                     'Collection receipt does not match its job')
             verify([result['history'],result['memorySamples'],*result.get('inputs',[]),*result.get('outputs',[])])
+            if result['state']!='failed-validation':verify_sources(result.get('comfySourceInventory'))
             return result
         require(job['state'] in ('submitted','timed-out'),
                 'Terminal job has no pinned collection; preserve its historical evidence')
@@ -166,7 +169,7 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
     try:
         intent=read(output/'submission-intent.json')
         require(intent['job']['token']==token and digest(intent['prepared'])==job['requestSha256'],'Submission receipt mismatch')
-        verify(intent['prepared']['inputs'])
+        verify(intent['prepared']['inputs']);request_sources(intent['prepared'])
         success=found.get('status',{}).get('status_str')=='success'
         pins=[]
         if success:
@@ -200,7 +203,7 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
     verify(intent['prepared']['inputs']);verify(pins)
     result={'state':'complete' if success else 'failed','token':token,'promptId':job['promptId'],'outputs':pins,
             'inputs':[pin(output/'submission-intent.json'),*intent['prepared']['inputs']],'history':pin(output/'history.json'),
-            'elapsedSinceSubmissionSeconds':time.time()-job['started'],'memorySamples':pin(output/'memory-samples.json')}
+            'elapsedSinceSubmissionSeconds':time.time()-job['started'],'memorySamples':pin(output/'memory-samples.json'),'comfySourceInventory':intent['prepared']['comfySourceInventory']}
     return _record_collection(ledger,token,output,result)
 
 

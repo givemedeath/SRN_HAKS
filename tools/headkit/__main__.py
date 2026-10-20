@@ -7,7 +7,7 @@ from .common import read,write,pin,verify,require,manifest,bindings,asset,source
 from . import comfy
 
 
-def request_stage(manifest_path, bindings_path, stage, output):
+def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
     data=manifest(manifest_path);local=bindings(bindings_path)
     require(data.get('approval',{}).get('inputReviewComplete') is True,'Review measured input overlays and feature inventory before GPU preparation')
     profile=data.get('profile','pixal-single-v1');camera=data.get('camera',{})
@@ -45,8 +45,9 @@ def request_stage(manifest_path, bindings_path, stage, output):
     pins += [p for p in (shape,export_source) if p]
     if expected_mesh:pins.append(expected_mesh)
     graph=comfy.compile_graph(stage,profile,images,'headkit/'+token,fov=camera.get('fovDegrees'),shape=shape,source=export_source)
-    require(local.get('comfySources'),'Pin the installed Comfy execution sources before GPU preparation')
-    verify(local['comfySources']);pins+=local['comfySources']
+    from .source_inventory import freeze_sources
+    inventory=freeze_sources(local)
+    pins+=inventory['files']
     adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
     for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):
         installed=adapter/code.name;require(pin(installed)['sha256']==pin(code)['sha256'],'Installed headkit nodes differ; install current adapters and restart ComfyUI')
@@ -60,7 +61,7 @@ def request_stage(manifest_path, bindings_path, stage, output):
                 require(row['sha256']==read(Path(__file__).parent/'checkpoints.json')[name],'Checkpoint differs from frozen reviewed profile')
                 verify([row]);pins.append(row)
     result={'stage':stage,'profile':profile,'token':token,'prompt':graph,'inputs':pins,'codeVersion':source_version(),
-            'timeoutSeconds':2700,'generationCeiling':100,'expectedGeometry':expected_mesh}
+            'timeoutSeconds':2700,'generationCeiling':100,'expectedGeometry':expected_mesh,'comfySourceInventory':inventory,'runtimeIdentity':runtime}
     write(output,result,fresh=True);return result
 
 
@@ -84,13 +85,13 @@ def main():
     p=sub.add_parser('inputs');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--run',type=Path)
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path)
     a=parser.parse_args()
-    if a.command not in ('status','inputs'):launched()
+    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs') else None
     if a.command in ('prepare','run','resume','status','review'):
         from .runner import Runner
         if a.command=='status':result=Runner(a.manifest,a.bindings,a.run).status()
         else:
             with comfy.locked(a.run/'runner'):
-                runner=Runner(a.manifest,a.bindings,a.run)
+                runner=Runner(a.manifest,a.bindings,a.run,runtime=runtime)
                 result=runner.review(a.stage,a.decision,a.notes) if a.command=='review' else runner.execute('prepare' if a.command=='prepare' else a.stage)
     elif a.command=='inputs':
         data=manifest(a.manifest);local=bindings(a.bindings)
@@ -109,7 +110,7 @@ def main():
             for row in state['stages'].values():
                 pins.append(row);pins+=read(row['path'])['inputs']+read(row['path'])['outputs']
         verify(pins);paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}
-    elif a.command=='request':result=request_stage(a.manifest,a.bindings,a.stage,a.output)
+    elif a.command=='request':result=request_stage(a.manifest,a.bindings,a.stage,a.output,runtime=runtime)
     elif a.command=='ledger-init':comfy.initialize_ledger(a.ledger,a.prior_count,a.evidence);result={'ledger':str(a.ledger)}
     elif a.command=='replay':
         from .replay import replay

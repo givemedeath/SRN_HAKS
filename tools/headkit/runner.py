@@ -12,9 +12,9 @@ STAGES=('prepare','precluster','repair','unwrap','bake','ownership','tone','pale
 
 
 class Runner:
-    def __init__(self, manifest_path, bindings_path, run):
+    def __init__(self, manifest_path, bindings_path, run, *, runtime=None):
         self.manifest_path=Path(manifest_path).resolve();self.bindings_path=Path(bindings_path).resolve()
-        self.data=manifest(self.manifest_path);self.bindings=bindings(self.bindings_path)
+        self.data=manifest(self.manifest_path);self.bindings=bindings(self.bindings_path);self.runtime=runtime
         self.run=Path(run).resolve();self.run.mkdir(parents=True,exist_ok=True)
         self.state_path=self.run/'state.json'
         self.state=read(self.state_path) if self.state_path.exists() else {'schemaVersion':1,'id':self.data['id'],'stages':{}}
@@ -47,6 +47,7 @@ class Runner:
         require(receipt['codeVersion']==_checked['codeVersion'] and receipt['manifestHash']==digest(self.data)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
         require(receipt['state']=='complete','Failed stage: '+stage)
+        if self.runtime is not None:require(receipt.get('runtimeIdentity')==self.runtime,'Stage runtime differs from active launcher')
         for dependency,expected in receipt.get('dependencies',{}).items():
             require(self.state['stages'].get(dependency)==expected,'Changed dependency; rerun stage: '+stage)
             self.result(dependency,_checked=_checked)
@@ -103,7 +104,7 @@ class Runner:
             inputs.append(self.state['reviews'][dependency])
         folder=parent/f'attempt-{len(list(parent.glob("attempt-*")))+1:02d}';folder.mkdir()
         begun=time.monotonic();receipt={'stage':stage,'manifestHash':digest(self.data),'bindingsHash':digest(self.bindings),
-            'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins}
+            'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
         write(folder/'intent.json',receipt,fresh=True)
         try:
             result=self._execute(stage,folder);digest(result);verify(inputs)
@@ -207,7 +208,7 @@ class Runner:
         if stage=='render':
             import subprocess,sys
             from .common import ROOT
-            from .review_images import resolutions,atlas_sets,sheets
+            from .review_images import resolutions,atlas_sets,sheets,render_plan,validate_frames
             begun=time.monotonic()
             source=self.source('uvMesh','unwrap','mesh');cfg=dict(m['render'])
             if 'cameras' not in cfg:
@@ -215,6 +216,7 @@ class Runner:
                 from .gltf import mesh
                 cfg['cameras']=review_cameras(mesh(source)['positions'],cfg['frontAngleDegrees'])
             cfg.update(mesh=source,output=str(folder/'renders'),maps={name:self.input(role) for name,role in cfg['mapInputs'].items()})
+            render_plan(cfg)
             texture_sets,atlases=atlas_sets(cfg,folder/'renders',resolutions(cfg))
             cfg.update(textureSets={str(size):maps for size,maps in texture_sets.items()},atlases=atlases)
             cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()],*[row['image'] for row in atlases]]
@@ -225,7 +227,7 @@ class Runner:
             command+=['--','--python',str(Path(__file__).parent/'blender_render.py'),'--','--config',str(folder/'render-config.json')]
             execution=subprocess.run(command,capture_output=True,text=True,timeout=1800,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
             (folder/'blender.log').write_text(execution.stdout+'\n'+execution.stderr);require(execution.returncode==0,'CPU render failed; inspect log')
-            result=read(folder/'renders'/'renders.json')
+            result=read(folder/'renders'/'renders.json');validate_frames(cfg,result['views'])
             result.update(sheets(result['views'],folder/'renders',result['triangles']),elapsedWithEvidenceSeconds=time.monotonic()-begun)
             write(folder/'renders'/'renders.json',result);return result
         raise ValueError('Stage not implemented')

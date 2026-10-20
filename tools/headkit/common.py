@@ -126,13 +126,32 @@ def bindings(path):
     return data
 
 
-def launched():
-    """Numerical/external work uses the maintained shared launcher and fresh migration."""
+def launched(bindings_path=None):
+    """Identify the actual launcher and reject separately recorded runtime bindings."""
     require(os.environ.get('SRN_SHARED_TOOLCHAIN') and os.environ.get('SRN_SHARED_TOOL_MIGRATION'),
             'Run processing through tools/phenotypes/launch_shared_tool.py with a fresh migration receipt')
     sys.path.insert(0, str(ROOT / 'tools/phenotypes'))
     from shared_toolchain import load
-    load(Path(os.environ['SRN_SHARED_TOOLCHAIN']), Path(os.environ['SRN_SHARED_TOOL_MIGRATION']), required=['python'])
+    toolchain=Path(os.environ['SRN_SHARED_TOOLCHAIN']).resolve()
+    migration=Path(os.environ['SRN_SHARED_TOOL_MIGRATION']).resolve()
+    active=load(toolchain,migration,required=['python'])
+    python=active['tools']['python']
+    require(Path(sys.executable).resolve()==Path(python['path']).resolve() and pin(sys.executable)['sha256']==python['sha256'],
+            'Executing Python differs from the verified launcher runtime')
+    identity={'toolchain':pin(toolchain),'migrationReceipt':pin(migration),'python':pin(sys.executable),
+              'toolsRoot':str(Path(active['toolsRoot']).resolve())}
+    if bindings_path is not None:
+        local=bindings(bindings_path)
+        for name in ('toolchain','migrationReceipt'):
+            require(name in local and pin(local[name])==identity[name], 'Local bindings differ from active launcher: '+name)
+        require(local.get('python') and Path(local['python']['path']).resolve()==Path(identity['python']['path'])
+                and local['python']['sha256']==identity['python']['sha256'], 'Local Python differs from active launcher')
+        require(str(Path(local['toolsRoot']).resolve())==identity['toolsRoot'], 'Local tools bank differs from active launcher')
+        if 'blender' in local:
+            selected=active.get('runtimes',active['tools']).get('blender')
+            require(selected and Path(selected['path']).resolve()==Path(local['blender']['path']).resolve()
+                    and selected['sha256']==local['blender']['sha256'],'Local Blender differs from active toolchain')
+    return identity
 
 
 def code_pins():
