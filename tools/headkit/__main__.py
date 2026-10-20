@@ -47,6 +47,8 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
     pins += [p for p in (shape,export_source) if p]
     if expected_mesh:pins.append(expected_mesh)
     graph=comfy.compile_graph(stage,profile,images,'headkit/'+token,fov=camera.get('fovDegrees'),shape=shape,source=export_source)
+    from .comfy_nodes.model_resolution import loader_models
+    models=loader_models(graph,local.get('models',{}),read(Path(__file__).parent/'checkpoints.json'))
     from .source_inventory import freeze_sources
     inventory=freeze_sources(local)
     pins+=inventory['files']
@@ -54,17 +56,14 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
     for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):
         installed=adapter/code.name;require(pin(installed)['sha256']==pin(code)['sha256'],'Installed headkit nodes differ; install current adapters and restart ComfyUI')
         pins.append(pin(installed))
-    # Bind the actual checkpoint bytes selected by each loader, not merely their menu names.
-    for node in graph.values():
-        for key in ('unet_name','clip_name','vae_name','model_name'):
-            if key in node['inputs']:
-                name=node['inputs'][key];row=local.get('models',{}).get(name);require(row is not None,'Missing checkpoint byte binding: '+name)
-                require(Path(row['path']).name==name,'Model binding filename differs from loader choice')
-                require(row['sha256']==read(Path(__file__).parent/'checkpoints.json')[name],'Checkpoint differs from frozen reviewed profile')
-                verify([row]);pins.append(row)
+    # Pin each model's filename, Comfy folder category, resolved path identity and bytes.
+    for model in models:
+        row=local['models'][model['name']]
+        if row not in pins:pins.append(row)
     result={'stage':stage,'profile':profile,'token':token,'prompt':graph,'inputs':pins,'codeVersion':source_version(),
             'timeoutSeconds':2700,'generationCeiling':100,'expectedGeometry':expected_mesh,'comfySourceInventory':inventory,
-            'runtimeIdentity':runtime,'bindings':binding_pin,'comfyEndpoint':comfy.Client(local['comfyUrl']).url}
+            'runtimeIdentity':runtime,'bindings':binding_pin,'comfyEndpoint':comfy.Client(local['comfyUrl']).url,
+            'loaderModels':models}
     write(output,result,fresh=True);return result
 
 

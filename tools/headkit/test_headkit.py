@@ -146,6 +146,24 @@ class GeometryApprovalTests(Temporary):
         for name in ('toolchain','migrationReceipt','python'):self.assertIn(result['runtimeIdentity'][name],result['inputs'])
         self.assertEqual(read(self.root/'request.json'),result)
 
+    def test_request_pins_comfy_loader_category_resolved_path_and_bytes(self):
+        data=self.fixture();data['approval']['generatedGeometry']=self.approval(data)
+        write(self.root/'manifest.json',data)
+        name='pixal3d_int8_convrot.safetensors';model=self.root/name;model.write_bytes(b'reviewed checkpoint')
+        local=read(self.root/'bindings.json');local['models']={name:pin(model)};write(self.root/'bindings.json',local)
+        graph={'319':{'class_type':'UNETLoader','inputs':{'unet_name':name}}}
+        original_read=__import__('headkit.__main__',fromlist=['read']).read
+        def read_with_fixture_profile(path):
+            if Path(path).name=='checkpoints.json':return {name:pin(model)['sha256']}
+            return original_read(path)
+        with patch('headkit.__main__.comfy.compile_graph',return_value=graph), patch('headkit.__main__.read',side_effect=read_with_fixture_profile):
+            from headkit.__main__ import request_stage
+            result=request_stage(self.root/'manifest.json',self.root/'bindings.json','appearance',self.root/'request.json',runtime=self.runtime_identity())
+        self.assertEqual(result['loaderModels'],[{'category':'diffusion_models','name':name,
+            'pathIdentity':__import__('headkit.comfy_nodes.model_resolution',fromlist=['path_identity']).path_identity(model),
+            'sha256':pin(model)['sha256']}])
+        self.assertIn(pin(model),result['inputs'])
+
 
     def test_export_requires_review_bound_to_exact_source_before_staging(self):
         data=self.fixture();data['inputs']['exportSource']=data['inputs']['geometryRaw']
@@ -410,13 +428,48 @@ class CheckpointTests(Temporary):
         with self.assertRaises(ValueError):self.transport().validate(arrays,{'coord_resolution':32,'type':'trellis2','model_frame':'y_up'})
 
 
+class LoaderResolutionTests(Temporary):
+    def test_comfy_folder_resolver_must_select_the_bound_path_and_bytes(self):
+        from headkit.comfy_nodes.model_resolution import loader_models,verify_loader_models
+        name='pixal3d_int8_convrot.safetensors'
+        bound=self.root/'reviewed'/name;bound.parent.mkdir();bound.write_bytes(b'reviewed model')
+        shadow=self.root/'shadow'/name;shadow.parent.mkdir();shadow.write_bytes(b'different model')
+        graph={'1':{'class_type':'UNETLoader','inputs':{'unet_name':name}}}
+        expected=loader_models(graph,{name:pin(bound)},{name:pin(bound)['sha256']})
+        class FolderPaths:
+            selected=shadow
+            @classmethod
+            def get_full_path_or_raise(cls,category,filename):
+                self.assertEqual((category,filename),('diffusion_models',name))
+                return cls.selected
+        with self.assertRaisesRegex(ValueError,'different checkpoint path'):
+            verify_loader_models(expected,FolderPaths)
+        FolderPaths.selected=bound
+        self.assertEqual(verify_loader_models(expected,FolderPaths),{'verified':True,'count':1})
+        shadow.write_bytes(b'modified after resolution')
+        FolderPaths.selected=shadow
+        expected[0]['pathIdentity']=__import__('headkit.comfy_nodes.model_resolution',fromlist=['path_identity']).path_identity(shadow)
+        with self.assertRaisesRegex(ValueError,'bytes differ'):
+            verify_loader_models(expected,FolderPaths)
+
+    def test_unrecognized_model_loader_fields_fail_closed(self):
+        from headkit.comfy_nodes.model_resolution import loader_models
+        graph={'1':{'class_type':'CustomLoader','inputs':{'model_name':'unlisted.safetensors'}}}
+        with self.assertRaisesRegex(ValueError,'Unsupported Comfy model loader field'):
+            loader_models(graph,{}, {})
+
+
 class FakeClient:
-    def __init__(self,fail=False,on_idle=None):self.fail=fail;self.posts=0;self.url='http://127.0.0.1:8188';self.on_idle=on_idle
+    def __init__(self,fail=False,on_idle=None,model_result=None):
+        self.fail=fail;self.posts=0;self.url='http://127.0.0.1:8188';self.on_idle=on_idle;self.model_result=model_result;self.routes=[]
     def idle(self):
         if self.on_idle:self.on_idle()
         return True
     def request(self,route,data=None):
-        if route=='/object_info':return {'Example':{}}
+        self.routes.append((route,data))
+        if route=='/object_info':return {'Example':{},'UNETLoader':{}}
+        if route=='/headkit/verify-loader-models':
+            return self.model_result if self.model_result is not None else {'verified':True,'count':len(data['models'])}
         if route=='/prompt':
             self.posts+=1
             if self.fail:raise TimeoutError('lost acknowledgement')
@@ -464,6 +517,39 @@ class LedgerTests(Temporary):
         next_request=self.prepared('token-after-preflight');next_client=FakeClient()
         self.submit(next_client,ledger,next_request,self.root/'valid-dispatch')
         self.assertEqual(next_client.posts,1);self.assertEqual(read(ledger)['jobs'][-1]['state'],'submitted')
+    def test_loader_resolved_checkpoint_mismatch_is_preflight_rejected(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed count')
+        request=self.prepared();model=self.file('pixal3d_int8_convrot.safetensors','reviewed bytes')
+        from headkit.comfy_nodes.model_resolution import path_identity
+        row=pin(model);request['inputs'].append(row)
+        request['prompt']={'1':{'class_type':'UNETLoader','inputs':{'unet_name':model.name}}}
+        request['loaderModels']=[{'category':'diffusion_models','name':model.name,
+            'pathIdentity':path_identity(model),'sha256':row['sha256']}]
+        client=FakeClient(model_result={'verified':False})
+        original_read=comfy.read
+        def read_with_test_profile(path):
+            return {model.name:row['sha256']} if Path(path).name=='checkpoints.json' else original_read(path)
+        with patch('headkit.comfy.read',side_effect=read_with_test_profile):
+            with self.assertRaisesRegex(ValueError,'resolved checkpoint paths or bytes'):
+                self.submit(client,ledger,request,self.root/'preflight')
+        state=read(ledger);self.assertEqual(state['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+        self.assertEqual(state['priorGenerationAttempts']+sum(j['stage']=='geometry' and j['state']!='preflight-rejected' for j in state['jobs']),0)
+        self.assertIn('/headkit/verify-loader-models',[route for route,_ in client.routes])
+    def test_model_loader_cannot_be_omitted_or_given_unrelated_pins(self):
+        for variant in ('omitted','unrelated'):
+            with self.subTest(variant=variant):
+                ledger=self.root/(variant+'.json');comfy.initialize_ledger(ledger,0,'Reviewed count')
+                request=self.prepared('token-'+variant)
+                request['prompt']={'1':{'class_type':'UNETLoader','inputs':{'unet_name':'expected.safetensors'}}}
+                if variant=='unrelated':
+                    request['loaderModels']=[{'category':'diffusion_models','name':'other.safetensors',
+                        'pathIdentity':'a'*64,'sha256':'b'*64}]
+                client=FakeClient()
+                with self.assertRaisesRegex(ValueError,'do not exactly match graph loaders'):
+                    self.submit(client,ledger,request,self.root/variant)
+                self.assertEqual(client.posts,0)
+                self.assertNotIn('/headkit/verify-loader-models',[route for route,_ in client.routes])
     def test_live_lock_is_exclusive_and_terminated_owner_is_recoverable(self):
         ledger=self.root/'ledger.json';marker=self.root/'locked';env=os.environ.copy()
         tools_root=str(Path(__file__).resolve().parents[1]);env['PYTHONPATH']=tools_root+os.pathsep+env.get('PYTHONPATH','')

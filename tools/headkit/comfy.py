@@ -152,6 +152,36 @@ def validate_dispatch_context(client, prepared, runtime_identity, bindings_path)
             'Active ComfyUI endpoint differs from the prepared request; prepare again')
 
 
+def verify_loader_models(client, prepared):
+    models=prepared.get('loaderModels',[])
+    require(isinstance(models,list),'Prepared Comfy loader model pins are invalid')
+    from .comfy_nodes.model_resolution import model_choices,path_identity
+    choices=model_choices(prepared.get('prompt'))
+    require(all(isinstance(item,dict) and set(item)=={'category','name','pathIdentity','sha256'} for item in models),
+            'Prepared Comfy loader model pins are malformed')
+    require([(item['category'],item['name']) for item in models]==choices,
+            'Prepared Comfy loader model pins do not exactly match graph loaders')
+    if not models:return
+    checkpoints=read(Path(__file__).parent/'checkpoints.json')
+    inputs=prepared.get('inputs',[])
+    for item in models:
+        require(item['sha256']==checkpoints.get(item['name']),
+                'Prepared Comfy loader pin differs from the frozen reviewed checkpoint profile')
+        matching=[]
+        for row in inputs:
+            if not isinstance(row,dict) or row.get('sha256')!=item['sha256']:
+                continue
+            try:
+                if path_identity(row['path'])==item['pathIdentity']:matching.append(row)
+            except (KeyError,OSError,RuntimeError):
+                continue
+        require(len(matching)==1,'Prepared Comfy loader pin is missing its exact verified input file')
+        verify(matching)
+    result=client.request('/headkit/verify-loader-models',{'models':models})
+    require(result=={'verified':True,'count':len(models)},
+            'ComfyUI loader resolved checkpoint paths or bytes different from the reviewed pins; install/restart the current adapter and prepare again')
+
+
 def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_path=None):
     """An uncertain POST stays counted and blocks subsequent dispatch until reconciled."""
     require(bindings_path is not None, 'Prepared bindings are required for dispatch')
@@ -172,7 +202,7 @@ def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_
         state['jobs'].append(job); write(ledger,state)
         write(Path(output)/'submission-intent.json', {'prepared':prepared,'job':job}, fresh=True)
         try:
-            verify(prepared['inputs']);request_sources(prepared)
+            verify(prepared['inputs']);request_sources(prepared);verify_loader_models(client,prepared)
         except Exception as exc:
             job.update(state='preflight-rejected',preflightError=str(exc))
             write(ledger,state)
