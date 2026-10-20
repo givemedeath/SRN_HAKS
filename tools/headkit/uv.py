@@ -194,4 +194,3 @@ def unwrap(mesh,binding,policy=None):
                    'effectivePadding2K':[chosen_padding*2048/atlas.width,chosen_padding*2048/atlas.height],
                    'effectivePadding1024':[chosen_padding*1024/atlas.width,chosen_padding*1024/atlas.height],
                    'visualReview':'required'}
-
