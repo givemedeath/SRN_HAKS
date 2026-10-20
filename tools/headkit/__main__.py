@@ -70,7 +70,7 @@ def main():
     p=sub.add_parser('ledger-init');p.add_argument('--ledger',required=True,type=Path);p.add_argument('--prior-count',required=True,type=int);p.add_argument('--evidence',required=True)
     for name in ('submit','collect','reconcile','release'):
         p=sub.add_parser(name);p.add_argument('--bindings',required=True,type=Path)
-        if name!='release':p.add_argument('--ledger',required=True,type=Path)
+        p.add_argument('--ledger',required=True,type=Path)
         if name in ('collect','reconcile'):p.add_argument('--token',required=True)
         if name in ('submit','collect'):p.add_argument('--output',required=True,type=Path)
         if name=='submit':p.add_argument('--request',required=True,type=Path)
@@ -115,7 +115,7 @@ def main():
         result={'installed':str(a.destination),'restartRequired':True,'comfyRestarted':False}
     else:
         local=bindings(a.bindings);client=comfy.Client(local['comfyUrl'])
-        if a.command=='release':result=comfy.release(client)
+        if a.command=='release':result=comfy.release(client,a.ledger)
         elif a.command=='submit':
             prepared=read(a.request);require(prepared['codeVersion']==source_version(),'Stale compiled request; prepare again')
             result=comfy.submit(client,a.ledger,prepared,a.output)

@@ -1,5 +1,6 @@
 """Synthetic regressions for reusable input, dispatch, mesh, palette and resume contracts."""
 import copy
+from contextlib import ExitStack
 import importlib.util
 import json
 from pathlib import Path
@@ -253,6 +254,96 @@ class LedgerTests(Temporary):
             return {'prompt-1':{'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'escape.glb','subfolder':'other-run','type':'output'}]}}}}
         client.request=reply
         with self.assertRaisesRegex(ValueError,'outside'):comfy.collect(client,ledger,request['token'],self.root/'comfy-output',self.root/'job')
+
+
+class ReleaseTests(Temporary):
+    def fixture(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reconciled test ledger')
+        request={'token':'release-race','stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]}
+        return ledger,request
+    def test_release_holds_submission_lock_through_idle_check_and_free(self):
+        ledger,request=self.fixture();submitter=FakeClient();releaser=FakeClient();events=[]
+        def blocked_submit():
+            with self.assertRaises(FileExistsError):comfy.submit(submitter,ledger,request,self.root/'job')
+            self.assertEqual(submitter.posts,0)
+        def idle():events.append('idle');blocked_submit();return True
+        def free(route,data=None):
+            self.assertEqual(route,'/free');self.assertEqual(data,{'unload_models':True,'free_memory':True})
+            events.append('free');blocked_submit();return {'freed':True}
+        releaser.idle=idle;releaser.request=free
+        self.assertEqual(comfy.release(releaser,ledger),{'freed':True});self.assertEqual(events,['idle','free'])
+        self.assertFalse(Path(str(ledger)+'.lock').exists())
+        comfy.submit(submitter,ledger,request,self.root/'job');self.assertEqual(submitter.posts,1)
+    def test_submission_holds_same_lock_against_release(self):
+        ledger,request=self.fixture();submitter=FakeClient();releaser=FakeClient()
+        with patch.object(releaser,'request') as free:
+            def idle():
+                with self.assertRaises(FileExistsError):comfy.release(releaser,ledger)
+                return True
+            submitter.idle=idle;comfy.submit(submitter,ledger,request,self.root/'job');free.assert_not_called()
+    def test_busy_queue_or_unreconciled_jobs_never_free_models(self):
+        ledger,_=self.fixture();client=FakeClient()
+        with patch.object(client,'request') as free:
+            for state in ('intent','submitted','timed-out'):
+                write(ledger,dict(read(ledger),jobs=[{'state':state}]))
+                with self.assertRaisesRegex(ValueError,'Reconcile'):comfy.release(client,ledger)
+            write(ledger,dict(read(ledger),jobs=[]))
+            with patch.object(client,'idle',return_value=False):
+                with self.assertRaisesRegex(ValueError,'not idle'):comfy.release(client,ledger)
+            free.assert_not_called()
+    def test_failed_release_drops_only_its_own_lock(self):
+        ledger,_=self.fixture();client=FakeClient()
+        with patch.object(client,'idle',side_effect=OSError('offline')):
+            with self.assertRaises(OSError):comfy.release(client,ledger)
+        self.assertFalse(Path(str(ledger)+'.lock').exists());self.assertEqual(comfy.release(client,ledger),{})
+
+
+class ReplayPinTests(Temporary):
+    def fixture(self):
+        paths={name:str(self.file(name+'.dat',name)) for name in ('source','shades','layers','binary','expectedPlt')}
+        return dict(paths,id='retained',model='pfg0_head092',fit={},inputs=[pin(p) for p in paths.values()])
+    def replay(self,config,output,changed=None):
+        from headkit.replay import replay
+        def prepare(source,shades,layers,fit,model,folder):
+            folder.mkdir();plt=folder/'head.plt';plt.write_bytes(Path(config['expectedPlt']).read_bytes())
+            expected=folder/'expected.npz';expected.write_bytes(b'fixture');return {'plt':pin(plt),'expected':pin(expected)}
+        def native(*args):
+            if changed:Path(config[changed]).write_text('changed during processing')
+            return b'sanitized-native',{'verified':True}
+        with ExitStack() as stack:
+            mesh=stack.enter_context(patch('headkit.replay.mesh',return_value={'positions':[], 'faces':[]}))
+            stack.enter_context(patch('headkit.replay.topology',return_value={'triangles':20000,'closed':True}))
+            stack.enter_context(patch('headkit.replay.prepare',side_effect=prepare))
+            stack.enter_context(patch('headkit.replay.audit_native',side_effect=native))
+            result=replay(config,output)
+            mesh.assert_called_once_with(str(Path(config['source']).resolve()))
+            return result
+    def test_missing_each_consumed_pin_fails_before_processing(self):
+        from headkit.replay import replay
+        for role in ('source','shades','layers','binary','expectedPlt'):
+            config=self.fixture();config['inputs']=[p for p in config['inputs'] if p['path']!=config[role]]
+            with patch('headkit.replay.mesh') as mesh:
+                with self.assertRaisesRegex(ValueError,'Missing replay input pin: '+role):replay(config,self.root/'missing')
+                mesh.assert_not_called();self.assertFalse((self.root/'missing').exists())
+    def test_unrelated_pins_do_not_qualify_consumed_artifacts(self):
+        config=self.fixture();config['inputs']=[pin(self.file('unrelated'))]
+        with self.assertRaisesRegex(ValueError,'Missing replay input pin'):self.replay(config,self.root/'unrelated-output')
+    def test_resolved_role_pins_are_recorded_without_repinning_consumed_bytes(self):
+        config=self.fixture();original=copy.deepcopy(config['inputs']);(self.root/'alias').mkdir()
+        config['source']=str(self.root/'alias'/'..'/'source.dat')
+        result=self.replay(config,self.root/'valid');self.assertEqual(read(self.root/'valid'/'replay.json'),result)
+        self.assertEqual(set(result['consumedInputs']),{'source','shades','layers','binary','expectedPlt'})
+        self.assertEqual(result['source'],original[0]);self.assertEqual(config['inputs'],original)
+    def test_every_consumed_artifact_is_reverified_after_processing(self):
+        for role in ('source','shades','layers','binary','expectedPlt'):
+            config=self.fixture();output=self.root/('changed-'+role)
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):self.replay(config,output,changed=role)
+            self.assertFalse((output/'replay.json').exists())
+    def test_conflicting_duplicate_pins_and_stale_input_are_rejected(self):
+        config=self.fixture();config['inputs'].append(dict(config['inputs'][0],sha256='0'*64))
+        with self.assertRaisesRegex(ValueError,'Conflicting replay input pins'):self.replay(config,self.root/'conflict')
+        config=self.fixture();Path(config['binary']).write_text('changed before replay')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):self.replay(config,self.root/'stale')
 
 
 class ResumeTests(Temporary):

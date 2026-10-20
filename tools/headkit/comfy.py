@@ -200,6 +200,11 @@ def reconcile(client, ledger, token):
     return job
 
 
-def release(client):
-    require(client.idle(), 'Shared queue is not idle; leave models resident')
-    return client.request('/free', {'unload_models':True,'free_memory':True})
+def release(client, ledger):
+    # Cooperating headkit processes must share this ledger with submit().
+    with locked(ledger):
+        state=read(ledger)
+        require(not any(j['state'] in ('intent','submitted','timed-out') for j in state['jobs']),
+                'Reconcile the outstanding job before releasing models')
+        require(client.idle(), 'Shared queue is not idle; leave models resident')
+        return client.request('/free', {'unload_models':True,'free_memory':True})

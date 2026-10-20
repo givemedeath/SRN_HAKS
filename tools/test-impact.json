@@ -109,6 +109,7 @@
       "tools/headkit/images.py",
       "tools/headkit/mesh.py",
       "tools/headkit/palette.py",
+      "tools/headkit/replay.py",
       "tools/headkit/review_images.py",
       "tools/headkit/runner.py",
       "tools/headkit/textures.py"
