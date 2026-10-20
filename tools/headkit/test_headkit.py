@@ -224,6 +224,50 @@ class AppearanceTests(Temporary):
         np.testing.assert_array_equal(result[:,7],color[:,7]);self.assertLess(result[0,0,0],result[0,1,0])
 
 
+class OwnershipModeTests(Temporary):
+    def bad_masks(self):
+        for mode in ('RGB','P','I;16'):
+            image=Image.new(mode,(1024,1024),(1,0,0) if mode=='RGB' else 1)
+            if mode=='P':image.putpalette([1,1,1]*256)
+            path=self.root/(mode.replace(';','-')+'.png');image.save(path);yield path
+    def test_quantization_rejects_non_label_image_modes(self):
+        color=self.root/'color.png';Image.new('RGB',(1024,1024)).save(color)
+        for mask in self.bad_masks():
+            with self.subTest(mask=mask.name):
+                with self.assertRaisesRegex(ValueError,'eight-bit L'):quantize(color,mask,{}, {},self.root/'quantized')
+                self.assertFalse((self.root/'quantized').exists())
+    def test_native_export_rejects_non_label_modes_before_geometry_work(self):
+        from headkit.native import prepare
+        shades=self.root/'shades.png';Image.new('L',(1024,1024)).save(shades)
+        for mask in self.bad_masks():
+            with self.subTest(mask=mask.name),patch('headkit.native.helpers') as helpers:
+                with self.assertRaisesRegex(ValueError,'eight-bit L'):prepare('unused',shades,mask,{},'head',self.root/'export')
+                helpers.assert_not_called();self.assertFalse((self.root/'export').exists())
+    def test_tone_matching_rejects_non_label_image_modes(self):
+        color=self.root/'color.png';Image.new('RGB',(1024,1024)).save(color)
+        for mask in self.bad_masks():
+            with self.subTest(mask=mask.name):
+                with self.assertRaisesRegex(ValueError,'eight-bit L'):tone_match(color,mask,'unused',{},self.root/'tone.png')
+    def test_projected_masks_reject_color_or_indexed_images(self):
+        from headkit.palette import project_ownership
+        embree=pin(self.file('embree.dll'))
+        for mask in self.bad_masks():
+            with self.subTest(mask=mask.name), \
+                 patch('headkit.palette.mesh',return_value={'positions':np.zeros((3,3)), 'faces':np.array([[0,1,2]])}), \
+                 patch('headkit.palette.surface',return_value=(np.zeros((1,1,3)),np.zeros((1,1),int),{})), \
+                 patch('headkit.palette.EmbreeScene'):
+                with self.assertRaisesRegex(ValueError,'eight-bit L'):
+                    project_ownership('unused',[{'calibrationReviewed':True,'mask':str(mask)}],embree,self.root/'projected.png')
+    def test_valid_labels_preserve_all_ten_channel_ids(self):
+        labels=(np.arange(1024*1024).reshape(1024,1024)%10).astype(np.uint8)
+        Image.fromarray(labels).save(self.root/'labels.png');Image.new('RGB',(1024,1024),(100,100,100)).save(self.root/'color.png')
+        Image.new('RGBA',(256,1),(100,100,100,255)).save(self.root/'palette.png')
+        palettes={str(i):str(self.root/'palette.png') for i in range(10)};rows={str(i):0 for i in range(10)}
+        result=quantize(self.root/'color.png',self.root/'labels.png',palettes,rows,self.root/'quantized')
+        with Image.open(result['ownership']['path']) as image:np.testing.assert_array_equal(np.asarray(image),labels)
+        self.assertEqual(set(result['layers']),set(rows))
+
+
 class CheckpointTests(Temporary):
     def transport(self):
         path=Path(__file__).parent/'comfy_nodes'/'transport.py';spec=importlib.util.spec_from_file_location('transport_fixture',path)

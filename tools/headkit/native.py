@@ -41,9 +41,12 @@ def prepare(source, shades_path, layers_path, fit, model, output):
         require(image.mode=='L' and image.size==(1024,1024),'Runtime shades must be 1K eight-bit grayscale')
         shades=np.asarray(image).copy()
     require(np.all(shades<255),'Reserved PLT shade 255 is not permitted')
+    with Image.open(layers_path) as image:
+        require(image.mode=='L','Ownership masks must be eight-bit L images')
+        layers=np.asarray(image).copy()
+    require(layers.shape==(1024,1024) and np.all(layers<=9),'Runtime ownership must be 1K channel IDs 0..9')
     source_pin=pin(source);matrix,errors=fit_matrix(fit,source_pin['sha256'])
     head_export,*_=helpers();points,normals,uv=head_export.triangles(source,matrix,maximum=20000)
-    layers=np.asarray(Image.open(layers_path).convert('L'))
     # One PLT covers all surfaces, including independently reviewed accessory channels.
     payload=head_export.plt_bytes(shades,layers)
     ascii_text=head_export.ascii_model(model,points,normals,uv,[{'kind':'palette','triangles':list(range(len(points)))}])

@@ -64,7 +64,9 @@ def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096
 def tone_match(color, ownership, reference, config, output):
     """Match skin/hair separately in logit color while retaining local source variation."""
     rgb=np.asarray(Image.open(color).convert('RGB'),float)/255
-    labels=np.asarray(Image.open(ownership).convert('L'))
+    with Image.open(ownership) as image:
+        require(image.mode=='L','Ownership masks must be eight-bit L images')
+        labels=np.asarray(image).copy()
     ref=np.asarray(Image.open(reference).convert('RGB'),float)/255
     require(labels.shape==rgb.shape[:2] and np.all(labels<=9),'Discrete 0..9 ownership required')
     require(set(config)=={'skin','hair'},'Skin and hair tone samples must both be reviewed')

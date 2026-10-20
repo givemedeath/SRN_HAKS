@@ -17,7 +17,10 @@ def project_ownership(source, views, embree, output):
     try:
         for row in views:
             require(row.get('calibrationReviewed') is True,'Review camera and withheld landmark alignment first')
-            mask=np.asarray(Image.open(row['mask']).convert('L'));require(np.all((mask<=9)|(mask==255)),'Invalid semantic labels')
+            with Image.open(row['mask']) as image:
+                require(image.mode=='L','Ownership masks must be eight-bit L images')
+                mask=np.asarray(image).copy()
+            require(np.all((mask<=9)|(mask==255)),'Invalid semantic labels')
             matrix=np.asarray(row['viewProjection'],float);origin=np.asarray(row['cameraOrigin'],float)
             require(matrix.shape==(4,4) and origin.shape==(3,) and np.isfinite(matrix).all() and np.isfinite(origin).all(),'Perspective camera matrix/origin required')
             clip=np.c_[points,np.ones(len(points))]@matrix.T;positive=clip[:,3]>0
@@ -41,7 +44,10 @@ def project_ownership(source, views, embree, output):
 
 def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None):
     require(set(rows)==set(palette_files),'Every selected layer needs its own stock palette image')
-    rgb=np.asarray(Image.open(color).convert('RGB'),np.uint8);layers=np.asarray(Image.open(ownership).convert('L'))
+    rgb=np.asarray(Image.open(color).convert('RGB'),np.uint8)
+    with Image.open(ownership) as image:
+        require(image.mode=='L','Ownership masks must be eight-bit L images')
+        layers=np.asarray(image).copy()
     require(rgb.shape==(1024,1024,3) and layers.shape==(1024,1024),'Runtime maps must be 1K')
     require(np.all(layers<=9),'Resolve all palette ownership before export')
     shades=np.zeros_like(layers);decoded=np.zeros_like(rgb);report={};tables={}
