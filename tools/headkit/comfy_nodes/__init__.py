@@ -20,7 +20,7 @@ else:
     except (OSError, TypeError, ValueError):
         _STARTUP_RUNTIME_IDENTITY = None
 
-    @PromptServer.instance.routes.post('/headkit/runtime-identity')
+    @PromptServer.instance.routes.get('/headkit/runtime-identity')
     async def verify_headkit_runtime_identity(request):
         try:
             if _STARTUP_RUNTIME_IDENTITY is None:

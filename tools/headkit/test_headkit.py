@@ -313,6 +313,19 @@ class PythonPackagePinTests(Temporary):
 
 
 class ComfyServerRuntimeTests(Temporary):
+    def test_runtime_identity_endpoint_uses_the_clients_get_method(self):
+        import ast
+        source=Path(__file__).parent/'comfy_nodes'/'__init__.py'
+        tree=ast.parse(source.read_text(encoding='utf-8'))
+        handlers=[node for node in ast.walk(tree) if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef))
+                  and node.name=='verify_headkit_runtime_identity']
+        decorators=[decorator for handler in handlers for decorator in handler.decorator_list
+                    if isinstance(decorator,ast.Call) and isinstance(decorator.func,ast.Attribute)
+                    and decorator.func.attr in ('get','post')]
+        self.assertEqual(len(decorators),1)
+        self.assertEqual(decorators[0].func.attr,'get')
+        self.assertEqual(ast.literal_eval(decorators[0].args[0]),'/headkit/runtime-identity')
+
     def test_server_snapshot_hashes_python_torch_and_native_runtime_files(self):
         from headkit.comfy_nodes.runtime_identity import capture_runtime_identity
         app=self.root/'comfy';app.mkdir()
