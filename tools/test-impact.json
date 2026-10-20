@@ -108,6 +108,7 @@
       "tools/headkit/gltf.py",
       "tools/headkit/images.py",
       "tools/headkit/mesh.py",
+      "tools/headkit/native.py",
       "tools/headkit/palette.py",
       "tools/headkit/replay.py",
       "tools/headkit/review_images.py",

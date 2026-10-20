@@ -34,6 +34,22 @@
     "paletteHair": {
       "path": "inputs/pal-hair.png",
       "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "inspectionColor": {
+      "path": "inputs/basecolor-2048.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "inspectionRoughness": {
+      "path": "inputs/roughness-2048.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "inspectionMetallic": {
+      "path": "inputs/metallic-2048.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "inspectionOpacity": {
+      "path": "inputs/opacity-2048.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
     }
   },
   "mesh": {
@@ -142,7 +158,10 @@
   },
   "render": {
     "frontAngleDegrees": -90,
-    "sizes": [2048, 1024],
+    "sizes": [
+      2048,
+      1024
+    ],
     "mapInputs": {
       "basecolor": "inspectionColor",
       "roughness": "inspectionRoughness",

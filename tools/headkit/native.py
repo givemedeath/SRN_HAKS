@@ -37,9 +37,13 @@ def fit_matrix(config, source_sha):
 
 def prepare(source, shades_path, layers_path, fit, model, output):
     require(re.fullmatch(r'[a-z][a-z0-9_]{0,13}',model) is not None,'Safe NWN model resref required')
+    with Image.open(shades_path) as image:
+        require(image.mode=='L' and image.size==(1024,1024),'Runtime shades must be 1K eight-bit grayscale')
+        shades=np.asarray(image).copy()
+    require(np.all(shades<255),'Reserved PLT shade 255 is not permitted')
     source_pin=pin(source);matrix,errors=fit_matrix(fit,source_pin['sha256'])
     head_export,*_=helpers();points,normals,uv=head_export.triangles(source,matrix,maximum=20000)
-    shades=np.asarray(Image.open(shades_path).convert('L'));layers=np.asarray(Image.open(layers_path).convert('L'))
+    layers=np.asarray(Image.open(layers_path).convert('L'))
     # One PLT covers all surfaces, including independently reviewed accessory channels.
     payload=head_export.plt_bytes(shades,layers)
     ascii_text=head_export.ascii_model(model,points,normals,uv,[{'kind':'palette','triangles':list(range(len(points)))}])

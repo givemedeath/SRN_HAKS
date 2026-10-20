@@ -118,11 +118,33 @@ def submit(client, ledger, prepared, output):
     return job
 
 
+def _record_collection(ledger, token, output, result):
+    # Save immutable evidence before atomically publishing its pin and terminal state.
+    with locked(ledger):
+        state=read(ledger);job=next(j for j in state['jobs'] if j['token']==token)
+        require(job['state'] in ('submitted','timed-out') and not job.get('collection'),
+                'Collection already terminal; preserve the original receipt')
+        target=output/'collection.json';write(target,result,fresh=True)
+        job.update(state=result['state'],collection=pin(target));write(ledger,state)
+    return result
+
+
 def collect(client, ledger, token, output_root, output, *, wait=False):
+    output=Path(output).resolve()
     with locked(ledger):
         state=read(ledger); jobs=[j for j in state['jobs'] if j['token']==token]
         require(len(jobs)==1 and jobs[0].get('promptId'), 'Missing prompt acknowledgement; use reconciliation')
         job=jobs[0]
+        if job.get('collection'):
+            require(Path(job['collection']['path']).resolve()==output/'collection.json',
+                    'Use the original collection directory; receipt is immutable')
+            verify([job['collection']]);result=read(job['collection']['path'])
+            require(result['state']==job['state'] and result['promptId']==job['promptId'] and result['token']==token,
+                    'Collection receipt does not match its job')
+            verify([result['history'],result['memorySamples'],*result.get('inputs',[]),*result.get('outputs',[])])
+            return result
+        require(job['state'] in ('submitted','timed-out'),
+                'Terminal job has no pinned collection; preserve its historical evidence')
     samples=[]
     while True:
         if wait:
@@ -139,8 +161,8 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
         if not wait: return {'state':'running','promptId':job['promptId']}
         time.sleep(5)
     output=Path(output);output.mkdir(parents=True,exist_ok=True)
-    write(output/'history.json',found)
-    write(output/'memory-samples.json',{'samples':samples,'scope':'collect monitoring window only; sampled device occupancy, not exact process peak'})
+    write(output/'history.json',found,fresh=True)
+    write(output/'memory-samples.json',{'samples':samples,'scope':'collect monitoring window only; sampled device occupancy, not exact process peak'},fresh=True)
     try:
         intent=read(output/'submission-intent.json')
         require(intent['job']['token']==token and digest(intent['prepared'])==job['requestSha256'],'Submission receipt mismatch')
@@ -172,15 +194,14 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
                 bb=arrays(*load(Path(candidates[0]['path']).read_bytes()))[:2]
                 require(all(np.array_equal(a,b) for a,b in zip(aa,bb)),'Saved-shape decode mismatch; do not accept appearance')
     except Exception as exc:
-        with locked(ledger):
-            state=read(ledger);next(j for j in state['jobs'] if j['token']==token)['state']='failed-validation';write(ledger,state)
-        write(output/'collection.json',{'state':'failed-validation','error':str(exc),'history':pin(output/'history.json')})
+        _record_collection(ledger,token,output,{'state':'failed-validation','token':token,'promptId':job['promptId'],
+            'error':str(exc),'history':pin(output/'history.json'),'memorySamples':pin(output/'memory-samples.json')})
         raise
-    with locked(ledger):
-        state=read(ledger);next(j for j in state['jobs'] if j['token']==token)['state']='complete' if success else 'failed';write(ledger,state)
-    result={'state':'complete' if success else 'failed','promptId':job['promptId'],'outputs':pins,'history':pin(output/'history.json'),
+    verify(intent['prepared']['inputs']);verify(pins)
+    result={'state':'complete' if success else 'failed','token':token,'promptId':job['promptId'],'outputs':pins,
+            'inputs':[pin(output/'submission-intent.json'),*intent['prepared']['inputs']],'history':pin(output/'history.json'),
             'elapsedSinceSubmissionSeconds':time.time()-job['started'],'memorySamples':pin(output/'memory-samples.json')}
-    write(output/'collection.json',result);return result
+    return _record_collection(ledger,token,output,result)
 
 
 def reconcile(client, ledger, token):

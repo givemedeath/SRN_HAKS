@@ -290,6 +290,57 @@ class LedgerTests(Temporary):
         with self.assertRaisesRegex(ValueError,'outside'):comfy.collect(client,ledger,request['token'],self.root/'comfy-output',self.root/'job')
 
 
+class CollectionReceiptTests(Temporary):
+    def fixture(self):
+        base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
+        source=base/'input';source.write_text('frozen input');ledger=base/'ledger.json';job=base/'job';output=base/'comfy-output';token='collect-test'
+        prepared={'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(source)]}
+        comfy.initialize_ledger(ledger,0,'Reconciled fixture');client=FakeClient();comfy.submit(client,ledger,prepared,job)
+        artifact=output/'headkit'/token/'mesh.glb';artifact.parent.mkdir(parents=True);artifact.write_bytes(b'exported fixture')
+        history={'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'mesh.glb','subfolder':'headkit/'+token,'type':'output'}]}}}
+        client.request=lambda route,data=None: {'devices':[]} if route=='/system_stats' else {'prompt-1':history}
+        return client,ledger,token,output,job,artifact
+    def test_repeat_collection_reuses_verified_receipt_without_server_or_writes(self):
+        client,ledger,token,output,job,artifact=self.fixture();first=comfy.collect(client,ledger,token,output,job,wait=True)
+        paths=[ledger,job/'history.json',job/'memory-samples.json',job/'collection.json'];before=[p.read_bytes() for p in paths]
+        with patch.object(client,'request',side_effect=AssertionError('terminal collection must not poll')):
+            self.assertEqual(comfy.collect(client,ledger,token,output,job),first)
+        self.assertEqual([p.read_bytes() for p in paths],before);self.assertEqual(read(ledger)['jobs'][0]['collection'],pin(job/'collection.json'))
+    def test_changed_terminal_evidence_or_output_cannot_be_reused(self):
+        for name in ('history.json','memory-samples.json','collection.json','artifact'):
+            with self.subTest(name=name):
+                client,ledger,token,output,job,artifact=self.fixture();comfy.collect(client,ledger,token,output,job)
+                target=artifact if name=='artifact' else job/name;target.write_bytes(b'changed')
+                with patch.object(client,'request',side_effect=AssertionError('must not overwrite from server')):
+                    with self.assertRaisesRegex(ValueError,'Stale file pin'):comfy.collect(client,ledger,token,output,job)
+                self.assertEqual(target.read_bytes(),b'changed')
+    def test_legacy_terminal_or_partial_evidence_is_preserved(self):
+        client,ledger,token,output,job,_=self.fixture();comfy.collect(client,ledger,token,output,job)
+        state=read(ledger);state['jobs'][0].pop('collection');write(ledger,state)
+        before={p.name:p.read_bytes() for p in job.iterdir() if p.is_file()}
+        with patch.object(client,'request',side_effect=AssertionError('terminal must not poll')):
+            with self.assertRaisesRegex(ValueError,'historical evidence'):comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(before,{p.name:p.read_bytes() for p in job.iterdir() if p.is_file()})
+        state['jobs'][0]['state']='submitted';write(ledger,state)
+        with self.assertRaises(FileExistsError):comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(before,{p.name:p.read_bytes() for p in job.iterdir() if p.is_file()})
+    def test_terminal_collection_requires_its_original_directory(self):
+        client,ledger,token,output,job,_=self.fixture();comfy.collect(client,ledger,token,output,job)
+        with self.assertRaisesRegex(ValueError,'original collection directory'):comfy.collect(client,ledger,token,output,job.parent/'other')
+    def test_failed_server_job_receipt_is_reused_without_repoll(self):
+        client,ledger,token,output,job,_=self.fixture();client.request=lambda route,data=None: {'prompt-1':{'status':{'status_str':'error'},'outputs':{}}}
+        first=comfy.collect(client,ledger,token,output,job);self.assertEqual(first['state'],'failed')
+        with patch.object(client,'request',side_effect=AssertionError('failed job must not poll')):
+            self.assertEqual(comfy.collect(client,ledger,token,output,job),first)
+    def test_failed_validation_receipt_is_also_immutable(self):
+        client,ledger,token,output,job,_=self.fixture();client.request=lambda route,data=None: {'prompt-1':{'status':{'status_str':'success'},'outputs':{}}}
+        with self.assertRaisesRegex(ValueError,'No exported files'):comfy.collect(client,ledger,token,output,job)
+        before=(job/'collection.json').read_bytes()
+        with patch.object(client,'request',side_effect=AssertionError('failed terminal receipt must not poll')):
+            result=comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(result['state'],'failed-validation');self.assertEqual((job/'collection.json').read_bytes(),before)
+
+
 class ReleaseTests(Temporary):
     def fixture(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reconciled test ledger')
@@ -330,6 +381,28 @@ class ReleaseTests(Temporary):
         with patch.object(client,'idle',side_effect=OSError('offline')):
             with self.assertRaises(OSError):comfy.release(client,ledger)
         self.assertFalse(Path(str(ledger)+'.lock').exists());self.assertEqual(comfy.release(client,ledger),{})
+
+
+class NativeShadeTests(Temporary):
+    def test_reserved_shade_255_is_rejected_before_export_work(self):
+        from headkit.native import prepare
+        shades=np.zeros((1024,1024),np.uint8);shades[400,500]=255;Image.fromarray(shades).save(self.root/'shades.png')
+        with patch('headkit.native.helpers') as helpers:
+            with self.assertRaisesRegex(ValueError,'Reserved PLT shade 255'):prepare('unused',self.root/'shades.png','unused',{},'head',self.root/'export')
+            helpers.assert_not_called();self.assertFalse((self.root/'export').exists())
+    def test_imported_shades_must_be_native_1k_grayscale_bytes(self):
+        from headkit.native import prepare
+        for index,image in enumerate((Image.new('L',(512,512)),Image.new('RGB',(1024,1024)),Image.new('I;16',(1024,1024),1000))):
+            path=self.root/f'shades-{index}.png';image.save(path)
+            with self.assertRaisesRegex(ValueError,'1K eight-bit grayscale'):prepare('unused',path,'unused',{},'head',self.root/'export')
+    def test_valid_imported_extreme_shades_and_accessory_layers_survive_export(self):
+        from headkit.native import prepare
+        p,f=MeshTests.tetra(self);source=self.root/'mesh.glb';uv=np.tile([[.1,.1],[.9,.1],[.1,.9]],(4,1,1));write_mesh(source,p,f,uv)
+        shades=np.zeros((1024,1024),np.uint8);shades[:512]=254;Image.fromarray(shades).save(self.root/'shades.png');Image.new('L',(1024,1024),8).save(self.root/'layers.png')
+        fit={'matrix':np.eye(4).tolist(),'reviewed':True,'sourceSha256':pin(source)['sha256']}
+        result=prepare(source,self.root/'shades.png',self.root/'layers.png',fit,'head',self.root/'export')
+        payload=Path(result['plt']['path']).read_bytes();pixels=np.frombuffer(payload[24:],np.uint8).reshape(1024,1024,2)[::-1]
+        np.testing.assert_array_equal(pixels[...,0],shades);self.assertTrue(np.all(pixels[...,1]==8))
 
 
 class ReplayPinTests(Temporary):
@@ -460,6 +533,7 @@ class ReviewImageTests(Temporary):
         self.assertEqual(resolutions({}),[2048,1024])
         example=read(Path(__file__).parent/'examples'/'processing.json')
         self.assertEqual(resolutions(example['render']),[2048,1024])
+        self.assertTrue(set(example['render']['mapInputs'].values())<=set(example['inputs']))
         with self.assertRaises(ValueError):resolutions({'sizes':[768]})
         with self.assertRaises(ValueError):resolutions({'sizes':[2048,1024],'size':768})
     def test_atlases_are_filtered_to_actual_1k_and_hashed(self):
