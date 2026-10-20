@@ -3314,7 +3314,20 @@
   "unresolved": [],
   "packReferences": {
     "tools/heads/build_head_fixture.py": [
-      "srn_body"
+      "srn_body",
+      "srn_head"
+    ],
+    "tools/heads/head_workflow.py": [
+      "srn_head"
+    ],
+    "tools/heads/publish_head_pack.py": [
+      "srn_head"
+    ],
+    "tools/heads/test_head_pipeline.py": [
+      "srn_head"
+    ],
+    "tools/heads/test_target_and_publication.py": [
+      "srn_head"
     ],
     "tools/phenomorpher/phenomorpher/engine/body_sweep.py": [
       "srn_body"
