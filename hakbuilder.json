@@ -142,6 +142,11 @@
       "Name": "srn_armor",
       "Path": "./srn_armor/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_head",
+      "Path": "./srn_head/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": [
