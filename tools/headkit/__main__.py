@@ -31,10 +31,22 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None, 
         require(review.get('decision')=='approved' and bool(review.get('notes','').strip())
                 and review.get('exportSourceSha256')==export_source['sha256'],
                 'Approve generated clay with the exact exportSource hash before export preparation')
-    root=Path(local['comfyInput']).resolve();token=uuid.uuid4().hex;staging=root/'headkit'/token;staging.mkdir(parents=True,exist_ok=False)
     binding_pin=pin(bindings_path)
     images={};pins=[pin(manifest_path),binding_pin]+code_pins()
     if runtime is not None:pins.extend(runtime[name] for name in ('toolchain','migrationReceipt','python'))
+    from .source_inventory import freeze_sources,validate_comfy_runtime
+    inventory=freeze_sources(local)
+    comfy_runtime=validate_comfy_runtime(comfy_runtime,inventory['roots'],inventory)
+    pins+=inventory['files']+comfy_runtime['files']
+    adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
+    source_config=adapter/'source-roots.json'
+    require(read(source_config)=={'schemaVersion':1,'inventory':inventory},
+            'Installed Comfy source snapshot differs; reinstall the current adapter and restart ComfyUI')
+    pins.append(pin(source_config))
+    for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):
+        installed=adapter/code.name;require(pin(installed)['sha256']==pin(code)['sha256'],'Installed headkit nodes differ; install current adapters and restart ComfyUI')
+        pins.append(pin(installed))
+    root=Path(local['comfyInput']).resolve();token=uuid.uuid4().hex;staging=root/'headkit'/token;staging.mkdir(parents=True,exist_ok=False)
     for name in names:
         source=asset(manifest_path,data['inputs'][name]);pins.append(source)
         target=staging/(name+'.png')
@@ -50,19 +62,6 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None, 
     from .comfy_nodes.model_resolution import loader_models,bind_loader_models
     models=loader_models(graph,local.get('models',{}),read(Path(__file__).parent/'checkpoints.json'))
     graph=bind_loader_models(graph,models)
-    from .source_inventory import freeze_sources
-    inventory=freeze_sources(local)
-    from .source_inventory import validate_comfy_runtime
-    comfy_runtime=validate_comfy_runtime(comfy_runtime,inventory['roots'],inventory)
-    pins+=inventory['files']+comfy_runtime['files']
-    adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
-    source_config=adapter/'source-roots.json'
-    require(read(source_config)=={'schemaVersion':1,'inventory':inventory},
-            'Installed Comfy source snapshot differs; reinstall the current adapter and restart ComfyUI')
-    pins.append(pin(source_config))
-    for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):
-        installed=adapter/code.name;require(pin(installed)['sha256']==pin(code)['sha256'],'Installed headkit nodes differ; install current adapters and restart ComfyUI')
-        pins.append(pin(installed))
     # Pin each model's filename, Comfy folder category, resolved path identity and bytes.
     for model in models:
         row=local['models'][model['name']]

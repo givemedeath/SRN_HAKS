@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 import re
-from .common import digest,require,verify
+from .common import digest,pin,require,verify
 
 # Generated data and model weights have their own inputs; execution code/config/native binaries do not.
 EXTENSIONS={'.py','.pyx','.pyi','.json','.yaml','.yml','.toml','.pyd','.so','.dll','.dylib','.ptx','.cubin','.h','.hpp','.c','.cpp','.cu','.cuh'}
