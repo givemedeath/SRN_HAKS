@@ -185,9 +185,15 @@ def _loaded_codes(value,seen):
     seen.add(marker)
     if isinstance(value,types.FunctionType):
         yield value.__code__
+        for state in (value.__defaults__,value.__kwdefaults__):
+            if state is not None:yield from _loaded_codes(state,seen)
+        for cell in value.__closure__ or ():
+            try:captured=cell.cell_contents
+            except ValueError:continue
+            yield from _loaded_codes(captured,seen)
         return
     if isinstance(value,types.MethodType):
-        yield value.__func__.__code__
+        yield from _loaded_codes(value.__func__,seen)
         return
     if isinstance(value,(staticmethod,classmethod)):
         yield from _loaded_codes(value.__func__,seen)

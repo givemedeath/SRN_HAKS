@@ -75,6 +75,26 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
                 loaded_source_code([self.core])
 
+    def test_loaded_decorator_closure_cannot_hide_stale_comfy_function(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = 'def loaded_value():\n    return "reviewed"\n'
+        temporary = 'def loaded_value():\n    return "temporary"\n'
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_closure_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+
+        def decorate(function):
+            def wrapper():
+                return function()
+            return wrapper
+
+        module.loaded_value = decorate(module.loaded_value)
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'Loaded Comfy Python code differs'):
+                loaded_source_code([self.core])
+
     def test_runtime_endpoint_returns_the_live_loaded_code_identity(self):
         source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'
         tree = ast.parse(source.read_text(encoding='utf-8'))
