@@ -57,7 +57,7 @@ Freeze the manifest, local bindings, toolkit/helper versions, model/library file
 | `prepare --manifest M --bindings B --run R` | Validate and measure reference pairs; save overlays |
 | `request --manifest M --bindings B --stage calibrate|geometry|appearance|export --output Q` | Compile one concrete request with checkpoint pins; no dispatch |
 | `ledger-init --ledger L --prior-count N --evidence TEXT` | Start from the **reconciled global count**; never reset historical attempts to zero |
-| `submit --bindings B --ledger L --request Q --output JOB` | Save submission intent before one POST; require idle shared queue |
+| `submit --bindings B --ledger L --request Q --output JOB` | Match request context and rehash frozen inputs under the ledger lock before one POST; require idle shared queue |
 | `collect --bindings B --ledger L --token TOKEN --output JOB [--wait]` | Save history and hash actual owned outputs; verify appearance redecodes exactly the saved geometry |
 | `reconcile --bindings B --ledger L --token TOKEN` | Recover the original prompt by token, never submit a replacement |
 | `run` / `resume --manifest M --bindings B --run R --stage STAGE` | Execute/reuse one declared CPU stage |
@@ -67,6 +67,8 @@ Freeze the manifest, local bindings, toolkit/helper versions, model/library file
 | `replay --config C --output R` | Read-only roundtrip of retained reviewed artifacts; not regeneration or automatic acceptance |
 
 The local `toolchain`, `migrationReceipt`, `python` and `toolsRoot` bindings must exactly match the verified launcher and running Python; processing refuses mixed runtime identities and records the matched identity in stage receipts.
+
+Each prepared ComfyUI request is bound to that runtime identity, the exact local bindings-file hash and the normalized ComfyUI endpoint. Submission rejects any mismatch and rehashes every frozen request input under the ledger lock immediately before dispatch. If that final check fails, the ledger records `preflight-rejected`; it does not consume a generation attempt.
 
 Declare `comfyRoot`, any external `comfyDependencyRoots` and the complete `comfySources` inventory of Python, configuration and compiled implementation files in those trees. The gate requires the core loader/execution files and Pixal/Trellis/FlexGEMM implementations; a few selected pins are insufficient. Fixed generated-data/model/cache folders are excluded, model weights remain separately pinned, and linked implementation trees are rejected. Inventory membership and bytes are rechecked during request preparation, submission, collection and terminal reuse. This validates configured filesystem sources; restart the instance after implementation changes before preparing new jobs so loaded code agrees with disk.
 

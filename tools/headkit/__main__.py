@@ -32,7 +32,9 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
                 and review.get('exportSourceSha256')==export_source['sha256'],
                 'Approve generated clay with the exact exportSource hash before export preparation')
     root=Path(local['comfyInput']).resolve();token=uuid.uuid4().hex;staging=root/'headkit'/token;staging.mkdir(parents=True,exist_ok=False)
-    images={};pins=[pin(manifest_path),pin(bindings_path)]+code_pins()
+    binding_pin=pin(bindings_path)
+    images={};pins=[pin(manifest_path),binding_pin]+code_pins()
+    if runtime is not None:pins.extend(runtime[name] for name in ('toolchain','migrationReceipt','python'))
     for name in names:
         source=asset(manifest_path,data['inputs'][name]);pins.append(source)
         target=staging/(name+'.png')
@@ -61,7 +63,8 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None):
                 require(row['sha256']==read(Path(__file__).parent/'checkpoints.json')[name],'Checkpoint differs from frozen reviewed profile')
                 verify([row]);pins.append(row)
     result={'stage':stage,'profile':profile,'token':token,'prompt':graph,'inputs':pins,'codeVersion':source_version(),
-            'timeoutSeconds':2700,'generationCeiling':100,'expectedGeometry':expected_mesh,'comfySourceInventory':inventory,'runtimeIdentity':runtime}
+            'timeoutSeconds':2700,'generationCeiling':100,'expectedGeometry':expected_mesh,'comfySourceInventory':inventory,
+            'runtimeIdentity':runtime,'bindings':binding_pin,'comfyEndpoint':comfy.Client(local['comfyUrl']).url}
     write(output,result,fresh=True);return result
 
 
@@ -124,7 +127,7 @@ def main():
         if a.command=='release':result=comfy.release(client,a.ledger)
         elif a.command=='submit':
             prepared=read(a.request);require(prepared['codeVersion']==source_version(),'Stale compiled request; prepare again')
-            result=comfy.submit(client,a.ledger,prepared,a.output)
+            result=comfy.submit(client,a.ledger,prepared,a.output,runtime_identity=runtime,bindings_path=a.bindings)
         elif a.command=='collect':result=comfy.collect(client,a.ledger,a.token,local['comfyOutput'],a.output,wait=a.wait)
         else:result=comfy.reconcile(client,a.ledger,a.token)
     import json

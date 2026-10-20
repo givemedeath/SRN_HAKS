@@ -87,8 +87,27 @@ def initialize_ledger(path, count, evidence):
     write(path, {'schemaVersion':1,'priorGenerationAttempts':count,'reconciliation':evidence,'jobs':[]}, fresh=True)
 
 
-def submit(client, ledger, prepared, output):
+def validate_dispatch_context(client, prepared, runtime_identity, bindings_path):
+    require(runtime_identity is not None and prepared.get('runtimeIdentity') == runtime_identity,
+            'Active runtime differs from the prepared request; prepare again')
+    runtime_pins=[runtime_identity.get(name) for name in ('toolchain','migrationReceipt','python')]
+    require(all(isinstance(row,dict) and {'path','sha256'}<=set(row) for row in runtime_pins),
+            'Active runtime identity is incomplete; prepare again')
+    require(all(row in prepared.get('inputs',[]) for row in runtime_pins),
+            'Prepared request omits active runtime pins; prepare again')
+    verify(runtime_pins)
+    current_bindings = pin(bindings_path)
+    require(prepared.get('bindings') == current_bindings and current_bindings in prepared.get('inputs', []),
+            'Current bindings differ from the prepared request; prepare again')
+    verify([current_bindings])
+    require(prepared.get('comfyEndpoint') == client.url,
+            'Active ComfyUI endpoint differs from the prepared request; prepare again')
+
+
+def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_path=None):
     """An uncertain POST stays counted and blocks subsequent dispatch until reconciled."""
+    require(bindings_path is not None, 'Prepared bindings are required for dispatch')
+    validate_dispatch_context(client, prepared, runtime_identity, bindings_path)
     verify(prepared['inputs']);request_sources(prepared)
     graph = prepared['prompt']; info = client.request('/object_info')
     require(all(n['class_type'] in info for n in graph.values()), 'Install/restart missing nodes before dispatch')
@@ -96,7 +115,7 @@ def submit(client, ledger, prepared, output):
         state = read(ledger)
         require(not any(j['state'] in ('intent','submitted','timed-out') for j in state['jobs']), 'Reconcile the outstanding job first')
         require(client.idle(), 'Shared queue is busy; leave its jobs untouched')
-        count = state['priorGenerationAttempts'] + sum(j['stage']=='geometry' for j in state['jobs'])
+        count = state['priorGenerationAttempts'] + sum(j['stage']=='geometry' and j['state']!='preflight-rejected' for j in state['jobs'])
         require(prepared['stage'] != 'geometry' or count < 100, '100 generation attempts reached')
         request_sources(prepared)
         token = prepared['token']
@@ -104,6 +123,13 @@ def submit(client, ledger, prepared, output):
         job = {'token':token,'state':'intent','stage':prepared['stage'],'requestSha256':digest(prepared),'started':time.time()}
         state['jobs'].append(job); write(ledger,state)
         write(Path(output)/'submission-intent.json', {'prepared':prepared,'job':job}, fresh=True)
+        try:
+            verify(prepared['inputs']);request_sources(prepared)
+        except Exception as exc:
+            job.update(state='preflight-rejected',preflightError=str(exc))
+            write(ledger,state)
+            write(Path(output)/'submission-preflight-error.json',{'error':str(exc),'token':token},fresh=True)
+            raise
         try:
             response = client.request('/prompt', {'prompt':graph,'client_id':token,'extra_data':{'headkitToken':token}})
         except urllib.error.HTTPError as exc:

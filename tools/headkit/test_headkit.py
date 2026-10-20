@@ -38,6 +38,22 @@ class Temporary(unittest.TestCase):
         return freeze_sources({'comfyRoot':str(root),'comfyCustomNodes':str(root/'custom_nodes'),'comfySources':rows})
     def freeze_request(self,prepared):
         inventory=self.inventory();prepared['comfySourceInventory']=inventory;prepared['inputs']+=inventory['files'];return prepared
+    def runtime_identity(self):
+        return {'toolchain':pin(self.file('runtime-toolchain.json')),
+                'migrationReceipt':pin(self.file('runtime-migration.json')),'python':pin(sys.executable),
+                'toolsRoot':str(self.root.resolve())}
+    def bind_dispatch(self,prepared,endpoint='http://127.0.0.1:8188'):
+        bindings=self.root/'dispatch-bindings.json'
+        if not bindings.exists():bindings.write_text('{}')
+        identity=self.runtime_identity();binding_pin=pin(bindings)
+        prepared.update(runtimeIdentity=identity,bindings=binding_pin,comfyEndpoint=endpoint)
+        if binding_pin not in prepared['inputs']:prepared['inputs'].append(binding_pin)
+        prepared['inputs'].extend(row for row in (identity['toolchain'],identity['migrationReceipt'],identity['python']) if row not in prepared['inputs'])
+        return identity,bindings
+    def submit(self,client,ledger,prepared,output,*,runtime_identity=None,bindings_path=None):
+        if bindings_path is None:
+            runtime_identity,bindings_path=self.bind_dispatch(prepared,client.url)
+        return comfy.submit(client,ledger,prepared,output,runtime_identity=runtime_identity,bindings_path=bindings_path)
     def pair(self):
         image=Image.new('RGBA',(128,128));ImageDraw.Draw(image).ellipse((20,10,108,118),fill=(180,150,120,255))
         image.save(self.root/'clay.png');image.save(self.root/'detail.png')
@@ -95,14 +111,16 @@ class GeometryApprovalTests(Temporary):
         adapter=core/'custom_nodes'/'srn_headkit';adapter.mkdir(parents=True)
         for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):(adapter/code.name).write_bytes(code.read_bytes())
         write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root),'comfyInput':str(self.root/'comfy-input'),
-              'comfyRoot':str(core),'comfyCustomNodes':str(adapter.parent),'comfySources':[pin(p) for p in sorted(core.rglob('*')) if p.is_file()]})
+              'comfyUrl':'http://127.0.0.1:8188','comfyRoot':str(core),'comfyCustomNodes':str(adapter.parent),
+              'comfySources':[pin(p) for p in sorted(core.rglob('*')) if p.is_file()]})
         return data
     def request(self,data,stage='appearance'):
         from headkit.__main__ import request_stage
         write(self.root/'manifest.json',data)
-        if stage=='export':return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json')
+        runtime=self.runtime_identity()
+        if stage=='export':return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json',runtime=runtime)
         with patch('headkit.__main__.comfy.compile_graph',return_value={}):
-            return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json')
+            return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json',runtime=runtime)
     def approval(self,data):
         return {'decision':'approved','notes':'Inspected generated clay and accessories',
                 'geometryRawSha256':data['inputs']['geometryRaw']['sha256'],'shapeSha256':data['inputs']['shape']['sha256']}
@@ -119,6 +137,10 @@ class GeometryApprovalTests(Temporary):
         data=self.fixture();data['approval']['generatedGeometry']=self.approval(data);result=self.request(data)
         self.assertEqual(result['expectedGeometry']['sha256'],data['inputs']['geometryRaw']['sha256'])
         self.assertIn(data['inputs']['shape']['sha256'],[row['sha256'] for row in result['inputs']])
+        self.assertIn(result['bindings'],result['inputs'])
+        self.assertEqual(result['comfyEndpoint'],'http://127.0.0.1:8188')
+        self.assertEqual(result['runtimeIdentity'],self.runtime_identity())
+        for name in ('toolchain','migrationReceipt','python'):self.assertIn(result['runtimeIdentity'][name],result['inputs'])
         self.assertEqual(read(self.root/'request.json'),result)
 
 
@@ -196,7 +218,8 @@ class SourceInventoryTests(Temporary):
         request=self.freeze_request({'token':'missing-inventory','stage':'geometry','prompt':{},'inputs':[]})
         request['comfySourceInventory']['files'].pop();client=FakeClient()
         with patch.object(client,'request') as server:
-            with self.assertRaisesRegex(ValueError,'incomplete'):comfy.submit(client,self.root/'ledger.json',request,self.root/'job')
+            self.bind_dispatch(request,client.url)
+            with self.assertRaisesRegex(ValueError,'incomplete'):self.submit(client,self.root/'ledger.json',request,self.root/'job')
             server.assert_not_called()
     def test_added_source_is_rejected_during_collection_and_on_terminal_reuse(self):
         for terminal in (False,True):
@@ -385,8 +408,10 @@ class CheckpointTests(Temporary):
 
 
 class FakeClient:
-    def __init__(self,fail=False):self.fail=fail;self.posts=0
-    def idle(self):return True
+    def __init__(self,fail=False,on_idle=None):self.fail=fail;self.posts=0;self.url='http://127.0.0.1:8188';self.on_idle=on_idle
+    def idle(self):
+        if self.on_idle:self.on_idle()
+        return True
     def request(self,route,data=None):
         if route=='/object_info':return {'Example':{}}
         if route=='/prompt':
@@ -399,20 +424,43 @@ class FakeClient:
 
 
 class LedgerTests(Temporary):
-    def prepared(self):return self.freeze_request({'token':'token-1','stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]})
+    def prepared(self,token='token-1'):return self.freeze_request({'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]})
     def test_ambiguous_submission_stays_counted_and_blocks_duplicates(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,74,'Reviewed retained ledger');request=self.prepared();client=FakeClient(True)
-        with self.assertRaises(TimeoutError):comfy.submit(client,ledger,request,self.root/'job')
+        with self.assertRaises(TimeoutError):self.submit(client,ledger,request,self.root/'job')
         self.assertEqual(read(ledger)['jobs'][0]['state'],'intent')
-        with self.assertRaisesRegex(ValueError,'Reconcile'):comfy.submit(client,ledger,request,self.root/'another')
+        with self.assertRaisesRegex(ValueError,'Reconcile'):self.submit(client,ledger,request,self.root/'another')
         self.assertEqual(client.posts,1)
     def test_generation_ceiling_and_queue_ownership(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,100,'Existing global count');client=FakeClient()
-        with self.assertRaisesRegex(ValueError,'100'):comfy.submit(client,ledger,self.prepared(),self.root/'job')
+        with self.assertRaisesRegex(ValueError,'100'):self.submit(client,ledger,self.prepared(),self.root/'job')
         self.assertEqual(client.posts,0)
     def test_request_is_frozen_before_submission(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'New environment');request=self.prepared();Path(request['inputs'][0]['path']).write_text('changed')
-        with self.assertRaisesRegex(ValueError,'Stale'):comfy.submit(FakeClient(),ledger,request,self.root/'job')
+        with self.assertRaisesRegex(ValueError,'Stale'):self.submit(FakeClient(),ledger,request,self.root/'job')
+    def test_dispatch_requires_the_prepared_runtime_bindings_and_endpoint(self):
+        for mismatch in ('runtime','bindings','endpoint'):
+            with self.subTest(mismatch=mismatch):
+                request=self.prepared('token-'+mismatch);client=FakeClient();runtime,bindings=self.bind_dispatch(request,client.url)
+                if mismatch=='runtime':runtime=dict(runtime,toolsRoot=str(self.root/'different-runtime'))
+                elif mismatch=='bindings':bindings=self.file('other-bindings.json','{}')
+                else:client.url='http://localhost:8188'
+                with patch.object(client,'request') as server:
+                    with self.assertRaisesRegex(ValueError,'differ'):
+                        comfy.submit(client,self.root/'ledger.json',request,self.root/('job-'+mismatch),
+                                     runtime_identity=runtime,bindings_path=bindings)
+                    server.assert_not_called()
+    def test_inputs_are_reverified_under_lock_immediately_before_dispatch(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,99,'One attempt remains');request=self.prepared()
+        source=request['inputs'][0]['path'];client=FakeClient(on_idle=lambda:Path(source).write_text('changed during queue check'))
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):
+            self.submit(client,ledger,request,self.root/'preflight-failed')
+        state=read(ledger);self.assertEqual(state['jobs'][0]['state'],'preflight-rejected');self.assertEqual(client.posts,0)
+        self.assertTrue((self.root/'preflight-failed'/'submission-preflight-error.json').exists())
+        self.assertEqual(state['priorGenerationAttempts']+sum(j['stage']=='geometry' and j['state']!='preflight-rejected' for j in state['jobs']),99)
+        next_request=self.prepared('token-after-preflight');next_client=FakeClient()
+        self.submit(next_client,ledger,next_request,self.root/'valid-dispatch')
+        self.assertEqual(next_client.posts,1);self.assertEqual(read(ledger)['jobs'][-1]['state'],'submitted')
     def test_existing_lock_is_not_stolen(self):
         path=self.root/'ledger.json';Path(str(path)+'.lock').write_text('owner')
         with self.assertRaises(FileExistsError):
@@ -421,12 +469,12 @@ class LedgerTests(Temporary):
         with self.assertRaises(ValueError):comfy.Client('https://untrusted.example')
 
     def test_failed_job_cannot_be_resubmitted_with_same_token(self):
-        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,3,'Bound count');request=self.prepared();comfy.submit(FakeClient(),ledger,request,self.root/'job')
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,3,'Bound count');request=self.prepared();self.submit(FakeClient(),ledger,request,self.root/'job')
         state=read(ledger);state['jobs'][0]['state']='failed';write(ledger,state)
-        with self.assertRaisesRegex(ValueError,'already submitted'):comfy.submit(FakeClient(),ledger,request,self.root/'retry')
+        with self.assertRaisesRegex(ValueError,'already submitted'):self.submit(FakeClient(),ledger,request,self.root/'retry')
     def test_collect_rejects_outputs_outside_owned_prefix(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,3,'Bound count');request=self.prepared();client=FakeClient()
-        comfy.submit(client,ledger,request,self.root/'job')
+        self.submit(client,ledger,request,self.root/'job')
         def reply(route,data=None):
             return {'prompt-1':{'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'escape.glb','subfolder':'other-run','type':'output'}]}}}}
         client.request=reply
@@ -438,7 +486,7 @@ class CollectionReceiptTests(Temporary):
         base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
         source=base/'input';source.write_text('frozen input');ledger=base/'ledger.json';job=base/'job';output=base/'comfy-output';token='collect-test'
         prepared=self.freeze_request({'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(source)]})
-        comfy.initialize_ledger(ledger,0,'Reconciled fixture');client=FakeClient();comfy.submit(client,ledger,prepared,job)
+        comfy.initialize_ledger(ledger,0,'Reconciled fixture');client=FakeClient();self.submit(client,ledger,prepared,job)
         artifact=output/'headkit'/token/'mesh.glb';artifact.parent.mkdir(parents=True);artifact.write_bytes(b'exported fixture')
         history={'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'mesh.glb','subfolder':'headkit/'+token,'type':'output'}]}}}
         client.request=lambda route,data=None: {'devices':[]} if route=='/system_stats' else {'prompt-1':history}
@@ -492,7 +540,7 @@ class ReleaseTests(Temporary):
     def test_release_holds_submission_lock_through_idle_check_and_free(self):
         ledger,request=self.fixture();submitter=FakeClient();releaser=FakeClient();events=[]
         def blocked_submit():
-            with self.assertRaises(FileExistsError):comfy.submit(submitter,ledger,request,self.root/'job')
+            with self.assertRaises(FileExistsError):self.submit(submitter,ledger,request,self.root/'job')
             self.assertEqual(submitter.posts,0)
         def idle():events.append('idle');blocked_submit();return True
         def free(route,data=None):
@@ -501,14 +549,14 @@ class ReleaseTests(Temporary):
         releaser.idle=idle;releaser.request=free
         self.assertEqual(comfy.release(releaser,ledger),{'freed':True});self.assertEqual(events,['idle','free'])
         self.assertFalse(Path(str(ledger)+'.lock').exists())
-        comfy.submit(submitter,ledger,request,self.root/'job');self.assertEqual(submitter.posts,1)
+        self.submit(submitter,ledger,request,self.root/'job');self.assertEqual(submitter.posts,1)
     def test_submission_holds_same_lock_against_release(self):
         ledger,request=self.fixture();submitter=FakeClient();releaser=FakeClient()
         with patch.object(releaser,'request') as free:
             def idle():
                 with self.assertRaises(FileExistsError):comfy.release(releaser,ledger)
                 return True
-            submitter.idle=idle;comfy.submit(submitter,ledger,request,self.root/'job');free.assert_not_called()
+            submitter.idle=idle;self.submit(submitter,ledger,request,self.root/'job');free.assert_not_called()
     def test_busy_queue_or_unreconciled_jobs_never_free_models(self):
         ledger,_=self.fixture();client=FakeClient()
         with patch.object(client,'request') as free:
