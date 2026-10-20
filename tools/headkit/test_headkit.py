@@ -4,6 +4,7 @@ from contextlib import ExitStack
 import importlib.util
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -155,6 +156,39 @@ class MeshTests(Temporary):
     def test_padding_fills_only_unmapped_pixels_and_preserves_black(self):
         values=np.zeros((4,4,3),np.uint8);values[1,1]=[0,0,0];values[2,2]=[80,90,100];mask=np.zeros((4,4),bool);mask[1,1]=mask[2,2]=True
         result=pad(values,mask);np.testing.assert_array_equal(result[mask],values[mask]);np.testing.assert_array_equal(result[0,0],[0,0,0])
+
+
+class UvBindingTests(Temporary):
+    def fixture(self,directory):
+        directory.mkdir(parents=True,exist_ok=True);module=directory/'xatlas.py';module.write_text('pinned fixture')
+        return {'toolsRoot':str(self.root/'tools-bank'),'libraries':{'xatlas':{'directory':str(directory),'files':[pin(module)]}}}
+    def test_uv_import_rejects_external_and_prefix_sibling_banks(self):
+        from headkit.uv import unwrap
+        for directory in (self.root/'other-worktree',self.root/'tools-bank-sibling'):
+            with self.subTest(directory=directory):
+                bindings=self.fixture(directory)
+                with patch('headkit.common.importlib.import_module') as importer:
+                    with self.assertRaisesRegex(ValueError,'declared durable tools bank'):unwrap({},bindings)
+                    importer.assert_not_called()
+    def test_uv_import_requires_current_dependency_hash(self):
+        from headkit.uv import unwrap
+        bindings=self.fixture(self.root/'tools-bank'/'libraries');Path(bindings['libraries']['xatlas']['files'][0]['path']).write_text('changed')
+        with patch('headkit.common.importlib.import_module') as importer:
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):unwrap({},bindings)
+            importer.assert_not_called()
+    def test_uv_import_rejects_cached_module_from_another_installation(self):
+        from headkit.uv import unwrap
+        bindings=self.fixture(self.root/'tools-bank'/'libraries');unexpected=self.file('unexpected-xatlas.py')
+        with patch('headkit.common.importlib.import_module',return_value=SimpleNamespace(__file__=str(unexpected))):
+            with self.assertRaisesRegex(ValueError,'byte-bound module'):unwrap({},bindings)
+    def test_uv_import_uses_the_pinned_tools_bank_module(self):
+        from headkit.uv import unwrap
+        bindings=self.fixture(self.root/'tools-bank'/'libraries');module=SimpleNamespace(__file__=bindings['libraries']['xatlas']['files'][0]['path'])
+        with patch('headkit.uv.physical_fans',return_value=(np.zeros((3,3)),np.array([[0,1,2]]))), \
+             patch('headkit.uv._pack',side_effect=RuntimeError('verified pack reached')) as pack, \
+             patch('headkit.common.importlib.import_module',return_value=module) as importer:
+            with self.assertRaisesRegex(RuntimeError,'verified pack reached'):unwrap({},bindings)
+            importer.assert_called_once_with('xatlas');self.assertIs(pack.call_args.args[0],module)
 
 
 class AppearanceTests(Temporary):

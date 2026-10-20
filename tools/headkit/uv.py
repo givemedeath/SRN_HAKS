@@ -1,10 +1,7 @@
 """Connected-chart unwrap with bounded local repair and measured atlas coverage."""
-from pathlib import Path
-import hashlib
-import importlib
-import sys
 import time
 import numpy as np
+from .common import library
 
 
 def physical_fans(mesh, preserve_authored_seams=True):
@@ -141,14 +138,9 @@ def _local_groups(indices,bad,max_fraction=.03):
     return groups
 
 
-def unwrap(mesh,binding,policy=None):
+def unwrap(mesh,bindings,policy=None):
     begun=time.perf_counter();policy=policy or {}
-    for row in binding['files']:
-        if hashlib.sha256(Path(row['path']).read_bytes()).hexdigest()!=row['sha256']:raise ValueError('UV dependency changed')
-    sys.path.insert(0,binding['directory'])
-    try:xatlas=importlib.import_module('xatlas')
-    finally:sys.path.pop(0)
-    if Path(xatlas.__file__).resolve() not in [Path(x['path']).resolve() for x in binding['files']]:raise ValueError('Unbound xatlas import')
+    xatlas=library(bindings,'xatlas')
     preserve_seams=policy.get('preserveAuthoredSeams',True)
     if type(preserve_seams) is not bool:raise ValueError('explicit boolean authored-seam policy required')
     vertices,indices=physical_fans(mesh,preserve_authored_seams=preserve_seams)

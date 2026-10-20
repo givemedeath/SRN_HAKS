@@ -33,3 +33,6 @@ The initial generic profile intentionally rejects transformed/multiple-primitive
 
 
 Further provenance/concurrency review: **56 focused toolkit tests pass**, including nine new regressions for missing/unrelated/conflicting replay pins, changed artifacts during replay, resolved path aliases, and deterministic release/submission interleavings in both directions. The dependency-catalog consistency check passes. A fresh shared-launcher CPU replay of retained #74 binds all five consumed roles and reproduces its 20,000-triangle closed source, PLT and sanitized native bytes exactly; it performs no generation, repair, compilation or GPU work. Model release now requires the same reconciled ledger as submission, and holds that lock through both the idle check and `/free` request.
+
+
+Xatlas dependency-boundary review: UV unwrapping now uses the common byte-pinned library loader with the full local bindings, enforcing the declared durable tools bank before importing xatlas. **60 focused toolkit tests pass**, including rejection of external/prefix-sibling directories, changed dependency bytes and unexpected cached module paths. A fresh shared-launcher CPU unwrap of the retained 120-triangle synthetic donor passed: ordered corners and normals unchanged, no 2K/4K UV overlaps, 2K mapped coverage 0.5928010941, 6.719 seconds. No GPU or production assets were involved.

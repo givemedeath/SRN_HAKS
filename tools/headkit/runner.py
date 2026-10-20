@@ -132,7 +132,7 @@ class Runner:
                 require(int(chart_ids(value['uv']).max())+1<=max(256,len(value['faces'])*.3),'Severe imported chart fragmentation')
                 result={'imported':True,'audits':audits,'visualReviewRequired':True}
             else:
-                value,result=unwrap(value,b['libraries']['xatlas'],m.get('mesh',{}).get('uv',{}))
+                value,result=unwrap(value,b,m.get('mesh',{}).get('uv',{}))
                 audit,_=raster_audit(value['uv'],4096);require(not audit['overlapFaces'] and not audit['degenerateUvFaces'],'4K UV audit failed')
                 result['source4kAudit']=audit
             require(np.array_equal(original,value['positions'][value['faces']]),'UV processing changed ordered triangle corners')

@@ -112,7 +112,8 @@
       "tools/headkit/replay.py",
       "tools/headkit/review_images.py",
       "tools/headkit/runner.py",
-      "tools/headkit/textures.py"
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
     ],
     "tools/headkit/textures.py": [
       "tools/headkit/common.py",
@@ -120,7 +121,9 @@
       "tools/headkit/gltf.py",
       "tools/headkit/uv.py"
     ],
-    "tools/headkit/uv.py": [],
+    "tools/headkit/uv.py": [
+      "tools/headkit/common.py"
+    ],
     "tools/heads/audit_fixture_rig.py": [
       "tools/heads/head_workflow.py",
       "tools/phenotypes/retarget.py",
