@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "id": "new-head",
+  "profile": "pixal-single-v1",
+  "inputs": {
+    "comfyExport": {
+      "path": "inputs/comfy-export.glb",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "shellInspection": {
+      "path": "inputs/shell-inspection.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "field": {
+      "path": "inputs/generated-field.npz",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "detail": {
+      "path": "inputs/detail.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "ownership4k": {
+      "path": "inputs/ownership-4096.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "ownership1k": {
+      "path": "inputs/ownership-1024.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "paletteSkin": {
+      "path": "inputs/pal-skin.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "paletteHair": {
+      "path": "inputs/pal-hair.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "mesh": {
+    "triangleBudget": 20000,
+    "alphaWrap": false,
+    "maximumRelativeSurfaceError": 0.004,
+    "allowDecoderOvershoot": false
+  },
+  "tone": {
+    "skin": {
+      "referenceBoxes": [
+        [
+          0.3,
+          0.2,
+          0.4,
+          0.3
+        ]
+      ],
+      "reviewed": false
+    },
+    "hair": {
+      "referenceBoxes": [
+        [
+          0.3,
+          0.2,
+          0.4,
+          0.3
+        ]
+      ],
+      "reviewed": false
+    }
+  },
+  "ownership": {
+    "mode": "atlas",
+    "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "reviewed": false
+  },
+  "palette": {
+    "inputs": {
+      "0": "paletteSkin",
+      "1": "paletteHair"
+    },
+    "rows": {
+      "0": 0,
+      "1": 0
+    },
+    "shadeOffsets": {}
+  },
+  "fit": {
+    "model": "reserved_slot",
+    "maximumRelativeResidual": 0.02,
+    "landmarks": [
+      {
+        "name": "left",
+        "sourceNwnBasis": [
+          0,
+          0,
+          0
+        ],
+        "targetNwnLocal": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "right",
+        "sourceNwnBasis": [
+          1,
+          0,
+          0
+        ],
+        "targetNwnLocal": [
+          1,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "nose",
+        "sourceNwnBasis": [
+          0.5,
+          0.5,
+          1
+        ],
+        "targetNwnLocal": [
+          0.5,
+          0.5,
+          1
+        ]
+      },
+      {
+        "name": "chin",
+        "sourceNwnBasis": [
+          0.5,
+          -1,
+          0
+        ],
+        "targetNwnLocal": [
+          0.5,
+          -1,
+          0
+        ]
+      }
+    ]
+  },
+  "render": {
+    "frontAngleDegrees": -90,
+    "size": 768,
+    "mapInputs": {
+      "basecolor": "inspectionColor",
+      "roughness": "inspectionRoughness",
+      "metallic": "inspectionMetallic",
+      "opacity": "inspectionOpacity"
+    }
+  }
+}

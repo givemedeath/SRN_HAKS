@@ -1,0 +1,133 @@
+{
+  "cpuRenderSmoke": {
+    "elapsedSeconds": 0.9679999999934807,
+    "gpuUsed": false,
+    "threads": 4,
+    "triangles": 20000,
+    "views": [
+      {
+        "mode": "clay",
+        "sha256": "a068ab11b2ffea5a8e176936c81fe21b57dcfac4bf99ccdba2f7915f0211b04e",
+        "view": "front"
+      },
+      {
+        "mode": "color-only",
+        "sha256": "2b5b5e13a99f21db57c64d2bf5f4a97c63a29e8688cb6a26b27c4fd0b943ff00",
+        "view": "front"
+      },
+      {
+        "mode": "material-lit",
+        "sha256": "fb9fe45ad4790b6c06f2bb867a771135c0206ce80e92a0c7127e424789fd2c2d",
+        "view": "front"
+      }
+    ]
+  },
+  "freshNativeCompile": {
+    "clientSha256": "3b7cb1252e0edb2ce22d7971f333aade027039ae30a45b4bc64732c3e6bec73a",
+    "clientTested": false,
+    "hakSha256": "6fb59551286d97e917bbb682c215394e8f7a8863aa175ce312f5d3be11df3cdf",
+    "model": "pfg0_head092",
+    "normalsMaximumError": 1.249000902703301e-16,
+    "onlyFixedStringFieldsChanged": true,
+    "pltSha256": "6c7ca0d7a4f278ff8455b7f0fb0df7144d4537503f848cab550e339aba82e6f2",
+    "positionsMaximumError": 7.450018518762036e-09,
+    "uvMaximumError": 0.0,
+    "zeroedTailBytes": 4
+  },
+  "gpuGenerationPerformed": false,
+  "reviewedHeads": [
+    {
+      "generationOrRepairReplayed": false,
+      "id": "approved-73",
+      "importedReviewedInputs": true,
+      "nativeAudit": {
+        "model": "pfg0_head091",
+        "normalsMaximumError": 1.249000902703301e-16,
+        "onlyFixedStringFieldsChanged": true,
+        "positionsMaximumError": 1.4394676450812938e-08,
+        "uvMaximumError": 0.0,
+        "zeroedTailBytes": 0
+      },
+      "physicalTopology": {
+        "boundaryEdges": 0,
+        "closed": true,
+        "invalidVertexLinks": 0,
+        "nonmanifoldEdges": 0,
+        "physicalVertices": 9936,
+        "triangles": 20000,
+        "windingConflicts": 0,
+        "zeroAreaFaces": 0
+      },
+      "pltBytesExactlyReproduced": true,
+      "pltSha256": "771bf785bade0640896fa9bd84b2b7c370231b0ddcb024924d8e5d0ef45519f3",
+      "replayReceiptSha256": "cb5544c5fc42ed74fa2870f66b31560f78e607e27339966dd84a3a88d3fe5d32",
+      "sourceSha256": "824c284bfaf2ff50b16742d5eab443ab474d707c6158bb2120951e27a7c5f1ae",
+      "triangles": 20000
+    },
+    {
+      "generationOrRepairReplayed": false,
+      "id": "approved-74",
+      "importedReviewedInputs": true,
+      "nativeAudit": {
+        "model": "pfg0_head092",
+        "normalsMaximumError": 1.249000902703301e-16,
+        "onlyFixedStringFieldsChanged": true,
+        "positionsMaximumError": 7.450018518762036e-09,
+        "uvMaximumError": 0.0,
+        "zeroedTailBytes": 0
+      },
+      "physicalTopology": {
+        "boundaryEdges": 0,
+        "closed": true,
+        "invalidVertexLinks": 0,
+        "nonmanifoldEdges": 0,
+        "physicalVertices": 9966,
+        "triangles": 20000,
+        "windingConflicts": 0,
+        "zeroAreaFaces": 0
+      },
+      "pltBytesExactlyReproduced": true,
+      "pltSha256": "6c7ca0d7a4f278ff8455b7f0fb0df7144d4537503f848cab550e339aba82e6f2",
+      "replayReceiptSha256": "c913187a93916ac2e4ee6e302bf2f77cee5e22eb5839a2c7d90258c3ce467c4f",
+      "sourceSha256": "181313fbca568ea8f14161904e3276b68bb5e5070ff80b4e304202a062a36c8e",
+      "triangles": 20000
+    }
+  ],
+  "schemaVersion": 1,
+  "scope": "Extraction and CPU verification; no new asset acceptance",
+  "synthetic": {
+    "reduction": {
+      "alphaWrapApplied": false,
+      "surfaceDistance": {
+        "limit": 0.025,
+        "method": "bidirectional vertices to exact triangles; not continuous Hausdorff",
+        "passed": true,
+        "relativeMaximum": 0.00901298577205936
+      },
+      "triangles": 120
+    },
+    "uv": {
+      "geometryUnchanged": true,
+      "pixelAudits": {
+        "1024": {
+          "coverageFraction": 0.5928268432617188,
+          "degenerateUvFaces": [],
+          "mappedTexels": 621624,
+          "overlapFaces": []
+        },
+        "2048": {
+          "coverageFraction": 0.5928010940551758,
+          "degenerateUvFaces": [],
+          "mappedTexels": 2486388,
+          "overlapFaces": []
+        }
+      },
+      "source4kAudit": {
+        "coverageFraction": 0.5928187370300293,
+        "degenerateUvFaces": [],
+        "mappedTexels": 9945848,
+        "overlapFaces": []
+      }
+    }
+  }
+}
