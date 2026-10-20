@@ -60,7 +60,7 @@
       },
       "pltBytesExactlyReproduced": true,
       "pltSha256": "771bf785bade0640896fa9bd84b2b7c370231b0ddcb024924d8e5d0ef45519f3",
-      "replayReceiptSha256": "cb5544c5fc42ed74fa2870f66b31560f78e607e27339966dd84a3a88d3fe5d32",
+      "replayReceiptSha256": "77a5964b7f10433cde5f3f9808c45ba08f868fd23db766a6da2b7bc4026d0939",
       "sourceSha256": "824c284bfaf2ff50b16742d5eab443ab474d707c6158bb2120951e27a7c5f1ae",
       "triangles": 20000
     },
@@ -88,7 +88,7 @@
       },
       "pltBytesExactlyReproduced": true,
       "pltSha256": "6c7ca0d7a4f278ff8455b7f0fb0df7144d4537503f848cab550e339aba82e6f2",
-      "replayReceiptSha256": "c913187a93916ac2e4ee6e302bf2f77cee5e22eb5839a2c7d90258c3ce467c4f",
+      "replayReceiptSha256": "9f14612e689e81771245951e71fb830b9a8eafcabb38e5e06750ed207d6577bf",
       "sourceSha256": "181313fbca568ea8f14161904e3276b68bb5e5070ff80b4e304202a062a36c8e",
       "triangles": 20000
     }
@@ -96,6 +96,25 @@
   "schemaVersion": 1,
   "scope": "Extraction and CPU verification; no new asset acceptance",
   "synthetic": {
+    "bake": {
+      "clippedSamplesByChannel": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "elapsedSeconds": 18.103724499989767,
+      "mapDimensions": [
+        4096,
+        2048,
+        1024
+      ],
+      "mappedSamples": 9945848,
+      "nearestFallbackSamples": 0,
+      "threads": 4
+    },
     "reduction": {
       "alphaWrapApplied": false,
       "surfaceDistance": {
@@ -129,5 +148,11 @@
         "overlapFaces": []
       }
     }
+  },
+  "tests": {
+    "catalogRegression": 18,
+    "focusedHeadkit": 38,
+    "itemImportRegressions": "passed",
+    "repositoryVerification": "requires full asset checkout; covered by PR CI"
   }
 }

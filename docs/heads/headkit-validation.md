@@ -12,7 +12,8 @@ The fresh [operator runbook](head-generation-toolkit.md) is the supported entry 
 | CPU rendering | Actual generated2K appearance on #74 UV mesh; clay, color-only and material-lit smoke, four threads, no GPU or AO |
 | Synthetic repair/reduction | Closed shell bypassed Alpha Wrap; collision-blocking QSlim reached120 triangles, topology/crossings and declared sampled-error gates passed |
 | Synthetic UV | Connected charts; geometry retained; no degenerate/overlapping UV faces at4K/2K/1K; useful coverage measured rather than packer utilization |
-| Unit coverage | Input alignment/reflections/clipping gates, profile/checkpoint/view order, shared detector crop, saved-shape hashing, trilinear sampling, padding/opaque black, palette eligibility, accessory-preserving tone matching, interrupted/duplicate requests, path escapes, stale outputs and serialization-failure receipts |
+| Synthetic 4K bake | Full4K CPU bake completed, then2K/1K BOX derivatives; raw coverage/fallback/clipping counts retained |
+| Unit coverage (38 tests) | Input alignment/reflections/clipping gates, profile/checkpoint/view order, shared detector crop, saved-shape hashing, trilinear sampling, padding/opaque black, palette eligibility, accessory-preserving tone matching, interrupted/duplicate requests, path escapes, stale outputs and serialization-failure receipts |
 
 The retained-head replay **does not recompute generation, reduction, tones or semantic ownership**. It imports the accepted meshes, fits and reviewed layer/shade data honestly. The new packaging output is diagnostic evidence, not a replacement production asset or a new client acceptance. Historical #73/#74 surface deviations exceeded the old0.4% research gate and were visually accepted; this extraction does not rewrite those results.
 
