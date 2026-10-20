@@ -90,9 +90,10 @@ class Runner:
             'palette':[] if 'runtimeColor' in self.data['inputs'] else ['tone'],
             'export':([] if 'uvMesh' in self.data['inputs'] else ['unwrap'])+([] if 'runtimeShades' in self.data['inputs'] else ['palette']),
             'native':['export'], 'render':[] if 'uvMesh' in self.data['inputs'] else ['unwrap']}
-        if stage=='tone' and 'ownership4k' not in self.data['inputs']:dependencies[stage].append('ownership')
+        if stage=='tone' and not any(role in self.data['inputs'] for role in ('ownership1k','ownership4k')):
+            dependencies[stage].append('ownership')
         if stage=='palette' and 'ownership1k' not in self.data['inputs']:dependencies[stage].append('ownership')
-        imported_atlases={'tone':('basecolor4k','ownership4k'),'palette':('runtimeColor','ownership1k'),
+        imported_atlases={'tone':('basecolor4k','ownership4k','ownership1k'),'palette':('runtimeColor','ownership1k'),
                           'export':('runtimeShades','ownership1k')}.get(stage,())
         if any(role in self.data['inputs'] for role in imported_atlases) and 'uvMesh' not in self.data['inputs'] and 'unwrap' not in dependencies[stage]:
             dependencies[stage].append('unwrap')
@@ -180,10 +181,29 @@ class Runner:
         if stage=='tone':
             from .textures import tone_match
             color=self.source('basecolor4k','bake','unused') if 'basecolor4k' in m['inputs'] else self.result('bake')['maps']['basecolor-4096.png']['path']
-            ownership=self.input('ownership4k') if 'ownership4k' in m['inputs'] else self.result('ownership')['fourk']['path']
+            if 'ownership4k' in m['inputs']:
+                ownership=self.input('ownership4k');ownership_source=ownership;ownership_role='ownership4k';upsampling=None
+            elif 'ownership1k' in m['inputs']:
+                ownership_source=self.input('ownership1k');ownership_role='ownership1k';upsampling='nearest'
+                with Image.open(ownership_source) as mask:
+                    require(mask.mode=='L' and mask.size==(1024,1024),
+                            'Imported ownership1k must be an actual 1024x1024 eight-bit L image')
+                    labels=np.asarray(mask)
+                    require(np.max(labels)<=9,'Unknown ownership must be resolved before tone matching')
+                    ownership=folder/'ownership-4096-nearest.png'
+                    mask.resize((4096,4096),Image.Resampling.NEAREST).save(ownership)
+            else:
+                ownership=self.result('ownership')['fourk']['path'];ownership_source=ownership
+                ownership_role='ownership';upsampling=None
             for path in (color,ownership):
-                with Image.open(path) as image:require(image.size==(4096,4096),'Tone inputs must be actual 4096x4096 images')
+                with Image.open(path) as image:
+                    require(image.size==(4096,4096),'Tone inputs must be actual 4096x4096 images')
+                    if path==ownership:
+                        require(image.mode=='L','Tone ownership must be an eight-bit L image')
+                        require(np.max(np.asarray(image))<=9,'Unknown ownership must be resolved before tone matching')
             output=folder/'tone-4096.png';result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
+            result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
+                          ownershipForTone=pin(ownership),ownershipUpsampling=upsampling)
             image=Image.open(output)
             require(image.size==(4096,4096),'Tone output must be actual 4096x4096 before deriving review maps')
             result['maps']={}

@@ -714,6 +714,14 @@ class ImportedTextureTests(Temporary):
 
 class ToneResolutionTests(Temporary):
     fixture=ImportedOwnershipTests.fixture
+    def one_k_only(self,runner):
+        runner.data['inputs'].pop('ownership4k')
+        path=Path(runner.manifest_path).parent/runner.data['inputs']['ownership1k']['path']
+        labels=(np.arange(1024*1024,dtype=np.uint32).reshape(1024,1024)%10).astype(np.uint8)
+        Image.fromarray(labels,'L').save(path)
+        runner.data['inputs']['ownership1k']['sha256']=pin(path)['sha256']
+        write(runner.manifest_path,runner.data)
+        return labels
     def test_tone_rejects_lower_resolution_imports_before_matching(self):
         for color_size,mask_size in ((1024,1024),(2048,2048),(4096,1024),(1024,4096)):
             runner=self.fixture()
@@ -737,6 +745,54 @@ class ToneResolutionTests(Temporary):
         with patch('headkit.textures.tone_match',side_effect=match):result=runner._execute('tone',runner.run)
         for size in (2048,1024):
             with Image.open(result['maps'][str(size)]['path']) as image:self.assertEqual(image.size,(size,size))
+    def test_reviewed_1k_only_ownership_is_nearest_expanded_for_tone(self):
+        runner=self.fixture();labels=self.one_k_only(runner);observed={}
+        def match(color,ownership,reference,config,output):
+            with Image.open(ownership) as image:
+                self.assertEqual(image.mode,'L');self.assertEqual(image.size,(4096,4096))
+                expanded=np.asarray(image)
+                np.testing.assert_array_equal(expanded[::4,::4],labels)
+                blocks=expanded.reshape(1024,4,1024,4)
+                np.testing.assert_array_equal(blocks,np.broadcast_to(labels[:,None,:,None],blocks.shape))
+                observed['mask']=pin(ownership)
+            Image.new('RGB',(4096,4096),(128,96,64)).save(output)
+            return {'output':pin(output)}
+        with patch('headkit.textures.tone_match',side_effect=match):result=runner._execute('tone',runner.run)
+        self.assertEqual(result['ownershipInputRole'],'ownership1k')
+        self.assertEqual(result['ownershipUpsampling'],'nearest')
+        self.assertEqual(result['ownershipSource']['path'],runner.input('ownership1k'))
+        self.assertEqual(result['ownershipForTone'],observed['mask'])
+        self.assertTrue(Path(result['ownershipForTone']['path']).is_relative_to(runner.run))
+        for size in (2048,1024):
+            with Image.open(result['maps'][str(size)]['path']) as image:self.assertEqual(image.size,(size,size))
+    def test_tone_rejects_invalid_1k_ownership_before_matching(self):
+        for mode,size,unknown in (('RGB',1024,False),('L',512,False),('L',1024,True)):
+            runner=self.fixture();self.one_k_only(runner)
+            path=Path(runner.manifest_path).parent/runner.data['inputs']['ownership1k']['path']
+            Image.new(mode,(size,size),10 if unknown else 0).save(path)
+            runner.data['inputs']['ownership1k']['sha256']=pin(path)['sha256'];write(runner.manifest_path,runner.data)
+            message='Unknown ownership' if unknown else 'actual 1024x1024 eight-bit L'
+            with self.subTest(mode=mode,size=size,unknown=unknown),patch('headkit.textures.tone_match') as matcher:
+                with self.assertRaisesRegex(ValueError,message):runner._execute('tone',runner.run)
+                matcher.assert_not_called()
+                self.assertFalse((runner.run/'tone-4096.png').exists())
+    def test_1k_tone_mask_tracks_unwrap_review_and_skips_ownership_stage(self):
+        runner=self.fixture(derived_uv=True);self.one_k_only(runner)
+        def unwrap(stage,folder):
+            target=folder/'uv.glb';target.write_text('frozen UV mesh');return {'mesh':pin(target)}
+        with patch.object(runner,'_execute',side_effect=unwrap):runner.execute('unwrap')
+        runner.review('unwrap','approved','Reviewed UV mesh for imported 1K mask')
+        def match(*args):Image.new('RGB',(4096,4096),(128,96,64)).save(args[-1]);return {'output':pin(args[-1])}
+        with patch('headkit.textures.tone_match',side_effect=match) as matcher:runner.execute('tone')
+        matcher.assert_called_once()
+        receipt=read(runner.state['stages']['tone']['path'])
+        self.assertEqual(set(receipt['dependencies']),{'unwrap'})
+        self.assertNotIn('ownership',runner.state['stages'])
+        runner.review('tone','approved','Reviewed tone from the imported 1K ownership mask')
+        runner.review('unwrap','rejected','UV review revoked')
+        with patch('headkit.textures.tone_match') as matcher:
+            with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('tone')
+            matcher.assert_not_called()
 
 
 class ReviewGateTests(Temporary):
