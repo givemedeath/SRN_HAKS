@@ -171,8 +171,12 @@ def python_package_pins(data, *, require_imports=False):
     directory = configured_directory.resolve(strict=True)
     tools_root = Path(data['toolsRoot']).resolve()
     is_junction = getattr(os.path, 'isjunction', lambda path: False)
-    require(configured_directory.is_absolute() and str(directory) == str(configured_directory)
-            and not configured_directory.is_symlink() and not is_junction(configured_directory)
+
+    def has_link_component(path):
+        return any(candidate.is_symlink() or is_junction(candidate)
+                   for candidate in (path, *path.parents))
+
+    require(configured_directory.is_absolute() and not has_link_component(configured_directory)
             and directory.is_dir() and directory.is_relative_to(tools_root),
             'Python package installation must be a canonical directory inside the declared durable tools bank')
 
@@ -182,8 +186,7 @@ def python_package_pins(data, *, require_imports=False):
     for item in pins:
         configured_path = Path(item['path'])
         resolved = configured_path.resolve(strict=True)
-        require(configured_path.is_absolute() and str(resolved) == str(configured_path)
-                and not configured_path.is_symlink() and not is_junction(configured_path),
+        require(configured_path.is_absolute() and not has_link_component(configured_path),
                 'Python package file pins must use canonical non-link paths')
         pinned.append(resolved)
     pinned_set = set(pinned)
