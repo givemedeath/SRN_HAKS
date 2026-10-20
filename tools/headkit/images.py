@@ -26,7 +26,20 @@ def similarity(source, target, max_relative=1e-3):
     return scale, rotation, translation, errors
 
 
+def _minimum_silhouette_iou(config):
+    value=config.get('minimumSilhouetteIoU',.94)
+    require(isinstance(value,(int,float)) and not isinstance(value,bool),
+            'Minimum silhouette IoU must be a finite number from 0.94 to 1')
+    try:value=float(value)
+    except (OverflowError,TypeError,ValueError):
+        require(False,'Minimum silhouette IoU must be a finite number from 0.94 to 1')
+    require(math.isfinite(value) and .94<=value<=1,
+            'Minimum silhouette IoU must be a finite number from 0.94 to 1')
+    return value
+
+
 def prepare(clay_path, detail_path, config, output):
+    minimum_iou=_minimum_silhouette_iou(config)
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     clay, detail = (Image.open(p).convert('RGBA') for p in (clay_path, detail_path))
     require(clay.size == detail.size, 'Pair must have matching canvases before alignment')
@@ -48,7 +61,7 @@ def prepare(clay_path, detail_path, config, output):
     for mask in (a_mask,b_mask):
         require(not (mask[0].any() or mask[-1].any() or mask[:,0].any() or mask[:,-1].any()),'Input silhouette is clipped at canvas edge')
     iou = float(np.count_nonzero(a_mask & b_mask) / np.count_nonzero(a_mask | b_mask))
-    require(iou >= config.get('minimumSilhouetteIoU', .94), 'Paired silhouette alignment failed')
+    require(iou >= minimum_iou, 'Paired silhouette alignment failed')
     mask = ImageChops.lighter(aligned.getchannel('A'), detail.getchannel('A'))
     aligned.save(output / 'geometry-pair.png'); detail.save(output / 'detail-pair.png')
     Image.merge('RGBA', (mask, mask, mask, mask)).save(output / 'common-mask.png')

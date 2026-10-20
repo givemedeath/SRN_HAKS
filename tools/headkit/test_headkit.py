@@ -525,6 +525,21 @@ class ImageTests(Temporary):
     def test_paired_preparation_keeps_identical_silhouette(self):
         result=prepare(self.root/'clay.png',self.root/'detail.png',self.pair(),self.root/'prepared')
         self.assertEqual(result['silhouetteIoU'],1);self.assertTrue(result['manualReviewRequired'])
+    def test_silhouette_iou_floor_rejects_lower_nonfinite_and_invalid_values(self):
+        values=(.939,0,-1,float('nan'),float('inf'),-float('inf'),1.01,True,'0.94',10**400)
+        for index,value in enumerate(values):
+            with self.subTest(value=repr(value)):
+                config=self.pair();config['minimumSilhouetteIoU']=value
+                output=self.root/f'bad-threshold-{index}'
+                with self.assertRaisesRegex(ValueError,'Minimum silhouette IoU'):
+                    prepare(self.root/'clay.png',self.root/'detail.png',config,output)
+                self.assertFalse(output.exists())
+    def test_silhouette_iou_floor_allows_documented_boundary(self):
+        for threshold in (.94,1.0):
+            with self.subTest(threshold=threshold):
+                config=self.pair();config['minimumSilhouetteIoU']=threshold
+                result=prepare(self.root/'clay.png',self.root/'detail.png',config,self.root/f'valid-{threshold}')
+                self.assertEqual(result['silhouetteIoU'],1)
     def test_multiview_shared_scale_and_order_gates(self):
         align=self.pair();pairs={v:(self.root/'clay.png',self.root/'detail.png') for v in ['front','left','back','right']}
         config={'rigReviewed':True,'fovDegrees':20,'views':{v:{'azimuthDegrees':a,'orientationReviewed':True,'alignment':align,
@@ -532,6 +547,14 @@ class ImageTests(Temporary):
         result=prepare_multiview(pairs,config,self.root/'good');self.assertFalse(result['independentCropping'])
         config['views']['left']['skullCenter']=[.6,.5]
         with self.assertRaisesRegex(ValueError,'drift'):prepare_multiview(pairs,config,self.root/'bad')
+    def test_multiview_pair_cannot_lower_silhouette_floor(self):
+        align=self.pair();align['minimumSilhouetteIoU']=.5
+        pairs={view:(self.root/'clay.png',self.root/'detail.png') for view in ('front','left','back','right')}
+        config={'rigReviewed':True,'fovDegrees':20,'views':{view:{'azimuthDegrees':azimuth,'orientationReviewed':True,
+            'alignment':align,'crown':[.5,.1],'chin':[.5,.9],'skullCenter':[.5,.5]}
+            for view,azimuth in [('front',0),('left',90),('back',180),('right',270)]}}
+        with self.assertRaisesRegex(ValueError,'Minimum silhouette IoU'):
+            prepare_multiview(pairs,config,self.root/'low-floor')
 
 
 class MeshTests(Temporary):
