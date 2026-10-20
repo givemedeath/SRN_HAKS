@@ -62,6 +62,19 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
                 loaded_source_code([self.core])
 
+    def test_loaded_stale_lowercase_module_constant_is_rejected_after_disk_restore(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('shape_scale = 1.0\n'
+                    'def loaded_value():\n    return shape_scale\n')
+        path.write_text(reviewed, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_lowercase_fixture')
+        module.__file__ = str(path)
+        exec(compile(reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
+        module.shape_scale = 1.5
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
+                loaded_source_code([self.core])
+
     def test_runtime_endpoint_returns_the_live_loaded_code_identity(self):
         source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'
         tree = ast.parse(source.read_text(encoding='utf-8'))

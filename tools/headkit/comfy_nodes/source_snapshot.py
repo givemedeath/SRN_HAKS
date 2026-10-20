@@ -168,7 +168,7 @@ def _source_constants(source):
             targets=[statement.target];value=None
         else:continue
         for target in targets:
-            if isinstance(target,ast.Name) and target.id.isupper():
+            if isinstance(target,ast.Name):
                 assignments.setdefault(target.id,[]).append(value)
     constants={}
     for name,values in assignments.items():
