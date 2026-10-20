@@ -28,6 +28,15 @@ class Runner:
             source=self.source('uvMesh','unwrap','mesh')
             require(config.get('sourceSha256')==pin(source)['sha256'],
                     'Imported ownership review must bind the exact UV mesh')
+        atlas_roles={'basecolor4k','runtimeColor','runtimeShades'}|set(self.data.get('render',{}).get('mapInputs',{}).values())
+        if name in atlas_roles:
+            review=self.data.get('approval',{}).get('textureMaps',{}).get(name,{})
+            require(review.get('decision')=='approved' and bool(review.get('notes','').strip()),
+                    'Imported texture needs explicit UV-mesh review: '+name)
+            source=self.source('uvMesh','unwrap','mesh')
+            require(review.get('sourceSha256')==pin(source)['sha256']
+                    and review.get('textureSha256')==self.data['inputs'][name]['sha256'],
+                    'Imported texture review must bind the exact UV mesh and texture: '+name)
         return asset(self.manifest_path,self.data['inputs'][name])['path']
 
     def result(self,stage,*,require_review=True,_checked=None):
@@ -82,8 +91,9 @@ class Runner:
             'native':['export'], 'render':[] if 'uvMesh' in self.data['inputs'] else ['unwrap']}
         if stage=='tone' and 'ownership4k' not in self.data['inputs']:dependencies[stage].append('ownership')
         if stage=='palette' and 'ownership1k' not in self.data['inputs']:dependencies[stage].append('ownership')
-        imported_mask={'tone':'ownership4k','palette':'ownership1k','export':'ownership1k'}.get(stage)
-        if imported_mask in self.data['inputs'] and 'uvMesh' not in self.data['inputs'] and 'unwrap' not in dependencies[stage]:
+        imported_atlases={'tone':('basecolor4k','ownership4k'),'palette':('runtimeColor','ownership1k'),
+                          'export':('runtimeShades','ownership1k')}.get(stage,())
+        if any(role in self.data['inputs'] for role in imported_atlases) and 'uvMesh' not in self.data['inputs'] and 'unwrap' not in dependencies[stage]:
             dependencies[stage].append('unwrap')
         dependency_pins={}
         for dependency in dependencies[stage]:

@@ -168,5 +168,33 @@
       "metallic": "inspectionMetallic",
       "opacity": "inspectionOpacity"
     }
+  },
+  "approval": {
+    "textureMaps": {
+      "inspectionColor": {
+        "decision": "pending",
+        "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "textureSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "notes": "Review this exact atlas on the active UV mesh."
+      },
+      "inspectionRoughness": {
+        "decision": "pending",
+        "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "textureSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "notes": "Review this exact atlas on the active UV mesh."
+      },
+      "inspectionMetallic": {
+        "decision": "pending",
+        "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "textureSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "notes": "Review this exact atlas on the active UV mesh."
+      },
+      "inspectionOpacity": {
+        "decision": "pending",
+        "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "textureSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "notes": "Review this exact atlas on the active UV mesh."
+      }
+    }
   }
 }

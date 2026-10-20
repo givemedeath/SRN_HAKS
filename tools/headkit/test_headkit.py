@@ -552,6 +552,9 @@ class ImportedOwnershipTests(Temporary):
         inputs['repairedMesh' if derived_uv else 'uvMesh']={'path':uv.name,'sha256':pin(uv)['sha256']}
         data={'schemaVersion':1,'id':'ownership-binding','inputs':inputs,'ownership':{'reviewed':True,'sourceSha256':pin(uv)['sha256']},
               'palette':{'inputs':{},'rows':{}},'tone':{},'fit':{'model':'head'}}
+        data['approval']={'textureMaps':{role:{'decision':'approved','notes':'Reviewed atlas on this exact mesh',
+            'sourceSha256':pin(uv)['sha256'],'textureSha256':inputs[role]['sha256']}
+            for role in ('basecolor4k','runtimeColor','runtimeShades')}}
         write(base/'manifest.json',data);write(base/'bindings.json',{'schemaVersion':1,'toolsRoot':str(base)})
         return Runner(base/'manifest.json',base/'bindings.json',base/'run')
     def test_imported_masks_need_review_and_exact_mesh_hash(self):
@@ -593,6 +596,42 @@ class ImportedOwnershipTests(Temporary):
 
 
 
+
+class ImportedTextureTests(Temporary):
+    fixture=ImportedOwnershipTests.fixture
+    def with_render(self):
+        runner=self.fixture();runner.data['inputs']['displayColor']=copy.deepcopy(runner.data['inputs']['runtimeColor'])
+        runner.data['render']={'mapInputs':{'basecolor':'displayColor'},'cameras':{'front':{}}}
+        runner.data['approval']['textureMaps']['displayColor']=copy.deepcopy(runner.data['approval']['textureMaps']['runtimeColor'])
+        return runner
+    def test_each_imported_atlas_needs_approved_exact_texture_and_mesh(self):
+        runner=self.with_render();reviews=runner.data['approval']['textureMaps']
+        for role in ('basecolor4k','runtimeColor','runtimeShades','displayColor'):
+            valid=copy.deepcopy(reviews[role])
+            for invalid in ({},dict(valid,decision='rejected'),dict(valid,notes=' '),dict(valid,sourceSha256='0'*64),dict(valid,textureSha256='0'*64)):
+                with self.subTest(role=role,review=invalid):
+                    reviews[role]=invalid
+                    with self.assertRaisesRegex(ValueError,'Imported texture'):runner.input(role)
+            reviews[role]=valid;self.assertTrue(Path(runner.input(role)).is_file())
+    def test_all_consuming_stages_reject_unreviewed_atlases_before_processing(self):
+        runner=self.with_render()
+        for stage,role,target in [('tone','basecolor4k','headkit.textures.tone_match'),('palette','runtimeColor','headkit.palette.quantize'),
+                                  ('export','runtimeShades','headkit.native.prepare'),('render','displayColor','headkit.review_images.atlas_sets')]:
+            valid=runner.data['approval']['textureMaps'].pop(role)
+            with self.subTest(stage=stage),patch(target) as work:
+                with self.assertRaisesRegex(ValueError,'Imported texture'):runner._execute(stage,runner.run)
+                work.assert_not_called()
+            runner.data['approval']['textureMaps'][role]=valid
+    def test_imported_atlas_rejects_another_active_uv_mesh(self):
+        runner=self.fixture();other=self.file('other-uv.glb');row=pin(other)
+        # Keep all paths portable beneath this fixture's manifest.
+        target=runner.manifest_path.parent/'other.glb';target.write_bytes(other.read_bytes())
+        runner.data['inputs']['uvMesh']={'path':target.name,'sha256':row['sha256']}
+        for role in ('basecolor4k','runtimeColor','runtimeShades'):
+            with self.subTest(role=role):
+                with self.assertRaisesRegex(ValueError,'exact UV mesh'):runner.input(role)
+
+
 class ToneResolutionTests(Temporary):
     fixture=ImportedOwnershipTests.fixture
     def test_tone_rejects_lower_resolution_imports_before_matching(self):
@@ -602,6 +641,7 @@ class ToneResolutionTests(Temporary):
                 path=Path(runner.manifest_path).parent/runner.data['inputs'][role]['path']
                 mode='RGB' if role=='basecolor4k' else 'L';Image.new(mode,(size,size)).save(path)
                 runner.data['inputs'][role]['sha256']=pin(path)['sha256']
+                if role=='basecolor4k':runner.data['approval']['textureMaps'][role]['textureSha256']=pin(path)['sha256']
             with self.subTest(color=color_size,mask=mask_size),patch('headkit.textures.tone_match') as matcher:
                 with self.assertRaisesRegex(ValueError,'Tone inputs must be actual 4096'):runner._execute('tone',runner.run)
                 matcher.assert_not_called();self.assertFalse((runner.run/'tone-2048.png').exists())
@@ -673,6 +713,7 @@ class ReviewImageTests(Temporary):
         example=read(Path(__file__).parent/'examples'/'processing.json')
         self.assertEqual(resolutions(example['render']),[2048,1024])
         self.assertTrue(set(example['render']['mapInputs'].values())<=set(example['inputs']))
+        self.assertTrue(set(example['render']['mapInputs'].values())<=set(example['approval']['textureMaps']))
         with self.assertRaises(ValueError):resolutions({'sizes':[768]})
         with self.assertRaises(ValueError):resolutions({'sizes':[2048,1024],'size':768})
     def test_atlases_are_filtered_to_actual_1k_and_hashed(self):
