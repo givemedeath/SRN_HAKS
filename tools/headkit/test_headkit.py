@@ -45,6 +45,18 @@ class Temporary(unittest.TestCase):
         return {'toolchain':pin(self.file('runtime-toolchain.json')),
                 'migrationReceipt':pin(self.file('runtime-migration.json')),'python':pin(sys.executable),
                 'toolsRoot':str(self.root.resolve())}
+    def bindings_data(self, *, tools_root=None, **values):
+        tools_root=Path(tools_root or self.root)
+        directory=tools_root/'headkit-runtime'/'site-packages'
+        files=[]
+        for name in ('numpy','PIL','scipy'):
+            package=directory/name;package.mkdir(parents=True,exist_ok=True)
+            module=package/'__init__.py';module.write_text('# pinned test fixture: '+name)
+            files.append(pin(module))
+        data={'schemaVersion':1,'toolsRoot':str(tools_root),
+              'pythonPackages':{'directory':str(directory),'files':files}}
+        data.update(values)
+        return data
     def bind_dispatch(self,prepared,endpoint='http://127.0.0.1:8188'):
         bindings=self.root/'dispatch-bindings.json'
         if not bindings.exists():bindings.write_text('{}')
@@ -213,10 +225,69 @@ class RuntimeIdentityTests(Temporary):
         wrong=copy.deepcopy(active);wrong['tools']['python']=pin(self.file('fake-python.exe'))
         with self.assertRaisesRegex(ValueError,'Executing Python'):self.launch(local,toolchain,migration,wrong)
     def test_runner_receipt_records_actual_runtime_and_rejects_other_runtime(self):
-        runner=ResumeTests.fixture(self);runner.runtime={'verifiedRuntime':'A'};runner.execute('prepare')
+        runner=ResumeTests.fixture(self);runner.runtime={'verifiedRuntime':'A'}
+        with patch('headkit.runner.python_package_pins',return_value=runner.bindings['pythonPackages']['files']):
+            runner.execute('prepare')
         receipt=read(runner.state['stages']['prepare']['path']);self.assertEqual(receipt['runtimeIdentity'],runner.runtime)
         other=Runner(runner.manifest_path,runner.bindings_path,runner.run,runtime={'verifiedRuntime':'B'})
         with self.assertRaisesRegex(ValueError,'runtime differs'):other.result('prepare',require_review=False)
+
+
+class PythonPackagePinTests(Temporary):
+    def test_missing_or_incomplete_package_inventory_is_rejected(self):
+        from headkit.common import python_package_pins
+        bindings=self.bindings_data()
+        with self.assertRaisesRegex(ValueError,'Missing complete Python package'):
+            python_package_pins({'toolsRoot':str(self.root)})
+        (Path(bindings['pythonPackages']['directory'])/'numpy'/'unlisted.py').write_text('extra executable module')
+        with self.assertRaisesRegex(ValueError,'complete installation membership'):
+            python_package_pins(bindings)
+
+    def test_bound_package_origins_must_resolve_inside_inventory(self):
+        from headkit.common import python_package_pins
+        bindings=self.bindings_data()
+        root=Path(bindings['pythonPackages']['directory'])
+        modules={name:SimpleNamespace(__file__=str(root/name/'__init__.py'),
+                __path__=[str(root/name)]) for name in ('numpy','PIL','scipy')}
+        with patch('headkit.common.importlib.import_module',side_effect=lambda name:modules[name]):
+            pins=python_package_pins(bindings,require_imports=True)
+        self.assertEqual(pins,bindings['pythonPackages']['files'])
+        modules['scipy']=SimpleNamespace(__file__=str(self.file('unbound-scipy.py')),
+                                      __path__=[str(self.root)])
+        with patch('headkit.common.importlib.import_module',side_effect=lambda name:modules[name]):
+            with self.assertRaisesRegex(ValueError,'outside its byte-bound installation'):
+                python_package_pins(bindings,require_imports=True)
+
+    def test_package_inventory_is_rechecked_after_import(self):
+        from headkit.common import python_package_pins
+        bindings=self.bindings_data();root=Path(bindings['pythonPackages']['directory'])
+        modules={name:SimpleNamespace(__file__=str(root/name/'__init__.py'),
+                __path__=[str(root/name)]) for name in ('numpy','PIL','scipy')}
+        def import_package(name):
+            if name=='scipy':(root/'scipy'/'late.py').write_text('changed while importing')
+            return modules[name]
+        with patch('headkit.common.importlib.import_module',side_effect=import_package):
+            with self.assertRaisesRegex(ValueError,'membership changed while importing'):
+                python_package_pins(bindings,require_imports=True)
+
+    def test_stage_receipt_pins_and_rechecks_the_complete_package_tree(self):
+        runner=ResumeTests.fixture(self)
+        with patch.object(runner,'_execute',return_value={'fixture':True}):
+            runner.execute('prepare')
+        receipt=read(runner.state['stages']['prepare']['path'])
+        self.assertTrue(set((item['path'],item['sha256']) for item in runner.bindings['pythonPackages']['files'])<=
+                        set((item['path'],item['sha256']) for item in receipt['inputs']))
+        runner=ResumeTests.fixture(self)
+        runner.run=self.root/'run-mutation';runner.run.mkdir()
+        runner.state_path=runner.run/'state.json';runner.state={'schemaVersion':1,'id':runner.data['id'],'stages':{}}
+        def adds_unpinned_module(stage,folder):
+            (Path(runner.bindings['pythonPackages']['directory'])/'numpy'/'late.py').write_text('changed during stage')
+            return {'fixture':True}
+        with patch.object(runner,'_execute',side_effect=adds_unpinned_module):
+            with self.assertRaisesRegex(ValueError,'complete installation membership'):
+                runner.execute('prepare')
+        failed=read(runner.run/'prepare'/'attempt-01'/'receipt.json')
+        self.assertEqual(failed['state'],'failed')
 
 
 class SourceInventoryTests(Temporary):
@@ -862,7 +933,7 @@ class ResumeTests(Temporary):
         alignment=self.pair();inputs={name:{'path':name+'.png','sha256':pin(self.root/(name+'.png'))['sha256']} for name in ['clay','detail']}
         data={'schemaVersion':1,'id':'synthetic','inputs':inputs,'alignment':alignment,'features':[{'name':'hair','placementReviewed':True}],
               'approval':{'referenceDesignReviewed':True}}
-        write(self.root/'manifest.json',data);write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root)})
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
         return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
     def test_resume_reuses_only_verified_outputs(self):
         runner=self.fixture();first=runner.execute('prepare');self.assertFalse(first['reused']);self.assertTrue(runner.execute('prepare')['reused'])
@@ -895,8 +966,25 @@ class ImportedOwnershipTests(Temporary):
         data['approval']={'textureMaps':{role:{'decision':'approved','notes':'Reviewed atlas on this exact mesh',
             'sourceSha256':pin(uv)['sha256'],'textureSha256':inputs[role]['sha256']}
             for role in ('basecolor4k','runtimeColor','runtimeShades')}}
-        write(base/'manifest.json',data);write(base/'bindings.json',{'schemaVersion':1,'toolsRoot':str(base)})
+        write(base/'manifest.json',data);write(base/'bindings.json',self.bindings_data(tools_root=base))
         return Runner(base/'manifest.json',base/'bindings.json',base/'run')
+    def test_imported_mesh_audit_blocks_export_and_records_passed_evidence(self):
+        runner=self.fixture();source=runner.input('uvMesh')
+        rejected={'source':pin(source),'passed':False,'topology':{'closed':False},
+                  'crossings':{'complete':True,'pairs':[]}}
+        with patch('headkit.mesh.audit',return_value=rejected) as audit, patch('headkit.native.prepare') as prepare:
+            with self.assertRaisesRegex(ValueError,'Imported mesh failed topology/collision audit'):
+                runner._execute('export',runner.run)
+            audit.assert_called_once_with(source);prepare.assert_not_called()
+        runner=self.fixture();source=runner.input('uvMesh')
+        accepted={'source':pin(source),'passed':True,'topology':{'closed':True},
+                  'crossings':{'complete':True,'pairs':[]}}
+        with patch('headkit.mesh.audit',return_value=accepted) as audit, patch(
+                'headkit.native.prepare',return_value={'exported':True}) as prepare:
+            result=runner._execute('export',runner.run)
+        audit.assert_called_once_with(source);prepare.assert_called_once()
+        self.assertEqual(read(result['geometryAudit']['path']),accepted)
+
     def test_imported_masks_need_review_and_exact_mesh_hash(self):
         runner=self.fixture();valid=copy.deepcopy(runner.data['ownership'])
         for config in ({},dict(valid,reviewed=False),dict(valid,sourceSha256='0'*64)):
@@ -1114,7 +1202,7 @@ class GeneratedFieldLineageTests(Temporary):
         data={'schemaVersion':1,'id':'field-lineage','inputs':inputs,'approval':{'appearanceField':{
             'decision':'approved','geometryInput':geometry_role,'geometrySha256':inputs[geometry_role]['sha256'],
             'fieldSha256':inputs['field']['sha256'],'notes':'Verified this field against the active geometry.'}}}
-        write(self.root/'manifest.json',data);write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root)})
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
         return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
 
     def test_field_approval_binds_to_the_active_mesh_source(self):
@@ -1185,7 +1273,7 @@ class RenderPlanTests(Temporary):
     def test_runner_rejects_empty_plan_before_atlas_or_blender_work(self):
         path=self.file('uv.glb');data={'schemaVersion':1,'id':'empty-render','inputs':{'uvMesh':{'path':path.name,'sha256':pin(path)['sha256']}},
             'render':{'cameras':[],'mapInputs':{}}}
-        write(self.root/'manifest.json',data);write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root)})
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
         runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
         with patch('headkit.review_images.atlas_sets') as atlases,patch('subprocess.run') as blender:
             with self.assertRaisesRegex(ValueError,'nonempty'):runner._execute('render',runner.run)

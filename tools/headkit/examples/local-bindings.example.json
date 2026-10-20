@@ -7,6 +7,15 @@
     "path": "<bundled python executable>",
     "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
   },
+  "pythonPackages": {
+    "directory": "<Python site-packages directory under toolsRoot used by numpy, PIL and scipy>",
+    "files": [
+      {
+        "path": "<every regular file recursively under this installation root>",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  },
   "blender": {
     "path": "<Blender 4.0 executable>",
     "sha256": "0000000000000000000000000000000000000000000000000000000000000000"

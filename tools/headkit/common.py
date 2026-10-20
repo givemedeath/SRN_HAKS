@@ -161,6 +161,70 @@ def bindings(path):
     return data
 
 
+def python_package_pins(data, *, require_imports=False):
+    """Verify the complete, byte-bound Python site-packages tree used by CPU stages."""
+    row = data.get('pythonPackages')
+    require(isinstance(row, dict) and isinstance(row.get('directory'), str)
+            and isinstance(row.get('files'), list) and row['files'],
+            'Missing complete Python package installation binding')
+    configured_directory = Path(row['directory'])
+    directory = configured_directory.resolve(strict=True)
+    tools_root = Path(data['toolsRoot']).resolve()
+    is_junction = getattr(os.path, 'isjunction', lambda path: False)
+    require(configured_directory.is_absolute() and str(directory) == str(configured_directory)
+            and not configured_directory.is_symlink() and not is_junction(configured_directory)
+            and directory.is_dir() and directory.is_relative_to(tools_root),
+            'Python package installation must be a canonical directory inside the declared durable tools bank')
+
+    pins = row['files']
+    verify(pins)
+    pinned = []
+    for item in pins:
+        configured_path = Path(item['path'])
+        resolved = configured_path.resolve(strict=True)
+        require(configured_path.is_absolute() and str(resolved) == str(configured_path)
+                and not configured_path.is_symlink() and not is_junction(configured_path),
+                'Python package file pins must use canonical non-link paths')
+        pinned.append(resolved)
+    pinned_set = set(pinned)
+    require(len(pinned) == len(pinned_set) and all(path.is_file() and path.is_relative_to(directory)
+            for path in pinned_set), 'Python package file pins must be unique files under the installation root')
+
+    def inventory():
+        files = set()
+        for path in directory.rglob('*'):
+            require(not path.is_symlink() and not is_junction(path),
+                    'Python package installation cannot contain unpinned links')
+            if path.is_file():
+                resolved = path.resolve(strict=True)
+                require(resolved.is_relative_to(directory), 'Python package file escapes its installation root')
+                files.add(resolved)
+        return files
+
+    files = inventory()
+    require(pinned_set == files,
+            'Python package file pins must enumerate the complete installation membership')
+
+    if require_imports:
+        sys.path.insert(0, str(directory))
+        try:
+            for name in ('numpy', 'PIL', 'scipy'):
+                module = importlib.import_module(name)
+                origin = Path(module.__file__).resolve(strict=True)
+                require(origin.is_relative_to(directory) and origin in pinned_set,
+                        'Required Python package resolves outside its byte-bound installation: ' + name)
+                locations = list(getattr(module, '__path__', ()))
+                require(locations and all(Path(location).resolve(strict=True).is_relative_to(directory)
+                        for location in locations),
+                        'Required Python package has an unbound search location: ' + name)
+        finally:
+            sys.path.remove(str(directory))
+        verify(pins)
+        require(pinned_set == inventory(),
+                'Python package installation membership changed while importing required packages')
+    return pins
+
+
 def launched(bindings_path=None):
     """Identify the actual launcher and reject separately recorded runtime bindings."""
     require(os.environ.get('SRN_SHARED_TOOLCHAIN') and os.environ.get('SRN_SHARED_TOOL_MIGRATION'),

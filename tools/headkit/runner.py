@@ -1,11 +1,12 @@
 """Immutable, input-hashed stage receipts for the reusable CPU processing chain."""
 from pathlib import Path
+import sys
 import time
 import traceback
 import uuid
 import numpy as np
 from PIL import Image
-from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins
+from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins
 
 # Every stage produces evidence that needs an explicit operator decision before consumption.
 STAGES=('prepare','precluster','repair','unwrap','bake','ownership','tone','palette','export','native','render')
@@ -79,6 +80,9 @@ class Runner:
 
     def execute(self,stage):
         require(stage in STAGES,'Unknown CPU stage')
+        # Package bytecode and installed modules must remain inside the frozen inventory.
+        sys.dont_write_bytecode=True
+        package_inputs=python_package_pins(self.bindings,require_imports=self.runtime is not None)
         if stage in self.state['stages']:
             try:return {'reused':True,'result':self.result(stage,require_review=False)}
             except (ValueError,OSError):pass
@@ -87,7 +91,7 @@ class Runner:
         failures=[read(p) for p in old if read(p).get('manifestHash')==digest(self.data)
                   and read(p).get('codeVersion')==source_version() and read(p).get('state')=='failed']
         require(len(failures)<2,'Two stage failures retained; fix the manifest or request a bounded exception before more trials')
-        inputs=[pin(self.manifest_path),pin(self.bindings_path)]+code_pins()
+        inputs=[pin(self.manifest_path),pin(self.bindings_path)]+package_inputs+code_pins()
         inputs += [asset(self.manifest_path,p) for p in self.data['inputs'].values()]
         for row in self.bindings.get('libraries',{}).values():inputs.extend(row['files'])
         for name in ('python','blender','client','embree'):
@@ -120,7 +124,9 @@ class Runner:
             'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
         write(folder/'intent.json',receipt,fresh=True)
         try:
-            result=self._execute(stage,folder);digest(result);verify(inputs)
+            result=self._execute(stage,folder);digest(result)
+            python_package_pins(self.bindings,require_imports=self.runtime is not None)
+            verify(inputs)
             receipt.update(state='complete',result=result,outputs=[pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json','receipt.json')])
         except Exception as exc:
             receipt.update(state='failed',error=str(exc),traceback=traceback.format_exc(),
@@ -233,7 +239,18 @@ class Runner:
             shades=self.input('runtimeShades') if 'runtimeShades' in m['inputs'] else self.result('palette')['shades']['path']
             layers=self.input('ownership1k') if 'runtimeShades' in m['inputs'] else self.result('palette')['ownership']['path']
             require(m['fit'].get('model') is not None,'Choose a reserved model slot before native export')
-            return prepare(source,shades,layers,m['fit'],m['fit']['model'],folder/'converted')
+            geometry_audit=None
+            if 'uvMesh' in m['inputs'] or 'repairedMesh' in m['inputs']:
+                from .mesh import audit
+                audit_result=audit(source)
+                audit_path=folder/'imported-mesh-audit.json'
+                write(audit_path,audit_result,fresh=True)
+                require(audit_result.get('passed') is True,
+                        'Imported mesh failed topology/collision audit; retain the failed audit evidence')
+                geometry_audit=pin(audit_path)
+            result=prepare(source,shades,layers,m['fit'],m['fit']['model'],folder/'converted')
+            if geometry_audit is not None:result['geometryAudit']=geometry_audit
+            return result
         if stage=='native':
             from .native import compile_and_package
             previous=self.result('export');return compile_and_package(Path(previous['ascii']['path']).parents[1],b['client'],folder/'native')
