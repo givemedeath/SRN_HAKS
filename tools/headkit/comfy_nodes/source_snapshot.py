@@ -1,6 +1,8 @@
 """Source snapshots and loaded Python-code checks for the installed Comfy adapter."""
 import ast
+import functools
 import hashlib
+import inspect
 import json
 import marshal
 import os
@@ -126,9 +128,11 @@ def _literal_signature(value,depth=0,budget=None):
     budget[0]-=1
     if depth>64 or budget[0]<0:raise ValueError('Module constant exceeds the safe fingerprint limits')
     if value is None:return ['none']
+    if value is Ellipsis:return ['ellipsis']
     if type(value) is bool:return ['bool',value]
     if type(value) is int:return ['int',value]
     if type(value) is float:return ['float',value.hex()]
+    if type(value) is complex:return ['complex',value.real.hex(),value.imag.hex()]
     if type(value) is str:return ['str',value]
     if type(value) is bytes:return ['bytes',value.hex()]
     if type(value) in (tuple,list):
@@ -152,7 +156,8 @@ def _literal_hash(values):
 
 
 def _immutable_literal(value):
-    if value is None or type(value) in (bool,int,float,str,bytes):return True
+    if value is Ellipsis or type(value) in (bool,int,float,complex,str,bytes):return True
+    if value is None:return True
     if type(value) in (tuple,frozenset):return all(_immutable_literal(item) for item in value)
     return False
 
@@ -175,7 +180,13 @@ def _source_constants(source):
         if len(values)!=1 or values[0] is None:continue
         try:value=ast.literal_eval(values[0])
         except (ValueError,TypeError,MemoryError,RecursionError):continue
-        if name.isupper() or _immutable_literal(value):constants[name]=value
+        # Lower-case mutable globals may be live caches; only named settings remain source constants.
+        name_lower=name.casefold()
+        mutable_setting=any(token in name_lower for token in
+                            ('setting','config','option','param','preset','profile'))
+        if name.isupper() or _immutable_literal(value) or mutable_setting:
+            _literal_signature(value)
+            constants[name]=value
     return constants
 
 
@@ -183,6 +194,11 @@ def _loaded_codes(value,seen):
     marker=id(value)
     if marker in seen:return
     seen.add(marker)
+    if isinstance(value,(functools.partial,functools.partialmethod)):
+        yield from _loaded_codes(value.func,seen)
+        yield from _loaded_codes(value.args,seen)
+        yield from _loaded_codes(value.keywords or {},seen)
+        return
     if isinstance(value,types.FunctionType):
         yield value.__code__
         for state in (value.__defaults__,value.__kwdefaults__):
@@ -194,6 +210,8 @@ def _loaded_codes(value,seen):
         return
     if isinstance(value,types.MethodType):
         yield from _loaded_codes(value.__func__,seen)
+        if not isinstance(value.__self__,type) and callable(value.__self__):
+            yield from _loaded_codes(value.__self__,seen)
         return
     if isinstance(value,(staticmethod,classmethod)):
         yield from _loaded_codes(value.__func__,seen)
@@ -212,6 +230,10 @@ def _loaded_codes(value,seen):
         for member in value.values():yield from _loaded_codes(member,seen)
     elif isinstance(value,(tuple,list,set,frozenset)):
         for member in value:yield from _loaded_codes(member,seen)
+    elif callable(value):
+        try:wrapped=inspect.getattr_static(value,'__wrapped__')
+        except AttributeError:return
+        if wrapped is not value:yield from _loaded_codes(wrapped,seen)
 
 
 def loaded_source_code(roots):

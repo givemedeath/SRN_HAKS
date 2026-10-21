@@ -1,5 +1,6 @@
 """Focused regressions for the adapter's loaded-Comfy source identity guard."""
 import ast
+import functools
 from pathlib import Path
 import sys
 import tempfile
@@ -73,6 +74,69 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         module.shape_scale = 1.5
         with patch.dict(sys.modules, {module.__name__: module}):
             with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
+                loaded_source_code([self.core])
+
+    def test_loaded_stale_lowercase_mutable_module_setting_is_rejected(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('shape_settings = {"scale": 1.0}\n'
+                    'def loaded_value():\n    return shape_settings["scale"]\n')
+        path.write_text(reviewed, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_mutable_fixture')
+        module.__file__ = str(path)
+        exec(compile(reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
+        module.shape_settings['scale'] = 1.5
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
+                loaded_source_code([self.core])
+
+    def test_loaded_mutable_runtime_cache_is_not_a_source_constant(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('runtime_cache = {"hits": 0}\n'
+                    'def loaded_value():\n    return runtime_cache["hits"]\n')
+        path.write_text(reviewed, encoding='utf-8')
+        module = types.ModuleType('headkit_mutable_comfy_cache_fixture')
+        module.__file__ = str(path)
+        exec(compile(reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
+        module.runtime_cache['hits'] = 1
+        with patch.dict(sys.modules, {module.__name__: module}):
+            loaded_source_code([self.core])
+
+    def test_loaded_stale_function_in_partial_is_rejected_after_disk_restore(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = 'def loaded_value():\n    return "reviewed"\n'
+        temporary = 'def loaded_value():\n    return "temporary"\n'
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_partial_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        module.dispatch = functools.partial(module.loaded_value)
+        del module.loaded_value
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'Loaded Comfy Python code differs'):
+                loaded_source_code([self.core])
+
+    def test_loaded_stale_function_in_callable_wrapper_is_rejected(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = 'def loaded_value():\n    return "reviewed"\n'
+        temporary = 'def loaded_value():\n    return "temporary"\n'
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_wrapper_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+
+        class CallableWrapper:
+            def __init__(self, function):
+                self.__wrapped__ = function
+
+            def __call__(self):
+                return self.__wrapped__()
+
+        module.dispatch = CallableWrapper(module.loaded_value)
+        del module.loaded_value
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'Loaded Comfy Python code differs'):
                 loaded_source_code([self.core])
 
     def test_loaded_decorator_closure_cannot_hide_stale_comfy_function(self):
