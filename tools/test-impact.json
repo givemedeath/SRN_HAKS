@@ -119,9 +119,11 @@
       "tools/headkit/common.py"
     ],
     "tools/headkit/test_comfy_runtime_snapshot.py": [
+      "tools/headkit/comfy_nodes/__init__.py",
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/runtime_identity.py",
-      "tools/headkit/comfy_nodes/source_snapshot.py"
+      "tools/headkit/comfy_nodes/source_snapshot.py",
+      "tools/headkit/comfy_nodes/verified_loaders.py"
     ],
     "tools/headkit/test_headkit.py": [
       "tools/headkit/__init__.py",

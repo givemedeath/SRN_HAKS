@@ -4,7 +4,6 @@ import functools
 import hashlib
 import inspect
 import json
-import marshal
 import operator
 import os
 from pathlib import Path
@@ -109,13 +108,17 @@ def load_inventory(path,expected_core):
     return verify_inventory(inventory)
 
 
-def _normalized_code(code):
-    constants=tuple(_normalized_code(item) if isinstance(item,types.CodeType) else item for item in code.co_consts)
-    return code.replace(co_filename='<source>',co_consts=constants)
-
-
 def _code_hash(code):
-    return hashlib.sha256(marshal.dumps(_normalized_code(code))).hexdigest()
+    # marshal tracks object identity/interning. Identical source compiled twice can
+    # therefore produce different bytes, especially when the checker hashes itself.
+    constants=[['code',_code_hash(value)] if isinstance(value,types.CodeType)
+               else ['literal',_literal_signature(value)] for value in code.co_consts]
+    payload={name:getattr(code,name) for name in ('co_argcount','co_posonlyargcount',
+        'co_kwonlyargcount','co_nlocals','co_stacksize','co_flags','co_names',
+        'co_varnames','co_freevars','co_cellvars','co_name','co_qualname','co_firstlineno')}
+    payload.update(constants=constants,bytecode=code.co_code.hex(),
+                   lines=code.co_linetable.hex(),exceptions=code.co_exceptiontable.hex())
+    return hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
 def _code_tree_hashes(code):
@@ -179,8 +182,8 @@ def _source_constants(source):
     constants={}
     for name,values in assignments.items():
         if len(values)!=1 or values[0] is None:continue
-        try:value=ast.literal_eval(values[0])
-        except (ValueError,TypeError,MemoryError,RecursionError):continue
+        value=_constant_ast_value(values[0])
+        if value is _UNMATCHED_LITERAL:continue
         # Lower-case mutable globals may be live caches; only named settings remain source constants.
         name_lower=name.casefold()
         mutable_setting=any(token in name_lower for token in
@@ -207,19 +210,31 @@ _SAFE_UNARY_OPERATORS={ast.UAdd:operator.pos,ast.USub:operator.neg,
                        ast.Invert:operator.invert,ast.Not:operator.not_}
 
 
-def _constant_ast_value(node,depth=0):
-    """Evaluate bounded numeric constant expressions without executing source code."""
-    if depth>32:return _UNMATCHED_LITERAL
-    try:return ast.literal_eval(node)
-    except (TypeError,ValueError,MemoryError,RecursionError):pass
+def _constant_ast_value(node,depth=0,budget=None):
+    """Evaluate bounded literal data and numeric expressions without running source."""
+    if budget is None:budget=[100000]
+    budget[0]-=1
+    if depth>32 or budget[0]<0:return _UNMATCHED_LITERAL
+    def child(value):return _constant_ast_value(value,depth+1,budget)
     try:
-        if isinstance(node,ast.UnaryOp) and type(node.op) in _SAFE_UNARY_OPERATORS:
-            value=_constant_ast_value(node.operand,depth+1)
+        if isinstance(node,ast.Constant):
+            result=node.value
+        elif isinstance(node,(ast.Tuple,ast.List,ast.Set)):
+            if len(node.elts)>budget[0]:return _UNMATCHED_LITERAL
+            values=[child(value) for value in node.elts]
+            if any(value is _UNMATCHED_LITERAL for value in values):return _UNMATCHED_LITERAL
+            result={ast.Tuple:tuple,ast.List:list,ast.Set:set}[type(node)](values)
+        elif isinstance(node,ast.Dict):
+            if any(key is None for key in node.keys) or 2*len(node.keys)>budget[0]:return _UNMATCHED_LITERAL
+            keys=[child(key) for key in node.keys];values=[child(value) for value in node.values]
+            if any(value is _UNMATCHED_LITERAL for value in keys+values):return _UNMATCHED_LITERAL
+            result=dict(zip(keys,values))
+        elif isinstance(node,ast.UnaryOp) and type(node.op) in _SAFE_UNARY_OPERATORS:
+            value=child(node.operand)
             if type(value) not in (bool,int,float,complex):return _UNMATCHED_LITERAL
             result=_SAFE_UNARY_OPERATORS[type(node.op)](value)
         elif isinstance(node,ast.BinOp) and type(node.op) in _SAFE_BINARY_OPERATORS:
-            left=_constant_ast_value(node.left,depth+1)
-            right=_constant_ast_value(node.right,depth+1)
+            left=child(node.left);right=child(node.right)
             if type(left) not in (bool,int,float,complex) or type(right) not in (bool,int,float,complex):
                 return _UNMATCHED_LITERAL
             if any(type(value) is int and value.bit_length()>4096 for value in (left,right)):
@@ -290,8 +305,8 @@ def _scope_literal_binding(scope,name):
     for statement in scope.body:visit(statement)
     if not bindings:return False,None
     if len(bindings)!=1 or bindings[0] is None:return True,None
-    try:value=ast.literal_eval(bindings[0])
-    except (TypeError,ValueError,MemoryError,RecursionError):return True,None
+    value=_constant_ast_value(bindings[0])
+    if value is _UNMATCHED_LITERAL:return True,None
     return True,_literal_value_signature(value)
 
 
@@ -314,8 +329,8 @@ def _source_class_literals(source):
             attributes={}
             for name,values in assignments.items():
                 if len(values)!=1 or values[0] is None:continue
-                try:value=ast.literal_eval(values[0])
-                except (TypeError,ValueError,MemoryError,RecursionError):continue
+                value=_constant_ast_value(values[0])
+                if value is _UNMATCHED_LITERAL:continue
                 bound,signature=_scope_literal_binding(node,name)
                 if not bound or signature is None:continue
                 name_lower=name.casefold()
