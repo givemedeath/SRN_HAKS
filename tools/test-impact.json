@@ -142,7 +142,8 @@
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/source_snapshot.py",
       "tools/headkit/comfy_nodes/verified_loaders.py",
-      "tools/headkit/common.py"
+      "tools/headkit/common.py",
+      "tools/headkit/source_inventory.py"
     ],
     "tools/headkit/test_headkit.py": [
       "tools/headkit/__init__.py",

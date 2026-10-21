@@ -19,7 +19,7 @@ from headkit.comfy_nodes.source_snapshot import capture_inventory
 
 class ControlledStartupTests(unittest.TestCase):
     def setUp(self):
-        self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name)
+        self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name).resolve()
         self.core=self.root/'comfy';self.adapter=self.core/'custom_nodes'/'srn_headkit'
         self.adapter.mkdir(parents=True)
         for relative in ('main.py','execution.py','nodes.py','server.py','folder_paths.py','comfy/model.py',
@@ -46,6 +46,37 @@ class ControlledStartupTests(unittest.TestCase):
         with patch.object(sys,'executable',str(self.python)),patch.object(sys,'flags',types.SimpleNamespace(isolated=1)), \
              patch.object(sys,'dont_write_bytecode',True),patch.object(startup,'_STARTED',False):
             return startup.start(self.path,self.root/'receipt.json',execute=callback or (lambda *a,**k:None))
+
+    def test_sourceless_bytecode_is_pinned_and_changes_block_startup(self):
+        import py_compile
+        import subprocess
+        from headkit.source_inventory import capture_sources,verify_sources,EXTENSIONS
+        from headkit.comfy_nodes.source_snapshot import EXTENSIONS as adapter_extensions
+        self.assertEqual(EXTENSIONS,adapter_extensions)
+        source=self.root/'compiler-input.py';source.write_text('value=1\n')
+        targets=[self.core/'standalone.pyc',self.core/'bytecode_package'/'__init__.pyc']
+        for target in targets:
+            target.parent.mkdir(exist_ok=True);py_compile.compile(str(source),cfile=str(target),doraise=True)
+        startup_inventory=capture_inventory(self.core,[self.core]);client_inventory=capture_sources(self.core,[self.core])
+        for target in targets:
+            self.assertIn(pin(target),startup_inventory['files']);self.assertIn(pin(target),client_inventory['files'])
+        self.config['inventory']=startup_inventory
+        write(self.adapter/'source-roots.json',{'schemaVersion':1,'inventory':startup_inventory})
+        self.config['adapterSnapshot']=pin(self.adapter/'source-roots.json');write(self.path,self.config)
+        startup.verify_deployment(self.path)
+        script="import sys; sys.pycache_prefix=sys.argv[2]; sys.path.insert(0,sys.argv[1]); import standalone,bytecode_package; print(standalone.value,bytecode_package.value)"
+        result=subprocess.run([sys.executable,'-I','-B','-c',script,str(self.core),str(self.scratch/'fresh-cache')],
+                              capture_output=True,text=True,timeout=30)
+        self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(result.stdout.strip(),'1 1')
+        for target in targets:
+            before=target.read_bytes();source.write_text('value=2\n')
+            py_compile.compile(str(source),cfile=str(target),doraise=True)
+            execute=Mock()
+            with self.subTest(target=target.name):
+                with self.assertRaisesRegex(ValueError,'membership or bytes changed'):self.run_stub(execute)
+                execute.assert_not_called()
+                with self.assertRaisesRegex(ValueError,'Stale file pin'):verify_sources(client_inventory)
+            target.write_bytes(before)
 
     def test_pinned_startup_runs_once_and_writes_receipt(self):
         old_environment=dict(os.environ);old_path=list(sys.path);old_argv=sys.argv

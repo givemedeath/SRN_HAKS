@@ -135,16 +135,17 @@ class LiveConfigurationTests(unittest.TestCase):
             self.assertEqual(sorted(ran),sorted(self.data['tests']));self.assertEqual(len(ran),len(set(ran)))
         durations=json.loads((REPO/ci_scope.DURATIONS).read_text(encoding='utf-8'))['seconds']
         self.assertLessEqual(set(durations),set(self.data['tests']),'Prune durations for removed tests')
-    def test_runtime_snapshot_suite_has_an_isolated_headkit_job(self):
+    def test_controlled_startup_suite_keeps_its_declared_pack_dependencies(self):
         target='tools/headkit/test_comfy_runtime_snapshot.py'
+        required=reached_packs(self.data,target)
         for plan in (ci_scope.plan(None,self.data,self.config),ci_scope.plan([target],self.data,self.config)):
             for os_name in self.config['operatingSystems']:
                 matches=[row for row in plan['helperMatrix'] if row['os']==os_name and target in row['tests']]
                 self.assertEqual(len(matches),1)
-                self.assertEqual(matches[0]['group'],'headkit')
-                self.assertTrue(all(test.startswith('tools/headkit/') for test in matches[0]['tests']))
-                core=[test for row in plan['helperMatrix'] if row['os']==os_name and row['group']=='core' for test in row['tests']]
-                self.assertFalse(any(test.startswith('tools/headkit/') for test in core))
+                row=matches[0]
+                self.assertEqual(row['group'],'packs' if required else 'headkit')
+                self.assertLessEqual(required,set(row['packs']))
+                self.assertLessEqual(required,set(row['checkout'].split('\n')))
 
     def test_shared_helper_change_runs_the_full_helper_suite(self):
         # retarget.py is consumed by phenotype, head and robe helpers (AGENTS.md: shared helpers run the full suite).

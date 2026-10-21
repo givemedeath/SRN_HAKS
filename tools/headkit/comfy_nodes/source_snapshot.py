@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 
-EXTENSIONS={'.py','.pyx','.pyi','.json','.yaml','.yml','.toml','.pyd','.so','.dll','.dylib','.ptx','.cubin','.h','.hpp','.c','.cpp','.cu','.cuh'}
+EXTENSIONS={'.py','.pyc','.pyx','.pyi','.json','.yaml','.yml','.toml','.pyd','.so','.dll','.dylib','.ptx','.cubin','.h','.hpp','.c','.cpp','.cu','.cuh'}
 CORE_DATA={'input','output','temp','models','user','.venv','venv'}
 REQUIRED_CORE={'main.py','execution.py','nodes.py','server.py','folder_paths.py'}
 
