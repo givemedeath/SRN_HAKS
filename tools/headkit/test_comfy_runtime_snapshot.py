@@ -103,6 +103,40 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'class attributes differ from source'):
                 loaded_source_code([self.core])
 
+    def test_loaded_stale_instance_class_literal_is_rejected_after_disk_restore(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('class Sampler:\n    scale = 1\n'
+                    '    def sample(self):\n        return self.scale\n'
+                    'Sampler = Sampler()\n')
+        temporary = reviewed.replace('scale = 1', 'scale = 2')
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_instance_class_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        self.assertEqual(module.Sampler.sample(), 2)
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'class attributes differ from source'):
+                loaded_source_code([self.core])
+
+    def test_loaded_stale_callable_decorator_instance_class_literal_is_rejected(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('def singleton(cls):\n    return cls()\n'
+                    '@singleton\n'
+                    'class Sampler:\n    scale = 1\n'
+                    '    def __call__(self):\n        return self.scale\n')
+        temporary = reviewed.replace('scale = 1', 'scale = 2')
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_callable_decorator_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        self.assertTrue(callable(module.Sampler))
+        self.assertEqual(module.Sampler(), 2)
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'class attributes differ from source'):
+                loaded_source_code([self.core])
+
     def test_loaded_mutable_class_runtime_cache_is_not_a_source_constant(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = ("class Sampler:\n    runtime_cache = {'hits': 0}\n"
@@ -111,7 +145,8 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         module = types.ModuleType('headkit_mutable_comfy_class_cache_fixture')
         module.__file__ = str(path)
         exec(compile(reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
-        module.Sampler.runtime_cache['hits'] = 1
+        module.Sampler = module.Sampler()
+        module.Sampler.__class__.runtime_cache['hits'] = 1
         with patch.dict(sys.modules, {module.__name__: module}):
             loaded_source_code([self.core])
 

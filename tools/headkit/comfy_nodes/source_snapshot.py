@@ -352,52 +352,70 @@ class _LoadedClassState:
             if signature is not None:self.attributes[name]=signature
 
 
-def _loaded_codes(value,seen):
+def _loaded_codes(value,seen,roots=()):
     marker=id(value)
     if marker in seen:return
     seen.add(marker)
     if isinstance(value,(functools.partial,functools.partialmethod)):
-        yield from _loaded_codes(value.func,seen)
-        yield from _loaded_codes(value.args,seen)
-        yield from _loaded_codes(value.keywords or {},seen)
+        yield from _loaded_codes(value.func,seen,roots)
+        yield from _loaded_codes(value.args,seen,roots)
+        yield from _loaded_codes(value.keywords or {},seen,roots)
         return
     if isinstance(value,types.FunctionType):
         yield value.__code__
         yield _LoadedFunctionState(value)
         for state in (value.__defaults__,value.__kwdefaults__):
-            if state is not None:yield from _loaded_codes(state,seen)
+            if state is not None:yield from _loaded_codes(state,seen,roots)
         for cell in value.__closure__ or ():
             try:captured=cell.cell_contents
             except ValueError:continue
-            yield from _loaded_codes(captured,seen)
+            yield from _loaded_codes(captured,seen,roots)
         return
     if isinstance(value,types.MethodType):
-        yield from _loaded_codes(value.__func__,seen)
-        if not isinstance(value.__self__,type) and callable(value.__self__):
-            yield from _loaded_codes(value.__self__,seen)
+        yield from _loaded_codes(value.__func__,seen,roots)
+        if not isinstance(value.__self__,type):
+            yield from _loaded_codes(value.__self__,seen,roots)
         return
     if isinstance(value,(staticmethod,classmethod)):
-        yield from _loaded_codes(value.__func__,seen)
+        yield from _loaded_codes(value.__func__,seen,roots)
         return
     if isinstance(value,property):
         for function in (value.fget,value.fset,value.fdel):
-            if function is not None:yield from _loaded_codes(function,seen)
+            if function is not None:yield from _loaded_codes(function,seen,roots)
         return
     if isinstance(value,type):
         yield _LoadedClassState(value)
-        for member in vars(value).values():yield from _loaded_codes(member,seen)
+        for member in vars(value).values():yield from _loaded_codes(member,seen,roots)
         return
     if isinstance(value,types.CodeType):
         yield value
         return
     if isinstance(value,dict):
-        for member in value.values():yield from _loaded_codes(member,seen)
+        for member in value.values():yield from _loaded_codes(member,seen,roots)
     elif isinstance(value,(tuple,list,set,frozenset)):
-        for member in value:yield from _loaded_codes(member,seen)
+        for member in value:yield from _loaded_codes(member,seen,roots)
     elif callable(value):
         try:wrapped=inspect.getattr_static(value,'__wrapped__')
-        except AttributeError:return
-        if wrapped is not value:yield from _loaded_codes(wrapped,seen)
+        except AttributeError:wrapped=value
+        if wrapped is not value:yield from _loaded_codes(wrapped,seen,roots)
+        value_type=type(value)
+        if _source_module_path(getattr(value_type,'__module__',None),roots) is not None:
+            yield from _loaded_codes(value_type,seen,roots)
+    else:
+        value_type=type(value)
+        if _source_module_path(getattr(value_type,'__module__',None),roots) is not None:
+            yield from _loaded_codes(value_type,seen,roots)
+
+
+def _source_module_path(module_name,roots):
+    module=sys.modules.get(module_name)
+    namespace=getattr(module,'__dict__',None)
+    module_file=namespace.get('__file__') if isinstance(namespace,dict) else None
+    if not isinstance(module_file,(str,os.PathLike)):return None
+    try:path=Path(module_file).resolve(strict=True)
+    except (OSError,RuntimeError):return None
+    if path.suffix.lower()!='.py' or not _inside(path,roots):return None
+    return path
 
 
 def loaded_source_code(roots):
@@ -416,10 +434,11 @@ def loaded_source_code(roots):
                 module_namespaces.setdefault(module_path,[]).append(namespace)
         seen=set()
         for value in tuple(namespace.values()):
-            for record in _loaded_codes(value,seen):
+            for record in _loaded_codes(value,seen,roots):
                 if isinstance(record,_LoadedClassState):
-                    if module_path is not None and record.module==namespace.get('__name__'):
-                        loaded_class_states.setdefault(module_path,[]).append(record)
+                    class_path=_source_module_path(record.module,roots)
+                    if class_path is not None:
+                        loaded_class_states.setdefault(class_path,[]).append(record)
                     continue
                 function_state=record.state if isinstance(record,_LoadedFunctionState) else None
                 code=record.code if isinstance(record,_LoadedFunctionState) else record
