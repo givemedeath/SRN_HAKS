@@ -1763,6 +1763,47 @@ class ReviewImageTests(Temporary):
         with Image.open(sets[2048]['roughness']) as image:np.testing.assert_array_equal(np.asarray(image),values)
         with Image.open(sets[1024]['roughness']) as image:self.assertEqual(image.size,(1024,1024));self.assertTrue(np.all(np.asarray(image)==128))
         with self.assertRaisesRegex(ValueError,'no upsampling'):atlas_sets({'maps':{'roughness':sets[1024]['roughness']}},self.root/'bad',[2048])
+    def test_atlas_traversal_is_rejected_before_any_output_or_overwrite(self):
+        from headkit.review_images import atlas_sets
+        source=self.root/'source.png';Image.new('RGB',(8,8),(20,50,90)).save(source)
+        victim=self.root/'outside.png';Image.new('RGB',(8,8),(90,50,20)).save(victim)
+        originals=[pin(source),pin(victim)];output=self.root/'attempt'
+        with self.assertRaisesRegex(ValueError,'supported map names'):
+            atlas_sets({'maps':{'basecolor':str(source),'../../../outside':str(source)}},output,[8])
+        self.assertFalse(output.exists())
+        self.assertEqual([pin(source),pin(victim)],originals)
+
+    def test_all_unrecognized_map_names_fail_before_image_io(self):
+        from headkit.review_images import atlas_sets,render_plan
+        bad_names=['../outside',r'..\outside','/absolute',r'C:\absolute',str(self.root/'absolute'),
+                   'extra','basecolor.png','',1]
+        for name in bad_names:
+            with self.subTest(name=name):
+                maps={'basecolor':'unused',name:'unused'}
+                with patch('PIL.Image.open',side_effect=AssertionError('Invalid names reached image IO')) as image_open:
+                    with self.assertRaisesRegex(ValueError,'supported map names'):atlas_sets({'maps':maps},self.root/'invalid',[8])
+                    image_open.assert_not_called()
+                for field in ('maps','mapInputs'):
+                    with self.assertRaisesRegex(ValueError,'supported map names'):
+                        render_plan({'cameras':[RenderPlanTests.camera(self)],field:maps})
+        for bad in (None,[],['basecolor']):
+            with self.subTest(mapping=bad):
+                with self.assertRaisesRegex(ValueError,'supported map names'):atlas_sets({'maps':bad},self.root/'invalid',[8])
+        self.assertFalse((self.root/'invalid').exists())
+
+    def test_supported_atlas_names_preserve_color_modes_and_hashes(self):
+        from headkit.review_images import atlas_sets
+        source=self.root/'source.png';Image.new('RGB',(8,8),(20,50,90)).save(source)
+        names={'basecolor','roughness','metallic','opacity'}
+        maps={name:str(source) for name in names}
+        sets,records=atlas_sets({'maps':maps},self.root/'valid',[8])
+        self.assertEqual(set(sets[8]),names);self.assertEqual(len(records),4)
+        for row in records:
+            self.assertEqual(row['source'],pin(source));self.assertEqual(row['image'],pin(sets[8][row['map']]))
+            with Image.open(row['image']['path']) as image:
+                self.assertEqual(image.mode,'RGB' if row['map']=='basecolor' else 'L')
+                self.assertEqual(image.size,(8,8))
+
     def test_sheets_preserve_native_view_pixels_and_reject_wrong_dimensions(self):
         from headkit.review_images import sheets
         records=[]
