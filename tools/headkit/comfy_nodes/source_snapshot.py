@@ -5,6 +5,7 @@ import hashlib
 import inspect
 import json
 import marshal
+import operator
 import os
 from pathlib import Path
 import sys
@@ -195,6 +196,50 @@ def _literal_value_signature(value):
     except (TypeError,ValueError,MemoryError,RecursionError):return None
 
 
+_UNMATCHED_LITERAL=object()
+_SAFE_BINARY_OPERATORS={
+    ast.Add:operator.add,ast.Sub:operator.sub,ast.Mult:operator.mul,
+    ast.Div:operator.truediv,ast.FloorDiv:operator.floordiv,ast.Mod:operator.mod,
+    ast.Pow:operator.pow,ast.LShift:operator.lshift,ast.RShift:operator.rshift,
+    ast.BitAnd:operator.and_,ast.BitOr:operator.or_,ast.BitXor:operator.xor,
+}
+_SAFE_UNARY_OPERATORS={ast.UAdd:operator.pos,ast.USub:operator.neg,
+                       ast.Invert:operator.invert,ast.Not:operator.not_}
+
+
+def _constant_ast_value(node,depth=0):
+    """Evaluate bounded numeric constant expressions without executing source code."""
+    if depth>32:return _UNMATCHED_LITERAL
+    try:return ast.literal_eval(node)
+    except (TypeError,ValueError,MemoryError,RecursionError):pass
+    try:
+        if isinstance(node,ast.UnaryOp) and type(node.op) in _SAFE_UNARY_OPERATORS:
+            value=_constant_ast_value(node.operand,depth+1)
+            if type(value) not in (bool,int,float,complex):return _UNMATCHED_LITERAL
+            result=_SAFE_UNARY_OPERATORS[type(node.op)](value)
+        elif isinstance(node,ast.BinOp) and type(node.op) in _SAFE_BINARY_OPERATORS:
+            left=_constant_ast_value(node.left,depth+1)
+            right=_constant_ast_value(node.right,depth+1)
+            if type(left) not in (bool,int,float,complex) or type(right) not in (bool,int,float,complex):
+                return _UNMATCHED_LITERAL
+            if any(type(value) is int and value.bit_length()>4096 for value in (left,right)):
+                return _UNMATCHED_LITERAL
+            if isinstance(node.op,ast.Pow):
+                if abs(right)>4096:return _UNMATCHED_LITERAL
+                if type(left) is int and type(right) is int and right>0 \
+                        and left.bit_length()*right>4096:return _UNMATCHED_LITERAL
+            if isinstance(node.op,(ast.LShift,ast.RShift)):
+                if type(right) is not int or abs(right)>4096:return _UNMATCHED_LITERAL
+                if isinstance(node.op,ast.LShift) and type(left) is int \
+                        and left.bit_length()+right>4096:return _UNMATCHED_LITERAL
+            result=_SAFE_BINARY_OPERATORS[type(node.op)](left,right)
+        else:return _UNMATCHED_LITERAL
+    except (ArithmeticError,TypeError,ValueError,OverflowError,MemoryError,RecursionError):
+        return _UNMATCHED_LITERAL
+    if type(result) is int and result.bit_length()>4096:return _UNMATCHED_LITERAL
+    return result
+
+
 def _target_binds_name(target,name):
     if isinstance(target,ast.Name):return target.id==name
     if isinstance(target,(ast.Tuple,ast.List)):
@@ -335,16 +380,20 @@ def _source_function_literals(source,compiled):
         if len(matches)==1:codes[matches[0]]=code
     states={}
     for key,(node,ancestors) in nodes.items():
-        state={'defaults':{},'kwdefaults':{},'closure':{}}
+        state={'defaults':{},'kwdefaults':{},'closure':{},'unresolved_defaults':{}}
         positional=node.args.posonlyargs+node.args.args
         for argument,default in zip(positional[-len(node.args.defaults):] if node.args.defaults else (),
                                     node.args.defaults):
-            signature=_literal_value_signature(ast.literal_eval(default)) if _is_literal_ast(default) else None
+            value=_constant_ast_value(default)
+            signature=None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
             if signature is not None:state['defaults'][argument.arg]=signature
+            else:state['unresolved_defaults'][argument.arg]=ast.dump(default,include_attributes=False)
         for argument,default in zip(node.args.kwonlyargs,node.args.kw_defaults):
-            if default is not None and _is_literal_ast(default):
-                signature=_literal_value_signature(ast.literal_eval(default))
+            if default is not None:
+                value=_constant_ast_value(default)
+                signature=None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
                 if signature is not None:state['kwdefaults'][argument.arg]=signature
+                else:state['unresolved_defaults'][argument.arg]=ast.dump(default,include_attributes=False)
         code=codes.get(key)
         if code is not None:
             for name in code.co_freevars:
@@ -364,7 +413,7 @@ def _is_literal_ast(node):
 
 def _loaded_function_literals(function):
     code=function.__code__
-    state={'defaults':{},'kwdefaults':{},'closure':{}}
+    state={'defaults':{},'kwdefaults':{},'closure':{},'unresolved_defaults':[]}
     if function.__defaults__:
         names=code.co_varnames[:code.co_argcount]
         for name,value in zip(names[-len(function.__defaults__):],function.__defaults__):
@@ -516,12 +565,16 @@ def loaded_source_code(roots):
             else:
                 source_state=function_literals.get((code.co_name,code.co_firstlineno))
             if not source_state:continue
+            require(not source_state.get('unresolved_defaults'),
+                    'Loaded Comfy function default expression cannot be safely matched to source')
             for category,values in source_state.items():
+                if category=='unresolved_defaults':continue
                 for name,signature in values.items():
                     require(function_state.get(category,{}).get(name)==signature,
                             'Loaded Comfy function defaults or closure differ from source on disk')
             comparable={category:{name:function_state[category][name] for name in values}
-                        for category,values in source_state.items() if values}
+                        for category,values in source_state.items()
+                        if category!='unresolved_defaults' and values}
             loaded_hashes.add(_literal_hash(comparable))
         for class_state in loaded_class_states.get(path,()):
             source_state=class_literals.get(class_state.qualname)

@@ -176,6 +176,41 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
                 loaded_source_code([self.core])
 
+    def test_loaded_stale_function_constant_expression_default_is_rejected(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = 'def loaded_value(scale=1+1):\n    return scale\n'
+        temporary = 'def loaded_value(scale=1+2):\n    return scale\n'
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_constant_default_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
+                loaded_source_code([self.core])
+
+    def test_loaded_unsupported_function_default_fails_closed(self):
+        path = self.core / 'comfy' / 'model.py'
+        source = ('def make_default():\n    return 2\n'
+                  'def loaded_value(scale=make_default()):\n    return scale\n')
+        path.write_text(source, encoding='utf-8')
+        module = types.ModuleType('headkit_unmatched_comfy_default_fixture')
+        module.__file__ = str(path)
+        exec(compile(source, str(path), 'exec', dont_inherit=True), module.__dict__)
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'default expression cannot be safely matched'):
+                loaded_source_code([self.core])
+
+    def test_loaded_constant_expression_default_matching_source_is_accepted(self):
+        path = self.core / 'comfy' / 'model.py'
+        source = 'def loaded_value(scale=1+1):\n    return scale\n'
+        path.write_text(source, encoding='utf-8')
+        module = types.ModuleType('headkit_comfy_constant_default_fixture')
+        module.__file__ = str(path)
+        exec(compile(source, str(path), 'exec', dont_inherit=True), module.__dict__)
+        with patch.dict(sys.modules, {module.__name__: module}):
+            loaded_source_code([self.core])
+
     def test_loaded_stale_lambda_literal_default_is_rejected_after_disk_restore(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = 'loaded_value = lambda scale=1: scale\n'
