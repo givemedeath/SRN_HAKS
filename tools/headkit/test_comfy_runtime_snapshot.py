@@ -122,6 +122,34 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                 with self.subTest(retention=retention,mode=mode):
                     self._import_literal_snapshot(retention=retention,error='import|provider|default expression',**mode)
 
+    def test_imported_class_state_cannot_hide_stale_values(self):
+        retentions=(
+            ("class Holder:\n    scale=IMPORTED\ndel IMPORTED\n", "Holder.scale"),
+            ("class Holder:\n    if True: scale=IMPORTED\ndel IMPORTED\n", "Holder.scale"),
+            ("class Holder:\n    config={'scale':IMPORTED}\ndel IMPORTED\n", "Holder.config['scale']"),
+            ("class Outer:\n    class Holder:\n        scale=IMPORTED\ndel IMPORTED\n", "Outer.Holder.scale"),
+            ("class Holder:\n    scale=IMPORTED\nretained=Holder()\ndel Holder,IMPORTED\n", "retained.scale"),
+            ("def factory():\n    class Holder:\n        scale=IMPORTED\n    return Holder\nretained=factory()\ndel factory,IMPORTED\n", "retained.scale"),
+        )
+        for retention in retentions:
+            for mode in ({},{'evict':True},{'reload':True},{'alias':True,'reload':True},{'star':True,'evict':True}):
+                with self.subTest(retention=retention,mode=mode):
+                    self._import_literal_snapshot(value=2,retention=retention,error='class.*expression|import|provider',**mode)
+
+    def test_imported_instance_and_attribute_state_fails_closed(self):
+        retentions=(
+            ("class Holder:\n    def __init__(self): self.scale=IMPORTED\nretained=Holder()\ndel IMPORTED\n", "retained.scale"),
+            ("class Holder: pass\nHolder.scale=IMPORTED\ndel IMPORTED\n", "Holder.scale"),
+            ("class Holder:\n    __slots__=('scale',)\n    def __init__(self): self.scale=IMPORTED\nretained=Holder()\ndel IMPORTED\n", "retained.scale"),
+            ("class Base:\n    def __init__(self): self.scale=IMPORTED\nclass Holder(Base): pass\nretained=Holder()\ndel IMPORTED\n", "retained.scale"),
+            ("class Holder: pass\nretained=[Holder()]\nretained[0].scale=IMPORTED\ndel IMPORTED\n", "retained[0].scale"),
+            ("class Holder: pass\nretained=Holder()\nretained.scale=IMPORTED\ndel IMPORTED\n", "retained.scale"),
+        )
+        for retention in retentions:
+            for mode in ({},{'reload':True},{'evict':True}):
+                with self.subTest(retention=retention,mode=mode):
+                    self._import_literal_snapshot(value=2,retention=retention,error='attribute.*expression|import|provider',**mode)
+
     def test_dynamic_import_cannot_recover_execution_capabilities(self):
         sources=(
             "__import__('builtins').exec('SCALE=1')",

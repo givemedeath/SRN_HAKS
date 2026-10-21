@@ -546,7 +546,7 @@ def _scope_literal_binding(scope,name):
     return True,None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
 
 
-def _source_class_literals(source):
+def _source_class_literals(source,*,unresolved=None):
     classes={}
     def visit_statement(node,ancestors):
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
@@ -558,6 +558,9 @@ def _source_class_literals(source):
             for target,value in _source_bindings(node.body):
                 if isinstance(target,ast.Name):assignments.setdefault(target.id,[]).append(value)
             attributes={}
+            if unresolved is not None:
+                unresolved.setdefault(qualname,set()).update(name for name,values in assignments.items()
+                    if any(value is _UNMATCHED_LITERAL for value in values))
             for name,values in assignments.items():
                 if not any(_setting_literal(name,value) for value in values):continue
                 value=_unique_source_value(values)
@@ -573,7 +576,7 @@ def _source_class_literals(source):
     return classes
 
 
-def _source_attribute_literals(statements):
+def _source_attribute_literals(statements,*,unresolved=None):
     """Only declared literal settings, never mutable runtime caches or descriptors."""
     assignments={}
     for target,value in _source_bindings(statements):
@@ -581,26 +584,30 @@ def _source_attribute_literals(statements):
         key=ast.dump(target,include_attributes=False)
         assignments.setdefault(key,(target,[]))[1].append(value)
     for target,values in assignments.values():
+        if unresolved is not None and any(value is _UNMATCHED_LITERAL for value in values):unresolved.append(target)
         if not any(_setting_literal(target.attr,value) for value in values):continue
         value=_unique_source_value(values)
         if value is not _UNMATCHED_LITERAL:yield target,_literal_signature(value)
 
 
-def _source_constructor_literals(source):
+def _source_constructor_literals(source,*,unresolved=None):
     classes={}
     def visit(node,ancestors):
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
             for statement in node.body:visit(statement,ancestors+[node.name,'<locals>'])
             return
         if isinstance(node,ast.ClassDef):
-            constructors=[]
+            constructors=[];unknown=set()
             for method in _scope_nodes(node.body):
                 if isinstance(method,ast.FunctionDef) and method.name=='__init__':
                     arguments=method.args.posonlyargs+method.args.args;declared={}
                     if arguments:
-                        for target,signature in _source_attribute_literals(method.body):
+                        targets=[]
+                        for target,signature in _source_attribute_literals(method.body,unresolved=targets):
                             if isinstance(target.value,ast.Name) and target.value.id==arguments[0].arg:
                                 declared[target.attr]=signature
+                        unknown.update(target.attr for target in targets
+                                       if isinstance(target.value,ast.Name) and target.value.id==arguments[0].arg)
                     constructors.append(declared)
             fields=constructors[0] if constructors else {}
             require(all(declared==fields for declared in constructors),
@@ -609,6 +616,7 @@ def _source_constructor_literals(source):
             require(qualname not in classes or classes[qualname]==fields,
                     'Ambiguous redeclared constructor settings cannot be safely matched')
             classes[qualname]=fields
+            if unresolved is not None:unresolved.setdefault(qualname,set()).update(unknown)
             for statement in node.body:visit(statement,ancestors+[node.name])
             return
         for child in ast.iter_child_nodes(node):
@@ -1127,13 +1135,25 @@ def loaded_source_code(roots):
                 if function_state is not None:
                     loaded_function_states.setdefault(path,[]).append((code,function_state))
     sources={path:path.read_bytes() for path in set(loaded)|set(module_namespaces)}
-    constructors={path:_source_constructor_literals(source) for path,source in sources.items()}
+    constructors={};constructor_unresolved={}
+    for path,source in sources.items():
+        unknown={};constructors[path]=_source_constructor_literals(source,unresolved=unknown)
+        constructor_unresolved[path]=unknown
     overrides={};override_paths={};frame_arguments={}
     for path,namespaces in module_namespaces.items():
         statements=ast.parse(sources[path]).body
-        declarations=list(_source_attribute_literals(statements))
+        unresolved_targets=[]
+        declarations=list(_source_attribute_literals(statements,unresolved=unresolved_targets))
         for namespace in namespaces:
             frame_arguments.update(_source_frame_arguments(statements,namespace,loaded_frames))
+            for target in unresolved_targets:
+                instance=_static_source_reference(target.value,namespace)
+                record=loaded_instances.get(id(instance))
+                if isinstance(instance,type):
+                    fields=type.__dict__['__dict__'].__get__(instance,type(instance))
+                    literal=_literal_value_signature(fields.get(target.attr,_UNMATCHED_LITERAL)) is not None
+                else:literal=record is not None and target.attr in record.attributes
+                require(not literal,'Loaded Comfy attribute expression cannot be safely matched to source')
             for target,signature in declarations:
                 instance=_static_source_reference(target.value,namespace)
                 if id(instance) in loaded_instances:
@@ -1147,6 +1167,9 @@ def loaded_source_code(roots):
         fields={};paths=set(override_paths.get(marker,()))
         for base in reversed(state.cls.__mro__):
             class_path=_source_module_path(base.__module__,roots)
+            unknown=constructor_unresolved.get(class_path,{}).get(base.__qualname__,set())
+            require(not unknown.intersection(state.attributes),
+                    'Loaded Comfy instance attribute expression cannot be safely matched to source')
             declared=constructors.get(class_path,{}).get(base.__qualname__,{})
             fields.update(declared)
             if declared:paths.add(class_path)
@@ -1162,7 +1185,8 @@ def loaded_source_code(roots):
         function_literals=_source_function_literals(source,compiled)
         expected.update(_literal_hash({category:values for category,values in state.items() if values})
                         for state in function_literals.values())
-        class_literals=_source_class_literals(source)
+        class_unresolved={}
+        class_literals=_source_class_literals(source,unresolved=class_unresolved)
         expected.update(_literal_hash(state) for state in class_literals.values())
         for code,function_state in loaded_function_states.get(path,()):
             source_state=_callable_source_state(function_literals,code)
@@ -1199,6 +1223,8 @@ def loaded_source_code(roots):
             signature=_literal_hash(comparable)
             expected.add(signature);loaded_hashes.add(signature)
         for class_state in loaded_class_states.get(path,()):
+            require(not class_unresolved.get(class_state.qualname,set()).intersection(class_state.attributes),
+                    'Loaded Comfy class attribute expression cannot be safely matched to source')
             source_state=class_literals.get(class_state.qualname)
             if not source_state:continue
             comparable={name:class_state.attributes.get(name) for name in source_state}
