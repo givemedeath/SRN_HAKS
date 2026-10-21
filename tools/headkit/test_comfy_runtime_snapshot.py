@@ -1,5 +1,6 @@
 """Focused regressions for the adapter's loaded-Comfy source identity guard."""
 import ast
+import asyncio
 import functools
 from pathlib import Path
 import sys
@@ -137,18 +138,34 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'class attributes differ from source'):
                 loaded_source_code([self.core])
 
-    def assert_snapshot_matches_source(self, reviewed, temporary=None, error=None):
+    def assert_snapshot_matches_source(self, reviewed, temporary=None, error=None, full_census=False):
         path = self.core / 'comfy' / 'model.py'
         module = types.ModuleType('headkit_comfy_expression_fixture')
         module.__file__ = str(path)
         exec(compile(temporary or reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
         path.write_text(reviewed, encoding='utf-8')
-        with patch.dict(sys.modules, {module.__name__: module}):
-            if error:
-                with self.assertRaisesRegex(ValueError, error):
+        try:
+            # Unit fixtures enumerate only their declared source module. A separate
+            # full-census integration case exercises the real host module graph.
+            with patch.dict(sys.modules, {module.__name__: module}, clear=not full_census):
+                if error:
+                    with self.assertRaisesRegex(ValueError, error):
+                        loaded_source_code([self.core])
+                else:
                     loaded_source_code([self.core])
-            else:
-                loaded_source_code([self.core])
+        finally:
+            values=tuple(vars(module).values())
+            for value in values:
+                if isinstance(value, asyncio.Task):
+                    value.cancel()
+                    loop=value.get_loop()
+                    loop.run_until_complete(asyncio.gather(value, return_exceptions=True))
+                elif isinstance(value, (types.GeneratorType, types.CoroutineType)):
+                    value.close()
+                elif isinstance(value, types.AsyncGeneratorType):
+                    asyncio.run(value.aclose())
+            for value in values:
+                if isinstance(value, asyncio.AbstractEventLoop):value.close()
 
     def test_stale_arithmetic_class_attributes_are_rejected(self):
         reviewed = ('class Sampler:\n    SCALE: float = 1+2\n'
@@ -242,6 +259,153 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                     'holder = Holder()\nholder.callback = callback\ndel callback\n')
         self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
                                             'Python code differs from its source')
+
+    def test_retained_execution_objects_cannot_hide_stale_code(self):
+        for factory in ('def stream():\n    yield 1\n',
+                        'async def stream():\n    return 1\n',
+                        'async def stream():\n    yield 1\n'):
+            reviewed = factory + 'pending = stream()\ndel stream\n'
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace(' 1\n', ' 2\n'),
+                                                    'Python code differs from its source')
+
+    def test_matching_execution_objects_are_inspected_without_advancing(self):
+        for factory in ('def stream():\n    raise AssertionError("executed")\n    yield 1\n',
+                        'async def stream():\n    raise AssertionError("executed")\n    return 1\n',
+                        'async def stream():\n    raise AssertionError("executed")\n    yield 1\n'):
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(factory + 'pending = stream()\ndel stream\n')
+
+    def test_execution_frames_preserve_literal_closure_provenance(self):
+        reviewed = ('def make_stream():\n    scale = 1\n'
+                    '    def stream():\n        yield scale\n'
+                    '    return stream()\npending = make_stream()\ndel make_stream\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
+                                            'frame.*closure|defaults or closure differ')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_execution_frames_preserve_default_provenance_after_factory_deletion(self):
+        for factory in ('def stream(scale=1):\n    yield scale\n',
+                        'async def stream(scale=1):\n    return scale\n',
+                        'async def stream(scale=1):\n    yield scale\n'):
+            reviewed = factory + 'pending = stream()\ndel stream\n'
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale=1', 'scale=2'),
+                                                    'frame.*default|defaults or closure differ')
+                self.assert_snapshot_matches_source(factory + 'pending = stream(2)\ndel stream\n')
+
+    def test_required_frame_arguments_are_bound_to_literal_creation_sites(self):
+        for factory, call in (('def stream(scale):\n    yield scale\n', 'stream(1)'),
+                              ('def stream(*, scale):\n    yield scale\n', 'stream(scale=1)')):
+            reviewed = factory + f'pending = {call}\ndel stream\n'
+            temporary = reviewed.replace(call, call.replace('1', '2'))
+            with self.subTest(call=call):
+                self.assert_snapshot_matches_source(reviewed, temporary, 'frame defaults or closure differ')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_suspended_generator_locals_cannot_hide_stale_callbacks(self):
+        reviewed = ('def callback(): return "reviewed"\n'
+                    'def stream(callback):\n    yield None\n    yield callback()\n'
+                    'pending = stream(callback)\nnext(pending)\ndel stream, callback\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                            'Python code differs from its source')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_generator_and_coroutine_delegates_are_traversed(self):
+        generator = ('def inner():\n    yield 1\n'
+                     'def outer():\n    yield from inner()\n'
+                     'pending = outer()\nnext(pending)\ndel inner, outer\n')
+        coroutine = ('class Pause:\n    def __await__(self):\n        yield None\n'
+                     'async def inner():\n    await Pause()\n    return 1\n'
+                     'async def outer():\n    return await inner()\n'
+                     'pending = outer()\npending.send(None)\ndel inner, outer\n')
+        for reviewed in (generator, coroutine):
+            with self.subTest(source=reviewed):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace(' 1\n', ' 2\n'),
+                                                    'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_generator_expression_closures_are_checked(self):
+        reviewed = ('def make_stream():\n    scale = 1\n'
+                    '    return (scale for _ in (None,))\n'
+                    'pending = make_stream()\ndel make_stream\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
+                                            'frame.*closure|defaults or closure differ')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_builtin_iterator_wrappers_cannot_hide_stale_callbacks(self):
+        for expression in ('map(callback, (None,))', 'filter(callback, (None,))',
+                           'zip(map(callback, (None,)))', 'enumerate(map(callback, (None,)))',
+                           'itertools.starmap(callback, ((None,),))', 'iter(callback, None)'):
+            reviewed = ('import itertools\ndef callback(value=None): return "reviewed"\n'
+                        f'pending = {expression}\ndel callback\n')
+            with self.subTest(expression=expression):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                                    'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_native_containers_cannot_hide_stale_callbacks(self):
+        for expression in ('{callback: None}', 'types.MappingProxyType({callback: None})',
+                           '{callback: None}.keys()', '{None: callback}.values()',
+                           '{callback: None}.items()', 'collections.deque([callback])'):
+            reviewed = ('import types, collections\ndef callback(): return "reviewed"\n'
+                        f'pending = {expression}\ndel callback\n')
+            with self.subTest(expression=expression):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                                    'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_native_tasks_futures_and_cached_results_cannot_hide_stale_code(self):
+        cached = ('import functools\ndef callback(): return "reviewed"\n'
+                  '@functools.lru_cache()\ndef produce(): return callback\n'
+                  'pending = produce\nproduce()\ndel callback, produce\n')
+        task = ('import asyncio\nasync def stream(): return "reviewed"\n'
+                'loop = asyncio.new_event_loop()\npending = loop.create_task(stream())\ndel stream\n')
+        future = ('import asyncio\ndef callback(): return "reviewed"\n'
+                  'loop = asyncio.new_event_loop()\npending = loop.create_future()\n'
+                  'pending.set_result(callback)\ndel callback\n')
+        for reviewed in (cached, task, future):
+            with self.subTest(source=reviewed):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                                    'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_exception_and_weakref_state_cannot_hide_stale_callbacks(self):
+        exception = ('def capture():\n    scale = 1\n    raise ValueError("fixture")\n'
+                     'try:\n    capture()\nexcept ValueError as error:\n    pending = error\n'
+                     'del capture\n')
+        weakref = ('import weakref\nclass Holder: pass\n'
+                   'def callback(ref): return "reviewed"\n'
+                   'target = Holder()\npending = weakref.ref(target, callback)\ndel callback\n')
+        for reviewed, temporary in ((exception, exception.replace('scale = 1', 'scale = 2')),
+                                    (weakref, weakref.replace('"reviewed"', '"temporary"'))):
+            with self.subTest(source=reviewed):
+                self.assert_snapshot_matches_source(reviewed, temporary, 'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_execution_carriers_with_the_full_host_module_census(self):
+        reviewed = ('import asyncio\nasync def stream(): return "reviewed"\n'
+                    'loop = asyncio.new_event_loop()\npending = loop.create_task(stream())\ndel stream\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                            'Python code differs from its source', full_census=True)
+        self.assert_snapshot_matches_source(reviewed, full_census=True)
+
+    def test_bound_builtin_execution_methods_retain_their_owner(self):
+        reviewed = ('def stream():\n    yield 1\n'
+                    'pending = stream().send\ndel stream\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('yield 1', 'yield 2'),
+                                            'Python code differs from its source')
+
+    def test_explicit_frames_and_tracebacks_cannot_hide_stale_code(self):
+        frame = ('import sys\ndef capture():\n    scale = 1\n    return sys._getframe()\n'
+                 'pending = capture()\ndel capture\n')
+        traceback = ('def capture():\n    scale = 1\n    raise ValueError("fixture")\n'
+                     'try:\n    capture()\nexcept ValueError as error:\n    pending = error.__traceback__\n'
+                     'del capture\n')
+        for reviewed in (frame, traceback):
+            with self.subTest(source=reviewed):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
+                                                    'Python code differs from its source')
 
     def test_loaded_mutable_class_runtime_cache_is_not_a_source_constant(self):
         path = self.core / 'comfy' / 'model.py'

@@ -1,6 +1,7 @@
 """Source snapshots and loaded Python-code checks for the installed Comfy adapter."""
 import ast
 import functools
+import gc
 import hashlib
 import inspect
 import json
@@ -264,6 +265,8 @@ def _target_binds_name(target,name):
 
 
 def _scope_literal_binding(scope,name):
+    if isinstance(scope,ast.GeneratorExp):
+        return any(_target_binds_name(row.target,name) for row in scope.generators),None
     if isinstance(scope,ast.Lambda):
         arguments=scope.args.posonlyargs+scope.args.args+scope.args.kwonlyargs
         if scope.args.vararg is not None:arguments.append(scope.args.vararg)
@@ -436,41 +439,44 @@ def _source_function_literals(source,compiled):
                     if isinstance(child,ast.AST):visit_node(child,ancestors)
             for statement in node.body:visit_node(statement,ancestors)
             return
-        if isinstance(node,ast.Lambda):
-            body=node.body
-            key=('<lambda>',node.lineno,body.lineno,body.end_lineno,body.col_offset,body.end_col_offset)
+        if isinstance(node,(ast.Lambda,ast.GeneratorExp)):
+            body=node.body if isinstance(node,ast.Lambda) else node.elt
+            name='<lambda>' if isinstance(node,ast.Lambda) else '<genexpr>'
+            key=(name,node.lineno,body.lineno,body.end_lineno,body.col_offset,body.end_col_offset)
             nodes[key]=(node,ancestors)
-            visit_node(body,ancestors+[node])
+            for child in ast.iter_child_nodes(node):visit_node(child,ancestors+[node])
             return
         for child in ast.iter_child_nodes(node):visit_node(child,ancestors)
     visit_node(ast.parse(source),[])
     codes={}
     lambda_codes=[]
     def visit_code(code):
-        if code.co_name=='<lambda>':lambda_codes.append(code)
+        if code.co_name in ('<lambda>','<genexpr>'):lambda_codes.append(code)
         elif code.co_name!='<module>':codes[(code.co_name,code.co_firstlineno)]=code
         for value in code.co_consts:
             if isinstance(value,types.CodeType):visit_code(value)
     visit_code(compiled)
-    lambda_keys={key for key in nodes if key[0]=='<lambda>'}
+    lambda_keys={key for key in nodes if key[0] in ('<lambda>','<genexpr>')}
     for code in lambda_codes:
         positions=set(code.co_positions()) if hasattr(code,'co_positions') else set()
         matches=[key for key in lambda_keys
-                 if key[1]==code.co_firstlineno and key[2:] in positions]
+                 if key[0]==code.co_name and key[1]==code.co_firstlineno and key[2:] in positions]
         if not matches:
-            matches=[key for key in lambda_keys if key[1]==code.co_firstlineno]
+            matches=[key for key in lambda_keys if key[0]==code.co_name and key[1]==code.co_firstlineno]
         if len(matches)==1:codes[matches[0]]=code
     states={}
     for key,(node,ancestors) in nodes.items():
         state={'defaults':{},'kwdefaults':{},'closure':{},'unresolved_defaults':{}}
-        positional=node.args.posonlyargs+node.args.args
-        for argument,default in zip(positional[-len(node.args.defaults):] if node.args.defaults else (),
-                                    node.args.defaults):
+        arguments=getattr(node,'args',None)
+        positional=[] if arguments is None else arguments.posonlyargs+arguments.args
+        defaults=[] if arguments is None else arguments.defaults
+        for argument,default in zip(positional[-len(defaults):] if defaults else (),defaults):
             value=_constant_ast_value(default)
             signature=None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
             if signature is not None:state['defaults'][argument.arg]=signature
             else:state['unresolved_defaults'][argument.arg]=ast.dump(default,include_attributes=False)
-        for argument,default in zip(node.args.kwonlyargs,node.args.kw_defaults):
+        for argument,default in zip([] if arguments is None else arguments.kwonlyargs,
+                                    [] if arguments is None else arguments.kw_defaults):
             if default is not None:
                 value=_constant_ast_value(default)
                 signature=None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
@@ -484,7 +490,7 @@ def _source_function_literals(source,compiled):
                     if bound:
                         if signature is not None:state['closure'][name]=signature
                         break
-        if any(state.values()) or key[0]=='<lambda>':states[key]=state
+        if any(state.values()) or key[0] in ('<lambda>','<genexpr>'):states[key]=state
     return states
 
 
@@ -538,10 +544,107 @@ class _LoadedInstanceState:
             if signature is not None:self.attributes[name]=signature
 
 
+def _execution_state(value):
+    if isinstance(value,types.GeneratorType):return value.gi_code,value.gi_frame,value.gi_yieldfrom
+    if isinstance(value,types.CoroutineType):return value.cr_code,value.cr_frame,value.cr_await
+    if isinstance(value,types.AsyncGeneratorType):return value.ag_code,value.ag_frame,value.ag_await
+    return None
+
+
+class _LoadedFrameState:
+    def __init__(self,frame):
+        self.frame=frame;self.code=frame.f_code;self.members=dict(frame.f_locals)
+        names=self.code.co_varnames
+        positional=names[:self.code.co_argcount]
+        keywords=names[self.code.co_argcount:self.code.co_argcount+self.code.co_kwonlyargcount]
+        self.state={}
+        for category,fields in (('defaults',positional),('kwdefaults',keywords),('closure',self.code.co_freevars)):
+            self.state[category]={name:_literal_value_signature(self.members[name]) for name in fields if name in self.members}
+
+
+def _callable_source_state(states,code):
+    if code.co_name not in ('<lambda>','<genexpr>'):return states.get((code.co_name,code.co_firstlineno))
+    positions=set(code.co_positions())
+    matches=[state for key,state in states.items() if len(key)==6 and key[0]==code.co_name
+             and key[1]==code.co_firstlineno and key[2:] in positions]
+    require(len(matches)==1,'Loaded Comfy expression could not be matched to source')
+    return matches[0]
+
+
+def _source_frame_arguments(statements,namespace,frames):
+    """Bind literal arguments at direct source creation sites; never invoke a factory."""
+    bindings={}
+    for statement in statements:
+        if isinstance(statement,ast.Assign):targets=statement.targets;call=statement.value
+        elif isinstance(statement,ast.AnnAssign):targets=[statement.target];call=statement.value
+        else:continue
+        if not isinstance(call,ast.Call) or not isinstance(call.func,ast.Name):continue
+        for target in targets:
+            execution=_execution_state(_static_source_reference(target,namespace))
+            if execution is None or execution[1] is None:continue
+            code,frame,_=execution
+            if id(frame) not in frames or code.co_qualname!=call.func.id:continue
+            fields={};names=code.co_varnames[:code.co_argcount]
+            for name,node in list(zip(names,call.args))+[(row.arg,row.value) for row in call.keywords if row.arg is not None]:
+                value=_constant_ast_value(node)
+                if value is _UNMATCHED_LITERAL:value=_static_source_reference(node,namespace)
+                signature=None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
+                if signature is not None:fields[name]=signature
+            require(not any(isinstance(row,ast.Starred) for row in call.args)
+                    and not any(row.arg is None for row in call.keywords),
+                    'Retained frame argument expansion cannot be safely matched to source')
+            bindings[id(frame)]=fields
+    return bindings
+
+
 def _loaded_codes(value,seen,roots=()):
     marker=id(value)
     if marker in seen:return
     seen.add(marker)
+    execution=_execution_state(value)
+    if execution is not None:
+        code,frame,delegate=execution
+        yield code
+        if frame is not None:yield from _loaded_codes(frame,seen,roots)
+        if delegate is not None:yield from _loaded_codes(delegate,seen,roots)
+        return
+    if isinstance(value,types.FrameType):
+        frame=_LoadedFrameState(value)
+        yield value.f_code;yield frame
+        for member in frame.members.values():yield from _loaded_codes(member,seen,roots)
+        back=value.f_back
+        if back is not None:
+            try:covered=_inside(Path(back.f_code.co_filename).resolve(strict=True),roots)
+            except (OSError,RuntimeError):covered=False
+            if covered:yield from _loaded_codes(back,seen,roots)
+        return
+    if isinstance(value,types.TracebackType):
+        yield from _loaded_codes(value.tb_frame,seen,roots)
+        if value.tb_next is not None:yield from _loaded_codes(value.tb_next,seen,roots)
+        return
+    if isinstance(value,BaseException):
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        return
+    if isinstance(value,types.BuiltinFunctionType):
+        owner=value.__self__
+        if owner is not None and not isinstance(owner,(types.ModuleType,type)):
+            yield from _loaded_codes(owner,seen,roots)
+        return
+    value_type=type(value)
+    native_async=value_type.__module__=='_asyncio' and value_type.__name__ in ('Task','Future')
+    native_cache=value_type.__module__=='functools' and value_type.__name__=='_lru_cache_wrapper'
+    native_iterator=value_type.__module__ in ('builtins','itertools') and (
+        inspect.getattr_static(value_type,'__next__',None) is not None
+        or inspect.getattr_static(value_type,'__await__',None) is not None)
+    native_weakref=value_type.__module__=='weakref' and value_type.__name__ in ('ReferenceType','ProxyType','CallableProxyType')
+    native_container=(value_type.__module__=='builtins' and value_type.__name__ in ('dict_keys','dict_values','dict_items')
+                      or value_type is types.MappingProxyType
+                      or value_type.__module__=='collections' and value_type.__name__=='deque')
+    if native_async or native_cache or native_iterator or native_weakref or native_container:
+        # These CPython execution carriers keep callbacks/delegates/results in
+        # native fields. GC exposes references without running or advancing them.
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        return
     if isinstance(value,(functools.partial,functools.partialmethod)):
         yield from _loaded_codes(value.func,seen,roots)
         yield from _loaded_codes(value.args,seen,roots)
@@ -583,7 +686,9 @@ def _loaded_codes(value,seen,roots=()):
         yield from _loaded_codes(value_type,seen,roots)
         for member in instance.members.values():yield from _loaded_codes(member,seen,roots)
     if isinstance(value,dict):
-        for member in value.values():yield from _loaded_codes(member,seen,roots)
+        for key,member in dict.items(value):
+            yield from _loaded_codes(key,seen,roots)
+            yield from _loaded_codes(member,seen,roots)
     elif isinstance(value,(tuple,list,set,frozenset)):
         for member in value:yield from _loaded_codes(member,seen,roots)
     elif callable(value):
@@ -606,7 +711,7 @@ def _source_module_path(module_name,roots):
 def loaded_source_code(roots):
     """Verify loaded code, literal callable/class state and module constants against source."""
     roots=[Path(root).resolve(strict=True) for root in roots]
-    loaded={};module_namespaces={};loaded_function_states={};loaded_class_states={};loaded_instances={}
+    loaded={};module_namespaces={};loaded_function_states={};loaded_class_states={};loaded_instances={};loaded_frames={}
     for module in tuple(sys.modules.values()):
         namespace=getattr(module,'__dict__',None)
         if not isinstance(namespace,dict):continue
@@ -620,6 +725,9 @@ def loaded_source_code(roots):
         seen=set()
         for value in tuple(namespace.values()):
             for record in _loaded_codes(value,seen,roots):
+                if isinstance(record,_LoadedFrameState):
+                    loaded_frames[id(record.frame)]=record
+                    continue
                 if isinstance(record,_LoadedInstanceState):
                     loaded_instances[id(record.value)]=record
                     continue
@@ -639,10 +747,12 @@ def loaded_source_code(roots):
                     loaded_function_states.setdefault(path,[]).append((code,function_state))
     sources={path:path.read_bytes() for path in set(loaded)|set(module_namespaces)}
     constructors={path:_source_constructor_literals(source) for path,source in sources.items()}
-    overrides={}
+    overrides={};frame_arguments={}
     for path,namespaces in module_namespaces.items():
-        declarations=list(_source_attribute_literals(ast.parse(sources[path]).body))
+        statements=ast.parse(sources[path]).body
+        declarations=list(_source_attribute_literals(statements))
         for namespace in namespaces:
+            frame_arguments.update(_source_frame_arguments(statements,namespace,loaded_frames))
             for target,signature in declarations:
                 instance=_static_source_reference(target.value,namespace)
                 if id(instance) in loaded_instances:
@@ -669,15 +779,7 @@ def loaded_source_code(roots):
         class_literals=_source_class_literals(source)
         expected.update(_literal_hash(state) for state in class_literals.values())
         for code,function_state in loaded_function_states.get(path,()):
-            if code.co_name=='<lambda>':
-                positions=set(code.co_positions()) if hasattr(code,'co_positions') else set()
-                matches=[state for key,state in function_literals.items()
-                         if len(key)==6 and key[0]=='<lambda>' and key[1]==code.co_firstlineno
-                         and key[2:] in positions]
-                require(len(matches)==1,'Loaded Comfy lambda could not be matched to source')
-                source_state=matches[0]
-            else:
-                source_state=function_literals.get((code.co_name,code.co_firstlineno))
+            source_state=_callable_source_state(function_literals,code)
             if not source_state:continue
             require(not source_state.get('unresolved_defaults'),
                     'Loaded Comfy function default expression cannot be safely matched to source')
@@ -690,6 +792,26 @@ def loaded_source_code(roots):
                         for category,values in source_state.items()
                         if category!='unresolved_defaults' and values}
             loaded_hashes.add(_literal_hash(comparable))
+        for marker,frame in loaded_frames.items():
+            if Path(frame.code.co_filename).resolve()!=path:continue
+            source_state=_callable_source_state(function_literals,frame.code) or {}
+            require(not source_state.get('unresolved_defaults'),
+                    'Loaded Comfy frame defaults cannot be safely matched to source')
+            comparable={}
+            for category in ('defaults','kwdefaults','closure'):
+                fields=dict(source_state.get(category,{}))
+                if category!='closure':
+                    start=0 if category=='defaults' else frame.code.co_argcount
+                    end=frame.code.co_argcount if category=='defaults' else start+frame.code.co_kwonlyargcount
+                    parameters=set(frame.code.co_varnames[start:end])
+                    fields.update({name:signature for name,signature in frame_arguments.get(marker,{}).items() if name in parameters})
+                if not fields:continue
+                require(all(signature is not None and frame.state[category].get(name)==signature
+                            for name,signature in fields.items()),
+                        'Loaded Comfy frame defaults or closure differ from source on disk')
+                comparable[category]=fields
+            signature=_literal_hash(comparable)
+            expected.add(signature);loaded_hashes.add(signature)
         for class_state in loaded_class_states.get(path,()):
             source_state=class_literals.get(class_state.qualname)
             if not source_state:continue
