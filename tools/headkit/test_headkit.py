@@ -1230,7 +1230,7 @@ class ReplayPinTests(Temporary):
     def fixture(self):
         paths={name:str(self.file(name+'.dat',name)) for name in ('source','shades','layers','binary','expectedPlt')}
         return dict(paths,id='retained',model='pfg0_head092',fit={},inputs=[pin(p) for p in paths.values()])
-    def replay(self,config,output,changed=None):
+    def replay(self,config,output,changed=None,geometry=None):
         from headkit.replay import replay
         def prepare(source,shades,layers,fit,model,folder):
             folder.mkdir();plt=folder/'head.plt';plt.write_bytes(Path(config['expectedPlt']).read_bytes())
@@ -1239,21 +1239,21 @@ class ReplayPinTests(Temporary):
             if changed:Path(config[changed]).write_text('changed during processing')
             return b'sanitized-native',{'verified':True}
         with ExitStack() as stack:
-            mesh=stack.enter_context(patch('headkit.replay.mesh',return_value={'positions':[], 'faces':[]}))
-            stack.enter_context(patch('headkit.replay.topology',return_value={'triangles':20000,'closed':True}))
+            geometry=geometry or {'topology':{'triangles':20000,'closed':True},'crossings':{'complete':True,'pairs':[]},'passed':True}
+            geometry_audit=stack.enter_context(patch('headkit.replay.audit',return_value=geometry))
             stack.enter_context(patch('headkit.replay.prepare',side_effect=prepare))
             stack.enter_context(patch('headkit.replay.audit_native',side_effect=native))
             result=replay(config,output)
-            mesh.assert_called_once_with(str(Path(config['source']).resolve()))
+            geometry_audit.assert_called_once_with(str(Path(config['source']).resolve()))
             return result
     def test_missing_each_consumed_pin_fails_before_processing(self):
         from headkit.replay import replay
         for role in ('source','shades','layers','binary','expectedPlt'):
             config=self.fixture();config['inputs']=[p for p in config['inputs'] if Path(p['path']).resolve()!=Path(config[role]).resolve()]
             self.assertEqual(len(config['inputs']),4)
-            with patch('headkit.replay.mesh') as mesh:
+            with patch('headkit.replay.audit') as geometry_audit:
                 with self.assertRaisesRegex(ValueError,'Missing replay input pin: '+role):replay(config,self.root/'missing')
-                mesh.assert_not_called();self.assertFalse((self.root/'missing').exists())
+                geometry_audit.assert_not_called();self.assertFalse((self.root/'missing').exists())
     def test_unrelated_pins_do_not_qualify_consumed_artifacts(self):
         config=self.fixture();config['inputs']=[pin(self.file('unrelated'))]
         with self.assertRaisesRegex(ValueError,'Missing replay input pin'):self.replay(config,self.root/'unrelated-output')
@@ -1273,6 +1273,50 @@ class ReplayPinTests(Temporary):
         with self.assertRaisesRegex(ValueError,'Conflicting replay input pins'):self.replay(config,self.root/'conflict')
         config=self.fixture();Path(config['binary']).write_text('changed before replay')
         with self.assertRaisesRegex(ValueError,'Stale file pin'):self.replay(config,self.root/'stale')
+
+
+class ReplayGeometryTests(Temporary):
+    def test_closed_crossing_components_fail_before_native_preparation(self):
+        from headkit.replay import replay
+        p,f=MeshTests.tetra(self)
+        source=self.root/'crossing.glb'
+        write_mesh(source,np.concatenate((p,p+[.2,.2,.2])),np.concatenate((f,f+len(p))))
+        self.assertTrue(topology(mesh(source)['positions'],mesh(source)['faces'])['closed'])
+        report=audit(source)
+        self.assertTrue(report['crossings']['complete'])
+        self.assertTrue(report['crossings']['pairs'])
+        config=ReplayPinTests.fixture(self);config['source']=str(source);config['inputs'].append(pin(source))
+        output=self.root/'rejected'
+        with patch('headkit.replay.prepare',side_effect=AssertionError('Crossing source reached native preparation')) as prepare:
+            with self.assertRaisesRegex(ValueError,'topology/collision audit'):replay(config,output)
+            prepare.assert_not_called()
+        self.assertFalse((output/'replay.json').exists())
+        self.assertFalse((output/(config['model']+'.mdl')).exists())
+
+    def test_incomplete_audit_and_overbudget_source_cannot_reach_export(self):
+        from headkit.replay import replay
+        cases=[
+            ({'topology':{'triangles':8,'closed':True},'crossings':{'complete':False,'pairs':[]},'passed':False},'topology/collision audit'),
+            ({'topology':{'triangles':20001,'closed':True},'crossings':{'complete':True,'pairs':[]},'passed':True},'closed 20K profile'),
+        ]
+        for index,(geometry,message) in enumerate(cases):
+            with self.subTest(case=index):
+                config=ReplayPinTests.fixture(self);output=self.root/str(index)
+                with patch('headkit.replay.audit',return_value=geometry),patch('headkit.replay.prepare') as prepare:
+                    with self.assertRaisesRegex(ValueError,message):replay(config,output)
+                    prepare.assert_not_called()
+                self.assertEqual(read(output/'geometry-audit.json'),geometry)
+                self.assertFalse((output/'replay.json').exists())
+
+    def test_valid_replay_retains_full_geometry_audit_evidence(self):
+        p,f=MeshTests.tetra(self);source=self.root/'valid.glb';write_mesh(source,p,f)
+        geometry=audit(source);self.assertTrue(geometry['passed'])
+        config=ReplayPinTests.fixture(self);config['source']=str(source);config['inputs'].append(pin(source))
+        result=ReplayPinTests.replay(self,config,self.root/'valid',geometry=geometry)
+        self.assertEqual(result['topology'],geometry['topology'])
+        self.assertEqual(result['geometryAudit'],pin(self.root/'valid'/'geometry-audit.json'))
+        self.assertEqual(read(result['geometryAudit']['path']),geometry)
+        self.assertFalse(result['generationPerformed']);self.assertFalse(result['repairPerformed'])
 
 
 class ResumeTests(Temporary):
