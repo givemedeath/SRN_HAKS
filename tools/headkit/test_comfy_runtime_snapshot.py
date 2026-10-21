@@ -523,6 +523,85 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                                                     'Python code differs from its source')
                 self.assert_snapshot_matches_source(reviewed)
 
+    def test_module_namespace_assignments_match_reviewed_source(self):
+        for factory in ('globals()', 'locals()', 'vars()', 'namespace', 'builtins.globals()', 'scope()'):
+            prefix={'namespace':'namespace = globals()\n','builtins.globals()':'import builtins\n',
+                    'scope()':'from builtins import vars as scope\n'}.get(factory,'')
+            reviewed=prefix+factory+"['SCALE'] = 1\ndef read(): return SCALE\n"
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(reviewed,reviewed.replace(' = 1',' = 2'),'module constants differ')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_namespace_factory_aliases_and_compound_assignments_are_checked(self):
+        reviewed="factory = globals\nnamespace = factory()\nif True:\n    namespace['SCALE'] = 1\ndef read(): return SCALE\n"
+        self.assert_snapshot_matches_source(reviewed,reviewed.replace(' = 1',' = 2'),'module constants differ')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_namespace_mutation_and_ambiguous_writes_fail_closed(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        sources=(
+            "globals().update(SCALE=1)",
+            "namespace=globals()\nnamespace.update(SCALE=1)",
+            "namespace=globals()\nset_value=namespace.__setitem__\nset_value('SCALE',1)",
+            "globals()[choose_key()] = 1",
+            "globals()['SCALE'] = choose_value()",
+            "globals()['SCALE'] += 1",
+            "del globals()['SCALE']",
+            "other.__dict__['SCALE'] = 1",
+            "vars(other)['SCALE'] = 1",
+            "def initialize():\n    globals()['SCALE'] = 1\ninitialize()\ndel initialize",
+            "class Holder:\n    locals()['SCALE'] = 1",
+            "namespace=globals()\ndict.__setitem__(namespace,'SCALE',1)",
+        )
+        for source in sources:
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(source)
+
+    def test_namespace_alias_escapes_and_nested_mutators_fail_closed(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        sources=(
+            "namespace=globals()\nholder.table=namespace\nholder.table['SCALE']=1",
+            "holder=[globals()]\nholder[0]['SCALE']=1",
+            "def initialize():\n    namespace=globals()\n    setter=getattr(namespace,'__setitem__')\n    setter('SCALE',1)",
+            "def initialize():\n    import operator\n    operator.setitem(globals(),'SCALE',1)",
+            "globals()['SCALE']=1\nSCALE=2",
+        )
+        for source in sources:
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError,'namespace|Ambiguous'):_source_constants(source)
+
+    def test_namespace_capabilities_cannot_escape_static_analysis(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        sources=(
+            "factory=globals\nif True:\n    factory=locals\nfactory()['SCALE']=1",
+            "factory=[globals]\nfactory[0]()['SCALE']=1",
+            "def factory():\n    return globals()\nfactory()['SCALE']=1",
+            "factory=lambda: globals()\nfactory()['SCALE']=1",
+            "factory=lambda: globals().__setitem__('SCALE',1)\nfactory()",
+            "def initialize(namespace=globals()):\n    namespace['SCALE']=1\ninitialize()",
+            "setter=globals().__setitem__\nregister(setter)",
+        )
+        for source in sources:
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(source)
+
+    def test_current_module_dictionary_aliases_are_checked(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        for namespace in ('system.modules[__name__].__dict__', 'vars(system.modules[__name__])',
+                          "getattr(system.modules[__name__],'__dict__')", 'table[__name__].__dict__'):
+            prefix='from sys import modules as table\n' if namespace.startswith('table') else 'import sys as system\n'
+            source=prefix+namespace+"['SCALE']=1\n"
+            with self.subTest(namespace=namespace):
+                self.assertEqual(_source_constants(source),{'SCALE':1})
+                with self.assertRaisesRegex(ValueError,'namespace'):
+                    _source_constants(prefix+'exec(payload,'+namespace+')')
+
+    def test_namespace_readers_and_ordinary_dictionaries_remain_supported(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        source="SCALE=1\nnamespace=globals()\nvalue=namespace.get('SCALE')\ncache={}\ncache['hits']=1\ncache.update(hits=2)\n"
+        self.assertEqual(_source_constants(source),{'SCALE':1})
+        self.assert_snapshot_matches_source(source)
+
     def test_compound_module_settings_cannot_hide_stale_values(self):
         blocks = ('if True:\n    SCALE = 1\n',
                   'try:\n    SCALE = 1\nexcept Exception:\n    pass\n',

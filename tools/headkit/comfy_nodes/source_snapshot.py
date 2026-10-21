@@ -230,10 +230,123 @@ def _setting_literal(name,value):
         or any(token in name.casefold() for token in ('setting','config','option','param','preset','profile')))
 
 
+def _source_namespace_bindings(statements, inherited=None, *, module_scope=True):
+    """Resolve bounded namespace writes without calling accessors or running source."""
+    aliases={name:{'factory:'+name} for name in ('globals','locals','vars')}
+    aliases.update({name:set(tags) for name,tags in (inherited or {}).items()})
+    nodes=list(_scope_nodes(statements))
+    readers={'get','keys','values','items','copy','__getitem__','__contains__','__iter__','__len__'}
+
+    def reference(node):
+        if isinstance(node,ast.Name):
+            tags=aliases.get(node.id,set())
+            return next(iter(tags)) if len(tags)==1 else ('namespace:foreign' if tags else None)
+        if isinstance(node,ast.Attribute):
+            owner=reference(node.value)
+            if node.attr=='modules' and owner=='sys':return 'modules'
+            if node.attr=='__dict__':return 'namespace:own' if owner=='self-module' else 'namespace:foreign'
+            if owner=='builtins' and node.attr in ('globals','locals','vars'):return 'factory:'+node.attr
+            if owner and owner.startswith('namespace:') and node.attr not in readers:return 'mutator'
+        if (isinstance(node,ast.Subscript) and reference(node.value)=='modules'
+                and isinstance(node.slice,ast.Name) and node.slice.id=='__name__'):
+            return 'self-module'
+        if isinstance(node,ast.Call):
+            factory=reference(node.func)
+            if factory=='namespace:foreign':return 'namespace:foreign'
+            if factory and factory.startswith('factory:'):
+                own=not node.args and not node.keywords
+                own=own or factory=='factory:vars' and len(node.args)==1 and not node.keywords and reference(node.args[0])=='self-module'
+                return 'namespace:own' if own else 'namespace:foreign'
+            if isinstance(node.func,ast.Name) and node.func.id=='getattr' and len(node.args)>=2:
+                name=_constant_ast_value(node.args[1])
+                if name=='__dict__':return 'namespace:own' if reference(node.args[0])=='self-module' else 'namespace:foreign'
+                if (reference(node.args[0]) or '').startswith('namespace:') and name not in readers:
+                    return 'mutator'
+        return None
+
+    def capability(node):
+        kind=reference(node) or ''
+        return kind=='mutator' or kind.startswith(('namespace:','factory:'))
+
+    def alias_targets(target,expression):
+        if isinstance(target,ast.Name):yield target.id,reference(expression)
+        elif (isinstance(target,(ast.Tuple,ast.List)) and isinstance(expression,(ast.Tuple,ast.List))
+                and len(target.elts)==len(expression.elts)):
+            for item,value in zip(target.elts,expression.elts):yield from alias_targets(item,value)
+
+    for node in nodes:
+        if isinstance(node,ast.Import):
+            for item in node.names:
+                if item.name in ('builtins','sys'):aliases.setdefault(item.asname or item.name,set()).add(item.name)
+        elif isinstance(node,ast.ImportFrom) and node.module=='sys':
+            for item in node.names:
+                if item.name=='modules':aliases.setdefault(item.asname or item.name,set()).add('modules')
+        elif isinstance(node,ast.ImportFrom) and node.module=='builtins':
+            for item in node.names:
+                if item.name in ('globals','locals','vars'):
+                    aliases.setdefault(item.asname or item.name,set()).add('factory:'+item.name)
+    # Monotone alias discovery handles forward/conditional aliases conservatively.
+    for _ in range(len(nodes)+1):
+        changed=False
+        for node in nodes:
+            if isinstance(node,ast.Assign):targets=node.targets;expression=node.value
+            elif isinstance(node,(ast.AnnAssign,ast.NamedExpr)):targets=[node.target];expression=node.value
+            else:continue
+            for target in targets:
+                for name,tag in alias_targets(target,expression):
+                    if tag and tag not in aliases.setdefault(name,set()):
+                        aliases[name].add(tag);changed=True
+        if not changed:break
+    require(not changed,'Source namespace aliases exceed the bounded analysis')
+
+    for target,value in _source_bindings(statements):
+        if not isinstance(target,ast.Subscript):continue
+        kind=reference(target.value)
+        if not kind or not kind.startswith('namespace:'):continue
+        name=_constant_ast_value(target.slice)
+        require(module_scope and kind=='namespace:own' and type(name) is str
+                and value is not _UNMATCHED_LITERAL,
+                'Unsupported or ambiguous source namespace assignment')
+        yield name,value
+    for node in nodes:
+        require(not (isinstance(node,(ast.Attribute,ast.Call)) and reference(node)=='mutator'),
+                'Unsupported source namespace mutator reference')
+        if isinstance(node,ast.Call):
+            require(reference(node.func)!='mutator','Unsupported source namespace mutation')
+            arguments=[*node.args,*(item.value for item in node.keywords)]
+            kinds=[reference(value) for value in arguments]
+            method=node.func.attr if isinstance(node.func,ast.Attribute) else None
+            mutator=method in {'__setitem__','__delitem__','update','setdefault','pop','popitem','clear','setitem','delitem','ior'}
+            require(not any(kind and (kind=='mutator' or kind.startswith('factory:') or
+                            kind.startswith('namespace:') and (kind=='namespace:own' or mutator)) for kind in kinds),
+                    'Unsupported source namespace escape')
+        if isinstance(node,(ast.Assign,ast.AnnAssign,ast.NamedExpr)):
+            targets=node.targets if isinstance(node,ast.Assign) else [node.target]
+            if capability(node.value):
+                require(all(isinstance(target,ast.Name) for target in targets),
+                        'Unsupported source namespace attribute escape')
+        if isinstance(node,(ast.List,ast.Tuple,ast.Set,ast.Dict)):
+            values=[*node.keys,*node.values] if isinstance(node,ast.Dict) else node.elts
+            require(not any(capability(value) for value in values),
+                    'Unsupported source namespace container escape')
+        if isinstance(node,(ast.Return,ast.Yield,ast.YieldFrom)):
+            require(not capability(node.value),'Unsupported source namespace return escape')
+        if isinstance(node,ast.arguments):
+            require(not any(capability(value) for value in [*node.defaults,*node.kw_defaults]),
+                    'Unsupported source namespace default escape')
+        if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+            yield from _source_namespace_bindings(node.body,aliases,module_scope=False)
+        elif isinstance(node,ast.Lambda):
+            require(not capability(node.body),'Unsupported source namespace lambda escape')
+            yield from _source_namespace_bindings([ast.Expr(value=node.body)],aliases,module_scope=False)
+
+
 def _source_constants(source):
     assignments={}
-    for target,value in _source_bindings(ast.parse(source).body):
+    statements=ast.parse(source).body
+    for target,value in _source_bindings(statements):
         if isinstance(target,ast.Name):assignments.setdefault(target.id,[]).append(value)
+    for name,value in _source_namespace_bindings(statements):assignments.setdefault(name,[]).append(value)
     constants={}
     for name,values in assignments.items():
         if not any(_setting_literal(name,value) for value in values):continue
