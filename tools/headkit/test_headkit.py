@@ -1537,6 +1537,57 @@ class RenderPlanTests(Temporary):
         with self.assertRaisesRegex(ValueError,'TEXCOORD_0'):require_textured_uvs(missing)
         flat=self.root/'flat-uv.glb';write_mesh(flat,vertices,faces,uv=np.zeros((1,3,2),np.float32))
         with self.assertRaisesRegex(ValueError,'nondegenerate UVs'):require_textured_uvs(flat)
+    def render_runner(self):
+        path=self.file('uv.glb')
+        data={'schemaVersion':1,'id':'render-inputs','inputs':{'uvMesh':{'path':path.name,'sha256':pin(path)['sha256']}},
+              'render':{'cameras':[self.camera()],'mapInputs':{},'modes':['clay'],'size':16,'diagnostic':True}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data(toolchain=str(self.file('toolchain.json')),migrationReceipt=str(self.file('migration.json'))))
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+
+    def launcher(self):
+        from headkit.common import ROOT
+        with patch.object(sys,'path',[str(ROOT/'tools/phenotypes'),*sys.path]):
+            spec=importlib.util.spec_from_file_location('headkit_render_launcher',ROOT/'tools/phenotypes/launch_shared_tool.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return module
+
+    def test_render_launcher_snapshots_imported_helpers_and_config(self):
+        from headkit.common import ROOT,code_pins
+        runner=self.render_runner();launcher=self.launcher();captured=[]
+        class Launched(Exception):pass
+        def launch(command,**kwargs):
+            self.assertIn('--input-manifest',command)
+            declared=Path(command[command.index('--input-manifest')+1])
+            paths,frozen=launcher.manifest_inputs([declared])
+            config=read(runner.run/'render-config.json')
+            self.assertTrue({row['path'] for row in code_pins()}<={row['path'] for row in config['inputs']})
+            self.assertIn((runner.run/'render-config.json').resolve(),paths)
+            output=runner.run/'launcher-snapshots';output.mkdir()
+            snapshots=launcher.helper_snapshots(paths,frozen,output)
+            helpers=[ROOT/'tools/headkit'/name for name in ('blender_render.py','gltf.py','review_images.py','common.py')]
+            helpers.append(ROOT/'tools/phenotypes/bootstrap_shared_blender_addons.py')
+            for path in helpers:
+                self.assertEqual(pin(snapshots[str(path)]['snapshot'])['sha256'],pin(path)['sha256'])
+            captured.append(command)
+            raise Launched
+        with patch('subprocess.run',side_effect=launch):
+            with self.assertRaises(Launched):runner._execute('render',runner.run)
+        self.assertEqual(len(captured),1)
+
+    def test_render_launcher_rejects_changed_imported_helper(self):
+        from headkit.common import code_pins,verify
+        helper=self.file('imported-helper.py','value=1');frozen=code_pins()+[pin(helper)]
+        runner=self.render_runner();launcher=self.launcher()
+        def launch(command,**kwargs):
+            helper.write_text('value=2')
+            # Both the shared launcher and Blender use the prepared hashes.
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):
+                verify(read(runner.run/'render-config.json')['inputs'])
+            launcher.manifest_inputs([Path(command[command.index('--input-manifest')+1])])
+        with patch('headkit.runner.code_pins',return_value=frozen),patch('subprocess.run',side_effect=launch):
+            with self.assertRaisesRegex(ValueError,'Manifest input changed'):
+                runner._execute('render',runner.run)
+
     def test_runner_rejects_empty_plan_before_atlas_or_blender_work(self):
         path=self.file('uv.glb');data={'schemaVersion':1,'id':'empty-render','inputs':{'uvMesh':{'path':path.name,'sha256':pin(path)['sha256']}},
             'render':{'cameras':[],'mapInputs':{}}}
@@ -1546,6 +1597,27 @@ class RenderPlanTests(Temporary):
             with self.assertRaisesRegex(ValueError,'nonempty'):runner._execute('render',runner.run)
             atlases.assert_not_called();blender.assert_not_called()
         self.assertFalse((runner.run/'renders').exists())
+
+
+class NativeDependencyTests(Temporary):
+    def test_native_imports_and_compiler_inputs_are_pinned(self):
+        from headkit.common import ROOT,code_pins
+        # Isolate actual imports from modules already loaded by other tests.
+        script="""import json,sys
+from pathlib import Path
+from headkit.common import ROOT
+from headkit.native import helpers
+helpers()
+sys.path.insert(0,str(ROOT/'tools/phenotypes'))
+import native_compile
+print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list(sys.modules.values())
+    if getattr(module,'__file__',None) and Path(module.__file__).resolve().is_relative_to(ROOT)})))
+"""
+        result=subprocess.run([sys.executable,'-B','-c',script],capture_output=True,text=True,check=True)
+        consumed=set(json.loads(result.stdout))
+        consumed.add(str(ROOT/'tools/phenotypes/height_targets.json'))
+        consumed.add(str(ROOT/'tools/shared-tools.lock.json'))
+        self.assertFalse(consumed-{row['path'] for row in code_pins()})
 
 
 class ReviewImageTests(Temporary):

@@ -260,7 +260,14 @@ def code_pins():
     directory=Path(__file__).parent
     files=[p for p in sorted(directory.rglob('*')) if p.is_file() and p.suffix in ('.py','.json') and '__pycache__' not in p.parts]
     files += [ROOT/path for path in ('tools/heads/head_export.py','tools/heads/head_workflow.py',
-        'tools/heads/verify_head_hak.py','tools/phenomorpher/phenomorpher/engine/stock_armor.py',
+        'tools/heads/verify_head_hak.py','tools/phenomorpher/phenomorpher/__init__.py',
+        'tools/phenomorpher/phenomorpher/engine/__init__.py','tools/phenomorpher/phenomorpher/engine/stock_armor.py',
+        'tools/phenomorpher/phenomorpher/engine/silhouette_model.py','tools/phenomorpher/phenomorpher/engine/anim_library.py',
+        'tools/phenomorpher/phenomorpher/engine/audit_geometry.py','tools/phenomorpher/phenomorpher/engine/retarget.py',
+        'tools/phenomorpher/phenomorpher/engine/target_contract.py','tools/phenomorpher/phenomorpher/engine/measurement_common.py',
+        'tools/phenomorpher/phenomorpher/engine/native_motion.py','tools/phenotypes/pipeline.py',
+        'tools/phenotypes/height_targets.json','tools/shared-tools.lock.json',
+        'tools/phenotypes/bootstrap_shared_blender_addons.py',
         'tools/phenotypes/native_compile.py','tools/phenotypes/launch_shared_tool.py',
         'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')]
     return [pin(p) for p in files]
