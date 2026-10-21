@@ -190,6 +190,119 @@ def _source_constants(source):
     return constants
 
 
+def _literal_value_signature(value):
+    try:return _literal_signature(value)
+    except (TypeError,ValueError,MemoryError,RecursionError):return None
+
+
+def _target_binds_name(target,name):
+    if isinstance(target,ast.Name):return target.id==name
+    if isinstance(target,(ast.Tuple,ast.List)):
+        return any(_target_binds_name(item,name) for item in target.elts)
+    if isinstance(target,ast.Starred):return _target_binds_name(target.value,name)
+    return False
+
+
+def _scope_literal_binding(scope,name):
+    bindings=[]
+    def visit(node):
+        if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.Lambda,ast.ClassDef)):
+            if getattr(node,'name',None)==name:bindings.append(None)
+            return
+        if isinstance(node,ast.Assign) and any(_target_binds_name(target,name) for target in node.targets):
+            bindings.append(node.value)
+        elif isinstance(node,ast.AnnAssign) and _target_binds_name(node.target,name):
+            bindings.append(node.value)
+        elif isinstance(node,ast.NamedExpr) and _target_binds_name(node.target,name):
+            bindings.append(node.value)
+        elif isinstance(node,(ast.For,ast.AsyncFor)) and _target_binds_name(node.target,name):
+            bindings.append(None)
+        elif isinstance(node,(ast.With,ast.AsyncWith)):
+            for item in node.items:
+                if item.optional_vars is not None and _target_binds_name(item.optional_vars,name):
+                    bindings.append(None)
+        elif isinstance(node,ast.ExceptHandler) and node.name==name:
+            bindings.append(None)
+        for child in ast.iter_child_nodes(node):visit(child)
+    for statement in scope.body:visit(statement)
+    if not bindings:return False,None
+    if len(bindings)!=1 or bindings[0] is None:return True,None
+    try:value=ast.literal_eval(bindings[0])
+    except (TypeError,ValueError,MemoryError,RecursionError):return True,None
+    return True,_literal_value_signature(value)
+
+
+def _source_function_literals(source,compiled):
+    nodes={}
+    def visit_body(body,ancestors):
+        for node in body:
+            if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
+                key=(node.name,node.lineno)
+                nodes[key]=(node,ancestors)
+                visit_body(node.body,ancestors+[node])
+            elif isinstance(node,ast.ClassDef):
+                visit_body(node.body,ancestors)
+    visit_body(ast.parse(source).body,[])
+    codes={}
+    def visit_code(code):
+        if code.co_name!='<module>':codes[(code.co_name,code.co_firstlineno)]=code
+        for value in code.co_consts:
+            if isinstance(value,types.CodeType):visit_code(value)
+    visit_code(compiled)
+    states={}
+    for key,(node,ancestors) in nodes.items():
+        state={'defaults':{},'kwdefaults':{},'closure':{}}
+        positional=node.args.posonlyargs+node.args.args
+        for argument,default in zip(positional[-len(node.args.defaults):] if node.args.defaults else (),
+                                    node.args.defaults):
+            signature=_literal_value_signature(ast.literal_eval(default)) if _is_literal_ast(default) else None
+            if signature is not None:state['defaults'][argument.arg]=signature
+        for argument,default in zip(node.args.kwonlyargs,node.args.kw_defaults):
+            if default is not None and _is_literal_ast(default):
+                signature=_literal_value_signature(ast.literal_eval(default))
+                if signature is not None:state['kwdefaults'][argument.arg]=signature
+        code=codes.get(key)
+        if code is not None:
+            for name in code.co_freevars:
+                for scope in reversed(ancestors):
+                    bound,signature=_scope_literal_binding(scope,name)
+                    if bound:
+                        if signature is not None:state['closure'][name]=signature
+                        break
+        if any(state.values()):states[key]=state
+    return states
+
+
+def _is_literal_ast(node):
+    try:ast.literal_eval(node);return True
+    except (TypeError,ValueError,MemoryError,RecursionError):return False
+
+
+def _loaded_function_literals(function):
+    code=function.__code__
+    state={'defaults':{},'kwdefaults':{},'closure':{}}
+    if function.__defaults__:
+        names=code.co_varnames[:code.co_argcount]
+        for name,value in zip(names[-len(function.__defaults__):],function.__defaults__):
+            signature=_literal_value_signature(value)
+            if signature is not None:state['defaults'][name]=signature
+    for name,value in (function.__kwdefaults__ or {}).items():
+        signature=_literal_value_signature(value)
+        if signature is not None:state['kwdefaults'][name]=signature
+    for name,cell in zip(code.co_freevars,function.__closure__ or ()):
+        try:value=cell.cell_contents
+        except ValueError:continue
+        signature=_literal_value_signature(value)
+        if signature is not None:state['closure'][name]=signature
+    return state
+
+
+class _LoadedFunctionState:
+    def __init__(self,function):
+        self.code=function.__code__
+        self.state=_loaded_function_literals(function)
+
+
 def _loaded_codes(value,seen):
     marker=id(value)
     if marker in seen:return
@@ -201,6 +314,7 @@ def _loaded_codes(value,seen):
         return
     if isinstance(value,types.FunctionType):
         yield value.__code__
+        yield _LoadedFunctionState(value)
         for state in (value.__defaults__,value.__kwdefaults__):
             if state is not None:yield from _loaded_codes(state,seen)
         for cell in value.__closure__ or ():
@@ -237,9 +351,9 @@ def _loaded_codes(value,seen):
 
 
 def loaded_source_code(roots):
-    """Verify loaded callables and literal module constants against source and return a stable summary."""
+    """Verify loaded code, literal callable state and module constants against source."""
     roots=[Path(root).resolve(strict=True) for root in roots]
-    loaded={};module_namespaces={}
+    loaded={};module_namespaces={};loaded_function_states={}
     for module in tuple(sys.modules.values()):
         namespace=getattr(module,'__dict__',None)
         if not isinstance(namespace,dict):continue
@@ -251,17 +365,34 @@ def loaded_source_code(roots):
                 module_namespaces.setdefault(module_path,[]).append(namespace)
         seen=set()
         for value in tuple(namespace.values()):
-            for code in _loaded_codes(value,seen):
+            for record in _loaded_codes(value,seen):
+                function_state=record.state if isinstance(record,_LoadedFunctionState) else None
+                code=record.code if isinstance(record,_LoadedFunctionState) else record
                 try:path=Path(code.co_filename).resolve(strict=True)
                 except (OSError,RuntimeError):continue
                 if path.suffix.lower()!='.py' or not _inside(path,roots):continue
-                loaded.setdefault(path,set()).add(_code_hash(code))
+                loaded_hashes=loaded.setdefault(path,set())
+                loaded_hashes.add(_code_hash(code))
+                if function_state is not None:
+                    loaded_function_states.setdefault(path,[]).append((code,function_state))
     rows=[]
     for path in sorted(set(loaded)|set(module_namespaces),key=lambda value:str(value).casefold()):
         loaded_hashes=loaded.setdefault(path,set())
         source=path.read_bytes()
         compiled=compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
         expected=set(_code_tree_hashes(compiled))
+        function_literals=_source_function_literals(source,compiled)
+        expected.update(_literal_hash(state) for state in function_literals.values())
+        for code,function_state in loaded_function_states.get(path,()):
+            source_state=function_literals.get((code.co_name,code.co_firstlineno))
+            if not source_state:continue
+            for category,values in source_state.items():
+                for name,signature in values.items():
+                    require(function_state.get(category,{}).get(name)==signature,
+                            'Loaded Comfy function defaults or closure differ from source on disk')
+            comparable={category:{name:function_state[category][name] for name in values}
+                        for category,values in source_state.items() if values}
+            loaded_hashes.add(_literal_hash(comparable))
         constants=_source_constants(source)
         expected.add(_literal_hash(constants))
         for namespace in module_namespaces.get(path,()):

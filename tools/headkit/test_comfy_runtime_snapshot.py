@@ -101,6 +101,39 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         with patch.dict(sys.modules, {module.__name__: module}):
             loaded_source_code([self.core])
 
+    def test_loaded_stale_function_literal_default_is_rejected_after_disk_restore(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = 'def loaded_value(scale=1):\n    return scale\n'
+        temporary = 'def loaded_value(scale=2):\n    return scale\n'
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_default_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
+                loaded_source_code([self.core])
+
+    def test_loaded_stale_literal_closure_is_rejected_after_disk_restore(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('def make_value():\n    scale = 1\n'
+                    '    def loaded_value():\n        return scale\n'
+                    '    return loaded_value\nloaded_value = make_value()\n')
+        path.write_text(reviewed, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_closure_literal_fixture')
+        module.__file__ = str(path)
+        exec(compile(reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
+        original = module.loaded_value
+        def captured(value):
+            def read(): return value
+            return read.__closure__[0]
+        module.loaded_value = types.FunctionType(original.__code__, module.__dict__,
+                                                 closure=(captured(2),))
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
+                loaded_source_code([self.core])
+
     def test_loaded_stale_function_in_partial_is_rejected_after_disk_restore(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = 'def loaded_value():\n    return "reviewed"\n'
