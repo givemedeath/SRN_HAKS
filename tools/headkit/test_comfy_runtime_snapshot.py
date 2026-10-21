@@ -89,6 +89,33 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
                 loaded_source_code([self.core])
 
+    def test_loaded_stale_class_literal_is_rejected_after_disk_restore(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('class Sampler:\n    scale = 1\n'
+                    '    def sample(self):\n        return self.scale\n')
+        temporary = reviewed.replace('scale = 1', 'scale = 2')
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_class_literal_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'class attributes differ from source'):
+                loaded_source_code([self.core])
+
+    def test_loaded_mutable_class_runtime_cache_is_not_a_source_constant(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ("class Sampler:\n    runtime_cache = {'hits': 0}\n"
+                    '    def sample(self):\n        return self.runtime_cache\n')
+        path.write_text(reviewed, encoding='utf-8')
+        module = types.ModuleType('headkit_mutable_comfy_class_cache_fixture')
+        module.__file__ = str(path)
+        exec(compile(reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
+        module.Sampler.runtime_cache['hits'] = 1
+        with patch.dict(sys.modules, {module.__name__: module}):
+            loaded_source_code([self.core])
+
+
     def test_loaded_mutable_runtime_cache_is_not_a_source_constant(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = ('runtime_cache = {"hits": 0}\n'

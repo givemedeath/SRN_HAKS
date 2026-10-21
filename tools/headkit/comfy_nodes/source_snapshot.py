@@ -232,6 +232,43 @@ def _scope_literal_binding(scope,name):
     return True,_literal_value_signature(value)
 
 
+def _source_class_literals(source):
+    classes={}
+    def visit_statement(node,ancestors):
+        if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
+            for statement in node.body:visit_statement(statement,ancestors+[node.name,'<locals>'])
+            return
+        if isinstance(node,ast.ClassDef):
+            qualname='.'.join(ancestors+[node.name])
+            assignments={}
+            for statement in node.body:
+                if isinstance(statement,ast.Assign):targets=statement.targets;value=statement.value
+                elif isinstance(statement,ast.AnnAssign):targets=[statement.target];value=statement.value
+                elif isinstance(statement,ast.AugAssign):targets=[statement.target];value=None
+                else:continue
+                for target in targets:
+                    if isinstance(target,ast.Name):assignments.setdefault(target.id,[]).append(value)
+            attributes={}
+            for name,values in assignments.items():
+                if len(values)!=1 or values[0] is None:continue
+                try:value=ast.literal_eval(values[0])
+                except (TypeError,ValueError,MemoryError,RecursionError):continue
+                bound,signature=_scope_literal_binding(node,name)
+                if not bound or signature is None:continue
+                name_lower=name.casefold()
+                mutable_setting=any(token in name_lower for token in
+                                    ('setting','config','option','param','preset','profile'))
+                if name.isupper() or _immutable_literal(value) or mutable_setting:
+                    attributes[name]=signature
+            if attributes:classes[qualname]=attributes
+            for statement in node.body:visit_statement(statement,ancestors+[node.name])
+            return
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child,ast.stmt):visit_statement(child,ancestors)
+    for statement in ast.parse(source).body:visit_statement(statement,[])
+    return classes
+
+
 def _source_function_literals(source,compiled):
     nodes={}
     def visit_body(body,ancestors):
@@ -305,6 +342,16 @@ class _LoadedFunctionState:
         self.state=_loaded_function_literals(function)
 
 
+class _LoadedClassState:
+    def __init__(self,cls):
+        self.module=cls.__module__
+        self.qualname=cls.__qualname__
+        self.attributes={}
+        for name,value in vars(cls).items():
+            signature=_literal_value_signature(value)
+            if signature is not None:self.attributes[name]=signature
+
+
 def _loaded_codes(value,seen):
     marker=id(value)
     if marker in seen:return
@@ -337,6 +384,7 @@ def _loaded_codes(value,seen):
             if function is not None:yield from _loaded_codes(function,seen)
         return
     if isinstance(value,type):
+        yield _LoadedClassState(value)
         for member in vars(value).values():yield from _loaded_codes(member,seen)
         return
     if isinstance(value,types.CodeType):
@@ -353,12 +401,13 @@ def _loaded_codes(value,seen):
 
 
 def loaded_source_code(roots):
-    """Verify loaded code, literal callable state and module constants against source."""
+    """Verify loaded code, literal callable/class state and module constants against source."""
     roots=[Path(root).resolve(strict=True) for root in roots]
-    loaded={};module_namespaces={};loaded_function_states={}
+    loaded={};module_namespaces={};loaded_function_states={};loaded_class_states={}
     for module in tuple(sys.modules.values()):
         namespace=getattr(module,'__dict__',None)
         if not isinstance(namespace,dict):continue
+        module_path=None
         module_file=namespace.get('__file__')
         if isinstance(module_file,(str,os.PathLike)):
             try:module_path=Path(module_file).resolve(strict=True)
@@ -368,6 +417,10 @@ def loaded_source_code(roots):
         seen=set()
         for value in tuple(namespace.values()):
             for record in _loaded_codes(value,seen):
+                if isinstance(record,_LoadedClassState):
+                    if module_path is not None and record.module==namespace.get('__name__'):
+                        loaded_class_states.setdefault(module_path,[]).append(record)
+                    continue
                 function_state=record.state if isinstance(record,_LoadedFunctionState) else None
                 code=record.code if isinstance(record,_LoadedFunctionState) else record
                 try:path=Path(code.co_filename).resolve(strict=True)
@@ -385,6 +438,8 @@ def loaded_source_code(roots):
         expected=set(_code_tree_hashes(compiled))
         function_literals=_source_function_literals(source,compiled)
         expected.update(_literal_hash(state) for state in function_literals.values())
+        class_literals=_source_class_literals(source)
+        expected.update(_literal_hash(state) for state in class_literals.values())
         for code,function_state in loaded_function_states.get(path,()):
             source_state=function_literals.get((code.co_name,code.co_firstlineno))
             if not source_state:continue
@@ -394,6 +449,13 @@ def loaded_source_code(roots):
                             'Loaded Comfy function defaults or closure differ from source on disk')
             comparable={category:{name:function_state[category][name] for name in values}
                         for category,values in source_state.items() if values}
+            loaded_hashes.add(_literal_hash(comparable))
+        for class_state in loaded_class_states.get(path,()):
+            source_state=class_literals.get(class_state.qualname)
+            if not source_state:continue
+            comparable={name:class_state.attributes.get(name) for name in source_state}
+            require(comparable==source_state,
+                    'Loaded Comfy class attributes differ from source on disk')
             loaded_hashes.add(_literal_hash(comparable))
         constants=_source_constants(source)
         expected.add(_literal_hash(constants))
