@@ -662,6 +662,40 @@ class MeshTests(Temporary):
 
 
 class InputInventoryTests(Temporary):
+    def input_paths(self,local):
+        from headkit.__main__ import main
+        source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
+        write(manifest_path,{'schemaVersion':1,'id':'installed-inventory',
+              'inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
+        bindings_path=self.root/'bindings.json';write(bindings_path,local)
+        output=self.root/'inputs.json'
+        with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),
+              '--bindings',str(bindings_path),'--output',str(output)]):
+            main()
+        return read(output)
+
+    def installed_adapter(self):
+        adapter=self.root/'custom_nodes'/'srn_headkit';adapter.mkdir(parents=True)
+        (adapter/'__init__.py').write_text('# installed adapter')
+        return adapter,self.bindings_data(comfyCustomNodes=str(adapter.parent))
+
+    def test_inputs_lists_installed_snapshot_and_detects_its_mutation(self):
+        from headkit.common import verify
+        adapter,local=self.installed_adapter();snapshot=adapter/'source-roots.json'
+        write(snapshot,{'schemaVersion':1,'inventory':{'files':[]}})
+        paths=self.input_paths(local)
+        self.assertEqual(paths.count(str(snapshot.resolve())),1)
+        self.assertIn(str((adapter/'__init__.py').resolve()),paths)
+        frozen=[pin(path) for path in paths];verify(frozen)
+        write(snapshot,{'schemaVersion':1,'inventory':{'files':['changed']}})
+        with self.assertRaisesRegex(ValueError,'Stale file pin: .*source-roots.json'):
+            verify(frozen)
+
+    def test_inputs_requires_the_declared_installed_snapshot(self):
+        adapter,local=self.installed_adapter()
+        with self.assertRaises(FileNotFoundError):self.input_paths(local)
+        self.assertFalse((self.root/'inputs.json').exists())
+
     def test_inputs_lists_all_python_package_files(self):
         from headkit.__main__ import main
         from headkit.common import sha

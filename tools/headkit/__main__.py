@@ -125,7 +125,8 @@ def main():
         pins+=list(local.get('models',{}).values())+local.get('comfySources',[])
         for row in local.get('libraries',{}).values():pins+=row['files']
         if 'comfyCustomNodes' in local:
-            pins += [pin(p) for p in (Path(local['comfyCustomNodes'])/'srn_headkit').glob('*.py')]
+            adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
+            pins += [pin(adapter/'source-roots.json')]+[pin(p) for p in adapter.glob('*.py')]
         if a.run and (a.run/'state.json').exists():
             pins.append(pin(a.run/'state.json'))
             state=read(a.run/'state.json');pins+=list(state.get('reviews',{}).values())
