@@ -237,7 +237,9 @@ def _source_function_literals(source,compiled):
     def visit_body(body,ancestors):
         for node in body:
             if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
-                key=(node.name,node.lineno)
+                # Decorated code objects start at their earliest decorator line.
+                source_line=min([node.lineno]+[decorator.lineno for decorator in node.decorator_list])
+                key=(node.name,source_line)
                 nodes[key]=(node,ancestors)
                 visit_body(node.body,ancestors+[node])
             elif isinstance(node,ast.ClassDef):

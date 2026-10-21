@@ -114,6 +114,22 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
                 loaded_source_code([self.core])
 
+    def test_loaded_stale_decorated_function_literal_default_is_rejected(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('def identity(function):\n    return function\n'
+                    '@identity\n'
+                    'def loaded_value(scale=1):\n    return scale\n')
+        temporary = reviewed.replace('scale=1', 'scale=2')
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_decorated_default_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
+                loaded_source_code([self.core])
+
+
     def test_loaded_stale_literal_closure_is_rejected_after_disk_restore(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = ('def make_value():\n    scale = 1\n'
