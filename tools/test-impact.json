@@ -11,6 +11,7 @@
     "tools/headkit/__main__.py": [
       "tools/headkit/checkpoints.json",
       "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/managed_startup.py",
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/common.py",
       "tools/headkit/replay.py",
@@ -29,13 +30,16 @@
       "tools/headkit/source_inventory.py"
     ],
     "tools/headkit/comfy_nodes/__init__.py": [
+      "tools/headkit/comfy_nodes/managed_startup.py",
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/runtime_identity.py",
-      "tools/headkit/comfy_nodes/source_snapshot.py",
       "tools/headkit/comfy_nodes/verified_loaders.py"
     ],
     "tools/headkit/comfy_nodes/gltf.py": [],
+    "tools/headkit/comfy_nodes/managed_startup.py": [
+      "tools/headkit/comfy_nodes/source_snapshot.py"
+    ],
     "tools/headkit/comfy_nodes/model_resolution.py": [],
     "tools/headkit/comfy_nodes/nodes.py": [
       "tools/headkit/comfy_nodes/gltf.py",
@@ -132,11 +136,13 @@
       "tools/headkit/common.py"
     ],
     "tools/headkit/test_comfy_runtime_snapshot.py": [
+      "tools/headkit/__main__.py",
       "tools/headkit/comfy_nodes/__init__.py",
+      "tools/headkit/comfy_nodes/managed_startup.py",
       "tools/headkit/comfy_nodes/nodes.py",
-      "tools/headkit/comfy_nodes/runtime_identity.py",
       "tools/headkit/comfy_nodes/source_snapshot.py",
-      "tools/headkit/comfy_nodes/verified_loaders.py"
+      "tools/headkit/comfy_nodes/verified_loaders.py",
+      "tools/headkit/common.py"
     ],
     "tools/headkit/test_headkit.py": [
       "tools/headkit/__init__.py",

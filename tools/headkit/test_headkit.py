@@ -48,20 +48,22 @@ class Temporary(unittest.TestCase):
         executable=pin(sys.executable);torch_file=self.root/'comfy-runtime'/'torch'/'_C.pyd'
         torch_file.parent.mkdir(parents=True,exist_ok=True);torch_file.write_bytes(b'torch fixture bytes')
         torch_pin=pin(torch_file);files=sorted([executable,torch_pin],key=lambda row:row['path'].casefold())
-        identity={'schemaVersion':2,
+        configuration=self.root/'controlled-startup.json'
+        if not configuration.exists():write(configuration,{'fixture':'controlled startup'})
+        identity={'schemaVersion':3,
                   'python':{'path':executable['path'],'sha256':executable['sha256'],'version':'3.12 fixture',
                             'implementation':'cpython','cacheTag':'cpython-312','prefix':str(self.root),'basePrefix':str(self.root)},
                   'torch':{'path':torch_pin['path'],'sha256':torch_pin['sha256'],'version':'2.7 fixture',
                            'cuda':'12.8','hip':None,'cudnn':8900},
                   'coveredSourceRoots':[str(Path(source_inventory['core']).resolve())],
                   'roots':[str(self.root.resolve())],'files':files,
-                  'comfySourceInventory':source_inventory,'loadedSourceCode':[]}
+                  'comfySourceInventory':source_inventory,'session':{'id':'a'*32,'pid':123,'configuration':pin(configuration),'settingsSha256':'b'*64}}
         identity['fingerprint']=digest(identity)
         return identity
     def freeze_request(self,prepared):
         inventory=self.inventory();runtime=self.comfy_runtime_identity(inventory)
         prepared['comfySourceInventory']=inventory;prepared['comfyRuntimeIdentity']=runtime
-        prepared['inputs']+=inventory['files']+runtime['files'];return prepared
+        prepared['inputs']+=inventory['files']+runtime['files']+[runtime['session']['configuration']];return prepared
     def runtime_identity(self):
         return {'toolchain':pin(self.file('runtime-toolchain.json')),
                 'migrationReceipt':pin(self.file('runtime-migration.json')),'python':pin(sys.executable),
@@ -85,7 +87,7 @@ class Temporary(unittest.TestCase):
         prepared.update(runtimeIdentity=identity,bindings=binding_pin,comfyEndpoint=endpoint)
         if 'comfyRuntimeIdentity' not in prepared:
             prepared['comfyRuntimeIdentity']=self.comfy_runtime_identity(prepared['comfySourceInventory'])
-        for row in prepared['comfyRuntimeIdentity']['files']:
+        for row in prepared['comfyRuntimeIdentity']['files']+[prepared['comfyRuntimeIdentity']['session']['configuration']]:
             if row not in prepared['inputs']:prepared['inputs'].append(row)
         if binding_pin not in prepared['inputs']:prepared['inputs'].append(binding_pin)
         prepared['inputs'].extend(row for row in (identity['toolchain'],identity['migrationReceipt'],identity['python']) if row not in prepared['inputs'])
@@ -152,7 +154,7 @@ class GeometryApprovalTests(Temporary):
         adapter=core/'custom_nodes'/'srn_headkit';adapter.mkdir(parents=True)
         for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):(adapter/code.name).write_bytes(code.read_bytes())
         write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root),'comfyInput':str(self.root/'comfy-input'),
-              'comfyUrl':'http://127.0.0.1:8188','comfyRoot':str(core),'comfyCustomNodes':str(adapter.parent),
+              'comfyUrl':'http://127.0.0.1:8188','comfyRoot':str(core),'comfyCustomNodes':str(adapter.parent),'comfyStartupConfig':str(self.root/'controlled-startup.json'),
               'comfySources':[pin(p) for p in sorted(core.rglob('*')) if p.is_file()]})
         from headkit.source_inventory import freeze_sources
         write(adapter/'source-roots.json',{'schemaVersion':1,'inventory':freeze_sources(read(self.root/'bindings.json'))})
@@ -345,33 +347,14 @@ class ComfyServerRuntimeTests(Temporary):
         self.assertEqual(len(decorators),1)
         self.assertEqual(decorators[0].func.attr,'get')
         self.assertEqual(ast.literal_eval(decorators[0].args[0]),'/headkit/runtime-identity')
-        handler=handlers[0]
-        self.assertTrue(any(isinstance(node,ast.Call) and isinstance(node.func,ast.Name)
-                            and node.func.id=='loaded_source_code' for node in ast.walk(handler)))
-        self.assertTrue(any(isinstance(node,ast.Call) and isinstance(node.func,ast.Name)
-                            and node.func.id=='capture_runtime_identity' and len(node.args)==3
-                            and isinstance(node.args[2],ast.Name) and node.args[2].id=='loaded'
-                            for node in ast.walk(handler)))
-        self.assertTrue(any(isinstance(node,ast.Return) and isinstance(node.value,ast.Call)
-                            and isinstance(node.value.func,ast.Attribute)
-                            and node.value.func.attr=='json_response'
-                            and len(node.value.args)==1 and isinstance(node.value.args[0],ast.Name)
-                            and node.value.args[0].id=='current' for node in ast.walk(handler)))
+        self.assertFalse(any(isinstance(node,ast.Name) and node.id=='loaded_source_code' for node in ast.walk(handlers[0])))
 
-    def test_loaded_module_state_is_part_of_runtime_fingerprint(self):
+    def test_session_restart_changes_the_runtime_fingerprint(self):
         from headkit.comfy_nodes.runtime_identity import seal_runtime_identity,same_runtime_environment
-        baseline=seal_runtime_identity({'schemaVersion':2,'python':{'version':'pinned'},
-            'files':[{'path':'/runtime/python.exe','sha256':'a'*64}],
-            'loadedSourceCode':[{'path':'/comfy/core.py','sourceSha256':'b'*64,'loadedCodeSha256':'c'*64}]})
-        current=seal_runtime_identity({'schemaVersion':2,'python':{'version':'pinned'},
-            'files':[{'path':'/runtime/python.exe','sha256':'a'*64}],
-            'loadedSourceCode':[{'path':'/comfy/core.py','sourceSha256':'b'*64,'loadedCodeSha256':'d'*64}]})
-        changed_runtime=seal_runtime_identity({'schemaVersion':2,'python':{'version':'changed'},
-            'files':[{'path':'/runtime/python.exe','sha256':'a'*64}],
-            'loadedSourceCode':[{'path':'/comfy/core.py','sourceSha256':'b'*64,'loadedCodeSha256':'d'*64}]})
-        self.assertNotEqual(baseline['fingerprint'],current['fingerprint'])
-        self.assertTrue(same_runtime_environment(current,baseline))
-        self.assertFalse(same_runtime_environment(changed_runtime,baseline))
+        baseline=seal_runtime_identity({'session':{'id':'a'*32},'files':[]})
+        restarted=seal_runtime_identity({'session':{'id':'b'*32},'files':[]})
+        self.assertNotEqual(baseline['fingerprint'],restarted['fingerprint'])
+        self.assertFalse(same_runtime_environment(restarted,baseline))
 
     def test_server_snapshot_hashes_python_torch_and_native_runtime_files(self):
         from headkit.comfy_nodes.runtime_identity import capture_runtime_identity
@@ -415,18 +398,18 @@ class ComfyServerRuntimeTests(Temporary):
         with self.assertRaisesRegex(ValueError,'startup source snapshot'):
             validate_comfy_runtime(changed,roots,inventory)
 
-    def test_loaded_code_hashes_are_bound_to_prepared_source_bytes(self):
+    def test_unmanaged_and_legacy_runtime_identities_are_rejected(self):
         from headkit.source_inventory import validate_comfy_runtime
         inventory=self.inventory();snapshot=self.comfy_runtime_identity(inventory)
-        source=next(row for row in inventory['files'] if row['path'].endswith('nodes.py'))
-        snapshot['loadedSourceCode']=[{'path':source['path'],'sourceSha256':source['sha256'],
-                                      'loadedCodeSha256':'c'*64}]
-        snapshot['fingerprint']=digest({key:value for key,value in snapshot.items() if key!='fingerprint'})
-        self.assertEqual(validate_comfy_runtime(snapshot,inventory['roots'],inventory),snapshot)
-        changed=copy.deepcopy(snapshot);changed['loadedSourceCode'][0]['sourceSha256']='0'*64
-        changed['fingerprint']=digest({key:value for key,value in changed.items() if key!='fingerprint'})
-        with self.assertRaisesRegex(ValueError,'not bound to its reviewed source'):
-            validate_comfy_runtime(changed,inventory['roots'],inventory)
+        for change in ('legacy','missing-session','bad-session'):
+            altered=copy.deepcopy(snapshot)
+            if change=='legacy':altered['schemaVersion']=2
+            elif change=='missing-session':del altered['session']
+            else:altered['session']['id']=''
+            altered['fingerprint']=digest({key:value for key,value in altered.items() if key!='fingerprint'})
+            with self.subTest(change=change),self.assertRaises(ValueError):
+                validate_comfy_runtime(altered,inventory['roots'],inventory)
+
 
 
 class SourceSnapshotTests(Temporary):
@@ -448,18 +431,6 @@ class SourceSnapshotTests(Temporary):
         with self.assertRaisesRegex(ValueError,'startup snapshot'):
             verify_inventory(startup)
 
-    def test_loaded_comfy_functions_must_match_restored_source(self):
-        from headkit.comfy_nodes.source_snapshot import loaded_source_code
-        import types
-        inventory=self.inventory();path=Path(inventory['core'])/'comfy'/'model.py'
-        reviewed='def loaded_value():\n    return "reviewed"\n'
-        path.write_text('def loaded_value():\n    return "modified"\n')
-        module=types.ModuleType('headkit_stale_source_fixture');module.__file__=str(path)
-        exec(compile(path.read_text(),str(path),'exec',dont_inherit=True),module.__dict__)
-        path.write_text(reviewed)
-        with patch.dict(sys.modules,{module.__name__:module}):
-            with self.assertRaisesRegex(ValueError,'Loaded Comfy Python code differs'):
-                loaded_source_code(inventory['roots'])
 
 
 class AdapterInstallTests(Temporary):
@@ -1044,6 +1015,19 @@ class LedgerTests(Temporary):
         self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
         self.assertEqual(client.posts,0)
         self.assertIn('/headkit/runtime-identity',[route for route,_ in client.routes])
+
+    def test_restarted_session_and_changed_settings_block_dispatch_without_attempt(self):
+        for field,value in (('id','b'*32),('settingsSha256','c'*64),('pid',456)):
+            with self.subTest(field=field):
+                ledger=self.root/(field+'-ledger.json');comfy.initialize_ledger(ledger,0,'Reviewed count')
+                request=self.prepared();client=FakeClient();_,bindings=self.bind_dispatch(request,client.url)
+                changed=copy.deepcopy(request['comfyRuntimeIdentity']);changed['session'][field]=value
+                changed['fingerprint']=digest({key:value for key,value in changed.items() if key!='fingerprint'})
+                client.server_runtime=changed
+                with self.assertRaisesRegex(ValueError,'runtime differs'):
+                    comfy.submit(client,ledger,request,self.root/(field+'-job'),runtime_identity=request['runtimeIdentity'],bindings_path=bindings)
+                self.assertEqual(client.posts,0);self.assertEqual(read(ledger)['priorGenerationAttempts'],0)
+                self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
 
     def test_loader_resolved_checkpoint_mismatch_is_preflight_rejected(self):
         ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed count')

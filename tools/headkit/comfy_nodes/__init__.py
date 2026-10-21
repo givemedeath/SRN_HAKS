@@ -1,5 +1,4 @@
 """ComfyUI adapter entry point; ordinary toolkit/test discovery needs no GPU stack."""
-from pathlib import Path
 
 try:
     import folder_paths
@@ -12,8 +11,8 @@ else:
     NODE_CLASS_MAPPINGS = headkit_nodes.NODE_CLASS_MAPPINGS
     from .verified_loaders import verified_loader_mappings
     from .model_resolution import verify_loader_models
-    from .runtime_identity import capture_runtime_identity,same_runtime_environment
-    from .source_snapshot import capture_inventory,load_inventory,loaded_source_code,same_inventory
+    from .runtime_identity import capture_runtime_identity
+    from .managed_startup import session_context
     from aiohttp import web
     from server import PromptServer
 
@@ -21,33 +20,31 @@ else:
     NODE_CLASS_MAPPINGS.update(verified_loader_mappings(comfy_core_nodes.NODE_CLASS_MAPPINGS, folder_paths))
     def _capture_startup():
         try:
-            inventory=load_inventory(Path(__file__).parent/'source-roots.json',folder_paths.base_path)
-            loaded=loaded_source_code(inventory['roots'])
-            identity=capture_runtime_identity(folder_paths,inventory,loaded)
-            return inventory,loaded,identity
-        except (OSError, SyntaxError, TypeError, ValueError):
+            session,config=session_context(folder_paths.base_path)
+            inventory=config['inventory']
+            identity=capture_runtime_identity(folder_paths,inventory,session)
+            declared={(row['path'],row['sha256']) for row in config['runtime']['files']}
+            if any((row['path'],row['sha256']) not in declared for row in identity['files']):
+                raise ValueError('Executing runtime contains files outside the frozen deployment')
+            return inventory,session,identity
+        except (KeyError, OSError, SyntaxError, TypeError, ValueError):
             return None,None,None
 
     (_STARTUP_COMFY_SOURCE_INVENTORY,
-     _STARTUP_LOADED_SOURCE_CODE,
+     _STARTUP_SESSION,
      _STARTUP_RUNTIME_IDENTITY)=_capture_startup()
 
     @PromptServer.instance.routes.get('/headkit/runtime-identity')
     async def verify_headkit_runtime_identity(request):
         try:
             if _STARTUP_RUNTIME_IDENTITY is None:
-                raise ValueError('Comfy server runtime and source baseline could not be captured at adapter load; reinstall the adapter with local bindings and restart ComfyUI')
-            current_sources=capture_inventory(_STARTUP_COMFY_SOURCE_INVENTORY['core'],
-                                             _STARTUP_COMFY_SOURCE_INVENTORY['roots'])
-            if not same_inventory(current_sources,_STARTUP_COMFY_SOURCE_INVENTORY):
-                raise ValueError('Comfy source files changed after the adapter loaded')
-            loaded=loaded_source_code(_STARTUP_COMFY_SOURCE_INVENTORY['roots'])
-            current = capture_runtime_identity(folder_paths,_STARTUP_COMFY_SOURCE_INVENTORY,loaded)
-            if not same_runtime_environment(current,_STARTUP_RUNTIME_IDENTITY):
-                raise ValueError('Comfy server runtime files changed after the adapter loaded')
-        except (OSError, SyntaxError, TypeError, ValueError):
+                raise ValueError('Comfy server runtime and source baseline could not be captured at adapter load; use the controlled startup wrapper in a new instance when available')
+            session,config=session_context(folder_paths.base_path)
+            if session != _STARTUP_SESSION:
+                raise ValueError('Controlled Comfy session changed; prepare again')
+        except (KeyError, OSError, SyntaxError, TypeError, ValueError):
             return web.json_response({'verified': False}, status=409)
-        return web.json_response(current)
+        return web.json_response(_STARTUP_RUNTIME_IDENTITY)
 
     @PromptServer.instance.routes.post('/headkit/verify-loader-models')
     async def verify_headkit_loader_models(request):

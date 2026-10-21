@@ -34,18 +34,18 @@ def seal_runtime_identity(payload):
 
 
 def same_runtime_environment(current, baseline):
-    """Compare stable interpreter/runtime pins while allowing verified lazy imports."""
-    ignored={'fingerprint','loadedSourceCode'}
+    """Compare stable interpreter/runtime pins while binding the same controlled process."""
+    ignored={'fingerprint'}
     return ({key:value for key,value in current.items() if key not in ignored}
             == {key:value for key,value in baseline.items() if key not in ignored})
 
 
-def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_source_code=None):
+def capture_runtime_identity(folder_paths,comfy_source_inventory=None,session=None):
     """Hash interpreter, standard library and active Python import roots, excluding separately pinned Comfy source."""
     import torch
     core=Path(folder_paths.base_path).resolve(strict=True)
     covered=[str(core)]
-    covered_paths=[core]
+    covered_paths=[Path(root).resolve() for root in (comfy_source_inventory or {}).get('roots',[core])]
     roots=set()
     for key in ('stdlib','platstdlib','purelib','platlib'):
         value=sysconfig.get_paths().get(key)
@@ -98,7 +98,7 @@ def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_sou
     except Exception:pass
     executable=str(Path(sys.executable).resolve(strict=True))
     payload={
-        'schemaVersion':2,
+        'schemaVersion':3,
         'python':{'path':executable,'sha256':next(item['sha256'] for item in file_pins if item['path']==executable),
                   'version':sys.version,'implementation':sys.implementation.name,'cacheTag':sys.implementation.cache_tag,
                   'prefix':str(Path(sys.prefix).resolve()),'basePrefix':str(Path(sys.base_prefix).resolve())},
@@ -109,6 +109,6 @@ def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_sou
         'roots':[str(path) for path in unique_roots],
         'files':file_pins,
         'comfySourceInventory':comfy_source_inventory,
-        'loadedSourceCode':loaded_source_code or [],
+        'session':session,
     }
     return seal_runtime_identity(payload)

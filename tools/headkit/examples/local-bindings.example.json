@@ -96,5 +96,33 @@
   "comfyRoot": "<absolute executing ComfyUI source root>",
   "comfyDependencyRoots": [
     "<absolute external Pixal/FlexGEMM implementation root, if outside comfyRoot>"
-  ]
+  ],
+  "comfyStartupConfig": "<absolute frozen controlled-startup JSON outside source/runtime roots>",
+  "comfyPython": {
+    "path": "<pinned dedicated Comfy Python executable>",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "comfyRuntimeRoots": [
+    "<complete dedicated Python/runtime installation; includes interpreter and libraries>"
+  ],
+  "comfyStartup": {
+    "endpoint": "http://127.0.0.1:8188",
+    "arguments": [
+      "--disable-auto-launch",
+      "--input-directory",
+      "<dedicated input>",
+      "--output-directory",
+      "<dedicated output>",
+      "--temp-directory",
+      "<scratch temp>",
+      "--user-directory",
+      "<dedicated user>"
+    ],
+    "environment": {
+      "SystemRoot": "<OS directory>",
+      "PATH": "<reviewed interpreter/system DLL paths>",
+      "TEMP": "<scratch temp>",
+      "TMP": "<scratch temp>"
+    }
+  }
 }
