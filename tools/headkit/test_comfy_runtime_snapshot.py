@@ -7,7 +7,7 @@ import sys
 import tempfile
 import types
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from headkit.comfy_nodes.runtime_identity import same_runtime_environment, seal_runtime_identity
 from headkit.comfy_nodes.source_snapshot import capture_inventory, loaded_source_code, verify_inventory
@@ -523,6 +523,103 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                                                     'Python code differs from its source')
                 self.assert_snapshot_matches_source(reviewed)
 
+    def test_compound_module_settings_cannot_hide_stale_values(self):
+        blocks = ('if True:\n    SCALE = 1\n',
+                  'try:\n    SCALE = 1\nexcept Exception:\n    pass\n',
+                  'import contextlib\nwith contextlib.nullcontext():\n    SCALE = 1\n',
+                  'for _ in (0,):\n    SCALE = 1\n',
+                  'match 1:\n    case 1:\n        SCALE = 1\n',
+                  'if True:\n    try:\n        SCALE = 1\n    finally:\n        pass\n')
+        for block in blocks:
+            reviewed = block + 'def read(): return SCALE\n'
+            with self.subTest(block=block):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('SCALE = 1', 'SCALE = 2'),
+                                                    'module constants differ')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_compound_class_settings_cannot_hide_stale_values(self):
+        for block in ('if True:\n    SCALE = 1\n',
+                      'try:\n    SCALE = 1\nfinally:\n    pass\n'):
+            body = ''.join('    ' + line for line in block.splitlines(keepends=True))
+            reviewed = 'class Holder:\n' + body + '    def read(self): return self.SCALE\n'
+            self.assert_snapshot_matches_source(reviewed, reviewed.replace('SCALE = 1', 'SCALE = 2'),
+                                                'class attributes differ')
+            self.assert_snapshot_matches_source(reviewed)
+
+    def test_compound_attribute_and_constructor_settings_are_checked(self):
+        module = ('import types\npending = types.SimpleNamespace()\n'
+                  'if True:\n    pending.scale = 1\n')
+        constructor = ('class Holder:\n    def __init__(self):\n'
+                       '        if True:\n            self.scale = 1\n'
+                       '    def read(self): return self.scale\n'
+                       'pending = Holder()\ndel Holder.__init__\n')
+        for reviewed in (module, constructor):
+            self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
+                                                'instance attributes differ')
+            self.assert_snapshot_matches_source(reviewed)
+
+    def test_identical_branch_bindings_are_checked_in_closures(self):
+        reviewed = ('def make():\n    if True:\n        scale = 1\n'
+                    '    else:\n        scale = 1\n'
+                    '    def read(): return scale\n    return read\n'
+                    'pending = make()\ndel make\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
+                                            'defaults or closure differ')
+        self.assert_snapshot_matches_source(reviewed)
+        named = 'pending = (lambda: ((scale := 1), lambda: scale)[1])()\n'
+        self.assert_snapshot_matches_source(named, named.replace(':= 1', ':= 2'),
+                                            'defaults or closure differ')
+        self.assert_snapshot_matches_source(named)
+
+    def test_compound_frame_creation_arguments_are_checked(self):
+        reviewed = ('def stream(scale):\n    yield scale\n'
+                    'if True:\n    pending = stream(1)\ndel stream\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('stream(1)', 'stream(2)'),
+                                            'frame defaults or closure differ')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_unpacking_and_named_expression_settings_are_checked(self):
+        for assignment in ('SCALE, other = (1, 9)\n', '(SCALE := 1)\n',
+                           'first, (SCALE, *rest) = (0, (1, 2, 3))\n', 'SCALE = (other := 1)\n'):
+            reviewed = assignment + 'def read(): return SCALE\n'
+            temporary = reviewed.replace('(1,', '(2,').replace(':= 1', ':= 2')
+            with self.subTest(assignment=assignment):
+                self.assert_snapshot_matches_source(reviewed, temporary, 'module constants differ')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_conflicting_conditional_settings_fail_closed(self):
+        sources = (
+            'if True:\n    SCALE = 1\nelse:\n    SCALE = 2\ndef read(): return SCALE\n',
+            'SCALE = 1\nif True:\n    SCALE = 2\ndef read(): return SCALE\n',
+            'SCALE = 1\nSCALE += 1\ndef read(): return SCALE\n',
+            'SCALE = 1\nmatch 2:\n    case SCALE:\n        pass\ndef read(): return SCALE\n',
+            'class Holder:\n    if True:\n        SCALE = 1\n    else:\n        SCALE = 2\n',
+            'def make():\n    if True:\n        scale = 1\n    else:\n        scale = 2\n'
+            '    def read(): return scale\n    return read\npending = make()\ndel make\n',
+            'import types\npending = types.SimpleNamespace()\n'
+            'if True:\n    pending.scale = 1\nelse:\n    pending.scale = 2\n',
+            'def stream(scale):\n    yield scale\n'
+            'if True:\n    pending = stream(1)\nelse:\n    pending = stream(2)\ndel stream\n',
+        )
+        for reviewed in sources:
+            with self.subTest(source=reviewed):
+                self.assert_snapshot_matches_source(reviewed, error='Ambiguous|Conflicting')
+
+    def test_compound_collection_preserves_lexical_scope(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        self.assertEqual(_source_constants('if explode():\n    SCALE = 1\n'), {'SCALE': 1})
+        reviewed = ('SCALE = 1\nclass Holder:\n    if True:\n        SCALE = 2\n'
+                    'def make():\n    if True:\n        SCALE = 3\n    return SCALE\n')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_conflicting_redeclared_classes_fail_closed(self):
+        reviewed = ('if True:\n    class Holder:\n        SCALE = 1\n'
+                    'else:\n    class Holder:\n        SCALE = 2\n')
+        self.assert_snapshot_matches_source(reviewed, error='Ambiguous|Conflicting')
+        constructor = ('class Holder:\n    if True:\n        def __init__(self): self.scale = 1\n'
+                       '    else:\n        def __init__(self): self.scale = 2\n')
+        self.assert_snapshot_matches_source(constructor, error='Ambiguous|Conflicting')
+
     def test_loaded_mutable_class_runtime_cache_is_not_a_source_constant(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = ("class Sampler:\n    runtime_cache = {'hits': 0}\n"
@@ -805,6 +902,28 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         with patch.dict(vars(verified_loaders), {'_SNAPSHOT_TEST_WRAPPERS': wrappers}):
             rows = loaded_source_code([Path(verified_loaders.__file__).parent])
         self.assertTrue(any(row['path'] == str(Path(verified_loaders.__file__).resolve()) for row in rows))
+
+    def test_adapter_startup_capture_is_atomic_on_failure(self):
+        source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'
+        tree = ast.parse(source.read_bytes())
+        helper = next(node for node in ast.walk(tree)
+                      if isinstance(node, ast.FunctionDef) and node.name == '_capture_startup')
+        inventory = {'roots': ['fixture']}
+        loaded = [{'path': 'fixture'}]
+        identity = {'fingerprint': 'fixture'}
+        folders = types.SimpleNamespace(base_path='fixture')
+        namespace = {'Path': Path, '__file__': str(source), 'folder_paths': folders,
+                     'load_inventory': Mock(return_value=inventory),
+                     'loaded_source_code': Mock(return_value=loaded),
+                     'capture_runtime_identity': Mock(return_value=identity)}
+        exec(compile(ast.Module(body=[helper], type_ignores=[]), str(source), 'exec'), namespace)
+        self.assertEqual(namespace['_capture_startup'](), (inventory, loaded, identity))
+        namespace['loaded_source_code'].assert_called_once_with(inventory['roots'])
+        namespace['capture_runtime_identity'].assert_called_once_with(folders, inventory, loaded)
+        namespace['capture_runtime_identity'].side_effect = ValueError('invalid runtime')
+        self.assertEqual(namespace['_capture_startup'](), (None, None, None))
+        namespace['load_inventory'].side_effect = OSError('missing inventory')
+        self.assertEqual(namespace['_capture_startup'](), (None, None, None))
 
     def test_runtime_endpoint_returns_the_live_loaded_code_identity(self):
         source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'

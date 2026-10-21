@@ -6,7 +6,7 @@ try:
 except ModuleNotFoundError as exc:
     if exc.name != 'folder_paths':
         raise
-    NODE_CLASS_MAPPINGS = {}
+    NODE_CLASS_MAPPINGS = dict()
 else:
     from .nodes import NODE_CLASS_MAPPINGS
     from .verified_loaders import verified_loader_mappings
@@ -18,15 +18,18 @@ else:
 
     import nodes as comfy_core_nodes
     NODE_CLASS_MAPPINGS.update(verified_loader_mappings(comfy_core_nodes.NODE_CLASS_MAPPINGS, folder_paths))
-    try:
-        _STARTUP_COMFY_SOURCE_INVENTORY = load_inventory(Path(__file__).parent/'source-roots.json',folder_paths.base_path)
-        _STARTUP_LOADED_SOURCE_CODE = loaded_source_code(_STARTUP_COMFY_SOURCE_INVENTORY['roots'])
-        _STARTUP_RUNTIME_IDENTITY = capture_runtime_identity(
-            folder_paths,_STARTUP_COMFY_SOURCE_INVENTORY,_STARTUP_LOADED_SOURCE_CODE)
-    except (OSError, SyntaxError, TypeError, ValueError):
-        _STARTUP_COMFY_SOURCE_INVENTORY = None
-        _STARTUP_LOADED_SOURCE_CODE = None
-        _STARTUP_RUNTIME_IDENTITY = None
+    def _capture_startup():
+        try:
+            inventory=load_inventory(Path(__file__).parent/'source-roots.json',folder_paths.base_path)
+            loaded=loaded_source_code(inventory['roots'])
+            identity=capture_runtime_identity(folder_paths,inventory,loaded)
+            return inventory,loaded,identity
+        except (OSError, SyntaxError, TypeError, ValueError):
+            return None,None,None
+
+    (_STARTUP_COMFY_SOURCE_INVENTORY,
+     _STARTUP_LOADED_SOURCE_CODE,
+     _STARTUP_RUNTIME_IDENTITY)=_capture_startup()
 
     @PromptServer.instance.routes.get('/headkit/runtime-identity')
     async def verify_headkit_runtime_identity(request):

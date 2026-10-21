@@ -167,31 +167,79 @@ def _immutable_literal(value):
     return False
 
 
+def _scope_nodes(statements):
+    """Walk compound blocks in one lexical scope, never nested callable/class bodies."""
+    def visit(node):
+        yield node
+        for field,value in ast.iter_fields(node):
+            if field=='body' and isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.Lambda,ast.ClassDef)):continue
+            children=value if isinstance(value,list) else (value,)
+            for child in children:
+                if isinstance(child,ast.AST):yield from visit(child)
+    for statement in statements:yield from visit(statement)
+
+
+def _target_values(target,value):
+    if isinstance(target,ast.Starred):
+        yield from _target_values(target.value,value)
+    elif isinstance(target,(ast.Tuple,ast.List)):
+        stars=[index for index,item in enumerate(target.elts) if isinstance(item,ast.Starred)]
+        values=[_UNMATCHED_LITERAL]*len(target.elts)
+        if type(value) in (tuple,list) and len(stars)<=1:
+            if not stars and len(value)==len(target.elts):values=list(value)
+            elif stars and len(value)>=len(target.elts)-1:
+                index=stars[0];tail=len(target.elts)-index-1
+                values=list(value[:index])+[list(value[index:len(value)-tail])]+(list(value[-tail:]) if tail else [])
+        for item,member in zip(target.elts,values):yield from _target_values(item,member)
+    else:yield target,value
+
+
+def _source_bindings(statements):
+    for node in _scope_nodes(statements):
+        if isinstance(node,ast.Assign):targets=node.targets;value=_constant_ast_value(node.value)
+        elif isinstance(node,(ast.AnnAssign,ast.NamedExpr)):targets=[node.target];value=_constant_ast_value(node.value)
+        elif isinstance(node,(ast.AugAssign,ast.For,ast.AsyncFor)):targets=[node.target];value=_UNMATCHED_LITERAL
+        elif isinstance(node,ast.Delete):targets=node.targets;value=_UNMATCHED_LITERAL
+        elif isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+            targets=[ast.Name(id=node.name)];value=_UNMATCHED_LITERAL
+        elif isinstance(node,(ast.Import,ast.ImportFrom)):
+            targets=[ast.Name(id=alias.asname or alias.name.split('.')[0]) for alias in node.names];value=_UNMATCHED_LITERAL
+        elif isinstance(node,ast.ExceptHandler) and node.name:
+            targets=[ast.Name(id=node.name)];value=_UNMATCHED_LITERAL
+        elif isinstance(node,(ast.MatchAs,ast.MatchStar)) and node.name:
+            targets=[ast.Name(id=node.name)];value=_UNMATCHED_LITERAL
+        elif isinstance(node,ast.MatchMapping) and node.rest:
+            targets=[ast.Name(id=node.rest)];value=_UNMATCHED_LITERAL
+        elif isinstance(node,(ast.With,ast.AsyncWith)):
+            targets=[item.optional_vars for item in node.items if item.optional_vars is not None];value=_UNMATCHED_LITERAL
+        else:continue
+        for target in targets:yield from _target_values(target,value)
+
+
+def _unique_source_value(values):
+    signatures=[None if value is _UNMATCHED_LITERAL else _literal_value_signature(value) for value in values]
+    supported=[signature for signature in signatures if signature is not None]
+    if not supported:return _UNMATCHED_LITERAL
+    require(all(signature==supported[0] for signature in signatures),
+            'Ambiguous source literal assignments cannot be safely matched')
+    return values[0]
+
+
+def _setting_literal(name,value):
+    return value is not _UNMATCHED_LITERAL and (name.isupper() or _immutable_literal(value)
+        or any(token in name.casefold() for token in ('setting','config','option','param','preset','profile')))
+
+
 def _source_constants(source):
     assignments={}
-    for statement in ast.parse(source).body:
-        if isinstance(statement,ast.Assign):
-            targets=statement.targets;value=statement.value
-        elif isinstance(statement,ast.AnnAssign):
-            targets=[statement.target];value=statement.value
-        elif isinstance(statement,ast.AugAssign):
-            targets=[statement.target];value=None
-        else:continue
-        for target in targets:
-            if isinstance(target,ast.Name):
-                assignments.setdefault(target.id,[]).append(value)
+    for target,value in _source_bindings(ast.parse(source).body):
+        if isinstance(target,ast.Name):assignments.setdefault(target.id,[]).append(value)
     constants={}
     for name,values in assignments.items():
-        if len(values)!=1 or values[0] is None:continue
-        value=_constant_ast_value(values[0])
-        if value is _UNMATCHED_LITERAL:continue
-        # Lower-case mutable globals may be live caches; only named settings remain source constants.
-        name_lower=name.casefold()
-        mutable_setting=any(token in name_lower for token in
-                            ('setting','config','option','param','preset','profile'))
-        if name.isupper() or _immutable_literal(value) or mutable_setting:
-            _literal_signature(value)
-            constants[name]=value
+        if not any(_setting_literal(name,value) for value in values):continue
+        value=_unique_source_value(values)
+        if value is not _UNMATCHED_LITERAL:
+            _literal_signature(value);constants[name]=value
     return constants
 
 
@@ -220,6 +268,8 @@ def _constant_ast_value(node,depth=0,budget=None):
     try:
         if isinstance(node,ast.Constant):
             result=node.value
+        elif isinstance(node,ast.NamedExpr):
+            result=child(node.value)
         elif isinstance(node,(ast.Tuple,ast.List,ast.Set)):
             if len(node.elts)>budget[0]:return _UNMATCHED_LITERAL
             values=[child(value) for value in node.elts]
@@ -272,6 +322,11 @@ def _scope_literal_binding(scope,name):
         if scope.args.vararg is not None:arguments.append(scope.args.vararg)
         if scope.args.kwarg is not None:arguments.append(scope.args.kwarg)
         if any(argument.arg==name for argument in arguments):return True,None
+        bindings=[value for target,value in _source_bindings([scope.body])
+                  if isinstance(target,ast.Name) and target.id==name]
+        if bindings:
+            value=_unique_source_value(bindings)
+            return True,None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
         bound=False
         def visit_lambda_scope(node):
             nonlocal bound
@@ -285,32 +340,16 @@ def _scope_literal_binding(scope,name):
             for child in ast.iter_child_nodes(node):visit_lambda_scope(child)
         visit_lambda_scope(scope.body)
         return bound,None
-    bindings=[]
-    def visit(node):
-        if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.Lambda,ast.ClassDef)):
-            if getattr(node,'name',None)==name:bindings.append(None)
-            return
-        if isinstance(node,ast.Assign) and any(_target_binds_name(target,name) for target in node.targets):
-            bindings.append(node.value)
-        elif isinstance(node,ast.AnnAssign) and _target_binds_name(node.target,name):
-            bindings.append(node.value)
-        elif isinstance(node,ast.NamedExpr) and _target_binds_name(node.target,name):
-            bindings.append(node.value)
-        elif isinstance(node,(ast.For,ast.AsyncFor)) and _target_binds_name(node.target,name):
-            bindings.append(None)
-        elif isinstance(node,(ast.With,ast.AsyncWith)):
-            for item in node.items:
-                if item.optional_vars is not None and _target_binds_name(item.optional_vars,name):
-                    bindings.append(None)
-        elif isinstance(node,ast.ExceptHandler) and node.name==name:
-            bindings.append(None)
-        for child in ast.iter_child_nodes(node):visit(child)
-    for statement in scope.body:visit(statement)
+    if isinstance(scope,(ast.FunctionDef,ast.AsyncFunctionDef)):
+        arguments=scope.args.posonlyargs+scope.args.args+scope.args.kwonlyargs
+        if scope.args.vararg is not None:arguments.append(scope.args.vararg)
+        if scope.args.kwarg is not None:arguments.append(scope.args.kwarg)
+        if any(argument.arg==name for argument in arguments):return True,None
+    bindings=[value for target,value in _source_bindings(scope.body)
+              if isinstance(target,ast.Name) and target.id==name]
     if not bindings:return False,None
-    if len(bindings)!=1 or bindings[0] is None:return True,None
-    value=_constant_ast_value(bindings[0])
-    if value is _UNMATCHED_LITERAL:return True,None
-    return True,_literal_value_signature(value)
+    value=_unique_source_value(bindings)
+    return True,None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
 
 
 def _source_class_literals(source):
@@ -322,26 +361,16 @@ def _source_class_literals(source):
         if isinstance(node,ast.ClassDef):
             qualname='.'.join(ancestors+[node.name])
             assignments={}
-            for statement in node.body:
-                if isinstance(statement,ast.Assign):targets=statement.targets;value=statement.value
-                elif isinstance(statement,ast.AnnAssign):targets=[statement.target];value=statement.value
-                elif isinstance(statement,ast.AugAssign):targets=[statement.target];value=None
-                else:continue
-                for target in targets:
-                    if isinstance(target,ast.Name):assignments.setdefault(target.id,[]).append(value)
+            for target,value in _source_bindings(node.body):
+                if isinstance(target,ast.Name):assignments.setdefault(target.id,[]).append(value)
             attributes={}
             for name,values in assignments.items():
-                if len(values)!=1 or values[0] is None:continue
-                value=_constant_ast_value(values[0])
-                if value is _UNMATCHED_LITERAL:continue
-                bound,signature=_scope_literal_binding(node,name)
-                if not bound or signature is None:continue
-                name_lower=name.casefold()
-                mutable_setting=any(token in name_lower for token in
-                                    ('setting','config','option','param','preset','profile'))
-                if name.isupper() or _immutable_literal(value) or mutable_setting:
-                    attributes[name]=signature
-            if attributes:classes[qualname]=attributes
+                if not any(_setting_literal(name,value) for value in values):continue
+                value=_unique_source_value(values)
+                if value is not _UNMATCHED_LITERAL:attributes[name]=_literal_value_signature(value)
+            require(qualname not in classes or classes[qualname]==attributes,
+                    'Ambiguous redeclared class settings cannot be safely matched')
+            classes[qualname]=attributes
             for statement in node.body:visit_statement(statement,ancestors+[node.name])
             return
         for child in ast.iter_child_nodes(node):
@@ -352,18 +381,15 @@ def _source_class_literals(source):
 
 def _source_attribute_literals(statements):
     """Only declared literal settings, never mutable runtime caches or descriptors."""
-    for statement in statements:
-        if isinstance(statement,ast.Assign):targets=statement.targets;node=statement.value
-        elif isinstance(statement,ast.AnnAssign):targets=[statement.target];node=statement.value
-        else:continue
-        value=_constant_ast_value(node)
-        if value is _UNMATCHED_LITERAL:continue
-        for target in targets:
-            if not isinstance(target,ast.Attribute):continue
-            name=target.attr
-            setting=any(token in name.casefold() for token in ('setting','config','option','param','preset','profile'))
-            if name.isupper() or _immutable_literal(value) or setting:
-                yield target,_literal_signature(value)
+    assignments={}
+    for target,value in _source_bindings(statements):
+        if not isinstance(target,ast.Attribute):continue
+        key=ast.dump(target,include_attributes=False)
+        assignments.setdefault(key,(target,[]))[1].append(value)
+    for target,values in assignments.values():
+        if not any(_setting_literal(target.attr,value) for value in values):continue
+        value=_unique_source_value(values)
+        if value is not _UNMATCHED_LITERAL:yield target,_literal_signature(value)
 
 
 def _source_constructor_literals(source):
@@ -373,15 +399,22 @@ def _source_constructor_literals(source):
             for statement in node.body:visit(statement,ancestors+[node.name,'<locals>'])
             return
         if isinstance(node,ast.ClassDef):
-            fields={}
-            for method in node.body:
+            constructors=[]
+            for method in _scope_nodes(node.body):
                 if isinstance(method,ast.FunctionDef) and method.name=='__init__':
-                    arguments=method.args.posonlyargs+method.args.args
+                    arguments=method.args.posonlyargs+method.args.args;declared={}
                     if arguments:
                         for target,signature in _source_attribute_literals(method.body):
                             if isinstance(target.value,ast.Name) and target.value.id==arguments[0].arg:
-                                fields[target.attr]=signature
-            if fields:classes['.'.join(ancestors+[node.name])]=fields
+                                declared[target.attr]=signature
+                    constructors.append(declared)
+            fields=constructors[0] if constructors else {}
+            require(all(declared==fields for declared in constructors),
+                    'Ambiguous conditional constructor settings cannot be safely matched')
+            qualname='.'.join(ancestors+[node.name])
+            require(qualname not in classes or classes[qualname]==fields,
+                    'Ambiguous redeclared constructor settings cannot be safely matched')
+            classes[qualname]=fields
             for statement in node.body:visit(statement,ancestors+[node.name])
             return
         for child in ast.iter_child_nodes(node):
@@ -574,7 +607,7 @@ def _callable_source_state(states,code):
 def _source_frame_arguments(statements,namespace,frames):
     """Bind literal arguments at direct source creation sites; never invoke a factory."""
     bindings={}
-    for statement in statements:
+    for statement in _scope_nodes(statements):
         if isinstance(statement,ast.Assign):targets=statement.targets;call=statement.value
         elif isinstance(statement,ast.AnnAssign):targets=[statement.target];call=statement.value
         else:continue
@@ -593,6 +626,8 @@ def _source_frame_arguments(statements,namespace,frames):
             require(not any(isinstance(row,ast.Starred) for row in call.args)
                     and not any(row.arg is None for row in call.keywords),
                     'Retained frame argument expansion cannot be safely matched to source')
+            require(id(frame) not in bindings or bindings[id(frame)]==fields,
+                    'Ambiguous retained frame creation arguments cannot be safely matched')
             bindings[id(frame)]=fields
     return bindings
 
@@ -776,7 +811,10 @@ def loaded_source_code(roots):
             for target,signature in declarations:
                 instance=_static_source_reference(target.value,namespace)
                 if id(instance) in loaded_instances:
-                    overrides.setdefault(id(instance),{})[target.attr]=signature
+                    previous=overrides.setdefault(id(instance),{})
+                    require(target.attr not in previous or previous[target.attr]==signature,
+                            'Conflicting source assignments for retained instance setting')
+                    previous[target.attr]=signature
                     override_paths.setdefault(id(instance),set()).add(path)
     instance_states={}
     for marker,state in loaded_instances.items():
