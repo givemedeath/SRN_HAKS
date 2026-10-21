@@ -240,6 +240,7 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
     module_mutators={'__setattr__','__delattr__','__getattribute__','__getattr__'}
 
     def reference(node):
+        if isinstance(node,ast.NamedExpr):return reference(node.value)
         if isinstance(node,ast.Name):
             tags=aliases.get(node.id,set())
             return next(iter(tags)) if len(tags)==1 else ('namespace:foreign' if tags else None)
@@ -248,7 +249,10 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             if node.attr=='modules' and owner=='sys':return 'modules'
             if owner=='modules' and node.attr in ('get','__getitem__'):return 'module-lookup:'+node.attr
             if node.attr=='__dict__':return 'namespace:own' if owner=='self-module' else 'namespace:foreign'
-            if owner=='self-module' and node.attr in module_mutators:return 'mutator'
+            callable_reader=bool(owner) and owner.startswith(('factory:','module-lookup:'))
+            if callable_reader and node.attr=='__call__':return owner
+            if (owner in ('self-module','modules') or callable_reader) and node.attr in module_mutators:
+                return 'mutator'
             if owner=='builtins' and node.attr in ('globals','locals','vars'):return 'factory:'+node.attr
             if owner and owner.startswith('namespace:') and node.attr not in readers:return 'mutator'
         if (isinstance(node,ast.Subscript) and reference(node.value)=='modules'
@@ -320,6 +324,12 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
                 'Unsupported or ambiguous source namespace assignment')
         yield name,value
     for node in nodes:
+        # Branch truth can depend on runtime state. Do not lose a namespace
+        # capability by pretending its enclosing expression is ordinary data.
+        choices=([node.body,node.orelse] if isinstance(node,ast.IfExp)
+                 else node.values if isinstance(node,ast.BoolOp) else ())
+        require(not any(capability(value) for value in choices),
+                'Unsupported source namespace conditional expression')
         require(not (isinstance(node,(ast.Attribute,ast.Call)) and reference(node)=='mutator'),
                 'Unsupported source namespace mutator reference')
         if isinstance(node,ast.Call):
@@ -342,6 +352,10 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             if capability(node.value):
                 require(all(isinstance(target,ast.Name) for target in targets),
                         'Unsupported source namespace attribute escape')
+        if isinstance(node,(ast.ListComp,ast.SetComp,ast.GeneratorExp,ast.DictComp)):
+            values=[node.key,node.value] if isinstance(node,ast.DictComp) else [node.elt]
+            require(not any(capability(value) for value in values),
+                    'Unsupported source namespace comprehension escape')
         if isinstance(node,(ast.List,ast.Tuple,ast.Set,ast.Dict)):
             values=[*node.keys,*node.values] if isinstance(node,ast.Dict) else node.elts
             require(not any(capability(value) for value in values),

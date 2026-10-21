@@ -539,6 +539,84 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         self.assert_snapshot_matches_source(reviewed,reviewed.replace(' = 1',' = 2'),'module constants differ')
         self.assert_snapshot_matches_source(reviewed)
 
+    def test_assignment_expression_namespace_aliases_match_source(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        prefixes=(
+            'namespace=(alias:=globals())\n',
+            'import sys\nnamespace=(alias:=sys.modules[__name__].__dict__)\n',
+            'import sys\ncurrent=(alias:=sys.modules[__name__])\nnamespace=vars(current)\n',
+        )
+        for prefix in prefixes:
+            reviewed=prefix+"namespace['SCALE']=1\ndef read(): return SCALE\n"
+            with self.subTest(prefix=prefix):
+                self.assertEqual(_source_constants(reviewed),{'SCALE':1})
+        reviewed=prefixes[0]+"namespace['SCALE']=1\ndef read(): return SCALE\n"
+        self.assert_snapshot_matches_source(reviewed,reviewed.replace("['SCALE']=1","['SCALE']=2"),
+                                            'module constants differ')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_conditional_namespace_values_fail_closed(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        expressions=('globals() if True else {}','{} if False else globals()',
+                     'globals() or {}','{} or globals()',
+                     'alias if True else {}','alias or {}',
+                     'sys.modules[__name__] if True else None',
+                     'sys.modules.get if True else None')
+        for expression in expressions:
+            source='import sys\nalias=globals()\nnamespace='+expression+"\nnamespace['SCALE']=1\n"
+            with self.subTest(expression=expression):
+                with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(source)
+        for source in ("register(globals() if True else {})",'register(globals() or {})',
+                       'def factory(): return globals() if True else {}',
+                       'factory=lambda: (globals() or {})',
+                       'def factory(scope=globals() if True else {}): pass'):
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(source)
+        source="SCALE=1\nnamespace=globals()\nvalue=namespace.get('SCALE') if True else 0\nother=namespace.get('SCALE') or 0\n"
+        self.assertEqual(_source_constants(source),{'SCALE':1})
+        self.assert_snapshot_matches_source(source)
+
+    def test_comprehensions_cannot_hide_namespace_capabilities(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        expressions=('next(globals() for _ in (0,))',
+                     '[globals() for _ in (0,)][0]',
+                     '{globals for _ in (0,)}',
+                     '{key: globals() for key in (0,)}[0]',
+                     '{globals: key for key in (0,)}')
+        for expression in expressions:
+            with self.subTest(expression=expression):
+                with self.assertRaisesRegex(ValueError,'namespace'):
+                    _source_constants('namespace='+expression+"\nnamespace['SCALE']=1\n")
+        source="SCALE=1\nnamespace=globals()\nvalues=[namespace.get('SCALE') for _ in (0,)]\n"
+        self.assertEqual(_source_constants(source),{'SCALE':1})
+
+    def test_namespace_callable_wrappers_match_source(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        prefixes=(
+            'factory=globals.__call__\nnamespace=factory()\n',
+            'factory=globals.__call__.__call__\nnamespace=factory()\n',
+            'import builtins\nfactory=builtins.vars.__call__\nnamespace=factory()\n',
+            'import sys\nlookup=sys.modules.get.__call__\ncurrent=lookup(__name__)\nnamespace=current.__dict__\n',
+            'import sys\nlookup=sys.modules.__getitem__.__call__\ncurrent=lookup(__name__)\nnamespace=vars.__call__(current)\n',
+        )
+        for prefix in prefixes:
+            with self.subTest(prefix=prefix):
+                self.assertEqual(_source_constants(prefix+"namespace['SCALE']=1\n"),{'SCALE':1})
+        reviewed=prefixes[0]+"namespace['SCALE']=1\ndef read(): return SCALE\n"
+        self.assert_snapshot_matches_source(reviewed,reviewed.replace("['SCALE']=1","['SCALE']=2"),
+                                            'module constants differ')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_namespace_callable_introspection_fails_closed(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        for statement in ("factory=globals.__getattribute__('__call__')",
+                          'factory=globals.__setattr__',
+                          "factory=sys.modules.get.__getattribute__('__call__')",
+                          "factory=sys.modules.__getattribute__('__getitem__')"):
+            with self.subTest(statement=statement):
+                with self.assertRaisesRegex(ValueError,'namespace'):
+                    _source_constants('import sys\n'+statement)
+
     def test_namespace_mutation_and_ambiguous_writes_fail_closed(self):
         from headkit.comfy_nodes.source_snapshot import _source_constants
         sources=(
