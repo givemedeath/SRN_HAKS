@@ -652,37 +652,64 @@ def _static_source_reference(node,namespace):
     return _UNMATCHED_LITERAL
 
 
+_ANNOTATION_BUILTINS={'bool':bool,'int':int,'float':float,'complex':complex,'str':str,'bytes':bytes,
+                      'list':list,'tuple':tuple,'dict':dict,'set':set,'frozenset':frozenset,
+                      'object':object,'type':type,'range':range,'slice':slice,'bytearray':bytearray,
+                      'memoryview':memoryview,'Exception':Exception,'BaseException':BaseException}
+
+
+def _annotation_signature(value):
+    literal=_literal_value_signature(value)
+    if literal is not None:return ['literal',literal]
+    for name,builtin in _ANNOTATION_BUILTINS.items():
+        if value is builtin:return ['builtin',name]
+    return None
+
+
+def _source_annotation_signature(expression,scopes,stringized):
+    if stringized:return _annotation_signature(ast.unparse(expression))
+    value=_constant_ast_value(expression)
+    if value is not _UNMATCHED_LITERAL:return _annotation_signature(value)
+    if isinstance(expression,ast.Name) and expression.id in _ANNOTATION_BUILTINS:
+        if not any(_scope_literal_binding(scope,expression.id)[0] for scope in scopes):
+            return ['builtin',expression.id]
+    return None
+
+
 def _source_function_literals(source,compiled):
-    nodes={}
-    def visit_node(node,ancestors):
+    nodes={};annotation_scopes={};tree=ast.parse(source)
+    stringized=any(isinstance(node,ast.ImportFrom) and node.module=='__future__'
+                   and any(item.name=='annotations' for item in node.names) for node in tree.body)
+    def visit_node(node,ancestors,scopes):
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
             # Decorated code objects start at their earliest decorator line.
             source_line=min([node.lineno]+[decorator.lineno for decorator in node.decorator_list])
             nodes[(node.name,source_line)]=(node,ancestors)
+            annotation_scopes[(node.name,source_line)]=scopes
             for field,value in ast.iter_fields(node):
                 if field=='body':continue
                 children=value if isinstance(value,list) else (value,)
                 for child in children:
-                    if isinstance(child,ast.AST):visit_node(child,ancestors)
-            for statement in node.body:visit_node(statement,ancestors+[node])
+                    if isinstance(child,ast.AST):visit_node(child,ancestors,scopes)
+            for statement in node.body:visit_node(statement,ancestors+[node],scopes+[node])
             return
         if isinstance(node,ast.ClassDef):
             for field,value in ast.iter_fields(node):
                 if field=='body':continue
                 children=value if isinstance(value,list) else (value,)
                 for child in children:
-                    if isinstance(child,ast.AST):visit_node(child,ancestors)
-            for statement in node.body:visit_node(statement,ancestors)
+                    if isinstance(child,ast.AST):visit_node(child,ancestors,scopes)
+            for statement in node.body:visit_node(statement,ancestors,scopes+[node])
             return
         if isinstance(node,(ast.Lambda,ast.GeneratorExp)):
             body=node.body if isinstance(node,ast.Lambda) else node.elt
             name='<lambda>' if isinstance(node,ast.Lambda) else '<genexpr>'
             key=(name,node.lineno,body.lineno,body.end_lineno,body.col_offset,body.end_col_offset)
             nodes[key]=(node,ancestors)
-            for child in ast.iter_child_nodes(node):visit_node(child,ancestors+[node])
+            for child in ast.iter_child_nodes(node):visit_node(child,ancestors+[node],scopes+[node])
             return
-        for child in ast.iter_child_nodes(node):visit_node(child,ancestors)
-    visit_node(ast.parse(source),[])
+        for child in ast.iter_child_nodes(node):visit_node(child,ancestors,scopes+([node] if isinstance(node,ast.Module) else []))
+    visit_node(tree,[],[])
     codes={}
     lambda_codes=[]
     def visit_code(code):
@@ -701,7 +728,7 @@ def _source_function_literals(source,compiled):
         if len(matches)==1:codes[matches[0]]=code
     states={}
     for key,(node,ancestors) in nodes.items():
-        state={'defaults':{},'kwdefaults':{},'closure':{},'unresolved_defaults':{}}
+        state={'defaults':{},'kwdefaults':{},'closure':{},'annotations':{},'unresolved_defaults':{},'unresolved_annotations':{}}
         arguments=getattr(node,'args',None)
         positional=[] if arguments is None else arguments.posonlyargs+arguments.args
         defaults=[] if arguments is None else arguments.defaults
@@ -717,6 +744,19 @@ def _source_function_literals(source,compiled):
                 signature=None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
                 if signature is not None:state['kwdefaults'][argument.arg]=signature
                 else:state['unresolved_defaults'][argument.arg]=ast.dump(default,include_attributes=False)
+        if arguments is not None:
+            fields=arguments.posonlyargs+arguments.args+arguments.kwonlyargs
+            if arguments.vararg is not None:fields=fields+[arguments.vararg]
+            if arguments.kwarg is not None:fields=fields+[arguments.kwarg]
+            annotations=[(argument.arg,argument.annotation) for argument in fields if argument.annotation is not None]
+            if getattr(node,'returns',None) is not None:annotations.append(('return',node.returns))
+            scopes=annotation_scopes.get(key,[])
+            class_name=next((scope.name.lstrip('_') for scope in reversed(scopes) if isinstance(scope,ast.ClassDef)),'')
+            for name,expression in annotations:
+                if class_name and name.startswith('__') and not name.endswith('__'):name='_'+class_name+name
+                signature=_source_annotation_signature(expression,scopes,stringized)
+                if signature is None:state['unresolved_annotations'][name]=ast.dump(expression,include_attributes=False)
+                else:state['annotations'][name]=signature
         code=codes.get(key)
         if code is not None:
             for name in code.co_freevars:
@@ -725,7 +765,7 @@ def _source_function_literals(source,compiled):
                     if bound:
                         if signature is not None:state['closure'][name]=signature
                         break
-        if any(state.values()) or key[0] in ('<lambda>','<genexpr>'):states[key]=state
+        if any(state.values()) or isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)) or key[0] in ('<lambda>','<genexpr>'):states[key]=state
     return states
 
 
@@ -736,7 +776,11 @@ def _is_literal_ast(node):
 
 def _loaded_function_literals(function):
     code=function.__code__
-    state={'defaults':{},'kwdefaults':{},'closure':{},'unresolved_defaults':[]}
+    state={'defaults':{},'kwdefaults':{},'closure':{},'annotations':{},'unresolved_defaults':[],'unsupported_annotations':[]}
+    for name,value in dict.items(function.__annotations__):
+        signature=_annotation_signature(value)
+        if type(name) is not str or signature is None:state['unsupported_annotations'].append('unsupported')
+        else:state['annotations'][name]=signature
     if function.__defaults__:
         names=code.co_varnames[:code.co_argcount]
         for name,value in zip(names[-len(function.__defaults__):],function.__defaults__):
@@ -904,7 +948,7 @@ def _loaded_codes(value,seen,roots=()):
         yield _LoadedFunctionState(value)
         if value.__dict__:yield _LoadedInstanceState(value,value.__dict__)
         for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
-        for state in (value.__defaults__,value.__kwdefaults__):
+        for state in (value.__defaults__,value.__kwdefaults__,value.__annotations__):
             if state is not None:yield from _loaded_codes(state,seen,roots)
         for cell in value.__closure__ or ():
             try:captured=cell.cell_contents
@@ -1191,20 +1235,26 @@ def loaded_source_code(roots):
         for code,function_state in loaded_function_states.get(path,()):
             source_state=_callable_source_state(function_literals,code)
             if not source_state:continue
+            require(not source_state.get('unresolved_annotations') and not function_state.get('unsupported_annotations'),
+                    'Loaded Comfy function annotation expression cannot be safely matched to source')
+            require(function_state.get('annotations',{})==source_state.get('annotations',{}),
+                    'Loaded Comfy function annotations differ from source on disk')
             require(not source_state.get('unresolved_defaults'),
                     'Loaded Comfy function default expression cannot be safely matched to source')
             for category,values in source_state.items():
-                if category=='unresolved_defaults':continue
+                if category in ('unresolved_defaults','unresolved_annotations'):continue
                 for name,signature in values.items():
                     require(function_state.get(category,{}).get(name)==signature,
                             'Loaded Comfy function defaults or closure differ from source on disk')
             comparable={category:{name:function_state[category][name] for name in values}
                         for category,values in source_state.items()
-                        if category!='unresolved_defaults' and values}
+                        if category not in ('unresolved_defaults','unresolved_annotations') and values}
             loaded_hashes.add(_literal_hash(comparable))
         for marker,frame in loaded_frames.items():
             if Path(frame.code.co_filename).resolve()!=path:continue
             source_state=_callable_source_state(function_literals,frame.code) or {}
+            require(not source_state.get('unresolved_annotations'),
+                    'Loaded Comfy frame annotation expression cannot be safely matched to source')
             require(not source_state.get('unresolved_defaults'),
                     'Loaded Comfy frame defaults cannot be safely matched to source')
             comparable={}

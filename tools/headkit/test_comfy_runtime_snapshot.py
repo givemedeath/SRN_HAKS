@@ -122,6 +122,56 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                 with self.subTest(retention=retention,mode=mode):
                     self._import_literal_snapshot(retention=retention,error='import|provider|default expression',**mode)
 
+    def test_stale_function_annotations_are_rejected(self):
+        sources=(
+            "def sample(x: 1): return sample.__annotations__['x']\n",
+            "def sample() -> 1: return sample.__annotations__['return']\n",
+            "def sample(x: 1, /, y: 1=0, *args: 1, key: 1=0, **kwargs: 1) -> 1: pass\n",
+            "async def sample(x: 1) -> 1: return x\n",
+            "class Holder:\n    def sample(self, x: 1) -> 1: return x\n",
+            "def sample(x: int) -> str: return str(x)\n",
+            "from __future__ import annotations\ndef sample(x: Missing[1]) -> Other[1]: pass\n",
+        )
+        for source in sources:
+            temporary=source.replace(': 1', ': 2').replace('-> 1', '-> 2').replace('[1]', '[2]')
+            if 'x: int' in source:temporary=source.replace('x: int','x: float')
+            with self.subTest(source=source):
+                self.assert_snapshot_matches_source(source,temporary,error='annotation')
+                self.assert_snapshot_matches_source(source)
+
+    def test_annotation_additions_removals_and_mutation_are_rejected(self):
+        sources=(
+            ('def sample(x): pass\n','def sample(x: 2): pass\n'),
+            ('def sample(x: 1): pass\n','def sample(x): pass\n'),
+            ('def sample(x: 1): pass\n',"def sample(x: 1): pass\nsample.__annotations__['x']=2\n"),
+            ('def sample(): pass\n',"def sample(): pass\nsample.__annotations__['extra']=2\n"),
+        )
+        for source,temporary in sources:
+            with self.subTest(source=source,temporary=temporary):
+                self.assert_snapshot_matches_source(source,temporary,error='annotation')
+
+    def test_annotation_type_names_cannot_use_shadowed_builtins(self):
+        for source in (
+            'int=1\ndef sample(x: int): pass\n',
+            'def outer(int=1):\n    def sample(x: int): pass\n    return sample\nretained=outer()\n',
+            'class Holder:\n    int=1\n    def sample(self,x: int): pass\n',
+        ):
+            with self.subTest(source=source):self.assert_snapshot_matches_source(source,error='annotation')
+
+    def test_annotation_forward_strings_and_private_parameters_are_supported(self):
+        sources=(
+            "def sample(x: 'Unloaded') -> 'Other': pass\n",
+            "from __future__ import annotations\ndef sample(x: list[Unknown] | None) -> 'Quoted': pass\n",
+            "class Holder:\n    def sample(self, __value: int) -> None: pass\n",
+        )
+        for source in sources:
+            with self.subTest(source=source):self.assert_snapshot_matches_source(source)
+
+    def test_annotation_dictionary_inspection_uses_native_storage(self):
+        source=("class Metadata(dict):\n    def items(self): raise AssertionError('metadata hook invoked')\n"
+                "def sample(x: 1): pass\nsample.__annotations__=Metadata(x=1)\n")
+        self.assert_snapshot_matches_source(source)
+
     def test_imported_class_state_cannot_hide_stale_values(self):
         retentions=(
             ("class Holder:\n    scale=IMPORTED\ndel IMPORTED\n", "Holder.scale"),
@@ -688,6 +738,11 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         for factory in factories:
             reviewed = 'def callback(): return "reviewed"\n' + factory + 'del callback\n'
             with self.subTest(factory=factory):
+                if '__annotations__' in factory:
+                    # Opaque callable annotations now require postponed/string metadata.
+                    self.assert_snapshot_matches_source(reviewed,error='annotation')
+                    self.assert_snapshot_matches_source(reviewed,reviewed.replace('"reviewed"','"temporary"'),error='annotation')
+                    continue
                 self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
                                                     'Python code differs from its source')
                 self.assert_snapshot_matches_source(reviewed)
