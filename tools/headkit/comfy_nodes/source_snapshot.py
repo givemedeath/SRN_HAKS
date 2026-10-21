@@ -347,6 +347,73 @@ def _source_class_literals(source):
     return classes
 
 
+def _source_attribute_literals(statements):
+    """Only declared literal settings, never mutable runtime caches or descriptors."""
+    for statement in statements:
+        if isinstance(statement,ast.Assign):targets=statement.targets;node=statement.value
+        elif isinstance(statement,ast.AnnAssign):targets=[statement.target];node=statement.value
+        else:continue
+        value=_constant_ast_value(node)
+        if value is _UNMATCHED_LITERAL:continue
+        for target in targets:
+            if not isinstance(target,ast.Attribute):continue
+            name=target.attr
+            setting=any(token in name.casefold() for token in ('setting','config','option','param','preset','profile'))
+            if name.isupper() or _immutable_literal(value) or setting:
+                yield target,_literal_signature(value)
+
+
+def _source_constructor_literals(source):
+    classes={}
+    def visit(node,ancestors):
+        if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
+            for statement in node.body:visit(statement,ancestors+[node.name,'<locals>'])
+            return
+        if isinstance(node,ast.ClassDef):
+            fields={}
+            for method in node.body:
+                if isinstance(method,ast.FunctionDef) and method.name=='__init__':
+                    arguments=method.args.posonlyargs+method.args.args
+                    if arguments:
+                        for target,signature in _source_attribute_literals(method.body):
+                            if isinstance(target.value,ast.Name) and target.value.id==arguments[0].arg:
+                                fields[target.attr]=signature
+            if fields:classes['.'.join(ancestors+[node.name])]=fields
+            for statement in node.body:visit(statement,ancestors+[node.name])
+            return
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child,ast.stmt):visit(child,ancestors)
+    visit(ast.parse(source),[])
+    return classes
+
+
+def _stored_instance_attributes(value):
+    """Read built-in dict/slot storage without calling user properties or getters."""
+    fields={}
+    for base in reversed(type(value).__mro__):
+        for name,descriptor in vars(base).items():
+            if name=='__dict__' and isinstance(descriptor,types.GetSetDescriptorType):
+                fields.update(descriptor.__get__(value,type(value)))
+            elif isinstance(descriptor,types.MemberDescriptorType):
+                try:fields[name]=descriptor.__get__(value,type(value))
+                except AttributeError:pass
+    return fields
+
+
+def _static_source_reference(node,namespace):
+    if isinstance(node,ast.Name):return namespace.get(node.id,_UNMATCHED_LITERAL)
+    if isinstance(node,ast.Attribute):
+        parent=_static_source_reference(node.value,namespace)
+        if isinstance(parent,types.ModuleType):return vars(parent).get(node.attr,_UNMATCHED_LITERAL)
+        return inspect.getattr_static(parent,node.attr,_UNMATCHED_LITERAL)
+    if isinstance(node,ast.Subscript):
+        parent=_static_source_reference(node.value,namespace);key=_constant_ast_value(node.slice)
+        if type(parent) in (dict,list,tuple) and key is not _UNMATCHED_LITERAL:
+            try:return parent[key]
+            except (KeyError,IndexError,TypeError):pass
+    return _UNMATCHED_LITERAL
+
+
 def _source_function_literals(source,compiled):
     nodes={}
     def visit_node(node,ancestors):
@@ -461,6 +528,16 @@ class _LoadedClassState:
             if signature is not None:self.attributes[name]=signature
 
 
+class _LoadedInstanceState:
+    def __init__(self,value):
+        self.value=value;self.cls=type(value)
+        self.members=_stored_instance_attributes(value)
+        self.attributes={}
+        for name,member in self.members.items():
+            signature=_literal_value_signature(member)
+            if signature is not None:self.attributes[name]=signature
+
+
 def _loaded_codes(value,seen,roots=()):
     marker=id(value)
     if marker in seen:return
@@ -499,6 +576,12 @@ def _loaded_codes(value,seen,roots=()):
     if isinstance(value,types.CodeType):
         yield value
         return
+    value_type=type(value)
+    if _source_module_path(getattr(value_type,'__module__',None),roots) is not None:
+        instance=_LoadedInstanceState(value)
+        yield instance
+        yield from _loaded_codes(value_type,seen,roots)
+        for member in instance.members.values():yield from _loaded_codes(member,seen,roots)
     if isinstance(value,dict):
         for member in value.values():yield from _loaded_codes(member,seen,roots)
     elif isinstance(value,(tuple,list,set,frozenset)):
@@ -507,13 +590,6 @@ def _loaded_codes(value,seen,roots=()):
         try:wrapped=inspect.getattr_static(value,'__wrapped__')
         except AttributeError:wrapped=value
         if wrapped is not value:yield from _loaded_codes(wrapped,seen,roots)
-        value_type=type(value)
-        if _source_module_path(getattr(value_type,'__module__',None),roots) is not None:
-            yield from _loaded_codes(value_type,seen,roots)
-    else:
-        value_type=type(value)
-        if _source_module_path(getattr(value_type,'__module__',None),roots) is not None:
-            yield from _loaded_codes(value_type,seen,roots)
 
 
 def _source_module_path(module_name,roots):
@@ -530,7 +606,7 @@ def _source_module_path(module_name,roots):
 def loaded_source_code(roots):
     """Verify loaded code, literal callable/class state and module constants against source."""
     roots=[Path(root).resolve(strict=True) for root in roots]
-    loaded={};module_namespaces={};loaded_function_states={};loaded_class_states={}
+    loaded={};module_namespaces={};loaded_function_states={};loaded_class_states={};loaded_instances={}
     for module in tuple(sys.modules.values()):
         namespace=getattr(module,'__dict__',None)
         if not isinstance(namespace,dict):continue
@@ -544,6 +620,9 @@ def loaded_source_code(roots):
         seen=set()
         for value in tuple(namespace.values()):
             for record in _loaded_codes(value,seen,roots):
+                if isinstance(record,_LoadedInstanceState):
+                    loaded_instances[id(record.value)]=record
+                    continue
                 if isinstance(record,_LoadedClassState):
                     class_path=_source_module_path(record.module,roots)
                     if class_path is not None:
@@ -558,10 +637,30 @@ def loaded_source_code(roots):
                 loaded_hashes.add(_code_hash(code))
                 if function_state is not None:
                     loaded_function_states.setdefault(path,[]).append((code,function_state))
+    sources={path:path.read_bytes() for path in set(loaded)|set(module_namespaces)}
+    constructors={path:_source_constructor_literals(source) for path,source in sources.items()}
+    overrides={}
+    for path,namespaces in module_namespaces.items():
+        declarations=list(_source_attribute_literals(ast.parse(sources[path]).body))
+        for namespace in namespaces:
+            for target,signature in declarations:
+                instance=_static_source_reference(target.value,namespace)
+                if id(instance) in loaded_instances:
+                    overrides.setdefault(id(instance),{})[target.attr]=signature
+    instance_states={}
+    for marker,state in loaded_instances.items():
+        fields={}
+        for base in reversed(state.cls.__mro__):
+            class_path=_source_module_path(base.__module__,roots)
+            fields.update(constructors.get(class_path,{}).get(base.__qualname__,{}))
+        fields.update(overrides.get(marker,{}))
+        if fields:
+            path=_source_module_path(state.cls.__module__,roots)
+            instance_states.setdefault(path,[]).append((state,fields))
     rows=[]
-    for path in sorted(set(loaded)|set(module_namespaces),key=lambda value:str(value).casefold()):
+    for path in sorted(sources,key=lambda value:str(value).casefold()):
         loaded_hashes=loaded.setdefault(path,set())
-        source=path.read_bytes()
+        source=sources[path]
         compiled=compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
         expected=set(_code_tree_hashes(compiled))
         function_literals=_source_function_literals(source,compiled)
@@ -598,6 +697,10 @@ def loaded_source_code(roots):
             require(comparable==source_state,
                     'Loaded Comfy class attributes differ from source on disk')
             loaded_hashes.add(_literal_hash(comparable))
+        for instance,source_state in instance_states.get(path,()):
+            comparable={name:instance.attributes.get(name) for name in source_state}
+            require(comparable==source_state,'Loaded Comfy instance attributes differ from source on disk')
+            expected.add(_literal_hash(source_state));loaded_hashes.add(_literal_hash(comparable))
         constants=_source_constants(source)
         expected.add(_literal_hash(constants))
         for namespace in module_namespaces.get(path,()):

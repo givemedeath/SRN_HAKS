@@ -192,6 +192,57 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         self.assertEqual(_constant_ast_value(ast.parse('{"scale": [1+2, -(2**3)]}', mode='eval').body),
                          {"scale": [3, -8]})
 
+    def test_source_assigned_callable_instance_literal_is_checked(self):
+        reviewed = ('class Holder:\n    def __call__(self): return self.scale\n'
+                    'holder = Holder()\nholder.scale = 1\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('holder.scale = 1', 'holder.scale = 2'),
+                                            'instance attributes differ from source')
+
+    def test_source_assigned_plain_instance_literal_is_checked(self):
+        reviewed = 'class Holder: pass\nholder = Holder()\nholder.scale = 1+2\n'
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('1+2', '1+1'),
+                                            'instance attributes differ from source')
+
+    def test_source_assigned_slotted_instance_literal_is_checked(self):
+        reviewed = ('class Holder:\n    __slots__ = ("scale",)\n'
+                    '    def __call__(self): return self.scale\n'
+                    'holder = Holder()\nholder.scale: int = 1\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale: int = 1', 'scale: int = 2'),
+                                            'instance attributes differ from source')
+
+    def test_instance_literal_is_checked_through_a_container_reference(self):
+        reviewed = 'class Holder: pass\nholders = [Holder()]\nholders[0].scale = 1\n'
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
+                                            'instance attributes differ from source')
+
+    def test_instance_settings_are_bound_to_the_exact_object(self):
+        reviewed = ('class Holder: pass\nfirst = Holder()\nsecond = Holder()\n'
+                    'first.scale = 1\nsecond.scale = 2\n')
+        temporary = reviewed.replace('first.scale = 1', 'first.scale = 2').replace('second.scale = 2', 'second.scale = 1')
+        self.assert_snapshot_matches_source(reviewed, temporary, 'instance attributes differ from source')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_constructor_literals_and_module_overrides_match_without_descriptors(self):
+        reviewed = ('class Holder:\n    def __init__(self):\n        self.scale = 1\n'
+                    '    @property\n    def dangerous(self): raise AssertionError("descriptor invoked")\n'
+                    'holder = Holder()\nobject.__setattr__(holder, "runtime_cache", {"hits": 2})\n')
+        self.assert_snapshot_matches_source(reviewed)
+        overridden = ('class Holder:\n    def __init__(self):\n        self.scale = 1\n'
+                      'holder = Holder()\nholder.scale = 2\n')
+        self.assert_snapshot_matches_source(overridden)
+
+    def test_mutable_instance_caches_remain_runtime_state(self):
+        reviewed = ('class Holder: pass\nholder = Holder()\n'
+                    'holder.runtime_cache = {"hits": 0}\nholder.runtime_cache["hits"] = 2\n')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_stale_callback_retained_only_in_instance_state_is_rejected(self):
+        reviewed = ('class Holder:\n    def __call__(self): return self.callback()\n'
+                    'def callback(): return "reviewed"\n'
+                    'holder = Holder()\nholder.callback = callback\ndel callback\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                            'Python code differs from its source')
+
     def test_loaded_mutable_class_runtime_cache_is_not_a_source_constant(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = ("class Sampler:\n    runtime_cache = {'hits': 0}\n"
