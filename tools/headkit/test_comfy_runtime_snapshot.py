@@ -28,7 +28,7 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         self.temp.cleanup()
 
     def _import_literal_snapshot(self, *, value=1, reviewed=1, evict=False, reload=False,
-                                 relative=False, alias=False, star=False, foreign=False, copy=False, error=None):
+                                 relative=False, alias=False, star=False, foreign=False, copy=False, retention=None, error=None):
         folder=self.core/'literal_package' if relative else self.core
         folder.mkdir(exist_ok=True)
         provider_name='literal_package.literal_provider' if relative else 'literal_provider'
@@ -43,6 +43,7 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         used='copied' if alias else 'SCALE'
         setup=f'retained={used}\ndel {used}\n' if copy else ''
         result='retained' if copy else used
+        if retention:setup,result=retention;setup=setup.replace('IMPORTED',used)
         source=f'from {prefix}literal_provider import {member}\n{setup}def read(): return {result}\n'
         consumer_path.write_text(source,encoding='utf-8')
         provider_source=f'SCALE={value}\n';provider_path.write_text(provider_source,encoding='utf-8')
@@ -85,6 +86,79 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         self._import_literal_snapshot(star=True)
         self._import_literal_snapshot(foreign=True)
         self._import_literal_snapshot(copy=True)
+
+    def test_imported_literals_retained_in_containers_are_verified(self):
+        retentions=(
+            ("retained={'scale':IMPORTED}\ndel IMPORTED\n", "retained['scale']"),
+            ("retained=[IMPORTED]\ndel IMPORTED\n", "retained[0]"),
+            ("retained=(IMPORTED,)\ndel IMPORTED\n", "retained[0]"),
+            ("retained={'nested':[IMPORTED]}\ndel IMPORTED\n", "retained['nested'][0]"),
+            ("first={'scale':IMPORTED}\nretained=first\ndel first,IMPORTED\n", "retained['scale']"),
+            ("retained=IMPORTED*2\ndel IMPORTED\n", "retained//2"),
+        )
+        for retention in retentions:
+            for mode in ('evict','reload','star-evict','star-reload'):
+                with self.subTest(retention=retention,mode=mode):
+                    self._import_literal_snapshot(value=2,retention=retention,
+                                                  error='import|provider',**({'star':True,mode.split('-')[1]:True} if mode.startswith('star-') else {mode:True}))
+            with self.subTest(retention=retention,mode='matching'):
+                self._import_literal_snapshot(retention=retention)
+                self._import_literal_snapshot(retention=retention,star=True)
+
+    def test_non_declarative_import_retention_fails_closed(self):
+        retentions=(
+            ("retained={}\nretained['scale']=IMPORTED\ndel IMPORTED\n", "retained['scale']"),
+            ("retained=[]\nretained.append(IMPORTED)\ndel IMPORTED\n", "retained[0]"),
+            ("retained=frozenset([IMPORTED])\ndel IMPORTED\n", "next(iter(retained))"),
+            ("for retained in [IMPORTED]: pass\ndel IMPORTED\n", "retained"),
+            ("retained,*rest=[IMPORTED]\ndel IMPORTED\n", "retained"),
+            ("match IMPORTED:\n    case retained: pass\ndel IMPORTED\n", "retained"),
+            ("match {'scale':IMPORTED}:\n    case {'scale':retained}: pass\ndel IMPORTED\n", "retained"),
+            ("def retained(value=IMPORTED): return value\ndel IMPORTED\n", "retained()"),
+            ("def initialize(): return {'scale':IMPORTED}\nretained=initialize()\ndel initialize,IMPORTED\n", "retained['scale']"),
+        )
+        for retention in retentions:
+            for mode in ({},{'reload':True},{'evict':True}):
+                with self.subTest(retention=retention,mode=mode):
+                    self._import_literal_snapshot(retention=retention,error='import|provider|default expression',**mode)
+
+    def test_dynamic_import_cannot_recover_execution_capabilities(self):
+        sources=(
+            "__import__('builtins').exec('SCALE=1')",
+            "from builtins import __dict__ as state\nstate['exec']('SCALE=1')",
+            "from sys import __dict__ as state\nstate['modules']['builtins'].exec('SCALE=1')",
+            "from importlib import __dict__ as state\nstate['import_module']('builtins').exec('SCALE=1')",
+            "getattr(__import__('builtins'),'exec')('SCALE=1')",
+            "load=__import__\nload('builtins').eval('1')",
+            "from builtins import __import__ as load\nload('builtins').exec('SCALE=1')",
+            "import importlib\nimportlib.import_module('builtins').exec('SCALE=1')",
+            "from importlib import import_module as load\nload('builtins').exec('SCALE=1')",
+            "__import__('sys').modules['builtins'].exec('SCALE=1')",
+            "__import__('sys').modules.get('builtins').exec('SCALE=1')",
+            "__import__('sys').modules.__getitem__('builtins').exec('SCALE=1')",
+            "getattr(__import__('importlib'),'import_module')('builtins').exec('SCALE=1')",
+            "getattr(__import__('builtins'),'__import__')('builtins').exec('SCALE=1')",
+            "__import__.__call__('builtins').exec.__call__('SCALE=1')",
+            "load=__import__\nmodule='builtins'\nload(module).exec('SCALE=1')",
+            "import importlib\nloaders=[importlib]\nloaders[0].import_module('builtins').exec('SCALE=1')",
+            "import sys\nregistries=[sys]\nregistries[0].modules['builtins'].exec('SCALE=1')",
+            "import importlib\nimportlib.__dict__['import_module']('builtins').exec('SCALE=1')",
+            "import sys\nsys.__dict__['modules']['builtins'].exec('SCALE=1')",
+            "getattr(__import__('importlib'),'__dict__')['import_module']('builtins').exec('SCALE=1')",
+        )
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        for source in sources:
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError,'namespace|dynamic'):_source_constants(source)
+        source="__import__('builtins').exec('SCALE=1')\ndef read(): return SCALE\n"
+        self.assert_snapshot_matches_source(source,source.replace('SCALE=1','SCALE=2'),error='namespace|dynamic')
+
+    def test_ordinary_dynamic_imports_are_supported(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        for source in ("module=__import__('math')\nSCALE=1", "import importlib\nmodule=importlib.import_module('math')\nSCALE=1"):
+            with self.subTest(source=source):
+                self.assertEqual(_source_constants(source),{'SCALE':1})
+                self.assert_snapshot_matches_source(source)
 
     def test_startup_snapshot_detects_changed_then_restored_source(self):
         inventory = capture_inventory(self.core, [self.core])

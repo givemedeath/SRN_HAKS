@@ -236,6 +236,7 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
     dynamic=('exec','eval','compile')
     aliases={name:{'factory:'+name} for name in factories}
     aliases.update({name:{'dynamic:'+name} for name in dynamic})
+    aliases['__import__']={'importer:builtin'}
     aliases['__builtins__']={'mutator'}
     aliases['__name__']={'module-name'}
     aliases.update({name:set(tags) for name,tags in (inherited or {}).items()})
@@ -252,25 +253,34 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             owner=reference(node.value)
             if node.attr=='modules' and owner=='sys':return 'modules'
             if owner=='modules' and node.attr in ('get','__getitem__'):return 'module-lookup:'+node.attr
-            callable_reader=bool(owner) and owner.startswith(('factory:','module-lookup:','dynamic:'))
+            callable_reader=bool(owner) and owner.startswith(('factory:','module-lookup:','dynamic:','importer:'))
             if callable_reader:
                 # Native owners/reducers can recover an otherwise hidden namespace.
                 # Only the identity-preserving call wrapper is supported here.
                 return owner if node.attr=='__call__' else 'mutator'
-            if owner=='builtins' and node.attr=='__dict__':return 'mutator'
+            if owner=='importlib' and node.attr=='import_module':return 'importer:importlib'
+            if owner=='builtins' and node.attr=='__import__':return 'importer:builtin'
+            if owner in ('builtins','sys','importlib') and node.attr=='__dict__':return 'mutator'
             if node.attr=='__dict__':return 'namespace:own' if owner=='self-module' else 'namespace:foreign'
-            if owner in ('self-module','modules','builtins') and node.attr in module_mutators:return 'mutator'
+            if owner in ('self-module','modules','builtins','sys','importlib') and node.attr in module_mutators:return 'mutator'
             if owner=='builtins' and node.attr in factories:return 'factory:'+node.attr
             if owner=='builtins' and node.attr in dynamic:return 'dynamic:'+node.attr
             if owner and owner.startswith('namespace:') and node.attr not in readers:return 'mutator'
         if (isinstance(node,ast.Subscript) and reference(node.value)=='modules'
-                and reference(node.slice)=='module-name'):
-            return 'self-module'
+                and (reference(node.slice)=='module-name' or _constant_ast_value(node.slice) in ('builtins','sys','importlib'))):
+            return 'self-module' if reference(node.slice)=='module-name' else _constant_ast_value(node.slice)
         if isinstance(node,ast.Call):
             factory=reference(node.func)
+            if factory and factory.startswith('importer:'):
+                name=_constant_ast_value(node.args[0]) if node.args else _UNMATCHED_LITERAL
+                if type(name) is not str:return 'mutator'
+                return name if name in ('builtins','sys','importlib') else None
             if factory and factory.startswith('module-lookup:') and not node.keywords and node.args:
                 valid=len(node.args)==1 or (factory=='module-lookup:get' and len(node.args)==2)
-                if valid and reference(node.args[0])=='module-name':return 'self-module'
+                if valid:
+                    if reference(node.args[0])=='module-name':return 'self-module'
+                    name=_constant_ast_value(node.args[0])
+                    if type(name) is str and name in ('builtins','sys','importlib'):return name
             if factory=='namespace:foreign':return 'namespace:foreign'
             if factory=='factory:vars' and node.args and reference(node.args[0])=='builtins':return 'mutator'
             if factory and factory.startswith('factory:'):
@@ -279,8 +289,13 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
                 return 'namespace:own' if own else 'namespace:foreign'
             if isinstance(node.func,ast.Name) and node.func.id=='getattr' and len(node.args)>=2:
                 name=_constant_ast_value(node.args[1])
+                if reference(node.args[0]) in ('sys','importlib'):
+                    if type(name) is not str or name=='__dict__' or name in module_mutators:return 'mutator'
+                    if reference(node.args[0])=='sys' and name=='modules':return 'modules'
+                    if name=='import_module':return 'importer:importlib'
                 if reference(node.args[0])=='builtins':
                     if type(name) is not str or name=='__dict__' or name in module_mutators:return 'mutator'
+                    if name=='__import__':return 'importer:builtin'
                     if name in factories:return 'factory:'+name
                     if name in dynamic:return 'dynamic:'+name
                 if name=='__dict__':return 'namespace:own' if reference(node.args[0])=='self-module' else 'namespace:foreign'
@@ -291,7 +306,7 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
 
     def capability(node):
         kind=reference(node) or ''
-        return kind in ('mutator','self-module','modules','builtins') or kind.startswith(('namespace:','factory:','module-lookup:','dynamic:'))
+        return kind in ('mutator','self-module','modules','builtins','sys','importlib') or kind.startswith(('namespace:','factory:','module-lookup:','dynamic:','importer:'))
 
     def alias_targets(target,expression):
         if isinstance(target,ast.Name):yield target.id,reference(expression)
@@ -300,15 +315,23 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             for item,value in zip(target.elts,expression.elts):yield from alias_targets(item,value)
 
     for node in nodes:
+        if isinstance(node,ast.ImportFrom) and node.module in ('builtins','sys','importlib'):
+            for item in node.names:
+                if item.name=='__dict__' or item.name in module_mutators:
+                    aliases.setdefault(item.asname or item.name,set()).add('mutator')
         if isinstance(node,ast.Import):
             for item in node.names:
-                if item.name in ('builtins','sys'):aliases.setdefault(item.asname or item.name,set()).add(item.name)
+                if item.name in ('builtins','sys','importlib'):aliases.setdefault(item.asname or item.name,set()).add(item.name)
         elif isinstance(node,ast.ImportFrom) and node.module=='sys':
             for item in node.names:
                 if item.name=='modules':aliases.setdefault(item.asname or item.name,set()).add('modules')
+        elif isinstance(node,ast.ImportFrom) and node.module=='importlib':
+            for item in node.names:
+                if item.name=='import_module':aliases.setdefault(item.asname or item.name,set()).add('importer:importlib')
         elif isinstance(node,ast.ImportFrom) and node.module=='builtins':
             for item in node.names:
-                if item.name in factories:
+                if item.name=='__import__':aliases.setdefault(item.asname or item.name,set()).add('importer:builtin')
+                elif item.name in factories:
                     aliases.setdefault(item.asname or item.name,set()).add('factory:'+item.name)
                 elif item.name in dynamic:
                     aliases.setdefault(item.asname or item.name,set()).add('dynamic:'+item.name)
@@ -364,12 +387,12 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             own_vars=(reference(node.func)=='factory:vars' and len(node.args)==1 and not node.keywords)
             own_getattr=(isinstance(node.func,ast.Name) and node.func.id=='getattr' and len(node.args) in (2,3)
                          and type(_constant_ast_value(node.args[1])) is str and reference(node)!='mutator')
-            builtin_getattr=(bool(node.args) and reference(node.args[0])=='builtins' and own_getattr)
+            builtin_getattr=(bool(node.args) and reference(node.args[0]) in ('builtins','sys','importlib') and own_getattr)
             if (own_argument and (own_vars or own_getattr)) or builtin_getattr:arguments=arguments[1:]
             kinds=[reference(value) for value in arguments]
             method=node.func.attr if isinstance(node.func,ast.Attribute) else None
             mutator=method in {'__setitem__','__delitem__','update','setdefault','pop','popitem','clear','setitem','delitem','ior'}
-            require(not any(kind and (kind in ('mutator','self-module','modules','builtins') or kind.startswith(('factory:','module-lookup:','dynamic:')) or
+            require(not any(kind and (kind in ('mutator','self-module','modules','builtins','sys','importlib') or kind.startswith(('factory:','module-lookup:','dynamic:','importer:')) or
                             kind.startswith('namespace:') and (kind=='namespace:own' or mutator)) for kind in kinds),
                     'Unsupported source namespace escape')
         if isinstance(node,(ast.Assign,ast.AnnAssign,ast.NamedExpr)):
@@ -428,14 +451,16 @@ _SAFE_UNARY_OPERATORS={ast.UAdd:operator.pos,ast.USub:operator.neg,
                        ast.Invert:operator.invert,ast.Not:operator.not_}
 
 
-def _constant_ast_value(node,depth=0,budget=None):
+def _constant_ast_value(node,depth=0,budget=None,*,names=None):
     """Evaluate bounded literal data and numeric expressions without running source."""
     if budget is None:budget=[100000]
     budget[0]-=1
     if depth>32 or budget[0]<0:return _UNMATCHED_LITERAL
-    def child(value):return _constant_ast_value(value,depth+1,budget)
+    def child(value):return _constant_ast_value(value,depth+1,budget,names=names)
     try:
-        if isinstance(node,ast.Constant):
+        if isinstance(node,ast.Name) and names is not None:
+            result=names.get(node.id,_UNMATCHED_LITERAL)
+        elif isinstance(node,ast.Constant):
             result=node.value
         elif isinstance(node,ast.NamedExpr):
             result=child(node.value)
@@ -934,14 +959,50 @@ def _source_module_path(module_name,roots):
 
 def _source_import_literals(statements,path,namespace,roots,sources,constants_cache,local_constants):
     """Verify retained literal imports without importing providers or invoking hooks."""
-    imported={};nodes=list(_scope_nodes(statements));copies=[]
+    imported={};nodes=list(_scope_nodes(statements));copies=[];dependencies={};deleted=set()
+    def names_in(value):
+        if id(value) not in dependencies:
+            dependencies[id(value)]={node.id for node in _scope_nodes([value])
+                                     if isinstance(node,ast.Name) and isinstance(node.ctx,ast.Load)}
+        return dependencies[id(value)]
+    def storage_name(target):
+        while isinstance(target,(ast.Attribute,ast.Subscript)):target=target.value
+        return target.id if isinstance(target,ast.Name) else None
     def copy_pairs(target,value):
-        if isinstance(target,ast.Name) and isinstance(value,ast.Name):yield target.id,value.id
+        if isinstance(target,ast.Name):yield target.id,value
         elif isinstance(target,(ast.Tuple,ast.List)) and isinstance(value,(ast.Tuple,ast.List)) and len(target.elts)==len(value.elts):
             for child,member in zip(target.elts,value.elts):yield from copy_pairs(child,member)
+        elif isinstance(target,(ast.Tuple,ast.List,ast.Starred)):
+            for child in _scope_nodes([target]):
+                if isinstance(child,ast.Name):
+                    yield child.id,ast.Call(func=ast.Name(id='_unsupported_import_unpack',ctx=ast.Load()),args=[value],keywords=[])
+        elif storage_name(target):
+            # Mutating an existing object is not a declarative literal construction.
+            yield storage_name(target),ast.Call(func=ast.Name(id='_unsupported_import_storage',ctx=ast.Load()),args=[value],keywords=[])
     for node in nodes:
-        targets=node.targets if isinstance(node,ast.Assign) else [node.target] if isinstance(node,(ast.AnnAssign,ast.NamedExpr)) else []
+        if isinstance(node,ast.Delete):
+            deleted.update(target.id for target in _scope_nodes(node.targets) if isinstance(target,ast.Name))
+        targets=node.targets if isinstance(node,ast.Assign) else [node.target] if isinstance(node,(ast.AnnAssign,ast.NamedExpr,ast.AugAssign)) else []
         for target in targets:copies.extend(copy_pairs(target,node.value))
+        if isinstance(node,(ast.For,ast.AsyncFor)):
+            expression=ast.Call(func=ast.Name(id='_unsupported_import_iteration',ctx=ast.Load()),args=[node.iter],keywords=[])
+            copies.extend(copy_pairs(node.target,expression))
+        if isinstance(node,ast.Match):
+            for case in node.cases:
+                for pattern in _scope_nodes([case.pattern]):
+                    name=pattern.name if isinstance(pattern,(ast.MatchAs,ast.MatchStar)) else pattern.rest if isinstance(pattern,ast.MatchMapping) else None
+                    if name:copies.append((name,ast.Call(func=ast.Name(id='_unsupported_import_pattern',ctx=ast.Load()),args=[node.subject],keywords=[])))
+        if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute) and storage_name(node.func.value):
+            copies.append((storage_name(node.func.value),node))
+        if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
+            # A module initializer can copy an import indirectly through its body.
+            pending=list(node.body);loads=[]
+            while pending:
+                child=pending.pop()
+                if isinstance(child,ast.Name) and isinstance(child.ctx,ast.Load):loads.append(child)
+                pending.extend(ast.iter_child_nodes(child))
+            defaults=[*node.args.defaults,*(value for value in node.args.kw_defaults if value is not None)]
+            copies.append((node.name,ast.Call(func=ast.Name(id='_unsupported_import_default',ctx=ast.Load()),args=defaults+loads,keywords=[])))
     for node in nodes:
         if not isinstance(node,ast.ImportFrom) or node.module=='__future__':continue
         provider_name=node.module or ''
@@ -955,18 +1016,29 @@ def _source_import_literals(statements,path,namespace,roots,sources,constants_ca
         bindings=[]
         for item in node.names:
             if item.name=='*':
-                bindings.extend((name,name) for name,value in tuple(namespace.items())
-                                if not name.startswith('_') and name not in local_constants
-                                and _literal_value_signature(value) is not None)
+                provider=sys.modules.get(provider_name)
+                require(isinstance(provider,types.ModuleType),'Wildcard imported literal provider is unavailable')
+                values=types.ModuleType.__dict__['__dict__'].__get__(provider,type(provider))
+                exports=values.get('__all__')
+                require(exports is None or type(exports) in (tuple,list) and all(type(name) is str for name in exports),
+                        'Unsupported wildcard imported literal exports')
+                members=[(name,name) for name,value in tuple(values.items())
+                         if (name in exports if exports is not None else not name.startswith('_'))
+                         and _literal_value_signature(value) is not None]
             else:
-                names={item.asname or item.name}
+                origin=item.asname or item.name
+                # An unexecuted optional import is not retained state. Deletions,
+                # however, must not hide a literal copied before its name vanished.
+                members=[(origin,item.name)] if origin in namespace or origin in deleted else []
+            for origin,member in members:
+                names={origin}
                 for _ in range(len(copies)+1):
-                    updated=names|{target for target,origin in copies if origin in names}
+                    updated=names|{target for target,expression in copies if names_in(expression)&names}
                     if updated==names:break
                     names=updated
                 for bound in names:
                     if bound in namespace and _literal_value_signature(namespace[bound]) is not None:
-                        bindings.append((bound,item.name))
+                        bindings.append((bound,member,origin,names))
         if not bindings:continue
         provider=sys.modules.get(provider_name)
         require(isinstance(provider,types.ModuleType),f'Imported literal provider is unavailable: {provider_name} in {path.name}: {bindings}')
@@ -980,17 +1052,40 @@ def _source_import_literals(statements,path,namespace,roots,sources,constants_ca
                 if provider_path not in constants_cache:
                     constants_cache[provider_path]=_source_constants(sources[provider_path])
                 declared=constants_cache[provider_path]
-        for bound,name in bindings:
+        for bound,name,origin,names in bindings:
             require(name in values,'Imported literal provider no longer declares its binding')
             expected=declared.get(name,values[name])
             signature=_literal_value_signature(expected)
-            require(signature is not None and _literal_value_signature(values[name])==signature,
+            # Modules, functions and classes are verified by the loaded-code census.
+            if signature is None:continue
+            require(_literal_value_signature(values[name])==signature,
                     'Imported literal provider differs from source on disk')
-            require(_literal_value_signature(namespace[bound])==signature,
+            evaluated={origin:expected};budget=[100000]
+            def retained_value(target,visiting):
+                budget[0]-=1
+                require(len(visiting)<=32 and budget[0]>=0,'Imported literal retention exceeds safe limits')
+                if target in evaluated:return evaluated[target]
+                require(target not in visiting,'Cyclic imported literal retention')
+                expressions=[expression for destination,expression in copies
+                             if destination==target and names_in(expression)&names]
+                require(expressions,'Unsupported imported literal retention')
+                candidates=[]
+                for expression in expressions:
+                    environment=dict(local_constants)
+                    for dependency in names_in(expression)&names:
+                        environment[dependency]=retained_value(dependency,visiting|{target})
+                    candidates.append(_constant_ast_value(expression,names=environment))
+                result=_unique_source_value(candidates)
+                require(result is not _UNMATCHED_LITERAL,'Unsupported imported literal retention expression')
+                evaluated[target]=result
+                return result
+            expected_bound=retained_value(bound,set())
+            signature=_literal_value_signature(expected_bound)
+            require(signature is not None and _literal_value_signature(namespace[bound])==signature,
                     'Loaded Comfy imported literals differ from provider source')
             require(bound not in imported or _literal_value_signature(imported[bound])==signature,
                     'Ambiguous imported literal provenance')
-            imported[bound]=expected
+            imported[bound]=expected_bound
     return imported
 
 
