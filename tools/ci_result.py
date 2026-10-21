@@ -43,10 +43,15 @@ def read_jobs(text):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--plan',type=Path,required=True);p.add_argument('--jobs',type=Path,required=True)
-    p.add_argument('--needs',type=Path,required=True);a=p.parse_args()
+    p.add_argument('--needs',type=Path,required=True)
+    p.add_argument('--pending-exit-code',type=int,choices=[2],help='Signal pending-only API metadata so the caller can refresh; never a pass')
+    a=p.parse_args()
     plan=json.loads(a.plan.read_text(encoding='utf-8')) if a.plan.is_file() and a.plan.stat().st_size else None
     jobs=read_jobs(a.jobs.read_text(encoding='utf-8'))
     passed,problems=evaluate(plan,jobs,json.loads(a.needs.read_text(encoding='utf-8')))
+    if a.pending_exit_code and problems and all(line.startswith(('Selected job missing: ','Selected job not completed: ')) for line in problems):
+        print('CI result: waiting for selected job metadata')
+        raise SystemExit(a.pending_exit_code)
     for line in problems:print('::error::'+line)
     print('CI result: '+('passed' if passed else 'failed'))
     raise SystemExit(0 if passed else 1)

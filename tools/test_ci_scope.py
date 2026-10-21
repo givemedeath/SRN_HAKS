@@ -186,6 +186,17 @@ class WorkflowWiringTests(unittest.TestCase):
         self.assertEqual(sum(t.count('actions/cache@') for t in self.all),1)
         self.assertIn("key: srn-tools-${{ runner.os }}-${{ hashFiles('tools/toolchain.lock.json', 'tools/shared-tools.lock.json') }}",self.action)
         for text in (self.ci,self.helpers):self.assertNotIn('srn-tools-',text)
+    def test_result_refresh_is_bounded_and_final_pending_status_still_fails(self):
+        result=self.ci.split('  result:',1)[1]
+        self.assertIn('for attempt in 1 2 3 4 5 6; do',result)
+        loop=result.split('for attempt in 1 2 3 4 5 6; do',1)[1].split('done',1)[0]
+        self.assertIn('gh api ',loop);self.assertIn('filter=all&per_page=100',loop)
+        self.assertIn('--pending-exit-code 2',loop)
+        self.assertIn('if [ "$result" -ne 2 ]; then exit "$result"; fi',loop)
+        self.assertIn('sleep 10',loop)
+        final=result.split('done',1)[1]
+        self.assertIn('tools/ci_result.py',final);self.assertNotIn('--pending-exit-code',final)
+
     def test_superseded_pull_request_runs_cancel_while_main_runs_do_not(self):
         self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}",self.ci)
         self.assertIn("format('pr-{0}', github.event.pull_request.number)",self.ci)
