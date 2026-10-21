@@ -204,6 +204,24 @@ def _target_binds_name(target,name):
 
 
 def _scope_literal_binding(scope,name):
+    if isinstance(scope,ast.Lambda):
+        arguments=scope.args.posonlyargs+scope.args.args+scope.args.kwonlyargs
+        if scope.args.vararg is not None:arguments.append(scope.args.vararg)
+        if scope.args.kwarg is not None:arguments.append(scope.args.kwarg)
+        if any(argument.arg==name for argument in arguments):return True,None
+        bound=False
+        def visit_lambda_scope(node):
+            nonlocal bound
+            if bound:return
+            if isinstance(node,ast.Lambda):return
+            if isinstance(node,ast.NamedExpr) and _target_binds_name(node.target,name):
+                bound=True;return
+            if isinstance(node,(ast.ListComp,ast.SetComp,ast.DictComp,ast.GeneratorExp)):
+                if any(_target_binds_name(generator.target,name) for generator in node.generators):
+                    bound=True;return
+            for child in ast.iter_child_nodes(node):visit_lambda_scope(child)
+        visit_lambda_scope(scope.body)
+        return bound,None
     bindings=[]
     def visit(node):
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.Lambda,ast.ClassDef)):
@@ -271,23 +289,50 @@ def _source_class_literals(source):
 
 def _source_function_literals(source,compiled):
     nodes={}
-    def visit_body(body,ancestors):
-        for node in body:
-            if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
-                # Decorated code objects start at their earliest decorator line.
-                source_line=min([node.lineno]+[decorator.lineno for decorator in node.decorator_list])
-                key=(node.name,source_line)
-                nodes[key]=(node,ancestors)
-                visit_body(node.body,ancestors+[node])
-            elif isinstance(node,ast.ClassDef):
-                visit_body(node.body,ancestors)
-    visit_body(ast.parse(source).body,[])
+    def visit_node(node,ancestors):
+        if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
+            # Decorated code objects start at their earliest decorator line.
+            source_line=min([node.lineno]+[decorator.lineno for decorator in node.decorator_list])
+            nodes[(node.name,source_line)]=(node,ancestors)
+            for field,value in ast.iter_fields(node):
+                if field=='body':continue
+                children=value if isinstance(value,list) else (value,)
+                for child in children:
+                    if isinstance(child,ast.AST):visit_node(child,ancestors)
+            for statement in node.body:visit_node(statement,ancestors+[node])
+            return
+        if isinstance(node,ast.ClassDef):
+            for field,value in ast.iter_fields(node):
+                if field=='body':continue
+                children=value if isinstance(value,list) else (value,)
+                for child in children:
+                    if isinstance(child,ast.AST):visit_node(child,ancestors)
+            for statement in node.body:visit_node(statement,ancestors)
+            return
+        if isinstance(node,ast.Lambda):
+            body=node.body
+            key=('<lambda>',node.lineno,body.lineno,body.end_lineno,body.col_offset,body.end_col_offset)
+            nodes[key]=(node,ancestors)
+            visit_node(body,ancestors+[node])
+            return
+        for child in ast.iter_child_nodes(node):visit_node(child,ancestors)
+    visit_node(ast.parse(source),[])
     codes={}
+    lambda_codes=[]
     def visit_code(code):
-        if code.co_name!='<module>':codes[(code.co_name,code.co_firstlineno)]=code
+        if code.co_name=='<lambda>':lambda_codes.append(code)
+        elif code.co_name!='<module>':codes[(code.co_name,code.co_firstlineno)]=code
         for value in code.co_consts:
             if isinstance(value,types.CodeType):visit_code(value)
     visit_code(compiled)
+    lambda_keys={key for key in nodes if key[0]=='<lambda>'}
+    for code in lambda_codes:
+        positions=set(code.co_positions()) if hasattr(code,'co_positions') else set()
+        matches=[key for key in lambda_keys
+                 if key[1]==code.co_firstlineno and key[2:] in positions]
+        if not matches:
+            matches=[key for key in lambda_keys if key[1]==code.co_firstlineno]
+        if len(matches)==1:codes[matches[0]]=code
     states={}
     for key,(node,ancestors) in nodes.items():
         state={'defaults':{},'kwdefaults':{},'closure':{}}
@@ -308,7 +353,7 @@ def _source_function_literals(source,compiled):
                     if bound:
                         if signature is not None:state['closure'][name]=signature
                         break
-        if any(state.values()):states[key]=state
+        if any(state.values()) or key[0]=='<lambda>':states[key]=state
     return states
 
 
@@ -456,11 +501,20 @@ def loaded_source_code(roots):
         compiled=compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
         expected=set(_code_tree_hashes(compiled))
         function_literals=_source_function_literals(source,compiled)
-        expected.update(_literal_hash(state) for state in function_literals.values())
+        expected.update(_literal_hash({category:values for category,values in state.items() if values})
+                        for state in function_literals.values())
         class_literals=_source_class_literals(source)
         expected.update(_literal_hash(state) for state in class_literals.values())
         for code,function_state in loaded_function_states.get(path,()):
-            source_state=function_literals.get((code.co_name,code.co_firstlineno))
+            if code.co_name=='<lambda>':
+                positions=set(code.co_positions()) if hasattr(code,'co_positions') else set()
+                matches=[state for key,state in function_literals.items()
+                         if len(key)==6 and key[0]=='<lambda>' and key[1]==code.co_firstlineno
+                         and key[2:] in positions]
+                require(len(matches)==1,'Loaded Comfy lambda could not be matched to source')
+                source_state=matches[0]
+            else:
+                source_state=function_literals.get((code.co_name,code.co_firstlineno))
             if not source_state:continue
             for category,values in source_state.items():
                 for name,signature in values.items():

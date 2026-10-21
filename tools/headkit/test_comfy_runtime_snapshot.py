@@ -176,6 +176,59 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
                 loaded_source_code([self.core])
 
+    def test_loaded_stale_lambda_literal_default_is_rejected_after_disk_restore(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = 'loaded_value = lambda scale=1: scale\n'
+        temporary = 'loaded_value = lambda scale=2: scale\n'
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_lambda_default_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
+                loaded_source_code([self.core])
+
+    def test_loaded_stale_same_line_lambda_default_is_matched_by_body_span(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = 'first = lambda scale=3: scale; second = lambda scale=2: scale\n'
+        temporary = 'first = lambda scale=1: scale; second = lambda scale=2: scale\n'
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_same_line_lambdas_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
+                loaded_source_code([self.core])
+
+    def test_loaded_stale_lambda_literal_closure_is_rejected_after_disk_restore(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('def make_value():\n    scale = 1\n'
+                    '    return lambda: scale\nloaded_value = make_value()\n')
+        temporary = reviewed.replace('scale = 1', 'scale = 2')
+        path.write_text(temporary, encoding='utf-8')
+        module = types.ModuleType('headkit_stale_comfy_lambda_closure_fixture')
+        module.__file__ = str(path)
+        exec(compile(temporary, str(path), 'exec', dont_inherit=True), module.__dict__)
+        path.write_text(reviewed, encoding='utf-8')
+        with patch.dict(sys.modules, {module.__name__: module}):
+            with self.assertRaisesRegex(ValueError, 'function defaults or closure differ'):
+                loaded_source_code([self.core])
+
+    def test_loaded_reviewed_lambdas_with_defaults_and_closures_are_accepted(self):
+        path = self.core / 'comfy' / 'model.py'
+        reviewed = ('def make_value():\n    scale = 1\n'
+                    '    return lambda bias=2: scale + bias\n'
+                    'first = lambda scale=3: scale; second = lambda scale=4: scale\n'
+                    'loaded_value = make_value()\n')
+        path.write_text(reviewed, encoding='utf-8')
+        module = types.ModuleType('headkit_reviewed_comfy_lambdas_fixture')
+        module.__file__ = str(path)
+        exec(compile(reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
+        with patch.dict(sys.modules, {module.__name__: module}):
+            loaded_source_code([self.core])
+
     def test_loaded_stale_decorated_function_literal_default_is_rejected(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = ('def identity(function):\n    return function\n'
