@@ -236,6 +236,7 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
     aliases.update({name:set(tags) for name,tags in (inherited or {}).items()})
     nodes=list(_scope_nodes(statements))
     readers={'get','keys','values','items','copy','__getitem__','__contains__','__iter__','__len__'}
+    module_mutators={'__setattr__','__delattr__','__getattribute__','__getattr__'}
 
     def reference(node):
         if isinstance(node,ast.Name):
@@ -245,6 +246,7 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             owner=reference(node.value)
             if node.attr=='modules' and owner=='sys':return 'modules'
             if node.attr=='__dict__':return 'namespace:own' if owner=='self-module' else 'namespace:foreign'
+            if owner=='self-module' and node.attr in module_mutators:return 'mutator'
             if owner=='builtins' and node.attr in ('globals','locals','vars'):return 'factory:'+node.attr
             if owner and owner.startswith('namespace:') and node.attr not in readers:return 'mutator'
         if (isinstance(node,ast.Subscript) and reference(node.value)=='modules'
@@ -260,13 +262,14 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             if isinstance(node.func,ast.Name) and node.func.id=='getattr' and len(node.args)>=2:
                 name=_constant_ast_value(node.args[1])
                 if name=='__dict__':return 'namespace:own' if reference(node.args[0])=='self-module' else 'namespace:foreign'
+                if reference(node.args[0])=='self-module' and (type(name) is not str or name in module_mutators):return 'mutator'
                 if (reference(node.args[0]) or '').startswith('namespace:') and name not in readers:
                     return 'mutator'
         return None
 
     def capability(node):
         kind=reference(node) or ''
-        return kind=='mutator' or kind.startswith(('namespace:','factory:'))
+        return kind in ('mutator','self-module') or kind.startswith(('namespace:','factory:'))
 
     def alias_targets(target,expression):
         if isinstance(target,ast.Name):yield target.id,reference(expression)
@@ -300,10 +303,13 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
     require(not changed,'Source namespace aliases exceed the bounded analysis')
 
     for target,value in _source_bindings(statements):
-        if not isinstance(target,ast.Subscript):continue
-        kind=reference(target.value)
-        if not kind or not kind.startswith('namespace:'):continue
-        name=_constant_ast_value(target.slice)
+        if isinstance(target,ast.Attribute) and reference(target.value)=='self-module':
+            kind='namespace:own';name=target.attr
+        elif isinstance(target,ast.Subscript):
+            kind=reference(target.value)
+            if not kind or not kind.startswith('namespace:'):continue
+            name=_constant_ast_value(target.slice)
+        else:continue
         require(module_scope and kind=='namespace:own' and type(name) is str
                 and value is not _UNMATCHED_LITERAL,
                 'Unsupported or ambiguous source namespace assignment')
@@ -314,10 +320,16 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
         if isinstance(node,ast.Call):
             require(reference(node.func)!='mutator','Unsupported source namespace mutation')
             arguments=[*node.args,*(item.value for item in node.keywords)]
+            # These accessors expose storage for the checks above; they do not mutate it.
+            own_argument=bool(node.args) and reference(node.args[0])=='self-module'
+            own_vars=(reference(node.func)=='factory:vars' and len(node.args)==1 and not node.keywords)
+            own_getattr=(isinstance(node.func,ast.Name) and node.func.id=='getattr' and len(node.args) in (2,3)
+                         and type(_constant_ast_value(node.args[1])) is str and reference(node)!='mutator')
+            if own_argument and (own_vars or own_getattr):arguments=arguments[1:]
             kinds=[reference(value) for value in arguments]
             method=node.func.attr if isinstance(node.func,ast.Attribute) else None
             mutator=method in {'__setitem__','__delitem__','update','setdefault','pop','popitem','clear','setitem','delitem','ior'}
-            require(not any(kind and (kind=='mutator' or kind.startswith('factory:') or
+            require(not any(kind and (kind in ('mutator','self-module') or kind.startswith('factory:') or
                             kind.startswith('namespace:') and (kind=='namespace:own' or mutator)) for kind in kinds),
                     'Unsupported source namespace escape')
         if isinstance(node,(ast.Assign,ast.AnnAssign,ast.NamedExpr)):

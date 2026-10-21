@@ -142,7 +142,9 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         path = self.core / 'comfy' / 'model.py'
         module = types.ModuleType('headkit_comfy_expression_fixture')
         module.__file__ = str(path)
-        exec(compile(temporary or reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
+        # Match real import initialization: the module is visible before its body executes.
+        with patch.dict(sys.modules,{module.__name__:module}):
+            exec(compile(temporary or reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
         path.write_text(reviewed, encoding='utf-8')
         try:
             # Unit fixtures enumerate only their declared source module. A separate
@@ -595,6 +597,55 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                 self.assertEqual(_source_constants(source),{'SCALE':1})
                 with self.assertRaisesRegex(ValueError,'namespace'):
                     _source_constants(prefix+'exec(payload,'+namespace+')')
+
+    def test_current_module_attribute_writes_match_reviewed_source(self):
+        cases=(
+            ('import sys\n', 'sys.modules[__name__].SCALE = 1\n'),
+            ('import sys as runtime\ncurrent=runtime.modules[__name__]\n', 'current.SCALE = 1\n'),
+            ('from sys import modules as table\ncurrent=table[__name__]\n', 'if True:\n    current.SCALE: int = 1\n'),
+            ('import sys\ncurrent=sys.modules[__name__]\n', '(current.SCALE, other) = (1, 9)\n'),
+        )
+        for prefix,assignment in cases:
+            reviewed=prefix+assignment+'def read(): return SCALE\n'
+            temporary=reviewed.replace(' = 1',' = 2').replace('(1, 9)','(2, 9)')
+            with self.subTest(assignment=assignment):
+                self.assert_snapshot_matches_source(reviewed,temporary,'module constants differ')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_current_module_setters_and_attribute_mutations_fail_closed(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        prefix='import sys\ncurrent=sys.modules[__name__]\n'
+        statements=(
+            "setattr(current,'SCALE',1)",
+            "assign=setattr\nassign(current,'SCALE',1)",
+            "import builtins\nbuiltins.setattr(current,'SCALE',1)",
+            "from builtins import setattr as assign\nassign(current,'SCALE',1)",
+            "delattr(current,'SCALE')",
+            "current.__setattr__('SCALE',1)",
+            "assign=current.__setattr__\nassign('SCALE',1)",
+            "getattr(current,'__setattr__')('SCALE',1)",
+            "object.__setattr__(current,'SCALE',1)",
+            "import functools\nassign=functools.partial(setattr,current,'SCALE')\nassign(1)",
+            "current.__getattribute__('__setattr__')('SCALE',1)",
+            "current.SCALE += 1", "del current.SCALE", "current.SCALE = compute()",
+            "class Holder:\n    current.SCALE = 1",
+        )
+        for statement in statements:
+            with self.subTest(statement=statement):
+                with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(prefix+statement)
+        self.assert_snapshot_matches_source(prefix+"setattr(current,'SCALE',1)\n",error='namespace')
+
+    def test_current_module_escapes_are_rejected_and_reads_still_work(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        prefix='import sys\ncurrent=sys.modules[__name__]\n'
+        for statement in ('register(current)', 'holder.module=current', 'holder=[current]',
+                          'def factory(): return current', 'factory=lambda:current',
+                          'def initialize(module=current): pass'):
+            with self.subTest(statement=statement):
+                with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(prefix+statement)
+        source=prefix+"SCALE=1\ndef read(): return current.SCALE + getattr(current,'SCALE') + vars(current)['SCALE']\n"
+        self.assertEqual(_source_constants(source),{'SCALE':1})
+        self.assert_snapshot_matches_source(source)
 
     def test_namespace_readers_and_ordinary_dictionaries_remain_supported(self):
         from headkit.comfy_nodes.source_snapshot import _source_constants
