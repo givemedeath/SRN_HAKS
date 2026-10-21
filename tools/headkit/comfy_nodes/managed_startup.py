@@ -62,7 +62,11 @@ def launch_arguments(config):
             'Controlled Comfy endpoint must be an explicit http://127.0.0.1:PORT')
     args=launch['arguments'];env=launch['environment']
     require(isinstance(args,list) and all(isinstance(value,str) for value in args),'Explicit startup arguments required')
-    require(not any(value.split('=',1)[0] in ('--listen','--port') for value in args),
+    options=[value.split('=',1)[0] for value in args if value.startswith('--')]
+    protected=('--listen','--port','--input-directory','--output-directory')
+    require(not any(flag.startswith(option) and option!=flag for option in options for flag in protected),
+            'Use full option names; abbreviations cannot override the bound endpoint or directories')
+    require(not any(option in ('--listen','--port') for option in options),
             'Listen address and port come only from the bound endpoint')
     require(isinstance(env,dict) and all(isinstance(key,str) and isinstance(value,str) for key,value in env.items())
             and not any(key.upper().startswith('PYTHON') for key in env),

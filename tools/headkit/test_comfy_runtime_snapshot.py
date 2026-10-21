@@ -196,6 +196,29 @@ class ControlledStartupTests(unittest.TestCase):
                 config=copy.deepcopy(self.config);config['launch'].update(launch)
                 with self.assertRaises(ValueError):startup.launch_arguments(config)
 
+    def test_endpoint_abbreviations_are_rejected_before_startup(self):
+        import argparse
+        parser=argparse.ArgumentParser()
+        parser.add_argument('--listen');parser.add_argument('--port')
+        for flag,value in (('--listen','0.0.0.0'),('--port','9999')):
+            for length in range(3,len(flag)+1):
+                option=flag[:length]
+                for arguments in ([option,value],[option+'='+value]):
+                    with self.subTest(arguments=arguments):
+                        # Default argparse permits these overrides, including after bound values.
+                        parsed=parser.parse_args(['--listen','127.0.0.1','--port','8188',*arguments])
+                        self.assertEqual(getattr(parsed,flag[2:]),value)
+                        config=copy.deepcopy(self.config);config['launch']['arguments']=arguments
+                        with self.assertRaisesRegex(ValueError,'bound endpoint'):startup.launch_arguments(config)
+        for flag in ('--input-directory','--output-directory'):
+            for length in range(3,len(flag)):
+                for arguments in ([flag[:length],'other'],[flag[:length]+'=other']):
+                    with self.subTest(arguments=arguments):
+                        config=copy.deepcopy(self.config);config['launch']['arguments']+=arguments
+                        with self.assertRaisesRegex(ValueError,'abbreviations'):startup.launch_arguments(config)
+        self.config['launch']['arguments']=['--preview-method','none','--listen-extra','fixture']
+        self.assertEqual(startup.launch_arguments(self.config)[5:],self.config['launch']['arguments'])
+
     def test_runtime_links_and_configuration_mutation_are_rejected(self):
         link=self.runtime/'alias.py'
         try:link.symlink_to(self.python)
