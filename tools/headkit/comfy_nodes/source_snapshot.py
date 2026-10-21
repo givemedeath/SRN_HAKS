@@ -395,7 +395,7 @@ def _stored_instance_attributes(value):
     fields={}
     for base in reversed(type(value).__mro__):
         for name,descriptor in vars(base).items():
-            if name=='__dict__' and isinstance(descriptor,types.GetSetDescriptorType):
+            if name=='__dict__' and isinstance(descriptor,(types.GetSetDescriptorType,types.MemberDescriptorType)):
                 fields.update(descriptor.__get__(value,type(value)))
             elif isinstance(descriptor,types.MemberDescriptorType):
                 try:fields[name]=descriptor.__get__(value,type(value))
@@ -535,9 +535,9 @@ class _LoadedClassState:
 
 
 class _LoadedInstanceState:
-    def __init__(self,value):
+    def __init__(self,value,members=None):
         self.value=value;self.cls=type(value)
-        self.members=_stored_instance_attributes(value)
+        self.members=_stored_instance_attributes(value) if members is None else members
         self.attributes={}
         for name,member in self.members.items():
             signature=_literal_value_signature(member)
@@ -601,6 +601,15 @@ def _loaded_codes(value,seen,roots=()):
     marker=id(value)
     if marker in seen:return
     seen.add(marker)
+    value_type=type(value)
+    if value_type.__module__=='weakref' and value_type.__name__ in ('ProxyType','CallableProxyType'):
+        # Avoid isinstance/proxy attribute access, which dereferences dead proxies.
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        return
+    if isinstance(value,types.ModuleType):
+        namespace=types.ModuleType.__dict__['__dict__'].__get__(value,value_type)
+        for member in tuple(namespace.values()):yield from _loaded_codes(member,seen,roots)
+        return
     execution=_execution_state(value)
     if execution is not None:
         code,frame,delegate=execution
@@ -649,10 +658,15 @@ def _loaded_codes(value,seen,roots=()):
         yield from _loaded_codes(value.func,seen,roots)
         yield from _loaded_codes(value.args,seen,roots)
         yield from _loaded_codes(value.keywords or {},seen,roots)
+        members=_stored_instance_attributes(value)
+        if members:yield _LoadedInstanceState(value,members)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
         return
     if isinstance(value,types.FunctionType):
         yield value.__code__
         yield _LoadedFunctionState(value)
+        if value.__dict__:yield _LoadedInstanceState(value,value.__dict__)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
         for state in (value.__defaults__,value.__kwdefaults__):
             if state is not None:yield from _loaded_codes(state,seen,roots)
         for cell in value.__closure__ or ():
@@ -665,36 +679,42 @@ def _loaded_codes(value,seen,roots=()):
         if not isinstance(value.__self__,type):
             yield from _loaded_codes(value.__self__,seen,roots)
         return
-    if isinstance(value,(staticmethod,classmethod)):
-        yield from _loaded_codes(value.__func__,seen,roots)
-        return
-    if isinstance(value,property):
-        for function in (value.fget,value.fset,value.fdel):
-            if function is not None:yield from _loaded_codes(function,seen,roots)
+    if isinstance(value,(staticmethod,classmethod,property)):
+        members=_stored_instance_attributes(value)
+        if members:yield _LoadedInstanceState(value,members)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
         return
     if isinstance(value,type):
         yield _LoadedClassState(value)
-        for member in vars(value).values():yield from _loaded_codes(member,seen,roots)
+        for base in value.__bases__:yield from _loaded_codes(base,seen,roots)
+        for member in tuple(vars(value).values()):yield from _loaded_codes(member,seen,roots)
         return
     if isinstance(value,types.CodeType):
         yield value
         return
     value_type=type(value)
-    if _source_module_path(getattr(value_type,'__module__',None),roots) is not None:
-        instance=_LoadedInstanceState(value)
-        yield instance
-        yield from _loaded_codes(value_type,seen,roots)
-        for member in instance.members.values():yield from _loaded_codes(member,seen,roots)
+    if not isinstance(value,types.ModuleType):
+        members=_stored_instance_attributes(value)
+        covered=any(_source_module_path(base.__module__,roots) is not None for base in value_type.__mro__)
+        if members or covered:
+            instance=_LoadedInstanceState(value,members)
+            yield instance
+            yield from _loaded_codes(value_type,seen,roots)
+            for member in members.values():yield from _loaded_codes(member,seen,roots)
     if isinstance(value,dict):
-        for key,member in dict.items(value):
+        for key,member in tuple(dict.items(value)):
             yield from _loaded_codes(key,seen,roots)
             yield from _loaded_codes(member,seen,roots)
     elif isinstance(value,(tuple,list,set,frozenset)):
-        for member in value:yield from _loaded_codes(member,seen,roots)
+        storage=next(base for base in (tuple,list,set,frozenset) if isinstance(value,base))
+        for member in tuple(storage.__iter__(value)):yield from _loaded_codes(member,seen,roots)
     elif callable(value):
         try:wrapped=inspect.getattr_static(value,'__wrapped__')
         except AttributeError:wrapped=value
         if wrapped is not value:yield from _loaded_codes(wrapped,seen,roots)
+    # Native foreign holders may retain callbacks outside dict/slot storage
+    # (for example Context's HAMT). GC exposes these edges without getters.
+    for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
 
 
 def _source_module_path(module_name,roots):
@@ -712,6 +732,7 @@ def loaded_source_code(roots):
     """Verify loaded code, literal callable/class state and module constants against source."""
     roots=[Path(root).resolve(strict=True) for root in roots]
     loaded={};module_namespaces={};loaded_function_states={};loaded_class_states={};loaded_instances={};loaded_frames={}
+    seen=set()
     for module in tuple(sys.modules.values()):
         namespace=getattr(module,'__dict__',None)
         if not isinstance(namespace,dict):continue
@@ -722,7 +743,6 @@ def loaded_source_code(roots):
             except (OSError,RuntimeError):module_path=None
             if module_path is not None and module_path.suffix.lower()=='.py' and _inside(module_path,roots):
                 module_namespaces.setdefault(module_path,[]).append(namespace)
-        seen=set()
         for value in tuple(namespace.values()):
             for record in _loaded_codes(value,seen,roots):
                 if isinstance(record,_LoadedFrameState):
@@ -747,7 +767,7 @@ def loaded_source_code(roots):
                     loaded_function_states.setdefault(path,[]).append((code,function_state))
     sources={path:path.read_bytes() for path in set(loaded)|set(module_namespaces)}
     constructors={path:_source_constructor_literals(source) for path,source in sources.items()}
-    overrides={};frame_arguments={}
+    overrides={};override_paths={};frame_arguments={}
     for path,namespaces in module_namespaces.items():
         statements=ast.parse(sources[path]).body
         declarations=list(_source_attribute_literals(statements))
@@ -757,16 +777,18 @@ def loaded_source_code(roots):
                 instance=_static_source_reference(target.value,namespace)
                 if id(instance) in loaded_instances:
                     overrides.setdefault(id(instance),{})[target.attr]=signature
+                    override_paths.setdefault(id(instance),set()).add(path)
     instance_states={}
     for marker,state in loaded_instances.items():
-        fields={}
+        fields={};paths=set(override_paths.get(marker,()))
         for base in reversed(state.cls.__mro__):
             class_path=_source_module_path(base.__module__,roots)
-            fields.update(constructors.get(class_path,{}).get(base.__qualname__,{}))
+            declared=constructors.get(class_path,{}).get(base.__qualname__,{})
+            fields.update(declared)
+            if declared:paths.add(class_path)
         fields.update(overrides.get(marker,{}))
         if fields:
-            path=_source_module_path(state.cls.__module__,roots)
-            instance_states.setdefault(path,[]).append((state,fields))
+            for path in paths:instance_states.setdefault(path,[]).append((state,fields))
     rows=[]
     for path in sorted(sources,key=lambda value:str(value).casefold()):
         loaded_hashes=loaded.setdefault(path,set())

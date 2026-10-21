@@ -156,6 +156,7 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         finally:
             values=tuple(vars(module).values())
             for value in values:
+                if type(value).__module__=='weakref' and type(value).__name__ in ('ProxyType','CallableProxyType'):continue
                 if isinstance(value, asyncio.Task):
                     value.cancel()
                     loop=value.get_loop()
@@ -165,6 +166,7 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                 elif isinstance(value, types.AsyncGeneratorType):
                     asyncio.run(value.aclose())
             for value in values:
+                if type(value).__module__=='weakref' and type(value).__name__ in ('ProxyType','CallableProxyType'):continue
                 if isinstance(value, asyncio.AbstractEventLoop):value.close()
 
     def test_stale_arithmetic_class_attributes_are_rejected(self):
@@ -406,6 +408,120 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.subTest(source=reviewed):
                 self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
                                                     'Python code differs from its source')
+
+    def test_foreign_holder_storage_cannot_hide_stale_callbacks(self):
+        factories = [
+            'pending = types.SimpleNamespace(callback=callback)\n',
+            'pending = collections.UserDict(callback=callback)\n',
+            'pending = types.SimpleNamespace(child=types.SimpleNamespace(callback=callback))\n',
+            'pending = types.SimpleNamespace(callback=callback)\npending.cycle = pending\n',
+        ]
+        for definition in ("class Holder:\n    __slots__ = ('callback',)\n",
+                           "class Base:\n    __slots__ = ('callback',)\nclass Holder(Base):\n    __slots__ = ()\n",
+                           'class Holder(list): pass\n',
+                           'class Holder(list):\n    def __iter__(self): raise AssertionError("iterator invoked")\n',
+                           'class Holder(dict):\n    def items(self): raise AssertionError("items invoked")\n'):
+            factories.append('foreign = types.ModuleType("external_holder")\n'
+                             f'exec({definition!r}, vars(foreign))\n'
+                             'pending = foreign.Holder()\npending.callback = callback\ndel foreign\n')
+        for factory in factories:
+            reviewed = ('import types, collections\ndef callback(): return "reviewed"\n'
+                        + factory + 'del callback\n')
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                                    'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_foreign_holder_source_settings_are_checked(self):
+        reviewed = 'import types\npending = types.SimpleNamespace()\npending.scale = 1\n'
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
+                                            'instance attributes differ from source')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_foreign_holder_inspection_never_invokes_properties(self):
+        definition = ('class Holder:\n    def __getattribute__(self, name):\n'
+                      '        if name in ("__dict__", "callback"): raise AssertionError("getter invoked")\n'
+                      '        return object.__getattribute__(self, name)\n'
+                      '    @property\n    def callback(self): raise AssertionError("property invoked")\n')
+        reviewed = ('import types\nforeign = types.ModuleType("external_holder")\n'
+                    f'exec({definition!r}, vars(foreign))\n'
+                    'def callback(): return "reviewed"\n'
+                    'pending = foreign.Holder()\npending.stored = callback\ndel foreign, callback\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                            'Python code differs from its source')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_foreign_subclass_keeps_source_defined_base_visible(self):
+        reviewed = ('class Base:\n    SCALE = 1\n    def __call__(self): return self.SCALE\n'
+                    'Foreign = type("Foreign", (Base,), {"__module__": "external_holder", "__slots__": ()})\n'
+                    'pending = Foreign()\ndel Base, Foreign\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('SCALE = 1', 'SCALE = 2'),
+                                            'class attributes differ from source')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_foreign_subclass_keeps_source_constructor_settings_visible(self):
+        reviewed = ('class Base:\n    def __init__(self): self.scale = 1\n'
+                    '    def __call__(self): return self.scale\n'
+                    'Foreign = type("Foreign", (Base,), {"__module__": "external_holder"})\n'
+                    'pending = Foreign()\ndel Base, Foreign\n')
+        self.assert_snapshot_matches_source(reviewed, reviewed.replace('self.scale = 1', 'self.scale = 2'),
+                                            'instance attributes differ from source')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_callable_and_partial_attribute_holders_cannot_hide_callbacks(self):
+        for factory in ('def holder(): return None\npending = holder\ndel holder\n',
+                        'import functools\npending = functools.partial(int)\n'):
+            reviewed = ('def callback(): return "reviewed"\n' + factory
+                        + 'pending.callback = callback\ndel callback\n')
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                                    'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_opaque_foreign_referents_cannot_hide_stale_callbacks(self):
+        factories = (
+            'import ctypes\npending = ctypes.py_object(callback)\n',
+            'import contextvars\nkey = contextvars.ContextVar("callback")\npending = contextvars.Context()\n'
+            'pending.run(key.set, callback)\ndel key\n',
+            'import types\npending = types.ModuleType("unregistered_holder")\npending.callback = callback\n',
+            'Foreign = type("Foreign", (), {"__slots__": (), "__module__": "external_holder", '
+            '"callback": staticmethod(callback)})\npending = Foreign()\ndel Foreign\n',
+        )
+        for factory in factories:
+            reviewed = 'def callback(): return "reviewed"\n' + factory + 'del callback\n'
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                                    'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_dead_foreign_weak_proxy_is_safe_to_inspect(self):
+        reviewed = ('import weakref\nclass Target: pass\n'
+                    'target = Target()\npending = weakref.proxy(target)\ndel target\n')
+        self.assert_snapshot_matches_source(reviewed)
+
+    def test_callable_holder_source_settings_are_checked(self):
+        for factory in ('def pending(): return pending.scale\n',
+                        'import functools\npending = functools.partial(int)\n'):
+            reviewed = factory + 'pending.scale = 1\n'
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('scale = 1', 'scale = 2'),
+                                                    'instance attributes differ from source')
+                self.assert_snapshot_matches_source(reviewed)
+
+    def test_callable_and_descriptor_native_metadata_cannot_hide_callbacks(self):
+        factories = (
+            'def pending(): pass\npending.__annotations__ = {"return": callback}\n',
+            'pending = staticmethod(int)\npending.callback = callback\n',
+            'pending = classmethod(int)\npending.callback = callback\n',
+            'Foreign = type("Foreign", (property,), {"__module__": "external_holder"})\n'
+            'pending = Foreign()\npending.callback = callback\ndel Foreign\n',
+        )
+        for factory in factories:
+            reviewed = 'def callback(): return "reviewed"\n' + factory + 'del callback\n'
+            with self.subTest(factory=factory):
+                self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
+                                                    'Python code differs from its source')
+                self.assert_snapshot_matches_source(reviewed)
 
     def test_loaded_mutable_class_runtime_cache_is_not_a_source_constant(self):
         path = self.core / 'comfy' / 'model.py'
