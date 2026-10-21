@@ -612,6 +612,39 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                 self.assert_snapshot_matches_source(reviewed,temporary,'module constants differ')
                 self.assert_snapshot_matches_source(reviewed)
 
+    def test_current_module_registry_lookup_aliases_are_checked(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        prefixes=(
+            'import sys\nname=__name__\ncurrent=sys.modules[name]\n',
+            'import sys\nname=__name__\nother=name\ncurrent=sys.modules[other]\n',
+            'from sys import modules as registry\nname=__name__\ncurrent=registry[name]\n',
+            'import sys\ncurrent=sys.modules.get(__name__)\n',
+            'import sys\ncurrent=sys.modules.get(__name__,object())\n',
+            'import sys\nregistry=sys.modules\ncurrent=registry.__getitem__(__name__)\n',
+            'import sys\nlookup=sys.modules.get\ncurrent=lookup(__name__,None)\n',
+            'import sys\nlookup=sys.modules.__getitem__\ncurrent=lookup(__name__)\n',
+        )
+        for prefix in prefixes:
+            with self.subTest(prefix=prefix):
+                self.assertEqual(_source_constants(prefix+'current.SCALE=1\n'),{'SCALE':1})
+                self.assertEqual(_source_constants(prefix+"vars(current)['SCALE']=1\n"),{'SCALE':1})
+                with self.assertRaisesRegex(ValueError,'namespace'):
+                    _source_constants(prefix+"setattr(current,'SCALE',1)\n")
+        for prefix in (prefixes[0],prefixes[3]):
+            reviewed=prefix+'current.SCALE=1\ndef read(): return current.SCALE\n'
+            self.assert_snapshot_matches_source(reviewed,reviewed.replace('SCALE=1','SCALE=2'),
+                                                'module constants differ')
+            self.assert_snapshot_matches_source(reviewed)
+
+    def test_registry_lookup_capabilities_cannot_escape_analysis(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        for expression in ('sys.modules','sys.modules.get','sys.modules.__getitem__'):
+            for statement in ('holder=[{value}]','register({value})',
+                              'holder.lookup={value}','def lookup(): return {value}'):
+                source='import sys\n'+statement.format(value=expression)
+                with self.subTest(source=source):
+                    with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(source)
+
     def test_current_module_setters_and_attribute_mutations_fail_closed(self):
         from headkit.comfy_nodes.source_snapshot import _source_constants
         prefix='import sys\ncurrent=sys.modules[__name__]\n'

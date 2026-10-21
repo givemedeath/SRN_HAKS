@@ -233,6 +233,7 @@ def _setting_literal(name,value):
 def _source_namespace_bindings(statements, inherited=None, *, module_scope=True):
     """Resolve bounded namespace writes without calling accessors or running source."""
     aliases={name:{'factory:'+name} for name in ('globals','locals','vars')}
+    aliases['__name__']={'module-name'}
     aliases.update({name:set(tags) for name,tags in (inherited or {}).items()})
     nodes=list(_scope_nodes(statements))
     readers={'get','keys','values','items','copy','__getitem__','__contains__','__iter__','__len__'}
@@ -245,15 +246,19 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
         if isinstance(node,ast.Attribute):
             owner=reference(node.value)
             if node.attr=='modules' and owner=='sys':return 'modules'
+            if owner=='modules' and node.attr in ('get','__getitem__'):return 'module-lookup:'+node.attr
             if node.attr=='__dict__':return 'namespace:own' if owner=='self-module' else 'namespace:foreign'
             if owner=='self-module' and node.attr in module_mutators:return 'mutator'
             if owner=='builtins' and node.attr in ('globals','locals','vars'):return 'factory:'+node.attr
             if owner and owner.startswith('namespace:') and node.attr not in readers:return 'mutator'
         if (isinstance(node,ast.Subscript) and reference(node.value)=='modules'
-                and isinstance(node.slice,ast.Name) and node.slice.id=='__name__'):
+                and reference(node.slice)=='module-name'):
             return 'self-module'
         if isinstance(node,ast.Call):
             factory=reference(node.func)
+            if factory and factory.startswith('module-lookup:') and not node.keywords and node.args:
+                valid=len(node.args)==1 or (factory=='module-lookup:get' and len(node.args)==2)
+                if valid and reference(node.args[0])=='module-name':return 'self-module'
             if factory=='namespace:foreign':return 'namespace:foreign'
             if factory and factory.startswith('factory:'):
                 own=not node.args and not node.keywords
@@ -269,7 +274,7 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
 
     def capability(node):
         kind=reference(node) or ''
-        return kind in ('mutator','self-module') or kind.startswith(('namespace:','factory:'))
+        return kind in ('mutator','self-module','modules') or kind.startswith(('namespace:','factory:','module-lookup:'))
 
     def alias_targets(target,expression):
         if isinstance(target,ast.Name):yield target.id,reference(expression)
@@ -329,7 +334,7 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             kinds=[reference(value) for value in arguments]
             method=node.func.attr if isinstance(node.func,ast.Attribute) else None
             mutator=method in {'__setitem__','__delitem__','update','setdefault','pop','popitem','clear','setitem','delitem','ior'}
-            require(not any(kind and (kind in ('mutator','self-module') or kind.startswith('factory:') or
+            require(not any(kind and (kind in ('mutator','self-module','modules') or kind.startswith(('factory:','module-lookup:')) or
                             kind.startswith('namespace:') and (kind=='namespace:own' or mutator)) for kind in kinds),
                     'Unsupported source namespace escape')
         if isinstance(node,(ast.Assign,ast.AnnAssign,ast.NamedExpr)):

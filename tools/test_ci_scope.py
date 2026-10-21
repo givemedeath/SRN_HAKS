@@ -180,6 +180,12 @@ class WorkflowWiringTests(unittest.TestCase):
         self.assertIn('    name: ${{ matrix.os }} ${{ matrix.group }}\n',self.helpers)
         self.assertIn('    name: item-import ${{ matrix.os }}\n',self.helpers);self.assertIn('    name: wheel\n',self.helpers)
         self.assertEqual(set(self.jobs(self.helpers)),{'tests','item-import','wheel'})
+    def test_snapshot_jobs_have_time_for_census_and_finalization(self):
+        tests=self.helpers.split('  tests:',1)[1].split('  item-import:',1)[0]
+        # Windows measured 841 seconds of successful tests before its 15-minute
+        # job limit expired during finalization. Keep other groups bounded at 15.
+        self.assertIn("timeout-minutes: ${{ matrix.group == 'headkit' && 25 || 15 }}",tests)
+
     def test_single_item_import_owner_and_single_cache_key_format(self):
         self.assertEqual(sum(t.count('./tools/Test-ItemImportTools.ps1') for t in self.all),1)
         self.assertEqual(sum(t.count('./tools/Test-ItemImportScope.ps1') for t in self.all),0)
