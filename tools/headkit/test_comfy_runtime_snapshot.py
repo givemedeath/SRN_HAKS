@@ -27,6 +27,65 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
+    def _import_literal_snapshot(self, *, value=1, reviewed=1, evict=False, reload=False,
+                                 relative=False, alias=False, star=False, foreign=False, copy=False, error=None):
+        folder=self.core/'literal_package' if relative else self.core
+        folder.mkdir(exist_ok=True)
+        provider_name='literal_package.literal_provider' if relative else 'literal_provider'
+        consumer_name='literal_package.literal_consumer' if relative else 'literal_consumer'
+        provider_path=(Path(self.temp.name) if foreign else folder)/'literal_provider.py'
+        consumer_path=folder/'literal_consumer.py'
+        provider=types.ModuleType(provider_name);provider.__file__=str(provider_path)
+        consumer=types.ModuleType(consumer_name);consumer.__file__=str(consumer_path)
+        consumer.__package__='literal_package' if relative else ''
+        member='*' if star else 'SCALE as copied' if alias else 'SCALE'
+        prefix='.' if relative else ''
+        used='copied' if alias else 'SCALE'
+        setup=f'retained={used}\ndel {used}\n' if copy else ''
+        result='retained' if copy else used
+        source=f'from {prefix}literal_provider import {member}\n{setup}def read(): return {result}\n'
+        consumer_path.write_text(source,encoding='utf-8')
+        provider_source=f'SCALE={value}\n';provider_path.write_text(provider_source,encoding='utf-8')
+        modules={provider_name:provider,consumer_name:consumer}
+        if relative:
+            package=types.ModuleType('literal_package');package.__file__=str(folder/'__init__.py')
+            package.__path__=[str(folder)];(folder/'__init__.py').write_text('# package\n',encoding='utf-8')
+            modules['literal_package']=package
+        with patch.dict(sys.modules,modules,clear=True):
+            exec(compile(provider_source,str(provider_path),'exec'),vars(provider))
+            exec(compile(source,str(consumer_path),'exec'),vars(consumer))
+            self.assertEqual(consumer.read(),value)
+            provider_path.write_text(f'SCALE={reviewed}\n',encoding='utf-8')
+            if evict:del sys.modules[provider_name]
+            if reload:
+                replacement=types.ModuleType(provider_name);replacement.__file__=str(provider_path)
+                exec(compile(f'SCALE={reviewed}\n',str(provider_path),'exec'),vars(replacement))
+                sys.modules[provider_name]=replacement
+            if error:
+                with self.assertRaisesRegex(ValueError,error):loaded_source_code([self.core])
+                return
+            rows=loaded_source_code([self.core])
+            return next(row for row in rows if row['path']==str(consumer_path.resolve()))
+
+    def test_evicted_imported_literal_providers_fail_closed(self):
+        for options in ({},{'alias':True},{'relative':True},{'relative':True,'alias':True},{'star':True},{'copy':True}):
+            with self.subTest(options=options):
+                self._import_literal_snapshot(value=2,evict=True,error='import|provider',**options)
+
+    def test_reloaded_providers_cannot_hide_stale_imported_literals(self):
+        for options in ({},{'relative':True},{'star':True},{'copy':True}):
+            with self.subTest(options=options):
+                self._import_literal_snapshot(value=2,reload=True,error='import|provider',**options)
+
+    def test_matching_imported_literals_are_fingerprinted(self):
+        first=self._import_literal_snapshot(value=1,reviewed=1)
+        second=self._import_literal_snapshot(value=2,reviewed=2)
+        self.assertNotEqual(first['loadedCodeSha256'],second['loadedCodeSha256'])
+        self._import_literal_snapshot(relative=True,alias=True)
+        self._import_literal_snapshot(star=True)
+        self._import_literal_snapshot(foreign=True)
+        self._import_literal_snapshot(copy=True)
+
     def test_startup_snapshot_detects_changed_then_restored_source(self):
         inventory = capture_inventory(self.core, [self.core])
         path = self.core / 'nodes.py'
@@ -138,12 +197,12 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'class attributes differ from source'):
                 loaded_source_code([self.core])
 
-    def assert_snapshot_matches_source(self, reviewed, temporary=None, error=None, full_census=False):
+    def assert_snapshot_matches_source(self, reviewed, temporary=None, error=None, full_census=False, external_modules=None):
         path = self.core / 'comfy' / 'model.py'
         module = types.ModuleType('headkit_comfy_expression_fixture')
         module.__file__ = str(path)
         # Match real import initialization: the module is visible before its body executes.
-        with patch.dict(sys.modules,{module.__name__:module}):
+        with patch.dict(sys.modules,{**(external_modules or {}),module.__name__:module}):
             exec(compile(temporary or reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
         path.write_text(reviewed, encoding='utf-8')
         try:
@@ -412,27 +471,31 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                                                     'Python code differs from its source')
 
     def test_foreign_holder_storage_cannot_hide_stale_callbacks(self):
-        factories = [
+        factories = [(source,None) for source in (
             'pending = types.SimpleNamespace(callback=callback)\n',
             'pending = collections.UserDict(callback=callback)\n',
             'pending = types.SimpleNamespace(child=types.SimpleNamespace(callback=callback))\n',
             'pending = types.SimpleNamespace(callback=callback)\npending.cycle = pending\n',
-        ]
+        )]
         for definition in ("class Holder:\n    __slots__ = ('callback',)\n",
                            "class Base:\n    __slots__ = ('callback',)\nclass Holder(Base):\n    __slots__ = ()\n",
                            'class Holder(list): pass\n',
                            'class Holder(list):\n    def __iter__(self): raise AssertionError("iterator invoked")\n',
                            'class Holder(dict):\n    def items(self): raise AssertionError("items invoked")\n'):
-            factories.append('foreign = types.ModuleType("external_holder")\n'
-                             f'exec({definition!r}, vars(foreign))\n'
-                             'pending = foreign.Holder()\npending.callback = callback\ndel foreign\n')
-        for factory in factories:
+            # Construct genuinely foreign holders in the harness, outside covered
+            # source. The tested module imports them without dynamic execution.
+            foreign=types.ModuleType('external_holder')
+            exec(definition,vars(foreign))
+            factories.append(('import external_holder as foreign\n'
+                              'pending = foreign.Holder()\npending.callback = callback\ndel foreign\n',
+                              {'external_holder':foreign}))
+        for factory,external_modules in factories:
             reviewed = ('import types, collections\ndef callback(): return "reviewed"\n'
                         + factory + 'del callback\n')
             with self.subTest(factory=factory):
                 self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
-                                                    'Python code differs from its source')
-                self.assert_snapshot_matches_source(reviewed)
+                                                    'Python code differs from its source',external_modules=external_modules)
+                self.assert_snapshot_matches_source(reviewed,external_modules=external_modules)
 
     def test_foreign_holder_source_settings_are_checked(self):
         reviewed = 'import types\npending = types.SimpleNamespace()\npending.scale = 1\n'
@@ -445,13 +508,15 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                       '        if name in ("__dict__", "callback"): raise AssertionError("getter invoked")\n'
                       '        return object.__getattribute__(self, name)\n'
                       '    @property\n    def callback(self): raise AssertionError("property invoked")\n')
-        reviewed = ('import types\nforeign = types.ModuleType("external_holder")\n'
-                    f'exec({definition!r}, vars(foreign))\n'
+        foreign=types.ModuleType('external_holder')
+        exec(definition,vars(foreign))
+        external_modules={'external_holder':foreign}
+        reviewed = ('import external_holder as foreign\n'
                     'def callback(): return "reviewed"\n'
                     'pending = foreign.Holder()\npending.stored = callback\ndel foreign, callback\n')
         self.assert_snapshot_matches_source(reviewed, reviewed.replace('"reviewed"', '"temporary"'),
-                                            'Python code differs from its source')
-        self.assert_snapshot_matches_source(reviewed)
+                                            'Python code differs from its source',external_modules=external_modules)
+        self.assert_snapshot_matches_source(reviewed,external_modules=external_modules)
 
     def test_foreign_subclass_keeps_source_defined_base_visible(self):
         reviewed = ('class Base:\n    SCALE = 1\n    def __call__(self): return self.SCALE\n'
@@ -673,6 +738,59 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                 self.assertEqual(_source_constants(source),{'SCALE':1})
         self.assert_snapshot_matches_source(sources[0])
         self.assert_snapshot_matches_source(sources[1])
+
+    def test_dynamic_execution_and_aliases_fail_closed(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        sources=(
+            "exec('SCALE=1')", "SCALE=eval('1')",
+            "execute=exec\nexecute('SCALE=1')",
+            "from builtins import exec as execute\nexecute('SCALE=1')",
+            "import builtins\nbuiltins.exec('SCALE=1')",
+            "exec.__call__('SCALE=1')",
+            "import builtins\ngetattr(builtins,'exec')('SCALE=1')",
+            "__builtins__['exec']('SCALE=1')",
+            "__builtins__.get('eval')('1')",
+            "import builtins\nbuiltins.__dict__['exec']('SCALE=1')",
+            "import builtins\nvars(builtins)['exec']('SCALE=1')",
+            "import builtins\nbuiltins.__getattribute__('exec')('SCALE=1')",
+            "exec('SCALE=1',{})",
+            "import types\nforeign=types.ModuleType('foreign')\nexec('SCALE=1',vars(foreign))",
+            "def initialize():\n    exec('global SCALE; SCALE=1')\ninitialize()\ndel initialize",
+            "def initialize(): return eval('1')\nSCALE=initialize()\ndel initialize",
+        )
+        for source in sources:
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError,'namespace|dynamic'):_source_constants(source)
+        for source in ("exec('SCALE=1')\ndef read(): return SCALE\n",
+                       "SCALE=eval('1')\ndef read(): return SCALE\n"):
+            temporary=source.replace('SCALE=1','SCALE=2').replace("eval('1')","eval('2')")
+            self.assert_snapshot_matches_source(source,temporary,error='namespace|dynamic')
+
+    def test_dynamic_executor_capabilities_cannot_escape(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        for expression in ('exec','eval','compile','builtins','exec.__call__'):
+            for use in ('register({value})','holder=[{value}]','def factory(): return {value}'):
+                source='import builtins\n'+use.format(value=expression)
+                with self.subTest(source=source):
+                    with self.assertRaisesRegex(ValueError,'namespace|dynamic'):_source_constants(source)
+
+    def test_top_level_compilation_is_rejected_but_runtime_comparison_is_supported(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        for prefix in ('', 'compiler=compile\n', 'from builtins import compile as compiler\n'):
+            name='compiler' if prefix else 'compile'
+            with self.subTest(prefix=prefix):
+                with self.assertRaisesRegex(ValueError,'namespace|dynamic'):
+                    _source_constants(prefix+name+"('pass','<dynamic>','exec')")
+        source="def compare(text): return compile(text,'<comparison>','exec')\nSCALE=1\n"
+        self.assertEqual(_source_constants(source),{'SCALE':1})
+        self.assert_snapshot_matches_source(source)
+
+    def test_ordinary_methods_named_exec_and_eval_are_supported(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        source=('class Worker:\n    def exec(self): return 1\n    def eval(self): return 1\n'
+                'worker=Worker()\nworker.exec()\nworker.eval()\nSCALE=1\n')
+        self.assertEqual(_source_constants(source),{'SCALE':1})
+        self.assert_snapshot_matches_source(source)
 
     def test_namespace_mutation_and_ambiguous_writes_fail_closed(self):
         from headkit.comfy_nodes.source_snapshot import _source_constants

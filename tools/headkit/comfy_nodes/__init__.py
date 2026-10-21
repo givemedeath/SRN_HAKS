@@ -8,7 +8,8 @@ except ModuleNotFoundError as exc:
         raise
     NODE_CLASS_MAPPINGS = dict()
 else:
-    from .nodes import NODE_CLASS_MAPPINGS
+    from . import nodes as headkit_nodes
+    NODE_CLASS_MAPPINGS = headkit_nodes.NODE_CLASS_MAPPINGS
     from .verified_loaders import verified_loader_mappings
     from .model_resolution import verify_loader_models
     from .runtime_identity import capture_runtime_identity,same_runtime_environment

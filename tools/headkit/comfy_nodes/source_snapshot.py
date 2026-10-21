@@ -232,7 +232,11 @@ def _setting_literal(name,value):
 
 def _source_namespace_bindings(statements, inherited=None, *, module_scope=True):
     """Resolve bounded namespace writes without calling accessors or running source."""
-    aliases={name:{'factory:'+name} for name in ('globals','locals','vars')}
+    factories=('globals','locals','vars')
+    dynamic=('exec','eval','compile')
+    aliases={name:{'factory:'+name} for name in factories}
+    aliases.update({name:{'dynamic:'+name} for name in dynamic})
+    aliases['__builtins__']={'mutator'}
     aliases['__name__']={'module-name'}
     aliases.update({name:set(tags) for name,tags in (inherited or {}).items()})
     nodes=list(_scope_nodes(statements))
@@ -248,14 +252,16 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             owner=reference(node.value)
             if node.attr=='modules' and owner=='sys':return 'modules'
             if owner=='modules' and node.attr in ('get','__getitem__'):return 'module-lookup:'+node.attr
-            callable_reader=bool(owner) and owner.startswith(('factory:','module-lookup:'))
+            callable_reader=bool(owner) and owner.startswith(('factory:','module-lookup:','dynamic:'))
             if callable_reader:
                 # Native owners/reducers can recover an otherwise hidden namespace.
                 # Only the identity-preserving call wrapper is supported here.
                 return owner if node.attr=='__call__' else 'mutator'
+            if owner=='builtins' and node.attr=='__dict__':return 'mutator'
             if node.attr=='__dict__':return 'namespace:own' if owner=='self-module' else 'namespace:foreign'
-            if owner in ('self-module','modules') and node.attr in module_mutators:return 'mutator'
-            if owner=='builtins' and node.attr in ('globals','locals','vars'):return 'factory:'+node.attr
+            if owner in ('self-module','modules','builtins') and node.attr in module_mutators:return 'mutator'
+            if owner=='builtins' and node.attr in factories:return 'factory:'+node.attr
+            if owner=='builtins' and node.attr in dynamic:return 'dynamic:'+node.attr
             if owner and owner.startswith('namespace:') and node.attr not in readers:return 'mutator'
         if (isinstance(node,ast.Subscript) and reference(node.value)=='modules'
                 and reference(node.slice)=='module-name'):
@@ -266,12 +272,17 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
                 valid=len(node.args)==1 or (factory=='module-lookup:get' and len(node.args)==2)
                 if valid and reference(node.args[0])=='module-name':return 'self-module'
             if factory=='namespace:foreign':return 'namespace:foreign'
+            if factory=='factory:vars' and node.args and reference(node.args[0])=='builtins':return 'mutator'
             if factory and factory.startswith('factory:'):
                 own=not node.args and not node.keywords
                 own=own or factory=='factory:vars' and len(node.args)==1 and not node.keywords and reference(node.args[0])=='self-module'
                 return 'namespace:own' if own else 'namespace:foreign'
             if isinstance(node.func,ast.Name) and node.func.id=='getattr' and len(node.args)>=2:
                 name=_constant_ast_value(node.args[1])
+                if reference(node.args[0])=='builtins':
+                    if type(name) is not str or name=='__dict__' or name in module_mutators:return 'mutator'
+                    if name in factories:return 'factory:'+name
+                    if name in dynamic:return 'dynamic:'+name
                 if name=='__dict__':return 'namespace:own' if reference(node.args[0])=='self-module' else 'namespace:foreign'
                 if reference(node.args[0])=='self-module' and (type(name) is not str or name in module_mutators):return 'mutator'
                 if (reference(node.args[0]) or '').startswith('namespace:') and name not in readers:
@@ -280,7 +291,7 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
 
     def capability(node):
         kind=reference(node) or ''
-        return kind in ('mutator','self-module','modules') or kind.startswith(('namespace:','factory:','module-lookup:'))
+        return kind in ('mutator','self-module','modules','builtins') or kind.startswith(('namespace:','factory:','module-lookup:','dynamic:'))
 
     def alias_targets(target,expression):
         if isinstance(target,ast.Name):yield target.id,reference(expression)
@@ -297,8 +308,10 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
                 if item.name=='modules':aliases.setdefault(item.asname or item.name,set()).add('modules')
         elif isinstance(node,ast.ImportFrom) and node.module=='builtins':
             for item in node.names:
-                if item.name in ('globals','locals','vars'):
+                if item.name in factories:
                     aliases.setdefault(item.asname or item.name,set()).add('factory:'+item.name)
+                elif item.name in dynamic:
+                    aliases.setdefault(item.asname or item.name,set()).add('dynamic:'+item.name)
     # Monotone alias discovery handles forward/conditional aliases conservatively.
     for _ in range(len(nodes)+1):
         changed=False
@@ -337,9 +350,13 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
                  else node.values if isinstance(node,ast.BoolOp) else ())
         require(not any(capability(value) for value in choices),
                 'Unsupported source namespace conditional expression')
-        require(not (isinstance(node,(ast.Attribute,ast.Call)) and reference(node)=='mutator'),
+        require(not (isinstance(node,(ast.Name,ast.Attribute,ast.Call)) and reference(node)=='mutator'),
                 'Unsupported source namespace mutator reference')
         if isinstance(node,ast.Call):
+            executor=reference(node.func)
+            require(executor not in ('dynamic:exec','dynamic:eval')
+                    and not (module_scope and executor=='dynamic:compile'),
+                    'Unsupported source namespace dynamic execution')
             require(reference(node.func)!='mutator','Unsupported source namespace mutation')
             arguments=[*node.args,*(item.value for item in node.keywords)]
             # These accessors expose storage for the checks above; they do not mutate it.
@@ -347,11 +364,12 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             own_vars=(reference(node.func)=='factory:vars' and len(node.args)==1 and not node.keywords)
             own_getattr=(isinstance(node.func,ast.Name) and node.func.id=='getattr' and len(node.args) in (2,3)
                          and type(_constant_ast_value(node.args[1])) is str and reference(node)!='mutator')
-            if own_argument and (own_vars or own_getattr):arguments=arguments[1:]
+            builtin_getattr=(bool(node.args) and reference(node.args[0])=='builtins' and own_getattr)
+            if (own_argument and (own_vars or own_getattr)) or builtin_getattr:arguments=arguments[1:]
             kinds=[reference(value) for value in arguments]
             method=node.func.attr if isinstance(node.func,ast.Attribute) else None
             mutator=method in {'__setitem__','__delitem__','update','setdefault','pop','popitem','clear','setitem','delitem','ior'}
-            require(not any(kind and (kind in ('mutator','self-module','modules') or kind.startswith(('factory:','module-lookup:')) or
+            require(not any(kind and (kind in ('mutator','self-module','modules','builtins') or kind.startswith(('factory:','module-lookup:','dynamic:')) or
                             kind.startswith('namespace:') and (kind=='namespace:own' or mutator)) for kind in kinds),
                     'Unsupported source namespace escape')
         if isinstance(node,(ast.Assign,ast.AnnAssign,ast.NamedExpr)):
@@ -914,6 +932,68 @@ def _source_module_path(module_name,roots):
     return path
 
 
+def _source_import_literals(statements,path,namespace,roots,sources,constants_cache,local_constants):
+    """Verify retained literal imports without importing providers or invoking hooks."""
+    imported={};nodes=list(_scope_nodes(statements));copies=[]
+    def copy_pairs(target,value):
+        if isinstance(target,ast.Name) and isinstance(value,ast.Name):yield target.id,value.id
+        elif isinstance(target,(ast.Tuple,ast.List)) and isinstance(value,(ast.Tuple,ast.List)) and len(target.elts)==len(value.elts):
+            for child,member in zip(target.elts,value.elts):yield from copy_pairs(child,member)
+    for node in nodes:
+        targets=node.targets if isinstance(node,ast.Assign) else [node.target] if isinstance(node,(ast.AnnAssign,ast.NamedExpr)) else []
+        for target in targets:copies.extend(copy_pairs(target,node.value))
+    for node in nodes:
+        if not isinstance(node,ast.ImportFrom) or node.module=='__future__':continue
+        provider_name=node.module or ''
+        if node.level:
+            package=namespace.get('__package__')
+            if not isinstance(package,str) or not package:
+                module_name=namespace.get('__name__','')
+                package=module_name if path.name=='__init__.py' else module_name.rpartition('.')[0]
+            parts=package.split('.') if package else []
+            provider_name='.'.join(parts[:len(parts)-node.level+1]+([provider_name] if provider_name else []))
+        bindings=[]
+        for item in node.names:
+            if item.name=='*':
+                bindings.extend((name,name) for name,value in tuple(namespace.items())
+                                if not name.startswith('_') and name not in local_constants
+                                and _literal_value_signature(value) is not None)
+            else:
+                names={item.asname or item.name}
+                for _ in range(len(copies)+1):
+                    updated=names|{target for target,origin in copies if origin in names}
+                    if updated==names:break
+                    names=updated
+                for bound in names:
+                    if bound in namespace and _literal_value_signature(namespace[bound]) is not None:
+                        bindings.append((bound,item.name))
+        if not bindings:continue
+        provider=sys.modules.get(provider_name)
+        require(isinstance(provider,types.ModuleType),f'Imported literal provider is unavailable: {provider_name} in {path.name}: {bindings}')
+        values=types.ModuleType.__dict__['__dict__'].__get__(provider,type(provider))
+        declared={}
+        filename=values.get('__file__')
+        if isinstance(filename,(str,os.PathLike)):
+            provider_path=Path(filename).resolve()
+            if provider_path.suffix.lower()=='.py' and _inside(provider_path,roots):
+                require(provider_path in sources,'Imported literal provider is outside the source snapshot')
+                if provider_path not in constants_cache:
+                    constants_cache[provider_path]=_source_constants(sources[provider_path])
+                declared=constants_cache[provider_path]
+        for bound,name in bindings:
+            require(name in values,'Imported literal provider no longer declares its binding')
+            expected=declared.get(name,values[name])
+            signature=_literal_value_signature(expected)
+            require(signature is not None and _literal_value_signature(values[name])==signature,
+                    'Imported literal provider differs from source on disk')
+            require(_literal_value_signature(namespace[bound])==signature,
+                    'Loaded Comfy imported literals differ from provider source')
+            require(bound not in imported or _literal_value_signature(imported[bound])==signature,
+                    'Ambiguous imported literal provenance')
+            imported[bound]=expected
+    return imported
+
+
 def loaded_source_code(roots):
     """Verify loaded code, literal callable/class state and module constants against source."""
     roots=[Path(root).resolve(strict=True) for root in roots]
@@ -978,7 +1058,7 @@ def loaded_source_code(roots):
         fields.update(overrides.get(marker,{}))
         if fields:
             for path in paths:instance_states.setdefault(path,[]).append((state,fields))
-    rows=[]
+    rows=[];constants_cache={}
     for path in sorted(sources,key=lambda value:str(value).casefold()):
         loaded_hashes=loaded.setdefault(path,set())
         source=sources[path]
@@ -1034,9 +1114,15 @@ def loaded_source_code(roots):
             comparable={name:instance.attributes.get(name) for name in source_state}
             require(comparable==source_state,'Loaded Comfy instance attributes differ from source on disk')
             expected.add(_literal_hash(source_state));loaded_hashes.add(_literal_hash(comparable))
-        constants=_source_constants(source)
+        if path not in constants_cache:constants_cache[path]=_source_constants(source)
+        constants=constants_cache[path]
         expected.add(_literal_hash(constants))
         for namespace in module_namespaces.get(path,()):
+            imports=_source_import_literals(ast.parse(source).body,path,namespace,roots,sources,constants_cache,constants)
+            imported_actual={name:namespace[name] for name in imports}
+            require(_literal_hash(imported_actual)==_literal_hash(imports),
+                    'Loaded Comfy imported literals changed during verification')
+            expected.add(_literal_hash(imports));loaded_hashes.add(_literal_hash(imported_actual))
             try:
                 actual={name:namespace[name] for name in constants}
                 require(_literal_hash(actual)==_literal_hash(constants),
