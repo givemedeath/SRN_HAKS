@@ -122,6 +122,92 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                 with self.subTest(retention=retention,mode=mode):
                     self._import_literal_snapshot(retention=retention,error='import|provider|default expression',**mode)
 
+    def test_source_path_aliases_are_resolved_fresh_for_each_inspection(self):
+        alias=Path(self.temp.name)/'source-alias.py'
+        targets=[]
+        for value in (1,2):
+            path=self.core/f'alias-target-{value}.py';path.write_text(f'def read(): return {value}\n',encoding='utf-8');targets.append(path)
+        try:alias.symlink_to(targets[0])
+        except OSError as exc:self.skipTest(f'Symlink creation unavailable: {exc}')
+        paths=[]
+        for value,target in enumerate(targets,1):
+            if value==2:alias.unlink();alias.symlink_to(target)
+            module=types.ModuleType('alias_fixture');module.__file__=str(alias)
+            exec(compile(alias.read_bytes(),str(alias),'exec'),vars(module))
+            with patch.dict(sys.modules,{module.__name__:module},clear=True):
+                rows=loaded_source_code([self.core]);paths.append(next(row['path'] for row in rows if row['path']==str(target.resolve())))
+                self.assertEqual(module.read(),value)
+        self.assertNotEqual(*paths)
+
+    def test_stale_module_and_class_annotations_are_rejected(self):
+        sources=(
+            "SETTING: 1\ndef read(): return __annotations__['SETTING']\n",
+            "SETTING: 1=0\ndef read(): return __annotations__['SETTING']\n",
+            "if True:\n    SETTING: 1\n",
+            "class Holder:\n    SETTING: 1\n",
+            "class Outer:\n    class Holder:\n        SETTING: 1\n",
+            "def factory():\n    class Holder:\n        SETTING: 1\n    return Holder\nretained=factory()\n",
+            "from __future__ import annotations\nSETTING: list[Unknown[1]]\n",
+            "from __future__ import annotations\nclass Holder:\n    __private: Unknown[1]\n",
+        )
+        for source in sources:
+            temporary=source.replace(': 1',': 2').replace('[1]','[2]')
+            with self.subTest(source=source):
+                self.assert_snapshot_matches_source(source,temporary,error='annotation')
+                self.assert_snapshot_matches_source(source)
+
+    def test_scope_annotation_additions_removals_and_mutation_are_rejected(self):
+        for before,after in (
+            ('pass\n','SETTING: 2\n'),
+            ('SETTING: 1\n','pass\n'),
+            ('SETTING: 1\n',"SETTING: 1\n__annotations__['SETTING']=2\n"),
+            ('class Holder: pass\n','class Holder:\n    SETTING: 2\n'),
+            ('class Holder:\n    SETTING: 1\n','class Holder: pass\n'),
+            ('class Holder:\n    SETTING: 1\n',"class Holder:\n    SETTING: 1\nHolder.__annotations__['SETTING']=2\n"),
+        ):
+            with self.subTest(before=before,after=after):
+                self.assert_snapshot_matches_source(before,after,error='annotation')
+
+    def test_scope_annotation_native_storage_and_builtin_controls(self):
+        prefix="class Metadata(dict):\n    def items(self): raise AssertionError('metadata hook invoked')\n"
+        for source in (
+            'SETTING: int\n',
+            'def sample():\n    local: UnresolvedLocalType\n    return 1\n',
+            'class Holder:\n    SETTING: int\n',
+            'class Holder:\n    __private: int\n',
+            prefix+'SETTING: 1\n__annotations__=Metadata(SETTING=1)\n',
+            prefix+'class Holder:\n    SETTING: 1\nHolder.__annotations__=Metadata(SETTING=1)\n',
+        ):
+            with self.subTest(source=source):self.assert_snapshot_matches_source(source)
+        for source in ('int=1\nSETTING: int\n','class Holder:\n    int=1\n    SETTING: int\n',
+                       'SETTING: object()\n','class Holder:\n    SETTING: object()\n','__annotations__=1\n',
+                       'SETTING: 1\nSETTING: 2\n','class Holder:\n    SETTING: 1\n    SETTING: 2\n'):
+            with self.subTest(source=source):self.assert_snapshot_matches_source(source,error='annotation')
+
+    def test_evicted_module_annotations_still_bind_retained_functions(self):
+        path=self.core/'comfy'/'model.py'
+        reviewed="SETTING: 1\ndef read(): return __annotations__['SETTING']\n"
+        for live in (1,2):
+            module=types.ModuleType('annotation_owner');module.__file__=str(path)
+            holder=types.ModuleType('foreign_holder')
+            exec(compile(reviewed.replace(': 1',f': {live}'),str(path),'exec'),vars(module))
+            holder.read=module.read;path.write_text(reviewed,encoding='utf-8')
+            with self.subTest(live=live),patch.dict(sys.modules,{'foreign_holder':holder},clear=True):
+                self.assertEqual(holder.read(),live)
+                if live==2:
+                    with self.assertRaisesRegex(ValueError,'annotation'):loaded_source_code([self.core])
+                else:loaded_source_code([self.core])
+
+    def test_scope_annotations_change_loaded_fingerprints(self):
+        path=self.core/'comfy'/'model.py';digests=[]
+        for value in (1,2):
+            module=types.ModuleType('annotation_fingerprint');module.__file__=str(path)
+            source=f'SETTING: {value}\ndef read(): return __annotations__["SETTING"]\n'
+            path.write_text(source,encoding='utf-8');exec(compile(source,str(path),'exec'),vars(module))
+            with patch.dict(sys.modules,{module.__name__:module},clear=True):
+                rows=loaded_source_code([self.core]);digests.append(next(row['loadedCodeSha256'] for row in rows if row['path']==str(path.resolve())))
+        self.assertNotEqual(*digests)
+
     def test_stale_function_annotations_are_rejected(self):
         sources=(
             "def sample(x: 1): return sample.__annotations__['x']\n",

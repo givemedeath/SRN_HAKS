@@ -546,14 +546,18 @@ def _scope_literal_binding(scope,name):
     return True,None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
 
 
-def _source_class_literals(source,*,unresolved=None):
-    classes={}
-    def visit_statement(node,ancestors):
+def _source_class_literals(source,*,unresolved=None,annotations=None):
+    classes={};tree=ast.parse(source);stringized=_postponed_annotations(tree)
+    def visit_statement(node,ancestors,scopes):
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
-            for statement in node.body:visit_statement(statement,ancestors+[node.name,'<locals>'])
+            for statement in node.body:visit_statement(statement,ancestors+[node.name,'<locals>'],scopes+[node])
             return
         if isinstance(node,ast.ClassDef):
             qualname='.'.join(ancestors+[node.name])
+            if annotations is not None:
+                values=_source_scope_annotations(node.body,scopes+[node],stringized)
+                require(qualname not in annotations or annotations[qualname]==values,'Ambiguous class annotations')
+                annotations[qualname]=values
             assignments={}
             for target,value in _source_bindings(node.body):
                 if isinstance(target,ast.Name):assignments.setdefault(target.id,[]).append(value)
@@ -568,11 +572,11 @@ def _source_class_literals(source,*,unresolved=None):
             require(qualname not in classes or classes[qualname]==attributes,
                     'Ambiguous redeclared class settings cannot be safely matched')
             classes[qualname]=attributes
-            for statement in node.body:visit_statement(statement,ancestors+[node.name])
+            for statement in node.body:visit_statement(statement,ancestors+[node.name],scopes+[node])
             return
         for child in ast.iter_child_nodes(node):
-            if isinstance(child,ast.stmt):visit_statement(child,ancestors)
-    for statement in ast.parse(source).body:visit_statement(statement,[])
+            if isinstance(child,ast.stmt):visit_statement(child,ancestors,scopes)
+    for statement in tree.body:visit_statement(statement,[],[tree])
     return classes
 
 
@@ -676,10 +680,41 @@ def _source_annotation_signature(expression,scopes,stringized):
     return None
 
 
+def _postponed_annotations(tree):
+    return any(isinstance(node,ast.ImportFrom) and node.module=='__future__'
+               and any(item.name=='annotations' for item in node.names) for node in tree.body)
+
+
+def _annotation_name(name,scopes):
+    class_name=next((scope.name.lstrip('_') for scope in reversed(scopes) if isinstance(scope,ast.ClassDef)),'')
+    return '_'+class_name+name if class_name and name.startswith('__') and not name.endswith('__') else name
+
+
+def _source_scope_annotations(statements,scopes,stringized):
+    annotations={}
+    for node in _scope_nodes(statements):
+        if not isinstance(node,ast.AnnAssign) or not node.simple or not isinstance(node.target,ast.Name):continue
+        name=_annotation_name(node.target.id,scopes)
+        signature=_source_annotation_signature(node.annotation,scopes,stringized)
+        require(signature is not None,'Scope annotation expression cannot be safely matched to source')
+        require(name not in annotations or annotations[name]==signature,'Ambiguous source scope annotations')
+        annotations[name]=signature
+    return annotations
+
+
+def _loaded_annotations(values):
+    annotations={};unsupported=[]
+    if not issubclass(type(values),dict):return annotations,['unsupported']
+    for name,value in dict.items(values):
+        signature=_annotation_signature(value)
+        if type(name) is not str or signature is None:unsupported.append('unsupported')
+        else:annotations[name]=signature
+    return annotations,unsupported
+
+
 def _source_function_literals(source,compiled):
     nodes={};annotation_scopes={};tree=ast.parse(source)
-    stringized=any(isinstance(node,ast.ImportFrom) and node.module=='__future__'
-                   and any(item.name=='annotations' for item in node.names) for node in tree.body)
+    stringized=_postponed_annotations(tree)
     def visit_node(node,ancestors,scopes):
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
             # Decorated code objects start at their earliest decorator line.
@@ -751,9 +786,8 @@ def _source_function_literals(source,compiled):
             annotations=[(argument.arg,argument.annotation) for argument in fields if argument.annotation is not None]
             if getattr(node,'returns',None) is not None:annotations.append(('return',node.returns))
             scopes=annotation_scopes.get(key,[])
-            class_name=next((scope.name.lstrip('_') for scope in reversed(scopes) if isinstance(scope,ast.ClassDef)),'')
             for name,expression in annotations:
-                if class_name and name.startswith('__') and not name.endswith('__'):name='_'+class_name+name
+                name=_annotation_name(name,scopes)
                 signature=_source_annotation_signature(expression,scopes,stringized)
                 if signature is None:state['unresolved_annotations'][name]=ast.dump(expression,include_attributes=False)
                 else:state['annotations'][name]=signature
@@ -777,10 +811,7 @@ def _is_literal_ast(node):
 def _loaded_function_literals(function):
     code=function.__code__
     state={'defaults':{},'kwdefaults':{},'closure':{},'annotations':{},'unresolved_defaults':[],'unsupported_annotations':[]}
-    for name,value in dict.items(function.__annotations__):
-        signature=_annotation_signature(value)
-        if type(name) is not str or signature is None:state['unsupported_annotations'].append('unsupported')
-        else:state['annotations'][name]=signature
+    state['annotations'],state['unsupported_annotations']=_loaded_annotations(function.__annotations__)
     if function.__defaults__:
         names=code.co_varnames[:code.co_argcount]
         for name,value in zip(names[-len(function.__defaults__):],function.__defaults__):
@@ -800,6 +831,7 @@ def _loaded_function_literals(function):
 class _LoadedFunctionState:
     def __init__(self,function):
         self.code=function.__code__
+        self.namespace=function.__globals__
         self.state=_loaded_function_literals(function)
 
 
@@ -808,7 +840,9 @@ class _LoadedClassState:
         self.module=cls.__module__
         self.qualname=cls.__qualname__
         self.attributes={}
-        for name,value in vars(cls).items():
+        namespace=vars(cls)
+        self.annotations,self.unsupported_annotations=_loaded_annotations(namespace.get('__annotations__',{}))
+        for name,value in namespace.items():
             signature=_literal_value_signature(value)
             if signature is not None:self.attributes[name]=signature
 
@@ -878,47 +912,58 @@ def _source_frame_arguments(statements,namespace,frames):
     return bindings
 
 
-def _loaded_codes(value,seen,roots=()):
+def _resolved_source_path(filename,cache=None):
+    # This cache belongs to one census, never a later inspection or content check.
+    key=filename if type(filename) is str else None
+    if cache is not None and key is not None and key in cache:return cache[key]
+    try:path=Path(filename).resolve(strict=True)
+    except (OSError,RuntimeError):path=None
+    if cache is not None and key is not None:cache[key]=path
+    return path
+
+
+def _loaded_codes(value,seen,roots=(),path_cache=None):
+    if path_cache is None:path_cache={}
     marker=id(value)
     if marker in seen:return
     seen.add(marker)
     value_type=type(value)
     if value_type.__module__=='weakref' and value_type.__name__ in ('ProxyType','CallableProxyType'):
         # Avoid isinstance/proxy attribute access, which dereferences dead proxies.
-        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots,path_cache)
         return
     if isinstance(value,types.ModuleType):
         namespace=types.ModuleType.__dict__['__dict__'].__get__(value,value_type)
-        for member in tuple(namespace.values()):yield from _loaded_codes(member,seen,roots)
+        for member in tuple(namespace.values()):yield from _loaded_codes(member,seen,roots,path_cache)
         return
     execution=_execution_state(value)
     if execution is not None:
         code,frame,delegate=execution
         yield code
-        if frame is not None:yield from _loaded_codes(frame,seen,roots)
-        if delegate is not None:yield from _loaded_codes(delegate,seen,roots)
+        if frame is not None:yield from _loaded_codes(frame,seen,roots,path_cache)
+        if delegate is not None:yield from _loaded_codes(delegate,seen,roots,path_cache)
         return
     if isinstance(value,types.FrameType):
         frame=_LoadedFrameState(value)
         yield value.f_code;yield frame
-        for member in frame.members.values():yield from _loaded_codes(member,seen,roots)
+        for member in frame.members.values():yield from _loaded_codes(member,seen,roots,path_cache)
         back=value.f_back
         if back is not None:
-            try:covered=_inside(Path(back.f_code.co_filename).resolve(strict=True),roots)
-            except (OSError,RuntimeError):covered=False
-            if covered:yield from _loaded_codes(back,seen,roots)
+            back_path=_resolved_source_path(back.f_code.co_filename,path_cache)
+            covered=back_path is not None and _inside(back_path,roots)
+            if covered:yield from _loaded_codes(back,seen,roots,path_cache)
         return
     if isinstance(value,types.TracebackType):
-        yield from _loaded_codes(value.tb_frame,seen,roots)
-        if value.tb_next is not None:yield from _loaded_codes(value.tb_next,seen,roots)
+        yield from _loaded_codes(value.tb_frame,seen,roots,path_cache)
+        if value.tb_next is not None:yield from _loaded_codes(value.tb_next,seen,roots,path_cache)
         return
     if isinstance(value,BaseException):
-        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots,path_cache)
         return
     if isinstance(value,types.BuiltinFunctionType):
         owner=value.__self__
         if owner is not None and not isinstance(owner,(types.ModuleType,type)):
-            yield from _loaded_codes(owner,seen,roots)
+            yield from _loaded_codes(owner,seen,roots,path_cache)
         return
     value_type=type(value)
     native_async=value_type.__module__=='_asyncio' and value_type.__name__ in ('Task','Future')
@@ -933,42 +978,42 @@ def _loaded_codes(value,seen,roots=()):
     if native_async or native_cache or native_iterator or native_weakref or native_container:
         # These CPython execution carriers keep callbacks/delegates/results in
         # native fields. GC exposes references without running or advancing them.
-        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots,path_cache)
         return
     if isinstance(value,(functools.partial,functools.partialmethod)):
-        yield from _loaded_codes(value.func,seen,roots)
-        yield from _loaded_codes(value.args,seen,roots)
-        yield from _loaded_codes(value.keywords or {},seen,roots)
+        yield from _loaded_codes(value.func,seen,roots,path_cache)
+        yield from _loaded_codes(value.args,seen,roots,path_cache)
+        yield from _loaded_codes(value.keywords or {},seen,roots,path_cache)
         members=_stored_instance_attributes(value)
         if members:yield _LoadedInstanceState(value,members)
-        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots,path_cache)
         return
     if isinstance(value,types.FunctionType):
         yield value.__code__
         yield _LoadedFunctionState(value)
         if value.__dict__:yield _LoadedInstanceState(value,value.__dict__)
-        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots,path_cache)
         for state in (value.__defaults__,value.__kwdefaults__,value.__annotations__):
-            if state is not None:yield from _loaded_codes(state,seen,roots)
+            if state is not None:yield from _loaded_codes(state,seen,roots,path_cache)
         for cell in value.__closure__ or ():
             try:captured=cell.cell_contents
             except ValueError:continue
-            yield from _loaded_codes(captured,seen,roots)
+            yield from _loaded_codes(captured,seen,roots,path_cache)
         return
     if isinstance(value,types.MethodType):
-        yield from _loaded_codes(value.__func__,seen,roots)
+        yield from _loaded_codes(value.__func__,seen,roots,path_cache)
         if not isinstance(value.__self__,type):
-            yield from _loaded_codes(value.__self__,seen,roots)
+            yield from _loaded_codes(value.__self__,seen,roots,path_cache)
         return
     if isinstance(value,(staticmethod,classmethod,property)):
         members=_stored_instance_attributes(value)
         if members:yield _LoadedInstanceState(value,members)
-        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+        for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots,path_cache)
         return
     if isinstance(value,type):
         yield _LoadedClassState(value)
-        for base in value.__bases__:yield from _loaded_codes(base,seen,roots)
-        for member in tuple(vars(value).values()):yield from _loaded_codes(member,seen,roots)
+        for base in value.__bases__:yield from _loaded_codes(base,seen,roots,path_cache)
+        for member in tuple(vars(value).values()):yield from _loaded_codes(member,seen,roots,path_cache)
         return
     if isinstance(value,types.CodeType):
         yield value
@@ -976,35 +1021,35 @@ def _loaded_codes(value,seen,roots=()):
     value_type=type(value)
     if not isinstance(value,types.ModuleType):
         members=_stored_instance_attributes(value)
-        covered=any(_source_module_path(base.__module__,roots) is not None for base in value_type.__mro__)
+        covered=any(_source_module_path(base.__module__,roots,path_cache) is not None for base in value_type.__mro__)
         if members or covered:
             instance=_LoadedInstanceState(value,members)
             yield instance
-            yield from _loaded_codes(value_type,seen,roots)
-            for member in members.values():yield from _loaded_codes(member,seen,roots)
+            yield from _loaded_codes(value_type,seen,roots,path_cache)
+            for member in members.values():yield from _loaded_codes(member,seen,roots,path_cache)
     if isinstance(value,dict):
         for key,member in tuple(dict.items(value)):
-            yield from _loaded_codes(key,seen,roots)
-            yield from _loaded_codes(member,seen,roots)
+            yield from _loaded_codes(key,seen,roots,path_cache)
+            yield from _loaded_codes(member,seen,roots,path_cache)
     elif isinstance(value,(tuple,list,set,frozenset)):
         storage=next(base for base in (tuple,list,set,frozenset) if isinstance(value,base))
-        for member in tuple(storage.__iter__(value)):yield from _loaded_codes(member,seen,roots)
+        for member in tuple(storage.__iter__(value)):yield from _loaded_codes(member,seen,roots,path_cache)
     elif callable(value):
         try:wrapped=inspect.getattr_static(value,'__wrapped__')
         except AttributeError:wrapped=value
-        if wrapped is not value:yield from _loaded_codes(wrapped,seen,roots)
+        if wrapped is not value:yield from _loaded_codes(wrapped,seen,roots,path_cache)
     # Native foreign holders may retain callbacks outside dict/slot storage
     # (for example Context's HAMT). GC exposes these edges without getters.
-    for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots)
+    for member in gc.get_referents(value):yield from _loaded_codes(member,seen,roots,path_cache)
 
 
-def _source_module_path(module_name,roots):
+def _source_module_path(module_name,roots,path_cache=None):
     module=sys.modules.get(module_name)
     namespace=getattr(module,'__dict__',None)
     module_file=namespace.get('__file__') if isinstance(namespace,dict) else None
     if not isinstance(module_file,(str,os.PathLike)):return None
-    try:path=Path(module_file).resolve(strict=True)
-    except (OSError,RuntimeError):return None
+    path=_resolved_source_path(module_file,path_cache)
+    if path is None:return None
     if path.suffix.lower()!='.py' or not _inside(path,roots):return None
     return path
 
@@ -1145,19 +1190,21 @@ def loaded_source_code(roots):
     """Verify loaded code, literal callable/class state and module constants against source."""
     roots=[Path(root).resolve(strict=True) for root in roots]
     loaded={};module_namespaces={};loaded_function_states={};loaded_class_states={};loaded_instances={};loaded_frames={}
-    seen=set()
+    seen=set();namespace_ids={};path_cache={}
+    def remember_namespace(path,namespace):
+        if id(namespace) not in namespace_ids.setdefault(path,set()):
+            namespace_ids[path].add(id(namespace));module_namespaces.setdefault(path,[]).append(namespace)
     for module in tuple(sys.modules.values()):
         namespace=getattr(module,'__dict__',None)
         if not isinstance(namespace,dict):continue
         module_path=None
         module_file=namespace.get('__file__')
         if isinstance(module_file,(str,os.PathLike)):
-            try:module_path=Path(module_file).resolve(strict=True)
-            except (OSError,RuntimeError):module_path=None
+            module_path=_resolved_source_path(module_file,path_cache)
             if module_path is not None and module_path.suffix.lower()=='.py' and _inside(module_path,roots):
-                module_namespaces.setdefault(module_path,[]).append(namespace)
+                remember_namespace(module_path,namespace)
         for value in tuple(namespace.values()):
-            for record in _loaded_codes(value,seen,roots):
+            for record in _loaded_codes(value,seen,roots,path_cache):
                 if isinstance(record,_LoadedFrameState):
                     loaded_frames[id(record.frame)]=record
                     continue
@@ -1165,18 +1212,23 @@ def loaded_source_code(roots):
                     loaded_instances[id(record.value)]=record
                     continue
                 if isinstance(record,_LoadedClassState):
-                    class_path=_source_module_path(record.module,roots)
+                    class_path=_source_module_path(record.module,roots,path_cache)
                     if class_path is not None:
                         loaded_class_states.setdefault(class_path,[]).append(record)
                     continue
                 function_state=record.state if isinstance(record,_LoadedFunctionState) else None
                 code=record.code if isinstance(record,_LoadedFunctionState) else record
-                try:path=Path(code.co_filename).resolve(strict=True)
-                except (OSError,RuntimeError):continue
+                path=_resolved_source_path(code.co_filename,path_cache)
+                if path is None:continue
                 if path.suffix.lower()!='.py' or not _inside(path,roots):continue
                 loaded_hashes=loaded.setdefault(path,set())
                 loaded_hashes.add(_code_hash(code))
                 if function_state is not None:
+                    # Retained functions still own their module globals after sys.modules eviction.
+                    filename=record.namespace.get('__file__')
+                    if type(filename) is str:
+                        owner_path=_resolved_source_path(filename,path_cache)
+                        if owner_path==path:remember_namespace(path,record.namespace)
                     loaded_function_states.setdefault(path,[]).append((code,function_state))
     sources={path:path.read_bytes() for path in set(loaded)|set(module_namespaces)}
     constructors={};constructor_unresolved={}
@@ -1210,7 +1262,7 @@ def loaded_source_code(roots):
     for marker,state in loaded_instances.items():
         fields={};paths=set(override_paths.get(marker,()))
         for base in reversed(state.cls.__mro__):
-            class_path=_source_module_path(base.__module__,roots)
+            class_path=_source_module_path(base.__module__,roots,path_cache)
             unknown=constructor_unresolved.get(class_path,{}).get(base.__qualname__,set())
             require(not unknown.intersection(state.attributes),
                     'Loaded Comfy instance attribute expression cannot be safely matched to source')
@@ -1229,8 +1281,9 @@ def loaded_source_code(roots):
         function_literals=_source_function_literals(source,compiled)
         expected.update(_literal_hash({category:values for category,values in state.items() if values})
                         for state in function_literals.values())
-        class_unresolved={}
-        class_literals=_source_class_literals(source,unresolved=class_unresolved)
+        class_unresolved={};class_annotations={}
+        class_literals=_source_class_literals(source,unresolved=class_unresolved,annotations=class_annotations)
+        expected.update(_literal_hash({'class':name,'annotations':values}) for name,values in class_annotations.items())
         expected.update(_literal_hash(state) for state in class_literals.values())
         for code,function_state in loaded_function_states.get(path,()):
             source_state=_callable_source_state(function_literals,code)
@@ -1273,6 +1326,11 @@ def loaded_source_code(roots):
             signature=_literal_hash(comparable)
             expected.add(signature);loaded_hashes.add(signature)
         for class_state in loaded_class_states.get(path,()):
+            annotations=class_annotations.get(class_state.qualname,{})
+            require(not class_state.unsupported_annotations and class_state.annotations==annotations,
+                    'Loaded Comfy class annotations differ from source on disk')
+            if class_state.qualname in class_annotations:
+                loaded_hashes.add(_literal_hash({'class':class_state.qualname,'annotations':class_state.annotations}))
             require(not class_unresolved.get(class_state.qualname,set()).intersection(class_state.attributes),
                     'Loaded Comfy class attribute expression cannot be safely matched to source')
             source_state=class_literals.get(class_state.qualname)
@@ -1288,7 +1346,14 @@ def loaded_source_code(roots):
         if path not in constants_cache:constants_cache[path]=_source_constants(source)
         constants=constants_cache[path]
         expected.add(_literal_hash(constants))
+        tree=ast.parse(source)
+        annotations=_source_scope_annotations(tree.body,[tree],_postponed_annotations(tree))
+        expected.add(_literal_hash({'module_annotations':annotations}))
         for namespace in module_namespaces.get(path,()):
+            actual_annotations,unsupported=_loaded_annotations(namespace.get('__annotations__',{}))
+            require(not unsupported and actual_annotations==annotations,
+                    'Loaded Comfy module annotations differ from source on disk')
+            loaded_hashes.add(_literal_hash({'module_annotations':actual_annotations}))
             imports=_source_import_literals(ast.parse(source).body,path,namespace,roots,sources,constants_cache,constants)
             imported_actual={name:namespace[name] for name in imports}
             require(_literal_hash(imported_actual)==_literal_hash(imports),
