@@ -435,6 +435,15 @@ def _source_constants(source):
     return constants
 
 
+def _loaded_runtime_settings(namespace,constants):
+    """Bind live literal settings, including values created by module initializers."""
+    metadata={'__name__','__file__','__package__','__loader__','__spec__','__cached__',
+              '__builtins__','__doc__','__path__','__annotations__'}
+    return {name:value for name,value in tuple(namespace.items())
+            if type(name) is str and name not in metadata and name not in constants
+            and _setting_literal(name,value) and _literal_value_signature(value) is not None}
+
+
 def _literal_value_signature(value):
     try:return _literal_signature(value)
     except (TypeError,ValueError,MemoryError,RecursionError):return None
@@ -1354,7 +1363,9 @@ def loaded_source_code(roots):
             require(not unsupported and actual_annotations==annotations,
                     'Loaded Comfy module annotations differ from source on disk')
             loaded_hashes.add(_literal_hash({'module_annotations':actual_annotations}))
-            imports=_source_import_literals(ast.parse(source).body,path,namespace,roots,sources,constants_cache,constants)
+            runtime_settings=_loaded_runtime_settings(namespace,constants)
+            runtime_hash=_literal_hash({'runtime_settings':runtime_settings})
+            imports=_source_import_literals(tree.body,path,namespace,roots,sources,constants_cache,constants)
             imported_actual={name:namespace[name] for name in imports}
             require(_literal_hash(imported_actual)==_literal_hash(imports),
                     'Loaded Comfy imported literals changed during verification')
@@ -1366,6 +1377,9 @@ def loaded_source_code(roots):
             except (KeyError,TypeError,ValueError):
                 require(False,'Loaded Comfy module constants differ from their source on disk')
             loaded_hashes.add(_literal_hash(actual))
+            require(runtime_hash==_literal_hash({'runtime_settings':_loaded_runtime_settings(namespace,constants)}),
+                    'Loaded Comfy runtime settings changed during verification')
+            expected.add(runtime_hash);loaded_hashes.add(runtime_hash)
         require(loaded_hashes<=expected,'Loaded Comfy Python code differs from its source on disk')
         loaded_digest=hashlib.sha256(json.dumps(sorted(loaded_hashes),separators=(',',':')).encode()).hexdigest()
         rows.append({'path':str(path),'sourceSha256':hashlib.sha256(source).hexdigest(),'loadedCodeSha256':loaded_digest})

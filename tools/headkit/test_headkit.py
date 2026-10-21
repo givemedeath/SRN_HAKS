@@ -594,6 +594,68 @@ class MeshTests(Temporary):
     def test_uv_surface_uses_barycentric_positions_not_vertices(self):
         p=np.array([[0,0,0],[1,0,0],[0,1,0]],float);value={'positions':p,'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
         positions,ids,_=surface(value,16);self.assertEqual(ids[2,2],0);np.testing.assert_allclose(positions[2,2],[2.5/16,2.5/16,0])
+    def test_uv_audit_reports_every_face_without_a_mapped_texel(self):
+        from headkit.uv import raster_audit
+        good=np.array([[.1,.1],[.9,.1],[.1,.9]])
+        tiny=np.array([[.01,.01],[.02,.01],[.01,.02]])
+        report,owners=raster_audit([good,tiny],16)
+        self.assertEqual(report['degenerateUvFaces'],[])
+        self.assertEqual(report['unmappedUvFaces'],[1])
+        self.assertEqual(report['mappedTexelsByFace'],[int(np.count_nonzero(owners==0)),0])
+        self.assertEqual(sum(report['mappedTexelsByFace']),report['mappedTexels'])
+        report,_=raster_audit([tiny],512)
+        self.assertEqual(report['unmappedUvFaces'],[])
+        for uv in ([[[0,0],[1,0],[0,1]]],[[[0,0],[0,0],[0,0]]]):
+            with self.subTest(uv=uv):
+                report,_=raster_audit(np.array(uv)/16,16)
+                self.assertEqual(report['unmappedUvFaces'],[0])
+
+    def test_bake_rejects_subtexel_faces_before_padding_can_hide_them(self):
+        p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
+        value={'positions':p,'faces':np.array([[0,1,2]]),
+               'uv':np.array([[[.01,.01],[.02,.01],[.01,.02]]])}
+        with self.assertRaisesRegex(ValueError,'unmapped'):
+            surface(value,16)
+
+    def test_uv_audit_counts_final_owners_after_overlap(self):
+        from headkit.uv import raster_audit
+        uv=np.array([[[.1,.1],[.9,.1],[.1,.9]]]*2)
+        report,owners=raster_audit(uv,16)
+        self.assertEqual(report['overlapFaces'],[0,1])
+        self.assertEqual(report['unmappedUvFaces'],[0])
+        self.assertEqual(report['mappedTexelsByFace'],[0,int(np.count_nonzero(owners==1))])
+
+    def test_unwrap_routes_unsampled_faces_into_bounded_local_repair(self):
+        from headkit.uv import unwrap
+        p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
+        value={'positions':p,'faces':np.array([[0,1,2]]),
+               'uv':np.array([[[.01,.01],[.02,.01],[.01,.02]]])}
+        atlas=SimpleNamespace(width=2048,height=2048)
+        with patch('headkit.uv.library'),patch('headkit.uv.physical_fans',return_value=(p,value['faces'])), \
+             patch('headkit.uv._pack',return_value=(value['uv']/1024,atlas,1)), \
+             patch('headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':0}}), \
+             patch('headkit.uv._local_groups',side_effect=ValueError('bounded repair reached')) as repair:
+            with self.assertRaisesRegex(ValueError,'bounded repair reached'):unwrap(value,{})
+            self.assertEqual(repair.call_args.args[1],[0])
+
+    def test_imported_and_new_atlases_reject_unsampled_faces_at_each_resolution(self):
+        p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
+        value={'positions':p,'faces':np.array([[0,1,2]]),'normals':np.zeros((3,3)),
+               'uv':np.array([[[.01,.01],[.02,.01],[.01,.02]]])}
+        for reuse,size in ((True,4096),(True,2048),(True,1024),(False,4096)):
+            with self.subTest(reuse=reuse,size=size):
+                def audit(uv,current_size):
+                    return {'overlapFaces':[],'degenerateUvFaces':[],
+                            'unmappedUvFaces':[0] if size==current_size else [],'coverageFraction':.5},None
+                runner=SimpleNamespace(data={'mesh':{'reuseReviewedUvs':reuse}},bindings={},source=lambda *args:'fixture')
+                with patch('headkit.gltf.mesh',return_value=value),patch('headkit.gltf.write_mesh') as save, \
+                     patch('headkit.uv.raster_audit',side_effect=audit), \
+                     patch('headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':0}}), \
+                     patch('headkit.uv.unwrap',return_value=(value,{})):
+                    with self.assertRaisesRegex(ValueError,'UV audit failed|failed UV audit'):
+                        Runner._execute(runner,'unwrap',self.root)
+                    save.assert_not_called()
+
     def test_padding_fills_only_unmapped_pixels_and_preserves_black(self):
         values=np.zeros((4,4,3),np.uint8);values[1,1]=[0,0,0];values[2,2]=[80,90,100];mask=np.zeros((4,4),bool);mask[1,1]=mask[2,2]=True
         result=pad(values,mask);np.testing.assert_array_equal(result[mask],values[mask]);np.testing.assert_array_equal(result[0,0],[0,0,0])

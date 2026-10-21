@@ -163,7 +163,7 @@ class Runner:
                 audits={}
                 for size in (4096,2048,1024):
                     audit,owners=raster_audit(value['uv'],size)
-                    require(not audit['overlapFaces'] and not audit['degenerateUvFaces'],'Imported atlas failed UV audit')
+                    require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and not audit['unmappedUvFaces'],'Imported atlas failed UV audit')
                     gutters=gutter_audit(value['uv'],size,owners)
                     require(audit['coverageFraction']>=.30,'Insufficient useful imported atlas coverage')
                     if size==1024:require(not gutters['nearbyChartPixelsByRadius']['1'],'Imported atlas has unsafe 1K chart gutters')
@@ -172,7 +172,7 @@ class Runner:
                 result={'imported':True,'audits':audits,'visualReviewRequired':True}
             else:
                 value,result=unwrap(value,b,m.get('mesh',{}).get('uv',{}))
-                audit,_=raster_audit(value['uv'],4096);require(not audit['overlapFaces'] and not audit['degenerateUvFaces'],'4K UV audit failed')
+                audit,_=raster_audit(value['uv'],4096);require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and not audit['unmappedUvFaces'],'4K UV audit failed')
                 result['source4kAudit']=audit
             require(np.array_equal(original,value['positions'][value['faces']]),'UV processing changed ordered triangle corners')
             path=folder/'uv.glb';write_mesh(path,value['positions'],value['faces'],value['uv'],normals)

@@ -50,8 +50,10 @@ def raster_audit(uv,size):
         prior=block[inside & (block>=0)]
         if len(prior): overlaps.update(map(int,prior)); overlaps.add(fi)
         block[inside]=fi
+    counts=np.bincount(owners[owners>=0],minlength=len(uv))
     return {'mappedTexels':int(np.count_nonzero(owners>=0)),'coverageFraction':float(np.mean(owners>=0)),
-            'overlapFaces':sorted(overlaps),'degenerateUvFaces':degenerate},owners
+            'overlapFaces':sorted(overlaps),'degenerateUvFaces':degenerate,
+            'unmappedUvFaces':np.flatnonzero(counts==0).tolist(),'mappedTexelsByFace':counts.tolist()},owners
 
 
 def chart_ids(uv):
@@ -153,7 +155,8 @@ def unwrap(mesh,bindings,policy=None):
             new_uv,atlas,count=_pack(xatlas,vertices,indices,groups,padding=padding)
             metrics={};owners={}
             for size in (2048,1024):metrics[str(size)],owners[size]=raster_audit(new_uv,size)
-            bad=sorted(set(metrics['2048']['overlapFaces']+metrics['1024']['overlapFaces']+metrics['2048']['degenerateUvFaces']))
+            bad=sorted({face for audit in metrics.values()
+                        for key in ('overlapFaces','degenerateUvFaces','unmappedUvFaces') for face in audit[key]})
             gutters={str(size):gutter_audit(new_uv,size,owners[size]) for size in (2048,1024)}
             effective=[padding*1024/atlas.width,padding*1024/atlas.height]
             attempt={'padding':padding,'localRepair':bool(local_iteration),'groups':[len(x) for x in groups],

@@ -12,7 +12,8 @@ from .uv import raster_audit
 
 def surface(value, size):
     report, owners=raster_audit(value['uv'],size)
-    require(not report['overlapFaces'] and not report['degenerateUvFaces'], 'UV overlap/degeneracy blocks baking')
+    require(not report['overlapFaces'] and not report['degenerateUvFaces'] and not report['unmappedUvFaces'],
+            'UV overlap/degeneracy or unmapped faces block baking')
     positions=np.zeros((size,size,3),np.float32)
     for fi in np.unique(owners[owners>=0]):
         t=value['uv'][fi]*size

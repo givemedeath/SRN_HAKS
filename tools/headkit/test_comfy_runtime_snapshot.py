@@ -1293,6 +1293,59 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             loaded_source_code([self.core])
 
 
+    def test_dynamic_module_settings_change_the_runtime_fingerprint(self):
+        import os
+        variants=(
+            "SCALE=int(os.environ['HEADKIT_RUNTIME_SETTING'])",
+            "scale=int(os.environ['HEADKIT_RUNTIME_SETTING'])",
+            "SCALE: int=int(os.environ['HEADKIT_RUNTIME_SETTING'])",
+            "SCALE,other=(int(os.environ['HEADKIT_RUNTIME_SETTING']),0)",
+            "for SCALE in [int(os.environ['HEADKIT_RUNTIME_SETTING'])]: pass",
+            "if (SCALE:=int(os.environ['HEADKIT_RUNTIME_SETTING'])): pass",
+            "config=dict(scale=int(os.environ['HEADKIT_RUNTIME_SETTING']))",
+            "temporary=int(os.environ['HEADKIT_RUNTIME_SETTING'])\nSCALE=temporary\ndel temporary",
+            "def initialize():\n    global SCALE\n    SCALE=int(os.environ['HEADKIT_RUNTIME_SETTING'])\ninitialize()",
+        )
+        path=self.core/'comfy'/'model.py'
+        for assignment in variants:
+            with self.subTest(assignment=assignment):
+                source='import os\n'+assignment+'\ndef read(): return 1\n'
+                path.write_text(source,encoding='utf-8');snapshots=[]
+                for value in ('1','2','1'):
+                    module=types.ModuleType('dynamic_settings_fixture');module.__file__=str(path)
+                    with patch.dict(os.environ,{'HEADKIT_RUNTIME_SETTING':value}):
+                        exec(compile(source,str(path),'exec',dont_inherit=True),vars(module))
+                    with patch.dict(sys.modules,{'os':os,module.__name__:module},clear=True):
+                        snapshots.append(loaded_source_code([self.core]))
+                self.assertEqual(snapshots[0],snapshots[2])
+                self.assertNotEqual(snapshots[0],snapshots[1])
+
+    def test_dynamic_settings_cannot_change_during_inspection(self):
+        from headkit.comfy_nodes import source_snapshot
+        source="SCALE=int('1')\ndef read(): return SCALE\n"
+        path=self.core/'comfy'/'model.py';path.write_text(source,encoding='utf-8')
+        module=types.ModuleType('changing_settings');module.__file__=str(path)
+        exec(compile(source,str(path),'exec',dont_inherit=True),vars(module))
+        original=source_snapshot._source_import_literals
+        def mutate(*args,**kwargs):
+            result=original(*args,**kwargs);module.SCALE=2;return result
+        with patch.dict(sys.modules,{module.__name__:module},clear=True), \
+             patch.object(source_snapshot,'_source_import_literals',side_effect=mutate):
+            with self.assertRaisesRegex(ValueError,'runtime settings changed'):
+                loaded_source_code([self.core])
+
+    def test_dynamic_settings_in_retained_function_globals_are_bound(self):
+        source='SCALE=int(seed)\ndef read(): return SCALE\n'
+        path=self.core/'comfy'/'model.py';path.write_text(source,encoding='utf-8')
+        snapshots=[]
+        for seed in ('1','2'):
+            module=types.ModuleType('evicted_dynamic_settings');module.__file__=str(path);module.seed=seed
+            exec(compile(source,str(path),'exec',dont_inherit=True),vars(module))
+            holder=types.ModuleType('retained_holder');holder.callback=module.read
+            with patch.dict(sys.modules,{holder.__name__:holder},clear=True):
+                snapshots.append(loaded_source_code([self.core]))
+        self.assertNotEqual(snapshots[0],snapshots[1])
+
     def test_loaded_mutable_runtime_cache_is_not_a_source_constant(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = ('runtime_cache = {"hits": 0}\n'
