@@ -248,11 +248,13 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             owner=reference(node.value)
             if node.attr=='modules' and owner=='sys':return 'modules'
             if owner=='modules' and node.attr in ('get','__getitem__'):return 'module-lookup:'+node.attr
-            if node.attr=='__dict__':return 'namespace:own' if owner=='self-module' else 'namespace:foreign'
             callable_reader=bool(owner) and owner.startswith(('factory:','module-lookup:'))
-            if callable_reader and node.attr=='__call__':return owner
-            if (owner in ('self-module','modules') or callable_reader) and node.attr in module_mutators:
-                return 'mutator'
+            if callable_reader:
+                # Native owners/reducers can recover an otherwise hidden namespace.
+                # Only the identity-preserving call wrapper is supported here.
+                return owner if node.attr=='__call__' else 'mutator'
+            if node.attr=='__dict__':return 'namespace:own' if owner=='self-module' else 'namespace:foreign'
+            if owner in ('self-module','modules') and node.attr in module_mutators:return 'mutator'
             if owner=='builtins' and node.attr in ('globals','locals','vars'):return 'factory:'+node.attr
             if owner and owner.startswith('namespace:') and node.attr not in readers:return 'mutator'
         if (isinstance(node,ast.Subscript) and reference(node.value)=='modules'
@@ -324,6 +326,11 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
                 'Unsupported or ambiguous source namespace assignment')
         yield name,value
     for node in nodes:
+        if isinstance(node,ast.Match) and capability(node.subject):
+            captures=any((isinstance(pattern,(ast.MatchAs,ast.MatchStar)) and pattern.name)
+                         or (isinstance(pattern,ast.MatchMapping) and pattern.rest)
+                         for case in node.cases for pattern in _scope_nodes([case.pattern]))
+            require(not captures,'Unsupported source namespace pattern binding')
         # Branch truth can depend on runtime state. Do not lose a namespace
         # capability by pretending its enclosing expression is ordinary data.
         choices=([node.body,node.orelse] if isinstance(node,ast.IfExp)

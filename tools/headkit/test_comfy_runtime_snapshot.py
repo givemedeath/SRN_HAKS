@@ -617,6 +617,63 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'namespace'):
                     _source_constants('import sys\n'+statement)
 
+    def test_namespace_readers_cannot_expose_native_owners_or_reducers(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        readers=('globals','globals.__call__','vars.__call__.__call__',
+                 'sys.modules.get','sys.modules.get.__call__','sys.modules.__getitem__')
+        attributes=('__self__','__reduce__','__reduce_ex__','__get__','__dict__','__name__')
+        for reader in readers:
+            for attribute in attributes:
+                source='import sys\nreader='+reader+'.'+attribute+'\n'
+                with self.subTest(reader=reader,attribute=attribute):
+                    with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(source)
+        source="factory=globals.__call__.__self__\nnamespace=factory()\nnamespace['SCALE']=1\ndef read(): return SCALE\n"
+        self.assert_snapshot_matches_source(source,error='namespace')
+        source="factory,args=globals.__call__.__reduce__()\nreader=factory(*args)\nnamespace=reader()\nnamespace['SCALE']=1\n"
+        self.assert_snapshot_matches_source(source,error='namespace')
+
+    def test_ordinary_bound_method_owners_remain_supported(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        source=('class Holder:\n    def read(self): return 1\n'
+                'holder=Holder()\nmethod=holder.read\nowner=method.__self__\nSCALE=1\n')
+        self.assertEqual(_source_constants(source),{'SCALE':1})
+        self.assert_snapshot_matches_source(source)
+
+    def test_match_patterns_cannot_capture_namespace_capabilities(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        sources=(
+            "match globals():\n    case namespace:\n        namespace['SCALE']=1\n",
+            "match locals():\n    case namespace: pass\n",
+            "match vars():\n    case namespace: pass\n",
+            "namespace=globals()\nmatch namespace:\n    case alias if True: pass\n",
+            "match (namespace:=globals()):\n    case alias: pass\n",
+            "match globals():\n    case dict() as namespace: pass\n",
+            "match globals():\n    case (dict() | dict()) as namespace: pass\n",
+            "match globals():\n    case {'SCALE': value, **namespace}: pass\n",
+            "match globals():\n    case [*namespace]: pass\n",
+            "match globals:\n    case factory: pass\n",
+            "import sys\nmatch sys.modules[__name__]:\n    case current:\n        current.SCALE=1\n",
+            "import sys\nmatch sys.modules.get:\n    case lookup: pass\n",
+        )
+        for source in sources:
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError,'namespace'):_source_constants(source)
+        self.assert_snapshot_matches_source(sources[0],sources[0].replace("['SCALE']=1","['SCALE']=2"),error='namespace')
+        self.assert_snapshot_matches_source(sources[10],sources[10].replace('SCALE=1','SCALE=2'),error='namespace')
+
+    def test_ordinary_patterns_and_nonbinding_namespace_matches_work(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        sources=(
+            "match globals():\n    case _:\n        globals()['SCALE']=1\n",
+            "match {'value':1}:\n    case {'value':number}: pass\nSCALE=1\n",
+            "def read(value):\n    match value:\n        case [first,*rest]: return first\nSCALE=1\n",
+        )
+        for source in sources:
+            with self.subTest(source=source):
+                self.assertEqual(_source_constants(source),{'SCALE':1})
+        self.assert_snapshot_matches_source(sources[0])
+        self.assert_snapshot_matches_source(sources[1])
+
     def test_namespace_mutation_and_ambiguous_writes_fail_closed(self):
         from headkit.comfy_nodes.source_snapshot import _source_constants
         sources=(
