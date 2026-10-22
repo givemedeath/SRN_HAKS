@@ -15,6 +15,7 @@ from .common import read, write, require, pin, verify, digest
 from .source_inventory import request_sources,verify_sources,validate_comfy_runtime
 
 TEMPLATES = Path(__file__).parent / 'templates'
+MULTIVIEW_VIEWS=('Front','Left','Back','Right')
 _LOCAL_LOCKS=set()
 _LOCAL_LOCKS_GUARD=threading.Lock()
 
@@ -32,7 +33,10 @@ def compile_graph(stage, profile, images, prefix, *, fov=None, shape=None, sourc
     elif stage in ('geometry', 'appearance'):
         if multi:
             require(fov == 20, 'Frozen multiview rig FOV is 20 degrees')
-            mapping = {'364':'front','377':'left','378':'back','379':'right'} if stage == 'geometry' else {'1001':'detail'}
+            # Smooth-clay views condition the mesh; the matching detailed views condition its texture.
+            nodes = ('364','377','378','379') if stage == 'geometry' else ('1001','1002','1003','1004')
+            kind = 'geometry' if stage == 'geometry' else 'detail'
+            mapping = {node: kind+view for node, view in zip(nodes, MULTIVIEW_VIEWS)}
             require(set(images) == set(mapping.values()), 'Missing or surplus multiview roles')
             for node, role in mapping.items(): graph[node]['inputs']['image'] = images[role]
         else:

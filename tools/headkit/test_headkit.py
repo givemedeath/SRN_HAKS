@@ -111,19 +111,27 @@ class GraphTests(Temporary):
         self.assertEqual([g[k]['inputs']['seed'] for k in ['3','18','23']],[56,242,42])
         self.assertEqual(g['18']['inputs']['cfg'],12);self.assertEqual(g['94']['inputs']['target_resolution'],1536)
     def test_multiview_roles_and_checkpoint_are_distinct(self):
-        g=comfy.compile_graph('geometry','pixal-multiview-v1',{v:v+'.png' for v in ['front','left','back','right']},'headkit/run',fov=20)
+        g=comfy.compile_graph('geometry','pixal-multiview-v1',{'geometry'+v:v+'.png' for v in ['Front','Left','Back','Right']},'headkit/run',fov=20)
         self.assertEqual(g['324']['class_type'],'Pixal3DMultiViewConditioning')
         self.assertEqual([g['324']['inputs'][v] for v in ['front','left','back','right']],[['364',0],['377',0],['378',0],['379',0]])
+        self.assertEqual([g[n]['inputs']['image'] for n in ['364','377','378','379']],['Front.png','Left.png','Back.png','Right.png'])
         self.assertEqual(g['319']['inputs']['unet_name'],'pixal3d_multiview_int8_convrot.safetensors')
         self.assertFalse(any(n['class_type']=='ImageCropToMask' for n in g.values()))
-    def test_multiview_appearance_is_front_only_saved_shape(self):
+    def test_multiview_appearance_uses_four_detailed_views_on_saved_shape(self):
         shape=pin(self.file('shape.npz'))
-        g=comfy.compile_graph('appearance','pixal-multiview-v1',{'detail':'detail.png'},'headkit/run',fov=20,shape=shape)
-        self.assertEqual(g['298']['inputs']['front'],['1001',0]);self.assertNotIn('left',g['298']['inputs'])
+        g=comfy.compile_graph('appearance','pixal-multiview-v1',{'detail'+v:v+'-detail.png' for v in ['Front','Left','Back','Right']},'headkit/run',fov=20,shape=shape)
+        self.assertEqual([g['298']['inputs'][v] for v in ['front','left','back','right']],[['1001',0],['1002',0],['1003',0],['1004',0]])
+        self.assertEqual([g[n]['inputs']['image'] for n in ['1001','1002','1003','1004']],['Front-detail.png','Left-detail.png','Back-detail.png','Right-detail.png'])
+        self.assertEqual(g['319']['inputs']['unet_name'],'pixal3d_multiview_int8_convrot.safetensors')
         self.assertEqual(g['970']['inputs'],shape);self.assertEqual(g['12']['inputs']['steps'],12);self.assertEqual(g['12']['inputs']['cfg'],1)
     def test_wrong_route_fov_or_missing_view_rejected(self):
-        for profile,images,fov in [('pixal-single-v1',{'geometry':'x'},20),('pixal-multiview-v1',{'front':'x'},20),('pixal-multiview-v1',{v:'x' for v in ['front','left','back','right']},42)]:
+        for profile,images,fov in [('pixal-single-v1',{'geometry':'x'},20),('pixal-multiview-v1',{'geometryFront':'x'},20),('pixal-multiview-v1',{'geometry'+v:'x' for v in ['Front','Left','Back','Right']},42),
+                                  ('pixal-multiview-v1',{'detail'+v:'x' for v in ['Front','Left','Back','Right']},20)]:
             with self.assertRaises(ValueError):comfy.compile_graph('geometry',profile,images,'headkit/run',fov=fov)
+        shape=pin(self.file('shape.npz'))
+        for images in ({'detailFront':'x'},{'geometry'+v:'x' for v in ['Front','Left','Back','Right']}):
+            with self.assertRaisesRegex(ValueError,'multiview roles'):
+                comfy.compile_graph('appearance','pixal-multiview-v1',images,'headkit/run',fov=20,shape=shape)
     def test_hash_bound_minimal_20k_export(self):
         source=pin(self.file('mesh.glb'));g=comfy.compile_graph('export','pixal-single-v1',{},'headkit/run',source=source)
         self.assertEqual(g['1']['inputs'],source);self.assertEqual(g['241']['inputs']['sign_mode'],'udf')
@@ -192,6 +200,18 @@ class GeometryApprovalTests(Temporary):
         self.assertIn(pin(source_config),result['inputs'])
         self.assertEqual(result['comfyRuntimeIdentity']['comfySourceInventory'],result['comfySourceInventory'])
         self.assertEqual(read(self.root/'request.json'),result)
+
+    def test_multiview_appearance_stages_four_detailed_views(self):
+        data=self.fixture();data['profile']='pixal-multiview-v1';data['camera']['fovDegrees']=20
+        for view in ('Front','Left','Back','Right'):data['inputs']['detail'+view]=data['inputs']['detail']
+        data['approval']['generatedGeometry']=self.approval(data);write(self.root/'manifest.json',data)
+        with patch('headkit.__main__.comfy.compile_graph',return_value={}) as compile_graph:
+            from headkit.__main__ import request_stage
+            request_stage(self.root/'manifest.json',self.root/'bindings.json','appearance',self.root/'request.json',runtime=self.runtime_identity(),
+                          comfy_runtime=self.comfy_runtime_identity(__import__('headkit.source_inventory',fromlist=['freeze_sources']).freeze_sources(read(self.root/'bindings.json'))))
+        images=compile_graph.call_args.args[2]
+        self.assertEqual(sorted(images),['detailBack','detailFront','detailLeft','detailRight'])
+        self.assertTrue(all(path.endswith(name+'.png') for name,path in images.items()))
 
     def test_changed_installed_source_snapshot_blocks_request(self):
         data=self.fixture();data['approval']['generatedGeometry']=self.approval(data)

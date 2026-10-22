@@ -14,7 +14,8 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None, 
     if stage in ('geometry','appearance'):
         require(camera.get('reviewed') is True,'Reviewed camera calibration required')
     names={'calibrate':['geometry','detail','mask'],'geometry':['geometry'],'appearance':['detail'],'export':[]}[stage]
-    if profile=='pixal-multiview-v1' and stage=='geometry':names=['front','left','back','right']
+    if profile=='pixal-multiview-v1' and stage in ('geometry','appearance'):
+        names=[('geometry' if stage=='geometry' else 'detail')+view for view in comfy.MULTIVIEW_VIEWS]
     require(stage!='geometry' or (data.get('features') and all(x.get('placementReviewed') is True for x in data['features'])),
             'Review hairstyle routing, all accessories and counts before generation')
     shape=asset(manifest_path,data['inputs']['shape']) if stage=='appearance' else None

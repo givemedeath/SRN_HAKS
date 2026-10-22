@@ -148,6 +148,24 @@
       "image": "INPUT.png"
     }
   },
+  "1002": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "INPUT.png"
+    }
+  },
+  "1003": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "INPUT.png"
+    }
+  },
+  "1004": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "INPUT.png"
+    }
+  },
   "298": {
     "class_type": "Pixal3DMultiViewConditioning",
     "inputs": {
@@ -158,6 +176,18 @@
       ],
       "front": [
         "1001",
+        0
+      ],
+      "left": [
+        "1002",
+        0
+      ],
+      "back": [
+        "1003",
+        0
+      ],
+      "right": [
+        "1004",
         0
       ]
     }
