@@ -50,9 +50,7 @@ class ControlledStartupTests(unittest.TestCase):
     def test_sourceless_bytecode_is_pinned_and_changes_block_startup(self):
         import py_compile
         import subprocess
-        from headkit.source_inventory import capture_sources,verify_sources,EXTENSIONS
-        from headkit.comfy_nodes.source_snapshot import EXTENSIONS as adapter_extensions
-        self.assertEqual(EXTENSIONS,adapter_extensions)
+        from headkit.source_inventory import capture_sources,verify_sources
         source=self.root/'compiler-input.py';source.write_text('value=1\n')
         targets=[self.core/'standalone.pyc',self.core/'bytecode_package'/'__init__.pyc']
         for target in targets:
@@ -77,6 +75,61 @@ class ControlledStartupTests(unittest.TestCase):
                 execute.assert_not_called()
                 with self.assertRaisesRegex(ValueError,'Stale file pin'):verify_sources(client_inventory)
             target.write_bytes(before)
+
+    def test_non_code_resources_are_pinned_and_rechecked_before_startup(self):
+        from headkit.source_inventory import capture_sources,verify_sources
+        resources=[self.core/'custom_nodes'/'plugin'/name for name in ('scale.ini','prompt.txt','settings.cfg','weights.bin','LICENSE')]
+        for path in resources:path.write_bytes(b'reviewed resource')
+        inventory=capture_inventory(self.core,[self.core]);client=capture_sources(self.core,[self.core])
+        self.assertEqual(inventory,client)
+        for path in resources:self.assertIn(pin(path),inventory['files'])
+        self.config['inventory']=inventory
+        write(self.adapter/'source-roots.json',{'schemaVersion':1,'inventory':inventory})
+        self.config['adapterSnapshot']=pin(self.adapter/'source-roots.json');write(self.path,self.config)
+        startup.verify_deployment(self.path)
+        for path in resources:
+            original=path.read_bytes();path.write_bytes(b'changed resource');execute=Mock()
+            try:
+                with self.subTest(resource=path.name):
+                    with self.assertRaisesRegex(ValueError,'Stale file pin'):verify_sources(client)
+                    with self.assertRaisesRegex(ValueError,'membership or bytes changed'):self.run_stub(execute)
+                    execute.assert_not_called()
+            finally:path.write_bytes(original)
+        added=resources[0].with_name('new-resource.data');added.write_bytes(b'new')
+        with self.assertRaisesRegex(ValueError,'membership changed'):verify_sources(client)
+        with self.assertRaisesRegex(ValueError,'membership or bytes changed'):startup.verify_deployment(self.path)
+        added.unlink()
+        missing=resources[0];original=missing.read_bytes();missing.unlink()
+        try:
+            with self.assertRaisesRegex(ValueError,'membership changed'):verify_sources(client)
+            with self.assertRaisesRegex(ValueError,'membership or bytes changed'):startup.verify_deployment(self.path)
+        finally:missing.write_bytes(original)
+        verify_sources(client);startup.verify_deployment(self.path)
+        resource=resources[0];original=resource.read_bytes()
+        try:
+            with self.assertRaisesRegex(ValueError,'membership or bytes changed'):
+                self.run_stub(lambda *a,**k:resource.write_bytes(b'changed in active session'))
+            self.assertFalse(read(self.root/'receipt.json')['inputsUnchanged'])
+        finally:resource.write_bytes(original)
+
+    def test_separated_data_and_cache_files_stay_outside_source_inventory(self):
+        from headkit.source_inventory import capture_sources
+        from headkit.comfy_nodes.source_snapshot import CORE_DATA
+        from headkit.source_inventory import CORE_DATA as client_data
+        self.assertEqual(CORE_DATA,client_data)
+        for name in sorted(CORE_DATA|{'.git','__pycache__'}):
+            directory=self.core/name;directory.mkdir(exist_ok=True);(directory/'mutable.txt').write_text('generated data')
+        source=capture_inventory(self.core,[self.core]);client=capture_sources(self.core,[self.core])
+        self.assertEqual(source,client);self.assertEqual(source,self.inventory)
+
+    def test_inventory_walk_errors_fail_closed_in_both_implementations(self):
+        from headkit.source_inventory import capture_sources
+        def unreadable(root,*,onerror,**kwargs):
+            onerror(PermissionError('fixture directory unreadable'))
+            return iter(())
+        with patch('os.walk',side_effect=unreadable):
+            for capture in (capture_sources,capture_inventory):
+                with self.assertRaisesRegex(PermissionError,'fixture directory unreadable'):capture(self.core,[self.core])
 
     def test_pinned_startup_runs_once_and_writes_receipt(self):
         old_environment=dict(os.environ);old_path=list(sys.path);old_argv=sys.argv

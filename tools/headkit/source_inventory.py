@@ -4,18 +4,18 @@ from pathlib import Path
 import re
 from .common import digest,pin,require,verify
 
-# Generated data and model weights have their own inputs; execution code/config/native binaries do not.
-EXTENSIONS={'.py','.pyc','.pyx','.pyi','.json','.yaml','.yml','.toml','.pyd','.so','.dll','.dylib','.ptx','.cubin','.h','.hpp','.c','.cpp','.cu','.cuh'}
+# Pin every implementation/resource file; separated generated data and weights have their own inputs.
 CORE_DATA={'input','output','temp','models','user','.venv','venv'}
 REQUIRED_CORE={'main.py','execution.py','nodes.py','server.py','folder_paths.py'}
 
 
 def members(core,roots):
+    def fail_walk(error):raise error
     core=Path(core).resolve();require(core in roots,'Inventory must cover the Comfy root')
     found=set()
     for root in roots:
         require(root.is_dir(),'Missing Comfy source root')
-        for current,dirs,files in os.walk(root,followlinks=False):
+        for current,dirs,files in os.walk(root,followlinks=False,onerror=fail_walk):
             current=Path(current)
             dirs[:]=[name for name in dirs if name not in {'.git','.hg','.svn','__pycache__'}
                      and not (current==core and name in CORE_DATA)]
@@ -24,9 +24,8 @@ def members(core,roots):
             for name in files:
                 path=current/name
                 if path.name=='source-roots.json' and path.parent.name=='srn_headkit':continue
-                if path.suffix.lower() in EXTENSIONS:
-                    require(path.resolve()==path.absolute(),'Linked Comfy source file is unsupported')
-                    found.add(path.resolve())
+                require(path.is_file() and path.resolve()==path.absolute(),'Regular unlinked Comfy source file required')
+                found.add(path.resolve())
     require({core/name for name in REQUIRED_CORE}<=found,'Incomplete Comfy core source inventory')
     require(any(path.is_relative_to(core/'comfy') for path in found),'Missing Comfy model implementation tree')
     names={path.name for path in found}

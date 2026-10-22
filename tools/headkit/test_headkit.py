@@ -32,12 +32,12 @@ class Temporary(unittest.TestCase):
     def file(self,name,text='fixture'):
         path=self.root/name;path.write_text(text);return path
     def inventory(self):
-        from headkit.source_inventory import EXTENSIONS,freeze_sources
+        from headkit.source_inventory import freeze_sources
         root=self.root/f'comfy-{len(list(self.root.glob("comfy-*")))}';root.mkdir()
         for relative in ['main.py','execution.py','nodes.py','server.py','folder_paths.py','comfy/model.py',
                          'comfy_extras/nodes_trellis2.py','custom_nodes/plugin/flexgemm.py','custom_nodes/plugin/kernel.pyd']:
             path=root/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('fixture implementation')
-        rows=[pin(p) for p in sorted(root.rglob('*')) if p.is_file() and p.suffix in EXTENSIONS]
+        rows=[pin(p) for p in sorted(root.rglob('*')) if p.is_file()]
         return freeze_sources({'comfyRoot':str(root),'comfyCustomNodes':str(root/'custom_nodes'),'comfySources':rows})
     def comfy_runtime_identity(self,source_inventory):
         if not isinstance(source_inventory,dict):
