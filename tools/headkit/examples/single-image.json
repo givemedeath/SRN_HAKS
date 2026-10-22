@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "id": "new-head",
+  "profile": "pixal-single-v1",
+  "inputs": {
+    "clay": {
+      "path": "inputs/clay.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "detail": {
+      "path": "inputs/detail.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "features": [
+    {
+      "name": "hair",
+      "placementReviewed": false,
+      "notes": "Describe attachment, sweep, visible rear mass, taper and end."
+    },
+    {
+      "name": "horns-tusks-cyberware",
+      "placementReviewed": false,
+      "notes": "Record count, anatomical side, root and direction; explicitly say absent if none."
+    }
+  ],
+  "alignment": {
+    "landmarks": [
+      {
+        "name": "crown",
+        "clay": [
+          0.5,
+          0.1
+        ],
+        "detail": [
+          0.5,
+          0.1
+        ]
+      },
+      {
+        "name": "chin",
+        "clay": [
+          0.5,
+          0.9
+        ],
+        "detail": [
+          0.5,
+          0.9
+        ]
+      },
+      {
+        "name": "temple",
+        "clay": [
+          0.3,
+          0.4
+        ],
+        "detail": [
+          0.3,
+          0.4
+        ]
+      }
+    ],
+    "minimumSilhouetteIoU": 0.94,
+    "maximumRelativeResidual": 0.01
+  },
+  "camera": {
+    "fovDegrees": 45,
+    "reviewed": false,
+    "notes": "Placeholder. Replace with reviewed measured horizontal FOV; do not assume 45."
+  },
+  "mesh": {
+    "triangleBudget": 20000,
+    "alphaWrap": false,
+    "maximumRelativeSurfaceError": 0.004,
+    "allowDecoderOvershoot": false
+  },
+  "approval": {
+    "referenceDesignReviewed": false,
+    "inputReviewComplete": false,
+    "generatedGeometry": {
+      "decision": "pending",
+      "geometryRawSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "shapeSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "notes": "Review generated clay from all sides before approving these exact outputs."
+    },
+    "exportGeometry": {
+      "decision": "pending",
+      "exportSourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "notes": "Review clay of the exact export source, including any precluster changes."
+    }
+  }
+}

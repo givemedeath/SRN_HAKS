@@ -22,6 +22,12 @@ is not a runtime consumer.
 The layout deliberately follows SWLOR_Haks: every registered top-level `srn_*` directory is packed
 into a same-named `.hak`. Generated HAK and TLK files are written to `output/` and are not committed.
 
+## Pixal3D head toolkit
+
+The [head runbook](docs/heads/head-generation-toolkit.md) provides a reusable
+single-image process and the retained multiview alternative for complex heads,
+with manifest-driven cleanup, textures, PLT review and native packaging.
+
 ## Quick start
 
 Requirements:

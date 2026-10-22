@@ -25,6 +25,7 @@
   "groups": [
     {"name": "packs", "packTests": true, "shards": 1},
     {"name": "phenotypes", "pattern": "^tools/phenotypes/", "shards": 3},
+    {"name": "headkit", "pattern": "^tools/headkit/", "shards": 1},
     {"name": "core", "pattern": "^tools/", "shards": 1}
   ],
   "operatingSystems": ["ubuntu-latest", "windows-latest"],

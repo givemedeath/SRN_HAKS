@@ -18,7 +18,9 @@ jobs:
       matrix:
         include: ${{ fromJSON(inputs.plan).helperMatrix }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    # The isolated snapshot census takes about 14 minutes on hosted Windows runners.
+    # Include dependency setup and finalization without relaxing other helper jobs.
+    timeout-minutes: ${{ matrix.group == 'headkit' && 25 || 15 }}
     env:
       PYTHONUTF8: '1'
       PYTHONIOENCODING: utf-8
@@ -38,7 +40,7 @@ jobs:
       - uses: ./.github/actions/srn-tools
       - name: Install helper dependencies with the selected interpreter
         shell: pwsh
-        run: '& ''${{ steps.interpreter.outputs.python-path }}'' -m pip install -r tools/phenotypes/requirements.txt'
+        run: '& ''${{ steps.interpreter.outputs.python-path }}'' -m pip install -r tools/phenotypes/requirements.txt -r tools/headkit/requirements.txt'
       - name: Run the selected tests from their import roots
         shell: pwsh
         env:
