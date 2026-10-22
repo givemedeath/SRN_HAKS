@@ -1226,6 +1226,35 @@ class NativeShadeTests(Temporary):
         np.testing.assert_array_equal(pixels[...,0],shades);self.assertTrue(np.all(pixels[...,1]==8))
 
 
+class ImportedUvTests(Temporary):
+    def test_shared_import_audit_enforces_coverage_gutters_and_fragmentation(self):
+        from headkit.uv import audit_imported_uvs
+        value={'uv':np.zeros((1,3,2)),'faces':np.array([[0,1,2]])}
+        good={'overlapFaces':[],'degenerateUvFaces':[],'unmappedUvFaces':[],'coverageFraction':.5}
+        for case,message in (('coverage','coverage'),('gutters','gutters'),('charts','fragmentation')):
+            with self.subTest(case=case),patch('headkit.uv.raster_audit',return_value=(dict(good,coverageFraction=.1) if case=='coverage' else good,None)),patch(
+                    'headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':int(case=='gutters')}}),patch(
+                    'headkit.uv.chart_ids',return_value=np.arange(257) if case=='charts' else np.array([0])):
+                with self.assertRaisesRegex(ValueError,message):audit_imported_uvs(value)
+        with patch('headkit.uv.raster_audit',return_value=(good,None)) as raster,patch(
+                'headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':0}}) as gutters:
+            result=audit_imported_uvs(value)
+        self.assertEqual([call.args[1] for call in raster.call_args_list],[4096,2048,1024])
+        self.assertEqual([call.args[1] for call in gutters.call_args_list],[4096,2048,1024])
+        self.assertEqual(set(result['audits']),{'4096','2048','1024'})
+        self.assertTrue(result['visualReviewRequired'])
+
+    def test_replay_rejects_uv_overlap_before_native_preparation(self):
+        from headkit.replay import replay
+        p,f=MeshTests.tetra(self);source=self.root/'overlap.glb'
+        write_mesh(source,p,f,np.tile([[.1,.1],[.9,.1],[.1,.9]],(4,1,1)))
+        config=ReplayPinTests.fixture(self);config['source']=str(source);config['inputs'].append(pin(source))
+        with patch('headkit.replay.prepare',side_effect=AssertionError('Overlapping replay reached export')) as prepare:
+            with self.assertRaisesRegex(ValueError,'failed UV audit'):replay(config,self.root/'rejected')
+            prepare.assert_not_called()
+        self.assertFalse((self.root/'rejected'/'replay.json').exists())
+
+
 class ReplayPinTests(Temporary):
     def fixture(self):
         paths={name:str(self.file(name+'.dat',name)) for name in ('source','shades','layers','binary','expectedPlt')}
@@ -1241,6 +1270,8 @@ class ReplayPinTests(Temporary):
         with ExitStack() as stack:
             geometry=geometry or {'topology':{'triangles':20000,'closed':True},'crossings':{'complete':True,'pairs':[]},'passed':True}
             geometry_audit=stack.enter_context(patch('headkit.replay.audit',return_value=geometry))
+            stack.enter_context(patch('headkit.replay.mesh',return_value={}))
+            stack.enter_context(patch('headkit.replay.audit_imported_uvs',return_value={'imported':True,'audits':{}}))
             stack.enter_context(patch('headkit.replay.prepare',side_effect=prepare))
             stack.enter_context(patch('headkit.replay.audit_native',side_effect=native))
             result=replay(config,output)
@@ -1370,11 +1401,33 @@ class ImportedOwnershipTests(Temporary):
         runner=self.fixture();source=runner.input('uvMesh')
         accepted={'source':pin(source),'passed':True,'topology':{'closed':True},
                   'crossings':{'complete':True,'pairs':[]}}
-        with patch('headkit.mesh.audit',return_value=accepted) as audit, patch(
+        uv_report={'imported':True,'audits':{'1024':{'reviewed fixture':True}}}
+        with patch('headkit.mesh.audit',return_value=accepted) as audit, patch('headkit.gltf.mesh',return_value={}), patch(
+                'headkit.uv.audit_imported_uvs',return_value=uv_report), patch(
                 'headkit.native.prepare',return_value={'exported':True}) as prepare:
             result=runner._execute('export',runner.run)
         audit.assert_called_once_with(source);prepare.assert_called_once()
         self.assertEqual(read(result['geometryAudit']['path']),accepted)
+        self.assertEqual(read(result['uvAudit']['path']),uv_report)
+
+    def test_direct_uv_export_rejects_overlap_degenerate_and_unmapped_faces(self):
+        p,f=MeshTests.tetra(self)
+        good=np.array([[[.02,.02],[.48,.02],[.02,.48]],[[.52,.02],[.98,.02],[.98,.48]],
+                       [[.02,.52],[.48,.98],[.02,.98]],[[.52,.52],[.98,.52],[.98,.98]]])
+        for defect in ('overlap','degenerate','unmapped'):
+            with self.subTest(defect=defect):
+                runner=self.fixture();source=Path(runner.input('uvMesh'));uv=good.copy()
+                if defect=='overlap':uv[0]=uv[1]
+                elif defect=='degenerate':uv[0]=0
+                else:uv[0]=np.array([[.01,.01],[.010001,.01],[.01,.010001]])
+                source=source.with_name('candidate.glb');write_mesh(source,p,f,uv)
+                source_pin=pin(source);runner.data['inputs']['uvMesh']={'path':source.name,'sha256':source_pin['sha256']}
+                runner.data['ownership']['sourceSha256']=source_pin['sha256']
+                for review in runner.data['approval']['textureMaps'].values():review['sourceSha256']=source_pin['sha256']
+                with patch('headkit.mesh.audit',return_value={'passed':True}),patch('headkit.native.prepare',
+                        side_effect=AssertionError('Invalid UVs reached native preparation')) as prepare:
+                    with self.assertRaisesRegex(ValueError,'failed UV audit'):runner._execute('export',runner.run)
+                    prepare.assert_not_called()
 
     def test_imported_masks_need_review_and_exact_mesh_hash(self):
         runner=self.fixture();valid=copy.deepcopy(runner.data['ownership'])

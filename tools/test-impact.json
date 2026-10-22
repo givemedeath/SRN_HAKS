@@ -109,8 +109,10 @@
     "tools/headkit/rays.py": [],
     "tools/headkit/replay.py": [
       "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
       "tools/headkit/mesh.py",
-      "tools/headkit/native.py"
+      "tools/headkit/native.py",
+      "tools/headkit/uv.py"
     ],
     "tools/headkit/review_images.py": [
       "tools/headkit/common.py"

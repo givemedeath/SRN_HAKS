@@ -156,20 +156,11 @@ class Runner:
             return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')))
         if stage=='unwrap':
             from .gltf import mesh,write_mesh
-            from .uv import unwrap,raster_audit,gutter_audit,chart_ids
+            from .uv import unwrap,raster_audit,audit_imported_uvs
             source=self.source('repairedMesh','repair','source')
             value=mesh(source);original=value['positions'][value['faces']].copy();normals=value['normals']
             if m['mesh'].get('reuseReviewedUvs',False):
-                audits={}
-                for size in (4096,2048,1024):
-                    audit,owners=raster_audit(value['uv'],size)
-                    require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and not audit['unmappedUvFaces'],'Imported atlas failed UV audit')
-                    gutters=gutter_audit(value['uv'],size,owners)
-                    require(audit['coverageFraction']>=.30,'Insufficient useful imported atlas coverage')
-                    if size==1024:require(not gutters['nearbyChartPixelsByRadius']['1'],'Imported atlas has unsafe 1K chart gutters')
-                    audits[str(size)]={'raster':audit,'gutters':gutters}
-                require(int(chart_ids(value['uv']).max())+1<=max(256,len(value['faces'])*.3),'Severe imported chart fragmentation')
-                result={'imported':True,'audits':audits,'visualReviewRequired':True}
+                result=audit_imported_uvs(value)
             else:
                 value,result=unwrap(value,b,m.get('mesh',{}).get('uv',{}))
                 audit,_=raster_audit(value['uv'],4096);require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and not audit['unmappedUvFaces'],'4K UV audit failed')
@@ -248,7 +239,15 @@ class Runner:
                 require(audit_result.get('passed') is True,
                         'Imported mesh failed topology/collision audit; retain the failed audit evidence')
                 geometry_audit=pin(audit_path)
+            uv_audit=None
+            if 'uvMesh' in m['inputs']:
+                from .gltf import mesh
+                from .uv import audit_imported_uvs
+                uv_result=audit_imported_uvs(mesh(source))
+                uv_path=folder/'imported-uv-audit.json';write(uv_path,uv_result,fresh=True)
+                uv_audit=pin(uv_path)
             result=prepare(source,shades,layers,m['fit'],m['fit']['model'],folder/'converted')
+            if uv_audit is not None:result['uvAudit']=uv_audit
             if geometry_audit is not None:result['geometryAudit']=geometry_audit
             return result
         if stage=='native':

@@ -1,7 +1,7 @@
 """Connected-chart unwrap with bounded local repair and measured atlas coverage."""
 import time
 import numpy as np
-from .common import library
+from .common import library, require
 
 
 def physical_fans(mesh, preserve_authored_seams=True):
@@ -94,6 +94,20 @@ def gutter_audit(uv,size,owners=None):
                 np.maximum(high,high_pad[window],out=high)
         collisions[str(radius)]=int(np.count_nonzero((low<high)&(high>=0)))
     return {'chartCount':int(charts.max(initial=-1)+1),'nearbyChartPixelsByRadius':collisions}
+
+
+def audit_imported_uvs(value):
+    """Validate imported UVs with the same gates as reviewed atlas reuse."""
+    audits={}
+    for size in (4096,2048,1024):
+        audit,owners=raster_audit(value['uv'],size)
+        require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and not audit['unmappedUvFaces'],'Imported atlas failed UV audit')
+        gutters=gutter_audit(value['uv'],size,owners)
+        require(audit['coverageFraction']>=.30,'Insufficient useful imported atlas coverage')
+        if size==1024:require(not gutters['nearbyChartPixelsByRadius']['1'],'Imported atlas has unsafe 1K chart gutters')
+        audits[str(size)]={'raster':audit,'gutters':gutters}
+    require(int(chart_ids(value['uv']).max())+1<=max(256,len(value['faces'])*.3),'Severe imported chart fragmentation')
+    return {'imported':True,'audits':audits,'visualReviewRequired':True}
 
 
 def _pack(xatlas,vertices,indices,groups,padding=8):
