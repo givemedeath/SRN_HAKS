@@ -95,7 +95,8 @@
   },
   "comfyRoot": "<absolute executing ComfyUI source root>",
   "comfyDependencyRoots": [
-    "<absolute external Pixal/FlexGEMM implementation root, if outside comfyRoot>"
+    "<absolute external Pixal/FlexGEMM implementation root, if outside comfyRoot>",
+    "<absolute dedicated read-only user settings directory>"
   ],
   "comfyStartupConfig": "<absolute frozen controlled-startup JSON outside source/runtime roots>",
   "comfyPython": {
@@ -116,7 +117,7 @@
       "--temp-directory",
       "<scratch temp>",
       "--user-directory",
-      "<dedicated user>"
+      "<absolute dedicated read-only user settings directory>"
     ],
     "environment": {
       "SystemRoot": "<OS directory>",

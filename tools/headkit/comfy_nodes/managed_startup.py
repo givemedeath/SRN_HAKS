@@ -62,12 +62,21 @@ def launch_arguments(config):
             'Controlled Comfy endpoint must be an explicit http://127.0.0.1:PORT')
     args=launch['arguments'];env=launch['environment']
     require(isinstance(args,list) and all(isinstance(value,str) for value in args),'Explicit startup arguments required')
+    require('--' not in args,'Controlled startup does not support an option terminator')
     options=[value.split('=',1)[0] for value in args if value.startswith('--')]
-    protected=('--listen','--port','--input-directory','--output-directory')
+    protected=('--listen','--port','--input-directory','--output-directory','--user-directory')
     require(not any(flag.startswith(option) and option!=flag for option in options for flag in protected),
             'Use full option names; abbreviations cannot override the bound endpoint or directories')
     require(not any(option in ('--listen','--port') for option in options),
             'Listen address and port come only from the bound endpoint')
+    users=[args[index+1] for index,value in enumerate(args[:-1]) if value=='--user-directory']
+    users += [value.split('=',1)[1] for value in args if value.startswith('--user-directory=')]
+    require(options.count('--user-directory')==1 and len(users)==1 and Path(users[0]).is_absolute(),'One explicit absolute user directory required')
+    user=Path(users[0]);core=Path(config['inventory']['core'])
+    require(user.is_dir() and user.resolve(strict=True)==user.absolute()
+            and user in [Path(root) for root in config['inventory']['roots']]
+            and not user.is_relative_to(core) and not core.is_relative_to(user),
+            'Comfy user directory must be a separate inventoried source root')
     require(isinstance(env,dict) and all(isinstance(key,str) and isinstance(value,str) for key,value in env.items())
             and not any(key.upper().startswith('PYTHON') for key in env),
             'Explicit clean startup environment required; Python path injection is unsupported')

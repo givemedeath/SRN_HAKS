@@ -30,13 +30,15 @@ class ControlledStartupTests(unittest.TestCase):
         self.python=self.runtime/'python.exe';self.python.write_bytes(b'fixture interpreter')
         (self.runtime/'python.dll').write_bytes(b'fixture runtime')
         self.scratch=self.root/'scratch';self.scratch.mkdir()
-        self.inventory=capture_inventory(self.core,[self.core])
+        self.user=self.root/'user-settings';self.user.mkdir();(self.user/'execution.ini').write_text('scale=1')
+        self.roots=[self.core,self.user]
+        self.inventory=capture_inventory(self.core,self.roots)
         write(self.adapter/'source-roots.json',{'schemaVersion':1,'inventory':self.inventory})
         with socket.socket() as probe:probe.bind(('127.0.0.1',0));port=probe.getsockname()[1]
         self.config={'schemaVersion':1,'inventory':self.inventory,
                      'runtime':{'python':pin(self.python),'roots':[str(self.runtime)],'files':startup.runtime_inventory([self.runtime])},
                      'adapterSnapshot':pin(self.adapter/'source-roots.json'),
-                     'launch':{'endpoint':f'http://127.0.0.1:{port}','arguments':['--cpu','--input-directory',str(self.root/'input'),'--output-directory',str(self.root/'output')],
+                     'launch':{'endpoint':f'http://127.0.0.1:{port}','arguments':['--cpu','--input-directory',str(self.root/'input'),'--output-directory',str(self.root/'output'),'--user-directory',str(self.user)],
                                'environment':{'TEMP':str(self.scratch),'HEADKIT_SETTING':'reviewed'}}}
         self.path=self.root/'startup.json';write(self.path,self.config)
         self.patch_file=patch.object(startup,'__file__',str(self.adapter/'managed_startup.py'));self.patch_file.start()
@@ -55,7 +57,7 @@ class ControlledStartupTests(unittest.TestCase):
         targets=[self.core/'standalone.pyc',self.core/'bytecode_package'/'__init__.pyc']
         for target in targets:
             target.parent.mkdir(exist_ok=True);py_compile.compile(str(source),cfile=str(target),doraise=True)
-        startup_inventory=capture_inventory(self.core,[self.core]);client_inventory=capture_sources(self.core,[self.core])
+        startup_inventory=capture_inventory(self.core,self.roots);client_inventory=capture_sources(self.core,self.roots)
         for target in targets:
             self.assertIn(pin(target),startup_inventory['files']);self.assertIn(pin(target),client_inventory['files'])
         self.config['inventory']=startup_inventory
@@ -80,7 +82,7 @@ class ControlledStartupTests(unittest.TestCase):
         from headkit.source_inventory import capture_sources,verify_sources
         resources=[self.core/'custom_nodes'/'plugin'/name for name in ('scale.ini','prompt.txt','settings.cfg','weights.bin','LICENSE')]
         for path in resources:path.write_bytes(b'reviewed resource')
-        inventory=capture_inventory(self.core,[self.core]);client=capture_sources(self.core,[self.core])
+        inventory=capture_inventory(self.core,self.roots);client=capture_sources(self.core,self.roots)
         self.assertEqual(inventory,client)
         for path in resources:self.assertIn(pin(path),inventory['files'])
         self.config['inventory']=inventory
@@ -119,7 +121,7 @@ class ControlledStartupTests(unittest.TestCase):
         self.assertEqual(CORE_DATA,client_data)
         for name in sorted(CORE_DATA|{'.git','__pycache__'}):
             directory=self.core/name;directory.mkdir(exist_ok=True);(directory/'mutable.txt').write_text('generated data')
-        source=capture_inventory(self.core,[self.core]);client=capture_sources(self.core,[self.core])
+        source=capture_inventory(self.core,self.roots);client=capture_sources(self.core,self.roots)
         self.assertEqual(source,client);self.assertEqual(source,self.inventory)
 
     def test_inventory_walk_errors_fail_closed_in_both_implementations(self):
@@ -130,6 +132,37 @@ class ControlledStartupTests(unittest.TestCase):
         with patch('os.walk',side_effect=unreadable):
             for capture in (capture_sources,capture_inventory):
                 with self.assertRaisesRegex(PermissionError,'fixture directory unreadable'):capture(self.core,[self.core])
+
+    def test_user_directory_must_be_explicit_and_fully_inventoried(self):
+        cases=[[],['--user-directory',str(self.core/'user')],
+               ['--user-directory',str(self.scratch)],
+               ['--user-directory='+str(self.scratch)],
+               ['--user-directory',str(self.scratch),'--user-directory',str(self.scratch)]]
+        for arguments in cases:
+            with self.subTest(arguments=arguments):
+                config=copy.deepcopy(self.config);config['launch']['arguments']=arguments
+                with self.assertRaisesRegex(ValueError,'user directory'):startup.launch_arguments(config)
+
+    def test_user_option_terminator_is_rejected(self):
+        self.config['launch']['arguments'].insert(0,'--')
+        with self.assertRaisesRegex(ValueError,'option terminator'):startup.launch_arguments(self.config)
+
+    def test_user_settings_changes_invalidate_client_and_controlled_session(self):
+        from headkit.source_inventory import capture_sources,verify_sources
+        client=capture_sources(self.core,self.roots);settings=self.user/'execution.ini'
+        self.assertIn(pin(settings),client['files']);startup.verify_deployment(self.path)
+        original=settings.read_bytes()
+        try:
+            settings.write_text('scale=2')
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):verify_sources(client)
+            execute=Mock()
+            with self.assertRaisesRegex(ValueError,'membership or bytes changed'):self.run_stub(execute)
+            execute.assert_not_called()
+            settings.write_bytes(original)
+            with self.assertRaisesRegex(ValueError,'membership or bytes changed'):
+                self.run_stub(lambda *a,**k:settings.write_text('scale=3'))
+            self.assertFalse(read(self.root/'receipt.json')['inputsUnchanged'])
+        finally:settings.write_bytes(original)
 
     def test_pinned_startup_runs_once_and_writes_receipt(self):
         old_environment=dict(os.environ);old_path=list(sys.path);old_argv=sys.argv
@@ -217,7 +250,7 @@ class ControlledStartupTests(unittest.TestCase):
     def test_offline_configuration_preparation_never_starts_or_contacts_comfy(self):
         from headkit.__main__ import startup_config
         local={'comfyRoot':str(self.core),'comfyCustomNodes':str(self.adapter.parent),
-               'comfySources':self.inventory['files'],'comfyUrl':self.config['launch']['endpoint'],
+               'comfySources':self.inventory['files'],'comfyDependencyRoots':[str(self.user)],'comfyUrl':self.config['launch']['endpoint'],
                'comfyPython':pin(self.python),'comfyRuntimeRoots':[str(self.runtime)],'comfyStartup':self.config['launch'],
                'comfyInput':str(self.root/'input'),'comfyOutput':str(self.root/'output')}
         output=self.root/'prepared.json'
@@ -263,13 +296,13 @@ class ControlledStartupTests(unittest.TestCase):
                         self.assertEqual(getattr(parsed,flag[2:]),value)
                         config=copy.deepcopy(self.config);config['launch']['arguments']=arguments
                         with self.assertRaisesRegex(ValueError,'bound endpoint'):startup.launch_arguments(config)
-        for flag in ('--input-directory','--output-directory'):
+        for flag in ('--input-directory','--output-directory','--user-directory'):
             for length in range(3,len(flag)):
                 for arguments in ([flag[:length],'other'],[flag[:length]+'=other']):
                     with self.subTest(arguments=arguments):
                         config=copy.deepcopy(self.config);config['launch']['arguments']+=arguments
                         with self.assertRaisesRegex(ValueError,'abbreviations'):startup.launch_arguments(config)
-        self.config['launch']['arguments']=['--preview-method','none','--listen-extra','fixture']
+        self.config['launch']['arguments']=['--user-directory',str(self.user),'--preview-method','none','--listen-extra','fixture']
         self.assertEqual(startup.launch_arguments(self.config)[5:],self.config['launch']['arguments'])
 
     def test_runtime_links_and_configuration_mutation_are_rejected(self):
