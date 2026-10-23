@@ -9,7 +9,7 @@ from PIL import Image
 from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins
 
 # Every stage produces evidence that needs an explicit operator decision before consumption.
-STAGES=('prepare','precluster','repair','unwrap','bake','ownership','tone','palette','export','native','render')
+STAGES=('prepare','precluster','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
 
 
 class Runner:
@@ -41,7 +41,7 @@ class Runner:
                     and review.get('geometrySha256')==geometry['sha256']
                     and review.get('fieldSha256')==field['sha256'],
                     'Generated field approval must bind its exact bytes to the active geometry input: '+geometry_role)
-        atlas_roles={'basecolor4k','runtimeColor','runtimeShades'}|set(self.data.get('render',{}).get('mapInputs',{}).values())
+        atlas_roles={'basecolor4k','metallic4k','runtimeColor','runtimeShades'}|set(self.data.get('render',{}).get('mapInputs',{}).values())
         if name in atlas_roles:
             review=self.data.get('approval',{}).get('textureMaps',{}).get(name,{})
             require(review.get('decision')=='approved' and bool(review.get('notes','').strip()),
@@ -82,14 +82,15 @@ class Runner:
         """Reviewed upstream stages this manifest makes the stage consume."""
         require(stage in STAGES,'Unknown CPU stage')
         inputs=self.data['inputs']
-        dependencies={'prepare':[], 'precluster':[], 'repair':[],
+        table={'prepare':[], 'precluster':[], 'repair':[],
             'unwrap':[] if 'repairedMesh' in inputs else ['repair'],
             'bake':[] if 'uvMesh' in inputs else ['unwrap'],
             'ownership':[] if 'uvMesh' in inputs else ['unwrap'],
             'tone':[] if 'basecolor4k' in inputs else ['bake'],
             'palette':[] if 'runtimeColor' in inputs else ['tone'],
             'export':([] if 'uvMesh' in inputs else ['unwrap'])+([] if 'runtimeShades' in inputs else ['palette']),
-            'native':['export'], 'render':[] if 'uvMesh' in inputs else ['unwrap']}[stage]
+            'native':['export'], 'render':[] if 'uvMesh' in inputs else ['unwrap']}
+        self._texture_dependencies(stage,table);dependencies=table[stage]
         if stage=='tone' and not any(role in inputs for role in ('ownership1k','ownership4k')):dependencies.append('ownership')
         if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
         imported_atlases={'tone':('basecolor4k','ownership4k','ownership1k'),'palette':('runtimeColor','ownership1k'),
@@ -142,6 +143,18 @@ class Runner:
             self.state['stages'][stage]=pin(folder/'receipt.json');write(self.state_path,self.state)
         return {'reused':False,'result':result}
 
+    def _texture_dependencies(self,stage,dependencies):
+        # Configured paint replaces the bake as colour source; rule ownership reads paint masks and the baked metallic.
+        inputs=self.data['inputs'];baked=[] if 'basecolor4k' in inputs else ['bake']
+        dependencies['paint']=baked+([] if 'uvMesh' in inputs else ['unwrap'])
+        if 'paint' in self.data and stage=='tone':dependencies['tone']=['paint']
+        if stage=='ownership' and self.data.get('ownership',{}).get('mode')=='rules':
+            dependencies['ownership']+=(['paint'] if 'paint' in self.data else [])+baked
+
+    def _color4k(self,*,painted=True):
+        if painted and 'paint' in self.data:return self.result('paint')['maps']['basecolor-4096.png']['path']
+        return self.input('basecolor4k') if 'basecolor4k' in self.data['inputs'] else self.result('bake')['maps']['basecolor-4096.png']['path']
+
     def _execute(self,stage,folder):
         m=self.data;b=self.bindings
         if stage=='prepare':
@@ -179,12 +192,23 @@ class Runner:
             source=self.source('uvMesh','unwrap','mesh')
             return bake(source,self.input('field'),folder/'maps',allow_decoder_overshoot=m['mesh'].get('allowDecoderOvershoot',False),
                         max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005))
+        if stage=='paint':
+            from .paint import paint
+            return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps')
         if stage=='ownership':
             from .palette import project_ownership
-            source=self.source('uvMesh','unwrap','mesh');config=m['ownership']
-            require(config.get('sourceSha256')==pin(source)['sha256'] and config.get('reviewed') is True,
+            source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={}
+            # Rules are bbox-relative data, not a mesh-bound annotation; the stage review binds their exact output.
+            require(config.get('reviewed') is True and (config.get('mode')=='rules' or config.get('sourceSha256')==pin(source)['sha256']),
                     'Ownership review must bind the exact UV mesh')
-            if config['mode']=='atlas':
+            if config['mode']=='rules':
+                from .paint import rule_ownership,PREVIEW
+                masks={name:row['path'] for name,row in self.result('paint')['masks'].items()} if 'paint' in m else {}
+                metallic=self.input('metallic4k') if 'metallic4k' in m['inputs'] else None if 'basecolor4k' in m['inputs'] else self.result('bake')['maps']['metallic-4096.png']['path']
+                labels,report=rule_ownership(source,self._color4k(),config,metallic=metallic,masks=masks)
+                require(labels.shape==(4096,4096),'4K discrete ownership atlas required');image=Image.fromarray(labels)
+                Image.fromarray(PREVIEW[labels]).resize((1024,1024),Image.Resampling.NEAREST).save(folder/'ownership-preview-1024.png')
+            elif config['mode']=='atlas':
                 image=Image.open(self.input('ownership4k'));require(image.mode=='L' and image.size==(4096,4096),'4K discrete ownership atlas required')
             else:
                 require(config['mode']=='project','Unsupported ownership mode')
@@ -193,10 +217,10 @@ class Runner:
                 image=Image.open(folder/'projected.png').resize((4096,4096),Image.Resampling.NEAREST)
             require(np.max(np.asarray(image))<=9,'Unknown ownership must be resolved before proceeding')
             image.save(folder/'ownership-4096.png');image.resize((1024,1024),Image.Resampling.NEAREST).save(folder/'ownership-1024.png')
-            return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True}
+            return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
         if stage=='tone':
             from .textures import tone_match
-            color=self.source('basecolor4k','bake','unused') if 'basecolor4k' in m['inputs'] else self.result('bake')['maps']['basecolor-4096.png']['path']
+            color=self._color4k()
             if 'ownership4k' in m['inputs']:
                 ownership=self.input('ownership4k');ownership_source=ownership;ownership_role='ownership4k';upsampling=None
             elif 'ownership1k' in m['inputs']:
@@ -217,7 +241,13 @@ class Runner:
                     if path==ownership:
                         require(image.mode=='L','Tone ownership must be an eight-bit L image')
                         require(np.max(np.asarray(image))<=9,'Unknown ownership must be resolved before tone matching')
-            output=folder/'tone-4096.png';result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
+            output=folder/'tone-4096.png'
+            if m['tone'].get('mode')=='adjust':
+                # Reference-free per-channel adjustment; no operations is an explicit reviewed pass-through.
+                from .paint import adjust
+                keys={op['palette'] for op in m['tone'].get('operations',[]) if 'palette' in op}
+                result=adjust(color,ownership,m['tone'],{key:self.input(m['palette']['inputs'][key]) for key in keys},output)
+            else:result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
             result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
                           ownershipForTone=pin(ownership),ownershipUpsampling=upsampling)
             image=Image.open(output)
@@ -227,10 +257,18 @@ class Runner:
                 path=folder/f'tone-{size}.png';image.resize((size,size),Image.Resampling.BOX).save(path);result['maps'][str(size)]=pin(path)
             return result
         if stage=='palette':
-            from .palette import quantize
+            from .palette import quantize,rank_rows
             color=self.input('runtimeColor') if 'runtimeColor' in m['inputs'] else self.result('tone')['maps']['1024']['path']
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
-            return quantize(color,self.input('ownership1k') if 'ownership1k' in m['inputs'] else self.result('ownership')['onek']['path'],palettes,m['palette']['rows'],folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'))
+            ownership=self.input('ownership1k') if 'ownership1k' in m['inputs'] else self.result('ownership')['onek']['path']
+            rows=m['palette']['rows'];rows={key:'auto' for key in palettes} if rows=='auto' else dict(rows);ranking=None
+            if 'auto' in rows.values():
+                # Exact fast ranking picks the lowest-error stock row; the full top list stays in the receipt for review.
+                ranking=rank_rows(color,ownership,{key:palettes[key] for key,row in rows.items() if row=='auto' and key in palettes})
+                rows.update({key:row['row'] for key,row in ranking.items()});write(folder/'row-ranking.json',ranking,fresh=True)
+            result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'))
+            if ranking is not None:result['rowRanking']=ranking
+            return result
         if stage=='export':
             from .native import prepare
             source=self.source('uvMesh','unwrap','mesh')
