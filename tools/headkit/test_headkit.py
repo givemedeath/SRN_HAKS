@@ -742,6 +742,16 @@ class MeshTests(Temporary):
             with self.assertRaisesRegex(ValueError,'recorded review'):unwrap({'positions':np.eye(3),'faces':np.array([[0,1,2]]),'uv':np.zeros((1,3,2))},{},{'minimumCoverage':.25})
             chart.assert_not_called()
 
+    def test_bake_and_unwrap_agree_on_corner_connected_subtexel_faces(self):
+        from headkit.uv import raster_audit,subtexel_audit
+        # The sub-texel face shares only a UV corner with the big face it was cut from (as after an own-chart re-pack).
+        big=[[0,0],[8.3,0],[0,8.3]];corner=[[8.3,0],[8.5,0.02],[8.45,0.15]]
+        uv=np.array([big,corner],float)/16;report,owners=raster_audit(uv,16)
+        self.assertEqual(report['unmappedUvFaces'],[1])
+        self.assertTrue(subtexel_audit(uv,16,report,owners,.02)['passed'])
+        value={'positions':np.array([[0,0,0],[1,0,0],[0,1,0],[1.1,0,0],[1.05,.1,0]],float),'faces':np.array([[0,1,2],[1,3,4]]),'uv':uv}
+        positions,_,low=surface(value,16,.02);self.assertTrue(low['subtexel']['passed'])
+
     def test_charts_touching_at_a_uv_corner_join_only_by_vertex(self):
         from headkit.uv import chart_ids
         uv=np.array([[[0,0],[.2,0],[0,.2]],[[.2,0],[.4,0],[.4,.2]],[[.6,.6],[.8,.6],[.6,.8]]],float)

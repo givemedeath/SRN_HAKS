@@ -94,7 +94,8 @@ def subtexel_audit(uv,size,report,owners,max_fraction=0.0,charts=None):
     # Over the bound, or without an owner raster to prove the padding source, every such face fails.
     if len(faces)>limit or owners is None or not np.any(np.asarray(owners)>=0):
         return {'size':size,'count':len(faces),'limit':limit,'failingFaces':[int(f) for f in faces],'passed':False}
-    if charts is None:charts=chart_ids(uv)
+    # Pieces of one chart touching at a corner are packed together and stay continuous, so they count as one.
+    if charts is None:charts=chart_ids(uv,'vertex')
     from scipy.ndimage import distance_transform_edt
     nearest=owners[tuple(distance_transform_edt(owners<0,return_distances=False,return_indices=True))]
     failing=[]
@@ -106,7 +107,7 @@ def subtexel_audit(uv,size,report,owners,max_fraction=0.0,charts=None):
 
 def gutter_audit(uv,size,owners=None,charts=None):
     if owners is None: _,owners=raster_audit(uv,size)
-    if charts is None:charts=chart_ids(uv)
+    if charts is None:charts=chart_ids(uv,'vertex')
     labels=np.full(owners.shape,-1,int); covered=owners>=0
     labels[covered]=charts[owners[covered]]
     # Distinct chart dilation collisions at radius 1/2 measure dangerous filtering gaps.
