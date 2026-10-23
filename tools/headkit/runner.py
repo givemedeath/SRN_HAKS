@@ -10,7 +10,7 @@ from . import common
 from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins
 
 # Every stage produces evidence that needs an explicit operator decision before consumption.
-STAGES=('prepare','precluster','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
+STAGES=('prepare','precluster','fit','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
 
 
 def stage_roles(stage,data):
@@ -18,7 +18,7 @@ def stage_roles(stage,data):
     declaration fails the stage, so launch input lists built from it stay complete."""
     inputs=set(data.get('inputs',{}));palettes=set(data.get('palette',{}).get('inputs',{}).values())
     roles={'prepare':{r for r in inputs if r in ('clay','detail','design') or r.endswith(('Clay','Detail'))},
-        'precluster':{'raw'},'repair':{'comfyExport','shellInspection'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
+        'precluster':{'raw'},'fit':{'fitReference','comfyExport'},'repair':{'comfyExport','shellInspection'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
         'paint':{'uvMesh','basecolor4k'},
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
         'tone':{'uvMesh','basecolor4k','metallic4k','ownership4k','ownership1k','detail','frontDetail'}|palettes,
@@ -113,13 +113,15 @@ class Runner:
         """Reviewed upstream stages this manifest makes the stage consume."""
         require(stage in STAGES,'Unknown CPU stage')
         inputs=self.data['inputs']
-        table={'prepare':[], 'precluster':[], 'repair':['precluster'] if 'raw' in inputs and 'comfyExport' not in inputs else [],
+        chained='raw' in inputs and 'comfyExport' not in inputs;staged=self._staged_fit()
+        table={'prepare':[], 'precluster':[], 'fit':['precluster'] if chained else [],
+            'repair':(['precluster'] if chained else [])+(['fit'] if staged else []),
             'unwrap':[] if 'repairedMesh' in inputs else ['repair'],
             'bake':[] if 'uvMesh' in inputs else ['unwrap'],
             'ownership':[] if 'uvMesh' in inputs else ['unwrap'],
             'tone':[] if 'basecolor4k' in inputs else ['bake'],
             'palette':[] if 'runtimeColor' in inputs else ['tone'],
-            'export':([] if 'uvMesh' in inputs else ['unwrap'])+([] if 'runtimeShades' in inputs else ['palette']),
+            'export':([] if 'uvMesh' in inputs else ['unwrap'])+([] if 'runtimeShades' in inputs else ['palette'])+(['fit'] if staged else []),
             'native':['export'], 'render':([] if 'uvMesh' in inputs else ['unwrap'])+list(dict.fromkeys(self.data.get('render',{}).get('mapStages',{}).values()))
                 +(['ownership'] if self.data.get('render',{}).get('ownershipView') else [])}
         self._texture_dependencies(stage,table);dependencies=table[stage]
@@ -190,6 +192,16 @@ class Runner:
         if stage=='ownership' and self.data.get('ownership',{}).get('mode')=='rules':
             dependencies['ownership']+=(['paint'] if 'paint' in self.data else [])+baked
 
+    def _staged_fit(self):
+        return isinstance(self.data.get('fit'),dict) and self.data['fit'].get('matrixFrom')=='fit'
+
+    def _fit(self):
+        # A staged fit's matrix is the reviewed fit-stage proposal; its stage review is the fit review.
+        fit=self.data.get('fit')
+        if not self._staged_fit():return fit
+        require('matrix' not in fit and 'reviewed' not in fit,'A staged fit takes its matrix and review from the fit stage only')
+        return dict({k:v for k,v in fit.items() if k!='matrixFrom'},matrix=self.result('fit')['matrix'],reviewed=True)
+
     def _sealed(self):
         # Paint can address the neck seal faces only when this run's repair produced the mesh.
         inputs=self.data['inputs']
@@ -222,17 +234,22 @@ class Runner:
         if stage=='precluster':
             from .mesh import precluster
             return precluster(self.input('raw'),folder/'oriented.glb',b)
+        if stage=='fit':
+            from .fit import propose
+            require(self._staged_fit(),'The fit stage needs fit.matrixFrom: fit')
+            source=self.input('comfyExport') if 'comfyExport' in m['inputs'] else self.result('precluster')['output']['path']
+            return propose(source,self.input('fitReference'),folder/'fit',exclude_lower=m['fit'].get('excludeLower',.25))
         if stage=='repair':
             from .mesh import repair
             if 'raw' not in m['inputs'] or 'comfyExport' in m['inputs']:
-                return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=m.get('fit'))
+                return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=self._fit())
             # Chained route: the reviewed precluster output of this run, with the shell inspection declared inline
             # and bound here to that exact output (no hardlinked copy or second manifest edit).
             inspection=m['mesh'].get('shellInspection')
             require(isinstance(inspection,dict) and 'sourceSha256' not in inspection and 'shellInspection' not in m['inputs'],
                     "Chained repair needs an inline mesh.shellInspection without sourceSha256")
             source=self.result('precluster')['output'];self._verify([source])
-            return repair(source['path'],folder/'final.glb',b,m['mesh'],dict(inspection,sourceSha256=source['sha256']),fit=m.get('fit'))
+            return repair(source['path'],folder/'final.glb',b,m['mesh'],dict(inspection,sourceSha256=source['sha256']),fit=self._fit())
         if stage=='unwrap':
             from .gltf import mesh,write_mesh
             from .uv import unwrap,raster_audit,audit_imported_uvs
@@ -354,14 +371,15 @@ class Runner:
                 uv_result=audit_imported_uvs(mesh(source),m.get('mesh',{}).get('maximumSubtexelFraction',.005),m.get('mesh',{}).get('uv',{}))
                 uv_path=folder/'imported-uv-audit.json';write(uv_path,uv_result,fresh=True)
                 uv_audit=pin(uv_path)
-            fit=m['fit']
+            fit=self._fit();bound=False
             if fit.get('sourceStage')=='unwrap':
                 # A reviewed matrix fit chosen before UVs exist binds to this run's reviewed unwrap output, never to an
                 # imported mesh; the manifest cannot carry that hash without invalidating every earlier receipt.
                 require('uvMesh' not in m['inputs'] and 'sourceSha256' not in fit,"sourceStage binding is only for this run's own unwrap")
-                fit=dict(fit,sourceSha256=pin(source)['sha256'])
+                fit=dict(fit,sourceSha256=pin(source)['sha256']);bound=True
             result=prepare(source,shades,layers,fit,fit['model'],folder/'converted')
-            if fit is not m['fit']:result['fitBinding']={'sourceStage':'unwrap','unwrapReceipt':self.state['stages']['unwrap']}
+            if bound:result['fitBinding']={'sourceStage':'unwrap','unwrapReceipt':self.state['stages']['unwrap']}
+            if self._staged_fit():result['fitStage']={'receipt':self.state['stages']['fit'],'matrix':fit['matrix']}
             if uv_audit is not None:result['uvAudit']=uv_audit
             if geometry_audit is not None:result['geometryAudit']=geometry_audit
             return result

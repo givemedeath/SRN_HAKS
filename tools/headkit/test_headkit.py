@@ -1766,7 +1766,7 @@ class ImportedOwnershipTests(Temporary):
         uv=self.file('uv.glb','unwrapped mesh');receipt={'path':'unwrap-receipt.json','sha256':'1'*64}
         def runner(fit,inputs):
             return SimpleNamespace(data={'inputs':inputs,'fit':fit,'mesh':{}},state={'stages':{'unwrap':receipt}},bindings={},
-                                   source=lambda *args:uv,input=lambda name:uv,
+                                   source=lambda *args:uv,input=lambda name:uv,_fit=lambda:fit,_staged_fit=lambda:False,
                                    result=lambda stage:{'shades':{'path':'s.png'},'ownership':{'path':'o.png'}})
         fit={'matrix':np.eye(4).tolist(),'reviewed':True,'sourceStage':'unwrap','model':'pmg0_head015'}
         passed={'passed':True}
@@ -2136,6 +2136,31 @@ class FitProposalTests(Temporary):
         from headkit.fit import ascii_surface
         path=self.root/'moved.mdl';path.write_text('node trimesh x\n  position 0 0 .1\n  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\nendnode')
         with self.assertRaisesRegex(ValueError,'identity'):ascii_surface(path)
+
+
+class FitStageTests(Temporary):
+    fixture=ChainedRepairTests.fixture;precluster=ChainedRepairTests.precluster
+    def staged(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'notes':'n'});reference=self.file('reference.mdl','ref')
+        data=read(runner.manifest_path);data['inputs']['fitReference']={'path':reference.name,'sha256':pin(reference)['sha256']}
+        data['fit']={'matrixFrom':'fit','model':'pmg0_head016','sourceStage':'unwrap'};data['mesh']['neck']={'seal':{'height':'measured','inset':.9,'rise':.003,'searchTop':-.03}}
+        write(runner.manifest_path,data);return Runner(runner.manifest_path,runner.bindings_path,runner.run)
+    def test_reviewed_fit_stage_feeds_repair_and_export(self):
+        runner=self.staged()
+        self.assertEqual(runner.dependencies('fit'),['precluster']);self.assertEqual(runner.dependencies('repair'),['precluster','fit'])
+        self.assertIn('fit',runner.dependencies('export'))
+        output=self.precluster(runner);runner.review('precluster','approved','Closed exterior inspected')
+        matrix=[[-.37,0,0,0],[0,-.37,0,.024],[0,0,.37,.042],[0,0,0,1]]
+        with patch('headkit.fit.propose',return_value={'matrix':matrix,'scale':.37}) as propose:runner.execute('fit')
+        self.assertEqual(propose.call_args.args[0],output['path']);self.assertTrue(propose.call_args.args[1].endswith('reference.mdl'))
+        with patch('headkit.mesh.repair',return_value={'ok':True}) as repair:
+            with self.assertRaisesRegex(ValueError,'pending'):runner._execute('repair',self.root)
+            runner.review('fit','approved','Overlay matches pmg0_head015 proportions');runner._execute('repair',self.root)
+        fit=repair.call_args.kwargs['fit'];self.assertEqual((fit['matrix'],fit['reviewed'],fit['model']),(matrix,True,'pmg0_head016'))
+        self.assertNotIn('matrixFrom',fit)
+    def test_staged_fit_cannot_also_carry_a_manifest_matrix(self):
+        runner=self.staged();runner.data['fit']['matrix']=np.eye(4).tolist()
+        with self.assertRaisesRegex(ValueError,'fit stage only'):runner._fit()
 
 
 class GeneratedFieldLineageTests(Temporary):
