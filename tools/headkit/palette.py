@@ -9,9 +9,10 @@ from .textures import surface,pad
 from .rays import EmbreeScene
 
 
-def project_ownership(source, views, embree, output):
-    """View labels are measured annotations, not RGB-threshold skin/hair guesses."""
-    verify([embree]);value=mesh(source);positions,owners,_=surface(value,1024);mapped=owners>=0
+def project_ownership(source, views, embree, output, *, max_subtexel_fraction=.005):
+    """View labels are measured annotations, not RGB-threshold skin/hair guesses. The 1K sampling gate uses the same
+    reviewed sub-texel allowance as unwrap and bake."""
+    verify([embree]);value=mesh(source);positions,owners,_=surface(value,1024,max_subtexel_fraction);mapped=owners>=0
     labels=np.full((1024,1024),255,np.uint8);points=positions[mapped];chosen=np.full(len(points),255,np.uint8)
     scene=EmbreeScene(embree['path'],value['positions'],value['faces']);reports=[]
     try:
@@ -40,6 +41,37 @@ def project_ownership(source, views, embree, output):
     require(unresolved==0,'Unobserved ownership remains; annotate a qualified atlas fallback instead of defaulting to hair')
     labels=pad(labels,mapped);Image.fromarray(labels).save(output)
     return {'output':pin(output),'views':reports,'unresolvedMappedSamples':unresolved}
+
+
+def rank_rows(color, ownership, palette_files, *, keep=4, chunk=512):
+    """Exact per-channel row ranking: count-weighted mean squared RGB distance of every pixel to its nearest eligible
+    shade. Distances are computed on unique colours as integer-exact float32 products. Rows are scored on the heaviest
+    colours first and dropped once their partial error exceeds the keep-th best complete error, which cannot change
+    the top rows. Ties keep the lower row."""
+    rgb=np.asarray(Image.open(color).convert('RGB'),np.uint8)
+    with Image.open(ownership) as image:
+        require(image.mode=='L','Ownership masks must be eight-bit L images');layers=np.asarray(image).copy()
+    require(rgb.shape[:2]==layers.shape and type(keep) is int and keep>0,'Ranking colour and ownership must match');result={}
+    for key,path in palette_files.items():
+        selected=layers==int(key);require(selected.any(),'Automatic row selection needs mapped pixels; give channel '+key+' an explicit row')
+        packed=rgb[selected].astype(np.int32)@np.array([65536,256,1],np.int32)
+        values,counts=np.unique(packed,return_counts=True);order=np.argsort(-counts,kind='stable');values,counts=values[order],counts[order]
+        colours=np.c_[values>>16,(values>>8)&255,values&255,np.ones_like(values)].astype(np.float32);norms=(colours[:,:3]**2).sum(1)
+        palette=np.asarray(Image.open(path).convert('RGBA'));require(palette.shape[1]==256,'Stock palettes have 256 shades')
+        # |c-t|^2 = |c|^2 + min over t of (|t|^2 - 2c.t): one GEMM per chunk; every term is an integer below 2^24.
+        tables={row:np.r_[-2*table.T,(table*table).sum(1)[None,:]] for row in range(len(palette))
+                for table in [palette[row,(palette[row,:,3]>0)&(np.arange(256)<255),:3].astype(np.float32)] if len(table)}
+        require(tables,'No palette row has opaque shades')
+        def error(row,lo,hi):
+            return float(np.dot((norms[lo:hi]+(colours[lo:hi]@tables[row]).min(1)).astype(np.float64),counts[lo:hi]))
+        best=[]
+        for estimate,row in sorted((error(row,0,chunk),row) for row in tables):
+            limit=best[-1][0] if len(best)==keep else np.inf;total=estimate;done=chunk
+            while total<=limit and done<len(colours):step=min(done,16384);total+=error(row,done,done+step);done+=step
+            if total<=limit:best=sorted(best+[(total,row)])[:keep]
+        result[key]={'row':best[0][1],'pixels':int(counts.sum()),'uniqueColours':len(colours),'rowsScored':len(tables),
+                     'top':[{'row':row,'meanSquaredDistance':total/counts.sum()} for total,row in best]}
+    return result
 
 
 def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None):

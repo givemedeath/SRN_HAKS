@@ -5,7 +5,7 @@ The fresh [operator runbook](head-generation-toolkit.md) is the supported entry 
 | Check | Evidence |
 |---|---|
 | Default generation profile | Frozen actual #74 graph/settings, also used by #73; single-image checkpoint and paired geometry/appearance inputs |
-| Alternate complex-head profile | Corrected attempt51 four-view geometry/front-only texture graph, distinct multiview checkpoint and20° rig; view-order/common-frame regressions |
+| Alternate complex-head profile | Attempt51 multiview graph, distinct multiview checkpoint and20° rig, now conditioned by four smooth-clay views for geometry and the four matching detailed views for texture; role, view-order and common-frame regressions |
 | Bob #73 | Imported reviewed20,000-triangle UV mesh; closed physical shell, no zero-area faces/winding conflicts; reconstructed1K PLT bytes exact; sanitized native corner/normal/UV roundtrip |
 | Undercut #74 | Same checks on its own20,000-triangle source and annotations; reconstructed1K PLT bytes exact |
 | Fresh native packaging | Actual isolated NWN:EE compile of #74 through the reusable runner; four stale tail bytes zeroed, other bytes unchanged, independent decoded geometry verified; HAK contains exactly MDL+PLT |
@@ -17,7 +17,7 @@ The fresh [operator runbook](head-generation-toolkit.md) is the supported entry 
 
 The retained-head replay **does not recompute generation, reduction, tones or semantic ownership**. It imports the accepted meshes, fits and reviewed layer/shade data honestly. The new packaging output is diagnostic evidence, not a replacement production asset or a new client acceptance. Historical #73/#74 surface deviations exceeded the old0.4% research gate and were visually accepted; this extraction does not rewrite those results.
 
-No fresh GPU generation was submitted, and the newly named ComfyUI adapters were not installed into or used to restart the shared instance. Adapter installation/restart and an operator-reviewed trial remain prerequisites for a first live use of the extracted toolkit. The multiview graph is retained from a successful historical route; the newer smooth-clay preparation has not been validated end-to-end with it.
+No fresh GPU generation was submitted, and the newly named ComfyUI adapters were not installed into or used to restart the shared instance. Adapter installation/restart and an operator-reviewed trial remain prerequisites for a first live use of the extracted toolkit. The multiview graph is retained from a successful historical route (blank-orbit geometry, front-only texture); its current smooth-clay geometry and four-view detailed texture conditioning has had only the unguarded diagnostic GPU run described in [Unguarded multiview trial](#unguarded-multiview-trial-2026-10-22), not a guarded end-to-end validation.
 
 The initial generic profile intentionally rejects transformed/multiple-primitive/rigged GLBs. It does not claim automatic anatomical repair, universal race support, perfect semantic masks or automatic production readiness. A numerical pass never substitutes for the prescribed clay, texture, channel, fit and in-game review.
 
@@ -64,3 +64,16 @@ Checkpoint-loader provenance review (2026-10-20): each prepared request now free
 ## Controlled startup replaces live-object inspection (2026-10-21)
 
 The active runtime contract now uses an offline frozen deployment manifest and a controlled process session (runtime schema 3). The prior source/object verifier and all of its research cases remain available at commit `7d2259fef471406343e0dba0db66fb82f7f71f6c`; an exact byte archive is retained with the ignored controlled-startup evidence. Historical validation entries above describe their original revisions and do not certify the replacement. The new suite exercises startup, changed source/runtime/settings, session restart, unmanaged-server refusal, occupied-port refusal, isolated script import and request preflight using CPU fixtures and fake servers. Geometry, UV, appearance, review, PLT, loader-model and native-export gates are retained. No real ComfyUI adapter installation, server restart, GPU job or production-asset change is part of this migration. A first live controlled deployment remains an operator step after the intended deployment and scheduler endpoint are available.
+
+## Unguarded multiview trial (2026-10-22)
+
+A new male Troll head (`troll-male-01`) gave the first GPU run of `pixal-multiview-v1` with smooth-clay geometry roles and four detailed appearance roles. Prompts came from this branch's `comfy.compile_graph`, and inputs were staged as `request_stage` stages them. Generation ran directly against a plain local ComfyUI. **This was not the guarded toolkit path:** there was no controlled startup, ledger, request receipt or `submit`/`collect`. The installed `srn_headkit` adapter predates `managed_startup.py`, and controlled startup still has not been run live. No production, native or client approval follows from this trial.
+
+| Step | Result |
+|---|---|
+| Design | Flux.2 dev (turbo LoRA) front design, user-approved. Flux.2 could not keep the asymmetric cyberware, crest height or horns consistent across separate views or a turnaround sheet, so its views were rejected. |
+| References | Bootstrap only: a single-image Pixal3D mesh and texture of the approved design (MoGe FOV 32.2°). Its untextured rear crest was recolored in the atlas by a 3D-selected, color-gated mask. Blender 4.0 rendered clay and textured views at 0/90/180/270° with one 20° rig. `prepare_multiview` passed: clay/detail IoU ≥ 0.9999 and identical cranial metrics. Landmarks are projections of shared 3D points; the crown sits at the crest base. |
+| Geometry (370 s) | Shape and every recorded feature match the inputs from all four sides. The surface is faceted and crumpled, with horizontal banding on the rear skull and neck. Approved only to exercise the appearance stage. |
+| Appearance (362 s) | The rear is textured from the back view; skin, horns, bands, rings and scar transfer. The cybereye lost its red lens, the rear crest stripe faded and the tattoos are faint. Review used a remesh/decimate/unwrap bake, not the toolkit export path. |
+
+The references are renders of the bootstrap head. This trial therefore checks the new role wiring and reconstruction from consistent views; it does not show that multiview outperforms single image on independently authored four-view references. The bootstrap, failed bootstrap appearance and multiview submissions were not recorded in a headkit attempt ledger. Generated assets and receipts remain ignored scratch evidence.

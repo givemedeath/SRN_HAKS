@@ -46,6 +46,15 @@ HEARTBEAT='''void main() {
   if(n==13){ClearAllActions();ActionPlayAnimation(ANIMATION_LOOPING_DEAD_FRONT,1.0,6.0);}
   if(n==14){ClearAllActions();ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectDeath(),OBJECT_SELF);}
 }'''
+# Actors revive 10 s after death and restart the motion sequence, so death/raise cycles repeat without a reload.
+DEATH='''void Revive(object o){
+  ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectResurrection(),o);
+  ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectHeal(GetMaxHitPoints(o)),o);
+  SetLocalInt(o,"HEAD_STEP",0);
+  WriteTimestampedLogEntry("HEAD_FIXTURE_REVIVE actor="+GetTag(o));}
+void main(){object o=OBJECT_SELF;
+  WriteTimestampedLogEntry("HEAD_FIXTURE_DEATH actor="+GetTag(o));
+  AssignCommand(GetModule(),DelayCommand(10.0,Revive(o)));}'''
 
 
 def fixture_identity(config):
@@ -81,7 +90,7 @@ def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_sc
         'CurrentHitPoints':field('short',100),'MaxHitPoints':field('short',100),'HitPoints':field('short',100),
         'XPosition':field('float',x),'YPosition':field('float',y),'ZPosition':field('float',0),
         'XOrientation':field('float',0),'YOrientation':field('float',1),'ItemList':field('list',[]),'Equip_ItemList':field('list',[]),
-        'ScriptSpawn':field('resref','sr_h_spawn'),'ScriptHeartbeat':field('resref','sr_h_hb'),
+        'ScriptSpawn':field('resref','sr_h_spawn'),'ScriptHeartbeat':field('resref','sr_h_hb'),'ScriptDeath':field('resref','sr_h_death'),
         'VarTable':field('list',[{'__struct_id':0,'Name':field('cexostring',key),'Type':field('dword',1),'Value':field('int',value)}
                                for key,value in (('HEAD_SLOT',slot),('SKIN_ROW',skin),('HAIR_ROW',hair),('HEAD_HELMET',helmet))])})
     item['VarTable']['value'].append({'__struct_id':0,'Name':field('cexostring','BODY_VISUAL_SCALE'),
@@ -192,8 +201,8 @@ def build(config_path,output):
            'FactionRep':field('dword',0 if {i,j}=={1,2} else 50)} for i in range(5) for j in range(5) if i!=j]
     fac=structure('FAC ',FactionList=field('list',factions),RepList=field('list',reps))
     for name,document in (('module.ifo',ifo),('sr_h_floor.are',area),('sr_h_floor.git',git),('repute.fac',fac)):gff(name,document)
-    scripts={'sr_h_spawn':SPAWN,'sr_h_hb':HEARTBEAT,'sr_h_enter':'''void main(){object p=GetEnteringObject();if(!GetIsPC(p))return;
-      SetLocalInt(GetModule(),"HEAD_TEST_STARTED",1);SendMessageToPC(p,"Head pilot: native candidates; client acceptance pending. Reload to repeat motion/death sequence.");
+    scripts={'sr_h_spawn':SPAWN,'sr_h_hb':HEARTBEAT,'sr_h_death':DEATH,'sr_h_enter':'''void main(){object p=GetEnteringObject();if(!GetIsPC(p))return;
+      SetLocalInt(GetModule(),"HEAD_TEST_STARTED",1);SendMessageToPC(p,"Head pilot: native candidates; client acceptance pending. Actors revive 10 s after death and repeat the motion sequence.");
       WriteTimestampedLogEntry("HEAD_FIXTURE_CLIENT_ENTER");}'''}
     for name,text in scripts.items():
         path=stage/(name+'.nss');path.write_text(text,encoding='ascii')

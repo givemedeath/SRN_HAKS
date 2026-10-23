@@ -84,7 +84,7 @@ def asset(manifest_path, item):
 def manifest(path):
     data = read(path)
     allowed = {'schemaVersion', 'id', 'inputs', 'features', 'alignment', 'camera', 'mesh',
-               'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile'}
+               'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1, 'Unsupported manifest keys/version')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')) is not None, 'Safe asset ID required')
     require(data.get('profile', 'pixal-single-v1') in ('pixal-single-v1', 'pixal-multiview-v1'), 'Unsupported generation profile')
@@ -96,8 +96,13 @@ def manifest(path):
     return data
 
 
+# Set by the runner around a stage: names of the byte-bound libraries the stage actually loads.
+LIBRARIES_USED = None
+
+
 def library(bindings, name):
     """Load only a completely inventoried, byte-bound installation."""
+    if LIBRARIES_USED is not None: LIBRARIES_USED.add(name)
     row = bindings.get('libraries', {}).get(name)
     require(isinstance(row, dict) and isinstance(row.get('directory'), str)
             and isinstance(row.get('files'), list) and row['files'],
