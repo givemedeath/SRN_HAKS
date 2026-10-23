@@ -616,18 +616,36 @@ class MeshTests(Temporary):
         self.assertEqual(report['unmappedUvFaces'],[0])
         self.assertEqual(report['mappedTexelsByFace'],[0,int(np.count_nonzero(owners==1))])
 
-    def test_unwrap_routes_unsampled_faces_into_bounded_local_repair(self):
+    def test_unwrap_routes_unsampled_faces_into_pack_only_own_charts(self):
         from headkit.uv import unwrap
         p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
         value={'positions':p,'faces':np.array([[0,1,2]]),
                'uv':np.array([[[.01,.01],[.02,.01],[.01,.02]]])}
-        atlas=SimpleNamespace(width=2048,height=2048)
         with patch('headkit.uv.library'),patch('headkit.uv.physical_fans',return_value=(p,value['faces'])), \
-             patch('headkit.uv._pack',return_value=(value['uv']/1024,atlas,1)), \
+             patch('headkit.uv._chart',return_value=(value['uv']/1024,(2048,2048),1.0,1)) as chart, \
              patch('headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':0}}), \
-             patch('headkit.uv._local_groups',side_effect=ValueError('bounded repair reached')) as repair:
-            with self.assertRaisesRegex(ValueError,'bounded repair reached'):unwrap(value,{})
-            self.assertEqual(repair.call_args.args[1],[0])
+             patch('headkit.uv._repack',side_effect=ValueError('own chart repack reached')) as repack:
+            with self.assertRaisesRegex(ValueError,'own chart repack reached'):unwrap(value,{})
+            chart.assert_called_once()
+            self.assertEqual(repack.call_args.args[5],[0])
+
+    def test_charts_touching_at_a_uv_corner_join_only_by_vertex(self):
+        from headkit.uv import chart_ids
+        uv=np.array([[[0,0],[.2,0],[0,.2]],[[.2,0],[.4,0],[.4,.2]],[[.6,.6],[.8,.6],[.6,.8]]],float)
+        self.assertEqual(len(set(chart_ids(uv))),3)
+        labels=chart_ids(uv,'vertex');self.assertEqual(labels[0],labels[1]);self.assertNotEqual(labels[0],labels[2])
+        with self.assertRaisesRegex(ValueError,'edge or vertex'):chart_ids(uv,'proximity')
+
+    def test_own_chart_is_planar_unique_and_owns_a_1k_texel(self):
+        from headkit.uv import _own_chart,raster_audit
+        corners=np.array([[0,0,0],[1e-4,0,0],[0,1e-4,0]],float)
+        a=_own_chart(corners,(2048,2048),10.0,0);b=_own_chart(corners,(2048,2048),10.0,1)
+        self.assertFalse(np.allclose(a[0],b[0]))
+        twice=abs((a[1,0]-a[0,0])*(a[2,1]-a[0,1])-(a[1,1]-a[0,1])*(a[2,0]-a[0,0]))
+        perimeter=sum(np.linalg.norm(a[k]-a[(k+1)%3]) for k in range(3))
+        self.assertGreaterEqual(twice/perimeter*1024,1.5-1e-9)
+        placed=(a-a.min(0))[None]+.25;report,_=raster_audit(placed,1024)
+        self.assertEqual(report['unmappedUvFaces'],[])
 
     def test_imported_and_new_atlases_reject_unsampled_faces_at_each_resolution(self):
         p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
@@ -773,7 +791,7 @@ class UvBindingTests(Temporary):
         from headkit.uv import unwrap
         bindings=self.fixture(self.root/'tools-bank'/'libraries');module=SimpleNamespace(__file__=bindings['libraries']['xatlas']['files'][0]['path'])
         with patch('headkit.uv.physical_fans',return_value=(np.zeros((3,3)),np.array([[0,1,2]]))), \
-             patch('headkit.uv._pack',side_effect=RuntimeError('verified pack reached')) as pack, \
+             patch('headkit.uv._chart',side_effect=RuntimeError('verified pack reached')) as pack, \
              patch('headkit.common.importlib.import_module',return_value=module) as importer:
             with self.assertRaisesRegex(RuntimeError,'verified pack reached'):unwrap({},bindings)
             importer.assert_called_once_with('xatlas');self.assertIs(pack.call_args.args[0],module)
