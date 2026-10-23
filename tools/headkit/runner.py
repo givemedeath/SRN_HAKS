@@ -158,7 +158,7 @@ class Runner:
             return precluster(self.input('raw'),folder/'oriented.glb',b)
         if stage=='repair':
             from .mesh import repair
-            return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')))
+            return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=m.get('fit'))
         if stage=='unwrap':
             from .gltf import mesh,write_mesh
             from .uv import unwrap,raster_audit,audit_imported_uvs
