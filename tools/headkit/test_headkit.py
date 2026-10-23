@@ -823,6 +823,26 @@ class InputInventoryTests(Temporary):
         with self.assertRaisesRegex(ValueError,'Stale file pin: .*source-roots.json'):
             verify(frozen)
 
+    def test_inputs_skips_receipts_from_other_code_instead_of_failing(self):
+        from headkit.__main__ import main
+        from headkit.common import source_version,digest,manifest
+        source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
+        write(manifest_path,{'schemaVersion':1,'id':'stale-run','inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
+        bindings_path=self.root/'bindings.json';write(bindings_path,self.bindings_data())
+        run=self.root/'run';run.mkdir();changed=self.file('changed.py','old helper')
+        old_pin=pin(changed);changed.write_text('helper edited since that receipt')
+        current=self.file('current.json','current output')
+        rows={}
+        for stage,code,inputs in (('repair','old-code',[old_pin]),('unwrap',source_version(),[pin(current)])):
+            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':digest(manifest(manifest_path)),'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
+        write(run/'state.json',{'schemaVersion':1,'id':'stale-run','stages':rows})
+        output=self.root/'inputs.json'
+        with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),'--bindings',str(bindings_path),
+              '--output',str(output),'--run',str(run)]),patch('builtins.print') as shown:
+            main()
+        paths=read(output);self.assertIn(str(current.resolve()),paths);self.assertNotIn(str(changed.resolve()),paths)
+        self.assertIn('"staleStagesSkipped": [\n    "repair"\n  ]',shown.call_args.args[0])
+
     def test_inputs_requires_the_declared_installed_snapshot(self):
         adapter,local=self.installed_adapter()
         with self.assertRaises(FileNotFoundError):self.input_paths(local)

@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 import shutil
 import uuid
-from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins
+from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,digest
 from . import comfy
 
 
@@ -207,10 +207,15 @@ def main():
             pins += [pin(adapter/'source-roots.json')]+[pin(p) for p in adapter.glob('*.py')]
         if a.run and (a.run/'state.json').exists():
             pins.append(pin(a.run/'state.json'))
-            state=read(a.run/'state.json');pins+=list(state.get('reviews',{}).values())
-            for row in state['stages'].values():
-                pins.append(row);pins+=read(row['path'])['inputs']+read(row['path'])['outputs']
+            state=read(a.run/'state.json');stale=[]
+            for stage,row in state['stages'].items():
+                receipt=read(row['path'])
+                # A receipt from other code or another manifest is rerun, not consumed; its old pins are not inputs.
+                if receipt.get('codeVersion')!=source_version() or receipt.get('manifestHash')!=digest(data):stale.append(stage);continue
+                pins.append(row);pins+=receipt['inputs']+receipt['outputs']
+                if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
         verify(pins);paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}
+        if a.run and (a.run/'state.json').exists():result['staleStagesSkipped']=stale
     elif a.command=='startup-config':result=startup_config(bindings(a.bindings),a.output)
     elif a.command=='request':
         local=bindings(a.bindings)
