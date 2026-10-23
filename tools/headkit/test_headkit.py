@@ -1605,6 +1605,51 @@ class ResumeTests(Temporary):
         runner=self.fixture();first=runner.execute('prepare');self.assertFalse(first['reused']);self.assertTrue(runner.execute('prepare')['reused'])
         image=Path(first['result']['images']['geometry-pair.png']['path']);image.write_bytes(b'changed')
         self.assertIn('staleOrFailed',runner.status()['stages']['prepare']);self.assertFalse(runner.execute('prepare')['reused'])
+    def unused_field(self):
+        # A large manifest input that prepare never reads.
+        field=self.file('field.npz','generated field');data=read(self.root/'manifest.json')
+        data['inputs']['field']={'path':'field.npz','sha256':pin(field)['sha256']};write(self.root/'manifest.json',data)
+        return field
+    def test_receipt_pins_only_the_inputs_a_stage_read(self):
+        runner=self.fixture();field=self.unused_field()
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run');runner.execute('prepare')
+        receipt=read(runner.state['stages']['prepare']['path']);paths={p['path'] for p in receipt['inputs']}
+        self.assertIn(str((self.root/'clay.png').resolve()),paths);self.assertIn(str((self.root/'detail.png').resolve()),paths)
+        self.assertNotIn(str(field.resolve()),paths)
+    def test_reading_undeclared_input_or_library_fails_the_stage(self):
+        from headkit import common
+        runner=self.fixture();self.unused_field()
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+        data=read(self.root/'manifest.json');data['inputs']['raw']=data['inputs'].pop('field');write(self.root/'manifest.json',data)
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:(runner.input('raw'),{})[1]):
+            with self.assertRaisesRegex(ValueError,'undeclared manifest inputs: raw'):runner.execute('prepare')
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:(common.LIBRARIES_USED.add('xatlas'),{})[1]):
+            with self.assertRaisesRegex(ValueError,'undeclared libraries: xatlas'):runner.execute('prepare')
+        self.assertIsNone(common.LIBRARIES_USED)
+    def test_upstream_check_hashes_each_file_once(self):
+        from headkit import common
+        runner=self.fixture();runner.execute('prepare');runner.review('prepare','approved','synthetic pair reviewed')
+        receipt=read(runner.state['stages']['prepare']['path']);output=receipt['outputs'][0]
+        calls=[];real=common.sha
+        with patch('headkit.common.sha',side_effect=lambda path:(calls.append(str(path)),real(path))[1]):
+            runner._verified=set();runner._verify([output,output]);runner._verify([output])
+            self.assertEqual(calls.count(output['path']),1)
+            runner.result('prepare');runner.result('prepare')
+        # Each top-level check starts a fresh memo, so a file changed between checks is still caught.
+        self.assertEqual(calls.count(output['path']),3)
+        Path(output['path']).write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
+    def test_launch_inputs_cover_only_the_launched_stages(self):
+        from headkit.__main__ import main
+        self.fixture();field=self.unused_field();listed={}
+        for name,extra in (('all',[]),('prepare',['--stages','prepare'])):
+            output=self.root/f'inputs-{name}.json'
+            with patch('sys.argv',['headkit','inputs','--manifest',str(self.root/'manifest.json'),'--bindings',str(self.root/'bindings.json'),
+                  '--output',str(output),'--run',str(self.root/'run'),*extra]),patch('builtins.print'):main()
+            listed[name]=read(output)
+        self.assertIn(str(field.resolve()),listed['all']);self.assertNotIn(str(field.resolve()),listed['prepare'])
+        self.assertIn(str((self.root/'clay.png').resolve()),listed['prepare'])
     def test_two_failures_are_retained_and_block_third(self):
         runner=self.fixture()
         for _ in range(2):

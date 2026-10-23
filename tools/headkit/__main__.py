@@ -175,7 +175,7 @@ def main():
         if name=='submit':p.add_argument('--request',required=True,type=Path)
         if name=='collect':p.add_argument('--wait',action='store_true')
     p=sub.add_parser('replay');p.add_argument('--config',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
-    p=sub.add_parser('inputs');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--run',type=Path)
+    p=sub.add_parser('inputs');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--run',type=Path);p.add_argument('--stages')
     p=sub.add_parser('startup-config');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
     a=parser.parse_args()
@@ -189,8 +189,19 @@ def main():
                 if a.command=='chain':result=chain(runner,a.stages)
                 else:result=runner.review(a.stage,a.decision,a.notes) if a.command=='review' else runner.execute('prepare' if a.command=='prepare' else a.stage)
     elif a.command=='inputs':
-        data=manifest(a.manifest);local=bindings(a.bindings)
-        pins=code_pins()+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,p) for p in data['inputs'].values()]+python_package_pins(local)
+        data=manifest(a.manifest);local=bindings(a.bindings);closure=None
+        if a.stages:
+            # Launch-scoped list: the stages' declared inputs plus the receipts of everything upstream of them.
+            from .runner import Runner,STAGES,stage_roles,stage_libraries
+            chosen=a.stages.split(',');require(chosen and all(s in STAGES for s in chosen),'Unknown stage in --stages')
+            require(a.run is not None,'--stages needs --run');deps=Runner(a.manifest,a.bindings,a.run).dependencies
+            closure=set();pending=list(chosen)
+            while pending:
+                stage=pending.pop()
+                if stage not in closure:closure.add(stage);pending+=deps(stage)
+            roles=set().union(*(stage_roles(s,data) for s in chosen));libraries=set().union(*(stage_libraries(s) for s in chosen))
+        else:roles=set(data['inputs']);libraries=set(local.get('libraries',{}))
+        pins=code_pins()+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,data['inputs'][r]) for r in sorted(roles)]+python_package_pins(local)
         for name in ('toolchain','migrationReceipt'):
             if name in local:pins.append(pin(local[name]))
         for name in ('python','blender','client','embree'):
@@ -201,7 +212,7 @@ def main():
         if 'comfyRuntimeRoots' in local:
             from .comfy_nodes.managed_startup import runtime_inventory
             pins+=runtime_inventory(local['comfyRuntimeRoots'])
-        for row in local.get('libraries',{}).values():pins+=row['files']
+        for name in sorted(libraries):pins+=local['libraries'][name]['files']
         if 'comfyCustomNodes' in local:
             adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
             pins += [pin(adapter/'source-roots.json')]+[pin(p) for p in adapter.glob('*.py')]
@@ -210,6 +221,7 @@ def main():
             # receipts and reviews it points to are the frozen inputs.
             state=read(a.run/'state.json');stale=[]
             for stage,row in state['stages'].items():
+                if closure is not None and stage not in closure:continue
                 receipt=read(row['path'])
                 # A receipt from other code or another manifest is rerun, not consumed; its old pins are not inputs.
                 if receipt.get('codeVersion')!=source_version() or receipt.get('manifestHash')!=digest(data):stale.append(stage);continue

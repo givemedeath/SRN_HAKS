@@ -6,10 +6,30 @@ import traceback
 import uuid
 import numpy as np
 from PIL import Image
+from . import common
 from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins
 
 # Every stage produces evidence that needs an explicit operator decision before consumption.
 STAGES=('prepare','precluster','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
+
+
+def stage_roles(stage,data):
+    """Manifest input roles a stage may read. Receipts pin only the roles actually read, and reading one outside this
+    declaration fails the stage, so launch input lists built from it stay complete."""
+    inputs=set(data.get('inputs',{}));palettes=set(data.get('palette',{}).get('inputs',{}).values())
+    roles={'prepare':{r for r in inputs if r in ('clay','detail') or r.endswith(('Clay','Detail'))},
+        'precluster':{'raw'},'repair':{'comfyExport','shellInspection'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
+        'paint':{'uvMesh','basecolor4k'},
+        'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
+        'tone':{'uvMesh','basecolor4k','metallic4k','ownership4k','ownership1k','detail','frontDetail'}|palettes,
+        'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes,'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
+        'render':{'uvMesh'}|set(data.get('render',{}).get('mapInputs',{}).values())}[stage]
+    return roles&inputs
+
+
+def stage_libraries(stage):
+    """Byte-bound libraries a stage may load; enforced like stage_roles."""
+    return {'precluster':{'igl','pymeshlab'},'repair':{'igl','pymeshlab'},'unwrap':{'xatlas'}}.get(stage,set())
 
 
 class Runner:
@@ -20,9 +40,17 @@ class Runner:
         self.state_path=self.run/'state.json'
         self.state=read(self.state_path) if self.state_path.exists() else {'schemaVersion':1,'id':self.data['id'],'stages':{}}
         require(self.state['id']==self.data['id'],'Run belongs to a different head')
+        self._verified=set();self._read=None
+
+    def _verify(self,pins):
+        # Upstream receipts repeat the same files; hash each (path, digest) once per check before execution.
+        # The post-execution check in execute stays uncached so changes during a stage are still caught.
+        fresh={(p['path'],p['sha256']):p for p in pins if (p['path'],p['sha256']) not in self._verified}
+        verify(list(fresh.values()));self._verified.update(fresh)
 
     def input(self,name):
         require(name in self.data['inputs'],'Missing manifest input: '+name)
+        if self._read is not None:self._read.add(name)
         if name in ('ownership1k','ownership4k'):
             config=self.data.get('ownership',{})
             require(config.get('reviewed') is True,'Imported ownership needs reviewed UV-mesh binding')
@@ -34,7 +62,8 @@ class Runner:
             geometry_role=next((role for role in ('uvMesh','repairedMesh','comfyExport')
                                 if role in self.data['inputs']),None)
             require(geometry_role is not None,'Generated field needs an active geometry input')
-            geometry=asset(self.manifest_path,self.data['inputs'][geometry_role])
+            # The approval binds the manifest's pinned geometry; bake does not read that mesh, so it is not re-hashed here.
+            geometry=self.data['inputs'][geometry_role]
             field=self.data['inputs'][name]
             require(review.get('decision')=='approved' and isinstance(review.get('notes'),str)
                     and review['notes'].strip() and review.get('geometryInput')==geometry_role
@@ -53,10 +82,11 @@ class Runner:
         return asset(self.manifest_path,self.data['inputs'][name])['path']
 
     def result(self,stage,*,require_review=True,_checked=None):
-        if _checked is None:_checked={'results':{},'codeVersion':source_version()}
+        # Each top-level check starts a fresh hash memo; nested and sibling checks in one operation share it.
+        if _checked is None:_checked={'results':{},'codeVersion':source_version()};self._verified=set()
         if stage in _checked['results']:return _checked['results'][stage]
         row=self.state['stages'].get(stage);require(row is not None,'Stage not completed: '+stage)
-        receipt=read(row['path']);verify([row]);verify(receipt['outputs']);verify(receipt['inputs'])
+        receipt=read(row['path']);self._verify([row]);self._verify(receipt['outputs']);self._verify(receipt['inputs'])
         require(receipt['codeVersion']==_checked['codeVersion'] and receipt['manifestHash']==digest(self.data)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
         require(receipt['state']=='complete','Failed stage: '+stage)
@@ -67,7 +97,7 @@ class Runner:
         if require_review:
             review_pin=self.state.get('reviews',{}).get(stage)
             require(review_pin is not None,'Visual review pending: '+stage)
-            verify([review_pin]);review=read(review_pin['path'])
+            self._verify([review_pin]);review=read(review_pin['path'])
             require(review.get('stageReceipt')==row,'Stale visual review: '+stage)
             require(review.get('decision')=='approved','Visual review rejected: '+stage)
             _checked['results'][stage]=receipt['result']
@@ -76,7 +106,7 @@ class Runner:
     def source(self,provided,stage,key):
         # Importing a reviewed artifact is explicit: it does not pretend its prior stages ran here.
         if provided in self.data['inputs']:return self.input(provided)
-        row=self.result(stage)[key];verify([row]);return row['path']
+        row=self.result(stage)[key];self._verify([row]);return row['path']
 
     def dependencies(self,stage):
         """Reviewed upstream stages this manifest makes the stage consume."""
@@ -113,15 +143,13 @@ class Runner:
                   and read(p).get('codeVersion')==source_version() and read(p).get('state')=='failed']
         require(len(failures)<2,'Two stage failures retained; fix the manifest or request a bounded exception before more trials')
         inputs=[pin(self.manifest_path),pin(self.bindings_path)]+package_inputs+code_pins()
-        inputs += [asset(self.manifest_path,p) for p in self.data['inputs'].values()]
-        for row in self.bindings.get('libraries',{}).values():inputs.extend(row['files'])
         for name in ('python','blender','client','embree'):
             if name in self.bindings:inputs.append(self.bindings[name])
         for name in ('toolchain','migrationReceipt'):
             if name in self.bindings:inputs.append(pin(self.bindings[name]))
-        dependency_pins={}
+        dependency_pins={};checked={'results':{},'codeVersion':source_version()};self._verified=set()
         for dependency in self.dependencies(stage):
-            self.result(dependency);row=self.state['stages'][dependency]
+            self.result(dependency,_checked=checked);row=self.state['stages'][dependency]
             dependency_pins[dependency]=row
             previous=read(row['path']);inputs.append(row);inputs.extend(previous['outputs'])
             inputs.append(self.state['reviews'][dependency])
@@ -129,8 +157,16 @@ class Runner:
         begun=time.monotonic();receipt={'stage':stage,'manifestHash':digest(self.data),'bindingsHash':digest(self.bindings),
             'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
         write(folder/'intent.json',receipt,fresh=True)
+        self._read=set();common.LIBRARIES_USED=set()
         try:
             result=self._execute(stage,folder);digest(result)
+            undeclared=self._read-stage_roles(stage,self.data)
+            require(not undeclared,'Stage read undeclared manifest inputs: '+', '.join(sorted(undeclared)))
+            undeclared=common.LIBRARIES_USED-stage_libraries(stage)
+            require(not undeclared,'Stage loaded undeclared libraries: '+', '.join(sorted(undeclared)))
+            # Only what the stage read is pinned (and re-verified now, after execution).
+            inputs+=[asset(self.manifest_path,self.data['inputs'][role]) for role in sorted(self._read)]
+            for name in sorted(common.LIBRARIES_USED):inputs.extend(self.bindings['libraries'][name]['files'])
             python_package_pins(self.bindings,require_imports=self.runtime is not None)
             verify(inputs)
             receipt.update(state='complete',result=result,outputs=[pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json','receipt.json')])
@@ -139,6 +175,7 @@ class Runner:
                 outputs=[pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json','receipt.json')])
             raise
         finally:
+            self._read=None;common.LIBRARIES_USED=None
             receipt['elapsedSeconds']=time.monotonic()-begun;write(folder/'receipt.json',receipt,fresh=True)
             self.state['stages'][stage]=pin(folder/'receipt.json');write(self.state_path,self.state)
         return {'reused':False,'result':result}

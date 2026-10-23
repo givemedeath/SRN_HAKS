@@ -96,8 +96,13 @@ def manifest(path):
     return data
 
 
+# Set by the runner around a stage: names of the byte-bound libraries the stage actually loads.
+LIBRARIES_USED = None
+
+
 def library(bindings, name):
     """Load only a completely inventoried, byte-bound installation."""
+    if LIBRARIES_USED is not None: LIBRARIES_USED.add(name)
     row = bindings.get('libraries', {}).get(name)
     require(isinstance(row, dict) and isinstance(row.get('directory'), str)
             and isinstance(row.get('files'), list) and row['files'],
