@@ -206,7 +206,8 @@ def main():
             adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
             pins += [pin(adapter/'source-roots.json')]+[pin(p) for p in adapter.glob('*.py')]
         if a.run and (a.run/'state.json').exists():
-            pins.append(pin(a.run/'state.json'))
+            # state.json is the run's mutable index, rewritten by run/chain/review during the launch; the immutable
+            # receipts and reviews it points to are the frozen inputs.
             state=read(a.run/'state.json');stale=[]
             for stage,row in state['stages'].items():
                 receipt=read(row['path'])

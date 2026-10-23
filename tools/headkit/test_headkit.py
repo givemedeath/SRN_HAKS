@@ -841,6 +841,7 @@ class InputInventoryTests(Temporary):
               '--output',str(output),'--run',str(run)]),patch('builtins.print') as shown:
             main()
         paths=read(output);self.assertIn(str(current.resolve()),paths);self.assertNotIn(str(changed.resolve()),paths)
+        self.assertNotIn(str((run/'state.json').resolve()),paths)
         self.assertIn('"staleStagesSkipped": [\n    "repair"\n  ]',shown.call_args.args[0])
 
     def test_inputs_requires_the_declared_installed_snapshot(self):
