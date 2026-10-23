@@ -2075,6 +2075,36 @@ class ChainedRepairTests(Temporary):
             repair.assert_not_called()
 
 
+class FitProposalTests(Temporary):
+    def head(self):
+        """Head-local reference: an egg skull with a nose bump and a neck, face toward +y."""
+        u,v=np.meshgrid(np.linspace(.05,np.pi-.05,40),np.linspace(0,2*np.pi,48,endpoint=False),indexing="ij");p=np.stack([np.sin(u)*np.cos(v),np.sin(u)*np.sin(v),np.cos(u)],-1).reshape(-1,3)
+        p=p*[.08,.1,.12]+[0,0,.02];nose=np.exp(-((p[:,0]/.02)**2+((p[:,2]-.01)/.025)**2))*(p[:,1]>0);p[:,1]+=.035*nose
+        p[p[:,2]<-.06,:2]*=.6;faces=[]
+        for i in range(39):
+            for j in range(48):
+                a,b,c,d=i*48+j,i*48+(j+1)%48,(i+1)*48+j,(i+1)*48+(j+1)%48;faces+=[[a,c,b],[b,c,d]]
+        return p,np.array(faces)
+    def test_recovers_a_known_scale_and_offset_and_writes_a_reviewable_overlay(self):
+        from headkit.fit import propose
+        from headkit.gltf import write_mesh
+        points,faces=self.head();lines=['node trimesh head','  position 0 0 0',f'  verts {len(points)}']
+        lines+=[f'    {x} {y} {z}' for x,y,z in points]+[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+        reference=self.root/'reference.mdl';reference.write_text('\n'.join(lines))
+        scale,offset=.37,np.array([0,.024,.042]);local=(points-offset)/scale     # source head-local, unscaled
+        glb=np.stack([-local[:,0],local[:,2],local[:,1]],1)                        # inverse of (-x, z, y)
+        source=self.root/'source.glb';write_mesh(source,glb,faces)
+        result=propose(source,reference,self.root/'fit')
+        self.assertAlmostEqual(result['scale'],scale,delta=.0051);np.testing.assert_allclose(result['translation'],offset,atol=.003)
+        self.assertLess(result['meanAbsoluteProfileDistance'],.002);self.assertTrue(result['reviewRequired'])
+        self.assertEqual(np.asarray(result['matrix'])[:3,:3].diagonal().tolist(),[-result['scale'],-result['scale'],result['scale']])
+        self.assertTrue((self.root/'fit'/'fit-overlay.png').is_file())
+    def test_rejects_moved_reference_nodes(self):
+        from headkit.fit import ascii_surface
+        path=self.root/'moved.mdl';path.write_text('node trimesh x\n  position 0 0 .1\n  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\nendnode')
+        with self.assertRaisesRegex(ValueError,'identity'):ascii_surface(path)
+
+
 class GeneratedFieldLineageTests(Temporary):
     def fixture(self,geometry_roles=('uvMesh',)):
         inputs={}

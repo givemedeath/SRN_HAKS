@@ -1,0 +1,88 @@
+"""Fit proposal: scale and place a generated head on an approved reference head by matching midline profiles.
+
+Both heads are compared head-local (face +y, up +z). The generated GLB is first taken through the toolkit basis
+(x,-z,y) and yawed 180 degrees, the frame the reviewed troll-male-01 matrix uses. The front and back of a narrow
+midline band are profiled in height bins; the proposal is the uniform scale and (y, z) offset whose scaled source
+profile best matches the reference above its lower neck region (median-centred mean absolute distance, grid search).
+The output is a proposal for review with an overlay; it never approves itself."""
+from pathlib import Path
+import numpy as np
+from PIL import Image, ImageDraw
+from .common import require, pin, write
+from .gltf import mesh
+
+
+def ascii_surface(path, samples=200000, seed=0):
+    """Area-weighted surface samples of every trimesh node of an ASCII MDL (node transforms must be identity)."""
+    lines=Path(path).read_text(encoding='utf-8').splitlines();points=[];triangles=[];verts=None;i=0
+    while i<len(lines):
+        words=lines[i].split()
+        if words[:1]==['position'] or words[:1]==['orientation']:
+            require(all(float(v)==0 for v in words[1:]),'Reference node transforms must be identity')
+        if words[:1]==['verts']:
+            count=int(words[1]);verts=np.array([[float(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);i+=count
+        elif words[:1]==['faces']:
+            require(verts is not None,'Faces before verts');count=int(words[1])
+            idx=np.array([[int(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);triangles.append(verts[idx]);i+=count
+        i+=1
+    require(triangles,'Reference has no trimesh faces');return surface_samples(np.concatenate(triangles),samples,seed)
+
+
+def surface_samples(triangles, samples=200000, seed=0):
+    """Area-weighted points on triangles (n,3,3), so sparse and dense meshes profile alike."""
+    tri=np.asarray(triangles,float);area=np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)
+    require(area.sum()>0,'Degenerate surface');rng=np.random.default_rng(seed)
+    pick=rng.choice(len(tri),samples,p=area/area.sum());u,v=rng.random((2,samples))
+    flip=u+v>1;u[flip],v[flip]=1-u[flip],1-v[flip];t=tri[pick]
+    return t[:,0]+u[:,None]*(t[:,1]-t[:,0])+v[:,None]*(t[:,2]-t[:,0])
+
+
+def head_local(positions):
+    """GLB -> toolkit NWN basis (x,-z,y) -> 180-degree yaw: (-x, z, y)."""
+    p=np.asarray(positions,float);return np.stack([-p[:,0],p[:,2],p[:,1]],1)
+
+
+def profile(points, step, band=.05):
+    width=np.ptp(points[:,0]);mid=np.median(points[:,0]);c=points[np.abs(points[:,0]-mid)<band*width]
+    require(len(c)>100,'Midline band is empty');z0=c[:,2].min();n=max(1,int(np.ceil((c[:,2].max()-z0)/step)))
+    i=np.minimum(((c[:,2]-z0)/step).astype(int),n-1);front=np.full(n,-np.inf);back=np.full(n,np.inf)
+    np.maximum.at(front,i,c[:,1]);np.minimum.at(back,i,c[:,1]);return z0+(np.arange(n)+.5)*step,front,back
+
+
+def match(source, reference, *, exclude_lower=.25, scales=(.2,.6,.0025), offsets=(-.2,.2,.002), step=.004, source_step=.002):
+    zr,fr,br=profile(reference,step);keep=zr>=zr.min()+exclude_lower*np.ptp(zr)
+    okf=np.isfinite(fr)&keep;okb=np.isfinite(br)&keep;zs,fs,bs=profile(source,source_step)
+    def error(s,tz):
+        q=(zr-tz)/s;k=np.clip(np.round((q-zs[0])/source_step).astype(int),0,len(zs)-1);inside=(q>=zs[0])&(q<=zs[-1])
+        ff,bb=s*fs[k],s*bs[k];mf=okf&inside&np.isfinite(ff);mb=okb&inside&np.isfinite(bb)
+        if mf.sum()<.8*okf.sum() or mb.sum()<.5*okb.sum():return np.inf,0.
+        residual=np.r_[fr[mf]-ff[mf],br[mb]-bb[mb]];ty=float(np.median(residual));return float(np.mean(np.abs(residual-ty))),ty
+    grid=[(error(s,tz)[0],s,tz) for s in np.arange(*scales) for tz in np.arange(*offsets)]
+    best=min(grid);require(np.isfinite(best[0]),'No admissible profile alignment')
+    _,s,tz=best;err,ty=error(s,tz)
+    return {'scale':float(s),'translation':[0.,ty,float(tz)],'meanAbsoluteProfileDistance':err,'excludeLowerFraction':exclude_lower}
+
+
+def propose(source, reference, output, *, exclude_lower=.25):
+    output=Path(output);output.mkdir(parents=True,exist_ok=False)
+    value=mesh(source);local=head_local(surface_samples(value['positions'][value['faces']],1000000));target=ascii_surface(reference)
+    result=match(local,target,exclude_lower=exclude_lower);s=result['scale']
+    matrix=np.eye(4);matrix[:3,:3]=np.diag([-s,-s,s]);matrix[:3,3]=result['translation']
+    fitted=local*s+np.array(result['translation'])
+    size,pad=700,max(.32,float(np.abs(target).max())*1.15);canvas=np.zeros((size,size*2,3),np.uint8)
+    from scipy import ndimage
+    for axes,offset in (((0,2),0),((1,2),size)):
+        masks=[]
+        for points in (fitted,target):
+            x=((points[:,axes[0]]/pad*.5+.5)*size).astype(int);y=((.5-points[:,axes[1]]/pad*.5)*size).astype(int)
+            ok=(x>=0)&(x<size)&(y>=0)&(y<size);mask=np.zeros((size,size),bool);mask[y[ok],x[ok]]=True
+            masks.append(ndimage.binary_closing(mask,iterations=2))
+        view=canvas[:,offset:offset+size];view[masks[0]]=(255,140,60)
+        view[masks[1]&~ndimage.binary_erosion(masks[1],iterations=2)]=(70,160,255)
+    image=Image.fromarray(canvas)
+    draw=ImageDraw.Draw(image);cut=target[:,2].min()+exclude_lower*np.ptp(target[:,2]);yline=int((.5-cut/pad*.5)*size)
+    draw.line((0,yline,size*2,yline),fill=(90,90,90));draw.text((10,10),'front: orange = proposal, blue outline = reference; grey = lower limit of matched profile',fill='white')
+    draw.text((size+10,10),'side: face toward +y (right)',fill='white');image.save(output/'fit-overlay.png')
+    result.update(matrix=matrix.tolist(),source=pin(source),reference=pin(reference),overlay=pin(output/'fit-overlay.png'),
+                  basis='toolkit GLB->NWN (x,-z,y) source with 180-degree yaw, reference head-local',reviewRequired=True)
+    write(output/'fit-proposal.json',result,fresh=True);return result

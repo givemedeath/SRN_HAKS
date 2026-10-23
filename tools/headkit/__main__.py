@@ -176,6 +176,8 @@ def main():
         if name=='collect':p.add_argument('--wait',action='store_true')
     p=sub.add_parser('replay');p.add_argument('--config',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('inputs');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--run',type=Path);p.add_argument('--stages')
+    p=sub.add_parser('fit-propose');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--source',required=True,type=Path)
+    p.add_argument('--reference',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--exclude-lower',type=float,default=.25)
     p=sub.add_parser('startup-config');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
     a=parser.parse_args()
@@ -239,6 +241,9 @@ def main():
         from .replay import replay
         result=replay(read(a.config),a.output)
     elif a.command=='install-nodes':result=install_nodes(a.destination,bindings(a.bindings))
+    elif a.command=='fit-propose':
+        from .fit import propose
+        require(.0<=a.exclude_lower<=.5,'--exclude-lower must be 0..0.5');result=propose(a.source,a.reference,a.output,exclude_lower=a.exclude_lower)
     else:
         local=bindings(a.bindings);client=comfy.Client(local['comfyUrl'])
         if a.command=='release':result=comfy.release(client,a.ledger)
