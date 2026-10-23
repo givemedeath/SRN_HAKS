@@ -1623,6 +1623,27 @@ class ImportedOwnershipTests(Temporary):
         self.assertEqual(read(result['geometryAudit']['path']),accepted)
         self.assertEqual(read(result['uvAudit']['path']),uv_report)
 
+    def folder(self,name):
+        path=self.root/name;path.mkdir();return path
+    def test_fit_chosen_before_uvs_binds_to_this_runs_reviewed_unwrap(self):
+        uv=self.file('uv.glb','unwrapped mesh');receipt={'path':'unwrap-receipt.json','sha256':'1'*64}
+        def runner(fit,inputs):
+            return SimpleNamespace(data={'inputs':inputs,'fit':fit,'mesh':{}},state={'stages':{'unwrap':receipt}},bindings={},
+                                   source=lambda *args:uv,input=lambda name:uv,
+                                   result=lambda stage:{'shades':{'path':'s.png'},'ownership':{'path':'o.png'}})
+        fit={'matrix':np.eye(4).tolist(),'reviewed':True,'sourceStage':'unwrap','model':'pmg0_head015'}
+        passed={'passed':True}
+        with patch('headkit.mesh.audit',return_value=passed),patch('headkit.native.prepare',return_value={'exported':True}) as prepare:
+            result=Runner._execute(runner(fit,{'repairedMesh':{}}),'export',self.folder('bound'))
+        self.assertEqual(prepare.call_args.args[3]['sourceSha256'],pin(uv)['sha256'])
+        self.assertNotIn('sourceSha256',fit);self.assertEqual(result['fitBinding'],{'sourceStage':'unwrap','unwrapReceipt':receipt})
+        for bad_fit,inputs in ((fit,{'uvMesh':{}}),(dict(fit,sourceSha256='0'*64),{'repairedMesh':{}})):
+            with self.subTest(inputs=sorted(inputs),hashed='sourceSha256' in bad_fit), \
+                 patch('headkit.mesh.audit',return_value=passed),patch('headkit.uv.audit_imported_uvs',return_value={}), \
+                 patch('headkit.gltf.mesh',return_value={}),patch('headkit.native.prepare') as prepare:
+                with self.assertRaisesRegex(ValueError,'own unwrap'):Runner._execute(runner(bad_fit,inputs),'export',self.folder(str(len(inputs))+str(len(bad_fit))))
+                prepare.assert_not_called()
+
     def test_direct_uv_export_rejects_overlap_degenerate_and_unmapped_faces(self):
         p,f=MeshTests.tetra(self)
         good=np.array([[[.02,.02],[.48,.02],[.02,.48]],[[.52,.02],[.98,.02],[.98,.48]],

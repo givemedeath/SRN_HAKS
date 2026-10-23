@@ -291,7 +291,14 @@ class Runner:
                 uv_result=audit_imported_uvs(mesh(source),m.get('mesh',{}).get('maximumSubtexelFraction',.005),m.get('mesh',{}).get('uv',{}))
                 uv_path=folder/'imported-uv-audit.json';write(uv_path,uv_result,fresh=True)
                 uv_audit=pin(uv_path)
-            result=prepare(source,shades,layers,m['fit'],m['fit']['model'],folder/'converted')
+            fit=m['fit']
+            if fit.get('sourceStage')=='unwrap':
+                # A reviewed matrix fit chosen before UVs exist binds to this run's reviewed unwrap output, never to an
+                # imported mesh; the manifest cannot carry that hash without invalidating every earlier receipt.
+                require('uvMesh' not in m['inputs'] and 'sourceSha256' not in fit,"sourceStage binding is only for this run's own unwrap")
+                fit=dict(fit,sourceSha256=pin(source)['sha256'])
+            result=prepare(source,shades,layers,fit,fit['model'],folder/'converted')
+            if fit is not m['fit']:result['fitBinding']={'sourceStage':'unwrap','unwrapReceipt':self.state['stages']['unwrap']}
             if uv_audit is not None:result['uvAudit']=uv_audit
             if geometry_audit is not None:result['geometryAudit']=geometry_audit
             return result
