@@ -2132,6 +2132,10 @@ class FitProposalTests(Temporary):
         self.assertLess(result['meanAbsoluteProfileDistance'],.002);self.assertTrue(result['reviewRequired'])
         self.assertEqual(np.asarray(result['matrix'])[:3,:3].diagonal().tolist(),[-result['scale'],-result['scale'],result['scale']])
         self.assertTrue((self.root/'fit'/'fit-overlay.png').is_file())
+        nosed=propose(source,reference,self.root/'fit-nose',align='nose')
+        self.assertEqual(nosed['align'],'nose');np.testing.assert_allclose(nosed['translation'],offset,atol=.004)
+        np.testing.assert_allclose(np.asarray(nosed['sourceNose'])*nosed['scale']+nosed['translation'],nosed['referenceNose'],atol=1e-9)
+        with self.assertRaisesRegex(ValueError,'profile or nose'):propose(source,reference,self.root/'fit-bad',align='ears')
     def test_rejects_moved_reference_nodes(self):
         from headkit.fit import ascii_surface
         path=self.root/'moved.mdl';path.write_text('node trimesh x\n  position 0 0 .1\n  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\nendnode')
