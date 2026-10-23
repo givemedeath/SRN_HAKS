@@ -83,7 +83,9 @@ class GeneratedField:
                     for dz in (0,1):
                         cc=base+np.array([dx,dy,dz])
                         key=(cc[:,0]*R+cc[:,1])*R+cc[:,2]
-                        index=np.searchsorted(self.keys,key).clip(max=len(self.keys)-1)
+                        # Sorted queries walk the sorted keys in order (cache-friendly); indices are unchanged.
+                        order=np.argsort(key,kind='stable');index=np.empty(len(key),np.int64)
+                        index[order]=np.searchsorted(self.keys,key[order]);index=index.clip(max=len(self.keys)-1)
                         match=((cc>=0)&(cc<R)).all(axis=1)&(self.keys[index]==key)
                         w=np.prod(np.where(np.array([dx,dy,dz]),frac,1-frac),axis=1)*match
                         accum+=self.attrs[index]*w[:,None]; weights+=w
