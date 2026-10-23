@@ -532,6 +532,15 @@ class ImageTests(Temporary):
             for x in range(0,200,2):d.line((x,0,x,199),fill=(20,200,20))
         with self.assertRaisesRegex(ValueError,'plain enough'):matte(self.design(busy),{},self.root/'busy')
         with self.assertRaisesRegex(ValueError,'tolerance'):matte(self.design(lambda d:None),{'backgroundTolerance':2},self.root/'tol')
+    def test_bootstrap_design_manifest_prepares_a_matte_through_the_runner(self):
+        design=self.design(lambda d:d.ellipse((50,30,150,170),fill=(120,110,100)))
+        data={'schemaVersion':1,'id':'bootstrap','profile':'pixal-single-v1','matte':{'backgroundTolerance':14},
+              'inputs':{'design':{'path':design.name,'sha256':pin(design)['sha256']}},
+              'features':[{'name':'horns','placementReviewed':True}],'approval':{'referenceDesignReviewed':True}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run');result=runner.execute('prepare')['result']
+        self.assertEqual(result['marginPixels']['top'],30)
+        receipt=read(runner.state['stages']['prepare']['path']);self.assertIn(str(design.resolve()),{p['path'] for p in receipt['inputs']})
     def test_paired_preparation_keeps_identical_silhouette(self):
         result=prepare(self.root/'clay.png',self.root/'detail.png',self.pair(),self.root/'prepared')
         self.assertEqual(result['silhouetteIoU'],1);self.assertTrue(result['manualReviewRequired'])

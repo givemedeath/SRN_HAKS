@@ -99,7 +99,7 @@ def asset(manifest_path, item):
 
 def manifest(path):
     data = read(path)
-    allowed = {'schemaVersion', 'id', 'inputs', 'features', 'alignment', 'camera', 'mesh',
+    allowed = {'schemaVersion', 'id', 'inputs', 'features', 'alignment', 'matte', 'camera', 'mesh',
                'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1, 'Unsupported manifest keys/version')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')) is not None, 'Safe asset ID required')
