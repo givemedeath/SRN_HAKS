@@ -199,7 +199,7 @@ def main():
             while pending:
                 stage=pending.pop()
                 if stage not in closure:closure.add(stage);pending+=deps(stage)
-            roles=set().union(*(stage_roles(s,data) for s in chosen));libraries=set().union(*(stage_libraries(s) for s in chosen))
+            roles=set().union(*(stage_roles(s,data) for s in chosen));libraries=set().union(*(stage_libraries(s,data) for s in chosen))
         else:roles=set(data['inputs']);libraries=set(local.get('libraries',{}))
         pins=code_pins()+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,data['inputs'][r]) for r in sorted(roles)]+python_package_pins(local)
         for name in ('toolchain','migrationReceipt'):

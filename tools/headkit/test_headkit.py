@@ -1070,6 +1070,19 @@ class OwnershipModeTests(Temporary):
                  patch('headkit.palette.EmbreeScene'):
                 with self.assertRaisesRegex(ValueError,'eight-bit L'):
                     project_ownership('unused',[{'calibrationReviewed':True,'mask':str(mask)}],embree,self.root/'projected.png')
+    def test_projection_uses_the_reviewed_subtexel_allowance(self):
+        from headkit.palette import project_ownership
+        embree=pin(self.file('embree.dll'));stop=ValueError('surface gate reached')
+        with patch('headkit.palette.mesh',return_value='uv'),patch('headkit.palette.surface',side_effect=stop) as gate:
+            with self.assertRaisesRegex(ValueError,'surface gate'):project_ownership('unused',[],embree,self.root/'p.png',max_subtexel_fraction=.01)
+        gate.assert_called_once_with('uv',1024,.01)
+        source=self.file('uv.glb','frozen UV mesh')
+        runner=SimpleNamespace(data={'mesh':{'maximumSubtexelFraction':.01},'ownership':{'reviewed':True,'mode':'project',
+            'sourceSha256':pin(source)['sha256'],'views':[{'maskInput':'front'}]}},bindings={'embree':embree},
+            source=lambda *args:source,input=lambda role:'mask-'+role)
+        with patch('headkit.palette.project_ownership',side_effect=stop) as project:
+            with self.assertRaisesRegex(ValueError,'surface gate'):Runner._execute(runner,'ownership',self.root)
+        self.assertEqual(project.call_args.kwargs,{'max_subtexel_fraction':.01})
     def test_valid_labels_preserve_all_ten_channel_ids(self):
         labels=(np.arange(1024*1024).reshape(1024,1024)%10).astype(np.uint8)
         Image.fromarray(labels).save(self.root/'labels.png');Image.new('RGB',(1024,1024),(100,100,100)).save(self.root/'color.png')
@@ -1650,6 +1663,15 @@ class ResumeTests(Temporary):
             listed[name]=read(output)
         self.assertIn(str(field.resolve()),listed['all']);self.assertNotIn(str(field.resolve()),listed['prepare'])
         self.assertIn(str((self.root/'clay.png').resolve()),listed['prepare'])
+    def test_reviewed_uv_reuse_needs_no_xatlas_binding(self):
+        from headkit.__main__ import main
+        from headkit.runner import stage_libraries
+        self.fixture();data=read(self.root/'manifest.json');self.assertEqual(stage_libraries('unwrap',data),{'xatlas'})
+        data['mesh']={'reuseReviewedUvs':True};write(self.root/'manifest.json',data);self.assertEqual(stage_libraries('unwrap',data),set())
+        output=self.root/'inputs-unwrap.json'
+        with patch('sys.argv',['headkit','inputs','--manifest',str(self.root/'manifest.json'),'--bindings',str(self.root/'bindings.json'),
+              '--output',str(output),'--run',str(self.root/'run'),'--stages','unwrap']),patch('builtins.print'):main()
+        self.assertTrue(output.exists())
     def test_two_failures_are_retained_and_block_third(self):
         runner=self.fixture()
         for _ in range(2):

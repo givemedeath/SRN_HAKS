@@ -9,9 +9,10 @@ from .textures import surface,pad
 from .rays import EmbreeScene
 
 
-def project_ownership(source, views, embree, output):
-    """View labels are measured annotations, not RGB-threshold skin/hair guesses."""
-    verify([embree]);value=mesh(source);positions,owners,_=surface(value,1024,.005);mapped=owners>=0
+def project_ownership(source, views, embree, output, *, max_subtexel_fraction=.005):
+    """View labels are measured annotations, not RGB-threshold skin/hair guesses. The 1K sampling gate uses the same
+    reviewed sub-texel allowance as unwrap and bake."""
+    verify([embree]);value=mesh(source);positions,owners,_=surface(value,1024,max_subtexel_fraction);mapped=owners>=0
     labels=np.full((1024,1024),255,np.uint8);points=positions[mapped];chosen=np.full(len(points),255,np.uint8)
     scene=EmbreeScene(embree['path'],value['positions'],value['faces']);reports=[]
     try:

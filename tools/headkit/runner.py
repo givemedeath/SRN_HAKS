@@ -27,8 +27,9 @@ def stage_roles(stage,data):
     return roles&inputs
 
 
-def stage_libraries(stage):
-    """Byte-bound libraries a stage may load; enforced like stage_roles."""
+def stage_libraries(stage,data):
+    """Byte-bound libraries a stage may load; enforced like stage_roles. Reviewed-UV reuse only audits, so it needs no xatlas."""
+    if stage=='unwrap' and data.get('mesh',{}).get('reuseReviewedUvs',False):return set()
     return {'precluster':{'igl','pymeshlab'},'repair':{'igl','pymeshlab'},'unwrap':{'xatlas'}}.get(stage,set())
 
 
@@ -162,7 +163,7 @@ class Runner:
             result=self._execute(stage,folder);digest(result)
             undeclared=self._read-stage_roles(stage,self.data)
             require(not undeclared,'Stage read undeclared manifest inputs: '+', '.join(sorted(undeclared)))
-            undeclared=common.LIBRARIES_USED-stage_libraries(stage)
+            undeclared=common.LIBRARIES_USED-stage_libraries(stage,self.data)
             require(not undeclared,'Stage loaded undeclared libraries: '+', '.join(sorted(undeclared)))
             # Only what the stage read is pinned (and re-verified now, after execution).
             inputs+=[asset(self.manifest_path,self.data['inputs'][role]) for role in sorted(self._read)]
@@ -250,7 +251,7 @@ class Runner:
             else:
                 require(config['mode']=='project','Unsupported ownership mode')
                 views=[dict(row,mask=self.input(row['maskInput'])) for row in config['views']]
-                project_ownership(source,views,b['embree'],folder/'projected.png')
+                project_ownership(source,views,b['embree'],folder/'projected.png',max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005))
                 image=Image.open(folder/'projected.png').resize((4096,4096),Image.Resampling.NEAREST)
             require(np.max(np.asarray(image))<=9,'Unknown ownership must be resolved before proceeding')
             image.save(folder/'ownership-4096.png');image.resize((1024,1024),Image.Resampling.NEAREST).save(folder/'ownership-1024.png')
