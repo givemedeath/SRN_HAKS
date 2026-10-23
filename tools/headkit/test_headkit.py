@@ -919,6 +919,33 @@ class AppearanceTests(Temporary):
     def test_nearest_field_fallback_is_counted(self):
         field=GeneratedField(np.array([[0,0,0]]),np.ones((1,6))*.2,4)
         values,fallback=field.sample([[.49,.49,.49]]);self.assertTrue(fallback[0]);np.testing.assert_allclose(values,.2)
+    def test_nearest_fallback_matches_brute_force_on_sparse_fields(self):
+        rng=np.random.default_rng(15)
+        for trial in range(6):
+            R=int(rng.integers(6,20));occupied=np.zeros((R,R,R),bool)
+            for _ in range(3):  # solid blocks give interior voxels the fallback tree must skip
+                lo=rng.integers(0,R-2,3);occupied[tuple(slice(a,a+int(rng.integers(2,5))) for a in lo)]=True
+            occupied[tuple(rng.integers(0,R,(3,8)))]=True
+            coords=np.argwhere(occupied);attrs=rng.random((len(coords),6))
+            field=GeneratedField(coords,attrs,R)
+            lattice=(rng.integers(-3,R+3,(64,3))+rng.integers(0,3,(64,3))/2+.5)/R-.5  # exact ties on half cells
+            points=np.r_[rng.uniform(-.6,.6,(400,3)),rng.uniform(-4,4,(100,3)),lattice].astype(np.float32)
+            values,fallback=field.sample(points,chunk=97)
+            grid=(points+.5)*R-.5;base=np.floor(grid).astype(int);frac=grid-base;weight=np.zeros(len(points))
+            for corner in np.ndindex(2,2,2):
+                cc=base+corner;inside=((cc>=0)&(cc<R)).all(1)
+                weight+=np.where(inside,occupied[tuple(cc.clip(0,R-1).T)],False)*np.prod(np.where(corner,frac,1-frac),axis=1)
+            np.testing.assert_array_equal(fallback,weight<=1e-8)
+            self.assertTrue(fallback.sum()>100)
+            keys=(coords[:,0]*R+coords[:,1])*R+coords[:,2];centres=(coords+.5)/R-.5
+            for point,value in zip(points[fallback],values[fallback]):
+                squared=((centres-point.astype(np.float64))**2).sum(axis=1)
+                tied=np.flatnonzero(squared==squared.min());expected=tied[np.argmin(keys[tied])]
+                np.testing.assert_array_equal(value,np.clip(attrs[expected],0,1).astype(np.float32))
+    def test_nearest_fallback_tie_takes_lowest_key(self):
+        field=GeneratedField(np.array([[4,0,0],[0,0,0],[2,0,4]]),np.array([[.1]*6,[.2]*6,[.3]*6]),8)
+        values,fallback=field.sample([[(2+.5)/8-.5,(0+.5)/8-.5,(0+.5)/8-.5]])
+        self.assertTrue(fallback[0]);np.testing.assert_allclose(values,.2)
     def test_duplicate_voxel_is_rejected(self):
         with self.assertRaises(ValueError):GeneratedField(np.zeros((2,3),int),np.ones((2,6)),4)
     def test_saved_field_batch_column_is_dropped(self):
