@@ -15,7 +15,7 @@ from unittest.mock import patch
 import numpy as np
 from PIL import Image,ImageDraw
 from headkit import comfy
-from headkit.common import write,read,pin,asset,manifest,source_version,digest
+from headkit.common import write,read,pin,verify,asset,manifest,source_version,digest
 from headkit.gltf import mesh,write_mesh,load,encode
 from headkit.images import similarity,prepare,prepare_multiview
 from headkit.field import GeneratedField,load_generated_field
@@ -2593,5 +2593,206 @@ class TextureStageTests(Temporary):
             with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('tone')
             work.assert_not_called()
 
+
+
+class FakeDesignClient:
+    """Mocked ComfyUI: /prompt "renders" one PNG per batch item into the bound output folder; never any HTTP."""
+    def __init__(self,output,*,status='success',polls=1,subfolder=None,reject=False):
+        self.url='http://127.0.0.1:8188';self.output=Path(output);self.status=status;self.polls=polls;self.subfolder=subfolder
+        self.reject=reject;self.routes=[];self.images=[]
+    def request(self,route,data=None):
+        self.routes.append(route)
+        if route=='/prompt':
+            if self.reject:return {'error':'invalid prompt','node_errors':{'13':'bad'}}
+            graph=data['prompt'];self.images=[];prefix=graph['9']['inputs']['filename_prefix']
+            batch=graph['47']['inputs']['batch_size'] if '47' in graph else graph['205']['inputs']['amount']
+            folder,stem=prefix.rsplit('/',1)
+            for i in range(batch):
+                path=self.output/(self.subfolder or folder)/f'{stem}_{i+1:05}_.png';path.parent.mkdir(parents=True,exist_ok=True)
+                Image.new('RGB',(16,16),(i*40,90,30)).save(path)
+                self.images.append({'filename':path.name,'subfolder':self.subfolder or folder,'type':'output'})
+            return {'prompt_id':'prompt-7','number':1,'node_errors':{}}
+        if route=='/history/prompt-7':
+            if self.polls:self.polls-=1;return {}
+            return {'prompt-7':{'outputs':{'9':{'images':self.images}},'status':{'status_str':self.status,'completed':self.status=='success'}}}
+        raise AssertionError('Unexpected route '+route)
+
+
+class DesignTests(Temporary):
+    def setUp(self):
+        super().setUp()
+        # Every design test must stay offline: any real HTTP attempt fails the test.
+        guard=patch('urllib.request.urlopen',side_effect=AssertionError('network contact in a design test'));guard.start();self.addCleanup(guard.stop)
+        sleep=patch('headkit.design.time.sleep');sleep.start();self.addCleanup(sleep.stop)
+        self.local={'comfyUrl':'http://127.0.0.1:8188','comfyInput':str(self.root/'comfy-in'),'comfyOutput':str(self.root/'comfy-out')}
+        self.bindings=self.root/'bindings.json';write(self.bindings,self.bindings_data(**self.local))
+        self.spec=self.root/'designs.json'
+        write(self.spec,{'common':'Front view, plain gray background.','designs':{'troll-a':'One adult troll head, ram horns.'},
+                         'neckInpaint':'A short neck of the same SKIN skin; SKIN pores.'})
+        self.reference=self.root/'species.png';Image.new('RGB',(32,32),(100,80,60)).save(self.reference)
+    def head(self,size=256):
+        image=Image.new('RGB',(size,size),(200,200,200));draw=ImageDraw.Draw(image)
+        draw.ellipse((60,20,196,170),fill=(120,110,100));draw.rectangle((105,150,151,215),fill=(120,110,100))
+        draw.rectangle((85,215,171,230),fill=(120,110,100));path=self.root/'troll-a-s7-b0.png';image.save(path);return path
+    def generate(self,client=None,seed=7,batch=3,references=None,output='out'):
+        from headkit import design
+        client=client or FakeDesignClient(self.local['comfyOutput'])
+        return client,design.generate(client,self.local,self.bindings,self.spec,'troll-a',seed,batch,
+                                      [self.reference] if references is None else references,self.root/output)
+    def inpaint(self,client=None,**options):
+        from headkit import design
+        client=client or FakeDesignClient(self.local['comfyOutput'])
+        return client,design.inpaint(client,self.local,self.bindings,self.spec,options.pop('design',None) or self.head(),
+                                     'dark brown',11,2,self.root/'neck',**options)
+
+    def test_design_graph_wires_batch_references_and_fixed_controls(self):
+        from headkit.design import compile_design,FIXED
+        g=compile_design('prompt',['headkit-design/t/r0.png','headkit-design/t/r1.png'],5,3,'headkit-design/t/troll-a-s5')
+        self.assertEqual((g['47']['inputs']['batch_size'],g['13']['inputs']['latent_image']),(3,['47',0]))
+        self.assertEqual((g['48']['inputs']['steps'],g['47']['inputs']['width'],g['48']['inputs']['height']),(FIXED['steps'],FIXED['size'],FIXED['size']))
+        self.assertEqual(g['26']['inputs']['guidance'],FIXED['guidance']);self.assertEqual(g['12']['inputs']['unet_name'],FIXED['model'])
+        self.assertEqual((g['89']['inputs']['lora_name'],g['22']['inputs']['model']),(FIXED['turboLora'],['89',0]))
+        self.assertEqual((g['6']['inputs']['text'],g['25']['inputs']['noise_seed']),('prompt',5))
+        self.assertEqual([g[n]['inputs']['image'] for n in ('100','104')],['headkit-design/t/r0.png','headkit-design/t/r1.png'])
+        self.assertEqual([g[n]['inputs']['conditioning'] for n in ('103','107','22')],[['26',0],['103',0],['107',0]])
+        self.assertEqual(g['9']['inputs'],{'images':['8',0],'filename_prefix':'headkit-design/t/troll-a-s5'})
+        self.assertEqual(compile_design('p',[],5,1,'headkit-design/t/x')['22']['inputs']['conditioning'],['26',0])
+    def test_inpaint_graph_noise_masks_the_design_latent_and_references_the_design(self):
+        from headkit.design import compile_inpaint
+        g=compile_inpaint('neck','headkit-design/t/design.png','headkit-design/t/mask.png',9,4,'headkit-design/t/n')
+        self.assertNotIn('47',g);self.assertEqual(g['13']['inputs']['latent_image'],['205',0])
+        self.assertEqual(g['205']['inputs'],{'samples':['204',0],'amount':4})
+        self.assertEqual(g['204']['inputs'],{'samples':['201',0],'mask':['203',0]});self.assertEqual(g['201']['inputs']['pixels'],['200',0])
+        self.assertEqual((g['200']['inputs']['image'],g['100']['inputs']['image']),('headkit-design/t/design.png',)*2)
+        self.assertEqual(g['203']['inputs'],{'image':'headkit-design/t/mask.png','channel':'red'})
+        self.assertEqual(g['22']['inputs']['conditioning'],['103',0]);self.assertNotIn('104',g)
+    def test_graphs_reject_unisolated_prefix_or_inputs_and_bad_seed_batch_or_prompt(self):
+        from headkit.design import compile_design
+        ok=dict(prompt='p',references=[],seed=1,batch=1,prefix='headkit-design/t/x')
+        for change in ({'prefix':'headkit/t/x'},{'prefix':'headkit-design/../x'},{'prefix':'headkit-design/t\\x'},{'prefix':'headkit-design'},
+                       {'prefix':'headkit-design//x'},{'references':['other/r.png']},{'references':['C:/comfy/headkit-design/r.png']},
+                       {'references':['headkit-design/t/r.png']*5},{'seed':-1},{'seed':2**64},{'seed':True},{'seed':1.0},
+                       {'batch':0},{'batch':9},{'prompt':'  '}):
+            with self.subTest(change=change),self.assertRaises(ValueError):compile_design(**{**ok,**change})
+    def test_dangling_link_or_unwired_image_socket_is_rejected(self):
+        from headkit.design import compile_design,_validated
+        for node,key,value in (('8','samples',['999',0]),('201','pixels','design.png'),('9','images','x.png')):
+            g=compile_design('p',['headkit-design/t/r.png'],1,1,'headkit-design/t/x')
+            g.setdefault(node,{'class_type':'VAEEncode','inputs':{}})['inputs'][key]=value
+            with self.subTest(node=node),self.assertRaises(ValueError):_validated(g)
+        g=compile_design('p',[],1,1,'headkit-design/t/x');g['77']={'class_type':'SaveImage','inputs':{'images':['8',0],'filename_prefix':'other'}}
+        with self.assertRaisesRegex(ValueError,'one SaveImage'):_validated(g)
+    def test_template_settings_match_the_documented_fixed_controls(self):
+        from headkit.design import TEMPLATES,FIXED
+        for name in ('flux2-design.json','flux2-inpaint.json'):
+            g=read(TEMPLATES/name)
+            self.assertEqual((g['48']['inputs']['steps'],g['48']['inputs']['width'],g['26']['inputs']['guidance']),(FIXED['steps'],FIXED['size'],FIXED['guidance']))
+            self.assertEqual((g['16']['inputs']['sampler_name'],g['89']['inputs']['strength_model']),(FIXED['sampler'],1.0))
+    def test_spec_and_prompt_validation(self):
+        from headkit.design import load_spec,design_prompt,inpaint_prompt
+        spec=load_spec(self.spec)
+        self.assertEqual(design_prompt(spec,'troll-a'),'One adult troll head, ram horns.\nFront view, plain gray background.')
+        self.assertEqual(inpaint_prompt(spec,'dark brown'),'A short neck of the same dark brown skin; dark brown pores.')
+        for bad in ({'designs':{'a':'x'}},{'common':'c','designs':{}},{'common':'c','designs':{'Bad Name':'x'}},{'common':'c','designs':{'a':' '}},
+                    {'common':'c','designs':{'a':'x'},'neckInpaint':'no placeholder'},{'common':'c','designs':{'a':'x'},'extra':1}):
+            write(self.root/'bad.json',bad)
+            with self.subTest(bad=bad),self.assertRaises(ValueError):load_spec(self.root/'bad.json')
+        with self.assertRaisesRegex(ValueError,'Unknown design head'):design_prompt(spec,'troll-b')
+        for skin in ('',' brown','dark\nbrown','SKIN','x'*81):
+            with self.subTest(skin=skin),self.assertRaises(ValueError):inpaint_prompt(spec,skin)
+        with self.assertRaisesRegex(ValueError,'no neckInpaint'):inpaint_prompt({'common':'c','designs':{'a':'x'}},'brown')
+    def test_example_spec_shape_is_accepted(self):
+        from headkit.design import load_spec
+        write(self.root/'example.json',{'common':'c','designs':{'troll-male-02':'x','troll-male-04-stub':'y'},'neckEdit':'e','neckInpaint':'n SKIN'})
+        self.assertEqual(sorted(load_spec(self.root/'example.json')['designs']),['troll-male-02','troll-male-04-stub'])
+
+    def test_design_dispatches_once_and_pins_every_input_and_output(self):
+        from headkit.design import SUBFOLDER
+        client,result=self.generate()
+        self.assertEqual(client.routes,['/prompt','/history/prompt-7','/history/prompt-7'])
+        receipt=read(result['receipt']);token=receipt['token']
+        self.assertEqual((receipt['state'],receipt['kind'],receipt['seed'],receipt['batch'],receipt['promptId']),('complete','design',7,3,'prompt-7'))
+        self.assertTrue(receipt['proposalOnly'] and receipt['reviewRequired']);self.assertIn('direct',receipt['dispatch'])
+        self.assertEqual(receipt['prompt'],'One adult troll head, ram horns.\nFront view, plain gray background.')
+        self.assertEqual(receipt['graphSha256'],digest(receipt['graph']));self.assertEqual(receipt['graph']['47']['inputs']['batch_size'],3)
+        self.assertEqual(receipt['outputPrefix'],f'{SUBFOLDER}/{token}/troll-a-s7');self.assertEqual(receipt['spec'],pin(self.spec))
+        self.assertEqual(receipt['bindings'],pin(self.bindings));self.assertIsInstance(receipt['elapsedSeconds'],float)
+        staged=receipt['staged']['reference-0.png']
+        self.assertEqual(staged['source'],pin(self.reference));self.assertEqual(staged['staged']['sha256'],staged['source']['sha256'])
+        self.assertEqual(Path(staged['staged']['path']),(self.root/'comfy-in'/SUBFOLDER/token/'reference-0.png').resolve())
+        self.assertEqual(receipt['graph']['100']['inputs']['image'],staged['comfyImage'])
+        self.assertEqual([Path(p['path']).name for p in receipt['outputs']],[f'troll-a-s7-b{i}.png' for i in range(3)])
+        self.assertEqual([p['sha256'] for p in receipt['outputs']],[p['sha256'] for p in receipt['comfyOutputs']])
+        verify(receipt['outputs']+receipt['comfyOutputs']);self.assertEqual(result['outputs'],[p['path'] for p in receipt['outputs']])
+    def test_existing_receipt_or_missing_reference_stops_before_any_contact(self):
+        self.generate()
+        client=FakeDesignClient(self.local['comfyOutput'])
+        with self.assertRaisesRegex(ValueError,'already exists'):self.generate(client)
+        with self.assertRaisesRegex(ValueError,'Image file'):self.generate(client,seed=8,references=[self.root/'missing.png'])
+        with self.assertRaisesRegex(ValueError,'Batch'):self.generate(client,seed=9,batch=0)
+        self.assertEqual(client.routes,[])
+    def test_failed_rejected_or_foreign_output_jobs_leave_a_failed_receipt(self):
+        for seed,client,message in ((1,FakeDesignClient(self.local['comfyOutput'],status='error'),'job failed'),
+                                    (2,FakeDesignClient(self.local['comfyOutput'],reject=True),'rejected'),
+                                    (3,FakeDesignClient(self.local['comfyOutput'],subfolder='elsewhere'),'owned design prefix')):
+            with self.subTest(message=message):
+                with self.assertRaisesRegex(ValueError,message):self.generate(client,seed=seed)
+                receipt=read(self.root/'out'/f'troll-a-s{seed}.json');self.assertEqual(receipt['state'],'failed')
+                self.assertIn(message,receipt['error']);self.assertNotIn('outputs',receipt)
+                self.assertEqual(client.routes.count('/prompt'),1)
+        self.assertEqual(sorted(p.name for p in (self.root/'out').glob('*.png')),[])
+    def test_unfinished_job_times_out_without_resubmitting(self):
+        from headkit.design import dispatch,compile_design
+        client=FakeDesignClient(self.local['comfyOutput'],polls=10**6);record={}
+        with self.assertRaisesRegex(ValueError,'unfinished'):dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=0)
+        self.assertEqual(client.routes,['/prompt','/history/prompt-7']);self.assertEqual(record['promptId'],'prompt-7')
+
+    def test_inpaint_masks_rows_below_the_neck_cut_and_records_the_mask(self):
+        client,result=self.inpaint();receipt=read(result['receipt'])
+        self.assertEqual((receipt['kind'],receipt['state'],receipt['cutSource'],receipt['lift']),('design-inpaint','complete','waist-minus-lift',24))
+        self.assertEqual(receipt['cutRow'],receipt['waistRow']-24);self.assertEqual((receipt['matte']['topRow'],receipt['matte']['bottomRow']),(20,230))
+        self.assertGreater(receipt['cutRow'],125);self.assertEqual(receipt['prompt'],'A short neck of the same dark brown skin; dark brown pores.')
+        mask=receipt['mask'];verify([mask,receipt['design']]);self.assertEqual((mask['cutRow'],mask['blurRadius'],mask['size']),(receipt['cutRow'],6,[256,256]))
+        with Image.open(mask['path']) as image:values=np.asarray(image)
+        self.assertEqual(values.shape,(256,256));self.assertTrue((values[:receipt['cutRow']-30]==0).all());self.assertTrue((values[receipt['cutRow']+30:]==255).all())
+        staged=receipt['staged'];self.assertEqual(staged['mask.png']['source'],pin(mask['path']));self.assertEqual(staged['design.png']['source'],receipt['design'])
+        g=receipt['graph'];self.assertEqual((g['200']['inputs']['image'],g['203']['inputs']['image']),(staged['design.png']['comfyImage'],staged['mask.png']['comfyImage']))
+        self.assertEqual(g['205']['inputs']['amount'],2);self.assertEqual(Path(result['receipt']).name,'troll-a-s7-b0-inpaint-s11.json')
+        self.assertEqual([Path(p).name for p in result['outputs']],['troll-a-s7-b0-inpaint-s11-b0.png','troll-a-s7-b0-inpaint-s11-b1.png'])
+    def test_inpaint_rejects_cut_rows_in_the_top_half_or_outside_the_subject(self):
+        client=FakeDesignClient(self.local['comfyOutput'])
+        for cut in (21,125,231):
+            with self.subTest(cut=cut),self.assertRaisesRegex(ValueError,'top half'):self.inpaint(client,cut=cut)
+        self.assertEqual(client.routes,[]);self.assertEqual(list((self.root/'neck').glob('*')),[])
+        _,result=self.inpaint(cut=200);receipt=read(result['receipt'])
+        self.assertEqual((receipt['cutRow'],receipt['cutSource'],receipt['lift']),(200,'explicit',None))
+    def test_inpaint_requires_a_safe_name_and_png_design(self):
+        unsafe=self.root/'Design 1.png';self.head().replace(unsafe)
+        with self.assertRaisesRegex(ValueError,'--name'):self.inpaint(design=unsafe)
+        _,result=self.inpaint(design=unsafe,name='troll-a-pick');self.assertTrue(result['receipt'].endswith('troll-a-pick-inpaint-s11.json'))
+        jpeg=self.root/'troll.jpg';Image.new('RGB',(8,8)).save(jpeg)
+        with self.assertRaisesRegex(ValueError,'Image file'):self.inpaint(design=jpeg)
+
+    def test_cli_requires_launcher_and_dispatches_through_the_bound_local_client(self):
+        from headkit.__main__ import main
+        fake=FakeDesignClient(self.local['comfyOutput'])
+        argv=['headkit','design','--bindings',str(self.bindings),'--spec',str(self.spec),'--head','troll-a','--seed','3',
+              '--batch','2','--reference',str(self.reference),'--output',str(self.root/'cli')]
+        with patch('sys.argv',argv),patch.dict('os.environ',{'SRN_SHARED_TOOLCHAIN':'','SRN_SHARED_TOOL_MIGRATION':''}):
+            with self.assertRaisesRegex(ValueError,'launch_shared_tool'):main()
+        printed=[]
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),\
+             patch.object(comfy.Client,'request',autospec=True,side_effect=lambda client,route,data=None:fake.request(route,data)):
+            main()
+        result=json.loads(printed[-1]);self.assertEqual((result['state'],len(result['outputs']),result['proposalOnly']),('complete',2,True))
+        self.assertEqual(read(result['receipt'])['comfyEndpoint'],'http://127.0.0.1:8188')
+        argv=['headkit','design-inpaint','--bindings',str(self.bindings),'--spec',str(self.spec),'--design',str(self.head()),
+              '--skin','grey','--cut','200','--seed','5','--batch','1','--output',str(self.root/'cli')]
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),\
+             patch.object(comfy.Client,'request',autospec=True,side_effect=lambda client,route,data=None:fake.request(route,data)):
+            main()
+        receipt=read(json.loads(printed[-1])['receipt']);self.assertEqual((receipt['cutRow'],receipt['skin'],receipt['batch']),(200,'grey',1))
+        write(self.bindings,self.bindings_data(**{**self.local,'comfyUrl':'http://192.168.1.5:8188'}))
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),self.assertRaisesRegex(ValueError,'bound local'):main()
 
 if __name__=='__main__':unittest.main()

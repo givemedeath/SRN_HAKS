@@ -183,6 +183,14 @@ def main():
     p.add_argument('--reference',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--exclude-lower',type=float,default=.25)
     p=sub.add_parser('startup-config');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
+    # Direct-dispatch Flux.2 design proposals (see design.py): unguarded, for human review only.
+    p=sub.add_parser('design');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--spec',required=True,type=Path)
+    p.add_argument('--head',required=True);p.add_argument('--seed',required=True,type=int);p.add_argument('--batch',type=int,default=1)
+    p.add_argument('--reference',action='append',default=[],type=Path);p.add_argument('--output',required=True,type=Path)
+    p=sub.add_parser('design-inpaint');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--spec',required=True,type=Path)
+    p.add_argument('--design',required=True,type=Path);p.add_argument('--skin',required=True);p.add_argument('--seed',required=True,type=int)
+    p.add_argument('--batch',type=int,default=2);p.add_argument('--cut',type=int);p.add_argument('--lift',type=int,default=24)
+    p.add_argument('--name');p.add_argument('--output',required=True,type=Path)
     a=parser.parse_args()
     runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs') else None
     if a.command in ('prepare','run','resume','status','review','chain'):
@@ -246,6 +254,11 @@ def main():
     elif a.command=='replay':
         from .replay import replay
         result=replay(read(a.config),a.output)
+    elif a.command in ('design','design-inpaint'):
+        from . import design
+        local=bindings(a.bindings);client=comfy.Client(local['comfyUrl'])
+        if a.command=='design':result=design.generate(client,local,a.bindings,a.spec,a.head,a.seed,a.batch,a.reference,a.output,runtime=runtime)
+        else:result=design.inpaint(client,local,a.bindings,a.spec,a.design,a.skin,a.seed,a.batch,a.output,cut=a.cut,lift=a.lift,name=a.name,runtime=runtime)
     elif a.command=='install-nodes':result=install_nodes(a.destination,bindings(a.bindings))
     elif a.command=='fit-propose':
         from .fit import propose
