@@ -66,6 +66,7 @@ Freeze the manifest, local bindings, toolkit/helper versions, model/library file
 | `collect --bindings B --ledger L --token TOKEN --output JOB [--wait]` | Save history and hash actual owned outputs; verify appearance redecodes exactly the saved geometry |
 | `reconcile --bindings B --ledger L --token TOKEN` | Recover the original prompt by token, never submit a replacement |
 | `run` / `resume --manifest M --bindings B --run R --stage STAGE` | Execute/reuse one declared CPU stage |
+| `chain --manifest M --bindings B --run R --stages a,b,c` | Execute/reuse the listed CPU stages in pipeline order under the same launcher and run lock; print per-stage `reused`/`ran` (receipt `elapsedSeconds`)/`blocked-on-review`/`failed` JSON. Stops cleanly at the first stage whose dependency lacks an approved review, naming the attempt folder to inspect; never records a review. A failure exits 1 with its attempt folder, and rerunning the same chain resumes at that stage |
 | `status --manifest M --bindings B --run R` | Verify receipts and report missing/stale stages |
 | `review --manifest M --bindings B --run R --stage STAGE --decision approved|rejected --notes TEXT` | Record an operator decision bound to current receipt hashes |
 | `release --bindings B --ledger L` | Hold the submission ledger lock, require reconciled jobs and an idle queue, then unload ComfyUI models |

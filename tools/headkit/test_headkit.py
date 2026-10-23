@@ -1732,6 +1732,65 @@ class ReviewGateTests(Temporary):
         with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
 
 
+class ChainTests(Temporary):
+    fixture=ResumeTests.fixture;completed=ReviewGateTests.completed
+    def chain(self,runner,stages,fail=()):
+        from headkit.__main__ import chain
+        order=[]
+        def work(stage,folder):
+            order.append(stage)
+            if stage in fail:raise ValueError('Synthetic failure: '+stage)
+            return self.completed(stage,folder)
+        with patch.object(runner,'_execute',side_effect=work):result=chain(runner,stages)
+        return result,order,{row['stage']:row for row in result['stages']}
+    def test_runs_in_order_and_stops_at_review_gate_without_approving(self):
+        runner=self.fixture();result,order,rows=self.chain(runner,['repair','unwrap','bake'])
+        self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
+        self.assertEqual(rows['repair']['status'],'ran');self.assertEqual(rows['repair']['review'],'pending')
+        self.assertIsInstance(rows['repair']['elapsedSeconds'],float);self.assertNotIn('bake',rows)
+        gate=rows['unwrap'];self.assertEqual((gate['status'],gate['dependency']),('blocked-on-review','repair'))
+        self.assertEqual(Path(gate['evidence']),runner.run/'repair'/'attempt-01');self.assertIn('review --stage repair',gate['next'])
+        self.assertNotIn('reviews',runner.state);self.assertFalse(result['autoApproved'])
+        runner.review('repair','rejected','Visible accessory defect')
+        result,order,rows=self.chain(runner,['repair','unwrap'])
+        self.assertEqual(order,[]);self.assertEqual(rows['unwrap']['status'],'blocked-on-review');self.assertIn('rejected',rows['unwrap']['reason'])
+    def test_reuses_completed_reviewed_stages(self):
+        runner=self.fixture();self.chain(runner,['repair']);runner.review('repair','approved','Inspected repair')
+        result,order,rows=self.chain(runner,['repair','unwrap'])
+        self.assertEqual(order,['unwrap']);self.assertEqual([rows[s]['status'] for s in ('repair','unwrap')],['reused','ran'])
+        self.assertEqual(rows['repair']['review'],'approved');self.assertIsNone(result['stopped'])
+        runner.review('unwrap','approved','Inspected UVs')
+        result,order,rows=self.chain(runner,['repair','unwrap','bake'])
+        self.assertEqual(order,['bake']);self.assertEqual([row['status'] for row in result['stages']],['reused','reused','ran'])
+    def test_stops_on_failure_and_resumes_there(self):
+        runner=self.fixture();self.chain(runner,['repair']);runner.review('repair','approved','Inspected repair')
+        result,order,rows=self.chain(runner,['repair','unwrap','bake'],fail=('unwrap',))
+        self.assertEqual(order,['unwrap']);self.assertEqual(result['stopped'],'failed');self.assertNotIn('bake',rows)
+        self.assertEqual(Path(rows['unwrap']['attempt']),runner.run/'unwrap'/'attempt-01');self.assertIn('Synthetic failure',rows['unwrap']['error'])
+        result,order,rows=self.chain(Runner(runner.manifest_path,runner.bindings_path,runner.run),['repair','unwrap','bake'])
+        self.assertEqual(order,['unwrap']);self.assertEqual(rows['repair']['status'],'reused')
+        self.assertEqual((rows['unwrap']['status'],Path(rows['unwrap']['attempt'])),('ran',runner.run/'unwrap'/'attempt-02'))
+        self.assertEqual((rows['bake']['status'],rows['bake']['dependency']),('blocked-on-review','unwrap'))
+    def test_rejects_unknown_duplicate_or_reordered_stages(self):
+        runner=self.fixture()
+        for stages in ([],['unwrap','repair'],['repair','repair'],['gpu']):
+            with self.subTest(stages=stages),self.assertRaisesRegex(ValueError,'pipeline order'):self.chain(runner,stages)
+        self.assertEqual(runner.state['stages'],{})
+    def test_cli_requires_launcher_and_exits_nonzero_only_on_failure(self):
+        from headkit.__main__ import main
+        runner=self.fixture();argv=['headkit','chain','--manifest',str(runner.manifest_path),'--bindings',str(runner.bindings_path),
+                                    '--run',str(runner.run),'--stages','repair, unwrap']
+        with patch('sys.argv',argv),patch.dict('os.environ',{'SRN_SHARED_TOOLCHAIN':'','SRN_SHARED_TOOL_MIGRATION':''}):
+            with self.assertRaisesRegex(ValueError,'launch_shared_tool'):main()
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),patch('builtins.print'),\
+             patch('headkit.runner.Runner._execute',autospec=True,side_effect=lambda r,s,f:self.completed(s,f)) as work:
+            main();self.assertEqual([c.args[1] for c in work.call_args_list],['repair'])
+        with patch('sys.argv',argv[:-1]+['prepare']),patch('headkit.__main__.launched',return_value=None),patch('builtins.print'),\
+             patch('headkit.runner.Runner._execute',side_effect=ValueError('Synthetic failure')):
+            with self.assertRaises(SystemExit) as stop:main()
+        self.assertEqual(stop.exception.code,1)
+
+
 class GeneratedFieldLineageTests(Temporary):
     def fixture(self,geometry_roles=('uvMesh',)):
         inputs={}

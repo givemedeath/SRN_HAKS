@@ -78,6 +78,26 @@ class Runner:
         if provided in self.data['inputs']:return self.input(provided)
         row=self.result(stage)[key];verify([row]);return row['path']
 
+    def dependencies(self,stage):
+        """Reviewed upstream stages this manifest makes the stage consume."""
+        require(stage in STAGES,'Unknown CPU stage')
+        inputs=self.data['inputs']
+        dependencies={'prepare':[], 'precluster':[], 'repair':[],
+            'unwrap':[] if 'repairedMesh' in inputs else ['repair'],
+            'bake':[] if 'uvMesh' in inputs else ['unwrap'],
+            'ownership':[] if 'uvMesh' in inputs else ['unwrap'],
+            'tone':[] if 'basecolor4k' in inputs else ['bake'],
+            'palette':[] if 'runtimeColor' in inputs else ['tone'],
+            'export':([] if 'uvMesh' in inputs else ['unwrap'])+([] if 'runtimeShades' in inputs else ['palette']),
+            'native':['export'], 'render':[] if 'uvMesh' in inputs else ['unwrap']}[stage]
+        if stage=='tone' and not any(role in inputs for role in ('ownership1k','ownership4k')):dependencies.append('ownership')
+        if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
+        imported_atlases={'tone':('basecolor4k','ownership4k','ownership1k'),'palette':('runtimeColor','ownership1k'),
+                          'export':('runtimeShades','ownership1k')}.get(stage,())
+        if any(role in inputs for role in imported_atlases) and 'uvMesh' not in inputs and 'unwrap' not in dependencies:
+            dependencies.append('unwrap')
+        return dependencies
+
     def execute(self,stage):
         require(stage in STAGES,'Unknown CPU stage')
         # Package bytecode and installed modules must remain inside the frozen inventory.
@@ -98,23 +118,8 @@ class Runner:
             if name in self.bindings:inputs.append(self.bindings[name])
         for name in ('toolchain','migrationReceipt'):
             if name in self.bindings:inputs.append(pin(self.bindings[name]))
-        dependencies={'prepare':[], 'precluster':[], 'repair':[],
-            'unwrap':[] if 'repairedMesh' in self.data['inputs'] else ['repair'],
-            'bake':[] if 'uvMesh' in self.data['inputs'] else ['unwrap'],
-            'ownership':[] if 'uvMesh' in self.data['inputs'] else ['unwrap'],
-            'tone':[] if 'basecolor4k' in self.data['inputs'] else ['bake'],
-            'palette':[] if 'runtimeColor' in self.data['inputs'] else ['tone'],
-            'export':([] if 'uvMesh' in self.data['inputs'] else ['unwrap'])+([] if 'runtimeShades' in self.data['inputs'] else ['palette']),
-            'native':['export'], 'render':[] if 'uvMesh' in self.data['inputs'] else ['unwrap']}
-        if stage=='tone' and not any(role in self.data['inputs'] for role in ('ownership1k','ownership4k')):
-            dependencies[stage].append('ownership')
-        if stage=='palette' and 'ownership1k' not in self.data['inputs']:dependencies[stage].append('ownership')
-        imported_atlases={'tone':('basecolor4k','ownership4k','ownership1k'),'palette':('runtimeColor','ownership1k'),
-                          'export':('runtimeShades','ownership1k')}.get(stage,())
-        if any(role in self.data['inputs'] for role in imported_atlases) and 'uvMesh' not in self.data['inputs'] and 'unwrap' not in dependencies[stage]:
-            dependencies[stage].append('unwrap')
         dependency_pins={}
-        for dependency in dependencies[stage]:
+        for dependency in self.dependencies(stage):
             self.result(dependency);row=self.state['stages'][dependency]
             dependency_pins[dependency]=row
             previous=read(row['path']);inputs.append(row);inputs.extend(previous['outputs'])

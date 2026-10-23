@@ -121,11 +121,48 @@ def install_nodes(destination,local):
             'restartRequired':True,'comfyRestarted':False}
 
 
+def chain(runner, stages):
+    """Execute/reuse CPU stages in order; stop at the first unreviewed dependency or failure. Never records a review."""
+    from .runner import STAGES
+    require(stages and len(set(stages))==len(stages) and all(s in STAGES for s in stages)
+            and list(stages)==sorted(stages,key=STAGES.index),'Chain stages must be distinct CPU stages in pipeline order')
+    def attempt(stage):
+        row=runner.state['stages'].get(stage);return (str(Path(row['path']).parent),read(row['path'])) if row else (None,{})
+    def decision(stage):
+        review=runner.state.get('reviews',{}).get(stage)
+        if review is None or not Path(review['path']).is_file():return 'pending'
+        review=read(review['path']);return review.get('decision') if review.get('stageReceipt')==runner.state['stages'].get(stage) else 'pending'
+    rows=[];stopped=None
+    for stage in stages:
+        blocked=None
+        for dependency in runner.dependencies(stage):
+            try:runner.result(dependency)
+            except (ValueError,OSError) as exc:blocked=(dependency,str(exc));break
+        if blocked:
+            dependency,reason=blocked;folder,_=attempt(dependency)
+            kind='blocked-on-review' if 'review' in reason.lower() else 'blocked-on-dependency'
+            rows.append({'stage':stage,'status':kind,'dependency':dependency,'reason':reason,'evidence':folder,
+                'next':(f'Inspect {folder} then record `review --stage {dependency}`' if kind=='blocked-on-review'
+                        else f'Run or rerun {dependency} before {stage}')})
+            stopped=kind;break
+        try:outcome=runner.execute(stage)
+        except Exception as exc:
+            folder,receipt=attempt(stage)
+            rows.append({'stage':stage,'status':'failed','error':str(exc),
+                'attempt':folder if receipt.get('state')=='failed' else None,'next':'Fix the cause, then rerun chain to resume here'})
+            stopped='failed';break
+        folder,receipt=attempt(stage)
+        rows.append({'stage':stage,'status':'reused' if outcome['reused'] else 'ran','attempt':folder,
+                     'elapsedSeconds':receipt.get('elapsedSeconds'),'review':decision(stage)})
+    return {'id':runner.data['id'],'run':str(runner.run),'stages':rows,'stopped':stopped,'autoApproved':False}
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='command',required=True)
-    for name in ('prepare','run','resume','status','review'):
+    for name in ('prepare','run','resume','status','review','chain'):
         p=sub.add_parser(name);p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--run',required=True,type=Path)
         if name in ('run','resume','review'):p.add_argument('--stage',required=True)
+        if name=='chain':p.add_argument('--stages',required=True,type=lambda v:[s.strip() for s in v.split(',') if s.strip()])
         if name=='review':p.add_argument('--decision',choices=['approved','rejected'],required=True);p.add_argument('--notes',required=True)
     p=sub.add_parser('request');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
     p.add_argument('--stage',choices=['calibrate','geometry','appearance','export'],required=True);p.add_argument('--output',required=True,type=Path)
@@ -143,13 +180,14 @@ def main():
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
     a=parser.parse_args()
     runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs') else None
-    if a.command in ('prepare','run','resume','status','review'):
+    if a.command in ('prepare','run','resume','status','review','chain'):
         from .runner import Runner
         if a.command=='status':result=Runner(a.manifest,a.bindings,a.run).status()
         else:
             with comfy.locked(a.run/'runner'):
                 runner=Runner(a.manifest,a.bindings,a.run,runtime=runtime)
-                result=runner.review(a.stage,a.decision,a.notes) if a.command=='review' else runner.execute('prepare' if a.command=='prepare' else a.stage)
+                if a.command=='chain':result=chain(runner,a.stages)
+                else:result=runner.review(a.stage,a.decision,a.notes) if a.command=='review' else runner.execute('prepare' if a.command=='prepare' else a.stage)
     elif a.command=='inputs':
         data=manifest(a.manifest);local=bindings(a.bindings)
         pins=code_pins()+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,p) for p in data['inputs'].values()]+python_package_pins(local)
@@ -193,6 +231,7 @@ def main():
         else:result=comfy.reconcile(client,a.ledger,a.token)
     import json
     print(json.dumps(result,indent=2,allow_nan=False))
+    if a.command=='chain' and result['stopped']=='failed':raise SystemExit(1)
 
 
 if __name__=='__main__':main()
