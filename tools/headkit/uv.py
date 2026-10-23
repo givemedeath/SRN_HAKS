@@ -128,20 +128,32 @@ def gutter_audit(uv,size,owners=None,charts=None):
     return {'chartCount':int(charts.max(initial=-1)+1),'nearbyChartPixelsByRadius':collisions}
 
 
-def audit_imported_uvs(value,max_subtexel_fraction=.005):
+def coverage_floor(policy=None):
+    """2K coverage floor: 30% by default. Dense heads (many small charts, each needing the 4 px gutter at 1K) may
+    declare a lower floor, at least 20%, only with a recorded review; the gutter floor itself never relaxes."""
+    policy=policy or {};floor=policy.get('minimumCoverage',.30);review=policy.get('coverageReview')
+    if type(floor) not in (int,float) or not .20<=floor<=1:raise ValueError('UV coverage floor must be 0.20..1')
+    if floor<.30:
+        require(isinstance(review,dict) and review.get('reviewed') is True and isinstance(review.get('notes'),str)
+                and bool(review['notes'].strip()),'A UV coverage floor below 30% needs a recorded review')
+        return float(floor),review
+    return float(floor),None
+
+
+def audit_imported_uvs(value,max_subtexel_fraction=.005,uv_policy=None):
     """Validate imported UVs with the same gates as reviewed atlas reuse."""
-    audits={}
+    audits={};floor,review=coverage_floor(uv_policy)
     for size in (4096,2048,1024):
         audit,owners=raster_audit(value['uv'],size)
         subtexel=subtexel_audit(value['uv'],size,audit,owners,0.0 if size==4096 else max_subtexel_fraction)
         require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and subtexel['passed'],'Imported atlas failed UV audit')
         audit['subtexel']={k:v for k,v in subtexel.items() if k!='failingFaces'}
         gutters=gutter_audit(value['uv'],size,owners)
-        require(audit['coverageFraction']>=.30,'Insufficient useful imported atlas coverage')
+        require(audit['coverageFraction']>=floor,'Insufficient useful imported atlas coverage')
         if size==1024:require(not gutters['nearbyChartPixelsByRadius']['1'],'Imported atlas has unsafe 1K chart gutters')
         audits[str(size)]={'raster':audit,'gutters':gutters}
     require(int(chart_ids(value['uv']).max())+1<=max(256,len(value['faces'])*.3),'Severe imported chart fragmentation')
-    return {'imported':True,'audits':audits,'visualReviewRequired':True}
+    return {'imported':True,'audits':audits,'coverageFloor':floor,'coverageReview':review,'visualReviewRequired':True}
 
 
 def _pack_options(xatlas,padding,brute_force=False):
@@ -201,7 +213,7 @@ def unwrap(mesh,bindings,policy=None):
     xatlas=library(bindings,'xatlas')
     preserve_seams=policy.get('preserveAuthoredSeams',True)
     if type(preserve_seams) is not bool:raise ValueError('explicit boolean authored-seam policy required')
-    subtexel_fraction=policy.get('maximumSubtexelFraction',.005)
+    subtexel_fraction=policy.get('maximumSubtexelFraction',.005);floor,review=coverage_floor(policy)
     vertices,indices=physical_fans(mesh,preserve_authored_seams=preserve_seams);corners=np.asarray(vertices,float)[indices]
     charted=time.perf_counter();base,base_dims,density,count=_chart(xatlas,vertices,indices,policy);charted=time.perf_counter()-charted
     new_uv,dims,padding,own,attempts=base,base_dims,8,set(),[]
@@ -234,7 +246,7 @@ def unwrap(mesh,bindings,policy=None):
         reason=f'{len(bad)} bad faces' if bad else 'thin 1K gutters'
         error=ValueError(f'UV still has {reason} after {len(attempts)-1} pack-only repair rounds')
         error.attempts=attempts;raise error
-    if metrics['2048']['coverageFraction']<float(policy.get('minimumCoverage',.30)):
+    if metrics['2048']['coverageFraction']<floor:
         error=ValueError(f"Insufficient useful UV coverage ({metrics['2048']['coverageFraction']:.3f} at 2K, padding {padding})")
         error.attempts=attempts;raise error
     if count>max(256,int(len(indices)*.3)):raise ValueError('Severe UV fragmentation')
@@ -242,7 +254,7 @@ def unwrap(mesh,bindings,policy=None):
     return result,{'charts':count,'atlasDimensions':list(dims),'pixelAudits':metrics,'gutters':gutters,
                    'geometryUnchanged':True,'preserveAuthoredSeams':preserve_seams,'elapsedSeconds':time.perf_counter()-begun,
                    'chartingSeconds':charted,'attempts':attempts,'ownCharts':sorted(own),
-                   'chosenPadding':padding,'maximumSubtexelFraction':subtexel_fraction,
+                   'chosenPadding':padding,'maximumSubtexelFraction':subtexel_fraction,'coverageFloor':floor,'coverageReview':review,
                    'subtexel':{size:{k:v for k,v in s.items() if k!='failingFaces'} for size,s in subtexel.items()},
                    'effectivePadding2K':[padding*2048/dims[0],padding*2048/dims[1]],
                    'effectivePadding1024':[padding*1024/dims[0],padding*1024/dims[1]],

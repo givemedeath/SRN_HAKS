@@ -161,7 +161,7 @@ class Runner:
             value=mesh(source);original=value['positions'][value['faces']].copy();normals=value['normals']
             subtexel=m['mesh'].get('maximumSubtexelFraction',.005)
             if m['mesh'].get('reuseReviewedUvs',False):
-                result=audit_imported_uvs(value,subtexel)
+                result=audit_imported_uvs(value,subtexel,m['mesh'].get('uv',{}))
             else:
                 value,result=unwrap(value,b,dict(m.get('mesh',{}).get('uv',{}),maximumSubtexelFraction=subtexel))
                 audit,_=raster_audit(value['uv'],4096);require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and not audit['unmappedUvFaces'],'4K UV audit failed')
@@ -245,7 +245,7 @@ class Runner:
             if 'uvMesh' in m['inputs']:
                 from .gltf import mesh
                 from .uv import audit_imported_uvs
-                uv_result=audit_imported_uvs(mesh(source),m.get('mesh',{}).get('maximumSubtexelFraction',.005))
+                uv_result=audit_imported_uvs(mesh(source),m.get('mesh',{}).get('maximumSubtexelFraction',.005),m.get('mesh',{}).get('uv',{}))
                 uv_path=folder/'imported-uv-audit.json';write(uv_path,uv_result,fresh=True)
                 uv_audit=pin(uv_path)
             result=prepare(source,shades,layers,m['fit'],m['fit']['model'],folder/'converted')

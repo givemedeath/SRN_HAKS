@@ -629,6 +629,23 @@ class MeshTests(Temporary):
             chart.assert_called_once()
             self.assertEqual(repack.call_args.args[5],[0])
 
+    def test_lower_coverage_floor_needs_a_recorded_review(self):
+        from headkit.uv import coverage_floor
+        self.assertEqual(coverage_floor(),(.30,None));self.assertEqual(coverage_floor({'minimumCoverage':.4}),(.4,None))
+        review={'reviewed':True,'notes':'Dense crest head: 1,335 charts at the 4 px 1K gutter floor reach 27%.'}
+        self.assertEqual(coverage_floor({'minimumCoverage':.25,'coverageReview':review}),(.25,review))
+        for policy in ({'minimumCoverage':.25},{'minimumCoverage':.25,'coverageReview':{'reviewed':True,'notes':' '}},
+                       {'minimumCoverage':.25,'coverageReview':{'reviewed':False,'notes':'x'}}):
+            with self.subTest(policy=policy),self.assertRaisesRegex(ValueError,'recorded review'):coverage_floor(policy)
+        for floor in (.1,0.0,'0.3'):
+            with self.subTest(floor=floor),self.assertRaisesRegex(ValueError,'0.20..1'):coverage_floor({'minimumCoverage':floor})
+
+    def test_unwrap_checks_the_coverage_floor_before_charting(self):
+        from headkit.uv import unwrap
+        with patch('headkit.uv.library'),patch('headkit.uv._chart') as chart:
+            with self.assertRaisesRegex(ValueError,'recorded review'):unwrap({'positions':np.eye(3),'faces':np.array([[0,1,2]]),'uv':np.zeros((1,3,2))},{},{'minimumCoverage':.25})
+            chart.assert_not_called()
+
     def test_charts_touching_at_a_uv_corner_join_only_by_vertex(self):
         from headkit.uv import chart_ids
         uv=np.array([[[0,0],[.2,0],[0,.2]],[[.2,0],[.4,0],[.4,.2]],[[.6,.6],[.8,.6],[.6,.8]]],float)
