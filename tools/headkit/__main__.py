@@ -162,7 +162,10 @@ def main():
     for name in ('prepare','run','resume','status','review','chain'):
         p=sub.add_parser(name);p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--run',required=True,type=Path)
         if name in ('run','resume','review'):p.add_argument('--stage',required=True)
-        if name=='chain':p.add_argument('--stages',required=True,type=lambda v:[s.strip() for s in v.split(',') if s.strip()])
+        if name=='chain':
+            p.add_argument('--stages',required=True,type=lambda v:[s.strip() for s in v.split(',') if s.strip()])
+            # One launch records the operator's review of the stage that gates the chain, then continues it.
+            p.add_argument('--approve');p.add_argument('--notes')
         if name=='review':p.add_argument('--decision',choices=['approved','rejected'],required=True);p.add_argument('--notes',required=True)
     p=sub.add_parser('request');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
     p.add_argument('--stage',choices=['calibrate','geometry','appearance','export'],required=True);p.add_argument('--output',required=True,type=Path)
@@ -188,7 +191,10 @@ def main():
         else:
             with comfy.locked(a.run/'runner'):
                 runner=Runner(a.manifest,a.bindings,a.run,runtime=runtime)
-                if a.command=='chain':result=chain(runner,a.stages)
+                if a.command=='chain':
+                    require((a.approve is None)==(a.notes is None),'--approve and --notes go together')
+                    review=runner.review(a.approve,'approved',a.notes) if a.approve else None
+                    result=chain(runner,a.stages);result['reviewRecorded']=review
                 else:result=runner.review(a.stage,a.decision,a.notes) if a.command=='review' else runner.execute('prepare' if a.command=='prepare' else a.stage)
     elif a.command=='inputs':
         data=manifest(a.manifest);local=bindings(a.bindings);closure=None

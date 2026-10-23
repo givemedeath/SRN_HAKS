@@ -2038,6 +2038,19 @@ class ChainTests(Temporary):
         for stages in ([],['unwrap','repair'],['repair','repair'],['gpu']):
             with self.subTest(stages=stages),self.assertRaisesRegex(ValueError,'pipeline order'):self.chain(runner,stages)
         self.assertEqual(runner.state['stages'],{})
+    def test_cli_records_the_gating_review_and_continues_in_one_launch(self):
+        from headkit.__main__ import main
+        runner=self.fixture();self.chain(runner,['repair'])
+        base=['headkit','chain','--manifest',str(runner.manifest_path),'--bindings',str(runner.bindings_path),'--run',str(runner.run),'--stages','unwrap']
+        printed=[]
+        with patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),             patch('headkit.runner.Runner._execute',autospec=True,side_effect=lambda r,s,f:self.completed(s,f)) as work:
+            with patch('sys.argv',base+['--approve','repair']),self.assertRaisesRegex(ValueError,'go together'):main()
+            work.assert_not_called()
+            with patch('sys.argv',base+['--approve','repair','--notes','Inspected the repaired shell']):main()
+        self.assertEqual([c.args[1] for c in work.call_args_list],['unwrap'])
+        result=json.loads(printed[-1]);self.assertEqual(result['stages'][0]['status'],'ran');self.assertFalse(result['autoApproved'])
+        review=read(result['reviewRecorded']['path']);self.assertEqual((review['decision'],review['notes']),('approved','Inspected the repaired shell'))
+        self.assertEqual(result['stages'][0]['review'],'pending')
     def test_cli_requires_launcher_and_exits_nonzero_only_on_failure(self):
         from headkit.__main__ import main
         runner=self.fixture();argv=['headkit','chain','--manifest',str(runner.manifest_path),'--bindings',str(runner.bindings_path),
