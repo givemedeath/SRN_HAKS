@@ -629,6 +629,14 @@ class MeshTests(Temporary):
             chart.assert_called_once()
             self.assertEqual(repack.call_args.args[5],[0])
 
+    def test_entry_script_puts_bound_packages_first(self):
+        source=(Path(__file__).parent/'run_headkit.py').read_text().split('root=package_root')[0];namespace={}
+        exec(source,namespace);root=namespace['package_root']
+        bindings_path=self.root/'b.json';bindings_path.write_text(json.dumps({'pythonPackages':{'directory':'D:/pkgs','files':[]}}))
+        self.assertEqual(root(['x','status','--bindings',str(bindings_path)]),'D:/pkgs')
+        self.assertIsNone(root(['x','status']));self.assertIsNone(root(['x','--bindings']))
+        bindings_path.write_text('{}');self.assertIsNone(root(['x','--bindings',str(bindings_path)]))
+
     def test_lower_coverage_floor_needs_a_recorded_review(self):
         from headkit.uv import coverage_floor
         self.assertEqual(coverage_floor(),(.30,None));self.assertEqual(coverage_floor({'minimumCoverage':.4}),(.4,None))
