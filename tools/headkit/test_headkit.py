@@ -1970,4 +1970,164 @@ class ReviewImageTests(Temporary):
         with self.assertRaisesRegex(ValueError,'dimensions'):sheets(records,self.root/'sheets',20000)
 
 
+class TextureStageTests(Temporary):
+    CREST={'name':'crest','pivotHeight':.6,'angleRange':[-20,150],'angleBinDegrees':3,'slabWidth':.02,
+           'midlineHalfWidth':.17,'envelopeClearance':.02,'stripeHalfWidth':.025}
+    @staticmethod
+    def quads(grid):
+        a,b,c,d=grid[:-1,:-1],grid[1:,:-1],grid[1:,1:],grid[:-1,1:]
+        return np.r_[np.stack([a,b,c],2).reshape(-1,3,3),np.stack([a,c,d],2).reshape(-1,3,3)]
+    @staticmethod
+    def soup(triangles, cell=4):
+        """Every face owns its vertices (as after a UV split) and one square UV cell; returns value, atlas size."""
+        n=len(triangles);side=int(np.ceil(np.sqrt(n)));k=np.arange(n);u0,v0=(k%side)/side,(k//side)/side;s=1/side
+        uv=np.stack([np.c_[u0+.1*s,v0+.1*s],np.c_[u0+.9*s,v0+.1*s],np.c_[u0+.1*s,v0+.9*s]],1)
+        return {'positions':triangles.reshape(-1,3),'faces':np.arange(3*n).reshape(n,3),'uv':uv},side*cell
+    def head(self):
+        """Lateral cylinder skull (x across, y up, z front), a raised midline fin and a raised side ridge at x=0.6."""
+        def ring(x,radii,degrees):
+            r,t=np.meshgrid(radii,np.radians(degrees),indexing='ij')
+            return np.stack([np.broadcast_to(x,r.shape),r*np.sin(t),-r*np.cos(t)],-1)
+        # The skull is dense enough that every 3-degree pivot-angle bin holds skull faces beneath the fin.
+        x,t=np.meshgrid(np.linspace(-.8,.8,41),np.radians(np.arange(0,361,1)),indexing='ij')
+        skull=self.quads(np.stack([x,np.sin(t),-np.cos(t)],-1))
+        fin=self.quads(ring(0.,[1,1.1,1.2,1.3,1.4],np.arange(20,121,3)));ridge=self.quads(ring(.6,[1,1.1,1.2,1.3,1.4],np.arange(20,121,3)))
+        value,size=self.soup(np.r_[skull,fin,ridge]);kind=np.repeat([0,1,2],[len(skull),len(fin),len(ridge)])
+        colours=np.array([[150,110,90],[180,180,180],[180,180,180]],np.uint8)[kind];side=size//4
+        cells=np.arange(side*side).reshape(side,side).repeat(4,0).repeat(4,1).clip(0,len(kind)-1)
+        return value,colours[cells].copy(),kind
+    def test_crest_selects_raised_midline_faces_not_skull_or_side_ridge(self):
+        from headkit.paint import crest_faces
+        value,rgb,kind=self.head();band,stripe,grown=crest_faces(value,rgb,self.CREST)
+        radius=np.hypot(*value['positions'][value['faces']].mean(1)[:,1:].T)
+        self.assertFalse(band[kind!=1].any());self.assertEqual(grown,0)
+        self.assertTrue(band[(kind==1)&(radius>1.1)].all());self.assertFalse(band[(kind==1)].all())
+        np.testing.assert_array_equal(stripe,band)
+    def test_crest_growth_crosses_uv_seams_through_welded_positions(self):
+        from headkit.paint import crest_faces,adjacency
+        value,rgb,kind=self.head()
+        grow={'rounds':12,'halfWidth':.2,'skullTolerance':.01,'grayMinimumLuminance':95,'grayMaximumSpread':30}
+        band,_,grown=crest_faces(value,rgb,dict(self.CREST,grow=grow))
+        self.assertGreater(grown,0);np.testing.assert_array_equal(band,kind==1)
+        # Split vertices at equal positions are neighbours; a nearby but distinct edge is not.
+        p=np.array([[0,0,0],[1,0,0],[0,1,0],[1,0,0],[0,1,0],[1,1,0],[1,0,1e-3],[0,1,0],[1,1,1]],float)
+        neighbours=adjacency(p,np.arange(9).reshape(3,3)).toarray()>0
+        np.testing.assert_array_equal(neighbours,[[False,True,False],[True,False,False],[False,False,False]])
+    def test_crest_paints_only_untextured_texels(self):
+        from headkit.paint import crest
+        value,rgb,kind=self.head();rgb[...]=(180,180,180);rgb[:,:8]=(10,10,10);report={}
+        op=dict(self.CREST,color=[18,16,17],stripeColor=[120,14,22],preserve={'darkBelow':45,'redAbove':40})
+        masks=crest(value,rgb,op,report);self.assertEqual(set(masks),{'crest','crest-stripe'});self.assertTrue((rgb[:,:8]==10).all())
+        painted=masks['crest-stripe'].copy();painted[:,:8]=False;outside=~masks['crest'];outside[:,:8]=False
+        self.assertTrue(painted.any() and (rgb[painted]==(120,14,22)).all() and (rgb[outside]==180).all())
+        self.assertEqual(report['paintedTexels']['crest-stripe'],int(painted.sum()))
+    def two_faces(self, size=64):
+        p=np.array([[0,0,0],[1,0,0],[0,1,1],[1,0,0],[1,1,1],[0,1,1]],np.float32)
+        uv=np.array([[[.02,.02],[.9,.02],[.02,.9]],[[.98,.1],[.98,.98],[.1,.98]]])
+        source=self.root/'faces.glb';write_mesh(source,p,np.arange(6).reshape(2,3),uv)
+        rgb=np.full((size,size,3),120,np.uint8);rgb[:,:size//2]=(200,20,20);Image.fromarray(rgb).save(self.root/'color.png')
+        return source,rgb
+    def test_rule_ownership_first_match_wins_and_padding_takes_nearest_label(self):
+        from headkit.paint import rule_ownership
+        from headkit.uv import raster_audit
+        source,rgb=self.two_faces();owners=raster_audit(mesh(source)['uv'],64)[1];mapped=owners>=0;red=rgb[...,0]==200
+        rules=[{'name':'red','channel':9,'when':{'of':'red','gt':50}},{'name':'rest','channel':1,'when':{'of':'lum','ge':0}}]
+        labels,report=rule_ownership(source,self.root/'color.png',{'rules':rules})
+        self.assertTrue((labels[mapped&red]==9).all() and (labels[mapped&~red]==1).all() and set(np.unique(labels))=={1,9})
+        self.assertEqual([row['texels'] for row in report['rules']],[int((mapped&red).sum()),int((mapped&~red).sum())])
+        labels,_=rule_ownership(source,self.root/'color.png',{'rules':rules[::-1]});self.assertTrue((labels==1).all())
+        Image.fromarray(np.where(np.arange(64)[None,:]<8,255,0).astype(np.uint8).repeat(64,0)).save(self.root/'mask.png')
+        config={'default':2,'regions':{'right':{'of':'x','center':1,'lt':.5}},
+                'rules':[{'name':'masked','channel':3,'when':{'mask':'m'}},{'name':'right','channel':8,'when':{'region':'right'}}]}
+        labels,_=rule_ownership(source,self.root/'color.png',config,masks={'m':self.root/'mask.png'})
+        right=np.arange(64)[None,:]>=8
+        self.assertTrue((labels[mapped&(owners==1)&right]==8).all() and (labels[mapped&(owners==0)&right]==2).all())
+        self.assertTrue((labels[mapped&(np.arange(64)[None,:]<8)]==3).all())
+        for bad in ({'of':'metallic','gt':1},{'region':'missing'},{'of':'lum'},{'channel':1}):
+            with self.subTest(condition=bad),self.assertRaises(ValueError):
+                rule_ownership(source,self.root/'color.png',{'rules':[{'name':'x','channel':1,'when':bad}]})
+    def test_worked_texture_example_conditions_evaluate(self):
+        from headkit.paint import rule_ownership,adjust
+        example=read(Path(__file__).parent/'examples'/'texture-rules.json');source,rgb=self.two_faces()
+        Image.new('L',(64,64),200).save(self.root/'metal.png');Image.new('L',(64,64),0).save(self.root/'mask.png')
+        labels,report=rule_ownership(source,self.root/'color.png',example['ownership'],metallic=self.root/'metal.png',
+                                     masks={'neck-cap':self.root/'mask.png','crest':self.root/'mask.png'})
+        self.assertEqual(set(np.unique(labels)),{0,2});Image.fromarray(labels).save(self.root/'labels.png')
+        Image.new('RGB',(256,89),(90,10,10)).save(self.root/'tattoo.png')
+        adjust(self.root/'color.png',self.root/'labels.png',example['tone'],{'9':self.root/'tattoo.png'},self.root/'tone.png')
+        self.assertEqual({op['op'] for op in example['paint']['operations']},{'fill','crest'})
+    def test_fill_paints_faces_and_their_padding_with_a_median_colour(self):
+        from headkit.paint import fill,texel_source
+        from headkit.uv import raster_audit
+        source,rgb=self.two_faces();value=mesh(source);owners=raster_audit(value['uv'],64)[1];report={}
+        masks=fill(value,rgb,{'name':'cap','faces':{'of':'index','ge':1},'color':{'median':{'of':'y','ge':0}}},report,texel_source(value,rgb),{})
+        self.assertEqual(report['color'],[200,20,20]);self.assertTrue(masks['cap'][owners==1].all() and not masks['cap'][owners==0].any())
+        self.assertGreater(masks['cap'].sum(),(owners==1).sum());self.assertTrue((rgb[masks['cap']]==(200,20,20)).all())
+    def test_adjust_passes_through_and_maps_brightness_onto_a_palette_ramp(self):
+        from headkit.paint import adjust
+        rgb=np.zeros((8,8,3),np.uint8);rgb[:,:,0]=np.arange(8)[None,:]*30;Image.fromarray(rgb).save(self.root/'c.png')
+        labels=np.zeros((8,8),np.uint8);labels[:4]=9;Image.fromarray(labels).save(self.root/'o.png')
+        adjust(self.root/'c.png',self.root/'o.png',{'mode':'adjust'},{},self.root/'same.png')
+        np.testing.assert_array_equal(np.asarray(Image.open(self.root/'same.png')),rgb)
+        palette=np.zeros((2,256,4),np.uint8);palette[1,:,0]=np.arange(256);palette[...,3]=255;Image.fromarray(palette).save(self.root/'p.png')
+        config={'operations':[{'op':'paletteRamp','when':{'channel':9},'palette':'9','row':1,'luminanceScale':1},
+                              {'op':'set','when':{'all':[{'channel':0},{'of':'r','gt':100}]},'color':[1,2,3]}]}
+        result=adjust(self.root/'c.png',self.root/'o.png',config,{'9':self.root/'p.png'},self.root/'out.png')
+        out=np.asarray(Image.open(self.root/'out.png'))
+        np.testing.assert_array_equal(out[:4,:,0],rgb[:4,:,0]);self.assertTrue((out[4:,4:]==(1,2,3)).all())
+        np.testing.assert_array_equal(out[4:,:4],rgb[4:,:4]);self.assertEqual([r['texels'] for r in result['operations']],[32,16])
+    def test_auto_rows_equal_brute_force_ranking(self):
+        from headkit.palette import rank_rows
+        rng=np.random.default_rng(3);rgb=rng.integers(40,200,(64,64,3),dtype=np.uint8);labels=rng.choice([0,1],(64,64)).astype(np.uint8)
+        rgb[:20]=rgb[:20]//8*8  # repeated colours exercise the unique-colour weights
+        Image.fromarray(rgb).save(self.root/'c.png');Image.fromarray(labels).save(self.root/'o.png')
+        palette=rng.integers(0,256,(12,256,4),dtype=np.uint8);palette[...,3]=np.where(rng.random((12,256))<.3,0,255)
+        palette[5,:,3]=0;palette[7]=palette[2];palette[2,255,:3]=rgb[0,0];Image.fromarray(palette).save(self.root/'p.png')
+        ranking=rank_rows(self.root/'c.png',self.root/'o.png',{'0':self.root/'p.png','1':self.root/'p.png'},keep=5,chunk=8)
+        for key in ('0','1'):
+            colours=rgb[labels==int(key)].astype(np.int64);scores=[]
+            for row in range(12):
+                allowed=(palette[row,:,3]>0)&(np.arange(256)<255)
+                if allowed.any():
+                    squared=((colours[:,None,:]-palette[row,allowed,:3].astype(np.int64)[None])**2).sum(-1).min(1)
+                    scores.append((squared.sum()/len(colours),row))
+            scores.sort()
+            self.assertEqual([(r['meanSquaredDistance'],r['row']) for r in ranking[key]['top']],scores[:5])
+            self.assertEqual(ranking[key]['row'],scores[0][1]);self.assertEqual(ranking[key]['rowsScored'],11)
+    def test_palette_auto_rows_resolve_before_quantization(self):
+        runner=ImportedOwnershipTests.fixture(self);base=runner.manifest_path.parent
+        palette=np.zeros((3,256,4),np.uint8);palette[0,:,:3]=255;palette[0,:,3]=255;palette[2,:,3]=255
+        Image.fromarray(palette).save(base/'skin.png');runner.data['inputs']['paletteSkin']={'path':'skin.png','sha256':pin(base/'skin.png')['sha256']}
+        runner.data['palette']={'inputs':{'0':'paletteSkin'},'rows':'auto'}
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:result=runner._execute('palette',runner.run)
+        self.assertEqual(quantizer.call_args.args[3],{'0':2});self.assertEqual(result['rowRanking']['0']['row'],2)
+        self.assertTrue((runner.run/'row-ranking.json').is_file())
+    def texture_runner(self):
+        alignment=self.pair();inputs={name:{'path':name+'.png','sha256':pin(self.root/(name+'.png'))['sha256']} for name in ['clay','detail']}
+        data={'schemaVersion':1,'id':'painted','inputs':inputs,'alignment':alignment,'features':[{'name':'hair','placementReviewed':True}],
+              'approval':{'referenceDesignReviewed':True},'paint':{'operations':[{'op':'fill','name':'cap','faces':{'of':'index','ge':0},'color':[1,2,3]}]},
+              'ownership':{'mode':'rules','reviewed':True,'rules':[]},'tone':{'mode':'adjust'}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+    def test_review_gate_blocks_consumers_of_paint(self):
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)) as work:
+            for stage in ('repair','unwrap','bake'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+            runner.execute('paint');calls=work.call_count
+            for decision in (None,'rejected'):
+                if decision:runner.review('paint',decision,'Crest recolor bled onto skin')
+                for stage in ('ownership','tone'):
+                    with self.subTest(decision=decision,stage=stage),self.assertRaisesRegex(ValueError,'review|rejected'):runner.execute(stage)
+            self.assertEqual(work.call_count,calls)
+            runner.review('paint','approved','Inspected recolored atlas and masks');runner.execute('ownership')
+            runner.review('ownership','approved','Inspected rule ownership');runner.execute('tone')
+        dependencies=lambda stage:set(read(runner.state['stages'][stage]['path'])['dependencies'])
+        self.assertEqual(dependencies('paint'),{'bake','unwrap'});self.assertEqual(dependencies('ownership'),{'unwrap','paint','bake'})
+        self.assertEqual(dependencies('tone'),{'paint','ownership'})
+        runner.review('bake','rejected','Bake revoked')
+        with patch.object(runner,'_execute') as work:
+            with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('tone')
+            work.assert_not_called()
+
+
 if __name__=='__main__':unittest.main()

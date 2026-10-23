@@ -1,0 +1,63 @@
+{
+  "description": "Worked paint / rule-ownership / reference-free tone / automatic palette sections from troll-male-01 (taper-v4: neck cap fill, black crest with red stripe, ivory horns and tusks, metal implants, red cybereye lens). Merge the four sections into a processing manifest. Every value is head-specific data; review each stage's emitted maps and masks before approval.",
+  "paint": {
+    "regions": {},
+    "operations": [
+      {
+        "op": "fill",
+        "name": "neck-cap",
+        "faces": {"of": "index", "ge": 19952},
+        "color": [54, 41, 35]
+      },
+      {
+        "op": "crest",
+        "name": "crest",
+        "pivotHeight": 0.6,
+        "angleRange": [-20, 150],
+        "angleBinDegrees": 3,
+        "slabWidth": 0.02,
+        "midlineHalfWidth": 0.17,
+        "envelopeClearance": 0.02,
+        "grow": {"rounds": 12, "halfWidth": 0.2, "skullTolerance": 0.01, "grayMinimumLuminance": 95, "grayMaximumSpread": 30},
+        "stripeHalfWidth": 0.025,
+        "preserve": {"darkBelow": 45, "redAbove": 40},
+        "color": [18, 16, 17],
+        "stripeColor": [120, 14, 22],
+        "grainSigma": 6,
+        "grainSeed": 7
+      }
+    ]
+  },
+  "ownership": {
+    "mode": "rules",
+    "reviewed": true,
+    "default": 0,
+    "regions": {
+      "horns": {"all": [{"of": "x", "center": 0.5, "gt": 0.22}, {"of": "y", "gt": 0.55}]},
+      "tusks": {"all": [{"of": "y", "lt": 0.45}, {"of": "z", "gt": 0.72}, {"of": "x", "center": 0.5, "gt": 0.06}]},
+      "eye": {"all": [{"of": "z", "gt": 0.72}, {"of": "y", "gt": 0.5}, {"of": "y", "lt": 0.75}]},
+      "crestBase": {"all": [{"of": "x", "center": 0.5, "lt": 0.1}, {"mapped": true}]}
+    },
+    "rules": [
+      {"name": "neck-cap-skin", "channel": 0, "when": {"mask": "neck-cap"}},
+      {"name": "red-stripe-and-lens", "channel": 9, "when": {"all": [{"of": "red", "gt": 50}, {"of": "r", "gt": 90}, {"any": [{"mask": "crest"}, {"region": "eye"}]}]}},
+      {"name": "crest-hair", "channel": 1, "when": {"mask": "crest"}},
+      {"name": "metal", "channel": 2, "when": {"all": [{"of": "metallic", "gt": 128}, {"of": "lum", "gt": 100}]}},
+      {"name": "ivory", "channel": 8, "when": {"all": [{"of": "lum", "gt": 120}, {"of": "rb", "gt": 12}, {"any": [{"region": "horns"}, {"region": "tusks"}]}]}},
+      {"name": "dark-crest-front", "channel": 1, "when": {"all": [{"region": "crestBase"}, {"of": "y", "gt": 0.68}, {"of": "z", "gt": 0.6}, {"of": "lum", "lt": 50}]}},
+      {"name": "gray-crest-rear", "channel": 1, "when": {"all": [{"region": "crestBase"}, {"of": "y", "gt": 0.8}, {"of": "z", "lt": 0.6}, {"of": "sat", "lt": 25}, {"of": "lum", "gt": 60}]}}
+    ]
+  },
+  "tone": {
+    "mode": "adjust",
+    "operations": [
+      {"op": "set", "when": {"all": [{"channel": 1}, {"of": "lum", "gt": 70}]}, "color": [20, 18, 19]},
+      {"op": "paletteRamp", "when": {"channel": 9}, "palette": "9", "row": 88, "luminanceScale": 1.2}
+    ]
+  },
+  "palette": {
+    "inputs": {"0": "paletteSkin", "1": "paletteHair", "2": "paletteArmor", "8": "paletteTattoo", "9": "paletteTattoo"},
+    "rows": {"0": "auto", "1": "auto", "2": 0, "8": "auto", "9": "auto"},
+    "shadeOffsets": {}
+  }
+}
