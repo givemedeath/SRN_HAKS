@@ -11,7 +11,7 @@ from .rays import EmbreeScene
 
 def project_ownership(source, views, embree, output):
     """View labels are measured annotations, not RGB-threshold skin/hair guesses."""
-    verify([embree]);value=mesh(source);positions,owners,_=surface(value,1024);mapped=owners>=0
+    verify([embree]);value=mesh(source);positions,owners,_=surface(value,1024,.005);mapped=owners>=0
     labels=np.full((1024,1024),255,np.uint8);points=positions[mapped];chosen=np.full(len(points),255,np.uint8)
     scene=EmbreeScene(embree['path'],value['positions'],value['faces']);reports=[]
     try:

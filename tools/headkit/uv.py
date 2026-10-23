@@ -73,6 +73,27 @@ def chart_ids(uv):
     return labels
 
 
+def subtexel_audit(uv,size,report,owners,max_fraction=0.0,charts=None):
+    """Measured allowance for faces that own no texel at a derived resolution. Such a face passes only if,
+    under its corners and centroid, the nearest mapped texel (the colour bake padding copies there) belongs
+    to its own chart, and only while the count stays within the declared fraction of all faces."""
+    uv=np.asarray(uv,float);faces=list(report['unmappedUvFaces'])
+    if type(max_fraction) not in (int,float) or not 0<=max_fraction<=.02:raise ValueError('Sub-texel allowance must be 0..2% of faces')
+    limit=int(np.ceil(max_fraction*len(uv)))
+    if not faces:return {'size':size,'count':0,'limit':limit,'failingFaces':[],'passed':True}
+    # Over the bound, or without an owner raster to prove the padding source, every such face fails.
+    if len(faces)>limit or owners is None or not np.any(np.asarray(owners)>=0):
+        return {'size':size,'count':len(faces),'limit':limit,'failingFaces':[int(f) for f in faces],'passed':False}
+    if charts is None:charts=chart_ids(uv)
+    from scipy.ndimage import distance_transform_edt
+    nearest=owners[tuple(distance_transform_edt(owners<0,return_distances=False,return_indices=True))]
+    failing=[]
+    for fi in faces:
+        points=np.vstack([uv[fi],uv[fi].mean(0)])*size;pixel=np.clip(np.floor(points).astype(int),0,size-1)
+        if np.any(charts[nearest[pixel[:,1],pixel[:,0]]]!=charts[fi]):failing.append(int(fi))
+    return {'size':size,'count':len(faces),'limit':limit,'failingFaces':failing,'passed':not failing}
+
+
 def gutter_audit(uv,size,owners=None):
     if owners is None: _,owners=raster_audit(uv,size)
     charts=chart_ids(uv); labels=np.full(owners.shape,-1,int); covered=owners>=0
@@ -96,12 +117,14 @@ def gutter_audit(uv,size,owners=None):
     return {'chartCount':int(charts.max(initial=-1)+1),'nearbyChartPixelsByRadius':collisions}
 
 
-def audit_imported_uvs(value):
+def audit_imported_uvs(value,max_subtexel_fraction=.005):
     """Validate imported UVs with the same gates as reviewed atlas reuse."""
     audits={}
     for size in (4096,2048,1024):
         audit,owners=raster_audit(value['uv'],size)
-        require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and not audit['unmappedUvFaces'],'Imported atlas failed UV audit')
+        subtexel=subtexel_audit(value['uv'],size,audit,owners,0.0 if size==4096 else max_subtexel_fraction)
+        require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and subtexel['passed'],'Imported atlas failed UV audit')
+        audit['subtexel']={k:v for k,v in subtexel.items() if k!='failingFaces'}
         gutters=gutter_audit(value['uv'],size,owners)
         require(audit['coverageFraction']>=.30,'Insufficient useful imported atlas coverage')
         if size==1024:require(not gutters['nearbyChartPixelsByRadius']['1'],'Imported atlas has unsafe 1K chart gutters')
@@ -159,6 +182,7 @@ def unwrap(mesh,bindings,policy=None):
     xatlas=library(bindings,'xatlas')
     preserve_seams=policy.get('preserveAuthoredSeams',True)
     if type(preserve_seams) is not bool:raise ValueError('explicit boolean authored-seam policy required')
+    subtexel_fraction=policy.get('maximumSubtexelFraction',.005)
     vertices,indices=physical_fans(mesh,preserve_authored_seams=preserve_seams)
     attempts=[];groups=[np.arange(len(indices))];new_uv=atlas=count=metrics=owners=gutters=None;chosen_padding=None
     # At most two packing upgrades (8 -> 16 -> 32). A single bounded local repair
@@ -169,12 +193,17 @@ def unwrap(mesh,bindings,policy=None):
             new_uv,atlas,count=_pack(xatlas,vertices,indices,groups,padding=padding)
             metrics={};owners={}
             for size in (2048,1024):metrics[str(size)],owners[size]=raster_audit(new_uv,size)
-            bad=sorted({face for audit in metrics.values()
-                        for key in ('overlapFaces','degenerateUvFaces','unmappedUvFaces') for face in audit[key]})
+            charts=chart_ids(new_uv);bad=set();subtexel={}
+            for size,audit in metrics.items():
+                bad.update(audit['overlapFaces']);bad.update(audit['degenerateUvFaces'])
+                subtexel[size]=subtexel_audit(new_uv,int(size),audit,owners[int(size)],subtexel_fraction,charts)
+                bad.update(subtexel[size]['failingFaces'])
+            bad=sorted(bad)
             gutters={str(size):gutter_audit(new_uv,size,owners[size]) for size in (2048,1024)}
             effective=[padding*1024/atlas.width,padding*1024/atlas.height]
             attempt={'padding':padding,'localRepair':bool(local_iteration),'groups':[len(x) for x in groups],
                      'badFaceCount':len(bad),'charts':count,'atlasDimensions':[atlas.width,atlas.height],
+                     'subtexel':{size:{k:v for k,v in s.items() if k!='failingFaces'} for size,s in subtexel.items()},
                      'effectivePadding1024':effective,
                      'nearbyChartPixelsByRadius1024':gutters['1024']['nearbyChartPixelsByRadius']}
             attempts.append(attempt)
@@ -199,7 +228,8 @@ def unwrap(mesh,bindings,policy=None):
     result=dict(mesh,uv=np.asarray(new_uv,np.float64),chart_ids=chart_ids(new_uv),uv_pending_unwrap=False)
     return result,{'charts':count,'atlasDimensions':[atlas.width,atlas.height],'pixelAudits':metrics,'gutters':gutters,
                    'geometryUnchanged':True,'preserveAuthoredSeams':preserve_seams,'elapsedSeconds':time.perf_counter()-begun,'attempts':attempts,
-                   'chosenPadding':chosen_padding,
+                   'chosenPadding':chosen_padding,'maximumSubtexelFraction':subtexel_fraction,
+                   'subtexel':{size:{k:v for k,v in s.items() if k!='failingFaces'} for size,s in subtexel.items()},
                    'effectivePadding2K':[chosen_padding*2048/atlas.width,chosen_padding*2048/atlas.height],
                    'effectivePadding1024':[chosen_padding*1024/atlas.width,chosen_padding*1024/atlas.height],
                    'visualReview':'required'}

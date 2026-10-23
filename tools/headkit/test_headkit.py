@@ -802,10 +802,24 @@ class AppearanceTests(Temporary):
     def test_saved_field_with_second_batch_is_rejected(self):
         np.savez(self.root/'two.npz',coords=np.array([[0,0,0,0],[1,0,0,0]],np.int32),attrs=np.ones((2,6)),resolution=2)
         with self.assertRaisesRegex(ValueError,'exactly one batch'):load_generated_field(self.root/'two.npz')
+    def test_subtexel_face_passes_only_inside_its_own_chart_and_bound(self):
+        from headkit.uv import raster_audit,subtexel_audit
+        big=[[0,0],[8.3,0],[0,8.3]]
+        attached=[[8.3,0],[0,8.3],[4.22,4.22]]      # shares the hypotenuse: same chart, owns no texel centre
+        loose=[[8.4,0.05],[0.05,8.4],[4.27,4.27]]   # same spot, no shared edge: another chart
+        for third,own in ((attached,True),(loose,False)):
+            with self.subTest(own=own):
+                uv=np.array([big,third],float)/16;report,owners=raster_audit(uv,16)
+                self.assertEqual(report['unmappedUvFaces'],[1])
+                self.assertEqual(subtexel_audit(uv,16,report,owners,.02)['passed'],own)
+        uv=np.array([big,attached],float)/16;report,owners=raster_audit(uv,16)
+        result=subtexel_audit(uv,16,report,owners,0.0)
+        self.assertFalse(result['passed']);self.assertEqual((result['count'],result['limit']),(1,0))
+        with self.assertRaisesRegex(ValueError,'0..2%'):subtexel_audit(uv,16,report,owners,.05)
     def test_bake_rejects_unmapped_1k_faces_before_writing_output(self):
         np.savez(self.root/'field.npz',coords=np.array([[0,0,0,0]],np.int32),attrs=np.ones((1,6))*.5,resolution=2)
         value={'positions':np.eye(3),'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
-        def gated(_,size):
+        def gated(_,size,*__):
             if size==1024:raise ValueError('UV overlap/degeneracy or unmapped faces block baking')
             return np.zeros((size,size,3),np.float32),np.zeros((size,size),np.int32),{}
         with patch('headkit.textures.mesh',return_value=value),patch('headkit.textures.surface',side_effect=gated):
