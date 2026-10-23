@@ -6,7 +6,7 @@
       {
         "op": "fill",
         "name": "neck-cap",
-        "faces": {"of": "index", "ge": 19952},
+        "faces": {"of": "seal", "gt": 0.5},
         "color": [54, 41, 35]
       },
       {

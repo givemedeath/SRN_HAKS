@@ -119,12 +119,15 @@ def crest(value, rgb, op, report):
     return masks
 
 
-def fill(value, rgb, op, report, texels, regions):
+def fill(value, rgb, op, report, texels, regions, seal_start=None):
     """Paint selected faces flat over their own texels and the padding nearest to them; the colour is literal or the
     median of a mapped texel region outside those faces."""
     centre,lo,hi=frame(value);rel=(centre-lo)/(hi-lo);uv=np.asarray(value['uv'])
     pixel=(uv.mean(1)*len(rgb)).astype(int).clip(0,len(rgb)-1)
-    faces=colour_values(rgb[pixel[:,1],pixel[:,0]],{'x':lambda:rel[:,0],'y':lambda:rel[:,1],'z':lambda:rel[:,2],'index':lambda:np.arange(len(rel))})
+    def seal():
+        require(type(seal_start) is int and 0<seal_start<len(rel),'No neck seal recorded for this mesh')
+        return (np.arange(len(rel))>=seal_start).astype(float)
+    faces=colour_values(rgb[pixel[:,1],pixel[:,0]],{'x':lambda:rel[:,0],'y':lambda:rel[:,1],'z':lambda:rel[:,2],'index':lambda:np.arange(len(rel)),'seal':seal})
     selected=when(op['faces'],faces,regions);require(selected.any(),'Fill selects no faces: '+op['name'])
     values=texels();mask=selected[values['nearest']];colour=op['color']
     if isinstance(colour,dict):
@@ -155,8 +158,10 @@ def texel_source(value, rgb):
     return texels
 
 
-def paint(source, color, config, output):
-    """Apply configured recolor/fill operations in order; each emits a 4K face mask for review and ownership rules."""
+def paint(source, color, config, output, *, seal_start=None):
+    """Apply configured recolor/fill operations in order; each emits a 4K face mask for review and ownership rules.
+    seal_start is the first face of repair's neck seal (it appends the cap after the reduced shell), so a fill can
+    select {of: seal} without a per-head face index."""
     value=mesh(source);rgb=np.asarray(Image.open(color).convert('RGB')).copy()
     require(rgb.shape==(4096,4096,3),'Paint source must be an actual 4096x4096 colour map')
     operations=config.get('operations');require(isinstance(operations,list) and operations,'Configured paint operations required')
@@ -165,7 +170,7 @@ def paint(source, color, config, output):
     for op in operations:
         require(op.get('op') in ('crest','fill') and isinstance(op.get('name'),str) and op['name'].replace('-','').isalnum(),'Named crest/fill operation required')
         report={'op':op['op'],'name':op['name']}
-        created=crest(value,rgb,op,report) if op['op']=='crest' else fill(value,rgb,op,report,texels,regions)
+        created=crest(value,rgb,op,report) if op['op']=='crest' else fill(value,rgb,op,report,texels,regions,seal_start)
         require(not set(created)&set(masks),'Duplicate paint mask name');masks.update(created);reports.append(report)
     image=Image.fromarray(rgb);files={}
     for size in (4096,2048,1024):

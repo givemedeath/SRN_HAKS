@@ -184,10 +184,15 @@ class Runner:
     def _texture_dependencies(self,stage,dependencies):
         # Configured paint replaces the bake as colour source; rule ownership reads paint masks and the baked metallic.
         inputs=self.data['inputs'];baked=[] if 'basecolor4k' in inputs else ['bake']
-        dependencies['paint']=baked+([] if 'uvMesh' in inputs else ['unwrap'])
+        dependencies['paint']=baked+([] if 'uvMesh' in inputs else ['unwrap'])+(['repair'] if self._sealed() else [])
         if 'paint' in self.data and stage=='tone':dependencies['tone']=['paint']
         if stage=='ownership' and self.data.get('ownership',{}).get('mode')=='rules':
             dependencies['ownership']+=(['paint'] if 'paint' in self.data else [])+baked
+
+    def _sealed(self):
+        # Paint can address the neck seal faces only when this run's repair produced the mesh.
+        inputs=self.data['inputs']
+        return not {'uvMesh','repairedMesh'}&set(inputs) and bool(self.data.get('mesh',{}).get('neck',{}).get('seal'))
 
     def _color4k(self,*,painted=True):
         if painted and 'paint' in self.data:return self.result('paint')['maps']['basecolor-4096.png']['path']
@@ -244,7 +249,9 @@ class Runner:
                         max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005))
         if stage=='paint':
             from .paint import paint
-            return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps')
+            seal=None
+            if self._sealed():seal=self.result('repair')['neck']['seal']['shellTriangles']
+            return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps',seal_start=seal)
         if stage=='ownership':
             from .palette import project_ownership
             source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={}

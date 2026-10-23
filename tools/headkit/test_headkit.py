@@ -2406,6 +2406,17 @@ class TextureStageTests(Temporary):
         masks=fill(value,rgb,{'name':'cap','faces':{'of':'index','ge':1},'color':{'median':{'of':'y','ge':0}}},report,texel_source(value,rgb),{})
         self.assertEqual(report['color'],[200,20,20]);self.assertTrue(masks['cap'][owners==1].all() and not masks['cap'][owners==0].any())
         self.assertGreater(masks['cap'].sum(),(owners==1).sum());self.assertTrue((rgb[masks['cap']]==(200,20,20)).all())
+    def test_fill_selects_the_recorded_neck_seal_faces(self):
+        from headkit.paint import fill,texel_source
+        source,rgb=self.two_faces();value=mesh(source);report={};op={'name':'cap','faces':{'of':'seal','gt':.5},'color':[1,2,3]}
+        by_index=fill(value,rgb.copy(),dict(op,faces={'of':'index','ge':1}),{},texel_source(value,rgb),{})['cap']
+        np.testing.assert_array_equal(fill(value,rgb.copy(),op,report,texel_source(value,rgb),{},1)['cap'],by_index)
+        for start in (None,0,2):
+            with self.subTest(start=start),self.assertRaisesRegex(ValueError,'No neck seal'):fill(value,rgb.copy(),op,{},texel_source(value,rgb),{},start)
+    def test_sealed_runs_make_paint_depend_on_repair(self):
+        runner=self.texture_runner();self.assertEqual(runner.dependencies('paint'),['bake','unwrap'])
+        runner.data['mesh']={'neck':{'seal':{'height':'measured','inset':.9,'rise':.003}}}
+        self.assertEqual(runner.dependencies('paint'),['bake','unwrap','repair'])
     def test_adjust_passes_through_and_maps_brightness_onto_a_palette_ramp(self):
         from headkit.paint import adjust
         rgb=np.zeros((8,8,3),np.uint8);rgb[:,:,0]=np.arange(8)[None,:]*30;Image.fromarray(rgb).save(self.root/'c.png')
