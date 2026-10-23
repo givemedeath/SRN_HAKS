@@ -169,7 +169,7 @@ class Runner:
             inputs+=[asset(self.manifest_path,self.data['inputs'][role]) for role in sorted(self._read)]
             for name in sorted(common.LIBRARIES_USED):inputs.extend(self.bindings['libraries'][name]['files'])
             python_package_pins(self.bindings,require_imports=self.runtime is not None)
-            verify(inputs)
+            verify(inputs,fresh=True)
             receipt.update(state='complete',result=result,outputs=[pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json','receipt.json')])
         except Exception as exc:
             receipt.update(state='failed',error=str(exc),traceback=traceback.format_exc(),

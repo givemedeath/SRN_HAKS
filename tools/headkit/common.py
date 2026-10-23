@@ -18,11 +18,24 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def sha(path):
+_HASHES = {}
+
+
+def sha(path, *, fresh=False):
+    """SHA-256 of a file. Within one process an unchanged file (same identity, size and modification time, before and
+    after reading) is hashed once; fresh=True always rereads, for checks that must catch edits made during a stage."""
+    path = Path(path)
+    before = path.stat()
+    key = (str(path.resolve()), before.st_ino, before.st_size, before.st_mtime_ns)
+    if not fresh and key in _HASHES:
+        return _HASHES[key]
     result = hashlib.sha256()
-    with Path(path).open('rb') as stream:
+    with path.open('rb') as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b''):
             result.update(block)
+    after = path.stat()
+    if (after.st_ino, after.st_size, after.st_mtime_ns) == key[1:]:
+        _HASHES[key] = result.hexdigest()
     return result.hexdigest()
 
 
@@ -40,10 +53,10 @@ def pin(path):
     return {'path': str(path), 'sha256': sha(path)}
 
 
-def verify(pins):
+def verify(pins, *, fresh=False):
     for item in pins:
         require(isinstance(item, dict) and set(item) >= {'path', 'sha256'}, 'Expected file pin')
-        require(sha(item['path']) == item['sha256'], 'Stale file pin: ' + str(item['path']))
+        require(sha(item['path'], fresh=fresh) == item['sha256'], 'Stale file pin: ' + str(item['path']))
 
 
 def write(path, data, *, fresh=False):

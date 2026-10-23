@@ -1664,7 +1664,7 @@ class ResumeTests(Temporary):
         runner=self.fixture();runner.execute('prepare');runner.review('prepare','approved','synthetic pair reviewed')
         receipt=read(runner.state['stages']['prepare']['path']);output=receipt['outputs'][0]
         calls=[];real=common.sha
-        with patch('headkit.common.sha',side_effect=lambda path:(calls.append(str(path)),real(path))[1]):
+        with patch('headkit.common.sha',side_effect=lambda path,**kw:(calls.append(str(path)),real(path,**kw))[1]):
             runner._verified=set();runner._verify([output,output]);runner._verify([output])
             self.assertEqual(calls.count(output['path']),1)
             runner.result('prepare');runner.result('prepare')
@@ -1672,6 +1672,15 @@ class ResumeTests(Temporary):
         self.assertEqual(calls.count(output['path']),3)
         Path(output['path']).write_bytes(b'changed')
         with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
+    def test_file_hashes_are_reused_only_while_the_file_is_unchanged(self):
+        from headkit import common
+        path=self.file('cached.bin','first');first=common.sha(path);reads=[]
+        real=Path.open
+        with patch('pathlib.Path.open',autospec=True,side_effect=lambda self,*a,**k:(reads.append(str(self)),real(self,*a,**k))[1]):
+            self.assertEqual(common.sha(path),first);self.assertEqual(reads,[])
+            self.assertEqual(common.sha(path,fresh=True),first);self.assertEqual(len(reads),1)
+            path.write_text('second, longer');reads.clear();self.assertNotEqual(common.sha(path),first);self.assertEqual(len(reads),1)
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):common.verify([{'path':str(path),'sha256':first}])
     def test_launch_inputs_cover_only_the_launched_stages(self):
         from headkit.__main__ import main
         self.fixture();field=self.unused_field();listed={}
