@@ -29,10 +29,8 @@ def fit_matrix(config, source_sha):
         a=np.asarray([x['sourceNwnBasis'] for x in landmarks]);b=np.asarray([x['targetNwnLocal'] for x in landmarks])
         scale,rotation,translation,errors=similarity(a,b,config.get('maximumRelativeResidual',.02))
         matrix=np.eye(4);matrix[:3,:3]=scale*rotation.T;matrix[:3,3]=translation
-    require(matrix.shape==(4,4) and np.isfinite(matrix).all() and np.allclose(matrix[3],[0,0,0,1]),'Invalid fit transform')
-    gram=matrix[:3,:3].T@matrix[:3,:3]
-    require(np.linalg.det(matrix[:3,:3])>0 and np.allclose(gram,np.eye(3)*gram[0,0],atol=1e-8),'Fit must be a positive uniform similarity')
-    return matrix,None if errors is None else errors.tolist()
+    from .mesh import checked_fit
+    return checked_fit(matrix),None if errors is None else errors.tolist()
 
 
 def prepare(source, shades_path, layers_path, fit, model, output):

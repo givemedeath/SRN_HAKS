@@ -582,6 +582,94 @@ class MeshTests(Temporary):
         d,b,_=load(out.read_bytes());d['scenes'][0]['nodes']=[]
         with self.assertRaisesRegex(ValueError,'Exactly one visible mesh instance'):
             comfy_load(encode(d,b))
+    NECK={'taper':{'minScale':.6,'frontStart':-.06,'backStart':-.03,'axis':[0,0]},'seal':{'height':'measured','inset':.9,'rise':.003}}
+    def bell(self,segments=32,rows=12):
+        """Closed head-local bell (face +y, up +z) whose neck cavity opens at a rim 2 cm lower in front than behind."""
+        rings=[]
+        for theta in np.arange(segments)*2*np.pi/segments:
+            low=-.08-.02*(1+np.cos(theta))/2
+            profile=[(.03,.10),(.05,.08)]+[(.05,z) for z in np.linspace(.06,low,rows)]+[(.04,z) for z in np.linspace(low,.04,rows)]+[(.02,.06)]
+            rings.append([(r*np.sin(theta),r*np.cos(theta),z) for r,z in profile])
+        rings=np.transpose(np.asarray(rings),(1,0,2));count=len(rings)
+        vertices=np.r_[[[0,0,.105]],rings.reshape(-1,3),[[0,0,.065]]];j=np.arange(segments);k=(j+1)%segments
+        ring=lambda row,index:1+row*segments+index;last=len(vertices)-1
+        faces=[np.c_[np.zeros(segments,int),ring(0,k),ring(0,j)]]
+        for row in range(count-1):
+            faces+=[np.c_[ring(row,j),ring(row,k),ring(row+1,k)],np.c_[ring(row,j),ring(row+1,k),ring(row+1,j)]]
+        faces=np.concatenate(faces+[np.c_[np.full(segments,last),ring(count-1,j),ring(count-1,k)]])
+        tri=vertices[faces]
+        if np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2])).sum()<0:faces=faces[:,::-1]
+        return vertices,faces
+    def glb(self,local):return np.c_[local[:,0],local[:,2],-local[:,1]]  # inverse of GLB->NWN (x,-z,y)
+    def test_bell_fixture_is_closed_and_crossing_free(self):
+        from headkit.intersections import scan
+        p,f=self.bell();self.assertTrue(topology(p,f)['closed']);self.assertFalse(scan(p,f)['pairs'])
+    def test_neck_taper_profile_is_monotonic_and_c1_without_a_shelf(self):
+        from headkit.mesh import taper_scale
+        taper=self.NECK['taper'];bottom=-.1;z=np.linspace(.0,bottom,4001);dz=z[0]-z[1]
+        for phi in (0,.7,np.pi/2,2.5,np.pi):
+            with self.subTest(phi=phi):
+                local=np.c_[np.full_like(z,.04*np.sin(phi)),np.full_like(z,.04*np.cos(phi)),z];scale=taper_scale(local,taper,bottom)
+                start=taper['backStart']+(taper['frontStart']-taper['backStart'])*((1+np.cos(phi))/2)**2
+                self.assertTrue(np.all(scale[z>=start]==1));self.assertAlmostEqual(scale[-1],taper['minScale'])
+                self.assertTrue(np.all(np.diff(scale)<=1e-15))  # never widens toward the rim
+                slope=np.diff(scale)/dz;curvature=6*(1-taper['minScale'])/(start-bottom)**2
+                # C1: the slope never jumps (a shelf or lip would), and it eases in from zero at the start.
+                self.assertLessEqual(np.abs(np.diff(slope)).max(),1.01*curvature*dz)
+                self.assertLess(np.abs(slope[np.argmax(z<start)]),2*curvature*dz)
+    def test_section_ring_closure_is_angular_not_density(self):
+        from headkit.mesh import enclosed
+        angle=np.linspace(0,2*np.pi,7);ring=np.c_[np.cos(angle),np.sin(angle)];segments=np.stack([ring[:-1],ring[1:]],1)
+        self.assertTrue(enclosed(segments,[0,0]));self.assertFalse(enclosed(segments[:-1],[0,0]))
+        self.assertFalse(enclosed(segments,[3,0]));self.assertFalse(enclosed(segments[:0],[0,0]))
+    def test_neck_seal_closes_the_open_bottom_inside_the_walls(self):
+        from headkit.mesh import neck_policy,neck_seal,section,transform
+        from headkit.intersections import scan
+        p,f=self.bell();neck=neck_policy({'seal':dict(self.NECK['seal'],searchTop=-.03)},{'matrix':np.eye(4).tolist(),'reviewed':True})
+        cap,cap_faces,record=neck_seal(self.glb(p),f,neck,None)
+        self.assertEqual(record['capTriangles'],48);self.assertAlmostEqual(record['lowestClosedRing'],-.08,places=3)
+        self.assertAlmostEqual(record['height'],record['lowestClosedRing']+.003)
+        joined=np.r_[self.glb(p),cap];faces=np.r_[f,cap_faces+len(p)]
+        self.assertTrue(topology(joined,faces)['closed']);self.assertFalse(scan(joined,faces)['pairs'])
+        local=transform(neck['frame'],cap);rim=np.linalg.norm(local[:24,:2],axis=1)
+        self.assertTrue(np.all((rim>.8*.04)&(rim<.04)))  # spans the inner wall's opening without touching it
+        self.assertTrue(np.allclose(local[:25,2],record['height']) and np.isclose(local[25,2],record['height']+.003))
+        self.assertEqual(len(section(transform(neck['frame'],joined),faces,-.09)),len(section(p,f,-.09)))  # below: unchanged
+    def test_neck_repair_tapers_master_reduces_to_budget_minus_cap_and_audits(self):
+        from headkit import mesh as mesh_module
+        p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        neck=mesh_module.neck_policy(self.NECK,fit);coarse,coarse_faces=self.bell(24);coarse=self.glb(coarse)
+        coarse,_=mesh_module.neck_taper(coarse,coarse_faces,neck);calls=[]
+        def reduce(bindings,vertices,faces,target,work):
+            calls.append((len(faces),target));np.savez(work,vertices=coarse);return coarse,coarse_faces
+        distances=[]
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(distances.append(np.array(P)) or np.zeros(len(P)),))
+        budget=len(f)+20;(self.root/'out').mkdir()
+        with patch.object(mesh_module,'_reduce',reduce),patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'out'/'final.glb',{},{'alphaWrap':False,'triangleBudget':budget,'neck':self.NECK},
+                                      {'sourceSha256':pin(source)['sha256'],'visualReviewed':True},fit=fit)
+        self.assertEqual(calls,[(len(f),budget-48)]);self.assertTrue(result['passed'])
+        self.assertEqual(result['topology']['triangles'],len(coarse_faces)+48);self.assertLessEqual(result['topology']['triangles'],budget)
+        self.assertEqual(result['neck']['budget'],{'total':budget,'reservedForCap':48,'reductionTarget':budget-48})
+        self.assertEqual(result['neck']['seal']['shellTriangles'],len(coarse_faces))
+        master=mesh(self.root/'out'/'master.glb')['positions'];untapered=mesh(self.root/'out'/'master-untapered.glb')['positions']
+        self.assertEqual(result['surfaceDistance']['reference'],pin(self.root/'out'/'master.glb'))
+        np.testing.assert_allclose(np.sort(distances[0],0),np.sort(np.unique(master,axis=0),0))  # tapered master, not the source
+        self.assertGreater(np.abs(master-untapered).max(),.005);self.assertEqual(result['neck']['taper']['untapered'],pin(self.root/'out'/'master-untapered.glb'))
+    def test_neck_policy_refuses_without_reviewed_fit_or_with_bad_parameters(self):
+        from headkit import mesh as mesh_module
+        p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True};eye=np.eye(4).tolist()
+        for fit,neck,message in ((None,self.NECK,'reviewed head fit'),({'matrix':eye},self.NECK,'reviewed head fit'),
+                                 ({'matrix':np.diag([1,1,-1,1]).tolist(),'reviewed':True},self.NECK,'positive uniform'),
+                                 ({'matrix':eye,'reviewed':True},{'taper':dict(self.NECK['taper'],minScale=.1)},'minScale'),
+                                 ({'matrix':eye,'reviewed':True},{'seal':dict(self.NECK['seal'])},'searchTop'),
+                                 ({'matrix':eye,'reviewed':True},{'disc':{}},'taper and/or seal')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):
+                mesh_module.repair(source,self.root/'final.glb',{},{'neck':neck},inspection,fit=fit)
+        self.assertFalse((self.root/'master.glb').exists())
+        with self.assertRaisesRegex(ValueError,'no room'):
+            mesh_module.repair(source,self.root/'final.glb',{},{'neck':self.NECK,'triangleBudget':40},inspection,fit={'matrix':eye,'reviewed':True})
     def test_uv_surface_uses_barycentric_positions_not_vertices(self):
         p=np.array([[0,0,0],[1,0,0],[0,1,0]],float);value={'positions':p,'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
         positions,ids,_=surface(value,16);self.assertEqual(ids[2,2],0);np.testing.assert_allclose(positions[2,2],[2.5/16,2.5/16,0])
