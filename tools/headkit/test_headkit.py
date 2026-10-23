@@ -1674,13 +1674,15 @@ class ResumeTests(Temporary):
         with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
     def test_file_hashes_are_reused_only_while_the_file_is_unchanged(self):
         from headkit import common
-        path=self.file('cached.bin','first');first=common.sha(path);reads=[]
+        path=self.file('cached.bin','first');old=time.time()-60;os.utime(path,(old,old));first=common.sha(path);reads=[]
         real=Path.open
         with patch('pathlib.Path.open',autospec=True,side_effect=lambda self,*a,**k:(reads.append(str(self)),real(self,*a,**k))[1]):
             self.assertEqual(common.sha(path),first);self.assertEqual(reads,[])
             self.assertEqual(common.sha(path,fresh=True),first);self.assertEqual(len(reads),1)
             path.write_text('second, longer');reads.clear();self.assertNotEqual(common.sha(path),first);self.assertEqual(len(reads),1)
         with self.assertRaisesRegex(ValueError,'Stale file pin'):common.verify([{'path':str(path),'sha256':first}])
+        racy=self.file('racy.bin','aaaa');racy_digest=common.sha(racy);racy.write_text('bbbb')  # same size, same tick
+        self.assertNotEqual(common.sha(racy),racy_digest)
     def test_launch_inputs_cover_only_the_launched_stages(self):
         from headkit.__main__ import main
         self.fixture();field=self.unused_field();listed={}

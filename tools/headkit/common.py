@@ -5,6 +5,7 @@ import importlib
 import json
 import math
 import os
+import time
 from pathlib import Path
 import re
 import sys
@@ -23,7 +24,9 @@ _HASHES = {}
 
 def sha(path, *, fresh=False):
     """SHA-256 of a file. Within one process an unchanged file (same identity, size and modification time, before and
-    after reading) is hashed once; fresh=True always rereads, for checks that must catch edits made during a stage."""
+    after reading) is hashed once; fresh=True always rereads, for checks that must catch edits made during a stage.
+    Only files last modified more than two seconds before hashing are cached (the racy-timestamp rule), so a rewrite
+    within one filesystem timestamp tick cannot reuse a stale digest."""
     path = Path(path)
     before = path.stat()
     key = (str(path.resolve()), before.st_ino, before.st_size, before.st_mtime_ns)
@@ -34,7 +37,7 @@ def sha(path, *, fresh=False):
         for block in iter(lambda: stream.read(1024 * 1024), b''):
             result.update(block)
     after = path.stat()
-    if (after.st_ino, after.st_size, after.st_mtime_ns) == key[1:]:
+    if (after.st_ino, after.st_size, after.st_mtime_ns) == key[1:] and time.time_ns() - after.st_mtime_ns > 2_000_000_000:
         _HASHES[key] = result.hexdigest()
     return result.hexdigest()
 
