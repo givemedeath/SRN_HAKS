@@ -2244,6 +2244,24 @@ class RenderPlanTests(Temporary):
             with self.assertRaises(Launched):runner._execute('render',runner.run)
         self.assertEqual(len(captured),1)
 
+    def test_pre_native_review_renders_use_run_colour_ownership_and_named_views(self):
+        from headkit.paint import PREVIEW
+        runner=self.render_runner();decoded=self.root/'decoded.png';Image.new('RGB',(16,16),(9,8,7)).save(decoded)
+        labels=(np.arange(256).reshape(16,16)%10).astype(np.uint8);onek=self.root/'onek.png';Image.fromarray(labels).save(onek)
+        render=dict(runner.data['render'],mapStages={'basecolor':'palette'},ownershipView=True,modes=['clay','color-only','ownership'],views=['front','back'])
+        render.pop('cameras');render['frontAngleDegrees']=0;runner.data['render']=render
+        self.assertEqual(runner.dependencies('render'),['palette','ownership'])
+        results={'palette':{'decoded':pin(decoded)},'ownership':{'onek':pin(onek)}}
+        class Launched(Exception):pass
+        with patch.object(runner,'result',side_effect=lambda stage,**k:results[stage]),patch('headkit.gltf.mesh',return_value={'positions':np.eye(3)}),             patch('subprocess.run',side_effect=Launched):
+            with self.assertRaises(Launched):runner._execute('render',runner.run)
+        config=read(runner.run/'render-config.json')
+        self.assertEqual([row['name'] for row in config['cameras']],['front','back'])
+        self.assertEqual(Path(config['maps']['basecolor']),decoded.resolve())
+        np.testing.assert_array_equal(np.asarray(Image.open(config['maps']['ownership'])),PREVIEW[labels])
+        runner.data['render']=dict(render,ownershipView=False)
+        with patch.object(runner,'result',side_effect=lambda stage,**k:results[stage]),patch('headkit.gltf.mesh',return_value={'positions':np.eye(3)}):
+            with self.assertRaisesRegex(ValueError,'needs ownershipView'):runner._execute('render',self.root/'second')
     def test_render_launcher_rejects_changed_imported_helper(self):
         from headkit.common import code_pins,verify
         helper=self.file('imported-helper.py','value=1');frozen=code_pins()+[pin(helper)]

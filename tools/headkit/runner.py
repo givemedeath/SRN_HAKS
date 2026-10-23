@@ -120,7 +120,8 @@ class Runner:
             'tone':[] if 'basecolor4k' in inputs else ['bake'],
             'palette':[] if 'runtimeColor' in inputs else ['tone'],
             'export':([] if 'uvMesh' in inputs else ['unwrap'])+([] if 'runtimeShades' in inputs else ['palette']),
-            'native':['export'], 'render':[] if 'uvMesh' in inputs else ['unwrap']}
+            'native':['export'], 'render':([] if 'uvMesh' in inputs else ['unwrap'])+list(dict.fromkeys(self.data.get('render',{}).get('mapStages',{}).values()))
+                +(['ownership'] if self.data.get('render',{}).get('ownershipView') else [])}
         self._texture_dependencies(stage,table);dependencies=table[stage]
         if stage=='tone' and not any(role in inputs for role in ('ownership1k','ownership4k')):dependencies.append('ownership')
         if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
@@ -193,6 +194,11 @@ class Runner:
         # Paint can address the neck seal faces only when this run's repair produced the mesh.
         inputs=self.data['inputs']
         return not {'uvMesh','repairedMesh'}&set(inputs) and bool(self.data.get('mesh',{}).get('neck',{}).get('seal'))
+
+    def _stage_color(self,stage):
+        rows={'bake':lambda r:r['maps']['basecolor-4096.png'],'paint':lambda r:r['maps']['basecolor-4096.png'],
+              'tone':lambda r:r['output'],'palette':lambda r:r['decoded']}
+        require(stage in rows,'Render colour comes from bake, paint, tone or palette');return rows[stage](self.result(stage))['path']
 
     def _color4k(self,*,painted=True):
         if painted and 'paint' in self.data:return self.result('paint')['maps']['basecolor-4096.png']['path']
@@ -367,12 +373,24 @@ class Runner:
             from .common import ROOT
             from .review_images import resolutions,atlas_sets,sheets,render_plan,validate_frames
             begun=time.monotonic()
-            source=self.source('uvMesh','unwrap','mesh');cfg=dict(m['render'])
+            source=self.source('uvMesh','unwrap','mesh');cfg=dict(m['render']);views=cfg.pop('views',None)
             if 'cameras' not in cfg:
                 from .cameras import review_cameras
                 from .gltf import mesh
                 cfg['cameras']=review_cameras(mesh(source)['positions'],cfg['frontAngleDegrees'])
-            cfg.update(mesh=source,output=str(folder/'renders'),maps={name:self.input(role) for name,role in cfg['mapInputs'].items()})
+            if views is not None:
+                named={row['name']:row for row in cfg['cameras']};require(views and set(views)<=set(named),'Unknown review view')
+                cfg['cameras']=[named[name] for name in views]
+            maps={name:self.input(role) for name,role in cfg.get('mapInputs',{}).items()}
+            # Pre-native review: the run's own colour (bake, paint, tone or the quantized palette) and channel ownership.
+            for name,stage_name in cfg.pop('mapStages',{}).items():
+                require(name=='basecolor' and name not in maps,'mapStages supplies basecolor only, once');maps[name]=self._stage_color(stage_name)
+            if cfg.pop('ownershipView',False):
+                from .paint import PREVIEW
+                labels=np.asarray(Image.open(self.result('ownership')['onek']['path']));path=folder/'ownership-preview-1024.png'
+                Image.fromarray(PREVIEW[labels]).save(path);maps['ownership']=str(path)
+            cfg.update(mesh=source,output=str(folder/'renders'),maps=maps)
+            require('ownership' not in cfg.get('modes',[]) or 'ownership' in maps,'Ownership render mode needs ownershipView')
             render_plan(cfg)
             texture_sets,atlases=atlas_sets(cfg,folder/'renders',resolutions(cfg))
             cfg.update(textureSets={str(size):maps for size,maps in texture_sets.items()},atlases=atlases)
