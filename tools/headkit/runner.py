@@ -17,7 +17,7 @@ def stage_roles(stage,data):
     """Manifest input roles a stage may read. Receipts pin only the roles actually read, and reading one outside this
     declaration fails the stage, so launch input lists built from it stay complete."""
     inputs=set(data.get('inputs',{}));palettes=set(data.get('palette',{}).get('inputs',{}).values())
-    roles={'prepare':{r for r in inputs if r in ('clay','detail') or r.endswith(('Clay','Detail'))},
+    roles={'prepare':{r for r in inputs if r in ('clay','detail','design') or r.endswith(('Clay','Detail'))},
         'precluster':{'raw'},'repair':{'comfyExport','shellInspection'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
         'paint':{'uvMesh','basecolor4k'},
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
@@ -60,7 +60,7 @@ class Runner:
                     'Imported ownership review must bind the exact UV mesh')
         if name=='field':
             review=self.data.get('approval',{}).get('appearanceField',{})
-            geometry_role=next((role for role in ('uvMesh','repairedMesh','comfyExport')
+            geometry_role=next((role for role in ('uvMesh','repairedMesh','comfyExport','raw')
                                 if role in self.data['inputs']),None)
             require(geometry_role is not None,'Generated field needs an active geometry input')
             # The approval binds the manifest's pinned geometry; bake does not read that mesh, so it is not re-hashed here.
@@ -113,7 +113,7 @@ class Runner:
         """Reviewed upstream stages this manifest makes the stage consume."""
         require(stage in STAGES,'Unknown CPU stage')
         inputs=self.data['inputs']
-        table={'prepare':[], 'precluster':[], 'repair':[],
+        table={'prepare':[], 'precluster':[], 'repair':['precluster'] if 'raw' in inputs and 'comfyExport' not in inputs else [],
             'unwrap':[] if 'repairedMesh' in inputs else ['repair'],
             'bake':[] if 'uvMesh' in inputs else ['unwrap'],
             'ownership':[] if 'uvMesh' in inputs else ['unwrap'],
@@ -201,6 +201,10 @@ class Runner:
             require(m.get('features') and all(row.get('placementReviewed') is True for row in m['features']),
                     'Explicitly review hair routing and all horn/tusk/cyberware counts and placement')
             if m.get('profile','pixal-single-v1')=='pixal-single-v1':
+                if 'design' in m['inputs']:
+                    # Bootstrap route: one front design image is both the geometry and the appearance condition.
+                    from .images import matte
+                    return matte(self.input('design'),m.get('matte',{}),folder/'images')
                 return prepare(self.input('clay'),self.input('detail'),m['alignment'],folder/'images')
             pairs={view:(self.input(view+'Clay'),self.input(view+'Detail')) for view in ('front','left','back','right')}
             return prepare_multiview(pairs,m['alignment'],folder/'images')
@@ -209,7 +213,15 @@ class Runner:
             return precluster(self.input('raw'),folder/'oriented.glb',b)
         if stage=='repair':
             from .mesh import repair
-            return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=m.get('fit'))
+            if 'raw' not in m['inputs'] or 'comfyExport' in m['inputs']:
+                return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=m.get('fit'))
+            # Chained route: the reviewed precluster output of this run, with the shell inspection declared inline
+            # and bound here to that exact output (no hardlinked copy or second manifest edit).
+            inspection=m['mesh'].get('shellInspection')
+            require(isinstance(inspection,dict) and 'sourceSha256' not in inspection and 'shellInspection' not in m['inputs'],
+                    "Chained repair needs an inline mesh.shellInspection without sourceSha256")
+            source=self.result('precluster')['output'];self._verify([source])
+            return repair(source['path'],folder/'final.glb',b,m['mesh'],dict(inspection,sourceSha256=source['sha256']),fit=m.get('fit'))
         if stage=='unwrap':
             from .gltf import mesh,write_mesh
             from .uv import unwrap,raster_audit,audit_imported_uvs

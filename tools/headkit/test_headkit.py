@@ -513,6 +513,25 @@ class ImageTests(Temporary):
     def test_reflection_and_ambiguous_landmarks_rejected(self):
         with self.assertRaises(ValueError):similarity([[0,0],[1,0],[0,1]],[[0,0],[-1,0],[0,1]])
         with self.assertRaises(ValueError):similarity([[0,0]]*3,[[0,0]]*3)
+    def design(self,draw):
+        from PIL import ImageDraw
+        image=Image.new('RGB',(200,200),(200,200,200));draw(ImageDraw.Draw(image));path=self.root/'design.png';image.save(path);return path
+    def test_matte_keeps_interior_gray_and_dark_features_opaque(self):
+        from headkit.images import matte
+        def head(d):
+            d.ellipse((50,30,150,170),fill=(120,110,100));d.ellipse((90,60,110,80),fill=(200,200,200));d.rectangle((95,120,105,130),fill=(5,5,5))
+        result=matte(self.design(head),{},self.root/'matte')
+        with Image.open(self.root/'matte'/'design-rgba.png') as image:alpha=np.asarray(image.getchannel('A'))
+        self.assertEqual(alpha[70,100],255);self.assertEqual(alpha[125,100],255);self.assertEqual(alpha[5,5],0)
+        self.assertEqual(result['marginPixels']['top'],30);self.assertEqual(result['backdrop'],[200,200,200])
+    def test_matte_rejects_a_cropped_subject_or_busy_backdrop(self):
+        from headkit.images import matte
+        with self.assertRaisesRegex(ValueError,'canvas edge'):
+            matte(self.design(lambda d:d.ellipse((50,-20,150,170),fill=(120,110,100))),{},self.root/'cropped')
+        def busy(d):
+            for x in range(0,200,2):d.line((x,0,x,199),fill=(20,200,20))
+        with self.assertRaisesRegex(ValueError,'plain enough'):matte(self.design(busy),{},self.root/'busy')
+        with self.assertRaisesRegex(ValueError,'tolerance'):matte(self.design(lambda d:None),{'backgroundTolerance':2},self.root/'tol')
     def test_paired_preparation_keeps_identical_silhouette(self):
         result=prepare(self.root/'clay.png',self.root/'detail.png',self.pair(),self.root/'prepared')
         self.assertEqual(result['silhouetteIoU'],1);self.assertTrue(result['manualReviewRequired'])
@@ -2025,6 +2044,37 @@ class ChainTests(Temporary):
         self.assertEqual(stop.exception.code,1)
 
 
+class ChainedRepairTests(Temporary):
+    def fixture(self,inspection):
+        raw=self.file('raw.glb','pixal shape')
+        data={'schemaVersion':1,'id':'chained-repair','inputs':{'raw':{'path':raw.name,'sha256':pin(raw)['sha256']}},
+              'mesh':{'alphaWrap':True,'shellInspection':inspection}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+    def precluster(self,runner):
+        def work(stage,folder):
+            target=folder/'oriented.glb';target.write_text('preclustered');return {'output':pin(target)}
+        with patch.object(runner,'_execute',side_effect=work):runner.execute('precluster')
+        return read(runner.state['stages']['precluster']['path'])['result']['output']
+    def test_repair_consumes_the_reviewed_precluster_output(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'notes':'non-manifold export'})
+        self.assertEqual(runner.dependencies('repair'),['precluster'])
+        output=self.precluster(runner)
+        with patch('headkit.mesh.repair',return_value={'ok':True}) as repair:
+            with self.assertRaisesRegex(ValueError,'pending'):runner._execute('repair',self.root)
+            repair.assert_not_called();runner.review('precluster','approved','Closed exterior inspected')
+            runner._execute('repair',self.root)
+        source,_,_,_,inspection=repair.call_args.args
+        self.assertEqual(source,output['path']);self.assertEqual(inspection['sourceSha256'],output['sha256'])
+        self.assertTrue(inspection['confirmedShellDefect'])
+    def test_inline_inspection_cannot_carry_its_own_hash(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'sourceSha256':'0'*64})
+        self.precluster(runner);runner.review('precluster','approved','Closed exterior inspected')
+        with patch('headkit.mesh.repair') as repair:
+            with self.assertRaisesRegex(ValueError,'inline mesh.shellInspection'):runner._execute('repair',self.root)
+            repair.assert_not_called()
+
+
 class GeneratedFieldLineageTests(Temporary):
     def fixture(self,geometry_roles=('uvMesh',)):
         inputs={}
@@ -2033,7 +2083,7 @@ class GeneratedFieldLineageTests(Temporary):
             inputs[role]={'path':path.name,'sha256':pin(path)['sha256']}
         field=self.file('field.npz','generated field')
         inputs['field']={'path':field.name,'sha256':pin(field)['sha256']}
-        geometry_role=next(role for role in ('uvMesh','repairedMesh','comfyExport') if role in inputs)
+        geometry_role=next(role for role in ('uvMesh','repairedMesh','comfyExport','raw') if role in inputs)
         data={'schemaVersion':1,'id':'field-lineage','inputs':inputs,'approval':{'appearanceField':{
             'decision':'approved','geometryInput':geometry_role,'geometrySha256':inputs[geometry_role]['sha256'],
             'fieldSha256':inputs['field']['sha256'],'notes':'Verified this field against the active geometry.'}}}
@@ -2041,7 +2091,7 @@ class GeneratedFieldLineageTests(Temporary):
         return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
 
     def test_field_approval_binds_to_the_active_mesh_source(self):
-        for roles in (('uvMesh',),('comfyExport',),('comfyExport','repairedMesh'),('comfyExport','uvMesh')):
+        for roles in (('uvMesh',),('comfyExport',),('comfyExport','repairedMesh'),('comfyExport','uvMesh'),('raw',)):
             with self.subTest(roles=roles):
                 runner=self.fixture(roles)
                 expected=runner.data['inputs']['field']['path']
