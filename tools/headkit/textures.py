@@ -6,7 +6,7 @@ from PIL import Image
 from scipy.ndimage import distance_transform_edt
 from .common import require, pin, write
 from .gltf import mesh
-from .field import GeneratedField
+from .field import load_generated_field
 from .uv import raster_audit
 
 
@@ -35,12 +35,12 @@ def pad(values, mapped):
 
 def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096):
     require(size==4096,'Production source bake is 4K; derive 2K/1K afterward')
-    output=Path(output);output.mkdir(parents=True,exist_ok=False);begun=time.perf_counter()
-    value=mesh(source)
-    with np.load(field_path,allow_pickle=False) as archive:
-        require(set(archive.files)=={'coords','attrs','resolution'},'Unexpected generated field layout')
-        field=GeneratedField(archive['coords'],archive['attrs'],int(archive['resolution']),allow_decoder_overshoot)
+    begun=time.perf_counter();value=mesh(source)
+    field=load_generated_field(field_path,allow_decoder_overshoot)
+    # Every raster gate runs before anything is written, so a rejected bake leaves no partial output.
     positions,owners,report=surface(value,size);mapped=owners>=0
+    low,ids,_=surface(value,1024)
+    output=Path(output);output.mkdir(parents=True,exist_ok=False)
     sampled,fallback=field.sample(positions[mapped],chunk=65536)
     values=np.zeros((size,size,6),np.float32);values[mapped]=sampled;values=pad(values,mapped)
     files={}
@@ -53,7 +53,7 @@ def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096
             files[path.name]=pin(path)
     # Full-resolution coverage remains explicit; padded samples never become ownership evidence.
     Image.fromarray(mapped.astype(np.uint8)*255).save(output/'mapped-4096.png')
-    low,ids,audit=surface(value,1024);np.savez(output/'surface-1024.npz',positions=low,faceIds=ids)
+    np.savez(output/'surface-1024.npz',positions=low,faceIds=ids)
     result={'source':pin(source),'field':pin(field_path),'maps':files,'surface':pin(output/'surface-1024.npz'),
             'coverage':report,'mappedSamples':int(mapped.sum()),'nearestFallbackSamples':int(fallback.sum()),
             'clippedSamplesByChannel':field.clipped_samples_per_channel.tolist(),'rawRanges':field.raw_ranges,

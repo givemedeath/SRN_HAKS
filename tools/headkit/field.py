@@ -1,6 +1,18 @@
 """Generated appearance sampler used by the reviewed heads; no image reprojection."""
 import numpy as np
 
+
+def load_generated_field(path,allow_decoder_overshoot=False):
+    """Load a field saved by HeadkitSaveFieldV1. Trellis sparse voxels carry a leading batch column
+    (batch,x,y,z); one saved head is exactly one batch, which is dropped here."""
+    with np.load(path,allow_pickle=False) as archive:
+        if set(archive.files)!={'coords','attrs','resolution'}:raise ValueError('Unexpected generated field layout')
+        coords=archive['coords'];attrs=archive['attrs'];resolution=int(archive['resolution'])
+    if coords.ndim==2 and coords.shape[1]==4:
+        if len(coords) and np.any(coords[:,0]!=0):raise ValueError('Generated field must hold exactly one batch (index 0)')
+        coords=coords[:,1:]
+    return GeneratedField(coords,attrs,resolution,allow_decoder_overshoot)
+
 class GeneratedField:
     def __init__(self,coords,attrs,resolution,allow_decoder_overshoot=False):
         coords,attrs=np.asarray(coords),np.asarray(attrs)

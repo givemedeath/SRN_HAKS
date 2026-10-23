@@ -18,9 +18,9 @@ from headkit import comfy
 from headkit.common import write,read,pin,asset,manifest,source_version,digest
 from headkit.gltf import mesh,write_mesh,load,encode
 from headkit.images import similarity,prepare,prepare_multiview
-from headkit.field import GeneratedField
+from headkit.field import GeneratedField,load_generated_field
 from headkit.mesh import topology,audit
-from headkit.textures import surface,pad,tone_match
+from headkit.textures import surface,pad,tone_match,bake
 from headkit.palette import quantize
 from headkit.runner import Runner
 
@@ -790,6 +790,27 @@ class AppearanceTests(Temporary):
         values,fallback=field.sample([[.49,.49,.49]]);self.assertTrue(fallback[0]);np.testing.assert_allclose(values,.2)
     def test_duplicate_voxel_is_rejected(self):
         with self.assertRaises(ValueError):GeneratedField(np.zeros((2,3),int),np.ones((2,6)),4)
+    def test_saved_field_batch_column_is_dropped(self):
+        # HeadkitSaveFieldV1 stores Trellis sparse coords as (batch,x,y,z).
+        np.savez(self.root/'saved.npz',coords=np.array([[0,0,0,0],[0,1,0,0]],np.int32),
+                 attrs=np.array([[.2]*6,[.6]*6],np.float16),resolution=2)
+        field=load_generated_field(self.root/'saved.npz')
+        np.testing.assert_array_equal(np.sort(field.keys),[0,4])
+        values,fallback=field.sample([[0,-.25,-.25]]);np.testing.assert_allclose(values,.4,atol=1e-3);self.assertFalse(fallback[0])
+        np.savez(self.root/'plain.npz',coords=np.array([[0,0,0]]),attrs=np.ones((1,6))*.5,resolution=2)
+        self.assertEqual(load_generated_field(self.root/'plain.npz').resolution,2)
+    def test_saved_field_with_second_batch_is_rejected(self):
+        np.savez(self.root/'two.npz',coords=np.array([[0,0,0,0],[1,0,0,0]],np.int32),attrs=np.ones((2,6)),resolution=2)
+        with self.assertRaisesRegex(ValueError,'exactly one batch'):load_generated_field(self.root/'two.npz')
+    def test_bake_rejects_unmapped_1k_faces_before_writing_output(self):
+        np.savez(self.root/'field.npz',coords=np.array([[0,0,0,0]],np.int32),attrs=np.ones((1,6))*.5,resolution=2)
+        value={'positions':np.eye(3),'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
+        def gated(_,size):
+            if size==1024:raise ValueError('UV overlap/degeneracy or unmapped faces block baking')
+            return np.zeros((size,size,3),np.float32),np.zeros((size,size),np.int32),{}
+        with patch('headkit.textures.mesh',return_value=value),patch('headkit.textures.surface',side_effect=gated):
+            with self.assertRaisesRegex(ValueError,'unmapped'):bake('mesh.glb',self.root/'field.npz',self.root/'maps')
+        self.assertFalse((self.root/'maps').exists())
     def test_palette_excludes_transparent_and_255_preserving_opaque_black(self):
         rgb=np.zeros((1024,1024,3),np.uint8);labels=np.zeros((1024,1024),np.uint8);labels[:5]=8
         Image.fromarray(rgb).save(self.root/'rgb.png');Image.fromarray(labels).save(self.root/'labels.png')
