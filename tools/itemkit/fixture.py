@@ -250,7 +250,7 @@ def build(manifest_path, manifest, native, local, output):
         name = resref(row['Mod_Hak']['value']); bound = {**local.get('fixtureHaks', {}), **local.get('comparisonHaks', {})}.get(name)
         require(bound is not None, 'Missing bound fixture dependency HAK: '+name); verify([bound]); inputs.append(bound)
         shutil.copyfile(bound['path'], userdir/'hak'/(name+'.hak'))
-    verify(inputs)
+    verify(inputs, fresh=True)
     result = {'module': pin(module), 'hak': pin(userdir/'hak'/(hak_name+'.hak')),
               'fixtureHaks': [pin(p) for p in sorted((userdir/'hak').iterdir())],
               'userDirectory': str(userdir), 'clientValidated': False,

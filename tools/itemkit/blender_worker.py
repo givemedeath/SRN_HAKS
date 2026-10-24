@@ -609,7 +609,7 @@ def recover_bake(cfg,out):
     require(before==successful_pixel_hash(pixels,misses) and np.isfinite(pixels).all(),'Recovery changed successful pixels')
     np.save(out/'bake-linear.npy',pixels[...,:3]);np.savez_compressed(out/'bake-masks.npz',owners=owners,hiddenCaps=caps,visibleMisses=np.zeros_like(misses))
     donor.hide_render=True;donor.hide_set(True);bpy.data.objects.remove(low,do_unlink=True)
-    bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'));verify(inputs)
+    bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'));verify(inputs, fresh=True)
     return {'visibleMisses':0,'projectedMisses':count,'missCorrection':correction,'recoveryProof':pin(proof_path),
             'linear':pin(out/'bake-linear.npy'),'masks':pin(out/'bake-masks.npz'),
             'reusedCompletedBake':True,'successfulBakeTexelsUnchanged':True,'visualReviewRequired':True}
@@ -807,7 +807,7 @@ def main():
                'shadow': lambda c, o: reduce(c, o, shadow=True), 'render': render,
                'inspect': lambda c, o: render(c, o, source=True), 'export-arrays': export_arrays,
                'render-variants': render_finish_variants}
-    result = actions[cfg['stage']](cfg, output); verify(cfg['inputs'])
+    result = actions[cfg['stage']](cfg, output); verify(cfg['inputs'], fresh=True)
     if (output/'scene.blend').exists(): result['scene'] = pin(output/'scene.blend')
     result['elapsedSeconds'] = time.monotonic()-started
     write(output/'result.json', result, fresh=True)

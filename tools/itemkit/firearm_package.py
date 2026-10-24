@@ -125,7 +125,7 @@ def prepare(spec_path, output):
                   'inputs': inputs, 'outputs': outputs, 'elapsedSeconds': time.perf_counter()-started,
                   'clientValidated': False, 'productionAccepted': False}
     # A separate pass checks fresh bytes at completion, never a timestamp cache.
-    verify(inputs)
+    verify(inputs, fresh=True)
     write(out/'prepared.json', result, fresh=True)
     return result
 
@@ -194,7 +194,7 @@ def compile_package(prepared_dir, client, output):
     archive.write_hak(hak, [(p.stem, types[p.suffix[1:]], p.read_bytes()) for p in files])
     require(archive.payload(hak) == {(p.stem, types[p.suffix[1:]]): pin(p)['sha256'] for p in files},
             'Exact firearm HAK payload differs')
-    verify(inputs)
+    verify(inputs, fresh=True)
     result = {'schemaVersion': 1, 'kind': 'firearm-native-package', 'codeVersion': prepared['codeVersion'], 'hak': pin(hak),
               'baseItem': 61, 'allocation': allocation,
               'identity': {**prepared['identity'], 'blueprint': allocation['variants'][0]['blueprint']},

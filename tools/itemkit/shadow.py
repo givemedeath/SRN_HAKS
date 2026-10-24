@@ -27,7 +27,7 @@ def build_candidates(source, profile, processing, output):
             candidates[part]={'arrays':pin(target),'sourceCornerHash':hashlib.sha256(np.asarray(p[f],dtype='<f8').tobytes()).hexdigest(),
                               'policyHash':digest({'settings':policy,'openingProbes':probes,'budget':budget}),
                               'checks':checks,'visualReviewRequired':True}
-    verify([bound]);write(root/'result.json',{'source':bound,'candidates':candidates},fresh=True)
+    verify([bound], fresh=True);write(root/'result.json',{'source':bound,'candidates':candidates},fresh=True)
     return candidates
 
 

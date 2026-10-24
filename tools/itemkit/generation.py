@@ -75,7 +75,7 @@ def set_trial_limit(path, trial_id, maximum, evidence, output):
                                                      'authorization': evidence_pin})
         policy['maximumGeometryAttempts'] = maximum
         write(output/'after.json', state, fresh=True)
-        verify([before, evidence_pin])
+        verify([before, evidence_pin], fresh=True)
         write(path, state)
         actual = read(path)
         require(digest(actual) == digest(state) and digest(actual['jobs']) == jobs_hash,

@@ -88,7 +88,7 @@ def build(source,uv_mesh,field,policy,output):
     del values
     output=Path(output);output.mkdir(exist_ok=False)
     maps=bake(uv_mesh,field,output/'maps',allow_decoder_overshoot=True)
-    verify([field_pin])
+    verify([field_pin], fresh=True)
     donor=embed_diffuse(uv_mesh,maps['maps']['basecolor-4096.png']['path'],output/'textured-donor.glb')
     result={'donor':donor,'uvMesh':pin(uv_mesh),'source':pin(source),'field':field_pin,'maps':maps,
             'frame':frame,'fitApplied':False,'fieldPolicy':policy,'visualApproval':False}

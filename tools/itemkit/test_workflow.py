@@ -40,6 +40,14 @@ class VerificationTests(unittest.TestCase):
             p.write_bytes(b'xyz')
             with self.assertRaisesRegex(ValueError,'Stale'):VerificationPass().verify([row])
 
+    def test_new_pass_rereads_same_size_rewrite_with_restored_timestamp(self):
+        import os
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/'data';p.write_bytes(b'abc');os.utime(p,ns=(10**18,10**18));stat=p.stat()
+            row=pin(p);VerificationPass().verify([row])  # Old enough for the process hash cache.
+            p.write_bytes(b'xyz');os.utime(p,ns=(stat.st_atime_ns,stat.st_mtime_ns))
+            with self.assertRaisesRegex(ValueError,'Stale'):VerificationPass().verify([row])
+
     def test_diamond_reviews_and_cycle(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);r=Runner.__new__(Runner);r.data={};r.local={};r.runtime=None;r.state={'stages':{},'reviews':{}}

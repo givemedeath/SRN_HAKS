@@ -25,7 +25,7 @@ def transform_part(source,matrix,output):
     output=Path(output);output.mkdir()
     target=output/'corners.npz';np.savez(target,positions=positions,normals=normals,uv=uv,
                                       shadowVertices=shadow,shadowFaces=old['shadowFaces'])
-    verify([source_pin])
+    verify([source_pin], fresh=True)
     result={'source':source_pin,'corners':pin(target),'matrix':m.tolist(),'retainedAxes':retained,
             'uvExact':True,'nativeNormals':'analytic inverse transpose','appearanceFieldSampled':False,
             'visibleTriangles':len(positions),'shadowTriangles':len(old['shadowFaces']),

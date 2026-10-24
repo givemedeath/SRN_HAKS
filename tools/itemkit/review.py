@@ -60,7 +60,7 @@ def render_variants(config, textures, output, *, renderer=None):
         folder = root/name; folder.mkdir()
         before = time.monotonic()
         result = renderer(cfg, folder, _clay_review=clay)
-        verify(inputs)
+        verify(inputs, fresh=True)
         require(geometry_review_key(cfg, _verified_scene=scene) == key, 'Render changed source scene or settings')
         if clay is None:
             clay = {'key': key, 'frames': [p for p in result['frames'] if Path(p['path']).name.startswith('clay-')],

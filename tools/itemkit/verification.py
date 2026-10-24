@@ -20,6 +20,7 @@ class VerificationPass:
                     'Conflicting file pins: '+path)
             self.expected[path] = expected
             if path not in self.hashes:
-                self.hashes[path] = sha(path)
+                # First encounter in this pass reads fresh bytes; only later repeats reuse it.
+                self.hashes[path] = sha(path, fresh=True)
                 self.bytes_hashed += Path(path).stat().st_size
             require(self.hashes[path] == expected, 'Stale file pin: '+path)

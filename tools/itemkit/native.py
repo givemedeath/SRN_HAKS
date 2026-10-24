@@ -132,7 +132,7 @@ def compile_package(prepared_dir, client, output):
     entries = [(p.stem, archive.TYPES[p.suffix[1:]], p.read_bytes()) for p in resources]
     target = output/(preparation.get('identity', {}).get('hak', 'srn_cougar_test')+'.hak'); archive.write_hak(target, entries)
     require(archive.payload(target) == {(p.stem, archive.TYPES[p.suffix[1:]]): pin(p)['sha256'] for p in resources}, 'HAK payload mismatch')
-    verify([client]+preparation['inputs']+preparation['outputs'])
+    verify([client]+preparation['inputs']+preparation['outputs'], fresh=True)
     result = {'hak': pin(target), 'resources': [pin(p) for p in resources], 'audits': audits,
               'allocation': preparation['allocation'], 'baseItem': preparation['baseItem'],
               'clientValidated': False, 'productionAccepted': False}

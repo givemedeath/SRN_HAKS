@@ -109,8 +109,9 @@ class Runner:
                    'runtimeIdentity': self.runtime, 'inputs': inputs, 'dependencies': parents, 'outputs': []}
         write(folder/'intent.json', receipt, fresh=True); started = time.monotonic()
         try:
-            result = self._execute(stage, folder, parent_results=parent_results); digest(result); verify(inputs)
-            completion_audit = VerificationPass()
+            result = self._execute(stage, folder, parent_results=parent_results); digest(result)
+            # One fresh completion boundary: each consumed file and ancestor artifact is reread once.
+            completion_audit = VerificationPass(); completion_audit.verify(inputs)
             for parent in parents:
                 require(self.state['stages'].get(parent) == parents[parent], 'Dependency changed: '+parent)
                 self.result(parent, _audit=completion_audit)
@@ -148,6 +149,7 @@ class Runner:
                                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         (folder/'blender.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
         require(result.returncode == 0, 'Blender worker failed; inspect retained log')
+        # Worker inputs are stage inputs or this stage's own outputs; execute()'s completion audit rereads them fresh.
         verify(config['inputs']); return read(folder/'worker'/'result.json')
 
     def _execute(self, stage, folder, *, parent_results=None):
