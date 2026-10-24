@@ -247,6 +247,16 @@ def repair(source, output, bindings, policy, inspection, fit=None):
                             or inspection.get('confirmedShellDefect') is True), 'Do not repair an assumed opening')
     neck = neck_policy(policy.get('neck'), fit); work_dir = Path(output).parent
     original = mesh(source); vertices, faces = physical(original['positions'], original['faces'])
+
+    def relief(vertices, faces, before_wrap):
+        from .relief import smooth
+        require(isinstance(fit, dict) and fit.get('reviewed') is True and 'matrix' in fit, 'Smoothing regions need the reviewed head fit')
+        begun = time.perf_counter(); vertices, records = smooth(vertices, faces, policy['smooth'], transform(checked_fit(fit['matrix']) @ BASIS, vertices))
+        return vertices, {'regions': records, 'beforeWrap': before_wrap, 'elapsedSeconds': time.perf_counter()-begun}
+    # Smoothing thin bristle fins in place can pass faces through each other; before Alpha Wrap, the wrap re-closes the
+    # smoothed surface crossing-free. A closed source without a wrap is smoothed as the master (and audited for crossings).
+    smoothing = None
+    if do_wrap and policy.get('smooth') is not None: vertices, smoothing = relief(vertices, faces, True)
     if do_wrap:
         ml = library(bindings, 'pymeshlab'); diagonal = float(np.linalg.norm(np.ptp(vertices, axis=0)))
         alpha = positive(policy.get('alphaRelative', .005), 'Alpha Wrap alpha')
@@ -258,12 +268,7 @@ def repair(source, output, bindings, policy, inspection, fit=None):
     else:
         require(topology(vertices, faces)['closed'], 'Open/invalid shell: review before selecting repair')
     vertices, faces, shell_record = select_shells(vertices, faces, policy.get('components'))
-    smoothing = None
-    if policy.get('smooth') is not None:
-        from .relief import smooth
-        require(isinstance(fit, dict) and fit.get('reviewed') is True and 'matrix' in fit, 'Smoothing regions need the reviewed head fit')
-        begun = time.perf_counter(); vertices, records = smooth(vertices, faces, policy['smooth'], transform(checked_fit(fit['matrix']) @ BASIS, vertices))
-        smoothing = {'regions': records, 'elapsedSeconds': time.perf_counter()-begun}
+    if smoothing is None and policy.get('smooth') is not None: vertices, smoothing = relief(vertices, faces, False)
     budget = policy.get('triangleBudget', 20000)
     require(type(budget) is int and 4 <= budget <= 20000, 'Supported budget is <=20K')
     seal = neck is not None and neck['seal'] is not None
