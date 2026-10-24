@@ -15,7 +15,7 @@ from .firearm_grip import measured_fit, GripDeparture
 
 class FirearmProcessingTests(unittest.TestCase):
     def setUp(self):
-        self.standard={'id':'cougar-approved-grip-v1','approval':{'gripSizingApproved':True},
+        self.standard={'id':'colt-l36-approved-firearm-grip-v1','approval':{'gripSizingApproved':True},
             'usableLength':.18,'targetMidpointSection':{'depth':.03,'visibleFaceWidth':.05},
             'referenceSections':[{'fractionFromPommel':n} for n in (.1,.25,.5,.75,.9)]}
         self.p=np.array([[x,y,z] for x in (-.015,.015) for y in (-.09,.09) for z in (-.025,.025)])
@@ -60,6 +60,16 @@ class FirearmProcessingTests(unittest.TestCase):
         self.standard['approval']['gripSizingApproved']=True
         self.standard['id']='unreviewed-standard'
         with self.assertRaisesRegex(ValueError,'Approved grip'):self.fit()
+
+    def test_superseded_melee_standard_needs_explicit_historical_declaration(self):
+        self.standard['id']='cougar-approved-grip-v1'
+        with self.assertRaisesRegex(ValueError,'new firearm fits use colt-l36'):self.fit()
+        self.config['historicalGripStandard']='cougar-approved-grip-v1'
+        self.assertEqual(self.fit()[1]['reference'],'cougar-approved-grip-v1')
+        self.standard['id']='colt-l36-approved-firearm-grip-v1'
+        with self.assertRaisesRegex(ValueError,'Approved grip'):self.fit()
+        self.config['historicalGripStandard']='unreviewed-standard'
+        with self.assertRaisesRegex(ValueError,'historical firearm grip'):self.fit()
 
     def test_width_departure_requires_exact_measurement_review(self):
         self.p[:,2]*=2

@@ -11,10 +11,20 @@ class GripDeparture(ValueError):
         self.report = report
 
 
+# The Colt reference supersedes Cougar for firearms. Pre-Colt fits (the Colt L36
+# itself) replay only by declaring that historical authority explicitly.
+FIREARM_GRIP_STANDARD = 'colt-l36-approved-firearm-grip-v1'
+HISTORICAL_FIREARM_GRIP_STANDARDS = ('cougar-approved-grip-v1',)
+
+
 def measured_fit(vertices, faces, config, donor_sha, working_sha, standard, native_origin):
     matrix = similarity_matrix(config, donor_sha)
-    require(standard.get('id') in ('cougar-approved-grip-v1', 'colt-l36-approved-firearm-grip-v1')
-            and standard.get('approval', {}).get('gripSizingApproved') is True, 'Approved grip standard required')
+    historical = config.get('historicalGripStandard')
+    require(historical is None or historical in HISTORICAL_FIREARM_GRIP_STANDARDS,
+            'Unsupported historical firearm grip standard declaration')
+    require(standard.get('id') == (historical or FIREARM_GRIP_STANDARD)
+            and standard.get('approval', {}).get('gripSizingApproved') is True,
+            'Approved grip standard required: new firearm fits use '+FIREARM_GRIP_STANDARD)
     require(config.get('workingSourceSha256') == working_sha, 'Grip surface selection belongs to another working mesh')
     endpoints = np.asarray(config['gripEndpoints'], float)
     require(endpoints.shape == (2,3) and np.isfinite(endpoints).all(), 'Finite usable grip endpoints required')

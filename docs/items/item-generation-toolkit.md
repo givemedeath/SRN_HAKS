@@ -18,6 +18,8 @@ by 15%. Bind this reference for new firearms and measure their own grip landmark
 preserve proportions and grip/barrel angle. Do not impose the Cougar melee usable
 length or reuse the Colt source multiplier. Review native hand placement on both
 shipped Human bodies. The Cougar standard remains applicable to melee weapons.
+Firearm fitting rejects any other standard; replaying a pre-Colt firearm fit
+requires `"historicalGripStandard": "cougar-approved-grip-v1"` in its fit config.
 
 For new items, the user-selected authoring default is **smooth clay for geometry,
 detailed color for saved-shape appearance** (2026-10-23). Use `clay-detail-v1` after
