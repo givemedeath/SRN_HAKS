@@ -7,7 +7,7 @@ import uuid
 import numpy as np
 from PIL import Image
 from . import common
-from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins,stage_code_pins,stage_source_version
+from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins,stage_code_pins,stage_file_pins,stage_source_version
 
 # Every stage produces evidence that needs an explicit operator decision before consumption.
 STAGES=('prepare','precluster','fit','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
@@ -491,7 +491,7 @@ class Runner:
             render_plan(cfg)
             texture_sets,atlases=atlas_sets(cfg,folder/'renders',resolutions(cfg))
             cfg.update(textureSets={str(size):maps for size,maps in texture_sets.items()},atlases=atlases)
-            cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()],*[row['image'] for row in atlases],*stage_code_pins('render')]
+            cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()],*[row['image'] for row in atlases],*stage_file_pins('render')]
             write(folder/'render-config.json',cfg,fresh=True)
             write(folder/'render-inputs.json',cfg['inputs']+[pin(folder/'render-config.json')],fresh=True)
             command=[sys.executable,str(ROOT/'tools/phenotypes/launch_shared_tool.py'),'--toolchain',b['toolchain'],

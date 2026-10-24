@@ -2612,6 +2612,7 @@ class RenderPlanTests(Temporary):
             paths,frozen=launcher.manifest_inputs([declared])
             config=read(runner.run/'render-config.json')
             self.assertTrue({row['path'] for row in stage_code_pins('render')}<={row['path'] for row in config['inputs']})
+            self.assertFalse([row for row in config['inputs'] if 'slice' in row])
             self.assertIn((runner.run/'render-config.json').resolve(),paths)
             output=runner.run/'launcher-snapshots';output.mkdir()
             snapshots=launcher.helper_snapshots(paths,frozen,output)
@@ -2644,8 +2645,8 @@ class RenderPlanTests(Temporary):
         with patch.object(runner,'result',side_effect=lambda stage,**k:results[stage]),patch('headkit.gltf.mesh',return_value={'positions':np.eye(3)}):
             with self.assertRaisesRegex(ValueError,'needs ownershipView'):runner._execute('render',self.root/'second')
     def test_render_launcher_rejects_changed_imported_helper(self):
-        from headkit.common import stage_code_pins,verify
-        helper=self.file('imported-helper.py','value=1');frozen=stage_code_pins('render')+[pin(helper)]
+        from headkit.common import stage_file_pins,verify
+        helper=self.file('imported-helper.py','value=1');frozen=stage_file_pins('render')+[pin(helper)]
         runner=self.render_runner();launcher=self.launcher()
         def launch(command,**kwargs):
             helper.write_text('value=2')
@@ -2653,7 +2654,7 @@ class RenderPlanTests(Temporary):
             with self.assertRaisesRegex(ValueError,'Stale file pin'):
                 verify(read(runner.run/'render-config.json')['inputs'])
             launcher.manifest_inputs([Path(command[command.index('--input-manifest')+1])])
-        with patch('headkit.runner.stage_code_pins',return_value=frozen),patch('subprocess.run',side_effect=launch):
+        with patch('headkit.runner.stage_file_pins',return_value=frozen),patch('subprocess.run',side_effect=launch):
             with self.assertRaisesRegex(ValueError,'Manifest input changed'):
                 runner._execute('render',runner.run)
 
@@ -2999,6 +3000,29 @@ class TextureStageTests(Temporary):
         for stage in ('repair','unwrap','bake'):
             with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
         receipt=read(runner.state['stages']['repair']['path']);self.assertNotIn(str(runner.manifest_path),{p['path'] for p in receipt['inputs']})
+    def test_runner_is_bound_by_stage_slice(self):
+        from headkit.common import runner_slice_sha,stage_code_pins,verify
+        source=("class Runner:\n    def shared(self):\n        return 1\n\n    def _execute(self,stage,folder):\n        m=1\n"
+                "        if stage=='bake':\n            # bake notes\n            return 'bake'\n"
+                "        if stage=='palette':\n            return 'palette'\n        raise ValueError(stage)\n")
+        path=self.file('runner.py',source)
+        pins={stage:{'path':str(path),'sha256':runner_slice_sha(path,stage),'slice':stage} for stage in ('bake','palette')}
+        self.assertNotEqual(pins['bake']['sha256'],pins['palette']['sha256'])
+        # An edit inside the bake branch stales bake only.
+        path.write_text(source.replace("return 'bake'","return 'baked'"),encoding='utf-8')
+        verify([pins['palette']],fresh=True)
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):verify([pins['bake']],fresh=True)
+        # A shared edit (outside the stage branches) stales every stage.
+        path.write_text(source.replace('return 1','return 2'),encoding='utf-8')
+        for stage in ('bake','palette'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale file pin'):verify([pins[stage]],fresh=True)
+        # A branch with an else is kept whole for every stage.
+        path.write_text(source.replace("        raise ValueError","        else:pass\n        raise ValueError"),encoding='utf-8')
+        before=runner_slice_sha(path,'bake',fresh=True)
+        path.write_text(source.replace("        raise ValueError","        else:pass\n        raise ValueError").replace("'palette'\n","'palettes'\n"),encoding='utf-8')
+        self.assertNotEqual(runner_slice_sha(path,'bake',fresh=True),before)
+        rows=[row for row in stage_code_pins('palette') if row['path'].endswith('runner.py')]
+        self.assertEqual([row['slice'] for row in rows],['palette']);verify(rows,fresh=True)
     def test_pass_through_tone_is_skipped_and_palette_reads_the_painted_colour(self):
         from headkit.__main__ import chain
         runner=self.texture_runner();completed=ReviewGateTests.completed

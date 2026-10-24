@@ -59,7 +59,8 @@ def pin(path):
 def verify(pins, *, fresh=False):
     for item in pins:
         require(isinstance(item, dict) and set(item) >= {'path', 'sha256'}, 'Expected file pin')
-        require(sha(item['path'], fresh=fresh) == item['sha256'], 'Stale file pin: ' + str(item['path']))
+        actual = runner_slice_sha(item['path'], item['slice'], fresh=fresh) if 'slice' in item else sha(item['path'], fresh=fresh)
+        require(actual == item['sha256'], 'Stale file pin: ' + str(item['path']))
 
 
 def write(path, data, *, fresh=False):
@@ -329,16 +330,52 @@ def module_closure(names, directory):
     return seen
 
 
+def _stage_branch(node):
+    """The stage name of an `if stage=='x':` statement, else None."""
+    import ast
+    test=getattr(node,'test',None)
+    if (isinstance(node,ast.If) and isinstance(test,ast.Compare) and isinstance(test.left,ast.Name) and test.left.id=='stage'
+            and len(test.ops)==1 and isinstance(test.ops[0],ast.Eq) and isinstance(test.comparators[0],ast.Constant)):
+        return test.comparators[0].value
+    return None
+
+
+def _execute_node(tree):
+    import ast
+    return next(node for node in ast.walk(tree) if isinstance(node,ast.FunctionDef) and node.name=='_execute')
+
+
+_SLICES={}
+
+
+def runner_slice(path, stage):
+    """runner.py without the other stages' top-level `if stage=='x':` branches of Runner._execute: a receipt binds the shared
+    dispatch, dependencies and gates plus its own branch, so an edit inside another stage's branch leaves it fresh.
+    A branch with an else/elif is never dropped (its range would cover other code)."""
+    import ast
+    text=Path(path).read_text(encoding='utf-8');lines=text.splitlines(keepends=True);drop=set()
+    for node in _execute_node(ast.parse(text)).body:
+        name=_stage_branch(node)
+        if name is not None and name!=stage and not node.orelse:drop.update(range(node.lineno-1,node.end_lineno))
+    return ''.join(line for index,line in enumerate(lines) if index not in drop)
+
+
+def runner_slice_sha(path, stage, *, fresh=False):
+    path=Path(path);before=path.stat();key=(str(path.resolve()),before.st_ino,before.st_size,before.st_mtime_ns,stage)
+    if not fresh and key in _SLICES:return _SLICES[key]
+    value=hashlib.sha256(runner_slice(path,stage).encode('utf-8')).hexdigest()
+    if path.stat().st_mtime_ns==before.st_mtime_ns and time.time()-before.st_mtime_ns/1e9>2:_SLICES[key]=value
+    return value
+
+
 def stage_entries(directory):
     """The modules each `if stage=='x':` branch of Runner._execute imports, read from the runner source."""
     import ast
     tree=ast.parse((directory/'runner.py').read_text(encoding='utf-8'));entries={}
-    execute=next(node for node in ast.walk(tree) if isinstance(node,ast.FunctionDef) and node.name=='_execute')
-    for node in ast.walk(execute):
-        test=getattr(node,'test',None)
-        if (isinstance(node,ast.If) and isinstance(test,ast.Compare) and isinstance(test.left,ast.Name) and test.left.id=='stage'
-                and len(test.ops)==1 and isinstance(test.ops[0],ast.Eq) and isinstance(test.comparators[0],ast.Constant)):
-            found=entries.setdefault(test.comparators[0].value,set())
+    for node in ast.walk(_execute_node(tree)):
+        name=_stage_branch(node)
+        if name is not None:
+            found=entries.setdefault(name,set())
             for inner in ast.walk(node):
                 if isinstance(inner,ast.ImportFrom) and inner.level==1:
                     found.update([inner.module.split('.')[0]] if inner.module else [alias.name for alias in inner.names])
@@ -356,6 +393,14 @@ def stage_code_files(stage, directory=None, root=None):
 
 
 def stage_code_pins(stage):
+    # The runner is bound by this stage's slice; every other file whole.
+    runner=(Path(__file__).parent/'runner.py').resolve()
+    return [{'path':str(runner),'sha256':runner_slice_sha(runner,stage),'slice':stage} if Path(path).resolve()==runner else pin(path)
+            for path in stage_code_files(stage)]
+
+
+def stage_file_pins(stage):
+    """Whole-file pins of the stage's code, for subprocess launchers that hash the files themselves."""
     return [pin(path) for path in stage_code_files(stage)]
 
 
