@@ -390,3 +390,30 @@ This batch contains only four compiled MDL/PLT
 pairs; source images, masters, trial tools, demo modules and generated HAKs stay
 outside the production source pack. Approval does not establish exhaustive
 animation, equipment or palette-combination coverage.
+
+## Approved Cougar blades and Colt L36 (`srn_weapon`, 2026-10-24)
+
+The project operator supplied the detailed weapon references. Pixal3D generated
+the geometry and appearance; local processing fitted, reduced, UV-mapped,
+transferred textures and compiled the assets for NWN:EE. Published models and
+textures are the exact accepted payload: Cougar Fineblade Longblade (short sword),
+Cougar Fineblade Knife, Cougar Fineblade Longsword, and Colt L36 in its base and
+cool gunmetal finishes. Five item blueprints and their multipart inventory icons
+are included. Blueprint display names/descriptions receive only the documented
+publication cleanup; all non-display fields are preserved. User approval and
+per-resource/archive hashes are recorded in
+`docs/items/approved-weapons-v1.json`. Supplied branding remains part of the
+reference design; this record does not assert ownership of third-party marks.
+
+The new `srn_2da/baseitems.2da` is an installed-game compatibility derivative.
+It retains the accepted fixture's two display changes to Sling row 61:
+`ModelType` 0 to 2 and `MaxRange` 50 to 52. All other parsed fields and the
+original table's unrelated bytes are preserved. Installed-game authorship
+applies to the underlying table; a licensed NWN:EE installation is required.
+The operator explicitly requested including this display-table change in the
+PR for review. Its effect on ordinary Sling appearances is documented in
+`docs/items/approved-weapons.md`; this is not a new compatibility approval.
+
+Raw references, high-resolution masters, test module actors, experimental
+assets, SMG preparation and generated HAK archives are excluded. Every resource
+is below 15 MiB. The original accepted packages and trial history remain intact.
