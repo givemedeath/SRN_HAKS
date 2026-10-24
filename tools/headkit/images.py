@@ -108,3 +108,33 @@ def prepare_multiview(pairs, config, output):
     result={'views':evidence,'cranialMeasurements':metrics.tolist(),'commonCanvas':list(canvas),
             'independentCropping':False,'rigFovDegrees':20,'manualReviewRequired':True}
     write(output/'alignment.json',result,fresh=True);return result
+
+
+def matte(design_path, config, output):
+    """Single-image bootstrap: transparent background from the design's plain studio backdrop. The backdrop is the
+    border median; background is the near-backdrop, low-saturation region connected to the canvas border, so dark or
+    gray features inside the silhouette stay opaque. The head must not touch the canvas edge."""
+    tolerance=config.get('backgroundTolerance',14)
+    require(type(tolerance) is int and 4<=tolerance<=40,'Background tolerance must be an integer from 4 to 40')
+    from scipy import ndimage
+    output=Path(output);output.mkdir(parents=True,exist_ok=False)
+    with Image.open(design_path) as image:rgb=np.asarray(image.convert('RGB'))
+    pixels=rgb.astype(np.int16);border=np.concatenate([pixels[:8].reshape(-1,3),pixels[-8:].reshape(-1,3),pixels[:,:8].reshape(-1,3),pixels[:,-8:].reshape(-1,3)])
+    backdrop=np.median(border,0)
+    require(float(np.mean(np.abs(border-backdrop).max(1)<tolerance))>=.6,'Design backdrop is not plain enough to matte')
+    near=(np.abs(pixels-backdrop).max(2)<tolerance)&(np.ptp(pixels,axis=2)<tolerance)
+    labels,_=ndimage.label(near);edge=np.unique(np.concatenate([labels[0],labels[-1],labels[:,0],labels[:,-1]]))
+    foreground=ndimage.binary_fill_holes(ndimage.binary_opening(~np.isin(labels,edge[edge>0])))
+    labels,count=ndimage.label(foreground);require(count>0,'Matte found no subject')
+    sizes=ndimage.sum(foreground,labels,range(1,count+1));foreground=labels==1+int(np.argmax(sizes))
+    require(not (foreground[:2].any() or foreground[-2:].any() or foreground[:,:2].any() or foreground[:,-2:].any()),
+            'Subject touches the canvas edge: regenerate the design with margin')
+    alpha=(ndimage.gaussian_filter(foreground.astype(float),.7)*255).clip(0,255).astype(np.uint8)
+    rgba=np.dstack([rgb,alpha]);Image.fromarray(rgba,'RGBA').save(output/'design-rgba.png')
+    check=Image.new('RGB',(rgb.shape[1],rgb.shape[0]),(255,0,255));check.paste(Image.fromarray(rgba,'RGBA'),(0,0),Image.fromarray(alpha))
+    check.save(output/'matte-check.png')
+    ys,xs=np.nonzero(foreground);height,width=foreground.shape
+    result={'backdrop':backdrop.tolist(),'foregroundFraction':float(foreground.mean()),'droppedComponents':int(count-1),
+            'marginPixels':{'top':int(ys.min()),'bottom':int(height-1-ys.max()),'left':int(xs.min()),'right':int(width-1-xs.max())},
+            'manualReviewRequired':True,'images':{name:pin(output/name) for name in ('design-rgba.png','matte-check.png')}}
+    write(output/'matte.json',result,fresh=True);return result

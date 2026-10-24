@@ -14,6 +14,9 @@
       "tools/headkit/comfy_nodes/managed_startup.py",
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/common.py",
+      "tools/headkit/design.py",
+      "tools/headkit/fit.py",
+      "tools/headkit/preview.py",
       "tools/headkit/replay.py",
       "tools/headkit/runner.py",
       "tools/headkit/source_inventory.py"
@@ -54,6 +57,10 @@
       "tools/headkit/comfy_nodes/model_resolution.py"
     ],
     "tools/headkit/common.py": [
+      "tools/headkit/blender_render.py",
+      "tools/headkit/manifest.schema.json",
+      "tools/headkit/runner.py",
+      "tools/headkit/stock-shades.json",
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py",
       "tools/heads/verify_head_hak.py",
@@ -77,7 +84,17 @@
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
     ],
+    "tools/headkit/design.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/images.py",
+      "tools/headkit/templates/flux2-design.json",
+      "tools/headkit/templates/flux2-inpaint.json"
+    ],
     "tools/headkit/field.py": [],
+    "tools/headkit/fit.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py"
+    ],
     "tools/headkit/gltf.py": [],
     "tools/headkit/images.py": [
       "tools/headkit/common.py"
@@ -86,7 +103,8 @@
     "tools/headkit/mesh.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
-      "tools/headkit/intersections.py"
+      "tools/headkit/intersections.py",
+      "tools/headkit/relief.py"
     ],
     "tools/headkit/native.py": [
       "tools/headkit/common.py",
@@ -104,15 +122,32 @@
     "tools/headkit/paint.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/predicates.py",
       "tools/headkit/uv.py"
     ],
     "tools/headkit/palette.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
       "tools/headkit/rays.py",
+      "tools/headkit/stock-shades.json",
       "tools/headkit/textures.py"
     ],
+    "tools/headkit/predicates.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/preview.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/uv.py"
+    ],
     "tools/headkit/rays.py": [],
+    "tools/headkit/relief.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/predicates.py"
+    ],
     "tools/headkit/replay.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
@@ -128,6 +163,7 @@
       "tools/headkit/blender_render.py",
       "tools/headkit/cameras.py",
       "tools/headkit/common.py",
+      "tools/headkit/fit.py",
       "tools/headkit/gltf.py",
       "tools/headkit/images.py",
       "tools/headkit/mesh.py",
@@ -167,27 +203,36 @@
       "tools/headkit/comfy_nodes/transport.py",
       "tools/headkit/comfy_nodes/verified_loaders.py",
       "tools/headkit/common.py",
+      "tools/headkit/design.py",
       "tools/headkit/examples/local-bindings.example.json",
       "tools/headkit/examples/processing.json",
       "tools/headkit/examples/texture-rules.json",
       "tools/headkit/field.py",
+      "tools/headkit/fit.py",
       "tools/headkit/gltf.py",
       "tools/headkit/images.py",
       "tools/headkit/intersections.py",
+      "tools/headkit/manifest.schema.json",
       "tools/headkit/mesh.py",
       "tools/headkit/native.py",
       "tools/headkit/paint.py",
       "tools/headkit/palette.py",
+      "tools/headkit/preview.py",
+      "tools/headkit/relief.py",
       "tools/headkit/replay.py",
       "tools/headkit/review_images.py",
       "tools/headkit/run_headkit.py",
       "tools/headkit/runner.py",
       "tools/headkit/source_inventory.py",
+      "tools/headkit/stock-shades.json",
+      "tools/headkit/templates/flux2-design.json",
+      "tools/headkit/templates/flux2-inpaint.json",
       "tools/headkit/textures.py",
       "tools/headkit/uv.py",
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/height_targets.json",
       "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/native_compile.py",
       "tools/shared-tools.lock.json"
     ],
     "tools/headkit/textures.py": [
@@ -235,6 +280,13 @@
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/build_head_fixture.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/phenotypes/build_test_module.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/heads/build_head_trial.py": [
+      "tools/heads/build_head_fixture.py",
       "tools/heads/head_workflow.py",
       "tools/heads/verify_head_hak.py",
       "tools/phenotypes/build_test_module.py",
@@ -413,6 +465,13 @@
       "tools/heads/roster.json",
       "tools/heads/verify_head_hak.py"
     ],
+    "tools/heads/test_head_trial.py": [
+      "tools/heads/build_head_fixture.py",
+      "tools/heads/build_head_trial.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/heads/verify_head_trial.py"
+    ],
     "tools/heads/test_meshy_dispatch.py": [
       "tools/heads/head_workflow.py",
       "tools/heads/meshy_cli.py",
@@ -441,6 +500,9 @@
       "tools/heads/verify_head_hak.py"
     ],
     "tools/heads/verify_head_hak.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/verify_head_trial.py": [
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/verify_retexture.py": [
@@ -3459,6 +3521,7 @@
     "tools/heads/test_geometry_guards.py",
     "tools/heads/test_head_holes.py",
     "tools/heads/test_head_pipeline.py",
+    "tools/heads/test_head_trial.py",
     "tools/heads/test_meshy_dispatch.py",
     "tools/heads/test_microface_materials.py",
     "tools/heads/test_palette_sampling.py",

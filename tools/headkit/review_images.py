@@ -7,8 +7,8 @@ from .common import require, pin, verify
 
 
 def _validate_map_names(maps):
-    require(isinstance(maps,dict) and set(maps)<={'basecolor','roughness','metallic','opacity'},
-            'Review atlases require supported map names: basecolor, roughness, metallic, opacity')
+    require(isinstance(maps,dict) and set(maps)<={'basecolor','roughness','metallic','opacity','ownership'},
+            'Review atlases require supported map names: basecolor, roughness, metallic, opacity, ownership')
 
 
 def resolutions(config):
@@ -26,7 +26,7 @@ def render_plan(config):
     for field in ('mapInputs','maps'):_validate_map_names(config.get(field,{}))
     cameras=config.get('cameras');modes=config.get('modes',['clay','color-only','material-lit'])
     require(isinstance(cameras,list) and cameras,'Render cameras must be a nonempty list')
-    require(isinstance(modes,list) and modes and all(x in ('clay','color-only','material-lit') for x in modes)
+    require(isinstance(modes,list) and modes and all(x in ('clay','color-only','material-lit','ownership') for x in modes)
             and len(set(modes))==len(modes),'Render modes must be nonempty, known and unique')
     require(type(config.get('diagnostic',False)) is bool,'Diagnostic render flag must be boolean')
     require('size' not in config or config.get('diagnostic') is True,
@@ -64,8 +64,9 @@ def atlas_sets(config, output, sizes):
         for name,path in maps_config.items():
             with Image.open(path) as source:
                 require(source.width==source.height and source.width>=size, 'Review atlas must be square and large enough; no upsampling')
-                image=source.convert('RGB' if name=='basecolor' else 'L')
-                if image.size!=(size,size):image=image.resize((size,size),Image.Resampling.BOX)
+                image=source.convert('RGB' if name in ('basecolor','ownership') else 'L')
+                # Ownership colours are discrete channel labels: never blend them.
+                if image.size!=(size,size):image=image.resize((size,size),Image.Resampling.NEAREST if name=='ownership' else Image.Resampling.BOX)
                 target=folder/(name+'.png');image.save(target)
             maps[name]=str(target);records.append({'size':size,'map':name,'source':pin(path),'image':pin(target)})
         sets[size]=maps
