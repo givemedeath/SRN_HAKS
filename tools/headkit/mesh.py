@@ -1,4 +1,4 @@
-"""Exterior-shell audit, reviewed Alpha Wrap, head-local neck taper/seal, and collision-blocking QSlim."""
+"""Exterior-shell audit, reviewed Alpha Wrap, head-local neck shortening/taper/seal, and collision-blocking QSlim."""
 from pathlib import Path
 import time
 import numpy as np
@@ -128,11 +128,17 @@ def taper_scale(local, taper, bottom):
 def neck_policy(neck, fit):
     """Validate optional head-local neck shaping; it needs the reviewed rigid fit that defines face +y, up +z."""
     if neck is None: return None
-    require(isinstance(neck, dict) and neck and set(neck) <= {'taper', 'seal'}, 'Neck policy takes taper and/or seal')
+    require(isinstance(neck, dict) and neck and set(neck) <= {'shorten', 'taper', 'seal'}, 'Neck policy takes shorten, taper and/or seal')
     require(isinstance(fit, dict) and fit.get('reviewed') is True and 'matrix' in fit,
             'Neck taper/seal needs the reviewed head fit matrix')
     number = lambda v: type(v) in (int, float) and np.isfinite(v)
-    taper, seal = neck.get('taper'), neck.get('seal')
+    taper, seal, shorten = neck.get('taper'), neck.get('seal'), neck.get('shorten')
+    if shorten is not None:
+        require(isinstance(shorten, dict) and {'start', 'rim'} <= set(shorten) <= {'start', 'rim', 'band', 'notes'}
+                and number(shorten['start']) and number(shorten['rim']) and shorten['rim'] < shorten['start'],
+                'Neck shortening declares a head-local start height and a lower target rim height')
+        shorten = dict({'band': .02}, **shorten)
+        require(number(shorten['band']) and .005 <= shorten['band'] <= .05, 'Neck shortening band must be in [0.005, 0.05]')
     if taper is not None:
         require(isinstance(taper, dict) and set(taper) == {'minScale', 'frontStart', 'backStart', 'axis'},
                 'Taper declares minScale, frontStart, backStart and axis')
@@ -155,7 +161,31 @@ def neck_policy(neck, fit):
             require(number(seal.get('searchTop', 0)) and ('searchTop' in seal or taper is not None),
                     'Measured seal needs searchTop or a taper start')
     return {'frame': checked_fit(fit["matrix"]) @ BASIS, 'fitMatrix': checked_fit(fit["matrix"]).tolist(),
-            'fitSourceSha256': fit.get('sourceSha256'), 'taper': taper, 'seal': seal}
+            'fitSourceSha256': fit.get('sourceSha256'), 'taper': taper, 'seal': seal, 'shorten': shorten}
+
+
+def shorten_depth(depth, scale, band):
+    """Depth below the start after shortening: slope 1 at the start (no crease), easing to `scale` over about `band`.
+    Strictly increasing, so every vertical column keeps its order and the surface cannot fold."""
+    return scale*depth+(1-scale)*band*(1-np.exp(-depth/band))
+
+
+def neck_shorten(vertices, neck):
+    """Shorten an over-long stump on the dense master by compressing the neck below a reviewed head-local start height
+    until its rim reaches a target height. The rounded closed end keeps its shape (no cut, no new cap); x and y are
+    unchanged, so the taper that follows sees the same outline at a higher rim."""
+    shorten = neck['shorten']; local = transform(neck['frame'], vertices); bottom = float(local[:, 2].min())
+    start, band = shorten['start'], shorten['band']; depth = start-bottom; target = start-shorten['rim']
+    require(bottom < shorten['rim'] < start < local[:, 2].max(), 'Neck shortening needs rim < start inside the head, above the current rim')
+    low, high = 0.0, 1.0
+    for _ in range(60):
+        middle = (low+high)/2; low, high = (middle, high) if shorten_depth(depth, middle, band) < target else (low, middle)
+    scale = (low+high)/2; below = local[:, 2] < start; shaped = local.copy()
+    shaped[below, 2] = start-shorten_depth(start-local[below, 2], scale, band)
+    return transform(np.linalg.inv(neck['frame']), shaped), dict(
+        shorten, previousRimHeight=bottom, rimHeight=float(shaped[:, 2].min()), farScale=float(scale),
+        removedLengthMetres=float(shaped[:, 2].min()-bottom), movedVertices=int(np.count_nonzero(below)),
+        profile='depth below start -> s*d+(1-s)*band*(1-exp(-d/band)): slope 1 at the start, s far below')
 
 
 def neck_taper(vertices, faces, neck):
@@ -285,6 +315,9 @@ def repair(source, output, bindings, policy, inspection, fit=None):
         record = {'fitMatrix': neck['fitMatrix'], 'fitSourceSha256': neck['fitSourceSha256'],
                   'frame': 'fit matrix @ GLB->NWN (x,-z,y): face +y, up +z', 'taper': None, 'seal': None,
                   'budget': {'total': budget, 'reservedForCap': budget-target, 'reductionTarget': target}}
+    if neck is not None and neck['shorten'] is not None:
+        begun = time.perf_counter(); vertices, record['shorten'] = neck_shorten(vertices, neck)
+        record['shorten']['elapsedSeconds'] = time.perf_counter()-begun
     if neck is not None and neck['taper'] is not None:
         untapered = work_dir/'master-untapered.glb'; write_mesh(untapered, vertices, faces); begun = time.perf_counter()
         vertices, record['taper'] = neck_taper(vertices, faces, neck)

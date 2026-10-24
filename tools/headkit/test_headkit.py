@@ -739,6 +739,7 @@ class MeshTests(Temporary):
         self.assertEqual(result['topology']['triangles'],len(coarse_faces)+48);self.assertLessEqual(result['topology']['triangles'],budget)
         self.assertEqual(result['neck']['budget'],{'total':budget,'reservedForCap':48,'reductionTarget':budget-48})
         self.assertEqual(result['neck']['seal']['shellTriangles'],len(coarse_faces))
+        self.assertNotIn('shorten',result['neck'])  # undeclared shortening leaves earlier receipts byte-identical
         master=mesh(self.root/'out'/'master.glb')['positions'];untapered=mesh(self.root/'out'/'master-untapered.glb')['positions']
         self.assertEqual(result['surfaceDistance']['reference'],pin(self.root/'out'/'master.glb'))
         np.testing.assert_allclose(np.sort(distances[0],0),np.sort(np.unique(master,axis=0),0))  # tapered master, not the source
@@ -835,6 +836,34 @@ class MeshTests(Temporary):
         self.assertEqual(len(inputs),2);self.assertTrue(result['smoothing']['rewrapped']);self.assertEqual(result['smoothing']['rewrapShells']['shells'],1)
         self.assertGreater(np.abs(inputs[1]-inputs[0]).max(),1e-4)  # the second wrap received the smoothed master
         np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(inputs[1],axis=0),0),atol=1e-6)
+    def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
+        from headkit import mesh as mesh_module
+        from headkit.mesh import neck_policy,neck_shorten,shorten_depth,transform
+        from headkit.intersections import scan
+        d=np.linspace(0,.2,4001)
+        for scale,band in ((.6,.02),(.3,.005),(.95,.05)):
+            with self.subTest(scale=scale,band=band):
+                slope=np.diff(shorten_depth(d,scale,band))/np.diff(d)
+                self.assertTrue(np.all(slope>0))  # strictly increasing: every vertical column keeps its order
+                self.assertAlmostEqual(slope[0],1,places=2);self.assertAlmostEqual(slope[-1],scale,places=2)  # no crease at the start
+        p,f=self.bell();bottom=float(p[:,2].min());fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        neck=neck_policy({'shorten':{'start':-.02,'rim':bottom+.02}},fit)
+        moved,record=neck_shorten(self.glb(p),neck);local=transform(neck['frame'],moved)
+        self.assertAlmostEqual(local[:,2].min(),bottom+.02,places=9);self.assertAlmostEqual(record['removedLengthMetres'],.02,places=9)
+        np.testing.assert_allclose(local[:,:2],p[:,:2],atol=1e-12)  # the outline never moves, only heights below the start
+        np.testing.assert_allclose(local[p[:,2]>=-.02],p[p[:,2]>=-.02],atol=1e-12)
+        self.assertTrue(topology(local,f)['closed']);self.assertFalse(scan(local,f)['pairs'])
+        for bad,message in (({'start':-.02},'start height'),({'start':-.02,'rim':-.01},'lower target'),
+                            ({'start':-.02,'rim':bottom-.01},'above the current rim'),({'start':-.02,'rim':bottom+.01,'band':.1},'band')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):neck_shorten(self.glb(p),neck_policy({'shorten':bad},fit))
+        # In repair the stump is shortened on the dense master before the taper, which then starts from the new rim.
+        source=self.root/'source.glb';write_mesh(source,self.glb(p),f);igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'shorten':{'start':-.02,'rim':-.08},'taper':self.NECK['taper']}}
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,{'sourceSha256':pin(source)['sha256'],'visualReviewed':True},fit=fit)
+        self.assertTrue(result['passed']);self.assertAlmostEqual(result['neck']['shorten']['rimHeight'],-.08,places=6)
+        self.assertAlmostEqual(result['neck']['taper']['rimHeight'],-.08,places=6)
+        master=transform(neck['frame'],mesh(self.root/'master.glb')['positions']);self.assertAlmostEqual(master[:,2].min(),-.08,places=5)
     def test_neck_policy_refuses_without_reviewed_fit_or_with_bad_parameters(self):
         from headkit import mesh as mesh_module
         p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)
