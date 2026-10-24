@@ -196,6 +196,10 @@ class Runner:
         except Exception as exc:
             receipt.update(state='failed',error=str(exc),traceback=traceback.format_exc(),
                 outputs=[pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json','receipt.json')])
+            # A failed unwrap keeps its per-round repair log; one that cannot serialise is noted, never lost with the receipt.
+            if hasattr(exc,'attempts'):
+                try:digest(exc.attempts);receipt['attempts']=exc.attempts
+                except (TypeError,ValueError):receipt['attempts']={'unserializable':repr(exc.attempts)[:4000]}
             raise
         finally:
             self._read=None;common.LIBRARIES_USED=None
