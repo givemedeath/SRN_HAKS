@@ -3027,6 +3027,8 @@ class StageCodeVersionTests(Temporary):
                 names={path.name for path in stage_code_files(stage)}
                 self.assertTrue({'runner.py','common.py','shared-tools.lock.json'}<=names)
                 self.assertFalse({'test_headkit.py','__main__.py','comfy.py','design.py'}&names)
+                # The Comfy adapter package is GPU-side; an adapter edit must not stale CPU stages.
+                self.assertFalse([path for path in stage_code_files(stage) if 'comfy_nodes' in path.parts])
         fit={path.name for path in stage_code_files('fit')};repair={path.name for path in stage_code_files('repair')}
         self.assertIn('fit.py',fit);self.assertFalse({'mesh.py','uv.py','native.py'}&fit)
         self.assertTrue({'mesh.py','intersections.py'}<=repair);self.assertNotIn('uv.py',repair)

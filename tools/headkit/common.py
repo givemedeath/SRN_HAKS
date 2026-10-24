@@ -10,9 +10,18 @@ from pathlib import Path
 import re
 import sys
 import tempfile
-from .comfy_nodes.verification import CURRENT_PASS,verification_pass
 
 ROOT = Path(__file__).resolve().parents[2]
+# A verification pass can only be active once its module is imported, so sha() looks it up instead of importing it,
+# and verification_pass loads it on first use: a static import would put the whole Comfy adapter package in every
+# CPU stage's code closure (P57 stage-scoped pins), so an adapter edit would stale every head stage. The module is
+# named by its file so the test-impact catalog still records the dependency.
+_PASS_SOURCE = 'comfy_nodes/verification.py'
+_PASS_MODULE = __package__ + '.' + _PASS_SOURCE.removesuffix('.py').replace('/', '.')
+
+
+def verification_pass(name):
+    return importlib.import_module(_PASS_MODULE).verification_pass(name)
 
 
 def require(condition, message):
@@ -29,7 +38,7 @@ def sha(path, *, fresh=False):
     before and after reading) is hashed once; fresh=True always rereads, for checks that must catch edits made
     during a stage. Only files last modified more than two seconds before hashing are cached (the racy-timestamp
     rule), so a rewrite within one filesystem timestamp tick cannot reuse a stale digest."""
-    session=CURRENT_PASS.get()
+    passes=sys.modules.get(_PASS_MODULE);session=passes.CURRENT_PASS.get() if passes else None
     if session is not None and not fresh:return session.hash(path)
     path = Path(path)
     before = path.stat()
