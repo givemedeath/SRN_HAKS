@@ -714,6 +714,26 @@ class MeshTests(Temporary):
         self.assertEqual(result['surfaceDistance']['reference'],pin(self.root/'out'/'master.glb'))
         np.testing.assert_allclose(np.sort(distances[0],0),np.sort(np.unique(master,axis=0),0))  # tapered master, not the source
         self.assertGreater(np.abs(master-untapered).max(),.005);self.assertEqual(result['neck']['taper']['untapered'],pin(self.root/'out'/'master-untapered.glb'))
+    def test_repair_keeps_one_shell_and_deletes_floaters_only_by_reviewed_selection(self):
+        from headkit import mesh as mesh_module
+        p,f=self.bell();t,tf=self.tetra();floater=t*.01+[0,-.3,0]  # a detached floater behind the head (GLB +z faces front)
+        source=self.root/'source.glb';write_mesh(source,np.r_[self.glb(p),floater],np.r_[f,tf+len(p)])
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True}
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        keep={'keep':'largest','reviewed':True,'maximumDeletedAreaFraction':.05,'expectedDeleted':1}
+        for components,message in ((None,'2 separate shells'),(dict(keep,reviewed=False),'reviewed'),(dict(keep,expectedDeleted=0),'1 shells would be deleted'),
+                                   (dict(keep,maximumDeletedAreaFraction=1e-6),'above the reviewed bound'),(dict(keep,maximumDeletedAreaFraction=.1),'supported profile')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):
+                mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'components':components} if components else {'alphaWrap':False},inspection)
+            self.assertFalse((self.root/'master.glb').exists())
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'triangleBudget':len(f)+20,'components':keep},inspection)
+        self.assertTrue(result['passed'] and result['componentDeletion']);self.assertEqual(result['topology']['triangles'],len(f))
+        self.assertEqual((result['shells']['shells'],result['shells']['keptTriangles'],[row['triangles'] for row in result['shells']['deleted']]),(2,len(f),[4]))
+        np.testing.assert_allclose(result['shells']['deleted'][0]['centroid'],floater.mean(0),atol=1e-5)
+        area=lambda v,f:np.linalg.norm(np.cross(v[f][:,1]-v[f][:,0],v[f][:,2]-v[f][:,0]),axis=1).sum()/2
+        self.assertAlmostEqual(result['shells']['deletedAreaFraction'],area(floater,tf)/(area(floater,tf)+area(p,f)),places=6)
+        np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(self.glb(p),axis=0),0),atol=1e-6)
     def test_neck_policy_refuses_without_reviewed_fit_or_with_bad_parameters(self):
         from headkit import mesh as mesh_module
         p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)

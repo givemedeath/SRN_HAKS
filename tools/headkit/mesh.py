@@ -203,6 +203,40 @@ def neck_seal(vertices, faces, neck, top):
         outlineSpan=np.ptp(rim, 0).tolist(), capTriangles=len(cap_faces))
 
 
+def shells(vertices, faces):
+    """Face labels of the edge-connected shells."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]]); n = len(vertices)
+    labels = connected_components(coo_matrix((np.ones(len(edges)), (edges[:, 0], edges[:, 1])), (n, n)), directed=False)[1]
+    return np.unique(labels[faces[:, 0]], return_inverse=True)[1].reshape(-1)
+
+
+def select_shells(vertices, faces, selection):
+    """A master must be one shell. Detached floaters and interior bubbles go only by a reviewed selection that keeps
+    the largest-area shell, bounds the deleted area and records every deleted shell."""
+    label = shells(vertices, faces); count = int(label.max())+1
+    if selection is None:
+        require(count == 1, f'Master has {count} separate shells; review them and declare mesh.components')
+        return vertices, faces, {'shells': 1, 'deleted': [], 'deletedAreaFraction': 0.0}
+    require(isinstance(selection, dict) and selection.get('keep') == 'largest' and selection.get('reviewed') is True,
+            'Shell selection must be reviewed and keep the largest shell')
+    limit = positive(selection.get('maximumDeletedAreaFraction', .01), 'deleted shell area bound')
+    require(limit <= .05, 'Deleted shell area bound exceeds supported profile')
+    corners = vertices[faces].astype(float)
+    area = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)/2
+    totals = np.bincount(label, area, count); keep = int(np.argmax(totals)); fraction = float(1-totals[keep]/totals.sum())
+    deleted = [{'triangles': int(np.count_nonzero(label == k)), 'areaFraction': float(totals[k]/totals.sum()),
+                'centroid': [round(float(c), 5) for c in vertices[np.unique(faces[label == k])].mean(0)]}
+               for k in np.argsort(-totals) if k != keep]
+    require(fraction <= limit, f'Deleted shells cover {fraction:.3%} of the master area, above the reviewed bound')
+    expected = selection.get('expectedDeleted')
+    require(expected is None or expected == len(deleted), f'{len(deleted)} shells would be deleted; the review expected {expected}')
+    used = np.unique(faces[label == keep]); remap = np.full(len(vertices), -1); remap[used] = np.arange(len(used))
+    return vertices[used], remap[faces[label == keep]], {'shells': count, 'deleted': deleted, 'deletedAreaFraction': fraction,
+                                                        'keptTriangles': int(np.count_nonzero(label == keep))}
+
+
 def repair(source, output, bindings, policy, inspection, fit=None):
     """No assumed holes, no discs, no component deletion without an explicit selection."""
     require(inspection.get('sourceSha256') == pin(source)['sha256'] and inspection.get('visualReviewed') is True,
@@ -223,6 +257,7 @@ def repair(source, output, bindings, policy, inspection, fit=None):
         current = ms.current_mesh(); current.compact(); vertices, faces = current.vertex_matrix(), current.face_matrix()
     else:
         require(topology(vertices, faces)['closed'], 'Open/invalid shell: review before selecting repair')
+    vertices, faces, shell_record = select_shells(vertices, faces, policy.get('components'))
     budget = policy.get('triangleBudget', 20000)
     require(type(budget) is int and 4 <= budget <= 20000, 'Supported budget is <=20K')
     seal = neck is not None and neck['seal'] is not None
@@ -269,7 +304,7 @@ def repair(source, output, bindings, policy, inspection, fit=None):
     result['neck'] = record
     write(work_dir/'reduction-audit.json',result,fresh=True)
     require(maximum<=limit,'Reduction exceeds measured surface error limit; retain and review before changing policy')
-    result.update(master=pin(master), ancestry=births, alphaWrapApplied=do_wrap, componentDeletion=False,
+    result.update(master=pin(master), ancestry=births, alphaWrapApplied=do_wrap, componentDeletion=bool(shell_record['deleted']), shells=shell_record,
                   triangleBudget=budget, visualReviewRequired=True)
     return result
 
