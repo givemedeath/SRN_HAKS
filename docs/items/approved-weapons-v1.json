@@ -1,0 +1,594 @@
+{
+  "schemaVersion": 1,
+  "kind": "srn-approved-weapon-publication",
+  "items": [
+    {
+      "id": "cougar-fineblade-knife",
+      "name": "Cougar Fineblade Knife",
+      "blueprints": [
+        "sr_cfk"
+      ],
+      "sourceArchive": "srn_cfk_test.hak",
+      "status": "user-approved"
+    },
+    {
+      "id": "cougar-fineblade-longsword",
+      "name": "Cougar Fineblade Longsword",
+      "blueprints": [
+        "sr_cfs"
+      ],
+      "sourceArchive": "srn_cfs_test.hak",
+      "status": "user-approved"
+    },
+    {
+      "id": "cougar-fineblade-longblade",
+      "name": "Cougar Fineblade Longblade (short sword)",
+      "blueprints": [
+        "sr_cougar"
+      ],
+      "sourceArchive": "srn_cougar_test.hak",
+      "status": "user-approved"
+    },
+    {
+      "id": "colt-l36-pistol",
+      "name": "Colt L36 pistol",
+      "blueprints": [
+        "sr_cl36_1",
+        "sr_cl36_2"
+      ],
+      "sourceArchive": "srn_cl36_test.hak",
+      "status": "user-approved"
+    }
+  ],
+  "resources": [
+    {
+      "path": "srn_weapon/iwswdg_b_071.tga",
+      "sha256": "8b9353e70588c333a34a9184378ab60ce5910b61b752724addfb8af5db85be7f",
+      "bytes": 4140,
+      "resourceType": 3,
+      "item": "cougar-fineblade-knife",
+      "sourceArchive": "srn_cfk_test.hak",
+      "sourceResource": "iwswdg_b_071.tga"
+    },
+    {
+      "path": "srn_weapon/iwswdg_m_071.tga",
+      "sha256": "0b2ffa9b8cab293774b8d1df098db2023c098e4fc752f2e6ad1e84d6e20bc6ba",
+      "bytes": 4140,
+      "resourceType": 3,
+      "item": "cougar-fineblade-knife",
+      "sourceArchive": "srn_cfk_test.hak",
+      "sourceResource": "iwswdg_m_071.tga"
+    },
+    {
+      "path": "srn_weapon/iwswdg_t_071.tga",
+      "sha256": "67f72b0ac8441f8f015a89d3e82991489534a29e0216e432dcde853615b4876a",
+      "bytes": 4140,
+      "resourceType": 3,
+      "item": "cougar-fineblade-knife",
+      "sourceArchive": "srn_cfk_test.hak",
+      "sourceResource": "iwswdg_t_071.tga"
+    },
+    {
+      "path": "srn_weapon/sr_cfk_07.tga",
+      "sha256": "6cca4cf6232b492e9f18e41799f1a169d920a712e7c9eafd2e3250b9bad7e1c6",
+      "bytes": 3145772,
+      "resourceType": 3,
+      "item": "cougar-fineblade-knife",
+      "sourceArchive": "srn_cfk_test.hak",
+      "sourceResource": "sr_cfk_07.tga"
+    },
+    {
+      "path": "srn_weapon/wswdg_b_071.mdl",
+      "sha256": "c20d4a5256b53fbad4e7781675cc1403bcdd3045cd70f195e1076befac04e032",
+      "bytes": 72296,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-knife",
+      "sourceArchive": "srn_cfk_test.hak",
+      "sourceResource": "wswdg_b_071.mdl"
+    },
+    {
+      "path": "srn_weapon/wswdg_m_071.mdl",
+      "sha256": "fec4579a4a83ca9a46d66a1cfd9ac7c92fb4cab6d252d0049e7df8b1c7105783",
+      "bytes": 101572,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-knife",
+      "sourceArchive": "srn_cfk_test.hak",
+      "sourceResource": "wswdg_m_071.mdl"
+    },
+    {
+      "path": "srn_weapon/wswdg_t_071.mdl",
+      "sha256": "c208060ff6a6d75f6e81580780856186ac6e08ea6a06eaab2d5720b1ec2f0096",
+      "bytes": 214616,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-knife",
+      "sourceArchive": "srn_cfk_test.hak",
+      "sourceResource": "wswdg_t_071.mdl"
+    },
+    {
+      "path": "srn_weapon/sr_cfk.uti",
+      "sha256": "63fbcdc48cc13393ec693d8b53231e1d0d8c6eaff4f2cf78140ea8e20f58d910",
+      "bytes": 699,
+      "resourceType": 2025,
+      "item": "cougar-fineblade-knife",
+      "sourceArchive": "sr_cl36_test.mod",
+      "sourceResource": "sr_cfk.uti",
+      "sourceSha256": "740dcee2406bf2c5b08715d95907372a39733e1e7dc5c65e8f69705f5466f364",
+      "publicationEdits": {
+        "Description": {
+          "before": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "after": {
+            "type": "cexolocstring",
+            "value": {}
+          }
+        },
+        "LocalizedName": {
+          "before": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Cougar Fineblade Knife (30% shorter)"
+            }
+          },
+          "after": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Cougar Fineblade Knife"
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "srn_weapon/iwswls_b_101.tga",
+      "sha256": "0b70e8f3ee90685bc29491790991d3cd56e3e7ab438339a81878c2f5f5cf7109",
+      "bytes": 16428,
+      "resourceType": 3,
+      "item": "cougar-fineblade-longsword",
+      "sourceArchive": "srn_cfs_test.hak",
+      "sourceResource": "iwswls_b_101.tga"
+    },
+    {
+      "path": "srn_weapon/iwswls_m_101.tga",
+      "sha256": "cac05082db21a1174160ee067f848cd921652da0b39a6f3044f779d8c54f34d7",
+      "bytes": 16428,
+      "resourceType": 3,
+      "item": "cougar-fineblade-longsword",
+      "sourceArchive": "srn_cfs_test.hak",
+      "sourceResource": "iwswls_m_101.tga"
+    },
+    {
+      "path": "srn_weapon/iwswls_t_101.tga",
+      "sha256": "90448583d7e3911c97b88635e82c9cf50ff55808c8b5f87bf47a453c7db8b4a5",
+      "bytes": 16428,
+      "resourceType": 3,
+      "item": "cougar-fineblade-longsword",
+      "sourceArchive": "srn_cfs_test.hak",
+      "sourceResource": "iwswls_t_101.tga"
+    },
+    {
+      "path": "srn_weapon/sr_cfs_10.tga",
+      "sha256": "9c358e43c2a5a8513b45badabfb5ba203921d672b86aba0f0143a2070a5454dc",
+      "bytes": 3145772,
+      "resourceType": 3,
+      "item": "cougar-fineblade-longsword",
+      "sourceArchive": "srn_cfs_test.hak",
+      "sourceResource": "sr_cfs_10.tga"
+    },
+    {
+      "path": "srn_weapon/wswls_b_101.mdl",
+      "sha256": "5dece67aceb4cdedd89d7b7a965619d9e76deb347b171a12850304506875bff4",
+      "bytes": 53932,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-longsword",
+      "sourceArchive": "srn_cfs_test.hak",
+      "sourceResource": "wswls_b_101.mdl"
+    },
+    {
+      "path": "srn_weapon/wswls_m_101.mdl",
+      "sha256": "977f05306071d99293654f356e7b2e0f9ee7e9baf2ae3dcaeecf0be178aa27bb",
+      "bytes": 114184,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-longsword",
+      "sourceArchive": "srn_cfs_test.hak",
+      "sourceResource": "wswls_m_101.mdl"
+    },
+    {
+      "path": "srn_weapon/wswls_t_101.mdl",
+      "sha256": "e7319f5af71d1a3e7e111fd72553f21854bf3fa82655a8dc6865cf9d5e410117",
+      "bytes": 571732,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-longsword",
+      "sourceArchive": "srn_cfs_test.hak",
+      "sourceResource": "wswls_t_101.mdl"
+    },
+    {
+      "path": "srn_weapon/sr_cfs.uti",
+      "sha256": "5a135f336c672651ff60ac36e879be89cc2bb235aff947cd4d4b5c87efaabdb7",
+      "bytes": 703,
+      "resourceType": 2025,
+      "item": "cougar-fineblade-longsword",
+      "sourceArchive": "sr_cl36_test.mod",
+      "sourceResource": "sr_cfs.uti",
+      "sourceSha256": "f7ee5b1d3de3d873fd5f911198f4d0569d4ba05f03fd51db92334cb25bb09ad3",
+      "publicationEdits": {
+        "Description": {
+          "before": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "after": {
+            "type": "cexolocstring",
+            "value": {}
+          }
+        }
+      }
+    },
+    {
+      "path": "srn_weapon/iwswss_b_071.tga",
+      "sha256": "72e464906037657d0fa5a6a1a94222f9600a83afc9dc933ed5f79f047458ca86",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "cougar-fineblade-longblade",
+      "sourceArchive": "srn_cougar_test.hak",
+      "sourceResource": "iwswss_b_071.tga"
+    },
+    {
+      "path": "srn_weapon/iwswss_m_071.tga",
+      "sha256": "ff1b9e342989eb822069d1b1d467b33c8599a3ecac20f31aeef1a8067aeb2ef5",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "cougar-fineblade-longblade",
+      "sourceArchive": "srn_cougar_test.hak",
+      "sourceResource": "iwswss_m_071.tga"
+    },
+    {
+      "path": "srn_weapon/iwswss_t_071.tga",
+      "sha256": "68d842bf16fc956f65e33c93677fdae7aae8c68562b2ec4b913a9f8d37c325b2",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "cougar-fineblade-longblade",
+      "sourceArchive": "srn_cougar_test.hak",
+      "sourceResource": "iwswss_t_071.tga"
+    },
+    {
+      "path": "srn_weapon/sr_cfl_07.tga",
+      "sha256": "9522ed973cade7df84a494a447a4265459bc2e9f8e5a3c55fedc8a491e6f3bac",
+      "bytes": 3145772,
+      "resourceType": 3,
+      "item": "cougar-fineblade-longblade",
+      "sourceArchive": "srn_cougar_test.hak",
+      "sourceResource": "sr_cfl_07.tga"
+    },
+    {
+      "path": "srn_weapon/wswss_b_071.mdl",
+      "sha256": "9e36bc4006599d85b31d934d1e283e651794c1435abaa2b2c6d9e670e4a5cb0e",
+      "bytes": 100728,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-longblade",
+      "sourceArchive": "srn_cougar_test.hak",
+      "sourceResource": "wswss_b_071.mdl"
+    },
+    {
+      "path": "srn_weapon/wswss_m_071.mdl",
+      "sha256": "3b8de2d7212d3d5d1d16640352ffcd536cd14bbdec45e37f5d585dde38b6655e",
+      "bytes": 111220,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-longblade",
+      "sourceArchive": "srn_cougar_test.hak",
+      "sourceResource": "wswss_m_071.mdl"
+    },
+    {
+      "path": "srn_weapon/wswss_t_071.mdl",
+      "sha256": "baae4366988bb9fe35b90be6f2505cc3362ffebd8dcdaaa95ff9dd39f4de7c15",
+      "bytes": 206120,
+      "resourceType": 2002,
+      "item": "cougar-fineblade-longblade",
+      "sourceArchive": "srn_cougar_test.hak",
+      "sourceResource": "wswss_t_071.mdl"
+    },
+    {
+      "path": "srn_weapon/sr_cougar.uti",
+      "sha256": "a93f36750e36eacb3db8a28e2daa5bd75025fec941fe223e4c942c3e30c96ccb",
+      "bytes": 709,
+      "resourceType": 2025,
+      "item": "cougar-fineblade-longblade",
+      "sourceArchive": "sr_cl36_test.mod",
+      "sourceResource": "sr_cougar.uti",
+      "sourceSha256": "d01a7fd068137e9886e799ec0809369eb75306f36808c0e8a0fee054cd653b0e",
+      "publicationEdits": {
+        "Description": {
+          "before": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "after": {
+            "type": "cexolocstring",
+            "value": {}
+          }
+        }
+      }
+    },
+    {
+      "path": "srn_2da/baseitems.2da",
+      "sha256": "b0ceefe42933aafb6574eff1c634eddd284b88e8c4a043879126ca2e390930fb",
+      "bytes": 133484,
+      "resourceType": 2017,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "baseitems.2da"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_011.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "iwbwsl_b_011.tga"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_012.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "iwbwsl_b_012.tga"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_051.tga",
+      "sha256": "afe99a8cfe0c54efbc9aa1647495c5be07117388baedd7fbcceaa14c151fb445",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "iwbwsl_b_051.tga"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_052.tga",
+      "sha256": "435b6cdb86ccddaefa78ded748ea3f1aac9dece922f1f08fe44d06db6aaf9203",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "iwbwsl_b_052.tga"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_m_011.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "iwbwsl_m_011.tga"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_m_012.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "iwbwsl_m_012.tga"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_t_011.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "iwbwsl_t_011.tga"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_t_012.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "iwbwsl_t_012.tga"
+    },
+    {
+      "path": "srn_weapon/sr_cl36_051.tga",
+      "sha256": "75b9409cccddf3e48985cffa809a50be45328614a644744a544e070b10233228",
+      "bytes": 3145772,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "sr_cl36_051.tga"
+    },
+    {
+      "path": "srn_weapon/sr_cl36_052.tga",
+      "sha256": "195d9319f1441a08dfebcbc50ec2d84345eaf4636a3cd83bf577c6a23307be0e",
+      "bytes": 3145772,
+      "resourceType": 3,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "sr_cl36_052.tga"
+    },
+    {
+      "path": "srn_weapon/sr_cl36_1.uti",
+      "sha256": "c756b97521eb56af7f09a967bf1d54f3bc5a99e1f6afeb87cc5a00cd25ac8f46",
+      "bytes": 691,
+      "resourceType": 2025,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "sr_cl36_1.uti",
+      "sourceSha256": "22f4d79cdd38655b5630d6d9d666d3dd54de3c59b218304714ba8d07c69cc3b0",
+      "publicationEdits": {
+        "Description": {
+          "before": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "after": {
+            "type": "cexolocstring",
+            "value": {}
+          }
+        }
+      }
+    },
+    {
+      "path": "srn_weapon/sr_cl36_2.uti",
+      "sha256": "23fbd6e1564766748ae825904249edcc95d129a8b48fda39cf30d07c807793fe",
+      "bytes": 707,
+      "resourceType": 2025,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "sr_cl36_2.uti",
+      "sourceSha256": "cfae84e012653c4cbae3d16541db753481e6db7c2ec28b4a2a6f2bea1243d44e",
+      "publicationEdits": {
+        "Description": {
+          "before": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "after": {
+            "type": "cexolocstring",
+            "value": {}
+          }
+        },
+        "LocalizedName": {
+          "before": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Colt L36 \u00e2\u20ac\u201d Cool Gunmetal"
+            }
+          },
+          "after": {
+            "type": "cexolocstring",
+            "value": {
+              "0": "Colt L36 - Cool Gunmetal"
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_011.mdl",
+      "sha256": "7415be26c8ab59e39b35e7735eb4410fc360ee34652ad4e96e2b3abe361e82d7",
+      "bytes": 1588,
+      "resourceType": 2002,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "wbwsl_b_011.mdl"
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_012.mdl",
+      "sha256": "8ba64f5731688011c17bfbb4aabdb942aa19a997ba80e9dffe0a723b96d10d22",
+      "bytes": 1588,
+      "resourceType": 2002,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "wbwsl_b_012.mdl"
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_051.mdl",
+      "sha256": "8d4b57302a6494375b170cda0914f9a4485648d77cbd0c9ccea3362dc8e2622e",
+      "bytes": 839204,
+      "resourceType": 2002,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "wbwsl_b_051.mdl"
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_052.mdl",
+      "sha256": "f290809216aa379e361e97024ed91f1ed22c06f5922a57fef0d9ece754c63df4",
+      "bytes": 839204,
+      "resourceType": 2002,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "wbwsl_b_052.mdl"
+    },
+    {
+      "path": "srn_weapon/wbwsl_m_011.mdl",
+      "sha256": "06d11150f4674c6ddfa315b1bd5ab42a15a797ae8c0406a4cb422e80ac621dad",
+      "bytes": 1588,
+      "resourceType": 2002,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "wbwsl_m_011.mdl"
+    },
+    {
+      "path": "srn_weapon/wbwsl_m_012.mdl",
+      "sha256": "b53ef2ae16bdb84bd38318ea67a333ffdf7efa60ae000310b9322e957a1cbe56",
+      "bytes": 1588,
+      "resourceType": 2002,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "wbwsl_m_012.mdl"
+    },
+    {
+      "path": "srn_weapon/wbwsl_t_011.mdl",
+      "sha256": "54a71086b1bb6bc873ccb3430f053b7dfe6816e31b2906adc3585cc1a0e31a03",
+      "bytes": 1588,
+      "resourceType": 2002,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "wbwsl_t_011.mdl"
+    },
+    {
+      "path": "srn_weapon/wbwsl_t_012.mdl",
+      "sha256": "a571dcaf41d7e501268e75938956ee1c52d6a23e26019938589a2cf8d0bcda07",
+      "bytes": 1588,
+      "resourceType": 2002,
+      "item": "colt-l36-pistol",
+      "sourceArchive": "srn_cl36_test.hak",
+      "sourceResource": "wbwsl_t_012.mdl"
+    }
+  ],
+  "sources": {
+    "sr_cl36_test.mod": "e0b6db105fa60b164c90af89d05a2516c0cc80d126f9ed6220883dfaf7109f18",
+    "srn_cfk_test.hak": "df0c6959f27995978d56f11e72c1df4c9dda2a1232060cbca00898ac821bd7c2",
+    "srn_cfs_test.hak": "e57b8edf1599190d7173e41e7695c532d2fac80dba02759843ae4e8db0d2a0e1",
+    "srn_cougar_test.hak": "e8f530a1405309f3c3c1ca66e8f1afef3735d2b0f6ca94bae3becf75acf45c1d",
+    "srn_cl36_test.hak": "aa748155f8b57d36fcd81c5db69ec0dc40db02133721c3f8f16d6fe9082ea6fe"
+  },
+  "approvalEvidence": {
+    "completedWeaponsSha256": "28da1b6dbcde332078ec2468f5a292d2c89f13735c7a1a2ff7ef1b0d803d8e38",
+    "pistolAcceptanceSha256": "bb45fb8236d8adc8380bdfebde07de741a835a10606af85a885d9b1c434e3a93",
+    "qualificationSha256": "7b42db20183da2b5fc564051dda04c6e3a3e91e3ec3599ac5cd17513a4651d4f",
+    "userStatements": [
+      "the three blades are approved too",
+      "looks good, let's call the pistol finished and keep the SMG on hold for now",
+      "PR the approved items too",
+      "Include the display-table change in the PR for review"
+    ]
+  },
+  "displayTable": {
+    "baseItem": 61,
+    "changes": {
+      "MaxRange": {
+        "after": "52",
+        "before": "50"
+      },
+      "ModelType": {
+        "after": "2",
+        "before": "0"
+      }
+    },
+    "intentionalOverride": true,
+    "originalSha256": "3fbdcd012b55f0b869c6324cc7d4ece44ed63a78f00e7889e7acefac28c8fdf4",
+    "overrideSha256": "b0ceefe42933aafb6574eff1c634eddd284b88e8c4a043879126ca2e390930fb",
+    "resource": "baseitems.2da",
+    "unrelatedBytesPreserved": true,
+    "ordinarySlingCompatibility": "Not newly client-qualified; changes the whole Sling family"
+  },
+  "clientReview": "User accepted the four items; individual animation/equipment checklist cases were not separately reported",
+  "smgOnHold": true,
+  "productionDeploymentPerformed": false,
+  "blueprintPublicationPolicy": "Display names/descriptions cleaned; root struct IDs and all non-display fields preserved; zero costs and empty properties retained."
+}

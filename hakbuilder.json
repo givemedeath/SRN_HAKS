@@ -147,6 +147,11 @@
       "Name": "srn_head",
       "Path": "./srn_head/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_weapon",
+      "Path": "./srn_weapon/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": [
