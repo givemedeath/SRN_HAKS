@@ -73,6 +73,30 @@ class VerifiedStartupTests(unittest.TestCase):
         self.assertNotEqual(result.returncode,0)
         self.assertIn('Loaded Comfy Python code differs',result.stderr)
 
+    def test_proven_modules_reject_live_literal_mutations(self):
+        cases=[('def value(default=1): return default\n','fixture.value.__defaults__=(2,)','defaults or closure'),
+               ('def value(*, mode=1): return mode\n',"fixture.value.__kwdefaults__['mode']=2",'defaults or closure'),
+               ('SCALE=1\n','fixture.SCALE=2','module constants'),
+               ("SETTINGS={'steps':12}\n","fixture.SETTINGS['steps']=10",'module constants'),
+               ('class Model:\n    SCALE=1\n','fixture.Model.SCALE=2','class attributes'),
+               ('class Model:\n    def __init__(self): self.setting=1\npending=Model()\n',
+                "setattr(fixture.pending,'setting',2)",'instance attributes'),
+               ('def make():\n    mode=1\n    def value(): return mode\n    return value\npending=make()\n',
+                'fixture.pending.__closure__[0].cell_contents=2','defaults or closure'),
+               ("def make():\n    settings={'steps':12}\n    def value(): return settings\n    return value\npending=make()\n",
+                "fixture.pending.__closure__[0].cell_contents['steps']=10",'defaults or closure')]
+        for source,mutation,error in cases:
+            with self.subTest(mutation=mutation):
+                result=self.run_fixture(source,mutation+'\n')
+                self.assertNotEqual(result.returncode,0,result.stderr)
+                self.assertIn(error,result.stderr)
+                self.assertNotIn('VERIFIED',result.stdout)
+
+    def test_factory_defaults_do_not_exempt_other_literal_defaults(self):
+        source='def value(factory=object(), mode=1): return mode\n'
+        result=self.run_fixture(source,'fixture.value.__defaults__=(fixture.value.__defaults__[0],2)\n')
+        self.assertNotEqual(result.returncode,0);self.assertIn('defaults or closure',result.stderr)
+
     def test_preloaded_stale_defaults_keep_static_verification(self):
         source='def value(default=1): return default\n'
         result=self.run_fixture(source,stale=source.replace('default=1','default=2'),preload=True)

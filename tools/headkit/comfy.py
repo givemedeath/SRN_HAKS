@@ -437,6 +437,9 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
         # verification must finish before publishing a successful collection.
         with verification_pass('client-completion') as completion:
             verify(intent['prepared']['inputs']);request_sources(intent['prepared']);verify(pins)
+            if intent['prepared'].get('runtimeVerification')=='server-owned':
+                with completion.phase('server-runtime'):
+                    verify_comfy_runtime(client,intent['prepared'])
             model_proof=None
             if intent['prepared'].get('modelVerification') is not None:
                 with completion.phase('server-loader-models'):

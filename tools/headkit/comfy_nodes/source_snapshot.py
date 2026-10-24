@@ -42,7 +42,7 @@ class _SourceRoots(list):
 
     def state_path(self,filename):
         path=self.resolve(filename)
-        return path is not None and path.suffix.lower()=='.py' and _inside(path,self) and path not in self.execution_proof
+        return path is not None and path.suffix.lower()=='.py' and _inside(path,self)
 
     def instance_state(self,value):
         return id(value) in self.override_ids or self.covered_class(type(value))
@@ -274,6 +274,15 @@ def _unique_source_value(values):
     require(all(signature==supported[0] for signature in signatures),
             'Ambiguous source literal assignments cannot be safely matched')
     return values[0]
+
+
+def _known_source_value(values,proven=False):
+    # Startup proof permits dynamic initializers, never a blanket live-state exemption.
+    # An unresolved initializer has no static value; other declared fields still check.
+    try:return _unique_source_value(values)
+    except ValueError:
+        if not proven:raise
+        return _UNMATCHED_LITERAL
 
 
 def _condition_value(node, namespace):
@@ -530,16 +539,25 @@ def _source_namespace_bindings(statements, inherited=None, *, module_scope=True)
             yield from _source_namespace_bindings([ast.Expr(value=node.body)],aliases,module_scope=False)
 
 
-def _source_constants(source):
+def _source_constants(source,*,proven=False,namespace=None,selected=None):
     assignments={}
-    statements=(source if isinstance(source,ast.AST) else ast.parse(source)).body
+    statements=selected
+    if statements is None:
+        statements=(source if isinstance(source,ast.AST) else ast.parse(source)).body
+        if proven:statements=_conditional_statements(statements,namespace,live_bindings=True)
     for target,value in _source_bindings(statements):
         if isinstance(target,ast.Name):assignments.setdefault(target.id,[]).append(value)
-    for name,value in _source_namespace_bindings(statements):assignments.setdefault(name,[]).append(value)
+    if proven:
+        for statement in statements:
+            try:bindings=list(_source_namespace_bindings([statement]))
+            except ValueError:continue  # Opaque namespace factories were verified before execution.
+            for name,value in bindings:assignments.setdefault(name,[]).append(value)
+    else:
+        for name,value in _source_namespace_bindings(statements):assignments.setdefault(name,[]).append(value)
     constants={}
     for name,values in assignments.items():
         if not any(_setting_literal(name,value) for value in values):continue
-        value=_unique_source_value(values)
+        value=_known_source_value(values,proven)
         if value is not _UNMATCHED_LITERAL:
             _literal_signature(value);constants[name]=value
     return constants
@@ -654,7 +672,7 @@ def _scope_literal_binding(scope,name):
     return True,None if value is _UNMATCHED_LITERAL else _literal_value_signature(value)
 
 
-def _source_class_literals(source):
+def _source_class_literals(source,*,proven=False):
     classes={}
     def visit_statement(node,ancestors):
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
@@ -668,7 +686,7 @@ def _source_class_literals(source):
             attributes={}
             for name,values in assignments.items():
                 if not any(_setting_literal(name,value) for value in values):continue
-                value=_unique_source_value(values)
+                value=_known_source_value(values,proven)
                 if value is not _UNMATCHED_LITERAL:attributes[name]=_literal_value_signature(value)
             require(qualname not in classes or classes[qualname]==attributes,
                     'Ambiguous redeclared class settings cannot be safely matched')
@@ -681,7 +699,7 @@ def _source_class_literals(source):
     return classes
 
 
-def _source_attribute_literals(statements):
+def _source_attribute_literals(statements,*,proven=False):
     """Only declared literal settings, never mutable runtime caches or descriptors."""
     assignments={}
     for target,value in _source_bindings(statements):
@@ -690,7 +708,7 @@ def _source_attribute_literals(statements):
         assignments.setdefault(key,(target,[]))[1].append(value)
     for target,values in assignments.values():
         if not any(_setting_literal(target.attr,value) for value in values):continue
-        value=_unique_source_value(values)
+        value=_known_source_value(values,proven)
         if value is not _UNMATCHED_LITERAL:yield target,_literal_signature(value)
 
 
@@ -713,7 +731,7 @@ def _constructor_index(source):
     return classes
 
 
-def _source_constructor_literals(source, *, class_name=None, namespace=None, receiver=None, index=None):
+def _source_constructor_literals(source, *, class_name=None, namespace=None, receiver=None, index=None,proven=False):
     index=_constructor_index(source) if index is None else index
     classes={}
     selected=index.items() if class_name is None else ((class_name,index.get(class_name,[])),)
@@ -726,15 +744,19 @@ def _source_constructor_literals(source, *, class_name=None, namespace=None, rec
                     if arguments:
                         scope=dict(namespace or {})
                         if receiver is not None:scope[arguments[0].arg]=receiver
-                        for target,signature in _source_attribute_literals(_conditional_statements(method.body,scope)):
+                        for target,signature in _source_attribute_literals(_conditional_statements(method.body,scope),proven=proven):
                             if isinstance(target.value,ast.Name) and target.value.id==arguments[0].arg:
                                 declared[target.attr]=signature
                     constructors.append(declared)
             fields=constructors[0] if constructors else {}
-            require(all(declared==fields for declared in constructors),
-                    'Ambiguous conditional constructor settings cannot be safely matched')
-            require(qualname not in classes or classes[qualname]==fields,
-                    'Ambiguous redeclared constructor settings cannot be safely matched')
+            if proven:
+                alternatives=constructors+([classes[qualname]] if qualname in classes else [])
+                fields={name:value for name,value in fields.items() if all(row.get(name)==value for row in alternatives)}
+            else:
+                require(all(declared==fields for declared in constructors),
+                        'Ambiguous conditional constructor settings cannot be safely matched')
+                require(qualname not in classes or classes[qualname]==fields,
+                        'Ambiguous redeclared constructor settings cannot be safely matched')
             classes[qualname]=fields
     return classes
 
@@ -766,7 +788,7 @@ def _static_source_reference(node,namespace):
     return _UNMATCHED_LITERAL
 
 
-def _source_function_literals(source,compiled):
+def _source_function_literals(source,compiled,*,proven=False):
     nodes={}
     def visit_node(node,ancestors):
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
@@ -837,10 +859,19 @@ def _source_function_literals(source,compiled):
                 for scope in reversed(ancestors):
                     bound,signature=_scope_literal_binding(scope,name)
                     if bound:
-                        if signature is not None:state['closure'][name]=signature
+                        if signature is not None and (not proven or _setting_signature(name,signature)):
+                            state['closure'][name]=signature
                         break
         if any(state.values()) or key[0] in ('<lambda>','<genexpr>'):states[key]=state
     return states
+
+
+def _setting_signature(name,signature):
+    def immutable(value):
+        return (all(immutable(child) for child in value[1]) if value[0] in ('tuple','frozenset')
+                else value[0] not in ('dict','list','set'))
+    return name.isupper() or immutable(signature) or any(
+        token in name.casefold() for token in ('setting','config','option','param','preset','profile'))
 
 
 def _is_literal_ast(node):
@@ -848,18 +879,21 @@ def _is_literal_ast(node):
     except (TypeError,ValueError,MemoryError,RecursionError):return False
 
 
-def _loaded_function_literals(function):
+def _loaded_function_literals(function,fields=None):
     code=function.__code__
     state={'defaults':{},'kwdefaults':{},'closure':{},'unresolved_defaults':[]}
     if function.__defaults__:
         names=code.co_varnames[:code.co_argcount]
         for name,value in zip(names[-len(function.__defaults__):],function.__defaults__):
+            if fields is not None and name not in fields.get('defaults',{}):continue
             signature=_literal_value_signature(value)
             if signature is not None:state['defaults'][name]=signature
     for name,value in (function.__kwdefaults__ or {}).items():
+        if fields is not None and name not in fields.get('kwdefaults',{}):continue
         signature=_literal_value_signature(value)
         if signature is not None:state['kwdefaults'][name]=signature
     for name,cell in zip(code.co_freevars,function.__closure__ or ()):
+        if fields is not None and name not in fields.get('closure',{}):continue
         try:value=cell.cell_contents
         except ValueError:continue
         signature=_literal_value_signature(value)
@@ -868,9 +902,10 @@ def _loaded_function_literals(function):
 
 
 class _LoadedFunctionState:
-    def __init__(self,function):
+    def __init__(self,function,fields=None):
         self.code=function.__code__
-        self.state=_loaded_function_literals(function)
+        self.source_fields=fields
+        self.state=_loaded_function_literals(function,fields)
 
 
 class _LoadedClassState:
@@ -979,7 +1014,8 @@ def _loaded_codes(value,seen,roots=()):
         if delegate is not None:yield from _loaded_codes(delegate,seen,roots)
         return
     if isinstance(value,types.FrameType):
-        needed=not isinstance(roots,_SourceRoots) or roots.state_path(value.f_code.co_filename)
+        needed=not isinstance(roots,_SourceRoots) or (roots.state_path(value.f_code.co_filename)
+                and roots.resolve(value.f_code.co_filename) not in roots.execution_proof)
         frame=_LoadedFrameState(value,fingerprint=needed)
         yield value.f_code;yield frame
         for member in frame.members.values():yield from _loaded_codes(member,seen,roots)
@@ -1027,7 +1063,9 @@ def _loaded_codes(value,seen,roots=()):
     if isinstance(value,types.FunctionType):
         yield value.__code__
         if not isinstance(roots,_SourceRoots) or roots.state_path(value.__code__.co_filename):
-            yield _LoadedFunctionState(value)
+            fields=roots.proven_function_fields(value) if (isinstance(roots,_SourceRoots)
+                    and roots.resolve(value.__code__.co_filename) in roots.execution_proof) else None
+            yield _LoadedFunctionState(value,fields)
         if value.__dict__:
             if not isinstance(roots,_SourceRoots) or roots.instance_state(value):
                 yield _LoadedInstanceState(value,value.__dict__)
@@ -1051,7 +1089,7 @@ def _loaded_codes(value,seen,roots=()):
         return
     if isinstance(value,type):
         class_path=_source_module_path(value.__module__,roots)
-        if class_path is not None and (not isinstance(roots,_SourceRoots) or class_path not in roots.execution_proof):
+        if class_path is not None:
             yield _LoadedClassState(value)
         for base in value.__bases__:yield from _loaded_codes(base,seen,roots)
         for member in tuple(vars(value).values()):yield from _loaded_codes(member,seen,roots)
@@ -1192,6 +1230,7 @@ def _loaded_source_code(roots,session):
     roots.execution_proof=execution_proof
     loaded={};module_namespaces={};loaded_function_states={};loaded_class_states={};loaded_instances={};loaded_frames={}
     sources={};trees={};indexes={};overrides={};override_paths={};frame_arguments={}
+    proof_plans={};proven_bases={}
     # A single AST for each freshly verified content digest. Parsing precedes
     # traversal only for modules with static state checks, so we can retain just
     # instances whose literal state is actually consumed. All edges still walk.
@@ -1201,6 +1240,36 @@ def _loaded_source_code(roots,session):
         if key not in trees:
             trees[key]=ast.parse(sources[path]);session.counts['astParses']+=1
         return trees[key]
+    def proof_plan(path):
+        if path not in proof_plans:
+            tree=source_tree(path)
+            compiled=compile(sources[path],str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
+            proof_plans[path]={'tree':tree,'functions':_source_function_literals(tree,compiled,proven=True),
+                               'expected':set(_code_tree_hashes(compiled)),
+                               'classes':_source_class_literals(tree,proven=True)}
+        return proof_plans[path]
+    def check_proven_function(path,record):
+        state=record.source_fields
+        for category,values in state.items():
+            if category=='unresolved_defaults':continue  # Initial factory execution is proven, not replayed.
+            require(all(record.state.get(category,{}).get(name)==signature for name,signature in values.items()),
+                    f'{path}:{record.code.co_qualname}: Loaded Comfy function defaults or closure differ from source on disk ({category})')
+    roots.proven_function_fields=lambda function: (_callable_source_state(
+        proof_plan(roots.resolve(function.__code__.co_filename))['functions'],function.__code__) or {})
+    def check_proven_instance(record):
+        fields={}
+        if record.cls not in proven_bases:
+            proven_bases[record.cls]=[(base,path) for base in reversed(record.cls.__mro__)
+                if (path:=_source_module_path(base.__module__,roots)) in execution_proof]
+        for base,path in proven_bases[record.cls]:
+            plan=proof_plan(path)
+            if path not in indexes:
+                indexes[path]=_constructor_index(plan['tree']);session.counts['constructorIndexes']+=1
+            fields.update(_source_constructor_literals(plan['tree'],class_name=base.__qualname__,
+                namespace=vars(sys.modules[base.__module__]),receiver=record.value,index=indexes[path],proven=True).get(base.__qualname__,{}))
+        fields.update(overrides.get(id(record.value),{}))
+        require(all(record.signature(name)==signature for name,signature in fields.items()),
+                'Loaded Comfy instance attributes differ from source on disk')
     modules=tuple(sys.modules.values())
     for module in modules:
         namespace=getattr(module,'__dict__',None)
@@ -1209,10 +1278,16 @@ def _loaded_source_code(roots,session):
         path=roots.resolve(filename) if isinstance(filename,(str,os.PathLike)) else None
         if path is None or path.suffix.lower()!='.py' or not _inside(path,roots):continue
         module_namespaces.setdefault(path,[]).append(namespace)
-        if path in execution_proof:continue
         statements=source_tree(path).body
         selected=_conditional_statements(statements,namespace,live_bindings=True)
-        try:declarations=list(_source_attribute_literals(selected))
+        if path in execution_proof:
+            # One plan per freshly checked file. Check each live namespace, then
+            # stream callable/object state during the existing graph traversal.
+            tree=proof_plan(path)['tree']
+            constants=_source_constants(tree,proven=True,namespace=namespace,selected=selected)
+            require(all(name in namespace and _literal_value_signature(namespace[name])==_literal_value_signature(value)
+                        for name,value in constants.items()),'Loaded Comfy module constants differ from their source on disk')
+        try:declarations=list(_source_attribute_literals(selected,proven=path in execution_proof))
         except ValueError as exc:raise ValueError(f'{path}: module attributes: {exc}') from exc
         for target,signature in declarations:
             instance=_static_source_reference(target.value,namespace)
@@ -1235,13 +1310,18 @@ def _loaded_source_code(roots,session):
                         loaded_frames[id(record.frame)]=record
                     continue
                 if isinstance(record,_LoadedInstanceState):
-                    if id(record.value) in overrides or any(
+                    if execution_proof:check_proven_instance(record)
+                    if any(path not in execution_proof for path in override_paths.get(id(record.value),())) or any(
                             (path:=_source_module_path(base.__module__,roots)) is not None and path not in execution_proof
                             for base in record.cls.__mro__):
                         loaded_instances[id(record.value)]=record
                     continue
                 if isinstance(record,_LoadedClassState):
                     class_path=_source_module_path(record.module,roots)
+                    if class_path in execution_proof:
+                        fields=proof_plan(class_path)['classes'].get(record.qualname,{})
+                        require(all(record.signature(name)==signature for name,signature in fields.items()),
+                                'Loaded Comfy class attributes differ from source on disk')
                     if class_path is not None and class_path not in execution_proof:
                         loaded_class_states.setdefault(class_path,[]).append(record)
                     continue
@@ -1249,6 +1329,7 @@ def _loaded_source_code(roots,session):
                 code=record.code if isinstance(record,_LoadedFunctionState) else record
                 path=roots.resolve(code.co_filename)
                 if path is None or path.suffix.lower()!='.py' or not _inside(path,roots):continue
+                if function_state is not None and path in execution_proof:check_proven_function(path,record)
                 loaded_hashes=loaded.setdefault(path,set())
                 # Retain the code beside its identity key: transient ids can be
                 # reused, and CodeType equality omits some fingerprint fields.
@@ -1295,17 +1376,18 @@ def _loaded_source_code(roots,session):
     for path in sorted(sources,key=lambda value:str(value).casefold()):
         loaded_hashes=loaded.setdefault(path,set())
         source=sources[path]
-        compiled=compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
-        expected=set(_code_tree_hashes(compiled))
         if path in execution_proof:
+            expected=proof_plan(path)['expected']
             # The complete module body was checked before it executed. This proves
-            # conditional state and arbitrary default factories without evaluating
-            # them a second time. Retained/replaced function bytecode is still checked.
+            # initializers without evaluating them twice. Known literal state was
+            # checked above; proof never exempts live defaults, closures or settings.
             loaded_hashes.add(execution_proof[path])
             require(loaded_hashes<=expected,f'Loaded Comfy Python code differs from its source on disk: {path}')
             loaded_digest=hashlib.sha256(json.dumps(sorted(loaded_hashes),separators=(',',':')).encode()).hexdigest()
             rows.append({'path':str(path),'sourceSha256':hashlib.sha256(source).hexdigest(),'loadedCodeSha256':loaded_digest})
             continue
+        compiled=compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
+        expected=set(_code_tree_hashes(compiled))
         tree=constructor_trees[path]
         function_literals=_source_function_literals(tree,compiled)
         expected.update(_literal_hash({category:values for category,values in state.items() if values})

@@ -124,6 +124,35 @@ class VerificationPerformanceTests(unittest.TestCase):
             self.assertEqual(list(snapshot._source_attribute_literals(selected))[0][1],['int',1 if mode else 2])
             self.assertEqual(ast.dump(tree,include_attributes=True),original)
 
+    def test_startup_proven_state_streams_with_one_analysis_and_no_retained_objects(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'model.py'
+            source=('SCALE=1\nclass Model:\n    RATE=3\n    def __init__(self,mode):\n'
+                    '        self.mode=mode\n        if self.mode: self.setting=1\n        else: self.setting=2\n'
+                    'def callback(factory=object(), mode=1): return mode\ninstances=[Model(i%2) for i in range(50)]\n'
+                    'instances[0].setting=2\n')
+            path.write_text(source);module=types.ModuleType('fixture');module.__file__=str(path)
+            exec(compile(source,str(path),'exec'),vars(module))
+            proof={path:snapshot._code_hash(compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize))}
+            opaque=module.callback.__defaults__[0];real_signature=snapshot._literal_value_signature
+            def signature(value):
+                self.assertIsNot(value,opaque,'Opaque factory results must not be fingerprinted')
+                return real_signature(value)
+            with patch.object(snapshot,'_startup_execution_proof',return_value=proof), \
+                 patch.object(snapshot,'_literal_value_signature',side_effect=signature), \
+                 patch.object(snapshot,'_source_function_literals',wraps=snapshot._source_function_literals) as functions:
+                with verification_pass('proven-literals') as session:
+                    with patch.dict(sys.modules,{'fixture':module},clear=True):snapshot.loaded_source_code([directory])
+                    self.assertEqual(session.counts['filesHashed'],1)
+                    self.assertEqual(session.counts['astParses'],1)
+                    self.assertEqual(session.counts['constructorIndexes'],1)
+                    self.assertEqual(session.counts['retainedInstances'],0)
+                    self.assertEqual(session.counts['retainedFunctions'],0)
+                    functions.assert_called_once()
+                module.instances[0].setting=999
+                with patch.dict(sys.modules,{'fixture':module},clear=True):
+                    with self.assertRaisesRegex(ValueError,'instance attributes'):snapshot.loaded_source_code([directory])
+
     def test_bytecode_and_conditional_state_are_rechecked_after_warm_analysis(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'model.py';source='def callback(): return 1\n'

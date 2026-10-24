@@ -175,7 +175,9 @@ def select(changed,data,config=None,deleted=()):
     return {'fullSuite':False,'reason':reason,'tests':tests,'documentation':sorted(documentation),'packs':sorted(changed_packs)}
 
 CHILD='''import json,os,sys,unittest
-out,names=sys.argv[1],sys.argv[2:]
+out,repo,names=sys.argv[1],sys.argv[2],sys.argv[3:]
+# Keep the test's import root first while supporting repository namespace imports.
+sys.path.insert(1,repo)
 # Sparse checkouts: any in-process look at a pack folder this checkout omitted fails the run instead of passing silently.
 absent=[os.path.normcase(p) for p in os.environ.get('SRN_ABSENT_PACKS','').split(os.pathsep) if p]
 touched=set();current=['']
@@ -218,7 +220,7 @@ def run_tests(tests,python=None,repo=REPO,timings=None,absent=None):
         # Absolute, because the child runs from the import root.
         out=str(Path(timings).resolve().with_suffix(f'.{index}.json')) if timings else ''
         # -c keeps sys.path[0] at the import root, exactly as `python -m unittest` from that folder.
-        result=subprocess.call([python or sys.executable,'-B','-c',CHILD,out,*names],cwd=root,env=env)
+        result=subprocess.call([python or sys.executable,'-B','-c',CHILD,out,str(Path(repo).resolve()),*names],cwd=root,env=env)
         if out and Path(out).is_file():
             rows=json.loads(Path(out).read_text(encoding='utf-8'));Path(out).unlink()
             records.extend({'root':Path(root).relative_to(repo).as_posix(),'test':n,'seconds':t} for n,t in rows)

@@ -91,6 +91,15 @@ class PackageDiscoveryTests(unittest.TestCase):
         self.assertNotIn('tools/phenomorpher/phenomorpher/engine/retarget.py',self.data['dependencies']['tools/robes/lbs.py'])
 
 class PackageRunnerTests(unittest.TestCase):
+    def test_repository_namespace_imports_work_without_inherited_pythonpath(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            write(root,{'tools/kit/__init__.py':'','tools/shared.py':'VALUE=7',
+                'tools/kit/test_namespace.py':'import unittest\nfrom tools.shared import VALUE\nclass T(unittest.TestCase):\n    def test_v(self):self.assertEqual(VALUE,7)\n'})
+            with patch.dict('os.environ',{'PYTHONPATH':''}):
+                self.assertEqual(run_tests(['tools/kit/test_namespace.py'],sys.executable,root),0)
+
     def test_package_relative_tests_run_qualified_from_their_import_root_and_failures_propagate(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)

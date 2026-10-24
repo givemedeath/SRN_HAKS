@@ -87,7 +87,8 @@ class Temporary(unittest.TestCase):
         prepared.update(runtimeIdentity=identity,bindings=binding_pin,comfyEndpoint=endpoint)
         if 'comfyRuntimeIdentity' not in prepared:
             prepared['comfyRuntimeIdentity']=self.comfy_runtime_identity(prepared['comfySourceInventory'])
-        for row in prepared['comfyRuntimeIdentity']['files']+[prepared['comfyRuntimeIdentity']['session']['configuration']]:
+        runtime_files=[] if prepared.get('runtimeVerification')=='server-owned' else prepared['comfyRuntimeIdentity']['files']
+        for row in runtime_files+[prepared['comfyRuntimeIdentity']['session']['configuration']]:
             if row not in prepared['inputs']:prepared['inputs'].append(row)
         if binding_pin not in prepared['inputs']:prepared['inputs'].append(binding_pin)
         prepared['inputs'].extend(row for row in (identity['toolchain'],identity['migrationReceipt'],identity['python']) if row not in prepared['inputs'])
@@ -467,10 +468,11 @@ class ComfyServerRuntimeTests(Temporary):
             self.assertEqual(result['fingerprint'],capture_runtime_identity(SimpleNamespace(base_path=str(app)))['fingerprint'])
             before=result['fingerprint'];native.write_bytes(b'changed CUDA native fixture')
             changed=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
-            with patch('headkit.comfy_nodes.runtime_identity._linked',side_effect=lambda path:Path(path)==native):
+            runtime_module=sys.modules[capture_runtime_identity.__module__]
+            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==native):
                 with self.assertRaisesRegex(ValueError,'Linked Comfy runtime files'):
                     capture_runtime_identity(SimpleNamespace(base_path=str(app)))
-            with patch('headkit.comfy_nodes.runtime_identity._linked',side_effect=lambda path:Path(path)==package):
+            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==package):
                 with self.assertRaisesRegex(ValueError,'Linked Comfy runtime directories'):
                     capture_runtime_identity(SimpleNamespace(base_path=str(app)))
             added=site/'new.py';added.write_text('new runtime member')
@@ -1571,15 +1573,41 @@ class ItemTrialTests(Temporary):
 
 
 class CollectionReceiptTests(Temporary):
-    def fixture(self):
+    def fixture(self,server_owned=False):
         base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
         source=base/'input';source.write_text('frozen input');ledger=base/'ledger.json';job=base/'job';output=base/'comfy-output';token='collect-test'
         prepared=self.freeze_request({'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(source)]})
+        if server_owned:
+            prepared['runtimeVerification']='server-owned'
+            server_file=prepared['comfyRuntimeIdentity']['torch']['path']
+            prepared['inputs']=[row for row in prepared['inputs'] if row['path']!=server_file]
         comfy.initialize_ledger(ledger,0,'Reconciled fixture');client=FakeClient();self.submit(client,ledger,prepared,job)
         artifact=output/'headkit'/token/'mesh.glb';artifact.parent.mkdir(parents=True);artifact.write_bytes(b'exported fixture')
         history={'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'mesh.glb','subfolder':'headkit/'+token,'type':'output'}]}}}
-        client.request=lambda route,data=None: {'devices':[]} if route=='/system_stats' else {'prompt-1':history}
+        client.request=lambda route,data=None: (client.server_runtime if route=='/headkit/runtime-identity' else
+            {'devices':[]} if route=='/system_stats' else {'prompt-1':history})
         return client,ledger,token,output,job,artifact
+    def test_server_owned_runtime_is_checked_once_at_fresh_completion_only(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True)
+        with patch.object(comfy,'verify_comfy_runtime',wraps=comfy.verify_comfy_runtime) as runtime:
+            result=comfy.collect(client,ledger,token,output,job)
+            self.assertEqual(result['state'],'complete');runtime.assert_called_once()
+            with patch.object(client,'request',side_effect=AssertionError('Terminal receipts must not repoll')):
+                self.assertEqual(comfy.collect(client,ledger,token,output,job),result)
+            runtime.assert_called_once()
+    def test_changed_server_owned_runtime_fails_collection_and_preserves_receipt(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True)
+        changed=copy.deepcopy(client.server_runtime);path=Path(changed['torch']['path']);path.write_bytes(b'changed server dependency')
+        changed['torch']['sha256']=pin(path)['sha256']
+        for row in changed['files']:
+            if row['path']==str(path):row['sha256']=changed['torch']['sha256']
+        changed['fingerprint']=digest({key:value for key,value in changed.items() if key!='fingerprint'})
+        client.server_runtime=changed
+        with self.assertRaisesRegex(ValueError,'runtime differs'):comfy.collect(client,ledger,token,output,job)
+        result=read(job/'collection.json');self.assertEqual(result['state'],'failed-validation')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'failed-validation')
+        with patch.object(client,'request',side_effect=AssertionError('Failed receipt must not repoll')):
+            self.assertEqual(comfy.collect(client,ledger,token,output,job),result)
     def test_repeat_collection_reuses_verified_receipt_without_server_or_writes(self):
         client,ledger,token,output,job,artifact=self.fixture();first=comfy.collect(client,ledger,token,output,job,wait=True)
         paths=[ledger,job/'history.json',job/'memory-samples.json',job/'collection.json'];before=[p.read_bytes() for p in paths]
