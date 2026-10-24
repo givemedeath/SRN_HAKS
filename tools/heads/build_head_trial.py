@@ -106,8 +106,8 @@ def validate_spec(spec):
         external=head.get('externalTextures',[])
         require(isinstance(external,list) and all(isinstance(n,str) and RESREF.fullmatch(n) for n in external),head['id']+': externalTextures must be resrefs')
         count=len(head['skinRows'])*len(head['hairRows'])+len(helmets)
-        rows_used+=-(-count//COLUMNS)
-    require(rows_used<=MAX_ROWS,f'Too many actors for the fixture floor ({rows_used} rows of {COLUMNS}; at most {MAX_ROWS})')
+        rows_used=-(-count//COLUMNS)
+        require(rows_used<=MAX_ROWS,f"{head['id']}: too many actors for the fixture floor ({rows_used} rows of {COLUMNS}; at most {MAX_ROWS})")
     require(isinstance(spec.get('shared',[]),list) and all(isinstance(p,str) for p in spec.get('shared',[])),'shared must list files')
     require(spec.get('client') is None or isinstance(spec['client'],str),'client must be a path string')
     return {**spec,'shared':spec.get('shared',[]),
@@ -116,9 +116,10 @@ def validate_spec(spec):
 
 
 def plan_actors(spec):
-    """Actors per head: every skin x hair row pair, then each helmet on the first rows; each head starts a new floor row."""
-    actors=[];row=0
-    for head in spec['heads']:
+    """Actors per head: every skin x hair row pair, then each helmet. The module shows one head's group at a time, so
+    every group uses the same floor positions; `row` is the head's index in spec order."""
+    actors=[]
+    for row,head in enumerate(spec['heads']):
         cases=[(skin,hair,0) for skin in head['skinRows'] for hair in head['hairRows']]
         cases+=[(head['skinRows'][0],head['hairRows'][0],helmet) for helmet in head['helmets']]
         for column,(skin,hair,helmet) in enumerate(cases):
@@ -126,8 +127,7 @@ def plan_actors(spec):
             actors.append({'tag':f'sr_h_actor{index}','headId':head['id'],'model':head['model'],'slot':head['slot'],
                            'skin':skin,'hair':hair,'tattoo1':head['tattoo1Row'],'tattoo2':head['tattoo2Row'],'metal':0,'helmet':helmet,
                            'name':f"{head['id']} "+(f'helmet{helmet}' if helmet else f'skin{skin} hair{hair}'),
-                           'x':8+(column%COLUMNS)*5.5,'y':20+(row+column//COLUMNS)*7})
-        row+=-(-len(cases)//COLUMNS)
+                           'row':row,'x':8+(column%COLUMNS)*5.5,'y':20+(column//COLUMNS)*7})
     return actors
 
 
@@ -237,12 +237,82 @@ Start-Process -FilePath $Client -WorkingDirectory (Split-Path -Parent $Client) -
     return '@powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Launch.ps1" %*\r\n',ps1.replace('\n','\r\n')
 
 
+SWEEP_SECONDS=5.0
+ROW_LIBRARY='''void HeadSpawn(string res,float x,float y,int row){
+  object area=GetArea(GetObjectByTag("head_target"));
+  object o=CreateObject(OBJECT_TYPE_CREATURE,res,Location(area,Vector(x,y,0.0),90.0));
+  SetLocalInt(o,"HEAD_ROW",row+1);}
+void HeadClear(){
+  object area=GetArea(GetObjectByTag("head_target"));object o=GetFirstObjectInArea(area);
+  while(GetIsObjectValid(o)){
+    if(GetLocalInt(o,"HEAD_ROW")>0){
+      if(GetIsDead(o)) ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectResurrection(),o);
+      AssignCommand(o,SetIsDestroyable(TRUE,FALSE,FALSE));DestroyObject(o,0.2);}
+    o=GetNextObjectInArea(area);}}
+'''
+ROW_SHOW='''void HeadShow(int row){
+  row=((row%HEAD_ROWS)+HEAD_ROWS)%HEAD_ROWS;
+  HeadClear();DelayCommand(0.5,HeadSpawnRow(row));SetLocalInt(GetModule(),"HEAD_ROW_SHOWN",row);
+  WriteTimestampedLogEntry("HEAD_FIXTURE_ROW shown="+IntToString(row)+" head="+HeadName(row));
+  object p=GetFirstPC();
+  while(GetIsObjectValid(p)){
+    SendMessageToPC(p,"Head "+IntToString(row+1)+"/"+IntToString(HEAD_ROWS)+": "+HeadName(row)+"   (chat: next, prev, head N, sweep)");
+    p=GetNextPC();}}
+void HeadSweep(){
+  int r;for(r=0;r<HEAD_ROWS;r++) DelayCommand(IntToFloat(r)*SWEEP,HeadShow(r));
+  DelayCommand(IntToFloat(HEAD_ROWS)*SWEEP,HeadShow(0));}
+'''
+ROW_ENTER='''void main(){object p=GetEnteringObject();if(!GetIsPC(p))return;
+  SetLocalInt(GetModule(),"HEAD_TEST_STARTED",1);
+  SendMessageToPC(p,"Head trial: one head on the floor at a time. A start-up sweep shows each head for "+FloatToString(SWEEP,0,0)+" s (it logs every slot), then head 1 stays. Chat: next, prev, head N, sweep. Actors revive 10 s after death.");
+  WriteTimestampedLogEntry("HEAD_FIXTURE_CLIENT_ENTER");
+  if(!GetLocalInt(GetModule(),"HEAD_SWEPT")){SetLocalInt(GetModule(),"HEAD_SWEPT",1);AssignCommand(GetModule(),HeadSweep());}}
+'''
+ROW_CHAT='''void main(){
+  string m=GetStringLowerCase(GetPCChatMessage());int row=GetLocalInt(GetModule(),"HEAD_ROW_SHOWN");int handled=TRUE;
+  if(m=="next") HeadShow(row+1);
+  else if(m=="prev") HeadShow(row-1);
+  else if(m=="sweep") HeadSweep();
+  else if(GetStringLeft(m,5)=="head "){int n=StringToInt(GetStringRight(m,GetStringLength(m)-5));
+    if(n>=1 && n<=HEAD_ROWS) HeadShow(n-1); else handled=FALSE;}
+  else handled=FALSE;
+  if(handled) SetPCChatMessage("");}
+'''
+
+
+def _nss(text):
+    require('"' not in text and '\\' not in text,'Script strings must be plain');return text
+
+
+def row_scripts(spec,actors,sweep=SWEEP_SECONDS):
+    """Module enter + player-chat scripts that keep one head's actors on the floor: a start-up sweep spawns every
+    head's group for `sweep` seconds (each spawn logs HEAD_FIXTURE_SLOT/COLORS), then head 1 stays; chat next/prev/
+    head N/sweep cycles. Actors spawn from per-actor blueprints (resref = tag)."""
+    rows=len(spec['heads']);require(rows>=1 and 1<=sweep<=60,'Row sweep needs heads and 1-60 s per head')
+    spawn=['void HeadSpawnRow(int row){']
+    for index,head in enumerate(spec['heads']):
+        group=[a for a in actors if a['row']==index];require(group,head['id']+': no actors in its row')
+        spawn.append(f'  if(row=={index}){{'+''.join(f'HeadSpawn("{_nss(a["tag"])}",{a["x"]:.2f},{a["y"]:.2f},{index});' for a in group)+'}')
+    spawn.append('}')
+    names=['string HeadName(int row){']+[f'  if(row=={i}) return "{_nss(h["id"])} ({_nss(h["model"])})";' for i,h in enumerate(spec['heads'])]+['  return "";}']
+    library=f'const int HEAD_ROWS={rows};\nconst float SWEEP={sweep:.1f};\n'+ROW_LIBRARY+'\n'.join(spawn+names)+'\n'+ROW_SHOW
+    return {'sr_h_enter':library+ROW_ENTER,'sr_h_chat':library+ROW_CHAT}
+
+
+def blueprint(creature):
+    """Per-actor creature blueprint (UTC) from its fixture instance: the same fields without placement."""
+    item={k:v for k,v in creature.items() if k not in ('__struct_id','XPosition','YPosition','ZPosition','XOrientation','YOrientation')}
+    return {'__data_type':'UTC ','__struct_id':-1,**item}
+
+
 def readme(spec,actors,hak_order):
     lines=[f"# {spec['trial']} client view (trial)",'',
            f"Run `Launch.cmd` (or `Launch.ps1 -Client <nwmain.exe>`). It opens an isolated user directory straight into the "
            f"`{spec['module']}` test module. HAK order (first wins): {', '.join('`'+n+'`' for n in hak_order)}.",'',
-           '| Actor | Head | Slot | Skin | Hair | Tattoo1 | Tattoo2 | Helmet |','|---|---|---|---|---|---|---|---|']
-    lines+=[f"| {a['tag']} | {a['headId']} | {a['model']} | {a['skin']} | {a['hair']} | {a['tattoo1']} | {a['tattoo2']} | {a['helmet'] or '-'} |" for a in actors]
+           f"One head's actors stand on the floor at a time. On entry a sweep shows each head for {SWEEP_SECONDS:.0f} s (every spawn is logged "
+           "for verification), then head 1 stays. Type in chat: `next`, `prev`, `head N` (the Head row column) or `sweep`.",'',
+           '| Head row | Actor | Head | Slot | Skin | Hair | Tattoo1 | Tattoo2 | Helmet |','|---|---|---|---|---|---|---|---|---|']
+    lines+=[f"| {a['row']+1} | {a['tag']} | {a['headId']} | {a['model']} | {a['skin']} | {a['hair']} | {a['tattoo1']} | {a['tattoo2']} | {a['helmet'] or '-'} |" for a in actors]
     lines+=['','PLT channels: 0 skin, 1 hair, 2 metal, 8 tattoo1, 9 tattoo2. Metal shows stock row 0 because no armour is worn. '
             'Actors cycle idle, talk, walk, cast, attack, crouch, worship and death on the heartbeat and revive 10 s after death.','',
             'After a run, check spawns with `verify_head_trial.py --manifest runtime-manifest.json`. Not client-validated or production-accepted.','']
@@ -300,11 +370,13 @@ def build(spec_path,output):
             identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']))
     hak_order=[spec['hak']]+[Path(item['path']).stem for item in base_haks]
     target_y=min(76,max(a['y'] for a in actors)+12)
-    documents=fixture.module_documents([creature(a) for a in actors]+[fixture.target_creature(creatures[0],identity['appearanceRow'],
+    for actor in actors:gff(actor['tag']+'.utc',blueprint(creature(actor)))
+    documents=fixture.module_documents([fixture.target_creature(creatures[0],identity['appearanceRow'],
         identity['raceId'],identity['visualScale'],40,target_y)],hak_order,spec['lighting'],
-        name='SRN head trial '+spec['trial'],description='Trial heads: '+', '.join(h['model'] for h in spec['heads'])+'. Client acceptance pending.')
+        name='SRN head trial '+spec['trial'],description='Trial heads: '+', '.join(h['model'] for h in spec['heads'])+'. Client acceptance pending.',
+        events={'Mod_OnPlrChat':'sr_h_chat'})
     for name,document in documents.items():gff(name,document)
-    for name,text in fixture.module_scripts(tattoo=True).items():
+    for name,text in {**fixture.module_scripts(tattoo=True),**row_scripts(spec,actors)}.items():
         path=stage/(name+'.nss');path.write_text(text,encoding='ascii')
         run('nwn_script_comp',['--root',spec['gameRoot'],'--userdirectory',user,'--no-ovr',path])
         require(path.with_suffix('.ncs').is_file(),'Script compiler produced no bytecode')
@@ -321,6 +393,8 @@ def build(spec_path,output):
                   'dependencies':dependencies[h['id']]} for h,r,_ in heads],
         'trialHakResources':[{'name':f'{n}.{EXTENSIONS[k]}','sha256':expected[(n,k)]} for n,k,_ in planned],
         'identity':identity,'prefix':spec['prefix'],'lighting':spec['lighting'],'actors':[{k:v for k,v in a.items() if k not in ('x','y','name')} for a in actors],
+        'rows':[{'index':i,'headId':h['id'],'model':h['model'],'actors':[a['tag'] for a in actors if a['row']==i]} for i,h in enumerate(spec['heads'])],
+        'rowSweepSeconds':SWEEP_SECONDS,
         'ignoredActors':['head_target'],'colorsLogged':True,'clientObserved':False,'productionAccepted':False,
         'limitation':'Packaging and logged slots are not client or anatomy acceptance; review the heads in the client.'})
     return output/'runtime-manifest.json'

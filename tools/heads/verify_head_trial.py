@@ -60,6 +60,9 @@ def check(manifest,text,*,check_colors=True):
     if 'HEAD_FIXTURE_CLIENT_ENTER' not in lines:problems.append('Player never entered the module (no HEAD_FIXTURE_CLIENT_ENTER)')
     problems+=[f"{row['tag']} ({row['model']}): {row['status']}" for row in actors if row['status']!='spawned']
     problems+=['Unexpected actor in log: '+tag for tag in unexpected]
+    if 'rows' in manifest:
+        shown={line.split('shown=',1)[1].split()[0] for line in lines if line.startswith('HEAD_FIXTURE_ROW shown=')}
+        problems+=[f"Head row {row['index']+1} ({row['headId']}) never shown" for row in manifest['rows'] if str(row['index']) not in shown]
     return {'kind':'srn-head-trial-log-verification','session':started,'modulesLoaded':loaded,
             'actors':actors,'unexpectedActors':unexpected,'problems':problems,'passed':not problems,
             'limitation':'A logged slot number proves the engine assigned the head slot; it does not prove the model rendered, '

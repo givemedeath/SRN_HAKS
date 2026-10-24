@@ -130,7 +130,7 @@ def target_creature(template,appearance,race,visual_scale,x=44,y=48):
 
 
 def module_documents(actors,hak_names,lighting,*,name='SRN Head Pilot',
-                     description='Pending client review: slots, palettes, helmets and motions.',tag='SRN_HEAD_PILOT'):
+                     description='Pending client review: slots, palettes, helmets and motions.',tag='SRN_HEAD_PILOT',events=None):
     """Module GFF documents for the fixture floor; the first HAK name has the highest priority."""
     tiles=[{'__struct_id':1,'Tile_ID':field('int',120),'Tile_Height':field('int',0),'Tile_Orientation':field('int',0),
         **{key:field('byte',value) for key,value in {'Tile_AnimLoop1':1,'Tile_AnimLoop2':1,'Tile_AnimLoop3':1,
@@ -152,6 +152,8 @@ def module_documents(actors,hak_names,lighting,*,name='SRN Head Pilot',
         Mod_Area_list=field('list',[{'__struct_id':6,'Area_Name':field('resref','sr_h_floor')}]),
         Mod_HakList=field('list',[{'__struct_id':8,'Mod_Hak':field('cexostring',hak)} for hak in hak_names]),
         Mod_CustomTlk=field('cexostring',''),Mod_OnClientEntr=field('resref','sr_h_enter'))
+    for event,script in (events or {}).items():
+        require(event.startswith('Mod_On'),'Module events are Mod_On* script fields');ifo[event]=field('resref',script)
     factions=[{'__struct_id':i,'FactionName':field('cexostring',faction),'FactionGlobal':field('word',1),
                'FactionParentID':field('dword',4294967295)} for i,faction in enumerate(('PC','Hostile','Commoner','Merchant','Defender'))]
     reps=[{'__struct_id':i*5+j,'FactionID1':field('dword',i),'FactionID2':field('dword',j),

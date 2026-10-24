@@ -51,7 +51,7 @@ class TrialSpecTests(unittest.TestCase):
             'tattoo2Row':spec(heads=[head('a',16,tattoo2Row=[88])]),
             'metalRow':spec(heads=[head('a',16,metalRow=3)]),
             'helmets':spec(heads=[head('a',16,helmets=[3])]),
-            'Too many actors':spec(heads=[head(f'h{i}',16+i,skinRows=list(range(5)),hairRows=list(range(5))) for i in range(4)]),
+            'too many actors':spec(heads=[head('h0',16),head('h1',17,skinRows=list(range(10)),hairRows=list(range(9)))]),
             'identity':spec(identity={'appearanceRow':2,'raceId':2}),
             'Explicit lighting':spec(lighting='bright'),
             'sha256 pins':spec(base={'haks':[{'path':'x.hak'}],'module':PIN}),
@@ -69,8 +69,13 @@ class TrialSpecTests(unittest.TestCase):
         self.assertEqual([(a['skin'],a['hair'],a['helmet']) for a in first[9:]],[(65,65,1),(65,65,2)])
         self.assertEqual({(a['tattoo1'],a['tattoo2'],a['metal']) for a in first},{(85,88,0)})
         self.assertEqual({(a['slot'],a['tattoo1']) for a in actors[11:]},{(17,80)})
-        self.assertGreater(min(a['y'] for a in actors[11:]),max(a['y'] for a in first))
-        self.assertEqual(len({(a['x'],a['y']) for a in actors}),22)
+        # One head's group is on the floor at a time: groups share the floor positions, tagged by head row.
+        self.assertEqual([a['row'] for a in actors],[0]*11+[1]*11)
+        self.assertEqual([(a['x'],a['y']) for a in actors[11:]],[(a['x'],a['y']) for a in first])
+        self.assertEqual(len({(a['x'],a['y']) for a in first}),11)
+        # Many heads no longer exhaust the floor: the limit is per head.
+        many=validate_spec(spec(heads=[head(f'h{i}',16+i,skinRows=list(range(5)),hairRows=list(range(5))) for i in range(8)]))
+        self.assertEqual(max(a['row'] for a in plan_actors(many)),7)
         self.assertTrue(all(len(a['tag'])<=16 and 0<a['x']<80 and 0<a['y']<80 for a in actors))
 
 
@@ -185,6 +190,33 @@ class TrialModuleTests(unittest.TestCase):
         self.assertEqual(documents['sr_h_floor.git']['Creature List']['value'],[target])
         with self.assertRaisesRegex(ValueError,'light profile'):module_documents([],['a'],'bright')
 
+    def test_rows_spawn_from_blueprints_one_head_at_a_time(self):
+        from build_head_trial import row_scripts,blueprint,SWEEP_SECONDS
+        from build_head_fixture import make_creature,module_documents,target_creature
+        value=validate_spec(spec());actors=plan_actors(value);scripts=row_scripts(value,actors)
+        self.assertEqual(set(scripts),{'sr_h_enter','sr_h_chat'})
+        enter,chat=scripts['sr_h_enter'],scripts['sr_h_chat']
+        self.assertIn('const int HEAD_ROWS=2;',enter);self.assertIn(f'const float SWEEP={SWEEP_SECONDS:.1f};',enter)
+        spawn=[line for line in enter.splitlines() if line.startswith('  if(row==') and 'HeadSpawn(' in line]
+        self.assertEqual(len(spawn),2)
+        for index,line in enumerate(spawn):
+            self.assertEqual(line.count('HeadSpawn('),11);self.assertTrue(all(f'"sr_h_actor{i}"' in line for i in range(index*11,index*11+11)))
+        self.assertIn('return "troll-male-03 (pmg0_head017)";',enter)
+        self.assertIn('AssignCommand(GetModule(),HeadSweep());',enter);self.assertIn('HEAD_FIXTURE_CLIENT_ENTER',enter)
+        self.assertIn('HEAD_FIXTURE_ROW shown=',chat)
+        for command in ('"next"','"prev"','"sweep"','"head "'):self.assertIn(command,chat)
+        self.assertNotIn('HeadSweep());}}',chat)  # the start-up sweep runs once, from the enter script
+        with self.assertRaisesRegex(ValueError,'plain'):row_scripts(spec(heads=[head('a"b',16)]),plan_actors(validate_spec(spec(heads=[head('a',16)]))))
+        actor=make_creature({'FirstName':{'type':'cexolocstring','value':{}}},'sr_h_actor0','n',8,20,16,65,5,2,2,10/7,0,tattoo=(85,88))
+        utc=blueprint(actor)
+        self.assertEqual((utc['__data_type'],utc['__struct_id'],utc['TemplateResRef']['value']),('UTC ',-1,'sr_h_actor0'))
+        self.assertFalse({'XPosition','YPosition','ZPosition','XOrientation','YOrientation'}&set(utc))
+        self.assertEqual(utc['ScriptSpawn']['value'],'sr_h_spawn')
+        target=target_creature({'FirstName':{'type':'cexolocstring','value':{}}},2,2,10/7,40,60)
+        ifo=module_documents([target],['a'],'ambient',events={'Mod_OnPlrChat':'sr_h_chat'})['module.ifo']
+        self.assertEqual((ifo['Mod_OnPlrChat']['value'],ifo['Mod_OnClientEntr']['value']),('sr_h_chat','sr_h_enter'))
+        with self.assertRaisesRegex(ValueError,'Mod_On'):module_documents([target],['a'],'ambient',events={'OnChat':'x'})
+
     def test_launch_scripts_open_the_module_in_an_isolated_userdir(self):
         cmd,ps1=launch_scripts('srn_trl_batch')
         self.assertIn('Launch.ps1',cmd);self.assertIn("'+TestNewModule', 'srn_trl_batch'",ps1)
@@ -247,6 +279,13 @@ class TrialLogTests(unittest.TestCase):
         self.assertEqual(report['actors'][0]['status'],'colors-missing')
         report=verify_head_trial.check(manifest(colorsLogged=False),LOG.replace('HEAD_FIXTURE_COLORS','OTHER'))
         self.assertTrue(report['passed'])
+
+    def test_row_cycling_modules_must_show_every_head_row(self):
+        rows=[{'index':0,'headId':'a','model':'pmg0_head016','actors':['sr_h_actor0']},{'index':1,'headId':'b','model':'pmg0_head017','actors':['sr_h_actor1']}]
+        report=verify_head_trial.check(manifest(rows=rows),LOG)
+        self.assertFalse(report['passed']);self.assertEqual(report['problems'],['Head row 1 (a) never shown','Head row 2 (b) never shown'])
+        swept=LOG+'[Fri Oct 23 13:01:15] HEAD_FIXTURE_ROW shown=0 head=a (pmg0_head016)\n[Fri Oct 23 13:01:20] HEAD_FIXTURE_ROW shown=1 head=b (pmg0_head017)\n'
+        self.assertTrue(verify_head_trial.check(manifest(rows=rows),swept)['passed'])
 
     def test_cli_exit_code_and_report(self):
         with tempfile.TemporaryDirectory() as tmp:
