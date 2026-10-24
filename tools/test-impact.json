@@ -257,6 +257,13 @@
       "tools/phenotypes/build_test_module.py",
       "tools/phenotypes/tool_runtime.py"
     ],
+    "tools/heads/build_head_trial.py": [
+      "tools/heads/build_head_fixture.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/phenotypes/build_test_module.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
     "tools/heads/cap_head_holes.py": [
       "tools/heads/correct_neck_rim.py",
       "tools/heads/head_export.py",
@@ -430,6 +437,13 @@
       "tools/heads/roster.json",
       "tools/heads/verify_head_hak.py"
     ],
+    "tools/heads/test_head_trial.py": [
+      "tools/heads/build_head_fixture.py",
+      "tools/heads/build_head_trial.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/heads/verify_head_trial.py"
+    ],
     "tools/heads/test_meshy_dispatch.py": [
       "tools/heads/head_workflow.py",
       "tools/heads/meshy_cli.py",
@@ -458,6 +472,9 @@
       "tools/heads/verify_head_hak.py"
     ],
     "tools/heads/verify_head_hak.py": [
+      "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/verify_head_trial.py": [
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/verify_retexture.py": [
@@ -3476,6 +3493,7 @@
     "tools/heads/test_geometry_guards.py",
     "tools/heads/test_head_holes.py",
     "tools/heads/test_head_pipeline.py",
+    "tools/heads/test_head_trial.py",
     "tools/heads/test_meshy_dispatch.py",
     "tools/heads/test_microface_materials.py",
     "tools/heads/test_palette_sampling.py",
