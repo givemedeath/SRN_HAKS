@@ -12,7 +12,7 @@ import time
 import uuid
 from pathlib import Path
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 from .common import read, write, require, pin, verify, digest, source_version
 
 TEMPLATES = Path(__file__).parent / 'templates'
@@ -217,8 +217,32 @@ def waist(alpha):
     return top, bottom, lo + int(np.argmin(widths[lo:hi]))
 
 
-def inpaint(client, local, bindings_path, spec_path, design, skin, seed, batch, output, *, cut=None, lift=24, name=None, runtime=None):
-    """`design-inpaint`: resample only the rows below a cut row of a reviewed design (its neck); the head stays."""
+def carve_guide(image, top, keep, stump):
+    """Carve guide (troll-male-04 v6): a row cut leaves ghost fringes or flared wings where a wide bust is removed, so the
+    neck is carved instead. The guide keeps the design above `top` and inside the jaw `keep` polygon, keeps the design's own
+    neck skin only inside a stump outline (cx, wTop, wBottom, ySide, yBottom: straight sides from `top` to ySide, a rounded
+    closed bottom to yBottom) and fills the rest with the corner backdrop. The mask (255 = resample) is everything outside
+    the keep region, so Flux re-renders the carved stump as closed skin. Returns (guide RGB image, mask uint8, backdrop)."""
+    rgb = np.asarray(image.convert('RGB')); height, width = rgb.shape[:2]
+    cx, wt, wb, ys, yb = (float(v) for v in stump)
+    require(len(keep) >= 3 and all(0 <= x < width and 0 <= y < height for x, y in keep), 'Keep polygon needs 3+ points inside the image')
+    require(0 < top < ys < yb <= height and wt > 0 and wb > 0 and 0 < cx < width, 'Stump must run from top to ySide to yBottom inside the image')
+    corners = np.concatenate([rgb[-height // 16:, :width // 16].reshape(-1, 3), rgb[-height // 16:, -width // 16:].reshape(-1, 3)])
+    backdrop = tuple(int(v) for v in np.median(corners, 0))
+    outline = Image.new('L', image.size, 0); draw = ImageDraw.Draw(outline); r, ry = wb / 2, yb - ys
+    draw.polygon([(cx - wt / 2, top), (cx + wt / 2, top), (cx + r, ys)]
+                 + [(cx + r * np.cos(t), ys + ry * np.sin(t)) for t in np.linspace(0, np.pi, 40)] + [(cx - r, ys)], fill=255)
+    kept = Image.new('L', image.size, 0); dk = ImageDraw.Draw(kept)
+    dk.rectangle((0, 0, width, top), fill=255); dk.polygon([tuple(p) for p in keep], fill=255)
+    guide = Image.new('RGB', image.size, backdrop); source = image.convert('RGB')
+    guide.paste(source, (0, 0), outline.filter(ImageFilter.GaussianBlur(1.5))); guide.paste(source, (0, 0), kept)
+    return guide, np.where(np.asarray(kept) > 127, 0, 255).astype(np.uint8), backdrop
+
+
+def inpaint(client, local, bindings_path, spec_path, design, skin, seed, batch, output, *, cut=None, lift=24, name=None, runtime=None,
+            carve=None):
+    """`design-inpaint`: resample only the rows below a cut row of a reviewed design (its neck); the head stays. With
+    `carve` ({top, keep, stump}, see carve_guide) the staged image is the carve guide and only the keep region stays."""
     from .images import matte
     _bound(local); spec = load_spec(spec_path); prompt = inpaint_prompt(spec, skin); design = _image(design, ('.png',))
     name = design.stem if name is None else name
@@ -229,20 +253,32 @@ def inpaint(client, local, bindings_path, spec_path, design, skin, seed, batch, 
         evidence = matte(design, {}, Path(folder) / 'matte')
         with Image.open(Path(folder) / 'matte' / 'design-rgba.png') as image: alpha = np.asarray(image.getchannel('A')) > 127
     top, bottom, waist_row = waist(alpha)
-    cut_row = waist_row - lift if cut is None else cut
+    if carve is not None:
+        require(cut is None and isinstance(carve, dict) and set(carve) == {'top', 'keep', 'stump'}, 'Carve declares top, keep and stump (no --cut)')
+        require(type(carve['top']) is int and top + (bottom - top) / 2 < carve['top'] <= bottom,
+                f"Carve top {carve['top']} must lie below the top half of the matte (rows {top}..{bottom}) and inside the subject")
+        with Image.open(design) as image: guide, carved, backdrop = carve_guide(image, carve['top'], carve['keep'], carve['stump'])
+        Path(output).mkdir(parents=True, exist_ok=True); guide_path = Path(output) / f'{base}-guide.png'
+        with guide_path.open('xb') as stream: guide.save(stream, format='PNG')
+    cut_row = (carve['top'] if carve is not None else waist_row - lift) if cut is None else cut
     require(type(cut_row) is int and top + (bottom - top) / 2 < cut_row <= bottom,
             f'Cut row {cut_row} must lie below the top half of the matte (rows {top}..{bottom}) and inside the subject')
     token = uuid.uuid4().hex
     graph = compile_inpaint(prompt, f'{SUBFOLDER}/{token}/design.png', f'{SUBFOLDER}/{token}/mask.png', seed, batch,
                             f'{SUBFOLDER}/{token}/{base}')
-    mask = np.zeros(alpha.shape, np.uint8); mask[cut_row:] = 255
+    mask = carved if carve is not None else np.zeros(alpha.shape, np.uint8)
+    if carve is None: mask[cut_row:] = 255
     mask_path = Path(output) / f'{base}-mask.png'
     with mask_path.open('xb') as stream: Image.fromarray(mask).filter(ImageFilter.GaussianBlur(MASK_BLUR)).save(stream, format='PNG')
     receipt = _receipt('design-inpaint', spec_path, prompt, seed, batch, token, graph['9']['inputs']['filename_prefix'])
     receipt.update(name=name, skin=skin, design=pin(design),
                    matte={key: evidence[key] for key in ('backdrop', 'foregroundFraction', 'marginPixels')} | {'topRow': top, 'bottomRow': bottom},
-                   waistRow=waist_row, cutRow=cut_row, cutSource='explicit' if cut is not None else 'waist-minus-lift',
-                   lift=None if cut is not None else lift,
+                   waistRow=waist_row, cutRow=cut_row,
+                   cutSource='carve' if carve is not None else 'explicit' if cut is not None else 'waist-minus-lift',
+                   lift=None if cut is not None or carve is not None else lift,
                    mask={**pin(mask_path), 'cutRow': cut_row, 'blurRadius': MASK_BLUR, 'size': [alpha.shape[1], alpha.shape[0]],
-                         'rule': 'rows at and below cutRow are 255 before blur; everything above is kept'})
-    return _execute(client, local, bindings_path, graph, receipt, {'design.png': design, 'mask.png': mask_path}, output, base, batch, runtime)
+                         'rule': 'outside the carve keep region (rows above top + jaw polygon) is 255 before blur' if carve is not None
+                                 else 'rows at and below cutRow are 255 before blur; everything above is kept'})
+    if carve is not None: receipt.update(carve={**carve, 'backdrop': list(backdrop)}, guide=pin(guide_path))
+    staged = guide_path if carve is not None else design
+    return _execute(client, local, bindings_path, graph, receipt, {'design.png': staged, 'mask.png': mask_path}, output, base, batch, runtime)

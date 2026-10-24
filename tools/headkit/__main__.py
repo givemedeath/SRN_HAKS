@@ -210,6 +210,8 @@ def main():
     p.add_argument('--design',required=True,type=Path);p.add_argument('--skin',required=True);p.add_argument('--seed',required=True,type=int)
     p.add_argument('--batch',type=int,default=2);p.add_argument('--cut',type=int);p.add_argument('--lift',type=int,default=24)
     p.add_argument('--name');p.add_argument('--output',required=True,type=Path)
+    p.add_argument('--carve-top',type=int,help='carve mode: keep rows above this and the --keep jaw polygon; stump outline from --stump')
+    p.add_argument('--keep',nargs='+',help='carve jaw keep polygon as x,y points');p.add_argument('--stump',help='carve stump cx,wTop,wBottom,ySide,yBottom')
     a=parser.parse_args()
     runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs') else None
     if a.command in ('prepare','run','resume','status','review','chain'):
@@ -284,7 +286,13 @@ def main():
         from . import design
         local=bindings(a.bindings);client=comfy.Client(local['comfyUrl'])
         if a.command=='design':result=design.generate(client,local,a.bindings,a.spec,a.head,a.seed,a.batch,a.reference,a.output,runtime=runtime)
-        else:result=design.inpaint(client,local,a.bindings,a.spec,a.design,a.skin,a.seed,a.batch,a.output,cut=a.cut,lift=a.lift,name=a.name,runtime=runtime)
+        else:
+            carve=None
+            if a.carve_top is not None or a.keep or a.stump:
+                require(a.carve_top is not None and a.keep and a.stump,'Carve needs --carve-top, --keep and --stump together')
+                carve={'top':a.carve_top,'keep':[[int(v) for v in point.split(',')] for point in a.keep],'stump':[float(v) for v in a.stump.split(',')]}
+            result=design.inpaint(client,local,a.bindings,a.spec,a.design,a.skin,a.seed,a.batch,a.output,cut=a.cut,lift=a.lift,name=a.name,
+                                  runtime=runtime,carve=carve)
     elif a.command=='install-nodes':result=install_nodes(a.destination,bindings(a.bindings))
     elif a.command=='fit-propose':
         from .fit import propose

@@ -3302,6 +3302,22 @@ class DesignTests(Temporary):
         g=receipt['graph'];self.assertEqual((g['200']['inputs']['image'],g['203']['inputs']['image']),(staged['design.png']['comfyImage'],staged['mask.png']['comfyImage']))
         self.assertEqual(g['205']['inputs']['amount'],2);self.assertEqual(Path(result['receipt']).name,'troll-a-s7-b0-inpaint-s11.json')
         self.assertEqual([Path(p).name for p in result['outputs']],['troll-a-s7-b0-inpaint-s11-b0.png','troll-a-s7-b0-inpaint-s11-b1.png'])
+    def test_carve_inpaint_keeps_the_jaw_and_carves_a_closed_stump(self):
+        carve={'top':160,'keep':[[70,160],[128,185],[186,160]],'stump':[128,40,36,190,205]}
+        client,result=self.inpaint(carve=carve);receipt=read(result['receipt'])
+        self.assertEqual((receipt['cutSource'],receipt['lift'],receipt['carve']['backdrop']),('carve',None,[200,200,200]))
+        verify([receipt['guide'],receipt['mask']]);self.assertEqual(receipt['staged']['design.png']['source'],receipt['guide'])
+        with Image.open(receipt['guide']['path']) as image:guide=np.asarray(image.convert('RGB'))
+        with Image.open(receipt['design']['path']) as image:design=np.asarray(image.convert('RGB'))
+        np.testing.assert_array_equal(guide[:160],design[:160])                     # head kept
+        self.assertEqual(guide[200,128].tolist(),design[200,128].tolist())           # own neck skin inside the stump
+        self.assertEqual(guide[222,90].tolist(),[200,200,200])                       # the wide bust is carved to backdrop
+        self.assertEqual(guide[212,128].tolist(),[200,200,200])                      # below the rounded stump bottom
+        with Image.open(receipt['mask']['path']) as image:mask=np.asarray(image)
+        self.assertTrue((mask[:125]==0).all());self.assertEqual((int(mask[240,128]),int(mask[240,30])),(255,255))  # blurred edges aside
+        for i,(bad,message) in enumerate(((dict(carve,top=60),'top half'),(dict(carve,stump=[128,40,36,150,140]),'ySide'),(dict(carve,keep=[[1,1]]),'Keep polygon'))):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):self.inpaint(client,carve=bad,name=f'bad-{i}')
+        with self.assertRaisesRegex(ValueError,'no --cut'):self.inpaint(client,carve=carve,cut=200,name='bad-cut')
     def test_inpaint_rejects_cut_rows_in_the_top_half_or_outside_the_subject(self):
         client=FakeDesignClient(self.local['comfyOutput'])
         for cut in (21,125,231):
