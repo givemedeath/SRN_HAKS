@@ -319,6 +319,23 @@ def readme(spec,actors,hak_order):
     return '\n'.join(lines)
 
 
+def input_paths(spec_path):
+    """Every file build() reads, for the guarded launcher's frozen input list: the spec, base HAKs and module, each head's
+    native.json, HAK and ASCII model (or its declared resources and ASCII), and shared resources."""
+    spec=validate_spec(read(spec_path));paths=[Path(spec_path)]
+    paths+=[Path(item['path']) for item in spec['base']['haks']+[spec['base']['module']]]
+    for head in spec['heads']:
+        if 'native' in head:
+            stage=Path(head['native']);paths+=[stage/'native.json',stage/(head['model']+'.hak')]
+            ascii_model=stage/'converted'/'ascii'/(head['model']+'.mdl')
+            if ascii_model.is_file():paths.append(ascii_model)
+        else:
+            paths+=[Path(item) for item in head['resources']]
+            if head.get('ascii'):paths.append(Path(head['ascii']))
+    paths+=[Path(item) for item in spec['shared']]
+    return [str(path.resolve()) for path in paths]
+
+
 def build(spec_path,output):
     spec=validate_spec(read(spec_path));output=Path(output)
     require(not output.exists(),'Fresh trial output folder required')
@@ -402,5 +419,8 @@ def build(spec_path,output):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--spec',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();print(build(a.spec,a.output))
+    p.add_argument('--spec',type=Path,required=True);target=p.add_mutually_exclusive_group(required=True)
+    target.add_argument('--output',type=Path);target.add_argument('--inputs',type=Path,help='write the consumed input paths (JSON) and exit')
+    a=p.parse_args()
+    if a.inputs:write_fresh(a.inputs,input_paths(a.spec));print(a.inputs)
+    else:print(build(a.spec,a.output))

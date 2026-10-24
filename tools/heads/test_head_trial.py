@@ -1,4 +1,4 @@
-import contextlib
+import json,contextlib
 import copy
 import io
 from pathlib import Path
@@ -216,6 +216,19 @@ class TrialModuleTests(unittest.TestCase):
         ifo=module_documents([target],['a'],'ambient',events={'Mod_OnPlrChat':'sr_h_chat'})['module.ifo']
         self.assertEqual((ifo['Mod_OnPlrChat']['value'],ifo['Mod_OnClientEntr']['value']),('sr_h_chat','sr_h_enter'))
         with self.assertRaisesRegex(ValueError,'Mod_On'):module_documents([target],['a'],'ambient',events={'OnChat':'x'})
+
+    def test_input_paths_list_every_file_the_build_reads(self):
+        from build_head_trial import input_paths
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);native=root/'native'/'troll-male-02';(native/'converted'/'ascii').mkdir(parents=True)
+            (native/'converted'/'ascii'/'pmg0_head016.mdl').write_text('model')
+            loose={k:v for k,v in head('troll-male-03',17).items() if k!='native'}
+            loose.update(resources=[str(root/'r'/'pmg0_head017.mdl')],ascii=str(root/'r'/'ascii.mdl'))
+            value=spec(heads=[head('troll-male-02',16,native=str(native)),loose],shared=[str(root/'s'/'pmg0_extra.tga')])
+            path=root/'spec.json';path.write_text(json.dumps(value))
+            expected=[path,*[Path(p['path']) for p in value['base']['haks']],Path(value['base']['module']['path']),native/'native.json',
+                      native/'pmg0_head016.hak',native/'converted'/'ascii'/'pmg0_head016.mdl',root/'r'/'pmg0_head017.mdl',root/'r'/'ascii.mdl',root/'s'/'pmg0_extra.tga']
+            self.assertEqual(input_paths(path),[str(p.resolve()) for p in expected])
 
     def test_launch_scripts_open_the_module_in_an_isolated_userdir(self):
         cmd,ps1=launch_scripts('srn_trl_batch')
