@@ -1331,6 +1331,83 @@ class OwnershipModeTests(Temporary):
         self.assertEqual(set(result['layers']),set(rows))
 
 
+class ToneMatchTests(Temporary):
+    def fixture(self):
+        # Skin is a dark, compressed luma ramp with ties; hair is a separate channel; a grey row makes shade == luma.
+        rng=np.random.default_rng(5);luma=np.clip(rng.normal(60,12,(1024,1024)),0,255).astype(np.uint8);luma[:64]=30
+        rgb=np.repeat(luma[...,None],3,2);labels=np.zeros((1024,1024),np.uint8);labels[:,900:]=1
+        Image.fromarray(rgb).save(self.root/'c.png');Image.fromarray(labels).save(self.root/'o.png')
+        palette=np.full((2,256,4),255,np.uint8);palette[0,:,:3]=np.arange(256)[:,None];palette[1,:,:3]=255-np.arange(256)[:,None]
+        palette[0,7,3]=0;Image.fromarray(palette).save(self.root/'p.png')
+        write(self.root/'refs.json',{'schemaVersion':1,'references':{'ref':{'layer':0,'quantiles':np.linspace(40,180,101).tolist()}}})
+        return luma,labels,{'0':str(self.root/'p.png'),'1':str(self.root/'p.png')},{'0':0,'1':0}
+    def test_opt_in_match_reaches_the_reference_keeps_order_and_isolates_channels(self):
+        luma,labels,palettes,rows=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            plain=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'plain')
+            toned=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'toned',tone_match={'0':{'reference':'ref'}})
+        self.assertNotIn('toneMatch',plain['layers']['0']);self.assertEqual(plain['layers']['1'],toned['layers']['1'])
+        before,after=(np.asarray(Image.open(r['shades']['path'])) for r in (plain,toned));skin=labels==0
+        np.testing.assert_array_equal(before[~skin],after[~skin])  # hair shades and decode stay byte-identical
+        np.testing.assert_array_equal(*(np.asarray(Image.open(r['decoded']['path']))[~skin] for r in (plain,toned)))
+        order=np.argsort(luma[skin],kind='stable');self.assertTrue(np.all(np.diff(after[skin][order].astype(int))>=0))
+        self.assertEqual(len(np.unique(after[skin&(luma==30)])),1)  # tied luma keeps one shade
+        self.assertNotIn(7,np.unique(after[skin]))  # transparent shades stay ineligible
+        report=toned['layers']['0']['toneMatch'];self.assertEqual(report['reference'],'ref')
+        self.assertEqual(report['referenceFile']['sha256'],pin(self.root/'refs.json')['sha256'])
+        self.assertLess(abs(report['before']['p50']-60),2);self.assertEqual(report['referencePercentiles']['p50'],110)
+        for name in ('p5','p25','p50','p75','p95'):  # each integer source luma holds ~3% of texels
+            self.assertLessEqual(abs(report['after'][name]-report['referencePercentiles'][name]),4)
+        self.assertEqual(report['rowsAfter'][0]['row'],0);self.assertEqual(sum(report['after']['histogram16']),int(skin.sum()))
+        self.assertGreater(toned['layers']['0']['meanSquaredColorError'],report['meanSquaredColorErrorBefore'])
+    def test_tone_match_rejections(self):
+        _,_,palettes,rows=self.fixture()
+        cases=[({'0':{'reference':'missing'}},{}, 'known stock shade reference'),({'0':{'reference':'ref','strength':1}},{},'known stock shade reference'),
+               ({'0':{'reference':'ref'}},{'0':4},'not both'),({'3':{'reference':'ref'}},{},'without mapped texels'),(['0'],{},'without mapped texels')]
+        for index,(spec,offsets,message) in enumerate(cases):
+            with self.subTest(spec=spec),patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+                with self.assertRaisesRegex(ValueError,message):
+                    quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/f'bad{index}',shade_offsets=offsets,tone_match=spec)
+                self.assertFalse((self.root/f'bad{index}').exists())
+    def test_plt_reader_and_reference_count_shared_textures_once(self):
+        from headkit.palette import plt_shades,shade_reference
+        def plt(name,shades,layers):
+            path=self.root/name;path.write_bytes(b'PLT V1  '+np.array([10,0,4,2],'<u4').tobytes()+np.stack([shades,layers],-1)[::-1].tobytes());return path
+        top=np.arange(8,dtype=np.uint8).reshape(2,4);layers=np.zeros((2,4),np.uint8);layers[0,0]=1
+        a=plt('a.plt',top,layers);b=plt('b.plt',top,layers);c=plt('c.plt',top+100,layers)
+        shades,read_layers=plt_shades(a);np.testing.assert_array_equal(shades,top);np.testing.assert_array_equal(read_layers,layers)
+        quantiles,unique=shade_reference([a,b,c],0,knots=3);self.assertEqual(unique,2);self.assertEqual(quantiles,[51.0,54.0,57.0])
+        (self.root/'short.plt').write_bytes(a.read_bytes()[:-1])
+        with self.assertRaisesRegex(ValueError,'size mismatch'):plt_shades(self.root/'short.plt')
+    def test_committed_references_and_stage_binding(self):
+        from headkit.common import stage_code_files
+        from headkit.palette import REFERENCES
+        data=read(REFERENCES);self.assertTrue({'troll-male-skin-v1','troll-male-hair-v1'}<=set(data['references']))
+        for name,row in data['references'].items():
+            with self.subTest(reference=name):
+                q=np.asarray(row['quantiles']);self.assertEqual(len(q),101);self.assertTrue(np.all(np.diff(q)>=0) and 0<=q[0] and q[-1]<=254)
+                self.assertTrue(all(len(source['sha256'])==64 for source in row['sources']))
+        self.assertIn('stock-shades.json',{path.name for path in stage_code_files('palette')})
+        self.assertNotIn('stock-shades.json',{path.name for path in stage_code_files('ownership')})
+    def test_runner_passes_the_manifest_tone_match(self):
+        runner=SimpleNamespace(data={'inputs':{},'palette':{'inputs':{'0':'paletteSkin'},'rows':{'0':3},'toneMatch':{'0':{'reference':'troll-male-skin-v1'}}}},bindings={},
+                               tone_pass_through=lambda:False,result=lambda stage,**kw:{'maps':{'1024':{'path':'tone.png'}},'onek':{'path':'own.png'}},
+                               input=lambda name:name+'.png')
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
+        self.assertEqual(quantizer.call_args.kwargs['tone_match'],{'0':{'reference':'troll-male-skin-v1'}})
+        runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
+            Runner._execute(runner,'palette',self.root)
+        ranking.assert_not_called();self.assertEqual(quantizer.call_args.args[3],{'0':'auto'})
+    def test_automatic_row_follows_the_matched_shades(self):
+        _,_,palettes,_=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            with self.assertRaisesRegex(ValueError,'Rank automatic rows'):quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bad')
+            result=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'auto',tone_match={'0':{'reference':'ref'}})
+        self.assertEqual(result['rows'],{'0':0,'1':0});self.assertEqual(result['layers']['0']['toneMatch']['rowsAfter'][0]['row'],0)
+        self.assertAlmostEqual(result['layers']['0']['toneMatch']['rowsAfter'][0]['meanSquaredColorError'],result['layers']['0']['meanSquaredColorError'])
+
+
 class CheckpointTests(Temporary):
     def transport(self):
         path=Path(__file__).parent/'comfy_nodes'/'transport.py';spec=importlib.util.spec_from_file_location('transport_fixture',path)

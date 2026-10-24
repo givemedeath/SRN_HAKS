@@ -60,6 +60,7 @@
       "tools/headkit/blender_render.py",
       "tools/headkit/manifest.schema.json",
       "tools/headkit/runner.py",
+      "tools/headkit/stock-shades.json",
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py",
       "tools/heads/verify_head_hak.py",
@@ -128,6 +129,7 @@
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
       "tools/headkit/rays.py",
+      "tools/headkit/stock-shades.json",
       "tools/headkit/textures.py"
     ],
     "tools/headkit/predicates.py": [
@@ -222,6 +224,7 @@
       "tools/headkit/run_headkit.py",
       "tools/headkit/runner.py",
       "tools/headkit/source_inventory.py",
+      "tools/headkit/stock-shades.json",
       "tools/headkit/templates/flux2-design.json",
       "tools/headkit/templates/flux2-inpaint.json",
       "tools/headkit/textures.py",

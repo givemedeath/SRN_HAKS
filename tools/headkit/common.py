@@ -312,6 +312,7 @@ NATIVE_HELPERS=('tools/heads/head_export.py','tools/heads/head_workflow.py','too
     'tools/phenomorpher/phenomorpher/engine/measurement_common.py','tools/phenomorpher/phenomorpher/engine/native_motion.py',
     'tools/phenotypes/pipeline.py','tools/phenotypes/height_targets.json','tools/phenotypes/native_compile.py')
 STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not imported
+STAGE_DATA={'palette':('stock-shades.json',)}  # committed measured references the stage reads
 
 
 def module_closure(names, directory):
@@ -349,7 +350,7 @@ def stage_code_files(stage, directory=None, root=None):
     entries=stage_entries(directory);require(stage in entries,'No runner branch for stage: '+stage)
     modules=module_closure(entries[stage]|{'common'},directory)
     files={directory/f'{name}.py' for name in modules}|{directory/name for name in ('__init__.py','runner.py','manifest.schema.json')}
-    files|={directory/name for name in STAGE_SCRIPTS.get(stage,())}
+    files|={directory/name for name in STAGE_SCRIPTS.get(stage,())+STAGE_DATA.get(stage,())}
     files|={root/path for path in SHARED_TOOLING+(NATIVE_HELPERS if 'native' in modules else ())}
     return sorted(path for path in files if path.is_file())
 

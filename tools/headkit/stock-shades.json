@@ -1,0 +1,332 @@
+{
+ "schemaVersion": 1,
+ "description": "Measured stock PLT shade-index distributions for palette.toneMatch. Computed numbers only; sources are base-game resources read with nwn_resman_cat 2.1.2 (keys only, no override or user directory) and pinned by SHA-256.",
+ "references": {
+  "troll-male-skin-v1": {
+   "layer": 0,
+   "description": "Stock NWN:EE male troll head skin (PLT layer 0) shade distribution",
+   "uniqueTextures": 11,
+   "sources": [
+    {
+     "resref": "pmg0_head001.plt",
+     "sha256": "5a571a856d32955c8c824a13285a7e45ef150f60531a1b898c5e44ef08246723"
+    },
+    {
+     "resref": "pmg0_head002.plt",
+     "sha256": "58de3d622b4b14fb08b9f90958fc438017b48620476814dc2bc08663d7b96969"
+    },
+    {
+     "resref": "pmg0_head003.plt",
+     "sha256": "e118811ee037f72711b3ca9517d6dcd979556d6660e30755a3e4248dcbeacd35"
+    },
+    {
+     "resref": "pmg0_head004.plt",
+     "sha256": "47ad4cea01e2620a138bdadf0f7cd6de9e84b9b5ad1c1e6fed82463922aeee5f"
+    },
+    {
+     "resref": "pmg0_head005.plt",
+     "sha256": "68785e0406a2c34de341cce57870c2cd0d69df23df43afa968125083e8ef1784"
+    },
+    {
+     "resref": "pmg0_head006.plt",
+     "sha256": "14fe4ef9af92fa3c22cdd3883b5d1c3328bb04026dd5abe32d471e7f5646160f"
+    },
+    {
+     "resref": "pmg0_head007.plt",
+     "sha256": "3f48e3ff8ab0590ef598dd55d4250aafed3b00750696114a318987ecb81432e1"
+    },
+    {
+     "resref": "pmg0_head008.plt",
+     "sha256": "121dbb9695c69d869e15239edf19c611ab438565de7481eaf7dad9d406b82e7a"
+    },
+    {
+     "resref": "pmg0_head009.plt",
+     "sha256": "7836fd6519cfe348ef7572a855ee3e995df6c54ad0708ebd0909b207c78cdfa1"
+    },
+    {
+     "resref": "pmg0_head010.plt",
+     "sha256": "d7f6eb2852d42f907c57b336698092325b49ca3f8b2c2a80a1297cc566a0e50a"
+    },
+    {
+     "resref": "pmg0_head011.plt",
+     "sha256": "5a571a856d32955c8c824a13285a7e45ef150f60531a1b898c5e44ef08246723"
+    },
+    {
+     "resref": "pmg0_head012.plt",
+     "sha256": "03388d0e476bfc0a4dfebebb15fa8ade51ef8b883ce01f90d59c48877c97246c"
+    },
+    {
+     "resref": "pmg0_head013.plt",
+     "sha256": "c077e55be5c82765fe001d87f8a0976e3d99e4157a21236cb60ca596ed954fd9"
+    }
+   ],
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    1.82,
+    23.45,
+    30.73,
+    36.55,
+    40.45,
+    43.27,
+    45.73,
+    47.73,
+    49.36,
+    51.09,
+    52.64,
+    54.0,
+    55.55,
+    56.76,
+    57.91,
+    59.0,
+    60.09,
+    61.27,
+    62.09,
+    63.09,
+    64.27,
+    65.09,
+    66.0,
+    66.91,
+    67.82,
+    68.64,
+    69.55,
+    70.64,
+    71.27,
+    72.45,
+    73.36,
+    74.36,
+    75.45,
+    76.27,
+    77.09,
+    78.09,
+    79.27,
+    80.36,
+    81.36,
+    82.36,
+    83.36,
+    84.55,
+    85.91,
+    87.27,
+    88.45,
+    89.64,
+    91.0,
+    92.36,
+    93.73,
+    95.09,
+    96.09,
+    97.55,
+    98.73,
+    99.91,
+    101.09,
+    102.36,
+    103.45,
+    105.0,
+    106.0,
+    107.55,
+    108.73,
+    110.18,
+    111.55,
+    112.55,
+    114.27,
+    115.45,
+    117.09,
+    118.45,
+    120.18,
+    121.73,
+    123.45,
+    124.73,
+    126.45,
+    127.91,
+    129.64,
+    131.18,
+    132.82,
+    134.45,
+    136.27,
+    138.09,
+    140.09,
+    142.18,
+    144.27,
+    146.91,
+    148.91,
+    151.18,
+    153.36,
+    155.73,
+    157.73,
+    160.09,
+    162.45,
+    164.91,
+    167.55,
+    170.45,
+    173.64,
+    176.91,
+    180.82,
+    185.64,
+    191.0,
+    198.45,
+    247.73
+   ]
+  },
+  "troll-male-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE male troll head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 8,
+   "sources": [
+    {
+     "resref": "pmg0_head001.plt",
+     "sha256": "5a571a856d32955c8c824a13285a7e45ef150f60531a1b898c5e44ef08246723"
+    },
+    {
+     "resref": "pmg0_head002.plt",
+     "sha256": "58de3d622b4b14fb08b9f90958fc438017b48620476814dc2bc08663d7b96969"
+    },
+    {
+     "resref": "pmg0_head003.plt",
+     "sha256": "e118811ee037f72711b3ca9517d6dcd979556d6660e30755a3e4248dcbeacd35"
+    },
+    {
+     "resref": "pmg0_head004.plt",
+     "sha256": "47ad4cea01e2620a138bdadf0f7cd6de9e84b9b5ad1c1e6fed82463922aeee5f"
+    },
+    {
+     "resref": "pmg0_head005.plt",
+     "sha256": "68785e0406a2c34de341cce57870c2cd0d69df23df43afa968125083e8ef1784"
+    },
+    {
+     "resref": "pmg0_head006.plt",
+     "sha256": "14fe4ef9af92fa3c22cdd3883b5d1c3328bb04026dd5abe32d471e7f5646160f"
+    },
+    {
+     "resref": "pmg0_head007.plt",
+     "sha256": "3f48e3ff8ab0590ef598dd55d4250aafed3b00750696114a318987ecb81432e1"
+    },
+    {
+     "resref": "pmg0_head008.plt",
+     "sha256": "121dbb9695c69d869e15239edf19c611ab438565de7481eaf7dad9d406b82e7a"
+    },
+    {
+     "resref": "pmg0_head009.plt",
+     "sha256": "7836fd6519cfe348ef7572a855ee3e995df6c54ad0708ebd0909b207c78cdfa1"
+    },
+    {
+     "resref": "pmg0_head010.plt",
+     "sha256": "d7f6eb2852d42f907c57b336698092325b49ca3f8b2c2a80a1297cc566a0e50a"
+    },
+    {
+     "resref": "pmg0_head011.plt",
+     "sha256": "5a571a856d32955c8c824a13285a7e45ef150f60531a1b898c5e44ef08246723"
+    },
+    {
+     "resref": "pmg0_head012.plt",
+     "sha256": "03388d0e476bfc0a4dfebebb15fa8ade51ef8b883ce01f90d59c48877c97246c"
+    },
+    {
+     "resref": "pmg0_head013.plt",
+     "sha256": "c077e55be5c82765fe001d87f8a0976e3d99e4157a21236cb60ca596ed954fd9"
+    }
+   ],
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    12.12,
+    19.25,
+    21.5,
+    23.38,
+    24.88,
+    26.38,
+    27.77,
+    29.2,
+    30.75,
+    31.75,
+    33.0,
+    34.0,
+    34.88,
+    35.75,
+    37.0,
+    37.62,
+    38.33,
+    39.25,
+    40.0,
+    40.88,
+    41.25,
+    42.25,
+    43.12,
+    43.5,
+    44.25,
+    45.12,
+    45.75,
+    46.38,
+    47.25,
+    47.75,
+    48.38,
+    49.25,
+    49.62,
+    50.25,
+    50.88,
+    51.5,
+    52.12,
+    52.75,
+    53.38,
+    54.0,
+    54.5,
+    55.38,
+    55.75,
+    56.38,
+    57.12,
+    57.75,
+    58.38,
+    58.93,
+    59.75,
+    60.62,
+    61.0,
+    61.5,
+    62.5,
+    62.75,
+    63.75,
+    64.38,
+    65.0,
+    65.62,
+    66.5,
+    67.33,
+    67.88,
+    68.5,
+    69.25,
+    70.25,
+    70.88,
+    71.75,
+    72.5,
+    73.38,
+    74.25,
+    75.25,
+    76.25,
+    77.0,
+    78.0,
+    79.24,
+    80.12,
+    81.12,
+    82.25,
+    83.12,
+    84.12,
+    85.38,
+    86.38,
+    87.25,
+    88.62,
+    89.38,
+    90.75,
+    92.0,
+    93.12,
+    94.12,
+    95.5,
+    97.16,
+    98.62,
+    100.62,
+    102.5,
+    104.88,
+    108.12,
+    112.12,
+    117.97,
+    125.24,
+    134.58,
+    148.69,
+    204.5
+   ]
+  }
+ }
+}

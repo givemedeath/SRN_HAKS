@@ -418,11 +418,14 @@ class Runner:
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
             ownership=self.input('ownership1k') if 'ownership1k' in m['inputs'] else self.result('ownership')['onek']['path']
             rows=m['palette']['rows'];rows={key:'auto' for key in palettes} if rows=='auto' else dict(rows);ranking=None
-            if 'auto' in rows.values():
+            tone=m['palette'].get('toneMatch') or {};ranked=[key for key,row in rows.items() if row=='auto' and key in palettes and key not in tone]
+            if ranked:
                 # Exact fast ranking picks the lowest-error stock row; the full top list stays in the receipt for review.
-                ranking=rank_rows(color,ownership,{key:palettes[key] for key,row in rows.items() if row=='auto' and key in palettes})
+                # Tone-matched channels keep 'auto': quantize picks their row after matching, from the matched shades.
+                ranking=rank_rows(color,ownership,{key:palettes[key] for key in ranked})
                 rows.update({key:row['row'] for key,row in ranking.items()});write(folder/'row-ranking.json',ranking,fresh=True)
-            result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'))
+            result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
+                            tone_match=m['palette'].get('toneMatch'))
             if ranking is not None:result['rowRanking']=ranking
             return result
         if stage=='export':
