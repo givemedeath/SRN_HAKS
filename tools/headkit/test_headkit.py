@@ -854,7 +854,8 @@ class MeshTests(Temporary):
         np.testing.assert_allclose(local[p[:,2]>=-.02],p[p[:,2]>=-.02],atol=1e-12)
         self.assertTrue(topology(local,f)['closed']);self.assertFalse(scan(local,f)['pairs'])
         for bad,message in (({'start':-.02},'start height'),({'start':-.02,'rim':-.01},'lower target'),
-                            ({'start':-.02,'rim':bottom-.01},'above the current rim'),({'start':-.02,'rim':bottom+.01,'band':.1},'band')):
+                            ({'start':-.02,'rim':bottom-.01},'above the current rim'),({'start':-.02,'rim':bottom+.01,'band':.1},'band'),
+                            ({'start':-.02,'rim':-.04,'band':.03},'cannot reach its rim')):
             with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):neck_shorten(self.glb(p),neck_policy({'shorten':bad},fit))
         # In repair the stump is shortened on the dense master before the taper, which then starts from the new rim.
         source=self.root/'source.glb';write_mesh(source,self.glb(p),f);igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))

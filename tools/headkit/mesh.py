@@ -177,7 +177,9 @@ def neck_shorten(vertices, neck):
     shorten = neck['shorten']; local = transform(neck['frame'], vertices); bottom = float(local[:, 2].min())
     start, band = shorten['start'], shorten['band']; depth = start-bottom; target = start-shorten['rim']
     require(bottom < shorten['rim'] < start < local[:, 2].max(), 'Neck shortening needs rim < start inside the head, above the current rim')
-    low, high = 0.0, 1.0
+    # The far scale is solved; a band too wide for the shortening would need a scale near zero (a crushed stump).
+    require(shorten_depth(depth, .1, band) < target, 'Neck shortening cannot reach its rim within the band; use a smaller band or a lower rim')
+    low, high = .1, 1.0
     for _ in range(60):
         middle = (low+high)/2; low, high = (middle, high) if shorten_depth(depth, middle, band) < target else (low, middle)
     scale = (low+high)/2; below = local[:, 2] < start; shaped = local.copy()
