@@ -29,7 +29,9 @@ def stage_roles(stage,data):
 
 # Manifest sections each stage's code reads. A receipt hashes only the sections (and declared input roles) of its stage
 # and its dependency closure, so tuning a later stage's rules does not invalidate earlier, expensive stages.
-STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval'},'precluster':set(),'fit':{'fit'},'repair':{'mesh','fit'},
+# 'section.key' binds one key of a section: prepare reads only the design review, so later approvals (appearance field,
+# texture maps) added to the same manifest do not stale the matte.
+STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':set(),'fit':{'fit'},'repair':{'mesh','fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh'},'ownership':{'ownership','paint','mesh','approval'},
     'tone':{'tone','palette','ownership','approval'},'palette':{'palette','ownership','approval'},'export':{'fit','palette','mesh','approval'},
     'native':{'fit'},'render':{'render','approval'}}
@@ -76,9 +78,10 @@ class Runner:
             current=pending.pop()
             if current not in closure:closure.add(current);pending+=self.dependencies(current)
         sections=set().union(*(STAGE_SECTIONS[s] for s in closure));roles=set().union(*(stage_roles(s,self.data) for s in closure))
+        sections={k for k in sections if k.split('.')[0]==k or k.split('.')[0] not in sections}  # a whole section covers its keys
         return digest({'schemaVersion':self.data['schemaVersion'],'id':self.data['id'],'closure':sorted(closure),
                        'dependencies':{s:self.dependencies(s) for s in sorted(closure)},
-                       'sections':{k:unworded(self.data.get(k)) for k in sorted(sections)},'inputs':{r:self.data['inputs'][r] for r in sorted(roles)}})
+                       'sections':{k:unworded(self.data.get(k) if '.' not in k else (self.data.get(k.split('.')[0]) or {}).get(k.split('.',1)[1])) for k in sorted(sections)},'inputs':{r:self.data['inputs'][r] for r in sorted(roles)}})
 
     def _verify(self,pins):
         # Upstream receipts repeat the same files; hash each (path, digest) once per check before execution.
@@ -124,10 +127,12 @@ class Runner:
         if _checked is None:_checked={'results':{},'versions':{}};self._verified=set()
         if stage in _checked['results']:return _checked['results'][stage]
         row=self.state['stages'].get(stage);require(row is not None,'Stage not completed: '+stage)
-        receipt=read(row['path']);self._verify([row]);self._verify(receipt['outputs']);self._verify(receipt['inputs'])
+        receipt=read(row['path']);self._verify([row]);self._verify(receipt['outputs'])
         if stage not in _checked['versions']:_checked['versions'][stage]=stage_source_version(stage)
+        # Code, manifest and bindings first: a stage made stale by an edit is named as such, not as one of its code pins.
         require(receipt['codeVersion']==_checked['versions'][stage] and receipt['manifestHash']==self.manifest_digest(stage)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
+        self._verify(receipt['inputs'])
         require(receipt['state']=='complete','Failed stage: '+stage)
         if self.runtime is not None:require(receipt.get('runtimeIdentity')==self.runtime,'Stage runtime differs from active launcher')
         for dependency,expected in receipt.get('dependencies',{}).items():

@@ -3069,6 +3069,19 @@ class TextureStageTests(Temporary):
         self.assertFalse(runner.tone_pass_through());self.assertEqual(runner.dependencies('palette'),['tone','ownership'])
         data['paint']=None;del data['paint'];data['tone']={'mode':'adjust'};write(runner.manifest_path,data)
         runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(runner.dependencies('palette'),['bake','ownership'])
+    def test_a_code_change_names_the_stale_stage_not_its_code_pin(self):
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            runner.execute('repair');runner.review('repair','approved','Reviewed this stage')
+        with patch('headkit.runner.stage_source_version',return_value='edited'),patch('headkit.common.runner_slice_sha',return_value='0'*64):
+            with self.assertRaisesRegex(ValueError,'Stale stage; rerun with current input snapshot: repair'):runner.result('repair')
+    def test_later_approvals_do_not_stale_the_matte(self):
+        runner=self.texture_runner();before=runner.manifest_digest('prepare');data=read(runner.manifest_path)
+        data['approval'].update(appearanceField={'decision':'approved'},textureMaps={'basecolor4k':{'decision':'approved'}})
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertEqual(runner.manifest_digest('prepare'),before)
+        data['approval']['referenceDesignReviewed']=False;write(runner.manifest_path,data)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('prepare'),before)
     def test_chain_skips_optional_stages_the_manifest_leaves_out(self):
         from headkit.__main__ import chain,skip_reason
         runner=self.texture_runner();data=read(runner.manifest_path);data.pop('paint');write(runner.manifest_path,data)
