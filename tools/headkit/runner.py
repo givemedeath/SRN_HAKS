@@ -158,7 +158,7 @@ class Runner:
             'bake':[] if 'uvMesh' in inputs else ['unwrap'],
             'ownership':[] if 'uvMesh' in inputs else ['unwrap'],
             'tone':[] if 'basecolor4k' in inputs else ['bake'],
-            'palette':[] if 'runtimeColor' in inputs else ['tone'],
+            'palette':[] if 'runtimeColor' in inputs else self._colour_stages() if self.tone_pass_through() else ['tone'],
             'export':([] if 'uvMesh' in inputs else ['unwrap'])+([] if 'runtimeShades' in inputs else ['palette'])+(['fit'] if staged else []),
             'native':['export'], 'render':([] if 'uvMesh' in inputs else ['unwrap'])+list(dict.fromkeys(self.data.get('render',{}).get('mapStages',{}).values()))
                 +(['ownership'] if self.data.get('render',{}).get('ownershipView') else [])}
@@ -255,6 +255,15 @@ class Runner:
         if 'paint' in self.data and stage=='tone':dependencies['tone']=['paint']
         if stage=='ownership' and self.data.get('ownership',{}).get('mode')=='rules':
             dependencies['ownership']+=(['paint'] if 'paint' in self.data else [])+baked
+
+    def tone_pass_through(self):
+        """Tone without operations returns its input unchanged, so it is no stage: palette reads the colour itself and
+        no review launch is spent on a byte copy. Imported 4K colour still goes through tone (it has no 1K map)."""
+        tone=self.data.get('tone',{})
+        return tone.get('mode')=='adjust' and not tone.get('operations') and 'basecolor4k' not in self.data['inputs']
+
+    def _colour_stages(self):
+        return ['paint'] if 'paint' in self.data else ['bake']
 
     def _staged_fit(self):
         return isinstance(self.data.get('fit'),dict) and self.data['fit'].get('matrixFrom')=='fit'
@@ -403,7 +412,9 @@ class Runner:
             return result
         if stage=='palette':
             from .palette import quantize,rank_rows
-            color=self.input('runtimeColor') if 'runtimeColor' in m['inputs'] else self.result('tone')['maps']['1024']['path']
+            if 'runtimeColor' in m['inputs']:color=self.input('runtimeColor')
+            elif self.tone_pass_through():color=self.result(self._colour_stages()[0])['maps']['basecolor-1024.png']['path']
+            else:color=self.result('tone')['maps']['1024']['path']
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
             ownership=self.input('ownership1k') if 'ownership1k' in m['inputs'] else self.result('ownership')['onek']['path']
             rows=m['palette']['rows'];rows={key:'auto' for key in palettes} if rows=='auto' else dict(rows);ranking=None

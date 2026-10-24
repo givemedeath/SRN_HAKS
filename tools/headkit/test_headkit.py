@@ -2922,6 +2922,29 @@ class TextureStageTests(Temporary):
         for stage in ('repair','unwrap','bake'):
             with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
         receipt=read(runner.state['stages']['repair']['path']);self.assertNotIn(str(runner.manifest_path),{p['path'] for p in receipt['inputs']})
+    def test_pass_through_tone_is_skipped_and_palette_reads_the_painted_colour(self):
+        from headkit.__main__ import chain
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        self.assertTrue(runner.tone_pass_through());self.assertEqual(runner.dependencies('palette'),['paint','ownership'])
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake','paint','ownership'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+            rows=chain(runner,['tone','palette'])['stages']
+        self.assertEqual([(row['stage'],row['status']) for row in rows],[('tone','skipped'),('palette','ran')])
+        self.assertNotIn('tone',runner.state['stages'])
+        self.assertEqual(set(read(runner.state['stages']['palette']['path'])['dependencies']),{'paint','ownership'})
+        # Any operation makes tone a reviewed stage again, and palette waits for it.
+        data=read(runner.manifest_path);data['tone']={'mode':'adjust','operations':[{'op':'set','channel':1,'color':[1,2,3]}]}
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertFalse(runner.tone_pass_through());self.assertEqual(runner.dependencies('palette'),['tone','ownership'])
+        data['paint']=None;del data['paint'];data['tone']={'mode':'adjust'};write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(runner.dependencies('palette'),['bake','ownership'])
+    def test_pass_through_palette_quantizes_the_paint_1k_map(self):
+        runner=self.texture_runner()
+        maps={'paint':{'maps':{'basecolor-1024.png':{'path':'painted-1k.png'}}}}
+        runner.result=lambda stage,**kw:maps.get(stage,{'onek':{'path':'own-1k.png'}})
+        runner.input=lambda name:name+'.png';runner.data['palette']={'inputs':{'0':'paletteSkin'},'rows':{'0':3}}
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:runner._execute('palette',self.root)
+        self.assertEqual(quantizer.call_args.args[0],'painted-1k.png')
     def test_review_gate_blocks_consumers_of_paint(self):
         runner=self.texture_runner();completed=ReviewGateTests.completed
         with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)) as work:

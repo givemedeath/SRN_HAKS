@@ -135,6 +135,9 @@ def chain(runner, stages):
         review=read(review['path']);return review.get('decision') if review.get('stageReceipt')==runner.state['stages'].get(stage) else 'pending'
     rows=[];stopped=None
     for stage in stages:
+        if stage=='tone' and runner.tone_pass_through():
+            rows.append({'stage':'tone','status':'skipped','reason':'Configured pass-through (no operations): palette reads the colour directly'})
+            continue
         blocked=None
         for dependency in runner.dependencies(stage):
             try:runner.result(dependency)
