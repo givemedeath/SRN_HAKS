@@ -2507,6 +2507,21 @@ class FitProposalTests(Temporary):
         self.assertEqual(nosed['align'],'nose');np.testing.assert_allclose(nosed['translation'],offset,atol=.004)
         np.testing.assert_allclose(np.asarray(nosed['sourceNose'])*nosed['scale']+nosed['translation'],nosed['referenceNose'],atol=1e-9)
         with self.assertRaisesRegex(ValueError,'profile or nose'):propose(source,reference,self.root/'fit-bad',align='ears')
+    def test_nose_alignment_ignores_tusks_further_forward_than_the_nose(self):
+        from headkit.fit import propose
+        from headkit.gltf import write_mesh
+        points,faces=self.head();lines=['node trimesh head','  position 0 0 0',f'  verts {len(points)}']
+        lines+=[f'    {x} {y} {z}' for x,y,z in points]+[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+        reference=self.root/'reference.mdl';reference.write_text('\n'.join(lines))
+        # Source only: a lower tusk/lip bump 4.5 cm below the nose that reaches further forward than the nose (05, 04-A).
+        tusk=np.exp(-((points[:,0]/.02)**2+((points[:,2]+.035)/.012)**2))*(points[:,1]>0);bumped=points.copy();bumped[:,1]+=.05*tusk
+        scale,offset=.37,np.array([0,.024,.042]);local=(bumped-offset)/scale
+        source=self.root/'source.glb';write_mesh(source,np.stack([-local[:,0],local[:,2],local[:,1]],1),faces)
+        nosed=propose(source,reference,self.root/'fit-nose',align='nose')
+        self.assertLess(abs(nosed['translation'][2]-offset[2]),.006);self.assertLess(nosed['noseProfileShift'],.02)
+        # A nose fit that would move the head further than the agreement bound is refused, never applied.
+        with patch('headkit.fit.nose_tip',side_effect=[np.array([0,.2,0.]),np.array([0,0,-.2])]):
+            with self.assertRaisesRegex(ValueError,'disagree by'):propose(source,reference,self.root/'fit-far',align='nose')
     def test_rejects_moved_reference_nodes(self):
         from headkit.fit import ascii_surface
         path=self.root/'moved.mdl';path.write_text('node trimesh x\n  position 0 0 .1\n  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\nendnode')

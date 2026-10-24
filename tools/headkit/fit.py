@@ -63,16 +63,22 @@ def match(source, reference, *, exclude_lower=.25, scales=(.2,.6,.0025), offsets
     return {'scale':float(s),'translation':[0.,ty,float(tz)],'meanAbsoluteProfileDistance':err,'excludeLowerFraction':exclude_lower}
 
 
-def nose_tip(points, step, tolerance):
+def nose_tip(points, step, tolerance, *, around=None, window=None):
     """Most forward midline point in the middle half of the profile height (clear of chin, crown, crests and horns);
-    a flat tip is centred over the bins within tolerance of the maximum."""
+    a flat tip is centred over the bins within tolerance of the maximum. With `around`/`window` the search is limited to
+    that height band, so tusks or a lip further forward than the nose (05, 04-A) cannot win."""
     z,front,_=profile(points,step);ok=np.isfinite(front);lo,hi=z[ok].min(),z[ok].max()
-    band=ok&(z>lo+.25*(hi-lo))&(z<hi-.25*(hi-lo));require(band.any(),'No midline face band')
+    band=ok&(z>lo+.25*(hi-lo))&(z<hi-.25*(hi-lo))
+    if around is not None:band&=np.abs(z-around)<=window
+    require(band.any(),'No midline face band')
     n=np.flatnonzero(band)[np.argmax(front[band])];peak=front[n];near=band&(front>=peak-tolerance);lo=hi=n
     # Only the contiguous run around the maximum: a chin as far forward as the nose must not pull the tip down.
     while lo>0 and near[lo-1]:lo-=1
     while hi<len(z)-1 and near[hi+1]:hi+=1
     return np.array([0.,peak,float(z[lo:hi+1].mean())])
+
+
+NOSE_WINDOW,NOSE_AGREEMENT=.015,.02  # metres, reference scale
 
 
 def propose(source, reference, output, *, exclude_lower=.25, align='profile'):
@@ -83,9 +89,14 @@ def propose(source, reference, output, *, exclude_lower=.25, align='profile'):
     value=mesh(source);local=head_local(surface_samples(value['positions'][value['faces']],1000000));target=ascii_surface(reference)
     result=match(local,target,exclude_lower=exclude_lower);s=result['scale'];result['align']=align
     if align=='nose':
-        # The same physical bin height and tip tolerance on both heads (0.5 mm after scaling).
-        source_nose,target_nose=nose_tip(local,.001/s,.0005/s),nose_tip(target,.001,.0005)
-        result.update(profileTranslation=result['translation'],translation=(target_nose-s*source_nose).tolist(),
+        # The same physical bin height and tip tolerance on both heads (0.5 mm after scaling). The source tip is searched
+        # within NOSE_WINDOW of where the profile fit puts the reference nose, and nose placement may refine the profile
+        # placement only by NOSE_AGREEMENT: anything further means another feature was taken for the nose.
+        target_nose=nose_tip(target,.001,.0005);profiled=np.asarray(result['translation'])
+        source_nose=nose_tip(local,.001/s,.0005/s,around=(target_nose[2]-profiled[2])/s,window=NOSE_WINDOW/s)
+        translation=target_nose-s*source_nose;shift=float(np.linalg.norm(translation-profiled))
+        require(shift<=NOSE_AGREEMENT,f'Nose and profile placements disagree by {shift*100:.1f} cm; review the fit with align profile')
+        result.update(profileTranslation=result['translation'],translation=translation.tolist(),noseProfileShift=shift,
                       sourceNose=source_nose.tolist(),referenceNose=target_nose.tolist())
     matrix=np.eye(4);matrix[:3,:3]=np.diag([-s,-s,s]);matrix[:3,3]=result['translation']
     fitted=local*s+np.array(result['translation'])
