@@ -576,6 +576,35 @@ class ImageTests(Temporary):
             prepare_multiview(pairs,config,self.root/'low-floor')
 
 
+class FakePacker:
+    """The xatlas pack semantics the UV re-pack depends on: density 0 grows an unbounded atlas (here one shelf row)
+    whose UVs are normalised to its used extents; an explicit density packs shelf rows onto one square page of the
+    given resolution and spills onto a second page past it."""
+    def __init__(self):self.calls=[]
+    def PackOptions(self):return SimpleNamespace(resolution=0,padding=0,bilinear=False,bruteForce=False,texels_per_unit=0.0)
+    def Atlas(self):return FakeAtlas(self.calls)
+
+
+class FakeAtlas:
+    def __init__(self,calls):self.calls=calls
+    def add_uv_mesh(self,points,faces):self.points=np.asarray(points,float);self.faces=np.asarray(faces,int)
+    def generate(self,pack_options):
+        from scipy.sparse import coo_matrix
+        from scipy.sparse.csgraph import connected_components
+        o=pack_options;self.calls.append(dict(vars(o)));f=self.faces;n=len(self.points)
+        count,labels=connected_components(coo_matrix((np.ones(f.size),(f.ravel(),np.repeat(f[:,0],3))),shape=(n,n)),directed=False)
+        density=o.texels_per_unit or 1.0;limit=o.resolution if o.texels_per_unit else np.inf
+        uv=np.zeros((n,2));x=y=row=width=0
+        for chart in range(count):
+            vertices=np.flatnonzero(labels==chart);p=self.points[vertices]*density;size=p.max(0)-p.min(0)+o.padding
+            if x+size[0]>limit:x,y,row=0,y+row,0
+            uv[vertices]=p-p.min(0)+[x,y];x+=size[0];row=max(row,size[1]);width=max(width,x)
+        self.atlas_count=1 if y+row<=limit else 2;self.chart_count=count
+        self.width,self.height=(o.resolution,)*2 if o.texels_per_unit else (int(np.ceil(width)),int(np.ceil(y+row)))
+        self.uv=uv/[self.width,self.height]
+    def __getitem__(self,index):return np.arange(len(self.points)),self.faces,self.uv
+
+
 class MeshTests(Temporary):
     def tetra(self):
         vertices=np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1]],np.float32)
@@ -847,6 +876,64 @@ class MeshTests(Temporary):
         self.assertGreaterEqual(twice/perimeter*1024,1.5-1e-9)
         placed=(a-a.min(0))[None]+.25;report,_=raster_audit(placed,1024)
         self.assertEqual(report['unmappedUvFaces'],[])
+
+    def test_own_chart_widens_a_sliver_instead_of_growing_it_across_the_atlas(self):
+        # troll-male-02 face 8143 (3D edges .035/.020/.015): grown uniformly it was a 7301 x 7 texel chart that set
+        # the atlas width. Short slivers grow to a 16 texel edge, long ones keep their length; both are then widened.
+        from headkit.uv import _own_chart,_inradius,raster_audit
+        corners=np.array([[0,0,0],[.035,0,0],[.0199,.00005,0]],float)
+        for density,length in ((1008.0,16),(12000.0,.035*12000/2507*1024)):
+            with self.subTest(density=density):
+                q=_own_chart(corners,(2507,2516),density,7);extent=(q.max(0)-q.min(0))*1024
+                self.assertGreaterEqual(_inradius(q),1.5);self.assertLess(_inradius(q),1.6)
+                self.assertAlmostEqual(extent.max(),length,delta=.02*length);self.assertLess(extent.min(),12)
+                report,_=raster_audit((q-q.min(0))[None]+.25,1024);self.assertEqual(report['unmappedUvFaces'],[])
+
+    def charted_grid(self):
+        # 36 separate unit right triangles charted 6x6 on a 2048 atlas; face 35 is charted below one 1K texel.
+        p=np.array([[3*k+x,0,y] for k in range(36) for x,y in ((0,0),(1,0),(0,1))],float);faces=np.arange(108).reshape(-1,3)
+        legs=np.full(36,.15);legs[35]=.0004;cells=np.c_[np.arange(36)%6,np.arange(36)//6]/6+.008
+        uv=cells[:,None]+legs[:,None,None]*np.array([[0,0],[1,0],[0,1]])
+        return {'positions':p,'faces':faces,'uv':uv},p[faces]
+
+    def test_repack_bounds_a_square_page_and_fits_the_densest_scale_after_a_spill(self):
+        from headkit.uv import _repack,PAGE
+        value,corners=self.charted_grid();packer=FakePacker()
+        uv,dims,count,scale=_repack(packer,value['uv'],(2048,2048),307.2,corners,[35],9,1.2)
+        self.assertEqual((dims,count),((PAGE,PAGE),36))
+        self.assertTrue(all(c['resolution']==PAGE and 0<c['texels_per_unit']<=1.2 for c in packer.calls))
+        # Six 307.2*scale+9 texel charts per row on the page: the fitted scale is within 0.5% of the densest that fits.
+        densest=(PAGE/6-9)/307.2;self.assertTrue(densest/1.005<scale<=densest)
+        self.assertEqual(scale,max(c['texels_per_unit'] for c in packer.calls if c['texels_per_unit']<=densest))
+        legs=np.abs(uv[:,[1,2]]-uv[:,:1]).max(2);np.testing.assert_allclose(legs[:,0],legs[:,1],rtol=1e-5)  # square texels, no stretch
+        packer.calls.clear();_,_,_,again=_repack(packer,value['uv'],(2048,2048),307.2,corners,[35],9,scale)
+        self.assertEqual((again,len(packer.calls)),(scale,1))  # a scale that fits is kept, never raised
+        with self.assertRaisesRegex(ValueError,'spilled onto more than one atlas page'):
+            _repack(FakePacker(),value['uv'],(2048,2048),307.2,corners,[35],PAGE,1.0)
+
+    def test_unwrap_repairs_on_a_square_page_instead_of_an_unbounded_stretched_atlas(self):
+        # Unbounded, this re-pack is one 36-chart shelf ~11400 texels wide normalised onto a square texture.
+        from headkit.uv import unwrap,PAGE
+        value,_=self.charted_grid();packer=FakePacker()
+        with patch('headkit.uv.library',return_value=packer),patch('headkit.uv.physical_fans',return_value=(value['positions'],value['faces'])), \
+             patch('headkit.uv._chart',return_value=(value['uv'],(2048,2048),307.2,36)):
+            result,report=unwrap(value,{})
+        attempts=report['attempts'];self.assertEqual([a['badFaceCount'] for a in attempts],[1,0])
+        self.assertEqual((report['atlasDimensions'],report['ownCharts'],report['chosenPadding']),([PAGE,PAGE],[35],9))
+        self.assertEqual(attempts[1]['pageTexelsPerFirstPackTexel'],1.0);self.assertEqual(report['effectivePadding1024'],[4.5,4.5])
+        self.assertTrue(packer.calls and all(c['texels_per_unit']>0 and c['resolution']==PAGE for c in packer.calls))
+        self.assertGreaterEqual(report['pixelAudits']['2048']['coverageFraction'],.30)
+        uv=result['uv'];legs=np.abs(uv[:,[1,2]]-uv[:,:1]).max(2);np.testing.assert_allclose(legs[:,0],legs[:,1],rtol=1e-5)
+
+    def test_failed_unwrap_reports_its_rounds_for_every_failure(self):
+        from headkit.uv import unwrap
+        value,_=self.charted_grid()
+        with patch('headkit.uv.library',return_value=FakePacker()),patch('headkit.uv.physical_fans',return_value=(value['positions'],value['faces'])), \
+             patch('headkit.uv._chart',return_value=(value['uv'],(2048,2048),307.2,36)), \
+             patch('headkit.uv._repack',side_effect=ValueError('UV re-pack spilled onto more than one atlas page')):
+            with self.assertRaisesRegex(ValueError,'spilled') as caught:unwrap(value,{})
+        self.assertEqual([a['round'] for a in caught.exception.attempts],[0])
+        self.assertEqual(caught.exception.attempts[0]['badFaceCount'],1)
 
     def test_imported_and_new_atlases_reject_unsampled_faces_at_each_resolution(self):
         p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
@@ -1773,6 +1860,18 @@ class ResumeTests(Temporary):
         with patch.object(runner,'_execute',return_value={'invalid':float('nan')}):
             with self.assertRaises(ValueError):runner.execute('prepare')
         self.assertEqual(read(self.root/'run'/'prepare'/'attempt-01'/'receipt.json')['state'],'failed')
+    def test_failed_receipt_keeps_the_stage_repair_attempts(self):
+        runner=self.fixture();error=ValueError('UV still has 3 bad faces after 10 pack-only repair rounds')
+        error.attempts=[{'round':0,'badFaceCount':34,'atlasDimensions':[2507,2516]}]
+        with patch.object(runner,'_execute',side_effect=error),self.assertRaisesRegex(ValueError,'3 bad faces'):runner.execute('prepare')
+        failed=read(self.root/'run'/'prepare'/'attempt-01'/'receipt.json')
+        self.assertEqual((failed['state'],failed['attempts']),('failed',error.attempts))
+        runner.execute('prepare');self.assertNotIn('attempts',read(self.root/'run'/'prepare'/'attempt-02'/'receipt.json'))
+        # An attempt log that cannot serialise is noted instead of losing the failed receipt.
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run-b');error.attempts=[{'bad':float('nan')}]
+        with patch.object(runner,'_execute',side_effect=error),self.assertRaises(ValueError):runner.execute('prepare')
+        failed=read(self.root/'run-b'/'prepare'/'attempt-01'/'receipt.json')
+        self.assertEqual(failed['state'],'failed');self.assertIn('unserializable',failed['attempts'])
     def test_portable_paths_reject_escape(self):
         with self.assertRaises(ValueError):asset(self.root/'manifest.json',{'path':'../escape','sha256':'0'*64})
 
