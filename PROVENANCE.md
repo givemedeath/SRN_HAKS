@@ -417,3 +417,19 @@ PR for review. Its effect on ordinary Sling appearances is documented in
 Raw references, high-resolution masters, test module actors, experimental
 assets, SMG preparation and generated HAK archives are excluded. Every resource
 is below 15 MiB. The original accepted packages and trial history remain intact.
+
+## Approved male Troll heads (`srn_head`)
+
+Original SRN-generated Flux.2 designs and Pixal3D single-view geometry/appearance,
+locally wrapped, shaped, UV-mapped, fitted to `pmg0_head014` proportions and
+encoded as NWN:EE native models with 1024-square PLTs by the headkit pipeline.
+User-approved in game (client trial `srn_trl_batch1`, 2026-10-24): troll-male-01
+`pmg0_head015`, troll-male-02 `pmg0_head016`, troll-male-03 `pmg0_head017`,
+troll-male-04 (design A, rigger) `pmg0_head018`, troll-male-05 `pmg0_head019` and
+troll-male-06 `pmg0_head020`. Each head has 20,000 triangles; skin shades are
+tone-matched to the stock Troll male heads, and horns, tusks, metal and tattoos
+use PLT channels 1, 2, 8 and 9 as reviewed. Fixed-string tails were zeroed by
+the native stage with the existing armour sanitizer. This batch contains only six
+compiled MDL/PLT pairs; source images, masters, trial tools, demo modules and
+generated HAKs stay outside the production source pack. Approval does not
+establish exhaustive animation, equipment or palette-combination coverage.
