@@ -383,6 +383,16 @@ class ReceiptTests(Fixture):
             for _ in range(2):
                 with self.assertRaisesRegex(ValueError, 'fixture failure'): self.runner.execute('prepare')
             with self.assertRaisesRegex(ValueError, 'Two failures'): self.runner.execute('prepare')
+    def test_corrected_separate_input_permits_another_attempt(self):
+        # Like --evidence: a consumed file outside the manifest, bindings and code version.
+        evidence = self.root/'evidence.json'; evidence.write_text('{"version": 1}')
+        with patch('tools.itemkit.runner.code_pins', side_effect=lambda: [pin(evidence)]), \
+             patch.object(self.runner, '_execute', side_effect=ValueError('fixture failure')):
+            for _ in range(2):
+                with self.assertRaisesRegex(ValueError, 'fixture failure'): self.runner.execute('prepare')
+            with self.assertRaisesRegex(ValueError, 'Two failures'): self.runner.execute('prepare')
+            evidence.write_text('{"version": 2}')
+            with self.assertRaisesRegex(ValueError, 'fixture failure'): self.runner.execute('prepare')
 
     def test_changed_ancestor_during_stage_fails_completion(self):
         def compute(stage, folder, **kwargs):

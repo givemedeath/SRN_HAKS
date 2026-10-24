@@ -29,6 +29,12 @@ def blender_environment(local,environment=None):
     return env
 
 
+def attempt_snapshot(receipt):
+    """Identity of what an attempt consumed; input order and duplicate pins do not matter."""
+    return digest({key: receipt.get(key) for key in ('manifestHash', 'bindingsHash', 'codeVersion', 'runtimeIdentity', 'dependencies')}
+                  | {'inputs': sorted({(str(row['path']), row['sha256']) for row in receipt.get('inputs', [])})})
+
+
 class Runner:
     def __init__(self, manifest_path, bindings_path, run, *, runtime=None, evidence=None):
         self.manifest_path = Path(manifest_path).resolve(); self.bindings_path = Path(bindings_path).resolve()
@@ -97,16 +103,16 @@ class Runner:
         attempts = list(root.glob('attempt-*/receipt.json'))
         version = parent_audit.code_version if parent_audit.code_version is not None else source_version()
         manifest_hash = digest(self.data)
-        failed = []
-        for path in attempts:
-            attempt = read(path)
-            if attempt['state'] == 'failed' and attempt['manifestHash'] == manifest_hash and attempt['codeVersion'] == version:
-                failed.append(attempt)
-        require(len(failed) < 2, 'Two failures on this snapshot; correct inputs/code before another attempt')
-        folder = root/('attempt-'+uuid.uuid4().hex); folder.mkdir()
         receipt = {'stage': stage, 'state': 'running', 'manifestHash': manifest_hash,
                    'bindingsHash': digest(self.local), 'codeVersion': version,
                    'runtimeIdentity': self.runtime, 'inputs': inputs, 'dependencies': parents, 'outputs': []}
+        # A snapshot is every consumed byte and dependency, not only the manifest and code:
+        # correcting separately supplied evidence, bindings or an ancestor permits a new attempt.
+        snapshot = attempt_snapshot(receipt)
+        failed = [attempt for attempt in map(read, attempts)
+                  if attempt['state'] == 'failed' and attempt_snapshot(attempt) == snapshot]
+        require(len(failed) < 2, 'Two failures on this snapshot; correct inputs/code before another attempt')
+        folder = root/('attempt-'+uuid.uuid4().hex); folder.mkdir()
         write(folder/'intent.json', receipt, fresh=True); started = time.monotonic()
         try:
             result = self._execute(stage, folder, parent_results=parent_results); digest(result)
