@@ -136,6 +136,37 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
                 loaded_source_code([self.core])
 
+    def test_registries_changed_by_their_own_source_are_runtime_state(self):
+        # Like ComfyUI nodes.py / comfy.utils: the module itself fills or rebinds these globals.
+        path = self.core / 'nodes.py'
+        reviewed = ('NODE_DISPLAY_NAME_MAPPINGS = {"A": "A"}\nEXTENSION_WEB_DIRS = {}\nPROGRESS_BAR_ENABLED = True\n'
+                    'SCALE = 1\nREGISTRY = {}\n'
+                    'def load_custom_node(name):\n    NODE_DISPLAY_NAME_MAPPINGS[name] = name\n'
+                    '    EXTENSION_WEB_DIRS.update({name: "web"})\n'
+                    'def set_progress_bar_enabled(enabled):\n    global PROGRESS_BAR_ENABLED\n    PROGRESS_BAR_ENABLED = enabled\n'
+                    'def shadowed():\n    SCALE = {}\n    SCALE["x"] = 1\n'
+                    '    def inner():\n        SCALE["y"] = 2\n    inner()\n'
+                    'def imported():\n    from os import environ as REGISTRY\n    REGISTRY.update({})\n'
+                    'def captured():\n    import contextlib\n    with contextlib.nullcontext({}) as REGISTRY:\n'
+                    '        REGISTRY["x"] = 1\n')
+        path.write_text(reviewed, encoding='utf-8')
+        consumer_path = self.core / 'execution.py'
+        consumer_path.write_text('from nodes import PROGRESS_BAR_ENABLED\n', encoding='utf-8')
+        module = types.ModuleType('nodes'); module.__file__ = str(path)
+        exec(compile(reviewed, str(path), 'exec', dont_inherit=True), module.__dict__)
+        consumer = types.ModuleType('execution'); consumer.__file__ = str(consumer_path)
+        consumer.PROGRESS_BAR_ENABLED = module.PROGRESS_BAR_ENABLED
+        module.load_custom_node('custom'); module.set_progress_bar_enabled(False); module.shadowed()
+        with patch.dict(sys.modules, {module.__name__: module, consumer.__name__: consumer}):
+            self.assertEqual(len(loaded_source_code([self.core])), 2)
+            # Neither a shadowing local nor a closure over one exempts the module global.
+            module.SCALE = 2
+            with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
+                loaded_source_code([self.core])
+            module.SCALE = 1; module.REGISTRY['changed'] = True
+            with self.assertRaisesRegex(ValueError, 'Loaded Comfy module constants differ'):
+                loaded_source_code([self.core])
+
     def test_loaded_stale_lowercase_mutable_module_setting_is_rejected(self):
         path = self.core / 'comfy' / 'model.py'
         reviewed = ('shape_settings = {"scale": 1.0}\n'

@@ -1137,7 +1137,60 @@ def _source_module_path(module_name,roots):
     return path
 
 
-def _source_import_literals(statements,path,namespace,roots,sources,constants_cache,local_constants):
+_MUTATING_METHODS=frozenset({'update','setdefault','append','extend','insert','pop','popitem','clear','remove',
+                             'add','discard','sort','reverse','__setitem__','__delitem__'})
+
+
+def _module_package(path,namespace):
+    package=namespace.get('__package__')
+    if isinstance(package,str) and package:return package
+    module_name=namespace.get('__name__','')
+    return module_name if path.name=='__init__.py' else module_name.rpartition('.')[0]
+
+
+def _runtime_state(tree):
+    """Module globals the module's own verified source changes after their literal assignment.
+
+    In-place container mutation (subscript stores/deletes or mutating methods) and
+    `global` rebinds in its functions are runtime state, such as ComfyUI's custom-node
+    registries, not settings. A change made from any other module, verified or not,
+    still fails, so a registry exempts only what its owning source declares.
+    """
+    state=set()
+    def visit(statements,local,declared):
+        for node in _scope_nodes(statements):
+            targets=(node.targets if isinstance(node,(ast.Assign,ast.Delete)) else
+                     [node.target] if isinstance(node,(ast.AugAssign,ast.AnnAssign)) else [])
+            for target in targets:
+                # _scope_nodes, not ast.walk: verification must not import modules lazily.
+                for item in _scope_nodes([target]):
+                    # Only the written container, never a subscript read inside a key.
+                    if not isinstance(getattr(item,'ctx',None),(ast.Store,ast.Del)):continue
+                    if isinstance(item,ast.Subscript) and isinstance(item.value,ast.Name) and item.value.id not in local:
+                        state.add(item.value.id)
+                    elif isinstance(item,ast.Name) and item.id in declared:state.add(item.id)
+            if (isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute) and node.func.attr in _MUTATING_METHODS
+                    and isinstance(node.func.value,ast.Name) and node.func.value.id not in local):
+                state.add(node.func.value.id)
+    def functions(statements,enclosing):
+        # Names local to an enclosing function shadow the module global in closures too.
+        for function in _scope_nodes(statements):
+            if isinstance(function,ast.ClassDef):functions(function.body,enclosing)
+            if not isinstance(function,(ast.FunctionDef,ast.AsyncFunctionDef)):continue
+            scope=list(_scope_nodes(function.body))
+            declared={name for node in scope if isinstance(node,ast.Global) for name in node.names}
+            arguments=function.args.posonlyargs+function.args.args+function.args.kwonlyargs
+            local={argument.arg for argument in arguments+[function.args.vararg,function.args.kwarg] if argument}
+            local|={node.id for node in scope if isinstance(node,ast.Name) and isinstance(node.ctx,(ast.Store,ast.Del))}
+            # Imports, with/except/match captures and nested defs bind locals without a Name store.
+            local|={target.id for target,_ in _source_bindings(function.body) if isinstance(target,ast.Name)}
+            local=(local|enclosing)-declared
+            visit(function.body,local,declared);functions(function.body,local)
+    visit(tree.body,set(),set());functions(tree.body,set())
+    return state
+
+
+def _source_import_literals(statements,path,namespace,roots,sources,constants_cache,local_constants,runtime=None):
     """Verify retained literal imports without importing providers or invoking hooks."""
     imported={};nodes=list(_scope_nodes(statements));copies=[]
     def copy_pairs(target,value):
@@ -1151,10 +1204,7 @@ def _source_import_literals(statements,path,namespace,roots,sources,constants_ca
         if not isinstance(node,ast.ImportFrom) or node.module=='__future__':continue
         provider_name=node.module or ''
         if node.level:
-            package=namespace.get('__package__')
-            if not isinstance(package,str) or not package:
-                module_name=namespace.get('__name__','')
-                package=module_name if path.name=='__init__.py' else module_name.rpartition('.')[0]
+            package=_module_package(path,namespace)
             parts=package.split('.') if package else []
             provider_name='.'.join(parts[:len(parts)-node.level+1]+([provider_name] if provider_name else []))
         bindings=[]
@@ -1185,6 +1235,12 @@ def _source_import_literals(statements,path,namespace,roots,sources,constants_ca
                 if provider_path not in constants_cache:
                     constants_cache[provider_path]=_source_constants(sources[provider_path])
                 declared=constants_cache[provider_path]
+                if runtime is not None:
+                    # A copy of provider runtime state legitimately diverges after import.
+                    changing=runtime(provider_path,values)
+                    bindings=[(bound,name) for bound,name in bindings if name not in changing]
+        if runtime is not None:
+            local=runtime(path,namespace);bindings=[(bound,name) for bound,name in bindings if bound not in local]
         for bound,name in bindings:
             require(name in values,'Imported literal provider no longer declares its binding')
             expected=declared.get(name,values[name])
@@ -1270,6 +1326,11 @@ def _loaded_source_code(roots,session):
         fields.update(overrides.get(id(record.value),{}))
         require(all(record.signature(name)==signature for name,signature in fields.items()),
                 'Loaded Comfy instance attributes differ from source on disk')
+    # Derived from each module's own verified source, sharing its single parsed tree.
+    runtime_names={}
+    def runtime_state(path,namespace=None):
+        if path not in runtime_names:runtime_names[path]=_runtime_state(source_tree(path))
+        return runtime_names[path]
     modules=tuple(sys.modules.values())
     for module in modules:
         namespace=getattr(module,'__dict__',None)
@@ -1283,10 +1344,11 @@ def _loaded_source_code(roots,session):
         if path in execution_proof:
             # One plan per freshly checked file. Check each live namespace, then
             # stream callable/object state during the existing graph traversal.
-            tree=proof_plan(path)['tree']
+            tree=proof_plan(path)['tree'];changing=runtime_state(path,namespace)
             constants=_source_constants(tree,proven=True,namespace=namespace,selected=selected)
             require(all(name in namespace and _literal_value_signature(namespace[name])==_literal_value_signature(value)
-                        for name,value in constants.items()),'Loaded Comfy module constants differ from their source on disk')
+                        for name,value in constants.items() if name not in changing),
+                    'Loaded Comfy module constants differ from their source on disk')
         try:declarations=list(_source_attribute_literals(selected,proven=path in execution_proof))
         except ValueError as exc:raise ValueError(f'{path}: module attributes: {exc}') from exc
         for target,signature in declarations:
@@ -1443,15 +1505,18 @@ def _loaded_source_code(roots,session):
         constants=constants_cache[path]
         expected.add(_literal_hash(constants))
         for namespace in module_namespaces.get(path,()):
+            changing=runtime_state(path,namespace)
             imports=_source_import_literals(tree.body,path,namespace,roots,
-                {**sources,**constructor_trees},constants_cache,constants)
+                {**sources,**constructor_trees},constants_cache,set(constants)|changing,runtime_state)
             imported_actual={name:namespace[name] for name in imports}
             require(_literal_hash(imported_actual)==_literal_hash(imports),
                     'Loaded Comfy imported literals changed during verification')
             expected.add(_literal_hash(imports));loaded_hashes.add(_literal_hash(imported_actual))
+            checked={name:value for name,value in constants.items() if name not in changing}
+            expected.add(_literal_hash(checked))
             try:
-                actual={name:namespace[name] for name in constants}
-                require(_literal_hash(actual)==_literal_hash(constants),
+                actual={name:namespace[name] for name in checked}
+                require(_literal_hash(actual)==_literal_hash(checked),
                         'Loaded Comfy module constants differ from their source on disk')
             except (KeyError,TypeError,ValueError):
                 require(False,'Loaded Comfy module constants differ from their source on disk')

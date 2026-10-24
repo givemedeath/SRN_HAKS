@@ -92,6 +92,16 @@ class VerifiedStartupTests(unittest.TestCase):
                 self.assertIn(error,result.stderr)
                 self.assertNotIn('VERIFIED',result.stdout)
 
+    def test_proven_registries_filled_by_their_own_source_still_verify(self):
+        source=('NAMES={"A":"A"}\nENABLED=True\nSETTINGS={"steps":12}\n'
+                'def register(name):\n    NAMES[name]=name\n'
+                'def disable():\n    global ENABLED\n    ENABLED=False\n')
+        result=self.run_fixture(source,'fixture.register("custom");fixture.disable()\n')
+        self.assertEqual(result.returncode,0,result.stderr);self.assertIn('VERIFIED',result.stdout)
+        # Another verified module changing an undeclared setting still fails.
+        result=self.run_fixture(source,"fixture.SETTINGS['steps']=10\n")
+        self.assertNotEqual(result.returncode,0);self.assertIn('module constants',result.stderr)
+
     def test_factory_defaults_do_not_exempt_other_literal_defaults(self):
         source='def value(factory=object(), mode=1): return mode\n'
         result=self.run_fixture(source,'fixture.value.__defaults__=(fixture.value.__defaults__[0],2)\n')
