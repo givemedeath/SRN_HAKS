@@ -1306,7 +1306,7 @@ def _loaded_source_code(roots,session):
             for record in _loaded_codes(value,seen,roots):
                 if isinstance(record,_LoadedFrameState):
                     path=roots.resolve(record.code.co_filename)
-                    if path is not None and path.suffix=='.py' and _inside(path,roots) and path not in execution_proof:
+                    if path is not None and path.suffix.lower()=='.py' and _inside(path,roots) and path not in execution_proof:
                         loaded_frames[id(record.frame)]=record
                     continue
                 if isinstance(record,_LoadedInstanceState):

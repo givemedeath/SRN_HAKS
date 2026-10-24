@@ -37,7 +37,7 @@ else:
                 if any((row['path'], row['sha256']) not in declared for row in identity['files']):
                     raise ValueError('Executing runtime contains files outside the frozen deployment')
             return inventory, session, identity
-        except (KeyError, OSError, SyntaxError, TypeError, ValueError):
+        except Exception:
             logging.getLogger(__name__).exception('Headkit runtime baseline capture failed; dispatch remains blocked')
             return None, None, None
 
@@ -61,7 +61,7 @@ else:
                     current = capture_runtime_identity(folder_paths, _STARTUP_COMFY_SOURCE_INVENTORY, loaded, session=session)
                     if not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):
                         raise ValueError('Comfy server runtime files changed after the adapter loaded')
-        except (KeyError, OSError, SyntaxError, TypeError, ValueError):
+        except Exception:
             logging.getLogger(__name__).exception('Headkit live runtime verification failed; dispatch remains blocked')
             return web.json_response({'verified': False}, status=409)
         return web.json_response(current, headers={'X-Headkit-Verification': json.dumps(audit.report(), separators=(',', ':'))})
@@ -72,6 +72,7 @@ else:
             payload = await request.json()
             with HEAVY_VERIFICATION_LOCK, verification_pass('server-models') as audit:
                 result = verify_loader_models(payload.get('models'), folder_paths, payload.get('prompt'))
-        except (KeyError, OSError, TypeError, ValueError):
+        except Exception:
+            logging.getLogger(__name__).exception('Headkit loader model verification failed; dispatch remains blocked')
             return web.json_response({'verified': False}, status=409)
         return web.json_response(result, headers={'X-Headkit-Verification': json.dumps(audit.report(), separators=(',', ':'))})

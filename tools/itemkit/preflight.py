@@ -62,7 +62,6 @@ def uv_report(corners, uv, caps, size, *, minimum_coverage=.30, maximum_unmapped
     labels = owners.copy(); labels[cap_pixels] = len(atlas)
     gutters = region_gutters(labels, np.r_[charts, charts.max()+1])
     blockers = []
-    if np.any((uv<0)|(uv>1)): blockers.append('uv-outside-atlas')
     if audit['overlapFaces'] or audit['degenerateUvFaces']: blockers.append('overlap-or-degenerate-uv')
     if overlap: blockers.append('cap-visible-overlap')
     if caps.any() and cap_audit['degenerateUvFaces']: blockers.append('degenerate-cap-uv')

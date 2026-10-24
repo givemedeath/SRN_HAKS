@@ -34,9 +34,10 @@ def _inside(path, roots):
 
 # Runtime implementation/configuration, native kernels and compiler inputs.
 # Documentation, sample images, test datasets and distribution RECORD listings
-# are not executable inputs. Explicitly loaded module origins are always included.
+# are not executable inputs. Explicitly loaded module origins are always included;
+# sourceless bytecode and zip-import archives stay importable members.
 RUNTIME_EXTENSIONS={'.py','.pyw','.pyi','.pyx','.pxd','.pxi','.pth','.pyd','.dll','.so','.dylib','.exe',
-                    '.zip','.whl','.json','.yaml','.yml','.toml','.ini','.cfg','.conf',
+                    '.pyc','.pyo','.pyz','.egg','.zip','.whl','.json','.yaml','.yml','.toml','.ini','.cfg','.conf',
                     '.h','.hpp','.c','.cc','.cpp','.cu','.cuh','.ptx','.cubin','.fatbin','.bc',
                     '.lib','.a','.o','.obj','.hsaco','.cl','.hlsl','.glsl','.vert','.frag',
                     '.jinja','.jinja2','.j2','.cmake','.lds'}

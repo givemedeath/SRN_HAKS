@@ -5,6 +5,7 @@ only actual reads within one explicit validation boundary may be shared.
 """
 from contextlib import contextmanager
 from contextvars import ContextVar
+import functools
 import hashlib
 import json
 import logging
@@ -18,22 +19,30 @@ CURRENT_PASS=ContextVar('headkit_verification_pass',default=None)
 HEAVY_VERIFICATION_LOCK=threading.RLock()
 
 
+@functools.cache
+def _windows_memory():
+    # Bind once per process; the RSS monitor samples every 50ms.
+    import ctypes
+    from ctypes import wintypes
+    class Counters(ctypes.Structure):
+        _fields_=[('cb',wintypes.DWORD),('faults',wintypes.DWORD),
+                  *[(name,ctypes.c_size_t) for name in ('peak','working','peakPaged','paged',
+                    'peakNonPaged','nonPaged','pagefile','peakPagefile')]]
+    kernel=ctypes.WinDLL('kernel32',use_last_error=True)
+    psapi=ctypes.WinDLL('psapi',use_last_error=True)
+    kernel.GetCurrentProcess.restype=wintypes.HANDLE
+    query=psapi.GetProcessMemoryInfo
+    query.argtypes=[wintypes.HANDLE,ctypes.POINTER(Counters),wintypes.DWORD]
+    return ctypes,Counters,query,kernel.GetCurrentProcess()
+
+
 def resident_bytes():
     """Current process RSS, never an estimate from bytes hashed or model sizes."""
     try:
         if os.name=='nt':
-            import ctypes
-            from ctypes import wintypes
-            class Counters(ctypes.Structure):
-                _fields_=[('cb',wintypes.DWORD),('faults',wintypes.DWORD),
-                          *[(name,ctypes.c_size_t) for name in ('peak','working','peakPaged','paged',
-                            'peakNonPaged','nonPaged','pagefile','peakPagefile')]]
+            ctypes,Counters,query,process=_windows_memory()
             counters=Counters();counters.cb=ctypes.sizeof(counters)
-            kernel=ctypes.WinDLL('kernel32',use_last_error=True)
-            psapi=ctypes.WinDLL('psapi',use_last_error=True)
-            kernel.GetCurrentProcess.restype=wintypes.HANDLE
-            psapi.GetProcessMemoryInfo.argtypes=[wintypes.HANDLE,ctypes.POINTER(Counters),wintypes.DWORD]
-            if psapi.GetProcessMemoryInfo(kernel.GetCurrentProcess(),ctypes.byref(counters),counters.cb):
+            if query(process,ctypes.byref(counters),counters.cb):
                 return counters.working
         else:
             with open('/proc/self/statm',encoding='ascii') as stream:
@@ -64,22 +73,31 @@ class VerificationPass:
         with lock:return self._hash(path,retain_source=retain_source)
 
     def _hash(self,path,*,retain_source):
-        if path in self.hashes:
-            self.counts['hashHits']+=1
-            return self.hashes[path]
+        # Counters and the retention budget are shared by hash workers; _guard
+        # covers only bookkeeping, never file I/O.
+        with self._guard:
+            if path in self.hashes:self.counts['hashHits']+=1;return self.hashes[path]
         digest=hashlib.sha256();size=0;blocks=[]
         # Bound transient source retention independently of model/binary sizes.
-        keep=retain_source and path.suffix=='.py' and path.stat().st_size<=1024*1024 \
-            and self.source_bytes+path.stat().st_size<=32*1024*1024
-        with path.open('rb') as stream:
-            for block in iter(lambda:stream.read(1024*1024),b''):
-                digest.update(block);size+=len(block)
-                if keep:
-                    if size<=1024*1024:blocks.append(block)
-                    else:keep=False;blocks.clear()
-        result=digest.hexdigest();self.hashes[path]=result
-        self.counts['filesHashed']+=1;self.counts['bytesHashed']+=size
-        if keep:self.sources[path]=b''.join(blocks);self._lifecycle['sourceBytes']+=size
+        hint=path.stat().st_size if retain_source and path.suffix=='.py' else None
+        with self._guard:
+            keep=hint is not None and hint<=1024*1024 and self._lifecycle['sourceBytes']+hint<=32*1024*1024
+            reserved=hint if keep else 0;self._lifecycle['sourceBytes']+=reserved
+        try:
+            with path.open('rb') as stream:
+                for block in iter(lambda:stream.read(1024*1024),b''):
+                    digest.update(block);size+=len(block)
+                    if keep:
+                        if size<=1024*1024:blocks.append(block)
+                        else:keep=False;blocks.clear()
+        except BaseException:
+            with self._guard:self._lifecycle['sourceBytes']-=reserved
+            raise
+        result=digest.hexdigest()
+        with self._guard:
+            self.hashes[path]=result;self.counts['filesHashed']+=1;self.counts['bytesHashed']+=size
+            if keep:self.sources[path]=b''.join(blocks)
+            self._lifecycle['sourceBytes']+=(size if keep else 0)-reserved
         return result
 
     def source(self,path):
@@ -88,7 +106,8 @@ class VerificationPass:
         if path not in self.hashes:self.hash(path,retain_source=True,canonical=True)
         if path in self.sources:return self.sources[path]
         # Oversized source is not retained. Rebind that read to the pass digest.
-        value=path.read_bytes();self.counts['bytesHashed']+=len(value)
+        value=path.read_bytes()
+        with self._guard:self.counts['bytesHashed']+=len(value)
         if hashlib.sha256(value).hexdigest()!=self.hashes[path]:
             raise ValueError('Source changed within verification pass: '+str(path))
         return value

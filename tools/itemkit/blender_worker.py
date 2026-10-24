@@ -28,6 +28,9 @@ def arrays(obj):
     return vertices, faces
 
 
+def corners(obj): v,f=arrays(obj);return v[f]
+
+
 def combined(objects):
     points, faces, offset = [], [], 0
     for obj in objects:
@@ -313,7 +316,7 @@ def image_rgba(image):
 def unwrap(cfg, out):
     bpy.ops.wm.open_mainfile(filepath=cfg['scene'])
     objects = [bpy.data.objects['item_'+p] for p in active_parts(cfg['family'])]
-    before = [arrays(obj)[0][arrays(obj)[1]] for obj in objects]
+    before = [corners(obj) for obj in objects]
     if cfg.get('atlas'):
         with np.load(cfg['atlas'],allow_pickle=False) as archive:
             for part,obj in zip(active_parts(cfg['family']),objects):
@@ -328,14 +331,14 @@ def unwrap(cfg, out):
                     attribute=mesh.attributes.get('itemkit_uv_region') or mesh.attributes.new('itemkit_uv_region','INT','FACE')
                     attribute.data.foreach_set('value',labels)
                     obj['itemkit_uv_region_hash']=region_hash(p[f],uv_corners(obj),labels)
-        require(all(np.array_equal(old,arrays(obj)[0][arrays(obj)[1]]) for old,obj in zip(before,objects)),'Atlas application changed final geometry')
+        require(all(np.array_equal(old,corners(obj)) for old,obj in zip(before,objects)),'Atlas application changed final geometry')
         bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'))
         return {'atlas':pin(cfg['atlas']),'geometryUnchanged':True}
     set_active(objects); bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=cfg['processing']['uvMargin'])
     bpy.ops.uv.pack_islands(rotate=True, margin=cfg['processing']['uvMargin'])
     bpy.ops.object.mode_set(mode='OBJECT')
-    require(all(np.array_equal(old, arrays(obj)[0][arrays(obj)[1]]) for old, obj in zip(before, objects)),
+    require(all(np.array_equal(old, corners(obj)) for old, obj in zip(before, objects)),
             'UV pass changed ordered triangle positions')
     uv = np.concatenate([uv_corners(obj) for obj in objects]); report = {}
     for size in (4096, 2048, 1024, 512):

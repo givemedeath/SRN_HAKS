@@ -65,7 +65,11 @@ def plan(subtype, colours, occupied, texture_prefix, blueprint_prefix):
     # an older finish. Build the occupied index set once rather than rescanning.
     pattern = re.compile(rf'^i?wbwsl_{slot}_(\d{{3}})\.(?:mdl|tga|dds)$')
     taken = {int(m.group(1)) // 10 for name in occupied if (m := pattern.fullmatch(name))}
-    candidates = [i for i in range(2, 26) if i not in taken and i * 10 + colours[-1] <= 255]
+    def textures(i):
+        return {resref(f'{texture_prefix}_{i:02d}{c}')+ext for c in colours for ext in ('.tga', '.dds', '.txi', '.mtr')}
+    # Texture names depend on the index, so an occupied texture skips to the next free index.
+    candidates = [i for i in range(2, 26) if i not in taken and i * 10 + colours[-1] <= 255
+                  and not textures(i) & occupied]
     require(candidates, 'No collision-free firearm shape index')
     index = candidates[0]
     variants = []
@@ -74,8 +78,6 @@ def plan(subtype, colours, occupied, texture_prefix, blueprint_prefix):
         models = {p: part_name(p, index if p == slot else 1, colour) for p in PART_FIELDS}
         texture = resref(f'{texture_prefix}_{index:02d}{colour}')
         blueprint = resref(f'{blueprint_prefix}_{colour}')
-        require(not {texture + ext for ext in ('.tga', '.dds', '.txi', '.mtr')} & occupied,
-                'Texture resource collision')
         require(blueprint + '.uti' not in occupied, 'Blueprint resource collision')
         names = {models[slot]+'.mdl', 'i'+models[slot]+'.tga', texture+'.tga', blueprint+'.uti'}
         require(not names & all_resources, 'Generated resource aliases another variant or placeholder')

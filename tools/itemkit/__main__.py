@@ -66,17 +66,6 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         if key in local: pins.append(local[key])
     cpu=run is not None or stage in {'prepare','inspect','donor','fit','reduce','unwrap','finish','bake','shadow','render','native','fixture','client'}
     models={} if cpu else local.get('models', {})
-    if stage and not cpu:
-        from tools.headkit.comfy_nodes.model_resolution import model_choices
-        data=manifest(manifest_path,input_roles=roles,validate_native=False)
-        multi=data.get('profile')=='pixal-multiview-v1' and stage in ('geometry','appearance')
-        template=('multiview-' if multi else '')+stage+'.json'
-        graph=read(Path(__file__).parents[1]/'headkit'/'templates'/template)
-        if stage=='calibrate':
-            from .generation import calibration_background_decision
-            graph=comfy.calibration_background(graph,calibration_background_decision(manifest_path,data),'itemkit/input-scope')
-        choices=model_choices(graph)
-        models={name:models[name] for _,name in choices}
     # New GPU requests bind model paths/hashes in the configuration, but only
     # Comfy consumes those bytes. Its fresh preparation/dispatch/completion
     # checks replace redundant client and launcher weight reads. Unscoped

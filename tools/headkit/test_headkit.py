@@ -411,6 +411,13 @@ class ComfyServerRuntimeTests(Temporary):
         self.assertEqual(files,{paths[i] for i in (0,2,3,5)})
         self.assertIn(paths[1],runtime_members({stdlib,stdlib/'site-packages',active}))
 
+    def test_runtime_members_include_sourceless_bytecode_and_zip_imports(self):
+        from headkit.comfy_nodes.runtime_identity import runtime_members
+        active=self.root/'venv'/'site-packages'
+        paths=[active/'plain.pyc',active/'legacy.PYO',active/'bundle.pyz',active/'old.egg',active/'__pycache__'/'cached.pyc']
+        for path in paths:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
+        self.assertEqual(runtime_members({active}),set(paths[:4]))
+
     def test_runtime_byte_hash_catches_same_size_change_with_restored_timestamp(self):
         from headkit.comfy_nodes.runtime_identity import _pin
         path=self.file('kernel.dll','abc');before=_pin(path);stat=path.stat()

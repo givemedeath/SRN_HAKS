@@ -50,9 +50,16 @@ class FirearmTests(unittest.TestCase):
         for name in ['wbwsl_t_011.mdl', 'iwbwsl_m_012.dds', 'iwbwsl_b_011.tga']:
             with self.assertRaisesRegex(ValueError, 'Placeholder'): self.allocation([name])
 
-    def test_texture_material_and_blueprint_collisions_fail(self):
-        for name in ['sr_pt_021.mtr', 'sr_pt_022.txi', 'sr_pt_021.dds', 'sr_pt_2.uti']:
-            with self.assertRaisesRegex(ValueError, 'collision'): self.allocation([name])
+    def test_blueprint_collision_fails(self):
+        with self.assertRaisesRegex(ValueError, 'Blueprint resource collision'): self.allocation(['sr_pt_2.uti'])
+
+    def test_occupied_texture_or_material_skips_to_next_free_index(self):
+        for name in ['sr_pt_021.mtr', 'sr_pt_022.txi', 'sr_pt_021.dds', 'SR_PT_022.TGA']:
+            with self.subTest(name=name):
+                a = self.allocation([name]); self.assertEqual(a['modelIndex'], 3)
+                self.assertEqual([v['texture'] for v in a['variants']], ['sr_pt_031', 'sr_pt_032'])
+        with self.assertRaisesRegex(ValueError, 'No collision-free'):
+            self.allocation([f'sr_pt_{i:02d}1.tga' for i in range(2, 26)])
 
     def test_no_identity_aliasing(self):
         with self.assertRaises(ValueError): f.plan('pistol', [1, 2], [], 'this_resref_is_too_long', 'item')
