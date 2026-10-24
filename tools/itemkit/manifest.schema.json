@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Item asset manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "id", "profile", "familyProfile", "inputs", "features", "openings", "clientCoverage"],
+  "$defs": {"pin": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": {
+    "path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }}},
+  "properties": {
+    "schemaVersion": {"const": 1}, "kind": {"const": "item-asset"},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"},
+    "profile": {"const": "pixal-single-v1"}, "conditioning": {"enum": ["detailed-v1", "clay-detail-v1"]}, "familyProfile": {"$ref": "#/$defs/pin"},
+    "inputs": {"type": "object", "required": ["reference"], "additionalProperties": {"$ref": "#/$defs/pin"}},
+    "features": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "placementReviewed"], "properties": {"name": {"type": "string"}, "placementReviewed": {"type": "boolean"}}}},
+    "openings": {"type": "array"}, "camera": {"type": "object"}, "approval": {"type": "object"},
+    "fit": {"type": "object"}, "processing": {"type": "object"}, "render": {"type": "object"},
+    "generationSettings": {"type": "object"}, "geometrySeedOffset": {"type": "integer", "minimum": 0, "maximum": 2147483647}, "landmarks": {"type": "array"}, "materials": {"type": "array", "minItems": 1},
+    "clientCoverage": {"const": ["human-male", "human-female"]}, "notes": {"type": "string"}
+  }
+}

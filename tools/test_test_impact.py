@@ -63,6 +63,18 @@ class PackageImpactTests(unittest.TestCase):
                 p=root/(name+'.py');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
             self.assertIn('tools/pkg/test_core.py',select(['tools/pkg/engine/core.py'],catalog(root))['tests'])
 
+class NamespaceDependencyTests(unittest.TestCase):
+    def test_repository_namespace_absolute_imports_are_dependencies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for name,text in {'tools/kit/__init__':'','tools/kit/engine':'VALUE=1',
+                    'tools/kit/test_engine':'from tools.kit import engine\nfrom tools.kit.engine import VALUE'}.items():
+                p=root/(name+'.py');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
+            data=catalog(root)
+            self.assertIn('tools/kit/engine.py',data['dependencies']['tools/kit/test_engine.py'])
+            self.assertIn('tools/kit/test_engine.py',select(['tools/kit/engine.py'],data)['tests'])
+
+
 class PackageDiscoveryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):cls.data=catalog()

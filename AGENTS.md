@@ -11,6 +11,40 @@
 - Read compact resume state from explicit ledger bindings. Reconcile missing, conflicting or stale bindings; do not choose the newest-looking filename. Preserve historical checkpoints and distinguish reference approval, working selection, native validation, client validation and production acceptance.
 - Select validation from changed files and their dependencies, including before PR readiness. Run focused affected tests for helper, configuration and documentation changes; run the full helper suite when shared helpers change. Run item-import regressions when item-import code or its dependencies change. Validate and rebuild affected HAK packs when pack inputs, assets or build tooling change. Reserve full repository scans and all-pack rebuilds for changes with unknown dependency coverage, repository-wide build changes, explicit release checks or a user request. Keep preview rendering at four threads; record timings before adding concurrency.
 
+## Weapon grip sizing
+
+For firearms, use `colt-l36-approved-firearm-grip-v1` in
+`docs/items/firearm-grip-standard-v1.json` (user-approved thickness-based pistol
+fit enlarged uniformly by 15%). This supersedes the Cougar melee grip as the
+firearm sizing authority. Measure each design's grip and preserve its proportions
+and grip/barrel angle; do not blindly reuse the Colt's source scale or force the
+melee usable length. Compare thickness, width, usable landmarks and native hand
+placement on both shipped Human bodies. Static fit approval is not client or
+production approval. The Cougar standard below remains the melee reference.
+
+For future items, use smooth clay references for geometry and detailed color
+references for saved-shape appearance (user update 2026-10-23). Simplify shallow
+grooves, serrations, stippling, fine grip ribs, lettering, scratches and tiny
+fasteners into the texture layer. Preserve silhouette, proportions, major part
+boundaries, raised controls, thin structural members and intentional openings.
+Inspect alpha edges and paired framing before submission. Keep raw references,
+prior clay versions and reviews immutable; a revised clay invalidates dependent
+conditioning reviews. This is the authoring default for new work, not permission
+to rewrite accepted assets or bypass the existing generation/review gates.
+
+Item generation permits at most five geometry submissions per model, including
+prior attempts (user update 2026-10-23). Preserve the shared trial ledger and
+uncertain-job reconciliation. Use the audited itemkit limit migration for older
+two-attempt ledgers; never reset model identity or history to gain attempts.
+
+For future weapons, use the user-approved `cougar-approved-grip-v1` measurements in
+`docs/items/weapon-grip-standard-v1.json` and follow `docs/items/weapon-grip-sizing.md`.
+Scale from usable grip length, visible-face width and depth in the native hand,
+not overall weapon bounds or the original uncorrected native donor thickness.
+Record the reference hash and measured fit in each new asset's evidence. Do not
+apply the Cougar's historical scale multipliers blindly to other designs. Keep
+native attachment placement and require visual hand-fit review for departures.
+
 ## Human female target authority
 
 Continue from docs/phenotype-human-female-checkpoint.md and its explicit authoritative ledger/resume bindings. Preserve the stock-exact female rig, stature, attachments, head/neck, equipment sizing and tables. Keep the separately versioned “hips level + original upper lean” experiment and shared-female animation ownership in this target session. Finalize and validate that selected posture before further hip, thigh or torso adjustments.

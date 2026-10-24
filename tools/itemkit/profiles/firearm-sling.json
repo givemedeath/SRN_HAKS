@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "firearm-sling",
+  "nativePackaging": "blocked",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {"remeshResolution": 768, "targetFaceCount": 200000},
+  "budgets": {"visible": 10000, "shadow": 500, "parts": {
+    "b": {"visible": 300, "shadow": 100}, "m": {"visible": 450, "shadow": 100}, "t": {"visible": 1250, "shadow": 300}
+  }},
+  "allowedAssemblies": [{"b": "unassigned", "m": "unassigned", "t": "unassigned"}],
+  "notes": "Generation and inspection only. Preliminary whole-item starting cap: 10K visible triangles, within budget-policy.json's adjustable 10K-25K firearm range selected by pistol/SMG/rifle size. Legacy part/shadow placeholders are unused and do not allocate the new whole-item target or confer a firearm mapping. Native packaging is blocked pending component mapping, per-part allocation, interchangeability, grip/axes/attachments, appearance indices, ammunition/projectiles and animation requirements."
+}

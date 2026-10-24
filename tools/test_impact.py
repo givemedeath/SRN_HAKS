@@ -87,7 +87,8 @@ def catalog(repo=REPO):
                     module_suffix='/'.join(name.split('.'))
                     # A module inside a package is only importable by its package-qualified name.
                     matches=[p for p in files if (p.as_posix().endswith('/'+module_suffix+'.py') or p.as_posix().endswith('/'+module_suffix+'/__init__.py'))
-                             and (not in_package[p] or qualified[p]==name)]
+                             and (not in_package[p] or qualified[p]==name or p.relative_to(repo).as_posix()
+                                  in (module_suffix+'.py',module_suffix+'/__init__.py'))]
                 if len(matches)>1:unresolved.append(rel)
                 edges.update(p.relative_to(repo).as_posix() for p in matches)
             if isinstance(node,ast.Constant) and isinstance(node.value,str):
