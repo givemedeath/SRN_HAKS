@@ -41,6 +41,13 @@ def stage_libraries(stage,data):
     return {'precluster':{'igl','pymeshlab'},'repair':{'igl','pymeshlab'},'unwrap':{'xatlas'}}.get(stage,set())
 
 
+def unworded(value):
+    """A manifest section without the wording of its `notes` keys (any depth). Stages read notes only as non-empty
+    review gates, so a note keeps just that presence bit: rewording one never stales receipts, blanking one still does."""
+    if isinstance(value,dict):return {k:(isinstance(v,str) and bool(v.strip())) if k=='notes' else unworded(v) for k,v in value.items()}
+    return [unworded(v) for v in value] if isinstance(value,list) else value
+
+
 class Runner:
     def __init__(self, manifest_path, bindings_path, run, *, runtime=None):
         self.manifest_path=Path(manifest_path).resolve();self.bindings_path=Path(bindings_path).resolve()
@@ -59,7 +66,7 @@ class Runner:
         sections=set().union(*(STAGE_SECTIONS[s] for s in closure));roles=set().union(*(stage_roles(s,self.data) for s in closure))
         return digest({'schemaVersion':self.data['schemaVersion'],'id':self.data['id'],'closure':sorted(closure),
                        'dependencies':{s:self.dependencies(s) for s in sorted(closure)},
-                       'sections':{k:self.data.get(k) for k in sorted(sections)},'inputs':{r:self.data['inputs'][r] for r in sorted(roles)}})
+                       'sections':{k:unworded(self.data.get(k)) for k in sorted(sections)},'inputs':{r:self.data['inputs'][r] for r in sorted(roles)}})
 
     def _verify(self,pins):
         # Upstream receipts repeat the same files; hash each (path, digest) once per check before execution.
@@ -206,7 +213,27 @@ class Runner:
             self._read=None;common.LIBRARIES_USED=None
             receipt['elapsedSeconds']=time.monotonic()-begun;write(folder/'receipt.json',receipt,fresh=True)
             self.state['stages'][stage]=pin(folder/'receipt.json');write(self.state_path,self.state)
-        return {'reused':False,'result':result}
+        carried=self._carry_review(stage)
+        return {'reused':False,'result':result,**({'carriedReview':carried} if carried else {})}
+
+    def _carry_review(self,stage):
+        """Carry the stage's latest review onto this attempt only when it approved an earlier attempt whose outputs are
+        byte-identical (same relative paths and sha256) to this one's: the operator already judged exactly these bytes.
+        Every runner stage is review-gated. Any added, missing or changed output, or a rejected or absent review, carries nothing."""
+        old=self.state.get('reviews',{}).get(stage);row=self.state['stages'][stage]
+        if old is None:return None
+        def files(receipt,path):
+            base=Path(path).parent;return {Path(p['path']).relative_to(base).as_posix():p['sha256'] for p in receipt['outputs']}
+        try:
+            self._verify([old]);review=read(old['path']);bound=review.get('stageReceipt')
+            if review.get('decision')!='approved' or not isinstance(bound,dict) or bound==row:return None
+            self._verify([bound]);previous=read(bound['path']);current=read(row['path'])
+            same=(previous.get('stage')==stage and previous.get('state')=='complete' and current.get('state')=='complete'
+                  and current['outputs'] and files(previous,bound['path'])==files(current,row['path']))
+        except (ValueError,OSError,KeyError):return None
+        if not same:return None
+        notes=f"Carried from {Path(bound['path']).parent.name}: identical outputs (sha256). {review['notes']}"
+        return self._record_review(stage,{'stageReceipt':row,'decision':'approved','notes':notes,'productionAccepted':False,'carriedFrom':old})
 
     def _texture_dependencies(self,stage,dependencies):
         # Configured paint replaces the bake as colour source; rule ownership reads paint masks and the baked metallic.
@@ -229,7 +256,8 @@ class Runner:
     def _sealed(self):
         # Paint can address the neck seal faces only when this run's repair produced the mesh.
         inputs=self.data['inputs']
-        return not {'uvMesh','repairedMesh'}&set(inputs) and bool(self.data.get('mesh',{}).get('neck',{}).get('seal'))
+        # A null mesh.neck is "no neck shaping" (mesh.neck_policy), exactly like an absent one.
+        return not {'uvMesh','repairedMesh'}&set(inputs) and bool(((self.data.get('mesh') or {}).get('neck') or {}).get('seal'))
 
     def _stage_color(self,stage):
         rows={'bake':lambda r:r['maps']['basecolor-4096.png'],'paint':lambda r:r['maps']['basecolor-4096.png'],
@@ -452,9 +480,11 @@ class Runner:
 
     def review(self,stage,decision,notes):
         require(decision in ('approved','rejected') and notes.strip(),'Explicit visual decision and notes required')
-        self.result(stage,require_review=False);target=self.run/'reviews'/f'{stage}-{uuid.uuid4().hex}.json'
-        result={'stageReceipt':self.state['stages'][stage],'decision':decision,'notes':notes,'productionAccepted':False}
-        write(target,result,fresh=True);review_pin=pin(target)
+        self.result(stage,require_review=False)
+        return self._record_review(stage,{'stageReceipt':self.state['stages'][stage],'decision':decision,'notes':notes,'productionAccepted':False})
+
+    def _record_review(self,stage,result):
+        target=self.run/'reviews'/f'{stage}-{uuid.uuid4().hex}.json';write(target,result,fresh=True);review_pin=pin(target)
         self.state.setdefault('reviews',{})[stage]=review_pin;write(self.state_path,self.state)
         return review_pin
 

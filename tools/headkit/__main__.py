@@ -122,7 +122,8 @@ def install_nodes(destination,local):
 
 
 def chain(runner, stages):
-    """Execute/reuse CPU stages in order; stop at the first unreviewed dependency or failure. Never records a review."""
+    """Execute/reuse CPU stages in order; stop at the first unreviewed dependency or failure. Records no new judgement: only
+    an earlier approval carried onto byte-identical rerun outputs (Runner._carry_review), shown as review 'carried'."""
     from .runner import STAGES
     require(stages and len(set(stages))==len(stages) and all(s in STAGES for s in stages)
             and list(stages)==sorted(stages,key=STAGES.index),'Chain stages must be distinct CPU stages in pipeline order')
@@ -153,7 +154,8 @@ def chain(runner, stages):
             stopped='failed';break
         folder,receipt=attempt(stage)
         rows.append({'stage':stage,'status':'reused' if outcome['reused'] else 'ran','attempt':folder,
-                     'elapsedSeconds':receipt.get('elapsedSeconds'),'review':decision(stage)})
+                     'elapsedSeconds':receipt.get('elapsedSeconds'),'review':'carried' if 'carriedReview' in outcome else decision(stage)})
+        if 'carriedReview' in outcome:rows[-1]['carriedReview']=outcome['carriedReview']
     return {'id':runner.data['id'],'run':str(runner.run),'stages':rows,'stopped':stopped,'autoApproved':False}
 
 
