@@ -691,6 +691,18 @@ class MeshTests(Temporary):
                     self.assertEqual({k:got.get(k) for k in want},want);self.assertEqual([{k:v for k,v in row.items() if k!='elapsedSeconds'} for row in log],want_log)
         hits=scan(p,f)['pairs'];self.assertGreater(len(hits),10)
         self.assertEqual(sorted(pair for pair in hits if pair[0]>=700),[[700,701],[706,707],[708,709]])  # strict crossings only; touching and near misses pass
+    def test_scan_bounds_candidate_and_narrow_phase_work_by_the_pair_cap(self):
+        from headkit import intersections
+        rng=np.random.default_rng(9);n=3000                              # malformed mesh: every triangle overlaps every other
+        tri=rng.random((n,1,3))*.01+rng.normal(0,.3,(n,3,3));p,f=tri.reshape(-1,3),np.arange(3*n).reshape(-1,3)
+        built,checked=[],[];real=intersections.crossing_pairs
+        def narrow(a,b,eps=1e-10):checked.append(len(a));return real(a,b,eps)
+        with patch.object(intersections,'NEIGHBOUR_BUDGET',20000),patch.object(intersections,'crossing_pairs',side_effect=narrow):
+            result=intersections.scan(p,f,max_pairs=5000,workers=2)
+        self.assertEqual((result['complete'],result['reason']),(False,'resource-pair-cap'))
+        # Each block builds candidates only up to the chunk group that passes the cap and narrow-tests only pairs before
+        # the chunk that passes it, not the ~4.5 million pairs of the whole mesh.
+        self.assertLessEqual(max(checked),5000);self.assertLess(sum(checked),20*5000)
     def test_neck_taper_profile_is_monotonic_and_c1_without_a_shelf(self):
         from headkit.mesh import taper_scale
         taper=self.NECK['taper'];bottom=-.1;z=np.linspace(.0,bottom,4001);dz=z[0]-z[1]
@@ -2069,6 +2081,13 @@ class ImportedOwnershipTests(Temporary):
             for role in ('basecolor4k','runtimeColor','runtimeShades')}}
         write(base/'manifest.json',data);write(base/'bindings.json',self.bindings_data(tools_root=base))
         return Runner(base/'manifest.json',base/'bindings.json',base/'run')
+    def test_paint_on_imported_textures_binds_their_approvals(self):
+        runner=self.fixture();data=read(runner.manifest_path);data['paint']={'operations':[]};write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(runner.dependencies('paint'),[])
+        before=runner.manifest_digest('paint')
+        # Paint has no upstream stage here, so only its own digest can notice a revoked texture approval.
+        data['approval']['textureMaps']['basecolor4k']['decision']='rejected';write(runner.manifest_path,data)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('paint'),before)
     def test_imported_mesh_audit_blocks_export_and_records_passed_evidence(self):
         runner=self.fixture();source=runner.input('uvMesh')
         rejected={'source':pin(source),'passed':False,'topology':{'closed':False},

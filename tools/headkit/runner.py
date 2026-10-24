@@ -32,7 +32,7 @@ def stage_roles(stage,data):
 # 'section.key' binds one key of a section: prepare reads only the design review, so later approvals (appearance field,
 # texture maps) added to the same manifest do not stale the matte.
 STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':set(),'fit':{'fit'},'repair':{'mesh','fit'},
-    'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh'},'ownership':{'ownership','paint','mesh','approval'},
+    'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
     'tone':{'tone','palette','ownership','approval'},'palette':{'palette','ownership','approval'},'export':{'fit','palette','mesh','approval'},
     'native':{'fit'},'render':{'render','approval'}}
 
