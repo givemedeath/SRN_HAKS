@@ -145,7 +145,10 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                     '    EXTENSION_WEB_DIRS.update({name: "web"})\n'
                     'def set_progress_bar_enabled(enabled):\n    global PROGRESS_BAR_ENABLED\n    PROGRESS_BAR_ENABLED = enabled\n'
                     'def shadowed():\n    SCALE = {}\n    SCALE["x"] = 1\n'
-                    '    def inner():\n        SCALE["y"] = 2\n    inner()\n')
+                    '    def inner():\n        SCALE["y"] = 2\n    inner()\n'
+                    'def imported():\n    from os import environ as REGISTRY\n    REGISTRY.update({})\n'
+                    'def captured():\n    import contextlib\n    with contextlib.nullcontext({}) as REGISTRY:\n'
+                    '        REGISTRY["x"] = 1\n')
         path.write_text(reviewed, encoding='utf-8')
         consumer_path = self.core / 'execution.py'
         consumer_path.write_text('from nodes import PROGRESS_BAR_ENABLED\n', encoding='utf-8')

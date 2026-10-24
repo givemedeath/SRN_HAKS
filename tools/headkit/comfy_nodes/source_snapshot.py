@@ -1182,6 +1182,8 @@ def _runtime_state(tree):
             arguments=function.args.posonlyargs+function.args.args+function.args.kwonlyargs
             local={argument.arg for argument in arguments+[function.args.vararg,function.args.kwarg] if argument}
             local|={node.id for node in scope if isinstance(node,ast.Name) and isinstance(node.ctx,(ast.Store,ast.Del))}
+            # Imports, with/except/match captures and nested defs bind locals without a Name store.
+            local|={target.id for target,_ in _source_bindings(function.body) if isinstance(target,ast.Name)}
             local=(local|enclosing)-declared
             visit(function.body,local,declared);functions(function.body,local)
     visit(tree.body,set(),set());functions(tree.body,set())
