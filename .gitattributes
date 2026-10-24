@@ -46,6 +46,10 @@ docs/phenotypes/evidence/purposebuilt-hand-pilot-v1/measure-wrist-motion-v2.py w
 srn_body/** -text
 srn_body_tex/** -text
 
+# Publish accepted weapon payloads and their exact reviewed display-table bytes.
+srn_weapon/** -text
+srn_2da/baseitems.2da -text
+
 # Keep GitHub reviews within diff limits; these generated text payloads remain ordinary exact-byte files.
 docs/phenomorpher/game-ready-assets.json -diff linguist-generated=true
 srn_2da/appearance.2da -diff linguist-generated=true
