@@ -236,11 +236,12 @@ def main():
             # state.json is the run's mutable index, rewritten by run/chain/review during the launch; the immutable
             # receipts and reviews it points to are the frozen inputs.
             state=read(a.run/'state.json');stale=[]
+            from .runner import Runner;scoped=Runner(a.manifest,a.bindings,a.run)
             for stage,row in state['stages'].items():
                 if closure is not None and stage not in closure:continue
                 receipt=read(row['path'])
                 # A receipt from other code or another manifest is rerun, not consumed; its old pins are not inputs.
-                if receipt.get('codeVersion')!=source_version() or receipt.get('manifestHash')!=digest(data):stale.append(stage);continue
+                if receipt.get('codeVersion')!=source_version() or receipt.get('manifestHash')!=scoped.manifest_digest(stage):stale.append(stage);continue
                 pins.append(row);pins+=receipt['inputs']+receipt['outputs']
                 if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
         verify(pins);paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}

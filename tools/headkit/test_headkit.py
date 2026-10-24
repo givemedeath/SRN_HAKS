@@ -862,7 +862,8 @@ class InputInventoryTests(Temporary):
         current=self.file('current.json','current output')
         rows={}
         for stage,code,inputs in (('repair','old-code',[old_pin]),('unwrap',source_version(),[pin(current)])):
-            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':digest(manifest(manifest_path)),'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
+            scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
+            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
         write(run/'state.json',{'schemaVersion':1,'id':'stale-run','stages':rows})
         output=self.root/'inputs.json'
         with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),'--bindings',str(bindings_path),
@@ -2573,6 +2574,17 @@ class TextureStageTests(Temporary):
               'ownership':{'mode':'rules','reviewed':True,'rules':[]},'tone':{'mode':'adjust'}}
         write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
         return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+    def test_later_stage_rules_do_not_stale_earlier_receipts(self):
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+        data=read(runner.manifest_path);data['ownership']['rules']=[{'name':'all-skin','channel':0,'when':{'mapped':True}}];data['tone']={'mode':'adjust','operations':[]}
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        for stage in ('repair','unwrap','bake'):self.assertIn('artifact',runner.result(stage))
+        data['mesh']={'maximumSubtexelFraction':.004};write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        for stage in ('repair','unwrap','bake'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
+        receipt=read(runner.state['stages']['repair']['path']);self.assertNotIn(str(runner.manifest_path),{p['path'] for p in receipt['inputs']})
     def test_review_gate_blocks_consumers_of_paint(self):
         runner=self.texture_runner();completed=ReviewGateTests.completed
         with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)) as work:

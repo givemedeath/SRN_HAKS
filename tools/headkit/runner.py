@@ -27,6 +27,14 @@ def stage_roles(stage,data):
     return roles&inputs
 
 
+# Manifest sections each stage's code reads. A receipt hashes only the sections (and declared input roles) of its stage
+# and its dependency closure, so tuning a later stage's rules does not invalidate earlier, expensive stages.
+STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval'},'precluster':set(),'fit':{'fit'},'repair':{'mesh','fit'},
+    'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh'},'ownership':{'ownership','paint','mesh','approval'},
+    'tone':{'tone','palette','ownership','approval'},'palette':{'palette','ownership','approval'},'export':{'fit','palette','mesh','approval'},
+    'native':{'fit'},'render':{'render','approval'}}
+
+
 def stage_libraries(stage,data):
     """Byte-bound libraries a stage may load; enforced like stage_roles. Reviewed-UV reuse only audits, so it needs no xatlas."""
     if stage=='unwrap' and data.get('mesh',{}).get('reuseReviewedUvs',False):return set()
@@ -42,6 +50,16 @@ class Runner:
         self.state=read(self.state_path) if self.state_path.exists() else {'schemaVersion':1,'id':self.data['id'],'stages':{}}
         require(self.state['id']==self.data['id'],'Run belongs to a different head')
         self._verified=set();self._read=None
+
+    def manifest_digest(self,stage):
+        closure=set();pending=[stage]
+        while pending:
+            current=pending.pop()
+            if current not in closure:closure.add(current);pending+=self.dependencies(current)
+        sections=set().union(*(STAGE_SECTIONS[s] for s in closure));roles=set().union(*(stage_roles(s,self.data) for s in closure))
+        return digest({'schemaVersion':self.data['schemaVersion'],'id':self.data['id'],'closure':sorted(closure),
+                       'dependencies':{s:self.dependencies(s) for s in sorted(closure)},
+                       'sections':{k:self.data.get(k) for k in sorted(sections)},'inputs':{r:self.data['inputs'][r] for r in sorted(roles)}})
 
     def _verify(self,pins):
         # Upstream receipts repeat the same files; hash each (path, digest) once per check before execution.
@@ -88,7 +106,7 @@ class Runner:
         if stage in _checked['results']:return _checked['results'][stage]
         row=self.state['stages'].get(stage);require(row is not None,'Stage not completed: '+stage)
         receipt=read(row['path']);self._verify([row]);self._verify(receipt['outputs']);self._verify(receipt['inputs'])
-        require(receipt['codeVersion']==_checked['codeVersion'] and receipt['manifestHash']==digest(self.data)
+        require(receipt['codeVersion']==_checked['codeVersion'] and receipt['manifestHash']==self.manifest_digest(stage)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
         require(receipt['state']=='complete','Failed stage: '+stage)
         if self.runtime is not None:require(receipt.get('runtimeIdentity')==self.runtime,'Stage runtime differs from active launcher')
@@ -143,10 +161,11 @@ class Runner:
             except (ValueError,OSError):pass
         parent=self.run/stage;parent.mkdir(exist_ok=True)
         old=list(parent.glob('attempt-*/receipt.json'))
-        failures=[read(p) for p in old if read(p).get('manifestHash')==digest(self.data)
+        failures=[read(p) for p in old if read(p).get('manifestHash')==self.manifest_digest(stage)
                   and read(p).get('codeVersion')==source_version() and read(p).get('state')=='failed']
         require(len(failures)<2,'Two stage failures retained; fix the manifest or request a bounded exception before more trials')
-        inputs=[pin(self.manifest_path),pin(self.bindings_path)]+package_inputs+code_pins()
+        # The manifest is bound by the stage-scoped manifestHash, not by pinning the whole file.
+        inputs=[pin(self.bindings_path)]+package_inputs+code_pins()
         for name in ('python','blender','client','embree'):
             if name in self.bindings:inputs.append(self.bindings[name])
         for name in ('toolchain','migrationReceipt'):
@@ -158,7 +177,7 @@ class Runner:
             previous=read(row['path']);inputs.append(row);inputs.extend(previous['outputs'])
             inputs.append(self.state['reviews'][dependency])
         folder=parent/f'attempt-{len(list(parent.glob("attempt-*")))+1:02d}';folder.mkdir()
-        begun=time.monotonic();receipt={'stage':stage,'manifestHash':digest(self.data),'bindingsHash':digest(self.bindings),
+        begun=time.monotonic();receipt={'stage':stage,'manifestHash':self.manifest_digest(stage),'bindingsHash':digest(self.bindings),
             'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
         write(folder/'intent.json',receipt,fresh=True)
         self._read=set();common.LIBRARIES_USED=set()
