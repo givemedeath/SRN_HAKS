@@ -776,6 +776,15 @@ class MeshTests(Temporary):
             for a,b,c in f:ab,bc,ca=mid(a,b),mid(b,c),mid(c,a);faces+=[(a,ab,ca),(b,bc,ab),(c,ca,bc),(ab,bc,ca)]
             f=faces
         return np.array(v)*radius,np.array(f)
+    def test_preview_relief_finds_cancelling_normals_and_crust_cells(self):
+        from headkit.preview import pinched,rough_cells
+        p,f=self.icosphere();self.assertFalse(pinched(p,f).any())
+        # A fan folded onto itself: two faces up, two down around the centre vertex; its rim vertices 1 and 3 fold too.
+        fan=np.array([[0,0,0],[1,0,0],[0,1,0],[-1,0,0],[0,-1,0]],float);faces=np.array([[0,1,2],[0,2,3],[0,4,3],[0,1,4]])
+        np.testing.assert_array_equal(pinched(fan,faces),[True,True,False,True,False])
+        rng=np.random.default_rng(5);noisy=p.copy();cap=p[:,2]>.06;noisy[cap]*=(1+rng.normal(0,.03,cap.sum()))[:,None]
+        cells=rough_cells(noisy,f,noisy,fraction=.05,cell=.05)
+        self.assertGreater(cells[0]['centre'][2],0);self.assertTrue(all(c['vertices']>0 for c in cells))  # densest crust cell sits on the crown
     def test_relief_smoothing_calms_declared_region_only_and_stays_closed(self):
         from headkit.relief import smooth
         p,f=self.icosphere();rng=np.random.default_rng(3);noisy=p.copy();cap=p[:,2]>.03
@@ -2785,6 +2794,25 @@ class TextureStageTests(Temporary):
         source=self.root/'faces.glb';write_mesh(source,p,np.arange(6).reshape(2,3),uv)
         rgb=np.full((size,size,3),120,np.uint8);rgb[:,:size//2]=(200,20,20);Image.fromarray(rgb).save(self.root/'color.png')
         return source,rgb
+    def test_preview_splats_views_reports_region_stats_and_previews_run_rules(self):
+        from headkit.preview import splat,region_stats,preview
+        source,rgb=self.two_faces();value=mesh(source);blue=np.zeros_like(rgb);blue[...]=(0,0,255)
+        tiles=splat(value,[rgb,blue],size=64,samples=20000)
+        self.assertEqual([name for name,_ in tiles],[n for n in ('front','char-left','back','char-right') for _ in range(2)])
+        colour,label=tiles[0][1],tiles[1][1];drawn=(label!=70).any(-1)
+        self.assertTrue(drawn.any() and (colour[drawn][:,0]>colour[drawn][:,1]).any() and (label[drawn][:,2]>label[drawn][:,0]).all())
+        stats=region_stats(value,rgb,{'all':{'of':'lum','ge':0},'none':{'of':'lum','gt':999}})
+        self.assertEqual(stats['none'],{'texels':0});self.assertEqual(stats['all']['red'][2],180)
+        Image.fromarray(np.full((64,64),200,np.uint8)).save(self.root/'metal.png')
+        rules=[{'name':'red','channel':9,'when':{'of':'red','gt':50}}]
+        runner=SimpleNamespace(data={'inputs':{},'ownership':{'mode':'rules','rules':rules}},_sealed=lambda:False,
+            result=lambda stage,require_review=True:{'unwrap':{'mesh':{'path':str(source)}},
+                'bake':{'maps':{'basecolor-4096.png':{'path':str(self.root/'color.png')},'metallic-4096.png':{'path':str(self.root/'metal.png')}}}}[stage])
+        result=preview(runner,'ownership',self.root/'preview')
+        self.assertTrue(Path(result['preview']).is_file());self.assertEqual(sum(result['report']['channels'].values()),64*64)
+        self.assertGreater(result['report']['rules'][0]['texels'],0)
+        with self.assertRaisesRegex(ValueError,'named regions'):preview(runner,'stats',self.root/'stats')
+        with self.assertRaisesRegex(ValueError,'ownership, stats or relief'):preview(runner,'colour',self.root/'other')
     def test_rule_ownership_first_match_wins_and_padding_takes_nearest_label(self):
         from headkit.paint import rule_ownership
         from headkit.uv import raster_audit

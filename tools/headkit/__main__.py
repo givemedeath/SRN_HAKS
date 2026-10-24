@@ -183,6 +183,10 @@ def main():
     p=sub.add_parser('inputs');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--run',type=Path);p.add_argument('--stages')
     p=sub.add_parser('fit-propose');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--source',required=True,type=Path)
     p.add_argument('--reference',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--exclude-lower',type=float,default=.25)
+    # Seconds-long previews of manifest texture rules / repair relief on the run's bound outputs (no stage attempt).
+    p=sub.add_parser('preview');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
+    p.add_argument('--run',required=True,type=Path);p.add_argument('--what',choices=['ownership','stats','relief'],required=True)
+    p.add_argument('--regions',type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('startup-config');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
     # Direct-dispatch Flux.2 design proposals (see design.py): unguarded, for human review only.
@@ -250,6 +254,10 @@ def main():
                 if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
         verify(pins);paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}
         if a.run and (a.run/'state.json').exists():result['staleStagesSkipped']=stale
+    elif a.command=='preview':
+        from .runner import Runner
+        from .preview import preview
+        result=preview(Runner(a.manifest,a.bindings,a.run,runtime=runtime),a.what,a.output,read(a.regions) if a.regions else None)
     elif a.command=='startup-config':result=startup_config(bindings(a.bindings),a.output)
     elif a.command=='request':
         local=bindings(a.bindings)

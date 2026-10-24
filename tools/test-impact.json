@@ -16,6 +16,7 @@
       "tools/headkit/common.py",
       "tools/headkit/design.py",
       "tools/headkit/fit.py",
+      "tools/headkit/preview.py",
       "tools/headkit/replay.py",
       "tools/headkit/runner.py",
       "tools/headkit/source_inventory.py"
@@ -132,6 +133,14 @@
     "tools/headkit/predicates.py": [
       "tools/headkit/common.py"
     ],
+    "tools/headkit/preview.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/uv.py"
+    ],
     "tools/headkit/rays.py": [],
     "tools/headkit/relief.py": [
       "tools/headkit/common.py",
@@ -206,6 +215,7 @@
       "tools/headkit/native.py",
       "tools/headkit/paint.py",
       "tools/headkit/palette.py",
+      "tools/headkit/preview.py",
       "tools/headkit/relief.py",
       "tools/headkit/replay.py",
       "tools/headkit/review_images.py",
