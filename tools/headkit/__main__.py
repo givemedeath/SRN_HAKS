@@ -121,6 +121,16 @@ def install_nodes(destination,local):
             'restartRequired':True,'comfyRestarted':False}
 
 
+OPTIONAL_SECTIONS=('paint','render')  # stages a manifest may leave out entirely
+
+
+def skip_reason(runner,stage):
+    """Why a chain passes over a stage this manifest does not make: an optional section left out, or a pass-through tone."""
+    if stage in OPTIONAL_SECTIONS and stage not in runner.data:return 'Not configured: the manifest has no '+stage+' section'
+    if stage=='tone' and runner.tone_pass_through():return 'Configured pass-through (no operations): palette reads the colour directly'
+    return None
+
+
 def chain(runner, stages):
     """Execute/reuse CPU stages in order; stop at the first unreviewed dependency or failure. Records no new judgement: only
     an earlier approval carried onto byte-identical rerun outputs (Runner._carry_review), shown as review 'carried'."""
@@ -135,9 +145,9 @@ def chain(runner, stages):
         review=read(review['path']);return review.get('decision') if review.get('stageReceipt')==runner.state['stages'].get(stage) else 'pending'
     rows=[];stopped=None
     for stage in stages:
-        if stage=='tone' and runner.tone_pass_through():
-            rows.append({'stage':'tone','status':'skipped','reason':'Configured pass-through (no operations): palette reads the colour directly'})
-            continue
+        skipped=skip_reason(runner,stage)
+        if skipped:
+            rows.append({'stage':stage,'status':'skipped','reason':skipped});continue
         blocked=None
         for dependency in runner.dependencies(stage):
             try:runner.result(dependency)

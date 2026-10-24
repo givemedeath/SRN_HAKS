@@ -3069,6 +3069,18 @@ class TextureStageTests(Temporary):
         self.assertFalse(runner.tone_pass_through());self.assertEqual(runner.dependencies('palette'),['tone','ownership'])
         data['paint']=None;del data['paint'];data['tone']={'mode':'adjust'};write(runner.manifest_path,data)
         runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(runner.dependencies('palette'),['bake','ownership'])
+    def test_chain_skips_optional_stages_the_manifest_leaves_out(self):
+        from headkit.__main__ import chain,skip_reason
+        runner=self.texture_runner();data=read(runner.manifest_path);data.pop('paint');write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);completed=ReviewGateTests.completed
+        self.assertEqual(skip_reason(runner,'paint'),'Not configured: the manifest has no paint section');self.assertIsNone(skip_reason(runner,'bake'))
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+            rows=chain(runner,['paint','ownership'])['stages']
+        self.assertEqual([(row['stage'],row['status']) for row in rows],[('paint','skipped'),('ownership','ran')])
+        self.assertNotIn('paint',runner.state['stages'])
+        # Run directly, an unconfigured stage fails with its reason, not a KeyError.
+        with self.assertRaisesRegex(ValueError,'no paint section'):runner._execute('paint',self.root)
     def test_pass_through_palette_quantizes_the_paint_1k_map(self):
         runner=self.texture_runner()
         maps={'paint':{'maps':{'basecolor-1024.png':{'path':'painted-1k.png'}}}}

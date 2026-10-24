@@ -345,6 +345,7 @@ class Runner:
             return bake(source,self.input('field'),folder/'maps',allow_decoder_overshoot=m['mesh'].get('allowDecoderOvershoot',False),
                         max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005))
         if stage=='paint':
+            require('paint' in m,'Stage not configured: the manifest has no paint section')
             from .paint import paint
             seal=None
             if self._sealed():seal=self.result('repair')['neck']['seal']['shellTriangles']
@@ -466,6 +467,7 @@ class Runner:
             from .native import compile_and_package
             previous=self.result('export');return compile_and_package(Path(previous['ascii']['path']).parents[1],b['client'],folder/'native')
         if stage=='render':
+            require('render' in m,'Stage not configured: the manifest has no render section')
             import subprocess,sys
             from .common import ROOT
             from .review_images import resolutions,atlas_sets,sheets,render_plan,validate_frames
