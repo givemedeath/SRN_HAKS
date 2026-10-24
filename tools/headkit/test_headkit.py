@@ -763,6 +763,48 @@ class MeshTests(Temporary):
         area=lambda v,f:np.linalg.norm(np.cross(v[f][:,1]-v[f][:,0],v[f][:,2]-v[f][:,0]),axis=1).sum()/2
         self.assertAlmostEqual(result['shells']['deletedAreaFraction'],area(floater,tf)/(area(floater,tf)+area(p,f)),places=6)
         np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(self.glb(p),axis=0),0),atol=1e-6)
+    def icosphere(self,radius=.1,levels=3):
+        g=(1+5**.5)/2;v=[(-1,g,0),(1,g,0),(-1,-g,0),(1,-g,0),(0,-1,g),(0,1,g),(0,-1,-g),(0,1,-g),(g,0,-1),(g,0,1),(-g,0,-1),(-g,0,1)]
+        f=[(0,11,5),(0,5,1),(0,1,7),(0,7,10),(0,10,11),(1,5,9),(5,11,4),(11,10,2),(10,7,6),(7,1,8),(3,9,4),(3,4,2),(3,2,6),(3,6,8),(3,8,9),(4,9,5),(2,4,11),(6,2,10),(8,6,7),(9,8,1)]
+        v=[np.array(p,float)/np.linalg.norm(p) for p in v]
+        for _ in range(levels):
+            cache={};faces=[]
+            def mid(a,b):
+                key=(min(a,b),max(a,b))
+                if key not in cache:m=v[a]+v[b];v.append(m/np.linalg.norm(m));cache[key]=len(v)-1
+                return cache[key]
+            for a,b,c in f:ab,bc,ca=mid(a,b),mid(b,c),mid(c,a);faces+=[(a,ab,ca),(b,bc,ab),(c,ca,bc),(ab,bc,ca)]
+            f=faces
+        return np.array(v)*radius,np.array(f)
+    def test_relief_smoothing_calms_declared_region_only_and_stays_closed(self):
+        from headkit.relief import smooth
+        p,f=self.icosphere();rng=np.random.default_rng(3);noisy=p.copy();cap=p[:,2]>.03
+        noisy[cap]*=(1+rng.normal(0,.02,cap.sum()))[:,None]  # Pixal-style crust on the crown only
+        region={'name':'crown','reviewed':True,'iterations':30,'feather':2,'where':{'of':'z','gt':.03}}
+        out,records=smooth(noisy,f,[region],noisy);inner=noisy[:,2]>.05;radial=lambda v:np.linalg.norm(v,axis=1)
+        self.assertLess(np.std(radial(out[inner])),.4*np.std(radial(noisy[inner])))
+        np.testing.assert_array_equal(out[noisy[:,2]<.02],noisy[noisy[:,2]<.02])  # outside the region: untouched
+        self.assertTrue(topology(out,f)['closed']);self.assertEqual(records[0]['vertices'],int((noisy[:,2]>.03).sum()))
+        self.assertGreater(records[0]['maximumDisplacementMetres'],0);self.assertEqual((records[0]['mu'],records[0]['feather']),(-.53,2))
+        # mu 0 is the plain (shrinking) Laplacian used for bristle fins; Taubin keeps the volume on the same region.
+        plain,_=smooth(noisy,f,[dict(region,mu=0)],noisy)
+        self.assertLess(radial(plain[inner]).mean(),radial(out[inner]).mean()-.001);self.assertGreater(radial(out[inner]).mean(),.098)
+        for bad,message in ((dict(region,reviewed=False),'reviewed'),(dict(region,iterations=0),'1..100'),(dict(region,iterations=101),'1..100'),
+                            (dict(region,mu=-.3),'lambda < -mu'),(dict(region,feather=21),'Feather'),(dict(region,where={'of':'z','gt':5}),'selects no vertices')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):smooth(noisy,f,[bad],noisy)
+    def test_repair_smooths_the_dense_master_only_with_a_reviewed_fit(self):
+        from headkit import mesh as mesh_module
+        p,f=self.bell(48,24);rng=np.random.default_rng(4);noisy=p.copy();top=p[:,2]>.06;noisy[top]+=rng.normal(0,.002,(top.sum(),3))
+        source=self.root/'source.glb';write_mesh(source,self.glb(noisy),f);inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True}
+        policy={'alphaWrap':False,'triangleBudget':20000,'maximumRelativeSurfaceError':.025,
+                'smooth':[{'name':'crown','reviewed':True,'iterations':20,'where':{'of':'z','gt':.065}}]}
+        with self.assertRaisesRegex(ValueError,'reviewed head fit'):mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=None)
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit={'matrix':np.eye(4).tolist(),'reviewed':True})
+        region=result['smoothing']['regions'][0];self.assertEqual(region['name'],'crown');self.assertGreater(region['vertices'],0)
+        master=mesh(self.root/'master.glb')['positions'];self.assertTrue(result['passed'])
+        self.assertGreater(np.abs(np.sort(np.unique(master,axis=0),0)-np.sort(np.unique(self.glb(noisy),axis=0),0)).max(),1e-4)
     def test_neck_policy_refuses_without_reviewed_fit_or_with_bad_parameters(self):
         from headkit import mesh as mesh_module
         p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)

@@ -258,6 +258,12 @@ def repair(source, output, bindings, policy, inspection, fit=None):
     else:
         require(topology(vertices, faces)['closed'], 'Open/invalid shell: review before selecting repair')
     vertices, faces, shell_record = select_shells(vertices, faces, policy.get('components'))
+    smoothing = None
+    if policy.get('smooth') is not None:
+        from .relief import smooth
+        require(isinstance(fit, dict) and fit.get('reviewed') is True and 'matrix' in fit, 'Smoothing regions need the reviewed head fit')
+        begun = time.perf_counter(); vertices, records = smooth(vertices, faces, policy['smooth'], transform(checked_fit(fit['matrix']) @ BASIS, vertices))
+        smoothing = {'regions': records, 'elapsedSeconds': time.perf_counter()-begun}
     budget = policy.get('triangleBudget', 20000)
     require(type(budget) is int and 4 <= budget <= 20000, 'Supported budget is <=20K')
     seal = neck is not None and neck['seal'] is not None
@@ -304,7 +310,7 @@ def repair(source, output, bindings, policy, inspection, fit=None):
     result['neck'] = record
     write(work_dir/'reduction-audit.json',result,fresh=True)
     require(maximum<=limit,'Reduction exceeds measured surface error limit; retain and review before changing policy')
-    result.update(master=pin(master), ancestry=births, alphaWrapApplied=do_wrap, componentDeletion=bool(shell_record['deleted']), shells=shell_record,
+    result.update(master=pin(master), ancestry=births, alphaWrapApplied=do_wrap, componentDeletion=bool(shell_record['deleted']), shells=shell_record, smoothing=smoothing,
                   triangleBudget=budget, visualReviewRequired=True)
     return result
 

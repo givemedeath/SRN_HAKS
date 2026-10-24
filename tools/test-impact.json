@@ -101,7 +101,8 @@
     "tools/headkit/mesh.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
-      "tools/headkit/intersections.py"
+      "tools/headkit/intersections.py",
+      "tools/headkit/relief.py"
     ],
     "tools/headkit/native.py": [
       "tools/headkit/common.py",
@@ -119,6 +120,7 @@
     "tools/headkit/paint.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/predicates.py",
       "tools/headkit/uv.py"
     ],
     "tools/headkit/palette.py": [
@@ -127,7 +129,14 @@
       "tools/headkit/rays.py",
       "tools/headkit/textures.py"
     ],
+    "tools/headkit/predicates.py": [
+      "tools/headkit/common.py"
+    ],
     "tools/headkit/rays.py": [],
+    "tools/headkit/relief.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/predicates.py"
+    ],
     "tools/headkit/replay.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
@@ -197,6 +206,7 @@
       "tools/headkit/native.py",
       "tools/headkit/paint.py",
       "tools/headkit/palette.py",
+      "tools/headkit/relief.py",
       "tools/headkit/replay.py",
       "tools/headkit/review_images.py",
       "tools/headkit/run_headkit.py",
