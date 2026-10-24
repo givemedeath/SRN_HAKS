@@ -2157,12 +2157,13 @@ class ReviewGateTests(Temporary):
 
 class ChainTests(Temporary):
     fixture=ResumeTests.fixture;completed=ReviewGateTests.completed
-    def chain(self,runner,stages,fail=()):
+    def chain(self,runner,stages,fail=(),texts={}):
         from headkit.__main__ import chain
         order=[]
         def work(stage,folder):
             order.append(stage)
             if stage in fail:raise ValueError('Synthetic failure: '+stage)
+            if stage in texts:target=folder/'artifact.txt';target.write_text(texts[stage]);return {'artifact':pin(target)}
             return self.completed(stage,folder)
         with patch.object(runner,'_execute',side_effect=work):result=chain(runner,stages)
         return result,order,{row['stage']:row for row in result['stages']}
@@ -2194,6 +2195,34 @@ class ChainTests(Temporary):
         self.assertEqual(order,['unwrap']);self.assertEqual(rows['repair']['status'],'reused')
         self.assertEqual((rows['unwrap']['status'],Path(rows['unwrap']['attempt'])),('ran',runner.run/'unwrap'/'attempt-02'))
         self.assertEqual((rows['bake']['status'],rows['bake']['dependency']),('blocked-on-review','unwrap'))
+    def rerun_repair(self,runner,decision,texts={}):
+        # Reviewed (or not) repair, then a manifest change that stales it without changing what the fake writes.
+        self.chain(runner,['repair'])
+        old=runner.review('repair',decision,'Inspected repair') if decision else None
+        runner.data['mesh']={'alphaWrap':False};return old,self.chain(runner,['repair','unwrap'],texts=texts)
+    def test_identical_rerun_outputs_carry_the_approval_and_continue(self):
+        runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,'approved')
+        self.assertEqual(order,['repair','unwrap']);self.assertIsNone(result['stopped'])
+        self.assertEqual((rows['repair']['status'],rows['repair']['review'],rows['unwrap']['status']),('ran','carried','ran'))
+        carried=runner.state['reviews']['repair'];self.assertEqual(rows['repair']['carriedReview'],carried)
+        review=read(carried['path']);self.assertEqual(review['carriedFrom'],old);self.assertEqual(review['decision'],'approved')
+        self.assertEqual(review['notes'],'Carried from attempt-01: identical outputs (sha256). Inspected repair')
+        self.assertEqual(review['stageReceipt'],runner.state['stages']['repair']);self.assertIn('attempt-02',review['stageReceipt']['path'])
+        self.assertIn('artifact',runner.result('repair'))
+    def test_changed_rerun_output_is_not_carried(self):
+        runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,'approved',texts={'repair':'repair!'})
+        self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
+        self.assertEqual(rows['repair']['review'],'pending');self.assertNotIn('carriedReview',rows['repair'])
+        self.assertEqual((rows['unwrap']['status'],rows['unwrap']['dependency']),('blocked-on-review','repair'))
+        self.assertEqual(runner.state['reviews']['repair'],old);self.assertEqual(len(list((runner.run/'reviews').glob('repair-*'))),1)
+    def test_rejected_or_absent_review_is_not_carried(self):
+        for decision in ('rejected',None):
+            with self.subTest(decision=decision):
+                self.root=self.root/('case-'+str(decision));self.root.mkdir()
+                runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,decision)
+                self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
+                self.assertEqual(rows['repair']['review'],'pending');self.assertNotIn('carriedReview',rows['repair'])
+                self.assertEqual(runner.state.get('reviews',{}).get('repair'),old)
     def test_rejects_unknown_duplicate_or_reordered_stages(self):
         runner=self.fixture()
         for stages in ([],['unwrap','repair'],['repair','repair'],['gpu']):
@@ -2477,6 +2506,26 @@ class RenderPlanTests(Temporary):
         self.assertFalse((runner.run/'renders').exists())
 
 
+class ManifestDigestTests(Temporary):
+    fixture=ResumeTests.fixture
+    def test_rewording_notes_never_changes_a_stage_digest(self):
+        from headkit.runner import STAGES
+        runner=self.fixture();data=runner.data
+        data.update(fit={'excludeLower':.25,'notes':'Fit chosen on the profile'},
+                    mesh={'neckReview':'Seal looks clean','shellInspection':{'visualReviewed':True,'notes':'non-manifold export'}},
+                    approval=dict(data['approval'],textureMaps={'basecolor4k':{'decision':'approved','notes':'Atlas reviewed'}}))
+        data['features'][0]['notes']='Swept back from the crown'
+        digests=lambda:{stage:runner.manifest_digest(stage) for stage in STAGES};before=digests()
+        runner.data=copy.deepcopy(data);runner.data['fit']['notes']='Reworded fit note';runner.data['features'][0]['notes']='Reworded'
+        runner.data['mesh']['shellInspection']['notes']='Reworded inspection';runner.data['approval']['textureMaps']['basecolor4k']['notes']='Reworded'
+        self.assertEqual(digests(),before)
+        # Non-notes keys still count, and a blanked review note still fails its gate, so it stales too.
+        for stage,change in (('fit',lambda d:d['fit'].update(excludeLower=.3)),('repair',lambda d:d['mesh'].update(neckReview='Seal shows a lip')),
+                             ('prepare',lambda d:d['features'][0].update(notes=' '))):
+            with self.subTest(stage=stage):
+                runner.data=copy.deepcopy(data);change(runner.data);self.assertNotEqual(runner.manifest_digest(stage),before[stage])
+
+
 class StageCodeVersionTests(Temporary):
     def test_stage_code_binds_the_branch_import_closure_and_core_only(self):
         from headkit.common import stage_code_files
@@ -2707,6 +2756,11 @@ class TextureStageTests(Temporary):
         runner=self.texture_runner();self.assertEqual(runner.dependencies('paint'),['bake','unwrap'])
         runner.data['mesh']={'neck':{'seal':{'height':'measured','inset':.9,'rise':.003}}}
         self.assertEqual(runner.dependencies('paint'),['bake','unwrap','repair'])
+    def test_null_neck_means_no_neck_shaping_like_an_absent_one(self):
+        runner=self.texture_runner();mesh=dict(runner.data.get('mesh') or {});mesh.pop('neck',None)
+        runner.data['mesh']=mesh;absent=runner.dependencies('paint');runner.manifest_digest('paint')
+        runner.data['mesh']=dict(mesh,neck=None);self.assertEqual(runner.dependencies('paint'),absent);runner.manifest_digest('paint')
+        self.assertNotIn('repair',absent)
     def test_adjust_passes_through_and_maps_brightness_onto_a_palette_ramp(self):
         from headkit.paint import adjust
         rgb=np.zeros((8,8,3),np.uint8);rgb[:,:,0]=np.arange(8)[None,:]*30;Image.fromarray(rgb).save(self.root/'c.png')
