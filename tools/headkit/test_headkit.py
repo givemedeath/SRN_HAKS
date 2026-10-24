@@ -805,27 +805,27 @@ class MeshTests(Temporary):
         region=result['smoothing']['regions'][0];self.assertEqual(region['name'],'crown');self.assertGreater(region['vertices'],0)
         master=mesh(self.root/'master.glb')['positions'];self.assertTrue(result['passed'])
         self.assertGreater(np.abs(np.sort(np.unique(master,axis=0),0)-np.sort(np.unique(self.glb(noisy),axis=0),0)).max(),1e-4)
-    def test_repair_smooths_before_alpha_wrap_so_the_wrap_recloses_crossings(self):
+    def test_repair_rewraps_the_smoothed_master_so_collapsed_fins_cannot_cross(self):
         from headkit import mesh as mesh_module
         p,f=self.bell(48,24);rng=np.random.default_rng(5);noisy=p.copy();top=p[:,2]>.06;noisy[top]+=rng.normal(0,.002,(top.sum(),3))
         source=self.root/'source.glb';write_mesh(source,self.glb(noisy),f)
-        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True,'confirmedShellDefect':True};wrapped={}
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True,'confirmedShellDefect':True};inputs=[]
         class Mesh:
-            def __init__(self,v,f):self.v,self.f=np.array(v),np.array(f);wrapped.setdefault('input',self.v.copy())
+            def __init__(self,v,f):self.v,self.f=np.array(v),np.array(f);inputs.append(self.v.copy())
             def compact(self):pass
             def vertex_matrix(self):return self.v
             def face_matrix(self):return self.f
         class MeshSet:
             def add_mesh(self,m):self.m=m
-            def generate_alpha_wrap(self,**k):wrapped['called']=True
+            def generate_alpha_wrap(self,**k):pass
             def current_mesh(self):return self.m
         ml=SimpleNamespace(MeshSet=MeshSet,Mesh=Mesh,PureValue=lambda x:x);igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
         policy={'alphaWrap':True,'triangleBudget':20000,'smooth':[{'name':'crown','reviewed':True,'iterations':20,'where':{'of':'z','gt':.065}}]}
         with patch.object(mesh_module,'library',lambda b,name:ml if name=='pymeshlab' else igl):
             result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit={'matrix':np.eye(4).tolist(),'reviewed':True})
-        self.assertTrue(wrapped['called'] and result['smoothing']['beforeWrap'])
-        source_vertices,_=mesh_module.physical(mesh(source)['positions'],mesh(source)['faces'])
-        self.assertGreater(np.abs(wrapped['input']-source_vertices).max(),1e-4)  # the wrap received the smoothed surface
+        self.assertEqual(len(inputs),2);self.assertTrue(result['smoothing']['rewrapped']);self.assertEqual(result['smoothing']['rewrapShells']['shells'],1)
+        self.assertGreater(np.abs(inputs[1]-inputs[0]).max(),1e-4)  # the second wrap received the smoothed master
+        np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(inputs[1],axis=0),0),atol=1e-6)
     def test_neck_policy_refuses_without_reviewed_fit_or_with_bad_parameters(self):
         from headkit import mesh as mesh_module
         p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)

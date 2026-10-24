@@ -248,27 +248,33 @@ def repair(source, output, bindings, policy, inspection, fit=None):
     neck = neck_policy(policy.get('neck'), fit); work_dir = Path(output).parent
     original = mesh(source); vertices, faces = physical(original['positions'], original['faces'])
 
-    def relief(vertices, faces, before_wrap):
-        from .relief import smooth
-        require(isinstance(fit, dict) and fit.get('reviewed') is True and 'matrix' in fit, 'Smoothing regions need the reviewed head fit')
-        begun = time.perf_counter(); vertices, records = smooth(vertices, faces, policy['smooth'], transform(checked_fit(fit['matrix']) @ BASIS, vertices))
-        return vertices, {'regions': records, 'beforeWrap': before_wrap, 'elapsedSeconds': time.perf_counter()-begun}
-    # Smoothing thin bristle fins in place can pass faces through each other; before Alpha Wrap, the wrap re-closes the
-    # smoothed surface crossing-free. A closed source without a wrap is smoothed as the master (and audited for crossings).
-    smoothing = None
-    if do_wrap and policy.get('smooth') is not None: vertices, smoothing = relief(vertices, faces, True)
     if do_wrap:
         ml = library(bindings, 'pymeshlab'); diagonal = float(np.linalg.norm(np.ptp(vertices, axis=0)))
         alpha = positive(policy.get('alphaRelative', .005), 'Alpha Wrap alpha')
         offset = positive(policy.get('offsetRelative', .00025), 'Alpha Wrap offset')
         require(alpha <= .02 and offset <= .002, 'Wrap distances exceed supported profile')
-        ms = ml.MeshSet(); ms.add_mesh(ml.Mesh(vertices.astype(float), faces.astype(np.int32)))
-        ms.generate_alpha_wrap(alpha=ml.PureValue(diagonal*alpha), offset=ml.PureValue(diagonal*offset))
-        current = ms.current_mesh(); current.compact(); vertices, faces = current.vertex_matrix(), current.face_matrix()
+
+        def wrap(vertices, faces):
+            ms = ml.MeshSet(); ms.add_mesh(ml.Mesh(vertices.astype(float), faces.astype(np.int32)))
+            ms.generate_alpha_wrap(alpha=ml.PureValue(diagonal*alpha), offset=ml.PureValue(diagonal*offset))
+            current = ms.current_mesh(); current.compact(); return current.vertex_matrix(), current.face_matrix()
+        vertices, faces = wrap(vertices, faces)
     else:
         require(topology(vertices, faces)['closed'], 'Open/invalid shell: review before selecting repair')
     vertices, faces, shell_record = select_shells(vertices, faces, policy.get('components'))
-    if smoothing is None and policy.get('smooth') is not None: vertices, smoothing = relief(vertices, faces, False)
+    smoothing = None
+    if policy.get('smooth') is not None:
+        from .relief import smooth
+        require(isinstance(fit, dict) and fit.get('reviewed') is True and 'matrix' in fit, 'Smoothing regions need the reviewed head fit')
+        begun = time.perf_counter(); vertices, records = smooth(vertices, faces, policy['smooth'], transform(checked_fit(fit['matrix']) @ BASIS, vertices))
+        smoothing = {'regions': records, 'rewrapped': do_wrap}
+        if do_wrap:
+            # Collapsing thin fins on the master can pass faces through each other; a second wrap with the same distances
+            # re-closes the smoothed surface crossing-free (smoothing the dense source instead is too weak at its density).
+            selection = policy.get('components'); vertices, faces = wrap(vertices, faces)
+            vertices, faces, smoothing['rewrapShells'] = select_shells(vertices, faces, None if selection is None else
+                {k: v for k, v in selection.items() if k != 'expectedDeleted'})
+        smoothing['elapsedSeconds'] = time.perf_counter()-begun
     budget = policy.get('triangleBudget', 20000)
     require(type(budget) is int and 4 <= budget <= 20000, 'Supported budget is <=20K')
     seal = neck is not None and neck['seal'] is not None
