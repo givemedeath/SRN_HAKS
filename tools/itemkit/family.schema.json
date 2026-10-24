@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Item native family profile v1",
+  "type": "object",
+  "required": ["schemaVersion", "kind", "family", "nativePackaging", "materialRoute", "bakeSize", "runtimeTextureSize", "sourceExport", "budgets", "allowedAssemblies"],
+  "properties": {
+    "schemaVersion": {"const": 1}, "kind": {"const": "item-family"},
+    "family": {"enum": ["shortsword", "dagger", "longsword", "shield", "firearm-sling"]},
+    "nativePackaging": {"enum": ["pending-contract", "enabled", "blocked"]},
+    "materialRoute": {"const": "diffuse"}, "bakeSize": {"const": 4096},
+    "runtimeTextureSize": {"enum": [512, 1024, 2048]},
+    "sourceExport": {"type": "object", "required": ["remeshResolution", "targetFaceCount"], "properties": {
+      "remeshResolution": {"type": "integer", "minimum": 128, "maximum": 1536},
+      "targetFaceCount": {"type": "integer", "minimum": 4, "maximum": 200000}
+    }},
+    "budgets": {"type": "object", "required": ["visible", "shadow", "parts"]},
+    "allowedAssemblies": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "object", "required": ["b", "m", "t"], "additionalProperties": {"type": "string"}}},
+    "firearm": {"type": "object", "required": ["subtype"], "additionalProperties": false,
+      "properties": {"subtype": {"enum": ["pistol", "smg", "rifle"]}}},
+    "native": {"type": "object"}, "notes": {"type": "string"}
+  }
+}

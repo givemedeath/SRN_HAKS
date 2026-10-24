@@ -63,6 +63,18 @@ class PackageImpactTests(unittest.TestCase):
                 p=root/(name+'.py');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
             self.assertIn('tools/pkg/test_core.py',select(['tools/pkg/engine/core.py'],catalog(root))['tests'])
 
+class NamespaceDependencyTests(unittest.TestCase):
+    def test_repository_namespace_absolute_imports_are_dependencies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for name,text in {'tools/kit/__init__':'','tools/kit/engine':'VALUE=1',
+                    'tools/kit/test_engine':'from tools.kit import engine\nfrom tools.kit.engine import VALUE'}.items():
+                p=root/(name+'.py');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
+            data=catalog(root)
+            self.assertIn('tools/kit/engine.py',data['dependencies']['tools/kit/test_engine.py'])
+            self.assertIn('tools/kit/test_engine.py',select(['tools/kit/engine.py'],data)['tests'])
+
+
 class PackageDiscoveryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):cls.data=catalog()
@@ -79,6 +91,15 @@ class PackageDiscoveryTests(unittest.TestCase):
         self.assertNotIn('tools/phenomorpher/phenomorpher/engine/retarget.py',self.data['dependencies']['tools/robes/lbs.py'])
 
 class PackageRunnerTests(unittest.TestCase):
+    def test_repository_namespace_imports_work_without_inherited_pythonpath(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            write(root,{'tools/kit/__init__.py':'','tools/shared.py':'VALUE=7',
+                'tools/kit/test_namespace.py':'import unittest\nfrom tools.shared import VALUE\nclass T(unittest.TestCase):\n    def test_v(self):self.assertEqual(VALUE,7)\n'})
+            with patch.dict('os.environ',{'PYTHONPATH':''}):
+                self.assertEqual(run_tests(['tools/kit/test_namespace.py'],sys.executable,root),0)
+
     def test_package_relative_tests_run_qualified_from_their_import_root_and_failures_propagate(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)

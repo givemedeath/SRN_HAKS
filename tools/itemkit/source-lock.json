@@ -1,0 +1,225 @@
+{
+  "headkit": {
+    "commit": "e607a617c273828a37d8fc56dd43d7d8a0070844",
+    "files": [
+      {
+        "path": "tools/headkit/__init__.py",
+        "sha256": "b8429c4bbf440a58a0a59ac1db4916629c56ced87492f81e71579c4a50ebc3fa"
+      },
+      {
+        "path": "tools/headkit/__main__.py",
+        "sha256": "935989b671656c1d536890d3157dec32d1de7ec4f2ce0d271e7b748c46682a68"
+      },
+      {
+        "path": "tools/headkit/blender_render.py",
+        "sha256": "f4ee03dc2c90edbb7ff1bca0ea7ed4ec37d67aa0f84bf77a9343af3fe4ee818f"
+      },
+      {
+        "path": "tools/headkit/cameras.py",
+        "sha256": "6c92d0b3897d27813b1ad05d7df8b7ad9e6a4da1e448148c4a3364c618807d2c"
+      },
+      {
+        "path": "tools/headkit/checkpoints.json",
+        "sha256": "fced4ee70a5e5466d8c1a65ebd38aae13edd3634d6251157732a654e7564e1a1"
+      },
+      {
+        "path": "tools/headkit/comfy.py",
+        "sha256": "a21f46a3e991d937d9ecf8110acad74044f9efed16dca9d790de6b04756edc48"
+      },
+      {
+        "path": "tools/headkit/comfy_nodes/__init__.py",
+        "sha256": "38d796030a89684eff3656ca9683233b0a3cbc7d22d5cf389bc7104400c2a731"
+      },
+      {
+        "path": "tools/headkit/comfy_nodes/gltf.py",
+        "sha256": "b973ce124f056c8094d161e3869efd5034e03efc90cbcc52d37bb47b73f8ff79"
+      },
+      {
+        "path": "tools/headkit/comfy_nodes/model_resolution.py",
+        "sha256": "6b26405556b33fb2b50040b945707e0f278b40b7895852ded05822072a94078f"
+      },
+      {
+        "path": "tools/headkit/comfy_nodes/nodes.py",
+        "sha256": "4b3828a1c9ab10cba99ae7eeef916c6cc37fb7ee7e209a3e657058af2b7ab030"
+      },
+      {
+        "path": "tools/headkit/comfy_nodes/runtime_identity.py",
+        "sha256": "a8d4e0c3a65ca34b3edcdbd9bf355b41b3df67d78d5e9c0a0bf41f0c9aef1289"
+      },
+      {
+        "path": "tools/headkit/comfy_nodes/source_snapshot.py",
+        "sha256": "318707d15059188228f704aa34039c6bc9212531a424cef2cd3813a2c28d77fa"
+      },
+      {
+        "path": "tools/headkit/comfy_nodes/transport.py",
+        "sha256": "0e63a347ac00b40d401b1e3aea074bbfaa45c5e9bd818539c4cccf0a68302a87"
+      },
+      {
+        "path": "tools/headkit/comfy_nodes/verified_loaders.py",
+        "sha256": "1252ade77b20480dc378ee66e361de4644cab5f13063e7e9c349ae44d177f262"
+      },
+      {
+        "path": "tools/headkit/common.py",
+        "sha256": "9714882fedc4371e87dca92f59155db60e40defd223b305cf7f2d2d018d296e3"
+      },
+      {
+        "path": "tools/headkit/examples/local-bindings.example.json",
+        "sha256": "090e31fd7397fb3976f4d518b9797e746a23578c50bb34bb8b6f5f1d4b4c48af"
+      },
+      {
+        "path": "tools/headkit/examples/multiview.json",
+        "sha256": "2741eb3402f32ff87ab2b4c54c57a3a7844d8ced9fe485ac40b45284a8e71cf3"
+      },
+      {
+        "path": "tools/headkit/examples/processing.json",
+        "sha256": "f7317042a2ff880395bd40b769cb41e979b2200bb28b80ed7441f61bea7c8cd2"
+      },
+      {
+        "path": "tools/headkit/examples/single-image.json",
+        "sha256": "98b892f9bf94b278164e461d1127b50e30154240f64d7e35ca83682e7153c0ee"
+      },
+      {
+        "path": "tools/headkit/field.py",
+        "sha256": "7f7c775302f5da623b16847b543b965749401f88bc60ed7da776432fc0f65ad3"
+      },
+      {
+        "path": "tools/headkit/gltf.py",
+        "sha256": "fe9fba841d7718f29ac39f8be77bd30b5158cf3f99ee5795275ab0a07d77a45a"
+      },
+      {
+        "path": "tools/headkit/images.py",
+        "sha256": "c65cd934da188e09aa5f0b942ef20d3d75e0510825744f96de4c8f602d24984d"
+      },
+      {
+        "path": "tools/headkit/intersections.py",
+        "sha256": "53122bab4a93cc1c6b3fb03eab4035946ebe849da25825ff554639ca5e60ce03"
+      },
+      {
+        "path": "tools/headkit/manifest.schema.json",
+        "sha256": "89001974e8ba01f732e956331f958fe864ebcd4772bfc34a41e16cbc65201134"
+      },
+      {
+        "path": "tools/headkit/mesh.py",
+        "sha256": "f2aaa9e63c80be5844d835b9ae506478fb70e62b38bfd6b5e1446a43aff77d22"
+      },
+      {
+        "path": "tools/headkit/native.py",
+        "sha256": "9ee6facf5d779eac32a8bb03bb613c0014fde2d03e41bdafd7985fddcc072fd1"
+      },
+      {
+        "path": "tools/headkit/native_reader.py",
+        "sha256": "3f8ad10695882a1532f1916b6e23bc48cae1a822ba9e039947899a5cadee8870"
+      },
+      {
+        "path": "tools/headkit/palette.py",
+        "sha256": "3415f553921b4837a60aebe56fee5a86a8b34f45e4a3ad5a3cfc5bbff81e2a1a"
+      },
+      {
+        "path": "tools/headkit/rays.py",
+        "sha256": "99e58bfd1fb0587952af9d482bb7efb159e869aeae6a226ce8f3dd1a23b7798d"
+      },
+      {
+        "path": "tools/headkit/replay.py",
+        "sha256": "3701b8705fc35ac3525cdb9046ea5b5d4b145bbe1cdc77103f3ec34220bfa55b"
+      },
+      {
+        "path": "tools/headkit/requirements.txt",
+        "sha256": "ac6355f81543c4221553e8959e02325b3b474c5f8f17347ba843f9f26f17060d"
+      },
+      {
+        "path": "tools/headkit/review_images.py",
+        "sha256": "ae46137c79df9be7fc47b403b1b6069ceadd83b91d594b0ec4cbb9a6985cfa5e"
+      },
+      {
+        "path": "tools/headkit/run_headkit.py",
+        "sha256": "c4e3fd569526debfa0323c03eabc214d1e1aee8618ad3e93a0c6d91f653a1e10"
+      },
+      {
+        "path": "tools/headkit/runner.py",
+        "sha256": "b4df00344b5ca3c663cb4b26c4d5b75dfe79a575a468046833e29e656985de3d"
+      },
+      {
+        "path": "tools/headkit/source_inventory.py",
+        "sha256": "3da639971ac3621109a38e20b0e48e1ea93ba2f30b91f1810e7710bbec1c9f35"
+      },
+      {
+        "path": "tools/headkit/templates/appearance.json",
+        "sha256": "8d5c3deaedd58309745efc82afe4da6c3c99721902a8d89b3d0de42afcefcc67"
+      },
+      {
+        "path": "tools/headkit/templates/calibrate.json",
+        "sha256": "5495f4e317faa07429d61f84f9aaa82539a520a2c8653ace3676d1930134dade"
+      },
+      {
+        "path": "tools/headkit/templates/export.json",
+        "sha256": "2ec663869a43ef90b7e42c060fbf98d4bc5e95262f713a9baae619ab835f73ea"
+      },
+      {
+        "path": "tools/headkit/templates/geometry.json",
+        "sha256": "193785dae2c22066e6dbcfa88788e771e52e54277744097ad35f240840448f65"
+      },
+      {
+        "path": "tools/headkit/templates/multiview-appearance.json",
+        "sha256": "5aeaf82b7244997fe118818ea612c8f62ae928714c1f895f7c3252b62b48b5a9"
+      },
+      {
+        "path": "tools/headkit/templates/multiview-geometry.json",
+        "sha256": "89c10c5affa4f4100b94ccf074eb341f86cc4050e74abe94163e8564ccd17b86"
+      },
+      {
+        "path": "tools/headkit/test_comfy_runtime_snapshot.py",
+        "sha256": "ca620a9cc64ebca387c8d786a248bb283fc5e1739f0866a6b000ed82515c852f"
+      },
+      {
+        "path": "tools/headkit/test_headkit.py",
+        "sha256": "e8bd42de3957fcb40b4faf318dd289952c8fe19dd6392729db697ca2d0ac4849"
+      },
+      {
+        "path": "tools/headkit/textures.py",
+        "sha256": "471fc563762e6d1002a9a6290e294943b59ab455a105dfd37cc04d6a5e798306"
+      },
+      {
+        "path": "tools/headkit/uv.py",
+        "sha256": "2f9422fb9d3af3636327730727136fd60da35ad9e22fcd366e3319c7e1d9eda0"
+      }
+    ]
+  },
+  "schemaVersion": 1,
+  "weaponsKit": {
+    "files": [
+      {
+        "path": "GUIDE.md",
+        "sha256": "4ffc87fe6a13d2b9297e026afb343409de26098dbece267e58099be35d69e4c8"
+      },
+      {
+        "path": "ACCEPTANCE.md",
+        "sha256": "6f8c9a262bf63e328b9a5a5b40ed9de2e743f297d4873b99d678e2537f5bd936"
+      },
+      {
+        "path": "PROVENANCE.json",
+        "sha256": "a1d21bbae5c5c503b783e5d62b28927fc1059c9019a109f6741ae1066405ec80"
+      },
+      {
+        "path": "docs/concepts/weapons/classkit/kit.py",
+        "sha256": "6a94858363c3f82dc3ef45573edaa932c0cdd607c5421436f00d4f41307ed8b6"
+      },
+      {
+        "path": "docs/concepts/weapons/classkit/fit_parts.py",
+        "sha256": "841ba2aca2bf1927231369bc63ad6249ddbd68a82c219e8c86b9922a69703278"
+      },
+      {
+        "path": "docs/concepts/weapons/classkit/bake_parts.py",
+        "sha256": "4a4958109ffa0656f0138c215e96dd22b6b3a40d5ec51dfc2c6c710e75574e8a"
+      },
+      {
+        "path": "docs/concepts/weapons/classkit/shadow_parts.py",
+        "sha256": "80210b670b9886da3f5b99ef5462d8ff4fbab04ad6b62f47416b88311d19a4ed"
+      },
+      {
+        "path": "prototypes/asset-pipeline/xmasset/weapon.py",
+        "sha256": "ab6fc0024c19b69214be24e050adc43179be8431d1c9022d67500fbbea51d31e"
+      }
+    ],
+    "use": "Adapted algorithms/contracts; independent item runner and native writer"
+  }
+}

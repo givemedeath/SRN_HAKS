@@ -11,7 +11,7 @@ import urllib.request
 import urllib.error
 from urllib.parse import urlparse
 import uuid
-from .common import read, write, require, pin, verify, digest
+from .common import read, write, require, pin, verify, digest,verification_pass
 from .source_inventory import request_sources,verify_sources,validate_comfy_runtime
 
 TEMPLATES = Path(__file__).parent / 'templates'
@@ -20,16 +20,18 @@ _LOCAL_LOCKS=set()
 _LOCAL_LOCKS_GUARD=threading.Lock()
 
 
-def compile_graph(stage, profile, images, prefix, *, fov=None, shape=None, source=None):
+def compile_graph(stage, profile, images, prefix, *, fov=None, shape=None, source=None,background=None):
     require(stage in ('calibrate', 'geometry', 'appearance', 'export'), 'Unknown Comfy stage')
     require(profile in ('pixal-single-v1', 'pixal-multiview-v1'), 'Unknown profile')
     multi = profile == 'pixal-multiview-v1'
     name = ('multiview-' if multi and stage in ('geometry', 'appearance') else '') + stage
     graph = read(TEMPLATES / (name + '.json'))
-    require(prefix.startswith('headkit/') and '..' not in prefix.split('/'), 'Isolated output prefix required')
+    require(prefix.startswith(('headkit/', 'itemkit/')) and '..' not in prefix.split('/')
+            and '\\' not in prefix, 'Isolated output prefix required')
     if stage == 'calibrate':
         require(not multi, 'Multiview uses its reviewed fixed rig, not single-view MoGe calibration')
         for node, role in [('1','geometry'), ('2','detail'), ('3','mask')]: graph[node]['inputs']['image'] = images[role]
+        if background is not None:graph=calibration_background(graph,background,prefix)
     elif stage in ('geometry', 'appearance'):
         if multi:
             require(fov == 20, 'Frozen multiview rig FOV is 20 degrees')
@@ -63,18 +65,52 @@ def compile_graph(stage, profile, images, prefix, *, fov=None, shape=None, sourc
     return graph
 
 
+def calibration_background(graph,decision,prefix):
+    """Keep alpha or run local removal, then retain masks/cutout for visual review."""
+    from .reference_background import BACKGROUND_MODEL
+    require(decision.get('route') in ('preserve-alpha','remove'),'Explicit background route required')
+    graph=copy.deepcopy(graph);mask=['4',0]
+    if decision['route']=='remove':
+        graph['1000']={'class_type':'LoadBackgroundRemovalModel','inputs':{'bg_removal_name':BACKGROUND_MODEL}}
+        graph['1001']={'class_type':'RemoveBackground','inputs':{'bg_removal_model':['1000',0],'image':['1',0]}}
+        mask=['1001',0]
+    for key in ('5','6'):graph[key]['inputs']['masks']=mask
+    graph['1002']={'class_type':'MaskToImage','inputs':{'mask':mask}}
+    graph['1003']={'class_type':'SaveImage','inputs':{'images':['1002',0],'filename_prefix':prefix+'/node-1003'}}
+    graph['1004']={'class_type':'InvertMask','inputs':{'mask':mask}}
+    # JoinImageWithAlpha uses Comfy's inverse-alpha mask convention.
+    graph['1005']={'class_type':'JoinImageWithAlpha','inputs':{'image':['1',0],'alpha':['1004',0]}}
+    graph['1006']={'class_type':'SaveImage','inputs':{'images':['1005',0],'filename_prefix':prefix+'/node-1006'}}
+    width,height=decision['size']
+    graph['1007']={'class_type':'SolidMask','inputs':{'value':1.0,'width':width,'height':height}}
+    graph['1008']={'class_type':'MaskToImage','inputs':{'mask':['1007',0]}}
+    graph['1009']={'class_type':'ImageCropToMask','inputs':{**graph['5']['inputs'],'images':['1008',0]}}
+    graph['1010']={'class_type':'SaveImage','inputs':{'images':['1009',0],'filename_prefix':prefix+'/node-1010'}}
+    return graph
+
+
 class Client:
     def __init__(self, url):
         parsed = urlparse(url)
         require(parsed.scheme == 'http' and parsed.hostname in ('localhost','127.0.0.1') and not parsed.username
                 and parsed.path in ('','/'), 'Use the bound local ComfyUI instance')
         self.url = url.rstrip('/')
+        self.verification_metrics=[]
 
     def request(self, route, data=None):
         payload = None if data is None else json.dumps(data,allow_nan=False).encode()
         request = urllib.request.Request(self.url + route, data=payload, headers={'Content-Type':'application/json'})
-        timeout=300 if route=='/headkit/runtime-identity' else 30
-        with urllib.request.urlopen(request, timeout=timeout) as response: return json.load(response)
+        # Both verification endpoints read large immutable byte inventories.
+        # Keep ordinary queue/dispatch calls short; never replace these checks
+        # with a cached response just to fit the ordinary transport deadline.
+        timeout=300 if route in ('/headkit/runtime-identity', '/headkit/verify-loader-models') else 30
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            metrics=getattr(response,'headers',{}).get('X-Headkit-Verification')
+            if isinstance(metrics,str):
+                try:measurement=json.loads(metrics)
+                except ValueError:measurement=None
+                if isinstance(measurement,dict):self.verification_metrics.append(measurement)
+            return json.load(response)
 
     def idle(self):
         queue = self.request('/queue')
@@ -140,6 +176,41 @@ def initialize_ledger(path, count, evidence):
     write(path, {'schemaVersion':1,'priorGenerationAttempts':count,'reconciliation':evidence,'jobs':[]}, fresh=True)
 
 
+def trial_subject(state, prepared, local, ledger):
+    """Validate the item trial and budget under the shared submission lock."""
+    item_graph=any(str(node.get('inputs',{}).get('filename_prefix','')).startswith('itemkit/')
+                   for node in prepared['prompt'].values())
+    policy=state.get('itemTrial')
+    subject=prepared.get('generationSubject')
+    if not (policy or subject or item_graph or local.get('itemTrialId')): return None
+    require(isinstance(policy,dict) and policy.get('id')==local.get('itemTrialId')
+            and type(policy.get('maximumGeometryAttempts')) is int
+            and policy['maximumGeometryAttempts'] in (2,5),
+            'Bind the authorized two-attempt or five-attempt item trial ledger')
+    require(Path(local.get('submissionLedger','')).resolve()==Path(ledger).resolve(), 'Use the bound item trial ledger')
+    require(isinstance(subject,dict) and set(subject)=={'id','referenceSha256'}
+            and isinstance(subject['id'],str) and bool(subject['id'])
+            and isinstance(subject['referenceSha256'],str) and len(subject['referenceSha256'])==64,
+            'Item request needs a stable model identity and original reference hash')
+    # Model IDs persist across revised references; original hashes also prevent accidental renaming resets.
+    jobs=[job for job in state['jobs'] if job['stage']=='geometry' and job['state']!='preflight-rejected']
+    require(all(isinstance(job.get('generationSubject'),dict) for job in jobs)
+            and state['priorGenerationAttempts']==0, 'Item trial contains unattributed attempts; reconcile before dispatch')
+    aliases={subject['id']}; references={subject['referenceSha256']}
+    while True:
+        matched=[job for job in jobs if job['generationSubject']['id'] in aliases
+                 or job['generationSubject']['referenceSha256'] in references]
+        ids=aliases|{job['generationSubject']['id'] for job in matched}
+        hashes=references|{job['generationSubject']['referenceSha256'] for job in matched}
+        if ids==aliases and hashes==references: break
+        aliases,references=ids,hashes
+    maximum=policy['maximumGeometryAttempts']
+    label='Two' if maximum==2 else 'Five'
+    require(prepared['stage']!='geometry' or len(matched)<maximum,
+            label+' generation attempts reached for this model in the item trial')
+    return dict(subject)
+
+
 def validate_dispatch_context(client, prepared, runtime_identity, bindings_path):
     require(runtime_identity is not None and prepared.get('runtimeIdentity') == runtime_identity,
             'Active runtime differs from the prepared request; prepare again')
@@ -158,6 +229,9 @@ def validate_dispatch_context(client, prepared, runtime_identity, bindings_path)
 
 
 def verify_loader_models(client, prepared):
+    from .model_contract import model_contract, SERVER_MODEL_VERIFICATION
+    protocol=prepared.get('modelVerification')
+    require(protocol in (None,SERVER_MODEL_VERIFICATION),'Unsupported model verification protocol')
     models=prepared.get('loaderModels',[])
     require(isinstance(models,list),'Prepared Comfy loader model pins are invalid')
     from .comfy_nodes.model_resolution import model_choices,path_identity,validate_bound_loader_nodes
@@ -167,9 +241,17 @@ def verify_loader_models(client, prepared):
     require([(item['category'],item['name']) for item in models]==choices,
             'Prepared Comfy loader model pins do not exactly match graph loaders')
     validate_bound_loader_nodes(prepared.get('prompt'),models)
-    if not models:return
     checkpoints=read(Path(__file__).parent/'checkpoints.json')
     inputs=prepared.get('inputs',[])
+    if protocol == SERVER_MODEL_VERIFICATION:
+        binding=prepared.get('bindings')
+        require(isinstance(binding,dict) and binding in inputs,'Server model verification requires bound local configuration')
+        verify([binding])
+        expected, model_inputs=model_contract(prepared.get('prompt'),read(binding['path']).get('models',{}),checkpoints)
+        require(models==expected and prepared.get('modelInputs')==model_inputs,
+                'Server model inputs differ from the exact bound loader contract')
+        inputs=model_inputs
+    if not models:return {'verified':True,'count':0}
     for item in models:
         require(item['sha256']==checkpoints.get(item['name']),
                 'Prepared Comfy loader pin differs from the frozen reviewed checkpoint profile')
@@ -182,10 +264,11 @@ def verify_loader_models(client, prepared):
             except (KeyError,OSError,RuntimeError):
                 continue
         require(len(matching)==1,'Prepared Comfy loader pin is missing its exact verified input file')
-        verify(matching)
+        if protocol is None:verify(matching)
     result=client.request('/headkit/verify-loader-models',{'models':models,'prompt':prepared.get('prompt')})
     require(result=={'verified':True,'count':len(models)},
             'ComfyUI loader resolved checkpoint paths or bytes different from the reviewed pins; install/restart the current adapter and prepare again')
+    return result
 
 
 def verify_comfy_runtime(client, prepared):
@@ -202,8 +285,9 @@ def verify_comfy_runtime(client, prepared):
 def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_path=None):
     """An uncertain POST stays counted and blocks subsequent dispatch until reconciled."""
     require(bindings_path is not None, 'Prepared bindings are required for dispatch')
-    validate_dispatch_context(client, prepared, runtime_identity, bindings_path)
-    verify(prepared['inputs']);request_sources(prepared)
+    with verification_pass('client-preflight') as preflight:
+        validate_dispatch_context(client, prepared, runtime_identity, bindings_path)
+        verify(prepared['inputs']);request_sources(prepared)
     graph = prepared['prompt']; info = client.request('/object_info')
     require(all(n['class_type'] in info for n in graph.values()), 'Install/restart missing nodes before dispatch')
     with locked(ledger):
@@ -212,16 +296,25 @@ def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_
         require(client.idle(), 'Shared queue is busy; leave its jobs untouched')
         count = state['priorGenerationAttempts'] + sum(j['stage']=='geometry' and j['state']!='preflight-rejected' for j in state['jobs'])
         require(prepared['stage'] != 'geometry' or count < 100, '100 generation attempts reached')
-        request_sources(prepared)
+        subject=trial_subject(state,prepared,read(bindings_path),ledger)
         token = prepared['token']
         require(not any(j['token']==token for j in state['jobs']), 'This prepared request was already submitted')
         job = {'token':token,'state':'intent','stage':prepared['stage'],'requestSha256':digest(prepared),'started':time.time()}
+        if subject is not None: job['generationSubject']=subject
         # Reserve the immutable local receipt before publishing a counted ledger intent.
         # Its exclusive create prevents a known path collision from stranding an unsent job.
         write(Path(output)/'submission-intent.json', {'prepared':prepared,'job':job}, fresh=True)
         state['jobs'].append(job); write(ledger,state)
         try:
-            verify(prepared['inputs']);request_sources(prepared);verify_comfy_runtime(client,prepared);verify_loader_models(client,prepared)
+            with verification_pass('client-dispatch') as dispatch:
+                with dispatch.phase('consumed-inputs'):
+                    verify(prepared['inputs']);request_sources(prepared)
+                with dispatch.phase('server-runtime'):
+                    verify_comfy_runtime(client,prepared)
+                with dispatch.phase('loader-models'):
+                    verify_loader_models(client,prepared)
+            write(Path(output)/'submission-verification.json',{'client':[preflight.report(),dispatch.report()],
+                'server':getattr(client,'verification_metrics',[])},fresh=True)
         except Exception as exc:
             job.update(state='preflight-rejected',preflightError=str(exc))
             write(ledger,state)
@@ -310,7 +403,8 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
     try:
         intent=read(output/'submission-intent.json')
         require(intent['job']['token']==token and digest(intent['prepared'])==job['requestSha256'],'Submission receipt mismatch')
-        verify(intent['prepared']['inputs']);request_sources(intent['prepared'])
+        with verification_pass('client-collection-inspect') as inspection:
+            verify(intent['prepared']['inputs']);request_sources(intent['prepared'])
         success=found.get('status',{}).get('status_str')=='success'
         pins=[]
         if success:
@@ -320,7 +414,9 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
                     if set(value)>={'filename','subfolder','type'}:
                         require(value['type']=='output','Only durable output artifacts may be collected')
                         path=(base/value['subfolder']/value['filename']).resolve()
-                        require(path.is_relative_to(base/'headkit'/token), 'Output is outside the owned run prefix')
+                        namespace=intent['prepared'].get('outputNamespace','headkit')
+                        require(namespace in ('headkit','itemkit'), 'Invalid output namespace')
+                        require(path.is_relative_to(base/namespace/token), 'Output is outside the owned run prefix')
                         require(path.is_file(),'Comfy output missing');pins.append(pin(path))
                     else:
                         for v in value.values():visit(v)
@@ -337,16 +433,31 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
                 aa=arrays(*load(Path(expected['path']).read_bytes()))[:2]
                 bb=arrays(*load(Path(candidates[0]['path']).read_bytes()))[:2]
                 require(all(np.array_equal(a,b) for a,b in zip(aa,bb)),'Saved-shape decode mismatch; do not accept appearance')
+        # Fresh after inspection and saved-shape comparison. Server-owned model
+        # verification must finish before publishing a successful collection.
+        with verification_pass('client-completion') as completion:
+            verify(intent['prepared']['inputs']);request_sources(intent['prepared']);verify(pins)
+            if intent['prepared'].get('runtimeVerification')=='server-owned':
+                with completion.phase('server-runtime'):
+                    verify_comfy_runtime(client,intent['prepared'])
+            model_proof=None
+            if intent['prepared'].get('modelVerification') is not None:
+                with completion.phase('server-loader-models'):
+                    model_proof=verify_loader_models(client,intent['prepared'])
     except Exception as exc:
         _record_collection(ledger,token,output,{'state':'failed-validation','token':token,'promptId':job['promptId'],
             'error':str(exc),'history':pin(output/'history.json'),'memorySamples':pin(output/'memory-samples.json')})
         raise
-    verify(intent['prepared']['inputs']);verify(pins)
     result={'state':'complete' if success else 'failed','token':token,'promptId':job['promptId'],'outputs':pins,
             'inputs':[pin(output/'submission-intent.json'),*intent['prepared']['inputs']],'history':pin(output/'history.json'),
             'elapsedSinceSubmissionSeconds':time.time()-job['started'],'memorySamples':pin(output/'memory-samples.json'),
             'comfySourceInventory':intent['prepared']['comfySourceInventory'],
             'comfyRuntimeIdentity':intent['prepared']['comfyRuntimeIdentity']}
+    result['verification']=[inspection.report(),completion.report()]
+    if model_proof is not None:
+        result['modelVerification']=intent['prepared']['modelVerification']
+        result['modelInputs']=intent['prepared']['modelInputs']
+        result['modelCompletionProof']=model_proof
     return _record_collection(ledger,token,output,result)
 
 

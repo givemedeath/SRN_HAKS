@@ -16,18 +16,31 @@ import types
 from urllib.parse import urlsplit
 import uuid
 
+def _bootstrap_snapshot():
+    # A package shell supplies relative imports without running the GPU adapter.
+    # An empty cache prefix prevents stale bytecode before deployment verification.
+    import importlib
+    package=types.ModuleType('_headkit_bootstrap')
+    package.__path__=[str(Path(__file__).resolve().parent)]
+    sys.modules[package.__name__]=package
+    old_cache=sys.pycache_prefix
+    try:
+        with tempfile.TemporaryDirectory(prefix='headkit-bootstrap-') as cache:
+            sys.pycache_prefix=cache
+            return importlib.import_module(package.__name__+'.source_snapshot')
+    finally:
+        sys.pycache_prefix=old_cache
+
+
 if __package__:
     from .source_snapshot import capture_inventory,load_inventory,same_inventory,_sha256,require
 else:
-    # Direct script execution must not import the adapter package before Comfy.
-    helper=Path(__file__).resolve().with_name('source_snapshot.py')
-    snapshot=types.ModuleType('_headkit_source_snapshot')
-    exec(compile(helper.read_bytes(),str(helper),'exec'),vars(snapshot))
+    snapshot=_bootstrap_snapshot()
     capture_inventory,load_inventory,same_inventory,_sha256,require=(
         getattr(snapshot,name) for name in ('capture_inventory','load_inventory','same_inventory','_sha256','require'))
 
 SESSION_MODULE='_srn_headkit_session'
-_STARTED=False
+_STARTED=[]
 
 
 def pin(path):
@@ -135,7 +148,7 @@ def start(path,receipt,*,execute=None):
         if os.name=='nt':probe.setsockopt(socket.SOL_SOCKET,socket.SO_EXCLUSIVEADDRUSE,1)
         try:probe.bind(('127.0.0.1',port))
         except OSError as error:raise ValueError('Comfy endpoint is occupied; stop and wait, do not disturb its owner') from error
-    _STARTED=True
+    _STARTED.append(True)
     session={'id':uuid.uuid4().hex,'pid':os.getpid(),'configuration':configuration,'settingsSha256':digest(config['launch'])}
     holder=types.ModuleType(SESSION_MODULE);holder.value=session
     old_argv,old_path,old_env,old_cache=sys.argv,list(sys.path),dict(os.environ),sys.pycache_prefix
@@ -147,7 +160,11 @@ def start(path,receipt,*,execute=None):
         with tempfile.TemporaryDirectory(prefix='headkit-bytecode-',dir=os.environ.get('TEMP') or None) as cache:
             sys.pycache_prefix=cache;sys.modules[SESSION_MODULE]=holder
             try:
-                (execute or runpy.run_path)(args[0],run_name='__main__')
+                if execute is None:
+                    # Controlled deployment and import-time source proof are complementary.
+                    runpy.run_path(str(Path(__file__).with_name('verified_startup.py')),run_name='__main__')
+                else:
+                    execute(args[0],run_name='__main__')
                 evidence['state']='complete'
             finally:
                 session_context(config['inventory']['core']);evidence['inputsUnchanged']=True

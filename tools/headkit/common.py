@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import sys
 import tempfile
+from .comfy_nodes.verification import CURRENT_PASS,verification_pass
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -23,10 +24,13 @@ _HASHES = {}
 
 
 def sha(path, *, fresh=False):
-    """SHA-256 of a file. Within one process an unchanged file (same identity, size and modification time, before and
-    after reading) is hashed once; fresh=True always rereads, for checks that must catch edits made during a stage.
-    Only files last modified more than two seconds before hashing are cached (the racy-timestamp rule), so a rewrite
-    within one filesystem timestamp tick cannot reuse a stale digest."""
+    """SHA-256 of a file. Inside an explicit verification pass each file is read once per pass, never reused
+    across passes. Elsewhere, within one process an unchanged file (same identity, size and modification time,
+    before and after reading) is hashed once; fresh=True always rereads, for checks that must catch edits made
+    during a stage. Only files last modified more than two seconds before hashing are cached (the racy-timestamp
+    rule), so a rewrite within one filesystem timestamp tick cannot reuse a stale digest."""
+    session=CURRENT_PASS.get()
+    if session is not None and not fresh:return session.hash(path)
     path = Path(path)
     before = path.stat()
     key = (str(path.resolve()), before.st_ino, before.st_size, before.st_mtime_ns)
@@ -57,10 +61,15 @@ def pin(path):
 
 
 def verify(pins, *, fresh=False):
+    verified={}
     for item in pins:
         require(isinstance(item, dict) and set(item) >= {'path', 'sha256'}, 'Expected file pin')
-        actual = runner_slice_sha(item['path'], item['slice'], fresh=fresh) if 'slice' in item else sha(item['path'], fresh=fresh)
-        require(actual == item['sha256'], 'Stale file pin: ' + str(item['path']))
+        path=str(item['path'])
+        if 'slice' in item:actual=runner_slice_sha(item['path'], item['slice'], fresh=fresh)
+        else:
+            if path not in verified:verified[path]=sha(path, fresh=fresh)
+            actual=verified[path]
+        require(actual == item['sha256'], 'Stale file pin: ' + path)
 
 
 def write(path, data, *, fresh=False):
@@ -316,17 +325,25 @@ STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not impo
 STAGE_DATA={'palette':('stock-shades.json',)}  # committed measured references the stage reads
 
 
+def module_path(name, directory):
+    """File of a closure name; a dotted name is a subpackage module, 'pkg.__init__' its package body."""
+    return Path(directory).joinpath(*name.split('.')).with_suffix('.py')
+
+
 def module_closure(names, directory):
-    """Package modules reachable from names through relative imports, function-level imports included."""
+    """Package modules reachable from names through relative imports, function-level imports included.
+    Importing a subpackage module also runs its package __init__, so both are reached."""
     import ast
     seen=set();pending=list(names)
     while pending:
-        name=pending.pop();path=directory/f'{name}.py'
+        name=pending.pop();path=module_path(name,directory)
         if name in seen or not path.is_file():continue
-        seen.add(name)
+        seen.add(name);package=name.split('.')[:-1]
         for node in ast.walk(ast.parse(path.read_text(encoding='utf-8'))):
-            if isinstance(node,ast.ImportFrom) and node.level==1:
-                pending+=[node.module.split('.')[0]] if node.module else [alias.name for alias in node.names]
+            if not isinstance(node,ast.ImportFrom) or not node.level or node.level-1>len(package):continue
+            base=package[:len(package)-node.level+1];module=base+(node.module.split('.') if node.module else [])
+            for target in [module]*bool(node.module)+[module+[alias.name] for alias in node.names]:
+                pending+=['.'.join(target[:i])+'.__init__' for i in range(1,len(target)+1)]+['.'.join(target)]
     return seen
 
 
@@ -386,7 +403,7 @@ def stage_code_files(stage, directory=None, root=None):
     directory=Path(directory or Path(__file__).parent);root=Path(root or ROOT)
     entries=stage_entries(directory);require(stage in entries,'No runner branch for stage: '+stage)
     modules=module_closure(entries[stage]|{'common'},directory)
-    files={directory/f'{name}.py' for name in modules}|{directory/name for name in ('__init__.py','runner.py','manifest.schema.json')}
+    files={module_path(name,directory) for name in modules}|{directory/name for name in ('__init__.py','runner.py','manifest.schema.json')}
     files|={directory/name for name in STAGE_SCRIPTS.get(stage,())+STAGE_DATA.get(stage,())}
     files|={root/path for path in SHARED_TOOLING+(NATIVE_HELPERS if 'native' in modules else ())}
     return sorted(path for path in files if path.is_file())

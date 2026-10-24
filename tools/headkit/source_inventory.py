@@ -141,7 +141,12 @@ def request_sources(prepared):
     runtime=validate_comfy_runtime(prepared.get('comfyRuntimeIdentity'),inventory['roots'],inventory)
     inputs={(str(Path(p['path']).resolve()),p['sha256']) for p in prepared['inputs']}
     require(all((row['path'],row['sha256']) in inputs for row in inventory['files']),'Source inventory is absent from frozen request inputs')
-    require(all((row['path'],row['sha256']) in inputs for row in runtime['files']),'Comfy runtime inventory is absent from frozen request inputs')
+    # Legacy requests included a second client-side copy of the server runtime
+    # inventory. New requests retain its complete attestation and verify it live
+    # at dispatch instead of redundantly consuming those files in the client.
+    require(prepared.get('runtimeVerification')=='server-owned' or
+            all((row['path'],row['sha256']) in inputs for row in runtime['files']),
+            'Comfy runtime inventory is absent from frozen request inputs')
     require((runtime['session']['configuration']['path'],runtime['session']['configuration']['sha256']) in inputs,
             'Controlled startup configuration is absent from frozen request inputs')
     return inventory

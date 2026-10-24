@@ -87,7 +87,8 @@ class Temporary(unittest.TestCase):
         prepared.update(runtimeIdentity=identity,bindings=binding_pin,comfyEndpoint=endpoint)
         if 'comfyRuntimeIdentity' not in prepared:
             prepared['comfyRuntimeIdentity']=self.comfy_runtime_identity(prepared['comfySourceInventory'])
-        for row in prepared['comfyRuntimeIdentity']['files']+[prepared['comfyRuntimeIdentity']['session']['configuration']]:
+        runtime_files=[] if prepared.get('runtimeVerification')=='server-owned' else prepared['comfyRuntimeIdentity']['files']
+        for row in runtime_files+[prepared['comfyRuntimeIdentity']['session']['configuration']]:
             if row not in prepared['inputs']:prepared['inputs'].append(row)
         if binding_pin not in prepared['inputs']:prepared['inputs'].append(binding_pin)
         prepared['inputs'].extend(row for row in (identity['toolchain'],identity['migrationReceipt'],identity['python']) if row not in prepared['inputs'])
@@ -101,6 +102,27 @@ class Temporary(unittest.TestCase):
         image=Image.new('RGBA',(128,128));ImageDraw.Draw(image).ellipse((20,10,108,118),fill=(180,150,120,255))
         image.save(self.root/'clay.png');image.save(self.root/'detail.png')
         return {'landmarks':[{'name':n,'clay':p,'detail':p} for n,p in [('crown',[.5,.1]),('left',[.25,.5]),('chin',[.5,.9])]]}
+
+
+class ClientTransportTests(unittest.TestCase):
+    def test_verification_endpoints_have_bounded_byte_read_timeout(self):
+        client = comfy.Client('http://127.0.0.1:8188')
+        for route, expected in [('/headkit/runtime-identity', 300),
+                                ('/headkit/verify-loader-models', 300),
+                                ('/queue', 30), ('/prompt', 30)]:
+            with self.subTest(route=route), patch.object(comfy.urllib.request, 'urlopen') as opened, \
+                    patch.object(comfy.json, 'load', return_value={'verified': True}):
+                self.assertEqual(client.request(route), {'verified': True})
+                self.assertEqual(opened.call_args.kwargs['timeout'], expected)
+
+    def test_verification_timeout_propagates_without_retry_or_dispatch(self):
+        client = comfy.Client('http://127.0.0.1:8188')
+        with patch.object(comfy.urllib.request, 'urlopen', side_effect=TimeoutError('verification timeout')) as opened:
+            with self.assertRaisesRegex(TimeoutError, 'verification timeout'):
+                client.request('/headkit/verify-loader-models', {'models': []})
+            self.assertEqual(opened.call_count, 1)
+            self.assertEqual(opened.call_args.args[0].full_url,
+                             'http://127.0.0.1:8188/headkit/verify-loader-models')
 
 
 class GraphTests(Temporary):
@@ -153,6 +175,29 @@ class GraphTests(Temporary):
 
 
 class GeometryApprovalTests(Temporary):
+    def test_rgb_staging_preserves_background_routing_and_legacy_default(self):
+        from headkit.generation import prepare_request
+        from headkit.source_inventory import freeze_sources
+        for index,decision in enumerate((None,{'route':'remove','size':[512,512]},
+                                         {'route':'preserve-alpha','size':[512,512]})):
+            data=self.fixture()
+            with Image.open(self.root/'detail.png') as image:
+                image=image.convert('RGBA');image.putpixel((10,10),(120,180,240,128));image.save(self.root/'detail.png')
+            data['inputs']['detail']['sha256']=pin(self.root/'detail.png')['sha256']
+            for role in ('geometry','mask'):data['inputs'][role]=dict(data['inputs']['detail'])
+            path=self.root/'manifest.json';write(path,data)
+            identity=self.comfy_runtime_identity(freeze_sources(read(self.root/'bindings.json')))
+            with patch('headkit.comfy.compile_graph',return_value={}) as compiler:
+                result=prepare_request(path,self.root/'bindings.json','calibrate',self.root/f'background-{index}.json',
+                                       runtime=self.runtime_identity(),comfy_runtime=identity,background=decision)
+            self.assertIs(compiler.call_args.kwargs['background'],decision)
+            with Image.open(next(Path(row['path']) for row in result['inputs']
+                                 if Path(row['path']).name=='geometry.png')) as staged:
+                expected=(60,90,120) if decision is None else (120,180,240)
+                self.assertEqual(staged.getpixel((10,10)),expected)
+            if decision is None:self.assertNotIn('backgroundDecision',result)
+            else:self.assertEqual(result['backgroundDecision'],decision)
+
     def fixture(self):
         self.pair();raw=pin(self.file('raw.glb'));shape=pin(self.file('shape.npz'))
         data={'schemaVersion':1,'id':'geometry-review','inputs':{name:{'path':Path(row['path']).name,'sha256':row['sha256']}
@@ -355,6 +400,30 @@ class PythonPackagePinTests(Temporary):
 
 
 class ComfyServerRuntimeTests(Temporary):
+    def test_runtime_members_excludes_inactive_packages_and_nonexecution_assets(self):
+        from headkit.comfy_nodes.runtime_identity import runtime_members
+        stdlib=self.root/'Lib';active=self.root/'venv'/'site-packages'
+        paths=[stdlib/'os.py',stdlib/'site-packages'/'unused.py',active/'torch'/'kernel.dll',
+               active/'torch'/'template.jinja',active/'torch'/'sample.png',
+               active/'torch-1.dist-info'/'METADATA',active/'torch-1.dist-info'/'RECORD']
+        for path in paths:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
+        files=runtime_members({stdlib,active})
+        self.assertEqual(files,{paths[i] for i in (0,2,3,5)})
+        self.assertIn(paths[1],runtime_members({stdlib,stdlib/'site-packages',active}))
+
+    def test_runtime_members_include_sourceless_bytecode_and_zip_imports(self):
+        from headkit.comfy_nodes.runtime_identity import runtime_members
+        active=self.root/'venv'/'site-packages'
+        paths=[active/'plain.pyc',active/'legacy.PYO',active/'bundle.pyz',active/'old.egg',active/'__pycache__'/'cached.pyc']
+        for path in paths:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
+        self.assertEqual(runtime_members({active}),set(paths[:4]))
+
+    def test_runtime_byte_hash_catches_same_size_change_with_restored_timestamp(self):
+        from headkit.comfy_nodes.runtime_identity import _pin
+        path=self.file('kernel.dll','abc');before=_pin(path);stat=path.stat()
+        path.write_text('xyz');os.utime(path,ns=(stat.st_atime_ns,stat.st_mtime_ns))
+        self.assertNotEqual(before,_pin(path))
+
     def test_runtime_identity_endpoint_uses_the_clients_get_method(self):
         import ast
         source=Path(__file__).parent/'comfy_nodes'/'__init__.py'
@@ -367,7 +436,7 @@ class ComfyServerRuntimeTests(Temporary):
         self.assertEqual(len(decorators),1)
         self.assertEqual(decorators[0].func.attr,'get')
         self.assertEqual(ast.literal_eval(decorators[0].args[0]),'/headkit/runtime-identity')
-        self.assertFalse(any(isinstance(node,ast.Name) and node.id=='loaded_source_code' for node in ast.walk(handlers[0])))
+        self.assertTrue(any(isinstance(node,ast.Name) and node.id=='loaded_source_code' for node in ast.walk(handlers[0])))
 
     def test_session_restart_changes_the_runtime_fingerprint(self):
         from headkit.comfy_nodes.runtime_identity import seal_runtime_identity,same_runtime_environment
@@ -395,9 +464,29 @@ class ComfyServerRuntimeTests(Temporary):
              patch('headkit.comfy_nodes.runtime_identity.sys.path',[str(site)]), \
              patch('headkit.comfy_nodes.runtime_identity.sysconfig.get_paths',return_value=paths), \
              patch.dict(sys.modules,{'torch':torch}):
+            from headkit.comfy_nodes.verification import verification_pass
+            controlled={'id':'a'*32,'pid':123}
+            with verification_pass('runtime-session-binding'):
+                bound=capture_runtime_identity(SimpleNamespace(base_path=str(app)),session=controlled)
+            self.assertEqual(bound['session'],controlled)
             result=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            self.assertEqual(result['files'],sorted([pin(path) for path in
+                             (executable,native,torch_file,stdlib_file)],key=lambda row:row['path'].casefold()))
+            self.assertEqual(result['fingerprint'],capture_runtime_identity(SimpleNamespace(base_path=str(app)))['fingerprint'])
             before=result['fingerprint'];native.write_bytes(b'changed CUDA native fixture')
             changed=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            runtime_module=sys.modules[capture_runtime_identity.__module__]
+            # Directory entries come from resolved roots; temp may be an 8.3 alias on Windows runners.
+            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==native.resolve()):
+                with self.assertRaisesRegex(ValueError,'Linked Comfy runtime files'):
+                    capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==package.resolve()):
+                with self.assertRaisesRegex(ValueError,'Linked Comfy runtime directories'):
+                    capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            added=site/'new.py';added.write_text('new runtime member')
+            enlarged=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            self.assertNotEqual(changed['fingerprint'],enlarged['fingerprint'])
+            self.assertIn(pin(added),enlarged['files'])
         paths_in={row['path'] for row in result['files']}
         self.assertIn(str(executable.resolve()),paths_in)
         self.assertIn(str(native.resolve()),paths_in)
@@ -1161,6 +1250,26 @@ class LocalBindingSecurityTests(Temporary):
 
 
 class UvBindingTests(Temporary):
+    def test_invalid_source_group_policy_is_rejected_before_loading_library(self):
+        from headkit.uv import unwrap
+        for value in (True,1,257,128.0):
+            with self.assertRaisesRegex(ValueError,'group limit'):unwrap({}, {}, {'maximumLocalGroups':value})
+    def test_atlas_patches_use_only_their_vertices_and_preserve_ordered_geometry(self):
+        from headkit.uv import _pack
+        class Atlas:
+            def __init__(self):self.meshes=[];self.atlas_count=1;self.width=self.height=2048
+            def add_mesh(self,vertices,indices):self.meshes.append((vertices.copy(),indices.copy()))
+            def generate(self,**kwargs):pass
+            def __getitem__(self,index):
+                vertices,indices=self.meshes[index]
+                return np.arange(len(vertices)),indices,vertices[:,:2]
+            def get_mesh_chart_count(self,index):return 1
+        atlas=Atlas();module=SimpleNamespace(Atlas=lambda:atlas,ChartOptions=SimpleNamespace,PackOptions=SimpleNamespace)
+        vertices=np.random.default_rng(4).random((100,3)).astype(np.float32)
+        faces=np.array([[50,60,70],[1,2,3]],np.uint32)
+        uv,_,_=_pack(module,vertices,faces,[np.array([0]),np.array([1])])
+        self.assertEqual([len(v) for v,_ in atlas.meshes],[3,3])
+        np.testing.assert_array_equal(uv,vertices[faces][:,:,:2])
     def fixture(self,directory):
         directory.mkdir(parents=True,exist_ok=True);module=directory/'xatlas.py';module.write_text('pinned fixture')
         return {'toolsRoot':str(self.root/'tools-bank'),'libraries':{'xatlas':{'directory':str(directory),'files':[pin(module)]}}}
@@ -1222,6 +1331,22 @@ class UvBindingTests(Temporary):
 
 
 class AppearanceTests(Temporary):
+    def test_saved_batch_zero_field_matches_xyz_without_changing_transport(self):
+        coords=np.array([[0,0,0],[1,0,0]],dtype=np.int32);attrs=np.array([[.2]*6,[.8]*6])
+        batched=np.c_[np.zeros(len(coords),np.int32),coords];before=batched.copy()
+        direct=GeneratedField.from_saved(coords,attrs,2)
+        saved=GeneratedField.from_saved(batched,attrs,2)
+        np.testing.assert_array_equal(saved.sample([[0,-.25,-.25]])[0],direct.sample([[0,-.25,-.25]])[0])
+        np.testing.assert_array_equal(batched,before)
+        with self.assertRaises(ValueError):GeneratedField(batched,attrs,2)
+    def test_saved_batch_field_rejects_mixed_nonzero_or_float_batch_coordinates(self):
+        attrs=np.ones((2,6))*.2
+        for coords in (np.array([[0,0,0,0],[1,1,0,0]]),np.array([[1,0,0,0],[1,1,0,0]]),
+                       np.zeros((2,4),dtype=float)):
+            with self.assertRaisesRegex(ValueError,'batch-zero'):GeneratedField.from_saved(coords,attrs,2)
+    def test_saved_batch_field_preserves_duplicate_and_range_checks(self):
+        for coords in (np.zeros((2,4),int),np.array([[0,0,0,0],[0,2,0,0]])):
+            with self.assertRaises(ValueError):GeneratedField.from_saved(coords,np.ones((2,6))*.2,2)
     def test_trilinear_interpolation_clamps_after_weighting(self):
         coords=np.array([[0,0,0],[1,0,0]]);attrs=np.array([[-.2]*6,[.8]*6])
         with self.assertRaises(ValueError):GeneratedField(coords,attrs,2)
@@ -1288,12 +1413,18 @@ class AppearanceTests(Temporary):
     def test_bake_rejects_unmapped_1k_faces_before_writing_output(self):
         np.savez(self.root/'field.npz',coords=np.array([[0,0,0,0]],np.int32),attrs=np.ones((1,6))*.5,resolution=2)
         value={'positions':np.eye(3),'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
-        def gated(_,size,*__):
-            if size==1024:raise ValueError('UV overlap/degeneracy or unmapped faces block baking')
-            return np.zeros((size,size,3),np.float32),np.zeros((size,size),np.int32),{}
+        def gated(_,size,*__,enforce=True):
+            if size==1024 and enforce:raise ValueError('UV overlap/degeneracy or unmapped faces block baking')
+            report={'overlapFaces':[],'degenerateUvFaces':[],'subtexel':{'passed':size!=1024}}
+            return np.zeros((size,size,3),np.float32),np.zeros((size,size),np.int32),report
         with patch('headkit.textures.mesh',return_value=value),patch('headkit.textures.surface',side_effect=gated):
             with self.assertRaisesRegex(ValueError,'unmapped'):bake('mesh.glb',self.root/'field.npz',self.root/'maps')
-        self.assertFalse((self.root/'maps').exists())
+            self.assertFalse((self.root/'maps').exists())
+            # A 4K-qualified donor atlas records the derived 1K sampling instead of failing on it.
+            source=self.root/'mesh.glb';source.write_bytes(b'mesh fixture')
+            result=bake(source,self.root/'field.npz',self.root/'diagnostic',allow_decoder_overshoot=True,derived_surface='diagnostic')
+            self.assertEqual(result['derivedSurface'],{'policy':'diagnostic','passed':False})
+            with self.assertRaisesRegex(ValueError,'derived surface'):bake('mesh.glb',self.root/'field.npz',self.root/'x',derived_surface='off')
     def test_palette_excludes_transparent_and_255_preserving_opaque_black(self):
         rgb=np.zeros((1024,1024,3),np.uint8);labels=np.zeros((1024,1024),np.uint8);labels[:5]=8
         Image.fromarray(rgb).save(self.root/'rgb.png');Image.fromarray(labels).save(self.root/'labels.png')
@@ -1630,6 +1761,24 @@ class LedgerTests(Temporary):
         self.assertEqual(client.posts,0)
         self.assertIn('/headkit/runtime-identity',[route for route,_ in client.routes])
 
+    def test_server_owned_runtime_is_reverified_under_lock_without_client_file_reads(self):
+        ledger=self.root/'server-owned-ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')
+        request=self.prepared();request['runtimeVerification']='server-owned'
+        runtime_file=request['comfyRuntimeIdentity']['torch']['path']
+        request['inputs']=[row for row in request['inputs'] if row['path']!=runtime_file]
+        client=FakeClient()
+        def change_runtime():
+            changed=copy.deepcopy(client.server_runtime)
+            changed['torch']['sha256']='0'*64
+            for row in changed['files']:
+                if row['path']==runtime_file:row['sha256']='0'*64
+            changed['fingerprint']=digest({k:v for k,v in changed.items() if k!='fingerprint'})
+            client.server_runtime=changed
+        client.on_idle=change_runtime
+        with self.assertRaisesRegex(ValueError,'runtime differs'):
+            self.submit(client,ledger,request,self.root/'server-owned-job')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
     def test_restarted_session_and_changed_settings_block_dispatch_without_attempt(self):
         for field,value in (('id','b'*32),('settingsSha256','c'*64),('pid',456)):
             with self.subTest(field=field):
@@ -1711,16 +1860,119 @@ class LedgerTests(Temporary):
         with self.assertRaisesRegex(ValueError,'outside'):comfy.collect(client,ledger,request['token'],self.root/'comfy-output',self.root/'job')
 
 
+class ItemTrialTests(Temporary):
+    def setUp(self):
+        super().setUp()
+        self.ledger=self.root/'trial.json'
+        write(self.ledger,{'schemaVersion':1,'priorGenerationAttempts':0,'jobs':[],
+                          'itemTrial':{'id':'trial','maximumGeometryAttempts':2}})
+        write(self.root/'dispatch-bindings.json',{'itemTrialId':'trial','submissionLedger':str(self.ledger)})
+    def request(self, token, model='cougar', reference='a', stage='geometry'):
+        return self.freeze_request({'token':token,'stage':stage,'outputNamespace':'itemkit',
+            'generationSubject':{'id':model,'referenceSha256':reference*64},
+            'prompt':{'1':{'class_type':'Example','inputs':{'filename_prefix':'itemkit/'+token+'/mesh'}}},
+            'inputs':[pin(self.file('input'))]})
+    def terminal(self,state='failed'):
+        data=read(self.ledger);data['jobs'][-1]['state']=state;write(self.ledger,data)
+    def test_five_attempt_policy_keeps_alias_history_and_blocks_sixth(self):
+        state=read(self.ledger);state['itemTrial']['maximumGeometryAttempts']=5;write(self.ledger,state)
+        for n,(model,ref) in enumerate((('cougar','a'),('renamed','a'),('renamed','b'),('third-name','b'),('third-name','c'))):
+            self.submit(FakeClient(),self.ledger,self.request(str(n),model,ref),self.root/str(n))
+            self.terminal('not-found' if n==2 else 'complete')
+        client=FakeClient()
+        with self.assertRaisesRegex(ValueError,'Five generation attempts'):
+            self.submit(client,self.ledger,self.request('sixth','cougar','d'),self.root/'sixth')
+        self.assertEqual(client.posts,0)
+        self.assertEqual(len(read(self.ledger)['jobs']),5)
+        self.submit(client,self.ledger,self.request('appearance',stage='appearance'),self.root/'appearance')
+        self.assertEqual(client.posts,1)
+    def test_two_attempts_survive_reference_changes_and_allow_another_model(self):
+        for n,ref in enumerate(('a','b')):
+            self.submit(FakeClient(),self.ledger,self.request(str(n),reference=ref),self.root/str(n));self.terminal()
+        client=FakeClient()
+        with self.assertRaisesRegex(ValueError,'Two generation attempts'):
+            self.submit(client,self.ledger,self.request('third',reference='c'),self.root/'third')
+        self.assertEqual(client.posts,0)
+        self.submit(client,self.ledger,self.request('other',model='another-model',reference='d'),self.root/'other')
+        self.assertEqual(client.posts,1)
+    def test_uncertain_post_counts_after_reconciliation(self):
+        with self.assertRaises(TimeoutError):
+            self.submit(FakeClient(True),self.ledger,self.request('uncertain'),self.root/'uncertain')
+        with self.assertRaisesRegex(ValueError,'Reconcile'):
+            self.submit(FakeClient(),self.ledger,self.request('blocked'),self.root/'blocked')
+        self.terminal('not-found')
+        self.submit(FakeClient(),self.ledger,self.request('second'),self.root/'second');self.terminal()
+        with self.assertRaisesRegex(ValueError,'Two generation attempts'):
+            self.submit(FakeClient(),self.ledger,self.request('third'),self.root/'third')
+    def test_preflight_rejection_does_not_spend_attempt(self):
+        request=self.request('preflight');source=request['inputs'][0]['path']
+        with self.assertRaisesRegex(ValueError,'Stale'):
+            self.submit(FakeClient(on_idle=lambda:Path(source).write_text('changed')),self.ledger,request,self.root/'preflight')
+        for token in ('first','second'):
+            self.submit(FakeClient(),self.ledger,self.request(token),self.root/token);self.terminal()
+    def test_renaming_reference_does_not_reset_attempts(self):
+        for token,model,ref in (('first','cougar','a'),('second','renamed','a')):
+            self.submit(FakeClient(),self.ledger,self.request(token,model,ref),self.root/token);self.terminal()
+        with self.assertRaisesRegex(ValueError,'Two generation attempts'):
+            self.submit(FakeClient(),self.ledger,self.request('third','renamed','b'),self.root/'third')
+    def test_appearance_and_export_do_not_spend_or_require_remaining_geometry_attempt(self):
+        for token,stage in (('one','geometry'),('two','geometry'),('texture','appearance'),('export','export')):
+            self.submit(FakeClient(),self.ledger,self.request(token,stage=stage),self.root/token);self.terminal('success')
+        self.assertEqual(len(read(self.ledger)['jobs']),4)
+    def test_missing_identity_or_replacement_ledger_fails_closed(self):
+        request=self.request('missing');del request['generationSubject']
+        with self.assertRaisesRegex(ValueError,'stable model'):
+            self.submit(FakeClient(),self.ledger,request,self.root/'missing')
+        other=self.root/'replacement.json';comfy.initialize_ledger(other,0,'Unrelated ledger')
+        with self.assertRaisesRegex(ValueError,'two-attempt'):
+            self.submit(FakeClient(),other,self.request('replacement'),self.root/'replacement')
+    def test_item_collection_accepts_only_owned_item_namespace(self):
+        token='collected';request=self.request(token);client=FakeClient();job=self.root/'job'
+        self.submit(client,self.ledger,request,job)
+        output=self.root/'output';folder=output/'itemkit'/token;folder.mkdir(parents=True)
+        (folder/'mesh.glb').write_bytes(b'geometry fixture')
+        client.request=lambda *args,**kwargs:{'prompt-1':{'status':{'status_str':'success'},'outputs':{'1':{'files':[
+            {'filename':'mesh.glb','subfolder':'itemkit/'+token,'type':'output'}]}}}}
+        result=comfy.collect(client,self.ledger,token,output,job)
+        self.assertEqual(len(result['outputs']),1)
+
+
 class CollectionReceiptTests(Temporary):
-    def fixture(self):
+    def fixture(self,server_owned=False):
         base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
         source=base/'input';source.write_text('frozen input');ledger=base/'ledger.json';job=base/'job';output=base/'comfy-output';token='collect-test'
         prepared=self.freeze_request({'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(source)]})
+        if server_owned:
+            prepared['runtimeVerification']='server-owned'
+            server_file=prepared['comfyRuntimeIdentity']['torch']['path']
+            prepared['inputs']=[row for row in prepared['inputs'] if row['path']!=server_file]
         comfy.initialize_ledger(ledger,0,'Reconciled fixture');client=FakeClient();self.submit(client,ledger,prepared,job)
         artifact=output/'headkit'/token/'mesh.glb';artifact.parent.mkdir(parents=True);artifact.write_bytes(b'exported fixture')
         history={'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'mesh.glb','subfolder':'headkit/'+token,'type':'output'}]}}}
-        client.request=lambda route,data=None: {'devices':[]} if route=='/system_stats' else {'prompt-1':history}
+        client.request=lambda route,data=None: (client.server_runtime if route=='/headkit/runtime-identity' else
+            {'devices':[]} if route=='/system_stats' else {'prompt-1':history})
         return client,ledger,token,output,job,artifact
+    def test_server_owned_runtime_is_checked_once_at_fresh_completion_only(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True)
+        with patch.object(comfy,'verify_comfy_runtime',wraps=comfy.verify_comfy_runtime) as runtime:
+            result=comfy.collect(client,ledger,token,output,job)
+            self.assertEqual(result['state'],'complete');runtime.assert_called_once()
+            with patch.object(client,'request',side_effect=AssertionError('Terminal receipts must not repoll')):
+                self.assertEqual(comfy.collect(client,ledger,token,output,job),result)
+            runtime.assert_called_once()
+    def test_changed_server_owned_runtime_fails_collection_and_preserves_receipt(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True)
+        changed=copy.deepcopy(client.server_runtime);path=Path(changed['torch']['path']);path.write_bytes(b'changed server dependency')
+        changed['torch']['sha256']=pin(path)['sha256']
+        for row in changed['files']:
+            if row['path']==str(path):row['sha256']=changed['torch']['sha256']
+        changed['fingerprint']=digest({key:value for key,value in changed.items() if key!='fingerprint'})
+        client.server_runtime=changed
+        with self.assertRaisesRegex(ValueError,'runtime differs'):comfy.collect(client,ledger,token,output,job)
+        result=read(job/'collection.json');self.assertEqual(result['state'],'failed-validation')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'failed-validation')
+        with patch.object(client,'request',side_effect=AssertionError('Failed receipt must not repoll')):
+            self.assertEqual(comfy.collect(client,ledger,token,output,job),result)
     def test_repeat_collection_reuses_verified_receipt_without_server_or_writes(self):
         client,ledger,token,output,job,artifact=self.fixture();first=comfy.collect(client,ledger,token,output,job,wait=True)
         paths=[ledger,job/'history.json',job/'memory-samples.json',job/'collection.json'];before=[p.read_bytes() for p in paths]

@@ -8,73 +8,9 @@ from . import comfy
 
 
 def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None, comfy_runtime=None):
-    data=manifest(manifest_path);local=bindings(bindings_path)
-    require(data.get('approval',{}).get('inputReviewComplete') is True,'Review measured input overlays and feature inventory before GPU preparation')
-    profile=data.get('profile','pixal-single-v1');camera=data.get('camera',{})
-    if stage in ('geometry','appearance'):
-        require(camera.get('reviewed') is True,'Reviewed camera calibration required')
-    names={'calibrate':['geometry','detail','mask'],'geometry':['geometry'],'appearance':['detail'],'export':[]}[stage]
-    if profile=='pixal-multiview-v1' and stage in ('geometry','appearance'):
-        names=[('geometry' if stage=='geometry' else 'detail')+view for view in comfy.MULTIVIEW_VIEWS]
-    require(stage!='geometry' or (data.get('features') and all(x.get('placementReviewed') is True for x in data['features'])),
-            'Review hairstyle routing, all accessories and counts before generation')
-    shape=asset(manifest_path,data['inputs']['shape']) if stage=='appearance' else None
-    expected_mesh=asset(manifest_path,data['inputs']['geometryRaw']) if stage=='appearance' else None
-    if stage=='appearance':
-        review=data.get('approval',{}).get('generatedGeometry',{})
-        require(review.get('decision')=='approved' and bool(review.get('notes','').strip())
-                and review.get('geometryRawSha256')==expected_mesh['sha256']
-                and review.get('shapeSha256')==shape['sha256'],
-                'Approve generated clay with geometryRaw and shape hashes before appearance preparation')
-    export_source=asset(manifest_path,data['inputs']['exportSource']) if stage=='export' else None
-    if stage=='export':
-        review=data.get('approval',{}).get('exportGeometry',{})
-        require(review.get('decision')=='approved' and bool(review.get('notes','').strip())
-                and review.get('exportSourceSha256')==export_source['sha256'],
-                'Approve generated clay with the exact exportSource hash before export preparation')
-    binding_pin=pin(bindings_path)
-    images={};pins=[pin(manifest_path),binding_pin]+code_pins()
-    if runtime is not None:pins.extend(runtime[name] for name in ('toolchain','migrationReceipt','python'))
-    from .source_inventory import freeze_sources,validate_comfy_runtime
-    inventory=freeze_sources(local)
-    comfy_runtime=validate_comfy_runtime(comfy_runtime,inventory['roots'],inventory)
-    pins+=inventory['files']+comfy_runtime['files']
-    require(comfy_runtime['session']['configuration']==pin(local['comfyStartupConfig']),
-            'Controlled startup configuration differs from local bindings')
-    pins.append(comfy_runtime['session']['configuration'])
-    adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
-    source_config=adapter/'source-roots.json'
-    require(read(source_config)=={'schemaVersion':1,'inventory':inventory},
-            'Installed Comfy source snapshot differs; reinstall the current adapter and restart ComfyUI')
-    pins.append(pin(source_config))
-    for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):
-        installed=adapter/code.name;require(pin(installed)['sha256']==pin(code)['sha256'],'Installed headkit nodes differ; install current adapters and restart ComfyUI')
-        pins.append(pin(installed))
-    root=Path(local['comfyInput']).resolve();token=uuid.uuid4().hex;staging=root/'headkit'/token;staging.mkdir(parents=True,exist_ok=False)
-    for name in names:
-        source=asset(manifest_path,data['inputs'][name]);pins.append(source)
-        target=staging/(name+'.png')
-        from PIL import Image
-        image=Image.open(source['path']).convert('RGBA')
-        if name=='mask':image.save(target)
-        else:
-            background=Image.new('RGBA',image.size,(0,0,0,255));background.alpha_composite(image);background.convert('RGB').save(target)
-        images[name]=target.relative_to(root).as_posix();pins.append(pin(target))
-    pins += [p for p in (shape,export_source) if p]
-    if expected_mesh:pins.append(expected_mesh)
-    graph=comfy.compile_graph(stage,profile,images,'headkit/'+token,fov=camera.get('fovDegrees'),shape=shape,source=export_source)
-    from .comfy_nodes.model_resolution import loader_models,bind_loader_models
-    models=loader_models(graph,local.get('models',{}),read(Path(__file__).parent/'checkpoints.json'))
-    graph=bind_loader_models(graph,models)
-    # Pin each model's filename, Comfy folder category, resolved path identity and bytes.
-    for model in models:
-        row=local['models'][model['name']]
-        if row not in pins:pins.append(row)
-    result={'stage':stage,'profile':profile,'token':token,'prompt':graph,'inputs':pins,'codeVersion':source_version(),
-            'timeoutSeconds':2700,'generationCeiling':100,'expectedGeometry':expected_mesh,'comfySourceInventory':inventory,
-            'comfyRuntimeIdentity':comfy_runtime,'runtimeIdentity':runtime,'bindings':binding_pin,'comfyEndpoint':comfy.Client(local['comfyUrl']).url,
-            'loaderModels':models}
-    write(output,result,fresh=True);return result
+    from .generation import prepare_request
+    return prepare_request(manifest_path, bindings_path, stage, output,
+                           runtime=runtime, comfy_runtime=comfy_runtime, read_json=read)
 
 
 

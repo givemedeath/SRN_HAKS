@@ -10,10 +10,10 @@ from .field import load_generated_field
 from .uv import raster_audit, subtexel_audit
 
 
-def surface(value, size, max_subtexel_fraction=0.0):
+def surface(value, size, max_subtexel_fraction=0.0, *, enforce=True):
     report, owners=raster_audit(value['uv'],size)
     subtexel=subtexel_audit(value['uv'],size,report,owners,max_subtexel_fraction)
-    require(not report['overlapFaces'] and not report['degenerateUvFaces'] and subtexel['passed'],
+    require(not enforce or (not report['overlapFaces'] and not report['degenerateUvFaces'] and subtexel['passed']),
             'UV overlap/degeneracy or unmapped faces block baking')
     report['subtexel']={k:v for k,v in subtexel.items() if k!='failingFaces'}
     positions=np.zeros((size,size,3),np.float32)
@@ -35,14 +35,17 @@ def pad(values, mapped):
     return result
 
 
-def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096, max_subtexel_fraction=.005):
+def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096, max_subtexel_fraction=.005,
+         derived_surface='gated'):
     require(size==4096,'Production source bake is 4K; derive 2K/1K afterward')
     begun=time.perf_counter();value=mesh(source)
     field=load_generated_field(field_path,allow_decoder_overshoot)
     # Every raster gate runs before anything is written, so a rejected bake leaves no partial output.
     # The 4K source stays zero-tolerance; the derived 1K surface takes the measured sub-texel allowance.
+    # A 4K-qualified donor atlas only consumes the 4K map; its 1K surface is then diagnostic.
+    require(derived_surface in ('gated','diagnostic'),'Unknown derived surface policy')
     positions,owners,report=surface(value,size);mapped=owners>=0
-    low,ids,low_report=surface(value,1024,max_subtexel_fraction)
+    low,ids,low_report=surface(value,1024,max_subtexel_fraction,enforce=derived_surface=='gated')
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     sampled,fallback=field.sample(positions[mapped],chunk=65536)
     values=np.zeros((size,size,6),np.float32);values[mapped]=sampled;values=pad(values,mapped)
@@ -62,6 +65,9 @@ def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096
             'clippedSamplesByChannel':field.clipped_samples_per_channel.tolist(),'rawRanges':field.raw_ranges,
             'paddingOnlyOutsideMappedSurface':True,'aoAdded':False,'threads':4,'elapsedSeconds':time.perf_counter()-begun,
             'visualReviewRequired':True}
+    if derived_surface=='diagnostic':
+        result['derivedSurface']={'policy':'diagnostic','passed':bool(not low_report['overlapFaces']
+            and not low_report['degenerateUvFaces'] and low_report['subtexel']['passed'])}
     write(output/'bake.json',result,fresh=True);return result
 
 

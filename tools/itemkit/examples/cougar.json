@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "cougar-fineblade-longblade",
+  "profile": "pixal-single-v1",
+  "generationSettings": {"preset": "pixal-single-v1", "shapeResolution": 1536, "shapeCFG": 12, "textureCFG": 1, "textureSteps": 12},
+  "landmarks": [],
+  "materials": [
+    {"name": "silver steel", "region": "blade and bevels"},
+    {"name": "dark textured grip", "region": "grip; front branding in diffuse only"},
+    {"name": "restrained bronze accents", "region": "guard and pommel hardware"}
+  ],
+  "familyProfile": {"path": "family.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "inputs": {"reference": {"path": "intake/reference-original.png", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}},
+  "features": [
+    {"name": "continuous blade silhouette, tip and thin beveled edges", "placementReviewed": false},
+    {"name": "long recessed blade channels", "placementReviewed": false},
+    {"name": "compact guard and large fasteners", "placementReviewed": false},
+    {"name": "dark grip with front COUGAR branding", "placementReviewed": false},
+    {"name": "pommel hardware and open loop", "placementReviewed": false},
+    {"name": "symmetric reverse construction without required text", "placementReviewed": false}
+  ],
+  "openings": [{"name": "pommel-loop", "mustRemainOpen": true}],
+  "camera": {"reviewed": false, "fovDegrees": null},
+  "approval": {"referenceDesignReviewed": false, "inputReviewComplete": false},
+  "fit": {"reviewed": false},
+  "processing": {
+    "joinY": [], "openingProbes": [], "thicknessProbes": [],
+    "uvMargin": 0.016, "cageExtrusion": 0.001, "maxRayDistance": 0.003,
+    "capColour": [0.08, 0.08, 0.08]
+  },
+  "clientCoverage": ["human-male", "human-female"],
+  "notes": "One detailed reference conditions geometry and appearance. No clay reference is required. Fit the grip to the native hand using uniform scale; preserve design proportions. Review untextured generated geometry before appearance."
+}

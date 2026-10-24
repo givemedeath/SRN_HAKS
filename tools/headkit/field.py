@@ -14,6 +14,16 @@ def load_generated_field(path,allow_decoder_overshoot=False):
     return GeneratedField(coords,attrs,resolution,allow_decoder_overshoot)
 
 class GeneratedField:
+    @classmethod
+    def from_saved(cls,coords,attrs,resolution,allow_decoder_overshoot=False):
+        """Accept XYZ or Comfy's single explicit batch-zero BXYZ transport."""
+        coords=np.asarray(coords)
+        if coords.ndim==2 and coords.shape[1]==4:
+            if not np.issubdtype(coords.dtype,np.integer) or not np.all(coords[:,0]==0):
+                raise ValueError('Saved field requires one integer batch-zero coordinate set')
+            coords=coords[:,1:]
+        return cls(coords,attrs,resolution,allow_decoder_overshoot)
+
     def __init__(self,coords,attrs,resolution,allow_decoder_overshoot=False):
         coords,attrs=np.asarray(coords),np.asarray(attrs)
         if (type(resolution) is not int or not 0<resolution<=2048

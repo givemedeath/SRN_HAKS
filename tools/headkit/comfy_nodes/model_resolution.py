@@ -2,6 +2,7 @@
 import hashlib
 import os
 from pathlib import Path
+from .verification import CURRENT_PASS
 
 
 # Keep this mapping aligned with the loader nodes used by the frozen graphs.
@@ -11,6 +12,7 @@ STANDARD_MODEL_FIELDS = {
     ('CLIPVisionLoader', 'clip_name'): 'clip_vision',
     ('VAELoader', 'vae_name'): 'vae',
     ('LoadMoGeModel', 'model_name'): 'geometry_estimation',
+    ('LoadBackgroundRemovalModel', 'bg_removal_name'): 'background_removal',
 }
 VERIFIED_LOADER_TYPES = {
     original: 'HeadkitVerified' + original + 'V1'
@@ -66,6 +68,8 @@ def path_identity(path):
 
 
 def file_sha256(path):
+    session=CURRENT_PASS.get()
+    if session is not None:return session.hash(path)
     digest = hashlib.sha256()
     with Path(path).open('rb') as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b''):

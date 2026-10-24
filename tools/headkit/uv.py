@@ -249,6 +249,9 @@ def _repack(xatlas,base_uv,dims,density,corners,own,padding,scale):
 
 def unwrap(mesh,bindings,policy=None):
     begun=time.perf_counter();policy=policy or {}
+    maximum_groups=policy.get('maximumLocalGroups')
+    if maximum_groups is not None:
+        require(type(maximum_groups) is int and 2<=maximum_groups<=256,'Invalid local group limit')
     xatlas=library(bindings,'xatlas')
     preserve_seams=policy.get('preserveAuthoredSeams',True)
     if type(preserve_seams) is not bool:raise ValueError('explicit boolean authored-seam policy required')
@@ -285,6 +288,8 @@ def unwrap(mesh,bindings,policy=None):
         elif min(effective)<4:padding=max(padding+1,needed)
         elif padding<32:padding=min(32,padding*2)
         else:raise fail('Could not meet the measured 1K UV gutter floor with padding <=32')
+        if maximum_groups is not None:
+            require(len(own)+1<=maximum_groups,'Local repair exceeds explicit group limit')
         packed=time.perf_counter()
         try:new_uv,dims,count,scale=_repack(xatlas,base,base_dims,density,corners,sorted(own),padding,scale)
         except ValueError as exc:raise fail(str(exc)) from exc
@@ -302,3 +307,23 @@ def unwrap(mesh,bindings,policy=None):
                    'effectivePadding2K':[padding*2048/dims[0],padding*2048/dims[1]],
                    'effectivePadding1024':[padding*1024/dims[0],padding*1024/dims[1]],
                    'visualReview':'required'}
+
+
+def _pack(xatlas,vertices,indices,groups,padding=8):
+    atlas=xatlas.Atlas()
+    remaps=[]
+    for face_ids in groups:
+        used,inverse=np.unique(indices[face_ids],return_inverse=True)
+        atlas.add_mesh(vertices[used].astype(np.float32),inverse.reshape(-1,3).astype(np.uint32))
+        remaps.append(used)
+    charts=xatlas.ChartOptions(); charts.fix_winding=False; charts.max_iterations=1
+    pack=xatlas.PackOptions();pack.resolution=2048;pack.padding=padding;pack.bilinear=True
+    atlas.generate(chart_options=charts,pack_options=pack)
+    if atlas.atlas_count!=1: raise ValueError('UV output must be one atlas')
+    uv=np.empty((len(indices),3,2));count=0
+    for i,face_ids in enumerate(groups):
+        mapping,new_indices,new_uv=atlas[i]
+        if not np.array_equal(vertices[remaps[i][mapping[new_indices]]],vertices[indices[face_ids]]):
+            raise ValueError('UV processing changed ordered geometry')
+        uv[face_ids]=new_uv[new_indices];count+=atlas.get_mesh_chart_count(i)
+    return uv,atlas,count

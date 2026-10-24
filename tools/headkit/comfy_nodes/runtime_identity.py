@@ -2,15 +2,17 @@
 import hashlib
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import sys
 import sysconfig
+from .verification import CURRENT_PASS
 
 
-def _pin(path):
-    path=Path(path).resolve(strict=True)
-    if not path.is_file():
-        raise ValueError('Comfy runtime file is missing')
+def _pin(path, *, canonical=False):
+    path=Path(path) if canonical else Path(path).resolve(strict=True)
+    session=CURRENT_PASS.get()
+    if session is not None:return {'path':str(path),'sha256':session.hash(path,canonical=True)}
     digest=hashlib.sha256()
     with path.open('rb') as stream:
         for block in iter(lambda:stream.read(1024*1024),b''):
@@ -19,11 +21,51 @@ def _pin(path):
 
 
 def _linked(path):
+    if isinstance(path,os.DirEntry):
+        # Windows scandir already has the file attributes; reuse them instead of
+        # resolving every ancestor and querying each leaf twice.
+        return path.is_symlink() or bool(getattr(path.stat(follow_symlinks=False),'st_file_attributes',0)&0x400)
     return path.is_symlink() or getattr(os.path,'isjunction',lambda value:False)(path)
 
 
 def _inside(path, roots):
     return any(path==root or path.is_relative_to(root) for root in roots)
+
+
+# Runtime implementation/configuration, native kernels and compiler inputs.
+# Documentation, sample images, test datasets and distribution RECORD listings
+# are not executable inputs. Explicitly loaded module origins are always included;
+# sourceless bytecode and zip-import archives stay importable members.
+RUNTIME_EXTENSIONS={'.py','.pyw','.pyi','.pyx','.pxd','.pxi','.pth','.pyd','.dll','.so','.dylib','.exe',
+                    '.pyc','.pyo','.pyz','.egg','.zip','.whl','.json','.yaml','.yml','.toml','.ini','.cfg','.conf',
+                    '.h','.hpp','.c','.cc','.cpp','.cu','.cuh','.ptx','.cubin','.fatbin','.bc',
+                    '.lib','.a','.o','.obj','.hsaco','.cl','.hlsl','.glsl','.vert','.frag',
+                    '.jinja','.jinja2','.j2','.cmake','.lds'}
+
+
+def runtime_members(roots):
+    """Fresh membership census of active runtime roots, without inactive site trees."""
+    roots=set(roots);files=set()
+    def visit(directory):
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                if entry.name in {'__pycache__','.git','.hg','.svn'}:continue
+                path=directory/entry.name
+                if entry.is_dir(follow_symlinks=False):
+                    # The base interpreter's bundled site-packages is not used
+                    # by a venv unless it is an explicit active import root.
+                    if entry.name in {'site-packages','dist-packages'} and path not in roots:continue
+                    if _linked(entry):raise ValueError('Linked Comfy runtime directories are unsupported')
+                    visit(path)
+                else:
+                    if _linked(entry):raise ValueError('Linked Comfy runtime files are unsupported')
+                    if (path.suffix.lower() in RUNTIME_EXTENSIONS or '.so.' in path.name
+                            or entry.name in {'CMakeLists.txt','Makefile'}
+                            or (directory.name.endswith('.dist-info') and entry.name in {'METADATA','entry_points.txt'})):
+                        files.add(path)
+    for root in sorted(roots,key=lambda value:str(value).casefold()):
+        if not any(root!=other and root.is_relative_to(other) for other in roots):visit(root)
+    return files
 
 
 def seal_runtime_identity(payload):
@@ -40,8 +82,8 @@ def same_runtime_environment(current, baseline):
             == {key:value for key,value in baseline.items() if key not in ignored})
 
 
-def capture_runtime_identity(folder_paths,comfy_source_inventory=None,session=None):
-    """Hash interpreter, standard library and active Python import roots, excluding separately pinned Comfy source."""
+def capture_runtime_identity(folder_paths,comfy_source_inventory=None,*,session=None):
+    """Hash runtime bytes and bind the controlled session; loaded code is checked by the caller."""
     import torch
     core=Path(folder_paths.base_path).resolve(strict=True)
     covered=[str(core)]
@@ -69,22 +111,21 @@ def capture_runtime_identity(folder_paths,comfy_source_inventory=None,session=No
     unique_roots=[]
     for path in ordered:
         if not _inside(path,unique_roots):unique_roots.append(path)
-    files=set()
-    def fail_walk(error):
-        raise error
-    for runtime_root in unique_roots:
-        for current,dirs,names in os.walk(runtime_root,followlinks=False,onerror=fail_walk):
-            current=Path(current)
-            dirs[:]=[name for name in dirs if name!='__pycache__']
-            for name in dirs:
-                path=current/name
-                if _linked(path):raise ValueError('Linked Comfy runtime directories are unsupported')
-            for name in names:
-                path=current/name
-                if _linked(path):raise ValueError('Linked Comfy runtime files are unsupported')
-                resolved=path.resolve(strict=True)
-                if not resolved.is_relative_to(runtime_root):raise ValueError('Comfy runtime file escapes its inventory root')
-                files.add(resolved)
+    # Keep nested explicit site roots available to the membership policy even
+    # when the parent stdlib root covers them.
+    files=runtime_members(roots)
+    source_files={Path(row['path']) for row in (comfy_source_inventory or {}).get('files',[])}
+    for module in tuple(sys.modules.values()):
+        namespace=getattr(module,'__dict__',{})
+        origin=namespace.get('__file__') if isinstance(namespace,dict) else None
+        if isinstance(origin,str):
+            path=Path(origin)
+            if path.suffix.lower() in {'.pyc','.pyo'}:continue
+            if path.is_absolute() and _inside(path,unique_roots):
+                if path.resolve(strict=True)!=path or _linked(path):
+                    raise ValueError('Linked loaded runtime module is unsupported')
+                files.add(path)
+    files.difference_update(source_files)
     executable_path=Path(sys.executable).resolve(strict=True)
     files.add(executable_path)
     for sibling in executable_path.parent.iterdir():
@@ -92,7 +133,16 @@ def capture_runtime_identity(folder_paths,comfy_source_inventory=None,session=No
             files.add(sibling.resolve(strict=True))
     files.update(archives)
     files.add(torch_path)
-    file_pins=sorted((_pin(path) for path in files),key=lambda item:item['path'].casefold())
+    # One explicit pass shares hashes with source/loaded-code verification.
+    # ContextVars do not propagate into executor workers. Keep the four-reader
+    # implementation for standalone callers, and bind each worker explicitly.
+    verification=CURRENT_PASS.get()
+    def file_pin(path):
+        token=CURRENT_PASS.set(verification)
+        try:return _pin(path,canonical=True)
+        finally:CURRENT_PASS.reset(token)
+    with ThreadPoolExecutor(max_workers=4) as workers:
+        file_pins=list(workers.map(file_pin,sorted(files,key=lambda path:str(path).casefold())))
     cudnn=None
     try:cudnn=torch.backends.cudnn.version()
     except Exception:pass

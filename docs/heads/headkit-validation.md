@@ -63,6 +63,10 @@ Checkpoint-loader provenance review (2026-10-20): each prepared request now free
 
 ## Controlled startup replaces live-object inspection (2026-10-21)
 
+Later integration: [headkit/itemkit reconciliation](../items/headkit-integration.md)
+retains controlled startup and restores the item branch's loaded-code checks.
+The following paragraph describes the original 2026-10-21 revision.
+
 The active runtime contract now uses an offline frozen deployment manifest and a controlled process session (runtime schema 3). The prior source/object verifier and all of its research cases remain available at commit `7d2259fef471406343e0dba0db66fb82f7f71f6c`; an exact byte archive is retained with the ignored controlled-startup evidence. Historical validation entries above describe their original revisions and do not certify the replacement. The new suite exercises startup, changed source/runtime/settings, session restart, unmanaged-server refusal, occupied-port refusal, isolated script import and request preflight using CPU fixtures and fake servers. Geometry, UV, appearance, review, PLT, loader-model and native-export gates are retained. No real ComfyUI adapter installation, server restart, GPU job or production-asset change is part of this migration. A first live controlled deployment remains an operator step after the intended deployment and scheduler endpoint are available.
 
 ## Unguarded multiview trial (2026-10-22)
