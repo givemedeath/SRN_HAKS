@@ -14,29 +14,28 @@ def physical(vertices, faces):
 
 
 def topology(vertices, faces):
-    vertices, faces = physical(vertices, faces)
+    return _topology(*physical(vertices, faces))
+
+
+def _topology(vertices, faces):
     edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
     undirected = np.sort(edges, axis=1)
-    _, inverse, counts = np.unique(undirected, axis=0, return_inverse=True, return_counts=True)
+    _, inverse, counts = np.unique(undirected[:, 0]*np.int64(len(vertices))+undirected[:, 1], return_inverse=True, return_counts=True)
     orientation = np.zeros(len(counts), int)
     np.add.at(orientation, inverse, np.where(edges[:, 0] < edges[:, 1], 1, -1))
     corners = vertices[faces].astype(float)
     areas = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)
     boundary = int(np.count_nonzero(counts == 1)); nonmanifold = int(np.count_nonzero(counts > 2))
     winding = int(np.count_nonzero((counts == 2) & (orientation != 0)))
-    # Every vertex link on the supported closed shell must be one simple cycle.
-    link_edges = [[] for _ in vertices]
-    for a, b, c in faces:
-        link_edges[a].append((int(b), int(c))); link_edges[b].append((int(c), int(a))); link_edges[c].append((int(a), int(b)))
-    bad_links = 0
-    for rows in link_edges:
-        graph = {}
-        for a, b in rows: graph.setdefault(a, []).append(b); graph.setdefault(b, []).append(a)
-        pending = set(graph); stack = [pending.pop()] if pending else []
-        while stack:
-            for other in graph[stack.pop()]:
-                if other in pending: pending.remove(other); stack.append(other)
-        bad_links += int(not graph or bool(pending) or any(len(v) != 2 for v in graph.values()))
+    # Every vertex link on the supported closed shell must be one simple cycle: each link node of degree two, one component.
+    owner = np.concatenate(faces.T); link = np.concatenate([faces[:, [1, 2]], faces[:, [2, 0]], faces[:, [0, 1]]])
+    keys, node = np.unique(np.r_[owner, owner]*np.int64(len(vertices))+link.T.reshape(-1), return_inverse=True)
+    node = node.reshape(2, -1); count = len(keys); held = keys//len(vertices)
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    labels = connected_components(coo_matrix((np.ones(node.shape[1]), (node[0], node[1])), (count, count)), directed=False)[1]
+    cycles = np.bincount(held[np.unique(labels, return_index=True)[1]], minlength=len(vertices))
+    bad_links = int(np.count_nonzero((cycles != 1) | (np.bincount(held, np.bincount(node.reshape(-1), minlength=count) != 2, len(vertices)) > 0)))
     zeros = int(np.count_nonzero(areas <= 1e-14))
     return {'triangles': len(faces), 'physicalVertices': len(vertices), 'boundaryEdges': boundary,
             'nonmanifoldEdges': nonmanifold, 'windingConflicts': winding, 'zeroAreaFaces': zeros,
@@ -45,7 +44,7 @@ def topology(vertices, faces):
 
 def audit(path, max_pairs=4000000):
     value = mesh(path); vertices, faces = physical(value['positions'], value['faces'])
-    top = topology(vertices, faces); crossings = scan(vertices, faces, max_pairs=max_pairs)
+    top = _topology(vertices, faces); crossings = scan(vertices, faces, max_pairs=max_pairs)
     return {'source': pin(path), 'topology': top, 'crossings': crossings,
             'passed': top['closed'] and crossings['complete'] and not crossings['pairs'],
             'visualReviewRequired': True}
