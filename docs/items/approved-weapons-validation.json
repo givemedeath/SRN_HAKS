@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "weaponResources": 44,
+  "tableResources": 22,
+  "publicationResourcePins": 45,
+  "nativeModelsDecoded": 17,
+  "textureReferencesResolved": true,
+  "imagesChecked": 22,
+  "runtimeDiffuseSize": [
+    1024,
+    1024
+  ],
+  "blueprintRoundtrips": 5,
+  "blueprintNonDisplayFieldsUnchanged": true,
+  "acceptedArchivesUnchanged": true,
+  "tableChangesOnly": {
+    "MaxRange": {
+      "after": "52",
+      "before": "50"
+    },
+    "ModelType": {
+      "after": "2",
+      "before": "0"
+    }
+  },
+  "rebuiltPacks": [
+    "srn_weapon",
+    "srn_2da"
+  ],
+  "fullRegressionSuiteRun": false,
+  "clientLaunched": false,
+  "smgOnHold": true,
+  "assemblyTriangles": {
+    "shortSword": {
+      "visible": 4956,
+      "shadow": 488
+    },
+    "knife": {
+      "visible": 4852,
+      "shadow": 488
+    },
+    "longsword": {
+      "visible": 10650,
+      "shadow": 488
+    },
+    "pistolEachFinish": {
+      "visibleIncludingHiddenParts": 9996,
+      "shadow": 468
+    }
+  },
+  "builtHaks": {
+    "srn_weapon": {
+      "sha256": "c261575d59e8a0f347c5ea80932ff4c9263962ce8d901e0f11c1fe7d79232106"
+    },
+    "srn_2da": {
+      "sha256": "f81315bb6b49a5d9de64fb014cd4a6f86781f86e490d3e3e55e858b53fe22a89"
+    }
+  }
+}
