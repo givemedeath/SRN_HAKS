@@ -113,9 +113,14 @@ def prepare_multiview(pairs, config, output):
 def matte(design_path, config, output):
     """Single-image bootstrap: transparent background from the design's plain studio backdrop. The backdrop is the
     border median; background is the near-backdrop, low-saturation region connected to the canvas border, so dark or
-    gray features inside the silhouette stay opaque. The head must not touch the canvas edge."""
+    gray features inside the silhouette stay opaque. The head must not touch the canvas edge. Opt-in
+    enclosedBackgroundMinimumPixels also clears near-backdrop regions the subject fully encloses (the backdrop inside
+    a curled horn) when at least that large; each cleared region is recorded for review."""
     tolerance=config.get('backgroundTolerance',14)
     require(type(tolerance) is int and 4<=tolerance<=40,'Background tolerance must be an integer from 4 to 40')
+    enclosed=config.get('enclosedBackgroundMinimumPixels')
+    require(enclosed is None or (type(enclosed) is int and 50<=enclosed<=100000),
+            'Enclosed background minimum must be an integer from 50 to 100000 pixels')
     from scipy import ndimage
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     with Image.open(design_path) as image:rgb=np.asarray(image.convert('RGB'))
@@ -127,6 +132,13 @@ def matte(design_path, config, output):
     foreground=ndimage.binary_fill_holes(ndimage.binary_opening(~np.isin(labels,edge[edge>0])))
     labels,count=ndimage.label(foreground);require(count>0,'Matte found no subject')
     sizes=ndimage.sum(foreground,labels,range(1,count+1));foreground=labels==1+int(np.argmax(sizes))
+    cleared=[]
+    if enclosed is not None:
+        holes,holes_count=ndimage.label(near&foreground)
+        for index,size in enumerate(ndimage.sum(near&foreground,holes,range(1,holes_count+1)),1):
+            if size<enclosed:continue
+            region=holes==index;ys,xs=np.nonzero(region);foreground&=~region
+            cleared.append({'pixels':int(size),'center':[int(xs.mean()),int(ys.mean())],'box':[int(xs.min()),int(ys.min()),int(xs.max()),int(ys.max())]})
     require(not (foreground[:2].any() or foreground[-2:].any() or foreground[:,:2].any() or foreground[:,-2:].any()),
             'Subject touches the canvas edge: regenerate the design with margin')
     alpha=(ndimage.gaussian_filter(foreground.astype(float),.7)*255).clip(0,255).astype(np.uint8)
@@ -135,6 +147,7 @@ def matte(design_path, config, output):
     check.save(output/'matte-check.png')
     ys,xs=np.nonzero(foreground);height,width=foreground.shape
     result={'backdrop':backdrop.tolist(),'foregroundFraction':float(foreground.mean()),'droppedComponents':int(count-1),
+            **({'enclosedBackgroundMinimumPixels':enclosed,'clearedEnclosedBackground':cleared} if enclosed is not None else {}),
             'marginPixels':{'top':int(ys.min()),'bottom':int(height-1-ys.max()),'left':int(xs.min()),'right':int(width-1-xs.max())},
             'manualReviewRequired':True,'images':{name:pin(output/name) for name in ('design-rgba.png','matte-check.png')}}
     write(output/'matte.json',result,fresh=True);return result

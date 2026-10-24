@@ -621,6 +621,18 @@ class ImageTests(Temporary):
             for x in range(0,200,2):d.line((x,0,x,199),fill=(20,200,20))
         with self.assertRaisesRegex(ValueError,'plain enough'):matte(self.design(busy),{},self.root/'busy')
         with self.assertRaisesRegex(ValueError,'tolerance'):matte(self.design(lambda d:None),{'backgroundTolerance':2},self.root/'tol')
+    def test_matte_clears_large_enclosed_backdrop_only_when_asked(self):
+        from headkit.images import matte
+        def horn_loop(d):  # backdrop seen through a curled horn, and a small gray eye highlight
+            d.ellipse((40,30,160,170),fill=(120,110,100));d.ellipse((70,60,130,120),fill=(200,200,200))
+            d.ellipse((95,140,101,146),fill=(200,200,200))
+        default=matte(self.design(horn_loop),{},self.root/'default')
+        cleared=matte(self.design(horn_loop),{'enclosedBackgroundMinimumPixels':200},self.root/'cleared')
+        alpha=lambda name:np.asarray(Image.open(self.root/name/'design-rgba.png').getchannel('A'))
+        self.assertEqual(alpha('default')[90,100],255);self.assertNotIn('clearedEnclosedBackground',default)
+        self.assertEqual(alpha('cleared')[90,100],0);self.assertEqual(alpha('cleared')[143,98],255)  # small region kept
+        self.assertEqual(len(cleared['clearedEnclosedBackground']),1);self.assertEqual(cleared['clearedEnclosedBackground'][0]['center'],[100,90])
+        with self.assertRaisesRegex(ValueError,'Enclosed background'):matte(self.design(horn_loop),{'enclosedBackgroundMinimumPixels':10},self.root/'small')
     def test_bootstrap_design_manifest_prepares_a_matte_through_the_runner(self):
         design=self.design(lambda d:d.ellipse((50,30,150,170),fill=(120,110,100)))
         data={'schemaVersion':1,'id':'bootstrap','profile':'pixal-single-v1','matte':{'backgroundTolerance':14},
