@@ -77,12 +77,12 @@ def seal_runtime_identity(payload):
 
 def same_runtime_environment(current, baseline):
     """Compare stable interpreter/runtime pins while binding the same controlled process."""
-    ignored={'fingerprint','loadedSourceCode'}
+    ignored={'fingerprint'}
     return ({key:value for key,value in current.items() if key not in ignored}
             == {key:value for key,value in baseline.items() if key not in ignored})
 
 
-def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_source_code=None,*,session=None):
+def capture_runtime_identity(folder_paths,comfy_source_inventory=None,*,session=None):
     """Hash runtime bytes and bind the controlled session; loaded code is checked by the caller."""
     import torch
     core=Path(folder_paths.base_path).resolve(strict=True)

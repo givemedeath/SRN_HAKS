@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 import numpy as np
 from tools.headkit.common import pin,write,read
-from .recovery import validate_pixels,successful_pixel_hash,recovery_inputs,unchanged_successful_pixels,prepare_recovery
+from .recovery import validate_pixels,successful_pixel_hash,recovery_inputs,prepare_recovery
 
 
 class RecoveryTests(unittest.TestCase):
@@ -13,9 +13,9 @@ class RecoveryTests(unittest.TestCase):
         owners=np.zeros((4,4),np.int32);caps=np.zeros((4,4),bool);misses=caps.copy();misses[0,0]=True
         self.assertEqual(validate_pixels(pixels,owners,caps,misses,1),1)
         before=successful_pixel_hash(pixels,misses);fixed=pixels.copy();fixed[0,0]=.5
-        self.assertEqual(before,successful_pixel_hash(fixed,misses));unchanged_successful_pixels(pixels,fixed,misses)
+        self.assertEqual(before,successful_pixel_hash(fixed,misses))
         fixed[1,0]=.6
-        with self.assertRaisesRegex(ValueError,'successful'):unchanged_successful_pixels(pixels,fixed,misses)
+        self.assertNotEqual(before,successful_pixel_hash(fixed,misses))
         with self.assertRaisesRegex(ValueError,'classification'):validate_pixels(pixels,owners,caps,~misses,1)
         owners[1,1]=3
         with self.assertRaisesRegex(ValueError,'owners'):validate_pixels(pixels,owners,caps,misses,1)

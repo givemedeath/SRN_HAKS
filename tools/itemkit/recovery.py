@@ -24,14 +24,6 @@ def validate_pixels(pixels, owners, caps, misses, face_count):
     return int(misses.sum())
 
 
-def unchanged_successful_pixels(before, after, misses):
-    require(before.shape==after.shape, 'Recovery changed pixel dimensions')
-    # Scan by row, avoiding another nearly complete 4K RGBA selection copy.
-    for y in range(len(before)):
-        require(np.array_equal(before[y,~misses[y]],after[y,~misses[y]]), 'Recovery changed successful bake texels')
-    require(np.isfinite(after).all(), 'Recovery produced nonfinite pixels')
-
-
 def successful_pixel_hash(pixels, misses):
     digest=hashlib.sha256()
     for row, mask in zip(pixels,misses):

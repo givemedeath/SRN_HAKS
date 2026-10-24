@@ -285,30 +285,3 @@ def _pack(xatlas,vertices,indices,groups,padding=8):
             raise ValueError('UV processing changed ordered geometry')
         uv[face_ids]=new_uv[new_indices];count+=atlas.get_mesh_chart_count(i)
     return uv,atlas,count
-
-
-def _local_groups(indices,bad,max_fraction=.03,maximum_groups=17):
-    bad=set(map(int,bad)); edges={}
-    for i,row in enumerate(indices):
-        for a,b in ((0,1),(1,2),(2,0)):
-            edges.setdefault(tuple(sorted((int(row[a]),int(row[b])))),[]).append(i)
-    expanded=set(bad)
-    for rows in edges.values():
-        if bad.intersection(rows): expanded.update(rows)
-    if len(expanded)>len(indices)*max_fraction:
-        raise ValueError('Required UV repair exceeds bounded local scope')
-    adjacent={i:set() for i in expanded}
-    for rows in edges.values():
-        for a in rows:
-            if a in expanded: adjacent[a].update(b for b in rows if b in expanded and b!=a)
-    groups=[];pending=set(expanded)
-    while pending:
-        stack=[pending.pop()];component=[]
-        while stack:
-            i=stack.pop();component.append(i)
-            next_ids=adjacent[i]&pending;pending-=next_ids;stack.extend(next_ids)
-        groups.append(np.asarray(sorted(component),int))
-    healthy=np.asarray(sorted(set(range(len(indices)))-expanded),int)
-    if healthy.size: groups.insert(0,healthy)
-    if len(groups)>maximum_groups: raise ValueError('Local UV repair would fragment too many charts')
-    return groups

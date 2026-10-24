@@ -1389,7 +1389,7 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         exec(compile(ast.Module(body=[helper], type_ignores=[]), str(source), 'exec'), namespace)
         self.assertEqual(namespace['_capture_startup'](), (inventory, managed_session, identity))
         namespace['loaded_source_code'].assert_called_once_with(inventory['roots'])
-        namespace['capture_runtime_identity'].assert_called_once_with(folders, inventory, loaded, session=managed_session)
+        namespace['capture_runtime_identity'].assert_called_once_with(folders, inventory, session=managed_session)
         namespace['capture_runtime_identity'].side_effect = ValueError('invalid runtime')
         self.assertEqual(namespace['_capture_startup'](), (None, None, None))
         namespace['session_context'].side_effect = OSError('missing inventory')
@@ -1405,8 +1405,7 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         self.assertTrue(any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
                             and node.func.id == 'loaded_source_code' for node in ast.walk(handler)))
         self.assertTrue(any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
-                            and node.func.id == 'capture_runtime_identity' and len(node.args) == 3
-                            and isinstance(node.args[2], ast.Name) and node.args[2].id == 'loaded'
+                            and node.func.id == 'capture_runtime_identity' and len(node.args) == 2
                             for node in ast.walk(handler)))
         self.assertTrue(any(isinstance(node, ast.Return) and isinstance(node.value, ast.Call)
                             and isinstance(node.value.func, ast.Attribute)
@@ -1415,24 +1414,6 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                             and isinstance(node.value.args[0], ast.Name)
                             and node.value.args[0].id == 'current'
                             for node in ast.walk(handler)))
-
-    def test_loaded_code_affects_identity_but_not_stable_runtime_comparison(self):
-        baseline = seal_runtime_identity({'schemaVersion': 2, 'python': {'version': 'pinned'},
-            'files': [{'path': '/runtime/python.exe', 'sha256': 'a' * 64}],
-            'loadedSourceCode': [{'path': '/comfy/core.py', 'sourceSha256': 'b' * 64,
-                                  'loadedCodeSha256': 'c' * 64}]})
-        current = seal_runtime_identity({'schemaVersion': 2, 'python': {'version': 'pinned'},
-            'files': [{'path': '/runtime/python.exe', 'sha256': 'a' * 64}],
-            'loadedSourceCode': [{'path': '/comfy/core.py', 'sourceSha256': 'b' * 64,
-                                  'loadedCodeSha256': 'd' * 64}]})
-        changed_runtime = seal_runtime_identity({'schemaVersion': 2, 'python': {'version': 'changed'},
-            'files': [{'path': '/runtime/python.exe', 'sha256': 'a' * 64}],
-            'loadedSourceCode': [{'path': '/comfy/core.py', 'sourceSha256': 'b' * 64,
-                                  'loadedCodeSha256': 'd' * 64}]})
-        self.assertNotEqual(baseline['fingerprint'], current['fingerprint'])
-        self.assertTrue(same_runtime_environment(current, baseline))
-        self.assertFalse(same_runtime_environment(changed_runtime, baseline))
-
 
 if __name__ == '__main__':
     unittest.main()

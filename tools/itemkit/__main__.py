@@ -80,9 +80,7 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         if (directory/'source-roots.json').exists(): pins.append(pin(directory/'source-roots.json'))
     if run and (Path(run)/'state.json').exists():
         state = read(Path(run)/'state.json')  # Mutable state is output, not an immutable consumed asset.
-        pins += list(state['reviews'].values())
-        for row in state['stages'].values():
-            verify([row]); receipt = read(row['path']); pins += [row]+receipt['inputs']+receipt['outputs']
+        pins += run_receipt_pins(state, stage)
     for path in extra:
         row = pin(path); pins.append(row)
         document = read(path)
@@ -97,6 +95,30 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         canonical={str(Path(row['path']).resolve()):row['sha256'] for row in pins}
         return [{'path':path,'sha256':canonical[path]} for path in sorted(canonical)]
     return sorted({row['path'] for row in pins})
+
+
+def run_receipt_pins(state, stage=None):
+    """Current receipts a resume consumes: the stage's ancestors, or every stage when unscoped.
+
+    Superseded or stale attempts stay historical receipts, not launch inputs, so a
+    corrected helper or replaced output can still reach the runner's recomputation.
+    """
+    from .runner import DEPENDENCIES
+    pending = list(state['stages']) if stage is None else list(DEPENDENCIES.get(stage, ()))
+    seen = set(); pins = []
+    while pending:
+        name = pending.pop()
+        if name in seen or name not in state['stages']: continue
+        seen.add(name); row = state['stages'][name]
+        try:
+            verify([row]); receipt = read(row['path'])
+            rows = [row]+receipt['inputs']+receipt['outputs']+([state['reviews'][name]] if name in state.get('reviews', {}) else [])
+            verify(rows)
+        except (KeyError, OSError, ValueError): pending += DEPENDENCIES.get(name, ()); continue
+        # Follow the recorded and current dependency graph, as Runner.result does.
+        pending += [*receipt.get('dependencies', {}), *DEPENDENCIES.get(name, ())]
+        pins += rows
+    return pins
 
 
 def preflight(manifest_path, bindings_path, probe=False):

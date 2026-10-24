@@ -30,9 +30,9 @@ else:
                     session, config = session_context(folder_paths.base_path)
                 inventory = config['inventory']
                 with audit.phase('loaded-code'):
-                    loaded = loaded_source_code(inventory['roots'])
+                    loaded_source_code(inventory['roots'])
                 with audit.phase('runtime-files'):
-                    identity = capture_runtime_identity(folder_paths, inventory, loaded, session=session)
+                    identity = capture_runtime_identity(folder_paths, inventory, session=session)
                 declared = {(row['path'], row['sha256']) for row in config['runtime']['files']}
                 if any((row['path'], row['sha256']) not in declared for row in identity['files']):
                     raise ValueError('Executing runtime contains files outside the frozen deployment')
@@ -56,9 +56,9 @@ else:
                     if session != _STARTUP_SESSION:
                         raise ValueError('Controlled Comfy session changed; prepare again')
                 with audit.phase('loaded-code'):
-                    loaded = loaded_source_code(_STARTUP_COMFY_SOURCE_INVENTORY['roots'])
+                    loaded_source_code(_STARTUP_COMFY_SOURCE_INVENTORY['roots'])
                 with audit.phase('runtime-files'):
-                    current = capture_runtime_identity(folder_paths, _STARTUP_COMFY_SOURCE_INVENTORY, loaded, session=session)
+                    current = capture_runtime_identity(folder_paths, _STARTUP_COMFY_SOURCE_INVENTORY, session=session)
                     if not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):
                         raise ValueError('Comfy server runtime files changed after the adapter loaded')
         except Exception:

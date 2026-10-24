@@ -60,6 +60,22 @@ class ContractTests(Fixture):
             self.assertEqual(rows,[pin(self.local),expected] if str(self.local)<str(dependency) else [expected,pin(self.local)])
             self.assertEqual([args.args[0] for args in repin.call_args_list],[self.local])
             self.assertEqual([row['path'] for row in rows],consumed_inputs(self.path,self.local,stage='donor'))
+    def test_resume_inputs_skip_superseded_attempts_and_keep_current_ancestors(self):
+        run=self.root/'run';run.mkdir();receipts={}
+        for stage in ('fit','reduce'):
+            consumed=self.root/(stage+'-input');consumed.write_bytes(b'original '+stage.encode())
+            output=self.root/(stage+'-output');output.write_bytes(b'output')
+            write(run/(stage+'.json'),{'inputs':[pin(consumed)],'outputs':[pin(output)],'dependencies':{}});receipts[stage]=pin(run/(stage+'.json'))
+        write(run/'state.json',{'stages':receipts,'reviews':{}})
+        (self.root/'reduce-input').write_bytes(b'corrected helper')
+        with patch('tools.itemkit.__main__.bindings',return_value={}), \
+             patch('tools.itemkit.__main__.python_package_pins',return_value=[]), \
+             patch('tools.itemkit.__main__.all_pins',return_value=[]), \
+             patch('tools.itemkit.__main__.code_pins',return_value=[]):
+            paths=consumed_inputs(self.path,self.local,run=run,stage='reduce')
+            fit,reduce=(pin(self.root/(stage+'-input'))['path'] for stage in ('fit','reduce'))
+            self.assertIn(fit,paths);self.assertNotIn(reduce,paths)
+            self.assertNotIn(reduce,consumed_inputs(self.path,self.local,run=run))
     def test_consumed_pins_reject_conflicts_before_deduplication(self):
         dependency=self.root/'dependency';dependency.write_bytes(b'bound bytes');expected=pin(dependency)
         with patch('tools.itemkit.__main__.bindings',return_value={}), \

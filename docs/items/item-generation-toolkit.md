@@ -200,7 +200,7 @@ Processing uses this pattern with absolute local binding paths:
 
 ```text
 <bundled-python> -B tools/itemkit/run_itemkit.py inputs
-  --manifest ASSET --bindings BINDINGS --run RUN --output INPUTS
+  --manifest ASSET --bindings BINDINGS --run RUN --stage STAGE --output INPUTS
 
 <bundled-python> -B tools/phenotypes/launch_shared_tool.py
   --toolchain TOOLCHAIN --migration-receipt MIGRATION

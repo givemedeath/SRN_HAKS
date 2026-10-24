@@ -969,12 +969,6 @@ class LocalBindingSecurityTests(Temporary):
 
 
 class UvBindingTests(Temporary):
-    def test_source_group_budget_keeps_head_default_and_local_fraction_limit(self):
-        from headkit.uv import _local_groups
-        faces=np.arange(3000).reshape(1000,3)
-        with self.assertRaisesRegex(ValueError,'fragment'):_local_groups(faces,range(18))
-        self.assertEqual(len(_local_groups(faces,range(18),maximum_groups=128)),19)
-        with self.assertRaisesRegex(ValueError,'bounded local'):_local_groups(faces,range(40),maximum_groups=128)
     def test_invalid_source_group_policy_is_rejected_before_loading_library(self):
         from headkit.uv import unwrap
         for value in (True,1,257,128.0):
