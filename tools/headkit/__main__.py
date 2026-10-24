@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 import shutil
 import uuid
-from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,digest
+from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,digest,stage_code_pins,stage_source_version
 from . import comfy
 
 
@@ -217,7 +217,9 @@ def main():
                 if stage not in closure:closure.add(stage);pending+=deps(stage)
             roles=set().union(*(stage_roles(s,data) for s in chosen));libraries=set().union(*(stage_libraries(s,data) for s in chosen))
         else:roles=set(data['inputs']);libraries=set(local.get('libraries',{}))
-        pins=code_pins()+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,data['inputs'][r]) for r in sorted(roles)]+python_package_pins(local)
+        # Stage-scoped code for a launch-scoped list; the whole package otherwise.
+        code=code_pins() if closure is None else list({row['path']:row for s in sorted(closure) for row in stage_code_pins(s)}.values())
+        pins=code+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,data['inputs'][r]) for r in sorted(roles)]+python_package_pins(local)
         for name in ('toolchain','migrationReceipt'):
             if name in local:pins.append(pin(local[name]))
         for name in ('python','blender','client','embree'):
@@ -241,7 +243,7 @@ def main():
                 if closure is not None and stage not in closure:continue
                 receipt=read(row['path'])
                 # A receipt from other code or another manifest is rerun, not consumed; its old pins are not inputs.
-                if receipt.get('codeVersion')!=source_version() or receipt.get('manifestHash')!=scoped.manifest_digest(stage):stale.append(stage);continue
+                if receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage):stale.append(stage);continue
                 pins.append(row);pins+=receipt['inputs']+receipt['outputs']
                 if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
         verify(pins);paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}

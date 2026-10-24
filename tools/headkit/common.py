@@ -296,3 +296,67 @@ def code_pins():
 
 def source_version():
     return digest({Path(item['path']).relative_to(ROOT).as_posix():item['sha256'] for item in code_pins()})
+
+
+# Stage-scoped code identity: a receipt binds the code that can change its result, not the whole package, so a fix in
+# one stage's module no longer stales every finished stage. Core: the runner (dispatch, inputs, gates) and common;
+# tests, the CLI and GPU-side modules are excluded. Shared tooling binds every stage; native helpers bind the stages
+# whose closure reaches native.py.
+SHARED_TOOLING=('tools/shared-tools.lock.json','tools/phenotypes/bootstrap_shared_blender_addons.py','tools/phenotypes/launch_shared_tool.py',
+    'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')
+NATIVE_HELPERS=('tools/heads/head_export.py','tools/heads/head_workflow.py','tools/heads/verify_head_hak.py',
+    'tools/phenomorpher/phenomorpher/__init__.py','tools/phenomorpher/phenomorpher/engine/__init__.py',
+    'tools/phenomorpher/phenomorpher/engine/stock_armor.py','tools/phenomorpher/phenomorpher/engine/silhouette_model.py',
+    'tools/phenomorpher/phenomorpher/engine/anim_library.py','tools/phenomorpher/phenomorpher/engine/audit_geometry.py',
+    'tools/phenomorpher/phenomorpher/engine/retarget.py','tools/phenomorpher/phenomorpher/engine/target_contract.py',
+    'tools/phenomorpher/phenomorpher/engine/measurement_common.py','tools/phenomorpher/phenomorpher/engine/native_motion.py',
+    'tools/phenotypes/pipeline.py','tools/phenotypes/height_targets.json','tools/phenotypes/native_compile.py')
+STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not imported
+
+
+def module_closure(names, directory):
+    """Package modules reachable from names through relative imports, function-level imports included."""
+    import ast
+    seen=set();pending=list(names)
+    while pending:
+        name=pending.pop();path=directory/f'{name}.py'
+        if name in seen or not path.is_file():continue
+        seen.add(name)
+        for node in ast.walk(ast.parse(path.read_text(encoding='utf-8'))):
+            if isinstance(node,ast.ImportFrom) and node.level==1:
+                pending+=[node.module.split('.')[0]] if node.module else [alias.name for alias in node.names]
+    return seen
+
+
+def stage_entries(directory):
+    """The modules each `if stage=='x':` branch of Runner._execute imports, read from the runner source."""
+    import ast
+    tree=ast.parse((directory/'runner.py').read_text(encoding='utf-8'));entries={}
+    execute=next(node for node in ast.walk(tree) if isinstance(node,ast.FunctionDef) and node.name=='_execute')
+    for node in ast.walk(execute):
+        test=getattr(node,'test',None)
+        if (isinstance(node,ast.If) and isinstance(test,ast.Compare) and isinstance(test.left,ast.Name) and test.left.id=='stage'
+                and len(test.ops)==1 and isinstance(test.ops[0],ast.Eq) and isinstance(test.comparators[0],ast.Constant)):
+            found=entries.setdefault(test.comparators[0].value,set())
+            for inner in ast.walk(node):
+                if isinstance(inner,ast.ImportFrom) and inner.level==1:
+                    found.update([inner.module.split('.')[0]] if inner.module else [alias.name for alias in inner.names])
+    return entries
+
+
+def stage_code_files(stage, directory=None, root=None):
+    directory=Path(directory or Path(__file__).parent);root=Path(root or ROOT)
+    entries=stage_entries(directory);require(stage in entries,'No runner branch for stage: '+stage)
+    modules=module_closure(entries[stage]|{'common'},directory)
+    files={directory/f'{name}.py' for name in modules}|{directory/name for name in ('__init__.py','runner.py','manifest.schema.json')}
+    files|={directory/name for name in STAGE_SCRIPTS.get(stage,())}
+    files|={root/path for path in SHARED_TOOLING+(NATIVE_HELPERS if 'native' in modules else ())}
+    return sorted(path for path in files if path.is_file())
+
+
+def stage_code_pins(stage):
+    return [pin(path) for path in stage_code_files(stage)]
+
+
+def stage_source_version(stage):
+    return digest({Path(item['path']).relative_to(ROOT).as_posix():item['sha256'] for item in stage_code_pins(stage)})

@@ -56,6 +56,9 @@
       "tools/headkit/comfy_nodes/model_resolution.py"
     ],
     "tools/headkit/common.py": [
+      "tools/headkit/blender_render.py",
+      "tools/headkit/manifest.schema.json",
+      "tools/headkit/runner.py",
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py",
       "tools/heads/verify_head_hak.py",
@@ -189,6 +192,7 @@
       "tools/headkit/gltf.py",
       "tools/headkit/images.py",
       "tools/headkit/intersections.py",
+      "tools/headkit/manifest.schema.json",
       "tools/headkit/mesh.py",
       "tools/headkit/native.py",
       "tools/headkit/paint.py",
@@ -205,6 +209,7 @@
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/height_targets.json",
       "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/native_compile.py",
       "tools/shared-tools.lock.json"
     ],
     "tools/headkit/textures.py": [

@@ -7,7 +7,7 @@ import uuid
 import numpy as np
 from PIL import Image
 from . import common
-from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins
+from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins,stage_code_pins,stage_source_version
 
 # Every stage produces evidence that needs an explicit operator decision before consumption.
 STAGES=('prepare','precluster','fit','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
@@ -102,11 +102,12 @@ class Runner:
 
     def result(self,stage,*,require_review=True,_checked=None):
         # Each top-level check starts a fresh hash memo; nested and sibling checks in one operation share it.
-        if _checked is None:_checked={'results':{},'codeVersion':source_version()};self._verified=set()
+        if _checked is None:_checked={'results':{},'versions':{}};self._verified=set()
         if stage in _checked['results']:return _checked['results'][stage]
         row=self.state['stages'].get(stage);require(row is not None,'Stage not completed: '+stage)
         receipt=read(row['path']);self._verify([row]);self._verify(receipt['outputs']);self._verify(receipt['inputs'])
-        require(receipt['codeVersion']==_checked['codeVersion'] and receipt['manifestHash']==self.manifest_digest(stage)
+        if stage not in _checked['versions']:_checked['versions'][stage]=stage_source_version(stage)
+        require(receipt['codeVersion']==_checked['versions'][stage] and receipt['manifestHash']==self.manifest_digest(stage)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
         require(receipt['state']=='complete','Failed stage: '+stage)
         if self.runtime is not None:require(receipt.get('runtimeIdentity')==self.runtime,'Stage runtime differs from active launcher')
@@ -162,15 +163,15 @@ class Runner:
         parent=self.run/stage;parent.mkdir(exist_ok=True)
         old=list(parent.glob('attempt-*/receipt.json'))
         failures=[read(p) for p in old if read(p).get('manifestHash')==self.manifest_digest(stage)
-                  and read(p).get('codeVersion')==source_version() and read(p).get('state')=='failed']
+                  and read(p).get('codeVersion')==stage_source_version(stage) and read(p).get('state')=='failed']
         require(len(failures)<2,'Two stage failures retained; fix the manifest or request a bounded exception before more trials')
         # The manifest is bound by the stage-scoped manifestHash, not by pinning the whole file.
-        inputs=[pin(self.bindings_path)]+package_inputs+code_pins()
+        inputs=[pin(self.bindings_path)]+package_inputs+stage_code_pins(stage)
         for name in ('python','blender','client','embree'):
             if name in self.bindings:inputs.append(self.bindings[name])
         for name in ('toolchain','migrationReceipt'):
             if name in self.bindings:inputs.append(pin(self.bindings[name]))
-        dependency_pins={};checked={'results':{},'codeVersion':source_version()};self._verified=set()
+        dependency_pins={};checked={'results':{},'versions':{}};self._verified=set()
         for dependency in self.dependencies(stage):
             self.result(dependency,_checked=checked);row=self.state['stages'][dependency]
             dependency_pins[dependency]=row
@@ -178,7 +179,7 @@ class Runner:
             inputs.append(self.state['reviews'][dependency])
         folder=parent/f'attempt-{len(list(parent.glob("attempt-*")))+1:02d}';folder.mkdir()
         begun=time.monotonic();receipt={'stage':stage,'manifestHash':self.manifest_digest(stage),'bindingsHash':digest(self.bindings),
-            'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
+            'codeVersion':stage_source_version(stage),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
         write(folder/'intent.json',receipt,fresh=True)
         self._read=set();common.LIBRARIES_USED=set()
         try:
@@ -435,7 +436,7 @@ class Runner:
             render_plan(cfg)
             texture_sets,atlases=atlas_sets(cfg,folder/'renders',resolutions(cfg))
             cfg.update(textureSets={str(size):maps for size,maps in texture_sets.items()},atlases=atlases)
-            cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()],*[row['image'] for row in atlases],*code_pins()]
+            cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()],*[row['image'] for row in atlases],*stage_code_pins('render')]
             write(folder/'render-config.json',cfg,fresh=True)
             write(folder/'render-inputs.json',cfg['inputs']+[pin(folder/'render-config.json')],fresh=True)
             command=[sys.executable,str(ROOT/'tools/phenotypes/launch_shared_tool.py'),'--toolchain',b['toolchain'],

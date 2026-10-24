@@ -990,7 +990,7 @@ class InputInventoryTests(Temporary):
 
     def test_inputs_skips_receipts_from_other_code_instead_of_failing(self):
         from headkit.__main__ import main
-        from headkit.common import source_version,digest,manifest
+        from headkit.common import stage_source_version,digest,manifest
         source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
         write(manifest_path,{'schemaVersion':1,'id':'stale-run','inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
         bindings_path=self.root/'bindings.json';write(bindings_path,self.bindings_data())
@@ -998,7 +998,7 @@ class InputInventoryTests(Temporary):
         old_pin=pin(changed);changed.write_text('helper edited since that receipt')
         current=self.file('current.json','current output')
         rows={}
-        for stage,code,inputs in (('repair','old-code',[old_pin]),('unwrap',source_version(),[pin(current)])):
+        for stage,code,inputs in (('repair','old-code',[old_pin]),('unwrap',stage_source_version('unwrap'),[pin(current)])):
             scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
             path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
         write(run/'state.json',{'schemaVersion':1,'id':'stale-run','stages':rows})
@@ -2412,7 +2412,7 @@ class RenderPlanTests(Temporary):
         return module
 
     def test_render_launcher_snapshots_imported_helpers_and_config(self):
-        from headkit.common import ROOT,code_pins
+        from headkit.common import ROOT,stage_code_pins
         runner=self.render_runner();launcher=self.launcher();captured=[]
         class Launched(Exception):pass
         def launch(command,**kwargs):
@@ -2420,7 +2420,7 @@ class RenderPlanTests(Temporary):
             declared=Path(command[command.index('--input-manifest')+1])
             paths,frozen=launcher.manifest_inputs([declared])
             config=read(runner.run/'render-config.json')
-            self.assertTrue({row['path'] for row in code_pins()}<={row['path'] for row in config['inputs']})
+            self.assertTrue({row['path'] for row in stage_code_pins('render')}<={row['path'] for row in config['inputs']})
             self.assertIn((runner.run/'render-config.json').resolve(),paths)
             output=runner.run/'launcher-snapshots';output.mkdir()
             snapshots=launcher.helper_snapshots(paths,frozen,output)
@@ -2453,8 +2453,8 @@ class RenderPlanTests(Temporary):
         with patch.object(runner,'result',side_effect=lambda stage,**k:results[stage]),patch('headkit.gltf.mesh',return_value={'positions':np.eye(3)}):
             with self.assertRaisesRegex(ValueError,'needs ownershipView'):runner._execute('render',self.root/'second')
     def test_render_launcher_rejects_changed_imported_helper(self):
-        from headkit.common import code_pins,verify
-        helper=self.file('imported-helper.py','value=1');frozen=code_pins()+[pin(helper)]
+        from headkit.common import stage_code_pins,verify
+        helper=self.file('imported-helper.py','value=1');frozen=stage_code_pins('render')+[pin(helper)]
         runner=self.render_runner();launcher=self.launcher()
         def launch(command,**kwargs):
             helper.write_text('value=2')
@@ -2462,7 +2462,7 @@ class RenderPlanTests(Temporary):
             with self.assertRaisesRegex(ValueError,'Stale file pin'):
                 verify(read(runner.run/'render-config.json')['inputs'])
             launcher.manifest_inputs([Path(command[command.index('--input-manifest')+1])])
-        with patch('headkit.runner.code_pins',return_value=frozen),patch('subprocess.run',side_effect=launch):
+        with patch('headkit.runner.stage_code_pins',return_value=frozen),patch('subprocess.run',side_effect=launch):
             with self.assertRaisesRegex(ValueError,'Manifest input changed'):
                 runner._execute('render',runner.run)
 
@@ -2477,9 +2477,38 @@ class RenderPlanTests(Temporary):
         self.assertFalse((runner.run/'renders').exists())
 
 
+class StageCodeVersionTests(Temporary):
+    def test_stage_code_binds_the_branch_import_closure_and_core_only(self):
+        from headkit.common import stage_code_files
+        package=self.root/'pkg';package.mkdir();root=self.root/'repo'
+        sources={'runner.py':"def _execute(self,stage,folder):\n    if stage=='fit':\n        from .fit import propose\n"
+                             "    if stage=='unwrap':\n        from .uv import unwrap\n",
+                 'fit.py':"def propose():\n    from .gltf import mesh\n",'gltf.py':"from .common import require\n",'common.py':'',
+                 'uv.py':"from . import gltf\n",'__init__.py':'','manifest.schema.json':'{}','test_package.py':"from . import fit,uv\n",'__main__.py':"from . import uv\n"}
+        for name,text in sources.items():(package/name).write_text(text)
+        names=lambda stage:{path.name for path in stage_code_files(stage,package,root)}
+        core={'__init__.py','runner.py','common.py','manifest.schema.json'}
+        self.assertEqual(names('fit'),core|{'fit.py','gltf.py'})  # a function-level import counts; uv.py, tests and the CLI do not
+        self.assertEqual(names('unwrap'),core|{'uv.py','gltf.py'})
+        with self.assertRaisesRegex(ValueError,'No runner branch'):stage_code_files('bake',package,root)
+    def test_package_stages_each_have_scoped_code(self):
+        from headkit.common import stage_code_files
+        from headkit.runner import STAGES
+        for stage in STAGES:
+            with self.subTest(stage=stage):
+                names={path.name for path in stage_code_files(stage)}
+                self.assertTrue({'runner.py','common.py','shared-tools.lock.json'}<=names)
+                self.assertFalse({'test_headkit.py','__main__.py','comfy.py','design.py'}&names)
+        fit={path.name for path in stage_code_files('fit')};repair={path.name for path in stage_code_files('repair')}
+        self.assertIn('fit.py',fit);self.assertFalse({'mesh.py','uv.py','native.py'}&fit)
+        self.assertTrue({'mesh.py','intersections.py'}<=repair);self.assertNotIn('uv.py',repair)
+        self.assertIn('blender_render.py',{path.name for path in stage_code_files('render')})
+        self.assertIn('native_compile.py',{path.name for path in stage_code_files('native')})
+
+
 class NativeDependencyTests(Temporary):
     def test_native_imports_and_compiler_inputs_are_pinned(self):
-        from headkit.common import ROOT,code_pins
+        from headkit.common import ROOT,stage_code_pins
         # Isolate actual imports from modules already loaded by other tests.
         script="""import json,sys
 from pathlib import Path
@@ -2495,7 +2524,8 @@ print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list
         consumed=set(json.loads(result.stdout))
         consumed.add(str(ROOT/'tools/phenotypes/height_targets.json'))
         consumed.add(str(ROOT/'tools/shared-tools.lock.json'))
-        self.assertFalse(consumed-{row['path'] for row in code_pins()})
+        for stage in ('native','export'):
+            with self.subTest(stage=stage):self.assertFalse(consumed-{row['path'] for row in stage_code_pins(stage)})
 
 
 class ReviewImageTests(Temporary):
