@@ -1,4 +1,4 @@
-"""Exterior-shell audit, reviewed Alpha Wrap, head-local neck taper/seal, and collision-blocking QSlim."""
+"""Exterior-shell audit, reviewed Alpha Wrap, head-local neck shortening/taper/seal, and collision-blocking QSlim."""
 from pathlib import Path
 import time
 import numpy as np
@@ -14,29 +14,28 @@ def physical(vertices, faces):
 
 
 def topology(vertices, faces):
-    vertices, faces = physical(vertices, faces)
+    return _topology(*physical(vertices, faces))
+
+
+def _topology(vertices, faces):
     edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
     undirected = np.sort(edges, axis=1)
-    _, inverse, counts = np.unique(undirected, axis=0, return_inverse=True, return_counts=True)
+    _, inverse, counts = np.unique(undirected[:, 0]*np.int64(len(vertices))+undirected[:, 1], return_inverse=True, return_counts=True)
     orientation = np.zeros(len(counts), int)
     np.add.at(orientation, inverse, np.where(edges[:, 0] < edges[:, 1], 1, -1))
     corners = vertices[faces].astype(float)
     areas = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)
     boundary = int(np.count_nonzero(counts == 1)); nonmanifold = int(np.count_nonzero(counts > 2))
     winding = int(np.count_nonzero((counts == 2) & (orientation != 0)))
-    # Every vertex link on the supported closed shell must be one simple cycle.
-    link_edges = [[] for _ in vertices]
-    for a, b, c in faces:
-        link_edges[a].append((int(b), int(c))); link_edges[b].append((int(c), int(a))); link_edges[c].append((int(a), int(b)))
-    bad_links = 0
-    for rows in link_edges:
-        graph = {}
-        for a, b in rows: graph.setdefault(a, []).append(b); graph.setdefault(b, []).append(a)
-        pending = set(graph); stack = [pending.pop()] if pending else []
-        while stack:
-            for other in graph[stack.pop()]:
-                if other in pending: pending.remove(other); stack.append(other)
-        bad_links += int(not graph or bool(pending) or any(len(v) != 2 for v in graph.values()))
+    # Every vertex link on the supported closed shell must be one simple cycle: each link node of degree two, one component.
+    owner = np.concatenate(faces.T); link = np.concatenate([faces[:, [1, 2]], faces[:, [2, 0]], faces[:, [0, 1]]])
+    keys, node = np.unique(np.r_[owner, owner]*np.int64(len(vertices))+link.T.reshape(-1), return_inverse=True)
+    node = node.reshape(2, -1); count = len(keys); held = keys//len(vertices)
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    labels = connected_components(coo_matrix((np.ones(node.shape[1]), (node[0], node[1])), (count, count)), directed=False)[1]
+    cycles = np.bincount(held[np.unique(labels, return_index=True)[1]], minlength=len(vertices))
+    bad_links = int(np.count_nonzero((cycles != 1) | (np.bincount(held, np.bincount(node.reshape(-1), minlength=count) != 2, len(vertices)) > 0)))
     zeros = int(np.count_nonzero(areas <= 1e-14))
     return {'triangles': len(faces), 'physicalVertices': len(vertices), 'boundaryEdges': boundary,
             'nonmanifoldEdges': nonmanifold, 'windingConflicts': winding, 'zeroAreaFaces': zeros,
@@ -45,7 +44,7 @@ def topology(vertices, faces):
 
 def audit(path, max_pairs=4000000):
     value = mesh(path); vertices, faces = physical(value['positions'], value['faces'])
-    top = topology(vertices, faces); crossings = scan(vertices, faces, max_pairs=max_pairs)
+    top = _topology(vertices, faces); crossings = scan(vertices, faces, max_pairs=max_pairs)
     return {'source': pin(path), 'topology': top, 'crossings': crossings,
             'passed': top['closed'] and crossings['complete'] and not crossings['pairs'],
             'visualReviewRequired': True}
@@ -129,11 +128,17 @@ def taper_scale(local, taper, bottom):
 def neck_policy(neck, fit):
     """Validate optional head-local neck shaping; it needs the reviewed rigid fit that defines face +y, up +z."""
     if neck is None: return None
-    require(isinstance(neck, dict) and neck and set(neck) <= {'taper', 'seal'}, 'Neck policy takes taper and/or seal')
+    require(isinstance(neck, dict) and neck and set(neck) <= {'shorten', 'taper', 'seal'}, 'Neck policy takes shorten, taper and/or seal')
     require(isinstance(fit, dict) and fit.get('reviewed') is True and 'matrix' in fit,
             'Neck taper/seal needs the reviewed head fit matrix')
     number = lambda v: type(v) in (int, float) and np.isfinite(v)
-    taper, seal = neck.get('taper'), neck.get('seal')
+    taper, seal, shorten = neck.get('taper'), neck.get('seal'), neck.get('shorten')
+    if shorten is not None:
+        require(isinstance(shorten, dict) and {'start', 'rim'} <= set(shorten) <= {'start', 'rim', 'band', 'notes'}
+                and number(shorten['start']) and number(shorten['rim']) and shorten['rim'] < shorten['start'],
+                'Neck shortening declares a head-local start height and a lower target rim height')
+        shorten = dict({'band': .02}, **shorten)
+        require(number(shorten['band']) and .005 <= shorten['band'] <= .05, 'Neck shortening band must be in [0.005, 0.05]')
     if taper is not None:
         require(isinstance(taper, dict) and set(taper) == {'minScale', 'frontStart', 'backStart', 'axis'},
                 'Taper declares minScale, frontStart, backStart and axis')
@@ -156,7 +161,33 @@ def neck_policy(neck, fit):
             require(number(seal.get('searchTop', 0)) and ('searchTop' in seal or taper is not None),
                     'Measured seal needs searchTop or a taper start')
     return {'frame': checked_fit(fit["matrix"]) @ BASIS, 'fitMatrix': checked_fit(fit["matrix"]).tolist(),
-            'fitSourceSha256': fit.get('sourceSha256'), 'taper': taper, 'seal': seal}
+            'fitSourceSha256': fit.get('sourceSha256'), 'taper': taper, 'seal': seal, 'shorten': shorten}
+
+
+def shorten_depth(depth, scale, band):
+    """Depth below the start after shortening: slope 1 at the start (no crease), easing to `scale` over about `band`.
+    Strictly increasing, so every vertical column keeps its order and the surface cannot fold."""
+    return scale*depth+(1-scale)*band*(1-np.exp(-depth/band))
+
+
+def neck_shorten(vertices, neck):
+    """Shorten an over-long stump on the dense master by compressing the neck below a reviewed head-local start height
+    until its rim reaches a target height. The rounded closed end keeps its shape (no cut, no new cap); x and y are
+    unchanged, so the taper that follows sees the same outline at a higher rim."""
+    shorten = neck['shorten']; local = transform(neck['frame'], vertices); bottom = float(local[:, 2].min())
+    start, band = shorten['start'], shorten['band']; depth = start-bottom; target = start-shorten['rim']
+    require(bottom < shorten['rim'] < start < local[:, 2].max(), 'Neck shortening needs rim < start inside the head, above the current rim')
+    # The far scale is solved; a band too wide for the shortening would need a scale near zero (a crushed stump).
+    require(shorten_depth(depth, .1, band) < target, 'Neck shortening cannot reach its rim within the band; use a smaller band or a lower rim')
+    low, high = .1, 1.0
+    for _ in range(60):
+        middle = (low+high)/2; low, high = (middle, high) if shorten_depth(depth, middle, band) < target else (low, middle)
+    scale = (low+high)/2; below = local[:, 2] < start; shaped = local.copy()
+    shaped[below, 2] = start-shorten_depth(start-local[below, 2], scale, band)
+    return transform(np.linalg.inv(neck['frame']), shaped), dict(
+        shorten, previousRimHeight=bottom, rimHeight=float(shaped[:, 2].min()), farScale=float(scale),
+        removedLengthMetres=float(shaped[:, 2].min()-bottom), movedVertices=int(np.count_nonzero(below)),
+        profile='depth below start -> s*d+(1-s)*band*(1-exp(-d/band)): slope 1 at the start, s far below')
 
 
 def neck_taper(vertices, faces, neck):
@@ -204,6 +235,40 @@ def neck_seal(vertices, faces, neck, top):
         outlineSpan=np.ptp(rim, 0).tolist(), capTriangles=len(cap_faces))
 
 
+def shells(vertices, faces):
+    """Face labels of the edge-connected shells."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]]); n = len(vertices)
+    labels = connected_components(coo_matrix((np.ones(len(edges)), (edges[:, 0], edges[:, 1])), (n, n)), directed=False)[1]
+    return np.unique(labels[faces[:, 0]], return_inverse=True)[1].reshape(-1)
+
+
+def select_shells(vertices, faces, selection):
+    """A master must be one shell. Detached floaters and interior bubbles go only by a reviewed selection that keeps
+    the largest-area shell, bounds the deleted area and records every deleted shell."""
+    label = shells(vertices, faces); count = int(label.max())+1
+    if selection is None:
+        require(count == 1, f'Master has {count} separate shells; review them and declare mesh.components')
+        return vertices, faces, {'shells': 1, 'deleted': [], 'deletedAreaFraction': 0.0}
+    require(isinstance(selection, dict) and selection.get('keep') == 'largest' and selection.get('reviewed') is True,
+            'Shell selection must be reviewed and keep the largest shell')
+    limit = positive(selection.get('maximumDeletedAreaFraction', .01), 'deleted shell area bound')
+    require(limit <= .05, 'Deleted shell area bound exceeds supported profile')
+    corners = vertices[faces].astype(float)
+    area = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)/2
+    totals = np.bincount(label, area, count); keep = int(np.argmax(totals)); fraction = float(1-totals[keep]/totals.sum())
+    deleted = [{'triangles': int(np.count_nonzero(label == k)), 'areaFraction': float(totals[k]/totals.sum()),
+                'centroid': [round(float(c), 5) for c in vertices[np.unique(faces[label == k])].mean(0)]}
+               for k in np.argsort(-totals) if k != keep]
+    require(fraction <= limit, f'Deleted shells cover {fraction:.3%} of the master area, above the reviewed bound')
+    expected = selection.get('expectedDeleted')
+    require(expected is None or expected == len(deleted), f'{len(deleted)} shells would be deleted; the review expected {expected}')
+    used = np.unique(faces[label == keep]); remap = np.full(len(vertices), -1); remap[used] = np.arange(len(used))
+    return vertices[used], remap[faces[label == keep]], {'shells': count, 'deleted': deleted, 'deletedAreaFraction': fraction,
+                                                        'keptTriangles': int(np.count_nonzero(label == keep))}
+
+
 def repair(source, output, bindings, policy, inspection, fit=None):
     """No assumed holes, no discs, no component deletion without an explicit selection."""
     require(inspection.get('sourceSha256') == pin(source)['sha256'] and inspection.get('visualReviewed') is True,
@@ -214,16 +279,34 @@ def repair(source, output, bindings, policy, inspection, fit=None):
                             or inspection.get('confirmedShellDefect') is True), 'Do not repair an assumed opening')
     neck = neck_policy(policy.get('neck'), fit); work_dir = Path(output).parent
     original = mesh(source); vertices, faces = physical(original['positions'], original['faces'])
+
     if do_wrap:
         ml = library(bindings, 'pymeshlab'); diagonal = float(np.linalg.norm(np.ptp(vertices, axis=0)))
         alpha = positive(policy.get('alphaRelative', .005), 'Alpha Wrap alpha')
         offset = positive(policy.get('offsetRelative', .00025), 'Alpha Wrap offset')
         require(alpha <= .02 and offset <= .002, 'Wrap distances exceed supported profile')
-        ms = ml.MeshSet(); ms.add_mesh(ml.Mesh(vertices.astype(float), faces.astype(np.int32)))
-        ms.generate_alpha_wrap(alpha=ml.PureValue(diagonal*alpha), offset=ml.PureValue(diagonal*offset))
-        current = ms.current_mesh(); current.compact(); vertices, faces = current.vertex_matrix(), current.face_matrix()
+
+        def wrap(vertices, faces):
+            ms = ml.MeshSet(); ms.add_mesh(ml.Mesh(vertices.astype(float), faces.astype(np.int32)))
+            ms.generate_alpha_wrap(alpha=ml.PureValue(diagonal*alpha), offset=ml.PureValue(diagonal*offset))
+            current = ms.current_mesh(); current.compact(); return current.vertex_matrix(), current.face_matrix()
+        vertices, faces = wrap(vertices, faces)
     else:
         require(topology(vertices, faces)['closed'], 'Open/invalid shell: review before selecting repair')
+    vertices, faces, shell_record = select_shells(vertices, faces, policy.get('components'))
+    smoothing = None
+    if policy.get('smooth') is not None:
+        from .relief import smooth
+        require(isinstance(fit, dict) and fit.get('reviewed') is True and 'matrix' in fit, 'Smoothing regions need the reviewed head fit')
+        begun = time.perf_counter(); vertices, records = smooth(vertices, faces, policy['smooth'], transform(checked_fit(fit['matrix']) @ BASIS, vertices))
+        smoothing = {'regions': records, 'rewrapped': do_wrap}
+        if do_wrap:
+            # Collapsing thin fins on the master can pass faces through each other; a second wrap with the same distances
+            # re-closes the smoothed surface crossing-free (smoothing the dense source instead is too weak at its density).
+            selection = policy.get('components'); vertices, faces = wrap(vertices, faces)
+            vertices, faces, smoothing['rewrapShells'] = select_shells(vertices, faces, None if selection is None else
+                {k: v for k, v in selection.items() if k != 'expectedDeleted'})
+        smoothing['elapsedSeconds'] = time.perf_counter()-begun
     budget = policy.get('triangleBudget', 20000)
     require(type(budget) is int and 4 <= budget <= 20000, 'Supported budget is <=20K')
     seal = neck is not None and neck['seal'] is not None
@@ -234,6 +317,9 @@ def repair(source, output, bindings, policy, inspection, fit=None):
         record = {'fitMatrix': neck['fitMatrix'], 'fitSourceSha256': neck['fitSourceSha256'],
                   'frame': 'fit matrix @ GLB->NWN (x,-z,y): face +y, up +z', 'taper': None, 'seal': None,
                   'budget': {'total': budget, 'reservedForCap': budget-target, 'reductionTarget': target}}
+    if neck is not None and neck['shorten'] is not None:
+        begun = time.perf_counter(); vertices, record['shorten'] = neck_shorten(vertices, neck)
+        record['shorten']['elapsedSeconds'] = time.perf_counter()-begun
     if neck is not None and neck['taper'] is not None:
         untapered = work_dir/'master-untapered.glb'; write_mesh(untapered, vertices, faces); begun = time.perf_counter()
         vertices, record['taper'] = neck_taper(vertices, faces, neck)
@@ -270,7 +356,7 @@ def repair(source, output, bindings, policy, inspection, fit=None):
     result['neck'] = record
     write(work_dir/'reduction-audit.json',result,fresh=True)
     require(maximum<=limit,'Reduction exceeds measured surface error limit; retain and review before changing policy')
-    result.update(master=pin(master), ancestry=births, alphaWrapApplied=do_wrap, componentDeletion=False,
+    result.update(master=pin(master), ancestry=births, alphaWrapApplied=do_wrap, componentDeletion=bool(shell_record['deleted']), shells=shell_record, smoothing=smoothing,
                   triangleBudget=budget, visualReviewRequired=True)
     return result
 

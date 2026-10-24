@@ -40,8 +40,11 @@ def main():
         light.rotation_euler=(Vector(center)-light.location).to_track_quat('-Z','Y').to_euler()
     def material(mode,maps):
         mat=bpy.data.materials.new(mode);mat.use_nodes=True;nodes=mat.node_tree.nodes;links=mat.node_tree.links;nodes.clear();output=nodes.new('ShaderNodeOutputMaterial')
-        shader=nodes.new('ShaderNodeEmission' if mode=='color-only' else 'ShaderNodeBsdfPrincipled')
+        shader=nodes.new('ShaderNodeEmission' if mode in ('color-only','ownership') else 'ShaderNodeBsdfPrincipled')
         if mode=='clay':shader.inputs['Base Color'].default_value=(.48,.48,.48,1);shader.inputs['Roughness'].default_value=.8
+        elif mode=='ownership':
+            texture=nodes.new('ShaderNodeTexImage');texture.image=bpy.data.images.load(maps['ownership']);texture.interpolation='Closest'
+            texture.image.colorspace_settings.name='sRGB';links.new(texture.outputs['Color'],shader.inputs['Color'])
         else:
             for key,socket in [('basecolor','Color' if mode=='color-only' else 'Base Color')]+([] if mode=='color-only' else [('roughness','Roughness'),('metallic','Metallic'),('opacity','Alpha')]):
                 texture=nodes.new('ShaderNodeTexImage');texture.image=bpy.data.images.load(maps[key]);texture.image.colorspace_settings.name='sRGB' if key=='basecolor' else 'Non-Color'
@@ -51,7 +54,7 @@ def main():
     for size in sizes:
         scene.render.resolution_x=scene.render.resolution_y=size
         for mode in cfg.get('modes',['clay','color-only','material-lit']):
-            require(mode in ('clay','color-only','material-lit'),'Unknown render material');data.materials.clear();data.materials.append(material(mode,texture_sets[str(size)]));(out/str(size)/mode).mkdir()
+            require(mode in ('clay','color-only','material-lit','ownership'),'Unknown render material');data.materials.clear();data.materials.append(material(mode,texture_sets[str(size)]));(out/str(size)/mode).mkdir()
             for view in cfg['cameras']:
                 require('/' not in view['name'] and '\\' not in view['name'] and view['name'] not in ('.','..'),'Safe view name required')
                 eye=np.array(view['eye'])@transform.T;target=np.array(view['target'])@transform.T;camera.location=eye

@@ -5,6 +5,7 @@ import importlib
 import json
 import math
 import os
+import time
 from pathlib import Path
 import re
 import sys
@@ -19,13 +20,29 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def sha(path):
+_HASHES = {}
+
+
+def sha(path, *, fresh=False):
+    """SHA-256 of a file. Inside an explicit verification pass each file is read once per pass, never reused
+    across passes. Elsewhere, within one process an unchanged file (same identity, size and modification time,
+    before and after reading) is hashed once; fresh=True always rereads, for checks that must catch edits made
+    during a stage. Only files last modified more than two seconds before hashing are cached (the racy-timestamp
+    rule), so a rewrite within one filesystem timestamp tick cannot reuse a stale digest."""
     session=CURRENT_PASS.get()
-    if session is not None:return session.hash(path)
+    if session is not None and not fresh:return session.hash(path)
+    path = Path(path)
+    before = path.stat()
+    key = (str(path.resolve()), before.st_ino, before.st_size, before.st_mtime_ns)
+    if not fresh and key in _HASHES:
+        return _HASHES[key]
     result = hashlib.sha256()
-    with Path(path).open('rb') as stream:
+    with path.open('rb') as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b''):
             result.update(block)
+    after = path.stat()
+    if (after.st_ino, after.st_size, after.st_mtime_ns) == key[1:] and time.time_ns() - after.st_mtime_ns > 2_000_000_000:
+        _HASHES[key] = result.hexdigest()
     return result.hexdigest()
 
 
@@ -43,13 +60,16 @@ def pin(path):
     return {'path': str(path), 'sha256': sha(path)}
 
 
-def verify(pins):
+def verify(pins, *, fresh=False):
     verified={}
     for item in pins:
         require(isinstance(item, dict) and set(item) >= {'path', 'sha256'}, 'Expected file pin')
         path=str(item['path'])
-        if path not in verified:verified[path]=sha(path)
-        require(verified[path] == item['sha256'], 'Stale file pin: ' + path)
+        if 'slice' in item:actual=runner_slice_sha(item['path'], item['slice'], fresh=fresh)
+        else:
+            if path not in verified:verified[path]=sha(path, fresh=fresh)
+            actual=verified[path]
+        require(actual == item['sha256'], 'Stale file pin: ' + path)
 
 
 def write(path, data, *, fresh=False):
@@ -89,7 +109,7 @@ def asset(manifest_path, item):
 
 def manifest(path):
     data = read(path)
-    allowed = {'schemaVersion', 'id', 'inputs', 'features', 'alignment', 'camera', 'mesh',
+    allowed = {'schemaVersion', 'id', 'inputs', 'features', 'alignment', 'matte', 'camera', 'mesh',
                'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1, 'Unsupported manifest keys/version')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')) is not None, 'Safe asset ID required')
@@ -286,3 +306,120 @@ def code_pins():
 
 def source_version():
     return digest({Path(item['path']).relative_to(ROOT).as_posix():item['sha256'] for item in code_pins()})
+
+
+# Stage-scoped code identity: a receipt binds the code that can change its result, not the whole package, so a fix in
+# one stage's module no longer stales every finished stage. Core: the runner (dispatch, inputs, gates) and common;
+# tests, the CLI and GPU-side modules are excluded. Shared tooling binds every stage; native helpers bind the stages
+# whose closure reaches native.py.
+SHARED_TOOLING=('tools/shared-tools.lock.json','tools/phenotypes/bootstrap_shared_blender_addons.py','tools/phenotypes/launch_shared_tool.py',
+    'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')
+NATIVE_HELPERS=('tools/heads/head_export.py','tools/heads/head_workflow.py','tools/heads/verify_head_hak.py',
+    'tools/phenomorpher/phenomorpher/__init__.py','tools/phenomorpher/phenomorpher/engine/__init__.py',
+    'tools/phenomorpher/phenomorpher/engine/stock_armor.py','tools/phenomorpher/phenomorpher/engine/silhouette_model.py',
+    'tools/phenomorpher/phenomorpher/engine/anim_library.py','tools/phenomorpher/phenomorpher/engine/audit_geometry.py',
+    'tools/phenomorpher/phenomorpher/engine/retarget.py','tools/phenomorpher/phenomorpher/engine/target_contract.py',
+    'tools/phenomorpher/phenomorpher/engine/measurement_common.py','tools/phenomorpher/phenomorpher/engine/native_motion.py',
+    'tools/phenotypes/pipeline.py','tools/phenotypes/height_targets.json','tools/phenotypes/native_compile.py')
+STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not imported
+STAGE_DATA={'palette':('stock-shades.json',)}  # committed measured references the stage reads
+
+
+def module_path(name, directory):
+    """File of a closure name; a dotted name is a subpackage module, 'pkg.__init__' its package body."""
+    return Path(directory).joinpath(*name.split('.')).with_suffix('.py')
+
+
+def module_closure(names, directory):
+    """Package modules reachable from names through relative imports, function-level imports included.
+    Importing a subpackage module also runs its package __init__, so both are reached."""
+    import ast
+    seen=set();pending=list(names)
+    while pending:
+        name=pending.pop();path=module_path(name,directory)
+        if name in seen or not path.is_file():continue
+        seen.add(name);package=name.split('.')[:-1]
+        for node in ast.walk(ast.parse(path.read_text(encoding='utf-8'))):
+            if not isinstance(node,ast.ImportFrom) or not node.level or node.level-1>len(package):continue
+            base=package[:len(package)-node.level+1];module=base+(node.module.split('.') if node.module else [])
+            for target in [module]*bool(node.module)+[module+[alias.name] for alias in node.names]:
+                pending+=['.'.join(target[:i])+'.__init__' for i in range(1,len(target)+1)]+['.'.join(target)]
+    return seen
+
+
+def _stage_branch(node):
+    """The stage name of an `if stage=='x':` statement, else None."""
+    import ast
+    test=getattr(node,'test',None)
+    if (isinstance(node,ast.If) and isinstance(test,ast.Compare) and isinstance(test.left,ast.Name) and test.left.id=='stage'
+            and len(test.ops)==1 and isinstance(test.ops[0],ast.Eq) and isinstance(test.comparators[0],ast.Constant)):
+        return test.comparators[0].value
+    return None
+
+
+def _execute_node(tree):
+    import ast
+    return next(node for node in ast.walk(tree) if isinstance(node,ast.FunctionDef) and node.name=='_execute')
+
+
+_SLICES={}
+
+
+def runner_slice(path, stage):
+    """runner.py without the other stages' top-level `if stage=='x':` branches of Runner._execute: a receipt binds the shared
+    dispatch, dependencies and gates plus its own branch, so an edit inside another stage's branch leaves it fresh.
+    A branch with an else/elif is never dropped (its range would cover other code)."""
+    import ast
+    text=Path(path).read_text(encoding='utf-8');lines=text.splitlines(keepends=True);drop=set()
+    for node in _execute_node(ast.parse(text)).body:
+        name=_stage_branch(node)
+        if name is not None and name!=stage and not node.orelse:drop.update(range(node.lineno-1,node.end_lineno))
+    return ''.join(line for index,line in enumerate(lines) if index not in drop)
+
+
+def runner_slice_sha(path, stage, *, fresh=False):
+    path=Path(path);before=path.stat();key=(str(path.resolve()),before.st_ino,before.st_size,before.st_mtime_ns,stage)
+    if not fresh and key in _SLICES:return _SLICES[key]
+    value=hashlib.sha256(runner_slice(path,stage).encode('utf-8')).hexdigest()
+    if path.stat().st_mtime_ns==before.st_mtime_ns and time.time()-before.st_mtime_ns/1e9>2:_SLICES[key]=value
+    return value
+
+
+def stage_entries(directory):
+    """The modules each `if stage=='x':` branch of Runner._execute imports, read from the runner source."""
+    import ast
+    tree=ast.parse((directory/'runner.py').read_text(encoding='utf-8'));entries={}
+    for node in ast.walk(_execute_node(tree)):
+        name=_stage_branch(node)
+        if name is not None:
+            found=entries.setdefault(name,set())
+            for inner in ast.walk(node):
+                if isinstance(inner,ast.ImportFrom) and inner.level==1:
+                    found.update([inner.module.split('.')[0]] if inner.module else [alias.name for alias in inner.names])
+    return entries
+
+
+def stage_code_files(stage, directory=None, root=None):
+    directory=Path(directory or Path(__file__).parent);root=Path(root or ROOT)
+    entries=stage_entries(directory);require(stage in entries,'No runner branch for stage: '+stage)
+    modules=module_closure(entries[stage]|{'common'},directory)
+    files={module_path(name,directory) for name in modules}|{directory/name for name in ('__init__.py','runner.py','manifest.schema.json')}
+    files|={directory/name for name in STAGE_SCRIPTS.get(stage,())+STAGE_DATA.get(stage,())}
+    files|={root/path for path in SHARED_TOOLING+(NATIVE_HELPERS if 'native' in modules else ())}
+    return sorted(path for path in files if path.is_file())
+
+
+def stage_code_pins(stage):
+    # The runner is bound by this stage's slice; every other file whole.
+    runner=(Path(__file__).parent/'runner.py').resolve()
+    return [{'path':str(runner),'sha256':runner_slice_sha(runner,stage),'slice':stage} if Path(path).resolve()==runner else pin(path)
+            for path in stage_code_files(stage)]
+
+
+def stage_file_pins(stage):
+    """Whole-file pins of the stage's code, for subprocess launchers that hash the files themselves."""
+    return [pin(path) for path in stage_code_files(stage)]
+
+
+def stage_source_version(stage):
+    return digest({Path(item['path']).relative_to(ROOT).as_posix():item['sha256'] for item in stage_code_pins(stage)})

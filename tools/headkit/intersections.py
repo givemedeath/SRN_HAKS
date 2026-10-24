@@ -1,6 +1,12 @@
 """Bounded, exact narrow-phase crossing checks from the successful head route."""
 import time
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
+from itertools import chain, islice
 import numpy as np
+
+# Raw neighbour lists materialised at once in one broad-phase query (memory bound for pathological overlap).
+NEIGHBOUR_BUDGET = 1 << 21
 
 def _cross2(a, b):
     return a[..., 0]*b[..., 1]-a[..., 1]*b[..., 0]
@@ -67,13 +73,13 @@ def _validated_mesh(p, f):
         raise ValueError('finite mesh with valid triangle indices required')
     return p, f
 
-def sphere_aabb_pairs(p, f, *, eps=1e-10, chunk=64, tree_factory=None):
+def _broad_phase(p, f, eps, chunk, tree_factory, block):
     if tree_factory is None:
         from scipy.spatial import cKDTree
         tree_factory = cKDTree
     p, f = _validated_mesh(p, f)
-    if type(chunk) is not int or chunk < 1 or not np.isfinite(eps) or eps <= 0:
-        raise ValueError('positive chunk and epsilon required')
+    if type(chunk) is not int or chunk < 1 or type(block) is not int or block < 1 or not np.isfinite(eps) or eps <= 0:
+        raise ValueError('positive chunk, block and epsilon required')
     tri = p[f]
     centers = tri.mean(1)
     radii = np.linalg.norm(tri-centers[:, None], axis=2).max(1)
@@ -82,28 +88,56 @@ def sphere_aabb_pairs(p, f, *, eps=1e-10, chunk=64, tree_factory=None):
     lo, hi = tri.min(1), tri.max(1)
     bins = np.floor(np.log2(radii)).astype(int)
     guard = 2*np.sqrt(3)*eps + 64*np.finfo(float).eps*max(1., float(np.abs(p).max()))
-    for group in np.unique(bins):
-        target_ids = np.flatnonzero(bins == group)
-        tree = tree_factory(centers[target_ids])
-        maximum = float(radii[target_ids].max())
-        for start in range(0, len(f), chunk):
-            ids = np.arange(start, min(start+chunk, len(f)))
-            query_radius = np.nextafter(radii[ids]+maximum+guard, np.inf)
-            neighbors = tree.query_ball_point(centers[ids], query_radius, eps=0., workers=1)
-            counts = np.asarray([len(row) for row in neighbors], np.int64)
-            if not counts.sum():
-                yield np.empty((0, 2), np.int64)
-                continue
-            left = np.repeat(ids, counts)
-            right = target_ids[np.concatenate([np.asarray(row, np.int64) for row in neighbors])]
-            keep = left < right
-            left, right = left[keep], right[keep]
-            keep = np.all(hi[left]+eps >= lo[right], 1) & np.all(hi[right]+eps >= lo[left], 1)
-            yield np.stack((left[keep], right[keep]), 1)
+    step = chunk*max(1, block//chunk)
+    def blocks():
+        for group in np.unique(bins):
+            target_ids = np.flatnonzero(bins == group)
+            tree = tree_factory(centers[target_ids])
+            maximum = float(radii[target_ids].max())
+            yield from ((tree, target_ids, maximum, base, min(base+step, len(f))) for base in range(0, len(f), step))
+    def query(tree, target_ids, maximum, ids, workers):
+        query_radius = np.nextafter(radii[ids]+maximum+guard, np.inf)
+        neighbors = tree.query_ball_point(centers[ids], query_radius, eps=0., workers=workers)
+        counts = np.fromiter(map(len, neighbors), np.int64, len(ids))
+        left = np.repeat(ids, counts); right = target_ids[np.fromiter(chain.from_iterable(neighbors), np.int64, int(counts.sum()))]
+        keep = left < right
+        left, right = left[keep], right[keep]
+        keep = np.all(hi[left]+eps >= lo[right], 1) & np.all(hi[right]+eps >= lo[left], 1)
+        return left[keep], right[keep]
+    def candidates(item, workers=1, limit=None):
+        # Rows are independent, so a block of whole chunks is queried in groups of chunks holding at most NEIGHBOUR_BUDGET raw
+        # neighbours (counted first, without building lists). With `limit`, the block stops after the first chunk group whose
+        # own pairs pass it: the scan total is at least that, so the cap trips there and later chunks are never built.
+        # Faces from the group's last target on cannot pair.
+        tree, target_ids, maximum, base, end = item
+        stop = min(end, int(target_ids[-1])); lefts, rights, last, total = [], [], end, 0
+        if stop > base:
+            ids = np.arange(base, stop)
+            lengths = np.asarray(tree.query_ball_point(centers[ids], np.nextafter(radii[ids]+maximum+guard, np.inf), eps=0.,
+                                                       workers=workers, return_length=True), np.int64)
+            starts = np.arange(0, len(ids), chunk); per_chunk = np.add.reduceat(lengths, starts); first = 0
+            while first < len(starts):
+                after = first+1
+                while after < len(starts) and per_chunk[first:after+1].sum() <= NEIGHBOUR_BUDGET: after += 1
+                left, right = query(tree, target_ids, maximum, ids[starts[first]:starts[after] if after < len(starts) else len(ids)], workers)
+                lefts.append(left); rights.append(right); total += len(left); first = after
+                if limit is not None and total > limit and first < len(starts):
+                    last = base+int(starts[first]); break
+        left = np.concatenate(lefts) if lefts else np.empty(0, np.int64); right = np.concatenate(rights) if rights else np.empty(0, np.int64)
+        return np.stack((left, right), 1), np.searchsorted(left, np.r_[np.arange(base, last, chunk), last])
+    return tri, blocks(), candidates
 
-def scan(p, f, *, eps=1e-10, max_pairs=4000000, progress=None):
+def sphere_aabb_pairs(p, f, *, eps=1e-10, chunk=64, tree_factory=None, block=16384, workers=1):
+    _, blocks, candidates = _broad_phase(p, f, eps, chunk, tree_factory, block)
+    for item in blocks:
+        pairs, bounds = candidates(item, workers)
+        yield from (pairs[a:b] for a, b in zip(bounds[:-1], bounds[1:]))
+
+def scan(p, f, *, eps=1e-10, max_pairs=4000000, progress=None, workers=4, block=16384):
     if type(max_pairs) is not int or max_pairs < 0:
         raise ValueError('nonnegative pair cap required')
+    if type(workers) is not int or workers < 1:
+        raise ValueError('positive worker count required')
     p, f = _validated_mesh(p, f)
     if not np.isfinite(eps) or eps <= 0:
         raise ValueError('positive finite epsilon required')
@@ -112,19 +146,35 @@ def scan(p, f, *, eps=1e-10, max_pairs=4000000, progress=None):
     if np.any(area <= eps):
         raise ValueError('degenerate triangles prevent strict diagnostic scan')
     begun = time.monotonic()
-    checked, hits, batches = 0, [], 0
-    for pairs in sphere_aabb_pairs(p, f, eps=eps):
-        if checked+len(pairs) > max_pairs:
-            return {'complete': False, 'reason': 'resource-pair-cap', 'pairs': hits,
-                    'candidatePairs': checked, 'nextBatchPairs': len(pairs), 'limit': max_pairs,
-                    'elapsedSeconds': time.monotonic()-begun, 'visualApproval': False}
-        if len(pairs):
-            hit = crossing_pairs(tri[pairs[:, 0]], tri[pairs[:, 1]], eps)
-            hits.extend(pairs[hit].tolist())
-            checked += len(pairs)
-        batches += 1
-        if progress and batches % 50 == 0:
-            progress({'candidatePairs': checked, 'intersectionPairs': len(hits), 'batches': batches, 'elapsedSeconds': time.monotonic()-begun})
+    tri, blocks, candidates = _broad_phase(p, f, eps, 64, None, block)
+    def task(item):
+        # Narrow phase only up to the first chunk past the cap on this block's own pairs: the scan total is at least that
+        # much, so the consumer stops there and never reads results for later pairs.
+        pairs, bounds = candidates(item, limit=max_pairs)
+        over = np.flatnonzero(np.cumsum(np.diff(bounds)) > max_pairs)
+        needed = int(bounds[over[0]]) if len(over) else len(pairs); hit = np.zeros(len(pairs), bool)
+        if needed:hit[:needed] = crossing_pairs(tri[pairs[:needed, 0]], tri[pairs[:needed, 1]], eps)
+        return pairs, bounds, hit
+    checked, hits, batches, queue = 0, [], 0, deque()
+    with ThreadPoolExecutor(workers) as pool:
+        # Blocks finish out of order but are consumed in chunk order, so cap, progress and pair order match one chunk at a time.
+        fill = lambda: queue.extend(pool.submit(task, item) for item in islice(blocks, 2*workers-len(queue)))
+        fill()
+        while queue:
+            pairs, bounds, hit = queue.popleft().result(); fill()
+            sizes = np.diff(bounds); total = checked+np.cumsum(sizes); over = np.flatnonzero(total > max_pairs)
+            stop = int(over[0]) if len(over) else len(sizes)
+            if progress:
+                for k in range(stop):
+                    if (batches+k+1) % 50 == 0:
+                        progress({'candidatePairs': int(total[k]), 'intersectionPairs': len(hits)+int(np.count_nonzero(hit[:bounds[k+1]])), 'batches': batches+k+1, 'elapsedSeconds': time.monotonic()-begun})
+            hits.extend(pairs[:bounds[stop]][hit[:bounds[stop]]].tolist())
+            if len(over):
+                for future in queue: future.cancel()
+                return {'complete': False, 'reason': 'resource-pair-cap', 'pairs': hits,
+                        'candidatePairs': int(total[stop]-sizes[stop]), 'nextBatchPairs': int(sizes[stop]), 'limit': max_pairs,
+                        'elapsedSeconds': time.monotonic()-begun, 'visualApproval': False}
+            checked, batches = int(total[-1]) if len(total) else checked, batches+len(sizes)
     return {'complete': True, 'method': 'log2-binned-enclosing-spheres-exact-expanded-AABB-vectorized-strict-interior',
             'scopeFaces': len(f), 'pairs': hits, 'candidatePairs': checked, 'limit': max_pairs,
             'epsilon': eps, 'elapsedSeconds': time.monotonic()-begun,

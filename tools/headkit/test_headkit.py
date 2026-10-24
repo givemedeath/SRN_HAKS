@@ -15,7 +15,7 @@ from unittest.mock import patch
 import numpy as np
 from PIL import Image,ImageDraw
 from headkit import comfy
-from headkit.common import write,read,pin,asset,manifest,source_version,digest
+from headkit.common import write,read,pin,verify,asset,manifest,source_version,digest
 from headkit.gltf import mesh,write_mesh,load,encode
 from headkit.images import similarity,prepare,prepare_multiview
 from headkit.field import GeneratedField,load_generated_field
@@ -601,6 +601,34 @@ class ImageTests(Temporary):
     def test_reflection_and_ambiguous_landmarks_rejected(self):
         with self.assertRaises(ValueError):similarity([[0,0],[1,0],[0,1]],[[0,0],[-1,0],[0,1]])
         with self.assertRaises(ValueError):similarity([[0,0]]*3,[[0,0]]*3)
+    def design(self,draw):
+        from PIL import ImageDraw
+        image=Image.new('RGB',(200,200),(200,200,200));draw(ImageDraw.Draw(image));path=self.root/'design.png';image.save(path);return path
+    def test_matte_keeps_interior_gray_and_dark_features_opaque(self):
+        from headkit.images import matte
+        def head(d):
+            d.ellipse((50,30,150,170),fill=(120,110,100));d.ellipse((90,60,110,80),fill=(200,200,200));d.rectangle((95,120,105,130),fill=(5,5,5))
+        result=matte(self.design(head),{},self.root/'matte')
+        with Image.open(self.root/'matte'/'design-rgba.png') as image:alpha=np.asarray(image.getchannel('A'))
+        self.assertEqual(alpha[70,100],255);self.assertEqual(alpha[125,100],255);self.assertEqual(alpha[5,5],0)
+        self.assertEqual(result['marginPixels']['top'],30);self.assertEqual(result['backdrop'],[200,200,200])
+    def test_matte_rejects_a_cropped_subject_or_busy_backdrop(self):
+        from headkit.images import matte
+        with self.assertRaisesRegex(ValueError,'canvas edge'):
+            matte(self.design(lambda d:d.ellipse((50,-20,150,170),fill=(120,110,100))),{},self.root/'cropped')
+        def busy(d):
+            for x in range(0,200,2):d.line((x,0,x,199),fill=(20,200,20))
+        with self.assertRaisesRegex(ValueError,'plain enough'):matte(self.design(busy),{},self.root/'busy')
+        with self.assertRaisesRegex(ValueError,'tolerance'):matte(self.design(lambda d:None),{'backgroundTolerance':2},self.root/'tol')
+    def test_bootstrap_design_manifest_prepares_a_matte_through_the_runner(self):
+        design=self.design(lambda d:d.ellipse((50,30,150,170),fill=(120,110,100)))
+        data={'schemaVersion':1,'id':'bootstrap','profile':'pixal-single-v1','matte':{'backgroundTolerance':14},
+              'inputs':{'design':{'path':design.name,'sha256':pin(design)['sha256']}},
+              'features':[{'name':'horns','placementReviewed':True}],'approval':{'referenceDesignReviewed':True}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run');result=runner.execute('prepare')['result']
+        self.assertEqual(result['marginPixels']['top'],30)
+        receipt=read(runner.state['stages']['prepare']['path']);self.assertIn(str(design.resolve()),{p['path'] for p in receipt['inputs']})
     def test_paired_preparation_keeps_identical_silhouette(self):
         result=prepare(self.root/'clay.png',self.root/'detail.png',self.pair(),self.root/'prepared')
         self.assertEqual(result['silhouetteIoU'],1);self.assertTrue(result['manualReviewRequired'])
@@ -634,6 +662,35 @@ class ImageTests(Temporary):
             for view,azimuth in [('front',0),('left',90),('back',180),('right',270)]}}
         with self.assertRaisesRegex(ValueError,'Minimum silhouette IoU'):
             prepare_multiview(pairs,config,self.root/'low-floor')
+
+
+class FakePacker:
+    """The xatlas pack semantics the UV re-pack depends on: density 0 grows an unbounded atlas (here one shelf row)
+    whose UVs are normalised to its used extents; an explicit density packs shelf rows onto one square page of the
+    given resolution and spills onto a second page past it."""
+    def __init__(self):self.calls=[]
+    def PackOptions(self):return SimpleNamespace(resolution=0,padding=0,bilinear=False,bruteForce=False,texels_per_unit=0.0)
+    def Atlas(self):return FakeAtlas(self.calls)
+
+
+class FakeAtlas:
+    def __init__(self,calls):self.calls=calls
+    def add_uv_mesh(self,points,faces):self.points=np.asarray(points,float);self.faces=np.asarray(faces,int)
+    def generate(self,pack_options):
+        from scipy.sparse import coo_matrix
+        from scipy.sparse.csgraph import connected_components
+        o=pack_options;self.calls.append(dict(vars(o)));f=self.faces;n=len(self.points)
+        count,labels=connected_components(coo_matrix((np.ones(f.size),(f.ravel(),np.repeat(f[:,0],3))),shape=(n,n)),directed=False)
+        density=o.texels_per_unit or 1.0;limit=o.resolution if o.texels_per_unit else np.inf
+        uv=np.zeros((n,2));x=y=row=width=0
+        for chart in range(count):
+            vertices=np.flatnonzero(labels==chart);p=self.points[vertices]*density;size=p.max(0)-p.min(0)+o.padding
+            if x+size[0]>limit:x,y,row=0,y+row,0
+            uv[vertices]=p-p.min(0)+[x,y];x+=size[0];row=max(row,size[1]);width=max(width,x)
+        self.atlas_count=1 if y+row<=limit else 2;self.chart_count=count
+        self.width,self.height=(o.resolution,)*2 if o.texels_per_unit else (int(np.ceil(width)),int(np.ceil(y+row)))
+        self.uv=uv/[self.width,self.height]
+    def __getitem__(self,index):return np.arange(len(self.points)),self.faces,self.uv
 
 
 class MeshTests(Temporary):
@@ -692,6 +749,48 @@ class MeshTests(Temporary):
     def test_bell_fixture_is_closed_and_crossing_free(self):
         from headkit.intersections import scan
         p,f=self.bell();self.assertTrue(topology(p,f)['closed']);self.assertFalse(scan(p,f)['pairs'])
+    def test_pinched_vertex_link_is_not_closed(self):
+        p,f=self.tetra();report=topology(np.r_[p,-p],np.r_[f,(f+4)[:,::-1]])  # two tetrahedra sharing only the origin
+        self.assertEqual((report['boundaryEdges'],report['nonmanifoldEdges'],report['windingConflicts'],report['invalidVertexLinks']),(0,0,0,1));self.assertFalse(report['closed'])
+    def test_batched_crossing_scan_matches_one_chunk_at_a_time(self):
+        from headkit.intersections import scan,sphere_aabb_pairs,crossing_pairs
+        rng=np.random.default_rng(5);soup=rng.random((700,1,3))+np.exp2(rng.integers(-6,-2,(700,1,1)))*rng.normal(size=(700,3,3))
+        t=np.array([[0,0,0],[.3,0,0],[0,.3,0]]);lift=np.array([[0,0,0],[0,0,0],[0,0,1e-12]])
+        crafted=[(t,t+[.1,.1,0]),(t,t+[.3,0,0]),(t,[[.3,0,0],[0,.3,0],[.3,.3,0]]),(t,t+[.1,.1,0]+lift),  # coplanar overlap, vertex touch, shared edge, near-coplanar overlap
+                 (t,[[.1,.1,-.1],[.1,.1,.1],[.2,.05,0]]),(t,[[.1,.1,0],[.1,.1,.2],[.15,.1,.2]]),(t,[[.1,.1,1e-9],[.1,.1,.2],[.15,.1,.2]])]  # crossing, interior touch, near miss
+        tri=np.r_[soup,[np.asarray(x,float)+[2+i,2,2] for i,pair in enumerate(crafted) for x in pair]];p,f=tri.reshape(-1,3),np.arange(3*len(tri)).reshape(-1,3)
+        chunks=list(sphere_aabb_pairs(p,f,block=64))  # one tree query and one exact batch per 64-face chunk, as before batching
+        for block in (128,16384):
+            got=list(sphere_aabb_pairs(p,f,block=block));self.assertEqual(len(got),len(chunks))
+            for a,b in zip(got,chunks):np.testing.assert_array_equal(a,b)
+        def reference(cap):
+            hits,checked,log=[],0,[]
+            for n,pairs in enumerate(chunks,1):
+                if checked+len(pairs)>cap:return {'complete':False,'pairs':hits,'candidatePairs':checked,'nextBatchPairs':len(pairs)},log
+                hits+=pairs[crossing_pairs(tri[pairs[:,0]],tri[pairs[:,1]])].tolist();checked+=len(pairs)
+                if n%50==0:log.append({'candidatePairs':checked,'intersectionPairs':len(hits),'batches':n})
+            return {'complete':True,'pairs':hits,'candidatePairs':checked},log
+        total=sum(map(len,chunks));self.assertGreater(len(chunks),50)  # six radius bins, several blocks each, one progress report
+        for cap in (total,total-1,total//2,1,0):
+            want,want_log=reference(cap)
+            for workers,block in ((1,64),(4,128),(3,16384)):
+                with self.subTest(cap=cap,workers=workers,block=block):
+                    log=[];got=scan(p,f,max_pairs=cap,progress=log.append,workers=workers,block=block)
+                    self.assertEqual({k:got.get(k) for k in want},want);self.assertEqual([{k:v for k,v in row.items() if k!='elapsedSeconds'} for row in log],want_log)
+        hits=scan(p,f)['pairs'];self.assertGreater(len(hits),10)
+        self.assertEqual(sorted(pair for pair in hits if pair[0]>=700),[[700,701],[706,707],[708,709]])  # strict crossings only; touching and near misses pass
+    def test_scan_bounds_candidate_and_narrow_phase_work_by_the_pair_cap(self):
+        from headkit import intersections
+        rng=np.random.default_rng(9);n=3000                              # malformed mesh: every triangle overlaps every other
+        tri=rng.random((n,1,3))*.01+rng.normal(0,.3,(n,3,3));p,f=tri.reshape(-1,3),np.arange(3*n).reshape(-1,3)
+        built,checked=[],[];real=intersections.crossing_pairs
+        def narrow(a,b,eps=1e-10):checked.append(len(a));return real(a,b,eps)
+        with patch.object(intersections,'NEIGHBOUR_BUDGET',20000),patch.object(intersections,'crossing_pairs',side_effect=narrow):
+            result=intersections.scan(p,f,max_pairs=5000,workers=2)
+        self.assertEqual((result['complete'],result['reason']),(False,'resource-pair-cap'))
+        # Each block builds candidates only up to the chunk group that passes the cap and narrow-tests only pairs before
+        # the chunk that passes it, not the ~4.5 million pairs of the whole mesh.
+        self.assertLessEqual(max(checked),5000);self.assertLess(sum(checked),20*5000)
     def test_neck_taper_profile_is_monotonic_and_c1_without_a_shelf(self):
         from headkit.mesh import taper_scale
         taper=self.NECK['taper'];bottom=-.1;z=np.linspace(.0,bottom,4001);dz=z[0]-z[1]
@@ -740,10 +839,132 @@ class MeshTests(Temporary):
         self.assertEqual(result['topology']['triangles'],len(coarse_faces)+48);self.assertLessEqual(result['topology']['triangles'],budget)
         self.assertEqual(result['neck']['budget'],{'total':budget,'reservedForCap':48,'reductionTarget':budget-48})
         self.assertEqual(result['neck']['seal']['shellTriangles'],len(coarse_faces))
+        self.assertNotIn('shorten',result['neck'])  # undeclared shortening leaves earlier receipts byte-identical
         master=mesh(self.root/'out'/'master.glb')['positions'];untapered=mesh(self.root/'out'/'master-untapered.glb')['positions']
         self.assertEqual(result['surfaceDistance']['reference'],pin(self.root/'out'/'master.glb'))
         np.testing.assert_allclose(np.sort(distances[0],0),np.sort(np.unique(master,axis=0),0))  # tapered master, not the source
         self.assertGreater(np.abs(master-untapered).max(),.005);self.assertEqual(result['neck']['taper']['untapered'],pin(self.root/'out'/'master-untapered.glb'))
+    def test_repair_keeps_one_shell_and_deletes_floaters_only_by_reviewed_selection(self):
+        from headkit import mesh as mesh_module
+        p,f=self.bell();t,tf=self.tetra();floater=t*.01+[0,-.3,0]  # a detached floater behind the head (GLB +z faces front)
+        source=self.root/'source.glb';write_mesh(source,np.r_[self.glb(p),floater],np.r_[f,tf+len(p)])
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True}
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        keep={'keep':'largest','reviewed':True,'maximumDeletedAreaFraction':.05,'expectedDeleted':1}
+        for components,message in ((None,'2 separate shells'),(dict(keep,reviewed=False),'reviewed'),(dict(keep,expectedDeleted=0),'1 shells would be deleted'),
+                                   (dict(keep,maximumDeletedAreaFraction=1e-6),'above the reviewed bound'),(dict(keep,maximumDeletedAreaFraction=.1),'supported profile')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):
+                mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'components':components} if components else {'alphaWrap':False},inspection)
+            self.assertFalse((self.root/'master.glb').exists())
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'triangleBudget':len(f)+20,'components':keep},inspection)
+        self.assertTrue(result['passed'] and result['componentDeletion']);self.assertEqual(result['topology']['triangles'],len(f))
+        self.assertEqual((result['shells']['shells'],result['shells']['keptTriangles'],[row['triangles'] for row in result['shells']['deleted']]),(2,len(f),[4]))
+        np.testing.assert_allclose(result['shells']['deleted'][0]['centroid'],floater.mean(0),atol=1e-5)
+        area=lambda v,f:np.linalg.norm(np.cross(v[f][:,1]-v[f][:,0],v[f][:,2]-v[f][:,0]),axis=1).sum()/2
+        self.assertAlmostEqual(result['shells']['deletedAreaFraction'],area(floater,tf)/(area(floater,tf)+area(p,f)),places=6)
+        np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(self.glb(p),axis=0),0),atol=1e-6)
+    def icosphere(self,radius=.1,levels=3):
+        g=(1+5**.5)/2;v=[(-1,g,0),(1,g,0),(-1,-g,0),(1,-g,0),(0,-1,g),(0,1,g),(0,-1,-g),(0,1,-g),(g,0,-1),(g,0,1),(-g,0,-1),(-g,0,1)]
+        f=[(0,11,5),(0,5,1),(0,1,7),(0,7,10),(0,10,11),(1,5,9),(5,11,4),(11,10,2),(10,7,6),(7,1,8),(3,9,4),(3,4,2),(3,2,6),(3,6,8),(3,8,9),(4,9,5),(2,4,11),(6,2,10),(8,6,7),(9,8,1)]
+        v=[np.array(p,float)/np.linalg.norm(p) for p in v]
+        for _ in range(levels):
+            cache={};faces=[]
+            def mid(a,b):
+                key=(min(a,b),max(a,b))
+                if key not in cache:m=v[a]+v[b];v.append(m/np.linalg.norm(m));cache[key]=len(v)-1
+                return cache[key]
+            for a,b,c in f:ab,bc,ca=mid(a,b),mid(b,c),mid(c,a);faces+=[(a,ab,ca),(b,bc,ab),(c,ca,bc),(ab,bc,ca)]
+            f=faces
+        return np.array(v)*radius,np.array(f)
+    def test_preview_relief_finds_cancelling_normals_and_crust_cells(self):
+        from headkit.preview import pinched,rough_cells
+        p,f=self.icosphere();self.assertFalse(pinched(p,f).any())
+        # A fan folded onto itself: two faces up, two down around the centre vertex; its rim vertices 1 and 3 fold too.
+        fan=np.array([[0,0,0],[1,0,0],[0,1,0],[-1,0,0],[0,-1,0]],float);faces=np.array([[0,1,2],[0,2,3],[0,4,3],[0,1,4]])
+        np.testing.assert_array_equal(pinched(fan,faces),[True,True,False,True,False])
+        rng=np.random.default_rng(5);noisy=p.copy();cap=p[:,2]>.06;noisy[cap]*=(1+rng.normal(0,.03,cap.sum()))[:,None]
+        cells=rough_cells(noisy,f,noisy,fraction=.05,cell=.05)
+        self.assertGreater(cells[0]['centre'][2],0);self.assertTrue(all(c['vertices']>0 for c in cells))  # densest crust cell sits on the crown
+    def test_relief_smoothing_calms_declared_region_only_and_stays_closed(self):
+        from headkit.relief import smooth
+        p,f=self.icosphere();rng=np.random.default_rng(3);noisy=p.copy();cap=p[:,2]>.03
+        noisy[cap]*=(1+rng.normal(0,.02,cap.sum()))[:,None]  # Pixal-style crust on the crown only
+        region={'name':'crown','reviewed':True,'iterations':30,'feather':2,'where':{'of':'z','gt':.03}}
+        out,records=smooth(noisy,f,[region],noisy);inner=noisy[:,2]>.05;radial=lambda v:np.linalg.norm(v,axis=1)
+        self.assertLess(np.std(radial(out[inner])),.4*np.std(radial(noisy[inner])))
+        np.testing.assert_array_equal(out[noisy[:,2]<.02],noisy[noisy[:,2]<.02])  # outside the region: untouched
+        self.assertTrue(topology(out,f)['closed']);self.assertEqual(records[0]['vertices'],int((noisy[:,2]>.03).sum()))
+        self.assertGreater(records[0]['maximumDisplacementMetres'],0);self.assertEqual((records[0]['mu'],records[0]['feather']),(-.53,2))
+        # mu 0 is the plain (shrinking) Laplacian used for bristle fins; Taubin keeps the volume on the same region.
+        plain,_=smooth(noisy,f,[dict(region,mu=0)],noisy)
+        self.assertLess(radial(plain[inner]).mean(),radial(out[inner]).mean()-.001);self.assertGreater(radial(out[inner]).mean(),.098)
+        for bad,message in ((dict(region,reviewed=False),'reviewed'),(dict(region,iterations=0),'1..100'),(dict(region,iterations=101),'1..100'),
+                            (dict(region,mu=-.3),'lambda < -mu'),(dict(region,feather=21),'Feather'),(dict(region,where={'of':'z','gt':5}),'selects no vertices')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):smooth(noisy,f,[bad],noisy)
+    def test_repair_smooths_the_dense_master_only_with_a_reviewed_fit(self):
+        from headkit import mesh as mesh_module
+        p,f=self.bell(48,24);rng=np.random.default_rng(4);noisy=p.copy();top=p[:,2]>.06;noisy[top]+=rng.normal(0,.002,(top.sum(),3))
+        source=self.root/'source.glb';write_mesh(source,self.glb(noisy),f);inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True}
+        policy={'alphaWrap':False,'triangleBudget':20000,'maximumRelativeSurfaceError':.025,
+                'smooth':[{'name':'crown','reviewed':True,'iterations':20,'where':{'of':'z','gt':.065}}]}
+        with self.assertRaisesRegex(ValueError,'reviewed head fit'):mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=None)
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit={'matrix':np.eye(4).tolist(),'reviewed':True})
+        region=result['smoothing']['regions'][0];self.assertEqual(region['name'],'crown');self.assertGreater(region['vertices'],0)
+        master=mesh(self.root/'master.glb')['positions'];self.assertTrue(result['passed'])
+        self.assertGreater(np.abs(np.sort(np.unique(master,axis=0),0)-np.sort(np.unique(self.glb(noisy),axis=0),0)).max(),1e-4)
+    def test_repair_rewraps_the_smoothed_master_so_collapsed_fins_cannot_cross(self):
+        from headkit import mesh as mesh_module
+        p,f=self.bell(48,24);rng=np.random.default_rng(5);noisy=p.copy();top=p[:,2]>.06;noisy[top]+=rng.normal(0,.002,(top.sum(),3))
+        source=self.root/'source.glb';write_mesh(source,self.glb(noisy),f)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True,'confirmedShellDefect':True};inputs=[]
+        class Mesh:
+            def __init__(self,v,f):self.v,self.f=np.array(v),np.array(f);inputs.append(self.v.copy())
+            def compact(self):pass
+            def vertex_matrix(self):return self.v
+            def face_matrix(self):return self.f
+        class MeshSet:
+            def add_mesh(self,m):self.m=m
+            def generate_alpha_wrap(self,**k):pass
+            def current_mesh(self):return self.m
+        ml=SimpleNamespace(MeshSet=MeshSet,Mesh=Mesh,PureValue=lambda x:x);igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        policy={'alphaWrap':True,'triangleBudget':20000,'smooth':[{'name':'crown','reviewed':True,'iterations':20,'where':{'of':'z','gt':.065}}]}
+        with patch.object(mesh_module,'library',lambda b,name:ml if name=='pymeshlab' else igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit={'matrix':np.eye(4).tolist(),'reviewed':True})
+        self.assertEqual(len(inputs),2);self.assertTrue(result['smoothing']['rewrapped']);self.assertEqual(result['smoothing']['rewrapShells']['shells'],1)
+        self.assertGreater(np.abs(inputs[1]-inputs[0]).max(),1e-4)  # the second wrap received the smoothed master
+        np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(inputs[1],axis=0),0),atol=1e-6)
+    def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
+        from headkit import mesh as mesh_module
+        from headkit.mesh import neck_policy,neck_shorten,shorten_depth,transform
+        from headkit.intersections import scan
+        d=np.linspace(0,.2,4001)
+        for scale,band in ((.6,.02),(.3,.005),(.95,.05)):
+            with self.subTest(scale=scale,band=band):
+                slope=np.diff(shorten_depth(d,scale,band))/np.diff(d)
+                self.assertTrue(np.all(slope>0))  # strictly increasing: every vertical column keeps its order
+                self.assertAlmostEqual(slope[0],1,places=2);self.assertAlmostEqual(slope[-1],scale,places=2)  # no crease at the start
+        p,f=self.bell();bottom=float(p[:,2].min());fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        neck=neck_policy({'shorten':{'start':-.02,'rim':bottom+.02}},fit)
+        moved,record=neck_shorten(self.glb(p),neck);local=transform(neck['frame'],moved)
+        self.assertAlmostEqual(local[:,2].min(),bottom+.02,places=9);self.assertAlmostEqual(record['removedLengthMetres'],.02,places=9)
+        np.testing.assert_allclose(local[:,:2],p[:,:2],atol=1e-12)  # the outline never moves, only heights below the start
+        np.testing.assert_allclose(local[p[:,2]>=-.02],p[p[:,2]>=-.02],atol=1e-12)
+        self.assertTrue(topology(local,f)['closed']);self.assertFalse(scan(local,f)['pairs'])
+        for bad,message in (({'start':-.02},'start height'),({'start':-.02,'rim':-.01},'lower target'),
+                            ({'start':-.02,'rim':bottom-.01},'above the current rim'),({'start':-.02,'rim':bottom+.01,'band':.1},'band'),
+                            ({'start':-.02,'rim':-.04,'band':.03},'cannot reach its rim')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):neck_shorten(self.glb(p),neck_policy({'shorten':bad},fit))
+        # In repair the stump is shortened on the dense master before the taper, which then starts from the new rim.
+        source=self.root/'source.glb';write_mesh(source,self.glb(p),f);igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'shorten':{'start':-.02,'rim':-.08},'taper':self.NECK['taper']}}
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,{'sourceSha256':pin(source)['sha256'],'visualReviewed':True},fit=fit)
+        self.assertTrue(result['passed']);self.assertAlmostEqual(result['neck']['shorten']['rimHeight'],-.08,places=6)
+        self.assertAlmostEqual(result['neck']['taper']['rimHeight'],-.08,places=6)
+        master=transform(neck['frame'],mesh(self.root/'master.glb')['positions']);self.assertAlmostEqual(master[:,2].min(),-.08,places=5)
     def test_neck_policy_refuses_without_reviewed_fit_or_with_bad_parameters(self):
         from headkit import mesh as mesh_module
         p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)
@@ -858,6 +1079,64 @@ class MeshTests(Temporary):
         placed=(a-a.min(0))[None]+.25;report,_=raster_audit(placed,1024)
         self.assertEqual(report['unmappedUvFaces'],[])
 
+    def test_own_chart_widens_a_sliver_instead_of_growing_it_across_the_atlas(self):
+        # troll-male-02 face 8143 (3D edges .035/.020/.015): grown uniformly it was a 7301 x 7 texel chart that set
+        # the atlas width. Short slivers grow to a 16 texel edge, long ones keep their length; both are then widened.
+        from headkit.uv import _own_chart,_inradius,raster_audit
+        corners=np.array([[0,0,0],[.035,0,0],[.0199,.00005,0]],float)
+        for density,length in ((1008.0,16),(12000.0,.035*12000/2507*1024)):
+            with self.subTest(density=density):
+                q=_own_chart(corners,(2507,2516),density,7);extent=(q.max(0)-q.min(0))*1024
+                self.assertGreaterEqual(_inradius(q),1.5);self.assertLess(_inradius(q),1.6)
+                self.assertAlmostEqual(extent.max(),length,delta=.02*length);self.assertLess(extent.min(),12)
+                report,_=raster_audit((q-q.min(0))[None]+.25,1024);self.assertEqual(report['unmappedUvFaces'],[])
+
+    def charted_grid(self):
+        # 36 separate unit right triangles charted 6x6 on a 2048 atlas; face 35 is charted below one 1K texel.
+        p=np.array([[3*k+x,0,y] for k in range(36) for x,y in ((0,0),(1,0),(0,1))],float);faces=np.arange(108).reshape(-1,3)
+        legs=np.full(36,.15);legs[35]=.0004;cells=np.c_[np.arange(36)%6,np.arange(36)//6]/6+.008
+        uv=cells[:,None]+legs[:,None,None]*np.array([[0,0],[1,0],[0,1]])
+        return {'positions':p,'faces':faces,'uv':uv},p[faces]
+
+    def test_repack_bounds_a_square_page_and_fits_the_densest_scale_after_a_spill(self):
+        from headkit.uv import _repack,PAGE
+        value,corners=self.charted_grid();packer=FakePacker()
+        uv,dims,count,scale=_repack(packer,value['uv'],(2048,2048),307.2,corners,[35],9,1.2)
+        self.assertEqual((dims,count),((PAGE,PAGE),36))
+        self.assertTrue(all(c['resolution']==PAGE and 0<c['texels_per_unit']<=1.2 for c in packer.calls))
+        # Six 307.2*scale+9 texel charts per row on the page: the fitted scale is within 0.5% of the densest that fits.
+        densest=(PAGE/6-9)/307.2;self.assertTrue(densest/1.005<scale<=densest)
+        self.assertEqual(scale,max(c['texels_per_unit'] for c in packer.calls if c['texels_per_unit']<=densest))
+        legs=np.abs(uv[:,[1,2]]-uv[:,:1]).max(2);np.testing.assert_allclose(legs[:,0],legs[:,1],rtol=1e-5)  # square texels, no stretch
+        packer.calls.clear();_,_,_,again=_repack(packer,value['uv'],(2048,2048),307.2,corners,[35],9,scale)
+        self.assertEqual((again,len(packer.calls)),(scale,1))  # a scale that fits is kept, never raised
+        with self.assertRaisesRegex(ValueError,'spilled onto more than one atlas page'):
+            _repack(FakePacker(),value['uv'],(2048,2048),307.2,corners,[35],PAGE,1.0)
+
+    def test_unwrap_repairs_on_a_square_page_instead_of_an_unbounded_stretched_atlas(self):
+        # Unbounded, this re-pack is one 36-chart shelf ~11400 texels wide normalised onto a square texture.
+        from headkit.uv import unwrap,PAGE
+        value,_=self.charted_grid();packer=FakePacker()
+        with patch('headkit.uv.library',return_value=packer),patch('headkit.uv.physical_fans',return_value=(value['positions'],value['faces'])), \
+             patch('headkit.uv._chart',return_value=(value['uv'],(2048,2048),307.2,36)):
+            result,report=unwrap(value,{})
+        attempts=report['attempts'];self.assertEqual([a['badFaceCount'] for a in attempts],[1,0])
+        self.assertEqual((report['atlasDimensions'],report['ownCharts'],report['chosenPadding']),([PAGE,PAGE],[35],9))
+        self.assertEqual(attempts[1]['pageTexelsPerFirstPackTexel'],1.0);self.assertEqual(report['effectivePadding1024'],[4.5,4.5])
+        self.assertTrue(packer.calls and all(c['texels_per_unit']>0 and c['resolution']==PAGE for c in packer.calls))
+        self.assertGreaterEqual(report['pixelAudits']['2048']['coverageFraction'],.30)
+        uv=result['uv'];legs=np.abs(uv[:,[1,2]]-uv[:,:1]).max(2);np.testing.assert_allclose(legs[:,0],legs[:,1],rtol=1e-5)
+
+    def test_failed_unwrap_reports_its_rounds_for_every_failure(self):
+        from headkit.uv import unwrap
+        value,_=self.charted_grid()
+        with patch('headkit.uv.library',return_value=FakePacker()),patch('headkit.uv.physical_fans',return_value=(value['positions'],value['faces'])), \
+             patch('headkit.uv._chart',return_value=(value['uv'],(2048,2048),307.2,36)), \
+             patch('headkit.uv._repack',side_effect=ValueError('UV re-pack spilled onto more than one atlas page')):
+            with self.assertRaisesRegex(ValueError,'spilled') as caught:unwrap(value,{})
+        self.assertEqual([a['round'] for a in caught.exception.attempts],[0])
+        self.assertEqual(caught.exception.attempts[0]['badFaceCount'],1)
+
     def test_imported_and_new_atlases_reject_unsampled_faces_at_each_resolution(self):
         p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
         value={'positions':p,'faces':np.array([[0,1,2]]),'normals':np.zeros((3,3)),
@@ -913,7 +1192,7 @@ class InputInventoryTests(Temporary):
 
     def test_inputs_skips_receipts_from_other_code_instead_of_failing(self):
         from headkit.__main__ import main
-        from headkit.common import source_version,digest,manifest
+        from headkit.common import stage_source_version,digest,manifest
         source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
         write(manifest_path,{'schemaVersion':1,'id':'stale-run','inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
         bindings_path=self.root/'bindings.json';write(bindings_path,self.bindings_data())
@@ -921,8 +1200,9 @@ class InputInventoryTests(Temporary):
         old_pin=pin(changed);changed.write_text('helper edited since that receipt')
         current=self.file('current.json','current output')
         rows={}
-        for stage,code,inputs in (('repair','old-code',[old_pin]),('unwrap',source_version(),[pin(current)])):
-            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':digest(manifest(manifest_path)),'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
+        for stage,code,inputs in (('repair','old-code',[old_pin]),('unwrap',stage_source_version('unwrap'),[pin(current)])):
+            scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
+            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
         write(run/'state.json',{'schemaVersion':1,'id':'stale-run','stages':rows})
         output=self.root/'inputs.json'
         with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),'--bindings',str(bindings_path),
@@ -1215,6 +1495,83 @@ class OwnershipModeTests(Temporary):
         result=quantize(self.root/'color.png',self.root/'labels.png',palettes,rows,self.root/'quantized')
         with Image.open(result['ownership']['path']) as image:np.testing.assert_array_equal(np.asarray(image),labels)
         self.assertEqual(set(result['layers']),set(rows))
+
+
+class ToneMatchTests(Temporary):
+    def fixture(self):
+        # Skin is a dark, compressed luma ramp with ties; hair is a separate channel; a grey row makes shade == luma.
+        rng=np.random.default_rng(5);luma=np.clip(rng.normal(60,12,(1024,1024)),0,255).astype(np.uint8);luma[:64]=30
+        rgb=np.repeat(luma[...,None],3,2);labels=np.zeros((1024,1024),np.uint8);labels[:,900:]=1
+        Image.fromarray(rgb).save(self.root/'c.png');Image.fromarray(labels).save(self.root/'o.png')
+        palette=np.full((2,256,4),255,np.uint8);palette[0,:,:3]=np.arange(256)[:,None];palette[1,:,:3]=255-np.arange(256)[:,None]
+        palette[0,7,3]=0;Image.fromarray(palette).save(self.root/'p.png')
+        write(self.root/'refs.json',{'schemaVersion':1,'references':{'ref':{'layer':0,'quantiles':np.linspace(40,180,101).tolist()}}})
+        return luma,labels,{'0':str(self.root/'p.png'),'1':str(self.root/'p.png')},{'0':0,'1':0}
+    def test_opt_in_match_reaches_the_reference_keeps_order_and_isolates_channels(self):
+        luma,labels,palettes,rows=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            plain=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'plain')
+            toned=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'toned',tone_match={'0':{'reference':'ref'}})
+        self.assertNotIn('toneMatch',plain['layers']['0']);self.assertEqual(plain['layers']['1'],toned['layers']['1'])
+        before,after=(np.asarray(Image.open(r['shades']['path'])) for r in (plain,toned));skin=labels==0
+        np.testing.assert_array_equal(before[~skin],after[~skin])  # hair shades and decode stay byte-identical
+        np.testing.assert_array_equal(*(np.asarray(Image.open(r['decoded']['path']))[~skin] for r in (plain,toned)))
+        order=np.argsort(luma[skin],kind='stable');self.assertTrue(np.all(np.diff(after[skin][order].astype(int))>=0))
+        self.assertEqual(len(np.unique(after[skin&(luma==30)])),1)  # tied luma keeps one shade
+        self.assertNotIn(7,np.unique(after[skin]))  # transparent shades stay ineligible
+        report=toned['layers']['0']['toneMatch'];self.assertEqual(report['reference'],'ref')
+        self.assertEqual(report['referenceFile']['sha256'],pin(self.root/'refs.json')['sha256'])
+        self.assertLess(abs(report['before']['p50']-60),2);self.assertEqual(report['referencePercentiles']['p50'],110)
+        for name in ('p5','p25','p50','p75','p95'):  # each integer source luma holds ~3% of texels
+            self.assertLessEqual(abs(report['after'][name]-report['referencePercentiles'][name]),4)
+        self.assertEqual(report['rowsAfter'][0]['row'],0);self.assertEqual(sum(report['after']['histogram16']),int(skin.sum()))
+        self.assertGreater(toned['layers']['0']['meanSquaredColorError'],report['meanSquaredColorErrorBefore'])
+    def test_tone_match_rejections(self):
+        _,_,palettes,rows=self.fixture()
+        cases=[({'0':{'reference':'missing'}},{}, 'known stock shade reference'),({'0':{'reference':'ref','strength':1}},{},'known stock shade reference'),
+               ({'0':{'reference':'ref'}},{'0':4},'not both'),({'3':{'reference':'ref'}},{},'without mapped texels'),(['0'],{},'without mapped texels')]
+        for index,(spec,offsets,message) in enumerate(cases):
+            with self.subTest(spec=spec),patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+                with self.assertRaisesRegex(ValueError,message):
+                    quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/f'bad{index}',shade_offsets=offsets,tone_match=spec)
+                self.assertFalse((self.root/f'bad{index}').exists())
+    def test_plt_reader_and_reference_count_shared_textures_once(self):
+        from headkit.palette import plt_shades,shade_reference
+        def plt(name,shades,layers):
+            path=self.root/name;path.write_bytes(b'PLT V1  '+np.array([10,0,4,2],'<u4').tobytes()+np.stack([shades,layers],-1)[::-1].tobytes());return path
+        top=np.arange(8,dtype=np.uint8).reshape(2,4);layers=np.zeros((2,4),np.uint8);layers[0,0]=1
+        a=plt('a.plt',top,layers);b=plt('b.plt',top,layers);c=plt('c.plt',top+100,layers)
+        shades,read_layers=plt_shades(a);np.testing.assert_array_equal(shades,top);np.testing.assert_array_equal(read_layers,layers)
+        quantiles,unique=shade_reference([a,b,c],0,knots=3);self.assertEqual(unique,2);self.assertEqual(quantiles,[51.0,54.0,57.0])
+        (self.root/'short.plt').write_bytes(a.read_bytes()[:-1])
+        with self.assertRaisesRegex(ValueError,'size mismatch'):plt_shades(self.root/'short.plt')
+    def test_committed_references_and_stage_binding(self):
+        from headkit.common import stage_code_files
+        from headkit.palette import REFERENCES
+        data=read(REFERENCES);self.assertTrue({'troll-male-skin-v1','troll-male-hair-v1'}<=set(data['references']))
+        for name,row in data['references'].items():
+            with self.subTest(reference=name):
+                q=np.asarray(row['quantiles']);self.assertEqual(len(q),101);self.assertTrue(np.all(np.diff(q)>=0) and 0<=q[0] and q[-1]<=254)
+                self.assertTrue(all(len(source['sha256'])==64 for source in row['sources']))
+        self.assertIn('stock-shades.json',{path.name for path in stage_code_files('palette')})
+        self.assertNotIn('stock-shades.json',{path.name for path in stage_code_files('ownership')})
+    def test_runner_passes_the_manifest_tone_match(self):
+        runner=SimpleNamespace(data={'inputs':{},'palette':{'inputs':{'0':'paletteSkin'},'rows':{'0':3},'toneMatch':{'0':{'reference':'troll-male-skin-v1'}}}},bindings={},
+                               tone_pass_through=lambda:False,result=lambda stage,**kw:{'maps':{'1024':{'path':'tone.png'}},'onek':{'path':'own.png'}},
+                               input=lambda name:name+'.png')
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
+        self.assertEqual(quantizer.call_args.kwargs['tone_match'],{'0':{'reference':'troll-male-skin-v1'}})
+        runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
+            Runner._execute(runner,'palette',self.root)
+        ranking.assert_not_called();self.assertEqual(quantizer.call_args.args[3],{'0':'auto'})
+    def test_automatic_row_follows_the_matched_shades(self):
+        _,_,palettes,_=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            with self.assertRaisesRegex(ValueError,'Rank automatic rows'):quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bad')
+            result=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'auto',tone_match={'0':{'reference':'ref'}})
+        self.assertEqual(result['rows'],{'0':0,'1':0});self.assertEqual(result['layers']['0']['toneMatch']['rowsAfter'][0]['row'],0)
+        self.assertAlmostEqual(result['layers']['0']['toneMatch']['rowsAfter'][0]['meanSquaredColorError'],result['layers']['0']['meanSquaredColorError'])
 
 
 class CheckpointTests(Temporary):
@@ -1890,7 +2247,7 @@ class ResumeTests(Temporary):
         runner=self.fixture();runner.execute('prepare');runner.review('prepare','approved','synthetic pair reviewed')
         receipt=read(runner.state['stages']['prepare']['path']);output=receipt['outputs'][0]
         calls=[];real=common.sha
-        with patch('headkit.common.sha',side_effect=lambda path:(calls.append(str(path)),real(path))[1]):
+        with patch('headkit.common.sha',side_effect=lambda path,**kw:(calls.append(str(path)),real(path,**kw))[1]):
             runner._verified=set();runner._verify([output,output]);runner._verify([output])
             self.assertEqual(calls.count(output['path']),1)
             runner.result('prepare');runner.result('prepare')
@@ -1898,6 +2255,17 @@ class ResumeTests(Temporary):
         self.assertEqual(calls.count(output['path']),3)
         Path(output['path']).write_bytes(b'changed')
         with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
+    def test_file_hashes_are_reused_only_while_the_file_is_unchanged(self):
+        from headkit import common
+        path=self.file('cached.bin','first');old=time.time()-60;os.utime(path,(old,old));first=common.sha(path);reads=[]
+        real=Path.open
+        with patch('pathlib.Path.open',autospec=True,side_effect=lambda self,*a,**k:(reads.append(str(self)),real(self,*a,**k))[1]):
+            self.assertEqual(common.sha(path),first);self.assertEqual(reads,[])
+            self.assertEqual(common.sha(path,fresh=True),first);self.assertEqual(len(reads),1)
+            path.write_text('second, longer');reads.clear();self.assertNotEqual(common.sha(path),first);self.assertEqual(len(reads),1)
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):common.verify([{'path':str(path),'sha256':first}])
+        racy=self.file('racy.bin','aaaa');racy_digest=common.sha(racy);racy.write_text('bbbb')  # same size, same tick
+        self.assertNotEqual(common.sha(racy),racy_digest)
     def test_launch_inputs_cover_only_the_launched_stages(self):
         from headkit.__main__ import main
         self.fixture();field=self.unused_field();listed={}
@@ -1928,6 +2296,18 @@ class ResumeTests(Temporary):
         with patch.object(runner,'_execute',return_value={'invalid':float('nan')}):
             with self.assertRaises(ValueError):runner.execute('prepare')
         self.assertEqual(read(self.root/'run'/'prepare'/'attempt-01'/'receipt.json')['state'],'failed')
+    def test_failed_receipt_keeps_the_stage_repair_attempts(self):
+        runner=self.fixture();error=ValueError('UV still has 3 bad faces after 10 pack-only repair rounds')
+        error.attempts=[{'round':0,'badFaceCount':34,'atlasDimensions':[2507,2516]}]
+        with patch.object(runner,'_execute',side_effect=error),self.assertRaisesRegex(ValueError,'3 bad faces'):runner.execute('prepare')
+        failed=read(self.root/'run'/'prepare'/'attempt-01'/'receipt.json')
+        self.assertEqual((failed['state'],failed['attempts']),('failed',error.attempts))
+        runner.execute('prepare');self.assertNotIn('attempts',read(self.root/'run'/'prepare'/'attempt-02'/'receipt.json'))
+        # An attempt log that cannot serialise is noted instead of losing the failed receipt.
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run-b');error.attempts=[{'bad':float('nan')}]
+        with patch.object(runner,'_execute',side_effect=error),self.assertRaises(ValueError):runner.execute('prepare')
+        failed=read(self.root/'run-b'/'prepare'/'attempt-01'/'receipt.json')
+        self.assertEqual(failed['state'],'failed');self.assertIn('unserializable',failed['attempts'])
     def test_portable_paths_reject_escape(self):
         with self.assertRaises(ValueError):asset(self.root/'manifest.json',{'path':'../escape','sha256':'0'*64})
 
@@ -1946,6 +2326,13 @@ class ImportedOwnershipTests(Temporary):
             for role in ('basecolor4k','runtimeColor','runtimeShades')}}
         write(base/'manifest.json',data);write(base/'bindings.json',self.bindings_data(tools_root=base))
         return Runner(base/'manifest.json',base/'bindings.json',base/'run')
+    def test_paint_on_imported_textures_binds_their_approvals(self):
+        runner=self.fixture();data=read(runner.manifest_path);data['paint']={'operations':[]};write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(runner.dependencies('paint'),[])
+        before=runner.manifest_digest('paint')
+        # Paint has no upstream stage here, so only its own digest can notice a revoked texture approval.
+        data['approval']['textureMaps']['basecolor4k']['decision']='rejected';write(runner.manifest_path,data)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('paint'),before)
     def test_imported_mesh_audit_blocks_export_and_records_passed_evidence(self):
         runner=self.fixture();source=runner.input('uvMesh')
         rejected={'source':pin(source),'passed':False,'topology':{'closed':False},
@@ -1972,7 +2359,7 @@ class ImportedOwnershipTests(Temporary):
         uv=self.file('uv.glb','unwrapped mesh');receipt={'path':'unwrap-receipt.json','sha256':'1'*64}
         def runner(fit,inputs):
             return SimpleNamespace(data={'inputs':inputs,'fit':fit,'mesh':{}},state={'stages':{'unwrap':receipt}},bindings={},
-                                   source=lambda *args:uv,input=lambda name:uv,
+                                   source=lambda *args:uv,input=lambda name:uv,_fit=lambda:fit,_staged_fit=lambda:False,
                                    result=lambda stage:{'shades':{'path':'s.png'},'ownership':{'path':'o.png'}})
         fit={'matrix':np.eye(4).tolist(),'reviewed':True,'sourceStage':'unwrap','model':'pmg0_head015'}
         passed={'passed':True}
@@ -2213,12 +2600,13 @@ class ReviewGateTests(Temporary):
 
 class ChainTests(Temporary):
     fixture=ResumeTests.fixture;completed=ReviewGateTests.completed
-    def chain(self,runner,stages,fail=()):
+    def chain(self,runner,stages,fail=(),texts={}):
         from headkit.__main__ import chain
         order=[]
         def work(stage,folder):
             order.append(stage)
             if stage in fail:raise ValueError('Synthetic failure: '+stage)
+            if stage in texts:target=folder/'artifact.txt';target.write_text(texts[stage]);return {'artifact':pin(target)}
             return self.completed(stage,folder)
         with patch.object(runner,'_execute',side_effect=work):result=chain(runner,stages)
         return result,order,{row['stage']:row for row in result['stages']}
@@ -2250,11 +2638,65 @@ class ChainTests(Temporary):
         self.assertEqual(order,['unwrap']);self.assertEqual(rows['repair']['status'],'reused')
         self.assertEqual((rows['unwrap']['status'],Path(rows['unwrap']['attempt'])),('ran',runner.run/'unwrap'/'attempt-02'))
         self.assertEqual((rows['bake']['status'],rows['bake']['dependency']),('blocked-on-review','unwrap'))
+    def rerun_repair(self,runner,decision,texts={}):
+        # Reviewed (or not) repair, then a manifest change that stales it without changing what the fake writes.
+        self.chain(runner,['repair'])
+        old=runner.review('repair',decision,'Inspected repair') if decision else None
+        runner.data['mesh']={'alphaWrap':False};return old,self.chain(runner,['repair','unwrap'],texts=texts)
+    def test_identical_rerun_outputs_carry_the_approval_and_continue(self):
+        runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,'approved')
+        self.assertEqual(order,['repair','unwrap']);self.assertIsNone(result['stopped'])
+        self.assertEqual((rows['repair']['status'],rows['repair']['review'],rows['unwrap']['status']),('ran','carried','ran'))
+        carried=runner.state['reviews']['repair'];self.assertEqual(rows['repair']['carriedReview'],carried)
+        review=read(carried['path']);self.assertEqual(review['carriedFrom'],old);self.assertEqual(review['decision'],'approved')
+        self.assertEqual(review['notes'],'Carried from attempt-01: identical outputs (binary sha256; JSON equal apart from attempt numbers and timings). Inspected repair')
+        self.assertEqual(review['stageReceipt'],runner.state['stages']['repair']);self.assertIn('attempt-02',review['stageReceipt']['path'])
+        self.assertIn('artifact',runner.result('repair'))
+    def test_changed_rerun_output_is_not_carried(self):
+        runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,'approved',texts={'repair':'repair!'})
+        self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
+        self.assertEqual(rows['repair']['review'],'pending');self.assertNotIn('carriedReview',rows['repair'])
+        self.assertEqual((rows['unwrap']['status'],rows['unwrap']['dependency']),('blocked-on-review','repair'))
+        self.assertEqual(runner.state['reviews']['repair'],old);self.assertEqual(len(list((runner.run/'reviews').glob('repair-*'))),1)
+    def test_json_audits_carry_across_attempt_paths_and_timings_but_not_values(self):
+        def rerun(value,seconds):
+            def work(stage,folder):
+                audit=folder/'audit.json';write(audit,{'source':str(folder/'master.glb'),'elapsedSeconds':seconds,'relativeMaximum':value})
+                (folder/'final.glb').write_bytes(b'shell');return {'audit':pin(audit),'final':pin(folder/'final.glb')}
+            with patch.object(runner,'_execute',side_effect=work):return chain(runner,['repair'])
+        from headkit.__main__ import chain
+        for value,carried in ((.004,True),(.005,False)):
+            with self.subTest(value=value):
+                self.root=self.root/f'case-{value}';self.root.mkdir();runner=self.fixture()
+                rerun(.004,12.5);runner.review('repair','approved','Inspected repair');runner.data['mesh']={'alphaWrap':False}
+                row={row['stage']:row for row in rerun(value,97.25)['stages']}['repair']
+                self.assertEqual(row['review'],'carried' if carried else 'pending')
+    def test_rejected_or_absent_review_is_not_carried(self):
+        for decision in ('rejected',None):
+            with self.subTest(decision=decision):
+                self.root=self.root/('case-'+str(decision));self.root.mkdir()
+                runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,decision)
+                self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
+                self.assertEqual(rows['repair']['review'],'pending');self.assertNotIn('carriedReview',rows['repair'])
+                self.assertEqual(runner.state.get('reviews',{}).get('repair'),old)
     def test_rejects_unknown_duplicate_or_reordered_stages(self):
         runner=self.fixture()
         for stages in ([],['unwrap','repair'],['repair','repair'],['gpu']):
             with self.subTest(stages=stages),self.assertRaisesRegex(ValueError,'pipeline order'):self.chain(runner,stages)
         self.assertEqual(runner.state['stages'],{})
+    def test_cli_records_the_gating_review_and_continues_in_one_launch(self):
+        from headkit.__main__ import main
+        runner=self.fixture();self.chain(runner,['repair'])
+        base=['headkit','chain','--manifest',str(runner.manifest_path),'--bindings',str(runner.bindings_path),'--run',str(runner.run),'--stages','unwrap']
+        printed=[]
+        with patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),             patch('headkit.runner.Runner._execute',autospec=True,side_effect=lambda r,s,f:self.completed(s,f)) as work:
+            with patch('sys.argv',base+['--approve','repair']),self.assertRaisesRegex(ValueError,'go together'):main()
+            work.assert_not_called()
+            with patch('sys.argv',base+['--approve','repair','--notes','Inspected the repaired shell']):main()
+        self.assertEqual([c.args[1] for c in work.call_args_list],['unwrap'])
+        result=json.loads(printed[-1]);self.assertEqual(result['stages'][0]['status'],'ran');self.assertFalse(result['autoApproved'])
+        review=read(result['reviewRecorded']['path']);self.assertEqual((review['decision'],review['notes']),('approved','Inspected the repaired shell'))
+        self.assertEqual(result['stages'][0]['review'],'pending')
     def test_cli_requires_launcher_and_exits_nonzero_only_on_failure(self):
         from headkit.__main__ import main
         runner=self.fixture();argv=['headkit','chain','--manifest',str(runner.manifest_path),'--bindings',str(runner.bindings_path),
@@ -2270,6 +2712,111 @@ class ChainTests(Temporary):
         self.assertEqual(stop.exception.code,1)
 
 
+class ChainedRepairTests(Temporary):
+    def fixture(self,inspection):
+        raw=self.file('raw.glb','pixal shape')
+        data={'schemaVersion':1,'id':'chained-repair','inputs':{'raw':{'path':raw.name,'sha256':pin(raw)['sha256']}},
+              'mesh':{'alphaWrap':True,'shellInspection':inspection}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+    def precluster(self,runner):
+        def work(stage,folder):
+            target=folder/'oriented.glb';target.write_text('preclustered');return {'output':pin(target)}
+        with patch.object(runner,'_execute',side_effect=work):runner.execute('precluster')
+        return read(runner.state['stages']['precluster']['path'])['result']['output']
+    def test_repair_consumes_the_reviewed_precluster_output(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'notes':'non-manifold export'})
+        self.assertEqual(runner.dependencies('repair'),['precluster'])
+        output=self.precluster(runner)
+        with patch('headkit.mesh.repair',return_value={'ok':True}) as repair:
+            with self.assertRaisesRegex(ValueError,'pending'):runner._execute('repair',self.root)
+            repair.assert_not_called();runner.review('precluster','approved','Closed exterior inspected')
+            runner._execute('repair',self.root)
+        source,_,_,_,inspection=repair.call_args.args
+        self.assertEqual(source,output['path']);self.assertEqual(inspection['sourceSha256'],output['sha256'])
+        self.assertTrue(inspection['confirmedShellDefect'])
+    def test_inline_inspection_cannot_carry_its_own_hash(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'sourceSha256':'0'*64})
+        self.precluster(runner);runner.review('precluster','approved','Closed exterior inspected')
+        with patch('headkit.mesh.repair') as repair:
+            with self.assertRaisesRegex(ValueError,'inline mesh.shellInspection'):runner._execute('repair',self.root)
+            repair.assert_not_called()
+
+
+class FitProposalTests(Temporary):
+    def head(self):
+        """Head-local reference: an egg skull with a nose bump and a neck, face toward +y."""
+        u,v=np.meshgrid(np.linspace(.05,np.pi-.05,40),np.linspace(0,2*np.pi,48,endpoint=False),indexing="ij");p=np.stack([np.sin(u)*np.cos(v),np.sin(u)*np.sin(v),np.cos(u)],-1).reshape(-1,3)
+        p=p*[.08,.1,.12]+[0,0,.02];nose=np.exp(-((p[:,0]/.02)**2+((p[:,2]-.01)/.025)**2))*(p[:,1]>0);p[:,1]+=.035*nose
+        p[p[:,2]<-.06,:2]*=.6;faces=[]
+        for i in range(39):
+            for j in range(48):
+                a,b,c,d=i*48+j,i*48+(j+1)%48,(i+1)*48+j,(i+1)*48+(j+1)%48;faces+=[[a,c,b],[b,c,d]]
+        return p,np.array(faces)
+    def test_recovers_a_known_scale_and_offset_and_writes_a_reviewable_overlay(self):
+        from headkit.fit import propose
+        from headkit.gltf import write_mesh
+        points,faces=self.head();lines=['node trimesh head','  position 0 0 0',f'  verts {len(points)}']
+        lines+=[f'    {x} {y} {z}' for x,y,z in points]+[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+        reference=self.root/'reference.mdl';reference.write_text('\n'.join(lines))
+        scale,offset=.37,np.array([0,.024,.042]);local=(points-offset)/scale     # source head-local, unscaled
+        glb=np.stack([-local[:,0],local[:,2],local[:,1]],1)                        # inverse of (-x, z, y)
+        source=self.root/'source.glb';write_mesh(source,glb,faces)
+        result=propose(source,reference,self.root/'fit')
+        self.assertAlmostEqual(result['scale'],scale,delta=.0051);np.testing.assert_allclose(result['translation'],offset,atol=.003)
+        self.assertLess(result['meanAbsoluteProfileDistance'],.002);self.assertTrue(result['reviewRequired'])
+        self.assertEqual(np.asarray(result['matrix'])[:3,:3].diagonal().tolist(),[-result['scale'],-result['scale'],result['scale']])
+        self.assertTrue((self.root/'fit'/'fit-overlay.png').is_file())
+        nosed=propose(source,reference,self.root/'fit-nose',align='nose')
+        self.assertEqual(nosed['align'],'nose');np.testing.assert_allclose(nosed['translation'],offset,atol=.004)
+        np.testing.assert_allclose(np.asarray(nosed['sourceNose'])*nosed['scale']+nosed['translation'],nosed['referenceNose'],atol=1e-9)
+        with self.assertRaisesRegex(ValueError,'profile or nose'):propose(source,reference,self.root/'fit-bad',align='ears')
+    def test_nose_alignment_ignores_tusks_further_forward_than_the_nose(self):
+        from headkit.fit import propose
+        from headkit.gltf import write_mesh
+        points,faces=self.head();lines=['node trimesh head','  position 0 0 0',f'  verts {len(points)}']
+        lines+=[f'    {x} {y} {z}' for x,y,z in points]+[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+        reference=self.root/'reference.mdl';reference.write_text('\n'.join(lines))
+        # Source only: a lower tusk/lip bump 4.5 cm below the nose that reaches further forward than the nose (05, 04-A).
+        tusk=np.exp(-((points[:,0]/.02)**2+((points[:,2]+.035)/.012)**2))*(points[:,1]>0);bumped=points.copy();bumped[:,1]+=.05*tusk
+        scale,offset=.37,np.array([0,.024,.042]);local=(bumped-offset)/scale
+        source=self.root/'source.glb';write_mesh(source,np.stack([-local[:,0],local[:,2],local[:,1]],1),faces)
+        nosed=propose(source,reference,self.root/'fit-nose',align='nose')
+        self.assertLess(abs(nosed['translation'][2]-offset[2]),.006);self.assertLess(nosed['noseProfileShift'],.02)
+        # A nose fit that would move the head further than the agreement bound is refused, never applied.
+        with patch('headkit.fit.nose_tip',side_effect=[np.array([0,.2,0.]),np.array([0,0,-.2])]):
+            with self.assertRaisesRegex(ValueError,'disagree by'):propose(source,reference,self.root/'fit-far',align='nose')
+    def test_rejects_moved_reference_nodes(self):
+        from headkit.fit import ascii_surface
+        path=self.root/'moved.mdl';path.write_text('node trimesh x\n  position 0 0 .1\n  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\nendnode')
+        with self.assertRaisesRegex(ValueError,'identity'):ascii_surface(path)
+
+
+class FitStageTests(Temporary):
+    fixture=ChainedRepairTests.fixture;precluster=ChainedRepairTests.precluster
+    def staged(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'notes':'n'});reference=self.file('reference.mdl','ref')
+        data=read(runner.manifest_path);data['inputs']['fitReference']={'path':reference.name,'sha256':pin(reference)['sha256']}
+        data['fit']={'matrixFrom':'fit','model':'pmg0_head016','sourceStage':'unwrap'};data['mesh']['neck']={'seal':{'height':'measured','inset':.9,'rise':.003,'searchTop':-.03}}
+        write(runner.manifest_path,data);return Runner(runner.manifest_path,runner.bindings_path,runner.run)
+    def test_reviewed_fit_stage_feeds_repair_and_export(self):
+        runner=self.staged()
+        self.assertEqual(runner.dependencies('fit'),['precluster']);self.assertEqual(runner.dependencies('repair'),['precluster','fit'])
+        self.assertIn('fit',runner.dependencies('export'))
+        output=self.precluster(runner);runner.review('precluster','approved','Closed exterior inspected')
+        matrix=[[-.37,0,0,0],[0,-.37,0,.024],[0,0,.37,.042],[0,0,0,1]]
+        with patch('headkit.fit.propose',return_value={'matrix':matrix,'scale':.37}) as propose:runner.execute('fit')
+        self.assertEqual(propose.call_args.args[0],output['path']);self.assertTrue(propose.call_args.args[1].endswith('reference.mdl'))
+        with patch('headkit.mesh.repair',return_value={'ok':True}) as repair:
+            with self.assertRaisesRegex(ValueError,'pending'):runner._execute('repair',self.root)
+            runner.review('fit','approved','Overlay matches pmg0_head015 proportions');runner._execute('repair',self.root)
+        fit=repair.call_args.kwargs['fit'];self.assertEqual((fit['matrix'],fit['reviewed'],fit['model']),(matrix,True,'pmg0_head016'))
+        self.assertNotIn('matrixFrom',fit)
+    def test_staged_fit_cannot_also_carry_a_manifest_matrix(self):
+        runner=self.staged();runner.data['fit']['matrix']=np.eye(4).tolist()
+        with self.assertRaisesRegex(ValueError,'fit stage only'):runner._fit()
+
+
 class GeneratedFieldLineageTests(Temporary):
     def fixture(self,geometry_roles=('uvMesh',)):
         inputs={}
@@ -2278,7 +2825,7 @@ class GeneratedFieldLineageTests(Temporary):
             inputs[role]={'path':path.name,'sha256':pin(path)['sha256']}
         field=self.file('field.npz','generated field')
         inputs['field']={'path':field.name,'sha256':pin(field)['sha256']}
-        geometry_role=next(role for role in ('uvMesh','repairedMesh','comfyExport') if role in inputs)
+        geometry_role=next(role for role in ('uvMesh','repairedMesh','comfyExport','raw') if role in inputs)
         data={'schemaVersion':1,'id':'field-lineage','inputs':inputs,'approval':{'appearanceField':{
             'decision':'approved','geometryInput':geometry_role,'geometrySha256':inputs[geometry_role]['sha256'],
             'fieldSha256':inputs['field']['sha256'],'notes':'Verified this field against the active geometry.'}}}
@@ -2286,7 +2833,7 @@ class GeneratedFieldLineageTests(Temporary):
         return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
 
     def test_field_approval_binds_to_the_active_mesh_source(self):
-        for roles in (('uvMesh',),('comfyExport',),('comfyExport','repairedMesh'),('comfyExport','uvMesh')):
+        for roles in (('uvMesh',),('comfyExport',),('comfyExport','repairedMesh'),('comfyExport','uvMesh'),('raw',)):
             with self.subTest(roles=roles):
                 runner=self.fixture(roles)
                 expected=runner.data['inputs']['field']['path']
@@ -2365,7 +2912,7 @@ class RenderPlanTests(Temporary):
         return module
 
     def test_render_launcher_snapshots_imported_helpers_and_config(self):
-        from headkit.common import ROOT,code_pins
+        from headkit.common import ROOT,stage_code_pins
         runner=self.render_runner();launcher=self.launcher();captured=[]
         class Launched(Exception):pass
         def launch(command,**kwargs):
@@ -2373,7 +2920,8 @@ class RenderPlanTests(Temporary):
             declared=Path(command[command.index('--input-manifest')+1])
             paths,frozen=launcher.manifest_inputs([declared])
             config=read(runner.run/'render-config.json')
-            self.assertTrue({row['path'] for row in code_pins()}<={row['path'] for row in config['inputs']})
+            self.assertTrue({row['path'] for row in stage_code_pins('render')}<={row['path'] for row in config['inputs']})
+            self.assertFalse([row for row in config['inputs'] if 'slice' in row])
             self.assertIn((runner.run/'render-config.json').resolve(),paths)
             output=runner.run/'launcher-snapshots';output.mkdir()
             snapshots=launcher.helper_snapshots(paths,frozen,output)
@@ -2387,9 +2935,27 @@ class RenderPlanTests(Temporary):
             with self.assertRaises(Launched):runner._execute('render',runner.run)
         self.assertEqual(len(captured),1)
 
+    def test_pre_native_review_renders_use_run_colour_ownership_and_named_views(self):
+        from headkit.paint import PREVIEW
+        runner=self.render_runner();decoded=self.root/'decoded.png';Image.new('RGB',(16,16),(9,8,7)).save(decoded)
+        labels=(np.arange(256).reshape(16,16)%10).astype(np.uint8);onek=self.root/'onek.png';Image.fromarray(labels).save(onek)
+        render=dict(runner.data['render'],mapStages={'basecolor':'palette'},ownershipView=True,modes=['clay','color-only','ownership'],views=['front','back'])
+        render.pop('cameras');render['frontAngleDegrees']=0;runner.data['render']=render
+        self.assertEqual(runner.dependencies('render'),['palette','ownership'])
+        results={'palette':{'decoded':pin(decoded)},'ownership':{'onek':pin(onek)}}
+        class Launched(Exception):pass
+        with patch.object(runner,'result',side_effect=lambda stage,**k:results[stage]),patch('headkit.gltf.mesh',return_value={'positions':np.eye(3)}),             patch('subprocess.run',side_effect=Launched):
+            with self.assertRaises(Launched):runner._execute('render',runner.run)
+        config=read(runner.run/'render-config.json')
+        self.assertEqual([row['name'] for row in config['cameras']],['front','back'])
+        self.assertEqual(Path(config['maps']['basecolor']),decoded.resolve())
+        np.testing.assert_array_equal(np.asarray(Image.open(config['maps']['ownership'])),PREVIEW[labels])
+        runner.data['render']=dict(render,ownershipView=False)
+        with patch.object(runner,'result',side_effect=lambda stage,**k:results[stage]),patch('headkit.gltf.mesh',return_value={'positions':np.eye(3)}):
+            with self.assertRaisesRegex(ValueError,'needs ownershipView'):runner._execute('render',self.root/'second')
     def test_render_launcher_rejects_changed_imported_helper(self):
-        from headkit.common import code_pins,verify
-        helper=self.file('imported-helper.py','value=1');frozen=code_pins()+[pin(helper)]
+        from headkit.common import stage_file_pins,verify
+        helper=self.file('imported-helper.py','value=1');frozen=stage_file_pins('render')+[pin(helper)]
         runner=self.render_runner();launcher=self.launcher()
         def launch(command,**kwargs):
             helper.write_text('value=2')
@@ -2397,7 +2963,7 @@ class RenderPlanTests(Temporary):
             with self.assertRaisesRegex(ValueError,'Stale file pin'):
                 verify(read(runner.run/'render-config.json')['inputs'])
             launcher.manifest_inputs([Path(command[command.index('--input-manifest')+1])])
-        with patch('headkit.runner.code_pins',return_value=frozen),patch('subprocess.run',side_effect=launch):
+        with patch('headkit.runner.stage_file_pins',return_value=frozen),patch('subprocess.run',side_effect=launch):
             with self.assertRaisesRegex(ValueError,'Manifest input changed'):
                 runner._execute('render',runner.run)
 
@@ -2412,9 +2978,58 @@ class RenderPlanTests(Temporary):
         self.assertFalse((runner.run/'renders').exists())
 
 
+class ManifestDigestTests(Temporary):
+    fixture=ResumeTests.fixture
+    def test_rewording_notes_never_changes_a_stage_digest(self):
+        from headkit.runner import STAGES
+        runner=self.fixture();data=runner.data
+        data.update(fit={'excludeLower':.25,'notes':'Fit chosen on the profile'},
+                    mesh={'neckReview':'Seal looks clean','shellInspection':{'visualReviewed':True,'notes':'non-manifold export'}},
+                    approval=dict(data['approval'],textureMaps={'basecolor4k':{'decision':'approved','notes':'Atlas reviewed'}}))
+        data['features'][0]['notes']='Swept back from the crown'
+        digests=lambda:{stage:runner.manifest_digest(stage) for stage in STAGES};before=digests()
+        runner.data=copy.deepcopy(data);runner.data['fit']['notes']='Reworded fit note';runner.data['features'][0]['notes']='Reworded'
+        runner.data['mesh']['shellInspection']['notes']='Reworded inspection';runner.data['approval']['textureMaps']['basecolor4k']['notes']='Reworded'
+        self.assertEqual(digests(),before)
+        # Non-notes keys still count, and a blanked review note still fails its gate, so it stales too.
+        for stage,change in (('fit',lambda d:d['fit'].update(excludeLower=.3)),('repair',lambda d:d['mesh'].update(neckReview='Seal shows a lip')),
+                             ('prepare',lambda d:d['features'][0].update(notes=' '))):
+            with self.subTest(stage=stage):
+                runner.data=copy.deepcopy(data);change(runner.data);self.assertNotEqual(runner.manifest_digest(stage),before[stage])
+
+
+class StageCodeVersionTests(Temporary):
+    def test_stage_code_binds_the_branch_import_closure_and_core_only(self):
+        from headkit.common import stage_code_files
+        package=self.root/'pkg';package.mkdir();root=self.root/'repo'
+        sources={'runner.py':"def _execute(self,stage,folder):\n    if stage=='fit':\n        from .fit import propose\n"
+                             "    if stage=='unwrap':\n        from .uv import unwrap\n",
+                 'fit.py':"def propose():\n    from .gltf import mesh\n",'gltf.py':"from .common import require\n",'common.py':'',
+                 'uv.py':"from . import gltf\n",'__init__.py':'','manifest.schema.json':'{}','test_package.py':"from . import fit,uv\n",'__main__.py':"from . import uv\n"}
+        for name,text in sources.items():(package/name).write_text(text)
+        names=lambda stage:{path.name for path in stage_code_files(stage,package,root)}
+        core={'__init__.py','runner.py','common.py','manifest.schema.json'}
+        self.assertEqual(names('fit'),core|{'fit.py','gltf.py'})  # a function-level import counts; uv.py, tests and the CLI do not
+        self.assertEqual(names('unwrap'),core|{'uv.py','gltf.py'})
+        with self.assertRaisesRegex(ValueError,'No runner branch'):stage_code_files('bake',package,root)
+    def test_package_stages_each_have_scoped_code(self):
+        from headkit.common import stage_code_files
+        from headkit.runner import STAGES
+        for stage in STAGES:
+            with self.subTest(stage=stage):
+                names={path.name for path in stage_code_files(stage)}
+                self.assertTrue({'runner.py','common.py','shared-tools.lock.json'}<=names)
+                self.assertFalse({'test_headkit.py','__main__.py','comfy.py','design.py'}&names)
+        fit={path.name for path in stage_code_files('fit')};repair={path.name for path in stage_code_files('repair')}
+        self.assertIn('fit.py',fit);self.assertFalse({'mesh.py','uv.py','native.py'}&fit)
+        self.assertTrue({'mesh.py','intersections.py'}<=repair);self.assertNotIn('uv.py',repair)
+        self.assertIn('blender_render.py',{path.name for path in stage_code_files('render')})
+        self.assertIn('native_compile.py',{path.name for path in stage_code_files('native')})
+
+
 class NativeDependencyTests(Temporary):
     def test_native_imports_and_compiler_inputs_are_pinned(self):
-        from headkit.common import ROOT,code_pins
+        from headkit.common import ROOT,stage_code_pins
         # Isolate actual imports from modules already loaded by other tests.
         script="""import json,sys
 from pathlib import Path
@@ -2430,7 +3045,8 @@ print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list
         consumed=set(json.loads(result.stdout))
         consumed.add(str(ROOT/'tools/phenotypes/height_targets.json'))
         consumed.add(str(ROOT/'tools/shared-tools.lock.json'))
-        self.assertFalse(consumed-{row['path'] for row in code_pins()})
+        for stage in ('native','export'):
+            with self.subTest(stage=stage):self.assertFalse(consumed-{row['path'] for row in stage_code_pins(stage)})
 
 
 class ReviewImageTests(Temporary):
@@ -2565,6 +3181,25 @@ class TextureStageTests(Temporary):
         source=self.root/'faces.glb';write_mesh(source,p,np.arange(6).reshape(2,3),uv)
         rgb=np.full((size,size,3),120,np.uint8);rgb[:,:size//2]=(200,20,20);Image.fromarray(rgb).save(self.root/'color.png')
         return source,rgb
+    def test_preview_splats_views_reports_region_stats_and_previews_run_rules(self):
+        from headkit.preview import splat,region_stats,preview
+        source,rgb=self.two_faces();value=mesh(source);blue=np.zeros_like(rgb);blue[...]=(0,0,255)
+        tiles=splat(value,[rgb,blue],size=64,samples=20000)
+        self.assertEqual([name for name,_ in tiles],[n for n in ('front','char-left','back','char-right') for _ in range(2)])
+        colour,label=tiles[0][1],tiles[1][1];drawn=(label!=70).any(-1)
+        self.assertTrue(drawn.any() and (colour[drawn][:,0]>colour[drawn][:,1]).any() and (label[drawn][:,2]>label[drawn][:,0]).all())
+        stats=region_stats(value,rgb,{'all':{'of':'lum','ge':0},'none':{'of':'lum','gt':999}})
+        self.assertEqual(stats['none'],{'texels':0});self.assertEqual(stats['all']['red'][2],180)
+        Image.fromarray(np.full((64,64),200,np.uint8)).save(self.root/'metal.png')
+        rules=[{'name':'red','channel':9,'when':{'of':'red','gt':50}}]
+        runner=SimpleNamespace(data={'inputs':{},'ownership':{'mode':'rules','rules':rules}},_sealed=lambda:False,
+            result=lambda stage,require_review=True:{'unwrap':{'mesh':{'path':str(source)}},
+                'bake':{'maps':{'basecolor-4096.png':{'path':str(self.root/'color.png')},'metallic-4096.png':{'path':str(self.root/'metal.png')}}}}[stage])
+        result=preview(runner,'ownership',self.root/'preview')
+        self.assertTrue(Path(result['preview']).is_file());self.assertEqual(sum(result['report']['channels'].values()),64*64)
+        self.assertGreater(result['report']['rules'][0]['texels'],0)
+        with self.assertRaisesRegex(ValueError,'named regions'):preview(runner,'stats',self.root/'stats')
+        with self.assertRaisesRegex(ValueError,'ownership, stats or relief'):preview(runner,'colour',self.root/'other')
     def test_rule_ownership_first_match_wins_and_padding_takes_nearest_label(self):
         from headkit.paint import rule_ownership
         from headkit.uv import raster_audit
@@ -2601,6 +3236,22 @@ class TextureStageTests(Temporary):
         masks=fill(value,rgb,{'name':'cap','faces':{'of':'index','ge':1},'color':{'median':{'of':'y','ge':0}}},report,texel_source(value,rgb),{})
         self.assertEqual(report['color'],[200,20,20]);self.assertTrue(masks['cap'][owners==1].all() and not masks['cap'][owners==0].any())
         self.assertGreater(masks['cap'].sum(),(owners==1).sum());self.assertTrue((rgb[masks['cap']]==(200,20,20)).all())
+    def test_fill_selects_the_recorded_neck_seal_faces(self):
+        from headkit.paint import fill,texel_source
+        source,rgb=self.two_faces();value=mesh(source);report={};op={'name':'cap','faces':{'of':'seal','gt':.5},'color':[1,2,3]}
+        by_index=fill(value,rgb.copy(),dict(op,faces={'of':'index','ge':1}),{},texel_source(value,rgb),{})['cap']
+        np.testing.assert_array_equal(fill(value,rgb.copy(),op,report,texel_source(value,rgb),{},1)['cap'],by_index)
+        for start in (None,0,2):
+            with self.subTest(start=start),self.assertRaisesRegex(ValueError,'No neck seal'):fill(value,rgb.copy(),op,{},texel_source(value,rgb),{},start)
+    def test_sealed_runs_make_paint_depend_on_repair(self):
+        runner=self.texture_runner();self.assertEqual(runner.dependencies('paint'),['bake','unwrap'])
+        runner.data['mesh']={'neck':{'seal':{'height':'measured','inset':.9,'rise':.003}}}
+        self.assertEqual(runner.dependencies('paint'),['bake','unwrap','repair'])
+    def test_null_neck_means_no_neck_shaping_like_an_absent_one(self):
+        runner=self.texture_runner();mesh=dict(runner.data.get('mesh') or {});mesh.pop('neck',None)
+        runner.data['mesh']=mesh;absent=runner.dependencies('paint');runner.manifest_digest('paint')
+        runner.data['mesh']=dict(mesh,neck=None);self.assertEqual(runner.dependencies('paint'),absent);runner.manifest_digest('paint')
+        self.assertNotIn('repair',absent)
     def test_adjust_passes_through_and_maps_brightness_onto_a_palette_ramp(self):
         from headkit.paint import adjust
         rgb=np.zeros((8,8,3),np.uint8);rgb[:,:,0]=np.arange(8)[None,:]*30;Image.fromarray(rgb).save(self.root/'c.png')
@@ -2647,6 +3298,88 @@ class TextureStageTests(Temporary):
               'ownership':{'mode':'rules','reviewed':True,'rules':[]},'tone':{'mode':'adjust'}}
         write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
         return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+    def test_later_stage_rules_do_not_stale_earlier_receipts(self):
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+        data=read(runner.manifest_path);data['ownership']['rules']=[{'name':'all-skin','channel':0,'when':{'mapped':True}}];data['tone']={'mode':'adjust','operations':[]}
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        for stage in ('repair','unwrap','bake'):self.assertIn('artifact',runner.result(stage))
+        data['mesh']={'maximumSubtexelFraction':.004};write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        for stage in ('repair','unwrap','bake'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
+        receipt=read(runner.state['stages']['repair']['path']);self.assertNotIn(str(runner.manifest_path),{p['path'] for p in receipt['inputs']})
+    def test_runner_is_bound_by_stage_slice(self):
+        from headkit.common import runner_slice_sha,stage_code_pins,verify
+        source=("class Runner:\n    def shared(self):\n        return 1\n\n    def _execute(self,stage,folder):\n        m=1\n"
+                "        if stage=='bake':\n            # bake notes\n            return 'bake'\n"
+                "        if stage=='palette':\n            return 'palette'\n        raise ValueError(stage)\n")
+        path=self.file('runner.py',source)
+        pins={stage:{'path':str(path),'sha256':runner_slice_sha(path,stage),'slice':stage} for stage in ('bake','palette')}
+        self.assertNotEqual(pins['bake']['sha256'],pins['palette']['sha256'])
+        # An edit inside the bake branch stales bake only.
+        path.write_text(source.replace("return 'bake'","return 'baked'"),encoding='utf-8')
+        verify([pins['palette']],fresh=True)
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):verify([pins['bake']],fresh=True)
+        # A shared edit (outside the stage branches) stales every stage.
+        path.write_text(source.replace('return 1','return 2'),encoding='utf-8')
+        for stage in ('bake','palette'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale file pin'):verify([pins[stage]],fresh=True)
+        # A branch with an else is kept whole for every stage.
+        path.write_text(source.replace("        raise ValueError","        else:pass\n        raise ValueError"),encoding='utf-8')
+        before=runner_slice_sha(path,'bake',fresh=True)
+        path.write_text(source.replace("        raise ValueError","        else:pass\n        raise ValueError").replace("'palette'\n","'palettes'\n"),encoding='utf-8')
+        self.assertNotEqual(runner_slice_sha(path,'bake',fresh=True),before)
+        rows=[row for row in stage_code_pins('palette') if row['path'].endswith('runner.py')]
+        self.assertEqual([row['slice'] for row in rows],['palette']);verify(rows,fresh=True)
+    def test_pass_through_tone_is_skipped_and_palette_reads_the_painted_colour(self):
+        from headkit.__main__ import chain
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        self.assertTrue(runner.tone_pass_through());self.assertEqual(runner.dependencies('palette'),['paint','ownership'])
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake','paint','ownership'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+            rows=chain(runner,['tone','palette'])['stages']
+        self.assertEqual([(row['stage'],row['status']) for row in rows],[('tone','skipped'),('palette','ran')])
+        self.assertNotIn('tone',runner.state['stages'])
+        self.assertEqual(set(read(runner.state['stages']['palette']['path'])['dependencies']),{'paint','ownership'})
+        # Any operation makes tone a reviewed stage again, and palette waits for it.
+        data=read(runner.manifest_path);data['tone']={'mode':'adjust','operations':[{'op':'set','channel':1,'color':[1,2,3]}]}
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertFalse(runner.tone_pass_through());self.assertEqual(runner.dependencies('palette'),['tone','ownership'])
+        data['paint']=None;del data['paint'];data['tone']={'mode':'adjust'};write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(runner.dependencies('palette'),['bake','ownership'])
+    def test_a_code_change_names_the_stale_stage_not_its_code_pin(self):
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            runner.execute('repair');runner.review('repair','approved','Reviewed this stage')
+        with patch('headkit.runner.stage_source_version',return_value='edited'),patch('headkit.common.runner_slice_sha',return_value='0'*64):
+            with self.assertRaisesRegex(ValueError,'Stale stage; rerun with current input snapshot: repair'):runner.result('repair')
+    def test_later_approvals_do_not_stale_the_matte(self):
+        runner=self.texture_runner();before=runner.manifest_digest('prepare');data=read(runner.manifest_path)
+        data['approval'].update(appearanceField={'decision':'approved'},textureMaps={'basecolor4k':{'decision':'approved'}})
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertEqual(runner.manifest_digest('prepare'),before)
+        data['approval']['referenceDesignReviewed']=False;write(runner.manifest_path,data)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('prepare'),before)
+    def test_chain_skips_optional_stages_the_manifest_leaves_out(self):
+        from headkit.__main__ import chain,skip_reason
+        runner=self.texture_runner();data=read(runner.manifest_path);data.pop('paint');write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);completed=ReviewGateTests.completed
+        self.assertEqual(skip_reason(runner,'paint'),'Not configured: the manifest has no paint section');self.assertIsNone(skip_reason(runner,'bake'))
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+            rows=chain(runner,['paint','ownership'])['stages']
+        self.assertEqual([(row['stage'],row['status']) for row in rows],[('paint','skipped'),('ownership','ran')])
+        self.assertNotIn('paint',runner.state['stages'])
+        # Run directly, an unconfigured stage fails with its reason, not a KeyError.
+        with self.assertRaisesRegex(ValueError,'no paint section'):runner._execute('paint',self.root)
+    def test_pass_through_palette_quantizes_the_paint_1k_map(self):
+        runner=self.texture_runner()
+        maps={'paint':{'maps':{'basecolor-1024.png':{'path':'painted-1k.png'}}}}
+        runner.result=lambda stage,**kw:maps.get(stage,{'onek':{'path':'own-1k.png'}})
+        runner.input=lambda name:name+'.png';runner.data['palette']={'inputs':{'0':'paletteSkin'},'rows':{'0':3}}
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:runner._execute('palette',self.root)
+        self.assertEqual(quantizer.call_args.args[0],'painted-1k.png')
     def test_review_gate_blocks_consumers_of_paint(self):
         runner=self.texture_runner();completed=ReviewGateTests.completed
         with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)) as work:
@@ -2667,5 +3400,222 @@ class TextureStageTests(Temporary):
             with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('tone')
             work.assert_not_called()
 
+
+
+class FakeDesignClient:
+    """Mocked ComfyUI: /prompt "renders" one PNG per batch item into the bound output folder; never any HTTP."""
+    def __init__(self,output,*,status='success',polls=1,subfolder=None,reject=False):
+        self.url='http://127.0.0.1:8188';self.output=Path(output);self.status=status;self.polls=polls;self.subfolder=subfolder
+        self.reject=reject;self.routes=[];self.images=[]
+    def request(self,route,data=None):
+        self.routes.append(route)
+        if route=='/prompt':
+            if self.reject:return {'error':'invalid prompt','node_errors':{'13':'bad'}}
+            graph=data['prompt'];self.images=[];prefix=graph['9']['inputs']['filename_prefix']
+            batch=graph['47']['inputs']['batch_size'] if '47' in graph else graph['205']['inputs']['amount']
+            folder,stem=prefix.rsplit('/',1)
+            for i in range(batch):
+                path=self.output/(self.subfolder or folder)/f'{stem}_{i+1:05}_.png';path.parent.mkdir(parents=True,exist_ok=True)
+                Image.new('RGB',(16,16),(i*40,90,30)).save(path)
+                self.images.append({'filename':path.name,'subfolder':self.subfolder or folder,'type':'output'})
+            return {'prompt_id':'prompt-7','number':1,'node_errors':{}}
+        if route=='/history/prompt-7':
+            if self.polls:self.polls-=1;return {}
+            return {'prompt-7':{'outputs':{'9':{'images':self.images}},'status':{'status_str':self.status,'completed':self.status=='success'}}}
+        raise AssertionError('Unexpected route '+route)
+
+
+class DesignTests(Temporary):
+    def setUp(self):
+        super().setUp()
+        # Every design test must stay offline: any real HTTP attempt fails the test.
+        guard=patch('urllib.request.urlopen',side_effect=AssertionError('network contact in a design test'));guard.start();self.addCleanup(guard.stop)
+        sleep=patch('headkit.design.time.sleep');sleep.start();self.addCleanup(sleep.stop)
+        self.local={'comfyUrl':'http://127.0.0.1:8188','comfyInput':str(self.root/'comfy-in'),'comfyOutput':str(self.root/'comfy-out')}
+        self.bindings=self.root/'bindings.json';write(self.bindings,self.bindings_data(**self.local))
+        self.spec=self.root/'designs.json'
+        write(self.spec,{'common':'Front view, plain gray background.','designs':{'troll-a':'One adult troll head, ram horns.'},
+                         'neckInpaint':'A short neck of the same SKIN skin; SKIN pores.'})
+        self.reference=self.root/'species.png';Image.new('RGB',(32,32),(100,80,60)).save(self.reference)
+    def head(self,size=256):
+        image=Image.new('RGB',(size,size),(200,200,200));draw=ImageDraw.Draw(image)
+        draw.ellipse((60,20,196,170),fill=(120,110,100));draw.rectangle((105,150,151,215),fill=(120,110,100))
+        draw.rectangle((85,215,171,230),fill=(120,110,100));path=self.root/'troll-a-s7-b0.png';image.save(path);return path
+    def generate(self,client=None,seed=7,batch=3,references=None,output='out'):
+        from headkit import design
+        client=client or FakeDesignClient(self.local['comfyOutput'])
+        return client,design.generate(client,self.local,self.bindings,self.spec,'troll-a',seed,batch,
+                                      [self.reference] if references is None else references,self.root/output)
+    def inpaint(self,client=None,**options):
+        from headkit import design
+        client=client or FakeDesignClient(self.local['comfyOutput'])
+        return client,design.inpaint(client,self.local,self.bindings,self.spec,options.pop('design',None) or self.head(),
+                                     'dark brown',11,2,self.root/'neck',**options)
+
+    def test_design_graph_wires_batch_references_and_fixed_controls(self):
+        from headkit.design import compile_design,FIXED
+        g=compile_design('prompt',['headkit-design/t/r0.png','headkit-design/t/r1.png'],5,3,'headkit-design/t/troll-a-s5')
+        self.assertEqual((g['47']['inputs']['batch_size'],g['13']['inputs']['latent_image']),(3,['47',0]))
+        self.assertEqual((g['48']['inputs']['steps'],g['47']['inputs']['width'],g['48']['inputs']['height']),(FIXED['steps'],FIXED['size'],FIXED['size']))
+        self.assertEqual(g['26']['inputs']['guidance'],FIXED['guidance']);self.assertEqual(g['12']['inputs']['unet_name'],FIXED['model'])
+        self.assertEqual((g['89']['inputs']['lora_name'],g['22']['inputs']['model']),(FIXED['turboLora'],['89',0]))
+        self.assertEqual((g['6']['inputs']['text'],g['25']['inputs']['noise_seed']),('prompt',5))
+        self.assertEqual([g[n]['inputs']['image'] for n in ('100','104')],['headkit-design/t/r0.png','headkit-design/t/r1.png'])
+        self.assertEqual([g[n]['inputs']['conditioning'] for n in ('103','107','22')],[['26',0],['103',0],['107',0]])
+        self.assertEqual(g['9']['inputs'],{'images':['8',0],'filename_prefix':'headkit-design/t/troll-a-s5'})
+        self.assertEqual(compile_design('p',[],5,1,'headkit-design/t/x')['22']['inputs']['conditioning'],['26',0])
+    def test_inpaint_graph_noise_masks_the_design_latent_and_references_the_design(self):
+        from headkit.design import compile_inpaint
+        g=compile_inpaint('neck','headkit-design/t/design.png','headkit-design/t/mask.png',9,4,'headkit-design/t/n')
+        self.assertNotIn('47',g);self.assertEqual(g['13']['inputs']['latent_image'],['205',0])
+        self.assertEqual(g['205']['inputs'],{'samples':['204',0],'amount':4})
+        self.assertEqual(g['204']['inputs'],{'samples':['201',0],'mask':['203',0]});self.assertEqual(g['201']['inputs']['pixels'],['200',0])
+        self.assertEqual((g['200']['inputs']['image'],g['100']['inputs']['image']),('headkit-design/t/design.png',)*2)
+        self.assertEqual(g['203']['inputs'],{'image':'headkit-design/t/mask.png','channel':'red'})
+        self.assertEqual(g['22']['inputs']['conditioning'],['103',0]);self.assertNotIn('104',g)
+    def test_graphs_reject_unisolated_prefix_or_inputs_and_bad_seed_batch_or_prompt(self):
+        from headkit.design import compile_design
+        ok=dict(prompt='p',references=[],seed=1,batch=1,prefix='headkit-design/t/x')
+        for change in ({'prefix':'headkit/t/x'},{'prefix':'headkit-design/../x'},{'prefix':'headkit-design/t\\x'},{'prefix':'headkit-design'},
+                       {'prefix':'headkit-design//x'},{'references':['other/r.png']},{'references':['C:/comfy/headkit-design/r.png']},
+                       {'references':['headkit-design/t/r.png']*5},{'seed':-1},{'seed':2**64},{'seed':True},{'seed':1.0},
+                       {'batch':0},{'batch':9},{'prompt':'  '}):
+            with self.subTest(change=change),self.assertRaises(ValueError):compile_design(**{**ok,**change})
+    def test_dangling_link_or_unwired_image_socket_is_rejected(self):
+        from headkit.design import compile_design,_validated
+        for node,key,value in (('8','samples',['999',0]),('201','pixels','design.png'),('9','images','x.png')):
+            g=compile_design('p',['headkit-design/t/r.png'],1,1,'headkit-design/t/x')
+            g.setdefault(node,{'class_type':'VAEEncode','inputs':{}})['inputs'][key]=value
+            with self.subTest(node=node),self.assertRaises(ValueError):_validated(g)
+        g=compile_design('p',[],1,1,'headkit-design/t/x');g['77']={'class_type':'SaveImage','inputs':{'images':['8',0],'filename_prefix':'other'}}
+        with self.assertRaisesRegex(ValueError,'one SaveImage'):_validated(g)
+    def test_template_settings_match_the_documented_fixed_controls(self):
+        from headkit.design import TEMPLATES,FIXED
+        for name in ('flux2-design.json','flux2-inpaint.json'):
+            g=read(TEMPLATES/name)
+            self.assertEqual((g['48']['inputs']['steps'],g['48']['inputs']['width'],g['26']['inputs']['guidance']),(FIXED['steps'],FIXED['size'],FIXED['guidance']))
+            self.assertEqual((g['16']['inputs']['sampler_name'],g['89']['inputs']['strength_model']),(FIXED['sampler'],1.0))
+    def test_spec_and_prompt_validation(self):
+        from headkit.design import load_spec,design_prompt,inpaint_prompt
+        spec=load_spec(self.spec)
+        self.assertEqual(design_prompt(spec,'troll-a'),'One adult troll head, ram horns.\nFront view, plain gray background.')
+        self.assertEqual(inpaint_prompt(spec,'dark brown'),'A short neck of the same dark brown skin; dark brown pores.')
+        for bad in ({'designs':{'a':'x'}},{'common':'c','designs':{}},{'common':'c','designs':{'Bad Name':'x'}},{'common':'c','designs':{'a':' '}},
+                    {'common':'c','designs':{'a':'x'},'neckInpaint':'no placeholder'},{'common':'c','designs':{'a':'x'},'extra':1}):
+            write(self.root/'bad.json',bad)
+            with self.subTest(bad=bad),self.assertRaises(ValueError):load_spec(self.root/'bad.json')
+        with self.assertRaisesRegex(ValueError,'Unknown design head'):design_prompt(spec,'troll-b')
+        for skin in ('',' brown','dark\nbrown','SKIN','x'*81):
+            with self.subTest(skin=skin),self.assertRaises(ValueError):inpaint_prompt(spec,skin)
+        with self.assertRaisesRegex(ValueError,'no neckInpaint'):inpaint_prompt({'common':'c','designs':{'a':'x'}},'brown')
+    def test_example_spec_shape_is_accepted(self):
+        from headkit.design import load_spec
+        write(self.root/'example.json',{'common':'c','designs':{'troll-male-02':'x','troll-male-04-stub':'y'},'neckEdit':'e','neckInpaint':'n SKIN'})
+        self.assertEqual(sorted(load_spec(self.root/'example.json')['designs']),['troll-male-02','troll-male-04-stub'])
+
+    def test_design_dispatches_once_and_pins_every_input_and_output(self):
+        from headkit.design import SUBFOLDER
+        client,result=self.generate()
+        self.assertEqual(client.routes,['/prompt','/history/prompt-7','/history/prompt-7'])
+        receipt=read(result['receipt']);token=receipt['token']
+        self.assertEqual((receipt['state'],receipt['kind'],receipt['seed'],receipt['batch'],receipt['promptId']),('complete','design',7,3,'prompt-7'))
+        self.assertTrue(receipt['proposalOnly'] and receipt['reviewRequired']);self.assertIn('direct',receipt['dispatch'])
+        self.assertEqual(receipt['prompt'],'One adult troll head, ram horns.\nFront view, plain gray background.')
+        self.assertEqual(receipt['graphSha256'],digest(receipt['graph']));self.assertEqual(receipt['graph']['47']['inputs']['batch_size'],3)
+        self.assertEqual(receipt['outputPrefix'],f'{SUBFOLDER}/{token}/troll-a-s7');self.assertEqual(receipt['spec'],pin(self.spec))
+        self.assertEqual(receipt['bindings'],pin(self.bindings));self.assertIsInstance(receipt['elapsedSeconds'],float)
+        staged=receipt['staged']['reference-0.png']
+        self.assertEqual(staged['source'],pin(self.reference));self.assertEqual(staged['staged']['sha256'],staged['source']['sha256'])
+        self.assertEqual(Path(staged['staged']['path']),(self.root/'comfy-in'/SUBFOLDER/token/'reference-0.png').resolve())
+        self.assertEqual(receipt['graph']['100']['inputs']['image'],staged['comfyImage'])
+        self.assertEqual([Path(p['path']).name for p in receipt['outputs']],[f'troll-a-s7-b{i}.png' for i in range(3)])
+        self.assertEqual([p['sha256'] for p in receipt['outputs']],[p['sha256'] for p in receipt['comfyOutputs']])
+        verify(receipt['outputs']+receipt['comfyOutputs']);self.assertEqual(result['outputs'],[p['path'] for p in receipt['outputs']])
+    def test_existing_receipt_or_missing_reference_stops_before_any_contact(self):
+        self.generate()
+        client=FakeDesignClient(self.local['comfyOutput'])
+        with self.assertRaisesRegex(ValueError,'already exists'):self.generate(client)
+        with self.assertRaisesRegex(ValueError,'Image file'):self.generate(client,seed=8,references=[self.root/'missing.png'])
+        with self.assertRaisesRegex(ValueError,'Batch'):self.generate(client,seed=9,batch=0)
+        self.assertEqual(client.routes,[])
+    def test_failed_rejected_or_foreign_output_jobs_leave_a_failed_receipt(self):
+        for seed,client,message in ((1,FakeDesignClient(self.local['comfyOutput'],status='error'),'job failed'),
+                                    (2,FakeDesignClient(self.local['comfyOutput'],reject=True),'rejected'),
+                                    (3,FakeDesignClient(self.local['comfyOutput'],subfolder='elsewhere'),'owned design prefix')):
+            with self.subTest(message=message):
+                with self.assertRaisesRegex(ValueError,message):self.generate(client,seed=seed)
+                receipt=read(self.root/'out'/f'troll-a-s{seed}.json');self.assertEqual(receipt['state'],'failed')
+                self.assertIn(message,receipt['error']);self.assertNotIn('outputs',receipt)
+                self.assertEqual(client.routes.count('/prompt'),1)
+        self.assertEqual(sorted(p.name for p in (self.root/'out').glob('*.png')),[])
+    def test_unfinished_job_times_out_without_resubmitting(self):
+        from headkit.design import dispatch,compile_design
+        client=FakeDesignClient(self.local['comfyOutput'],polls=10**6);record={}
+        with self.assertRaisesRegex(ValueError,'unfinished'):dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=0)
+        self.assertEqual(client.routes,['/prompt','/history/prompt-7']);self.assertEqual(record['promptId'],'prompt-7')
+
+    def test_inpaint_masks_rows_below_the_neck_cut_and_records_the_mask(self):
+        client,result=self.inpaint();receipt=read(result['receipt'])
+        self.assertEqual((receipt['kind'],receipt['state'],receipt['cutSource'],receipt['lift']),('design-inpaint','complete','waist-minus-lift',24))
+        self.assertEqual(receipt['cutRow'],receipt['waistRow']-24);self.assertEqual((receipt['matte']['topRow'],receipt['matte']['bottomRow']),(20,230))
+        self.assertGreater(receipt['cutRow'],125);self.assertEqual(receipt['prompt'],'A short neck of the same dark brown skin; dark brown pores.')
+        mask=receipt['mask'];verify([mask,receipt['design']]);self.assertEqual((mask['cutRow'],mask['blurRadius'],mask['size']),(receipt['cutRow'],6,[256,256]))
+        with Image.open(mask['path']) as image:values=np.asarray(image)
+        self.assertEqual(values.shape,(256,256));self.assertTrue((values[:receipt['cutRow']-30]==0).all());self.assertTrue((values[receipt['cutRow']+30:]==255).all())
+        staged=receipt['staged'];self.assertEqual(staged['mask.png']['source'],pin(mask['path']));self.assertEqual(staged['design.png']['source'],receipt['design'])
+        g=receipt['graph'];self.assertEqual((g['200']['inputs']['image'],g['203']['inputs']['image']),(staged['design.png']['comfyImage'],staged['mask.png']['comfyImage']))
+        self.assertEqual(g['205']['inputs']['amount'],2);self.assertEqual(Path(result['receipt']).name,'troll-a-s7-b0-inpaint-s11.json')
+        self.assertEqual([Path(p).name for p in result['outputs']],['troll-a-s7-b0-inpaint-s11-b0.png','troll-a-s7-b0-inpaint-s11-b1.png'])
+    def test_carve_inpaint_keeps_the_jaw_and_carves_a_closed_stump(self):
+        carve={'top':160,'keep':[[70,160],[128,185],[186,160]],'stump':[128,40,36,190,205]}
+        client,result=self.inpaint(carve=carve);receipt=read(result['receipt'])
+        self.assertEqual((receipt['cutSource'],receipt['lift'],receipt['carve']['backdrop']),('carve',None,[200,200,200]))
+        verify([receipt['guide'],receipt['mask']]);self.assertEqual(receipt['staged']['design.png']['source'],receipt['guide'])
+        with Image.open(receipt['guide']['path']) as image:guide=np.asarray(image.convert('RGB'))
+        with Image.open(receipt['design']['path']) as image:design=np.asarray(image.convert('RGB'))
+        np.testing.assert_array_equal(guide[:160],design[:160])                     # head kept
+        self.assertEqual(guide[200,128].tolist(),design[200,128].tolist())           # own neck skin inside the stump
+        self.assertEqual(guide[222,90].tolist(),[200,200,200])                       # the wide bust is carved to backdrop
+        self.assertEqual(guide[212,128].tolist(),[200,200,200])                      # below the rounded stump bottom
+        with Image.open(receipt['mask']['path']) as image:mask=np.asarray(image)
+        self.assertTrue((mask[:125]==0).all());self.assertEqual((int(mask[240,128]),int(mask[240,30])),(255,255))  # blurred edges aside
+        for i,(bad,message) in enumerate(((dict(carve,top=60),'top half'),(dict(carve,stump=[128,40,36,150,140]),'ySide'),(dict(carve,keep=[[1,1]]),'Keep polygon'))):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):self.inpaint(client,carve=bad,name=f'bad-{i}')
+        with self.assertRaisesRegex(ValueError,'no --cut'):self.inpaint(client,carve=carve,cut=200,name='bad-cut')
+    def test_inpaint_rejects_cut_rows_in_the_top_half_or_outside_the_subject(self):
+        client=FakeDesignClient(self.local['comfyOutput'])
+        for cut in (21,125,231):
+            with self.subTest(cut=cut),self.assertRaisesRegex(ValueError,'top half'):self.inpaint(client,cut=cut)
+        self.assertEqual(client.routes,[]);self.assertEqual(list((self.root/'neck').glob('*')),[])
+        _,result=self.inpaint(cut=200);receipt=read(result['receipt'])
+        self.assertEqual((receipt['cutRow'],receipt['cutSource'],receipt['lift']),(200,'explicit',None))
+    def test_inpaint_requires_a_safe_name_and_png_design(self):
+        unsafe=self.root/'Design 1.png';self.head().replace(unsafe)
+        with self.assertRaisesRegex(ValueError,'--name'):self.inpaint(design=unsafe)
+        _,result=self.inpaint(design=unsafe,name='troll-a-pick');self.assertTrue(result['receipt'].endswith('troll-a-pick-inpaint-s11.json'))
+        jpeg=self.root/'troll.jpg';Image.new('RGB',(8,8)).save(jpeg)
+        with self.assertRaisesRegex(ValueError,'Image file'):self.inpaint(design=jpeg)
+
+    def test_cli_requires_launcher_and_dispatches_through_the_bound_local_client(self):
+        from headkit.__main__ import main
+        fake=FakeDesignClient(self.local['comfyOutput'])
+        argv=['headkit','design','--bindings',str(self.bindings),'--spec',str(self.spec),'--head','troll-a','--seed','3',
+              '--batch','2','--reference',str(self.reference),'--output',str(self.root/'cli')]
+        with patch('sys.argv',argv),patch.dict('os.environ',{'SRN_SHARED_TOOLCHAIN':'','SRN_SHARED_TOOL_MIGRATION':''}):
+            with self.assertRaisesRegex(ValueError,'launch_shared_tool'):main()
+        printed=[]
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),\
+             patch.object(comfy.Client,'request',autospec=True,side_effect=lambda client,route,data=None:fake.request(route,data)):
+            main()
+        result=json.loads(printed[-1]);self.assertEqual((result['state'],len(result['outputs']),result['proposalOnly']),('complete',2,True))
+        self.assertEqual(read(result['receipt'])['comfyEndpoint'],'http://127.0.0.1:8188')
+        argv=['headkit','design-inpaint','--bindings',str(self.bindings),'--spec',str(self.spec),'--design',str(self.head()),
+              '--skin','grey','--cut','200','--seed','5','--batch','1','--output',str(self.root/'cli')]
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),\
+             patch.object(comfy.Client,'request',autospec=True,side_effect=lambda client,route,data=None:fake.request(route,data)):
+            main()
+        receipt=read(json.loads(printed[-1])['receipt']);self.assertEqual((receipt['cutRow'],receipt['skin'],receipt['batch']),(200,'grey',1))
+        write(self.bindings,self.bindings_data(**{**self.local,'comfyUrl':'http://192.168.1.5:8188'}))
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),self.assertRaisesRegex(ValueError,'bound local'):main()
 
 if __name__=='__main__':unittest.main()
