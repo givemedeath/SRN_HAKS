@@ -126,7 +126,8 @@ class VerificationPerformanceTests(unittest.TestCase):
 
     def test_startup_proven_state_streams_with_one_analysis_and_no_retained_objects(self):
         with tempfile.TemporaryDirectory() as directory:
-            path=Path(directory)/'model.py'
+            # Startup proof is keyed by resolved paths; temp may be an 8.3 alias on Windows runners.
+            path=Path(directory).resolve()/'model.py'
             source=('SCALE=1\nclass Model:\n    RATE=3\n    def __init__(self,mode):\n'
                     '        self.mode=mode\n        if self.mode: self.setting=1\n        else: self.setting=2\n'
                     'def callback(factory=object(), mode=1): return mode\ninstances=[Model(i%2) for i in range(50)]\n'

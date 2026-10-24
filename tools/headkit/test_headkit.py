@@ -476,10 +476,11 @@ class ComfyServerRuntimeTests(Temporary):
             before=result['fingerprint'];native.write_bytes(b'changed CUDA native fixture')
             changed=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
             runtime_module=sys.modules[capture_runtime_identity.__module__]
-            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==native):
+            # Directory entries come from resolved roots; temp may be an 8.3 alias on Windows runners.
+            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==native.resolve()):
                 with self.assertRaisesRegex(ValueError,'Linked Comfy runtime files'):
                     capture_runtime_identity(SimpleNamespace(base_path=str(app)))
-            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==package):
+            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==package.resolve()):
                 with self.assertRaisesRegex(ValueError,'Linked Comfy runtime directories'):
                     capture_runtime_identity(SimpleNamespace(base_path=str(app)))
             added=site/'new.py';added.write_text('new runtime member')
