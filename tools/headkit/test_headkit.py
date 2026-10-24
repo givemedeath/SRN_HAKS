@@ -1413,12 +1413,18 @@ class AppearanceTests(Temporary):
     def test_bake_rejects_unmapped_1k_faces_before_writing_output(self):
         np.savez(self.root/'field.npz',coords=np.array([[0,0,0,0]],np.int32),attrs=np.ones((1,6))*.5,resolution=2)
         value={'positions':np.eye(3),'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
-        def gated(_,size,*__):
-            if size==1024:raise ValueError('UV overlap/degeneracy or unmapped faces block baking')
-            return np.zeros((size,size,3),np.float32),np.zeros((size,size),np.int32),{}
+        def gated(_,size,*__,enforce=True):
+            if size==1024 and enforce:raise ValueError('UV overlap/degeneracy or unmapped faces block baking')
+            report={'overlapFaces':[],'degenerateUvFaces':[],'subtexel':{'passed':size!=1024}}
+            return np.zeros((size,size,3),np.float32),np.zeros((size,size),np.int32),report
         with patch('headkit.textures.mesh',return_value=value),patch('headkit.textures.surface',side_effect=gated):
             with self.assertRaisesRegex(ValueError,'unmapped'):bake('mesh.glb',self.root/'field.npz',self.root/'maps')
-        self.assertFalse((self.root/'maps').exists())
+            self.assertFalse((self.root/'maps').exists())
+            # A 4K-qualified donor atlas records the derived 1K sampling instead of failing on it.
+            source=self.root/'mesh.glb';source.write_bytes(b'mesh fixture')
+            result=bake(source,self.root/'field.npz',self.root/'diagnostic',allow_decoder_overshoot=True,derived_surface='diagnostic')
+            self.assertEqual(result['derivedSurface'],{'policy':'diagnostic','passed':False})
+            with self.assertRaisesRegex(ValueError,'derived surface'):bake('mesh.glb',self.root/'field.npz',self.root/'x',derived_surface='off')
     def test_palette_excludes_transparent_and_255_preserving_opaque_black(self):
         rgb=np.zeros((1024,1024,3),np.uint8);labels=np.zeros((1024,1024),np.uint8);labels[:5]=8
         Image.fromarray(rgb).save(self.root/'rgb.png');Image.fromarray(labels).save(self.root/'labels.png')

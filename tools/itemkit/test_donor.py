@@ -72,7 +72,7 @@ class DonorTests(unittest.TestCase):
         original=field.read_bytes();policy={'minimum':-.087,'maximum':1.102,'allowDecoderOvershoot':True,
                                           'fieldSha256':pin(field)['sha256']}
         def bake(source,path,output,**options):
-            self.assertTrue(options['allow_decoder_overshoot'])
+            self.assertTrue(options['allow_decoder_overshoot']);self.assertEqual(options['derived_surface'],'diagnostic')
             with np.load(path) as data:np.testing.assert_array_equal(data['attrs'],raw)
             return {'maps':{'basecolor-4096.png':{'path':'fixture'}}}
         with patch('tools.headkit.textures.bake',side_effect=bake),patch('tools.itemkit.donor.embed_diffuse',return_value={'fixture':True}):
