@@ -75,18 +75,18 @@ def seal_runtime_identity(payload):
 
 
 def same_runtime_environment(current, baseline):
-    """Compare stable interpreter/runtime pins while allowing verified lazy imports."""
+    """Compare stable interpreter/runtime pins while binding the same controlled process."""
     ignored={'fingerprint','loadedSourceCode'}
     return ({key:value for key,value in current.items() if key not in ignored}
             == {key:value for key,value in baseline.items() if key not in ignored})
 
 
-def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_source_code=None):
-    """Hash runtime implementation bytes; Comfy source has its own complete census."""
+def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_source_code=None,*,session=None):
+    """Hash runtime bytes and bind the controlled session; loaded code is checked by the caller."""
     import torch
     core=Path(folder_paths.base_path).resolve(strict=True)
     covered=[str(core)]
-    covered_paths=[core]
+    covered_paths=[Path(root).resolve() for root in (comfy_source_inventory or {}).get('roots',[core])]
     roots=set()
     for key in ('stdlib','platstdlib','purelib','platlib'):
         value=sysconfig.get_paths().get(key)
@@ -135,9 +135,9 @@ def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_sou
     # One explicit pass shares hashes with source/loaded-code verification.
     # ContextVars do not propagate into executor workers. Keep the four-reader
     # implementation for standalone callers, and bind each worker explicitly.
-    session=CURRENT_PASS.get()
+    verification=CURRENT_PASS.get()
     def file_pin(path):
-        token=CURRENT_PASS.set(session)
+        token=CURRENT_PASS.set(verification)
         try:return _pin(path,canonical=True)
         finally:CURRENT_PASS.reset(token)
     with ThreadPoolExecutor(max_workers=4) as workers:
@@ -147,7 +147,7 @@ def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_sou
     except Exception:pass
     executable=str(Path(sys.executable).resolve(strict=True))
     payload={
-        'schemaVersion':2,
+        'schemaVersion':3,
         'python':{'path':executable,'sha256':next(item['sha256'] for item in file_pins if item['path']==executable),
                   'version':sys.version,'implementation':sys.implementation.name,'cacheTag':sys.implementation.cache_tag,
                   'prefix':str(Path(sys.prefix).resolve()),'basePrefix':str(Path(sys.base_prefix).resolve())},
@@ -158,6 +158,6 @@ def capture_runtime_identity(folder_paths,comfy_source_inventory=None,loaded_sou
         'roots':[str(path) for path in unique_roots],
         'files':file_pins,
         'comfySourceInventory':comfy_source_inventory,
-        'loadedSourceCode':loaded_source_code or [],
+        'session':session,
     }
     return seal_runtime_identity(payload)

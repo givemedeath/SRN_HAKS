@@ -6,6 +6,11 @@ import re
 from .common import require, pin, verify
 
 
+def _validate_map_names(maps):
+    require(isinstance(maps,dict) and set(maps)<={'basecolor','roughness','metallic','opacity'},
+            'Review atlases require supported map names: basecolor, roughness, metallic, opacity')
+
+
 def resolutions(config):
     require(not ('sizes' in config and 'size' in config), 'Choose review sizes or one diagnostic size')
     if 'size' in config:
@@ -18,6 +23,7 @@ def resolutions(config):
 
 
 def render_plan(config):
+    for field in ('mapInputs','maps'):_validate_map_names(config.get(field,{}))
     cameras=config.get('cameras');modes=config.get('modes',['clay','color-only','material-lit'])
     require(isinstance(cameras,list) and cameras,'Render cameras must be a nonempty list')
     require(isinstance(modes,list) and modes and all(x in ('clay','color-only','material-lit') for x in modes)
@@ -50,11 +56,12 @@ def validate_frames(config,records):
 
 def atlas_sets(config, output, sizes):
     """Use the actual mapped appearance; 1K views use actual BOX-filtered 1K atlases."""
+    maps_config=config.get('maps',{});_validate_map_names(maps_config)
     from PIL import Image
     output=Path(output);sets={};records=[]
     for size in sizes:
         maps={};folder=output/str(size)/'atlases';folder.mkdir(parents=True)
-        for name,path in config.get('maps',{}).items():
+        for name,path in maps_config.items():
             with Image.open(path) as source:
                 require(source.width==source.height and source.width>=size, 'Review atlas must be square and large enough; no upsampling')
                 image=source.convert('RGB' if name=='basecolor' else 'L')

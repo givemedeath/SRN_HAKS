@@ -4,18 +4,18 @@ from pathlib import Path
 import re
 from .common import digest,pin,require,verify
 
-# Generated data and model weights have their own inputs; execution code/config/native binaries do not.
-EXTENSIONS={'.py','.pyx','.pyi','.json','.yaml','.yml','.toml','.pyd','.so','.dll','.dylib','.ptx','.cubin','.h','.hpp','.c','.cpp','.cu','.cuh'}
+# Pin every implementation/resource file; separated generated data and weights have their own inputs.
 CORE_DATA={'input','output','temp','models','user','.venv','venv'}
 REQUIRED_CORE={'main.py','execution.py','nodes.py','server.py','folder_paths.py'}
 
 
 def members(core,roots):
+    def fail_walk(error):raise error
     core=Path(core).resolve();require(core in roots,'Inventory must cover the Comfy root')
     found=set()
     for root in roots:
         require(root.is_dir(),'Missing Comfy source root')
-        for current,dirs,files in os.walk(root,followlinks=False):
+        for current,dirs,files in os.walk(root,followlinks=False,onerror=fail_walk):
             current=Path(current)
             dirs[:]=[name for name in dirs if name not in {'.git','.hg','.svn','__pycache__'}
                      and not (current==core and name in CORE_DATA)]
@@ -24,9 +24,8 @@ def members(core,roots):
             for name in files:
                 path=current/name
                 if path.name=='source-roots.json' and path.parent.name=='srn_headkit':continue
-                if path.suffix.lower() in EXTENSIONS:
-                    require(path.resolve()==path.absolute(),'Linked Comfy source file is unsupported')
-                    found.add(path.resolve())
+                require(path.is_file() and path.resolve()==path.absolute(),'Regular unlinked Comfy source file required')
+                found.add(path.resolve())
     require({core/name for name in REQUIRED_CORE}<=found,'Incomplete Comfy core source inventory')
     require(any(path.is_relative_to(core/'comfy') for path in found),'Missing Comfy model implementation tree')
     names={path.name for path in found}
@@ -65,8 +64,8 @@ def _same_inventory(left,right):
 
 def validate_comfy_runtime(identity, source_roots=None, source_inventory=None):
     """Validate the live Comfy interpreter/Torch identity returned by its installed adapter."""
-    required={'schemaVersion','python','torch','coveredSourceRoots','roots','files','comfySourceInventory','loadedSourceCode','fingerprint'}
-    require(isinstance(identity,dict) and set(identity)==required and identity['schemaVersion']==2,
+    required={'schemaVersion','python','torch','coveredSourceRoots','roots','files','comfySourceInventory','session','fingerprint'}
+    require(isinstance(identity,dict) and set(identity)==required and identity['schemaVersion']==3,
             'Complete live Comfy runtime identity required')
     payload={key:value for key,value in identity.items() if key!='fingerprint'}
     require(isinstance(identity['fingerprint'],str) and digest(payload)==identity['fingerprint'],
@@ -96,17 +95,18 @@ def validate_comfy_runtime(identity, source_roots=None, source_inventory=None):
     require(len(source_by_path)==len(inventory['files']) and all(isinstance(path,str) and Path(path).is_absolute()
             and isinstance(value,str) and re.fullmatch(r'[0-9a-f]{64}',value) for path,value in source_by_path.items()),
             'Live Comfy source snapshot contains malformed file pins')
-    loaded=identity['loadedSourceCode']
-    require(isinstance(loaded,list) and all(isinstance(row,dict) and set(row)=={'path','sourceSha256','loadedCodeSha256'}
-            and isinstance(row['path'],str) and Path(row['path']).is_absolute()
-            and isinstance(row['sourceSha256'],str) and re.fullmatch(r'[0-9a-f]{64}',row['sourceSha256'])
-            and isinstance(row['loadedCodeSha256'],str) and re.fullmatch(r'[0-9a-f]{64}',row['loadedCodeSha256']) for row in loaded),
-            'Loaded Comfy Python code identity is malformed')
-    loaded_paths=[row['path'] for row in loaded]
-    require(len(loaded_paths)==len(set(loaded_paths)) and loaded_paths==sorted(loaded_paths,key=str.casefold),
-            'Loaded Comfy Python code identity must be unique and sorted')
-    require(all(source_by_path.get(row['path'])==row['sourceSha256'] for row in loaded),
-            'Loaded Comfy Python code is not bound to its reviewed source file')
+    session=identity['session']
+    require(isinstance(session,dict) and set(session)=={'id','pid','configuration','settingsSha256'}
+            and isinstance(session['id'],str) and re.fullmatch(r'[0-9a-f]{32}',session['id'])
+            and type(session['pid']) is int and session['pid']>0
+            and isinstance(session['settingsSha256'],str) and re.fullmatch(r'[0-9a-f]{64}',session['settingsSha256']),
+            'Controlled Comfy session identity required')
+    configuration=session['configuration']
+    require(isinstance(configuration,dict) and set(configuration)=={'path','sha256'}
+            and isinstance(configuration['path'],str) and Path(configuration['path']).is_absolute()
+            and isinstance(configuration['sha256'],str) and re.fullmatch(r'[0-9a-f]{64}',configuration['sha256']),
+            'Pinned controlled startup configuration required')
+    verify([configuration])
     require(isinstance(files,list) and files,'Live Comfy runtime file inventory required')
     require(all(isinstance(row,dict) and set(row)=={'path','sha256'} and Path(row['path']).is_absolute()
                 and re.fullmatch(r'[0-9a-f]{64}',row['sha256']) for row in files),
@@ -147,4 +147,6 @@ def request_sources(prepared):
     require(prepared.get('runtimeVerification')=='server-owned' or
             all((row['path'],row['sha256']) in inputs for row in runtime['files']),
             'Comfy runtime inventory is absent from frozen request inputs')
+    require((runtime['session']['configuration']['path'],runtime['session']['configuration']['sha256']) in inputs,
+            'Controlled startup configuration is absent from frozen request inputs')
     return inventory

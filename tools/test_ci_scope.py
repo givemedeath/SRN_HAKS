@@ -135,6 +135,18 @@ class LiveConfigurationTests(unittest.TestCase):
             self.assertEqual(sorted(ran),sorted(self.data['tests']));self.assertEqual(len(ran),len(set(ran)))
         durations=json.loads((REPO/ci_scope.DURATIONS).read_text(encoding='utf-8'))['seconds']
         self.assertLessEqual(set(durations),set(self.data['tests']),'Prune durations for removed tests')
+    def test_controlled_startup_suite_keeps_its_declared_pack_dependencies(self):
+        target='tools/headkit/test_comfy_runtime_snapshot.py'
+        required=reached_packs(self.data,target)
+        for plan in (ci_scope.plan(None,self.data,self.config),ci_scope.plan([target],self.data,self.config)):
+            for os_name in self.config['operatingSystems']:
+                matches=[row for row in plan['helperMatrix'] if row['os']==os_name and target in row['tests']]
+                self.assertEqual(len(matches),1)
+                row=matches[0]
+                self.assertEqual(row['group'],'packs' if required else 'headkit')
+                self.assertLessEqual(required,set(row['packs']))
+                self.assertLessEqual(required,set(row['checkout'].split('\n')))
+
     def test_shared_helper_change_runs_the_full_helper_suite(self):
         # retarget.py is consumed by phenotype, head and robe helpers (AGENTS.md: shared helpers run the full suite).
         plan=ci_scope.plan(['tools/phenotypes/retarget.py'],self.data,self.config)
@@ -169,12 +181,29 @@ class WorkflowWiringTests(unittest.TestCase):
         self.assertIn('    name: ${{ matrix.os }} ${{ matrix.group }}\n',self.helpers)
         self.assertIn('    name: item-import ${{ matrix.os }}\n',self.helpers);self.assertIn('    name: wheel\n',self.helpers)
         self.assertEqual(set(self.jobs(self.helpers)),{'tests','item-import','wheel'})
+    def test_snapshot_jobs_have_time_for_census_and_finalization(self):
+        tests=self.helpers.split('  tests:',1)[1].split('  item-import:',1)[0]
+        # Windows measured 841 seconds of successful tests before its 15-minute
+        # job limit expired during finalization. Keep other groups bounded at 15.
+        self.assertIn("timeout-minutes: ${{ matrix.group == 'headkit' && 25 || 15 }}",tests)
+
     def test_single_item_import_owner_and_single_cache_key_format(self):
         self.assertEqual(sum(t.count('./tools/Test-ItemImportTools.ps1') for t in self.all),1)
         self.assertEqual(sum(t.count('./tools/Test-ItemImportScope.ps1') for t in self.all),0)
         self.assertEqual(sum(t.count('actions/cache@') for t in self.all),1)
         self.assertIn("key: srn-tools-${{ runner.os }}-${{ hashFiles('tools/toolchain.lock.json', 'tools/shared-tools.lock.json') }}",self.action)
         for text in (self.ci,self.helpers):self.assertNotIn('srn-tools-',text)
+    def test_result_refresh_is_bounded_and_final_pending_status_still_fails(self):
+        result=self.ci.split('  result:',1)[1]
+        self.assertIn('for attempt in 1 2 3 4 5 6; do',result)
+        loop=result.split('for attempt in 1 2 3 4 5 6; do',1)[1].split('done',1)[0]
+        self.assertIn('gh api ',loop);self.assertIn('filter=all&per_page=100',loop)
+        self.assertIn('--pending-exit-code 2',loop)
+        self.assertIn('if [ "$result" -ne 2 ]; then exit "$result"; fi',loop)
+        self.assertIn('sleep 10',loop)
+        final=result.split('done',1)[1]
+        self.assertIn('tools/ci_result.py',final);self.assertNotIn('--pending-exit-code',final)
+
     def test_superseded_pull_request_runs_cancel_while_main_runs_do_not(self):
         self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}",self.ci)
         self.assertIn("format('pr-{0}', github.event.pull_request.number)",self.ci)

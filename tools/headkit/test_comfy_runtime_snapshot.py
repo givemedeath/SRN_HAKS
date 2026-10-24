@@ -1375,23 +1375,24 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                       if isinstance(node, ast.FunctionDef) and node.name == '_capture_startup')
         inventory = {'roots': ['fixture']}
         loaded = [{'path': 'fixture'}]
-        identity = {'fingerprint': 'fixture'}
+        identity = {'fingerprint': 'fixture','files': []}
+        managed_session = {'id':'fixture'}
         folders = types.SimpleNamespace(base_path='fixture')
         logger = Mock()
         from headkit.comfy_nodes.verification import HEAVY_VERIFICATION_LOCK,verification_pass
         namespace = {'Path': Path, '__file__': str(source), '__name__': 'adapter_fixture',
                      'HEAVY_VERIFICATION_LOCK':HEAVY_VERIFICATION_LOCK,'verification_pass':verification_pass,
                      'logging': types.SimpleNamespace(getLogger=Mock(return_value=logger)), 'folder_paths': folders,
-                     'load_inventory': Mock(return_value=inventory),
+                     'session_context': Mock(return_value=(managed_session,{'inventory':inventory,'runtime':{'files':[]}})),
                      'loaded_source_code': Mock(return_value=loaded),
                      'capture_runtime_identity': Mock(return_value=identity)}
         exec(compile(ast.Module(body=[helper], type_ignores=[]), str(source), 'exec'), namespace)
-        self.assertEqual(namespace['_capture_startup'](), (inventory, loaded, identity))
+        self.assertEqual(namespace['_capture_startup'](), (inventory, managed_session, identity))
         namespace['loaded_source_code'].assert_called_once_with(inventory['roots'])
-        namespace['capture_runtime_identity'].assert_called_once_with(folders, inventory, loaded)
+        namespace['capture_runtime_identity'].assert_called_once_with(folders, inventory, loaded, session=managed_session)
         namespace['capture_runtime_identity'].side_effect = ValueError('invalid runtime')
         self.assertEqual(namespace['_capture_startup'](), (None, None, None))
-        namespace['load_inventory'].side_effect = OSError('missing inventory')
+        namespace['session_context'].side_effect = OSError('missing inventory')
         self.assertEqual(namespace['_capture_startup'](), (None, None, None))
         self.assertEqual(logger.exception.call_count, 2)
 

@@ -34,6 +34,38 @@
     "rightDetail": {
       "path": "inputs/right-detail.png",
       "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "geometryFront": {
+      "path": "prepared/front-smooth-clay.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "geometryLeft": {
+      "path": "prepared/left-smooth-clay.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "geometryBack": {
+      "path": "prepared/back-smooth-clay.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "geometryRight": {
+      "path": "prepared/right-smooth-clay.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "detailFront": {
+      "path": "prepared/front-detail.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "detailLeft": {
+      "path": "prepared/left-detail.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "detailBack": {
+      "path": "prepared/back-detail.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "detailRight": {
+      "path": "prepared/right-detail.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
     }
   },
   "features": [

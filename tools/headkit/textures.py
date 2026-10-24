@@ -6,13 +6,16 @@ from PIL import Image
 from scipy.ndimage import distance_transform_edt
 from .common import require, pin, write
 from .gltf import mesh
-from .field import GeneratedField
-from .uv import raster_audit
+from .field import load_generated_field
+from .uv import raster_audit, subtexel_audit
 
 
-def surface(value, size):
+def surface(value, size, max_subtexel_fraction=0.0):
     report, owners=raster_audit(value['uv'],size)
-    require(not report['overlapFaces'] and not report['degenerateUvFaces'], 'UV overlap/degeneracy blocks baking')
+    subtexel=subtexel_audit(value['uv'],size,report,owners,max_subtexel_fraction)
+    require(not report['overlapFaces'] and not report['degenerateUvFaces'] and subtexel['passed'],
+            'UV overlap/degeneracy or unmapped faces block baking')
+    report['subtexel']={k:v for k,v in subtexel.items() if k!='failingFaces'}
     positions=np.zeros((size,size,3),np.float32)
     for fi in np.unique(owners[owners>=0]):
         t=value['uv'][fi]*size
@@ -32,14 +35,15 @@ def pad(values, mapped):
     return result
 
 
-def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096):
+def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096, max_subtexel_fraction=.005):
     require(size==4096,'Production source bake is 4K; derive 2K/1K afterward')
-    output=Path(output);output.mkdir(parents=True,exist_ok=False);begun=time.perf_counter()
-    value=mesh(source)
-    with np.load(field_path,allow_pickle=False) as archive:
-        require(set(archive.files)=={'coords','attrs','resolution'},'Unexpected generated field layout')
-        field=GeneratedField.from_saved(archive['coords'],archive['attrs'],int(archive['resolution']),allow_decoder_overshoot)
+    begun=time.perf_counter();value=mesh(source)
+    field=load_generated_field(field_path,allow_decoder_overshoot)
+    # Every raster gate runs before anything is written, so a rejected bake leaves no partial output.
+    # The 4K source stays zero-tolerance; the derived 1K surface takes the measured sub-texel allowance.
     positions,owners,report=surface(value,size);mapped=owners>=0
+    low,ids,low_report=surface(value,1024,max_subtexel_fraction)
+    output=Path(output);output.mkdir(parents=True,exist_ok=False)
     sampled,fallback=field.sample(positions[mapped],chunk=65536)
     values=np.zeros((size,size,6),np.float32);values[mapped]=sampled;values=pad(values,mapped)
     files={}
@@ -52,9 +56,9 @@ def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096
             files[path.name]=pin(path)
     # Full-resolution coverage remains explicit; padded samples never become ownership evidence.
     Image.fromarray(mapped.astype(np.uint8)*255).save(output/'mapped-4096.png')
-    low,ids,audit=surface(value,1024);np.savez(output/'surface-1024.npz',positions=low,faceIds=ids)
+    np.savez(output/'surface-1024.npz',positions=low,faceIds=ids)
     result={'source':pin(source),'field':pin(field_path),'maps':files,'surface':pin(output/'surface-1024.npz'),
-            'coverage':report,'mappedSamples':int(mapped.sum()),'nearestFallbackSamples':int(fallback.sum()),
+            'coverage':report,'subtexel1024':low_report['subtexel'],'mappedSamples':int(mapped.sum()),'nearestFallbackSamples':int(fallback.sum()),
             'clippedSamplesByChannel':field.clipped_samples_per_channel.tolist(),'rawRanges':field.raw_ranges,
             'paddingOnlyOutsideMappedSurface':True,'aoAdded':False,'threads':4,'elapsedSeconds':time.perf_counter()-begun,
             'visualReviewRequired':True}

@@ -65,7 +65,8 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
     if stage in ('geometry','appearance'):
         require(camera.get('reviewed') is True,'Reviewed camera calibration required')
     names={'calibrate':['geometry','detail','mask'],'geometry':['geometry'],'appearance':['detail'],'export':[]}[stage]
-    if profile=='pixal-multiview-v1' and stage=='geometry':names=['front','left','back','right']
+    if profile=='pixal-multiview-v1' and stage in ('geometry','appearance'):
+        names=[('geometry' if stage=='geometry' else 'detail')+view for view in comfy.MULTIVIEW_VIEWS]
     require(stage!='geometry' or (data.get('features') and all(x.get('placementReviewed') is True for x in data['features'])),
             'Review hairstyle routing, all accessories and counts before generation')
     shape=asset(manifest_path,data['inputs']['shape']) if stage=='appearance' else None
@@ -92,6 +93,9 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
     # preparation and again under the submission lock. Do not make the client
     # and its launcher read that same environment several more times.
     pins+=inventory['files']
+    require(comfy_runtime['session']['configuration']==pin(local['comfyStartupConfig']),
+            'Controlled startup configuration differs from local bindings')
+    pins.append(comfy_runtime['session']['configuration'])
     adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
     source_config=adapter/'source-roots.json'
     require(read_json(source_config)=={'schemaVersion':1,'inventory':inventory},

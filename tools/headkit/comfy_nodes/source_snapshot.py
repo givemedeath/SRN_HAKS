@@ -1,4 +1,4 @@
-"""Source snapshots and loaded Python-code checks for the installed Comfy adapter."""
+"""File membership and byte checks for the controlled Comfy deployment."""
 import ast
 import functools
 import gc
@@ -13,7 +13,6 @@ import types
 from .verification import CURRENT_PASS, VerificationPass
 
 
-EXTENSIONS={'.py','.pyx','.pyi','.json','.yaml','.yml','.toml','.pyd','.so','.dll','.dylib','.ptx','.cubin','.h','.hpp','.c','.cpp','.cu','.cuh'}
 CORE_DATA={'input','output','temp','models','user','.venv','venv'}
 REQUIRED_CORE={'main.py','execution.py','nodes.py','server.py','folder_paths.py'}
 
@@ -68,6 +67,7 @@ def _inside(path,roots):
 
 
 def members(core,roots):
+    def fail_walk(error):raise error
     core=Path(core).resolve(strict=True)
     roots=[Path(root).resolve(strict=True) for root in roots]
     require(core in roots,'Inventory must cover the Comfy root')
@@ -75,7 +75,7 @@ def members(core,roots):
     found=set()
     for root in roots:
         require(root.is_dir(),'Missing Comfy source root')
-        for current,dirs,names in os.walk(root,followlinks=False):
+        for current,dirs,names in os.walk(root,followlinks=False,onerror=fail_walk):
             current=Path(current)
             dirs[:]=[name for name in dirs if name not in {'.git','.hg','.svn','__pycache__'}
                      and not (current==core and name in CORE_DATA)]
@@ -86,8 +86,7 @@ def members(core,roots):
             for name in names:
                 path=current/name
                 if path.name=='source-roots.json' and path.parent.name=='srn_headkit':continue
-                if path.suffix.lower() not in EXTENSIONS:continue
-                require(not _linked(path) and path.resolve(strict=True)==path.absolute(),'Linked Comfy source files are unsupported')
+                require(path.is_file() and not _linked(path) and path.resolve(strict=True)==path.absolute(),'Regular unlinked Comfy source file required')
                 resolved=path.resolve(strict=True)
                 require(resolved.is_relative_to(root),'Comfy source file escapes its inventory root')
                 found.add(resolved)

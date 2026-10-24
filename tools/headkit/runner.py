@@ -6,10 +6,31 @@ import traceback
 import uuid
 import numpy as np
 from PIL import Image
+from . import common
 from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins
 
 # Every stage produces evidence that needs an explicit operator decision before consumption.
-STAGES=('prepare','precluster','repair','unwrap','bake','ownership','tone','palette','export','native','render')
+STAGES=('prepare','precluster','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
+
+
+def stage_roles(stage,data):
+    """Manifest input roles a stage may read. Receipts pin only the roles actually read, and reading one outside this
+    declaration fails the stage, so launch input lists built from it stay complete."""
+    inputs=set(data.get('inputs',{}));palettes=set(data.get('palette',{}).get('inputs',{}).values())
+    roles={'prepare':{r for r in inputs if r in ('clay','detail') or r.endswith(('Clay','Detail'))},
+        'precluster':{'raw'},'repair':{'comfyExport','shellInspection'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
+        'paint':{'uvMesh','basecolor4k'},
+        'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
+        'tone':{'uvMesh','basecolor4k','metallic4k','ownership4k','ownership1k','detail','frontDetail'}|palettes,
+        'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes,'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
+        'render':{'uvMesh'}|set(data.get('render',{}).get('mapInputs',{}).values())}[stage]
+    return roles&inputs
+
+
+def stage_libraries(stage,data):
+    """Byte-bound libraries a stage may load; enforced like stage_roles. Reviewed-UV reuse only audits, so it needs no xatlas."""
+    if stage=='unwrap' and data.get('mesh',{}).get('reuseReviewedUvs',False):return set()
+    return {'precluster':{'igl','pymeshlab'},'repair':{'igl','pymeshlab'},'unwrap':{'xatlas'}}.get(stage,set())
 
 
 class Runner:
@@ -20,9 +41,17 @@ class Runner:
         self.state_path=self.run/'state.json'
         self.state=read(self.state_path) if self.state_path.exists() else {'schemaVersion':1,'id':self.data['id'],'stages':{}}
         require(self.state['id']==self.data['id'],'Run belongs to a different head')
+        self._verified=set();self._read=None
+
+    def _verify(self,pins):
+        # Upstream receipts repeat the same files; hash each (path, digest) once per check before execution.
+        # The post-execution check in execute stays uncached so changes during a stage are still caught.
+        fresh={(p['path'],p['sha256']):p for p in pins if (p['path'],p['sha256']) not in self._verified}
+        verify(list(fresh.values()));self._verified.update(fresh)
 
     def input(self,name):
         require(name in self.data['inputs'],'Missing manifest input: '+name)
+        if self._read is not None:self._read.add(name)
         if name in ('ownership1k','ownership4k'):
             config=self.data.get('ownership',{})
             require(config.get('reviewed') is True,'Imported ownership needs reviewed UV-mesh binding')
@@ -34,14 +63,15 @@ class Runner:
             geometry_role=next((role for role in ('uvMesh','repairedMesh','comfyExport')
                                 if role in self.data['inputs']),None)
             require(geometry_role is not None,'Generated field needs an active geometry input')
-            geometry=asset(self.manifest_path,self.data['inputs'][geometry_role])
+            # The approval binds the manifest's pinned geometry; bake does not read that mesh, so it is not re-hashed here.
+            geometry=self.data['inputs'][geometry_role]
             field=self.data['inputs'][name]
             require(review.get('decision')=='approved' and isinstance(review.get('notes'),str)
                     and review['notes'].strip() and review.get('geometryInput')==geometry_role
                     and review.get('geometrySha256')==geometry['sha256']
                     and review.get('fieldSha256')==field['sha256'],
                     'Generated field approval must bind its exact bytes to the active geometry input: '+geometry_role)
-        atlas_roles={'basecolor4k','runtimeColor','runtimeShades'}|set(self.data.get('render',{}).get('mapInputs',{}).values())
+        atlas_roles={'basecolor4k','metallic4k','runtimeColor','runtimeShades'}|set(self.data.get('render',{}).get('mapInputs',{}).values())
         if name in atlas_roles:
             review=self.data.get('approval',{}).get('textureMaps',{}).get(name,{})
             require(review.get('decision')=='approved' and bool(review.get('notes','').strip()),
@@ -53,10 +83,11 @@ class Runner:
         return asset(self.manifest_path,self.data['inputs'][name])['path']
 
     def result(self,stage,*,require_review=True,_checked=None):
-        if _checked is None:_checked={'results':{},'codeVersion':source_version()}
+        # Each top-level check starts a fresh hash memo; nested and sibling checks in one operation share it.
+        if _checked is None:_checked={'results':{},'codeVersion':source_version()};self._verified=set()
         if stage in _checked['results']:return _checked['results'][stage]
         row=self.state['stages'].get(stage);require(row is not None,'Stage not completed: '+stage)
-        receipt=read(row['path']);verify([row]);verify(receipt['outputs']);verify(receipt['inputs'])
+        receipt=read(row['path']);self._verify([row]);self._verify(receipt['outputs']);self._verify(receipt['inputs'])
         require(receipt['codeVersion']==_checked['codeVersion'] and receipt['manifestHash']==digest(self.data)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
         require(receipt['state']=='complete','Failed stage: '+stage)
@@ -67,7 +98,7 @@ class Runner:
         if require_review:
             review_pin=self.state.get('reviews',{}).get(stage)
             require(review_pin is not None,'Visual review pending: '+stage)
-            verify([review_pin]);review=read(review_pin['path'])
+            self._verify([review_pin]);review=read(review_pin['path'])
             require(review.get('stageReceipt')==row,'Stale visual review: '+stage)
             require(review.get('decision')=='approved','Visual review rejected: '+stage)
             _checked['results'][stage]=receipt['result']
@@ -76,7 +107,28 @@ class Runner:
     def source(self,provided,stage,key):
         # Importing a reviewed artifact is explicit: it does not pretend its prior stages ran here.
         if provided in self.data['inputs']:return self.input(provided)
-        row=self.result(stage)[key];verify([row]);return row['path']
+        row=self.result(stage)[key];self._verify([row]);return row['path']
+
+    def dependencies(self,stage):
+        """Reviewed upstream stages this manifest makes the stage consume."""
+        require(stage in STAGES,'Unknown CPU stage')
+        inputs=self.data['inputs']
+        table={'prepare':[], 'precluster':[], 'repair':[],
+            'unwrap':[] if 'repairedMesh' in inputs else ['repair'],
+            'bake':[] if 'uvMesh' in inputs else ['unwrap'],
+            'ownership':[] if 'uvMesh' in inputs else ['unwrap'],
+            'tone':[] if 'basecolor4k' in inputs else ['bake'],
+            'palette':[] if 'runtimeColor' in inputs else ['tone'],
+            'export':([] if 'uvMesh' in inputs else ['unwrap'])+([] if 'runtimeShades' in inputs else ['palette']),
+            'native':['export'], 'render':[] if 'uvMesh' in inputs else ['unwrap']}
+        self._texture_dependencies(stage,table);dependencies=table[stage]
+        if stage=='tone' and not any(role in inputs for role in ('ownership1k','ownership4k')):dependencies.append('ownership')
+        if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
+        imported_atlases={'tone':('basecolor4k','ownership4k','ownership1k'),'palette':('runtimeColor','ownership1k'),
+                          'export':('runtimeShades','ownership1k')}.get(stage,())
+        if any(role in inputs for role in imported_atlases) and 'uvMesh' not in inputs and 'unwrap' not in dependencies:
+            dependencies.append('unwrap')
+        return dependencies
 
     def execute(self,stage):
         require(stage in STAGES,'Unknown CPU stage')
@@ -92,30 +144,13 @@ class Runner:
                   and read(p).get('codeVersion')==source_version() and read(p).get('state')=='failed']
         require(len(failures)<2,'Two stage failures retained; fix the manifest or request a bounded exception before more trials')
         inputs=[pin(self.manifest_path),pin(self.bindings_path)]+package_inputs+code_pins()
-        inputs += [asset(self.manifest_path,p) for p in self.data['inputs'].values()]
-        for row in self.bindings.get('libraries',{}).values():inputs.extend(row['files'])
         for name in ('python','blender','client','embree'):
             if name in self.bindings:inputs.append(self.bindings[name])
         for name in ('toolchain','migrationReceipt'):
             if name in self.bindings:inputs.append(pin(self.bindings[name]))
-        dependencies={'prepare':[], 'precluster':[], 'repair':[],
-            'unwrap':[] if 'repairedMesh' in self.data['inputs'] else ['repair'],
-            'bake':[] if 'uvMesh' in self.data['inputs'] else ['unwrap'],
-            'ownership':[] if 'uvMesh' in self.data['inputs'] else ['unwrap'],
-            'tone':[] if 'basecolor4k' in self.data['inputs'] else ['bake'],
-            'palette':[] if 'runtimeColor' in self.data['inputs'] else ['tone'],
-            'export':([] if 'uvMesh' in self.data['inputs'] else ['unwrap'])+([] if 'runtimeShades' in self.data['inputs'] else ['palette']),
-            'native':['export'], 'render':[] if 'uvMesh' in self.data['inputs'] else ['unwrap']}
-        if stage=='tone' and not any(role in self.data['inputs'] for role in ('ownership1k','ownership4k')):
-            dependencies[stage].append('ownership')
-        if stage=='palette' and 'ownership1k' not in self.data['inputs']:dependencies[stage].append('ownership')
-        imported_atlases={'tone':('basecolor4k','ownership4k','ownership1k'),'palette':('runtimeColor','ownership1k'),
-                          'export':('runtimeShades','ownership1k')}.get(stage,())
-        if any(role in self.data['inputs'] for role in imported_atlases) and 'uvMesh' not in self.data['inputs'] and 'unwrap' not in dependencies[stage]:
-            dependencies[stage].append('unwrap')
-        dependency_pins={}
-        for dependency in dependencies[stage]:
-            self.result(dependency);row=self.state['stages'][dependency]
+        dependency_pins={};checked={'results':{},'codeVersion':source_version()};self._verified=set()
+        for dependency in self.dependencies(stage):
+            self.result(dependency,_checked=checked);row=self.state['stages'][dependency]
             dependency_pins[dependency]=row
             previous=read(row['path']);inputs.append(row);inputs.extend(previous['outputs'])
             inputs.append(self.state['reviews'][dependency])
@@ -123,8 +158,16 @@ class Runner:
         begun=time.monotonic();receipt={'stage':stage,'manifestHash':digest(self.data),'bindingsHash':digest(self.bindings),
             'codeVersion':source_version(),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
         write(folder/'intent.json',receipt,fresh=True)
+        self._read=set();common.LIBRARIES_USED=set()
         try:
             result=self._execute(stage,folder);digest(result)
+            undeclared=self._read-stage_roles(stage,self.data)
+            require(not undeclared,'Stage read undeclared manifest inputs: '+', '.join(sorted(undeclared)))
+            undeclared=common.LIBRARIES_USED-stage_libraries(stage,self.data)
+            require(not undeclared,'Stage loaded undeclared libraries: '+', '.join(sorted(undeclared)))
+            # Only what the stage read is pinned (and re-verified now, after execution).
+            inputs+=[asset(self.manifest_path,self.data['inputs'][role]) for role in sorted(self._read)]
+            for name in sorted(common.LIBRARIES_USED):inputs.extend(self.bindings['libraries'][name]['files'])
             python_package_pins(self.bindings,require_imports=self.runtime is not None)
             verify(inputs)
             receipt.update(state='complete',result=result,outputs=[pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json','receipt.json')])
@@ -133,9 +176,22 @@ class Runner:
                 outputs=[pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json','receipt.json')])
             raise
         finally:
+            self._read=None;common.LIBRARIES_USED=None
             receipt['elapsedSeconds']=time.monotonic()-begun;write(folder/'receipt.json',receipt,fresh=True)
             self.state['stages'][stage]=pin(folder/'receipt.json');write(self.state_path,self.state)
         return {'reused':False,'result':result}
+
+    def _texture_dependencies(self,stage,dependencies):
+        # Configured paint replaces the bake as colour source; rule ownership reads paint masks and the baked metallic.
+        inputs=self.data['inputs'];baked=[] if 'basecolor4k' in inputs else ['bake']
+        dependencies['paint']=baked+([] if 'uvMesh' in inputs else ['unwrap'])
+        if 'paint' in self.data and stage=='tone':dependencies['tone']=['paint']
+        if stage=='ownership' and self.data.get('ownership',{}).get('mode')=='rules':
+            dependencies['ownership']+=(['paint'] if 'paint' in self.data else [])+baked
+
+    def _color4k(self,*,painted=True):
+        if painted and 'paint' in self.data:return self.result('paint')['maps']['basecolor-4096.png']['path']
+        return self.input('basecolor4k') if 'basecolor4k' in self.data['inputs'] else self.result('bake')['maps']['basecolor-4096.png']['path']
 
     def _execute(self,stage,folder):
         m=self.data;b=self.bindings
@@ -153,26 +209,18 @@ class Runner:
             return precluster(self.input('raw'),folder/'oriented.glb',b)
         if stage=='repair':
             from .mesh import repair
-            return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')))
+            return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=m.get('fit'))
         if stage=='unwrap':
             from .gltf import mesh,write_mesh
-            from .uv import unwrap,raster_audit,gutter_audit,chart_ids
+            from .uv import unwrap,raster_audit,audit_imported_uvs
             source=self.source('repairedMesh','repair','source')
             value=mesh(source);original=value['positions'][value['faces']].copy();normals=value['normals']
+            subtexel=m['mesh'].get('maximumSubtexelFraction',.005)
             if m['mesh'].get('reuseReviewedUvs',False):
-                audits={}
-                for size in (4096,2048,1024):
-                    audit,owners=raster_audit(value['uv'],size)
-                    require(not audit['overlapFaces'] and not audit['degenerateUvFaces'],'Imported atlas failed UV audit')
-                    gutters=gutter_audit(value['uv'],size,owners)
-                    require(audit['coverageFraction']>=.30,'Insufficient useful imported atlas coverage')
-                    if size==1024:require(not gutters['nearbyChartPixelsByRadius']['1'],'Imported atlas has unsafe 1K chart gutters')
-                    audits[str(size)]={'raster':audit,'gutters':gutters}
-                require(int(chart_ids(value['uv']).max())+1<=max(256,len(value['faces'])*.3),'Severe imported chart fragmentation')
-                result={'imported':True,'audits':audits,'visualReviewRequired':True}
+                result=audit_imported_uvs(value,subtexel,m['mesh'].get('uv',{}))
             else:
-                value,result=unwrap(value,b,m.get('mesh',{}).get('uv',{}))
-                audit,_=raster_audit(value['uv'],4096);require(not audit['overlapFaces'] and not audit['degenerateUvFaces'],'4K UV audit failed')
+                value,result=unwrap(value,b,dict(m.get('mesh',{}).get('uv',{}),maximumSubtexelFraction=subtexel))
+                audit,_=raster_audit(value['uv'],4096);require(not audit['overlapFaces'] and not audit['degenerateUvFaces'] and not audit['unmappedUvFaces'],'4K UV audit failed')
                 result['source4kAudit']=audit
             require(np.array_equal(original,value['positions'][value['faces']]),'UV processing changed ordered triangle corners')
             path=folder/'uv.glb';write_mesh(path,value['positions'],value['faces'],value['uv'],normals)
@@ -180,25 +228,37 @@ class Runner:
         if stage=='bake':
             from .textures import bake
             source=self.source('uvMesh','unwrap','mesh')
-            return bake(source,self.input('field'),folder/'maps',allow_decoder_overshoot=m['mesh'].get('allowDecoderOvershoot',False))
+            return bake(source,self.input('field'),folder/'maps',allow_decoder_overshoot=m['mesh'].get('allowDecoderOvershoot',False),
+                        max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005))
+        if stage=='paint':
+            from .paint import paint
+            return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps')
         if stage=='ownership':
             from .palette import project_ownership
-            source=self.source('uvMesh','unwrap','mesh');config=m['ownership']
-            require(config.get('sourceSha256')==pin(source)['sha256'] and config.get('reviewed') is True,
+            source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={}
+            # Rules are bbox-relative data, not a mesh-bound annotation; the stage review binds their exact output.
+            require(config.get('reviewed') is True and (config.get('mode')=='rules' or config.get('sourceSha256')==pin(source)['sha256']),
                     'Ownership review must bind the exact UV mesh')
-            if config['mode']=='atlas':
+            if config['mode']=='rules':
+                from .paint import rule_ownership,PREVIEW
+                masks={name:row['path'] for name,row in self.result('paint')['masks'].items()} if 'paint' in m else {}
+                metallic=self.input('metallic4k') if 'metallic4k' in m['inputs'] else None if 'basecolor4k' in m['inputs'] else self.result('bake')['maps']['metallic-4096.png']['path']
+                labels,report=rule_ownership(source,self._color4k(),config,metallic=metallic,masks=masks)
+                require(labels.shape==(4096,4096),'4K discrete ownership atlas required');image=Image.fromarray(labels)
+                Image.fromarray(PREVIEW[labels]).resize((1024,1024),Image.Resampling.NEAREST).save(folder/'ownership-preview-1024.png')
+            elif config['mode']=='atlas':
                 image=Image.open(self.input('ownership4k'));require(image.mode=='L' and image.size==(4096,4096),'4K discrete ownership atlas required')
             else:
                 require(config['mode']=='project','Unsupported ownership mode')
                 views=[dict(row,mask=self.input(row['maskInput'])) for row in config['views']]
-                project_ownership(source,views,b['embree'],folder/'projected.png')
+                project_ownership(source,views,b['embree'],folder/'projected.png',max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005))
                 image=Image.open(folder/'projected.png').resize((4096,4096),Image.Resampling.NEAREST)
             require(np.max(np.asarray(image))<=9,'Unknown ownership must be resolved before proceeding')
             image.save(folder/'ownership-4096.png');image.resize((1024,1024),Image.Resampling.NEAREST).save(folder/'ownership-1024.png')
-            return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True}
+            return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
         if stage=='tone':
             from .textures import tone_match
-            color=self.source('basecolor4k','bake','unused') if 'basecolor4k' in m['inputs'] else self.result('bake')['maps']['basecolor-4096.png']['path']
+            color=self._color4k()
             if 'ownership4k' in m['inputs']:
                 ownership=self.input('ownership4k');ownership_source=ownership;ownership_role='ownership4k';upsampling=None
             elif 'ownership1k' in m['inputs']:
@@ -219,7 +279,13 @@ class Runner:
                     if path==ownership:
                         require(image.mode=='L','Tone ownership must be an eight-bit L image')
                         require(np.max(np.asarray(image))<=9,'Unknown ownership must be resolved before tone matching')
-            output=folder/'tone-4096.png';result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
+            output=folder/'tone-4096.png'
+            if m['tone'].get('mode')=='adjust':
+                # Reference-free per-channel adjustment; no operations is an explicit reviewed pass-through.
+                from .paint import adjust
+                keys={op['palette'] for op in m['tone'].get('operations',[]) if 'palette' in op}
+                result=adjust(color,ownership,m['tone'],{key:self.input(m['palette']['inputs'][key]) for key in keys},output)
+            else:result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
             result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
                           ownershipForTone=pin(ownership),ownershipUpsampling=upsampling)
             image=Image.open(output)
@@ -229,10 +295,18 @@ class Runner:
                 path=folder/f'tone-{size}.png';image.resize((size,size),Image.Resampling.BOX).save(path);result['maps'][str(size)]=pin(path)
             return result
         if stage=='palette':
-            from .palette import quantize
+            from .palette import quantize,rank_rows
             color=self.input('runtimeColor') if 'runtimeColor' in m['inputs'] else self.result('tone')['maps']['1024']['path']
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
-            return quantize(color,self.input('ownership1k') if 'ownership1k' in m['inputs'] else self.result('ownership')['onek']['path'],palettes,m['palette']['rows'],folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'))
+            ownership=self.input('ownership1k') if 'ownership1k' in m['inputs'] else self.result('ownership')['onek']['path']
+            rows=m['palette']['rows'];rows={key:'auto' for key in palettes} if rows=='auto' else dict(rows);ranking=None
+            if 'auto' in rows.values():
+                # Exact fast ranking picks the lowest-error stock row; the full top list stays in the receipt for review.
+                ranking=rank_rows(color,ownership,{key:palettes[key] for key,row in rows.items() if row=='auto' and key in palettes})
+                rows.update({key:row['row'] for key,row in ranking.items()});write(folder/'row-ranking.json',ranking,fresh=True)
+            result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'))
+            if ranking is not None:result['rowRanking']=ranking
+            return result
         if stage=='export':
             from .native import prepare
             source=self.source('uvMesh','unwrap','mesh')
@@ -248,7 +322,22 @@ class Runner:
                 require(audit_result.get('passed') is True,
                         'Imported mesh failed topology/collision audit; retain the failed audit evidence')
                 geometry_audit=pin(audit_path)
-            result=prepare(source,shades,layers,m['fit'],m['fit']['model'],folder/'converted')
+            uv_audit=None
+            if 'uvMesh' in m['inputs']:
+                from .gltf import mesh
+                from .uv import audit_imported_uvs
+                uv_result=audit_imported_uvs(mesh(source),m.get('mesh',{}).get('maximumSubtexelFraction',.005),m.get('mesh',{}).get('uv',{}))
+                uv_path=folder/'imported-uv-audit.json';write(uv_path,uv_result,fresh=True)
+                uv_audit=pin(uv_path)
+            fit=m['fit']
+            if fit.get('sourceStage')=='unwrap':
+                # A reviewed matrix fit chosen before UVs exist binds to this run's reviewed unwrap output, never to an
+                # imported mesh; the manifest cannot carry that hash without invalidating every earlier receipt.
+                require('uvMesh' not in m['inputs'] and 'sourceSha256' not in fit,"sourceStage binding is only for this run's own unwrap")
+                fit=dict(fit,sourceSha256=pin(source)['sha256'])
+            result=prepare(source,shades,layers,fit,fit['model'],folder/'converted')
+            if fit is not m['fit']:result['fitBinding']={'sourceStage':'unwrap','unwrapReceipt':self.state['stages']['unwrap']}
+            if uv_audit is not None:result['uvAudit']=uv_audit
             if geometry_audit is not None:result['geometryAudit']=geometry_audit
             return result
         if stage=='native':

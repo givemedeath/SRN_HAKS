@@ -6,6 +6,7 @@ Ordinary main.py startup retains the conservative static verifier.
 """
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 import runpy
 import sys
@@ -21,7 +22,9 @@ def main():
     snapshot_code=compile((adapter/'source_snapshot.py').read_bytes(),str(adapter/'source_snapshot.py'),
                           'exec',dont_inherit=True,optimize=sys.flags.optimize)
     exec(snapshot_code,snapshot.__dict__)
-    inventory = snapshot.load_inventory(adapter/'source-roots.json', adapter.parent.parent)
+    # External custom-node installations need not sit immediately below the core.
+    declared = json.loads((adapter/'source-roots.json').read_text(encoding='utf-8'))
+    inventory = snapshot.load_inventory(adapter/'source-roots.json', declared['inventory']['core'])
     roots = [Path(value).resolve() for value in inventory['roots']]
     pinned = {Path(row['path']): row['sha256'] for row in inventory['files']}
     executed = {}
