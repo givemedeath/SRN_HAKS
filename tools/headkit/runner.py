@@ -48,6 +48,18 @@ def unworded(value):
     return [unworded(v) for v in value] if isinstance(value,list) else value
 
 
+def same_content(pin_row):
+    """Comparable identity of a stage output: sha256 for binaries; JSON audits (which embed their own attempt folder,
+    upstream attempt paths and wall-clock timings) compare after attempt-NN -> attempt-* and without *Seconds fields."""
+    if not str(pin_row['path']).endswith('.json'):return pin_row['sha256']
+    import re
+    def walk(value):
+        if isinstance(value,dict):return {k:walk(v) for k,v in value.items() if not (k=='seconds' or k.endswith('Seconds'))}
+        if isinstance(value,list):return [walk(v) for v in value]
+        return re.sub(r'attempt-\d+','attempt-*',value) if isinstance(value,str) else value
+    return 'json:'+digest(walk(read(pin_row['path'])))
+
+
 class Runner:
     def __init__(self, manifest_path, bindings_path, run, *, runtime=None):
         self.manifest_path=Path(manifest_path).resolve();self.bindings_path=Path(bindings_path).resolve()
@@ -223,7 +235,7 @@ class Runner:
         old=self.state.get('reviews',{}).get(stage);row=self.state['stages'][stage]
         if old is None:return None
         def files(receipt,path):
-            base=Path(path).parent;return {Path(p['path']).relative_to(base).as_posix():p['sha256'] for p in receipt['outputs']}
+            base=Path(path).parent;return {Path(p['path']).relative_to(base).as_posix():same_content(p) for p in receipt['outputs']}
         try:
             self._verify([old]);review=read(old['path']);bound=review.get('stageReceipt')
             if review.get('decision')!='approved' or not isinstance(bound,dict) or bound==row:return None
@@ -232,7 +244,8 @@ class Runner:
                   and current['outputs'] and files(previous,bound['path'])==files(current,row['path']))
         except (ValueError,OSError,KeyError):return None
         if not same:return None
-        notes=f"Carried from {Path(bound['path']).parent.name}: identical outputs (sha256). {review['notes']}"
+        notes=(f"Carried from {Path(bound['path']).parent.name}: identical outputs (binary sha256; JSON equal apart from attempt "
+               f"numbers and timings). {review['notes']}")
         return self._record_review(stage,{'stageReceipt':row,'decision':'approved','notes':notes,'productionAccepted':False,'carriedFrom':old})
 
     def _texture_dependencies(self,stage,dependencies):

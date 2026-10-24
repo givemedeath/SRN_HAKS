@@ -2248,7 +2248,7 @@ class ChainTests(Temporary):
         self.assertEqual((rows['repair']['status'],rows['repair']['review'],rows['unwrap']['status']),('ran','carried','ran'))
         carried=runner.state['reviews']['repair'];self.assertEqual(rows['repair']['carriedReview'],carried)
         review=read(carried['path']);self.assertEqual(review['carriedFrom'],old);self.assertEqual(review['decision'],'approved')
-        self.assertEqual(review['notes'],'Carried from attempt-01: identical outputs (sha256). Inspected repair')
+        self.assertEqual(review['notes'],'Carried from attempt-01: identical outputs (binary sha256; JSON equal apart from attempt numbers and timings). Inspected repair')
         self.assertEqual(review['stageReceipt'],runner.state['stages']['repair']);self.assertIn('attempt-02',review['stageReceipt']['path'])
         self.assertIn('artifact',runner.result('repair'))
     def test_changed_rerun_output_is_not_carried(self):
@@ -2257,6 +2257,19 @@ class ChainTests(Temporary):
         self.assertEqual(rows['repair']['review'],'pending');self.assertNotIn('carriedReview',rows['repair'])
         self.assertEqual((rows['unwrap']['status'],rows['unwrap']['dependency']),('blocked-on-review','repair'))
         self.assertEqual(runner.state['reviews']['repair'],old);self.assertEqual(len(list((runner.run/'reviews').glob('repair-*'))),1)
+    def test_json_audits_carry_across_attempt_paths_and_timings_but_not_values(self):
+        def rerun(value,seconds):
+            def work(stage,folder):
+                audit=folder/'audit.json';write(audit,{'source':str(folder/'master.glb'),'elapsedSeconds':seconds,'relativeMaximum':value})
+                (folder/'final.glb').write_bytes(b'shell');return {'audit':pin(audit),'final':pin(folder/'final.glb')}
+            with patch.object(runner,'_execute',side_effect=work):return chain(runner,['repair'])
+        from headkit.__main__ import chain
+        for value,carried in ((.004,True),(.005,False)):
+            with self.subTest(value=value):
+                self.root=self.root/f'case-{value}';self.root.mkdir();runner=self.fixture()
+                rerun(.004,12.5);runner.review('repair','approved','Inspected repair');runner.data['mesh']={'alphaWrap':False}
+                row={row['stage']:row for row in rerun(value,97.25)['stages']}['repair']
+                self.assertEqual(row['review'],'carried' if carried else 'pending')
     def test_rejected_or_absent_review_is_not_carried(self):
         for decision in ('rejected',None):
             with self.subTest(decision=decision):
