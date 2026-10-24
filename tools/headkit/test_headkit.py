@@ -632,6 +632,36 @@ class MeshTests(Temporary):
     def test_bell_fixture_is_closed_and_crossing_free(self):
         from headkit.intersections import scan
         p,f=self.bell();self.assertTrue(topology(p,f)['closed']);self.assertFalse(scan(p,f)['pairs'])
+    def test_pinched_vertex_link_is_not_closed(self):
+        p,f=self.tetra();report=topology(np.r_[p,-p],np.r_[f,(f+4)[:,::-1]])  # two tetrahedra sharing only the origin
+        self.assertEqual((report['boundaryEdges'],report['nonmanifoldEdges'],report['windingConflicts'],report['invalidVertexLinks']),(0,0,0,1));self.assertFalse(report['closed'])
+    def test_batched_crossing_scan_matches_one_chunk_at_a_time(self):
+        from headkit.intersections import scan,sphere_aabb_pairs,crossing_pairs
+        rng=np.random.default_rng(5);soup=rng.random((700,1,3))+np.exp2(rng.integers(-6,-2,(700,1,1)))*rng.normal(size=(700,3,3))
+        t=np.array([[0,0,0],[.3,0,0],[0,.3,0]]);lift=np.array([[0,0,0],[0,0,0],[0,0,1e-12]])
+        crafted=[(t,t+[.1,.1,0]),(t,t+[.3,0,0]),(t,[[.3,0,0],[0,.3,0],[.3,.3,0]]),(t,t+[.1,.1,0]+lift),  # coplanar overlap, vertex touch, shared edge, near-coplanar overlap
+                 (t,[[.1,.1,-.1],[.1,.1,.1],[.2,.05,0]]),(t,[[.1,.1,0],[.1,.1,.2],[.15,.1,.2]]),(t,[[.1,.1,1e-9],[.1,.1,.2],[.15,.1,.2]])]  # crossing, interior touch, near miss
+        tri=np.r_[soup,[np.asarray(x,float)+[2+i,2,2] for i,pair in enumerate(crafted) for x in pair]];p,f=tri.reshape(-1,3),np.arange(3*len(tri)).reshape(-1,3)
+        chunks=list(sphere_aabb_pairs(p,f,block=64))  # one tree query and one exact batch per 64-face chunk, as before batching
+        for block in (128,16384):
+            got=list(sphere_aabb_pairs(p,f,block=block));self.assertEqual(len(got),len(chunks))
+            for a,b in zip(got,chunks):np.testing.assert_array_equal(a,b)
+        def reference(cap):
+            hits,checked,log=[],0,[]
+            for n,pairs in enumerate(chunks,1):
+                if checked+len(pairs)>cap:return {'complete':False,'pairs':hits,'candidatePairs':checked,'nextBatchPairs':len(pairs)},log
+                hits+=pairs[crossing_pairs(tri[pairs[:,0]],tri[pairs[:,1]])].tolist();checked+=len(pairs)
+                if n%50==0:log.append({'candidatePairs':checked,'intersectionPairs':len(hits),'batches':n})
+            return {'complete':True,'pairs':hits,'candidatePairs':checked},log
+        total=sum(map(len,chunks));self.assertGreater(len(chunks),50)  # six radius bins, several blocks each, one progress report
+        for cap in (total,total-1,total//2,1,0):
+            want,want_log=reference(cap)
+            for workers,block in ((1,64),(4,128),(3,16384)):
+                with self.subTest(cap=cap,workers=workers,block=block):
+                    log=[];got=scan(p,f,max_pairs=cap,progress=log.append,workers=workers,block=block)
+                    self.assertEqual({k:got.get(k) for k in want},want);self.assertEqual([{k:v for k,v in row.items() if k!='elapsedSeconds'} for row in log],want_log)
+        hits=scan(p,f)['pairs'];self.assertGreater(len(hits),10)
+        self.assertEqual(sorted(pair for pair in hits if pair[0]>=700),[[700,701],[706,707],[708,709]])  # strict crossings only; touching and near misses pass
     def test_neck_taper_profile_is_monotonic_and_c1_without_a_shelf(self):
         from headkit.mesh import taper_scale
         taper=self.NECK['taper'];bottom=-.1;z=np.linspace(.0,bottom,4001);dz=z[0]-z[1]
