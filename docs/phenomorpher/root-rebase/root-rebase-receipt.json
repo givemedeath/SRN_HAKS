@@ -1,0 +1,686 @@
+{
+ "schemaVersion": 1,
+ "kind": "PhenoMorpher-root-rebase",
+ "version": "1.2.0",
+ "contract": {
+  "sha256": "582c25d1908854477fdff7a6b89655f6d6bef5a76c607875f0a909a681e1672a",
+  "version": "1.1.0"
+ },
+ "tolerance": 1e-06,
+ "models": {
+  "pfd0": {
+   "path": "srn_body/pfd0.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.047651682049036026
+   ],
+   "fromSHA256": "787e728a400ea9f24a27afd4bc5b38eae923708bb0ab607b2a6d98c4e5047bcf",
+   "toSHA256": "6b1da63b2ff0ee8756d03fef35b48a3f94790d373a7fa8d07cedbcb22f2bda0f",
+   "bytes": 11508,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 3.3527612686157227e-08,
+   "bindWorstElement": 3.3527612686157227e-08
+  },
+  "pfd2": {
+   "path": "srn_body/pfd2.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.047651682049036026
+   ],
+   "fromSHA256": "1250826f42cbd0fbe5858d8945ac21103ac00208e1435360a090a5938c0cf111",
+   "toSHA256": "34ed6106bc69d683ea8969b5b2e869c967a2a0b1155d87f49c01e23440dbc78f",
+   "bytes": 11508,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 3.3527612686157227e-08,
+   "bindWorstElement": 3.3527612686157227e-08
+  },
+  "pfe0": {
+   "path": "srn_body/pfe0.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    0.011937453411519527
+   ],
+   "fromSHA256": "f6b9a33bf7236eafe937653089cad3e0a9d54b200e7d68ef215059c1eecb7400",
+   "toSHA256": "c7f8d7aa808059dcd5738d62628423c10f3d07770727a7c3f29194f84f15f8c0",
+   "bytes": 11508,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 7.35744833946228e-08,
+   "bindWorstElement": 7.35744833946228e-08
+  },
+  "pfe2": {
+   "path": "srn_body/pfe2.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    0.011937453411519527
+   ],
+   "fromSHA256": "66a7f15cfd56c46d31c4c593e2fa4354301165b2f530079c75fb13c2a30ede1d",
+   "toSHA256": "81fc9e869235b17db4a0ebbebb858b85a1d5822116d4f60cc930aeb10b7871cf",
+   "bytes": 11508,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 7.35744833946228e-08,
+   "bindWorstElement": 7.35744833946228e-08
+  },
+  "pfg0": {
+   "path": "srn_body/pfg0.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.029636872932314873
+   ],
+   "fromSHA256": "de7f7a2bbb5bebacf68f456fa4a22b11394be5f611a9741d3fbdfe6dcd018e58",
+   "toSHA256": "c916902040b3b8d772da5e510c6530e89fcf6fd1454b9e75fdd807bce47178d9",
+   "bytes": 11508,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 14,
+   "maxFloat32Rounding": 1.30385160446167e-08,
+   "bindWorstElement": 1.30385160446167e-08
+  },
+  "pfg2": {
+   "path": "srn_body/pfg2.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.029636872932314873
+   ],
+   "fromSHA256": "26bfe3f57827a932329655b33506eb19c57e434ceed5276674d33774e0f19ee8",
+   "toSHA256": "cabf2042826eea2958be7f866cb82d5689dd9aa368304893f475c7621b1add5d",
+   "bytes": 11508,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 14,
+   "maxFloat32Rounding": 1.30385160446167e-08,
+   "bindWorstElement": 1.30385160446167e-08
+  },
+  "pfo0": {
+   "path": "srn_body/pfo0.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.025812234729528427
+   ],
+   "fromSHA256": "6fafdc65b312dff879416b49896854a18cf47cb1a9c63b58b0d1de30f96a9851",
+   "toSHA256": "966b61bfc02805090a2fe210fa2edff057084c1a05c8937f05fadf580fd04b1c",
+   "bytes": 11508,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 8.568167686462402e-08,
+   "bindWorstElement": 8.568167686462402e-08
+  },
+  "pfo2": {
+   "path": "srn_body/pfo2.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.025812234729528427
+   ],
+   "fromSHA256": "15f8948c49aa2694af59b6f15a050ae5bf74838edb2ea54bb8d4500327dd5042",
+   "toSHA256": "015f3e51ed548f9e4c3f62c5f82ad920fa880cb578a091d797370a1bff505ebb",
+   "bytes": 11508,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 8.568167686462402e-08,
+   "bindWorstElement": 8.568167686462402e-08
+  },
+  "pmd0": {
+   "path": "srn_body/pmd0.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.06166069582104683
+   ],
+   "fromSHA256": "8af4361b7de4d90879ac86a805fecfabfe392866f2f8ef6c1132b5f35ec6a132",
+   "toSHA256": "320128cecc9b688fbdb40fcf23332b4be18916ec83a53e466803a6477c7b01cf",
+   "bytes": 10096,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 4.842877388000488e-08,
+   "bindWorstElement": 4.842877388000488e-08
+  },
+  "pmd2": {
+   "path": "srn_body/pmd2.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.06166069582104683
+   ],
+   "fromSHA256": "7f929be5ad4b6393af3522d70b67746597acdd58d109311c8040b927a9241ac5",
+   "toSHA256": "511efd59da94934615ed3df5d158e8daa4b5a93ddd8828d7b0c41823998eebbb",
+   "bytes": 10096,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 4.842877388000488e-08,
+   "bindWorstElement": 4.842877388000488e-08
+  },
+  "pme0": {
+   "path": "srn_body/pme0.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    0.001091750105842948
+   ],
+   "fromSHA256": "e71fb7441ad24d7851436c1881cf9a0dbcf7d1f3307399feb1392e6eebf25561",
+   "toSHA256": "c4b04297fe06d3ccff271bcaf61ef7bf6b6452c3c8bceb3484e5f162d001d1a5",
+   "bytes": 10096,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 10,
+   "maxFloat32Rounding": 3.14321368932724e-08,
+   "bindWorstElement": 3.14321368932724e-08
+  },
+  "pme2": {
+   "path": "srn_body/pme2.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    0.001091750105842948
+   ],
+   "fromSHA256": "41e0a6da185ee8ea127ae0be5008238da661185038f2d522daacaa68014b892e",
+   "toSHA256": "80b09a81379d311db2e160436116dc4a433ce07152ee7cbac1c0115b29d21d66",
+   "bytes": 10096,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 10,
+   "maxFloat32Rounding": 3.14321368932724e-08,
+   "bindWorstElement": 3.14321368932724e-08
+  },
+  "pmg0": {
+   "path": "srn_body/pmg0.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.06596150249242783
+   ],
+   "fromSHA256": "216d778a2f207ec4ab142ba80b99c48be7380d9fad2662d936fbb143ef282863",
+   "toSHA256": "18c7eb385625c009533cd0dae951d1304c5ee699d8e00592261b03fe394a3240",
+   "bytes": 10096,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 9.685754776000977e-08,
+   "bindWorstElement": 9.685754776000977e-08
+  },
+  "pmg2": {
+   "path": "srn_body/pmg2.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.06596150249242783
+   ],
+   "fromSHA256": "3ab6771bb4bbdf79aba6cc83e204c65d49c5bd7616608515465de76beb3166d1",
+   "toSHA256": "9d8cf5f9b925a0f2208b2738c574f5c44fba669786373d1f0f00a134f65e4f96",
+   "bytes": 10096,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 9.685754776000977e-08,
+   "bindWorstElement": 9.685754776000977e-08
+  },
+  "pmo0": {
+   "path": "srn_body/pmo0.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.05953027680516243
+   ],
+   "fromSHA256": "8293f15ad9c9a813b82124b7d6c32654ac05878f22993d5cf6c6eb55b942e35f",
+   "toSHA256": "1543b4dcf7d39420f92a7cf2b3be7bb5869766e66c3b1b6bc009810a13a3b226",
+   "bytes": 10096,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 1.862645149230957e-08,
+   "bindWorstElement": 1.862645149230957e-08
+  },
+  "pmo2": {
+   "path": "srn_body/pmo2.mdl",
+   "role": "fitted-rig",
+   "offset": [
+    0.0,
+    0.0,
+    -0.05953027680516243
+   ],
+   "fromSHA256": "3f6314daf0dd4e9c406aadf5ee727ab4b52821ac84fd2183450039e56676011e",
+   "toSHA256": "327f8044533287fbf709b8d7b37794f08a6f5038a57d31736389b2772fd2f968",
+   "bytes": 10096,
+   "patchedControllers": 4,
+   "patchedClipKeyControllers": 0,
+   "patchedBytes": 48,
+   "changedBytes": 13,
+   "maxFloat32Rounding": 1.862645149230957e-08,
+   "bindWorstElement": 1.862645149230957e-08
+  },
+  "srn_an_df": {
+   "path": "srn_body/srn_an_df.mdl",
+   "role": "animation-library",
+   "offset": [
+    0.0,
+    0.0,
+    -0.047651682049036026
+   ],
+   "fromSHA256": "880ebdd3835b758b2cafac706ffd8090e134ff1a0ba7f29aa15c861b633e6336",
+   "toSHA256": "8c591a33aac9100257b2171427a660984fb479b8dd143b6baa86a021496cb8dc",
+   "bytes": 2258216,
+   "patchedControllers": 151,
+   "patchedClipKeyControllers": 147,
+   "patchedBytes": 22152,
+   "changedBytes": 5561,
+   "maxFloat32Rounding": 3.91155481338501e-07,
+   "bindWorstElement": 3.3527612686157227e-08
+  },
+  "srn_an_dm": {
+   "path": "srn_body/srn_an_dm.mdl",
+   "role": "animation-library",
+   "offset": [
+    0.0,
+    0.0,
+    -0.06166069582104683
+   ],
+   "fromSHA256": "0c411fe7420579d051404f4d6f83ca825c56ebb174e1e1981b812c6fe380d036",
+   "toSHA256": "3644af02279c0723891e1c6891a83436f6b289bb0da5d438fbb5b8bb84fb5fb2",
+   "bytes": 2175232,
+   "patchedControllers": 151,
+   "patchedClipKeyControllers": 147,
+   "patchedBytes": 19308,
+   "changedBytes": 4882,
+   "maxFloat32Rounding": 7.078051567077637e-08,
+   "bindWorstElement": 4.842877388000488e-08
+  },
+  "srn_an_ef": {
+   "path": "srn_body/srn_an_ef.mdl",
+   "role": "animation-library",
+   "offset": [
+    0.0,
+    0.0,
+    0.011937453411519527
+   ],
+   "fromSHA256": "ea379429c6f443f621caef7226a98071a76fdb8950ba265a225e0849e33103f6",
+   "toSHA256": "3ad211a8965a0667b0ab2a53543b0ab2e2300b9ac784aac2ef0945d081a55adb",
+   "bytes": 2094012,
+   "patchedControllers": 151,
+   "patchedClipKeyControllers": 147,
+   "patchedBytes": 22152,
+   "changedBytes": 5533,
+   "maxFloat32Rounding": 6.416812539100647e-07,
+   "bindWorstElement": 7.35744833946228e-08
+  },
+  "srn_an_em": {
+   "path": "srn_body/srn_an_em.mdl",
+   "role": "animation-library",
+   "offset": [
+    0.0,
+    0.0,
+    0.001091750105842948
+   ],
+   "fromSHA256": "4389324cf707ec9f8aeca148c4e40f75f5f933055398c770c35db6ecb4c83dba",
+   "toSHA256": "54a25fef721fee48c1e35a01fde783db88660d94017215ec4bb6e4ffd23ba91a",
+   "bytes": 2004696,
+   "patchedControllers": 151,
+   "patchedClipKeyControllers": 147,
+   "patchedBytes": 19308,
+   "changedBytes": 3519,
+   "maxFloat32Rounding": 7.466878741979599e-07,
+   "bindWorstElement": 3.14321368932724e-08
+  },
+  "srn_an_gf": {
+   "path": "srn_body/srn_an_gf.mdl",
+   "role": "animation-library",
+   "offset": [
+    0.0,
+    0.0,
+    -0.029636872932314873
+   ],
+   "fromSHA256": "15e5a9763c32adeeb155ed62f85479b1daf8fa383a8e04c0567e13e8e8e981e9",
+   "toSHA256": "537b7dd59f71f288ac7cacd3c3f63680b992b01dfe0e20f00552f54bdb73aafb",
+   "bytes": 2094012,
+   "patchedControllers": 151,
+   "patchedClipKeyControllers": 147,
+   "patchedBytes": 22152,
+   "changedBytes": 5541,
+   "maxFloat32Rounding": 4.898756742477417e-07,
+   "bindWorstElement": 1.30385160446167e-08
+  },
+  "srn_an_gm": {
+   "path": "srn_body/srn_an_gm.mdl",
+   "role": "animation-library",
+   "offset": [
+    0.0,
+    0.0,
+    -0.06596150249242783
+   ],
+   "fromSHA256": "4f7652f219ba8be8116549ae6b4f0b2a45ca55f202b185ff05648c7b803c53a4",
+   "toSHA256": "3ba2c0991de914f91c3f9f618f640a056256266b4b80d98b2a6b8e946dde73ad",
+   "bytes": 2004696,
+   "patchedControllers": 151,
+   "patchedClipKeyControllers": 147,
+   "patchedBytes": 19308,
+   "changedBytes": 4842,
+   "maxFloat32Rounding": 3.3527612686157227e-07,
+   "bindWorstElement": 9.685754776000977e-08
+  },
+  "srn_an_of": {
+   "path": "srn_body/srn_an_of.mdl",
+   "role": "animation-library",
+   "offset": [
+    0.0,
+    0.0,
+    -0.025812234729528427
+   ],
+   "fromSHA256": "7ab4d38e12cf5aeee922000b4b4a29dc4cc1aa305af1123f04dfed67c56efaa6",
+   "toSHA256": "b019b56229d7e3df4fe3964252fea3a77cb28b0fabd53675fe7c77a2552b5fe7",
+   "bytes": 2094012,
+   "patchedControllers": 151,
+   "patchedClipKeyControllers": 147,
+   "patchedBytes": 22152,
+   "changedBytes": 5557,
+   "maxFloat32Rounding": 8.568167686462402e-08,
+   "bindWorstElement": 8.568167686462402e-08
+  },
+  "srn_an_om": {
+   "path": "srn_body/srn_an_om.mdl",
+   "role": "animation-library",
+   "offset": [
+    0.0,
+    0.0,
+    -0.05953027680516243
+   ],
+   "fromSHA256": "e869c04d6db99ca6feb9c72bc76a8818b88af61195c48033c3e2377d99a3c794",
+   "toSHA256": "c03ddb94d93fcd037c3d169b4fee89eee27abcaadeb8a38ed5bee4cbdc6c7450",
+   "bytes": 2004696,
+   "patchedControllers": 151,
+   "patchedClipKeyControllers": 147,
+   "patchedBytes": 19308,
+   "changedBytes": 4870,
+   "maxFloat32Rounding": 1.862645149230957e-08,
+   "bindWorstElement": 1.862645149230957e-08
+  }
+ },
+ "equivalence": {
+  "pfd0": {
+   "chain": [
+    "pfd0",
+    "srn_an_df"
+   ],
+   "bindWorstElement": 3.3527612686157227e-08,
+   "clips": 168,
+   "worstClipDrift": {
+    "metres": 3.91155481338501e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pfd2": {
+   "chain": [
+    "pfd2",
+    "srn_an_df"
+   ],
+   "bindWorstElement": 3.3527612686157227e-08,
+   "clips": 168,
+   "worstClipDrift": {
+    "metres": 3.91155481338501e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pfe0": {
+   "chain": [
+    "pfe0",
+    "srn_an_ef"
+   ],
+   "bindWorstElement": 7.35744833946228e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 6.416812539100647e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pfe2": {
+   "chain": [
+    "pfe2",
+    "srn_an_ef"
+   ],
+   "bindWorstElement": 7.35744833946228e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 6.416812539100647e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pfg0": {
+   "chain": [
+    "pfg0",
+    "srn_an_gf"
+   ],
+   "bindWorstElement": 1.30385160446167e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 4.898756742477417e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pfg2": {
+   "chain": [
+    "pfg2",
+    "srn_an_gf"
+   ],
+   "bindWorstElement": 1.30385160446167e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 4.898756742477417e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pfo0": {
+   "chain": [
+    "pfo0",
+    "srn_an_of"
+   ],
+   "bindWorstElement": 8.568167686462402e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 8.568167686462402e-08,
+    "clip": "1hcloseh",
+    "node": "headconjure",
+    "time": 0.0
+   }
+  },
+  "pfo2": {
+   "chain": [
+    "pfo2",
+    "srn_an_of"
+   ],
+   "bindWorstElement": 8.568167686462402e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 8.568167686462402e-08,
+    "clip": "1hcloseh",
+    "node": "headconjure",
+    "time": 0.0
+   }
+  },
+  "pmd0": {
+   "chain": [
+    "pmd0",
+    "srn_an_dm"
+   ],
+   "bindWorstElement": 4.842877388000488e-08,
+   "clips": 169,
+   "worstClipDrift": {
+    "metres": 7.078051567077637e-08,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pmd2": {
+   "chain": [
+    "pmd2",
+    "srn_an_dm"
+   ],
+   "bindWorstElement": 4.842877388000488e-08,
+   "clips": 169,
+   "worstClipDrift": {
+    "metres": 7.078051567077637e-08,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pme0": {
+   "chain": [
+    "pme0",
+    "srn_an_em"
+   ],
+   "bindWorstElement": 3.14321368932724e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 7.466878741979599e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pme2": {
+   "chain": [
+    "pme2",
+    "srn_an_em"
+   ],
+   "bindWorstElement": 3.14321368932724e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 7.466878741979599e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pmg0": {
+   "chain": [
+    "pmg0",
+    "srn_an_gm"
+   ],
+   "bindWorstElement": 9.685754776000977e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 3.3527612686157227e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pmg2": {
+   "chain": [
+    "pmg2",
+    "srn_an_gm"
+   ],
+   "bindWorstElement": 9.685754776000977e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 3.3527612686157227e-07,
+    "clip": "appear",
+    "node": "rootdummy",
+    "time": 0.0
+   }
+  },
+  "pmo0": {
+   "chain": [
+    "pmo0",
+    "srn_an_om"
+   ],
+   "bindWorstElement": 1.862645149230957e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 1.8626451714354175e-08,
+    "clip": "mount1start",
+    "node": "rootdummy",
+    "time": 0.8499999940395355
+   }
+  },
+  "pmo2": {
+   "chain": [
+    "pmo2",
+    "srn_an_om"
+   ],
+   "bindWorstElement": 1.862645149230957e-08,
+   "clips": 147,
+   "worstClipDrift": {
+    "metres": 1.8626451714354175e-08,
+    "clip": "mount1start",
+    "node": "rootdummy",
+    "time": 0.8499999940395355
+   }
+  }
+ },
+ "runtimeRules": {
+  "mode": "structural",
+  "violationCounts": {},
+  "passed": true
+ },
+ "installedClipsChecked": false,
+ "summary": {
+  "version": "1.2.0",
+  "models": 24,
+  "targets": 16,
+  "worstBindElement": 9.685754776000977e-08,
+  "worstClipMetres": 7.466878741979599e-07,
+  "maxFloat32Rounding": 7.466878741979599e-07,
+  "runtimeRulesPassed": true
+ },
+ "assetApprovalCreated": false
+}
