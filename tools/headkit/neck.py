@@ -27,11 +27,13 @@ def neck_policy(neck, fit):
     number = lambda v: type(v) in (int, float) and np.isfinite(v)
     taper, seal, shorten, cut = neck.get('taper'), neck.get('seal'), neck.get('shorten'), neck.get('cut')
     if cut is not None:
-        require(isinstance(cut, dict) and 'height' in cut and set(cut) <= {'height', 'slope', 'band', 'offset', 'reach', 'rise', 'clearance', 'notes'}
+        require(isinstance(cut, dict) and 'height' in cut
+                and set(cut) <= {'height', 'slope', 'band', 'offset', 'reach', 'rise', 'clearance', 'searchBottom', 'notes'}
                 and (number(cut['height']) or cut['height'] == 'measured'),
-                "Neck cut declares a head-local height or 'measured' (optional slope, band, offset, reach, rise, clearance)")
-        cut = dict({'slope': 0.0, 'band': .03, 'offset': -.003, 'reach': .04, 'rise': .003, 'clearance': .01}, **cut)
+                "Neck cut declares a head-local height or 'measured' (optional slope, band, offset, reach, rise, clearance, searchBottom)")
+        cut = dict({'slope': 0.0, 'band': .03, 'offset': -.003, 'reach': .04, 'rise': .003, 'clearance': .01, 'searchBottom': -.16}, **cut)
         require(number(cut['clearance']) and 0 <= cut['clearance'] <= .04, 'Neck cut clearance outside the supported profile')
+        require(number(cut['searchBottom']) and -.3 <= cut['searchBottom'] <= -.05, 'Neck cut searchBottom outside -0.3..-0.05')
         require(number(cut['slope']) and abs(cut['slope']) <= .6, 'Neck cut slope (dz/dy) must be within +-0.6')
         require(number(cut['band']) and .01 <= cut['band'] <= .08 and number(cut['offset']) and -.015 <= cut['offset'] <= .005
                 and number(cut['reach']) and .01 <= cut['reach'] <= .12 and number(cut['rise']) and 0 < cut['rise'] <= .02,
@@ -110,12 +112,15 @@ def body_profile(bv, bf, low, high, bins=720):
     return lookup
 
 
-def jaw_line(local, bv, bf, reach, slope):
+def jaw_line(local, bv, bf, reach, slope, bottom=-.16):
     """Highest cut plane z = h + slope*y that passes under every front feature: over the front half below the head
     joint (y forward of the body neck centre), vertices standing more than `reach` outside the body neck are the chin,
     jaw corners, tusks or beard, never neck. h is the lowest of their z - slope*y; the neck below is what the cut
-    removes."""
-    low = max(float(local[:, 2].min()), float(bv[:, 2].min())+1e-4); candidates = local[(local[:, 2] < 0) & (local[:, 2] > low)]
+    removes. Only heights above `bottom` are searched: a long generated neck flares into a bust base about 20-25 cm under
+    the joint (from about -0.19), which stands outside the body neck too. -0.16 reproduces the reviewed explicit heights
+    of troll batch v2 (f15, f16, f19-f23; chins down to -0.136), where the unbounded search landed on the bust at -0.22..-0.25."""
+    low = max(float(local[:, 2].min()), float(bv[:, 2].min())+1e-4, bottom)
+    candidates = local[(local[:, 2] < 0) & (local[:, 2] > low)]
     lookup = body_profile(bv, bf, low, -1e-4); centre, surface, offset = lookup(candidates, candidates[:, 2])
     front = (offset[:, 1] > 0) & (np.linalg.norm(offset, axis=1)-surface > reach); features = candidates[front]
     require(len(features) > 0, 'No front feature (chin) stands beyond the reach; set an explicit cut height')
@@ -136,7 +141,7 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     open neck) are closed by `rewrap`, the repair's own Alpha Wrap, which seals every boundary inside the body neck."""
     cut = dict(neck['cut']); local = transform(neck['frame'], vertices); band = cut['band']; bv, bf = body; jaw = None
     if cut['height'] == 'measured':
-        jaw = jaw_line(local, bv, bf, cut['reach'], cut['slope']); cut['height'] = jaw['height']-cut['clearance']
+        jaw = jaw_line(local, bv, bf, cut['reach'], cut['slope'], cut['searchBottom']); cut['height'] = jaw['height']-cut['clearance']
     plane = lambda points: cut['height']+cut['slope']*points[:, 1]
     above = local[:, 2]-plane(local)
     require(above.min() < 0 < above.max(), 'Neck cut plane must cross the head')

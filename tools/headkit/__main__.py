@@ -142,14 +142,17 @@ def main():
     p=sub.add_parser('design');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--spec',required=True,type=Path)
     p.add_argument('--head',required=True);p.add_argument('--seed',required=True,type=int);p.add_argument('--batch',type=int,default=1)
     p.add_argument('--reference',action='append',default=[],type=Path);p.add_argument('--output',required=True,type=Path)
+    p.add_argument('--deadline',type=float,default=2700,help='Seconds to wait for the job, queue time included');p.add_argument('--front',action='store_true',help='Queue ahead of pending ComfyUI prompts')
     p=sub.add_parser('design-inpaint');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--spec',required=True,type=Path)
     p.add_argument('--design',required=True,type=Path);p.add_argument('--skin',required=True);p.add_argument('--seed',required=True,type=int)
     p.add_argument('--batch',type=int,default=2);p.add_argument('--cut',type=int);p.add_argument('--lift',type=int,default=24)
+    p.add_argument('--deadline',type=float,default=2700);p.add_argument('--front',action='store_true')
     p.add_argument('--name');p.add_argument('--output',required=True,type=Path)
     p.add_argument('--carve-top',type=int,help='carve mode: keep rows above this and the --keep jaw polygon; stump outline from --stump')
     p.add_argument('--keep',nargs='+',help='carve jaw keep polygon as x,y points');p.add_argument('--stump',help='carve stump cx,wTop,wBottom,ySide,yBottom')
+    p=sub.add_parser('check-occiput',help='Read-only open-back-of-skull check on raw Pixal GLBs (see occiput.py)');p.add_argument('glb',nargs='+',type=Path)
     a=parser.parse_args()
-    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs') else None
+    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput') else None
     if a.command in ('prepare','run','resume','status','review','chain'):
         from .runner import Runner
         if a.command=='status':result=Runner(a.manifest,a.bindings,a.run).status()
@@ -224,15 +227,19 @@ def main():
     elif a.command in ('design','design-inpaint'):
         from . import design
         local=bindings(a.bindings);client=comfy.Client(local['comfyUrl'])
-        if a.command=='design':result=design.generate(client,local,a.bindings,a.spec,a.head,a.seed,a.batch,a.reference,a.output,runtime=runtime)
+        if a.command=='design':result=design.generate(client,local,a.bindings,a.spec,a.head,a.seed,a.batch,a.reference,a.output,runtime=runtime,
+                                                         queue={'deadline':a.deadline,'front':a.front})
         else:
             carve=None
             if a.carve_top is not None or a.keep or a.stump:
                 require(a.carve_top is not None and a.keep and a.stump,'Carve needs --carve-top, --keep and --stump together')
                 carve={'top':a.carve_top,'keep':[[int(v) for v in point.split(',')] for point in a.keep],'stump':[float(v) for v in a.stump.split(',')]}
             result=design.inpaint(client,local,a.bindings,a.spec,a.design,a.skin,a.seed,a.batch,a.output,cut=a.cut,lift=a.lift,name=a.name,
-                                  runtime=runtime,carve=carve)
+                                  runtime=runtime,carve=carve,queue={'deadline':a.deadline,'front':a.front})
     elif a.command=='install-nodes':result=install_nodes(a.destination,bindings(a.bindings))
+    elif a.command=='check-occiput':
+        from .occiput import back_coverage
+        result={str(path):{k:v for k,v in back_coverage(path).items() if k!='bandSquareCm'} for path in a.glb}
     elif a.command=='fit-propose':
         from .fit import propose
         require(.0<=a.exclude_lower<=.5,'--exclude-lower must be 0..0.5');result=propose(a.source,a.reference,a.output,exclude_lower=a.exclude_lower)

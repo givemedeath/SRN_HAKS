@@ -1030,6 +1030,15 @@ class MeshTests(Temporary):
         _,_,hollow_record=neck_cut(self.glb(hollow),hf,neck,body,rewrap=rewrap)
         self.assertEqual((hollow_record['closure'],len(hollow_record['loops']),len(calls)),('rewrap',2,1))
         with self.assertRaisesRegex(ValueError,'cross the head'):neck_cut(self.glb(p),f,neck_policy({'cut':{'height':-.2}},fit),body)
+
+    def test_measured_jaw_ignores_a_flared_bust_below_the_search_bottom(self):
+        from headkit.neck import neck_policy,jaw_line
+        p,f,body=self.necked_head();flared=p.copy()
+        low=flared[:,2]<-.12;flared[low,:2]*=1.9  # a generated neck flaring into a bust base, beyond the reach
+        self.assertLess(jaw_line(flared,*body,.04,-.2,-1.0)['point'][2],-.12)  # unbounded: lands on the flare
+        jaw=jaw_line(flared,*body,.04,-.2,-.11);self.assertTrue(-.04<jaw['point'][2]<-.03)  # bounded: the chin again
+        self.assertEqual(neck_policy({'cut':{'height':'measured'}},{'matrix':np.eye(4).tolist(),'reviewed':True})['cut']['searchBottom'],-.16)
+        with self.assertRaisesRegex(ValueError,'searchBottom'):neck_policy({'cut':{'height':'measured','searchBottom':-.5}},{'matrix':np.eye(4).tolist(),'reviewed':True})
     def test_neck_cut_in_repair_needs_the_body_reference_and_keeps_one_closed_shell(self):
         from headkit import neck as mesh_module
         p,f,body=self.necked_head();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
@@ -3084,6 +3093,14 @@ class RenderPlanTests(Temporary):
 
 class ManifestDigestTests(Temporary):
     fixture=ResumeTests.fixture
+    def test_pinning_a_palette_row_stales_palette_but_not_tone(self):
+        # Tone reads only the palette images (palette.inputs); a row pin used to force a byte-identical tone rerun.
+        runner=self.fixture();runner.data['palette']={'inputs':{'0':'paletteSkin'},'rows':{'0':'auto'}}
+        before={stage:runner.manifest_digest(stage) for stage in ('tone','palette')}
+        runner.data['palette']['rows']={'0':42}
+        self.assertEqual(runner.manifest_digest('tone'),before['tone']);self.assertNotEqual(runner.manifest_digest('palette'),before['palette'])
+        runner.data['palette']['inputs']={'0':'paletteHair'}
+        self.assertNotEqual(runner.manifest_digest('tone'),before['tone'])
     def test_rewording_notes_never_changes_a_stage_digest(self):
         from headkit.runner import STAGES
         runner=self.fixture();data=runner.data
@@ -3130,7 +3147,8 @@ class StageCodeVersionTests(Temporary):
         self.assertIn('fit.py',fit);self.assertFalse({'mesh.py','uv.py','native.py'}&fit)
         self.assertTrue({'mesh.py','intersections.py'}<=repair);self.assertNotIn('uv.py',repair)
         self.assertIn('blender_render.py',{path.name for path in stage_code_files('render')})
-        self.assertIn('native_compile.py',{path.name for path in stage_code_files('native')})
+        native={path.name for path in stage_code_files('native')}
+        self.assertTrue({'native_compile.py','neverblender_mdl.py','neverblender_worker.py','rig_native.py'}<=native)
 
 
 class NativeDependencyTests(Temporary):
@@ -3140,8 +3158,8 @@ class NativeDependencyTests(Temporary):
         script="""import json,sys
 from pathlib import Path
 from headkit.common import ROOT
-from headkit.native import helpers
-helpers()
+from headkit.native import helpers,neverblender
+helpers();neverblender()
 sys.path.insert(0,str(ROOT/'tools/phenotypes'))
 import native_compile
 print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list(sys.modules.values())
@@ -3153,6 +3171,24 @@ print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list
         consumed.add(str(ROOT/'tools/shared-tools.lock.json'))
         for stage in ('native','export'):
             with self.subTest(stage=stage):self.assertFalse(consumed-{row['path'] for row in stage_code_pins(stage)})
+
+
+class OcciputTests(Temporary):
+    def test_open_back_of_skull_is_flagged_and_a_closed_skull_passes(self):
+        from headkit.gltf import write_mesh
+        from headkit.occiput import back_coverage
+        rows,segments=60,64;phi=np.linspace(.05,np.pi-.05,rows);theta=np.arange(segments)*2*np.pi/segments  # no pole vertices (degenerate fans)
+        # glTF frame: y up, face +z, back -z.
+        sphere=np.array([(np.sin(a)*np.sin(b),np.cos(a),np.sin(a)*np.cos(b)) for a in phi for b in theta])*.1
+        j=np.arange(segments);k=(j+1)%segments;faces=np.concatenate([np.c_[r*segments+j,r*segments+k,(r+1)*segments+k] for r in range(rows-1)]
+                                                                    +[np.c_[r*segments+j,(r+1)*segments+k,(r+1)*segments+j] for r in range(rows-1)])
+        write_mesh(self.root/'closed.glb',sphere,faces);closed=back_coverage(self.root/'closed.glb')
+        self.assertFalse(closed['open']);self.assertEqual(closed['lowBands'],[])
+        centroid=sphere[faces].mean(1);height=(centroid[:,1]+.1)/.2
+        hole=(centroid[:,2]<-.04)&(height>.45)&(height<.7)  # the occiput missing behind the face shell
+        kept=faces[~hole];used,remap=np.unique(kept,return_inverse=True)  # drop the vertices only the hole used
+        write_mesh(self.root/'open.glb',sphere[used],remap.reshape(-1,3));opened=back_coverage(self.root/'open.glb')
+        self.assertTrue(opened['open']);self.assertTrue(all(.45<=b<.7 for b in opened['lowBands']))
 
 
 class NeverblenderNativeTests(Temporary):
@@ -3702,6 +3738,17 @@ class DesignTests(Temporary):
         client=FakeDesignClient(self.local['comfyOutput'],polls=10**6);record={}
         with self.assertRaisesRegex(ValueError,'unfinished'):dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=0)
         self.assertEqual(client.routes,['/prompt','/history/prompt-7']);self.assertEqual(record['promptId'],'prompt-7')
+
+    def test_design_jobs_can_queue_in_front_with_a_longer_deadline(self):
+        # A design behind Pixal jobs on a shared ComfyUI hit the fixed 2700 s deadline (troll batch v2).
+        from headkit.design import dispatch,compile_design
+        client=FakeDesignClient(self.local['comfyOutput']);sent=[];request=client.request
+        client.request=lambda route,data=None:(sent.append(data) or request(route,data))
+        record={};dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=7200,front=True)
+        self.assertTrue(sent[0]['front']);self.assertEqual(record['queue'],{'deadline':7200,'front':True})
+        record={};sent.clear();dispatch(client,compile_design('p',[],1,1,'headkit-design/t/y'),'t',record)
+        self.assertNotIn('front',sent[0]);self.assertEqual(record['queue'],{'deadline':2700,'front':False})
+        with self.assertRaisesRegex(ValueError,'deadline'):dispatch(client,compile_design('p',[],1,1,'headkit-design/t/z'),'t',{},deadline=10**6)
 
     def test_inpaint_masks_rows_below_the_neck_cut_and_records_the_mask(self):
         client,result=self.inpaint();receipt=read(result['receipt'])
