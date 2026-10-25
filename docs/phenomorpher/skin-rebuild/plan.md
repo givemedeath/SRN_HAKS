@@ -4,7 +4,34 @@ Status: **proposed, not approved.** No asset changes until the user approves thi
 Baseline: contract 1.2.0 on `main` @ `769673e7`. Evidence from the review that prompted this plan:
 `output/phenomorpher/human-texture-review/` (ignored; client close-ups, texture sheets, measurement scripts).
 
-## 1. What is wrong (measured)
+## Correction after the G1 pilot (2026-10-25), which supersedes D1, D2 and Decision A below
+
+The pilot rasterised the mesh UVs and found the first diagnosis was partly wrong.
+* **D1 and D2 were measured on the wrong pixels.** The "detail" texels lie outside the mesh UVs; they are
+  bake gutter smear the game never samples. The "filler" is the texture actually used. Inside the used
+  area every Human part, Fit and Large, is one flat tone (male 145±1, female 128±1). The skin has no
+  painted shading at all, and there is no clipping.
+* **The real defects inside the used area:**
+  * no shading or variation, so the skin reads like a mannequin;
+  * dark gutter rims up to 67–145 values darker, which bleed in at seams (for example the streaks on the
+    back of the female calves);
+  * patchy female chest and pelvis roughness.
+* **Pilot method (`output/phenomorpher/skin-pilot/`):**
+  * keep each part's approved base tone;
+  * add ambient occlusion and cavity shading baked from the part's own skin meshes, with garment meshes
+    excluded;
+  * add 3D micro-variation and an even roughness field;
+  * fade all of it to the base tone within 4 cm of each part join, so neighbouring parts meet at one tone;
+  * pad 16 px.
+
+  Pilot v4 removes the calf streaks and the rims. The male bodies are clean under white, warm and flat
+  light.
+* **Not texture:** the female buttock band and knee line come from join geometry. They are planned
+  separately in `docs/phenomorpher/female-joins/plan.md`.
+* **Client fixture caveat:** pilot sessions before the `nwn.ini` alias fix loaded the shipped HAKs, so
+  conclusions drawn from them were void and have been withdrawn.
+
+## 1. What is wrong (as first measured; see the correction above)
 
 All findings are in the source assets. The Fit male chest PLT is byte-identical to its source
 `pmh0_chest237.plt` (`pm25fulltonea.hak`). The female PLTs were only downsampled from 2048 px. None of the
