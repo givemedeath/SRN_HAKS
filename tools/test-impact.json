@@ -26,6 +26,9 @@
       "tools/headkit/gltf.py",
       "tools/headkit/review_images.py"
     ],
+    "tools/headkit/body_neck.py": [
+      "tools/headkit/common.py"
+    ],
     "tools/headkit/cameras.py": [
       "tools/headkit/common.py"
     ],
@@ -131,8 +134,7 @@
     "tools/headkit/mesh.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
-      "tools/headkit/intersections.py",
-      "tools/headkit/relief.py"
+      "tools/headkit/intersections.py"
     ],
     "tools/headkit/model_contract.py": [
       "tools/headkit/comfy_nodes/model_resolution.py",
@@ -150,6 +152,12 @@
     ],
     "tools/headkit/native_reader.py": [
       "tools/headkit/common.py"
+    ],
+    "tools/headkit/neck.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/relief.py"
     ],
     "tools/headkit/paint.py": [
       "tools/headkit/common.py",
@@ -205,6 +213,7 @@
       "tools/headkit/images.py",
       "tools/headkit/mesh.py",
       "tools/headkit/native.py",
+      "tools/headkit/neck.py",
       "tools/headkit/paint.py",
       "tools/headkit/palette.py",
       "tools/headkit/review_images.py",
@@ -233,6 +242,7 @@
       "tools/headkit/__init__.py",
       "tools/headkit/__main__.py",
       "tools/headkit/blender_render.py",
+      "tools/headkit/body_neck.py",
       "tools/headkit/checkpoints.json",
       "tools/headkit/comfy.py",
       "tools/headkit/comfy_nodes/gltf.py",
@@ -257,6 +267,7 @@
       "tools/headkit/manifest.schema.json",
       "tools/headkit/mesh.py",
       "tools/headkit/native.py",
+      "tools/headkit/neck.py",
       "tools/headkit/paint.py",
       "tools/headkit/palette.py",
       "tools/headkit/preview.py",

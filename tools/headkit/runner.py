@@ -18,7 +18,7 @@ def stage_roles(stage,data):
     declaration fails the stage, so launch input lists built from it stay complete."""
     inputs=set(data.get('inputs',{}));palettes=set(data.get('palette',{}).get('inputs',{}).values())
     roles={'prepare':{r for r in inputs if r in ('clay','detail','design') or r.endswith(('Clay','Detail'))},
-        'precluster':{'raw'},'fit':{'fitReference','comfyExport'},'repair':{'comfyExport','shellInspection'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
+        'precluster':{'raw'},'fit':{'fitReference','comfyExport'},'repair':{'comfyExport','shellInspection','bodyNeck'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
         'paint':{'uvMesh','basecolor4k'},
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
         'tone':{'uvMesh','basecolor4k','metallic4k','ownership4k','ownership1k','detail','frontDetail'}|palettes,
@@ -280,10 +280,14 @@ class Runner:
         require('matrix' not in fit and 'reviewed' not in fit,'A staged fit takes its matrix and review from the fit stage only')
         return dict({k:v for k,v in fit.items() if k!='matrixFrom'},matrix=self.result('fit')['matrix'],reviewed=True)
 
+    def _body_neck(self):
+        # Only a neck cut reads the body's neck part (head-local), so other heads keep their repair inputs unchanged.
+        return self.input('bodyNeck') if (((self.data.get('mesh') or {}).get('neck') or {}).get('cut')) else None
+
     def _sealed(self):
         # Paint can address the neck seal faces only when this run's repair produced the mesh.
         inputs=self.data['inputs']
-        # A null mesh.neck is "no neck shaping" (mesh.neck_policy), exactly like an absent one.
+        # A null mesh.neck is "no neck shaping" (neck.neck_policy), exactly like an absent one.
         return not {'uvMesh','repairedMesh'}&set(inputs) and bool(((self.data.get('mesh') or {}).get('neck') or {}).get('seal'))
 
     def _stage_color(self,stage):
@@ -319,16 +323,16 @@ class Runner:
             source=self.input('comfyExport') if 'comfyExport' in m['inputs'] else self.result('precluster')['output']['path']
             return propose(source,self.input('fitReference'),folder/'fit',exclude_lower=m['fit'].get('excludeLower',.25),align=m['fit'].get('align','profile'))
         if stage=='repair':
-            from .mesh import repair
+            from .neck import repair
             if 'raw' not in m['inputs'] or 'comfyExport' in m['inputs']:
-                return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=self._fit())
+                return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=self._fit(),body=self._body_neck())
             # Chained route: the reviewed precluster output of this run, with the shell inspection declared inline
             # and bound here to that exact output (no hardlinked copy or second manifest edit).
             inspection=m['mesh'].get('shellInspection')
             require(isinstance(inspection,dict) and 'sourceSha256' not in inspection and 'shellInspection' not in m['inputs'],
                     "Chained repair needs an inline mesh.shellInspection without sourceSha256")
             source=self.result('precluster')['output'];self._verify([source])
-            return repair(source['path'],folder/'final.glb',b,m['mesh'],dict(inspection,sourceSha256=source['sha256']),fit=self._fit())
+            return repair(source['path'],folder/'final.glb',b,m['mesh'],dict(inspection,sourceSha256=source['sha256']),fit=self._fit(),body=self._body_neck())
         if stage=='unwrap':
             from .gltf import mesh,write_mesh
             from .uv import unwrap,raster_audit,audit_imported_uvs
