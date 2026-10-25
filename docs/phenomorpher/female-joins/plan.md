@@ -71,6 +71,32 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   skin; the thigh has the same issue (46%). Texture filtering and mipmaps bleed them in. The skin
   rebuild's 16 px padding removes them (skin pilot v4); the join profile still uses the shipped
   textures.
+* **v8 with the skin pilot (combined client check):** the skin pilot was re-baked on the v8 geometry and
+  packed with it.
+  * The shin marks are gone.
+  * There are two new shelf defects, both caused by the hip edit:
+    * **Front:** a horizontal step across the top of the thigh, just below the brief. The v6–v8 front
+      edit put the thigh top outside the pelvis, where shipped keeps it 8–24 mm inside.
+    * **Rear:** a jagged flap under the brief on the lower buttock. Over ±4 mm around the seam the
+      thigh and pelvis share one surface (`overlap`), so a small thigh rotation in the idle pose makes
+      them cross at a shallow angle.
+  * **Posed check:** the thigh is rotated rigidly about its hip pivot. The table counts uncovered cells
+    where the thigh pushes through the pelvis, and uncovered cells where the two are within 1.5 mm.
+
+    | Pose | Measure | Shipped | v8 | v9 |
+    |---|---|---|---|---|
+    | 20° flexion | front push-through cells | 19 | 178 | 20 |
+    | 10° extension | rear near-coincident cells | 30 | 64 | 40 |
+    | Standing | rear near-coincident cells | 36 | 13 | 9 |
+* **v9 (shelf fix, built from shipped):**
+  * Both hip passes are limited to the rear: no edit within ±100° of the front, full edit beyond 125°.
+    The front and sides stay as shipped.
+  * There is no shared band at the seam (`overlap` 0). The parts tuck past each other more steeply
+    (`tuck` 0.8, `margin` 3 mm), so they cross cleanly instead of coinciding.
+  * The v8 fold normal blend is applied on top.
+  * All 10 models pass the compile audit.
+  * **Trade-off:** the rear envelope dip is 10–11 mm, against 7–8 mm in v8 and 21–22 mm shipped.
+    The visible crease is unchanged.
 
 ## 1. What causes the band (measured)
 
