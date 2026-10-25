@@ -7,6 +7,8 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
+import time
 
 REPO=Path(__file__).resolve().parent.parent
 CONFIG='tools/ci-scope.json'
@@ -208,38 +210,88 @@ for test,path in sorted(touched):print('Absent pack accessed by '+(test or 'modu
 sys.exit(0 if result.wasSuccessful() and result.testsRun and not touched else 1)
 '''
 
-def run_tests(tests,python=None,repo=REPO,timings=None,absent=None):
-    """Run tests from their import roots, package-qualified where needed; return the first failing exit code."""
+DURATIONS='tools/ci-test-durations.json'
+JOBS=3
+
+def balance(tests,count,durations):
+    """Deterministic longest-processing-time split; unknown tests weigh the median measured duration."""
+    known=sorted(durations.values());default=known[len(known)//2] if known else 1.0
+    bins=[[0.0,i,[]] for i in range(count)]
+    for test in sorted(tests,key=lambda t:(-durations.get(t,default),t)):
+        target=min(bins,key=lambda b:(b[0],b[1]));target[0]+=durations.get(test,default);target[2].append(test)
+    return [sorted(b[2]) for b in bins]
+
+def measured(repo=REPO):
+    path=Path(repo)/DURATIONS
+    return json.loads(path.read_text(encoding='utf-8'))['seconds'] if path.is_file() else {}
+
+def run_tests(tests,python=None,repo=REPO,timings=None,absent=None,jobs=1,durations=None):
+    """Run tests from their import roots, package-qualified where needed; return the first failing exit code.
+    With jobs>1 each import root's modules are split into up to `jobs` duration-balanced shards, and the shards run
+    `jobs` at a time (longest estimate first), one child process each. Each child's output is buffered and printed
+    whole when it finishes, so logs stay readable."""
     absent=absent_packs(repo) if absent is None else absent
     env={**os.environ,'SRN_ABSENT_PACKS':os.pathsep.join(str(Path(p).resolve()) for p in absent)}
+    durations=measured(repo) if durations is None else durations
+    known=sorted(durations.values());default=known[len(known)//2] if known else 1.0
     groups={}
     for rel in tests:
-        root,name=import_root(repo/rel);groups.setdefault(root,[]).append(name)
-    records=[];code=0
-    for index,(root,names) in enumerate(sorted(groups.items(),key=lambda row:str(row[0]))):
+        root,name=import_root(Path(repo)/rel);groups.setdefault(root,[]).append((rel,name))
+    units=[]
+    for root,rows in sorted(groups.items(),key=lambda row:str(row[0])):
+        names=dict(rows)
+        for part in balance(list(names),max(1,min(jobs,len(names))),durations):
+            if part:units.append((root,[names[rel] for rel in part],sum(durations.get(rel,default) for rel in part)))
+    order=sorted(range(len(units)),key=lambda i:(-units[i][2],i)) if jobs>1 else list(range(len(units)))
+    width=max(1,jobs);records=[];code=0;running=[];pending=list(order)
+    scratch=tempfile.TemporaryDirectory();folder=Path(scratch.name)
+    def start(index):
+        root,names,_=units[index]
         # Absolute, because the child runs from the import root.
         out=str(Path(timings).resolve().with_suffix(f'.{index}.json')) if timings else ''
         # -c keeps sys.path[0] at the import root, exactly as `python -m unittest` from that folder.
-        result=subprocess.call([python or sys.executable,'-B','-c',CHILD,out,str(Path(repo).resolve()),*names],cwd=root,env=env)
+        command=[python or sys.executable,'-B','-c',CHILD,out,str(Path(repo).resolve()),*names]
+        if width==1:return index,subprocess.Popen(command,cwd=root,env=env),out,None,time.monotonic()
+        log=(folder/f'{index}.log').open('w+b')
+        return index,subprocess.Popen(command,cwd=root,env=env,stdout=log,stderr=subprocess.STDOUT),out,log,time.monotonic()
+    def finish(index,process,out,log,begun):
+        nonlocal code
+        result=process.wait();root=units[index][0]
+        if log:
+            log.seek(0);sys.stdout.flush()
+            label=Path(root).relative_to(repo).as_posix()
+            print(f'=== {label}: {len(units[index][1])} modules, exit {result}, {time.monotonic()-begun:.1f} s',flush=True)
+            sys.stdout.buffer.write(log.read());sys.stdout.flush();log.close()
         if out and Path(out).is_file():
             rows=json.loads(Path(out).read_text(encoding='utf-8'));Path(out).unlink()
             records.extend({'root':Path(root).relative_to(repo).as_posix(),'test':n,'seconds':t} for n,t in rows)
         code=code or result
-    if timings:Path(timings).write_text(json.dumps(records,indent=1)+'\n',encoding='utf-8')
+    try:
+        while pending or running:
+            while pending and len(running)<width:running.append(start(pending.pop(0)))
+            done=running[0] if width==1 else next((row for row in running if row[1].poll() is not None),None)
+            if done is None:time.sleep(.2);continue
+            running.remove(done);finish(*done)
+    finally:
+        for row in running:row[1].kill();row[1].wait()
+        scratch.cleanup()
+    if timings:Path(timings).write_text(json.dumps(sorted(records,key=lambda r:(r['root'],r['test'])),indent=1)+'\n',encoding='utf-8')
     return code
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--changed',action='append',default=[])
     p.add_argument('--write-catalog',type=Path);p.add_argument('--run',action='store_true')
     p.add_argument('--tests-from',type=Path,help='JSON list of repository-relative test files to run instead of a selection')
-    p.add_argument('--timings',type=Path,help='Write per-test durations as JSON');a=p.parse_args()
+    p.add_argument('--timings',type=Path,help='Write per-test durations as JSON')
+    p.add_argument('--jobs',type=int,default=JOBS,help='Test shards run at once (default %(default)s; 1 runs each import root serially)')
+    a=p.parse_args()
     if a.tests_from:
         tests=json.loads(a.tests_from.read_text(encoding='utf-8'))
         print(json.dumps({'fullSuite':None,'reason':'Explicit test list','tests':tests}),flush=True)
-        raise SystemExit(run_tests(tests,timings=a.timings) if tests else 0)
+        raise SystemExit(run_tests(tests,timings=a.timings,jobs=a.jobs) if tests else 0)
     data=catalog()
     if a.write_catalog:a.write_catalog.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8',newline='\n')
     result=select(a.changed,data,load_config(),deleted_paths(a.changed));print(json.dumps(result),flush=True)
-    if a.run and result['tests']:raise SystemExit(run_tests(result['tests'],timings=a.timings))
+    if a.run and result['tests']:raise SystemExit(run_tests(result['tests'],timings=a.timings,jobs=a.jobs))
 
 if __name__=='__main__':main()

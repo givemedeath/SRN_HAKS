@@ -276,6 +276,14 @@ require full-suite review; focused selection is a convenience, not a release gat
 Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers
 change; CI rejects a stale catalog.
 
+`--run` splits each import root's selected modules into duration-balanced shards
+(`tools/ci-test-durations.json`) and runs `--jobs` of them at once (default 3), one
+child process each, longest first. Each shard's output is printed whole when it
+finishes, under a `=== <root>: N modules, exit E, S s` header. `--jobs 1` keeps the
+serial order; CI uses it because its runners are already sharded per job. The
+full local helper suite took about 19 minutes serially and 6 minutes with `--jobs 3`
+(2026-10-25).
+
 CI runs one entry workflow, `.github/workflows/ci.yml`:
 1. **Scope** runs `tools/ci_scope.py` once. It publishes the changed files, the
    selected suites with reasons, the item-import and wheel decisions, and the

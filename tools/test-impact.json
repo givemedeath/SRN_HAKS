@@ -3,7 +3,6 @@
   "dependencies": {
     "tools/ci_result.py": [],
     "tools/ci_scope.py": [
-      "tools/ci-test-durations.json",
       "tools/test-impact.json",
       "tools/test_impact.py"
     ],
@@ -3850,6 +3849,7 @@
     ],
     "tools/test_impact.py": [
       "tools/ci-scope.json",
+      "tools/ci-test-durations.json",
       "tools/phenotypes/shared_toolchain.py",
       "tools/phenotypes/tool_runtime.py",
       "tools/shared-tools.lock.json",
