@@ -254,6 +254,43 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   * **Client (`evidence/client-v19-v21-walk-front-side-rear.jpg`), awaiting user review:**
     * The jagged patch on the hip side and rear is gone on both bodies.
     * Faint lines remain at the outer-front thigh below the brief and at the lower buttock fold.
+  * **User decisions (2026-10-25, after v21):**
+    * Accept the faint thigh-top line for now; no added geometry.
+    * Speed up the bake before the next build.
+    * Before pilot approval, run the full motion check: idle, walk, run, both kicks, sit and kneel, in
+      front, side and rear views on both bodies.
+    * After the pilot is complete, stop. No rollout to the other female bodies, no tool
+      productionizing and no publication until the work being developed elsewhere is ready.
+  * **Faster bake (`skin/bakepar.py`, used by `buildcombo.sh`):**
+    * Each part is baked in its own worker, 3 at a time.
+    * A part is reused from a content-addressed cache (`output/phenomorpher/skin-bake-cache`) when its
+      model, PLT, source maps, bake code and PARAMS are unchanged.
+    * Verified against combo-v21: a cold run took 411 s (against 1,190 s serial), a warm run 2 s. All 42
+      outputs are byte-identical.
+  * **v21 motion check (client; `evidence/client-v21-motion-check.jpg`), awaiting user decision:**
+    * Hip ranges of the stock clips (thigh relative to pelvis):
+
+      | Clip | Flexion |
+      |---|---|
+      | walk | −12° to +32° |
+      | run | −31° to +48° |
+      | kicks | up to 85°, with 59° abduction |
+      | chair sit | 80° |
+      | cross-legged sit | up to 123° |
+      | crouch (`getlowlp`) | 122° to 149° |
+      | kneel (`meditate`) | about 40° |
+
+    * **Idle, walk and run:** acceptable. A faint crossing line at the Large hip side and at the Fit lower
+      buttock in the run.
+    * **Kicks:** a corner-like step where the thigh top meets the pelvis, at the front and side. The
+      offline shipped-vs-v21 comparison (`evidence/pose-nwkickl-pfh2-ship-v21.png`) shows a regression
+      at the front: the kicking thigh's top rim shows at the groin beside the brief, where shipped keeps
+      it covered. This is a cost of the v19 brief-line skirt, where the thigh carries the front surface.
+    * **Chair sit, crouch and kneel:** the thigh tops bulge below the buttocks with seam lines at the rear
+      and side. Shipped also fails here, with a boxy pelvis rim and a dark gap line at the buttock fold
+      (`evidence/pose-sit-pfh2-ship-v21.png`, `pose-getlowlp-pfh2-ship-v21.png`). v21 looks different,
+      not clearly worse.
+    * **Cross-legged sit:** Fit clean. On Large, a light thigh-top patch beside the brief at about 120°.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
     between join iterations (about 300 s of bake). An incremental, 3-way parallel bake would cut an
     iteration to about 6 min.
