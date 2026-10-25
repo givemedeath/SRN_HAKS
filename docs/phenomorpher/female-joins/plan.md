@@ -371,12 +371,36 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   * Result: pfh2 1,344 → 2,081 vertices and 1,750 → 3,050/3,044 faces per thigh; pfh0 → 2,187 vertices,
     3,236/3,234 faces. The surface is closed, the area unchanged and the shape identical.
   * Base: `joins-pilot/sub-ascii-{pfh0,pfh2}` (shipped files with only the thighs subdivided).
-  * Next:
-    * run `chain.sh` from that base (`SRC` override still to add);
-    * extend `deeptuck.py` to sit-only regions (walk-hidden thigh-top points exposed under the buttock
-      in sit, sitcross, crouch, kneel);
-    * gates: holes, cracks, brief, walk;
-    * build, then client capture of the sitting poses.
+  * **v42** (`chain.sh` with `BASE=sub-ascii SIT_TUCK=1`; `sittuck.py`):
+    * Method: thigh points hidden through idle and walk but exposed in sit, sitcross, crouch or kneel are
+      limited to a cone above the walk-visible thigh surface (24 sectors, slope 0.6, 3 mm margin).
+    * Coverage: 85–101 points per thigh qualify (versus 14–30 before subdividing). They need up to
+      68–82 mm, but the flip guard limits the move to 17–23 mm.
+    * Gates against v39:
+
+      | Gate | Result |
+      |---|---|
+      | Cracks | 0 |
+      | New brief violators | 0 |
+      | Thigh rim | 0 |
+      | Walk `rim` cells | 0–3 |
+      | Pose-suite holes, pfh2 | 546 → 1,360 px (kicks 159 → 725, kneel 65 → 181) |
+      | Pose-suite holes, pfh0 | 941 → 1,370 px |
+
+    * Visual (`evidence/pose-{pfh2,pfh0}-sits-v39-v42.png`, `evidence/pose-pfh2-sit-zoom-v39-v42.png`):
+      the chair-sit side and rear views are essentially unchanged. The visible defects are where the
+      thigh crosses the buttock underside (a stepped silhouette in side view, lumpy shelves under the
+      buttock in rear view), and that thigh surface is walk-visible. Tucking only walk-hidden points
+      cannot reach it.
+    * Verdict: v42 is not adopted (no visible gain, more holes). The installed client hak stays combo-v39.
+  * **GPU pose suite:**
+    * `posesuite.run_jobs` sends every render to `gpurender.py`, which runs in Blender 5.2 in background
+      mode on the GPU (OpenGL, RTX 3060). Each part uploads once; the thighs pose by a matrix per render.
+      `holefix.py` uses the same path. `GPU=0` falls back to the CPU rasterizer.
+    * Parity on v39 pfh2 (9 clips × 6 frames × 4 views): identical hole counts per render and identical
+      hole points (546, parts equal, ≤0.1 mm rounding). Pelvis rim differs by ≤7 px per clip, and 0.004%
+      of pixels differ, all on triangle edges.
+    * Time: about 8 s per body, versus about 10 min on 3 CPU workers.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
