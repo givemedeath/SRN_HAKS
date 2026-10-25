@@ -1,7 +1,8 @@
 """Stock armour parts for the PhenoMorpher bodies (clothing plan, docs/phenomorpher/clothing/plan.md).
 
 Step 1 inventories and extracts the installed stock armour parts with overrides ignored, decompiles
-them, and pins every texture they reference. Later steps fit per-part affine profiles and run the
+them with Blender + Neverblender (neverblender_mdl), and pins every texture they and their materials
+reference. Later steps fit per-part affine profiles and run the
 pinned NWNArmory batch. Nothing here writes a pack or approves an asset.
 """
 import json
@@ -36,18 +37,13 @@ BITMAP = re.compile(r'(?mi)^\s*(?:bitmap|texture\d|materialname)\s+(\S+)\s*$')
 
 def key_resources(game_root):
     """{resref.ext: [key files]} for the installed models and textures (resman resolves precedence)."""
+    from ..inputs import key_table
     resources = {}
     for key in sorted((Path(game_root)/'data').glob('*.key')):
-        data = key.read_bytes()
-        if data[:8] != b'KEY V1  ':
-            raise ValueError('Unsupported key file: ' + key.name)
-        _, count, _, table = struct.unpack_from('<IIII', data, 8)
-        for entry in range(table, table + 22*count, 22):
-            kind, _ = struct.unpack_from('<HI', data, entry + 16)
+        for resref, kind, _ in key_table(key)[1]:
             ext = '.mdl' if kind == MODEL else TEXTURES.get(kind)
             if ext:
-                name = data[entry:entry+16].rstrip(b'\0').decode('ascii').lower() + ext
-                resources.setdefault(name, []).append(key.name)
+                resources.setdefault(resref + ext, []).append(key.name)
     return resources
 
 
@@ -97,9 +93,13 @@ def references(text):
     return sorted({m.lower() for m in BITMAP.findall(text) if m.lower() not in ('null', '****')})
 
 
-def extract(extract_tool, decompiler, game_root, output, slots=SOURCES):
+MTR_TEXTURE = re.compile(r'(?mi)^\s*texture\d\s+(\S+)\s*$')
+
+
+def extract(extract_tool, neverblender, game_root, output, slots=SOURCES):
     """Fresh folder: raw/ (installed bytes), ascii/ (decompiled), textures/, reference/ (stock rigs and bare
-    style-001 parts, native) and stock-armor.json pins."""
+    style-001 parts, native) and stock-armor.json pins. neverblender: (Blender executable, add-on folder)."""
+    from . import neverblender_mdl
     output = Path(output); slots = tuple(slots)
     if set(slots) - set(SLOTS):
         raise ValueError('Unknown body slot: ' + ', '.join(sorted(set(slots) - set(SLOTS))))
@@ -111,15 +111,17 @@ def extract(extract_tool, decompiler, game_root, output, slots=SOURCES):
     resman_extract(extract_tool, game_root, models, raw)
     fit = fit_references(resources, slots); resman_extract(extract_tool, game_root, fit, reference)
     fit_pins = {n: {'sha256': digest((reference/n).read_bytes()), 'keys': resources[n]} for n in fit}
-    referenced = {}
+    referenced = {}; binaries = []
+    for name in models:
+        data = (raw/name).read_bytes()
+        if data[:4] == b'\0\0\0\0':
+            binaries.append((raw/name, ascii_dir/name))
+        else:
+            (ascii_dir/name).write_bytes(data)
+    # One Blender process decompiles every binary part.
+    tools, _ = neverblender_mdl.decompile_files(*neverblender, binaries)
     for name, row in models.items():
         source, target = raw/name, ascii_dir/name; data = source.read_bytes()
-        if data[:4] == b'\0\0\0\0':
-            result = subprocess.run([str(decompiler), '-d', '-e', str(source), str(target)], capture_output=True)
-            if result.returncode or not target.is_file():
-                raise ValueError('Decompile failed: ' + name + ': ' + result.stderr.decode(errors='replace'))
-        else:
-            target.write_bytes(data)
         text = target.read_text(encoding='cp1252')
         if 'newmodel' not in text or 'endmodelgeom' not in text:
             raise ValueError('Invalid decompiled model: ' + name)
@@ -135,12 +137,26 @@ def extract(extract_tool, decompiler, game_root, output, slots=SOURCES):
                 row['unresolvedReferences'].append(ref)
     needed = sorted({f for found in referenced.values() for f in found})
     resman_extract(extract_tool, game_root, needed, textures)
-    pins = {n: {'sha256': digest((textures/n).read_bytes()), 'keys': resources[n]} for n in needed}
+    # Materials name further textures (normal, roughness maps); follow them until nothing new is named.
+    pending = [n for n in needed if n.endswith('.mtr')]; material_refs = {}
+    while pending:
+        names = sorted({m.lower() for n in pending for m in MTR_TEXTURE.findall((textures/n).read_text(encoding='cp1252'))
+                        if m.lower() not in ('null', '****')})
+        exts = ('.plt', '.tga', '.dds', '.mtr')
+        material_refs.update({r: [r + e for e in exts if r + e in resources] for r in names})
+        found = sorted({f for r in names for f in material_refs[r]} - set(needed))
+        if found:
+            resman_extract(extract_tool, game_root, found, textures); needed = sorted(set(needed) | set(found))
+        pending = [n for n in found if n.endswith('.mtr')]
+    pins ={n: {'sha256': digest((textures/n).read_bytes()), 'keys': resources[n]} for n in needed}
     manifest = {'schemaVersion': 1, 'kind': KIND, 'slots': list(slots), 'override': False,
                 'tools': {'resmanExtract': {'path': str(Path(extract_tool).resolve()), 'sha256': digest(Path(extract_tool).read_bytes())},
-                          'decompiler': {'path': str(Path(decompiler).resolve()), 'sha256': digest(Path(decompiler).read_bytes())}},
+                          'decompiler': {'mode': neverblender_mdl.EXECUTION_MODE, 'compilerSha256': tools['sha256'],
+                                         **{k: v for k, v in tools.items() if k in ('blender', 'neverblender', 'cleanmodels')}}},
                 'excluded': {'robe': 'skinned; separate route', 'bareStyle001': list(BARE)},
                 'models': models, 'textures': pins, 'fitReferences': fit_pins,
+                'materialTextureReferences': dict(sorted(material_refs.items())),
+                'unresolvedMaterialReferences': sorted(r for r, found in material_refs.items() if not found),
                 'counts': {'models': len(models), 'textures': len(pins), 'fitReferences': len(fit_pins),
                            'danglymesh': sum('danglymesh' in r['meshTypes'] for r in models.values()),
                            'unsupportedMeshTypes': sorted({t for r in models.values() for t in r['meshTypes']} - {'trimesh', 'danglymesh'})},
@@ -560,7 +576,9 @@ def publish(pairs, body_manifest, root, manifest):
         for slot, row in sorted(conversion['slots'].items()):
             if slot in slots or slot not in TARGETS:
                 raise ValueError('Body slot published twice or not a target: ' + slot)
-            slots.add(slot); receipt, compiled_rows = compile_receipt(compiled, slot); clients.add(receipt['clientSha256'])
+            # Blender + Neverblender receipts name their compiler build; EE client receipts their client.
+            slots.add(slot); receipt, compiled_rows = compile_receipt(compiled, slot)
+            clients.add(receipt.get('compilerSha256') or receipt['clientSha256'])
             if set(compiled_rows) != set(row['models']):
                 raise ValueError('Compiled models differ from the conversion: ' + slot)
             sources.setdefault(row['source'], {'conversionSHA256': digest(conversion_path.read_bytes()), 'slots': []})['slots'].append(slot)
@@ -612,7 +630,10 @@ def verify_pack(root, manifest, verified=None):
         if path.suffix != '.mdl' or not found or found[0] not in TARGETS or found[1:] != (row['part'], row['style']) or found[0] != row['slot']:
             raise ValueError('Not a converted armour part of a target body: ' + name)
         content = path.read_bytes()
-        actual = digest(content) if verified is None else verified.get(str(path))
+        # The bytes read here are what is checked; a launcher pin, when given, must agree with them too.
+        actual = digest(content)
+        if verified is not None and verified.get(str(path)) != actual:
+            raise ValueError('Armour resource differs from its launch pin: ' + name)
         if actual != row['sha256'] or len(content) != row['bytes'] or content[:4] != b'\0\0\0\0':
             raise ValueError('Armour resource differs from its contract or is not a native binary: ' + name)
         if leaked_text(content):

@@ -62,6 +62,10 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 
 ## Commands and inputs
 
+Spell every option in full, once (list options such as `--slot` or `--input` repeat), with its value as the
+next argument: abbreviations, `--name=value` and repeated single options are refused, so the declared inputs are
+exactly the files the command reads.
+
 | Command | Consumed input | Output |
 |---|---|---|
 | `doctor` | Code and bound Python runtime | Numerical/raster smoke and library versions |
@@ -80,11 +84,14 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 | `compare-motion` | Body manifest rigs/carriers, stock pins, library and repointed root | Per-clip exact/inherited/authorized status and assembled drift |
 | `downsample-textures` | Body manifest palettes, maps and materials | Fresh folder of 2:1-reduced textures above the size cap and a receipt |
 | `adopt-runtime` | Adoption plan pins: base contract, libraries, roots, comparisons, texture receipt, stock | Staged pack files, next contract, retired list, inventory index and removal list; refuses a staged release that breaks the runtime rules |
-| `verify-runtime` | Contract, its rigs/libraries/carriers and palettes/maps; optional stock pins | Runtime layout rules: no private carriers, stock-terminated chains, library parent and evidence, Fit/Large supermodel, textures at most 1024 px |
+| `verify-runtime` | Contract, its rigs/libraries/carriers and palettes/maps; optional stock pins | Runtime layout rules: no private carriers, stock-terminated chains, library parent and evidence, Fit/Large supermodel, model roots at the origin and unkeyed, textures at most 1024 px |
+| `rebase-roots` | Contract, its rigs/libraries/carriers and palettes/maps | Fresh folder: offset-root rigs and libraries with the root offset folded into the direct root children (static positions and clip keys), the next contract (`--version`) and `root-rebase-receipt.json`; refuses rotated/scaled/keyed roots, disagreeing offsets, carriers keying the root, bytes outside the patched controllers, any bind or clip world-frame change above 1e-6 and a staged release that breaks the runtime rules |
 | `audit-native` | One published binary model and its source (ASCII or binary) | Normalised clip controller and static rig (hierarchy, node types, bind transforms) comparison, quaternions up to sign |
 | `sweep` | Contract, the targets' and donors' rigs, parts and head aliases; for motion also every rig and the stock pins | Per-body native, geometry, measurement and v16 connector (neck, penetration) report, optional motion connectors; an explicit `--clip` that a chain cannot resolve fails the run, and default clips that cannot are listed as unavailable |
 | `retarget-v2` | Fit (and optional Large) `conversion.json`, stock `baseline.json`, the Human rig of that gender and the stock `a_fa`/`a_ba` chain | Fit-fitted carrier chain, Fit and Large roots naming its top carrier, and `retarget-v2.json` |
-| `armor-extract` | Pinned extractor and decompiler, installed game (`--no-ovr`; key files and the BIFs holding models and textures) | Fresh stock Human armour parts (ASCII), their textures and fit references, with `stock-armor.json` pins |
+| `mdl-compile` | `--blender`, `--neverblender` add-on tree, `<converted>/ascii/*.mdl`, the lookup folders (`ascii`, `resources` except the binaries it writes, each `--resource-dir`); with `--cache <earlier converted folder>`, that folder's receipt and matching binaries (read only) | `<converted>/resources/*.mdl` and `native-compile.json`; every binary is audited against its ASCII source (header, hierarchy, bind transforms, clips). The output folder's own receipt is never reused; binaries are reused only from `--cache` when source, compiler and lookups match |
+| `mdl-decompile` | `--blender`, `--neverblender`, each `--input` binary and its folder (skeleton lookup) | Fresh folder of ASCII models and `decompile.json` |
+| `armor-extract` | Pinned extractor, `--blender` and `--neverblender`, installed game (`--no-ovr`; key files and the BIFs holding models and textures) | Fresh stock Human armour parts (ASCII), their textures, the textures their materials name, and fit references, with `stock-armor.json` pins |
 | `armor-profiles` | Body manifest, its target rigs and bare parts, the stock inventory and its Human references | One scale/rotate/translate per target body and part, with residuals and anisotropy flags |
 | `armor-convert` | Stock inventory and the selected Human parts, profiles, pinned NWNArmory, a style set | Calibrated Armory batch per body, corrected and renamed ASCII parts, `conversion.json` |
 | `armor-publish` | Body manifest, `conversion.json` files each paired with its compile root (receipts and binaries) | The `srn_armor` pack folder and its hash-pinned contract |
@@ -92,17 +99,34 @@ PR can be installed/tested independently. Never guess a newest-looking artifact.
 
 ## Runtime release recipe (new or regenerated bodies)
 
-Every PhenoMorpher step runs through `run.py` with fresh migration evidence; client compiles run
-`tools/phenotypes/native_compile.py` through `launch_shared_tool.py`. No step runs a module directly.
+Every PhenoMorpher step runs through `run.py` with fresh migration evidence. No step runs a module directly.
+
+### Binary models: Blender + Neverblender
+
+`mdl-compile`, `mdl-decompile` and `armor-extract` use the Blender 5.2 install and the Neverblender add-on
+installed for it (4.5.1, bundling the cleanmodels v4.10.0 compiler/decompiler). One headless Blender process
+(`--background --factory-startup --offline-mode`) handles a whole folder, which is far faster than one client
+`compilemodel` launch per model, and the compiler zeroes string-field tails, so binaries carry no client process
+memory (`armor-publish` still sanitizes and checks). Lookups use only the named folders: never the game install,
+`NWN_ROOT` or `ovr`. Pass both paths explicitly (`--blender <Blender 5.2>/blender.exe`,
+`--neverblender <Blender user scripts>/addons/neverblender`); they stay machine-local, and receipts pin the
+executable hash and every add-on file hash. Unchanged sources with a receipt from the same compiler build reuse
+their binaries.
+
+cleanmodels writes no position/orientation controllers on the model-root node (the EE client did). Each compiled
+binary is therefore decoded and compared with its ASCII source; a root offset or any other difference fails the
+run before anything is published, so keep model roots at the origin. `tools/phenotypes/native_compile.py` (EE
+client) receipts remain readable by `armor-publish` and `anim-library restore`; historical receipts are unchanged.
 
 1. Run `retarget-v2 --fit-converted <fit> --large-converted <large> --baseline <stock baseline>`. It fits one carrier
    chain from the Fit body over `a_fa`/`a_ba`, and the Large root names the same top carrier. The carriers are an
    unpublished intermediate.
-2. Compile the carriers and roots in the EE client and list them in an intermediate manifest. Keep that manifest as
+2. Compile the carriers and roots with `mdl-compile` and list them in an intermediate manifest. Keep that manifest as
    durable evidence.
-3. Run `anim-library build` (with `--authorized-fit-clip` where approved), compile the library in the client, then
-   `anim-library restore`.
-4. Run `anim-library repoint` for the Fit and Large roots, then `compare-motion` for each.
+3. Run `anim-library build` (with `--authorized-fit-clip` where approved), `mdl-compile` its `converted` folder
+   (`--resource-dir` the extracted stock chain), then `anim-library restore`.
+4. Run `anim-library repoint` for the Fit and Large roots, then `compare-motion` for each. Fit/Large authorizations
+   apply to the Large comparison only; a Fit comparison given one is refused.
 5. Run `downsample-textures` for every palette or map above 1024 px.
 6. Run `adopt-runtime` with `baseKind: intermediate` for a new body, or `published` to replace a release. It refuses a
    staged release that breaks the runtime rules.
@@ -116,7 +140,7 @@ Converts the stock Human armour parts onto the 16 non-Human bodies, which were b
 1. `armor-extract` the stock Human parts, then `armor-profiles` against the body manifest.
 2. `armor-convert` once per Human source with its style set (`docs/phenomorpher/clothing/full-set-<source>.json`)
    and its four `--slot` bodies.
-3. Compile each body's parts in the EE client with `tools/phenotypes/native_compile.py`.
+3. `mdl-compile` each body's `converted` folder.
 4. `armor-publish` every conversion with its compile root, then `verify-armor`, `Build-Haks -Pack srn_armor` and
    the client review.
 

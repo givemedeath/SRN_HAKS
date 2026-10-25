@@ -10,6 +10,7 @@ from . import anim_library as lib
 from .runtime_release import adopt
 from .runtime_rules import check
 from . import test_runtime_release as fixtures
+from .test_anim_library import GEOMETRY, clip, native
 
 
 def staged(root):
@@ -90,6 +91,28 @@ class RuntimeRuleTests(unittest.TestCase):
             report = check(root, c, overlay=o)
             self.assertEqual(rules(report), ['root-clips'])
             self.assertEqual(report['violations'][0]['detail'], 'root stores its own clips: walk')
+
+    def test_published_roots_sit_at_the_origin(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); _, contract, overlay = staged(root)
+            library = lib.load_model('fixture', overlay['srn_body/pfx0.mdl'])['parent']
+            def swap(path, blob):
+                c = json.loads(json.dumps(contract)); next(r for r in c['resources'] if r['path'] == path)['sha256'] = hashlib.sha256(blob).hexdigest()
+                return check(root, c, overlay={**overlay, path: blob})
+            def fit(controls):
+                return swap('srn_body/pfx0.mdl', native('pfx0', library, [('pfx0', '', controls)] + GEOMETRY('pfx0')[1:]))
+            identity = fit({8: ([0.0], [[0.0, 0.0, 0.0]]), 20: ([0.0], [[0.0, 0.0, 0.0, -1.0]]), 36: ([0.0], [[1.0]])})
+            self.assertTrue(identity['passed'], identity['violations'])
+            offset = fit({8: ([0.0], [[0.0, 0.0, -0.0477]])})
+            self.assertEqual(rules(offset), ['root-transform'])
+            self.assertEqual(offset['violations'][0]['subject'], 'pfx0'); self.assertIn('position 0 0 -0.0477', offset['violations'][0]['detail'])
+            self.assertEqual(rules(fit({20: ([0.0], [[0.0, 0.0, 0.1, 0.995]])})), ['root-transform'])
+            # A library clip that keys its root moves every root on it.
+            path = next(r['path'] for r in contract['resources'] if r['role'] == 'animation-library'); model = lib.load_model(path, overlay[path])
+            name = model['name']; walk = clip('walk', name); walk['nodes'][0] = (name, '', {8: ([0.0, 1.0], [[0.0, 0.0, 0.1]]*2)})
+            report = swap(path, native(name, model['parent'], GEOMETRY(name), [walk]))
+            self.assertIn('root-transform', rules(report))
+            self.assertIn({'rule': 'root-transform', 'subject': name, 'detail': 'clips key the root node: walk'}, report['violations'])
 
     def test_only_declared_posture_layers_are_exempt(self):
         def layer(clips):
