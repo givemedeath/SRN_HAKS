@@ -355,6 +355,15 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
     * Conclusion: reshaping the deep-pose contours needs finer geometry at the joint. That means
       subdividing the thigh's top band and the pelvis's lower band once or twice (about 8 mm edges, UVs
       interpolated). Awaiting the user's decision.
+  * **v39 client motion check** (`evidence/client-v39-motion-check.jpg`: idle, walk, run, both kicks,
+    chair sit, cross-legged sit, crouch, kneel; both bodies; front, side, rear):
+    * No see-through holes or open edges in any capture.
+    * Idle, walk and run are clean apart from faint fold lines at the lower buttock.
+    * Remaining shape defects:
+      * a rounded thigh-top bulge under the buttock in chair sit, crouch and the left kick (both bodies);
+      * a crease or step at the buttock/thigh in kneel and in the run on Fit;
+      * a dark crease at the brief's edge on Large in the left kick.
+    * These are the subdivision question above.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
     between join iterations (about 300 s of bake). An incremental, 3-way parallel bake would cut an
     iteration to about 6 min.
