@@ -54,6 +54,23 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
     three-quarter rear and walk views. The radius already sits near the envelope there. The crease comes
     mostly from the downward-facing normals of the buttock overhang, which a radial envelope barely
     changes.
+* **v8 (fold shading, user-approved, built on v7):**
+  * vertex normals of the visible pelvis and thigh skin at the back of each hip are blended toward a
+    smooth cross-part normal field: Gaussian with σ 1.5 cm within 3.5 cm, strength 0.85;
+  * the blend fades from the back (full beyond 125°, zero at 100°) and over a band from 3.5 cm below to
+    5 cm above the seam;
+  * inner sheets (the double wall and floor) are excluded by an outer-surface test, and positions are
+    unchanged;
+  * about 220 vertices per hip change: median 3°, with 40–55° at p95 in the fold itself;
+  * all 10 models pass the compile audit.
+  * Client: the buttock-to-thigh transition reads clearly softer than v6 and v7 in the three-quarter
+    rear view. In the walk view a faint, lower-contrast line remains under one cheek.
+* **Shin marks (user question):** the fine dark lines and the V-shaped marks on the back of the female
+  shins come from the shipped shin PLT. 56% of its UV island border texels sit next to gutter pixels at
+  least 30 values darker (the darkest is 18 against a skin value of 128), 4,389 of them on rear-facing
+  skin; the thigh has the same issue (46%). Texture filtering and mipmaps bleed them in. The skin
+  rebuild's 16 px padding removes them (skin pilot v4); the join profile still uses the shipped
+  textures.
 
 ## 1. What causes the band (measured)
 
