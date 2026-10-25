@@ -147,6 +147,18 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
     * Rear and walk: a soft fold line under the right cheek, with no jagged flap and no visible
       push-through in the walk frames captured.
     * Not yet clean enough to approve.
+* **v15:** the shared envelope is the upper convex hull of the shipped visible profile (`hullEnvelope`).
+  It fills grooves and never pushes past the shipped outline. This targets the 7–20 mm hermite bulge on
+  pfh2.
+* **v16:** v15, with the shading blend reaching 9 cm up the buttock to soften the shipped pfh2 facets.
+* **Front of the hip in the walk (user report; offline renders of the stock `a_fa` walk,
+  `evidence/walk-front-pfh2-ship-v14-v16.png`):**
+  * In the walk the thigh moves from −12° to +32° relative to the pelvis; idle is about +20°.
+  * On the back swing the thigh top drops away from the front of the pelvis. That exposes the thigh's
+    open top rim and the pelvis's hidden hold and cap surfaces, which are lumpy.
+  * Shipped also shows the thigh rim and dark gaps at the front in the walk, but without the lumpy pelvis
+    surfaces.
+  * One design pose cannot cover a 44° range at the front.
 
 ## 1. What causes the band (measured)
 
