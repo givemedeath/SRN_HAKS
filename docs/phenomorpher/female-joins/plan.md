@@ -231,6 +231,32 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   * Tooling: `buildcombo.sh` (compile, audit, skin bake, stage, pack, install; reproduces combo-v18
     byte for byte), `briefcheck.py`, `briefpush.py`, `walkrender3.py`, and the walkpoke `rim`/`top`
     exposure counts.
+* **v19 user review:** soften the remaining lines, above all the hard edges around the thigh top, and fix an
+  odd texture or normals patch on the side of the pelvis. The user marked a lighter patch with a jagged,
+  triangle-shaped outline on pfh2's left outer buttock, below the brief leg line.
+  * **Cause of the patch (shipped, not from the joins):**
+    * The pelvis skin is three meshes: p1, plus strips p2 and p3 around each leg opening. They share
+      about 100 border vertices per side.
+    * Shipped pfh2 normals disagree across that border: p50 about 10°, p95 up to 86°, max 137°.
+      pfh0's p50 is about 2°.
+    * The skin bake's `smoothed_normals` worked per mesh, so the normal map repeated the seam.
+  * **Thigh-top line:** in the walk the two rigid parts keep crossing (the thigh pokes 4–13 mm through
+    the pelvis at v16 level). Each crossing reads as a sawtooth line with a shading jump.
+* **v21:**
+  * `seamnormals.py` welds the part's skin meshes and blends the shared border and two rings to one
+    smoothed geometric normal, orienting each mesh's winding as a whole. Mismatch is now at most 2°.
+  * The bake smooths normals over all skin meshes of a part as one welded surface (garments apart).
+    This also changes other multi-mesh parts' normal maps along their internal borders.
+  * The normal blend runs all round except the groin (`groinGap` [−130, −50, 20]).
+  * The hip passes add a 15 mm thigh-top tuck after a 4 mm hold (`tuckDepth`). Relaxation limits it to
+    about 40 vertices.
+  * Walk results: pelvis rim 0; thigh top 54–80 cells (v16 level). Brief: 3–5 new front pelvis points.
+  * **Client (`evidence/client-v19-v21-walk-front-side-rear.jpg`), awaiting user review:**
+    * The jagged patch on the hip side and rear is gone on both bodies.
+    * Faint lines remain at the outer-front thigh below the brief and at the lower buttock fold.
+  * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
+    between join iterations (about 300 s of bake). An incremental, 3-way parallel bake would cut an
+    iteration to about 6 min.
 
 ## 1. What causes the band (measured)
 
