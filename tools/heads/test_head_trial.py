@@ -53,11 +53,20 @@ class TrialSpecTests(unittest.TestCase):
             'helmets':spec(heads=[head('a',16,helmets=[3])]),
             'too many actors':spec(heads=[head('h0',16),head('h1',17,skinRows=list(range(10)),hairRows=list(range(9)))]),
             'identity':spec(identity={'appearanceRow':2,'raceId':2}),
+            'base actorIdentity':spec(base={**spec()['base'],'actorIdentity':{'appearanceRow':2}}),
             'Explicit lighting':spec(lighting='bright'),
             'sha256 pins':spec(base={'haks':[{'path':'x.hak'}],'module':PIN}),
         }
         for message,value in cases.items():
             with self.subTest(message),self.assertRaisesRegex(ValueError,message):validate_spec(value)
+
+    def test_female_family_on_a_template_built_for_another_body(self):
+        from build_head_trial import gender
+        female=[head('troll-female-04',10,model='pfg0_head010'),head('troll-female-05',11,model='pfg0_head011')]
+        base={**spec()['base'],'actorIdentity':{'appearanceRow':2,'raceId':2,'visualScale':10/7}}
+        result=validate_spec(spec(prefix='pfg0',identity={'appearanceRow':15104,'raceId':2,'visualScale':1.0},base=base,heads=female))
+        self.assertEqual([h['slot'] for h in result['heads']],[10,11]);self.assertEqual(result['base']['actorIdentity']['appearanceRow'],2)
+        self.assertEqual((gender('pfg0'),gender('pmg0'),gender('pfh0')),(1,0,1))
 
     def test_actors_cover_rows_and_helmets_per_head(self):
         actors=plan_actors(validate_spec(spec()))
@@ -171,6 +180,9 @@ class TrialModuleTests(unittest.TestCase):
                          {'HEAD_SLOT':16,'SKIN_ROW':65,'HAIR_ROW':5,'TATTOO1_ROW':85,'TATTOO2_ROW':88})
         plain=make_creature({'FirstName':{'type':'cexolocstring','value':{}}},'t','n',0,0,16,65,5,2,2,1.0)
         self.assertNotIn('TATTOO1_ROW',{v['Name']['value'] for v in plain['VarTable']['value']})
+        self.assertEqual((actor['Gender']['value'],plain['Gender']['value']),(0,0))
+        female=make_creature({'FirstName':{'type':'cexolocstring','value':{}}},'t','n',0,0,10,22,151,15104,2,1.0,gender=1)
+        self.assertEqual((female['Gender']['value'],female['Appearance_Type']['value']),(1,15104))
         self.assertEqual(spawn_script(),SPAWN)
         script=spawn_script(tattoo=True)
         self.assertIn('SetColor(OBJECT_SELF,COLOR_CHANNEL_TATTOO_1,GetLocalInt(OBJECT_SELF,"TATTOO1_ROW"));',script)

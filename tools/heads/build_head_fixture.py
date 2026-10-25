@@ -100,13 +100,13 @@ def fixture_identity(config):
     return target['prefix'],row,row,scale
 
 
-def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_scale,helmet=0,tattoo=None):
+def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_scale,helmet=0,tattoo=None,gender=0):
     item=copy.deepcopy(template)
     item.pop('__data_type', None)
     item['__struct_id'] = 4
     for key in list(item):
         if key.startswith('Script'):item[key]=field('resref','')
-    item.update({'Appearance_Type':field('word',appearance),'Race':field('byte',race),'Gender':field('byte',0),'Phenotype':field('int',0),
+    item.update({'Appearance_Type':field('word',appearance),'Race':field('byte',race),'Gender':field('byte',gender),'Phenotype':field('int',0),
         'Tag':field('cexostring',tag),'TemplateResRef':field('resref',tag),'FirstName':field('cexolocstring',{'0':name}),
         'LastName':field('cexolocstring',{}),'FactionID':field('word',2),'Plot':field('byte',0),
         'CurrentHitPoints':field('short',100),'MaxHitPoints':field('short',100),'HitPoints':field('short',100),
@@ -123,8 +123,8 @@ def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_sc
     return item
 
 
-def target_creature(template,appearance,race,visual_scale,x=44,y=48):
-    target=make_creature(template,'head_target','Stationary combat/spell target',x,y,1,3,5,appearance,race,visual_scale)
+def target_creature(template,appearance,race,visual_scale,x=44,y=48,gender=0):
+    target=make_creature(template,'head_target','Stationary combat/spell target',x,y,1,3,5,appearance,race,visual_scale,gender=gender)
     target['Plot']=field('byte',1);target['ScriptHeartbeat']=field('resref','');target['FactionID']=field('word',1)
     return target
 

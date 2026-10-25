@@ -52,6 +52,19 @@ def _rows(value,label,*,single=False):
     return value
 
 
+def _identity(identity,label):
+    require(isinstance(identity,dict) and set(identity)=={'appearanceRow','raceId','visualScale'},
+            label+' needs exactly appearanceRow, raceId and visualScale')
+    require(type(identity['appearanceRow']) is int and identity['appearanceRow']>=0
+            and type(identity['raceId']) is int and 0<=identity['raceId']<=255,'Integer appearance and race rows required')
+    require(isinstance(identity['visualScale'],(int,float)) and 0<identity['visualScale']<=3,'Bounded positive visual scale required')
+
+
+def gender(prefix):
+    """Creature gender for a head family: pf* heads load on female actors (1), pm* on male (0)."""
+    return 1 if prefix[1]=='f' else 0
+
+
 def validate_spec(spec):
     """Check a trial spec without touching the filesystem; returns the normalized spec."""
     require(isinstance(spec,dict) and spec.get('kind')==SPEC_KIND,'Explicit '+SPEC_KIND+' required')
@@ -61,16 +74,12 @@ def validate_spec(spec):
     for key in ('hak','module'):
         require(isinstance(spec[key],str) and RESREF.fullmatch(spec[key]),key+' must be a lowercase resref of at most 16 characters')
     model_name(spec['prefix'],1)
-    identity=spec['identity']
-    require(isinstance(identity,dict) and set(identity)=={'appearanceRow','raceId','visualScale'},
-            'identity needs exactly appearanceRow, raceId and visualScale')
-    require(type(identity['appearanceRow']) is int and identity['appearanceRow']>=0
-            and type(identity['raceId']) is int and 0<=identity['raceId']<=255,'Integer appearance and race rows required')
-    require(isinstance(identity['visualScale'],(int,float)) and 0<identity['visualScale']<=3,'Bounded positive visual scale required')
+    _identity(spec['identity'],'identity')
     require(spec.get('lighting') in ('ambient','directional'),'Explicit lighting (ambient or directional) required')
     base=spec['base']
     require(isinstance(base,dict) and isinstance(base.get('haks'),list) and base['haks'] and isinstance(base.get('module'),dict),
             'base needs the fixture module and its HAKs')
+    if 'actorIdentity' in base:_identity(base['actorIdentity'],'base actorIdentity')
     names=[]
     for item in base['haks']+[base['module']]:
         require(isinstance(item,dict) and isinstance(item.get('path'),str) and isinstance(item.get('sha256'),str)
@@ -368,28 +377,29 @@ def build(spec_path,output):
     def gff(name,document):
         path=work/(name+'.json');write_fresh(path,document);run('nwn_gff',['-i',path,'-o',stage/name])
     # The base fixture module supplies the actor template (stock merchant with the protected body identity) and helmet items.
+    # A base built for another body declares that body as actorIdentity; the trial actors then take the spec identity.
     base_resources={(name,kind):data for name,kind,data in entries(base_module['path'],signature=b'MOD V1.0')}
     git=base_resources.get(('sr_h_floor',MODULE_TYPES['git']));require(git is not None,'Base module has no fixture GIT')
     (work/'base.git').write_bytes(git);run('nwn_gff',['-i',work/'base.git','-o',work/'base.git.json'])
     creatures=[c for c in read(work/'base.git.json')['Creature List']['value'] if c['Tag']['value'].startswith('sr_h_actor')]
     require(creatures,'Base module has no fixture actors')
-    identity=spec['identity']
+    identity=spec['identity'];template_identity=spec['base'].get('actorIdentity',identity);sex=gender(spec['prefix'])
     for creature in creatures:
         scale=[v['Value']['value'] for v in creature['VarTable']['value'] if v['Name']['value']=='BODY_VISUAL_SCALE']
-        require(creature['Appearance_Type']['value']==identity['appearanceRow'] and creature['Race']['value']==identity['raceId']
-                and len(scale)==1 and abs(scale[0]-identity['visualScale'])<1e-6,'Base fixture actors use another body identity')
+        require(creature['Appearance_Type']['value']==template_identity['appearanceRow'] and creature['Race']['value']==template_identity['raceId']
+                and len(scale)==1 and abs(scale[0]-template_identity['visualScale'])<1e-6,'Base fixture actors use another body identity')
     for helmet in sorted({h for head in spec['heads'] for h in head['helmets']}):
         data=base_resources.get((f'sr_h_helm{helmet}',MODULE_TYPES['uti']));require(data is not None,f'Base module lacks sr_h_helm{helmet}.uti')
         (stage/f'sr_h_helm{helmet}.uti').write_bytes(data)
     actors=plan_actors(spec)
     def creature(actor):
         return fixture.make_creature(creatures[0],actor['tag'],actor['name'],actor['x'],actor['y'],actor['slot'],actor['skin'],actor['hair'],
-            identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']))
+            identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']),gender=sex)
     hak_order=[spec['hak']]+[Path(item['path']).stem for item in base_haks]
     target_y=min(76,max(a['y'] for a in actors)+12)
     for actor in actors:gff(actor['tag']+'.utc',blueprint(creature(actor)))
     documents=fixture.module_documents([fixture.target_creature(creatures[0],identity['appearanceRow'],
-        identity['raceId'],identity['visualScale'],40,target_y)],hak_order,spec['lighting'],
+        identity['raceId'],identity['visualScale'],40,target_y,gender=sex)],hak_order,spec['lighting'],
         name='SRN head trial '+spec['trial'],description='Trial heads: '+', '.join(h['model'] for h in spec['heads'])+'. Client acceptance pending.',
         events={'Mod_OnPlrChat':'sr_h_chat'})
     for name,document in documents.items():gff(name,document)
@@ -409,7 +419,7 @@ def build(spec_path,output):
         'heads':[{'id':h['id'],'model':h['model'],'slot':h['slot'],'resources':sorted(f'{n}.{EXTENSIONS[k]}' for n,k,_ in r),
                   'dependencies':dependencies[h['id']]} for h,r,_ in heads],
         'trialHakResources':[{'name':f'{n}.{EXTENSIONS[k]}','sha256':expected[(n,k)]} for n,k,_ in planned],
-        'identity':identity,'prefix':spec['prefix'],'lighting':spec['lighting'],'actors':[{k:v for k,v in a.items() if k not in ('x','y','name')} for a in actors],
+        'identity':identity,'actorIdentity':template_identity,'gender':sex,'prefix':spec['prefix'],'lighting':spec['lighting'],'actors':[{k:v for k,v in a.items() if k not in ('x','y','name')} for a in actors],
         'rows':[{'index':i,'headId':h['id'],'model':h['model'],'actors':[a['tag'] for a in actors if a['row']==i]} for i,h in enumerate(spec['heads'])],
         'rowSweepSeconds':SWEEP_SECONDS,
         'ignoredActors':['head_target'],'colorsLogged':True,'clientObserved':False,'productionAccepted':False,
