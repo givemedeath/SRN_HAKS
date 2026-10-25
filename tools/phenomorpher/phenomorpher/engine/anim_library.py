@@ -297,6 +297,26 @@ def compare_clip(a, a_model, b, b_model, time_tolerance=1e-5):
 RIG_ROLES = ('fitted-rig', 'rig-inheritance', 'animation-library')
 
 
+def root_offset(model, name):
+    """None when the root node's static controllers sit at the origin, else what moves it.
+    Stock rigs keep the root at the origin and the compiler drops root transforms anyway."""
+    controls = model['nodes'].get(name, {}).get('controls', {}); found = []
+    for kind, word in TRANSFORMS.items():
+        if kind not in controls:
+            continue
+        values = np.asarray(controls[kind]['values'], float)
+        if kind == 8:
+            off = np.abs(values).max(initial=0.0)
+        elif kind == 20:
+            identity = np.array([0.0, 0.0, 0.0, 1.0])
+            off = np.minimum(np.linalg.norm(values-identity, axis=1), np.linalg.norm(values+identity, axis=1)).max(initial=0.0)
+        else:
+            off = np.abs(values-1.0).max(initial=0.0)
+        if off > 1e-7:
+            found.append(word + ' ' + ' '.join('%.6g' % v for v in values[0]))
+    return ', '.join(found) or None
+
+
 def release_models(root, manifest, stock, stock_paths):
     """Decoded pack rigs/carriers plus the installed stock chain; pack resources shadow stock names."""
     models = {}; origins = {}
@@ -543,6 +563,10 @@ def build(root, manifest_path, stock_manifest, fit, large, name, output, allowed
     carrier, large_carrier = fit_chain[1], large_chain[1]
     if origins[carrier]['origin'] != 'pack' or origins[large_carrier]['origin'] != 'pack':
         raise ValueError('Fit and Large roots must use private carriers')
+    for owner in (carrier, large_carrier):
+        offset = root_offset(models[owner], owner)
+        if offset:
+            raise ValueError(f'Library root must sit at the origin; carrier {owner} root has {offset} (fold it into its children first)')
     geometry = rename(models[carrier]['nodes'], carrier, name)
     other = rename(models[large_carrier]['nodes'], large_carrier, name)
     if list(other) != list(geometry) or any(geometry[n]['parent'] != other[n]['parent'] for n in geometry):
@@ -568,6 +592,8 @@ def build(root, manifest_path, stock_manifest, fit, large, name, output, allowed
                 sources[node] = (owner, node)
                 if geometry[node]['parent'] not in geometry:
                     raise ValueError('Added library node has no parent in the library: ' + node)
+        if nodes.get(name, {}).get('controls'):
+            raise ValueError('Library root must sit at the origin; clip keys the root: ' + clip)
         if any(set(n['controls']) - {8, 20} for n in nodes.values()):
             raise ValueError('Unsupported clip controller: ' + clip)
         clips[clip] = {**source, 'nodes': nodes}

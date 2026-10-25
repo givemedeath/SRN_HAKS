@@ -233,6 +233,34 @@ class LibraryBuildTests(unittest.TestCase):
             text = (root/'build/converted/ascii/srn_an_xf.mdl').read_text()
             self.assertIn('node dummy belt_x\n  parent srn_an_xf', text)
 
+    def test_build_refuses_a_carrier_root_offset_or_root_keys(self):
+        def carrier(root, name, controls, slash_root):
+            """Replace a release carrier with one whose root node, or its slash clip root, is transformed."""
+            manifest = root/'manifest.json'; data = json.loads(manifest.read_text()); slash = clip('slash', name, angle=5.0)
+            slash['nodes'][0] = (name, '', slash_root)
+            blob = native(name, 'null', [(name, '', controls)] + GEOMETRY(name)[1:], [
+                clip('walk', name, angle=0.01, animroot='a_ba', events=((0.5, 'blur_end'), (0.5, 'hit'))),
+                clip('run', name, angle=4, animroot='a_ba'), clip('pause1', name, angle=3), slash])
+            (root/'srn_body'/(name+'.mdl')).write_bytes(blob)
+            next(r for r in data['resources'] if r['path'] == f'srn_body/{name}.mdl')['sha256'] = hashlib.sha256(blob).hexdigest()
+            manifest.write_text(json.dumps(data)); return lib.load_model(root/'srn_body'/(name+'.mdl'))
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest, stock = self.release(root)
+            # Folding the offset into the children is a separate tool's job; build never zeroes it.
+            model = carrier(root, 'pcf2', {8: ([0.0], [[0.0, 0.0, -0.0477]])}, {})
+            self.assertEqual(lib.root_offset(model, 'pcf2'), 'position 0 0 -0.0477')
+            self.assertIsNone(lib.root_offset(lib.load_model(root/'srn_body/pcf0.mdl'), 'pcf0'))
+            with self.assertRaisesRegex(ValueError, 'Library root must sit at the origin; carrier pcf2'):
+                lib.build(root, manifest, stock, 'pfx0', 'pfx2', 'srn_an_xf', root/'build', allowed=['slash'])
+            self.assertFalse((root/'build').exists())
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest, stock = self.release(root)
+            # A retained clip that keys the carrier root would key the library root.
+            model = carrier(root, 'pcf0', {8: ([0.0], [[0.0, 0.0, 0.0]])}, {8: ([0.0], [[0.0, 0.0, 0.1]])})
+            self.assertIsNone(lib.root_offset(model, 'pcf0'))
+            with self.assertRaisesRegex(ValueError, 'clip keys the root: slash'):
+                lib.build(root, manifest, stock, 'pfx0', 'pfx2', 'srn_an_xf', root/'build', allowed=['slash'])
+
     def test_build_refuses_a_stock_chain_shadowed_by_the_pack(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); manifest, stock = self.release(root); data = json.loads(manifest.read_text())

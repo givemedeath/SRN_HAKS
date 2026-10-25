@@ -18,9 +18,16 @@ import tempfile
 
 import numpy as np
 
-from .retarget import NODE, geometry, nodes, rotation_signature, signature, transforms
+from .retarget import NODE, geometry, nodes, rotation_signature, rotations, signature, transforms
 
 KIND = 'PhenoMorpher-retarget-v2'
+
+
+def at_origin(data, label):
+    """Stock rigs keep the model root at the origin (the compiler drops root transforms); so do ours."""
+    if np.linalg.norm(data['position']) > 1e-9 or np.abs(rotations(data['orientation']) - np.eye(3)).max() > 1e-9:
+        raise RuntimeError(f'Model root must sit at the origin: {label} position {list(data["position"])}, '
+                           f'orientation {list(data["orientation"])}')
 
 
 def fitted_skeleton(report, baseline):
@@ -54,6 +61,7 @@ def fitted_skeleton(report, baseline):
     for name, target in targets.items():
         if np.linalg.norm(world[name][:3, 3] - target) > 1e-6:
             raise RuntimeError('Joint fitting did not converge: ' + name)
+    at_origin(skeleton[prefix], prefix)
     return prefix, skeleton, old, height_scale, world
 
 
@@ -78,6 +86,7 @@ def carrier_chain(fit_report, baseline, output):
             if data['parent'] in (name, prefix):
                 data['parent'] = alias
             fitted[key] = data
+        at_origin(fitted[name], alias)
         parent = aliases.get(stock['animations'][name]['supermodel'], 'NULL')
         header = f'newmodel {alias}\nsetsupermodel {alias} {parent}\nclassification CHARACTER\nsetanimationscale 1\n'
         tail = original.split('endmodelgeom', 1)[1].split('\n', 1)[1]

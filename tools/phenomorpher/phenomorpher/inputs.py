@@ -140,6 +140,11 @@ def consumed(arguments):
         if '--stock' in arguments:
             stock = option('stock'); files.add(stock)
             files.update(rooted(stock.parent, row['path']) for row in read(stock)['models'].values())
+    elif command == 'rebase-roots':
+        # The staged contract is checked against the runtime rules, which read palette/map headers.
+        manifest = option('manifest'); root = option('root'); files.add(manifest)
+        files.update(rooted(root, x['path']) for x in read(manifest)['resources']
+                     if x['role'] in RIG_ROLES + ('selected-palette', 'selected-map'))
     elif command == 'retarget-v2':
         baseline = option('baseline'); fit = option('fit-converted')
         reports = [fit/'conversion.json'] + ([option('large-converted')/'conversion.json'] if '--large-converted' in arguments else [])

@@ -169,6 +169,10 @@ def main(argv=None):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--stock', type=Path, help='Extracted stock manifest for the deep installed-chain check')
     p.add_argument('--max-texture', type=int, default=1024)
+    p = sub.add_parser('rebase-roots', help='Fold offset model roots into their children, exactly')
+    for name in ('root', 'manifest', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--version', required=True, help='Version of the staged contract')
     a = parser.parse_args(argv)
     if a.command == 'doctor':
         declared(__file__)
@@ -350,6 +354,10 @@ def main(argv=None):
         print(json.dumps({k: result[k] for k in ('contractVersion', 'mode', 'violationCounts', 'passed')}))
         if not result['passed']: raise SystemExit(1)
         return
+    if a.command == 'rebase-roots':
+        from .engine.root_rebase import rebase
+        declare_consumed(argv)
+        print(json.dumps(rebase(a.root, a.manifest, a.output, a.version)['summary'])); return
     if a.command == 'convert-clothing':
         for path in (a.profile,a.source_binding,a.input):declared(path)
         data=read(a.profile)
