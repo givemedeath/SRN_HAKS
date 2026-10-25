@@ -3155,6 +3155,49 @@ print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list
             with self.subTest(stage=stage):self.assertFalse(consumed-{row['path'] for row in stage_code_pins(stage)})
 
 
+class NeverblenderNativeTests(Temporary):
+    def binding(self, addon=None):
+        blender=self.file('blender.exe');path=self.root/'mdl-compiler.json'
+        write(path,{'blender':pin(blender),'neverblender':{'path':str(addon or self.root/'neverblender')}});return path
+
+    def test_compiler_binding_verifies_blender_and_needs_an_absolute_addon(self):
+        from headkit.native import mdl_compiler
+        path=self.binding();self.assertEqual(mdl_compiler(path)['neverblender'],str(self.root/'neverblender'))
+        (self.root/'blender.exe').write_bytes(b'changed')
+        with self.assertRaises(ValueError):mdl_compiler(path)
+        with self.assertRaisesRegex(ValueError,'Absolute'):mdl_compiler(self.binding('relative/neverblender'))
+
+    def test_bound_compile_uses_neverblender_not_the_client(self):
+        from headkit import native
+        prepared=self.root/'prepared';(prepared/'ascii').mkdir(parents=True);(prepared/'resources').mkdir()
+        rows={}
+        for name in ('source.glb','ascii/head.mdl','resources/head.plt','expected-native.npz'):
+            (prepared/name).write_bytes(name.encode());rows[name]=pin(prepared/name)
+        write(prepared/'prepared.json',{'model':'head','source':rows['source.glb'],'ascii':rows['ascii/head.mdl'],
+                                        'plt':rows['resources/head.plt'],'expected':rows['expected-native.npz']})
+        engine=Path(self.root/'engine');engine.mkdir()
+        for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py'):(engine/name).write_text(name)
+        def compile_folder(blender,addon,converted,dirs,timeout):
+            (Path(converted)/'resources'/'head.mdl').write_bytes(b'binary');(Path(converted)/'native-compile.json').write_text('{}')
+            return {'complete':True,'compiled':1,'executionMode':'neverblender-cleanmodels','compilerSha256':'c',
+                    'blenderVersion':'5.2.1 LTS','compiler':{'cleanmodels':'v4.10.0'}}
+        nvb=SimpleNamespace(compile_folder=compile_folder,__file__=str(engine/'neverblender_mdl.py'))
+        hak=SimpleNamespace(write_hak=lambda path,rows:Path(path).write_bytes(b'hak'),
+                            payload=lambda path:{('head',2002):pin(self.root/'out/resources/head.mdl')['sha256'],
+                                                 ('head',6):pin(self.root/'out/resources/head.plt')['sha256']})
+        with patch('headkit.native.neverblender',return_value=nvb),patch('headkit.native.subprocess.run') as client, \
+             patch('headkit.native.audit_native',return_value=(b'binary',{'model':'head'})), \
+             patch('headkit.native.helpers',return_value=(None,hak,None,None,None)):
+            audit=native.compile_and_package(prepared,{'path':'unused'},self.root/'out',native.mdl_compiler(self.binding()))
+        client.assert_not_called()
+        self.assertEqual(audit['compiler']['mode'],'neverblender-cleanmodels');self.assertEqual(len(audit['compiler']['engine']),3)
+
+    def test_native_runner_branch_reads_the_local_compiler_binding(self):
+        from headkit.common import runner_slice
+        text=runner_slice(Path(__file__).parent/'runner.py','native')
+        self.assertIn('MDL_COMPILER',text);self.assertNotIn('MDL_COMPILER',runner_slice(Path(__file__).parent/'runner.py','repair'))
+
+
 class ReviewImageTests(Temporary):
     def test_default_and_example_deliver_both_native_resolutions(self):
         from headkit.review_images import resolutions

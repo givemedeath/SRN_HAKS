@@ -188,6 +188,9 @@ def main():
             from .comfy_nodes.managed_startup import runtime_inventory
             pins+=runtime_inventory(local['comfyRuntimeRoots'])
         for name in sorted(libraries):pins+=local['libraries'][name]['files']
+        compiler=Path(a.bindings).resolve().with_name('mdl-compiler.json')
+        if compiler.exists() and (closure is None or 'native' in chosen):
+            from .native import mdl_compiler_files;pins+=mdl_compiler_files(compiler)
         if 'comfyCustomNodes' in local:
             adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
             pins += [pin(adapter/'source-roots.json')]+[pin(p) for p in adapter.glob('*.py')]

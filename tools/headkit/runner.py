@@ -473,8 +473,10 @@ class Runner:
             if geometry_audit is not None:result['geometryAudit']=geometry_audit
             return result
         if stage=='native':
-            from .native import compile_and_package
-            previous=self.result('export');return compile_and_package(Path(previous['ascii']['path']).parents[1],b['client'],folder/'native')
+            from .native import compile_and_package,mdl_compiler,MDL_COMPILER
+            # Blender + Neverblender when the head has its local compiler binding, else the EE client's compilemodel.
+            local=self.bindings_path.with_name(MDL_COMPILER);mdl=mdl_compiler(local) if local.exists() else None
+            previous=self.result('export');return compile_and_package(Path(previous['ascii']['path']).parents[1],b['client'],folder/'native',mdl)
         if stage=='render':
             require('render' in m,'Stage not configured: the manifest has no render section')
             import subprocess,sys
