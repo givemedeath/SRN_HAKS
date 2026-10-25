@@ -119,6 +119,34 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   * Rear: the rounded cheek edge, as in v11.
   * v11 and v12 were checked with the v9 skin bake, not re-baked.
 * **Comparison:** `evidence/hip-shelf-ship-v8-v9-v11-v12.jpg`.
+* **v12 notch (measured in the idle pose):**
+  * The thigh target fell off a cliff just above the seam, back to its own profile 15–25 mm smaller.
+  * The pelvis target jumped about 11 mm at the seam, because it was capped at its original size below.
+  * The 5 mm s-smoothing of the scale field turned both into a V-notch 5–9 mm deep all round the seam.
+  * At the front of the left thigh that is the line; at the back it is the cheek edge.
+* **v13 (user-approved direction: refine v12):**
+  * The thigh leaves the envelope on a cosine (`lowFall`).
+  * Both parts hold 3 mm under the envelope for 10 mm past the seam before they drop (`lowHold`,
+    `highHold`). The pelvis may fill that hidden hold zone; its rounded cap starts after it.
+  * Design-pose dip: 0–2 mm at the rear and 1–3 mm at the left front-lateral, against 5–9 mm in v12.
+* **v14:**
+  * Shading-only renders of the v13 geometry still showed a ragged crossing line, where the two parts
+    meet with different normals.
+  * The fold normal blend now runs all round (except the groin) with full strength within 8 mm of the
+    seam (`normBlend`), so both parts carry the same normal where they cross.
+  * Design-pose motion sweep (thigh ±15–30° flexion, ±12° abduction from idle), measured in the posed
+    thigh frame:
+    * The side and rear notches track shipped.
+    * The thigh pokes through the buttock only at +15–30° extra flexion: 9–30 rear cells.
+  * The old bind-frame posed check is invalid for large rotations: it counts visible thigh skin as
+    push-through.
+  * **Client (skin re-baked on v14; `evidence/hip-v14-client.jpg`):**
+    * Front: the left-thigh line is softer than in v12, but a faint lateral edge remains under the
+      brief.
+    * Three-quarter rear: an angular patch remains on the near lower buttock, weaker than v12.
+    * Rear and walk: a soft fold line under the right cheek, with no jagged flap and no visible
+      push-through in the walk frames captured.
+    * Not yet clean enough to approve.
 
 ## 1. What causes the band (measured)
 
