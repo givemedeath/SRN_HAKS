@@ -336,6 +336,25 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       millimetre skin speck shows through the brief at the rear centre.
     * No vertex rings were needed to close the holes.
     * Client capture was blocked: another session held the computer.
+  * **Deep-pose reshape attempt (v40, pfh2 only, `deeptuck.py`; report-back point for extra rings):**
+    * Method: thigh points that stay inside the pelvis through idle and walk, but poke out of it in
+      run, kicks, sits, crouch or kneel, are pulled toward the thigh axis by their worst poke (capped at
+      25 mm, relaxed against triangle flips).
+    * Only 30 (left) and 14 (right) welded thigh points qualify; their deep-pose poke reaches 66–68 mm.
+    * The tuck moved 29 + 12 points, up to 25 mm. Poking points fell from 15 to 5 (left) and 8 to 3 (right).
+    * In the kick and chair-sit renders (`evidence/pose-{nwkickl,sit}-pfh2-v39-v40.png`) the corner and
+      the bulges are unchanged.
+    * Mesh resolution at the joint, edges within 12 cm of the hip pivot:
+
+      | Part | Median | p90 |
+      |---|---|---|
+      | Thigh (pfh2 / pfh0) | 17 / 16 mm | 30 mm |
+      | Pelvis main skin (pfh2 / pfh0) | 19 / 16 mm | 30 / 27 mm |
+
+      The visible corner and bulge contours are single triangles.
+    * Conclusion: reshaping the deep-pose contours needs finer geometry at the joint. That means
+      subdividing the thigh's top band and the pelvis's lower band once or twice (about 8 mm edges, UVs
+      interpolated). Awaiting the user's decision.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
     between join iterations (about 300 s of bake). An incremental, 3-way parallel bake would cut an
     iteration to about 6 min.
