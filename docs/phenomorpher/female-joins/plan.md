@@ -159,6 +159,28 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   * Shipped also shows the thigh rim and dark gaps at the front in the walk, but without the lumpy pelvis
     surfaces.
   * One design pose cannot cover a 44° range at the front.
+* **v17/v18 (user decision: the pelvis covers at the front, v16 at the back):**
+  * The rear passes are limited to |phi| > 100°.
+  * A front pass (`front`, phi −55° to +100° with 20° ramps) is shaped at the walk's middle pose (10°
+    flexion), using the hull envelope:
+    * The pelvis owns the visible surface from the skirt bottom (−50 mm) up, with a 1 mm cover and a
+      12 mm rounded curl.
+    * The thigh owns it below, and tucks 3 mm under the skirt just below its edge (v18 `underlap`).
+    * Above the skirt bottom the thigh tapers into a dome 12 mm deep over 30 mm.
+  * The normal blend is rear-only again.
+  * Front walk coverage: thigh-through-pelvis cells over 12 walk frames.
+
+    | Body | Shipped | v16 | v18 |
+    |---|---|---|---|
+    | pfh0 (left/right) | 982/852 | 2798/2607 | 554/487 (v17) |
+    | pfh2 (left/right) | 758/664 | 2692/2510 | 536/484 |
+
+    The remainder sits near full flexion, where the visible thigh rises into the groin crease.
+  * Renders: `evidence/walk-front-pfh2-ship-v16-v18.png`, `walk-front-pfh0-v17-v18.png`.
+    * The front edge of the pelvis is smooth and rounded; the lumpy pelvis patches are gone.
+    * A ragged thigh top still shows near full flexion.
+* **Skin:** the pilot's micro-bump is off from the v18 bake on (`bump_deg` 0). The user saw the chest
+  pebbling: fine-detail p90 tilt 5.2° against 3.5° shipped on the chest, and 4.3° against 1.7° on the thighs.
 
 ## 1. What causes the band (measured)
 
