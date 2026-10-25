@@ -291,6 +291,51 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       (`evidence/pose-sit-pfh2-ship-v21.png`, `pose-getlowlp-pfh2-ship-v21.png`). v21 looks different,
       not clearly worse.
     * **Cross-legged sit:** Fit clean. On Large, a light thigh-top patch beside the brief at about 120°.
+  * **Pose-suite evaluation (user request: fix all issues, evaluate first):**
+    * **Tool:** `posesuite.py` renders 9 clips × 6 frames × 4 views per body with back-face culling. A
+      visible back face is painted red; in the client that pixel is a hole into a part. Exposed open rims
+      of the thigh and of the pelvis leg opening are counted too.
+    * **Shipped:** 0 holes and 0 thigh rim in every clip. The pelvis rim shows only as a thin sliver at
+      the brief's edges.
+    * **v21:** 1.0k–5.9k hole pixels per clip, with thigh rims showing. Two causes:
+      * **Seam cracks:** the v19 brief push moved each seam copy separately, splitting 85–103 pelvis
+        seam groups by up to 5.7 mm and the thigh by up to 4.4 mm. Fixed by working on welded points.
+        `cracks.py` is now a gate in every build.
+      * **Cup inner layer:** below the hips the shipped pelvis is a closed cup. An inner layer of about
+        950 vertices sits 3–10 mm inside the outer skin and faces into the cup, plus a floor and a lip.
+        It is never visible standing or walking; it fills see-through gaps in deep poses (shipped with
+        it removed: about 4.6k hole pixels, mostly crouch and sits). The joins moved the outer skin
+        without it, pushing it out through the skin (84% / 70% of hole pixels on pfh2 / pfh0).
+    * **Not a shadow mesh:** all pelvis meshes are rendered and shadow-casting. The layer is shipped
+      geometry, so keeping it adds no cost against shipped.
+  * **Fix (v34–v36), no new vertices:**
+    * `innerclear.py`: each inner-layer vertex is rebuilt from its shipped outer partner (the nearest
+      opposite-facing vertex) at its shipped wall thickness, at least 3 mm. Seam copies move together,
+      and lip points shared with the leg-opening strips stay.
+    * `holefix.py`: iterates the pose suite and pulls the hidden points behind any remaining hole
+      2 mm toward the leg axis. Folds in skin not covered by the brief get one smoothing step.
+    * Hole pixels over all 216 renders: pfh2 18.3k (v22) → 1.9k (v34) → 29 (v35); pfh0 26.7k → 1.8k → about
+      0.5–0.8k. The remainder is millimetre specks deep in the crotch gap below the brief.
+    * Thigh rim 0; pelvis rim at the shipped level; walk exposure unchanged from v22.
+  * **v39** (chain: jointfix → briefpush → innerclear → holefix → briefpush → innerclear → briefpush →
+    seamnormals → normblend; `chain.sh`):
+    * `innerclear` only pairs back-to-back walls. Facing skins across the crotch had been taken for the
+      inner layer and pushed through the brief.
+    * Pose suite (all 216 renders per body):
+
+      | Body | Holes | Thigh rim | Pelvis rim |
+      |---|---|---|---|
+      | pfh2 | 546 (v22 18.3k; shipped 0) | 0 | 114k (shipped 129k) |
+      | pfh0 | 925 (v22 26.7k) | 0 | 337k (shipped 351k) |
+
+    * Cracks 0. Brief: 5–6 new front and 3–4 new rear pelvis points (v22: 2–5). Walk exposure equals v22.
+    * Built with the cached bake: 159 s for the whole build.
+    * Offline poses (`evidence/pose-{walk,sit,getlowlp,nwkickl}-pfh2-ship-v21-v39.png`): the holes are
+      gone. The deep-pose shapes are unchanged: a corner step where the kicking thigh meets the pelvis
+      at the groin and the side, and rounded thigh tops under the buttocks in the chair sit. A
+      millimetre skin speck shows through the brief at the rear centre.
+    * No vertex rings were needed to close the holes.
+    * Client capture was blocked: another session held the computer.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
     between join iterations (about 300 s of bake). An incremental, 3-way parallel bake would cut an
     iteration to about 6 min.
