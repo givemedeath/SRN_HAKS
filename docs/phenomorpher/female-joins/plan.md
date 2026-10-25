@@ -7,6 +7,32 @@ Evidence lives under `output/phenomorpher/skin-pilot/evidence/` (ignored):
 * `legs-back/`: client captures under white, warm and flat light;
 * `joins/join-sections.png`: side sections through the left leg in bind pose.
 
+## G1 pilot status (2026-10-25)
+
+Approved decisions: A (shared envelope), B (knee shared envelope), C (pilot first), D (geometry before skin),
+E (male knees audit only). The pilot covers `pfh0` and `pfh2`. `pfh2` was added because it shows the band
+most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/` (ignored).
+
+* **Round trip:** the NeverBlender decompile and recompile is geometry-exact. Every triangle keeps
+  identical corner positions, normals and UVs (to 1e-5). The compiler only merges exact duplicate vertices.
+* **Edit (v3 config):**
+  * hip: shared Hermite envelope from the thigh at −8 cm to the pelvis at +1 cm about the thigh axis, with
+    the seam at −1.2 cm;
+  * knee: from the shin at −6 cm to the thigh at +4 cm, with the seam at −0.5 cm;
+  * the hip edit is weighted to the outer side and back (full to 110° from the outer side, zero at 150°)
+    because the inner, crotch side inverts.
+  * No inverted faces, and all 10 models pass the compile audit.
+* **Measured on `pfh0`:**
+  * the rear hip groove is filled: the visible radius stays at 99–103 mm through the seam, where it
+    previously dipped from 99 to 88 mm;
+  * the visible knee crease drops from 51–53° to 27–32°.
+* **Client, `pfh2` against shipped:**
+  * the band is gone under flat light and much reduced standing from behind;
+  * a short crease remains on each cheek toward the inner back, where the weighting fades out;
+  * widening the weight (to 130/160°) reintroduces inversions near the cleft, so v3 is the method's limit.
+* **Not yet run:** the motion sweep across all clips, and pilot tooling as phenomorpher commands (the
+  pilot used scratch scripts with pinned inputs).
+
 ## 1. What causes the band (measured)
 
 On every female body, a dark band runs below the buttocks and a fainter line sits behind the knee. They
