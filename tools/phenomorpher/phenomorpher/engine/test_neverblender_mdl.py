@@ -44,13 +44,18 @@ class CompileFolderTests(unittest.TestCase):
             root = Path(tmp); blender, addon = toolchain(root); converted = root/'c'; (converted/'ascii').mkdir(parents=True)
             (converted/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN)
             run, calls = fake_run(native('m', 'null', [('m', '', {})]))
+            rerun = root/'d'; (rerun/'ascii').mkdir(parents=True); shutil.copyfile(converted/'ascii/m.mdl', rerun/'ascii/m.mdl')
             with patch.object(nvb, 'run', side_effect=run):
                 first = nvb.compile_folder(blender, addon, converted)
-                again = nvb.compile_folder(blender, addon, converted)
-                (converted/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN.replace('donemodel m', 'donemodel m\n'))
-                changed = nvb.compile_folder(blender, addon, converted)
-            self.assertEqual(calls, [['m.mdl'], [], ['m.mdl']])
-            self.assertEqual((first['compiled'], again['reused'], changed['compiled']), (1, 1, 1))
+                again = nvb.compile_folder(blender, addon, rerun, cache=converted)
+                in_place = nvb.compile_folder(blender, addon, converted)  # the folder's own receipt is never a cache
+                (rerun/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN.replace('donemodel m', 'donemodel m\n'))
+                changed = nvb.compile_folder(blender, addon, rerun, cache=converted)
+                with self.assertRaisesRegex(ValueError, 'earlier converted folder'):
+                    nvb.compile_folder(blender, addon, converted, cache=converted)
+            self.assertEqual(calls, [['m.mdl'], [], ['m.mdl'], ['m.mdl']])
+            self.assertEqual((first['compiled'], again['reused'], in_place['compiled'], changed['compiled']), (1, 1, 1, 1))
+            self.assertEqual((rerun/'resources/m.mdl').read_bytes(), (converted/'resources/m.mdl').read_bytes())
             receipt = json.loads((converted/'native-compile.json').read_text())
             self.assertEqual((receipt['executionMode'], receipt['complete'], receipt['compiler']['neverblender']['version']),
                              ('neverblender-cleanmodels', True, '4.5.1'))
@@ -89,6 +94,29 @@ class DeclaredInputTests(unittest.TestCase):
             names = {p.relative_to(root.resolve()).as_posix() for p in files}
             self.assertEqual(names, {'blender.exe', 'addons/neverblender/__init__.py', 'addons/neverblender/cleanmodels/__init__.py',
                                      'c/ascii/m.mdl', 'stock/a_fa.mdl'})
+
+    def test_a_managed_rerun_leaves_every_declared_input_unchanged(self):
+        """The launcher re-hashes declared inputs after the run; compile outputs must not be among them."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); blender, addon = toolchain(root)
+            for name in ('c', 'd'):
+                (root/name/'ascii').mkdir(parents=True); (root/name/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN)
+            (root/'c/ascii/n.mdl').write_text(ROOT_AT_ORIGIN)  # the stand-in compiler writes model m for every job
+            run, calls = fake_run(native('m', 'null', [('m', '', {})]))
+            base = ['mdl-compile', '--blender', str(blender), '--neverblender', str(addon)]
+            with patch.object(nvb, 'run', side_effect=run):
+                nvb.compile_folder(blender, addon, root/'c')
+                for argv, cache in ((base + ['--converted', str(root/'c')], None),
+                                    (base + ['--converted', str(root/'d'), '--cache', str(root/'c')], root/'c')):
+                    files = consumed(argv); pinned = {p: nvb.digest(p.read_bytes()) for p in files}
+                    nvb.compile_folder(blender, addon, Path(argv[argv.index('--converted') + 1]), cache=cache)
+                    with self.subTest(cache=cache):
+                        self.assertEqual({p: nvb.digest(p.read_bytes()) for p in files}, pinned)
+            # d's lookups differ from c's (no n.mdl), so nothing is reused: caching stays conservative.
+            self.assertEqual(calls, [['m.mdl', 'n.mdl'], ['m.mdl', 'n.mdl'], ['m.mdl']])
+            names = {p.relative_to(root.resolve()).as_posix() for p in files}
+            self.assertTrue({'c/native-compile.json', 'c/resources/m.mdl'} <= names)
+            self.assertNotIn('c/resources/n.mdl', names)  # not a source of d, and not in d's lookup folders
 
     def test_spellings_argparse_could_resolve_differently_are_refused(self):
         with tempfile.TemporaryDirectory() as tmp:

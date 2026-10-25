@@ -105,32 +105,43 @@ def audit(binary, source):
             'positionMetres': result['staticRig']['positionMetres'], 'rotationDegrees': result['staticRig']['rotationDegrees']}
 
 
-def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600):
+def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600, cache=None):
     """Compile converted/ascii/*.mdl into converted/resources with a native-compile.json receipt.
 
     Same folder layout and receipt rows as tools/phenotypes/native_compile.py, so armor-publish and
-    library restoration read either. Unchanged sources with a matching receipt keep their binaries."""
+    library restoration read either. The folder's own receipt and binaries are outputs and are never
+    read back. `cache` names an earlier converted folder: its binaries are copied for sources whose
+    source, compiler and lookups are unchanged, so a managed launch can pin it as a read-only input."""
     converted = Path(converted).resolve(); tools = toolchain(blender, addon)
+    cache = Path(cache).resolve() if cache else None
+    if cache == converted:
+        raise ValueError('The compile cache must be an earlier converted folder, not the output folder')
     sources = sorted((converted/'ascii').glob('*.mdl'))
     if not sources:
         raise ValueError('No ASCII models under ' + str(converted/'ascii'))
     resources = converted/'resources'; resources.mkdir(exist_ok=True)
     folders = [converted/'ascii', resources, *(Path(d).resolve() for d in resource_dirs)]
     names = {p.name.lower() for p in sources}
-    lookup = {str(p): digest(p.read_bytes()) for p in sorted(lookup_files(folders))
-              if not (p.parent == resources and p.name.lower() in names)}
+    pins = {p: digest(p.read_bytes()) for p in sorted(lookup_files(folders))
+            if not (p.parent == resources and p.name.lower() in names)}
+    # Files inside the folder are keyed relative to it, so a cache folder with the same contents matches.
+    lookup = {(p.relative_to(converted).as_posix() if p.is_relative_to(converted) else str(p)): h for p, h in pins.items()}
     snapshot = {p.name: digest(p.read_bytes()) for p in sources}
-    receipt_path = converted/RECEIPT
-    previous = json.loads(receipt_path.read_text(encoding='utf-8')) if receipt_path.exists() else {}
+    previous = {}
+    if cache:
+        if not (cache/RECEIPT).is_file():
+            raise ValueError(f'Compile cache has no {RECEIPT}: {cache}')
+        previous = json.loads((cache/RECEIPT).read_text(encoding='utf-8'))
     reusable = previous.get('compilerSha256') == tools['sha256'] and previous.get('lookupHashes') == lookup
-    cache = {r['name']: r for r in previous.get('models', [])} if reusable else {}
-    rows, jobs, staging = {}, [], Path(tempfile.mkdtemp(prefix='.nvb-compile-', dir=converted))
+    cached_rows = {r['name']: r for r in previous.get('models', [])} if reusable else {}
+    rows, jobs, staged, staging = {}, [], [], Path(tempfile.mkdtemp(prefix='.nvb-compile-', dir=converted))
     try:
         for path in sources:
-            destination = resources/path.name; cached = cache.get(path.name)
-            if (cached and cached['sourceSha256'] == snapshot[path.name] and destination.is_file()
-                    and digest(destination.read_bytes()) == cached['binarySha256']):
-                rows[path.name] = cached; continue
+            cached = cached_rows.get(path.name); kept = cache/'resources'/path.name if cache else None
+            if cached and cached['sourceSha256'] == snapshot[path.name] and kept.is_file():
+                data = kept.read_bytes()
+                if digest(data) == cached['binarySha256']:
+                    (staging/path.name).write_bytes(data); staged.append(path.name); rows[path.name] = cached; continue
             jobs.append({'op': 'compile', 'input': path, 'output': staging/path.name, 'dirs': folders})
         report = run(tools, jobs, timeout)
         failed = []
@@ -148,10 +159,10 @@ def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600):
                                'position/orientation; keep the root at the origin): ' + ' | '.join(failed[:5]))
         if any(digest(p.read_bytes()) != snapshot[p.name] for p in sources):
             raise RuntimeError('Source changed before compiler verification completed')
-        if any(digest(Path(p).read_bytes()) != pin for p, pin in lookup.items()):
+        if any(digest(p.read_bytes()) != pin for p, pin in pins.items()):
             raise RuntimeError('Compile lookup resource changed during compilation')
-        for job in jobs:
-            os.replace(job['output'], resources/Path(job['input']).name)
+        for name in staged + [Path(job['input']).name for job in jobs]:
+            os.replace(staging/name, resources/name)
     finally:
         shutil.rmtree(staging, ignore_errors=True)
     receipt = {'schemaVersion': 2, 'executionMode': EXECUTION_MODE, 'compiler': {k: v for k, v in tools.items() if k != 'files'},
@@ -159,7 +170,7 @@ def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600):
                'lookupFolders': [str(f) for f in folders], 'lookupHashes': lookup, 'interactiveClientLaunched': False,
                'models': [rows[p.name] for p in sources], 'compiled': len(jobs), 'reused': len(sources) - len(jobs),
                'complete': True}
-    receipt_path.write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8', newline='\n')
+    (converted/RECEIPT).write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8', newline='\n')
     return receipt
 
 

@@ -159,11 +159,14 @@ def consumed(arguments):
         files.update(declared_files(option('blender'), option('neverblender')))
         if command == 'mdl-compile':
             converted = option('converted'); sources = sorted((converted/'ascii').glob('*.mdl'))
-            files.update(sources)
-            files.update(lookup_files([converted/'ascii', *([converted/'resources'] if (converted/'resources').is_dir() else []),
-                                       *values('resource-dir')]))
-            if (converted/'native-compile.json').is_file():
-                files.add(converted/'native-compile.json')
+            files.update(sources); names = {p.name.lower() for p in sources}
+            # The receipt and the binaries named like sources are outputs; only --cache supplies reusable ones.
+            files.update(p for p in lookup_files([converted/'ascii', *values('resource-dir'),
+                                                  *([converted/'resources'] if (converted/'resources').is_dir() else [])])
+                         if not (p.parent == converted/'resources' and p.name.lower() in names))
+            if '--cache' in arguments:
+                cache = option('cache'); files.add(cache/'native-compile.json')
+                files.update(p for p in (cache/'resources'/s.name for s in sources) if p.is_file())
         else:
             inputs = values('input'); files.update(inputs)
             files.update(lookup_files({p.parent for p in inputs} | set(values('resource-dir'))))

@@ -135,6 +135,7 @@ def main(argv=None):
     for name in ('blender', 'neverblender', 'converted'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--resource-dir', type=Path, action='append', default=[], help='Extra supermodel/skeleton/material folder; repeat')
+    p.add_argument('--cache', type=Path, help='Earlier converted folder whose unchanged binaries are reused (read only)')
     p.add_argument('--timeout', type=float, default=600)
     p = sub.add_parser('mdl-decompile', help='Decompile binary models to ASCII with Blender + Neverblender')
     for name in ('blender', 'neverblender', 'output'):
@@ -324,7 +325,7 @@ def main(argv=None):
         from .engine import neverblender_mdl as nvb
         declare_consumed(argv)
         if a.command == 'mdl-compile':
-            receipt = nvb.compile_folder(a.blender, a.neverblender, a.converted, a.resource_dir, a.timeout)
+            receipt = nvb.compile_folder(a.blender, a.neverblender, a.converted, a.resource_dir, a.timeout, a.cache)
             print(json.dumps({k: receipt[k] for k in ('compilerSha256', 'compiled', 'reused', 'complete')}))
             return
         names = [p.name.lower() for p in a.input]
