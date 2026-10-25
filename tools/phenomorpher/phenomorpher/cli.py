@@ -57,8 +57,22 @@ def assembly(root, path):
     return data, rig, parts
 
 
+class Strict(argparse.ArgumentParser):
+    """No abbreviated options: inputs.consumed must name exactly the files argparse selects."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **{**kwargs, 'allow_abbrev': False})
+
+
+def declare_consumed(argv):
+    """Managed launches only: every file the command consumes must be pinned before any is parsed."""
+    from .inputs import consumed
+    snapshot()
+    for path in consumed(argv if argv is not None else sys.argv[1:]):
+        declared(path)
+
+
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = Strict(description=__doc__)
     parser.add_argument('--version', action='version', version='PhenoMorpher ' + __version__)
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('doctor')
@@ -117,8 +131,18 @@ def main(argv=None):
     p.add_argument('--motion', action='store_true'); p.add_argument('--motion-only', action='store_true')
     p.add_argument('--clip', action='append', help='Restrict the motion sweep to these clips')
     p.add_argument('--label')
+    p = sub.add_parser('mdl-compile', help='Compile <converted>/ascii into <converted>/resources with Blender + Neverblender')
+    for name in ('blender', 'neverblender', 'converted'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--resource-dir', type=Path, action='append', default=[], help='Extra supermodel/skeleton/material folder; repeat')
+    p.add_argument('--timeout', type=float, default=600)
+    p = sub.add_parser('mdl-decompile', help='Decompile binary models to ASCII with Blender + Neverblender')
+    for name in ('blender', 'neverblender', 'output'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--input', type=Path, action='append', required=True, help='Binary model; repeat')
+    p.add_argument('--resource-dir', type=Path, action='append', default=[], help='Skeleton folder after the model folder; repeat')
     p = sub.add_parser('armor-extract')
-    for name in ('resman-extract', 'decompiler', 'game-root', 'output'):
+    for name in ('resman-extract', 'blender', 'neverblender', 'game-root', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all)')
     p = sub.add_parser('armor-profiles')
@@ -217,9 +241,7 @@ def main(argv=None):
         print(json.dumps(run(a.release, a.output))); return
     if a.command in ('anim-library', 'compare-motion'):
         from .engine import anim_library
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         action = a.command if a.command == 'compare-motion' else a.action
         if action == 'extract-stock':
             result = anim_library.extract_stock(a.resman_cat, a.game_root, a.seed, a.output)
@@ -247,15 +269,11 @@ def main(argv=None):
         return
     if a.command == 'downsample-textures':
         from .engine.texture_downsample import downsample
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         print(json.dumps(downsample(a.root, a.manifest, a.output, a.max_size)['summary'])); return
     if a.command == 'adopt-runtime':
         from .engine.runtime_release import adopt
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         print(json.dumps(adopt(a.root, a.plan, a.output)['summary'])); return
     if a.command == 'audit-native':
         from .engine.rig_native import compare
@@ -269,58 +287,62 @@ def main(argv=None):
         return
     if a.command == 'sweep':
         from .engine.body_sweep import sweep
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         print(json.dumps(sweep(a.root, a.manifest, a.output, a.target, a.stock, a.motion or a.motion_only, a.motion_only, a.clip, a.label)))
         return
     if a.command == 'armor-extract':
         from .engine.stock_armor import SOURCES, extract
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
-        result = extract(a.resman_extract, a.decompiler, a.game_root, a.output, a.slot or SOURCES)
+        declare_consumed(argv)
+        result = extract(a.resman_extract, (a.blender, a.neverblender), a.game_root, a.output, a.slot or SOURCES)
         print(json.dumps(result['counts'])); return
     if a.command == 'armor-profiles':
         from .engine.stock_armor import TARGETS, fit_profiles
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         result = fit_profiles(a.root, a.manifest, a.stock, a.output, a.slot or TARGETS)
         print(json.dumps({'slots': len(result['slots']), 'flagged': result['flagged']})); return
     if a.command == 'armor-convert':
         from .engine.stock_armor import TARGETS, convert, style_set
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         result = convert(a.stock, a.profiles, a.armory, a.output, a.slot or TARGETS, style_set(a.styles))
         print(json.dumps({**result['counts'], 'worstWorldTransformError': result['worstWorldTransformError']})); return
     if a.command == 'armor-publish':
         from .engine.stock_armor import publish
-        from .inputs import consumed
         if len(a.conversion) != len(a.compiled):
             raise ValueError('Pair every --conversion with one --compiled root')
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         print(json.dumps(publish(list(zip(a.conversion, a.compiled)), a.body_manifest, a.root, a.manifest))); return
     if a.command == 'verify-armor':
         from .engine.stock_armor import verify_pack
         declared(a.manifest)
         for row in read(a.manifest)['resources']: declared(a.root / row['path'])
         print(json.dumps(verify_pack(a.root, a.manifest, snapshot()))); return
+    if a.command in ('mdl-compile', 'mdl-decompile'):
+        from .engine import neverblender_mdl as nvb
+        declare_consumed(argv)
+        if a.command == 'mdl-compile':
+            receipt = nvb.compile_folder(a.blender, a.neverblender, a.converted, a.resource_dir, a.timeout)
+            print(json.dumps({k: receipt[k] for k in ('compilerSha256', 'compiled', 'reused', 'complete')}))
+            return
+        names = [p.name.lower() for p in a.input]
+        if len(set(names)) != len(names):
+            raise ValueError('Decompile inputs must have distinct file names')
+        a.output.mkdir(parents=True, exist_ok=False)
+        tools, report = nvb.decompile_files(a.blender, a.neverblender, [(p, a.output/p.name) for p in a.input], a.resource_dir)
+        receipt = {'schemaVersion': 1, 'kind': 'PhenoMorpher-mdl-decompile', 'compiler': {k: v for k, v in tools.items() if k != 'files'},
+                   'compilerSha256': tools['sha256'], 'blenderVersion': report['blenderVersion'],
+                   'models': [{'name': Path(r['input']).name, 'binarySha256': r['sourceSha256'], 'asciiSha256': r['outputSha256'],
+                               'warnings': r['warnings']} for r in report['results']]}
+        (a.output/'decompile.json').write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8', newline='\n')
+        print(json.dumps({'models': len(receipt['models']), 'compilerSha256': tools['sha256']})); return
     if a.command == 'retarget-v2':
         from .engine.retarget_v2 import retarget
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         receipt = retarget(a.fit_converted, a.baseline, a.large_converted)
         print(json.dumps({k: receipt[k] for k in ('motionSource', 'topCarrier', 'fitLargeShareMotion')}))
         return
     if a.command == 'verify-runtime':
         from .engine.runtime_rules import check
-        from .inputs import consumed
-        snapshot()  # Managed launches only, before any declared file is parsed.
-        for path in consumed(argv if argv is not None else sys.argv[1:]): declared(path)
+        declare_consumed(argv)
         if a.output.exists(): raise ValueError('Fresh output required')
         result = check(a.root, a.manifest, a.stock, a.max_texture)
         a.output.parent.mkdir(parents=True, exist_ok=True)

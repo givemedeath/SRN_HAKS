@@ -213,6 +213,43 @@ class LibraryBuildTests(unittest.TestCase):
         (root/'manifest.json').write_text(json.dumps({'version': '1.0.0', 'resources': resources, 'targets': [], 'modelDependencies': []}))
         return root/'manifest.json', stock_dir/'stock-models.json'
 
+    def test_deeper_carrier_nodes_under_its_root_join_the_library(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest, stock = self.release(root); data = json.loads(manifest.read_text())
+            # pfx0/pfx2 > pcf0 (no clips) > pcd0, whose slash keys belt_x, a direct child of the pcd0 root.
+            slash = clip('slash', 'pcd0', angle=5)
+            slash['nodes'].append(('belt_x', 'pcd0', {8: ([0.0, 1.0], [[0.0, 0.1, 0.9]]*2)}))
+            models = {'pcf0': native('pcf0', 'pcd0', GEOMETRY('pcf0')),
+                      'pcd0': native('pcd0', 'null', GEOMETRY('pcd0') + [('belt_x', 'pcd0', {8: ([0.0], [[0.0, 0.1, 0.9]])})], [slash]),
+                      'pfx2': native('pfx2', 'pcf0', GEOMETRY('pfx2'))}
+            for name, blob in models.items():
+                (root/'srn_body'/(name + '.mdl')).write_bytes(blob)
+            data['resources'] = [r for r in data['resources'] if Path(r['path']).stem not in models] + [
+                {'path': f'srn_body/{n}.mdl', 'sha256': hashlib.sha256(b).hexdigest(), 'role': 'fitted-rig' if n == 'pfx2' else 'rig-inheritance'}
+                for n, b in models.items()]
+            manifest.write_text(json.dumps(data))
+            result = lib.build(root, manifest, stock, 'pfx0', 'pfx2', 'srn_an_xf', root/'build')
+            self.assertEqual(result['retained'], 1)
+            text = (root/'build/converted/ascii/srn_an_xf.mdl').read_text()
+            self.assertIn('node dummy belt_x\n  parent srn_an_xf', text)
+
+    def test_build_refuses_a_stock_chain_shadowed_by_the_pack(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest, stock = self.release(root); data = json.loads(manifest.read_text())
+            shadow = (root/'stock/a_ba.mdl').read_bytes(); (root/'srn_body/a_ba.mdl').write_bytes(shadow)
+            data['resources'].append({'path': 'srn_body/a_ba.mdl', 'sha256': hashlib.sha256(shadow).hexdigest(), 'role': 'rig-inheritance'})
+            manifest.write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError, 'pack override: a_fa'):
+                lib.build(root, manifest, stock, 'pfx0', 'pfx2', 'srn_an_xf', root/'build', allowed=['slash'])
+
+    def test_fit_comparisons_take_no_authorizations(self):
+        from .motion_compare import compare
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); manifest, stock = self.release(root)
+            repointed = root/'pfx0.mdl'; repointed.write_bytes(lib.repoint((root/'srn_body/pfx0.mdl').read_bytes(), 'a_fa'))
+            with self.assertRaisesRegex(ValueError, 'non-Fit roots only'):
+                compare(root, manifest, stock, 'pfx0', None, repointed, ('slash',))
+
     def test_build_restore_repoint_and_compare_motion(self):
         from .motion_compare import compare
         with tempfile.TemporaryDirectory() as tmp:

@@ -12,8 +12,8 @@
       "module": "armory_rigid",
       "source": "armory_rigid.py",
       "sourceSHA256": "828421bc2a13631995cfa8979353936914390fbd2627e88d83486bc339b42522",
-      "packagedSHA256": "b3f4228674c042e65c3a7a2ab6bc7679aa07d1ab19d0fab0221c596cb17c0ff6",
-      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+      "packagedSHA256": "31b821a5fc15d99a52925b63634a6ec956a6706131a16f97e13ddff89d257362",
+      "modifications": "Package-relative imports and LF encoding; numerical algorithms unchanged. Refuses non-root dummies other than pivots whose subtree ends in meshes (only meshes are baked and proven), and writes the corrected model with LF."
     },
     {
       "module": "audit_geometry",

@@ -49,9 +49,12 @@ class InventoryTests(unittest.TestCase):
             root = Path(tmp); (root/'game/data').mkdir(parents=True)
             bare = [('pfd0', 2002)] + [(f'pfd0_{part}001', 2002) for part in armor.BARE]
             key_file(root/'game/data/nwn_base.key', [('pfd0_chest005', 2002), ('pfd0_belt002', 2002), ('pmh0_chest005', 2002),
-                                                     ('pfd0_chest005', 6), ('pfh0_chest001', 6), *bare])
+                                                     ('pfd0_chest005', 6), ('pfh0_chest001', 6), ('belt_mat', 2036),
+                                                     ('belt_mat_n', 3), *bare])
             texts = {'pfd0_chest005.mdl': MODEL.format(n='pfd0_chest005', kind='danglymesh', bitmap='pfd0_chest005'),
-                     'pfd0_belt002.mdl': MODEL.format(n='pfd0_belt002', kind='trimesh', bitmap='missing_tex'),
+                     'pfd0_belt002.mdl': MODEL.format(n='pfd0_belt002', kind='trimesh', bitmap='missing_tex').replace(
+                         '  verts 0', '  materialname belt_mat\n  verts 0'),
+                     'belt_mat.mtr': 'texture0 missing_tex\ntexture1 belt_mat_n\n', 'belt_mat_n.tga': 'TGA',
                      'pfd0_chest005.plt': 'PLT', 'pfh0_chest001.plt': 'PLT', **{n + '.mdl': 'native' for n, _ in bare}}
             def run(command, **_):
                 out = Path(command[command.index('-d') + 1])
@@ -59,17 +62,24 @@ class InventoryTests(unittest.TestCase):
                     (out/name).write_text(texts[name], encoding='ascii')
                 class Result: returncode = 0; stderr = b''
                 return Result()
-            tool = root/'extract.exe'; tool.write_bytes(b'x'); dec = root/'dec.exe'; dec.write_bytes(b'y')
-            with patch.object(armor.subprocess, 'run', side_effect=run):
-                manifest = armor.extract(tool, dec, root/'game', root/'out', ['pfd0'])
+            tool = root/'extract.exe'; tool.write_bytes(b'x'); nvb = (root/'blender.exe', root/'neverblender')
+            tools = {'sha256': 'n', 'blender': {}, 'neverblender': {}, 'cleanmodels': 'v'}
+            from . import neverblender_mdl
+            with patch.object(armor.subprocess, 'run', side_effect=run), \
+                    patch.object(neverblender_mdl, 'decompile_files', return_value=(tools, {'results': []})) as decompile:
+                manifest = armor.extract(tool, nvb, root/'game', root/'out', ['pfd0'])
+            self.assertEqual(decompile.call_args[0][:2], nvb)  # ASCII sources need no decompile; one batch call
+            self.assertEqual(manifest['tools']['decompiler']['compilerSha256'], 'n')
             self.assertEqual(sorted(manifest['models']), ['pfd0_belt002.mdl', 'pfd0_chest005.mdl'])
-            self.assertEqual(manifest['counts'], {'models': 2, 'textures': 1, 'fitReferences': 16, 'danglymesh': 1, 'unsupportedMeshTypes': []})
+            self.assertEqual(manifest['counts'], {'models': 2, 'textures': 3, 'fitReferences': 16, 'danglymesh': 1, 'unsupportedMeshTypes': []})
             self.assertIn('pfd0.mdl', manifest['fitReferences']); self.assertNotIn('pfd0_chest001.mdl', manifest['models'])
             self.assertEqual(manifest['models']['pfd0_belt002.mdl']['unresolvedReferences'], ['missing_tex'])
-            self.assertEqual(sorted(manifest['textures']), ['pfd0_chest005.plt'])
+            # Textures a material names are pinned too.
+            self.assertEqual(sorted(manifest['textures']), ['belt_mat.mtr', 'belt_mat_n.tga', 'pfd0_chest005.plt'])
+            self.assertEqual(manifest['unresolvedMaterialReferences'], ['missing_tex'])
             self.assertEqual(json.loads((root/'out/stock-armor.json').read_text())['override'], False)
             with self.assertRaisesRegex(ValueError, 'Unknown body slot'):
-                armor.extract(tool, dec, root/'game', root/'out2', ['pfa0'])
+                armor.extract(tool, nvb, root/'game', root/'out2', ['pfa0'])
 
 
 class ProfileTests(unittest.TestCase):
@@ -153,6 +163,24 @@ def native(model, tail=b''):
     return bytes(data)
 
 
+class RigidCorrectionTests(unittest.TestCase):
+    def test_non_root_dummies_are_refused_instead_of_left_unfitted(self):
+        from .armory_rigid import correct_rigid
+        text = MODEL.format(n='pfd0_belt002', kind='trimesh', bitmap='b').replace('  verts 0', '  verts 1\n    0 0 0').replace(
+            'endmodelgeom', 'node dummy attach\n  parent pfd0_belt002g\n  position 0 0 0.1\nendnode\nendmodelgeom')
+        with tempfile.TemporaryDirectory() as tmp:
+            source, target = Path(tmp)/'s.mdl', Path(tmp)/'t.mdl'; source.write_text(text); target.write_text(text)
+            with self.assertRaisesRegex(RuntimeError, 'Non-root dummy nodes.*attach'):
+                correct_rigid(source, target, {'scale': [1, 1, 1], 'translate': [0, 0, 0]})
+            # A pivot whose only children are meshes is baked into them and stays allowed.
+            pivoted = MODEL.format(n='pfd0_belt002', kind='trimesh', bitmap='b').replace('  verts 0', '  verts 1\n    0 0 0').replace(
+                '  parent pfd0_belt002\n  bitmap', '  parent pivot\n  bitmap').replace(
+                'node trimesh', 'node dummy pivot\n  parent pfd0_belt002\n  position 0 0 0.2\nendnode\nnode trimesh')
+            source.write_text(pivoted); target.write_text(pivoted)
+            proof = correct_rigid(source, target, {'scale': [1, 1, 1], 'translate': [0, 0, 0]})
+            self.assertEqual(proof['sourceFrames'][0]['sourceParent'], 'pivot')
+
+
 class SanitizeTests(unittest.TestCase):
     def test_string_tails_are_zeroed_and_nothing_else_changes(self):
         dirty = native('pfd0_chest005', b'Authorization: Bearer abc')
@@ -199,8 +227,12 @@ class PackTests(unittest.TestCase):
             (root/'srn_armor/pfd0_chest006.mdl').write_bytes(b'\0\0\0\0x')
             self.assertRaisesRegex(ValueError, 'outside its contract', armor.verify_pack, root, manifest)
             (root/'srn_armor/pfd0_chest006.mdl').unlink()
+            # A launch pin never substitutes for hashing the bytes actually read.
+            pins = {str((root/r['path']).resolve()): r['sha256'] for r in json.loads(manifest.read_text())['resources']}
+            self.assertTrue(armor.verify_pack(root, manifest, pins)['verified'])
             (root/'srn_armor/pfd0_chest005.mdl').write_bytes(native('pfd0_chest005', b'Authorization: Bearer abc'))
             self.assertRaisesRegex(ValueError, 'differs', armor.verify_pack, root, manifest)
+            self.assertRaisesRegex(ValueError, 'launch pin', armor.verify_pack, root, manifest, pins)
 
     def test_publish_refuses_partial_packs_and_mismatched_binaries(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -214,6 +246,15 @@ class PackTests(unittest.TestCase):
             body.write_text(json.dumps({'resources': [{'path': 'srn_body/pfd0_chest005.mdl'}]})); data['slots']['pfd0']['models']['pfd0_chest005.mdl']['asciiSHA256'] = 'a'
             conversion.write_text(json.dumps(data))
             self.assertRaisesRegex(ValueError, 'shadows', armor.publish, [(conversion, compiled)], body, root, root/'m.json')
+
+    def test_neverblender_receipts_name_their_compiler_build(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); conversion, compiled, body = self.fixture(root)
+            for slot in armor.TARGETS:
+                path = compiled/slot/'converted/native-compile.json'; data = json.loads(path.read_text())
+                data.pop('clientSha256'); data['compilerSha256'] = 'nvb'; path.write_text(json.dumps(data))
+            armor.publish([(conversion, compiled)], body, root, root/'m.json')
+            self.assertEqual(json.loads((root/'m.json').read_text())['nativeCompilerSHA256'], 'nvb')
 
 
 if __name__ == '__main__':

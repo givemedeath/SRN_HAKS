@@ -92,6 +92,42 @@ class AdoptionTests(unittest.TestCase):
             self.assertEqual((inventory['summary']['privateCarriers'], inventory['summary']['animationLibraries']), (0, ['srn_an_xf']))
             self.assertEqual(inventory['targets'][0]['libraries'], ['srn_an_xf'])
 
+    def test_a_release_with_published_libraries_can_be_adopted_again(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); plan = self.release(root); adopt(root, root/'plan.json', root/'staged')
+            for path in (root/'staged/files').rglob('*'):
+                if path.is_file():
+                    (root/path.relative_to(root/'staged/files')).write_bytes(path.read_bytes())
+            for row in json.loads((root/'staged/remove.json').read_text()):
+                (root/row['path']).unlink()
+            # Next release: only a further texture reduction; roots keep naming the published library.
+            contract = root/'staged/game-ready-assets.json'; downsample(root, contract, root/'textures2', max_size=2)
+            rel = lambda p: {'path': Path(p).relative_to(root).as_posix(), 'sha256': sha(p)}
+            plan.update(version='1.2.0', baseContract=rel(contract), textures=rel(root/'textures2/downsample-receipt.json'),
+                        libraries=[], roots=[], retiredResources=rel(root/'staged/retired-runtime-resources.json'))
+            (root/'plan2.json').write_text(json.dumps(plan))
+            receipt = adopt(root, root/'plan2.json', root/'staged2')
+            self.assertEqual((receipt['summary']['downsampledTextures'], receipt['summary']['retiredCarriers']), (1, 0))
+            self.assertEqual(receipt['runtimeRules']['chains']['pfx0'], ['pfx0', 'srn_an_xf', 'a_fa'])
+            again = json.loads((root/'staged2/game-ready-assets.json').read_text())
+            self.assertIn('srn_body/srn_an_xf.mdl', [r['path'] for r in again['resources']])
+
+    def test_library_rows_need_an_anchor_dependency_row(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); plan = self.release(root); manifest = root/plan['baseContract']['path']
+            data = json.loads(manifest.read_text())
+            data['modelDependencies'] = [r for r in data['modelDependencies'] if r['model'] != 'pfx0']
+            manifest.write_text(json.dumps(data)); plan['baseContract']['sha256'] = sha(manifest)
+            plan['libraryAnchor'] = 'srn_body/pfx0.mdl'; (root/'plan.json').write_text(json.dumps(plan))
+            # The comparisons pinned the old contract, so re-pin them to keep this about the dependency rows.
+            for row in plan['roots']:
+                report = root/row['comparison']['path']; rep = json.loads(report.read_text())
+                rep['inputs']['manifest']['sha256'] = plan['baseContract']['sha256']; report.write_text(json.dumps(rep))
+                row['comparison']['sha256'] = sha(report)
+            (root/'plan.json').write_text(json.dumps(plan))
+            with self.assertRaisesRegex(ValueError, 'modelDependencies row for the anchor'):
+                adopt(root, root/'plan.json', root/'out')
+
     def test_failed_comparisons_and_unrepointed_roots_stop_adoption(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); plan = self.release(root)

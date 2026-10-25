@@ -7,11 +7,14 @@ import json
 from pathlib import Path
 
 from .anim_library import (DEFAULT_TOLERANCES, PARENT_FIELD, NativeModel, assembled_drift, chain, clips_equal,
-                           compare_clip, digest, effective, release_models, stock_files)
+                           compare_clip, digest, effective, release_models, stock_files, within)
 
 
 def compare(root, manifest_path, stock_manifest, target, library_path, repointed_path, authorized=(), tolerances=None):
     tolerances = {**DEFAULT_TOLERANCES, **(tolerances or {})}
+    # The library is built from the Fit (phenotype 0) motion, so only other builds may differ by authorization.
+    if authorized and target[3:4] == '0':
+        raise ValueError('Fit/Large clip authorizations apply to non-Fit roots only: ' + target)
     root = Path(root).resolve(); manifest_bytes = Path(manifest_path).read_bytes()
     manifest = json.loads(manifest_bytes.decode('utf-8-sig'))
     stock, stock_paths = stock_files(stock_manifest); old, origins = release_models(root, manifest, stock, stock_paths)
@@ -36,6 +39,8 @@ def compare(root, manifest_path, stock_manifest, target, library_path, repointed
     old_clips, new_clips = effective(old_chain, old), effective(new_chain, new)
     if set(old_clips) != set(new_clips):
         raise ValueError('Effective clip set changed')
+    if not old_clips:
+        raise ValueError('Target has no effective clips to compare: ' + target)
     rig = old[target]['nodes']; rows = {}; failures = []
     for clip in sorted(old_clips):
         o, n = old_clips[clip]['owner'], new_clips[clip]['owner']
@@ -46,11 +51,8 @@ def compare(root, manifest_path, stock_manifest, target, library_path, repointed
         if library and n == library['name']:
             row['status'] = 'exact' if exact else 'retained-but-different'
         else:
-            within = (row['structure'] and row['positionMetres'] <= tolerances['positionMetres']
-                      and row['rotationDegrees'] <= tolerances['rotationDegrees']
-                      and row['otherMax'] <= tolerances['otherControllers']
-                      and row['assembledDrift']['metres'] <= tolerances['assembledDriftMetres'])
-            row['status'] = 'inherited-exact' if exact else 'inherited-within-tolerance' if within else 'inherited-outside-tolerance'
+            inside = within(row, tolerances) and row['assembledDrift']['metres'] <= tolerances['assembledDriftMetres']
+            row['status'] = 'inherited-exact' if exact else 'inherited-within-tolerance' if inside else 'inherited-outside-tolerance'
         if clip in authorized and row['status'] not in ('exact', 'inherited-exact'):
             row['status'] = 'authorized-fit-clip'
         if row['status'] in ('retained-but-different', 'inherited-outside-tolerance'):
@@ -59,12 +61,13 @@ def compare(root, manifest_path, stock_manifest, target, library_path, repointed
     counts = {}
     for row in rows.values():
         counts[row['status']] = counts.get(row['status'], 0) + 1
-    worst = max(rows.items(), key=lambda kv: kv[1]['assembledDrift']['metres'] if kv[1]['status'] != 'authorized-fit-clip' else -1)
+    unauthorized = [kv for kv in rows.items() if kv[1]['status'] != 'authorized-fit-clip']
+    worst = max(unauthorized, key=lambda kv: kv[1]['assembledDrift']['metres']) if unauthorized else None
     return {'schemaVersion': 1, 'kind': 'PhenoMorpher-motion-comparison', 'target': target,
             'inputs': {'manifest': {'sha256': digest(manifest_bytes)},
                        'stockManifest': {'sha256': digest(Path(stock_manifest).read_bytes())}, 'oldChain': pinned},
             'oldChain': old_chain, 'newChain': new_chain, 'library': {'name': library['name'], 'sha256': digest(library_blob)} if library else None,
             'repointedRoot': {'sha256': digest(repointed), 'parent': new[target]['parent'], 'onlySupermodelFieldChanged': True},
             'tolerances': tolerances, 'authorized': sorted(authorized), 'counts': counts,
-            'worstUnauthorizedDrift': {'clip': worst[0], **worst[1]['assembledDrift']},
+            'worstUnauthorizedDrift': {'clip': worst[0], **worst[1]['assembledDrift']} if worst else None,
             'failures': failures, 'passed': not failures, 'clips': rows, 'assetApprovalCreated': False}

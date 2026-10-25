@@ -7,6 +7,8 @@ import struct
 MODEL_TYPE = 2002
 RIG_ROLES = ('fitted-rig', 'rig-inheritance', 'animation-library')
 ANIMATION_ROLES = RIG_ROLES + ('selected-palette', 'selected-map', 'selected-material')
+# Options argparse collects as lists; every other option must appear once, spelled in full.
+REPEATED = {'target', 'slot', 'clip', 'seed', 'conversion', 'compiled', 'authorized-fit-clip', 'resource-dir', 'input'}
 
 
 def read(path):
@@ -21,25 +23,36 @@ def rooted(root, name):
     return result
 
 
+def key_table(key):
+    """One KEY V1 file: (BIF names, [(resref, resource type, BIF index)]). Shared by input enumeration
+    and stock armour extraction so both read the same routing."""
+    data = Path(key).read_bytes()
+    if data[:8] != b'KEY V1  ':
+        raise ValueError('Unsupported key file: ' + Path(key).name)
+    bifs, keys, bif_table, key_offset = struct.unpack_from('<IIII', data, 8)
+    if bif_table + 12*bifs > len(data) or key_offset + 22*keys > len(data):
+        raise ValueError('Truncated key file: ' + Path(key).name)
+    names = []
+    for index in range(bifs):
+        _, offset, size, _ = struct.unpack_from('<IIHH', data, bif_table + 12*index)
+        names.append(data[offset:offset+size].rstrip(b'\0').decode('ascii').replace('\\', '/'))
+    entries = []
+    for entry in range(key_offset, key_offset + 22*keys, 22):
+        kind, resource = struct.unpack_from('<HI', data, entry + 16)
+        entries.append((data[entry:entry+16].rstrip(b'\0').decode('ascii').lower(), kind, resource >> 20))
+    return names, entries
+
+
 def installed_models(game_root, kinds=(MODEL_TYPE,)):
     """Installed key files and every BIF they route one of these resource types to (models by default):
     what resman --no-ovr reads them from."""
     game_root = Path(game_root).resolve(); files = set()
     for key in sorted((game_root/'data').glob('*.key')):
-        data = key.read_bytes(); files.add(key)
-        if data[:8] != b'KEY V1  ':
-            raise ValueError('Unsupported key file: ' + key.name)
-        bifs, keys, bif_table, key_table = struct.unpack_from('<IIII', data, 8)
-        holding = set()
-        for entry in range(key_table, key_table + 22*keys, 22):
-            kind, resource = struct.unpack_from('<HI', data, entry + 16)
-            if kind in kinds:
-                holding.add(resource >> 20)
-        for index in sorted(holding):
-            if index >= bifs:
+        files.add(key); names, entries = key_table(key)
+        for index in sorted({bif for _, kind, bif in entries if kind in kinds}):
+            if index >= len(names):
                 raise ValueError('Key routes a model to a missing BIF entry: ' + key.name)
-            _, offset, size, _ = struct.unpack_from('<IIHH', data, bif_table + 12*index)
-            files.add(rooted(game_root, data[offset:offset+size].rstrip(b'\0').decode('ascii').replace('\\', '/')))
+            files.add(rooted(game_root, names[index]))
     if not files:
         raise ValueError('No installed key files under --game-root')
     return files
@@ -49,6 +62,16 @@ def consumed(arguments):
     if not arguments:
         raise ValueError('A PhenoMorpher command is required')
     command = arguments[0]
+    # argparse keeps the last of a repeated option and accepts --name=value; the enumeration below reads
+    # the first exact token, so any spelling where the two could differ is refused.
+    flags = [a for a in arguments if a.startswith('--')]
+    if any('=' in a for a in flags):
+        raise ValueError('Use separate option values, not --name=value: ' + next(a for a in flags if '=' in a))
+    repeated = sorted({a for a in flags if flags.count(a) > 1 and a[2:] not in REPEATED})
+    if repeated:
+        raise ValueError('Option given more than once: ' + ', '.join(repeated))
+    def values(name):
+        return [Path(arguments[i+1]).resolve() for i, a in enumerate(arguments[:-1]) if a == '--' + name]
     def option(name):
         try:
             return Path(arguments[arguments.index('--'+name)+1]).resolve()
@@ -126,8 +149,22 @@ def consumed(arguments):
         current = 'a_fa' if gender == 'f' else 'a_ba'
         while current != 'null':
             files.add(rooted(baseline, f'ascii/{current}.mdl')); current = stock[current]['supermodel']
+    elif command in ('mdl-compile', 'mdl-decompile'):
+        from .engine.neverblender_mdl import declared_files, lookup_files
+        files.update(declared_files(option('blender'), option('neverblender')))
+        if command == 'mdl-compile':
+            converted = option('converted'); sources = sorted((converted/'ascii').glob('*.mdl'))
+            files.update(sources)
+            files.update(lookup_files([converted/'ascii', *([converted/'resources'] if (converted/'resources').is_dir() else []),
+                                       *values('resource-dir')]))
+            if (converted/'native-compile.json').is_file():
+                files.add(converted/'native-compile.json')
+        else:
+            inputs = values('input'); files.update(inputs)
+            files.update(lookup_files({p.parent for p in inputs} | set(values('resource-dir'))))
     elif command == 'armor-extract':
-        files.update([option('resman-extract'), option('decompiler')])
+        from .engine.neverblender_mdl import declared_files
+        files.add(option('resman-extract')); files.update(declared_files(option('blender'), option('neverblender')))
         files.update(installed_models(option('game-root'), (MODEL_TYPE, 3, 6, 2033, 2036)))
     elif command == 'armor-profiles':
         from .engine.stock_armor import BARE, TARGETS, source_slot

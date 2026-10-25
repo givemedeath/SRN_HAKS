@@ -5,21 +5,16 @@ only when no published chain still reaches them. The result is a fresh staging f
 the pack files, the next contract, the retired-resource list, the inventory index and the
 list of files to remove. It never edits the repository itself.
 """
-import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
 
-from .anim_library import NativeModel, chain, contained, load_model, stock_files
-from .runtime_rules import check as check_rules
+from .anim_library import RIG_ROLES, NativeModel, chain, contained, digest, load_model, stock_files
+from .runtime_rules import DECLARED_POSTURE_LAYERS, check as check_rules
 
 PLAN_KIND = 'PhenoMorpher-runtime-adoption-plan'
 CONTRACT_KIND = 'PhenoMorpher-game-ready-bodies'
 LIBRARY_ROLE = 'animation-library'
-
-
-def digest(data):
-    return hashlib.sha256(data).hexdigest()
 
 
 def pinned(base, pin, label):
@@ -58,9 +53,13 @@ def adopt(root, plan_path, output):
     _, retired_bytes = pinned(root, plan['retiredResources'], 'retired resources'); retired = json.loads(retired_bytes)
     stock_path, stock_bytes = pinned(root, plan['stock'], 'stock manifest'); stock, stock_paths = stock_files(stock_path)
     rows = {r['path']: r for r in base['resources']}
+    rigs = {}  # Verified rig bytes, kept so closure decoding does not read them again.
     for row in base['resources']:
-        if digest((root/row['path']).read_bytes()) != row['sha256']:
+        data = (root/row['path']).read_bytes()
+        if digest(data) != row['sha256']:
             raise ValueError('Published resource differs from the base contract: ' + row['path'])
+        if row['role'] in RIG_ROLES:
+            rigs[row['path']] = data
     staged = {}; evidence = {}
     # Libraries: restored bytes with an exact-payload restoration receipt.
     libraries = {}
@@ -114,7 +113,7 @@ def adopt(root, plan_path, output):
         if compared and compared['sha256'] != shipped:
             raise ValueError('Comparison used a different library build: ' + target)
         roots[target] = parent; staged[target] = data
-        evidence[target] = {'comparisonSHA256': item['comparison']['sha256'], 'supermodel': {'from': load_model(root/target)['parent'], 'to': parent}}
+        evidence[target] = {'comparisonSHA256': item['comparison']['sha256'], 'supermodel': {'from': load_model(target, rigs[target])['parent'], 'to': parent}}
     # Textures: each downsampled file must come from the published payload it replaces.
     receipt_path, receipt_bytes = pinned(root, plan['textures'], 'texture receipt'); texture_receipt = json.loads(receipt_bytes)
     for row in texture_receipt['resources']:
@@ -128,17 +127,21 @@ def adopt(root, plan_path, output):
         evidence[row['path']] = {'downsampledFrom': {'sha256': old['sha256'], 'bytes': old['bytes'], 'size': row['source']},
                                  'size': row['output']}
     # Closure: every target chain must end in the installed stock chain without private carriers.
+    # Retained published libraries are chain links too: roots that are not repointed still name them.
     models = {}
     for row in base['resources']:
-        if row['role'] in ('fitted-rig', 'rig-inheritance'):
-            name = Path(row['path']).stem
-            models[name] = NativeModel(staged.get(row['path']) or (root/row['path']).read_bytes()).decode()
+        if row['role'] in RIG_ROLES:
+            name = Path(row['path']).stem.lower()
+            models[name] = NativeModel(staged.get(row['path']) or rigs[row['path']]).decode()
     models.update(libraries)
     for name, path in stock_paths.items():
         models.setdefault(name, load_model(path))
+    def private(n):
+        # Declared posture layers (name and pinned bytes, as runtime_rules) are the only allowed carriers.
+        row = rows.get('srn_body/' + n + '.mdl', {})
+        return row.get('role') == 'rig-inheritance' and row.get('sha256') != DECLARED_POSTURE_LAYERS.get(n, {}).get('sha256')
     unrepointed = [t['modelPrefix'] for t in base['targets'] if 'srn_body/' + t['modelPrefix'] + '.mdl' not in roots
-                   and any(rows.get('srn_body/' + n + '.mdl', {}).get('role') == 'rig-inheritance' and n != 'srn_fa_h0'
-                           for n in chain(t['modelPrefix'], models))]
+                   and any(private(n) for n in chain(t['modelPrefix'], models))]
     if unrepointed:
         raise ValueError('Roots still reach private carriers: ' + ', '.join(unrepointed))
     reachable = set(); missing = []
@@ -149,13 +152,16 @@ def adopt(root, plan_path, output):
             missing.append(target['modelPrefix'])
     if missing:
         raise ValueError('Target chains do not reach the installed stock chain: ' + ', '.join(missing))
-    removed = [r for r in base['resources'] if r['role'] == 'rig-inheritance' and Path(r['path']).stem not in reachable]
+    # A carrier or published library that no target reaches any more is retired with it.
+    removed = [r for r in base['resources'] if r['role'] in ('rig-inheritance', 'animation-library')
+               and Path(r['path']).stem.lower() not in reachable]
     removed_paths = {r['path'] for r in removed}
     # Contract.
     contract = deepcopy(base); contract['version'] = plan['version']; resources = []
     # Libraries follow the plan's anchor row; by default the retained Human library, or the last retained rig row.
-    kept = [r['path'] for r in base['resources'] if r['role'] in ('fitted-rig', 'rig-inheritance') and r['path'] not in removed_paths]
-    anchor = plan.get('libraryAnchor') or ('srn_body/srn_fa_h0.mdl' if 'srn_body/srn_fa_h0.mdl' in kept else kept[-1])
+    kept = [r['path'] for r in base['resources'] if r['role'] in RIG_ROLES and r['path'] not in removed_paths]
+    posture_rows = [f'srn_body/{n}.mdl' for n in sorted(DECLARED_POSTURE_LAYERS) if f'srn_body/{n}.mdl' in kept]
+    anchor = plan.get('libraryAnchor') or (posture_rows[0] if posture_rows else kept[-1])
     if anchor not in kept:
         raise ValueError('Library anchor is not a retained rig row: ' + anchor)
     anchor_model = Path(anchor).stem
@@ -185,6 +191,9 @@ def adopt(root, plan_path, output):
         if row['model'] == anchor_model:
             dependencies += [{'model': n, 'supermodel': libraries[n]['parent'], 'role': LIBRARY_ROLE, 'textureSlots': []}
                              for n in sorted(libraries)]
+    if libraries and len(dependencies) != sum(1 for r in base['modelDependencies']
+                                              if 'srn_body/' + r['model'] + '.mdl' not in removed_paths) + len(libraries):
+        raise ValueError('Library dependency rows need a modelDependencies row for the anchor: ' + anchor_model)
     contract['modelDependencies'] = dependencies
     contract['installedAnimationChain'] = [{'resource': n + '.mdl', **{k: stock['models'][n][k] for k in ('sha256', 'bytes', 'format', 'parent')}}
                                            for n in chain('a_fa', models)]

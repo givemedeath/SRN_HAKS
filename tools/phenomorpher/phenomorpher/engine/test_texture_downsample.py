@@ -93,6 +93,15 @@ class DownsampleTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Map role unknown'):
                 tex.downsample(root, root/'m.json', root/'out2', max_size=4)
 
+    def test_every_pass_of_a_multi_pass_reduction_is_recorded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); data = plt(np.stack([np.full((16, 16), 200), np.zeros((16, 16))], -1)); (root/'a.plt').write_bytes(data)
+            (root/'m.json').write_text(json.dumps({'resources': [{'path': 'a.plt', 'sha256': hashlib.sha256(data).hexdigest(),
+                                                                  'bytes': len(data), 'role': 'selected-palette'}]}))
+            stats = next(iter(tex.downsample(root, root/'m.json', root/'out', max_size=4)['payloads'].values()))['stats']
+            self.assertEqual([(s['from'], s['to']) for s in stats], [([16, 16], [8, 8]), ([8, 8], [4, 4])])
+            self.assertEqual(stats[0]['layerTexelsBefore'][0], 256)  # the published source, not an intermediate
+
 
 if __name__ == '__main__':
     unittest.main()

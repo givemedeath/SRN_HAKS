@@ -487,22 +487,27 @@ def clips_equal(a, a_model, b, b_model):
     return all(ra[k] == rb[k] for k in ('length', 'transition', 'animrootRaw', 'events', 'keyedNodes', 'controllerSignature'))
 
 
+def within(result, tolerances):
+    """Clip comparison inside the inheritance tolerances (structure, key deltas, other controllers)."""
+    return (result['structure'] and result['positionMetres'] <= tolerances['positionMetres']
+            and result['rotationDegrees'] <= tolerances['rotationDegrees']
+            and result['otherMax'] <= tolerances['otherControllers'])
+
+
 def classify(models, rigs, owner, stock_owner, clip, tolerances):
     source = models[owner]['clips'][clip]
     if stock_owner is None:
         return {'inherit': False, 'reason': 'not in stock'}
     stock = models[stock_owner]['clips'][clip]
     result = compare_clip(source, owner, stock, stock_owner)
-    within = (result['structure'] and result['positionMetres'] <= tolerances['positionMetres']
-              and result['rotationDegrees'] <= tolerances['rotationDegrees']
-              and result['otherMax'] <= tolerances['otherControllers'])
+    inherit = within(result, tolerances)
     result['assembledDrift'] = None
-    if within:
+    if inherit:
         drifts = {r: assembled_drift(models[r]['nodes'], r, source, owner, stock, stock_owner) for r in rigs}
         result['assembledDrift'] = drifts
-        within = max(d['metres'] for d in drifts.values()) <= tolerances['assembledDriftMetres']
-    result['inherit'] = within
-    result['reason'] = 'within tolerance' if within else 'override'
+        inherit = max(d['metres'] for d in drifts.values()) <= tolerances['assembledDriftMetres']
+    result['inherit'] = inherit
+    result['reason'] = 'within tolerance' if inherit else 'override'
     return result
 
 
@@ -526,7 +531,10 @@ def build(root, manifest_path, stock_manifest, fit, large, name, output, allowed
         models[large_clips[c]['owner']]['clips'][c], large_clips[c]['owner']))
     if set(differences) - set(allowed):
         raise ValueError('Unauthorized Fit/Large difference: ' + ', '.join(sorted(set(differences)-set(allowed))))
-    stock_clips = effective(chain(seed, models), models)
+    stock_chain = chain(seed, models)
+    if any(origins[n]['origin'] != 'installed-game' for n in stock_chain):
+        raise ValueError('Stock chain resolves through a pack override: ' + seed)
+    stock_clips = effective(stock_chain, models)
     rows = {}
     for clip, row in fit_clips.items():
         stock_owner = stock_clips.get(clip, {}).get('owner')
@@ -550,8 +558,9 @@ def build(root, manifest_path, stock_manifest, fit, large, name, output, allowed
         # Deeper carriers add nodes (e.g. belt_pelvis); take them, as dummies, from the owner's own tree.
         for node in nodes:
             if node not in geometry:
+                # The parent is checked after renaming (below): a child of the owner's root names the library.
                 row = models[owner]['nodes'].get(node)
-                if row is None or row['parent'] not in rename(models[owner]['nodes'], owner, name):
+                if row is None:
                     raise ValueError('Clip node missing from library geometry: ' + clip)
                 added = rename({node: row}, owner, name)[node]
                 dropped[node] = sorted(set(added['controls']) - {8, 20})
@@ -598,7 +607,7 @@ def restore(root, plan_path, compiled_path, output):
     if digest(contained(plan_path.parent, plan['ascii']['path']).read_bytes()) != plan['ascii']['sha256']:
         raise ValueError('Library ASCII changed after planning')
     output = Path(output)
-    if output.exists():
+    if output.exists() or output.with_suffix('.restoration.json').exists():
         raise ValueError('Fresh restored library output required')
     compiled = Path(compiled_path).read_bytes(); blob = bytearray(compiled); model = NativeModel(compiled).decode()
     if (model['name'], model['parent']) != (plan['library'], plan['parent']):
