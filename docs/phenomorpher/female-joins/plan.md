@@ -364,6 +364,21 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       * a crease or step at the buttock/thigh in kneel and in the run on Fit;
       * a dark crease at the brief's edge on Large in the left kick.
     * These are the subdivision question above.
+* **Sitting work, in progress (user: "hip joint still needs improvement for sitting"; paused for a reboot
+  2026-10-25):**
+  * `subdiv.py` (conforming midpoint subdivision; seam twins split together; UV, normal and tangent
+    interpolated) splits the thigh faces within 12 cm of the hip pivot, once.
+  * Result: pfh2 1,344 → 2,081 vertices and 1,750 → 3,050/3,044 faces per thigh; pfh0 → 2,187 vertices,
+    3,236/3,234 faces. The surface is closed, the area unchanged and the shape identical.
+  * Base: `joins-pilot/sub-ascii-{pfh0,pfh2}` (shipped files with only the thighs subdivided).
+  * Next:
+    * run `chain.sh` from that base (`SRC` override still to add);
+    * extend `deeptuck.py` to sit-only regions (walk-hidden thigh-top points exposed under the buttock
+      in sit, sitcross, crouch, kneel);
+    * gates: holes, cracks, brief, walk;
+    * build, then client capture of the sitting poses.
+  * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
+    `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
     between join iterations (about 300 s of bake). An incremental, 3-way parallel bake would cut an
     iteration to about 6 min.
