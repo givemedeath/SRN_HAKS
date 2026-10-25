@@ -117,6 +117,17 @@ def correct_rigid(source, target, transform):
     source_root = re.search(r'(?mi)^newmodel\s+(\S+)', original)[1].lower()
     if source_root not in source_blocks or root.lower() not in target_blocks:
         raise RuntimeError('Rigid equipment requires its declared root node')
+    # Only meshes are baked and proven below. A pivot dummy whose subtree ends in meshes is absorbed into
+    # them; any other dummy (an attachment point) would keep a stale, unfitted frame.
+    children = {}
+    for name, node in source_nodes.items():
+        children.setdefault(node['parent'], []).append(name)
+    def pivot(name):
+        kids = children.get(name, [])
+        return bool(kids) and all(k in source_meshes or pivot(k) for k in kids)
+    others = sorted(k for k in source_blocks if k not in source_meshes and k != source_root and not pivot(k))
+    if others:
+        raise RuntimeError('Non-root dummy nodes require a separate placement proof: ' + ', '.join(others))
     preserved = ('bitmap', 'materialname', 'ambient', 'diffuse', 'specular', 'shininess',
                  'render', 'shadow', 'beaming', 'rotatetexture', 'tilefade', 'alpha',
                  'transparencyhint', 'inheritcolor', 'selfillumcolor')
@@ -202,7 +213,7 @@ def correct_rigid(source, target, transform):
             expected_normal = directions(arrays(src[3], 'normals'), np.linalg.inv(linear @ source_frame[:3, :3]).T)
             observed_normal = directions(arrays(dst[3], 'normals'), np.linalg.inv(frame[:3, :3]).T)
             normal_errors.append(error(observed_normal, expected_normal, 'corrected world normals'))
-    target.write_text(text, encoding='ascii')
+    target.write_text(text, encoding='ascii', newline='\n')
     return {'armoryOutputSha256': before, 'correctedSha256': digest(target),
             'meshNodes': len(errors), 'maximumWorldTransformError': max(errors),
             'maximumWorldNormalError': max(normal_errors, default=0.),

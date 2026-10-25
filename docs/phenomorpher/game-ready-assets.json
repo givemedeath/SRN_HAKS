@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "PhenoMorpher-game-ready-bodies",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "accepted": "2026-10-13",
   "packs": [
     "srn_body",
@@ -630,7 +630,7 @@
   "resources": [
     {
       "path": "srn_body/pfd0.mdl",
-      "sha256": "787e728a400ea9f24a27afd4bc5b38eae923708bb0ab607b2a6d98c4e5047bcf",
+      "sha256": "6b1da63b2ff0ee8756d03fef35b48a3f94790d373a7fa8d07cedbcb22f2bda0f",
       "bytes": 11508,
       "role": "fitted-rig",
       "sourceResource": "pfd0.mdl",
@@ -641,6 +641,14 @@
       "supermodel": {
         "from": "p17_00_01",
         "to": "srn_an_df"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.047651682049036026
+        ],
+        "fromSHA256": "787e728a400ea9f24a27afd4bc5b38eae923708bb0ab607b2a6d98c4e5047bcf"
       }
     },
     {
@@ -1940,7 +1948,7 @@
     },
     {
       "path": "srn_body/pfd2.mdl",
-      "sha256": "1250826f42cbd0fbe5858d8945ac21103ac00208e1435360a090a5938c0cf111",
+      "sha256": "34ed6106bc69d683ea8969b5b2e869c967a2a0b1155d87f49c01e23440dbc78f",
       "bytes": 11508,
       "role": "fitted-rig",
       "sourceResource": "pfd2.mdl",
@@ -1951,6 +1959,14 @@
       "supermodel": {
         "from": "p25l00_00",
         "to": "srn_an_df"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.047651682049036026
+        ],
+        "fromSHA256": "1250826f42cbd0fbe5858d8945ac21103ac00208e1435360a090a5938c0cf111"
       }
     },
     {
@@ -2447,7 +2463,7 @@
     },
     {
       "path": "srn_body/pmd0.mdl",
-      "sha256": "8af4361b7de4d90879ac86a805fecfabfe392866f2f8ef6c1132b5f35ec6a132",
+      "sha256": "320128cecc9b688fbdb40fcf23332b4be18916ec83a53e466803a6477c7b01cf",
       "bytes": 10096,
       "role": "fitted-rig",
       "sourceResource": "pmd0.mdl",
@@ -2458,6 +2474,14 @@
       "supermodel": {
         "from": "p17_02_01",
         "to": "srn_an_dm"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.06166069582104683
+        ],
+        "fromSHA256": "8af4361b7de4d90879ac86a805fecfabfe392866f2f8ef6c1132b5f35ec6a132"
       }
     },
     {
@@ -3745,7 +3769,7 @@
     },
     {
       "path": "srn_body/pmd2.mdl",
-      "sha256": "7f929be5ad4b6393af3522d70b67746597acdd58d109311c8040b927a9241ac5",
+      "sha256": "511efd59da94934615ed3df5d158e8daa4b5a93ddd8828d7b0c41823998eebbb",
       "bytes": 10096,
       "role": "fitted-rig",
       "sourceResource": "pmd2.mdl",
@@ -3756,6 +3780,14 @@
       "supermodel": {
         "from": "p25l01_00",
         "to": "srn_an_dm"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.06166069582104683
+        ],
+        "fromSHA256": "7f929be5ad4b6393af3522d70b67746597acdd58d109311c8040b927a9241ac5"
       }
     },
     {
@@ -4242,7 +4274,7 @@
     },
     {
       "path": "srn_body/pfe0.mdl",
-      "sha256": "f6b9a33bf7236eafe937653089cad3e0a9d54b200e7d68ef215059c1eecb7400",
+      "sha256": "c7f8d7aa808059dcd5738d62628423c10f3d07770727a7c3f29194f84f15f8c0",
       "bytes": 11508,
       "role": "fitted-rig",
       "sourceResource": "pfe0.mdl",
@@ -4253,6 +4285,14 @@
       "supermodel": {
         "from": "p17_04_01",
         "to": "srn_an_ef"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          0.011937453411519527
+        ],
+        "fromSHA256": "f6b9a33bf7236eafe937653089cad3e0a9d54b200e7d68ef215059c1eecb7400"
       }
     },
     {
@@ -4796,7 +4836,7 @@
     },
     {
       "path": "srn_body/pfe2.mdl",
-      "sha256": "66a7f15cfd56c46d31c4c593e2fa4354301165b2f530079c75fb13c2a30ede1d",
+      "sha256": "81fc9e869235b17db4a0ebbebb858b85a1d5822116d4f60cc930aeb10b7871cf",
       "bytes": 11508,
       "role": "fitted-rig",
       "sourceResource": "pfe2.mdl",
@@ -4807,6 +4847,14 @@
       "supermodel": {
         "from": "p25l02_00",
         "to": "srn_an_ef"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          0.011937453411519527
+        ],
+        "fromSHA256": "66a7f15cfd56c46d31c4c593e2fa4354301165b2f530079c75fb13c2a30ede1d"
       }
     },
     {
@@ -5293,7 +5341,7 @@
     },
     {
       "path": "srn_body/pme0.mdl",
-      "sha256": "e71fb7441ad24d7851436c1881cf9a0dbcf7d1f3307399feb1392e6eebf25561",
+      "sha256": "c4b04297fe06d3ccff271bcaf61ef7bf6b6452c3c8bceb3484e5f162d001d1a5",
       "bytes": 10096,
       "role": "fitted-rig",
       "sourceResource": "pme0.mdl",
@@ -5304,6 +5352,14 @@
       "supermodel": {
         "from": "p17_06_01",
         "to": "srn_an_em"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          0.001091750105842948
+        ],
+        "fromSHA256": "e71fb7441ad24d7851436c1881cf9a0dbcf7d1f3307399feb1392e6eebf25561"
       }
     },
     {
@@ -5835,7 +5891,7 @@
     },
     {
       "path": "srn_body/pme2.mdl",
-      "sha256": "41e0a6da185ee8ea127ae0be5008238da661185038f2d522daacaa68014b892e",
+      "sha256": "80b09a81379d311db2e160436116dc4a433ce07152ee7cbac1c0115b29d21d66",
       "bytes": 10096,
       "role": "fitted-rig",
       "sourceResource": "pme2.mdl",
@@ -5846,6 +5902,14 @@
       "supermodel": {
         "from": "p25l03_00",
         "to": "srn_an_em"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          0.001091750105842948
+        ],
+        "fromSHA256": "41e0a6da185ee8ea127ae0be5008238da661185038f2d522daacaa68014b892e"
       }
     },
     {
@@ -6352,91 +6416,155 @@
     },
     {
       "path": "srn_body/srn_an_df.mdl",
-      "sha256": "880ebdd3835b758b2cafac706ffd8090e134ff1a0ba7f29aa15c861b633e6336",
+      "sha256": "8c591a33aac9100257b2171427a660984fb479b8dd143b6baa86a021496cb8dc",
       "bytes": 2258216,
       "role": "animation-library",
       "sourceResource": "srn_an_df.mdl",
       "sourceArchive": null,
       "sourceSHA256": "880ebdd3835b758b2cafac706ffd8090e134ff1a0ba7f29aa15c861b633e6336",
       "nameOnlyChanges": [],
-      "restorationSHA256": "44cbe7ecf720f7787644ef959252291e0402c3a9331b3ee656c933297297b0a7"
+      "restorationSHA256": "44cbe7ecf720f7787644ef959252291e0402c3a9331b3ee656c933297297b0a7",
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.047651682049036026
+        ],
+        "fromSHA256": "880ebdd3835b758b2cafac706ffd8090e134ff1a0ba7f29aa15c861b633e6336"
+      }
     },
     {
       "path": "srn_body/srn_an_dm.mdl",
-      "sha256": "0c411fe7420579d051404f4d6f83ca825c56ebb174e1e1981b812c6fe380d036",
+      "sha256": "3644af02279c0723891e1c6891a83436f6b289bb0da5d438fbb5b8bb84fb5fb2",
       "bytes": 2175232,
       "role": "animation-library",
       "sourceResource": "srn_an_dm.mdl",
       "sourceArchive": null,
       "sourceSHA256": "0c411fe7420579d051404f4d6f83ca825c56ebb174e1e1981b812c6fe380d036",
       "nameOnlyChanges": [],
-      "restorationSHA256": "728c6f4a7c21c7d826db6cef0c96a09f8c55aa2702fec96309b0b832a6ceb5ca"
+      "restorationSHA256": "728c6f4a7c21c7d826db6cef0c96a09f8c55aa2702fec96309b0b832a6ceb5ca",
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.06166069582104683
+        ],
+        "fromSHA256": "0c411fe7420579d051404f4d6f83ca825c56ebb174e1e1981b812c6fe380d036"
+      }
     },
     {
       "path": "srn_body/srn_an_ef.mdl",
-      "sha256": "ea379429c6f443f621caef7226a98071a76fdb8950ba265a225e0849e33103f6",
+      "sha256": "3ad211a8965a0667b0ab2a53543b0ab2e2300b9ac784aac2ef0945d081a55adb",
       "bytes": 2094012,
       "role": "animation-library",
       "sourceResource": "srn_an_ef.mdl",
       "sourceArchive": null,
       "sourceSHA256": "ea379429c6f443f621caef7226a98071a76fdb8950ba265a225e0849e33103f6",
       "nameOnlyChanges": [],
-      "restorationSHA256": "9a71d55a16666d800d2009e34ffcecfd3dd9aee6cc7122adf3ba66fd65863129"
+      "restorationSHA256": "9a71d55a16666d800d2009e34ffcecfd3dd9aee6cc7122adf3ba66fd65863129",
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          0.011937453411519527
+        ],
+        "fromSHA256": "ea379429c6f443f621caef7226a98071a76fdb8950ba265a225e0849e33103f6"
+      }
     },
     {
       "path": "srn_body/srn_an_em.mdl",
-      "sha256": "4389324cf707ec9f8aeca148c4e40f75f5f933055398c770c35db6ecb4c83dba",
+      "sha256": "54a25fef721fee48c1e35a01fde783db88660d94017215ec4bb6e4ffd23ba91a",
       "bytes": 2004696,
       "role": "animation-library",
       "sourceResource": "srn_an_em.mdl",
       "sourceArchive": null,
       "sourceSHA256": "4389324cf707ec9f8aeca148c4e40f75f5f933055398c770c35db6ecb4c83dba",
       "nameOnlyChanges": [],
-      "restorationSHA256": "42d967a0b8b0ff52acca4a2a051edd6703158d5a4d9aff265fc21732ee022689"
+      "restorationSHA256": "42d967a0b8b0ff52acca4a2a051edd6703158d5a4d9aff265fc21732ee022689",
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          0.001091750105842948
+        ],
+        "fromSHA256": "4389324cf707ec9f8aeca148c4e40f75f5f933055398c770c35db6ecb4c83dba"
+      }
     },
     {
       "path": "srn_body/srn_an_gf.mdl",
-      "sha256": "15e5a9763c32adeeb155ed62f85479b1daf8fa383a8e04c0567e13e8e8e981e9",
+      "sha256": "537b7dd59f71f288ac7cacd3c3f63680b992b01dfe0e20f00552f54bdb73aafb",
       "bytes": 2094012,
       "role": "animation-library",
       "sourceResource": "srn_an_gf.mdl",
       "sourceArchive": null,
       "sourceSHA256": "15e5a9763c32adeeb155ed62f85479b1daf8fa383a8e04c0567e13e8e8e981e9",
       "nameOnlyChanges": [],
-      "restorationSHA256": "54ec93c349c7b8a0491fb4859050fd87f750982b9051e1797ceac0d1b44781b6"
+      "restorationSHA256": "54ec93c349c7b8a0491fb4859050fd87f750982b9051e1797ceac0d1b44781b6",
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.029636872932314873
+        ],
+        "fromSHA256": "15e5a9763c32adeeb155ed62f85479b1daf8fa383a8e04c0567e13e8e8e981e9"
+      }
     },
     {
       "path": "srn_body/srn_an_gm.mdl",
-      "sha256": "4f7652f219ba8be8116549ae6b4f0b2a45ca55f202b185ff05648c7b803c53a4",
+      "sha256": "3ba2c0991de914f91c3f9f618f640a056256266b4b80d98b2a6b8e946dde73ad",
       "bytes": 2004696,
       "role": "animation-library",
       "sourceResource": "srn_an_gm.mdl",
       "sourceArchive": null,
       "sourceSHA256": "4f7652f219ba8be8116549ae6b4f0b2a45ca55f202b185ff05648c7b803c53a4",
       "nameOnlyChanges": [],
-      "restorationSHA256": "8894f6ae530eb68c05991cc06f451346c2a47ea0dc721f488172e722d0e12822"
+      "restorationSHA256": "8894f6ae530eb68c05991cc06f451346c2a47ea0dc721f488172e722d0e12822",
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.06596150249242783
+        ],
+        "fromSHA256": "4f7652f219ba8be8116549ae6b4f0b2a45ca55f202b185ff05648c7b803c53a4"
+      }
     },
     {
       "path": "srn_body/srn_an_of.mdl",
-      "sha256": "7ab4d38e12cf5aeee922000b4b4a29dc4cc1aa305af1123f04dfed67c56efaa6",
+      "sha256": "b019b56229d7e3df4fe3964252fea3a77cb28b0fabd53675fe7c77a2552b5fe7",
       "bytes": 2094012,
       "role": "animation-library",
       "sourceResource": "srn_an_of.mdl",
       "sourceArchive": null,
       "sourceSHA256": "7ab4d38e12cf5aeee922000b4b4a29dc4cc1aa305af1123f04dfed67c56efaa6",
       "nameOnlyChanges": [],
-      "restorationSHA256": "b6039a7ef515b8c6f014f215866ded1d89ce21b6794aad82064adabbe5281561"
+      "restorationSHA256": "b6039a7ef515b8c6f014f215866ded1d89ce21b6794aad82064adabbe5281561",
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.025812234729528427
+        ],
+        "fromSHA256": "7ab4d38e12cf5aeee922000b4b4a29dc4cc1aa305af1123f04dfed67c56efaa6"
+      }
     },
     {
       "path": "srn_body/srn_an_om.mdl",
-      "sha256": "e869c04d6db99ca6feb9c72bc76a8818b88af61195c48033c3e2377d99a3c794",
+      "sha256": "c03ddb94d93fcd037c3d169b4fee89eee27abcaadeb8a38ed5bee4cbdc6c7450",
       "bytes": 2004696,
       "role": "animation-library",
       "sourceResource": "srn_an_om.mdl",
       "sourceArchive": null,
       "sourceSHA256": "e869c04d6db99ca6feb9c72bc76a8818b88af61195c48033c3e2377d99a3c794",
       "nameOnlyChanges": [],
-      "restorationSHA256": "bb49c3e8df61645744c61d47fa5aaf320e18f65b0ec2c6b368d8ac6e3d4a02d6"
+      "restorationSHA256": "bb49c3e8df61645744c61d47fa5aaf320e18f65b0ec2c6b368d8ac6e3d4a02d6",
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.05953027680516243
+        ],
+        "fromSHA256": "e869c04d6db99ca6feb9c72bc76a8818b88af61195c48033c3e2377d99a3c794"
+      }
     },
     {
       "path": "srn_body/pfh0_neck001.mdl",
@@ -8960,7 +9088,7 @@
     },
     {
       "path": "srn_body/pfo0.mdl",
-      "sha256": "6fafdc65b312dff879416b49896854a18cf47cb1a9c63b58b0d1de30f96a9851",
+      "sha256": "966b61bfc02805090a2fe210fa2edff057084c1a05c8937f05fadf580fd04b1c",
       "bytes": 11508,
       "role": "fitted-rig",
       "sourceResource": "pfo0.mdl",
@@ -8971,6 +9099,14 @@
       "supermodel": {
         "from": "p17_12_01",
         "to": "srn_an_of"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.025812234729528427
+        ],
+        "fromSHA256": "6fafdc65b312dff879416b49896854a18cf47cb1a9c63b58b0d1de30f96a9851"
       }
     },
     {
@@ -9514,7 +9650,7 @@
     },
     {
       "path": "srn_body/pfo2.mdl",
-      "sha256": "15f8948c49aa2694af59b6f15a050ae5bf74838edb2ea54bb8d4500327dd5042",
+      "sha256": "015f3e51ed548f9e4c3f62c5f82ad920fa880cb578a091d797370a1bff505ebb",
       "bytes": 11508,
       "role": "fitted-rig",
       "sourceResource": "pfo2.mdl",
@@ -9525,6 +9661,14 @@
       "supermodel": {
         "from": "p25l06_00",
         "to": "srn_an_of"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.025812234729528427
+        ],
+        "fromSHA256": "15f8948c49aa2694af59b6f15a050ae5bf74838edb2ea54bb8d4500327dd5042"
       }
     },
     {
@@ -10011,7 +10155,7 @@
     },
     {
       "path": "srn_body/pmo0.mdl",
-      "sha256": "8293f15ad9c9a813b82124b7d6c32654ac05878f22993d5cf6c6eb55b942e35f",
+      "sha256": "1543b4dcf7d39420f92a7cf2b3be7bb5869766e66c3b1b6bc009810a13a3b226",
       "bytes": 10096,
       "role": "fitted-rig",
       "sourceResource": "pmo0.mdl",
@@ -10022,6 +10166,14 @@
       "supermodel": {
         "from": "p17_14_01",
         "to": "srn_an_om"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.05953027680516243
+        ],
+        "fromSHA256": "8293f15ad9c9a813b82124b7d6c32654ac05878f22993d5cf6c6eb55b942e35f"
       }
     },
     {
@@ -10553,7 +10705,7 @@
     },
     {
       "path": "srn_body/pmo2.mdl",
-      "sha256": "3f6314daf0dd4e9c406aadf5ee727ab4b52821ac84fd2183450039e56676011e",
+      "sha256": "327f8044533287fbf709b8d7b37794f08a6f5038a57d31736389b2772fd2f968",
       "bytes": 10096,
       "role": "fitted-rig",
       "sourceResource": "pmo2.mdl",
@@ -10564,6 +10716,14 @@
       "supermodel": {
         "from": "p25l07_00",
         "to": "srn_an_om"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.05953027680516243
+        ],
+        "fromSHA256": "3f6314daf0dd4e9c406aadf5ee727ab4b52821ac84fd2183450039e56676011e"
       }
     },
     {
@@ -11050,7 +11210,7 @@
     },
     {
       "path": "srn_body/pfg0.mdl",
-      "sha256": "de7f7a2bbb5bebacf68f456fa4a22b11394be5f611a9741d3fbdfe6dcd018e58",
+      "sha256": "c916902040b3b8d772da5e510c6530e89fcf6fd1454b9e75fdd807bce47178d9",
       "bytes": 11508,
       "role": "fitted-rig",
       "sourceResource": "pfg0.mdl",
@@ -11061,6 +11221,14 @@
       "supermodel": {
         "from": "p17_16_01",
         "to": "srn_an_gf"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.029636872932314873
+        ],
+        "fromSHA256": "de7f7a2bbb5bebacf68f456fa4a22b11394be5f611a9741d3fbdfe6dcd018e58"
       }
     },
     {
@@ -11604,7 +11772,7 @@
     },
     {
       "path": "srn_body/pfg2.mdl",
-      "sha256": "26bfe3f57827a932329655b33506eb19c57e434ceed5276674d33774e0f19ee8",
+      "sha256": "cabf2042826eea2958be7f866cb82d5689dd9aa368304893f475c7621b1add5d",
       "bytes": 11508,
       "role": "fitted-rig",
       "sourceResource": "pfg2.mdl",
@@ -11615,6 +11783,14 @@
       "supermodel": {
         "from": "p25l08_00",
         "to": "srn_an_gf"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.029636872932314873
+        ],
+        "fromSHA256": "26bfe3f57827a932329655b33506eb19c57e434ceed5276674d33774e0f19ee8"
       }
     },
     {
@@ -12101,7 +12277,7 @@
     },
     {
       "path": "srn_body/pmg0.mdl",
-      "sha256": "216d778a2f207ec4ab142ba80b99c48be7380d9fad2662d936fbb143ef282863",
+      "sha256": "18c7eb385625c009533cd0dae951d1304c5ee699d8e00592261b03fe394a3240",
       "bytes": 10096,
       "role": "fitted-rig",
       "sourceResource": "pmg0.mdl",
@@ -12112,6 +12288,14 @@
       "supermodel": {
         "from": "p17_18_01",
         "to": "srn_an_gm"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.06596150249242783
+        ],
+        "fromSHA256": "216d778a2f207ec4ab142ba80b99c48be7380d9fad2662d936fbb143ef282863"
       }
     },
     {
@@ -12643,7 +12827,7 @@
     },
     {
       "path": "srn_body/pmg2.mdl",
-      "sha256": "3ab6771bb4bbdf79aba6cc83e204c65d49c5bd7616608515465de76beb3166d1",
+      "sha256": "9d8cf5f9b925a0f2208b2738c574f5c44fba669786373d1f0f00a134f65e4f96",
       "bytes": 10096,
       "role": "fitted-rig",
       "sourceResource": "pmg2.mdl",
@@ -12654,6 +12838,14 @@
       "supermodel": {
         "from": "p25l09_00",
         "to": "srn_an_gm"
+      },
+      "rootRebase": {
+        "offset": [
+          0.0,
+          0.0,
+          -0.06596150249242783
+        ],
+        "fromSHA256": "3ab6771bb4bbdf79aba6cc83e204c65d49c5bd7616608515465de76beb3166d1"
       }
     },
     {
@@ -17846,7 +18038,8 @@
     "Native raw geometry, normals, tangents, UVs, faces, transforms and animation arrays are unchanged. Large models and fitted rig closures are byte-identical.",
     "Contract 1.1.0 follows the stock supermodel structure: each non-Human Fit and Large root names one shared library srn_an_<race><gender> over the installed a_fa/a_ba chain; Human Large roots name srn_fa_h0 (female) or a_ba (male) like Human Fit.",
     "Library clips are byte-exact copies of the published clips; clips inherited from stock had identical keys in the published chain. The female Large 2hslashl uses the Fit clip as authorized.",
-    "Body palettes and skin maps above 1024 px are reduced 2:1 by area; names, formats, materials and PLT files are unchanged."
+    "Body palettes and skin maps above 1024 px are reduced 2:1 by area; names, formats, materials and PLT files are unchanged.",
+    "1.2.0: model roots sit at the origin, as in the stock rigs. Each non-Human rig and library root offset was folded into rootdummy, handconjure and headconjure and the library rootdummy keys (root-rebase/root-rebase-receipt.json); bind and library clip world frames are unchanged within float32 rounding."
   ],
   "raceSelection": {
     "rows": {

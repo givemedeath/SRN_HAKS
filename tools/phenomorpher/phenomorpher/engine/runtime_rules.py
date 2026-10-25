@@ -5,12 +5,14 @@ animation library or a declared posture layer, never through private animation c
 Structural mode needs no game install: stock names and parents come from the contract's
 installedAnimationChain (or, for older contracts, only the names in installedGameDependencies).
 Deep mode also checks the installed chain bytes against an extracted stock manifest.
+Every published rig, library and carrier keeps its root node at the origin, unkeyed by any
+clip (root-transform), as the stock rigs do; the compiler would drop a root offset anyway.
 """
 import json
 import re
 from pathlib import Path
 
-from .anim_library import RIG_ROLES, digest, load_model, stock_files, texture_header
+from .anim_library import RIG_ROLES, digest, load_model, root_offset, stock_files, texture_header
 
 LIBRARY_ROLE = 'animation-library'
 POSTURE_CLIPS = {'pause1', 'pause2'}
@@ -71,6 +73,13 @@ def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, p
         if digest(blob) != row['sha256']:
             raise ValueError('Published model differs from the contract: ' + row['path'])
         models[name] = load_model(row['path'], blob); roles[name] = row['role']; rows[name] = row
+        # ASCII geometry carries no static controls here, so only its clip keys are checked.
+        offset = root_offset(models[name], name)
+        if offset:
+            fail('root-transform', name, 'root node is offset: ' + offset)
+        keyed = sorted(c for c, clip in models[name]['clips'].items() if clip['nodes'].get(name, {}).get('controls'))
+        if keyed:
+            fail('root-transform', name, 'clips key the root node: ' + ', '.join(keyed))
     def posture(name):
         """A declared layer (name and bytes) that still has the posture shape: idle clips over a_fa/a_ba."""
         m = models[name]
