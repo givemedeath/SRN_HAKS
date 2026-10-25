@@ -224,6 +224,9 @@ class TrialModuleTests(unittest.TestCase):
         self.assertEqual((utc['__data_type'],utc['__struct_id'],utc['TemplateResRef']['value']),('UTC ',-1,'sr_h_actor0'))
         self.assertFalse({'XPosition','YPosition','ZPosition','XOrientation','YOrientation'}&set(utc))
         self.assertEqual(utc['ScriptSpawn']['value'],'sr_h_spawn')
+        # Trial actors stand still and cannot be attacked: no heartbeat animation cycle, plot.
+        self.assertEqual(actor['ScriptHeartbeat']['value'],'sr_h_hb')
+        self.assertEqual((utc['ScriptHeartbeat']['value'],utc['Plot']['value']),('',1))
         target=target_creature({'FirstName':{'type':'cexolocstring','value':{}}},2,2,10/7,40,60)
         ifo=module_documents([target],['a'],'ambient',events={'Mod_OnPlrChat':'sr_h_chat'})['module.ifo']
         self.assertEqual((ifo['Mod_OnPlrChat']['value'],ifo['Mod_OnClientEntr']['value']),('sr_h_chat','sr_h_enter'))

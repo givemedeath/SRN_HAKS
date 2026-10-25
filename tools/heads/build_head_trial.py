@@ -309,8 +309,11 @@ def row_scripts(spec,actors,sweep=SWEEP_SECONDS):
 
 
 def blueprint(creature):
-    """Per-actor creature blueprint (UTC) from its fixture instance: the same fields without placement."""
+    """Per-actor creature blueprint (UTC) from its fixture instance: the same fields without placement. Trial actors stand
+    still for head inspection: no heartbeat animation cycle (the fixture's walk/cast/attack loop) and plot, so a stray click
+    cannot start combat. The spawn script, which logs HEAD_FIXTURE_SLOT/COLORS for verification, stays."""
     item={k:v for k,v in creature.items() if k not in ('__struct_id','XPosition','YPosition','ZPosition','XOrientation','YOrientation')}
+    item.update(ScriptHeartbeat=field('resref',''),Plot=field('byte',1))
     return {'__data_type':'UTC ','__struct_id':-1,**item}
 
 
@@ -323,7 +326,7 @@ def readme(spec,actors,hak_order):
            '| Head row | Actor | Head | Slot | Skin | Hair | Tattoo1 | Tattoo2 | Helmet |','|---|---|---|---|---|---|---|---|---|']
     lines+=[f"| {a['row']+1} | {a['tag']} | {a['headId']} | {a['model']} | {a['skin']} | {a['hair']} | {a['tattoo1']} | {a['tattoo2']} | {a['helmet'] or '-'} |" for a in actors]
     lines+=['','PLT channels: 0 skin, 1 hair, 2 metal, 8 tattoo1, 9 tattoo2. Metal shows stock row 0 because no armour is worn. '
-            'Actors cycle idle, talk, walk, cast, attack, crouch, worship and death on the heartbeat and revive 10 s after death.','',
+            'Actors stand still for inspection (no heartbeat animation cycle) and are plot, so they cannot be attacked.','',
             'After a run, check spawns with `verify_head_trial.py --manifest runtime-manifest.json`. Not client-validated or production-accepted.','']
     return '\n'.join(lines)
 
