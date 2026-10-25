@@ -97,6 +97,28 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   * All 10 models pass the compile audit.
   * **Trade-off:** the rear envelope dip is 10–11 mm, against 7–8 mm in v8 and 21–22 mm shipped.
     The visible crease is unchanged.
+  * **Client:** the jagged rear flap is still there.
+* **Root cause of the flap: the design pose.** The client never shows the bind pose.
+  * In `pause1` the thighs sit 15–21° forward of the pelvis: left 21° forward and 18° out, right 15°
+    forward and 4° out.
+  * Flexing drops the back of the thigh away from the buttock and exposes the pelvis edge that v6–v9
+    tuck inward. The colour-per-mesh renders at 20° flexion show this.
+  * The jagged pelvis sub-mesh borders (p2/p3) are not the cause. They are welded and unchanged from
+    shipped.
+* **v11:**
+  * The hip join is shaped with each thigh in its `pause1` pose (`designPose`), and the fold normals
+    are blended in that pose too.
+  * The pelvis gets a rounded quarter-ellipse lower edge (`highCapLength` 2 cm) instead of an inward
+    tuck.
+  * The edit stays rear-only, as in v9.
+  * Client: the flap becomes a rounded cheek edge, close to shipped.
+* **v12:** v11 plus the front, with only the groin left out (v6 gap).
+  * Client front: the right thigh top is smooth. The left keeps a fainter horizontal line under the
+    brief.
+  * Shipped has front ledges on both thighs.
+  * Rear: the rounded cheek edge, as in v11.
+  * v11 and v12 were checked with the v9 skin bake, not re-baked.
+* **Comparison:** `evidence/hip-shelf-ship-v8-v9-v11-v12.jpg`.
 
 ## 1. What causes the band (measured)
 
