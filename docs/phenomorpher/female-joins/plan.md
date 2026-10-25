@@ -44,6 +44,16 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   buttock's own lower curve meeting the thigh (about a 15–20° fold at the seam), which is part of the
   approved pelvis sculpt. Softening it further would reshape buttock anatomy, and that needs a separate
   decision.
+* **v7 (buttock softening, which the user approved as an anatomy change):**
+  * a second pass on the back only, with no edit on the front half and full weight from 120° outward;
+  * it uses a longer envelope, from the thigh at −8 cm to the pelvis at +4 cm;
+  * it trims the buttock underside by 2–3 mm on average (5 mm at most) between −2 and +2 cm, fading out
+    by +3 cm;
+  * all 10 models pass the compile audit.
+  * In the client the change is barely visible: the fold under each cheek still reads in the
+    three-quarter rear and walk views. The radius already sits near the envelope there. The crease comes
+    mostly from the downward-facing normals of the buttock overhang, which a radial envelope barely
+    changes.
 
 ## 1. What causes the band (measured)
 
