@@ -1941,8 +1941,12 @@
       "tools/phenotypes/tool_runtime.py",
       "tools/shared_tools.py"
     ],
+    "tools/phenotypes/launch_hash_cache.py": [
+      "tools/phenotypes/shared_toolchain.py"
+    ],
     "tools/phenotypes/launch_shared_tool.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
@@ -3082,6 +3086,12 @@
     "tools/phenotypes/test_inventory_target_equipment.py": [
       "tools/phenotypes/inventory_target_equipment.py"
     ],
+    "tools/phenotypes/test_launch_hash_cache.py": [
+      "tools/phenotypes/launch_hash_cache.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/shared_tools.py"
+    ],
     "tools/phenotypes/test_lean_pipeline.py": [
       "tools/phenotypes/compose_lean_gate3_sheets.py",
       "tools/phenotypes/lean_border_repair.py",
@@ -4071,6 +4081,7 @@
     "tools/phenotypes/test_human_female_stock_exact.py",
     "tools/phenotypes/test_infrastructure_adoption.py",
     "tools/phenotypes/test_inventory_target_equipment.py",
+    "tools/phenotypes/test_launch_hash_cache.py",
     "tools/phenotypes/test_lean_pipeline.py",
     "tools/phenotypes/test_limb_material_collection.py",
     "tools/phenotypes/test_material_execution_adoption.py",
