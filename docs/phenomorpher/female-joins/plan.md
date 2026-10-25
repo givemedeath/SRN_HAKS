@@ -181,6 +181,56 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
     * A ragged thigh top still shows near full flexion.
 * **Skin:** the pilot's micro-bump is off from the v18 bake on (`bump_deg` 0). The user saw the chest
   pebbling: fine-detail p90 tilt 5.2° against 3.5° shipped on the chest, and 4.3° against 1.7° on the thighs.
+* **v18 in the client (walk; front, side, rear; `evidence/client-v18-walk-front-rear-side.jpg`): fails.**
+  * The front skirt reads as shorts. Its bottom hangs 3–4 cm below the brief and ends in a hard
+    horizontal edge across the upper thigh: a bright step on the stance leg and a dark line on the
+    swinging leg. This is a shelf. It is strong on pfh2 and fainter on pfh0.
+  * On pfh2, skin shows through the brief cup.
+  * Measured causes:
+    * The curl drops steeply, and the 3 mm underlap leaves a step.
+    * At extension the thigh front pulls back 15–35 mm under the pelvis rim, so the rim shows.
+    * The hull envelope pushes pelvis skin out through the brief: about 55 new points per body (v16: 9–14).
+* **v19 (user decision: skirt bottom at the brief leg line, a long taper with no edge, pelvis inside the brief):**
+  * Brief leg line in the front-pass cylinder: −25 to 0 mm at the front-medial and +12 to +80 mm at the
+    front-lateral (above the thigh top at +15 mm).
+  * The pelvis spans −60 mm to the top. The shipped pelvis overhangs the thigh by more than 4 mm across
+    the whole front.
+  * The front pass (`briefSkirt`) changes:
+    * **Skirt bottom:** set per column at the brief line, capped 10 mm under the thigh top, then
+      smoothed around the leg.
+    * **Pelvis below it:** crosses under the thigh within 4 mm, then sinks 20 mm inside the thigh's
+      target over 30 mm. No curl, no underlap.
+    * **Thigh:** carries the visible surface below the skirt bottom and is domed under the skirt above it.
+    * **Brief clamp:** keeps both parts under the brief's profile.
+    * **Sector:** −55° to +130°.
+  * A finishing step (`briefpush.py`) pushes any vertex that the joins moved out through the brief back
+    under it, with a two-ring falloff. The shipped belly fold over the waistband stays.
+  * Walk results (8 frames):
+
+    | | pfh2 v18 | pfh2 v19 | pfh0 v18 | pfh0 v19 |
+    |---|---|---|---|---|
+    | Pelvis rim outside the thigh (`walkpoke` rim cells) | 60/63, up to 35 mm | 0/0 | 46/47 | 0/0 |
+    | Thigh top outside the pelvis | 36/46 | 76/53 | 16/24 | 57/49 |
+    | New pelvis points outside the brief, front (`briefcheck`) | 54 | 3 | 56 | 5 |
+
+    Thigh-top exposure in v19 is about v16's level, at the flexion extremes. Raising the skirt bottom
+    without the 10 mm room let the swung thigh top show; more room (25–35 mm) or a deeper dome did not
+    reduce it.
+  * The front-lateral thigh now carries the shape the pelvis showed there: up to 23 mm radial growth at
+    20–40° on pfh2.
+  * Renders: `evidence/walk3-pfh2-v18-v19p.png`. The ledge under the brief is gone from the front, and
+    the rear is unchanged.
+  * Client (combo-v19; walk; `evidence/client-v18-v19-walk-front-side-rear.jpg`), awaiting user review:
+    * **Front:** the shorts cuff and its hard edge are gone on both bodies. A faint soft line remains on
+      the outer-front upper thigh just below the brief, where the pelvis now crosses under the thigh.
+    * **Side:** the boxy lump below the brief is much smaller. A faint horizontal line about 1–2 cm
+      below the brief remains on some frames.
+    * **Rear:** unchanged from v16/v18, with the same soft fold line at the outer buttock.
+    * Some brown marbling shows in the pfh2 brief at the rear. Unverified: it may be the brief's own
+      PLT shading.
+  * Tooling: `buildcombo.sh` (compile, audit, skin bake, stage, pack, install; reproduces combo-v18
+    byte for byte), `briefcheck.py`, `briefpush.py`, `walkrender3.py`, and the walkpoke `rim`/`top`
+    exposure counts.
 
 ## 1. What causes the band (measured)
 
