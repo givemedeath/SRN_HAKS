@@ -32,6 +32,18 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
   * widening the weight (to 130/160°) reintroduces inversions near the cleft, so v3 is the method's limit.
 * **Not yet run:** the motion sweep across all clips, and pilot tooling as phenomorpher commands (the
   pilot used scratch scripts with pinned inputs).
+* **v6 (inversion-aware), the user's follow-up request:**
+  * Each surface point gets a displacement weight. Points on faces that would turn more than 75° lose
+    displacement, and the reduction spreads softly over the welded 1-ring.
+  * The hip edit covers the front, outer side, back and inner back, with no edit in the front-inner
+    groin sector (−100° to −40°, 20° blends).
+  * Only 23–40 pelvis points per hip are reduced; thighs, shins and knees keep the full edit.
+  * The inner back now moves 10–12 mm (v3: 2 mm) and the groin 0–5 mm. All 10 models pass the compile
+    audit with no inverted faces.
+* **Client v6:** close to v3 at normal viewing distance. The short line left on each cheek is the
+  buttock's own lower curve meeting the thigh (about a 15–20° fold at the seam), which is part of the
+  approved pelvis sculpt. Softening it further would reshape buttock anatomy, and that needs a separate
+  decision.
 
 ## 1. What causes the band (measured)
 
