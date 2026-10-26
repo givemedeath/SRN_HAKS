@@ -541,6 +541,18 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
     * Client (`combo-b3` installed; `evidence/client-b3-motion-check.jpg`: idle, walk, chair sit, kneel, pray,
       crouch; Fit and Large; back and side): no band, cut edges or lumps at capture distance. The client was left
       running for the user's review.
+    * User: the thigh tops need more rounding.
+      * `ballsocket.py` now takes `S0`, the height where rounding starts. The b3 dome was squat (about 100 mm wide,
+        65 mm tall) and read as a flat end in sit and pray.
+      * Variants: b4 (P 2, S0 −25, H 70), b5 (P 1.7, S0 −40, H 75), b6 (P 2, S0 −10, H 95) and **b7 (P 2, S0 0,
+        H 110: a near-hemispherical top)**.
+      * Starting the rounding below the pivot (b4, b5) brings back a jagged crossing line when standing.
+    * b7 (`evidence/ref-b367.png`, `evidence/ref-b7-front.png`): in sit, pray and crouch the thigh tops under the
+      buttocks are smooth round forms; idle and walk are as in b3.
+    * b7 gates: holes 2 / 10 px (pfh2 / pfh0, across 9 clips), thigh rim 0, cracks 0. Built and installed as
+      combo-b7; the client was relaunched for the user.
+    * Open (also in shipped and b3): in front view, one outer hip still shows the pelvis's lower edge as a horizontal
+      step over the thigh, where the pelvis is wider than the thigh.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
