@@ -114,6 +114,24 @@ class PackageRunnerTests(unittest.TestCase):
             self.assertEqual({row['root'] for row in rows},{'tools/kit','tools/flat'})
             self.assertTrue(any('pkg.test_ok' in row['test'] for row in rows))
             self.assertNotEqual(run_tests(['tools/kit/pkg/test_ok.py','tools/kit/pkg/test_bad.py'],sys.executable,root),0)
+    def test_parallel_shards_run_concurrently_keep_whole_logs_timings_and_failures(self):
+        # Each module announces itself and waits for another shard to start: a serial runner would time out.
+        WAIT='import time,unittest\nfrom pathlib import Path\nclass T(unittest.TestCase):\n    def test_v(self):\n        Path({name!r}).write_text("x");end=time.time()+20\n        while len([p for p in Path(".").glob("*.started")])<2 and time.time()<end:time.sleep(.05)\n        self.assertGreaterEqual(len(list(Path(".").glob("*.started"))),2)\n'
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            write(root,{f'tools/flat/test_{n}.py':WAIT.format(name=f'{n}.started') for n in 'abcd'})
+            write(root,{'tools/kit/pkg/__init__.py':'','tools/kit/pkg/test_bad.py':'import unittest\nclass T(unittest.TestCase):\n    def test_v(self):self.fail("bad")\n'})
+            flat=[f'tools/flat/test_{n}.py' for n in 'abcd'];timings=root/'timings.json'
+            log=root/'log.txt'
+            with log.open('w',encoding='utf-8') as out:
+                code=subprocess.call([sys.executable,'-c','import json,sys;sys.path.insert(0,sys.argv[1]);from test_impact import run_tests;'
+                    'from pathlib import Path;sys.exit(run_tests(json.loads(sys.argv[2]),sys.executable,Path(sys.argv[3]),Path(sys.argv[4]),absent=[],jobs=3,durations={}))',
+                    str(Path(__file__).resolve().parent),json.dumps(flat),str(root),str(timings)],stdout=out,stderr=subprocess.STDOUT)
+            self.assertEqual(code,0,log.read_text(encoding='utf-8'))
+            text=log.read_text(encoding='utf-8');self.assertEqual(text.count('=== tools/flat: '),3)
+            self.assertEqual({row['test'].split('(')[1].split('.')[0] for row in json.loads(timings.read_text(encoding='utf-8'))},{f'test_{n}' for n in 'abcd'})
+            for started in (root/'tools/flat').glob('*.started'):started.unlink()
+            self.assertNotEqual(run_tests([*flat,'tools/kit/pkg/test_bad.py'],sys.executable,root,absent=[],jobs=3,durations={}),0)
     def test_missing_or_empty_test_modules_fail_instead_of_passing_silently(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);write(root,{'tools/flat/test_empty.py':'X=1\n'})
