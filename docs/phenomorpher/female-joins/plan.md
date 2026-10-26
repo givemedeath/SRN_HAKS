@@ -429,7 +429,28 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
     * Relaxed rule (any flap allowed behind the hip plane in the non-walking clips):
       * thigh flap: still 65% ruled out by praying, at the front;
       * pelvis flap: 23% of the crease remains buildable, near the pivot.
-    * Awaiting the user's direction.
+    * User chose the partial pelvis flap. **f1** (`ONLY=pelvis DEEPRULE=back RHO=90 fillet.py`):
+      * Each flap is a closed blob over the feasible part of the sit, sitdown, meditate, kneel and worship creases.
+        It is a surface net on a 9 mm lattice with Taubin smoothing, written as pelvis nodes p4 and p5.
+      * UVs and tangents come from the facing buttock skin, in one UV island.
+      * Triangles: pfh2 1,288 + 1,380; pfh0 828 + 856.
+    * GPU pose suite (`posesuite.py` now counts visible flap pixels per view; `FLAPCOL` tints them):
+
+      | Clip | Visible flap |
+      |---|---|
+      | pause1, pause2, walk, run | 0 px in every view, both bodies |
+      | kneel, meditate | 0 px from the front |
+      | worship | 20 / 318 px from the front (pfh2 / pfh0) |
+      | getlowlp (crouch) | 16–18k px from the front |
+      | sitcross | 1–3k px from the front |
+
+      Holes are unchanged from v39.
+    * Visual (`evidence/flap-review-{pfh2,pfh0}[-tinted].png`: front, side and rear; standing, sit, kneel, pray;
+      v39 against f1): standing is identical. In sit, kneel and pray the flap shows under each buttock as a lumpy
+      separate lobe. It does not read as a filled crease: it is a secondary shape, which the no-shelves rule forbids.
+      Its edge is set by where the flap would show in walking, not by the crease, so smoothing would remove the lumps
+      but not the lobe.
+    * Verdict: f1 is not adopted, and nothing is built or installed (combo-v39 stays).
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
