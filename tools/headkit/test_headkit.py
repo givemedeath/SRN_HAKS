@@ -857,6 +857,20 @@ class MeshTests(Temporary):
         self.assertEqual(result['surfaceDistance']['reference'],pin(self.root/'out'/'master.glb'))
         np.testing.assert_allclose(np.sort(distances[0],0),np.sort(np.unique(master,axis=0),0))  # tapered master, not the source
         self.assertGreater(np.abs(master-untapered).max(),.005);self.assertEqual(result['neck']['taper']['untapered'],pin(self.root/'out'/'master-untapered.glb'))
+    def test_interior_only_selection_deletes_bubbles_and_refuses_visible_floaters(self):
+        from headkit.mesh import select_shells,ShellReview
+        p,f=self.bell();t,tf=self.tetra();vertices=np.asarray(p,float);faces=np.asarray(f)
+        centre=vertices.mean(0);reach=np.linalg.norm(vertices-centre,axis=1).min()*.9
+        inside=lambda V,F,points:(np.linalg.norm(points-centre,axis=1)<reach).astype(float)  # stand-in winding number
+        def two(offset):
+            bubble=np.asarray(t,float)*.01+offset;return np.r_[vertices,bubble],np.r_[faces,np.asarray(tf)+len(vertices)]
+        policy={'keep':'largest','reviewed':True,'interiorOnly':True,'maximumDeletedAreaFraction':.05,'expectedDeleted':1}
+        V,F=two(centre);kept,kf,record=select_shells(V,F,policy,inside)
+        self.assertEqual(len(kf),len(faces));self.assertEqual(record['deleted'][0]['insideFraction'],1.0)
+        V,F=two(centre+[0,0,10]);outside=None
+        with self.assertRaisesRegex(ValueError,'not wholly inside') as raised:select_shells(V,F,policy,inside)
+        self.assertEqual(raised.exception.attempts['shells']['extra'][0]['insideFraction'],0.0)
+        with self.assertRaisesRegex(ValueError,'winding-number test'):select_shells(*two(centre),policy)
     def test_repair_keeps_one_shell_and_deletes_floaters_only_by_reviewed_selection(self):
         from headkit import neck as mesh_module
         p,f=self.bell();t,tf=self.tetra();floater=t*.01+[0,-.3,0]  # a detached floater behind the head (GLB +z faces front)
@@ -866,9 +880,12 @@ class MeshTests(Temporary):
         keep={'keep':'largest','reviewed':True,'maximumDeletedAreaFraction':.05,'expectedDeleted':1}
         for components,message in ((None,'2 separate shells'),(dict(keep,reviewed=False),'reviewed'),(dict(keep,expectedDeleted=0),'1 shells would be deleted'),
                                    (dict(keep,maximumDeletedAreaFraction=1e-6),'above the reviewed bound'),(dict(keep,maximumDeletedAreaFraction=.1),'supported profile')):
-            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message) as raised:
                 mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'components':components} if components else {'alphaWrap':False},inspection)
             self.assertFalse((self.root/'master.glb').exists())
+            if message!='supported profile':  # a refusal carries the shell table for review (stored in the refused receipt)
+                extra=raised.exception.attempts['shells']['extra'];self.assertEqual(len(extra),1);self.assertIn('at [',str(raised.exception))
+                self.assertEqual(len(extra[0]['centroid']),3);self.assertEqual(len(extra[0]['box']),2);self.assertLess(extra[0]['areaFraction'],.05)
         with patch.object(mesh_module,'library',lambda b,name:igl):
             result=mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'triangleBudget':len(f)+20,'components':keep},inspection)
         self.assertTrue(result['passed'] and result['componentDeletion']);self.assertEqual(result['topology']['triangles'],len(f))
@@ -877,6 +894,11 @@ class MeshTests(Temporary):
         area=lambda v,f:np.linalg.norm(np.cross(v[f][:,1]-v[f][:,0],v[f][:,2]-v[f][:,0]),axis=1).sum()/2
         self.assertAlmostEqual(result['shells']['deletedAreaFraction'],area(floater,tf)/(area(floater,tf)+area(p,f)),places=6)
         np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(self.glb(p),axis=0),0),atol=1e-6)
+        # interiorOnly reaches libigl 2.6.3's fast_winding_number(V, F, Q); the floater behind the head is visible, so it is refused
+        calls=[];igl.fast_winding_number=lambda V,F,Q:calls.append((V.dtype,F.dtype,len(Q))) or np.zeros(len(Q))
+        with patch.object(mesh_module,'library',lambda b,name:igl),self.assertRaisesRegex(ValueError,'not wholly inside'):
+            mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'triangleBudget':len(f)+20,'components':dict(keep,interiorOnly=True)},inspection)
+        self.assertEqual(calls,[(np.float64,np.int64,4)])
     def icosphere(self,radius=.1,levels=3):
         g=(1+5**.5)/2;v=[(-1,g,0),(1,g,0),(-1,-g,0),(1,-g,0),(0,-1,g),(0,1,g),(0,-1,-g),(0,1,-g),(g,0,-1),(g,0,1),(-g,0,-1),(-g,0,1)]
         f=[(0,11,5),(0,5,1),(0,1,7),(0,7,10),(0,10,11),(1,5,9),(5,11,4),(11,10,2),(10,7,6),(7,1,8),(3,9,4),(3,4,2),(3,2,6),(3,6,8),(3,8,9),(4,9,5),(2,4,11),(6,2,10),(8,6,7),(9,8,1)]

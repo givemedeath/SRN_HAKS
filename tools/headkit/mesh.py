@@ -125,26 +125,54 @@ def shells(vertices, faces):
     return np.unique(labels[faces[:, 0]], return_inverse=True)[1].reshape(-1)
 
 
-def select_shells(vertices, faces, selection):
+class ShellReview(ValueError):
+    """A refused shell selection that carries the master's shell table, so the refused receipt is the review evidence
+    (the runner stores `attempts`) and no further launch is needed to see the shells."""
+    def __init__(self, message, table):
+        super().__init__(message); self.attempts = {'shells': table}
+
+
+def select_shells(vertices, faces, selection, inside=None):
     """A master must be one shell. Detached floaters and interior bubbles go only by a reviewed selection that keeps
-    the largest-area shell, bounds the deleted area and records every deleted shell."""
+    the largest-area shell, bounds the deleted area and records every deleted shell. Every refusal carries the shell
+    table (triangles, area fraction, centroid and box per extra shell, largest first). With `inside` (winding numbers of
+    points against the kept shell: repair passes igl's) each extra shell also records `insideFraction`, and a selection
+    with `interiorOnly: true` deletes only shells lying wholly inside the kept shell (Alpha Wrap bubbles under hair):
+    nothing visible can go, so a reviewed area bound up to 5% is enough evidence."""
     label = shells(vertices, faces); count = int(label.max())+1
-    if selection is None:
-        require(count == 1, f'Master has {count} separate shells; review them and declare mesh.components')
+    if selection is None and count == 1:
         return vertices, faces, {'shells': 1, 'deleted': [], 'deletedAreaFraction': 0.0}
-    require(isinstance(selection, dict) and selection.get('keep') == 'largest' and selection.get('reviewed') is True,
-            'Shell selection must be reviewed and keep the largest shell')
-    limit = positive(selection.get('maximumDeletedAreaFraction', .01), 'deleted shell area bound')
-    require(limit <= .05, 'Deleted shell area bound exceeds supported profile')
     corners = vertices[faces].astype(float)
     area = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)/2
     totals = np.bincount(label, area, count); keep = int(np.argmax(totals)); fraction = float(1-totals[keep]/totals.sum())
-    deleted = [{'triangles': int(np.count_nonzero(label == k)), 'areaFraction': float(totals[k]/totals.sum()),
-                'centroid': [round(float(c), 5) for c in vertices[np.unique(faces[label == k])].mean(0)]}
-               for k in np.argsort(-totals) if k != keep]
-    require(fraction <= limit, f'Deleted shells cover {fraction:.3%} of the master area, above the reviewed bound')
+    interior = isinstance(selection, dict) and selection.get('interiorOnly') is True
+    def row(k):
+        points = vertices[np.unique(faces[label == k])]
+        out = {'triangles': int(np.count_nonzero(label == k)), 'areaFraction': float(totals[k]/totals.sum()),
+               'centroid': [round(float(c), 5) for c in points.mean(0)],
+               'box': [[round(float(c), 5) for c in points.min(0)], [round(float(c), 5) for c in points.max(0)]]}
+        if inside is not None:
+            try:out['insideFraction'] = float(np.mean(np.abs(np.asarray(inside(np.asarray(vertices, float), faces[label == keep], np.asarray(points, float)))) > .5))
+            except Exception:
+                if interior:raise  # evidence-only otherwise: a missing library never blocks a refusal from reporting its table
+        return out
+    deleted = [row(k) for k in np.argsort(-totals) if k != keep]
+    def refuse(message):
+        summary = '; '.join(f"{r['areaFraction']:.4%} at {r['centroid']}" for r in deleted[:4])
+        raise ShellReview(f'{message} (extra shells, largest first: {summary})', {'count': count, 'deletedAreaFraction': fraction, 'extra': deleted})
+    if selection is None:
+        refuse(f'Master has {count} separate shells; review them and declare mesh.components')
+    if not (isinstance(selection, dict) and selection.get('keep') == 'largest' and selection.get('reviewed') is True):
+        refuse('Shell selection must be reviewed and keep the largest shell')
+    limit = positive(selection.get('maximumDeletedAreaFraction', .01), 'deleted shell area bound')
+    require(limit <= .05, 'Deleted shell area bound exceeds supported profile')
+    if fraction > limit:refuse(f'Deleted shells cover {fraction:.3%} of the master area, above the reviewed bound')
     expected = selection.get('expectedDeleted')
-    require(expected is None or expected == len(deleted), f'{len(deleted)} shells would be deleted; the review expected {expected}')
+    if not (expected is None or expected == len(deleted)):refuse(f'{len(deleted)} shells would be deleted; the review expected {expected}')
+    if interior:
+        require(inside is not None, 'interiorOnly needs the winding-number test (repair supplies it)')
+        if any(r['insideFraction'] < 1 for r in deleted):refuse('interiorOnly: a shell to delete is not wholly inside the kept shell')
+    deleted = [{k: v for k, v in r.items() if k != 'box'} for r in deleted]  # the success record keeps its earlier shape
     used = np.unique(faces[label == keep]); remap = np.full(len(vertices), -1); remap[used] = np.arange(len(used))
     return vertices[used], remap[faces[label == keep]], {'shells': count, 'deleted': deleted, 'deletedAreaFraction': fraction,
                                                         'keptTriangles': int(np.count_nonzero(label == keep))}

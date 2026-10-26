@@ -307,7 +307,9 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
         vertices, faces = wrap(vertices, faces)
     else:
         require(topology(vertices, faces)['closed'], 'Open/invalid shell: review before selecting repair')
-    vertices, faces, shell_record = select_shells(vertices, faces, policy.get('components'))
+    def inside(vertices, faces, points):  # winding numbers against the kept shell: interior Alpha Wrap bubbles are invisible
+        return library(bindings, 'igl').fast_winding_number(np.asarray(vertices, float), np.asarray(faces, np.int64), points)
+    vertices, faces, shell_record = select_shells(vertices, faces, policy.get('components'), inside)
     smoothing = None
     if policy.get('smooth') is not None:
         from .relief import smooth
@@ -319,7 +321,7 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
             # re-closes the smoothed surface crossing-free (smoothing the dense source instead is too weak at its density).
             selection = policy.get('components'); vertices, faces = wrap(vertices, faces)
             vertices, faces, smoothing['rewrapShells'] = select_shells(vertices, faces, None if selection is None else
-                {k: v for k, v in selection.items() if k != 'expectedDeleted'})
+                {k: v for k, v in selection.items() if k != 'expectedDeleted'}, inside)
         smoothing['elapsedSeconds'] = time.perf_counter()-begun
     budget = policy.get('triangleBudget', 20000)
     require(type(budget) is int and 4 <= budget <= 20000, 'Supported budget is <=20K')
@@ -344,7 +346,7 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
         if record['cut']['closure'] == 'rewrap':
             selection = policy.get('components')
             vertices, faces, record['cut']['rewrapShells'] = select_shells(vertices, faces, None if selection is None else
-                {k: v for k, v in selection.items() if k != 'expectedDeleted'})
+                {k: v for k, v in selection.items() if k != 'expectedDeleted'}, inside)
         record['cut'].update(uncut=pin(uncut), bodyNeck=pin(body), elapsedSeconds=time.perf_counter()-begun)
     master = work_dir / 'master.glb'; write_mesh(master, vertices, faces)
     master_audit = audit(master, max_pairs=16000000); write(work_dir/'master-audit.json', master_audit, fresh=True)
