@@ -3189,6 +3189,9 @@ class OcciputTests(Temporary):
         kept=faces[~hole];used,remap=np.unique(kept,return_inverse=True)  # drop the vertices only the hole used
         write_mesh(self.root/'open.glb',sphere[used],remap.reshape(-1,3));opened=back_coverage(self.root/'open.glb')
         self.assertTrue(opened['open']);self.assertTrue(all(.45<=b<.7 for b in opened['lowBands']))
+        front=faces[centroid[:,2]>.02];used,remap=np.unique(front,return_inverse=True)  # a face shell with no back at all
+        write_mesh(self.root/'shell.glb',sphere[used],remap.reshape(-1,3));shell=back_coverage(self.root/'shell.glb')
+        self.assertTrue(shell['open']);self.assertEqual(shell['reason'],'no back surface')
 
 
 class NeverblenderNativeTests(Temporary):
@@ -3228,10 +3231,24 @@ class NeverblenderNativeTests(Temporary):
         client.assert_not_called()
         self.assertEqual(audit['compiler']['mode'],'neverblender-cleanmodels');self.assertEqual(len(audit['compiler']['engine']),3)
 
+    def test_native_receipt_is_bound_to_its_compiler_selection(self):
+        runner=ResumeTests.fixture(self);binding=self.root/'mdl-compiler.json'
+        def native():
+            with patch.object(runner,'dependencies',return_value=[]),patch.object(runner,'_execute',return_value={}), \
+                 patch('headkit.native.mdl_compiler_files',side_effect=lambda path:[pin(path)]):
+                return runner.execute('native')
+        self.assertFalse(native()['reused']);self.assertTrue(native()['reused'])  # client compile, no binding
+        write(binding,{'blender':'adopted'})
+        self.assertFalse(native()['reused']);receipt=read(runner.state['stages']['native']['path'])
+        self.assertEqual(receipt['compiler'],[pin(binding)]);self.assertIn(pin(binding),receipt['inputs']);self.assertTrue(native()['reused'])
+        write(binding,{'blender':'changed'});self.assertFalse(native()['reused'])
+        binding.unlink();self.assertFalse(native()['reused']);self.assertEqual(read(runner.state['stages']['native']['path'])['compiler'],[])
+
     def test_native_runner_branch_reads_the_local_compiler_binding(self):
         from headkit.common import runner_slice
         text=runner_slice(Path(__file__).parent/'runner.py','native')
-        self.assertIn('MDL_COMPILER',text);self.assertNotIn('MDL_COMPILER',runner_slice(Path(__file__).parent/'runner.py','repair'))
+        # The compile itself stays in the native branch; the shared gate only binds the selection (test above).
+        self.assertIn('compile_and_package',text);self.assertNotIn('compile_and_package',runner_slice(Path(__file__).parent/'runner.py','repair'))
 
 
 class ReviewImageTests(Temporary):

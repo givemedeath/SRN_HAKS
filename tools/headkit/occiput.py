@@ -27,7 +27,11 @@ def back_coverage(path):
     back = (np.abs(centroids[:, 0]-centre[0]) < extent[0]/6) & (centroids[:, 2] < centre[2]-.25*extent[2])
     height = (centroids[:, 1]-lo[1])/extent[1]
     bands = np.array([area[back & (height >= b/BANDS) & (height < (b+1)/BANDS)].sum() for b in range(BANDS)])
-    filled = bands[bands > 0]; floor = FLOOR*float(np.median(filled)) if len(filled) else 0.0
+    filled = bands[bands > 0]
+    if not bands[LOW:HIGH].any():  # no back surface at all in the checked height range: open, not a zero floor
+        return {'open': True, 'lowBands': [round(b/BANDS, 3) for b in range(LOW, HIGH)], 'floorSquareCm': 0.0,
+                'bandSquareCm': [round(float(v)*1e4, 2) for v in bands], 'reason': 'no back surface'}
+    floor = FLOOR*float(np.median(filled))
     low = [b for b in range(LOW, HIGH) if bands[b] < floor]
     run = max((sum(1 for _ in group) for adjacent, group in itertools.groupby(np.diff(low) == 1) if adjacent), default=0)+1 if low else 0
     return {'open': run >= 2, 'lowBands': [round(b/BANDS, 3) for b in low], 'floorSquareCm': round(floor*1e4, 2),

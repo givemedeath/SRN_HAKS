@@ -133,6 +133,9 @@ class Runner:
         require(receipt['codeVersion']==_checked['versions'][stage] and receipt['manifestHash']==self.manifest_digest(stage)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
         self._verify(receipt['inputs'])
+        # The compiler a native receipt used is part of its identity: adding, removing or changing the local binding
+        # (or the Blender/add-on files it pins) stales native only. Receipts without the key were client compiles.
+        if stage=='native':require(receipt.get('compiler',[])==self.native_compiler(),'Stale stage; native compiler selection changed: native')
         require(receipt['state']=='complete','Failed stage: '+stage)
         if self.runtime is not None:require(receipt.get('runtimeIdentity')==self.runtime,'Stage runtime differs from active launcher')
         for dependency,expected in receipt.get('dependencies',{}).items():
@@ -146,6 +149,13 @@ class Runner:
             require(review.get('decision')=='approved','Visual review rejected: '+stage)
             _checked['results'][stage]=receipt['result']
         return receipt['result']
+
+    def native_compiler(self):
+        """Pins of the local Blender + Neverblender binding beside bindings.json and the files it consumes; [] selects the
+        EE client compiler. It stays out of bindings.json, whose hash binds every stage."""
+        from .native import MDL_COMPILER,mdl_compiler_files
+        local=self.bindings_path.with_name(MDL_COMPILER)
+        return mdl_compiler_files(local) if local.exists() else []
 
     def source(self,provided,stage,key):
         # Importing a reviewed artifact is explicit: it does not pretend its prior stages ran here.
@@ -195,6 +205,8 @@ class Runner:
             if name in self.bindings:inputs.append(self.bindings[name])
         for name in ('toolchain','migrationReceipt'):
             if name in self.bindings:inputs.append(pin(self.bindings[name]))
+        compiler=self.native_compiler() if stage=='native' else None
+        if compiler:inputs+=compiler
         dependency_pins={};checked={'results':{},'versions':{}};self._verified=set()
         for dependency in self.dependencies(stage):
             self.result(dependency,_checked=checked);row=self.state['stages'][dependency]
@@ -204,6 +216,7 @@ class Runner:
         folder=parent/f'attempt-{len(list(parent.glob("attempt-*")))+1:02d}';folder.mkdir()
         begun=time.monotonic();receipt={'stage':stage,'manifestHash':self.manifest_digest(stage),'bindingsHash':digest(self.bindings),
             'codeVersion':stage_source_version(stage),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
+        if compiler is not None:receipt['compiler']=compiler
         write(folder/'intent.json',receipt,fresh=True)
         self._read=set();common.LIBRARIES_USED=set()
         try:
