@@ -82,6 +82,19 @@ class HashCacheTests(unittest.TestCase):
         self.assertEqual({row['snapshot'] for row in rows.values()}, {str(output / 'helper-snapshots' / (sha(helpers[0])[:12] + '-__init__.py'))})
         self.assertTrue(all(row['sha256'] == sha(helpers[0]) and 'store' not in row for row in rows.values()))
 
+    def test_losing_a_store_publication_race_reuses_the_winner_and_removes_the_temporary(self):
+        from unittest import mock
+        import launch_hash_cache
+        helper = self.root / 'helper.py'; helper.write_text('print(3)'); aged(helper); digest = sha(helper)
+        cache = HashCache(self.root / 'cache' / 'cache.sqlite'); self.addCleanup(cache.close)
+        target = self.root / 'cache' / 'helper-store' / digest[:2] / (digest + '.py')
+        def rival_wins(source, destination):  # another launch publishes first; Windows then refuses the replace
+            Path(destination).write_text('print(3)'); os.chmod(destination, 0o444); aged(destination)
+            raise PermissionError(5, 'Access is denied', str(destination))
+        with mock.patch.object(launch_hash_cache.os, 'replace', side_effect=rival_wins):
+            self.assertEqual(cache.store(helper, digest), target)
+        self.assertEqual(list(target.parent.glob('*.tmp')), []); self.assertEqual(sha(target), digest)
+
     def test_launcher_uses_the_cache_only_when_enabled_and_still_detects_drift(self):
         config = self.root / 'binding.json'; source = self.root / 'input.txt'; source.write_text('parent'); aged(source)
         write_json(config, {'schemaVersion': 2, 'kind': 'phenotype-shared-toolchain', 'requiredTools': ['python'],

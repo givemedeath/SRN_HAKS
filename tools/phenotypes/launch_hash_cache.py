@@ -76,7 +76,8 @@ class HashCache:
             if sha(temporary) != digest:temporary.unlink();raise ValueError('Helper changed while storing: ' + str(path))
             os.chmod(temporary, 0o444)
             try:os.replace(temporary, target)
-            except OSError:temporary.unlink(missing_ok=True)
+            except OSError:  # lost a publication race (Windows refuses to replace the read-only winner): drop ours
+                os.chmod(temporary, 0o644); temporary.unlink(missing_ok=True)
             if not target.exists():raise ValueError('Helper store entry missing: ' + str(target))
         if self.sha(target) != digest:raise ValueError('Helper store entry changed: ' + str(target))
         return target
