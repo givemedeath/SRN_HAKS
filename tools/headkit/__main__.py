@@ -1,5 +1,6 @@
 """Entry point: python -m tools.headkit --help. Processing requires the shared launcher."""
 import argparse
+import json
 from pathlib import Path
 import shutil
 import uuid
@@ -108,6 +109,97 @@ def chain(runner, stages):
     return {'id':runner.data['id'],'run':str(runner.run),'stages':rows,'stopped':stopped,'autoApproved':False}
 
 
+def launch_inputs(manifest_path, bindings_path, run=None, stages=None):
+    """Pins a launch of these stages (or the whole package) consumes for one head, and the stale stages skipped."""
+    data=manifest(manifest_path);local=bindings(bindings_path);closure=None
+    if stages:
+        # Launch-scoped list: the stages' declared inputs plus the receipts of everything upstream of them.
+        from .runner import Runner,STAGES,stage_roles,stage_libraries
+        chosen=stages.split(',');require(chosen and all(s in STAGES for s in chosen),'Unknown stage in --stages')
+        require(run is not None,'--stages needs --run');deps=Runner(manifest_path,bindings_path,run).dependencies
+        closure=set();pending=list(chosen)
+        while pending:
+            stage=pending.pop()
+            if stage not in closure:closure.add(stage);pending+=deps(stage)
+        roles=set().union(*(stage_roles(s,data) for s in chosen));libraries=set().union(*(stage_libraries(s,data) for s in chosen))
+    else:roles=set(data['inputs']);libraries=set(local.get('libraries',{}))
+    # Stage-scoped code for a launch-scoped list; the whole package otherwise.
+    code=code_pins() if closure is None else list({row['path']:row for s in sorted(closure) for row in stage_code_pins(s)}.values())
+    pins=code+[pin(manifest_path),pin(bindings_path)]+[asset(manifest_path,data['inputs'][r]) for r in sorted(roles)]+python_package_pins(local)
+    for name in ('toolchain','migrationReceipt'):
+        if name in local:pins.append(pin(local[name]))
+    for name in ('python','blender','client','embree'):
+        if name in local:pins.append(local[name])
+    pins+=list(local.get('models',{}).values())+local.get('comfySources',[])
+    if 'comfyStartupConfig' in local:pins.append(pin(local['comfyStartupConfig']))
+    if 'comfyPython' in local:pins.append(local['comfyPython'])
+    if 'comfyRuntimeRoots' in local:
+        from .comfy_nodes.managed_startup import runtime_inventory
+        pins+=runtime_inventory(local['comfyRuntimeRoots'])
+    for name in sorted(libraries):pins+=local['libraries'][name]['files']
+    compiler=Path(bindings_path).resolve().with_name('mdl-compiler.json')
+    if compiler.exists() and (closure is None or 'native' in chosen):
+        from .native import mdl_compiler_files;pins+=mdl_compiler_files(compiler)
+    if 'comfyCustomNodes' in local:
+        adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
+        pins += [pin(adapter/'source-roots.json')]+[pin(p) for p in adapter.glob('*.py')]
+    if run and (run/'state.json').exists():
+        # state.json is the run's mutable index, rewritten by run/chain/review during the launch; the immutable
+        # receipts and reviews it points to are the frozen inputs.
+        state=read(run/'state.json');stale=[]
+        from .runner import Runner;scoped=Runner(manifest_path,bindings_path,run)
+        for stage,row in state['stages'].items():
+            if closure is not None and stage not in closure:continue
+            receipt=read(row['path'])
+            # A receipt from other code or another manifest is rerun, not consumed; its old pins are not inputs.
+            if receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage):stale.append(stage);continue
+            pins.append(row);pins+=receipt['inputs']+receipt['outputs']
+            if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
+    verify(pins);return pins,(stale if run and (run/'state.json').exists() else None)
+
+
+def batch(heads, stages, *, approve=None, notes=None, precompile=None):
+    """`chain` over several heads in one launch. Each head keeps its own runner, lock, receipts and reviews; one head's
+    failure is reported in its row and never stops the others. With `native` in the stages, every head whose native would
+    run now (approved, fresh export; no fresh native) is compiled in one headless Blender run per compiler binding first
+    (native.precompile); if that run fails, those heads compile one by one as before."""
+    import contextlib,time
+    from .native import precompile as compile_many,mdl_compiler
+    from .runner import Runner
+    require(heads and len({str(Path(row['run']).resolve()) for row in heads})==len(heads),'Batch needs distinct head runs')
+    rows=[];runners=[]
+    with contextlib.ExitStack() as stack:
+        for head in heads:
+            run=Path(head['run']);stack.enter_context(comfy.locked(run/'runner'))
+            runner=Runner(head['manifest'],head['bindings'],run,runtime=launched(head['bindings']));runners.append(runner)
+            row={'id':runner.data['id'],'run':str(runner.run)}
+            if approve:
+                try:row['reviewRecorded']=runner.review(approve,'approved',notes)
+                except (ValueError,OSError) as exc:row['error']='Approval not recorded: '+str(exc)
+            rows.append(row)
+        groups={};shared=[]
+        if 'native' in stages:
+            for runner,row in zip(runners,rows):
+                if 'error' in row:continue
+                pins=runner.native_compiler()
+                if not pins:continue  # the EE client compiler compiles one model per launch
+                try:runner.result('native',require_review=False);continue  # fresh: chain reuses it
+                except (ValueError,OSError):pass
+                try:prepared=Path(runner.result('export')['ascii']['path']).parents[1]
+                except (ValueError,OSError):continue  # chain reports the blocked dependency
+                groups.setdefault(json.dumps(pins,sort_keys=True),[]).append((runner,prepared))
+            for index,members in enumerate(groups.values()):
+                begun=time.monotonic();entry={'heads':[r.data['id'] for r,_ in members],'folder':str(Path(precompile)/f'{index:02d}')}
+                try:
+                    folders=compile_many([p for _,p in members],mdl_compiler(members[0][0].bindings_path.with_name('mdl-compiler.json')),entry['folder'])
+                    for runner,_ in members:runner.precompiled=folders
+                except Exception as exc:entry['error']=str(exc)  # each head then compiles alone
+                entry['seconds']=round(time.monotonic()-begun,1);shared.append(entry)
+        for runner,row in zip(runners,rows):
+            if 'error' not in row:row.update(chain(runner,stages))
+    return {'heads':rows,'precompile':shared,'autoApproved':False}
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='command',required=True)
     for name in ('prepare','run','resume','status','review','chain'):
@@ -129,7 +221,12 @@ def main():
         if name=='submit':p.add_argument('--request',required=True,type=Path)
         if name=='collect':p.add_argument('--wait',action='store_true')
     p=sub.add_parser('replay');p.add_argument('--config',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
-    p=sub.add_parser('inputs');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--run',type=Path);p.add_argument('--stages')
+    p=sub.add_parser('inputs');p.add_argument('--manifest',type=Path);p.add_argument('--bindings',type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--run',type=Path);p.add_argument('--stages')
+    p.add_argument('--heads',type=Path,help='JSON list of {manifest, bindings, run}: the union for one batch launch')
+    # Several heads' CPU stages in ONE launch; native compiles every eligible head in one Blender run (native.precompile).
+    p=sub.add_parser('batch');p.add_argument('--heads',required=True,type=Path,help='JSON list of {manifest, bindings, run}')
+    p.add_argument('--stages',required=True,type=lambda v:[s.strip() for s in v.split(',') if s.strip()])
+    p.add_argument('--approve');p.add_argument('--notes');p.add_argument('--precompile',type=Path,help='Fresh folder for the shared native compile')
     p=sub.add_parser('fit-propose');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--source',required=True,type=Path)
     p.add_argument('--reference',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--exclude-lower',type=float,default=.25)
     # Seconds-long previews of manifest texture rules / repair relief on the run's bound outputs (no stage attempt).
@@ -152,7 +249,7 @@ def main():
     p.add_argument('--keep',nargs='+',help='carve jaw keep polygon as x,y points');p.add_argument('--stump',help='carve stump cx,wTop,wBottom,ySide,yBottom')
     p=sub.add_parser('check-occiput',help='Read-only open-back-of-skull check on raw Pixal GLBs (see occiput.py)');p.add_argument('glb',nargs='+',type=Path)
     a=parser.parse_args()
-    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput') else None
+    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput','batch') else None
     if a.command in ('prepare','run','resume','status','review','chain'):
         from .runner import Runner
         if a.command=='status':result=Runner(a.manifest,a.bindings,a.run).status()
@@ -164,53 +261,21 @@ def main():
                     review=runner.review(a.approve,'approved',a.notes) if a.approve else None
                     result=chain(runner,a.stages);result['reviewRecorded']=review
                 else:result=runner.review(a.stage,a.decision,a.notes) if a.command=='review' else runner.execute('prepare' if a.command=='prepare' else a.stage)
+    elif a.command=='batch':
+        require((a.approve is None)==(a.notes is None),'--approve and --notes go together')
+        result=batch(read(a.heads),a.stages,approve=a.approve,notes=a.notes,precompile=a.precompile or a.heads.with_name(a.heads.stem+'-precompile-'+uuid.uuid4().hex[:8]))
     elif a.command=='inputs':
-        data=manifest(a.manifest);local=bindings(a.bindings);closure=None
-        if a.stages:
-            # Launch-scoped list: the stages' declared inputs plus the receipts of everything upstream of them.
-            from .runner import Runner,STAGES,stage_roles,stage_libraries
-            chosen=a.stages.split(',');require(chosen and all(s in STAGES for s in chosen),'Unknown stage in --stages')
-            require(a.run is not None,'--stages needs --run');deps=Runner(a.manifest,a.bindings,a.run).dependencies
-            closure=set();pending=list(chosen)
-            while pending:
-                stage=pending.pop()
-                if stage not in closure:closure.add(stage);pending+=deps(stage)
-            roles=set().union(*(stage_roles(s,data) for s in chosen));libraries=set().union(*(stage_libraries(s,data) for s in chosen))
-        else:roles=set(data['inputs']);libraries=set(local.get('libraries',{}))
-        # Stage-scoped code for a launch-scoped list; the whole package otherwise.
-        code=code_pins() if closure is None else list({row['path']:row for s in sorted(closure) for row in stage_code_pins(s)}.values())
-        pins=code+[pin(a.manifest),pin(a.bindings)]+[asset(a.manifest,data['inputs'][r]) for r in sorted(roles)]+python_package_pins(local)
-        for name in ('toolchain','migrationReceipt'):
-            if name in local:pins.append(pin(local[name]))
-        for name in ('python','blender','client','embree'):
-            if name in local:pins.append(local[name])
-        pins+=list(local.get('models',{}).values())+local.get('comfySources',[])
-        if 'comfyStartupConfig' in local:pins.append(pin(local['comfyStartupConfig']))
-        if 'comfyPython' in local:pins.append(local['comfyPython'])
-        if 'comfyRuntimeRoots' in local:
-            from .comfy_nodes.managed_startup import runtime_inventory
-            pins+=runtime_inventory(local['comfyRuntimeRoots'])
-        for name in sorted(libraries):pins+=local['libraries'][name]['files']
-        compiler=Path(a.bindings).resolve().with_name('mdl-compiler.json')
-        if compiler.exists() and (closure is None or 'native' in chosen):
-            from .native import mdl_compiler_files;pins+=mdl_compiler_files(compiler)
-        if 'comfyCustomNodes' in local:
-            adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
-            pins += [pin(adapter/'source-roots.json')]+[pin(p) for p in adapter.glob('*.py')]
-        if a.run and (a.run/'state.json').exists():
-            # state.json is the run's mutable index, rewritten by run/chain/review during the launch; the immutable
-            # receipts and reviews it points to are the frozen inputs.
-            state=read(a.run/'state.json');stale=[]
-            from .runner import Runner;scoped=Runner(a.manifest,a.bindings,a.run)
-            for stage,row in state['stages'].items():
-                if closure is not None and stage not in closure:continue
-                receipt=read(row['path'])
-                # A receipt from other code or another manifest is rerun, not consumed; its old pins are not inputs.
-                if receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage):stale.append(stage);continue
-                pins.append(row);pins+=receipt['inputs']+receipt['outputs']
-                if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
-        verify(pins);paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}
-        if a.run and (a.run/'state.json').exists():result['staleStagesSkipped']=stale
+        if a.heads:
+            # One batch launch: every head's list, plus the head list itself.
+            pins=[pin(a.heads)];stale={}
+            for row in read(a.heads):
+                rows,skipped=launch_inputs(Path(row['manifest']),Path(row['bindings']),Path(row['run']),a.stages);pins+=rows
+                if skipped:stale[row['run']]=skipped
+        else:
+            require(a.manifest and a.bindings,'inputs needs --manifest and --bindings, or --heads')
+            pins,stale=launch_inputs(a.manifest,a.bindings,a.run,a.stages)
+        paths=sorted({p['path'] for p in pins});write(a.output,paths,fresh=True);result={'inputs':str(a.output),'count':len(paths)}
+        if stale is not None:result['staleStagesSkipped']=stale  # per run for --heads
     elif a.command=='preview':
         from .runner import Runner
         from .preview import preview
@@ -254,6 +319,7 @@ def main():
     import json
     print(json.dumps(result,indent=2,allow_nan=False))
     if a.command=='chain' and result['stopped']=='failed':raise SystemExit(1)
+    if a.command=='batch' and any(row.get('stopped')=='failed' or 'error' in row for row in result['heads']):raise SystemExit(1)
 
 
 if __name__=='__main__':main()

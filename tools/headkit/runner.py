@@ -489,7 +489,11 @@ class Runner:
             from .native import compile_and_package,mdl_compiler,MDL_COMPILER
             # Blender + Neverblender when the head has its local compiler binding, else the EE client's compilemodel.
             local=self.bindings_path.with_name(MDL_COMPILER);mdl=mdl_compiler(local) if local.exists() else None
-            previous=self.result('export');return compile_and_package(Path(previous['ascii']['path']).parents[1],b['client'],folder/'native',mdl)
+            # A `batch` launch compiles every head's export in one Blender run first (native.precompile) and hands each
+            # runner its folder; the reused binary still passes this head's own decode audit.
+            previous=self.result('export');prepared=Path(previous['ascii']['path']).parents[1]
+            cache=getattr(self,'precompiled',{}).get(str(prepared.resolve())) if mdl else None
+            return compile_and_package(prepared,b['client'],folder/'native',mdl,cache=cache)
         if stage=='render':
             require('render' in m,'Stage not configured: the manifest has no render section')
             import subprocess,sys
