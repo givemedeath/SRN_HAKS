@@ -553,6 +553,23 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       combo-b7; the client was relaunched for the user.
     * Open (also in shipped and b3): in front view, one outer hip still shows the pelvis's lower edge as a horizontal
       step over the thigh, where the pelvis is wider than the thigh.
+    * User: fix the outer-hip step, then add the knee fix from v39.
+      * Knee: `jointfix.py` can now run knee-only (`cfg-knee.json`), so the v39 knee edit is re-applied to the new
+        thighs.
+      * Step, attempt 1, b8: pulling the hem inside the idle thigh (`hipstep.py`) aimed at the leg-opening edges. The
+        step is a fold, not an open edge, so it moved the waistband region instead and opened holes.
+      * Step, attempts 2 and 3, b9–b10 (`COVER`): widening the thigh top over the outer hip removed the step.
+      * b11, covering the front as well, made the thighs balloon across the crotch.
+    * User: undo that thigh change and round the front of the pelvis's bottom edge instead; then "needs more gentle
+      rounding".
+      * **b13**: b7 thighs plus the knee fix, then `hipstep.py ROUND=20 ROUNDH=70`. Per 10-degree sector, the pelvis
+        hem curls in on an elliptic profile, 20 mm deep over 70 mm of height, in the front half, fading by the
+        side-back. The inner layer follows.
+      * `holefix.py` now puts back the best pass when a pass makes it worse; previously it kept the worse state.
+    * b13 gates: holes 16 / 28 px (pfh2 / pfh0, across 9 clips × 6 frames × 4 views), cracks 0, audit passed. Built
+      and installed as combo-b13; the client was relaunched.
+    * `evidence/ref-b13-front.png`: the front step is now a soft, rounded curve on both bodies. A faint line
+      remains in the side views.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
