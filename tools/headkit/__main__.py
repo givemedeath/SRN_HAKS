@@ -247,9 +247,13 @@ def main():
     p.add_argument('--name');p.add_argument('--output',required=True,type=Path)
     p.add_argument('--carve-top',type=int,help='carve mode: keep rows above this and the --keep jaw polygon; stump outline from --stump')
     p.add_argument('--keep',nargs='+',help='carve jaw keep polygon as x,y points');p.add_argument('--stump',help='carve stump cx,wTop,wBottom,ySide,yBottom')
+    # Measured stock shade distribution for palette.toneMatch from base-game PLTs (nwn_resman_extract, keys only).
+    p=sub.add_parser('shade-reference');p.add_argument('--name',required=True);p.add_argument('--layer',type=int,required=True)
+    p.add_argument('--description',required=True);p.add_argument('--plt',nargs='+',required=True,type=Path)
+    p.add_argument('--references',type=Path,default=Path(__file__).with_name('stock-shades.json'))
     p=sub.add_parser('check-occiput',help='Read-only open-back-of-skull check on raw Pixal GLBs (see occiput.py)');p.add_argument('glb',nargs='+',type=Path)
     a=parser.parse_args()
-    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput','batch') else None
+    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput','batch','shade-reference') else None
     if a.command in ('prepare','run','resume','status','review','chain'):
         from .runner import Runner
         if a.command=='status':result=Runner(a.manifest,a.bindings,a.run).status()
@@ -302,6 +306,12 @@ def main():
             result=design.inpaint(client,local,a.bindings,a.spec,a.design,a.skin,a.seed,a.batch,a.output,cut=a.cut,lift=a.lift,name=a.name,
                                   runtime=runtime,carve=carve,queue={'deadline':a.deadline,'front':a.front})
     elif a.command=='install-nodes':result=install_nodes(a.destination,bindings(a.bindings))
+    elif a.command=='shade-reference':
+        from .palette import shade_reference_entry
+        data=read(a.references);require(a.name not in data['references'],'Reference name already used: '+a.name)
+        data['references'][a.name]=shade_reference_entry(a.plt,a.layer,a.description)
+        a.references.write_text(json.dumps(data,indent=1)+'\n',encoding='utf-8',newline='\n')  # the committed file's own layout
+        result={'reference':a.name,'uniqueTextures':data['references'][a.name]['uniqueTextures'],'sources':len(a.plt)}
     elif a.command=='check-occiput':
         from .occiput import back_coverage
         result={str(path):{k:v for k,v in back_coverage(path).items() if k!='bandSquareCm'} for path in a.glb}
@@ -316,7 +326,6 @@ def main():
             result=comfy.submit(client,a.ledger,prepared,a.output,runtime_identity=runtime,bindings_path=a.bindings)
         elif a.command=='collect':result=comfy.collect(client,a.ledger,a.token,local['comfyOutput'],a.output,wait=a.wait)
         else:result=comfy.reconcile(client,a.ledger,a.token)
-    import json
     print(json.dumps(result,indent=2,allow_nan=False))
     if a.command=='chain' and result['stopped']=='failed':raise SystemExit(1)
     if a.command=='batch' and any(row.get('stopped')=='failed' or 'error' in row for row in result['heads']):raise SystemExit(1)

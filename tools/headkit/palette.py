@@ -167,6 +167,17 @@ def shade_reference(paths, layer, *, knots=101):
     return np.mean([np.quantile(v,np.linspace(0,1,knots)) for v in unique.values()],axis=0).round(2).tolist(),len(unique)
 
 
+def shade_reference_entry(paths, layer, description):
+    """One stock-shades.json reference (headkit `shade-reference`): the measured quantiles plus every source PLT's
+    resref and SHA-256, so the numbers stay bound to the base-game files they came from."""
+    paths=sorted(Path(p) for p in paths);require(paths and len({p.name.lower() for p in paths})==len(paths),'Distinct stock PLT files required')
+    quantiles,unique=shade_reference(paths,layer)
+    return {'layer':layer,'description':description,'uniqueTextures':unique,
+            'method':'headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced '
+                     'probabilities; textures whose channel holds an identical shade multiset count once',
+            'quantiles':quantiles,'sources':[{'resref':p.name.lower(),'sha256':pin(p)['sha256']} for p in paths]}
+
+
 def shade_stats(shades):
     return {'mean':float(shades.mean()),'std':float(shades.std()),**{f'p{round(q*100)}':float(v) for q,v in zip(GRID,np.quantile(shades,GRID))},
             'histogram16':np.bincount(shades//16,minlength=16).tolist()}

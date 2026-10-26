@@ -1658,10 +1658,22 @@ class ToneMatchTests(Temporary):
         quantiles,unique=shade_reference([a,b,c],0,knots=3);self.assertEqual(unique,2);self.assertEqual(quantiles,[51.0,54.0,57.0])
         (self.root/'short.plt').write_bytes(a.read_bytes()[:-1])
         with self.assertRaisesRegex(ValueError,'size mismatch'):plt_shades(self.root/'short.plt')
+    def test_reference_entry_pins_every_source_and_counts_shared_textures_once(self):
+        from headkit.palette import shade_reference_entry
+        def plt(name,shades):
+            path=self.root/name;path.write_bytes(b'PLT V1  '+np.array([10,0,4,2],'<u4').tobytes()+np.stack([shades,np.zeros_like(shades)],-1)[::-1].tobytes());return path
+        top=np.arange(8,dtype=np.uint8).reshape(2,4);a=plt('X_HEAD001.plt',top);b=plt('x_head002.plt',top);c=plt('x_head003.plt',top+100)
+        entry=shade_reference_entry([c,a,b],0,'fixture skin')
+        self.assertEqual((entry['layer'],entry['uniqueTextures'],len(entry['quantiles'])),(0,2,101))
+        self.assertEqual([s['resref'] for s in entry['sources']],['x_head001.plt','x_head002.plt','x_head003.plt'])
+        self.assertEqual(entry['sources'][2]['sha256'],pin(c)['sha256'])
+        with self.assertRaisesRegex(ValueError,'Distinct stock PLT'):shade_reference_entry([a,a],0,'twice')
     def test_committed_references_and_stage_binding(self):
         from headkit.common import stage_code_files
         from headkit.palette import REFERENCES
         data=read(REFERENCES);self.assertTrue({'troll-male-skin-v1','troll-male-hair-v1'}<=set(data['references']))
+        races={f'{race}-{sex}-skin-v1' for race in ('human','dwarf','elf','orc','troll') for sex in ('male','female')}
+        self.assertLessEqual(races,set(data['references']))  # every playable metatype can tone-match its skin
         for name,row in data['references'].items():
             with self.subTest(reference=name):
                 q=np.asarray(row['quantiles']);self.assertEqual(len(q),101);self.assertTrue(np.all(np.diff(q)>=0) and 0<=q[0] and q[-1]<=254)
