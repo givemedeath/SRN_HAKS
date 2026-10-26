@@ -124,6 +124,7 @@
   "tools/phenotypes/test_human_female_stock_exact.py": 7.8,
   "tools/phenotypes/test_infrastructure_adoption.py": 22.88,
   "tools/phenotypes/test_inventory_target_equipment.py": 0.0,
+  "tools/phenotypes/test_launch_hash_cache.py": 3.81,
   "tools/phenotypes/test_lean_pipeline.py": 0.53,
   "tools/phenotypes/test_limb_material_collection.py": 0.0,
   "tools/phenotypes/test_material_execution_adoption.py": 20.38,
