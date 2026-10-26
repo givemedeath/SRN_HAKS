@@ -76,6 +76,7 @@ def validate_spec(spec):
     model_name(spec['prefix'],1)
     _identity(spec['identity'],'identity')
     require(spec.get('lighting') in ('ambient','directional'),'Explicit lighting (ambient or directional) required')
+    require(type(spec.get('motion',False)) is bool,'motion must be true or false')
     base=spec['base']
     require(isinstance(base,dict) and isinstance(base.get('haks'),list) and base['haks'] and isinstance(base.get('module'),dict),
             'base needs the fixture module and its HAKs')
@@ -308,12 +309,13 @@ def row_scripts(spec,actors,sweep=SWEEP_SECONDS):
     return {'sr_h_enter':library+ROW_ENTER,'sr_h_chat':library+ROW_CHAT}
 
 
-def blueprint(creature):
-    """Per-actor creature blueprint (UTC) from its fixture instance: the same fields without placement. Trial actors stand
-    still for head inspection: no heartbeat animation cycle (the fixture's walk/cast/attack loop) and plot, so a stray click
-    cannot start combat. The spawn script, which logs HEAD_FIXTURE_SLOT/COLORS for verification, stays."""
+def blueprint(creature, motion=False):
+    """Per-actor creature blueprint (UTC) from its fixture instance: the same fields without placement. By default trial
+    actors stand still for head inspection: no heartbeat animation cycle (the fixture's walk/cast/attack loop) and plot, so a
+    stray click cannot start combat. With `motion` (spec "motion": true) they keep the fixture's heartbeat cycle and death
+    with a 10 s revive, for idle-and-motion client checks. The spawn script, which logs HEAD_FIXTURE_SLOT/COLORS, stays."""
     item={k:v for k,v in creature.items() if k not in ('__struct_id','XPosition','YPosition','ZPosition','XOrientation','YOrientation')}
-    item.update(ScriptHeartbeat=field('resref',''),Plot=field('byte',1))
+    if not motion:item.update(ScriptHeartbeat=field('resref',''),Plot=field('byte',1))
     return {'__data_type':'UTC ','__struct_id':-1,**item}
 
 
@@ -400,7 +402,7 @@ def build(spec_path,output):
             identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']),gender=sex)
     hak_order=[spec['hak']]+[Path(item['path']).stem for item in base_haks]
     target_y=min(76,max(a['y'] for a in actors)+12)
-    for actor in actors:gff(actor['tag']+'.utc',blueprint(creature(actor)))
+    for actor in actors:gff(actor['tag']+'.utc',blueprint(creature(actor),spec.get('motion',False)))
     documents=fixture.module_documents([fixture.target_creature(creatures[0],identity['appearanceRow'],
         identity['raceId'],identity['visualScale'],40,target_y,gender=sex)],hak_order,spec['lighting'],
         name='SRN head trial '+spec['trial'],description='Trial heads: '+', '.join(h['model'] for h in spec['heads'])+'. Client acceptance pending.',

@@ -227,6 +227,9 @@ class TrialModuleTests(unittest.TestCase):
         # Trial actors stand still and cannot be attacked: no heartbeat animation cycle, plot.
         self.assertEqual(actor['ScriptHeartbeat']['value'],'sr_h_hb')
         self.assertEqual((utc['ScriptHeartbeat']['value'],utc['Plot']['value']),('',1))
+        moving=blueprint(actor,True)  # spec motion: the fixture's walk/cast/attack/death cycle, revive after 10 s
+        self.assertEqual((moving['ScriptHeartbeat']['value'],moving['ScriptDeath']['value'],moving['__struct_id']),('sr_h_hb','sr_h_death',-1))
+        self.assertNotEqual(moving.get('Plot',{}).get('value'),1)
         target=target_creature({'FirstName':{'type':'cexolocstring','value':{}}},2,2,10/7,40,60)
         ifo=module_documents([target],['a'],'ambient',events={'Mod_OnPlrChat':'sr_h_chat'})['module.ifo']
         self.assertEqual((ifo['Mod_OnPlrChat']['value'],ifo['Mod_OnClientEntr']['value']),('sr_h_chat','sr_h_enter'))
