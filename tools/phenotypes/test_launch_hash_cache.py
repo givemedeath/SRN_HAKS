@@ -87,7 +87,7 @@ class HashCacheTests(unittest.TestCase):
         import launch_hash_cache
         helper = self.root / 'helper.py'; helper.write_text('print(3)'); aged(helper); digest = sha(helper)
         cache = HashCache(self.root / 'cache' / 'cache.sqlite'); self.addCleanup(cache.close)
-        target = self.root / 'cache' / 'helper-store' / digest[:2] / (digest + '.py')
+        target = cache.path.parent / 'helper-store' / digest[:2] / (digest + '.py')  # resolved: CI temp paths are 8.3 short names
         def rival_wins(source, destination):  # another launch publishes first; Windows then refuses the replace
             Path(destination).write_text('print(3)'); os.chmod(destination, 0o444); aged(destination)
             raise PermissionError(5, 'Access is denied', str(destination))
