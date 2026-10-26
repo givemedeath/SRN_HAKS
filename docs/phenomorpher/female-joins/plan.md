@@ -517,7 +517,11 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
 
     * Visual (`evidence/dome6-zoom-{pfh2,pfh0}.png`: sit, kneel and pray; side and rear; v39 then d6): one rounded pad
       under each buttock; in the sit side view the notch is filled. Some uneven shading remains on the left pad.
-    * Not built or installed. Awaiting the user's review.
+    * **d6 client build** (`combo-d6`, installed in profile-combo; compile and audit pass; the pfh0 legs re-baked
+      with the pad present): in-game captures in `evidence/client-d6-motion-check.jpg` (chair sit, kneel, pray bowed
+      and upright, crouch; Fit and Large; back, side and front). The sitcross, run and kick captures were cut short:
+      window focus kept returning to Claude. The client was left running for the user's own review.
+    * Not approved. Awaiting the user's in-game judgement.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
