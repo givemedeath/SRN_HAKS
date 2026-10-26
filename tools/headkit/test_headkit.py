@@ -3246,6 +3246,49 @@ class OcciputTests(Temporary):
         self.assertTrue(shell['open']);self.assertEqual(shell['reason'],'no back surface')
 
 
+class BatchTests(Temporary):
+    def heads(self):
+        rows=[];base=self.root
+        for name in ('a','b'):
+            self.root=base/name;self.root.mkdir();ResumeTests.fixture(self)
+            rows.append({'manifest':str(self.root/'manifest.json'),'bindings':str(self.root/'bindings.json'),'run':str(self.root/'run')})
+            (self.root/'prepared'/'ascii').mkdir(parents=True)
+        self.root=base;return rows
+
+    def run_batch(self,heads,precompile):
+        import headkit.__main__ as cli
+        seen=[]
+        def chain(runner,stages):
+            seen.append((runner.data['id'],getattr(runner,'precompiled',None)));return {'stages':[],'stopped':None}
+        def result(runner,stage,**kw):
+            if stage=='native':raise ValueError('Stage not completed: native')
+            return {'ascii':{'path':str(Path(runner.bindings_path).parent/'prepared'/'ascii'/'head.mdl')}}
+        with patch('headkit.__main__.launched',return_value=None),patch('headkit.__main__.chain',side_effect=chain), \
+             patch.object(Runner,'native_compiler',return_value=[{'path':'mdl-compiler.json','sha256':'s'}]), \
+             patch.object(Runner,'result',autospec=True,side_effect=result), \
+             patch('headkit.native.mdl_compiler',return_value={}),patch('headkit.native.precompile',side_effect=precompile) as compile_many:
+            report=cli.batch(heads,['native'],precompile=self.root/'shared')
+        return report,seen,compile_many
+
+    def test_one_shared_compile_for_every_eligible_head(self):
+        heads=self.heads()
+        mapping=lambda prepared,mdl,folder:{str(Path(p).resolve()):Path(folder)/f'{i:02d}' for i,p in enumerate(prepared)}
+        report,seen,compile_many=self.run_batch(heads,mapping)
+        compile_many.assert_called_once();self.assertEqual(len(compile_many.call_args[0][0]),2)
+        self.assertEqual([len(folders) for _,folders in seen],[2,2]);self.assertEqual(report['precompile'][0]['heads'],['synthetic','synthetic'])
+        self.assertNotIn('error',report['precompile'][0])
+
+    def test_a_failed_shared_compile_falls_back_to_per_head_compiles(self):
+        def broken(prepared,mdl,folder):raise RuntimeError('worker failed')
+        report,seen,_=self.run_batch(self.heads(),broken)
+        self.assertEqual(seen,[('synthetic',None),('synthetic',None)]);self.assertIn('worker failed',report['precompile'][0]['error'])
+
+    def test_heads_must_be_distinct_runs(self):
+        import headkit.__main__ as cli
+        heads=self.heads()
+        with self.assertRaisesRegex(ValueError,'distinct head runs'):cli.batch([heads[0],heads[0]],['native'])
+
+
 class NeverblenderNativeTests(Temporary):
     def binding(self, addon=None):
         blender=self.file('blender.exe');path=self.root/'mdl-compiler.json'
@@ -3268,7 +3311,7 @@ class NeverblenderNativeTests(Temporary):
                                         'plt':rows['resources/head.plt'],'expected':rows['expected-native.npz']})
         engine=Path(self.root/'engine');engine.mkdir()
         for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py'):(engine/name).write_text(name)
-        def compile_folder(blender,addon,converted,dirs,timeout):
+        def compile_folder(blender,addon,converted,dirs,timeout,cache=None):
             (Path(converted)/'resources'/'head.mdl').write_bytes(b'binary');(Path(converted)/'native-compile.json').write_text('{}')
             return {'complete':True,'compiled':1,'executionMode':'neverblender-cleanmodels','compilerSha256':'c',
                     'blenderVersion':'5.2.1 LTS','compiler':{'cleanmodels':'v4.10.0'}}
@@ -3282,6 +3325,36 @@ class NeverblenderNativeTests(Temporary):
             audit=native.compile_and_package(prepared,{'path':'unused'},self.root/'out',native.mdl_compiler(self.binding()))
         client.assert_not_called()
         self.assertEqual(audit['compiler']['mode'],'neverblender-cleanmodels');self.assertEqual(len(audit['compiler']['engine']),3)
+
+    def test_a_precompiled_binary_is_reused_and_recorded(self):
+        from headkit import native
+        prepared=self.root/'prepared';(prepared/'ascii').mkdir(parents=True);(prepared/'resources').mkdir();rows={}
+        for name in ('source.glb','ascii/head.mdl','resources/head.plt','expected-native.npz'):
+            (prepared/name).write_bytes(name.encode());rows[name]=pin(prepared/name)
+        write(prepared/'prepared.json',{'model':'head','source':rows['source.glb'],'ascii':rows['ascii/head.mdl'],
+                                        'plt':rows['resources/head.plt'],'expected':rows['expected-native.npz']})
+        cache=self.root/'batch'/'00'/'converted';cache.mkdir(parents=True);write(cache/'native-compile.json',{'complete':True})
+        engine=self.root/'engine';engine.mkdir()
+        for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py'):(engine/name).write_text(name)
+        seen=[]
+        def compile_folder(blender,addon,converted,dirs,timeout,cache=None):
+            seen.append(cache);(Path(converted)/'resources'/'head.mdl').write_bytes(b'binary');(Path(converted)/'native-compile.json').write_text('{}')
+            return {'complete':True,'compiled':0 if cache else 1,'reused':1 if cache else 0,'executionMode':'neverblender-cleanmodels',
+                    'compilerSha256':'c','blenderVersion':'5.2.1 LTS','compiler':{'cleanmodels':'v4.10.0'}}
+        hak=SimpleNamespace(write_hak=lambda path,rows:Path(path).write_bytes(b'hak'),
+                            payload=lambda path:{('head',2002):pin(Path(path).parent/'resources/head.mdl')['sha256'],
+                                                 ('head',6):pin(Path(path).parent/'resources/head.plt')['sha256']})
+        with patch('headkit.native.neverblender',return_value=SimpleNamespace(compile_folder=compile_folder,__file__=str(engine/'neverblender_mdl.py'))), \
+             patch('headkit.native.audit_native',return_value=(b'binary',{'model':'head'})),patch('headkit.native.helpers',return_value=(None,hak,None,None,None)):
+            audit=native.compile_and_package(prepared,{'path':'unused'},self.root/'out',native.mdl_compiler(self.binding()),cache=cache)
+            with self.assertRaisesRegex(ValueError,'needs the Neverblender compiler'):
+                native.compile_and_package(prepared,{'path':'unused'},self.root/'client',None,cache=cache)
+        self.assertEqual(seen,[cache]);self.assertEqual(audit['compiler']['precompiled'],pin(cache/'native-compile.json'))
+
+    def test_native_branch_hands_its_precompiled_folder_to_the_compile(self):
+        from headkit.common import runner_slice
+        text=runner_slice(Path(__file__).parent/'runner.py','native')
+        self.assertIn("getattr(self,'precompiled',{})",text);self.assertIn('cache=cache',text)
 
     def test_native_receipt_is_bound_to_its_compiler_selection(self):
         runner=ResumeTests.fixture(self);binding=self.root/'mdl-compiler.json'

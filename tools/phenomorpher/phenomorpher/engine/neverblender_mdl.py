@@ -112,7 +112,34 @@ def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600, cac
     library restoration read either. The folder's own receipt and binaries are outputs and are never
     read back. `cache` names an earlier converted folder: its binaries are copied for sources whose
     source, compiler and lookups are unchanged, so a managed launch can pin it as a read-only input."""
-    converted = Path(converted).resolve(); tools = toolchain(blender, addon)
+    return compile_folders(blender, addon, [converted], resource_dirs, timeout, [cache])[0]
+
+
+def compile_folders(blender, addon, converted, resource_dirs=(), timeout=600, caches=None):
+    """compile_folder for several converted folders in ONE Blender process (a batch pays one start-up). Each folder
+    keeps its own lookups (its ascii/, resources/ and resource_dirs), staging and receipt, identical to a
+    compile_folder call on it alone. Any failure fails the call and publishes nothing into any folder."""
+    tools = toolchain(blender, addon); caches = list(caches) if caches is not None else [None]*len(converted)
+    if len(caches) != len(converted):
+        raise ValueError('One cache entry (or None) per converted folder')
+    plans = []
+    try:
+        for folder, cache in zip(converted, caches):
+            plans.append(_plan(Path(folder).resolve(), tools, resource_dirs, cache))
+        report = run(tools, [job for plan in plans for job in plan['jobs']], timeout)
+        results = iter(report['results'])
+        for plan in plans:
+            _verify(plan, [next(results) for _ in plan['jobs']])
+        for plan in plans:  # publish only after every folder verified
+            for name in plan['staged'] + [Path(job['input']).name for job in plan['jobs']]:
+                os.replace(plan['staging']/name, plan['resources']/name)
+    finally:
+        for plan in plans:
+            shutil.rmtree(plan['staging'], ignore_errors=True)
+    return [_receipt(plan, tools, report) for plan in plans]
+
+
+def _plan(converted, tools, resource_dirs, cache):
     cache = Path(cache).resolve() if cache else None
     if cache == converted:
         raise ValueError('The compile cache must be an earlier converted folder, not the output folder')
@@ -134,43 +161,47 @@ def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600, cac
         previous = json.loads((cache/RECEIPT).read_text(encoding='utf-8'))
     reusable = previous.get('compilerSha256') == tools['sha256'] and previous.get('lookupHashes') == lookup
     cached_rows = {r['name']: r for r in previous.get('models', [])} if reusable else {}
-    rows, jobs, staged, staging = {}, [], [], Path(tempfile.mkdtemp(prefix='.nvb-compile-', dir=converted))
-    try:
-        for path in sources:
-            cached = cached_rows.get(path.name); kept = cache/'resources'/path.name if cache else None
-            if cached and cached['sourceSha256'] == snapshot[path.name] and kept.is_file():
-                data = kept.read_bytes()
-                if digest(data) == cached['binarySha256']:
-                    (staging/path.name).write_bytes(data); staged.append(path.name); rows[path.name] = cached; continue
-            jobs.append({'op': 'compile', 'input': path, 'output': staging/path.name, 'dirs': folders})
-        report = run(tools, jobs, timeout)
-        failed = []
-        for job, row in zip(jobs, report['results']):
-            name = Path(job['input']).name
-            if row['sourceSha256'] != snapshot[name]:
-                raise RuntimeError('Source changed during compilation: ' + name)
-            check = audit(job['output'], job['input'])
-            if not check['passed']:
-                failed.append(f"{name}: {'; '.join((check['headerDifferences'] or []) + check['staticDifferences'][:3] + check['clipFailures'][:3])}")
-            rows[name] = {'name': name, 'sourceSha256': row['sourceSha256'], 'binarySha256': row['outputSha256'],
-                          'bytes': row['bytes'], 'seconds': row['seconds'], 'warnings': row['warnings'], 'audit': check}
-        if failed:
-            raise RuntimeError('Compiled binary differs from its ASCII source (cleanmodels drops model-root node '
-                               'position/orientation; keep the root at the origin): ' + ' | '.join(failed[:5]))
-        if any(digest(p.read_bytes()) != snapshot[p.name] for p in sources):
-            raise RuntimeError('Source changed before compiler verification completed')
-        if any(digest(p.read_bytes()) != pin for p, pin in pins.items()):
-            raise RuntimeError('Compile lookup resource changed during compilation')
-        for name in staged + [Path(job['input']).name for job in jobs]:
-            os.replace(staging/name, resources/name)
-    finally:
-        shutil.rmtree(staging, ignore_errors=True)
+    plan = {'converted': converted, 'sources': sources, 'resources': resources, 'folders': folders, 'pins': pins,
+            'lookup': lookup, 'snapshot': snapshot, 'previous': previous, 'rows': {}, 'jobs': [], 'staged': [],
+            'staging': Path(tempfile.mkdtemp(prefix='.nvb-compile-', dir=converted))}
+    for path in sources:
+        cached = cached_rows.get(path.name); kept = cache/'resources'/path.name if cache else None
+        if cached and cached['sourceSha256'] == snapshot[path.name] and kept.is_file():
+            data = kept.read_bytes()
+            if digest(data) == cached['binarySha256']:
+                (plan['staging']/path.name).write_bytes(data); plan['staged'].append(path.name); plan['rows'][path.name] = cached; continue
+        plan['jobs'].append({'op': 'compile', 'input': path, 'output': plan['staging']/path.name, 'dirs': folders})
+    return plan
+
+
+def _verify(plan, results):
+    failed = []
+    for job, row in zip(plan['jobs'], results):
+        name = Path(job['input']).name
+        if row['sourceSha256'] != plan['snapshot'][name]:
+            raise RuntimeError('Source changed during compilation: ' + name)
+        check = audit(job['output'], job['input'])
+        if not check['passed']:
+            failed.append(f"{name}: {'; '.join((check['headerDifferences'] or []) + check['staticDifferences'][:3] + check['clipFailures'][:3])}")
+        plan['rows'][name] = {'name': name, 'sourceSha256': row['sourceSha256'], 'binarySha256': row['outputSha256'],
+                              'bytes': row['bytes'], 'seconds': row['seconds'], 'warnings': row['warnings'], 'audit': check}
+    if failed:
+        raise RuntimeError('Compiled binary differs from its ASCII source (cleanmodels drops model-root node '
+                           'position/orientation; keep the root at the origin): ' + ' | '.join(failed[:5]))
+    if any(digest(p.read_bytes()) != plan['snapshot'][p.name] for p in plan['sources']):
+        raise RuntimeError('Source changed before compiler verification completed')
+    if any(digest(p.read_bytes()) != pin for p, pin in plan['pins'].items()):
+        raise RuntimeError('Compile lookup resource changed during compilation')
+
+
+def _receipt(plan, tools, report):
+    sources = plan['sources']; jobs = plan['jobs']
     receipt = {'schemaVersion': 2, 'executionMode': EXECUTION_MODE, 'compiler': {k: v for k, v in tools.items() if k != 'files'},
-               'compilerSha256': tools['sha256'], 'blenderVersion': report.get('blenderVersion', previous.get('blenderVersion')),
-               'lookupFolders': [str(f) for f in folders], 'lookupHashes': lookup, 'interactiveClientLaunched': False,
-               'models': [rows[p.name] for p in sources], 'compiled': len(jobs), 'reused': len(sources) - len(jobs),
+               'compilerSha256': tools['sha256'], 'blenderVersion': report.get('blenderVersion', plan['previous'].get('blenderVersion')),
+               'lookupFolders': [str(f) for f in plan['folders']], 'lookupHashes': plan['lookup'], 'interactiveClientLaunched': False,
+               'models': [plan['rows'][p.name] for p in sources], 'compiled': len(jobs), 'reused': len(sources) - len(jobs),
                'complete': True}
-    (converted/RECEIPT).write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8', newline='\n')
+    (plan['converted']/RECEIPT).write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8', newline='\n')
     return receipt
 
 
