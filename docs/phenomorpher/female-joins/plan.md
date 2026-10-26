@@ -401,6 +401,35 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       hole points (546, parts equal, ≤0.1 mm rounding). Pelvis rim differs by ≤7 px per clip, and 0.004%
       of pixels differ, all on triangle edges.
     * Time: about 8 s per body, versus about 10 min on 3 CPU workers.
+  * **Hip fillet flaps** (user proposal, 2026-10-25): a closed flap on the back of each thigh top and under each
+    buttock, buried inside the other part when standing, meeting in the middle when sitting. Kneeling (`kneel`,
+    `meditate`) and praying (`worship`) must show no flap at the front.
+    * Tool: `fillet.py` (scratchpad). Pelvis-frame voxel grid (3 mm). Per pose, the solid is pelvis walls (waist
+      capped) plus both posed thighs. The crease is the closing (ball 90 mm) of that solid, minus the solid, behind the
+      hip and clear of the brief.
+    * Rule: a flap point must stay at least 5 mm inside in pause1, pause2, walk and run. In every other clip it must be
+      hidden or lie in a back crease.
+    * Cross-sections (`evidence/xsect-pfh2-l-v39.png`): in the chair sit, the thigh's slanted top becomes a
+      near-vertical face about 1 cm behind the pivot. The pelvis underside is exposed between that face and the
+      buttock.
+    * Feasibility, pfh2 left. The chair-sit crease is 23.8k voxels (0.64 L); the share each clip rules out:
+
+      | Clip | Thigh flap | Pelvis flap |
+      |---|---|---|
+      | worship (pray) | 91% | 31% |
+      | getlowlp (crouch) | 94% | 39% |
+      | sitcross | 98% | 39% |
+      | kneel | 51% | 13% |
+      | pause1 | 13% | 59% |
+      | walk | 20% | 64% |
+      | run | 37% | 69% |
+
+    * Result: a thigh flap that fills the chair-sit crease shows in front of the hip when praying, crouching and
+      sitting cross-legged. A pelvis flap that fills it shows behind the thigh when standing and walking.
+    * Relaxed rule (any flap allowed behind the hip plane in the non-walking clips):
+      * thigh flap: still 65% ruled out by praying, at the front;
+      * pelvis flap: 23% of the crease remains buildable, near the pivot.
+    * Awaiting the user's direction.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
