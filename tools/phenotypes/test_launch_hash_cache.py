@@ -68,6 +68,20 @@ class HashCacheTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Helper changed'):
             launch.helper_snapshots([helper], {str(helper.resolve()): '0' * 64}, self.root / 'third', other)
 
+    def test_identical_helpers_fall_back_to_verified_copies_when_links_fail(self):
+        import errno
+        from unittest import mock
+        import launch_shared_tool as launch
+        helpers = []
+        for name in ('a', 'b'):
+            helper = self.root / name / '__init__.py'; helper.parent.mkdir(); helper.write_text(''); aged(helper); helpers.append(helper)
+        frozen = {str(h.resolve()): sha(h) for h in helpers}; output = self.root / 'out'; output.mkdir()
+        cache = HashCache(self.root / 'cache' / 'cache.sqlite'); self.addCleanup(cache.close)
+        with mock.patch.object(launch.os, 'link', side_effect=OSError(errno.EXDEV, 'cross-device link')):
+            rows = launch.helper_snapshots(helpers, frozen, output, cache)
+        self.assertEqual({row['snapshot'] for row in rows.values()}, {str(output / 'helper-snapshots' / (sha(helpers[0])[:12] + '-__init__.py'))})
+        self.assertTrue(all(row['sha256'] == sha(helpers[0]) and 'store' not in row for row in rows.values()))
+
     def test_launcher_uses_the_cache_only_when_enabled_and_still_detects_drift(self):
         config = self.root / 'binding.json'; source = self.root / 'input.txt'; source.write_text('parent'); aged(source)
         write_json(config, {'schemaVersion': 2, 'kind': 'phenotype-shared-toolchain', 'requiredTools': ['python'],

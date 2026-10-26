@@ -57,11 +57,11 @@ def helper_snapshots(inputs, frozen, output, cache=None):
             if stored is not None and not copied.exists():  # identical helpers (empty __init__.py) share one snapshot name
                 try:os.link(stored, copied)
                 except OSError:stored = None
-            if stored is not None:
-                if not os.path.samefile(stored, copied):raise ValueError('Helper snapshot link differs from its store entry')
+            if stored is not None and os.path.samefile(stored, copied):
                 copied_digest = digest
-            else:
-                shutil.copyfile(path, copied)
+            else:  # no cache, no link (another volume), or an earlier identical helper's copy: verify the bytes
+                stored = None
+                if not copied.exists():shutil.copyfile(path, copied)
                 copied_digest = sha(copied)
             if copied_digest != digest:
                 raise ValueError('Helper changed during snapshot')
