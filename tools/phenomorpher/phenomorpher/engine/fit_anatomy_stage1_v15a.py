@@ -112,7 +112,11 @@ def build_candidate(source,source_frames,baseline,target_height,factors):
             frame[:3,3]=p[:3,3]+r@(placed[name][:3,3]-placed[parent][:3,3])
         world[name]=frame;return frame
     for n in skeleton:transport(n)
-    raw=pure_similarities(source,original,world,factors);height=measure(raw,{n:f[:3,3].tolist() for n,f in world.items()})['bindStatureMeters'];scale=float(target_height/height)
+    raw=pure_similarities(source,original,world,factors)
+    # Stature targets are rest-pose (bind) crown-to-sole. The standing pause1 pose stands lower, so normalizing it
+    # instead left every derived body ~1.2% tall. Rest geometry scales linearly with the uniform scale.
+    local1,offsets1=backsolve_canonical_local_positions(baseline,world,1.);bind1=static_bind_frames(skeleton,local1,local_rotation_corrections=offsets1)
+    height=measure(pose_rigid_meshes(raw,world,bind1),{n:np.asarray(f)[:3,3].tolist() for n,f in bind1.items()})['bindStatureMeters'];scale=float(target_height/height)
     # Normalize this homogeneous anatomy proposal once; dimensions are soft.
     for frame in world.values():frame[:3,3]*=scale
     part_scales={p:float(factors.get(p,1.)*scale) for p in PART_JOINTS}
@@ -216,7 +220,7 @@ def fit_stage1(bind_meshes,bind_frames,baseline,packet,policy=None,preserve=Fals
     source_local=local_positions_from_world_frames(baseline['skeleton'],bind_frames)
     for n,node in baseline['skeleton'].items():source_local.setdefault(n,np.asarray(node['position']).copy())
     source_frames=evaluate_adjusted(baseline,'pause1',0.,source_local,1.);source=pose_rigid_meshes(bind_meshes,bind_frames,source_frames)
-    measured=measure(source,{n:f[:3,3].tolist() for n,f in source_frames.items()});height=float(packet['targetStatureMeters']);require(np.isfinite(height) and height>0,'Positive target stature required')
+    measured=measure(bind_meshes,{n:np.asarray(f)[:3,3].tolist() for n,f in bind_frames.items()});height=float(packet['targetStatureMeters'])  # rest-pose stature;require(np.isfinite(height) and height>0,'Positive target stature required')
     common={'sourceBindFrames':{n:np.asarray(f).copy() for n,f in bind_frames.items()},'sourceStandingMeshes':source,'sourceStandingFrames':source_frames,'sourceLocalPositions':{n:np.asarray(p).tolist() for n,p in source_local.items()}}
     if preserve:
         require(packet.get('slug') in ('human_male_fit','human_female_fit'),'Exact identity restricted to Human Fits')
@@ -230,12 +234,12 @@ def fit_stage1(bind_meshes,bind_frames,baseline,packet,policy=None,preserve=Fals
         motion,poses=motion_metrics(candidate,source,source_frames,cache,policy);contact=contact_gate(source,source_frames,candidate,inventories,source_contacts)
         if float(blend)==0.:baseline_motion=motion
         require(baseline_motion is not None,'Uniform source baseline must be evaluated first')
-        floor=max(abs(z) for z in candidate['candidateFloor'].values());physical=measure(candidate['standingMeshes'],{n:f[:3,3].tolist() for n,f in candidate['standingFrames'].items()});stature=abs(physical['bindStatureMeters']-height)/height
+        floor=max(abs(z) for z in candidate['candidateFloor'].values());physical=measure(candidate['bindMeshes'],{n:np.asarray(f)[:3,3].tolist() for n,f in candidate['bindFrames'].items()});stature=abs(physical['bindStatureMeters']-height)/height
         support_limit=float(policy.get('maximumSupportFootTrajectoryErrorMeters',baseline_motion['maximumSupportFootTrajectoryErrorMeters']+.02*height))
         feasible=contact['allRequiredSourceCalibratedTerminalGates'] and floor<=float(policy.get('standingSoleToleranceMeters',1e-7)) and stature<=.01 and motion['maximumExtraKneeStepDegrees']<=float(policy.get('maximumExtraKneeStepDegrees',5.)) and motion['maximumSupportFootTrajectoryErrorMeters']<=support_limit
         regularization=float(sum((candidate['partScales'][p]/candidate['uniformScale']-1.)**2 for p in SEGMENTS)/len(SEGMENTS))
         terms={'centeredReferenceGuide':reference_score,'sourceRelativeMotionDiagnostic':float(policy.get('motionWeight',4.))*motion['score']/height,'sourceShapeRegularization':float(policy.get('sourceRegularizationWeight',.05))*regularization};score=sum(terms.values())
-        trial={'referenceBlend':float(blend),'score':score,'objectiveTerms':terms,'referenceScore':reference_score,'softLengthDimensions':dimensions,'sourceRegularization':regularization,'motion':{k:v for k,v in motion.items() if k!='samples'},'maximumSupportFootTrajectoryErrorAllowedMeters':support_limit,'standingSolesMeters':candidate['candidateFloor'],'standingStatureMeters':physical['bindStatureMeters'],'contact':contact,'feasible':bool(feasible)};trials.append(trial)
+        trial={'referenceBlend':float(blend),'score':score,'objectiveTerms':terms,'referenceScore':reference_score,'softLengthDimensions':dimensions,'sourceRegularization':regularization,'motion':{k:v for k,v in motion.items() if k!='samples'},'maximumSupportFootTrajectoryErrorAllowedMeters':support_limit,'standingSolesMeters':candidate['candidateFloor'],'restStatureMeters':physical['bindStatureMeters'],'standingStatureMeters':measure(candidate['standingMeshes'],{n:f[:3,3].tolist() for n,f in candidate['standingFrames'].items()})['bindStatureMeters'],'contact':contact,'feasible':bool(feasible)};trials.append(trial)
         if feasible:eligible.append((score,candidate,dimensions,motion,contact,float(blend)))
     if not eligible:
         import json
@@ -258,7 +262,7 @@ def fit_stage1(bind_meshes,bind_frames,baseline,packet,policy=None,preserve=Fals
         'nativeKeysSha256Before':keys,'nativeKeysSha256After':native_keys_hash(baseline),'IKApplied':False,'runtimePoseConstraintsApplied':False,'pelvisTorsoSourceRotationsPreserved':all(np.array_equal(world[n][:3,:3],source_frames[n][:3,:3]) for n in ('pelvis_g','torso_g')),
         'allRequiredSourceCalibratedTerminalGates':contact['allRequiredSourceCalibratedTerminalGates'],'requiredTerminalContacts':{':'.join(r['parts']):r for r in contact['connectors']},'standingContact':contact,
         'motionContact':dynamic_contact,'allSelectedMotionContactGates':True,
-        'bilateralStandingSoleZMeters':chosen['candidateFloor'],'actualStandingStatureMeters':measure(chosen['standingMeshes'],{n:f[:3,3].tolist() for n,f in world.items()})['bindStatureMeters'],
+        'bilateralStandingSoleZMeters':chosen['candidateFloor'],'statureBasis':'rest-pose crown to sole','actualRestStatureMeters':measure(chosen['bindMeshes'],{n:np.asarray(f)[:3,3].tolist() for n,f in chosen['bindFrames'].items()})['bindStatureMeters'],'actualStandingStatureMeters':measure(chosen['standingMeshes'],{n:f[:3,3].tolist() for n,f in world.items()})['bindStatureMeters'],
         'sourceGeometryHash':geometry_hash(bind_meshes),'previewBindGeometryHash':geometry_hash(chosen['bindMeshes']),'controllerRoundtripMaximumMatrixError':chosen['controllerRoundtripMaximumMatrixError'],'sourceTerminalPreparation':timing,'elapsedSeconds':time.monotonic()-started,
         'shapeMorphApplied':False,'widthDepthFittingApplied':False,'rigRotationsUnchanged':False,'productionAccepted':False,'fittingTargetsApproved':False,'surfaceJoinAcceptance':False,'motionFitValidated':False,
         'limitations':['Uniform each authored mesh part; differential width/depth fitting is a subsequent stage.','Measured lengths are soft bilateral guides; authored L/R asymmetry and explicit residuals retained.','Static leg floor positioning is fitted rig geometry; runtime motion evaluates original keys without per-frame IK or floor normalization.','Finite support-phase motion diagnostics do not certify continuous native/client motion; visible source caps/contours remain to review.']}
