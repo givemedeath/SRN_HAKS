@@ -19,11 +19,39 @@ All heights below are in metres. Stock values describe phenotype 0 (Fit), assemb
 | Human male | 1.933916 | 1.750 | 1.933916 | Matches |
 | Human female | 1.837937 | 1.650 | 1.823406 | -0.79% |
 | Elf male | 1.733691 | 1.900 | 2.099680 | +21.11% |
-| Elf female | 1.638180 | 1.850 | 2.044425 | +24.80% |
+| Elf female | 1.638180 | 1.770 | 1.956018 | +19.40% |
 | Dwarf male | 1.473464 | 1.200 | 1.326114 | -10.00% |
 | Dwarf female | 1.399566 | 1.150 | 1.270859 | -9.20% |
 | Half-Orc male to Orc male | 2.156261 | 1.900 | 2.099680 | -2.62% |
 | Half-Orc female to Orc female | 2.106685 | 1.800 | 1.989170 | -5.58% |
+
+Troll targets: male 2.50 m → 2.762737, female 2.30 m → 2.541718.
+
+### Canon lore basis (2026-10-26)
+
+The user chose these canon figures for stature and build (lore audit, 2026-10-25/26). They come from the 4E
+*Runner's Companion* metatype table, p. 48:
+
+| Metatype | Height | Weight | Weight / height³ relative to Human |
+| --- | ---: | ---: | ---: |
+| Human | 1.75 m | 78 kg | 1.00 |
+| Elf | 1.90 m | 80 kg | 0.80 |
+| Dwarf | 1.20 m | 54 kg | 2.15 |
+| Ork | 1.90 m | 128 kg | 1.28 |
+| Troll | 2.50 m | 300 kg | 1.32 |
+
+* The lore gives no split by sex. Female bodies use the same race-to-Human ratios as males, measured against the
+  Human female of the same phenotype. The Human female baseline is the locked c6 body.
+* The female Elf reference height changes from 1.85 m to **1.77 m**: 0.93 of the male, the same female/male ratio
+  as Human and Ork.
+* Rejected alternatives:
+  * the wiki's Elf weight of 72 kg;
+  * the 5E Troll weight of 335 kg.
+* Every height target is a **rest-pose** crown-to-sole stature. Until the 2026-10-26 fix, the derivation fitter
+  normalized the standing pose (`pause1` at t=0) instead. That pose stands 1.2–1.3% lower, so all 16 non-Human
+  bodies shipped that much too tall. Each one's standing height equals its target to 0.1 mm.
+* Build is measured as union voxel volume / height³, relative to the Human of the same sex and phenotype.
+* Female shoulder spacing is deferred.
 
 The stock `appearance.2da` HEIGHT values are nominal metadata: Human 2.0, Elf 1.75, Dwarf 1.5 and Half-Orc 2.25. They differ from measured mesh stature and should not replace assembly measurements when calculating the target fit.
 
