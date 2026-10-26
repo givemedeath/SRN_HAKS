@@ -10,6 +10,7 @@ import time
 
 from shared_toolchain import load, sha
 from shared_tools import register_run, write_json, tools_root, resolve_tool, resolve_addon
+from launch_hash_cache import from_environment
 
 
 def tree_files(root):
@@ -41,18 +42,30 @@ def manifest_inputs(manifests):
     return list(expected), verified
 
 
-def helper_snapshots(inputs, frozen, output):
+def helper_snapshots(inputs, frozen, output, cache=None):
+    """Copy every .py input into the launch folder and prove the copy has the frozen bytes. With the hash cache, each
+    helper is stored once, read-only, in a content-addressed store beside the cache and hardlinked here: the link is the
+    same file as the verified store entry (same file index), so the bytes match without copying and rehashing ~1,500
+    files per launch. A link that cannot be made (another volume) falls back to copy and hash."""
     snapshots = {}
     (output / 'helper-snapshots').mkdir()
     for path in inputs:
         if path.suffix == '.py':
             digest = frozen[str(path.resolve())]
             copied = output / 'helper-snapshots' / (digest[:12] + '-' + path.name)
-            shutil.copyfile(path, copied)
-            copied_digest = sha(copied)
+            stored = cache.store(path, digest) if cache else None
+            if stored is not None and not copied.exists():  # identical helpers (empty __init__.py) share one snapshot name
+                try:os.link(stored, copied)
+                except OSError:stored = None
+            if stored is not None and os.path.samefile(stored, copied):
+                copied_digest = digest
+            else:  # no cache, no link (another volume), or an earlier identical helper's copy: verify the bytes
+                stored = None
+                if not copied.exists():shutil.copyfile(path, copied)
+                copied_digest = sha(copied)
             if copied_digest != digest:
                 raise ValueError('Helper changed during snapshot')
-            snapshots[str(path)] = {'snapshot': str(copied), 'sha256': copied_digest}
+            snapshots[str(path)] = {'snapshot': str(copied), 'sha256': copied_digest, **({'store': str(stored)} if stored else {})}
     return snapshots
 
 
@@ -99,7 +112,7 @@ def main():
         rows=json.loads(manifest.read_text(encoding='utf-8'))
         if not isinstance(rows,list) or not rows or not all(isinstance(row,str) for row in rows):raise ValueError('Nonempty explicit input path list required')
         declared.extend(Path(row).resolve() for row in rows)
-    inputs=[config,Path(__file__).resolve(),Path(__file__).with_name('shared_toolchain.py'),
+    inputs=[config,Path(__file__).resolve(),Path(__file__).with_name('shared_toolchain.py'),Path(__file__).with_name('launch_hash_cache.py'),
             Path(__file__).resolve().parents[1]/'shared_tools.py',
             Path(__file__).resolve().parents[1]/'shared-tools.lock.json',*args.input,*args.input_manifest,*args.input_path_list,*declared]
     if data.get('addons'):
@@ -109,11 +122,14 @@ def main():
     trees={str(root.resolve()):tree_files(root) for root in args.input_tree}
     for files in trees.values():inputs.extend(files)
     inputs=list(dict.fromkeys(p.resolve() for p in inputs))
+    # Opt-in stat-keyed digest cache (SRN_LAUNCH_HASH_CACHE; see launch_hash_cache.py); without it every input is hashed.
+    cache=from_environment();digest=cache.sha if cache else sha
     frozen={}
     for p in inputs:
         key=str(p.resolve())
-        if key not in frozen:frozen[key]=verified[key] if key in verified else sha(p)
-    snapshots=helper_snapshots(inputs,frozen,output)
+        if key not in frozen:frozen[key]=verified[key] if key in verified else digest(p)
+    if cache:cache.flush()
+    snapshots=helper_snapshots(inputs,frozen,output,cache)
     repo=Path(__file__).resolve().parents[2]
     snapshot=output/'verified-inputs.json'
     snapshot.write_text(json.dumps({'kind':'verified-shared-input-snapshot','files':frozen},indent=2)+'\n',encoding='utf-8')
@@ -128,8 +144,9 @@ def main():
     try:
         load(config,migration,required=[args.tool])
         if any(tree_files(root)!=files for root,files in trees.items()):raise ValueError("Input directory membership changed during execution; result invalid")
-        if any(sha(p)!=h for p,h in frozen.items()):raise ValueError('Input/helper changed during execution; result invalid')
+        if any(digest(p)!=h for p,h in frozen.items()):raise ValueError('Input/helper changed during execution; result invalid')
     except (ValueError,OSError) as error:verification_error=str(error)
+    if cache:cache.close()
     receipt={'schemaVersion':1,'kind':'verified-shared-tool-launch','createdUtc':datetime.now(timezone.utc).isoformat(),
         'tool':args.tool,'toolchain':str(config),'toolchainSha256':sha(config),
         'migrationReceipt':str(migration) if migration else None,'migrationReceiptSha256':sha(migration) if migration else None,
@@ -142,7 +159,8 @@ def main():
         'inventorySha256':sha(repo/'tools/shared-tools.lock.json'),
         'stdoutSha256':sha(output/'stdout.log'),'stderrSha256':sha(output/'stderr.log'),
         'addonBootstrap':{'path':str(output/'loaded-addons.json'),'sha256':sha(output/'loaded-addons.json')}
-            if (output/'loaded-addons.json').is_file() else None,'gameClientTesting':False}
+            if (output/'loaded-addons.json').is_file() else None,'gameClientTesting':False,
+        'hashCache':cache.report() if cache else None}
     path=output/'launch.json';path.write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({'receipt':str(path),'sha256':sha(path),'exitCode':result.returncode}))
     raise SystemExit(1 if verification_error else result.returncode)
