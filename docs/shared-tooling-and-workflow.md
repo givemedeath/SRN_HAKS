@@ -276,6 +276,14 @@ require full-suite review; focused selection is a convenience, not a release gat
 Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers
 change; CI rejects a stale catalog.
 
+`--run` splits each import root's selected modules into duration-balanced shards
+(`tools/ci-test-durations.json`) and runs `--jobs` of them at once (default 3), one
+child process each, longest first. Each shard's output is printed whole when it
+finishes, under a `=== <root>: N modules, exit E, S s` header. `--jobs 1` keeps the
+serial order; CI uses it because its runners are already sharded per job. The
+full local helper suite took about 19 minutes serially and 6 minutes with `--jobs 3`
+(2026-10-25).
+
 CI runs one entry workflow, `.github/workflows/ci.yml`:
 1. **Scope** runs `tools/ci_scope.py` once. It publishes the changed files, the
    selected suites with reasons, the item-import and wheel decisions, and the
@@ -301,6 +309,10 @@ Pushes to `main` and manual runs with `full` keep full coverage. A newer commit
 cancels the older run of the same pull request. All jobs share one tool-cache key
 per runner OS through `.github/actions/srn-tools`. Per-test durations are uploaded
 as artifacts; refresh `tools/ci-test-durations.json` from them when shards drift.
+Every catalogued test module needs an entry there: a pull request that adds a test
+module adds its seconds (summed from `unittest --durations 0`), and one that removes
+a module removes its entry. `test_ci_scope` fails otherwise, because an unmeasured
+module weighs the median and unbalances both CI shards and local `--jobs` runs.
 
 Before PR readiness select validation from the changed files and their dependencies:
 focused affected tests for helper, configuration and documentation changes, the full
