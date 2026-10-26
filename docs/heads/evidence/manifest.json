@@ -155,6 +155,161 @@
       "path": "evidence/donor-orc-male-01.png",
       "sha256": "858c582152bc3051017ce7fde6072e53c27321ee1a8055359562b8906188963d",
       "bytes": 240690
+    },
+    {
+      "path": "evidence/troll-heads-30-sheet.jpg",
+      "sha256": "160eaf2cf2eea0d8c2ceb126ad62ef3b835407677a7f3aa5fe9190a13fa3d2cc",
+      "bytes": 411052
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head010-troll-female-04.jpg",
+      "sha256": "8d0689fcf0b5e12e3d07729b03eca1a9f2b231483b99ff6da0bfdd91968dedef",
+      "bytes": 112928
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head011-troll-female-05.jpg",
+      "sha256": "d236f76dd7503206791fff451352ceefe50489babca3c3fbfce92b4e708214d0",
+      "bytes": 156947
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head012-troll-female-12.jpg",
+      "sha256": "47a07e373efc1ba502e1b21e99921394512c481ca10762c01ea6aa06995204d0",
+      "bytes": 111702
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head013-troll-female-07.jpg",
+      "sha256": "700e291ecb894e255673fcaf0414022557a2b52e615a8988fe14a4c67a821de6",
+      "bytes": 120918
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head014-troll-female-08.jpg",
+      "sha256": "9efea0d3350d7bda690c757ed0c090d72b41c82946f80e9f44359e3d4359f4f2",
+      "bytes": 127137
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head015-troll-female-15.jpg",
+      "sha256": "55701caeb1fdc55776b4c869f443e274e4397d69f6db5e64dbff0393455bbe99",
+      "bytes": 113869
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head016-troll-female-16.jpg",
+      "sha256": "ad575730f7130aaf0e94f53b5076aac88a657d98dd1f781fb75fcd296af8864c",
+      "bytes": 92635
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head017-troll-female-17.jpg",
+      "sha256": "dfdf0eaced515e9027b6b23d50f93bcb9112d081ff1bc95c4c5194633b99e37d",
+      "bytes": 146966
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head018-troll-female-18.jpg",
+      "sha256": "a52e7bd199be4948b5ac439c4b0413a42c9571fdc54f0afe8ee801b5d24ee5c9",
+      "bytes": 106152
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head019-troll-female-19.jpg",
+      "sha256": "6d31fc76239f6df53dafcc9fae75c245b2fe5bfbda55ae3527b8d2e0c1a7da44",
+      "bytes": 113438
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head020-troll-female-20.jpg",
+      "sha256": "f43e1bf8318fdd94c836e324202793b28a5b198a46ca661e684ea645f23d097e",
+      "bytes": 109040
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head021-troll-female-21.jpg",
+      "sha256": "1f559b770fdc65537c05af6e7a31834158ca834994204ef817d9dbabf8946c3c",
+      "bytes": 103079
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head022-troll-female-22.jpg",
+      "sha256": "b08f797a8f5912e22935ee318ae4321d479ab03595ca8335c018ea2dc3758057",
+      "bytes": 123952
+    },
+    {
+      "path": "evidence/troll-designs/pfg0_head023-troll-female-23.jpg",
+      "sha256": "1b236ba2719704ffe9ffc772d8e04704162545732bde366355c7fbdc6591974a",
+      "bytes": 127519
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head015-troll-male-01.jpg",
+      "sha256": "dac9e01a3b9caf8611b2bfc659b4329ccb568c6a7854f4ff4d6f12c77443ec1d",
+      "bytes": 133507
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head016-troll-male-02.jpg",
+      "sha256": "08f6debc8266b091a70fc8b96998275e6295c9d4531547587965afb5c842e2e6",
+      "bytes": 131350
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head017-troll-male-03.jpg",
+      "sha256": "9d873e637dbebb9e505f004cffc7ab9b761b4d593a4d89ecec32052040e02107",
+      "bytes": 104441
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head018-troll-male-04.jpg",
+      "sha256": "87c5406e8dc75fe4e6ebe4c017f956bc2c702cc06eb70aed5a1cbddcfb96aeb2",
+      "bytes": 113113
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head019-troll-male-05.jpg",
+      "sha256": "950142221547c29c5ba3714c50c9ed01d41d4cec6acd2f258a043023d385f5d8",
+      "bytes": 127929
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head020-troll-male-06.jpg",
+      "sha256": "270b204f759d8073a895ce4982e3c6fa4ac096331a6cb0cf7b3f83f665cd410f",
+      "bytes": 136976
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head021-troll-male-21.jpg",
+      "sha256": "88678dd968e46b9261c2a12ce3d8ab95f19229b61bc8d4c968f544e52a252dca",
+      "bytes": 144854
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head022-troll-male-22.jpg",
+      "sha256": "3b5fc27fc309ee0c61a349eb910212b472262c8e881ac811b2016c94a4a91ad9",
+      "bytes": 128218
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head023-troll-male-23.jpg",
+      "sha256": "a36cfec2d829b61943c2772a9546fc18bc2ffdd02d18d625b68db144b0793030",
+      "bytes": 108656
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head024-troll-male-24.jpg",
+      "sha256": "e1276cd3b2105ddb57e56ab9f05c5f40a254749d6ae86dc4db3e521a9fbfa15b",
+      "bytes": 147374
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head025-troll-male-25.jpg",
+      "sha256": "e3de09b6b6fd760c729f14d93b2a630e4f77e070d6c00c4f72b2496376da074d",
+      "bytes": 101124
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head026-troll-male-26.jpg",
+      "sha256": "6c8bef6279190f3fd256bb9b8a57105a2af5fec1d6da696d5f3f42f9f0b80749",
+      "bytes": 113362
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head027-troll-male-27.jpg",
+      "sha256": "c8d7261c765b6a1162f9f390dbbe2c491627ccb555cb47766a4a761cdd2ab236",
+      "bytes": 115346
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head028-troll-male-28.jpg",
+      "sha256": "2817c1a346aade4b37fbf48b4aedc317594b631807797880c9ae65447d0f0422",
+      "bytes": 136335
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head029-troll-male-29.jpg",
+      "sha256": "f5fdbe7aa7befabf85dc11d4e5f40779ba8a7863c9ba4900a2fcc271e6025ab5",
+      "bytes": 150591
+    },
+    {
+      "path": "evidence/troll-designs/pmg0_head030-troll-male-30.jpg",
+      "sha256": "1dfbaaecf08c20f8c0f61d538dcc8d8c5fd7051174237621d968606d6d780602",
+      "bytes": 116940
     }
   ],
   "sourceHashes": [
