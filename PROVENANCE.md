@@ -433,3 +433,30 @@ the native stage with the existing armour sanitizer. This batch contains only si
 compiled MDL/PLT pairs; source images, masters, trial tools, demo modules and
 generated HAKs stay outside the production source pack. Approval does not
 establish exhaustive animation, equipment or palette-combination coverage.
+
+## Troll heads: neck cut, female batch 1 and batch 2 (`srn_head`, 2026-10-25)
+
+Same origin and pipeline as the approved male Troll heads above: original
+SRN-generated Flux.2 designs and Pixal3D single-view geometry/appearance,
+processed by the headkit pipeline into NWN:EE native models with 1024-square
+PLTs (20,000 triangles each). Every head now ends under the jaw; the body's own
+neck part forms the neck (`mesh.neck.cut`).
+
+- Neck-cut replacements for troll-male-01 to 06 (`pmg0_head015`-`020`); geometry
+  above the cut, UVs, materials and palette rows are unchanged.
+- Female batch 1, user-approved in game (2026-10-24) and neck cut:
+  troll-female-04 `pfg0_head010`, 05 `pfg0_head011`, 07 `pfg0_head013` and
+  08 `pfg0_head014`.
+- Batch 2: troll-female-12 `pfg0_head012`, 15-23 `pfg0_head015`-`023`, and
+  troll-male-21-30 `pmg0_head021`-`030`. These compile through Blender 5.2.1 LTS
+  with NeverBlender 4.5.1 (cleanmodels v4.10.0); decoded geometry matches the
+  source within 1.5e-8.
+
+All 30 heads were checked in game on the release Troll bodies (appearance 15104)
+in still client trials, and every actor loaded on its expected slot. The files
+are byte-identical to those trials' payloads and to the hashes pinned in each
+native-stage receipt. Fixed-string compiler tails were zeroed by the native stage
+where present. Only the compiled MDL/PLT pairs are included; source images,
+masters, trial tools, demo modules and generated HAKs stay outside the production
+source pack. Checks do not establish exhaustive animation, equipment or
+palette-combination coverage.
