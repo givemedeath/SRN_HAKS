@@ -495,6 +495,28 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
     * Visual (`evidence/dome4-side-zoom-pfh2.png`: v39, d3, d4; sit and pray, side): the bulb's outer line now
       continues the thigh's line further. A separate rounded lobe and a dark notch between it and the thigh remain
       under the buttock.
+    * User: replace the separate dome and bulb lobes with one rounded shape under the buttock that closes the notch.
+    * **d5/d6** (`MERGE=sit`): one shape per thigh, owned by the thigh.
+      * Construction: the dome plus the d4 bulb as it sits against the thigh in the chair sit, closed with the thigh
+        (ball 15 mm) so the notch fills. It keeps only what idle and walk hide and is rooted at least 4 mm under the
+        thigh skin.
+      * Mesh: surface net on a 9 mm lattice, Taubin smoothing, about 1.9–2.5k triangles per thigh. The pelvis nodes
+        are no longer added.
+      * d6 also pulls toward the thigh axis any vertex that idle or walk would show. Within 12 mm of the skin it blends
+        the pad's normals into the thigh's, which removes the dark meeting line seen in d5.
+    * d6 pose suite, pfh2 / pfh0. Holes are unchanged from v39.
+
+      | Clip | Visible flap |
+      |---|---|
+      | idle | 77 / 253 px, rear only, voxel-tolerance slivers |
+      | walk | 0 / 131 px |
+      | run | 4.6k / 3.3k px |
+      | kneel | 0 px from the front |
+      | pray | 160 / 99 px from the front |
+      | crouch | about 14–16k px from the front |
+
+    * Visual (`evidence/dome6-zoom-{pfh2,pfh0}.png`: sit, kneel and pray; side and rear; v39 then d6): one rounded pad
+      under each buttock; in the sit side view the notch is filled. Some uneven shading remains on the left pad.
     * Not built or installed. Awaiting the user's review.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
