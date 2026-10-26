@@ -486,6 +486,15 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
         rounded.
       * The bulb still ends in a downward point. The walk clamp cuts its outline into a V.
       * The sit side view keeps the jagged thigh/hip intersection line, which is outside the flaps' reach.
+    * User: the bulbs' outer edges do not line up with the thighs' outer edges (pray, side view).
+    * **d4**: the bulb is full depth on the outer side as well as the back (outer depth 65 mm). Below the leg opening it
+      never leaves the standing thigh's own outline (5 mm inside). The outer thigh sits near the flexion axis, so that
+      line stays in place in sit, kneel and pray.
+    * d4 pose suite: as d3 (idle 0 px, walk 14 / 0 px, kneel and pray 0 px from the front). Pray side views show
+      5–6k px of flap.
+    * Visual (`evidence/dome4-side-zoom-pfh2.png`: v39, d3, d4; sit and pray, side): the bulb's outer line now
+      continues the thigh's line further. A separate rounded lobe and a dark notch between it and the thigh remain
+      under the buttock.
     * Not built or installed. Awaiting the user's review.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
