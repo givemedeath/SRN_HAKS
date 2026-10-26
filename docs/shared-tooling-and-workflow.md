@@ -309,6 +309,10 @@ Pushes to `main` and manual runs with `full` keep full coverage. A newer commit
 cancels the older run of the same pull request. All jobs share one tool-cache key
 per runner OS through `.github/actions/srn-tools`. Per-test durations are uploaded
 as artifacts; refresh `tools/ci-test-durations.json` from them when shards drift.
+Every catalogued test module needs an entry there: a pull request that adds a test
+module adds its seconds (summed from `unittest --durations 0`), and one that removes
+a module removes its entry. `test_ci_scope` fails otherwise, because an unmeasured
+module weighs the median and unbalances both CI shards and local `--jobs` runs.
 
 Before PR readiness select validation from the changed files and their dependencies:
 focused affected tests for helper, configuration and documentation changes, the full
