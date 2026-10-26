@@ -68,6 +68,19 @@ class TrialSpecTests(unittest.TestCase):
         self.assertEqual([h['slot'] for h in result['heads']],[10,11]);self.assertEqual(result['base']['actorIdentity']['appearanceRow'],2)
         self.assertEqual((gender('pfg0'),gender('pmg0'),gender('pfh0')),(1,0,1))
 
+    def test_one_race_trial_holds_both_sexes(self):
+        # race-heads-v1: one module per race with its male and female heads; each actor takes its model family's gender
+        heads=[head('human-male-a',84,model='pmh0_head084',helmets=[1]),head('human-female-a',28,model='pfh0_head028',helmets=[1]),
+               head('human-female-b',84,model='pfh0_head084',helmets=[1])]  # the same slot number in another family is another model
+        result=validate_spec(spec(prefix=['pmh0','pfh0'],identity={'appearanceRow':15100,'raceId':6,'visualScale':1.0},heads=heads))
+        self.assertEqual([(h['slot'],h['gender']) for h in result['heads']],[(84,0),(28,1),(84,1)])
+        self.assertEqual({a['headId']:a['gender'] for a in plan_actors(result)},{'human-male-a':0,'human-female-a':1,'human-female-b':1})
+        self.assertEqual([h['gender'] for h in validate_spec(spec())['heads']],[0,0])  # a single family is unchanged
+        for prefix,message in ((['pmh0','pfe0'],'one race'),(['pmh0','pmh0'],'distinct'),(['pmh0'],'pmh0_headNNN')):
+            with self.subTest(prefix=prefix),self.assertRaisesRegex(ValueError,message):
+                validate_spec(spec(prefix=prefix,heads=heads))
+        with self.assertRaisesRegex(ValueError,'repeats'):validate_spec(spec(prefix=['pmh0','pfh0'],heads=heads+[heads[1]|{'id':'again'}]))
+
     def test_actors_cover_rows_and_helmets_per_head(self):
         actors=plan_actors(validate_spec(spec()))
         self.assertEqual(len(actors),22)
