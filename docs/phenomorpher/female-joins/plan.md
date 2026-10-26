@@ -575,6 +575,49 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
     * Pilot visual result: b13 (combo-b13) is the user-reviewed hip and knee shape for pfh0 and pfh2. Per the earlier
       decision, work stops here: no rollout to other bodies, no productionizing or publication until the user's next
       piece of work is ready.
+    * Torso polish on top of b13 (user, 2026-10-25): the pelvis top-back and the torso sides where the shoulders cap
+      need gentler rounding; then also the bottom of the Large torso, at least the front sides.
+      * New GPU torso review: `gpubody.py` (Blender) and `bodyrender.py` pose pelvis, chest, neck, biceps and thighs by
+        their nodes' animated rotations, re-rooted on the body's rig and held in the torso's bind frame. A visible back
+        face is red; the brief counts as two-sided cloth. `bodyslice.py` draws plane sections of the bind pose.
+      * Found:
+        * pfh0: the pelvis top stands up to 37 mm outside the chest at the back. That makes a crest across the
+          lower back, with the chest's hem above it.
+        * Both bodies: the chest's upper-lateral corners form square pads above and outside the bicep cap. This is
+          most visible on pfh0.
+        * pfh2: the chest is closed at the bottom, so it has a floor. At the front sides its lower wall stands 1–2 cm
+          outside the pelvis and meets the floor at a sharp corner. That corner is the ledge.
+      * `ringroll.py`: a part's top or bottom rolls in toward a vertical axis through `torso_g`. Every vertex scales by
+        amt/r_out, so layers keep their order, and seam copies stay welded. With `OTHER`, the depth per sector comes
+        from how far the edge stands outside the neighbour part. `TUCK=hold` holds that depth up the band, then eases
+        it out. `TUCK=roll` gives one convex elliptic roll.
+        * The hold tuck on the pelvis top exposed the chest's hem as a new ledge, with a 40 px hole at the side, so it
+          was rejected.
+        * The convex roll keeps the pelvis inside the chest only near its top edge.
+      * `cornerround.py`: about a front–back axis through each bicep pivot moved `IN` medially and `DOWN` down, each
+        coronal slice's upper-lateral contour is pulled onto the superellipse through its own lateral and top extents
+        (`P=2`, an ellipse). It only moves inward, by a vertex scale, and fades over `SPAN` at both ends.
+      * **c6** (from b13 and the shipped chest):
+        * pelvis, both bodies: `ringroll OTHER=chest TUCK=roll BAND=10 MARGIN=2 TAPER=70 DEPTH=12 HEIGHT=50`, with
+          `W=0:0.3,60:0.6,95:1,180:1` (back and sides). Then `seamnormals`.
+        * pfh2 chest bottom: `ringroll DEPTH=40 HEIGHT=70 W=0:0.6,25:1,80:1,115:0` (front sides).
+        * chest corners: pfh0 `IN=50 DOWN=55 SPAN=25`; pfh2 `IN=55 DOWN=60`.
+        * Largest moves, in mm (pfh0 / pfh2): pelvis 30 / 12, chest 36 / 40.
+      * c6 gates:
+        * Hip pose suite (pelvis, brief and thighs; 9 clips × 6 frames × 4 views): hip-region holes unchanged at
+          28 / 16. The suite has no chest, so it now also shows about 7,300 px of the rolled pelvis top, all
+          22–41 mm above `torso_g`.
+        * With the chest drawn (`bodyrender`, 13 clips × 4 views): the pelvis shows no holes. The bicep holes are the
+          open elbow ends, as in b13 (no forearms drawn). pfh0 has 9 px on the crop top's armhole edge in arms-up
+          poses, a sliver with skin directly behind it.
+        * Cracks 0. Pelvis and chest seam groups: none split. Brief check: 0 new points outside. Chest normal seams
+          as shipped.
+        * Compile audit 12/12. The re-bake covered pfh0 chest, pfh2 chest and pfh0 pelvis. Installed as combo-c6.
+      * Evidence:
+        * `evidence/ref-c6-pfh0.png` and `ref-c6-pfh2.png`: b13 against c6, standing, five views.
+        * `torso-c6-*-motion.png` and `torso-c6-*-armsup.png`: motion.
+        * Variant studies: `torso-c3-pfh2-belly.png`, `torso-c4-pfh0-backtint.png`, `torso-c5*-shoulder.png`.
+      * c6 awaits the user's in-game review.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
