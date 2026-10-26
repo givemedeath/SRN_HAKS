@@ -617,7 +617,9 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
         * `evidence/ref-c6-pfh0.png` and `ref-c6-pfh2.png`: b13 against c6, standing, five views.
         * `torso-c6-*-motion.png` and `torso-c6-*-armsup.png`: motion.
         * Variant studies: `torso-c3-pfh2-belly.png`, `torso-c4-pfh0-backtint.png`, `torso-c5*-shoulder.png`.
-      * c6 awaits the user's in-game review.
+      * In-game animation tour of c6 for the user (combo-c6, 2026-10-26), front, left and back, 4 s each. Clips:
+        idle, castup, conjure1, victoryfr, walk, run, sit, worship, meditate, getlowlp. The client was left running
+        at idle. Awaiting the user's verdict.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
