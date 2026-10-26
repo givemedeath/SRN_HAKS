@@ -570,6 +570,11 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       and installed as combo-b13; the client was relaunched.
     * `evidence/ref-b13-front.png`: the front step is now a soft, rounded curve on both bodies. A faint line
       remains in the side views.
+    * In-game animation tour of b13 for the user: walk, run, sit, kneel, pray, crouch, cross-legged sit, kick; back,
+      side and front; 4 s each. User, 2026-10-25: "Looks good".
+    * Pilot visual result: b13 (combo-b13) is the user-reviewed hip and knee shape for pfh0 and pfh2. Per the earlier
+      decision, work stops here: no rollout to other bodies, no productionizing or publication until the user's next
+      piece of work is ready.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
