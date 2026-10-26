@@ -308,7 +308,9 @@ def code_pins():
         'tools/phenomorpher/phenomorpher/engine/native_motion.py','tools/phenotypes/pipeline.py',
         'tools/phenotypes/height_targets.json','tools/shared-tools.lock.json',
         'tools/phenotypes/bootstrap_shared_blender_addons.py',
-        'tools/phenotypes/native_compile.py','tools/phenotypes/launch_shared_tool.py',
+        'tools/phenotypes/native_compile.py','tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py',
+        'tools/phenomorpher/phenomorpher/engine/neverblender_worker.py','tools/phenomorpher/phenomorpher/engine/rig_native.py',
+        'tools/phenotypes/launch_shared_tool.py',
         'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')]
     return [pin(p) for p in files]
 
@@ -329,7 +331,9 @@ NATIVE_HELPERS=('tools/heads/head_export.py','tools/heads/head_workflow.py','too
     'tools/phenomorpher/phenomorpher/engine/anim_library.py','tools/phenomorpher/phenomorpher/engine/audit_geometry.py',
     'tools/phenomorpher/phenomorpher/engine/retarget.py','tools/phenomorpher/phenomorpher/engine/target_contract.py',
     'tools/phenomorpher/phenomorpher/engine/measurement_common.py','tools/phenomorpher/phenomorpher/engine/native_motion.py',
-    'tools/phenotypes/pipeline.py','tools/phenotypes/height_targets.json','tools/phenotypes/native_compile.py')
+    'tools/phenotypes/pipeline.py','tools/phenotypes/height_targets.json','tools/phenotypes/native_compile.py',
+    'tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py','tools/phenomorpher/phenomorpher/engine/neverblender_worker.py',
+    'tools/phenomorpher/phenomorpher/engine/rig_native.py')
 STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not imported
 STAGE_DATA={'palette':('stock-shades.json',)}  # committed measured references the stage reads
 

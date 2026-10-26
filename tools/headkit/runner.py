@@ -18,7 +18,7 @@ def stage_roles(stage,data):
     declaration fails the stage, so launch input lists built from it stay complete."""
     inputs=set(data.get('inputs',{}));palettes=set(data.get('palette',{}).get('inputs',{}).values())
     roles={'prepare':{r for r in inputs if r in ('clay','detail','design') or r.endswith(('Clay','Detail'))},
-        'precluster':{'raw'},'fit':{'fitReference','comfyExport'},'repair':{'comfyExport','shellInspection'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
+        'precluster':{'raw'},'fit':{'fitReference','comfyExport'},'repair':{'comfyExport','shellInspection','bodyNeck'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
         'paint':{'uvMesh','basecolor4k'},
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
         'tone':{'uvMesh','basecolor4k','metallic4k','ownership4k','ownership1k','detail','frontDetail'}|palettes,
@@ -33,7 +33,7 @@ def stage_roles(stage,data):
 # texture maps) added to the same manifest do not stale the matte.
 STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':set(),'fit':{'fit'},'repair':{'mesh','fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
-    'tone':{'tone','palette','ownership','approval'},'palette':{'palette','ownership','approval'},'export':{'fit','palette','mesh','approval'},
+    'tone':{'tone','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval'},'export':{'fit','palette','mesh','approval'},
     'native':{'fit'},'render':{'render','approval'}}
 
 
@@ -133,6 +133,9 @@ class Runner:
         require(receipt['codeVersion']==_checked['versions'][stage] and receipt['manifestHash']==self.manifest_digest(stage)
                 and receipt['bindingsHash']==digest(self.bindings),'Stale stage; rerun with current input snapshot: '+stage)
         self._verify(receipt['inputs'])
+        # The compiler a native receipt used is part of its identity: adding, removing or changing the local binding
+        # (or the Blender/add-on files it pins) stales native only. Receipts without the key were client compiles.
+        if stage=='native':require(receipt.get('compiler',[])==self.native_compiler(),'Stale stage; native compiler selection changed: native')
         require(receipt['state']=='complete','Failed stage: '+stage)
         if self.runtime is not None:require(receipt.get('runtimeIdentity')==self.runtime,'Stage runtime differs from active launcher')
         for dependency,expected in receipt.get('dependencies',{}).items():
@@ -146,6 +149,13 @@ class Runner:
             require(review.get('decision')=='approved','Visual review rejected: '+stage)
             _checked['results'][stage]=receipt['result']
         return receipt['result']
+
+    def native_compiler(self):
+        """Pins of the local Blender + Neverblender binding beside bindings.json and the files it consumes; [] selects the
+        EE client compiler. It stays out of bindings.json, whose hash binds every stage."""
+        from .native import MDL_COMPILER,mdl_compiler_files
+        local=self.bindings_path.with_name(MDL_COMPILER)
+        return mdl_compiler_files(local) if local.exists() else []
 
     def source(self,provided,stage,key):
         # Importing a reviewed artifact is explicit: it does not pretend its prior stages ran here.
@@ -195,6 +205,8 @@ class Runner:
             if name in self.bindings:inputs.append(self.bindings[name])
         for name in ('toolchain','migrationReceipt'):
             if name in self.bindings:inputs.append(pin(self.bindings[name]))
+        compiler=self.native_compiler() if stage=='native' else None
+        if compiler:inputs+=compiler
         dependency_pins={};checked={'results':{},'versions':{}};self._verified=set()
         for dependency in self.dependencies(stage):
             self.result(dependency,_checked=checked);row=self.state['stages'][dependency]
@@ -204,6 +216,7 @@ class Runner:
         folder=parent/f'attempt-{len(list(parent.glob("attempt-*")))+1:02d}';folder.mkdir()
         begun=time.monotonic();receipt={'stage':stage,'manifestHash':self.manifest_digest(stage),'bindingsHash':digest(self.bindings),
             'codeVersion':stage_source_version(stage),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
+        if compiler is not None:receipt['compiler']=compiler
         write(folder/'intent.json',receipt,fresh=True)
         self._read=set();common.LIBRARIES_USED=set()
         try:
@@ -280,10 +293,14 @@ class Runner:
         require('matrix' not in fit and 'reviewed' not in fit,'A staged fit takes its matrix and review from the fit stage only')
         return dict({k:v for k,v in fit.items() if k!='matrixFrom'},matrix=self.result('fit')['matrix'],reviewed=True)
 
+    def _body_neck(self):
+        # Only a neck cut reads the body's neck part (head-local), so other heads keep their repair inputs unchanged.
+        return self.input('bodyNeck') if (((self.data.get('mesh') or {}).get('neck') or {}).get('cut')) else None
+
     def _sealed(self):
         # Paint can address the neck seal faces only when this run's repair produced the mesh.
         inputs=self.data['inputs']
-        # A null mesh.neck is "no neck shaping" (mesh.neck_policy), exactly like an absent one.
+        # A null mesh.neck is "no neck shaping" (neck.neck_policy), exactly like an absent one.
         return not {'uvMesh','repairedMesh'}&set(inputs) and bool(((self.data.get('mesh') or {}).get('neck') or {}).get('seal'))
 
     def _stage_color(self,stage):
@@ -319,16 +336,16 @@ class Runner:
             source=self.input('comfyExport') if 'comfyExport' in m['inputs'] else self.result('precluster')['output']['path']
             return propose(source,self.input('fitReference'),folder/'fit',exclude_lower=m['fit'].get('excludeLower',.25),align=m['fit'].get('align','profile'))
         if stage=='repair':
-            from .mesh import repair
+            from .neck import repair
             if 'raw' not in m['inputs'] or 'comfyExport' in m['inputs']:
-                return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=self._fit())
+                return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=self._fit(),body=self._body_neck())
             # Chained route: the reviewed precluster output of this run, with the shell inspection declared inline
             # and bound here to that exact output (no hardlinked copy or second manifest edit).
             inspection=m['mesh'].get('shellInspection')
             require(isinstance(inspection,dict) and 'sourceSha256' not in inspection and 'shellInspection' not in m['inputs'],
                     "Chained repair needs an inline mesh.shellInspection without sourceSha256")
             source=self.result('precluster')['output'];self._verify([source])
-            return repair(source['path'],folder/'final.glb',b,m['mesh'],dict(inspection,sourceSha256=source['sha256']),fit=self._fit())
+            return repair(source['path'],folder/'final.glb',b,m['mesh'],dict(inspection,sourceSha256=source['sha256']),fit=self._fit(),body=self._body_neck())
         if stage=='unwrap':
             from .gltf import mesh,write_mesh
             from .uv import unwrap,raster_audit,audit_imported_uvs
@@ -469,8 +486,10 @@ class Runner:
             if geometry_audit is not None:result['geometryAudit']=geometry_audit
             return result
         if stage=='native':
-            from .native import compile_and_package
-            previous=self.result('export');return compile_and_package(Path(previous['ascii']['path']).parents[1],b['client'],folder/'native')
+            from .native import compile_and_package,mdl_compiler,MDL_COMPILER
+            # Blender + Neverblender when the head has its local compiler binding, else the EE client's compilemodel.
+            local=self.bindings_path.with_name(MDL_COMPILER);mdl=mdl_compiler(local) if local.exists() else None
+            previous=self.result('export');return compile_and_package(Path(previous['ascii']['path']).parents[1],b['client'],folder/'native',mdl)
         if stage=='render':
             require('render' in m,'Stage not configured: the manifest has no render section')
             import subprocess,sys

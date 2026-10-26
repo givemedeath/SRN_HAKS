@@ -621,6 +621,18 @@ class ImageTests(Temporary):
             for x in range(0,200,2):d.line((x,0,x,199),fill=(20,200,20))
         with self.assertRaisesRegex(ValueError,'plain enough'):matte(self.design(busy),{},self.root/'busy')
         with self.assertRaisesRegex(ValueError,'tolerance'):matte(self.design(lambda d:None),{'backgroundTolerance':2},self.root/'tol')
+    def test_matte_clears_large_enclosed_backdrop_only_when_asked(self):
+        from headkit.images import matte
+        def horn_loop(d):  # backdrop seen through a curled horn, and a small gray eye highlight
+            d.ellipse((40,30,160,170),fill=(120,110,100));d.ellipse((70,60,130,120),fill=(200,200,200))
+            d.ellipse((95,140,101,146),fill=(200,200,200))
+        default=matte(self.design(horn_loop),{},self.root/'default')
+        cleared=matte(self.design(horn_loop),{'enclosedBackgroundMinimumPixels':200},self.root/'cleared')
+        alpha=lambda name:np.asarray(Image.open(self.root/name/'design-rgba.png').getchannel('A'))
+        self.assertEqual(alpha('default')[90,100],255);self.assertNotIn('clearedEnclosedBackground',default)
+        self.assertEqual(alpha('cleared')[90,100],0);self.assertEqual(alpha('cleared')[143,98],255)  # small region kept
+        self.assertEqual(len(cleared['clearedEnclosedBackground']),1);self.assertEqual(cleared['clearedEnclosedBackground'][0]['center'],[100,90])
+        with self.assertRaisesRegex(ValueError,'Enclosed background'):matte(self.design(horn_loop),{'enclosedBackgroundMinimumPixels':10},self.root/'small')
     def test_bootstrap_design_manifest_prepares_a_matte_through_the_runner(self):
         design=self.design(lambda d:d.ellipse((50,30,150,170),fill=(120,110,100)))
         data={'schemaVersion':1,'id':'bootstrap','profile':'pixal-single-v1','matte':{'backgroundTolerance':14},
@@ -793,7 +805,7 @@ class MeshTests(Temporary):
         # the chunk that passes it, not the ~4.5 million pairs of the whole mesh.
         self.assertLessEqual(max(checked),5000);self.assertLess(sum(checked),20*5000)
     def test_neck_taper_profile_is_monotonic_and_c1_without_a_shelf(self):
-        from headkit.mesh import taper_scale
+        from headkit.neck import taper_scale
         taper=self.NECK['taper'];bottom=-.1;z=np.linspace(.0,bottom,4001);dz=z[0]-z[1]
         for phi in (0,.7,np.pi/2,2.5,np.pi):
             with self.subTest(phi=phi):
@@ -811,7 +823,7 @@ class MeshTests(Temporary):
         self.assertTrue(enclosed(segments,[0,0]));self.assertFalse(enclosed(segments[:-1],[0,0]))
         self.assertFalse(enclosed(segments,[3,0]));self.assertFalse(enclosed(segments[:0],[0,0]))
     def test_neck_seal_closes_the_open_bottom_inside_the_walls(self):
-        from headkit.mesh import neck_policy,neck_seal,section,transform
+        from headkit.neck import neck_policy,neck_seal,section,transform
         from headkit.intersections import scan
         p,f=self.bell();neck=neck_policy({'seal':dict(self.NECK['seal'],searchTop=-.03)},{'matrix':np.eye(4).tolist(),'reviewed':True})
         cap,cap_faces,record=neck_seal(self.glb(p),f,neck,None)
@@ -824,7 +836,7 @@ class MeshTests(Temporary):
         self.assertTrue(np.allclose(local[:25,2],record['height']) and np.isclose(local[25,2],record['height']+.003))
         self.assertEqual(len(section(transform(neck['frame'],joined),faces,-.09)),len(section(p,f,-.09)))  # below: unchanged
     def test_neck_repair_tapers_master_reduces_to_budget_minus_cap_and_audits(self):
-        from headkit import mesh as mesh_module
+        from headkit import neck as mesh_module
         p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
         neck=mesh_module.neck_policy(self.NECK,fit);coarse,coarse_faces=self.bell(24);coarse=self.glb(coarse)
         coarse,_=mesh_module.neck_taper(coarse,coarse_faces,neck);calls=[]
@@ -846,7 +858,7 @@ class MeshTests(Temporary):
         np.testing.assert_allclose(np.sort(distances[0],0),np.sort(np.unique(master,axis=0),0))  # tapered master, not the source
         self.assertGreater(np.abs(master-untapered).max(),.005);self.assertEqual(result['neck']['taper']['untapered'],pin(self.root/'out'/'master-untapered.glb'))
     def test_repair_keeps_one_shell_and_deletes_floaters_only_by_reviewed_selection(self):
-        from headkit import mesh as mesh_module
+        from headkit import neck as mesh_module
         p,f=self.bell();t,tf=self.tetra();floater=t*.01+[0,-.3,0]  # a detached floater behind the head (GLB +z faces front)
         source=self.root/'source.glb';write_mesh(source,np.r_[self.glb(p),floater],np.r_[f,tf+len(p)])
         inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True}
@@ -904,7 +916,7 @@ class MeshTests(Temporary):
                             (dict(region,mu=-.3),'lambda < -mu'),(dict(region,feather=21),'Feather'),(dict(region,where={'of':'z','gt':5}),'selects no vertices')):
             with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):smooth(noisy,f,[bad],noisy)
     def test_repair_smooths_the_dense_master_only_with_a_reviewed_fit(self):
-        from headkit import mesh as mesh_module
+        from headkit import neck as mesh_module
         p,f=self.bell(48,24);rng=np.random.default_rng(4);noisy=p.copy();top=p[:,2]>.06;noisy[top]+=rng.normal(0,.002,(top.sum(),3))
         source=self.root/'source.glb';write_mesh(source,self.glb(noisy),f);inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True}
         policy={'alphaWrap':False,'triangleBudget':20000,'maximumRelativeSurfaceError':.025,
@@ -917,7 +929,7 @@ class MeshTests(Temporary):
         master=mesh(self.root/'master.glb')['positions'];self.assertTrue(result['passed'])
         self.assertGreater(np.abs(np.sort(np.unique(master,axis=0),0)-np.sort(np.unique(self.glb(noisy),axis=0),0)).max(),1e-4)
     def test_repair_rewraps_the_smoothed_master_so_collapsed_fins_cannot_cross(self):
-        from headkit import mesh as mesh_module
+        from headkit import neck as mesh_module
         p,f=self.bell(48,24);rng=np.random.default_rng(5);noisy=p.copy();top=p[:,2]>.06;noisy[top]+=rng.normal(0,.002,(top.sum(),3))
         source=self.root/'source.glb';write_mesh(source,self.glb(noisy),f)
         inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True,'confirmedShellDefect':True};inputs=[]
@@ -938,8 +950,8 @@ class MeshTests(Temporary):
         self.assertGreater(np.abs(inputs[1]-inputs[0]).max(),1e-4)  # the second wrap received the smoothed master
         np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(inputs[1],axis=0),0),atol=1e-6)
     def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
-        from headkit import mesh as mesh_module
-        from headkit.mesh import neck_policy,neck_shorten,shorten_depth,transform
+        from headkit import neck as mesh_module
+        from headkit.neck import neck_policy,neck_shorten,shorten_depth,transform
         from headkit.intersections import scan
         d=np.linspace(0,.2,4001)
         for scale,band in ((.6,.02),(.3,.005),(.95,.05)):
@@ -955,9 +967,13 @@ class MeshTests(Temporary):
         np.testing.assert_allclose(local[p[:,2]>=-.02],p[p[:,2]>=-.02],atol=1e-12)
         self.assertTrue(topology(local,f)['closed']);self.assertFalse(scan(local,f)['pairs'])
         for bad,message in (({'start':-.02},'start height'),({'start':-.02,'rim':-.01},'lower target'),
-                            ({'start':-.02,'rim':bottom-.01},'above the current rim'),({'start':-.02,'rim':bottom+.01,'band':.1},'band'),
-                            ({'start':-.02,'rim':-.04,'band':.03},'cannot reach its rim')):
+                            ({'start':-.02,'rim':bottom+.01,'band':.1},'band'),({'start':-.02,'rim':-.04,'band':.03},'cannot reach its rim'),
+                            ({'start':-.02,'rim':bottom-1.0},'cannot reach its rim')):
             with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):neck_shorten(self.glb(p),neck_policy({'shorten':bad},fit))
+        # A rim below the current one lengthens with the same strictly increasing profile (far scale above 1).
+        longer,record=neck_shorten(self.glb(p),neck_policy({'shorten':{'start':-.02,'rim':bottom-.03}},fit));local=transform(neck['frame'],longer)
+        self.assertAlmostEqual(local[:,2].min(),bottom-.03,places=9);self.assertGreater(record['farScale'],1)
+        np.testing.assert_allclose(local[:,:2],p[:,:2],atol=1e-12);self.assertFalse(scan(local,f)['pairs'])
         # In repair the stump is shortened on the dense master before the taper, which then starts from the new rim.
         source=self.root/'source.glb';write_mesh(source,self.glb(p),f);igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
         policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'shorten':{'start':-.02,'rim':-.08},'taper':self.NECK['taper']}}
@@ -966,15 +982,105 @@ class MeshTests(Temporary):
         self.assertTrue(result['passed']);self.assertAlmostEqual(result['neck']['shorten']['rimHeight'],-.08,places=6)
         self.assertAlmostEqual(result['neck']['taper']['rimHeight'],-.08,places=6)
         master=transform(neck['frame'],mesh(self.root/'master.glb')['positions']);self.assertAlmostEqual(master[:,2].min(),-.08,places=5)
+    def necked_head(self,segments=48,rows=80):
+        """Closed head-local revolved head (face +y, up +z): skull above z 0, a chin standing 4 cm forward of the neck
+        down to z -0.04 in front, and a 5.5 cm neck down to a closed bottom at -0.16; plus an octagonal body neck prism
+        (radius 4.5 cm, z -0.25..0.02) as the body reference."""
+        def radius(theta,z):
+            front=max(np.cos(theta),0)**2
+            if z>0:return .055+.045*np.sqrt(max(0,1-((z-.09)/.11)**2)) if z<.2 else .02
+            jaw=.055+.04*front*np.clip((z+.04)/.01,0,1)  # chin over the front, ending at -0.04
+            return jaw
+        zs=np.linspace(.2,-.16,rows);theta=np.arange(segments)*2*np.pi/segments
+        rings=np.array([[(radius(t,z)*np.sin(t),radius(t,z)*np.cos(t),z) for t in theta] for z in zs])
+        vertices=np.r_[[[0,0,.21]],rings.reshape(-1,3),[[0,0,-.17]]];j=np.arange(segments);k=(j+1)%segments
+        ring=lambda row,index:1+row*segments+index;last=len(vertices)-1
+        faces=[np.c_[np.zeros(segments,int),ring(0,k),ring(0,j)]]
+        for row in range(rows-1):faces+=[np.c_[ring(row,j),ring(row,k),ring(row+1,k)],np.c_[ring(row,j),ring(row+1,k),ring(row+1,j)]]
+        faces=np.concatenate(faces+[np.c_[np.full(segments,last),ring(rows-1,j),ring(rows-1,k)]])
+        tri=vertices[faces]
+        if np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2])).sum()<0:faces=faces[:,::-1]
+        a=np.arange(8)*np.pi/4+np.pi/8;octagon=np.c_[.045*np.cos(a),.045*np.sin(a)]
+        bv=np.r_[np.c_[octagon,np.full(8,-.25)],np.c_[octagon,np.full(8,.02)]];n=np.arange(8);m=(n+1)%8
+        bf=np.r_[np.c_[n,m,m+8],np.c_[n,m+8,n+8],[[0,n,n+1] for n in range(1,7)],[[8,9+n,8+n] for n in range(1,7)]]
+        return vertices,faces,(bv,bf)
+    def test_neck_cut_removes_the_neck_under_the_measured_jaw_onto_the_body_neck(self):
+        from headkit.neck import neck_policy,neck_cut,transform,jaw_line,section_radius,section
+        from headkit.intersections import scan
+        p,f,body=self.necked_head();fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        # The chin (5 cm outside the body neck, beyond the 4 cm reach) is the lowest front feature; the neck is not.
+        jaw=jaw_line(p,*body,.04,-.2);self.assertTrue(-.04<jaw['point'][2]<-.03);self.assertGreater(jaw['point'][1],.08)  # where the chin taper still stands beyond the reach
+        neck=neck_policy({'cut':{'height':'measured','slope':-.2,'band':.03,'reach':.04}},fit)
+        cut,faces,record=neck_cut(self.glb(p),f,neck,body);local=transform(neck['frame'],cut)
+        self.assertEqual(record['jawLine'],jaw);self.assertAlmostEqual(record['height'],jaw['height']-.01);self.assertEqual(record['closure'],'fan')
+        self.assertTrue(topology(local,faces)['closed']);self.assertFalse(scan(local,faces)['pairs'])
+        plane=record['height']+record['slope']*local[:,1]
+        self.assertTrue(np.all(local[:,2]>=plane-1e-6))  # nothing of the neck below the plane survives
+        # The ring lies on the plane, 3 mm inside the body neck (octagon radius 4.16-4.5 cm, smoothed over +-10 degrees);
+        # on this coarse mesh (rows 4.5 mm apart) edges clipped beside the chin taper land up to 5 mm off.
+        ring=local[np.abs(local[:,2]-plane)<1e-6];radii=np.linalg.norm(ring[:,:2],axis=1)
+        self.assertTrue(.038<np.median(radii)<.043 and radii.min()>.037 and radii.max()<.051);self.assertEqual(record['ringVertices'],len(ring))
+        # Above the band (the skull and the chin's top) nothing moves.
+        clear=lambda v:v[:,2]>record['height']+record['slope']*v[:,1]+record['band']+1e-9
+        np.testing.assert_allclose(np.sort(local[clear(local)],0),np.sort(p[clear(p)],0),atol=1e-9)
+        # A hollow (double-walled) stump leaves two rings: closed only by a wrapped repair's re-wrap, never guessed.
+        inner=p.copy();inner[:,:2]*=.9;hollow=np.r_[p,inner];hf=np.r_[f,f[:,::-1]+len(p)]
+        with self.assertRaisesRegex(ValueError,'only a wrapped repair'):neck_cut(self.glb(hollow),hf,neck,body)
+        calls=[];rewrap=lambda v,fs:(calls.append(len(fs)) or (v,fs))
+        _,_,hollow_record=neck_cut(self.glb(hollow),hf,neck,body,rewrap=rewrap)
+        self.assertEqual((hollow_record['closure'],len(hollow_record['loops']),len(calls)),('rewrap',2,1))
+        with self.assertRaisesRegex(ValueError,'cross the head'):neck_cut(self.glb(p),f,neck_policy({'cut':{'height':-.2}},fit),body)
+
+    def test_measured_jaw_ignores_a_flared_bust_below_the_search_bottom(self):
+        from headkit.neck import neck_policy,jaw_line
+        p,f,body=self.necked_head();flared=p.copy()
+        low=flared[:,2]<-.12;flared[low,:2]*=1.9  # a generated neck flaring into a bust base, beyond the reach
+        self.assertLess(jaw_line(flared,*body,.04,-.2,-1.0)['point'][2],-.12)  # unbounded: lands on the flare
+        jaw=jaw_line(flared,*body,.04,-.2,-.11);self.assertTrue(-.04<jaw['point'][2]<-.03)  # bounded: the chin again
+        self.assertEqual(neck_policy({'cut':{'height':'measured'}},{'matrix':np.eye(4).tolist(),'reviewed':True})['cut']['searchBottom'],-.16)
+        with self.assertRaisesRegex(ValueError,'searchBottom'):neck_policy({'cut':{'height':'measured','searchBottom':-.5}},{'matrix':np.eye(4).tolist(),'reviewed':True})
+    def test_neck_cut_in_repair_needs_the_body_reference_and_keeps_one_closed_shell(self):
+        from headkit import neck as mesh_module
+        p,f,body=self.necked_head();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        reference=self.root/'body-neck.json'
+        write(reference,{'kind':'srn-head-body-neck','vertices':body[0].tolist(),'faces':body[1].tolist()},fresh=True)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True};policy={'alphaWrap':False,'triangleBudget':20000,
+            'neck':{'cut':{'height':'measured','slope':-.2}}};igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        with self.assertRaisesRegex(ValueError,'bodyNeck reference'):mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=fit)
+        with self.assertRaisesRegex(ValueError,'only a cut reads it'):
+            mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False},inspection,fit=fit,body=reference)
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=fit,body=reference)
+        self.assertTrue(result['passed']);self.assertEqual(result['neck']['cut']['bodyNeck'],pin(reference))
+        self.assertEqual(result['neck']['cut']['uncut'],pin(self.root/'master-uncut.glb'))
+        master=mesh(self.root/'master.glb')['positions'];self.assertGreater(master[:,1].min(),-.07)  # GLB y = NWN z: the neck is gone
+    def test_body_neck_reference_places_the_neck_part_in_the_head_frame(self):
+        from headkit.body_neck import build
+        skeleton=('newmodel pxg0\nnode dummy pxg0\n  parent NULL\nendnode\nnode dummy torso_g\n  parent pxg0\n  position 0 0 1.5\nendnode\n'
+                  'node dummy neck_g\n  parent torso_g\n  position 0 -0.02 0.4\n  orientation 1 0 0 0.1\nendnode\n'
+                  'node dummy head_g\n  parent neck_g\n  position 0 0.01 0.15\nendnode\n')
+        neck=('newmodel pxg0_neck001\nnode dummy pxg0_neck001\n  parent NULL\nendnode\nnode trimesh neck\n  parent pxg0_neck001\n  position 0 0 0.05\n'
+              '  verts 4\n    0 0 0\n    0.1 0 0\n    0 0.1 0\n    0 0 0.1\n  faces 4\n    0 1 2 1 0 1 2 1\n    0 1 3 1 0 1 2 1\n    0 2 3 1 0 1 2 1\n    1 2 3 1 0 1 2 1\nendnode\n')
+        (self.root/'s.mdl').write_text(skeleton);(self.root/'n.mdl').write_text(neck)
+        document=build(self.root/'s.mdl',self.root/'n.mdl',self.root/'ref.json','test body')
+        # neck_g -> head_g is a pure translation (0, 0.01, 0.15) in neck_g's rotated frame, so head-local = neck-local - that offset.
+        np.testing.assert_allclose(document['vertices'],[[0,-.01,-.1],[.1,-.01,-.1],[0,.09,-.1],[0,-.01,0]],atol=1e-9)
+        self.assertEqual(document['faces'],[[0,1,2],[0,1,3],[0,2,3],[1,2,3]]);self.assertEqual(document['sources']['neck'],pin(self.root/'n.mdl'))
+        from headkit.neck import body_neck
+        self.assertEqual(len(body_neck(self.root/'ref.json')[0]),4)
     def test_neck_policy_refuses_without_reviewed_fit_or_with_bad_parameters(self):
-        from headkit import mesh as mesh_module
+        from headkit import neck as mesh_module
         p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)
         inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True};eye=np.eye(4).tolist()
         for fit,neck,message in ((None,self.NECK,'reviewed head fit'),({'matrix':eye},self.NECK,'reviewed head fit'),
                                  ({'matrix':np.diag([1,1,-1,1]).tolist(),'reviewed':True},self.NECK,'positive uniform'),
                                  ({'matrix':eye,'reviewed':True},{'taper':dict(self.NECK['taper'],minScale=.1)},'minScale'),
                                  ({'matrix':eye,'reviewed':True},{'seal':dict(self.NECK['seal'])},'searchTop'),
-                                 ({'matrix':eye,'reviewed':True},{'disc':{}},'taper and/or seal')):
+                                 ({'matrix':eye,'reviewed':True},{'disc':{}},'seal and/or cut'),
+                                 ({'matrix':eye,'reviewed':True},{'cut':{'height':-.05},'seal':dict(self.NECK['seal'],searchTop=-.03)},'takes no seal'),
+                                 ({'matrix':eye,'reviewed':True},{'cut':{'height':'lowest'}},"height or 'measured'"),
+                                 ({'matrix':eye,'reviewed':True},{'cut':{'height':-.05,'slope':.9}},'slope'),
+                                 ({'matrix':eye,'reviewed':True},{'cut':{'height':-.05,'reach':.5}},'reach')):
             with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):
                 mesh_module.repair(source,self.root/'final.glb',{},{'neck':neck},inspection,fit=fit)
         self.assertFalse((self.root/'master.glb').exists())
@@ -2735,7 +2841,7 @@ class ChainedRepairTests(Temporary):
         runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'notes':'non-manifold export'})
         self.assertEqual(runner.dependencies('repair'),['precluster'])
         output=self.precluster(runner)
-        with patch('headkit.mesh.repair',return_value={'ok':True}) as repair:
+        with patch('headkit.neck.repair',return_value={'ok':True}) as repair:
             with self.assertRaisesRegex(ValueError,'pending'):runner._execute('repair',self.root)
             repair.assert_not_called();runner.review('precluster','approved','Closed exterior inspected')
             runner._execute('repair',self.root)
@@ -2745,7 +2851,7 @@ class ChainedRepairTests(Temporary):
     def test_inline_inspection_cannot_carry_its_own_hash(self):
         runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'sourceSha256':'0'*64})
         self.precluster(runner);runner.review('precluster','approved','Closed exterior inspected')
-        with patch('headkit.mesh.repair') as repair:
+        with patch('headkit.neck.repair') as repair:
             with self.assertRaisesRegex(ValueError,'inline mesh.shellInspection'):runner._execute('repair',self.root)
             repair.assert_not_called()
 
@@ -2814,7 +2920,7 @@ class FitStageTests(Temporary):
         matrix=[[-.37,0,0,0],[0,-.37,0,.024],[0,0,.37,.042],[0,0,0,1]]
         with patch('headkit.fit.propose',return_value={'matrix':matrix,'scale':.37}) as propose:runner.execute('fit')
         self.assertEqual(propose.call_args.args[0],output['path']);self.assertTrue(propose.call_args.args[1].endswith('reference.mdl'))
-        with patch('headkit.mesh.repair',return_value={'ok':True}) as repair:
+        with patch('headkit.neck.repair',return_value={'ok':True}) as repair:
             with self.assertRaisesRegex(ValueError,'pending'):runner._execute('repair',self.root)
             runner.review('fit','approved','Overlay matches pmg0_head015 proportions');runner._execute('repair',self.root)
         fit=repair.call_args.kwargs['fit'];self.assertEqual((fit['matrix'],fit['reviewed'],fit['model']),(matrix,True,'pmg0_head016'))
@@ -2987,6 +3093,14 @@ class RenderPlanTests(Temporary):
 
 class ManifestDigestTests(Temporary):
     fixture=ResumeTests.fixture
+    def test_pinning_a_palette_row_stales_palette_but_not_tone(self):
+        # Tone reads only the palette images (palette.inputs); a row pin used to force a byte-identical tone rerun.
+        runner=self.fixture();runner.data['palette']={'inputs':{'0':'paletteSkin'},'rows':{'0':'auto'}}
+        before={stage:runner.manifest_digest(stage) for stage in ('tone','palette')}
+        runner.data['palette']['rows']={'0':42}
+        self.assertEqual(runner.manifest_digest('tone'),before['tone']);self.assertNotEqual(runner.manifest_digest('palette'),before['palette'])
+        runner.data['palette']['inputs']={'0':'paletteHair'}
+        self.assertNotEqual(runner.manifest_digest('tone'),before['tone'])
     def test_rewording_notes_never_changes_a_stage_digest(self):
         from headkit.runner import STAGES
         runner=self.fixture();data=runner.data
@@ -3033,7 +3147,8 @@ class StageCodeVersionTests(Temporary):
         self.assertIn('fit.py',fit);self.assertFalse({'mesh.py','uv.py','native.py'}&fit)
         self.assertTrue({'mesh.py','intersections.py'}<=repair);self.assertNotIn('uv.py',repair)
         self.assertIn('blender_render.py',{path.name for path in stage_code_files('render')})
-        self.assertIn('native_compile.py',{path.name for path in stage_code_files('native')})
+        native={path.name for path in stage_code_files('native')}
+        self.assertTrue({'native_compile.py','neverblender_mdl.py','neverblender_worker.py','rig_native.py'}<=native)
 
 
 class NativeDependencyTests(Temporary):
@@ -3043,8 +3158,8 @@ class NativeDependencyTests(Temporary):
         script="""import json,sys
 from pathlib import Path
 from headkit.common import ROOT
-from headkit.native import helpers
-helpers()
+from headkit.native import helpers,neverblender
+helpers();neverblender()
 sys.path.insert(0,str(ROOT/'tools/phenotypes'))
 import native_compile
 print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list(sys.modules.values())
@@ -3056,6 +3171,84 @@ print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list
         consumed.add(str(ROOT/'tools/shared-tools.lock.json'))
         for stage in ('native','export'):
             with self.subTest(stage=stage):self.assertFalse(consumed-{row['path'] for row in stage_code_pins(stage)})
+
+
+class OcciputTests(Temporary):
+    def test_open_back_of_skull_is_flagged_and_a_closed_skull_passes(self):
+        from headkit.gltf import write_mesh
+        from headkit.occiput import back_coverage
+        rows,segments=60,64;phi=np.linspace(.05,np.pi-.05,rows);theta=np.arange(segments)*2*np.pi/segments  # no pole vertices (degenerate fans)
+        # glTF frame: y up, face +z, back -z.
+        sphere=np.array([(np.sin(a)*np.sin(b),np.cos(a),np.sin(a)*np.cos(b)) for a in phi for b in theta])*.1
+        j=np.arange(segments);k=(j+1)%segments;faces=np.concatenate([np.c_[r*segments+j,r*segments+k,(r+1)*segments+k] for r in range(rows-1)]
+                                                                    +[np.c_[r*segments+j,(r+1)*segments+k,(r+1)*segments+j] for r in range(rows-1)])
+        write_mesh(self.root/'closed.glb',sphere,faces);closed=back_coverage(self.root/'closed.glb')
+        self.assertFalse(closed['open']);self.assertEqual(closed['lowBands'],[])
+        centroid=sphere[faces].mean(1);height=(centroid[:,1]+.1)/.2
+        hole=(centroid[:,2]<-.04)&(height>.45)&(height<.7)  # the occiput missing behind the face shell
+        kept=faces[~hole];used,remap=np.unique(kept,return_inverse=True)  # drop the vertices only the hole used
+        write_mesh(self.root/'open.glb',sphere[used],remap.reshape(-1,3));opened=back_coverage(self.root/'open.glb')
+        self.assertTrue(opened['open']);self.assertTrue(all(.45<=b<.7 for b in opened['lowBands']))
+        front=faces[centroid[:,2]>.02];used,remap=np.unique(front,return_inverse=True)  # a face shell with no back at all
+        write_mesh(self.root/'shell.glb',sphere[used],remap.reshape(-1,3));shell=back_coverage(self.root/'shell.glb')
+        self.assertTrue(shell['open']);self.assertEqual(shell['reason'],'no back surface')
+
+
+class NeverblenderNativeTests(Temporary):
+    def binding(self, addon=None):
+        blender=self.file('blender.exe');path=self.root/'mdl-compiler.json'
+        write(path,{'blender':pin(blender),'neverblender':{'path':str(addon or self.root/'neverblender')}});return path
+
+    def test_compiler_binding_verifies_blender_and_needs_an_absolute_addon(self):
+        from headkit.native import mdl_compiler
+        path=self.binding();self.assertEqual(mdl_compiler(path)['neverblender'],str(self.root/'neverblender'))
+        (self.root/'blender.exe').write_bytes(b'changed')
+        with self.assertRaises(ValueError):mdl_compiler(path)
+        with self.assertRaisesRegex(ValueError,'Absolute'):mdl_compiler(self.binding('relative/neverblender'))
+
+    def test_bound_compile_uses_neverblender_not_the_client(self):
+        from headkit import native
+        prepared=self.root/'prepared';(prepared/'ascii').mkdir(parents=True);(prepared/'resources').mkdir()
+        rows={}
+        for name in ('source.glb','ascii/head.mdl','resources/head.plt','expected-native.npz'):
+            (prepared/name).write_bytes(name.encode());rows[name]=pin(prepared/name)
+        write(prepared/'prepared.json',{'model':'head','source':rows['source.glb'],'ascii':rows['ascii/head.mdl'],
+                                        'plt':rows['resources/head.plt'],'expected':rows['expected-native.npz']})
+        engine=Path(self.root/'engine');engine.mkdir()
+        for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py'):(engine/name).write_text(name)
+        def compile_folder(blender,addon,converted,dirs,timeout):
+            (Path(converted)/'resources'/'head.mdl').write_bytes(b'binary');(Path(converted)/'native-compile.json').write_text('{}')
+            return {'complete':True,'compiled':1,'executionMode':'neverblender-cleanmodels','compilerSha256':'c',
+                    'blenderVersion':'5.2.1 LTS','compiler':{'cleanmodels':'v4.10.0'}}
+        nvb=SimpleNamespace(compile_folder=compile_folder,__file__=str(engine/'neverblender_mdl.py'))
+        hak=SimpleNamespace(write_hak=lambda path,rows:Path(path).write_bytes(b'hak'),
+                            payload=lambda path:{('head',2002):pin(self.root/'out/resources/head.mdl')['sha256'],
+                                                 ('head',6):pin(self.root/'out/resources/head.plt')['sha256']})
+        with patch('headkit.native.neverblender',return_value=nvb),patch('headkit.native.subprocess.run') as client, \
+             patch('headkit.native.audit_native',return_value=(b'binary',{'model':'head'})), \
+             patch('headkit.native.helpers',return_value=(None,hak,None,None,None)):
+            audit=native.compile_and_package(prepared,{'path':'unused'},self.root/'out',native.mdl_compiler(self.binding()))
+        client.assert_not_called()
+        self.assertEqual(audit['compiler']['mode'],'neverblender-cleanmodels');self.assertEqual(len(audit['compiler']['engine']),3)
+
+    def test_native_receipt_is_bound_to_its_compiler_selection(self):
+        runner=ResumeTests.fixture(self);binding=self.root/'mdl-compiler.json'
+        def native():
+            with patch.object(runner,'dependencies',return_value=[]),patch.object(runner,'_execute',return_value={}), \
+                 patch('headkit.native.mdl_compiler_files',side_effect=lambda path:[pin(path)]):
+                return runner.execute('native')
+        self.assertFalse(native()['reused']);self.assertTrue(native()['reused'])  # client compile, no binding
+        write(binding,{'blender':'adopted'})
+        self.assertFalse(native()['reused']);receipt=read(runner.state['stages']['native']['path'])
+        self.assertEqual(receipt['compiler'],[pin(binding)]);self.assertIn(pin(binding),receipt['inputs']);self.assertTrue(native()['reused'])
+        write(binding,{'blender':'changed'});self.assertFalse(native()['reused'])
+        binding.unlink();self.assertFalse(native()['reused']);self.assertEqual(read(runner.state['stages']['native']['path'])['compiler'],[])
+
+    def test_native_runner_branch_reads_the_local_compiler_binding(self):
+        from headkit.common import runner_slice
+        text=runner_slice(Path(__file__).parent/'runner.py','native')
+        # The compile itself stays in the native branch; the shared gate only binds the selection (test above).
+        self.assertIn('compile_and_package',text);self.assertNotIn('compile_and_package',runner_slice(Path(__file__).parent/'runner.py','repair'))
 
 
 class ReviewImageTests(Temporary):
@@ -3562,6 +3755,17 @@ class DesignTests(Temporary):
         client=FakeDesignClient(self.local['comfyOutput'],polls=10**6);record={}
         with self.assertRaisesRegex(ValueError,'unfinished'):dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=0)
         self.assertEqual(client.routes,['/prompt','/history/prompt-7']);self.assertEqual(record['promptId'],'prompt-7')
+
+    def test_design_jobs_can_queue_in_front_with_a_longer_deadline(self):
+        # A design behind Pixal jobs on a shared ComfyUI hit the fixed 2700 s deadline (troll batch v2).
+        from headkit.design import dispatch,compile_design
+        client=FakeDesignClient(self.local['comfyOutput']);sent=[];request=client.request
+        client.request=lambda route,data=None:(sent.append(data) or request(route,data))
+        record={};dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=7200,front=True)
+        self.assertTrue(sent[0]['front']);self.assertEqual(record['queue'],{'deadline':7200,'front':True})
+        record={};sent.clear();dispatch(client,compile_design('p',[],1,1,'headkit-design/t/y'),'t',record)
+        self.assertNotIn('front',sent[0]);self.assertEqual(record['queue'],{'deadline':2700,'front':False})
+        with self.assertRaisesRegex(ValueError,'deadline'):dispatch(client,compile_design('p',[],1,1,'headkit-design/t/z'),'t',{},deadline=10**6)
 
     def test_inpaint_masks_rows_below_the_neck_cut_and_records_the_mask(self):
         client,result=self.inpaint();receipt=read(result['receipt'])
