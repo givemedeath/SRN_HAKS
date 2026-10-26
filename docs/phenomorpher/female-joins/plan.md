@@ -451,6 +451,42 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       Its edge is set by where the flap would show in walking, not by the crease, so smoothing would remove the lumps
       but not the lobe.
     * Verdict: f1 is not adopted, and nothing is built or installed (combo-v39 stays).
+  * **Rounded domes and bulbs** (user: "work the flaps for the thigh and pelvis more, we can accept some minor
+    protrusion in positions that aren't common … a rounded taper towards the axis of the thigh"). Tool: `domes.py`.
+    * Both flaps are closed surfaces of revolution about the thigh's rest axis, with per-sector radii:
+      * thigh dome (thigh node p1): from just under the thigh skin below its slanted top, the radius rounds in to the
+        axis over H = 70 mm;
+      * pelvis bulb (pelvis nodes p4 and p5): from just inside the buttock underside at the leg opening, the radius
+        rounds in to the axis over D = 45 mm, deepest at the back and fading toward the front.
+    * Every surface point is pulled toward the axis until it is at least 4 mm inside in the HIDE clips, then blurred
+      and re-clamped.
+    * Mesh: about 1,150 triangles per thigh dome and about 400 per bulb.
+    * Variants:
+
+      | Version | HIDE clips | Rounding |
+      |---|---|---|
+      | d1 | idle, walk, run | quarter ellipse |
+      | d2 | idle, walk | quarter ellipse, wider bulb window |
+      | d3 | idle, walk | superellipse P = 3, blunter |
+
+    * d3 pose suite, pfh2 / pfh0. Holes are unchanged from v39.
+
+      | Clip | Visible flap |
+      |---|---|
+      | idle | 0 px |
+      | walk | 14 / 0 px |
+      | run | 4.9k / 1.6k px over 6 frames, back and side |
+      | kneel, pray | 0 px from the front |
+      | crouch | about 10k px from the front |
+      | sitcross | 4 / 843 px from the front |
+      | kicks | about 300 px from the front |
+
+    * Visual (`evidence/dome3-review-{pfh2,pfh0}[-tinted].png`: idle, run, sit, kneel, pray; front, side, rear):
+      * The flaps fill under the buttocks in sit, kneel and pray, and the run's jagged under-buttock ledge becomes
+        rounded.
+      * The bulb still ends in a downward point. The walk clamp cuts its outline into a V.
+      * The sit side view keeps the jagged thigh/hip intersection line, which is outside the flaps' reach.
+    * Not built or installed. Awaiting the user's review.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
