@@ -2963,10 +2963,19 @@ class FitProposalTests(Temporary):
         # A nose fit that would move the head further than the agreement bound is refused, never applied.
         with patch('headkit.fit.nose_tip',side_effect=[np.array([0,.2,0.]),np.array([0,0,-.2])]):
             with self.assertRaisesRegex(ValueError,'disagree by'):propose(source,reference,self.root/'fit-far',align='nose')
-    def test_rejects_moved_reference_nodes(self):
+    def test_reference_nodes_are_placed_through_their_transforms(self):
+        # Stock heads (decompiled pmd0/pme0/pmo0_head001) carry node offsets and 'orientation 0 0 1 0' (identity).
         from headkit.fit import ascii_surface
-        path=self.root/'moved.mdl';path.write_text('node trimesh x\n  position 0 0 .1\n  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\nendnode')
-        with self.assertRaisesRegex(ValueError,'identity'):ascii_surface(path)
+        tri='  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\n'
+        path=self.root/'moved.mdl';path.write_text('node dummy root\n  parent NULL\n  position 0 0 .5\nendnode\n'
+            'node trimesh x\n  parent root\n  position 0 0 .1\n  orientation 0 0 1 1.5707963267948966\n'+tri+'endnode')
+        points=ascii_surface(path,samples=2000)
+        # Rotated 90 degrees about z (x -> y) then lifted by both offsets: x in [-1,0], y in [0,1], z = 0.6.
+        np.testing.assert_allclose(points[:,2],.6,atol=1e-9);self.assertTrue((points[:,0]<=1e-9).all() and (points[:,1]>=-1e-9).all())
+        plain=self.root/'plain.mdl';plain.write_text('node trimesh x\n  orientation 0 0 1 0\n'+tri+'endnode')
+        np.testing.assert_allclose(ascii_surface(plain,samples=50)[:,2],0,atol=1e-12)
+        broken=self.root/'broken.mdl';broken.write_text('node trimesh x\n  parent missing\n'+tri+'endnode')
+        with self.assertRaisesRegex(ValueError,'hierarchy'):ascii_surface(broken)
 
 
 class FitStageTests(Temporary):

@@ -12,19 +12,39 @@ from .common import require, pin, write
 from .gltf import mesh
 
 
+def _axis_angle(values):
+    """3x3 rotation of an NWN ASCII orientation (axis x y z, angle radians); a zero angle is identity whatever the axis."""
+    x,y,z,angle=(float(v) for v in values);n=np.linalg.norm([x,y,z])
+    if angle==0 or n==0:return np.eye(3)
+    x,y,z=x/n,y/n,z/n;c,s=np.cos(angle),np.sin(angle);t=1-c
+    return np.array([[t*x*x+c,t*x*y-s*z,t*x*z+s*y],[t*x*y+s*z,t*y*y+c,t*y*z-s*x],[t*x*z-s*y,t*y*z+s*x,t*z*z+c]])
+
+
 def ascii_surface(path, samples=200000, seed=0):
-    """Area-weighted surface samples of every trimesh node of an ASCII MDL (node transforms must be identity)."""
-    lines=Path(path).read_text(encoding='utf-8').splitlines();points=[];triangles=[];verts=None;i=0
+    """Area-weighted surface samples of every trimesh node of an ASCII MDL in model space: each node's verts go through its
+    own and its parents' position/orientation (stock heads carry small node offsets and 'orientation 0 0 1 0')."""
+    lines=Path(path).read_text(encoding='utf-8').splitlines();nodes={};node=None;i=0
     while i<len(lines):
-        words=lines[i].split()
-        if words[:1]==['position'] or words[:1]==['orientation']:
-            require(all(float(v)==0 for v in words[1:]),'Reference node transforms must be identity')
-        if words[:1]==['verts']:
-            count=int(words[1]);verts=np.array([[float(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);i+=count
-        elif words[:1]==['faces']:
-            require(verts is not None,'Faces before verts');count=int(words[1])
-            idx=np.array([[int(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);triangles.append(verts[idx]);i+=count
+        words=lines[i].split();key=words[0].lower() if words else ''
+        if key=='node' and len(words)>=3:node=nodes[words[2].lower()]={'parent':None,'position':np.zeros(3),'rotation':np.eye(3),'triangles':[],'verts':None}
+        elif key=='endnode':node=None
+        elif node is not None and key=='parent' and len(words)==2:node['parent']=None if words[1].upper()=='NULL' else words[1].lower()
+        elif node is not None and key=='position' and len(words)==4:node['position']=np.array([float(v) for v in words[1:]])
+        elif node is not None and key=='orientation' and len(words)==5:node['rotation']=_axis_angle(words[1:])
+        elif node is not None and key=='verts':
+            count=int(words[1]);node['verts']=np.array([[float(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);i+=count
+        elif node is not None and key=='faces':
+            require(node['verts'] is not None,'Faces before verts');count=int(words[1])
+            idx=np.array([[int(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);node['triangles'].append(node['verts'][idx]);i+=count
         i+=1
+    def world(name,depth=0):
+        require(name in nodes and depth<64,'Reference node hierarchy is broken: '+str(name))
+        n=nodes[name];rotation,position=n['rotation'],n['position']
+        if n['parent'] is None:return rotation,position
+        parent_rotation,parent_position=world(n['parent'],depth+1);return parent_rotation@rotation,parent_rotation@position+parent_position
+    triangles=[]
+    for name,n in nodes.items():
+        if n['triangles']:rotation,position=world(name);triangles+=[t@rotation.T+position for t in n['triangles']]
     require(triangles,'Reference has no trimesh faces');return surface_samples(np.concatenate(triangles),samples,seed)
 
 
