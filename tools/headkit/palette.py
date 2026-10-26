@@ -75,6 +75,77 @@ def rank_rows(color, ownership, palette_files, *, keep=4, chunk=512):
 
 
 REFERENCES=Path(__file__).with_name('stock-shades.json');GRID=(.05,.25,.5,.75,.95)
+# Design-referenced rows (toneMatch rowFrom 'design'): lightness weight of the Lab distance (the matched shades already
+# set lightness, so hue and chroma decide), front-view size, label erosion and the minimum design sample. Validated on the
+# troll heads' hand-pinned skin rows: closer to the pin than the bake-referenced row on 16 of 20 (median 6.0 vs 10.6).
+DESIGN_LIGHTNESS_WEIGHT,FRONT_SIZE,FRONT_EROSION,MINIMUM_DESIGN_PIXELS=.25,512,2,200
+
+
+def lab(rgb):
+    """CIE Lab (D65) of sRGB rows."""
+    c=np.asarray(rgb,float).reshape(-1,3)/255;c=np.where(c>.04045,((c+.055)/1.055)**2.4,c/12.92)
+    xyz=c@np.array([[.4124,.3576,.1805],[.2126,.7152,.0722],[.0193,.1192,.9505]]).T/np.array([.95047,1,1.08883])
+    f=np.where(xyz>.008856,np.cbrt(xyz),7.787*xyz+16/116);return np.c_[116*f[:,1]-16,500*(f[:,0]-f[:,1]),200*(f[:,1]-f[:,2])]
+
+
+def front_labels(value, layers, size=FRONT_SIZE):
+    """Front (+z, glTF) orthographic channel view of a UV mesh: interior barycentric lattice points of every face turned
+    toward the viewer splat to pixels (nearest wins) and read the 1K ownership label at their UV; gaps inside the
+    silhouette take the nearest label. Each face gets about one point per pixel of its projected edge length, so large
+    faces leave no holes; interior points avoid chart-border gutters, and front-facing faces keep the back of the head
+    out of sample gaps."""
+    from scipy import ndimage
+    p=np.asarray(value['positions'],float);corners=p[np.asarray(value['faces'])];uv=np.asarray(value['uv'],float).reshape(-1,3,2)
+    lo,hi=p.min(0),p.max(0);span=max(hi[0]-lo[0],hi[1]-lo[1])*1.02;centre=(lo+hi)/2
+    facing=np.cross(corners[:,1]-corners[:,0],corners[:,2]-corners[:,0])[:,2]>0;corners,uv=corners[facing],uv[facing]
+    edge=np.max(np.linalg.norm((corners-np.roll(corners,1,axis=1))[...,:2],axis=-1),axis=1)/span*size
+    levels=np.clip(np.ceil(edge).astype(int)+2,6,256);points=[];texels=[]
+    for level in np.unique(levels):  # one lattice per density, vectorized over its faces
+        i,j=np.mgrid[1:level,1:level];keep=i+j<level;w=np.c_[i[keep],j[keep],level-i[keep]-j[keep]]/level;chosen=levels==level
+        points.append(np.einsum('sk,fkd->fsd',w,corners[chosen]).reshape(-1,3));texels.append(np.einsum('sk,fkd->fsd',w,uv[chosen]).reshape(-1,2))
+    points,texels=np.concatenate(points),np.concatenate(texels)
+    n=len(layers);labels=layers[np.clip((texels[:,1]*n).astype(int),0,n-1),np.clip((texels[:,0]*n).astype(int),0,n-1)].astype(int)
+    x=np.clip(((points[:,0]-centre[0])/span*size+size/2).astype(int),0,size-1);y=np.clip(((centre[1]-points[:,1])/span*size+size/2).astype(int),0,size-1)
+    pixel=y*size+x;order=np.lexsort((-points[:,2],pixel));first=np.r_[True,np.diff(pixel[order])!=0]
+    out=np.full(size*size,-1);out[pixel[order][first]]=labels[order][first];out=out.reshape(size,size)
+    inside=ndimage.binary_fill_holes(ndimage.binary_closing(out>=0,iterations=2));_,(iy,ix)=ndimage.distance_transform_edt(out<0,return_indices=True)
+    return np.where(inside,out[iy,ix],-1)
+
+
+def register(design_mask, front_mask):
+    """Scale and offset mapping front-view pixels to design pixels from the top edge and horizontal extent of each
+    silhouette's upper 60% (below the jaw the design keeps a neck the head no longer has)."""
+    def upper(mask):
+        ys,xs=np.nonzero(mask);cut=ys.min()+int((ys.max()-ys.min())*.6);ys,xs=np.nonzero(mask[:cut]);return xs.min(),xs.max(),ys.min()
+    fx0,fx1,fy0=upper(front_mask);dx0,dx1,dy0=upper(design_mask);require(fx1>fx0 and dx1>dx0,'Degenerate silhouette')
+    scale=(dx1-dx0)/(fx1-fx0);return scale,dx0-scale*fx0,dy0-scale*fy0
+
+
+def design_reference(design_rgb, design_mask, value, layers, output):
+    """Mean Lab of the design's visible pixels per ownership channel, sampled through the registered front view
+    (labels eroded so registration error stays inside the channel). Writes design-reference.png for review."""
+    from scipy import ndimage
+    from .paint import PREVIEW
+    front=front_labels(value,layers);scale,ox,oy=register(design_mask,front>=0);h,w=front.shape;ys,xs=np.mgrid[0:h,0:w]
+    sy=np.clip(np.rint(ys*scale+oy).astype(int),0,design_rgb.shape[0]-1);sx=np.clip(np.rint(xs*scale+ox).astype(int),0,design_rgb.shape[1]-1)
+    warped=design_rgb[sy,sx];visible=design_mask[sy,sx];targets={}
+    for key in np.unique(front[front>=0]):
+        chosen=ndimage.binary_erosion(front==key,iterations=FRONT_EROSION)&visible;samples=warped[chosen]
+        targets[str(key)]={'pixels':int(len(samples)),**({'lab':lab(samples).mean(0).round(2).tolist()} if len(samples) else {})}
+    overlay=np.where((front>=0)[...,None],(warped*.6+PREVIEW[np.clip(front,0,9)].astype(float)*.4),warped*.35).astype(np.uint8)
+    Image.fromarray(np.concatenate([warped,overlay],1)).save(output)
+    return {'channels':targets,'registration':{'scale':round(float(scale),4),'offset':[round(float(ox),1),round(float(oy),1)]},'image':pin(output)}
+
+
+def design_rows(target, shades, palette, *, keep=4):
+    """Rows ranked by Lab distance of their decoded mean colour (shades fixed, count-weighted) to the design's mean
+    colour for the channel, lightness weighted DESIGN_LIGHTNESS_WEIGHT."""
+    used=np.unique(shades);counts=np.bincount(shades,minlength=256)[used].astype(float)
+    usable=np.flatnonzero(np.all(palette[:,used,3]>0,axis=1))  # rows that can show every matched shade
+    means=(lab(palette[usable][:,used,:3]).reshape(len(usable),len(used),3)*counts[None,:,None]).sum(1)/counts.sum()
+    delta=means-np.asarray(target,float);distance=np.sqrt(DESIGN_LIGHTNESS_WEIGHT*delta[:,0]**2+delta[:,1]**2+delta[:,2]**2)
+    rows=sorted(zip(distance.tolist(),usable.tolist()))
+    return [{'row':row,'designDistance':round(distance,3)} for distance,row in sorted(rows)[:keep]]
 
 
 def plt_shades(path):
@@ -121,9 +192,11 @@ def rows_for_shades(target, shades, palette, *, keep=4):
     return [{'row':row,'meanSquaredColorError':error} for error,row in scores[:keep]]
 
 
-def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None):
+def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None):
     """Nearest-colour shades per channel. Opt-in `tone_match` ({channel: {'reference': name}}) instead remaps a channel's shades
-    by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads."""
+    by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads.
+    A tone-matched 'auto' row comes from the source colours, or with `rowFrom: 'design'` from the design's colour for the
+    channel (`design`: design_reference channels), keeping the source-colour row in the report."""
     require(set(rows)==set(palette_files),'Every selected layer needs its own stock palette image')
     rgb=np.asarray(Image.open(color).convert('RGB'),np.uint8)
     with Image.open(ownership) as image:
@@ -140,13 +213,21 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         palette=np.asarray(Image.open(palette_files[key]).convert('RGBA'));row=rows[key];spec=tone_match.get(key)
         selected=layers==layer;target=rgb[selected].astype(float)
         if spec is not None:
-            require(type(spec) is dict and set(spec)=={'reference'} and spec['reference'] in references,'Tone matching needs one known stock shade reference')
+            require(type(spec) is dict and set(spec)-{'rowFrom'}=={'reference'} and spec['reference'] in references
+                    and spec.get('rowFrom','bake') in ('bake','design'),'Tone matching needs one known stock shade reference (rowFrom bake or design)')
             quantiles=references[spec['reference']]['quantiles']
         if row=='auto':
             # Matched shades depend only on luma rank, so the row follows them: the one that best shows the source colours.
             require(spec is not None and palette.shape[1]==256,'Rank automatic rows before quantization unless the channel is tone matched')
-            candidates=rows_for_shades(target,match_shades(target,np.arange(255),quantiles),palette,keep=1)
-            require(candidates,'No palette row shows every tone-matched shade');row=resolved[key]=candidates[0]['row']
+            matched_shades=match_shades(target,np.arange(255),quantiles);candidates=rows_for_shades(target,matched_shades,palette,keep=1)
+            require(candidates,'No palette row shows every tone-matched shade');row=candidates[0]['row']
+            if spec.get('rowFrom')=='design':
+                reference=(design or {}).get(key,{'pixels':0});chosen={'bakeRow':row,'designPixels':reference['pixels']}
+                if reference['pixels']>=MINIMUM_DESIGN_PIXELS:
+                    ranked=design_rows(reference['lab'],matched_shades,palette);require(ranked,'No palette row shows every tone-matched shade')
+                    row=ranked[0]['row'];chosen.update(designLab=reference['lab'],rows=ranked)
+                else:chosen['fallback']=f'Fewer than {MINIMUM_DESIGN_PIXELS} design pixels in this channel: row from the source colours'
+            resolved[key]=row
         require(type(row) is int and 0<=row<len(palette) and palette.shape[1]==256,'Invalid stock palette row')
         eligible=(palette[row,:,3]>0)&(np.arange(256)<255);allowed=np.flatnonzero(eligible)
         require(len(allowed)>0,'No opaque palette shades available')
@@ -165,6 +246,7 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
         report[key]={'pixels':int(selected.sum()),'meanSquaredColorError':float(np.mean((target-table[picked])**2)),'shadeOffset':offset}
         if spec is not None:report[key]['toneMatch']=matched
+        if spec is not None and spec.get('rowFrom')=='design' and rows[key]=='auto':report[key]['designRow']=chosen
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     Image.fromarray(shades).save(output/'shades.png');Image.fromarray(layers).save(output/'layers.png');Image.fromarray(decoded).save(output/'decoded.png')
     # Every channel is varied independently; other channels must remain byte-identical.

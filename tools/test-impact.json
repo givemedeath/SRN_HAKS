@@ -179,6 +179,7 @@
     "tools/headkit/palette.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
       "tools/headkit/rays.py",
       "tools/headkit/stock-shades.json",
       "tools/headkit/textures.py"

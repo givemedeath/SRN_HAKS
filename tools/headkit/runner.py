@@ -13,6 +13,11 @@ from .common import read,write,require,pin,verify,asset,manifest,bindings,source
 STAGES=('prepare','precluster','fit','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
 
 
+def design_rows(data):
+    """Whether a tone-matched palette channel takes its automatic row from the design image (toneMatch rowFrom 'design')."""
+    return any(type(spec) is dict and spec.get('rowFrom')=='design' for spec in ((data.get('palette') or {}).get('toneMatch') or {}).values())
+
+
 def stage_roles(stage,data):
     """Manifest input roles a stage may read. Receipts pin only the roles actually read, and reading one outside this
     declaration fails the stage, so launch input lists built from it stay complete."""
@@ -22,7 +27,7 @@ def stage_roles(stage,data):
         'paint':{'uvMesh','basecolor4k'},
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
         'tone':{'uvMesh','basecolor4k','metallic4k','ownership4k','ownership1k','detail','frontDetail'}|palettes,
-        'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes,'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
+        'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set()),'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
         'render':{'uvMesh'}|set(data.get('render',{}).get('mapInputs',{}).values())}[stage]
     return roles&inputs
 
@@ -33,7 +38,7 @@ def stage_roles(stage,data):
 # texture maps) added to the same manifest do not stale the matte.
 STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':set(),'fit':{'fit'},'repair':{'mesh','fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
-    'tone':{'tone','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval'},'export':{'fit','palette','mesh','approval'},
+    'tone':{'tone','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval'},
     'native':{'fit'},'render':{'render','approval'}}
 
 
@@ -180,6 +185,7 @@ class Runner:
         self._texture_dependencies(stage,table);dependencies=table[stage]
         if stage=='tone' and not any(role in inputs for role in ('ownership1k','ownership4k')):dependencies.append('ownership')
         if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
+        if stage=='palette' and design_rows(self.data) and 'uvMesh' not in inputs and 'unwrap' not in dependencies:dependencies.append('unwrap')
         imported_atlases={'tone':('basecolor4k','ownership4k','ownership1k'),'palette':('runtimeColor','ownership1k'),
                           'export':('runtimeShades','ownership1k')}.get(stage,())
         if any(role in inputs for role in imported_atlases) and 'uvMesh' not in inputs and 'unwrap' not in dependencies:
@@ -447,8 +453,20 @@ class Runner:
                 # Tone-matched channels keep 'auto': quantize picks their row after matching, from the matched shades.
                 ranking=rank_rows(color,ownership,{key:palettes[key] for key in ranked})
                 rows.update({key:row['row'] for key,row in ranking.items()});write(folder/'row-ranking.json',ranking,fresh=True)
+            design=None
+            if design_rows(m) and any(rows.get(key)=='auto' for key,spec in tone.items() if spec.get('rowFrom')=='design'):
+                # The design's own colour per channel, through a front view of this head registered on the design silhouette.
+                from .gltf import mesh
+                from .images import subject
+                from .palette import design_reference
+                with Image.open(self.input('design')) as image:rgb=np.asarray(image.convert('RGB'))
+                with Image.open(ownership) as image:layers=np.asarray(image).copy()
+                reference=design_reference(rgb,subject(rgb,m.get('matte',{}).get('backgroundTolerance',14))[0],
+                                           mesh(self.source('uvMesh','unwrap','mesh')),layers,folder/'design-reference.png')
+                write(folder/'design-reference.json',reference,fresh=True);design=reference['channels']
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
-                            tone_match=m['palette'].get('toneMatch'))
+                            tone_match=m['palette'].get('toneMatch'),design=design)
+            if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result
         if stage=='export':

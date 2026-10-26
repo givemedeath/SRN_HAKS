@@ -1678,6 +1678,58 @@ class ToneMatchTests(Temporary):
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
             Runner._execute(runner,'palette',self.root)
         ranking.assert_not_called();self.assertEqual(quantizer.call_args.args[3],{'0':'auto'})
+    def tinted(self):
+        """Grey, reddish and bluish ramps: a grey source picks grey from the bake, a reddish design picks the red row."""
+        palette=np.full((3,256,4),255,np.uint8);ramp=np.arange(256)
+        palette[0,:,:3]=ramp[:,None];palette[1,:,:3]=np.c_[ramp,ramp*.6,ramp*.6];palette[2,:,:3]=np.c_[ramp*.6,ramp*.6,ramp]
+        Image.fromarray(palette).save(self.root/'tint.png');return palette
+    def test_design_row_takes_the_row_closest_to_the_design_colour(self):
+        from headkit.palette import lab
+        _,_,palettes,_=self.fixture();palette=self.tinted();palettes={'0':str(self.root/'tint.png'),'1':str(self.root/'p.png')}
+        target=lab(palette[2,40:180,:3]).mean(0).tolist()  # bluish design; the grey source's own row is another
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            chosen=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'design',
+                            tone_match={'0':{'reference':'ref','rowFrom':'design'}},design={'0':{'pixels':5000,'lab':target}})
+            few=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'few',
+                         tone_match={'0':{'reference':'ref','rowFrom':'design'}},design={'0':{'pixels':10,'lab':target}})
+            bake=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bake',tone_match={'0':{'reference':'ref'}})
+        report=chosen['layers']['0']['designRow']
+        self.assertEqual((chosen['rows']['0'],report['rows'][0]['row']),(2,2));self.assertEqual(report['bakeRow'],bake['rows']['0']);self.assertNotEqual(bake['rows']['0'],2)
+        self.assertEqual(few['rows']['0'],bake['rows']['0']);self.assertIn('Fewer than',few['layers']['0']['designRow']['fallback'])
+        self.assertNotIn('designRow',bake['layers']['0'])
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'),self.assertRaisesRegex(ValueError,'rowFrom bake or design'):
+            quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bad',tone_match={'0':{'reference':'ref','rowFrom':'render'}})
+    def quad(self,z,facing_front,uv_x):
+        # A unit square at depth z; vertex order sets the normal (+z or -z); UVs inside one vertical half of the atlas.
+        p=np.array([[-1,-1,z],[1,-1,z],[1,1,z],[-1,1,z]],float);f=np.array([[0,1,2],[0,2,3]]) if facing_front else np.array([[0,2,1],[0,3,2]])
+        uv=np.array([[uv_x,.1],[uv_x+.3,.1],[uv_x+.3,.9],[uv_x,.9]]);return p,f,uv
+    def mesh_value(self,*quads):
+        positions=[];faces=[];uvs=[]
+        for p,f,uv in quads:faces.append(f+len(positions)*0+sum(len(x) for x in positions));positions.append(p);uvs.append(uv[f])
+        return {'positions':np.concatenate(positions),'faces':np.concatenate(faces),'uv':np.concatenate(uvs)}
+    def test_front_view_keeps_the_nearest_front_facing_surface(self):
+        from headkit.palette import front_labels
+        layers=np.zeros((1024,1024),np.uint8);layers[:,512:]=1  # left atlas half channel 0, right half channel 1
+        front=self.quad(1,True,.1);behind=self.quad(-1,True,.6);back=self.quad(2,False,.6)  # back faces away, nearer in z
+        labels=front_labels(self.mesh_value(front,behind,back),layers,size=64)
+        inside=labels>=0;self.assertGreater(inside.mean(),.8);self.assertTrue(np.all(labels[inside]==0))
+    def test_design_reference_samples_each_channel_through_the_registered_front_view(self):
+        from headkit.palette import design_reference,lab
+        from headkit.images import subject
+        rgb=np.full((256,256,3),192,np.uint8);rgb[60:200,40:220]=(180,60,50)  # backdrop with a red subject block
+        layers=np.zeros((1024,1024),np.uint8)
+        reference=design_reference(rgb,subject(rgb)[0],self.mesh_value(self.quad(1,True,.1)),layers,self.root/'reference.png')
+        channel=reference['channels']['0'];self.assertGreater(channel['pixels'],1000)
+        np.testing.assert_allclose(channel['lab'],lab([[180,60,50]])[0],atol=.5);self.assertTrue((self.root/'reference.png').is_file())
+    def test_runner_reads_the_design_only_for_design_rows(self):
+        from headkit.runner import stage_roles,design_rows
+        from headkit.common import runner_slice
+        data={'inputs':{'design':{},'uvMesh':{}},'palette':{'inputs':{},'toneMatch':{'0':{'reference':'r'}}}}
+        self.assertNotIn('design',stage_roles('palette',data));self.assertFalse(design_rows(data))
+        data['palette']['toneMatch']['0']['rowFrom']='design';self.assertIn('design',stage_roles('palette',data));self.assertTrue(design_rows(data))
+        text=runner_slice(Path(__file__).parent/'runner.py','palette')
+        self.assertIn("design_reference(",text);self.assertIn("'design-reference.png'",text)
+        self.assertIn("dependencies.append('unwrap')",text)
     def test_automatic_row_follows_the_matched_shades(self):
         _,_,palettes,_=self.fixture()
         with patch('headkit.palette.REFERENCES',self.root/'refs.json'):

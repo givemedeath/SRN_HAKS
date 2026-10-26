@@ -110,6 +110,21 @@ def prepare_multiview(pairs, config, output):
     write(output/'alignment.json',result,fresh=True);return result
 
 
+def subject(rgb, tolerance=14):
+    """The design's subject silhouette against its plain studio backdrop (the border median): pixels not in a
+    near-backdrop, low-saturation region connected to the canvas border, holes filled, largest component kept.
+    Returns (foreground, backdrop, near-backdrop mask, component count)."""
+    from scipy import ndimage
+    pixels=np.asarray(rgb).astype(np.int16);border=np.concatenate([pixels[:8].reshape(-1,3),pixels[-8:].reshape(-1,3),pixels[:,:8].reshape(-1,3),pixels[:,-8:].reshape(-1,3)])
+    backdrop=np.median(border,0)
+    require(float(np.mean(np.abs(border-backdrop).max(1)<tolerance))>=.6,'Design backdrop is not plain enough to matte')
+    near=(np.abs(pixels-backdrop).max(2)<tolerance)&(np.ptp(pixels,axis=2)<tolerance)
+    labels,_=ndimage.label(near);edge=np.unique(np.concatenate([labels[0],labels[-1],labels[:,0],labels[:,-1]]))
+    foreground=ndimage.binary_fill_holes(ndimage.binary_opening(~np.isin(labels,edge[edge>0])))
+    labels,count=ndimage.label(foreground);require(count>0,'Matte found no subject')
+    sizes=ndimage.sum(foreground,labels,range(1,count+1));return labels==1+int(np.argmax(sizes)),backdrop,near,count
+
+
 def matte(design_path, config, output):
     """Single-image bootstrap: transparent background from the design's plain studio backdrop. The backdrop is the
     border median; background is the near-backdrop, low-saturation region connected to the canvas border, so dark or
@@ -124,14 +139,7 @@ def matte(design_path, config, output):
     from scipy import ndimage
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     with Image.open(design_path) as image:rgb=np.asarray(image.convert('RGB'))
-    pixels=rgb.astype(np.int16);border=np.concatenate([pixels[:8].reshape(-1,3),pixels[-8:].reshape(-1,3),pixels[:,:8].reshape(-1,3),pixels[:,-8:].reshape(-1,3)])
-    backdrop=np.median(border,0)
-    require(float(np.mean(np.abs(border-backdrop).max(1)<tolerance))>=.6,'Design backdrop is not plain enough to matte')
-    near=(np.abs(pixels-backdrop).max(2)<tolerance)&(np.ptp(pixels,axis=2)<tolerance)
-    labels,_=ndimage.label(near);edge=np.unique(np.concatenate([labels[0],labels[-1],labels[:,0],labels[:,-1]]))
-    foreground=ndimage.binary_fill_holes(ndimage.binary_opening(~np.isin(labels,edge[edge>0])))
-    labels,count=ndimage.label(foreground);require(count>0,'Matte found no subject')
-    sizes=ndimage.sum(foreground,labels,range(1,count+1));foreground=labels==1+int(np.argmax(sizes))
+    foreground,backdrop,near,count=subject(rgb,tolerance)
     cleared=[]
     if enclosed is not None:
         holes,holes_count=ndimage.label(near&foreground)
