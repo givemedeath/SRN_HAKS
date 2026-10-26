@@ -522,6 +522,25 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       and upright, crouch; Fit and Large; back, side and front). The sitcross, run and kick captures were cut short:
       window focus kept returning to Claude. The client was left running for the user's own review.
     * Not approved. Awaiting the user's in-game judgement.
+    * User (after the d6 close-up): restart from the shipped models; extend the pelvis's thigh portion, round it to curve
+      under, and let the thigh overlap. The fixed textures stay.
+    * Reference (`evidence/ref-shipped-v39-male.png`, GPU): v39 has jagged lines in every pose and is worse than
+      shipped. The male bodies have no band: the thigh is a rounded form that overlaps the pelvis.
+    * **b3** (`ballsocket.py`, `PARTS=thigh`, from `sub-ascii`):
+      * The thigh's full cross-section, taken just below its slanted top, is extruded up to hip-pivot height and rounded
+        over to the axis (H 65 mm, P 2.5). Vertices only move outward.
+      * Then `seamnormals.py` and `normblend.py` as before; the skin re-bake in the build keeps the fixed textures.
+      * A pelvis roll-under (`PARTS=pelvis`) crumpled the cup's inner floor and is not used; the overlapping thigh
+        already covers the pelvis edge.
+      * The shins are shipped, so the v39 knee edits are not included.
+    * Gates, both bodies: 0 holes and 0 cracks (as shipped), thigh rim 0, pelvis rim exposure below shipped. The brief
+      check counts about 250 thigh points per side within 20 mm outside the brief; the front views show the brief
+      intact.
+    * Visual (`evidence/ref-b3*.png`): the rear band is gone in idle, walk, run and kneel, leaving a thin soft crease.
+      A faint shading step remains on the outer thigh where the widened top starts.
+    * Client (`combo-b3` installed; `evidence/client-b3-motion-check.jpg`: idle, walk, chair sit, kneel, pray,
+      crouch; Fit and Large; back and side): no band, cut edges or lumps at capture distance. The client was left
+      running for the user's review.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
