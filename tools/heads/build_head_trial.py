@@ -65,6 +65,11 @@ def gender(prefix):
     return 1 if prefix[1]=='f' else 0
 
 
+def prefixes(spec):
+    """Head families of a trial: one prefix, or a list of one race's families so a race's male and female heads share a module."""
+    return list(spec['prefix']) if isinstance(spec['prefix'],list) else [spec['prefix']]
+
+
 def validate_spec(spec):
     """Check a trial spec without touching the filesystem; returns the normalized spec."""
     require(isinstance(spec,dict) and spec.get('kind')==SPEC_KIND,'Explicit '+SPEC_KIND+' required')
@@ -73,7 +78,10 @@ def validate_spec(spec):
     require(isinstance(spec['trial'],str) and NAME.fullmatch(spec['trial']),'Trial name must be a short plain name')
     for key in ('hak','module'):
         require(isinstance(spec[key],str) and RESREF.fullmatch(spec[key]),key+' must be a lowercase resref of at most 16 characters')
-    model_name(spec['prefix'],1)
+    families=prefixes(spec)
+    require(families and all(isinstance(f,str) for f in families) and len(set(families))==len(families),'prefix must be a family or a list of distinct families')
+    for family in families:model_name(family,1)
+    require(len({f[2] for f in families})==1,'One trial holds one race: prefixes '+', '.join(families)+' mix races')
     _identity(spec['identity'],'identity')
     require(spec.get('lighting') in ('ambient','directional'),'Explicit lighting (ambient or directional) required')
     require(type(spec.get('motion',False)) is bool,'motion must be true or false')
@@ -93,15 +101,15 @@ def validate_spec(spec):
     require(Path(base['module']['path']).suffix.lower()=='.mod','Base module must be a .mod')
     heads=spec['heads']
     require(isinstance(heads,list) and 0<len(heads)<=MAX_HEADS,f'Between 1 and {MAX_HEADS} heads required')
-    ids=set();slots=set();rows_used=0
+    ids=set();models=set();rows_used=0
     for head in heads:
         require(isinstance(head,dict),'Each head must be an object')
         require(isinstance(head.get('id'),str) and NAME.fullmatch(head['id']) and head['id'] not in ids,'Each head needs a unique plain id')
         ids.add(head['id'])
         match=SLOT.fullmatch(str(head.get('model','')))
-        require(match is not None and match[1]==spec['prefix'],head['id']+': model must be '+spec['prefix']+'_headNNN')
-        slot=int(match[2]);require(model_name(spec['prefix'],slot)==head['model'] and slot not in slots,head['id']+': head slot repeats or is out of range')
-        slots.add(slot)
+        require(match is not None and match[1] in families,head['id']+': model must be '+' or '.join(f+'_headNNN' for f in families))
+        slot=int(match[2]);require(model_name(match[1],slot)==head['model'] and head['model'] not in models,head['id']+': head slot repeats or is out of range')
+        models.add(head['model'])
         require(('native' in head)!=('resources' in head),head['id']+': give exactly one of native or resources')
         if 'resources' in head:
             require(isinstance(head['resources'],list) and head['resources'] and all(isinstance(p,str) for p in head['resources']),
@@ -121,7 +129,7 @@ def validate_spec(spec):
     require(isinstance(spec.get('shared',[]),list) and all(isinstance(p,str) for p in spec.get('shared',[])),'shared must list files')
     require(spec.get('client') is None or isinstance(spec['client'],str),'client must be a path string')
     return {**spec,'shared':spec.get('shared',[]),
-            'heads':[{**head,'slot':int(SLOT.fullmatch(head['model'])[2]),'metalRow':0,'helmets':head.get('helmets',[1,2]),
+            'heads':[{**head,'slot':int(SLOT.fullmatch(head['model'])[2]),'gender':gender(SLOT.fullmatch(head['model'])[1]),'metalRow':0,'helmets':head.get('helmets',[1,2]),
                       'externalTextures':head.get('externalTextures',[])} for head in heads]}
 
 
@@ -134,7 +142,7 @@ def plan_actors(spec):
         cases+=[(head['skinRows'][0],head['hairRows'][0],helmet) for helmet in head['helmets']]
         for column,(skin,hair,helmet) in enumerate(cases):
             index=len(actors)
-            actors.append({'tag':f'sr_h_actor{index}','headId':head['id'],'model':head['model'],'slot':head['slot'],
+            actors.append({'tag':f'sr_h_actor{index}','headId':head['id'],'model':head['model'],'slot':head['slot'],'gender':head['gender'],
                            'skin':skin,'hair':hair,'tattoo1':head['tattoo1Row'],'tattoo2':head['tattoo2Row'],'metal':0,'helmet':helmet,
                            'name':f"{head['id']} "+(f'helmet{helmet}' if helmet else f'skin{skin} hair{hair}'),
                            'row':row,'x':8+(column%COLUMNS)*5.5,'y':20+(column//COLUMNS)*7})
@@ -388,7 +396,7 @@ def build(spec_path,output):
     (work/'base.git').write_bytes(git);run('nwn_gff',['-i',work/'base.git','-o',work/'base.git.json'])
     creatures=[c for c in read(work/'base.git.json')['Creature List']['value'] if c['Tag']['value'].startswith('sr_h_actor')]
     require(creatures,'Base module has no fixture actors')
-    identity=spec['identity'];template_identity=spec['base'].get('actorIdentity',identity);sex=gender(spec['prefix'])
+    identity=spec['identity'];template_identity=spec['base'].get('actorIdentity',identity);sex=gender(prefixes(spec)[0])  # the camera target
     for creature in creatures:
         scale=[v['Value']['value'] for v in creature['VarTable']['value'] if v['Name']['value']=='BODY_VISUAL_SCALE']
         require(creature['Appearance_Type']['value']==template_identity['appearanceRow'] and creature['Race']['value']==template_identity['raceId']
@@ -399,7 +407,7 @@ def build(spec_path,output):
     actors=plan_actors(spec)
     def creature(actor):
         return fixture.make_creature(creatures[0],actor['tag'],actor['name'],actor['x'],actor['y'],actor['slot'],actor['skin'],actor['hair'],
-            identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']),gender=sex)
+            identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']),gender=actor['gender'])
     hak_order=[spec['hak']]+[Path(item['path']).stem for item in base_haks]
     target_y=min(76,max(a['y'] for a in actors)+12)
     for actor in actors:gff(actor['tag']+'.utc',blueprint(creature(actor),spec.get('motion',False)))
