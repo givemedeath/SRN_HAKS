@@ -45,6 +45,13 @@ Record the reference hash and measured fit in each new asset's evidence. Do not
 apply the Cougar's historical scale multipliers blindly to other designs. Keep
 native attachment placement and require visual hand-fit review for departures.
 
+## Locked Human bodies
+
+The user locked combo-c6 as the current Human bodies on 2026-10-26. It is the b13 female hip and knee joins,
+the c6 torso polish and the rebuilt skin textures. See `docs/phenomorpher/human-bodies-lock.md` and its
+hash manifest. Start further body work from that lock. It is not yet promoted into `srn_body/` or
+`srn_body_tex/`; publication needs explicit approval.
+
 ## Human female target authority
 
 Continue from docs/phenotype-human-female-checkpoint.md and its explicit authoritative ledger/resume bindings. Preserve the stock-exact female rig, stature, attachments, head/neck, equipment sizing and tables. Keep the separately versioned “hips level + original upper lean” experiment and shared-female animation ownership in this target session. Finalize and validate that selected posture before further hip, thigh or torso adjustments.

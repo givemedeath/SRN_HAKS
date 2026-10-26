@@ -620,6 +620,8 @@ most clearly in the client. Outputs are under `output/phenomorpher/joins-pilot/`
       * In-game animation tour of c6 for the user (combo-c6, 2026-10-26), front, left and back, 4 s each. Clips:
         idle, castup, conjure1, victoryfr, walk, run, sit, worship, meditate, getlowlp. The client was left running
         at idle. User, 2026-10-26: "looks good". c6 (combo-c6) is now the user-reviewed torso polish on top of b13.
+      * Locked by the user as the current Human bodies (2026-10-26): `docs/phenomorpher/human-bodies-lock.md`, with
+        the hash manifest in `human-bodies-lock-c6.json`. It is not yet promoted into `srn_body/`.
   * Tools snapshot (scratchpad copy): `joins-pilot/scratchpad-snapshot-2026-10-25/` (`joins/`, `skin/`,
     `stock-anim/`). Installed client hak: combo-v39.
   * Build time: 1,255 s, of which the bake is 1,190 s. Only the female pelvis, legs and shins change
