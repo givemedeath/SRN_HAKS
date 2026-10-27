@@ -353,7 +353,7 @@ keep their r2 sweep.
 | `bulk.py` moved the idle sole off the floor | `floorfix.py` restores and proves idle sole = 0; run after any sideways or limb rig scaling |
 | Head tracking toward the camera anchor distorted client heights | calibration parks the anchor and freezes poses before capturing |
 | A desktop capture picked up another window | `capture.ps1` reads only the NWN window (`PrintWindow`) |
-| Stopping a background gate run left its sweep processes writing into the next run | kill the whole process tree, and remove any orphan output, before restarting a run |
+| Stopping a background gate run left its sweep processes writing into the next run | `runguard.sh` (sourced by `gates-r3.sh` and `armorchain.sh`): refuses to start while any `-m phenomorpher` worker naming the output folder is alive, and kills its own process tree on exit; tested with a planted orphan |
 
 **User approval and c7 Human lock, 2026-10-27:** "pmh2 looks good. Record the c7 Human lock." Recorded in
 [`../human-bodies-lock-c7.md`](../human-bodies-lock-c7.md) with manifest `human-bodies-lock-c7.json`; the c6 record
@@ -367,4 +367,66 @@ All five brief items are now done on this branch:
 * Native gates and equipment profiles: recorded and approved.
 * c7 Human lock: recorded.
 
-Nothing is pushed, published or promoted. r3 remains a candidate (`1.3.0-r3-candidate`, not accepted).
+PR #67 merged these records on 2026-10-27; at that point nothing was published.
+
+## Release 1.3.0 (publication, 2026-10-27)
+
+The user approved publishing the r3 race bodies, the c7 Human lock and the r2 armour, a verified backup, and the
+follow-ups. Branch `claude/publish-race-r3` is cut from `main` at `d5f3645d`.
+
+**Backup.** `F:/repos/archives/SRN_HAKS/race-sizing-r3-and-human-locks-2026-10-27-v1` holds a content-addressed
+copy of every file the c6 and c7 manifests pin, the combo-c6 and combo-r3 stages and haks, the r2 `srn_armor` hak and
+all of `race-sizing/`. That is 106,762 files in 32,178 objects (3.64 GB). Every object was re-hashed after copying,
+with 0 mismatches. `restore.py` restores into a new folder.
+
+**Packs.** `publish13.py` writes contract 1.3.0 from the published 1.2.0 contract. Each changed or added resource
+keeps its 1.2.0 hash and a change class in `release130`. The receipt is `release-1.3.0.json`. The 2DA tables are
+unchanged. 517 resources change:
+
+| Change class | Resources |
+|---|---:|
+| race body parts | 256 |
+| c6 Human lock | 220 |
+| c7 `pmh2` | 17 |
+| race rigs | 16 |
+| race animation libraries | 8 |
+
+The 17 targets whose rest height changed get new `statureMeters`. The measure was checked first against the
+unchanged Human bodies, within 0.05 mm.
+
+**Troll heads.** `main` added 34 Troll heads (`srn_head`) after this work branched. They are decompiled with Blender
+5.2, rescaled with the Troll stature factors (`restature.py`; female 0.97864, male 0.98826), and recompiled. All
+34 compile with no warnings and no audit failures. Every published binary passes `leaked_text`.
+
+**Armour.** `armor-publish` against contract 1.3.0 reproduces the user-approved r2 pack byte for byte: 6,180 models,
+the same names as the shipped pack.
+
+**Checks on the repository tree.**
+* `verify-assets` passes: 935 resources, 20 targets.
+* `verify-runtime` (structural) passes with no violations.
+* `verify-armor` passes: 6,180 models.
+* `Build-Haks.ps1` builds `srn_body`, `srn_body_tex`, `srn_head`, `srn_armor` and `srn_2da`.
+* `Test-Repository.ps1` passes.
+* The full helper suite passes, apart from 5 tests that need `scipy`, which the desktop interpreter lacks and CI installs.
+
+**Client, with the HAKs built from the repository** (`srn_rrpub.mod`, which adds `!rr head <n>`): Troll heads 18,
+30 and 92 sit on the new Troll necks with clean joins. The male Troll heads look small against the lore-build
+shoulders. That follows from item 3 leaving heads unscaled sideways; it is a design question for the user, not a
+defect.
+
+**Foot dip in walk and run** (follow-up; offline engine-style poses, 20 phases per cycle, `publish-r3/footdip.json`).
+Lowest sole over the cycle, 1.2.0 → r3:
+
+| Race | Walk | Run | Extra dip at the worst phase |
+|---|---|---|---|
+| Dwarf F | −28 → −41 mm | −16 → −11 mm | up to 22 mm |
+| Dwarf M | −13 → −23 mm | −25 → −27 mm | 12–15 mm |
+| Troll F | −35 → −50 mm | −22 → −18 mm | up to 22 mm |
+| Ork F | −29 → −39 mm | −17 → −15 mm | up to 15 mm |
+| Elf | unchanged or better | unchanged or better | about 3 mm or less |
+| Ork M, Troll M | about the same | better | up to 11 mm |
+
+The extra dip comes from the wider build (item 3) and the female joins port changing the leg arcs under the stock
+clip rotations. On average over the cycle the feet sit at the same height or higher. Fixing the deepest phases needs
+per-frame root height corrections in the race animation libraries (`srn_an_*` rootdummy keys). That changes approved
+animation timing, so it is a separate decision for the user. Nothing in 1.3.0 changes for it.

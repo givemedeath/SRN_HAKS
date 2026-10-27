@@ -1,6 +1,6 @@
 # PhenoMorpher runtime file inventory
 
-This index lists all 931 selected runtime resources. The [full hash manifest](game-ready-assets.json) and [appearance table](../../srn_2da/appearance.2da) remain available as files; their large generated line diffs are suppressed so GitHub can display this PR. Body shapes, UVs and rigs are unchanged; contract 1.1.0 replaces the private animation carriers with shared libraries and caps body textures at 1024 px.
+This index lists all 935 selected runtime resources. The [full hash manifest](game-ready-assets.json) and [appearance table](../../srn_2da/appearance.2da) remain available as files; their large generated line diffs are suppressed so GitHub can display this PR. Contract 1.3.0 publishes the race bodies sized to canon lore and the c7 Human lock; the [release receipt](race-sizing/release-1.3.0.json) lists every changed resource with its 1.2.0 hash.
 
 Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](../../srn_2da/phenotype.2da), [table validation](table-validation.json) and [publication validation](publication-validation.json) separately.
 
@@ -682,7 +682,7 @@ Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](..
 | [srn_an_om.mdl](../../srn_body/srn_an_om.mdl) |
 | [srn_fa_h0.mdl](../../srn_body/srn_fa_h0.mdl) |
 
-## srn_body_tex (263 files)
+## srn_body_tex (267 files)
 
 | Resource |
 |---|
@@ -872,6 +872,8 @@ Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](..
 | [s20f_biceprn.tga](../../srn_body_tex/s20f_biceprn.tga) |
 | [s20f_biceprr.tga](../../srn_body_tex/s20f_biceprr.tga) |
 | [s20f_chest.mtr](../../srn_body_tex/s20f_chest.mtr) |
+| [s20f_chest2n.tga](../../srn_body_tex/s20f_chest2n.tga) |
+| [s20f_chest2r.tga](../../srn_body_tex/s20f_chest2r.tga) |
 | [s20f_chestn.tga](../../srn_body_tex/s20f_chestn.tga) |
 | [s20f_chestr.tga](../../srn_body_tex/s20f_chestr.tga) |
 | [s20f_footl.mtr](../../srn_body_tex/s20f_footl.mtr) |
@@ -914,6 +916,8 @@ Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](..
 | [s20m_biceprn.tga](../../srn_body_tex/s20m_biceprn.tga) |
 | [s20m_biceprr.tga](../../srn_body_tex/s20m_biceprr.tga) |
 | [s20m_chest.mtr](../../srn_body_tex/s20m_chest.mtr) |
+| [s20m_chest2n.tga](../../srn_body_tex/s20m_chest2n.tga) |
+| [s20m_chest2r.tga](../../srn_body_tex/s20m_chest2r.tga) |
 | [s20m_chestn.tga](../../srn_body_tex/s20m_chestn.tga) |
 | [s20m_chestr.tga](../../srn_body_tex/s20m_chestr.tga) |
 | [s20m_footl.mtr](../../srn_body_tex/s20m_footl.mtr) |
