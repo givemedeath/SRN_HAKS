@@ -2309,6 +2309,2195 @@
      "sha256": "c5cfa71f1e1b705e899d937e845351c08c575f487c6c1c78f53582985bd67af5"
     }
    ]
+  },
+  "human-male-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE male human head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 32,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    2.0,
+    8.82,
+    12.65,
+    14.59,
+    16.11,
+    17.22,
+    18.34,
+    19.53,
+    20.59,
+    21.59,
+    22.41,
+    23.47,
+    24.16,
+    24.94,
+    25.81,
+    26.5,
+    27.31,
+    27.91,
+    28.72,
+    29.31,
+    30.0,
+    30.69,
+    31.25,
+    31.91,
+    32.56,
+    33.19,
+    33.69,
+    34.47,
+    35.0,
+    35.63,
+    36.16,
+    36.72,
+    37.34,
+    37.84,
+    38.53,
+    39.06,
+    39.78,
+    40.28,
+    40.97,
+    41.56,
+    42.22,
+    42.91,
+    43.41,
+    44.22,
+    44.82,
+    45.53,
+    46.2,
+    46.94,
+    47.78,
+    48.44,
+    49.12,
+    49.84,
+    50.81,
+    51.51,
+    52.38,
+    53.06,
+    54.06,
+    54.84,
+    55.81,
+    56.78,
+    57.75,
+    58.81,
+    59.78,
+    60.66,
+    61.81,
+    62.84,
+    64.09,
+    65.38,
+    66.53,
+    67.66,
+    69.12,
+    70.59,
+    71.88,
+    73.34,
+    74.94,
+    76.52,
+    78.25,
+    79.97,
+    81.69,
+    83.62,
+    85.62,
+    87.71,
+    89.96,
+    92.19,
+    94.65,
+    97.09,
+    99.74,
+    102.5,
+    105.38,
+    108.62,
+    111.97,
+    115.66,
+    119.44,
+    123.53,
+    128.12,
+    133.28,
+    139.38,
+    146.46,
+    155.63,
+    169.46,
+    224.66
+   ],
+   "sources": [
+    {
+     "resref": "pmh0_head001.plt",
+     "sha256": "1ea752eb086560912f9787c3569685630f5cc7333d811dde20d77c00718a9121"
+    },
+    {
+     "resref": "pmh0_head003.plt",
+     "sha256": "329da5b33ef0312c2da44ceb0680aa746f331c993e22a0aa2fae4de6331a4c32"
+    },
+    {
+     "resref": "pmh0_head004.plt",
+     "sha256": "a90843d776c1788fca0c408ac3710650eeb9d71f579be78525b83362340270c5"
+    },
+    {
+     "resref": "pmh0_head005.plt",
+     "sha256": "6e2b8fc6eaca3902593f7ac2d9038bcef3e6bad586f7e64597fc6728218c6db8"
+    },
+    {
+     "resref": "pmh0_head006.plt",
+     "sha256": "cf0d123673f72909c05c9fb95b73d864af83366fd9acc8637551978d9144890b"
+    },
+    {
+     "resref": "pmh0_head007.plt",
+     "sha256": "75f8023fce0db919c6498bed0768c1b6de0458e64e868b0c09f2061971a8cf5d"
+    },
+    {
+     "resref": "pmh0_head008.plt",
+     "sha256": "60d2409d40c2ceb0bb1bcc14b91cadfff1853cad1fc6b42024efa491f3e48fac"
+    },
+    {
+     "resref": "pmh0_head009.plt",
+     "sha256": "256c83a50a7e633ec40bdf66f80501ab860c34a2ff47ca05157c5702dde6470f"
+    },
+    {
+     "resref": "pmh0_head010.plt",
+     "sha256": "4d58ad404f9885734adf0a8f7c8bf2faf37da823eb5ec75c922fa0e5fadc14bb"
+    },
+    {
+     "resref": "pmh0_head011.plt",
+     "sha256": "be0c4445ac9bef5ed6fb6e02777f643d5b0ba6efdf31ffd4c8e9e28efcd9a1b9"
+    },
+    {
+     "resref": "pmh0_head012.plt",
+     "sha256": "8cc936fd56fd742a0df7c691f451b60ead2974f6ce88d241a8bb1a1d7ebc465e"
+    },
+    {
+     "resref": "pmh0_head013.plt",
+     "sha256": "2fa0c31dd16b92eb0eef3c857afce63f1e2053e36890cb46c45949ffd262cb0d"
+    },
+    {
+     "resref": "pmh0_head014.plt",
+     "sha256": "501f04d11474ee0d08fc735faf5907b56c9c1d498d63b4605388cff49a73a68b"
+    },
+    {
+     "resref": "pmh0_head015.plt",
+     "sha256": "d0877003e3731a63fceefa1412ce18d45ab2fd0c3b847e837a12bf35df67091b"
+    },
+    {
+     "resref": "pmh0_head016.plt",
+     "sha256": "c68bc1337b61f6132ce6eff9d97e188640bdc7c4c215506a25f40933f8d0f3d4"
+    },
+    {
+     "resref": "pmh0_head018.plt",
+     "sha256": "9180988d402070d85fa93e580b670760818052f92d8456b4b3dd1d422dc9f6fe"
+    },
+    {
+     "resref": "pmh0_head019.plt",
+     "sha256": "4dfea8093aed14abeffb2a61311e6342117895b8ae5dd3d83b12434dcf04f130"
+    },
+    {
+     "resref": "pmh0_head020.plt",
+     "sha256": "59737ffe1f40936322819aaabab682ffea50287958b36300b91bc83439c31d2c"
+    },
+    {
+     "resref": "pmh0_head021.plt",
+     "sha256": "d5a596facaaec90737e113bc04c6c1ed070837bd40985009a63cd4cfe0b0d870"
+    },
+    {
+     "resref": "pmh0_head022.plt",
+     "sha256": "f6bbb6a1f7b38dc9c25a4083bf2aa597ded7becbb0816a5ded60ec7a8851d9a2"
+    },
+    {
+     "resref": "pmh0_head023.plt",
+     "sha256": "2e317203e9f63e23ea75d38c0e68652360e78654886086f7957fa199e1ef1be7"
+    },
+    {
+     "resref": "pmh0_head024.plt",
+     "sha256": "d8f102551ce135284496469c4e181f30011f7e3827b8db9a0a217cc3f0a29252"
+    },
+    {
+     "resref": "pmh0_head025.plt",
+     "sha256": "4e9c1cf3b38de8774ca130a518112a348d04e093ae289881ea6a1027e6933ac6"
+    },
+    {
+     "resref": "pmh0_head026.plt",
+     "sha256": "729380ba1095ecfc5e3f15109798b65e09efc53587101e6ba2323d2c3702cf0f"
+    },
+    {
+     "resref": "pmh0_head028.plt",
+     "sha256": "ea51bb6678a08257fdd0347966898ba555f3f421e9d202b8be6b5a18db3b00eb"
+    },
+    {
+     "resref": "pmh0_head029.plt",
+     "sha256": "f807b8d3f0120f79f8baec2ebc10d095a30ca0159d5e18bd823c8c9932cf4bc5"
+    },
+    {
+     "resref": "pmh0_head030.plt",
+     "sha256": "7d93c18becb80cfbf55ff49380ca6e39eff9ac46605f256c2ac4a8fc50b80b15"
+    },
+    {
+     "resref": "pmh0_head031.plt",
+     "sha256": "5d42d3419930f4c615df2bb3a7e3c37108c0a7cb1ea376be439a4230bafaa597"
+    },
+    {
+     "resref": "pmh0_head032.plt",
+     "sha256": "2e317203e9f63e23ea75d38c0e68652360e78654886086f7957fa199e1ef1be7"
+    },
+    {
+     "resref": "pmh0_head033.plt",
+     "sha256": "23acaaaf40ceeb7b5d275bbe7885afbfb135e278b83be5cd3f46c6f29e1c11a2"
+    },
+    {
+     "resref": "pmh0_head034.plt",
+     "sha256": "1b36747b4e7dfb106256910b0c6a8b543b5811902f11507041ff9d1fd0f6df8e"
+    },
+    {
+     "resref": "pmh0_head140.plt",
+     "sha256": "4dfea8093aed14abeffb2a61311e6342117895b8ae5dd3d83b12434dcf04f130"
+    },
+    {
+     "resref": "pmh0_head141.plt",
+     "sha256": "59737ffe1f40936322819aaabab682ffea50287958b36300b91bc83439c31d2c"
+    },
+    {
+     "resref": "pmh0_head142.plt",
+     "sha256": "d5a596facaaec90737e113bc04c6c1ed070837bd40985009a63cd4cfe0b0d870"
+    },
+    {
+     "resref": "pmh0_head144.plt",
+     "sha256": "f029cd0db02ed572cbe22cfe8716ab379f20b066b4b54233e2d33bff7cdbe664"
+    },
+    {
+     "resref": "pmh0_head155.plt",
+     "sha256": "55098e8af6bb3550f0906114fe2419e6d956de09063e3f890b247c4e3312127d"
+    }
+   ]
+  },
+  "human-female-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE female human head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 28,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    5.64,
+    15.37,
+    18.46,
+    21.11,
+    23.36,
+    25.18,
+    26.71,
+    28.25,
+    29.11,
+    30.21,
+    31.07,
+    32.07,
+    33.07,
+    33.96,
+    34.93,
+    35.5,
+    36.36,
+    37.14,
+    38.11,
+    38.68,
+    39.36,
+    39.79,
+    40.57,
+    41.39,
+    42.14,
+    42.86,
+    43.61,
+    44.36,
+    45.0,
+    45.5,
+    46.39,
+    46.93,
+    47.43,
+    48.21,
+    48.89,
+    49.64,
+    50.29,
+    51.0,
+    51.86,
+    52.54,
+    53.18,
+    53.96,
+    54.68,
+    55.64,
+    56.18,
+    57.18,
+    58.04,
+    58.79,
+    59.64,
+    60.5,
+    61.21,
+    62.18,
+    63.07,
+    64.0,
+    64.96,
+    65.93,
+    67.07,
+    68.21,
+    69.39,
+    70.32,
+    71.82,
+    73.11,
+    74.57,
+    75.99,
+    77.49,
+    79.0,
+    80.61,
+    82.29,
+    84.32,
+    85.93,
+    88.01,
+    89.86,
+    91.76,
+    93.89,
+    96.04,
+    97.93,
+    100.14,
+    102.64,
+    104.82,
+    107.49,
+    110.07,
+    113.07,
+    115.61,
+    118.29,
+    121.25,
+    124.07,
+    126.93,
+    130.18,
+    133.39,
+    136.75,
+    140.11,
+    143.82,
+    147.61,
+    151.43,
+    155.71,
+    160.36,
+    165.75,
+    171.64,
+    179.58,
+    190.4,
+    232.93
+   ],
+   "sources": [
+    {
+     "resref": "pfh0_head001.plt",
+     "sha256": "c75a3ecc33e4af53223f16c5fee9c6cf67e2d35018c873c6ae0888d703e18a56"
+    },
+    {
+     "resref": "pfh0_head002.plt",
+     "sha256": "5738cbc7794abd002c63b78c87d05f27f42a60ea92f8932d2bcaa6869163eaff"
+    },
+    {
+     "resref": "pfh0_head003.plt",
+     "sha256": "c04cc2b7aca12d33da9cbd3df3005cbab4c74aa01b3b43b5a6e754e2ad2d8cbd"
+    },
+    {
+     "resref": "pfh0_head004.plt",
+     "sha256": "bb09edea169a55446cca868114f8b52245831eff56718edf8db1fb325c6c400b"
+    },
+    {
+     "resref": "pfh0_head005.plt",
+     "sha256": "dcd2b0c9a03f87510621cd531ce82f13d0dd60b95eb96b2fb7b201e2acf0419f"
+    },
+    {
+     "resref": "pfh0_head007.plt",
+     "sha256": "eca3dd138804ad13c296dec36dd3bd46829747635ebbf33162c8768fb3f9a7c0"
+    },
+    {
+     "resref": "pfh0_head008.plt",
+     "sha256": "35d0cba3202dadc1796bbe5b3bef7f48bbd328d861f9d98a75d80dd6652b7f51"
+    },
+    {
+     "resref": "pfh0_head009.plt",
+     "sha256": "5d2464a88ac466fddfaf9f1d571bd2595fdeb3295e9823eb43ff0c7798014293"
+    },
+    {
+     "resref": "pfh0_head010.plt",
+     "sha256": "21d3ee80bae42a834d68a9ae34dfb8415f19e4eea8d36286201d88e1212f5938"
+    },
+    {
+     "resref": "pfh0_head011.plt",
+     "sha256": "5274e74046a997f5cafff2e077a0d74a505f9b44dbcb58491e1912c34fba6898"
+    },
+    {
+     "resref": "pfh0_head013.plt",
+     "sha256": "cdbe28fd0c1a97d876c769c051d255dfa4955d4faf20d4d9b16a62ed360585d4"
+    },
+    {
+     "resref": "pfh0_head014.plt",
+     "sha256": "6e7c50f70bab425b6650e491fdf3cf5fa2090d082a6046385426d1a2a768a274"
+    },
+    {
+     "resref": "pfh0_head015.plt",
+     "sha256": "0bd1aecde4b4fce899233c5aab16d4d7fbdcbc428f5b41fe65566c1beccef7ec"
+    },
+    {
+     "resref": "pfh0_head016.plt",
+     "sha256": "d297095cc42ad4d5f3c6ef83f43c530686eee2f1e629abef5761d5f5db852f7b"
+    },
+    {
+     "resref": "pfh0_head017.plt",
+     "sha256": "0057a7600e5f795e5e79d7a1a26737e954e299e99ef75948b5d2a55d37a80f34"
+    },
+    {
+     "resref": "pfh0_head018.plt",
+     "sha256": "53fc72bd2510e81762822540e1cba9f8a78ec1fbc68c72e8da2e94e981ff7049"
+    },
+    {
+     "resref": "pfh0_head019.plt",
+     "sha256": "dee33df3a89ab51c52a6aed982696ddb331818388bf8d5d3fd8c94f9414d1244"
+    },
+    {
+     "resref": "pfh0_head020.plt",
+     "sha256": "dee27d8c8b7431c2dcc8122bca764869e4f4a02a567be74e0f8e35d0a59cc4cc"
+    },
+    {
+     "resref": "pfh0_head021.plt",
+     "sha256": "dfe321f1152625e940097fa931197eb92bc8e7a5617102066f9e43271cf69117"
+    },
+    {
+     "resref": "pfh0_head022.plt",
+     "sha256": "6b019d17a266c78f845923f28c458584552c1851472f5e24614d1a7ea8d28a46"
+    },
+    {
+     "resref": "pfh0_head023.plt",
+     "sha256": "d13f20f50ddfb99f699e0d72c423f18aef4bd28017774c753157030b2f1042bd"
+    },
+    {
+     "resref": "pfh0_head025.plt",
+     "sha256": "00eff4341a743ac8e97c588e7f077f4c25cd2fe8da667142e00a7b5d636e3eec"
+    },
+    {
+     "resref": "pfh0_head026.plt",
+     "sha256": "a6c9cc4d24de520135b1a626332252def80b798c01e8ce98501b69adb60a14fd"
+    },
+    {
+     "resref": "pfh0_head027.plt",
+     "sha256": "1b36747b4e7dfb106256910b0c6a8b543b5811902f11507041ff9d1fd0f6df8e"
+    },
+    {
+     "resref": "pfh0_head099.plt",
+     "sha256": "eefb6ef8b5cb918362a1786b91f3d97be42e51441763292139ed774479bad504"
+    },
+    {
+     "resref": "pfh0_head140.plt",
+     "sha256": "cdbe28fd0c1a97d876c769c051d255dfa4955d4faf20d4d9b16a62ed360585d4"
+    },
+    {
+     "resref": "pfh0_head141.plt",
+     "sha256": "6e7c50f70bab425b6650e491fdf3cf5fa2090d082a6046385426d1a2a768a274"
+    },
+    {
+     "resref": "pfh0_head142.plt",
+     "sha256": "0bd1aecde4b4fce899233c5aab16d4d7fbdcbc428f5b41fe65566c1beccef7ec"
+    },
+    {
+     "resref": "pfh0_head143.plt",
+     "sha256": "bab8b74966ddc2154753443ecb760f6a0425bd1481fe8c02060001ca1ce35f94"
+    },
+    {
+     "resref": "pfh0_head144.plt",
+     "sha256": "df74a23332cf75613f820736851a854f2fb9010979de99fe8e79d7470beb0e43"
+    },
+    {
+     "resref": "pfh0_head155.plt",
+     "sha256": "ac9f06f48dade763aee72714d6d3e48b138690e4dbd06a6c499aea6953b1e5c7"
+    }
+   ]
+  },
+  "dwarf-male-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE male dwarf head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 13,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    0.38,
+    6.31,
+    8.08,
+    9.85,
+    11.33,
+    12.46,
+    13.85,
+    14.77,
+    15.62,
+    16.62,
+    17.46,
+    18.46,
+    18.92,
+    19.77,
+    20.46,
+    21.31,
+    22.08,
+    22.69,
+    23.38,
+    24.08,
+    24.77,
+    25.23,
+    25.92,
+    26.46,
+    27.15,
+    27.77,
+    28.62,
+    28.92,
+    29.62,
+    30.25,
+    30.77,
+    31.62,
+    32.04,
+    32.62,
+    33.31,
+    34.08,
+    34.54,
+    35.31,
+    35.85,
+    36.54,
+    37.08,
+    37.92,
+    38.62,
+    39.23,
+    39.92,
+    40.54,
+    41.4,
+    42.04,
+    42.69,
+    43.38,
+    44.08,
+    44.92,
+    45.62,
+    46.23,
+    47.08,
+    47.77,
+    48.62,
+    49.46,
+    50.08,
+    51.0,
+    51.77,
+    52.54,
+    53.23,
+    54.15,
+    54.92,
+    55.77,
+    56.54,
+    57.38,
+    58.08,
+    59.0,
+    60.0,
+    60.77,
+    61.92,
+    62.92,
+    63.92,
+    65.08,
+    66.08,
+    67.23,
+    68.23,
+    69.46,
+    70.69,
+    71.83,
+    73.15,
+    74.86,
+    76.62,
+    78.62,
+    80.69,
+    83.0,
+    85.54,
+    88.38,
+    91.46,
+    95.23,
+    99.1,
+    103.38,
+    108.23,
+    114.08,
+    121.23,
+    129.85,
+    142.17,
+    160.89,
+    235.92
+   ],
+   "sources": [
+    {
+     "resref": "pmd0_head001.plt",
+     "sha256": "ca59a1bf1c0b51041de2c7e9b724e8d4ab2a553da5401735479850dc327f2834"
+    },
+    {
+     "resref": "pmd0_head002.plt",
+     "sha256": "0326a930670fce6ef8a9559fd927cc09840f74a7437084cec149fcb6ae89c67c"
+    },
+    {
+     "resref": "pmd0_head003.plt",
+     "sha256": "b15b6d13c20ffd5011e5da0b50bd2683955810377854bda51719f9c99bbc1059"
+    },
+    {
+     "resref": "pmd0_head004.plt",
+     "sha256": "faef0135b37683af44c73bea8ce313eeec99d8eb9ebd825be6dfb3c9e722e61b"
+    },
+    {
+     "resref": "pmd0_head005.plt",
+     "sha256": "f3f9f5c45fb65f7cd45cdfe38100818ad1922b3bd29fbb3a6db86e2bc5fd22ea"
+    },
+    {
+     "resref": "pmd0_head006.plt",
+     "sha256": "fe949e2e975a98f92dd0a64388cf515896cdef2f0acd5c8aaa2db67c8a8515a3"
+    },
+    {
+     "resref": "pmd0_head007.plt",
+     "sha256": "1fe4a28bc285ce7031cbcdcbd5cbaff740d9de0a0695a0c7ed4a503e98aaeb51"
+    },
+    {
+     "resref": "pmd0_head008.plt",
+     "sha256": "ff28db4f75b06b133fd1ce6e93c90ca59457ef7d0bde439e2f811c50229a29de"
+    },
+    {
+     "resref": "pmd0_head009.plt",
+     "sha256": "5661622265897667d7a62d048cf87213ff591ff6d5146eef2f0320563327ff32"
+    },
+    {
+     "resref": "pmd0_head010.plt",
+     "sha256": "704ef80b59ce2c7910ddd1c4dc1b0a47311073f2e56c41ef263559094d4ec94a"
+    },
+    {
+     "resref": "pmd0_head011.plt",
+     "sha256": "51463878500e3302c7f832ad1f836ce5bd76b2159de1f9fc0777a7418bb05c01"
+    },
+    {
+     "resref": "pmd0_head012.plt",
+     "sha256": "e9b6da2ef3bf03d8f7a5b10b9001f002d0062762043755b782d6319a0efe2d59"
+    },
+    {
+     "resref": "pmd0_head013.plt",
+     "sha256": "04ba5519df9ea47d49324757beb68a05fb561248bf73d9762535db8e3a6d1de7"
+    }
+   ]
+  },
+  "dwarf-female-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE female dwarf head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 12,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    1.42,
+    7.5,
+    10.11,
+    11.58,
+    13.0,
+    13.92,
+    15.08,
+    15.92,
+    16.58,
+    17.67,
+    18.08,
+    19.0,
+    19.58,
+    20.08,
+    20.58,
+    21.17,
+    21.67,
+    22.42,
+    23.08,
+    23.42,
+    23.92,
+    24.47,
+    25.25,
+    25.58,
+    26.25,
+    26.42,
+    27.17,
+    27.58,
+    28.17,
+    28.67,
+    29.0,
+    29.67,
+    30.0,
+    30.83,
+    31.08,
+    31.75,
+    32.17,
+    32.83,
+    33.25,
+    33.92,
+    34.42,
+    35.08,
+    35.58,
+    36.17,
+    36.83,
+    37.25,
+    38.0,
+    38.58,
+    39.33,
+    39.83,
+    40.5,
+    41.17,
+    41.83,
+    42.5,
+    43.42,
+    43.92,
+    44.58,
+    45.25,
+    46.08,
+    46.75,
+    47.33,
+    48.25,
+    49.08,
+    49.98,
+    50.68,
+    51.5,
+    52.33,
+    53.33,
+    54.08,
+    55.08,
+    55.92,
+    56.83,
+    57.75,
+    58.92,
+    59.75,
+    60.75,
+    61.87,
+    62.83,
+    64.0,
+    65.17,
+    66.33,
+    67.67,
+    69.25,
+    70.75,
+    72.42,
+    74.08,
+    76.17,
+    77.92,
+    80.0,
+    82.08,
+    84.58,
+    87.33,
+    90.58,
+    94.25,
+    98.33,
+    103.58,
+    110.17,
+    118.42,
+    128.62,
+    142.08,
+    200.75
+   ],
+   "sources": [
+    {
+     "resref": "pfd0_head001.plt",
+     "sha256": "44ad5af382a14864444b1b4c91ba6b12516efbfe7047b2f176f40963c3fa4c17"
+    },
+    {
+     "resref": "pfd0_head002.plt",
+     "sha256": "aa799008d5870a620bee0ad64bfa1ced683bc2c08af8e281befda0c5c740d89e"
+    },
+    {
+     "resref": "pfd0_head003.plt",
+     "sha256": "5ec35f88375652c3f8d67832d23c2f6441f61e1e75e718c87a142a28c3eaa6d7"
+    },
+    {
+     "resref": "pfd0_head004.plt",
+     "sha256": "afc72eec3c930b0c056062ca4d9f1b026f2023be28c869fddb3ebc22b395ff87"
+    },
+    {
+     "resref": "pfd0_head005.plt",
+     "sha256": "94ce02de24b8f96f74a0f8343bd7d00f5d136f3c462ca65b5edb4713d1f57259"
+    },
+    {
+     "resref": "pfd0_head006.plt",
+     "sha256": "3353fcbf4423cfd217241bf2bf536c829e0e96515231193d27ecf829225bee7f"
+    },
+    {
+     "resref": "pfd0_head007.plt",
+     "sha256": "d7d771f16299c5a7718b6bd84464304882fc6506dd8138ced9236f6dd6f8fe23"
+    },
+    {
+     "resref": "pfd0_head008.plt",
+     "sha256": "4216c10b41caf26d92708df5f44a79eb9e1fa0de07edb88f3c3591ed2b64a83d"
+    },
+    {
+     "resref": "pfd0_head009.plt",
+     "sha256": "709b93b1ccaf2f0d184225095eefec5eeeaded0f10b4423e0555c32faee62205"
+    },
+    {
+     "resref": "pfd0_head010.plt",
+     "sha256": "563d204bca715aea29bac96eecba125307560341a80175abf7887467a6419fce"
+    },
+    {
+     "resref": "pfd0_head011.plt",
+     "sha256": "d850b5121d8f3b4c035210562cc1bdbcae31ff8689441a1ef0c12cf59d2e2c17"
+    },
+    {
+     "resref": "pfd0_head012.plt",
+     "sha256": "9a35fe98c846f4595400b98dacfe8553b9fe8b65e6c903002a567dff7af4c4ad"
+    }
+   ]
+  },
+  "elf-male-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE male elf head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 17,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    2.94,
+    7.89,
+    10.59,
+    12.94,
+    14.53,
+    16.29,
+    18.29,
+    19.71,
+    20.82,
+    22.06,
+    23.06,
+    23.82,
+    24.65,
+    25.53,
+    26.53,
+    27.35,
+    28.12,
+    28.88,
+    29.76,
+    30.25,
+    31.06,
+    31.59,
+    32.41,
+    32.82,
+    33.24,
+    34.18,
+    34.59,
+    34.94,
+    35.82,
+    36.35,
+    36.94,
+    37.47,
+    38.12,
+    38.65,
+    39.41,
+    39.96,
+    40.12,
+    41.0,
+    41.65,
+    42.24,
+    42.76,
+    43.35,
+    44.06,
+    44.82,
+    45.47,
+    45.88,
+    46.59,
+    47.47,
+    48.18,
+    48.82,
+    49.59,
+    50.41,
+    51.12,
+    52.0,
+    52.76,
+    53.71,
+    54.35,
+    55.41,
+    56.41,
+    57.18,
+    58.24,
+    59.06,
+    60.18,
+    61.53,
+    62.47,
+    63.53,
+    64.76,
+    66.06,
+    67.41,
+    68.47,
+    69.76,
+    71.41,
+    72.88,
+    74.29,
+    75.82,
+    77.26,
+    79.0,
+    80.32,
+    82.04,
+    83.89,
+    85.58,
+    87.29,
+    88.88,
+    90.88,
+    92.53,
+    94.29,
+    96.35,
+    98.53,
+    100.59,
+    102.94,
+    105.47,
+    108.26,
+    111.24,
+    114.47,
+    118.12,
+    122.12,
+    126.74,
+    132.41,
+    139.76,
+    150.59,
+    210.88
+   ],
+   "sources": [
+    {
+     "resref": "pme0_head001.plt",
+     "sha256": "ef6d2d1ae44ab7fe8f3ed111caa0eb948f8cd469262d6cfc32aa36c92e9de997"
+    },
+    {
+     "resref": "pme0_head002.plt",
+     "sha256": "da15ac2a66903be60ff05aa49f2e420a0dc0f9f56409afd610b6543375cb2cfe"
+    },
+    {
+     "resref": "pme0_head003.plt",
+     "sha256": "b773ab0cd32fcdec5c8cab11d63d9c13bb67fdf74cd55c55bb8cda731bdb1020"
+    },
+    {
+     "resref": "pme0_head004.plt",
+     "sha256": "a0e2c0ed24c4301f127423ab70108c6cd933f39dc7afc661ec5beca56f594e3f"
+    },
+    {
+     "resref": "pme0_head005.plt",
+     "sha256": "f563233030338be89e73232f31e8c865d002f2f6b29d45ef79f5c1136600757b"
+    },
+    {
+     "resref": "pme0_head006.plt",
+     "sha256": "eeaa92dadbdf23089a10080fd1802f11e0ae8aa6c910073c8ff42193d73fb7a9"
+    },
+    {
+     "resref": "pme0_head007.plt",
+     "sha256": "bb1a5b0ffc49037449c1d3dc39900470aab3422389121e91cfef4057a2774d31"
+    },
+    {
+     "resref": "pme0_head008.plt",
+     "sha256": "69f055a8b16a7f0d488f0e6150a7de315236cc4de7740c3eb1e5004f4b246afa"
+    },
+    {
+     "resref": "pme0_head009.plt",
+     "sha256": "d9f53fd7aea68b87a9171ac3e5499a91c4c893e07c0856b43c1b70391065aeea"
+    },
+    {
+     "resref": "pme0_head010.plt",
+     "sha256": "6598f253107bf54b429786db208c620f709e64436040e300db4bb32b48132123"
+    },
+    {
+     "resref": "pme0_head011.plt",
+     "sha256": "e49e28bb046b628afdf2c63c18c9cbfa95497c30f6798418028830b2c2d90140"
+    },
+    {
+     "resref": "pme0_head012.plt",
+     "sha256": "c269add135b0ea65472a003a0326a0905df88b9a2bae991d9050f3f4a68bfc18"
+    },
+    {
+     "resref": "pme0_head013.plt",
+     "sha256": "a0cff48972f379596f1b0f47f4db34722c7b0e3638365bd5912a2735f61373a8"
+    },
+    {
+     "resref": "pme0_head014.plt",
+     "sha256": "25cff67589ae798101265fcbb304042bc3c7496fd130b25c4ab9e1fc4c796b82"
+    },
+    {
+     "resref": "pme0_head016.plt",
+     "sha256": "446192e545f2af166da94b0ccfb072d40c2dacce0069541471266d1f107cf35d"
+    },
+    {
+     "resref": "pme0_head017.plt",
+     "sha256": "072b211c742707792cbc2f4940f9e69ce19ab2748f8318110e4d3a54aad2c0e8"
+    },
+    {
+     "resref": "pme0_head018.plt",
+     "sha256": "f1859faf4fcb74668df151fbda7e15b22015c26f5a67a9f2ffd7741673183063"
+    }
+   ]
+  },
+  "elf-female-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE female elf head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 15,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    2.07,
+    12.0,
+    15.13,
+    18.67,
+    21.73,
+    23.73,
+    25.4,
+    26.73,
+    27.93,
+    29.2,
+    30.07,
+    31.0,
+    31.93,
+    33.13,
+    33.93,
+    34.67,
+    35.33,
+    36.2,
+    37.07,
+    37.6,
+    38.13,
+    39.0,
+    39.47,
+    40.47,
+    41.0,
+    41.8,
+    42.13,
+    43.07,
+    43.73,
+    44.2,
+    44.87,
+    45.6,
+    46.2,
+    46.67,
+    47.4,
+    48.13,
+    48.87,
+    49.47,
+    50.2,
+    50.8,
+    51.53,
+    52.27,
+    52.87,
+    53.55,
+    54.27,
+    55.13,
+    55.73,
+    56.53,
+    57.33,
+    58.33,
+    58.8,
+    59.8,
+    60.67,
+    61.33,
+    62.13,
+    63.2,
+    63.67,
+    64.79,
+    65.35,
+    66.53,
+    67.27,
+    68.13,
+    69.33,
+    70.0,
+    71.2,
+    72.13,
+    73.13,
+    74.13,
+    75.33,
+    76.4,
+    77.7,
+    78.93,
+    80.07,
+    81.47,
+    83.0,
+    84.13,
+    85.73,
+    87.0,
+    88.6,
+    90.67,
+    92.27,
+    93.8,
+    95.67,
+    97.47,
+    99.27,
+    101.33,
+    103.56,
+    105.6,
+    108.2,
+    110.8,
+    113.33,
+    116.07,
+    119.3,
+    122.67,
+    127.12,
+    132.2,
+    138.27,
+    145.6,
+    155.07,
+    168.64,
+    224.87
+   ],
+   "sources": [
+    {
+     "resref": "pfe0_head001.plt",
+     "sha256": "160226752275d421050c2a3851388eb3933ec4cfb09a160e9824aa6dc00b2808"
+    },
+    {
+     "resref": "pfe0_head002.plt",
+     "sha256": "599d807fdebda718ba1eec2c5ecc2ca13238d7e3fa56be87c36c4e90f872b197"
+    },
+    {
+     "resref": "pfe0_head003.plt",
+     "sha256": "4d2c8aeee596d1fde5783bc83ca8dcffb7eca0d8b882f488754b46536d5d205f"
+    },
+    {
+     "resref": "pfe0_head004.plt",
+     "sha256": "842b7ff2a0a311ee887ab571a84961d404bb2d3f362defe343e6d54ac99ab705"
+    },
+    {
+     "resref": "pfe0_head005.plt",
+     "sha256": "2ec019036aee68ea8f8358fb5f5d2e24f0f85a319f629149c965f5cc321bd9b1"
+    },
+    {
+     "resref": "pfe0_head006.plt",
+     "sha256": "c07d7251a794d1397d2b59e7bb70aa48130e40008152a7c565850996afaf9341"
+    },
+    {
+     "resref": "pfe0_head007.plt",
+     "sha256": "d9c4105df006be7326295781dc518f8b52cad31018b114bd35054b9674acad9c"
+    },
+    {
+     "resref": "pfe0_head008.plt",
+     "sha256": "2acb76f197f9b5f11c751857d468385372d903d92542e7e591c822230fd1bc7b"
+    },
+    {
+     "resref": "pfe0_head009.plt",
+     "sha256": "a83c892b15ce2bb6b459a0095d6726afdfd624bbf3e22a5e35c0fe0dbfb8dcc3"
+    },
+    {
+     "resref": "pfe0_head010.plt",
+     "sha256": "85c37481f9ba083c6aad532a16cc6371e8dc0df0f206e7408d593fb9067ea0a1"
+    },
+    {
+     "resref": "pfe0_head011.plt",
+     "sha256": "faa1768ee1afec38bddfc27a84c31ff0d411cccaf7a979cbdf92f3a00fc8e1a6"
+    },
+    {
+     "resref": "pfe0_head012.plt",
+     "sha256": "2d9b17937180f4077a56279044e93652ba426d407b3d6d7cca232a05bb57b299"
+    },
+    {
+     "resref": "pfe0_head013.plt",
+     "sha256": "98f40dced4848c4f60fe6ee5c27a4f9cb2ba8301092b33038294f9457df857d7"
+    },
+    {
+     "resref": "pfe0_head015.plt",
+     "sha256": "135935733b2a64635d33b202bc4dee602f78dd80db744f439428a67744d728de"
+    },
+    {
+     "resref": "pfe0_head016.plt",
+     "sha256": "bf36c21c6956fd6c93714b517c480e5bcffea038544d03d37503c7c01ba724ab"
+    }
+   ]
+  },
+  "orc-male-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE male orc head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 11,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    1.18,
+    6.64,
+    8.57,
+    10.45,
+    11.73,
+    13.18,
+    14.18,
+    15.27,
+    16.18,
+    17.36,
+    18.36,
+    18.82,
+    19.82,
+    20.73,
+    21.18,
+    22.27,
+    23.09,
+    23.73,
+    24.18,
+    24.82,
+    25.09,
+    25.73,
+    26.55,
+    27.0,
+    27.82,
+    28.09,
+    28.73,
+    29.18,
+    29.73,
+    30.27,
+    31.0,
+    31.36,
+    32.0,
+    32.55,
+    32.82,
+    33.64,
+    34.0,
+    34.64,
+    34.97,
+    35.82,
+    36.27,
+    36.64,
+    37.45,
+    38.09,
+    38.55,
+    39.0,
+    39.82,
+    40.27,
+    40.91,
+    41.73,
+    42.27,
+    42.82,
+    43.47,
+    44.0,
+    44.91,
+    45.82,
+    46.55,
+    47.09,
+    47.91,
+    48.82,
+    49.55,
+    50.55,
+    51.73,
+    52.55,
+    53.82,
+    54.55,
+    55.64,
+    56.73,
+    58.0,
+    58.91,
+    60.18,
+    61.55,
+    62.55,
+    63.91,
+    65.18,
+    66.55,
+    68.36,
+    70.0,
+    71.36,
+    72.95,
+    74.64,
+    76.73,
+    78.55,
+    80.64,
+    82.55,
+    84.91,
+    87.27,
+    89.45,
+    92.18,
+    94.82,
+    97.64,
+    101.09,
+    104.64,
+    108.73,
+    113.18,
+    118.18,
+    124.55,
+    132.18,
+    142.27,
+    156.54,
+    213.36
+   ],
+   "sources": [
+    {
+     "resref": "pmo0_head001.plt",
+     "sha256": "bd49301cb6e7c5934462e8ec40fd33da0273c51f2f63814d7cc1cd1caf18e12b"
+    },
+    {
+     "resref": "pmo0_head002.plt",
+     "sha256": "20fb1927cb82e856aa4c3682a3012910a42c12c864eca211bfca9b156f202c51"
+    },
+    {
+     "resref": "pmo0_head003.plt",
+     "sha256": "249369ff8a8dcfb1451f8e39cda8f270cde7b81a066652320eba6d7beec0dc73"
+    },
+    {
+     "resref": "pmo0_head004.plt",
+     "sha256": "c812883bfae3108a39bb1232a56227396b31697bb8631d49684e274fa167bcea"
+    },
+    {
+     "resref": "pmo0_head005.plt",
+     "sha256": "d7d677113653c282177a3bf464a1dde0be9bca7594590a882e260da9648262cc"
+    },
+    {
+     "resref": "pmo0_head006.plt",
+     "sha256": "8618b0b35db4b125ebdd021417246af4c7b3b8e22761749ec083da53821f55fd"
+    },
+    {
+     "resref": "pmo0_head007.plt",
+     "sha256": "57a6617ac441079fe29eb9e778c3d4ab5b4497ffbc487230061fd512d714c13f"
+    },
+    {
+     "resref": "pmo0_head008.plt",
+     "sha256": "1a12c3bcd7ebbfc0e379846dbb87717fe6ce744251e77f630b7f3cf16bc03a59"
+    },
+    {
+     "resref": "pmo0_head009.plt",
+     "sha256": "5cbaa5835b6cc7623d48bc29407d5a9365f3fc494836f859d9c3f3b9ec54e9e5"
+    },
+    {
+     "resref": "pmo0_head010.plt",
+     "sha256": "c812883bfae3108a39bb1232a56227396b31697bb8631d49684e274fa167bcea"
+    },
+    {
+     "resref": "pmo0_head011.plt",
+     "sha256": "150ffeef15ab37f34ab57c0de0c76b4b0a28eb584f58c30f7ddef4a5f6dcd2ce"
+    },
+    {
+     "resref": "pmo0_head012.plt",
+     "sha256": "113cbd98348f830bdd7a30f7c38383ce27b5150253d8fd56808ce62aa2918a4d"
+    }
+   ]
+  },
+  "orc-female-hair-v1": {
+   "layer": 1,
+   "description": "Stock NWN:EE female orc head hair (PLT layer 1) shade distribution",
+   "uniqueTextures": 10,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    1.4,
+    9.3,
+    10.9,
+    12.2,
+    13.4,
+    14.6,
+    15.2,
+    16.2,
+    16.9,
+    17.5,
+    18.2,
+    18.6,
+    19.4,
+    19.8,
+    20.5,
+    21.0,
+    21.5,
+    22.04,
+    22.7,
+    23.1,
+    23.8,
+    24.2,
+    24.7,
+    25.5,
+    26.2,
+    26.8,
+    27.4,
+    28.1,
+    28.6,
+    29.1,
+    29.9,
+    30.4,
+    30.8,
+    31.6,
+    32.1,
+    32.8,
+    33.2,
+    34.1,
+    34.8,
+    35.3,
+    35.8,
+    36.7,
+    37.3,
+    38.2,
+    38.7,
+    39.6,
+    40.3,
+    40.9,
+    41.6,
+    42.7,
+    43.3,
+    44.2,
+    45.1,
+    45.9,
+    46.6,
+    47.5,
+    48.4,
+    49.3,
+    50.3,
+    51.2,
+    52.1,
+    53.1,
+    54.3,
+    55.3,
+    56.1,
+    57.6,
+    58.7,
+    59.7,
+    60.9,
+    62.1,
+    63.4,
+    64.7,
+    66.2,
+    67.6,
+    69.1,
+    70.5,
+    72.2,
+    73.8,
+    75.7,
+    77.3,
+    79.3,
+    81.4,
+    83.6,
+    85.5,
+    87.8,
+    89.9,
+    92.5,
+    95.0,
+    98.2,
+    101.1,
+    104.1,
+    108.2,
+    112.12,
+    116.1,
+    120.68,
+    125.84,
+    132.0,
+    139.89,
+    150.79,
+    170.5,
+    240.5
+   ],
+   "sources": [
+    {
+     "resref": "pfo0_head001.plt",
+     "sha256": "70384042c632d533c067c756a268aaadfc3c0841c6304743dcf41dd08e3ff817"
+    },
+    {
+     "resref": "pfo0_head003.plt",
+     "sha256": "c80423d559683aca2db8fbf9ecc11683944b1ff70db7a83af70bdd03df7862a8"
+    },
+    {
+     "resref": "pfo0_head004.plt",
+     "sha256": "967e470df0216df9ce50f2f0d19e1aa14fa24dfd09b63498ee5c1d43f3adc1f3"
+    },
+    {
+     "resref": "pfo0_head005.plt",
+     "sha256": "5590caddf3bc75da322030c77c2309283a34a73cc7181ab1618b6bfa7f3b0c42"
+    },
+    {
+     "resref": "pfo0_head006.plt",
+     "sha256": "eac93dea299d2241f38e08996853b261103bc4e024683315ec8324c1d51f9e72"
+    },
+    {
+     "resref": "pfo0_head007.plt",
+     "sha256": "27d4ece75c450ee7b8a68961d44959cd2f5a253555c8f0fc09cbe14a667e85ab"
+    },
+    {
+     "resref": "pfo0_head008.plt",
+     "sha256": "34f2d64e08c6f71fb89aec3cc9ad58506bd1eabb6b752a1d466a10fbb0649d09"
+    },
+    {
+     "resref": "pfo0_head009.plt",
+     "sha256": "f65da5b86f656d3e0c1d0b865fa39ce9235bbbb827e23c7c875e9b2c795f94f6"
+    },
+    {
+     "resref": "pfo0_head010.plt",
+     "sha256": "faebc925df38765b801bbe2b34e59247dfba95ac252f6f24e96523d0c9114ade"
+    },
+    {
+     "resref": "pfo0_head012.plt",
+     "sha256": "c5cfa71f1e1b705e899d937e845351c08c575f487c6c1c78f53582985bd67af5"
+    }
+   ]
+  },
+  "head-metal-v1": {
+   "layer": 2,
+   "description": "Stock NWN:EE human, dwarf, elf and orc head metal1 (PLT layer 2) shade distribution, all sexes pooled",
+   "uniqueTextures": 47,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    4.6,
+    10.76,
+    14.01,
+    16.97,
+    19.37,
+    21.2,
+    23.26,
+    24.93,
+    26.43,
+    27.91,
+    29.11,
+    30.32,
+    31.43,
+    32.55,
+    33.7,
+    34.84,
+    35.98,
+    36.91,
+    37.97,
+    38.97,
+    40.05,
+    41.11,
+    42.29,
+    43.5,
+    44.77,
+    45.85,
+    46.97,
+    48.18,
+    49.44,
+    50.7,
+    51.85,
+    53.13,
+    54.24,
+    55.41,
+    56.76,
+    57.91,
+    59.1,
+    60.35,
+    61.48,
+    62.61,
+    63.85,
+    65.23,
+    66.31,
+    67.47,
+    68.68,
+    69.9,
+    71.01,
+    72.3,
+    73.55,
+    74.73,
+    75.98,
+    77.2,
+    78.26,
+    79.57,
+    81.02,
+    82.31,
+    83.53,
+    84.8,
+    86.01,
+    87.41,
+    88.64,
+    89.96,
+    91.35,
+    92.87,
+    94.35,
+    95.77,
+    97.22,
+    98.69,
+    100.19,
+    101.61,
+    103.1,
+    104.81,
+    106.56,
+    108.14,
+    109.92,
+    111.72,
+    113.78,
+    115.65,
+    117.79,
+    120.0,
+    122.63,
+    124.81,
+    127.23,
+    129.69,
+    132.29,
+    135.28,
+    138.01,
+    141.16,
+    144.31,
+    147.83,
+    151.64,
+    155.53,
+    160.2,
+    164.96,
+    169.94,
+    175.97,
+    182.11,
+    188.89,
+    197.44,
+    210.29,
+    232.55
+   ],
+   "sources": [
+    {
+     "resref": "pfd0_head002.plt",
+     "sha256": "aa799008d5870a620bee0ad64bfa1ced683bc2c08af8e281befda0c5c740d89e"
+    },
+    {
+     "resref": "pfd0_head003.plt",
+     "sha256": "5ec35f88375652c3f8d67832d23c2f6441f61e1e75e718c87a142a28c3eaa6d7"
+    },
+    {
+     "resref": "pfd0_head005.plt",
+     "sha256": "94ce02de24b8f96f74a0f8343bd7d00f5d136f3c462ca65b5edb4713d1f57259"
+    },
+    {
+     "resref": "pfd0_head006.plt",
+     "sha256": "3353fcbf4423cfd217241bf2bf536c829e0e96515231193d27ecf829225bee7f"
+    },
+    {
+     "resref": "pfd0_head007.plt",
+     "sha256": "d7d771f16299c5a7718b6bd84464304882fc6506dd8138ced9236f6dd6f8fe23"
+    },
+    {
+     "resref": "pfd0_head008.plt",
+     "sha256": "4216c10b41caf26d92708df5f44a79eb9e1fa0de07edb88f3c3591ed2b64a83d"
+    },
+    {
+     "resref": "pfd0_head009.plt",
+     "sha256": "709b93b1ccaf2f0d184225095eefec5eeeaded0f10b4423e0555c32faee62205"
+    },
+    {
+     "resref": "pfd0_head011.plt",
+     "sha256": "d850b5121d8f3b4c035210562cc1bdbcae31ff8689441a1ef0c12cf59d2e2c17"
+    },
+    {
+     "resref": "pfe0_head001.plt",
+     "sha256": "160226752275d421050c2a3851388eb3933ec4cfb09a160e9824aa6dc00b2808"
+    },
+    {
+     "resref": "pfe0_head002.plt",
+     "sha256": "599d807fdebda718ba1eec2c5ecc2ca13238d7e3fa56be87c36c4e90f872b197"
+    },
+    {
+     "resref": "pfe0_head004.plt",
+     "sha256": "842b7ff2a0a311ee887ab571a84961d404bb2d3f362defe343e6d54ac99ab705"
+    },
+    {
+     "resref": "pfe0_head005.plt",
+     "sha256": "2ec019036aee68ea8f8358fb5f5d2e24f0f85a319f629149c965f5cc321bd9b1"
+    },
+    {
+     "resref": "pfe0_head012.plt",
+     "sha256": "2d9b17937180f4077a56279044e93652ba426d407b3d6d7cca232a05bb57b299"
+    },
+    {
+     "resref": "pfe0_head015.plt",
+     "sha256": "135935733b2a64635d33b202bc4dee602f78dd80db744f439428a67744d728de"
+    },
+    {
+     "resref": "pfe0_head016.plt",
+     "sha256": "bf36c21c6956fd6c93714b517c480e5bcffea038544d03d37503c7c01ba724ab"
+    },
+    {
+     "resref": "pfh0_head003.plt",
+     "sha256": "c04cc2b7aca12d33da9cbd3df3005cbab4c74aa01b3b43b5a6e754e2ad2d8cbd"
+    },
+    {
+     "resref": "pfh0_head004.plt",
+     "sha256": "bb09edea169a55446cca868114f8b52245831eff56718edf8db1fb325c6c400b"
+    },
+    {
+     "resref": "pfh0_head008.plt",
+     "sha256": "35d0cba3202dadc1796bbe5b3bef7f48bbd328d861f9d98a75d80dd6652b7f51"
+    },
+    {
+     "resref": "pfh0_head010.plt",
+     "sha256": "21d3ee80bae42a834d68a9ae34dfb8415f19e4eea8d36286201d88e1212f5938"
+    },
+    {
+     "resref": "pfh0_head011.plt",
+     "sha256": "5274e74046a997f5cafff2e077a0d74a505f9b44dbcb58491e1912c34fba6898"
+    },
+    {
+     "resref": "pfh0_head020.plt",
+     "sha256": "dee27d8c8b7431c2dcc8122bca764869e4f4a02a567be74e0f8e35d0a59cc4cc"
+    },
+    {
+     "resref": "pfh0_head021.plt",
+     "sha256": "dfe321f1152625e940097fa931197eb92bc8e7a5617102066f9e43271cf69117"
+    },
+    {
+     "resref": "pfh0_head023.plt",
+     "sha256": "d13f20f50ddfb99f699e0d72c423f18aef4bd28017774c753157030b2f1042bd"
+    },
+    {
+     "resref": "pfh0_head025.plt",
+     "sha256": "00eff4341a743ac8e97c588e7f077f4c25cd2fe8da667142e00a7b5d636e3eec"
+    },
+    {
+     "resref": "pfh0_head026.plt",
+     "sha256": "a6c9cc4d24de520135b1a626332252def80b798c01e8ce98501b69adb60a14fd"
+    },
+    {
+     "resref": "pfh0_head027.plt",
+     "sha256": "1b36747b4e7dfb106256910b0c6a8b543b5811902f11507041ff9d1fd0f6df8e"
+    },
+    {
+     "resref": "pfh0_head143.plt",
+     "sha256": "bab8b74966ddc2154753443ecb760f6a0425bd1481fe8c02060001ca1ce35f94"
+    },
+    {
+     "resref": "pfh0_head144.plt",
+     "sha256": "df74a23332cf75613f820736851a854f2fb9010979de99fe8e79d7470beb0e43"
+    },
+    {
+     "resref": "pfh0_head155.plt",
+     "sha256": "ac9f06f48dade763aee72714d6d3e48b138690e4dbd06a6c499aea6953b1e5c7"
+    },
+    {
+     "resref": "pfo0_head001.plt",
+     "sha256": "70384042c632d533c067c756a268aaadfc3c0841c6304743dcf41dd08e3ff817"
+    },
+    {
+     "resref": "pfo0_head006.plt",
+     "sha256": "eac93dea299d2241f38e08996853b261103bc4e024683315ec8324c1d51f9e72"
+    },
+    {
+     "resref": "pfo0_head007.plt",
+     "sha256": "27d4ece75c450ee7b8a68961d44959cd2f5a253555c8f0fc09cbe14a667e85ab"
+    },
+    {
+     "resref": "pfo0_head008.plt",
+     "sha256": "34f2d64e08c6f71fb89aec3cc9ad58506bd1eabb6b752a1d466a10fbb0649d09"
+    },
+    {
+     "resref": "pfo0_head011.plt",
+     "sha256": "d60f2da7ec45f0262d64febc6166fb9b23529a2d49e28f26369d3e9797ebc449"
+    },
+    {
+     "resref": "pmd0_head012.plt",
+     "sha256": "e9b6da2ef3bf03d8f7a5b10b9001f002d0062762043755b782d6319a0efe2d59"
+    },
+    {
+     "resref": "pme0_head002.plt",
+     "sha256": "da15ac2a66903be60ff05aa49f2e420a0dc0f9f56409afd610b6543375cb2cfe"
+    },
+    {
+     "resref": "pme0_head003.plt",
+     "sha256": "b773ab0cd32fcdec5c8cab11d63d9c13bb67fdf74cd55c55bb8cda731bdb1020"
+    },
+    {
+     "resref": "pme0_head011.plt",
+     "sha256": "e49e28bb046b628afdf2c63c18c9cbfa95497c30f6798418028830b2c2d90140"
+    },
+    {
+     "resref": "pme0_head017.plt",
+     "sha256": "072b211c742707792cbc2f4940f9e69ce19ab2748f8318110e4d3a54aad2c0e8"
+    },
+    {
+     "resref": "pmh0_head003.plt",
+     "sha256": "329da5b33ef0312c2da44ceb0680aa746f331c993e22a0aa2fae4de6331a4c32"
+    },
+    {
+     "resref": "pmh0_head006.plt",
+     "sha256": "cf0d123673f72909c05c9fb95b73d864af83366fd9acc8637551978d9144890b"
+    },
+    {
+     "resref": "pmh0_head011.plt",
+     "sha256": "be0c4445ac9bef5ed6fb6e02777f643d5b0ba6efdf31ffd4c8e9e28efcd9a1b9"
+    },
+    {
+     "resref": "pmh0_head012.plt",
+     "sha256": "8cc936fd56fd742a0df7c691f451b60ead2974f6ce88d241a8bb1a1d7ebc465e"
+    },
+    {
+     "resref": "pmh0_head014.plt",
+     "sha256": "501f04d11474ee0d08fc735faf5907b56c9c1d498d63b4605388cff49a73a68b"
+    },
+    {
+     "resref": "pmh0_head016.plt",
+     "sha256": "c68bc1337b61f6132ce6eff9d97e188640bdc7c4c215506a25f40933f8d0f3d4"
+    },
+    {
+     "resref": "pmh0_head026.plt",
+     "sha256": "729380ba1095ecfc5e3f15109798b65e09efc53587101e6ba2323d2c3702cf0f"
+    },
+    {
+     "resref": "pmh0_head033.plt",
+     "sha256": "23acaaaf40ceeb7b5d275bbe7885afbfb135e278b83be5cd3f46c6f29e1c11a2"
+    },
+    {
+     "resref": "pmh0_head034.plt",
+     "sha256": "1b36747b4e7dfb106256910b0c6a8b543b5811902f11507041ff9d1fd0f6df8e"
+    },
+    {
+     "resref": "pmh0_head050.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head051.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head052.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head053.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head054.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head055.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head056.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head057.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head058.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head059.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head060.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head061.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head062.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head063.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head064.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head065.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head066.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head067.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head068.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head069.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head070.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head071.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head072.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head073.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head074.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head075.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head076.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head077.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head078.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head079.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head080.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head081.plt",
+     "sha256": "58396d2067edcf98be9e60b5d6ca10dad28a8d6f546ad5e55bf47eb9135f12a9"
+    },
+    {
+     "resref": "pmh0_head082.plt",
+     "sha256": "951e5ad22f6b3c492610c2dd7ec0a938f54e342527a54d5123a5a2cb391a542c"
+    },
+    {
+     "resref": "pmh0_head083.plt",
+     "sha256": "951e5ad22f6b3c492610c2dd7ec0a938f54e342527a54d5123a5a2cb391a542c"
+    },
+    {
+     "resref": "pmh0_head084.plt",
+     "sha256": "951e5ad22f6b3c492610c2dd7ec0a938f54e342527a54d5123a5a2cb391a542c"
+    },
+    {
+     "resref": "pmh0_head085.plt",
+     "sha256": "951e5ad22f6b3c492610c2dd7ec0a938f54e342527a54d5123a5a2cb391a542c"
+    },
+    {
+     "resref": "pmh0_head086.plt",
+     "sha256": "951e5ad22f6b3c492610c2dd7ec0a938f54e342527a54d5123a5a2cb391a542c"
+    },
+    {
+     "resref": "pmh0_head087.plt",
+     "sha256": "951e5ad22f6b3c492610c2dd7ec0a938f54e342527a54d5123a5a2cb391a542c"
+    },
+    {
+     "resref": "pmh0_head088.plt",
+     "sha256": "951e5ad22f6b3c492610c2dd7ec0a938f54e342527a54d5123a5a2cb391a542c"
+    },
+    {
+     "resref": "pmh0_head143.plt",
+     "sha256": "747d927bf706f7a5334ab77b89876bc05c6758bc128f97b4454c04cd2ab0e379"
+    },
+    {
+     "resref": "pmh0_head144.plt",
+     "sha256": "f029cd0db02ed572cbe22cfe8716ab379f20b066b4b54233e2d33bff7cdbe664"
+    },
+    {
+     "resref": "pmh0_head155.plt",
+     "sha256": "55098e8af6bb3550f0906114fe2419e6d956de09063e3f890b247c4e3312127d"
+    }
+   ]
+  },
+  "head-tattoo1-v1": {
+   "layer": 8,
+   "description": "Stock NWN:EE human, dwarf, elf and orc head tattoo1 (PLT layer 8) shade distribution, all sexes pooled",
+   "uniqueTextures": 4,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    14.0,
+    18.0,
+    19.0,
+    20.0,
+    20.5,
+    21.0,
+    21.0,
+    21.5,
+    22.0,
+    22.5,
+    22.5,
+    23.0,
+    23.5,
+    23.5,
+    24.0,
+    24.0,
+    24.5,
+    24.75,
+    25.0,
+    25.25,
+    25.5,
+    25.5,
+    26.0,
+    26.0,
+    26.25,
+    26.5,
+    26.5,
+    27.0,
+    27.0,
+    27.25,
+    27.5,
+    27.5,
+    27.5,
+    27.66,
+    28.0,
+    28.0,
+    28.0,
+    28.25,
+    28.5,
+    28.5,
+    28.5,
+    28.75,
+    29.0,
+    29.0,
+    29.0,
+    29.25,
+    29.5,
+    29.5,
+    29.5,
+    29.75,
+    30.0,
+    30.0,
+    30.0,
+    30.0,
+    30.5,
+    31.0,
+    31.0,
+    31.24,
+    31.75,
+    31.75,
+    31.85,
+    32.75,
+    32.75,
+    33.48,
+    33.78,
+    34.75,
+    34.75,
+    35.0,
+    35.75,
+    36.0,
+    36.0,
+    36.41,
+    37.0,
+    37.33,
+    38.0,
+    38.75,
+    39.25,
+    40.0,
+    40.63,
+    41.0,
+    41.75,
+    42.5,
+    42.75,
+    43.25,
+    43.25,
+    44.75,
+    45.0,
+    46.8,
+    49.2,
+    50.94,
+    52.42,
+    53.57,
+    56.64,
+    60.54,
+    64.61,
+    76.4,
+    88.4,
+    98.93,
+    123.62,
+    139.62,
+    165.5
+   ],
+   "sources": [
+    {
+     "resref": "pfh0_head021.plt",
+     "sha256": "dfe321f1152625e940097fa931197eb92bc8e7a5617102066f9e43271cf69117"
+    },
+    {
+     "resref": "pfh0_head155.plt",
+     "sha256": "ac9f06f48dade763aee72714d6d3e48b138690e4dbd06a6c499aea6953b1e5c7"
+    },
+    {
+     "resref": "pmh0_head027.plt",
+     "sha256": "20116005864506c7c201988a4e1769522d0994ee2872ee341f14f4b62fd6ed10"
+    },
+    {
+     "resref": "pmh0_head155.plt",
+     "sha256": "55098e8af6bb3550f0906114fe2419e6d956de09063e3f890b247c4e3312127d"
+    }
+   ]
+  },
+  "head-tattoo2-v1": {
+   "layer": 9,
+   "description": "Stock NWN:EE human, dwarf, elf and orc head tattoo2 (PLT layer 9) shade distribution, all sexes pooled",
+   "uniqueTextures": 2,
+   "method": "headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced probabilities; textures whose channel holds an identical shade multiset count once",
+   "quantiles": [
+    11.0,
+    12.5,
+    18.0,
+    22.45,
+    26.2,
+    30.5,
+    32.0,
+    34.5,
+    36.0,
+    37.0,
+    38.5,
+    40.0,
+    42.5,
+    43.92,
+    44.5,
+    47.0,
+    47.0,
+    48.82,
+    49.5,
+    51.0,
+    53.5,
+    54.5,
+    55.5,
+    57.0,
+    57.0,
+    58.5,
+    58.5,
+    60.0,
+    61.5,
+    61.5,
+    63.0,
+    64.0,
+    64.2,
+    66.0,
+    66.5,
+    67.5,
+    68.0,
+    69.5,
+    70.0,
+    71.5,
+    72.5,
+    73.73,
+    74.45,
+    75.0,
+    76.0,
+    76.5,
+    78.0,
+    78.5,
+    78.5,
+    79.53,
+    81.25,
+    82.0,
+    83.5,
+    84.5,
+    85.5,
+    86.38,
+    88.1,
+    89.0,
+    89.75,
+    91.5,
+    92.0,
+    93.5,
+    94.0,
+    94.68,
+    96.0,
+    96.62,
+    97.5,
+    99.0,
+    99.8,
+    101.0,
+    101.75,
+    103.0,
+    104.0,
+    105.0,
+    106.0,
+    107.5,
+    108.5,
+    109.83,
+    110.05,
+    111.5,
+    112.0,
+    114.0,
+    116.5,
+    117.5,
+    119.5,
+    121.5,
+    123.0,
+    124.5,
+    126.8,
+    129.35,
+    132.25,
+    136.93,
+    140.2,
+    143.43,
+    149.0,
+    153.88,
+    161.7,
+    184.62,
+    198.2,
+    204.77,
+    223.0
+   ],
+   "sources": [
+    {
+     "resref": "pfh0_head155.plt",
+     "sha256": "ac9f06f48dade763aee72714d6d3e48b138690e4dbd06a6c499aea6953b1e5c7"
+    },
+    {
+     "resref": "pmh0_head027.plt",
+     "sha256": "20116005864506c7c201988a4e1769522d0994ee2872ee341f14f4b62fd6ed10"
+    }
+   ]
   }
  }
 }
