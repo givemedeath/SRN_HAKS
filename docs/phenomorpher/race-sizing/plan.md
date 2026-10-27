@@ -73,11 +73,75 @@ The halfway Dwarf (index ≈1.76, S ≈1.11) is kept alongside the full target f
 `output/phenomorpher/race-sizing/sheet-{elf,dwarf,ork,troll}.png`. Each row shows the Human reference, then the
 body before and after (plus the halfway step for Dwarf) in front, side and rear views, at one metric scale.
 
-Next steps, once the user approves the standing shapes:
-* motion review;
-* item 4 (port the b13/c6 female recipes to each race's females, each reviewed in game);
-* rebuild the race animation libraries' derived data;
-* compile and run the native gates;
+User, 2026-10-26: "The standing shapes look right; take the full lore Dwarf build forward and continue with
+motion review and the female joins." The full-target Dwarf is used; the halfway variant stays as evidence only.
+
+### Motion review (all renders on the GPU, RTX 3060; no CPU pass)
+
+`bodymotion.py` poses every part and head001 from the body's own rig and race library chain (`srn_an_*`, then
+stock), with the engine's rules: orientation keys are absolute local rotations, node positions follow the body's
+own bind offsets, and the root takes its key relative to the owning animation model's rest. Ten poses (pause1,
+walk, run, nwkickl, castup, conjure1, victoryfr, sit, worship, getlowlp) × front, left, rear, 5.5 mm/px.
+Visible back faces count as holes. Rest geometry for ASCII rigs comes from `walkrender.rig_model`, because the
+ASCII loader leaves it at zero.
+
+* Males (r1): 0–2 px per pose, the same level as the shipped Troll male.
+* Human c6 females, as reference: 0–3 px per pose.
+
+## 4. Female joins port (in-game review pending)
+
+`portjoins.sh` ports the Human b13 hip/knee joins and the c6 torso polish to each non-Human female:
+
+* Scale the body uniformly to the c6 Human female rest height (exact, `restature.py`).
+* Run the Human recipes with their fixed lengths. Thigh poses come from the body's own rig and race library
+  (`RIGDIR`). The toolkit now honours race bind rotations on thigh, shin, foot, neck and head.
+* Scale back.
+
+Hole-fix renders must log a GPU pass; a CPU fallback aborts the port. Hole-fix history (px), every pass on the GPU:
+
+| Body | History | Body | History |
+|---|---|---|---|
+| pfe0 | 384 → 7 | pfe2 | 325 → 16 (worse last pass reverted) |
+| pfd0 | 0 | pfd2 | 7 → 0 |
+| pfo0 | 131 → 10 | pfo2 | 60 → 9 |
+| pfg0 | 111 → 8 | pfg2 | 51 → 12 |
+
+The Fit females showed new holes in motion, at the rear waist, in kick, run and victory (pfg0 kick 3 → 15).
+The Large females did not. The cause is the c6 pelvis-top rear roll. On the Fit bodies the pelvis top stands
+29–40 mm outside the chest at the back, so the roll moves it in by up to 40 mm. That tuck opens when the wider
+race torsos twist. The cornerround has no effect on the holes. `c6var.sh` replays the c6 stage with a weaker
+rear weight; the replay of the unchanged recipe reproduces the port byte for byte. For each Fit body the
+strongest weight kept was the one whose motion stays within 2 px of the pre-port body per pose:
+
+| Body | Rear weight (140°, 180°) | Rear roll at edge | Motion holes per pose, pre-port → final |
+|---|---|---:|---|
+| pfe0 | 0.9, 0.8 | 23 of 29 mm | kick 0 → 2, run 4 → 5, others equal |
+| pfd0 | 0.9, 0.8 | 32 of 40 mm | kick 1 → 2, others equal |
+| pfo0 | 0.9, 0.8 | 29 of 37 mm | kick 3 → 4, others equal |
+| pfg0 | 0.8, 0.6 | 24 of 39 mm | run 1 → 2, others equal |
+
+The Large females keep the full c6 recipe; their motion equals pre-port. A rear crest of 6–15 mm remains on the
+Fit bodies, where the Human keeps about 1 mm. The remaining extra pixels in the zoomed hip renders sit at the
+raised buttock in kick: the b13 hip join in deep flexion. This is the behaviour the user accepted on the Human.
+
+Evidence in `output/phenomorpher/race-sizing/`:
+* `motion/motion-*.png`: final motion sheets.
+* `motion-pre/`: pre-port motion sheets.
+* `joins-review/{pre,port}/motion-pf*.png`: hip to knee at about 2 mm/px, pause1, walk, kick and sit.
+* `r2-variants.txt`.
+
+### Build r2
+
+* `r2-ascii`: r1 with the eight ported females.
+* `r2-compiled`: 307 models, audit 0 failures, inputs pinned and unchanged.
+* `combo-r2`, made by `buildrace.sh`: the locked combo-c6 stage with 297 r2 models overlaid. Human bodies and
+  shared skin are unchanged. Race parts share the Human skin PLTs and maps through their UVs, so there is no
+  re-bake. The extra Troll heads in `srn_head` are not in the review profile.
+* Installed into `profile-combo` (hardlinks, hash-checked).
+
+Next:
+* in-game review per race (females' joins, all bodies' stature and build);
+* native gates;
 * equipment profiles;
 * client height calibration (item 5);
 * the c7 Human lock for `pmh2`.
