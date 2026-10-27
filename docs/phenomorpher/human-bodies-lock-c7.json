@@ -6,7 +6,8 @@
  "basedOn": {
   "lock": "human-bodies-c6",
   "manifest": "docs/phenomorpher/human-bodies-lock-c6.json",
-  "sha256": "9bac4ef4ddad48abd2629156a35297af011d79a2469bebc9bcf7c68616806862",
+  "sha256": "8eb892cd84be13ef549da447711dc1513b5054e233c8f60c54b421bc2cb152d3",
+  "sha256Of": "the committed LF bytes (.gitattributes: *.json eol=lf)",
   "note": "Every c6 locked pack file is byte-identical in the c7 stage; the c6 record stays as written."
  },
  "userApproval": {
