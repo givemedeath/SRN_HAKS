@@ -971,6 +971,20 @@ class MeshTests(Temporary):
         self.assertEqual(len(inputs),2);self.assertTrue(result['smoothing']['rewrapped']);self.assertEqual(result['smoothing']['rewrapShells']['shells'],1)
         self.assertGreater(np.abs(inputs[1]-inputs[0]).max(),1e-4)  # the second wrap received the smoothed master
         np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(inputs[1],axis=0),0),atol=1e-6)
+    def test_reduction_gate_passes_bounded_fine_relief_but_not_a_flattened_protrusion(self):
+        # race heads v1: 10 of 20 heads failed the 0.4% bound only on hair-strand relief (<=11 vertices, extent <=1.1%, <=1.16%)
+        from headkit.neck import fine_relief
+        p,f=self.icosphere(levels=4);diagonal=float(np.linalg.norm(np.ptp(p,axis=0)));error=np.full(len(p),.001)
+        strands=np.random.default_rng(6).choice(len(p),5,replace=False);error[strands]=.009  # ~0.2% of the area
+        relief=fine_relief(p,f,error,.003,.004,{})
+        self.assertTrue(relief['passed']);self.assertLessEqual(relief["regions"],5);self.assertLess(relief['measured']['extent'],.015)
+        tusk=error.copy();tusk[np.linalg.norm(p-p[0],axis=1)<.03*diagonal]=.009  # a lost protrusion: one long connected region
+        failed=fine_relief(p,f,tusk,.003,.004,{});self.assertFalse(failed['passed']);self.assertGreater(failed['measured']['extent'],.015)
+        for value,outward,policy in ((.02,.003,{}),(.009,.005,{}),(.009,.003,False),(.009,.003,{'maximumError':.008})):
+            with self.subTest(value=value,outward=outward,policy=policy):
+                deep=error.copy();deep[strands]=value;self.assertFalse(fine_relief(p,f,deep,outward,.004,policy)['passed'])
+        for bad in ({'maximumExtent':.05},{'other':.01},{'maximumError':0},True):
+            with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'fineRelief'):fine_relief(p,f,error,.003,.004,bad)
     def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
         from headkit import neck as mesh_module
         from headkit.neck import neck_policy,neck_shorten,shorten_depth,transform
@@ -1076,6 +1090,31 @@ class MeshTests(Temporary):
         self.assertTrue(result['passed']);self.assertEqual(result['neck']['cut']['bodyNeck'],pin(reference))
         self.assertEqual(result['neck']['cut']['uncut'],pin(self.root/'master-uncut.glb'))
         master=mesh(self.root/'master.glb')['positions'];self.assertGreater(master[:,1].min(),-.07)  # GLB y = NWN z: the neck is gone
+    def test_neck_cut_snaps_a_vertex_just_above_the_plane_instead_of_leaving_a_sliver(self):
+        # troll-male-a repair 1: a kept vertex 1.1e-6 m above the plane left a zero-area triangle the master audit refused
+        from headkit.neck import neck_policy,neck_cut,cut_problem
+        p,f,body=self.necked_head();row=float(np.unique(p[:,2])[np.argmin(np.abs(np.unique(p[:,2])+.06))])
+        neck=neck_policy({'cut':{'height':row-2e-9,'slope':0.0}},{'matrix':np.eye(4).tolist(),'reviewed':True})
+        v,faces,record=neck_cut(self.glb(p),f,neck,body)
+        self.assertIsNone(cut_problem(v,faces));self.assertGreater(record['snappedToPlane'],0);self.assertEqual(record['closure'],'fan')
+    def test_repair_tries_reviewed_fallback_slopes_then_reports_passing_cut_variants(self):
+        from headkit import neck as mesh_module
+        p,f,body=self.necked_head();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        reference=self.root/'body-neck.json';write(reference,{'kind':'srn-head-body-neck','vertices':body[0].tolist(),'faces':body[1].tolist()},fresh=True)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True};igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'cut':{'height':'measured','slope':-.2,'slopes':[-.15]}}}
+        verdicts=iter(['22 crossing pairs',None])  # the declared slope crosses hanging hair; the reviewed fallback is clean
+        with patch.object(mesh_module,'library',lambda b,name:igl),patch.object(mesh_module,'cut_problem',lambda v,f:next(verdicts)):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=fit,body=reference)
+        self.assertEqual(result['neck']['cut']['slope'],-.15)
+        self.assertEqual(result['neck']['cut']['slopesTried'],[{'slope':-.2,'problem':'22 crossing pairs'},{'slope':-.15,'problem':None}])
+        failing=self.root/'failing';failing.mkdir()
+        with patch.object(mesh_module,'library',lambda b,name:igl),patch.object(mesh_module,'cut_problem',lambda v,f:'1 crossing pairs'):
+            with self.assertRaisesRegex(ValueError,'slope -0.2: 1 crossing pairs; slope -0.15: 1 crossing pairs.*cut-candidates.json'):
+                mesh_module.repair(source,failing/'final.glb',{},policy,inspection,fit=fit,body=reference)
+        survey=read(failing/'cut-candidates.json');self.assertEqual(len(survey['tried']),2)
+        self.assertIn({'height':'measured','slope':-.1,'reach':.08},[row['cut'] for row in survey['candidates']])
+        with self.assertRaisesRegex(ValueError,'fallback slopes'):mesh_module.neck_policy({'cut':{'height':'measured','slopes':[-.9]}},fit)
     def test_body_neck_reference_places_the_neck_part_in_the_head_frame(self):
         from headkit.body_neck import build
         skeleton=('newmodel pxg0\nnode dummy pxg0\n  parent NULL\nendnode\nnode dummy torso_g\n  parent pxg0\n  position 0 0 1.5\nendnode\n'
@@ -2994,6 +3033,18 @@ class FitProposalTests(Temporary):
         # A nose fit that would move the head further than the agreement bound is refused, never applied.
         with patch('headkit.fit.nose_tip',side_effect=[np.array([0,.2,0.]),np.array([0,0,-.2])]):
             with self.assertRaisesRegex(ValueError,'disagree by'):propose(source,reference,self.root/'fit-far',align='nose')
+    def test_reference_ranking_puts_a_head_with_back_hair_last(self):
+        # race heads v1: pfh0_head001, pfd0_head008 and pfo0_head009 carried back hair and mis-scaled their fits (0.50-0.60)
+        from headkit.fit import rank_references
+        points,faces=self.head();hair=points.copy();back=(hair[:,1]<0)&(hair[:,2]<.06);hair[back,1]*=1.8  # hanging back hair
+        paths=[]
+        for name,p in (('hair',hair),('compact',points)):
+            lines=['node trimesh head','  position 0 0 0',f'  verts {len(p)}']+[f'    {x} {y} {z}' for x,y,z in p]
+            lines+=[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+            path=self.root/f'{name}.mdl';path.write_text('\n'.join(lines));paths.append(path)
+        ranking=rank_references(paths,samples=20000)
+        self.assertEqual([Path(row['reference']['path']).stem for row in ranking],['compact','hair'])
+        self.assertGreater(ranking[1]['depthRatio'],ranking[0]['depthRatio']*1.15)
     def test_reference_nodes_are_placed_through_their_transforms(self):
         # Stock heads (decompiled pmd0/pme0/pmo0_head001) carry node offsets and 'orientation 0 0 1 0' (identity).
         from headkit.fit import ascii_surface
@@ -3578,7 +3629,21 @@ class TextureStageTests(Temporary):
         self.assertTrue(Path(result['preview']).is_file());self.assertEqual(sum(result['report']['channels'].values()),64*64)
         self.assertGreater(result['report']['rules'][0]['texels'],0)
         with self.assertRaisesRegex(ValueError,'named regions'):preview(runner,'stats',self.root/'stats')
-        with self.assertRaisesRegex(ValueError,'ownership, stats or relief'):preview(runner,'colour',self.root/'other')
+        with self.assertRaisesRegex(ValueError,'ownership, stats, relief or rows'):preview(runner,'colour',self.root/'other')
+    def test_preview_rows_decodes_each_channel_with_its_manifest_row_and_the_ranked_rows(self):
+        # race heads v1: automatic rows were hue-wrong on 16 of 20 heads; reviewers pin rows from this sheet before the palette
+        from headkit.preview import preview
+        source,rgb=self.two_faces();owners=np.zeros((64,64),np.uint8);owners[:,32:]=1;Image.fromarray(owners).save(self.root/'own.png')
+        ramp=np.arange(256)[:,None];palette=np.zeros((4,256,4),np.uint8);palette[...,3]=255;palette[3,:,3]=0
+        palette[0,:,:3]=ramp;palette[1,:,0]=ramp[:,0];palette[2,:,2]=ramp[:,0];Image.fromarray(palette).save(self.root/'pal.png')
+        paths={'paletteSkin':str(self.root/'pal.png'),'paletteHair':str(self.root/'pal.png'),'ownership1k':str(self.root/'own.png')}
+        runner=SimpleNamespace(data={'inputs':paths,'palette':{'inputs':{'0':'paletteSkin','1':'paletteHair'},'rows':{'0':2,'1':'auto'}}},
+            _sealed=lambda:False,input=lambda name:paths[name],
+            result=lambda stage,require_review=True:{'unwrap':{'mesh':{'path':str(source)}},'bake':{'maps':{'basecolor-4096.png':{'path':str(self.root/'color.png')}}}}[stage])
+        result=preview(runner,'rows',self.root/'rows');rows=[(c['channel'],c['row'],c['manifest']) for c in result['candidates']]
+        self.assertEqual(rows[0],('0',2,True));self.assertEqual(len({(c,r) for c,r,_ in rows}),len(rows))  # the manifest row once, first
+        self.assertEqual({r for c,r,_ in rows if c=='1'},{0,1,2});self.assertNotIn(3,{r for _,r,_ in rows})  # transparent row never offered
+        self.assertTrue(Path(result['preview']).is_file())
     def test_rule_ownership_first_match_wins_and_padding_takes_nearest_label(self):
         from headkit.paint import rule_ownership
         from headkit.uv import raster_audit
@@ -3684,7 +3749,11 @@ class TextureStageTests(Temporary):
         data=read(runner.manifest_path);data['ownership']['rules']=[{'name':'all-skin','channel':0,'when':{'mapped':True}}];data['tone']={'mode':'adjust','operations':[]}
         write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
         for stage in ('repair','unwrap','bake'):self.assertIn('artifact',runner.result(stage))
-        data['mesh']={'maximumSubtexelFraction':.004};write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        data['mesh']=dict(data.get('mesh') or {},maximumSubtexelFraction=.004);write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertIn('artifact',runner.result('repair'))  # repair does not read the UV and bake keys
+        for stage in ('unwrap','bake'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
+        data['mesh']=dict(data['mesh'],triangleBudget=19000);write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
         for stage in ('repair','unwrap','bake'):
             with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
         receipt=read(runner.state['stages']['repair']['path']);self.assertNotIn(str(runner.manifest_path),{p['path'] for p in receipt['inputs']})
@@ -3733,6 +3802,16 @@ class TextureStageTests(Temporary):
             runner.execute('repair');runner.review('repair','approved','Reviewed this stage')
         with patch('headkit.runner.stage_source_version',return_value='edited'),patch('headkit.common.runner_slice_sha',return_value='0'*64):
             with self.assertRaisesRegex(ValueError,'Stale stage; rerun with current input snapshot: repair'):runner.result('repair')
+    def test_a_uv_coverage_floor_stales_unwrap_but_not_the_approved_repair(self):
+        # race heads v1: a reviewed mesh.uv floor set after repair approval forced 4-7 min identical repair reruns
+        runner=self.texture_runner();before={stage:runner.manifest_digest(stage) for stage in ('repair','unwrap','bake')};data=read(runner.manifest_path)
+        for key,value in (('uv',{'minimumCoverage':.21,'coverageReview':'reviewed'}),('maximumSubtexelFraction',.004),('allowDecoderOvershoot',True),('reuseReviewedUvs',False)):
+            with self.subTest(key=key):
+                changed=copy.deepcopy(data);changed.setdefault('mesh',{})[key]=value;write(runner.manifest_path,changed)
+                fresh=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(fresh.manifest_digest('repair'),before['repair'])
+                self.assertNotEqual(fresh.manifest_digest('unwrap'),before['unwrap']);self.assertNotEqual(fresh.manifest_digest('bake'),before['bake'])
+        changed=copy.deepcopy(data);changed.setdefault('mesh',{})['triangleBudget']=19000;write(runner.manifest_path,changed)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('repair'),before['repair'])
     def test_later_approvals_do_not_stale_the_matte(self):
         runner=self.texture_runner();before=runner.manifest_digest('prepare');data=read(runner.manifest_path)
         data['approval'].update(appearanceField={'decision':'approved'},textureMaps={'basecolor4k':{'decision':'approved'}})
