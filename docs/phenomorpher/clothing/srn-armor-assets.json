@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "kind": "PhenoMorpher-stock-armor-pack",
  "pack": "srn_armor",
- "bodyContractSHA256": "124c2278caffd764bf258cd3a24cf405a651af8d1655c4009d17b65ea10a1b9e",
+ "bodyContractSHA256": "aa78f15d2e5c0c78e5c5c9a7a5f152e040d156cfaa6ce871b7c381fdef18d672",
  "stockInventorySHA256": "92edf66983988df3edb8c4e723d3fcd8be8dccd21a3414acb25942364c9f4400",
  "profilesSHA256": "aea8b4994b4290746247838446655cc1e1924692a90d1b7994e59a755ad3b9e4",
  "armory": {

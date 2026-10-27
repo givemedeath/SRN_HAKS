@@ -469,7 +469,9 @@ changes come from local, deterministic transforms of those models:
 * Large-male joint heights set to Fit;
 * a sideways lore build scale;
 * the Human b13/c6 hip, knee and torso join recipes ported to the race females;
-* a root raise that puts idle soles on the floor.
+* a root raise that puts idle soles on the floor;
+* per-clip root lifts in the race animation libraries (`srn_an_*`), so no race body goes further below the floor
+  than it did in 1.2.0.
 
 The c7 Human lock adds the c6 female joins, torso polish and rebuilt skin, and `pmh2` with its joint heights at Fit.
 The skin re-bake reuses the published body textures. The 34 published Troll heads in `srn_head` are rescaled

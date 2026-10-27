@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "kind": "PhenoMorpher-release-1.3.0",
  "contract": "docs/phenomorpher/game-ready-assets.json",
- "contractSHA256": "124c2278caffd764bf258cd3a24cf405a651af8d1655c4009d17b65ea10a1b9e",
+ "contractSHA256": "aa78f15d2e5c0c78e5c5c9a7a5f152e040d156cfaa6ce871b7c381fdef18d672",
  "fromContractSHA256": "b4ec9143fec0353f8d0ed52a39027ee3cd7e2352f63831e7b39913e40a6438a3",
  "resources": 935,
  "changed": 517,
@@ -245,5 +245,236 @@
    }
   ]
  },
- "userApproval": "2026-10-27: approved publication of the r3 race bodies, the c7 Human lock and the r2 armour"
+ "userApproval": "2026-10-27: approved publication of the r3 race bodies, the c7 Human lock and the r2 armour",
+ "footFix": {
+  "rule": "in every clip where a race body (Fit or Large) goes further below the floor than in 1.2.0, rootdummy position keys are placed at every key time of the clip, plus halfway points where linear root interpolation leaves more than 0.5 mm, and lifted by that extra depth (max over the library bodies of min(0, 1.2.0 lowest point) - r3 lowest point); nothing is lowered",
+  "tool": "race-sizing footfix.py (output/phenomorpher/race-sizing/r4-ascii/footfix.json)",
+  "compile": "Blender 5.2.1 + Neverblender 4.5.1 cleanmodels against the stock a_ba/a_fa (r4-compiled)",
+  "previousContractSHA256": "124c2278caffd764bf258cd3a24cf405a651af8d1655c4009d17b65ea10a1b9e",
+  "libraries": [
+   {
+    "path": "srn_body/srn_an_df.mdl",
+    "r3SHA256": "96728b9f104ecb7313f1d5c53935171e3f61c6efad54647fe3fb53937353d5d5",
+    "r3Bytes": 2258156,
+    "sha256": "397c1e8d85fd4daa78c85f406ba7adca5050cd39159274e623f2f300ad6966d3",
+    "bytes": 2276380,
+    "clipsLifted": 79,
+    "rootKeysAdded": 1139,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gutokdb",
+      34.9
+     ],
+     [
+      "kdbck",
+      34.5
+     ],
+     [
+      "kdbckdmg",
+      33.9
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "kdbck",
+      0.8
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_dm.mdl",
+    "r3SHA256": "e8cc5aa2e1b11fd80cbc03a51db546f398fb7c5d176bed2d9faa27b33da0080c",
+    "r3Bytes": 2175172,
+    "sha256": "2a2fcae74ca340e0a28e7cc9e51c949d5f3461b5fb86b13f845bd3113d21715e",
+    "bytes": 2191444,
+    "clipsLifted": 78,
+    "rootKeysAdded": 1017,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      32.6
+     ],
+     [
+      "gustandf",
+      32.5
+     ],
+     [
+      "kdfntdie",
+      31.5
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "kdfntdie",
+      0.9
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_ef.mdl",
+    "r3SHA256": "7c8f995b116d502c698d2751373c4ae1d2d105d5482271afa1ffd691d52ab548",
+    "r3Bytes": 2093952,
+    "sha256": "012af4e552c86ac8ea6f214d044f44bdd4400af15f383f643f806b9115bd26e4",
+    "bytes": 2101568,
+    "clipsLifted": 36,
+    "rootKeysAdded": 476,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      14.9
+     ],
+     [
+      "worship",
+      4.1
+     ],
+     [
+      "1hslashl",
+      2.8
+     ]
+    ],
+    "worstRemainingMm": []
+   },
+   {
+    "path": "srn_body/srn_an_em.mdl",
+    "r3SHA256": "568b1decdc0c8c27257bcd5466d634e3e005983730188bf41b609085fae19f5b",
+    "r3Bytes": 2004636,
+    "sha256": "4f24ad89601600d2b857fd8e8b40aff8b62affdcdc065825ee5ec1be9b91a3d9",
+    "bytes": 2018508,
+    "clipsLifted": 69,
+    "rootKeysAdded": 867,
+    "worstExtraDepthBeforeMm": [
+     [
+      "sitcross",
+      26.4
+     ],
+     [
+      "gustandb",
+      8.9
+     ],
+     [
+      "worship",
+      7.9
+     ]
+    ],
+    "worstRemainingMm": []
+   },
+   {
+    "path": "srn_body/srn_an_gf.mdl",
+    "r3SHA256": "59543d0ed760ca3faf38e29d65aa0d7c1a627ee02181a349799e944ccb8c2cb2",
+    "r3Bytes": 2093952,
+    "sha256": "8921abf740dc021eafc02ab46da9cc1fbecc6c1797b6876eb76848a83a3e32a1",
+    "bytes": 2110176,
+    "clipsLifted": 61,
+    "rootKeysAdded": 1014,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      40.9
+     ],
+     [
+      "gutokdb",
+      34.5
+     ],
+     [
+      "kdbckdmg",
+      33.5
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "gustandf",
+      1.5
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_gm.mdl",
+    "r3SHA256": "6bf5d005e5d16218e58aa2eee4d5cbd26b16d06664d905b78890e5073126f1ed",
+    "r3Bytes": 2004636,
+    "sha256": "018c428300975aba879cd646c0e8d3d4e2593b71e69d5752f4191973db9d5608",
+    "bytes": 2021436,
+    "clipsLifted": 73,
+    "rootKeysAdded": 1050,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      52.0
+     ],
+     [
+      "sitcross",
+      49.2
+     ],
+     [
+      "gustandf",
+      32.1
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "nwkicks",
+      1.3
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_of.mdl",
+    "r3SHA256": "3085431882ec5210a28670eb2c2ffe0ea1bc08a8e6e6a43832b2ee7af186b978",
+    "r3Bytes": 2093952,
+    "sha256": "2a265897c89b8925e1ee675d872b8c83a08353894ba3e1015473aa2897886485",
+    "bytes": 2109696,
+    "clipsLifted": 62,
+    "rootKeysAdded": 984,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      29.8
+     ],
+     [
+      "kdfnt",
+      23.3
+     ],
+     [
+      "gutokdb",
+      22.9
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "gustandf",
+      2.2
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_om.mdl",
+    "r3SHA256": "e6c0f2a8b103d56187147055d4a5f231adb07c1833c00c97629599d599b85fb8",
+    "r3Bytes": 2004636,
+    "sha256": "1bbb49ea53552b9ecc0186a3076e7ac2e7b3a835ea652ca097f38c322ec17403",
+    "bytes": 2020108,
+    "clipsLifted": 74,
+    "rootKeysAdded": 967,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      38.5
+     ],
+     [
+      "sitcross",
+      33.4
+     ],
+     [
+      "gustandf",
+      25.0
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "nwstab",
+      1.1
+     ]
+    ]
+   }
+  ],
+  "userRequest": "2026-10-27: fix the foot sinking issues in the animation libraries"
+ }
 }

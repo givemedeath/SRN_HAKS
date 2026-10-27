@@ -7344,8 +7344,8 @@
   },
   {
    "path": "srn_body/srn_an_df.mdl",
-   "sha256": "96728b9f104ecb7313f1d5c53935171e3f61c6efad54647fe3fb53937353d5d5",
-   "bytes": 2258156,
+   "sha256": "397c1e8d85fd4daa78c85f406ba7adca5050cd39159274e623f2f300ad6966d3",
+   "bytes": 2276380,
    "role": "animation-library",
    "sourceResource": "srn_an_df.mdl",
    "sourceArchive": null,
@@ -7367,8 +7367,8 @@
   },
   {
    "path": "srn_body/srn_an_dm.mdl",
-   "sha256": "e8cc5aa2e1b11fd80cbc03a51db546f398fb7c5d176bed2d9faa27b33da0080c",
-   "bytes": 2175172,
+   "sha256": "2a2fcae74ca340e0a28e7cc9e51c949d5f3461b5fb86b13f845bd3113d21715e",
+   "bytes": 2191444,
    "role": "animation-library",
    "sourceResource": "srn_an_dm.mdl",
    "sourceArchive": null,
@@ -7390,8 +7390,8 @@
   },
   {
    "path": "srn_body/srn_an_ef.mdl",
-   "sha256": "7c8f995b116d502c698d2751373c4ae1d2d105d5482271afa1ffd691d52ab548",
-   "bytes": 2093952,
+   "sha256": "012af4e552c86ac8ea6f214d044f44bdd4400af15f383f643f806b9115bd26e4",
+   "bytes": 2101568,
    "role": "animation-library",
    "sourceResource": "srn_an_ef.mdl",
    "sourceArchive": null,
@@ -7413,8 +7413,8 @@
   },
   {
    "path": "srn_body/srn_an_em.mdl",
-   "sha256": "568b1decdc0c8c27257bcd5466d634e3e005983730188bf41b609085fae19f5b",
-   "bytes": 2004636,
+   "sha256": "4f24ad89601600d2b857fd8e8b40aff8b62affdcdc065825ee5ec1be9b91a3d9",
+   "bytes": 2018508,
    "role": "animation-library",
    "sourceResource": "srn_an_em.mdl",
    "sourceArchive": null,
@@ -7436,8 +7436,8 @@
   },
   {
    "path": "srn_body/srn_an_gf.mdl",
-   "sha256": "59543d0ed760ca3faf38e29d65aa0d7c1a627ee02181a349799e944ccb8c2cb2",
-   "bytes": 2093952,
+   "sha256": "8921abf740dc021eafc02ab46da9cc1fbecc6c1797b6876eb76848a83a3e32a1",
+   "bytes": 2110176,
    "role": "animation-library",
    "sourceResource": "srn_an_gf.mdl",
    "sourceArchive": null,
@@ -7459,8 +7459,8 @@
   },
   {
    "path": "srn_body/srn_an_gm.mdl",
-   "sha256": "6bf5d005e5d16218e58aa2eee4d5cbd26b16d06664d905b78890e5073126f1ed",
-   "bytes": 2004636,
+   "sha256": "018c428300975aba879cd646c0e8d3d4e2593b71e69d5752f4191973db9d5608",
+   "bytes": 2021436,
    "role": "animation-library",
    "sourceResource": "srn_an_gm.mdl",
    "sourceArchive": null,
@@ -7482,8 +7482,8 @@
   },
   {
    "path": "srn_body/srn_an_of.mdl",
-   "sha256": "3085431882ec5210a28670eb2c2ffe0ea1bc08a8e6e6a43832b2ee7af186b978",
-   "bytes": 2093952,
+   "sha256": "2a265897c89b8925e1ee675d872b8c83a08353894ba3e1015473aa2897886485",
+   "bytes": 2109696,
    "role": "animation-library",
    "sourceResource": "srn_an_of.mdl",
    "sourceArchive": null,
@@ -7505,8 +7505,8 @@
   },
   {
    "path": "srn_body/srn_an_om.mdl",
-   "sha256": "e6c0f2a8b103d56187147055d4a5f231adb07c1833c00c97629599d599b85fb8",
-   "bytes": 2004636,
+   "sha256": "1bbb49ea53552b9ecc0186a3076e7ac2e7b3a835ea652ca097f38c322ec17403",
+   "bytes": 2020108,
    "role": "animation-library",
    "sourceResource": "srn_an_om.mdl",
    "sourceArchive": null,
@@ -20148,7 +20148,8 @@
   "Library clips are byte-exact copies of the published clips; clips inherited from stock had identical keys in the published chain. The female Large 2hslashl uses the Fit clip as authorized.",
   "Body palettes and skin maps above 1024 px are reduced 2:1 by area; names, formats, materials and PLT files are unchanged.",
   "1.2.0: model roots sit at the origin, as in the stock rigs. Each non-Human rig and library root offset was folded into rootdummy, handconjure and headconjure and the library rootdummy keys (root-rebase/root-rebase-receipt.json); bind and library clip world frames are unchanged within float32 rounding.",
-  "1.3.0 (user-approved 2026-10-27; docs/phenomorpher/race-sizing/plan.md, human-bodies-lock-c7.md): race bodies at their lore rest heights with Fit = Large, Large-male joint heights at Fit, lore build, the b13/c6 female joins ported to the race females, idle soles on the floor; the c7 Human lock (c6 female joins, torso polish and rebuilt skin, and pmh2 at Fit joint heights). Rigs, libraries and pmh2 compile with Blender 5.2.1 + Neverblender 4.5.1 against the stock a_ba/a_fa. Per-resource release130 records the 1.2.0 hash and change class."
+  "1.3.0 (user-approved 2026-10-27; docs/phenomorpher/race-sizing/plan.md, human-bodies-lock-c7.md): race bodies at their lore rest heights with Fit = Large, Large-male joint heights at Fit, lore build, the b13/c6 female joins ported to the race females, idle soles on the floor; the c7 Human lock (c6 female joins, torso polish and rebuilt skin, and pmh2 at Fit joint heights). Rigs, libraries and pmh2 compile with Blender 5.2.1 + Neverblender 4.5.1 against the stock a_ba/a_fa. Per-resource release130 records the 1.2.0 hash and change class.",
+  "1.3.0 foot fix (user request 2026-10-27): in every race library clip where a race body went further below the floor than in 1.2.0, rootdummy position keys are lifted by that extra depth at every key time (plus refinement points); nothing is lowered and clips that never sink are byte-for-byte the same animation. docs/phenomorpher/race-sizing/release-1.3.0.json (footFix)."
  ],
  "raceSelection": {
   "rows": {

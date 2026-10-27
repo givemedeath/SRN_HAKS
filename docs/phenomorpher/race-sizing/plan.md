@@ -443,6 +443,38 @@ Lowest sole over the cycle, 1.2.0 → r3:
 | Ork M, Troll M | about the same | better | up to 11 mm |
 
 The extra dip comes from the wider build (item 3) and the female joins port changing the leg arcs under the stock
-clip rotations. On average over the cycle the feet sit at the same height or higher. Fixing the deepest phases needs
-per-frame root height corrections in the race animation libraries (`srn_an_*` rootdummy keys). That changes approved
-animation timing, so it is a separate decision for the user. Nothing in 1.3.0 changes for it.
+clip rotations. On average over the cycle the feet sit at the same height or higher.
+
+**Foot fix** (user request 2026-10-27, "fix the foot sinking issues in the animation libraries"; in 1.3.0). The race
+libraries now lift the root wherever a race body goes further below the floor than it did in 1.2.0:
+
+- Rule: in each clip, at every key time of any node, extra depth = max over the library's Fit and Large bodies of
+  `min(0, 1.2.0 lowest point) − r3 lowest point`. Rootdummy position keys are placed at those times (original root
+  motion interpolated) and raised by the extra depth. Halfway points are added while linear interpolation between
+  keys leaves more than 0.5 mm (at most 5 halvings). Nothing is lowered. Clips that never sink are unchanged, and a
+  1.2.0 body above the floor (jumps, `appear`/`disappear`) is not a target.
+- A first version that matched the 1.2.0 lowest point outright lifted `appear`/`disappear` by up to 1.43 m (1.2.0
+  flies higher there; that is a height difference, not a sink). It was discarded before compiling.
+- Result (`output/phenomorpher/race-sizing/r4-ascii/footfix.json`): 36–79 clips lifted per library, mostly
+  knockdowns, getting up, `sitcross`, `whirlwind`, `nwstab` and walk/run. Extra depth before: up to 52 mm
+  (`gustandb`, Troll male). After: 0 at every key time and halfway between the original keys; at most 2.2 mm halfway
+  between the refined keys (`gustandf`, Ork female). Walk and run: 0.
+- Compiled against the stock `a_ba`/`a_fa` (`r4-compiled`, 307 models, audits pass, no warnings). Only the 8
+  `srn_an_*` binaries differ from r3.
+
+| Library | r3 bytes | Foot fix bytes | Change | Clips lifted | Root keys added |
+|---|---|---|---|---|---|
+| `srn_an_df` | 2,258,156 | 2,276,380 | +18,224 | 79 | 1,139 |
+| `srn_an_dm` | 2,175,172 | 2,191,444 | +16,272 | 78 | 1,017 |
+| `srn_an_ef` | 2,093,952 | 2,101,568 | +7,616 | 36 | 476 |
+| `srn_an_em` | 2,004,636 | 2,018,508 | +13,872 | 69 | 867 |
+| `srn_an_gf` | 2,093,952 | 2,110,176 | +16,224 | 61 | 1,014 |
+| `srn_an_gm` | 2,004,636 | 2,021,436 | +16,800 | 73 | 1,050 |
+| `srn_an_of` | 2,093,952 | 2,109,696 | +15,744 | 62 | 984 |
+| `srn_an_om` | 2,004,636 | 2,020,108 | +15,472 | 74 | 967 |
+
+`srn_body.hak` grows by 120,224 bytes (669,240,028 → 669,360,252). `srn_armor.hak` is byte-identical; its
+`bodyContractSHA256` is re-pointed to the new contract (armour fits geometry only). verify-assets, verify-armor and
+verify-runtime pass; the contract tests pass. Client (repo-built HAKs, `srn_rrpub`, floor-level side camera): Dwarf,
+Troll and Ork rows, Fit and Large, walk and run with soles meeting the floor through the cycle; `sitcross` seated on
+the floor, not floating.
