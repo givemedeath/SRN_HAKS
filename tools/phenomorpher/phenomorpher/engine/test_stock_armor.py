@@ -120,6 +120,14 @@ class ProfileTests(unittest.TestCase):
         child = text + 'node dummy hook\n  parent pmh2_footl014\nendnode\n'
         self.assertRaisesRegex(ValueError, 'Ambiguous', armor.unique_mesh_names, child, 'pmh2_footl014')
 
+    def test_indented_neverblender_node_lines_are_recognised(self):
+        # The Neverblender decompiler indents node lines; patterns anchored at column 0 silently missed them.
+        text = ('newmodel pmh2_footl014\n  node dummy pmh2_footl014\n    parent NULL\n  endnode\n'
+                '  node trimesh pmh2_footl014\n    parent pmh2_footl014\n  endnode\n')
+        out, changes = armor.unique_mesh_names(text, 'pmh2_footl014')
+        self.assertIn('  node trimesh pmh2_footl014g\n    parent pmh2_footl014\n', out)
+        self.assertEqual(len(changes), 1)
+
     def test_armory_values_output_is_parsed(self):
         log = ('scale=(1.2000, 1.1000, 1.3000)\nrotate=(5.00, -3.00, 2.00)\ntranslate=(0.0100, 0.0200, -0.0300)\n'
                '; verts fit: n=66 max_residual=0.00000 mean_residual=0.00000 (note)\n; tverts fit: n=67 max_residual=0.5\n')
@@ -140,6 +148,10 @@ class ProfileTests(unittest.TestCase):
                         self.assertRaisesRegex(ValueError, 'not converted', armor.style_set, path)
         ini = armor.armory_ini([('pmh0_chest005', {'scale': [1, 2, 3], 'translate': [0, 0, .5]})])
         self.assertEqual(ini, '[Global]\nntransforms=1\n[s0]\nmatch=pmh0_chest005\nsubstitute=*\nscale=(1,2,3)\nrotate=(0,0,0)\ntranslate=(0,0,0.5)\n')
+        tiny = armor.armory_ini([('pmh0_neck002', {'scale': [0.99871756905388, 1, 1], 'translate': [2.3295510482068353e-05, 0, -1e-07]})])
+        self.assertNotRegex(tiny, '[eE]-?[0-9]')  # NWNArmory reads exponent notation as 0
+        self.assertIn('translate=(0.000023295510482068353,0,-0.0000001)', tiny)
+        self.assertIn('scale=(0.99871756905388,1,1)', tiny)
 
     def test_every_non_human_body_converts_human_parts(self):
         self.assertEqual([armor.source_slot(s) for s in ('pmg2', 'pfg0', 'pfd2', 'pme0', 'pfo2')], ['pmh2', 'pfh0', 'pfh2', 'pmh0', 'pfh2'])

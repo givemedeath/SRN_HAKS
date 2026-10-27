@@ -89,8 +89,8 @@
       "module": "fit_anatomy_stage1_v15a",
       "source": "fit_anatomy_stage1_v15a.py",
       "sourceSHA256": "255f63e1898c85688345656aa5ec67ad5becc35252be1facb3b4f37e8e6f1637",
-      "packagedSHA256": "5031f325ea3441299ce9d5c850450d79543de58266ff2bf09e71f633f96c8760",
-      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+      "packagedSHA256": "81e2a77a79aee000a99cb78315d69dcf07842323666aae2c0f7d92dc0d6decc0",
+      "modifications": "Package-relative imports and LF encoding; stage-1 stature is normalized, gated and reported on the rest (bind) pose instead of the pause1 standing pose (2026-10-26, race lore sizing)."
     },
     {
       "module": "fit_morph_preview_v11",
@@ -369,8 +369,8 @@
       "module": "test_fit_anatomy_stage1_v15",
       "source": "test_fit_anatomy_stage1_v15.py",
       "sourceSHA256": "ea8a32e0d0ef2a34d7785488f8336658961209027d36c38f0dd4c6f00d57a381",
-      "packagedSHA256": "542e4e0657ea2ccddaac573a53697368140bc415290aa7ea3db8e5fd3fd5d0cf",
-      "modifications": "Relative imports; original stage1 regressions target maintained v15a fitter."
+      "packagedSHA256": "f8df8dc0c3cb5c7f00d8878b5496ccc03c0fac28e3c34fe7afad769c6613500f",
+      "modifications": "Relative imports; original stage1 regressions target maintained v15a fitter; adds the rest-pose stature regression (2026-10-26)."
     }
   ],
   "externalImports": [
