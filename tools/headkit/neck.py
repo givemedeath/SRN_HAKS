@@ -28,13 +28,16 @@ def neck_policy(neck, fit):
     taper, seal, shorten, cut = neck.get('taper'), neck.get('seal'), neck.get('shorten'), neck.get('cut')
     if cut is not None:
         require(isinstance(cut, dict) and 'height' in cut
-                and set(cut) <= {'height', 'slope', 'band', 'offset', 'reach', 'rise', 'clearance', 'searchBottom', 'notes'}
+                and set(cut) <= {'height', 'slope', 'slopes', 'band', 'offset', 'reach', 'rise', 'clearance', 'searchBottom', 'notes'}
                 and (number(cut['height']) or cut['height'] == 'measured'),
                 "Neck cut declares a head-local height or 'measured' (optional slope, band, offset, reach, rise, clearance, searchBottom)")
         cut = dict({'slope': 0.0, 'band': .03, 'offset': -.003, 'reach': .04, 'rise': .003, 'clearance': .01, 'searchBottom': -.16}, **cut)
         require(number(cut['clearance']) and 0 <= cut['clearance'] <= .04, 'Neck cut clearance outside the supported profile')
         require(number(cut['searchBottom']) and -.3 <= cut['searchBottom'] <= -.05, 'Neck cut searchBottom outside -0.3..-0.05')
         require(number(cut['slope']) and abs(cut['slope']) <= .6, 'Neck cut slope (dz/dy) must be within +-0.6')
+        # Reviewed fallback slopes, tried in order when the declared one fails the master-audit checks (crossings over hair).
+        require(isinstance(cut.get('slopes', []), list) and len(cut.get('slopes', [])) <= 6
+                and all(number(v) and abs(v) <= .6 for v in cut.get('slopes', [])), 'Neck cut slopes: up to 6 fallback slopes within +-0.6')
         require(number(cut['band']) and .01 <= cut['band'] <= .08 and number(cut['offset']) and -.015 <= cut['offset'] <= .005
                 and number(cut['reach']) and .01 <= cut['reach'] <= .12 and number(cut['rise']) and 0 < cut['rise'] <= .02,
                 'Neck cut band, offset, reach or cap rise outside the supported profile')
@@ -128,6 +131,9 @@ def jaw_line(local, bv, bf, reach, slope, bottom=-.16):
     return {'height': float(intercept[lowest]), 'point': features[lowest].round(5).tolist(), 'reach': reach, 'slope': slope}
 
 
+CUT_SNAP, CUT_SLIVER = 1e-5, 1e-8  # head-local metres a sliver's vertex may move onto the plane; physical twice-area of a sliver
+
+
 def neck_cut(vertices, faces, neck, body, rewrap=None):
     """Remove the head's neck so the body's own neck part forms the neck (as on stock heads): nothing long hangs below
     the head joint to show through the body in animation. The cut plane z = height + slope*y runs under the chin, jaw
@@ -158,27 +164,46 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     scale = np.where(radius > 1e-9, (radius+weight*(surface+cut['offset']-radius))/np.maximum(radius, 1e-9), 1)
     shaped = local.copy(); shaped[moving, :2] = centre+offset*scale[:, None]
     movement = np.linalg.norm(shaped-local, axis=1)
-    # Clip at the plane: keep the part above, splitting crossing triangles on shared edge points.
-    s = shaped[:, 2]-plane(shaped); s[np.abs(s) < 1e-9] = 1e-9; keep = s > 0
-    points = {}; extra = []
-    def edge_point(i, j):
-        key = (min(i, j), max(i, j))
-        if key not in points:
-            w = s[i]/(s[i]-s[j]); points[key] = len(shaped)+len(extra); extra.append(shaped[i]+w*(shaped[j]-shaped[i]))
-        return points[key]
-    count = keep[faces].sum(1); clipped = []
-    for face in faces[(count > 0) & (count < 3)]:
-        polygon = []
-        for corner in range(3):
-            i, j = face[corner], face[(corner+1) % 3]
-            if keep[i]: polygon.append(i)
-            if keep[i] != keep[j]: polygon.append(edge_point(i, j))
-        clipped += [[polygon[0], polygon[n], polygon[n+1]] for n in range(1, len(polygon)-1)]
-    all_vertices = np.r_[shaped, np.array(extra).reshape(-1, 3)]; kept = np.r_[faces[count == 3], np.array(clipped, int).reshape(-1, 3)]
-    # The cut leaves boundary edges (used once) in closed loops.
-    edges = np.concatenate([kept[:, [0, 1]], kept[:, [1, 2]], kept[:, [2, 0]]])
-    unique, counts = np.unique(np.sort(edges, 1), axis=0, return_counts=True); single = {tuple(e) for e in unique[counts == 1]}
-    boundary = np.array([e for e in edges if tuple(sorted(e)) in single])
+    # Clip at the plane: keep the part above, splitting crossing triangles on shared edge points. A kept vertex just
+    # above the plane would put two edge points microns apart beside it, a zero-area sliver (troll-male-a: 1.1e-6 m, the
+    # master audit refused it, while 4e-6 m edges elsewhere fold under a blanket snap). So only such a vertex, within
+    # CUT_SNAP of the plane, moves onto it and the ring runs through it. A snap that would pinch the ring (an on-plane
+    # vertex in two rings) falls back to the unsnapped clip.
+    def clip(on):
+        moved = shaped.copy(); s = moved[:, 2]-plane(moved)
+        moved[on, 2] -= s[on]; s[on] = 0; s[(np.abs(s) < 1e-9) & ~on] = 1e-9; keep = s >= 0
+        points = {}; extra = []
+        def edge_point(i, j):
+            key = (min(i, j), max(i, j))
+            if key not in points:
+                w = s[i]/(s[i]-s[j]); points[key] = len(moved)+len(extra); extra.append(moved[i]+w*(moved[j]-moved[i]))
+            return points[key]
+        count = keep[faces].sum(1); flat = on[faces].all(1); clipped = []
+        for face in faces[((count > 0) & (count < 3)) | flat]:
+            polygon = []
+            for corner in range(3):
+                i, j = face[corner], face[(corner+1) % 3]
+                if keep[i]: polygon.append(i)
+                if keep[i] != keep[j] and not on[i] and not on[j]: polygon.append(edge_point(i, j))
+            if all(k < len(moved) and on[k] for k in polygon): continue  # nothing of this face stands above the plane
+            clipped += [[polygon[0], polygon[n], polygon[n+1]] for n in range(1, len(polygon)-1)]
+        all_vertices = np.r_[moved, np.array(extra).reshape(-1, 3)]; kept = np.r_[faces[(count == 3) & ~flat], np.array(clipped, int).reshape(-1, 3)]
+        # The cut leaves boundary edges (used once) in closed loops.
+        edges = np.concatenate([kept[:, [0, 1]], kept[:, [1, 2]], kept[:, [2, 0]]])
+        unique, counts = np.unique(np.sort(edges, 1), axis=0, return_counts=True); single = {tuple(e) for e in unique[counts == 1]}
+        boundary = np.array([e for e in edges if tuple(sorted(e)) in single]).reshape(-1, 2)
+        return all_vertices, kept, boundary, s
+    scale = abs(np.linalg.det(neck['frame'][:3, :3]))**(1/3); on = np.zeros(len(shaped), bool)
+    all_vertices, kept, boundary, s = clip(on)
+    for _ in range(5):
+        corners = all_vertices[kept]; twice = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)/scale**2
+        near = {min((k for k in face if k < len(shaped) and not on[k]), key=lambda k: abs(s[k]), default=None) for face in kept[twice <= CUT_SLIVER]}
+        near = [k for k in near if k is not None and abs(s[k]) < CUT_SNAP]
+        if not near: break
+        trial = on.copy(); trial[near] = True; result = clip(trial)
+        if len(np.unique(result[2][:, 0])) != len(result[2]): break  # pinched ring: keep the unsnapped clip
+        on = trial; all_vertices, kept, boundary, s = result
+    snapped = int(on.sum())
     require(len(boundary) >= 3 and set(boundary[:, 0]) == set(boundary[:, 1]), 'Neck cut must leave closed boundary loops')
     following = dict(zip(boundary[:, 0], boundary[:, 1])); loops = []; left = set(following)
     while left:
@@ -186,7 +211,7 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
         while following[loop[-1]] != start:
             loop.append(following[loop[-1]]); require(loop[-1] in left, 'Broken cut ring'); left.discard(loop[-1])
         loops.append(loop)
-    record = dict(cut, jawLine=jaw, previousRimHeight=float(local[:, 2].min()), conformedVertices=int(np.count_nonzero(movement > 1e-6)),
+    record = dict(cut, jawLine=jaw, previousRimHeight=float(local[:, 2].min()), conformedVertices=int(np.count_nonzero(movement > 1e-6)), snappedToPlane=snapped,
                   maximumMovementMetres=float(movement.max()), loops=sorted((len(l) for l in loops), reverse=True))
     ring_all = all_vertices[np.unique(boundary)]; record.update(rimFront=float(ring_all[:, 2].min()), rimBack=float(ring_all[:, 2].max()))
     used = np.unique(kept); remap = np.full(len(all_vertices), -1); remap[used] = np.arange(len(used))
@@ -207,6 +232,42 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     record.update(closure='fan', ringVertices=len(loop), capTriangles=len(cap), ringSpan=np.ptp(ring[:, :2], 0).tolist(),
                   profile='stub drawn onto the smoothed body neck + offset (height x reach smoothsteps); plane cut z=height+slope*y; shallow fan cap facing down')
     return transform(np.linalg.inv(neck['frame']), all_vertices[used]), remap[kept], record
+
+
+def cut_problem(vertices, faces):
+    """The master audit's refusal of a cut shell (topology, then the strict crossing scan on its float32 positions), or None."""
+    from .intersections import scan
+    vertices = np.asarray(vertices, np.float32).astype(float); faces = np.asarray(faces)
+    shell = topology(vertices, faces)
+    if not shell['closed']:
+        return 'not closed: '+', '.join(f'{k} {v}' for k, v in shell.items() if k not in ('closed', 'triangles', 'physicalVertices') and v)
+    try: crossings = scan(vertices, faces, max_pairs=16000000)
+    except ValueError as error: return str(error)
+    if not crossings['complete']: return 'crossing scan incomplete'
+    return f'{len(crossings["pairs"])} crossing pairs' if crossings['pairs'] else None
+
+
+# Reviewed race heads v1 fixes: slopes -0.1 (orc females), -0.19 (sliver), -0.25 (star shape/crossings), -0.3 (nape-length
+# hair), reach 0.08 (necks standing in front of the body neck: dwarves, orc females).
+CUT_LADDER = {'slope': (-.1, -.15, -.19, -.25, -.3), 'reach': (.08,)}
+
+
+def cut_candidates(vertices, faces, neck, body):
+    """The declared cut and nearby reviewed variants on one uncut master, each with the master-audit checks. Several rings
+    need the repair's Alpha Wrap to close, which this survey does not run: such variants are reported unverified."""
+    base = neck['cut']; rows = []
+    variants = [{}]+[{'slope': s} for s in CUT_LADDER['slope'] if s != base['slope']]
+    variants += [dict(v, reach=r) for r in CUT_LADDER['reach'] if r != base['reach'] for v in variants]
+    for variant in variants:
+        trial = dict(neck, cut=dict(base, **variant))
+        try:
+            v, f, record = neck_cut(vertices, faces, trial, body, rewrap=None)
+            problem = cut_problem(v, f); row = {'result': 'pass' if problem is None else 'fail', 'problem': problem, 'rings': record['loops']}
+        except ValueError as error:
+            several = 'only a wrapped repair' in str(error)
+            row = {'result': 'unverified (several rings, needs the rewrap)' if several else 'fail', 'problem': None if several else str(error)}
+        rows.append(dict(row, cut={k: trial['cut'][k] for k in ('height', 'slope', 'reach')}))
+    return rows
 
 
 def shorten_depth(depth, scale, band):
@@ -341,13 +402,29 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
         vertices, record['taper'] = neck_taper(vertices, faces, neck)
         record['taper'].update(untapered=pin(untapered), elapsedSeconds=time.perf_counter()-begun)
     if neck is not None and neck['cut'] is not None:
-        uncut = work_dir/'master-uncut.glb'; write_mesh(uncut, vertices, faces); begun = time.perf_counter()
-        vertices, faces, record['cut'] = neck_cut(vertices, faces, neck, body_neck(body), rewrap=wrap if do_wrap else None)
-        if record['cut']['closure'] == 'rewrap':
-            selection = policy.get('components')
-            vertices, faces, record['cut']['rewrapShells'] = select_shells(vertices, faces, None if selection is None else
-                {k: v for k, v in selection.items() if k != 'expectedDeleted'}, inside)
-        record['cut'].update(uncut=pin(uncut), bodyNeck=pin(body), elapsedSeconds=time.perf_counter()-begun)
+        uncut = work_dir/'master-uncut.glb'; write_mesh(uncut, vertices, faces); begun = time.perf_counter(); reference = body_neck(body)
+        selection = policy.get('components'); tried = []
+        # The declared slope, then the reviewed fallbacks (cut.slopes) in order; each is checked like the master audit
+        # before the next is tried, so a cut that crosses hanging hair costs seconds instead of a repair attempt.
+        for slope in [neck['cut']['slope']]+list(neck['cut'].get('slopes', [])):
+            trial = dict(neck, cut=dict(neck['cut'], slope=slope))
+            try:
+                cut_vertices, cut_faces, cut_record = neck_cut(vertices, faces, trial, reference, rewrap=wrap if do_wrap else None)
+                if cut_record['closure'] == 'rewrap':
+                    cut_vertices, cut_faces, cut_record['rewrapShells'] = select_shells(cut_vertices, cut_faces, None if selection is None else
+                        {k: v for k, v in selection.items() if k != 'expectedDeleted'}, inside)
+                problem = cut_problem(cut_vertices, cut_faces)
+            except ValueError as error:
+                problem = str(error)
+            tried.append({'slope': slope, 'problem': problem})
+            if problem is None: break
+        if problem is not None:
+            candidates = cut_candidates(vertices, faces, neck, reference); write(work_dir/'cut-candidates.json', {'tried': tried, 'candidates': candidates}, fresh=True)
+            failures = '; '.join(f"slope {row['slope']}: {row['problem']}" for row in tried); passing = [c['cut'] for c in candidates if c['result'] == 'pass']
+            raise ValueError(f'Neck cut failed ({failures}). Cut variants that pass the master-audit checks on this uncut master: '
+                             f'{passing or "none"} (cut-candidates.json; review, then set mesh.neck.cut)')
+        vertices, faces, record['cut'] = cut_vertices, cut_faces, cut_record
+        record['cut'].update(slopesTried=tried, uncut=pin(uncut), bodyNeck=pin(body), elapsedSeconds=time.perf_counter()-begun)
     master = work_dir / 'master.glb'; write_mesh(master, vertices, faces)
     master_audit = audit(master, max_pairs=16000000); write(work_dir/'master-audit.json', master_audit, fresh=True)
     require(master_audit['passed'], 'Master has invalid topology or crossings; retain failure evidence')
@@ -375,14 +452,52 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
     maximum=float(np.sqrt(max(d1.max(),d2.max()))/diagonal)
     limit=positive(policy.get('maximumRelativeSurfaceError',.004),'surface error bound')
     require(limit<=.025,'Surface bound exceeds declared supported profile')
-    result['surfaceDistance']={'relativeMaximum':maximum,'limit':limit,'passed':maximum<=limit,'reference':pin(master),
+    relief=fine_relief(a,af,np.sqrt(d1)/diagonal,float(np.sqrt(d2.max())/diagonal),limit,policy.get('fineRelief',{}))
+    passed=maximum<=limit or relief['passed']
+    result['surfaceDistance']={'relativeMaximum':maximum,'limit':limit,'passed':passed,'fineRelief':relief,'reference':pin(master),
                               'measured':pin(shell),'method':'bidirectional vertices to exact triangles; not continuous Hausdorff'}
     result['neck'] = record
     write(work_dir/'reduction-audit.json',result,fresh=True)
-    require(maximum<=limit,'Reduction exceeds measured surface error limit; retain and review before changing policy')
+    require(passed,'Reduction exceeds measured surface error limit beyond bounded fine relief; retain and review before changing policy')
     result.update(master=pin(master), ancestry=births, alphaWrapApplied=do_wrap, componentDeletion=bool(shell_record['deleted']), shells=shell_record, smoothing=smoothing,
                   triangleBudget=budget, visualReviewRequired=True)
     return result
+
+
+# Fine relief the 20K reduction may flatten into the texture layer: master regions over the surface bound that are small
+# (extent), shallow (error) and rare (area share), all relative to the master diagonal. On race heads v1 every reduction
+# failure was hair-strand relief (<=11 vertices, extent <=1.1%, error <=1.16%, area <=0.17%; reduced->master <=0.29%);
+# a flattened tusk or horn is several % long and deep and still fails. fineRelief: false keeps the strict maximum.
+FINE_RELIEF={'maximumExtent':.015,'maximumError':.015,'maximumAreaShare':.0025}
+FINE_RELIEF_SUPPORTED={'maximumExtent':.03,'maximumError':.025,'maximumAreaShare':.01}
+
+
+def fine_relief(vertices, faces, error, outward, limit, policy):
+    """Over-limit master vertices (relative `error` to the reduced shell) as edge-connected regions, and whether all of them are
+    bounded fine relief. The reduced shell may never stand off the master (`outward`, reduced->master) beyond the limit."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    require(policy is False or type(policy) is dict and set(policy)<=set(FINE_RELIEF),'fineRelief is false or a dict of bounds')
+    bounds=None if policy is False else {**FINE_RELIEF,**policy}
+    if bounds is not None:
+        require(all(type(v) in (int,float) and 0<v<=FINE_RELIEF_SUPPORTED[k] for k,v in bounds.items()),'fineRelief bound outside supported profile')
+    vertices=np.asarray(vertices,float);faces=np.asarray(faces);error=np.asarray(error,float)
+    diagonal=float(np.linalg.norm(np.ptp(vertices,axis=0)));hot=error>limit
+    edges=np.r_[faces[:,[0,1]],faces[:,[1,2]],faces[:,[2,0]]];edges=edges[hot[edges[:,0]]&hot[edges[:,1]]]
+    _,label=connected_components(coo_matrix((np.ones(len(edges)),(edges[:,0],edges[:,1])),shape=(len(vertices),)*2),directed=False)
+    area=np.linalg.norm(np.cross(vertices[faces[:,1]]-vertices[faces[:,0]],vertices[faces[:,2]]-vertices[faces[:,0]]),axis=1)/2
+    share=np.bincount(faces.ravel(),np.repeat(area/3,3),len(vertices))
+    regions=[]
+    for key in np.unique(label[hot]):
+        index=np.flatnonzero(hot&(label==key))
+        regions.append({'vertices':len(index),'maximumError':float(error[index].max()),'extent':float(np.linalg.norm(np.ptp(vertices[index],axis=0)))/diagonal,
+                        'centre':vertices[index].mean(0).round(5).tolist()})
+    regions.sort(key=lambda r:-r['maximumError']);areaShare=float(share[hot].sum()/share.sum())
+    measured={'extent':max((r['extent'] for r in regions),default=0.),'maximumError':float(error.max()),'areaShare':areaShare,'outward':outward}
+    passed=bounds is not None and outward<=limit and measured['extent']<=bounds['maximumExtent'] \
+        and measured['maximumError']<=bounds['maximumError'] and areaShare<=bounds['maximumAreaShare']
+    return {'passed':bool(passed),'bounds':bounds,'measured':measured,'regions':len(regions),'worst':regions[:12],
+            'note':'master regions over the bound are flattened into the texture layer; visual review still required'}
 
 
 def _reduce(bindings, vertices, faces, target, work):

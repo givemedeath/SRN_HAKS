@@ -82,6 +82,43 @@ def rough_cells(vertices, faces, local, fraction=.02, cell=.02, limit=25):
     return [{'centre': [round(float(c), 4) for c in (keys[i]+.5)*cell], 'vertices': int(counts[i])} for i in order]
 
 
+def palette_rows(runner, value, colour, output, keep=4, size=256):
+    """Each palette channel decoded with its manifest row and the best-ranked stock rows, on the head from the front and the
+    character's left, beside the row's ramp. Automatic picks were hue-wrong on 16 of 20 race heads v1 (orange highs on dark
+    skin, rose or tan rows for silver or red hair) and no colour score recovered the reviewed pins, so rows are pinned from
+    this sheet before the palette stage instead of after a render."""
+    from scipy.spatial import cKDTree
+    from .common import read
+    from .palette import REFERENCES, match_shades, rank_rows
+    m = runner.data; files = {key: runner.input(name) for key, name in m['palette']['inputs'].items()}
+    onek = runner.input('ownership1k') if 'ownership1k' in m['inputs'] else runner.result('ownership', require_review=False)['onek']['path']
+    with Image.open(onek) as image: layers = np.asarray(image).copy()
+    small = output/'colour-1024.png'; Image.open(colour).convert('RGB').resize(layers.shape[::-1], Image.Resampling.BOX).save(small)
+    rgb = np.asarray(Image.open(small)); pinned = m['palette']['rows']; tone = m['palette'].get('toneMatch') or {}
+    mapped = [key for key in files if (layers == int(key)).any()]; ranking = rank_rows(small, onek, {key: files[key] for key in mapped}, keep=keep)
+    references = read(REFERENCES)['references'] if tone else {}; candidates = []; atlases = []
+    for key in mapped:
+        palette = np.asarray(Image.open(files[key]).convert('RGBA')); selected = layers == int(key); target = rgb[selected].astype(float)
+        pin = pinned.get(key) if isinstance(pinned, dict) else None
+        for row in dict.fromkeys(([pin] if type(pin) is int else [])+[row['row'] for row in ranking[key]['top']]):
+            allowed = np.flatnonzero((palette[row, :, 3] > 0) & (np.arange(256) < 255))
+            if key in tone: shades = match_shades(target, allowed, references[tone[key]['reference']]['quantiles'])
+            else: shades = allowed[cKDTree(palette[row, allowed, :3].astype(float)).query(target)[1]]
+            atlas = rgb.copy(); atlas[selected] = palette[row, shades, :3]; atlases.append(atlas)
+            candidates.append({'channel': key, 'row': row, 'manifest': row == pin, 'toneMatched': key in tone, 'pixels': int(selected.sum())})
+    tiles = splat(value, atlases, size=size, samples=800000)
+    views = {name: [image for n, image in tiles if n == name] for name in ('front', 'char-left')}
+    canvas = Image.new('RGB', (2*size+300, len(candidates)*size+20), (30, 30, 30)); draw = ImageDraw.Draw(canvas)
+    draw.text((4, 4), 'palette rows: each channel decoded with a candidate row (manifest row first); front | character left', fill='white')
+    for i, row in enumerate(candidates):
+        y = 20+i*size; canvas.paste(Image.fromarray(views['front'][i]), (0, y)); canvas.paste(Image.fromarray(views['char-left'][i]), (size, y))
+        ramp = Image.open(files[row['channel']]).convert('RGB').crop((0, row['row'], 256, row['row']+1)).resize((280, 24))
+        canvas.paste(ramp, (2*size+10, y+40)); label = f"channel {row['channel']} row {row['row']}"+(' (manifest)' if row['manifest'] else '')
+        draw.text((2*size+10, y+10), label+(' tone-matched' if row['toneMatched'] else ''), fill='white')
+    canvas.save(output/'palette-rows.png'); write(output/'palette-rows.json', {'candidates': candidates, 'ranking': ranking}, fresh=True)
+    return {'preview': str(output/'palette-rows.png'), 'candidates': candidates}
+
+
 def preview(runner, what, output, regions=None):
     """Preview against the run's bound, current upstream outputs (unwrap/bake/repair need not be reviewed yet)."""
     output = Path(output); output.mkdir(parents=True, exist_ok=False); m = runner.data
@@ -104,11 +141,13 @@ def preview(runner, what, output, regions=None):
         seal = runner.result('repair', require_review=False)['neck']['seal']['shellTriangles'] if runner._sealed() else None
         painted = paint(source, colour, m['paint'], output/'paint', seal_start=seal)
         colour = painted['maps']['basecolor-4096.png']['path']; masks = {name: row['path'] for name, row in painted['masks'].items()}
+    if what == 'rows':
+        return palette_rows(runner, value, colour, output)
     rgb = np.asarray(Image.open(colour).convert('RGB'))
     if what == 'stats':
         require(isinstance(regions, dict) and regions, 'Colour statistics need named regions')
         rows = region_stats(value, rgb, regions); write(output/'stats.json', rows, fresh=True); return {'stats': str(output/'stats.json'), 'regions': rows}
-    require(what == 'ownership', 'Preview is ownership, stats or relief')
+    require(what == 'ownership', 'Preview is ownership, stats, relief or rows')
     from .paint import rule_ownership, PREVIEW
     config = m.get('ownership', {}); require(config.get('mode') == 'rules', 'Ownership preview needs rules mode')
     metallic = runner.input('metallic4k') if 'metallic4k' in m['inputs'] else runner.result('bake', require_review=False)['maps']['metallic-4096.png']['path']

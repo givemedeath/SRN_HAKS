@@ -101,6 +101,22 @@ def nose_tip(points, step, tolerance, *, around=None, window=None):
 NOSE_WINDOW,NOSE_AGREEMENT=.015,.02  # metres, reference scale
 
 
+def reference_depth(points, exclude_lower=.25, step=.004):
+    """Depth/height of the midline profile the fit matches (above exclude_lower): front-most minus back-most over the height.
+    Back hair (ponytails, buns, hanging hair) deepens it and pulls the profile fit to the wrong scale. Race heads v1: the
+    references that mis-scaled fits measured pfh0_head001 1.64, pfd0_head008 2.02 and pfo0_head009 1.97 (fit scale 0.50-0.60);
+    their replacements 1.23 (pfh0_head024), 1.63 (pfd0_head012) and 1.56 (pfo0_head011)."""
+    z,front,back=profile(points,step);keep=(z>=z.min()+exclude_lower*np.ptp(z))&np.isfinite(front)&np.isfinite(back)
+    require(keep.sum()>3,'Reference profile is too short');return float((front[keep].max()-back[keep].min())/np.ptp(z[keep]))
+
+
+def rank_references(paths, exclude_lower=.25, samples=40000):
+    """Candidate stock reference heads, most compact (lowest depth/height) first. Pick the lowest whose side silhouette shows
+    no hanging hair or bun; the ranking is measured, the choice still needs that look."""
+    rows=[{'reference':pin(path),'depthRatio':round(reference_depth(ascii_surface(path,samples),exclude_lower),3)} for path in paths]
+    return sorted(rows,key=lambda row:row['depthRatio'])
+
+
 def propose(source, reference, output, *, exclude_lower=.25, align='profile'):
     """align='nose' keeps the profile-matched scale but places the head by aligning nose tips (troll-male-01's
     reviewed rule against pmg0_head014), so hair, crests or a neckless reference cannot shift the placement."""
@@ -108,6 +124,7 @@ def propose(source, reference, output, *, exclude_lower=.25, align='profile'):
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     value=mesh(source);local=head_local(surface_samples(value['positions'][value['faces']],1000000));target=ascii_surface(reference)
     result=match(local,target,exclude_lower=exclude_lower);s=result['scale'];result['align']=align
+    result['referenceDepthRatio']=reference_depth(target,exclude_lower)  # compare candidates with `headkit fit-references`
     if align=='nose':
         # The same physical bin height and tip tolerance on both heads (0.5 mm after scaling). The source tip is searched
         # within NOSE_WINDOW of where the profile fit puts the reference nose, and nose placement may refine the profile

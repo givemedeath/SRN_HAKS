@@ -35,11 +35,28 @@ def stage_roles(stage,data):
 # Manifest sections each stage's code reads. A receipt hashes only the sections (and declared input roles) of its stage
 # and its dependency closure, so tuning a later stage's rules does not invalidate earlier, expensive stages.
 # 'section.key' binds one key of a section: prepare reads only the design review, so later approvals (appearance field,
-# texture maps) added to the same manifest do not stale the matte.
-STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':set(),'fit':{'fit'},'repair':{'mesh','fit'},
+# texture maps) added to the same manifest do not stale the matte. 'section!key,...' binds a section without keys only later
+# stages read: repair skips the UV and bake keys, so a reviewed UV coverage floor does not stale an approved repair.
+MESH_AFTER_REPAIR='uv','reuseReviewedUvs','maximumSubtexelFraction','allowDecoderOvershoot'
+STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':set(),'fit':{'fit'},
+    'repair':{'mesh!'+','.join(MESH_AFTER_REPAIR),'fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
     'tone':{'tone','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval'},
     'native':{'fit'},'render':{'render','approval'}}
+
+
+def section_name(key):
+    """Manifest section of a STAGE_SECTIONS entry: 'mesh', 'approval.textureMaps' or 'mesh!uv,...'."""
+    return key.split('!')[0].split('.')[0]
+
+
+def section_value(data,key):
+    """The bound part of a manifest section: the whole section, one key ('section.key') or the section without keys
+    ('section!key,...')."""
+    if '!' in key:
+        name,excluded=key.split('!');excluded=set(excluded.split(','))
+        return {k:v for k,v in (data.get(name) or {}).items() if k not in excluded}
+    return data.get(key) if '.' not in key else (data.get(key.split('.')[0]) or {}).get(key.split('.',1)[1])
 
 
 def stage_libraries(stage,data):
@@ -83,10 +100,10 @@ class Runner:
             current=pending.pop()
             if current not in closure:closure.add(current);pending+=self.dependencies(current)
         sections=set().union(*(STAGE_SECTIONS[s] for s in closure));roles=set().union(*(stage_roles(s,self.data) for s in closure))
-        sections={k for k in sections if k.split('.')[0]==k or k.split('.')[0] not in sections}  # a whole section covers its keys
+        sections={k for k in sections if section_name(k)==k or section_name(k) not in sections}  # a whole section covers its keys
         return digest({'schemaVersion':self.data['schemaVersion'],'id':self.data['id'],'closure':sorted(closure),
                        'dependencies':{s:self.dependencies(s) for s in sorted(closure)},
-                       'sections':{k:unworded(self.data.get(k) if '.' not in k else (self.data.get(k.split('.')[0]) or {}).get(k.split('.',1)[1])) for k in sorted(sections)},'inputs':{r:self.data['inputs'][r] for r in sorted(roles)}})
+                       'sections':{k:unworded(section_value(self.data,k)) for k in sorted(sections)},'inputs':{r:self.data['inputs'][r] for r in sorted(roles)}})
 
     def _verify(self,pins):
         # Upstream receipts repeat the same files; hash each (path, digest) once per check before execution.

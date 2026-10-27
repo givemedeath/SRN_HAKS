@@ -231,7 +231,7 @@ def main():
     p.add_argument('--reference',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--exclude-lower',type=float,default=.25)
     # Seconds-long previews of manifest texture rules / repair relief on the run's bound outputs (no stage attempt).
     p=sub.add_parser('preview');p.add_argument('--manifest',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
-    p.add_argument('--run',required=True,type=Path);p.add_argument('--what',choices=['ownership','stats','relief'],required=True)
+    p.add_argument('--run',required=True,type=Path);p.add_argument('--what',choices=['ownership','stats','relief','rows'],required=True)
     p.add_argument('--regions',type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('startup-config');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
@@ -251,9 +251,11 @@ def main():
     p=sub.add_parser('shade-reference');p.add_argument('--name',required=True);p.add_argument('--layer',type=int,required=True)
     p.add_argument('--description',required=True);p.add_argument('--plt',nargs='+',required=True,type=Path)
     p.add_argument('--references',type=Path,default=Path(__file__).with_name('stock-shades.json'))
+    p=sub.add_parser('fit-references',help='Rank candidate stock ASCII reference heads by midline depth/height (read-only, see fit.py)')
+    p.add_argument('mdl',nargs='+',type=Path);p.add_argument('--exclude-lower',type=float,default=.25)
     p=sub.add_parser('check-occiput',help='Read-only open-back-of-skull check on raw Pixal GLBs (see occiput.py)');p.add_argument('glb',nargs='+',type=Path)
     a=parser.parse_args()
-    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput','batch','shade-reference') else None
+    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput','fit-references','batch','shade-reference') else None
     if a.command in ('prepare','run','resume','status','review','chain'):
         from .runner import Runner
         if a.command=='status':result=Runner(a.manifest,a.bindings,a.run).status()
@@ -312,6 +314,9 @@ def main():
         data['references'][a.name]=shade_reference_entry(a.plt,a.layer,a.description)
         a.references.write_text(json.dumps(data,indent=1)+'\n',encoding='utf-8',newline='\n')  # the committed file's own layout
         result={'reference':a.name,'uniqueTextures':data['references'][a.name]['uniqueTextures'],'sources':len(a.plt)}
+    elif a.command=='fit-references':
+        from .fit import rank_references
+        result={'ranking':rank_references(a.mdl,a.exclude_lower)}
     elif a.command=='check-occiput':
         from .occiput import back_coverage
         result={str(path):{k:v for k,v in back_coverage(path).items() if k!='bandSquareCm'} for path in a.glb}
