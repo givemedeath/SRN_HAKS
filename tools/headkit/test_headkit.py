@@ -1140,6 +1140,15 @@ class MeshTests(Temporary):
         self.assertEqual(root(['x','status','--bindings',str(bindings_path)]),'D:/pkgs')
         self.assertIsNone(root(['x','status']));self.assertIsNone(root(['x','--bindings']))
         bindings_path.write_text('{}');self.assertIsNone(root(['x','--bindings',str(bindings_path)]))
+        # batch --heads: every head's bindings share one package directory (race-heads-v1: batch native failed on all heads
+        # with "resolves outside its byte-bound installation: numpy" because only --bindings was read)
+        bindings_path.write_text(json.dumps({'pythonPackages':{'directory':'D:/pkgs','files':[]}}))
+        other=self.root/'o.json';other.write_text(json.dumps({'pythonPackages':{'directory':'D:/other','files':[]}}))
+        heads=self.root/'heads.json';heads.write_text(json.dumps([{'bindings':str(bindings_path)},{'bindings':str(bindings_path)}]))
+        self.assertEqual(root(['x','batch','--heads',str(heads),'--stages','native']),'D:/pkgs')
+        heads.write_text(json.dumps([{'bindings':str(bindings_path)},{'bindings':str(other)}]));self.assertIsNone(root(['x','batch','--heads',str(heads)]))
+        for bad in ('[]','{}','[1]','not json'):
+            with self.subTest(heads=bad):heads.write_text(bad);self.assertIsNone(root(['x','batch','--heads',str(heads)]))
 
     def test_lower_coverage_floor_needs_a_recorded_review(self):
         from headkit.uv import coverage_floor
