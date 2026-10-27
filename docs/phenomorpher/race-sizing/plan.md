@@ -141,7 +141,7 @@ Evidence in `output/phenomorpher/race-sizing/`:
 
 In-game tours (`!rr show <race>`, white light; front, left and back, 4 s each; clips idle, castup, conjure1,
 victoryfr, walk, run, nwkickl, sit, worship, meditate, getlowlp):
-* Dwarf (pfd0, pfd2, pmd0, pmd2), 2026-10-26. The client was left running at idle. Awaiting the user's verdict.
+* Dwarf (pfd0, pfd2, pmd0, pmd2), 2026-10-26. User: "Looks good". The Dwarf bodies are the user-reviewed r2 stature, build and female joins.
 
 Next:
 * in-game review per race (females' joins, all bodies' stature and build);
