@@ -291,6 +291,64 @@ Nothing here changes a model.
 **User decision, 2026-10-27:** the lore targets stay rest-pose heights, and the idle offset is accepted. The user
 asked for the idle feet-to-floor offset to be fixed.
 
+## Build r3 (2026-10-27): idle feet on the floor, `pmh2` animates
+
+**Feet to floor.** The stage-1 fitter puts each race body's idle sole (`pause1`, t=0, engine-style posing) at
+z = 0; the rest-pose sole was never constrained (−3.5 to +17.5 mm in 1.2.0). Traced per stage, the idle sole is
+still exactly 0 after items 1 and 2 (`s1-ascii`, `s2-ascii`). `bulk.py` (item 3) broke it: scaling the rig
+sideways changes the leg-chain offsets, and in the splayed idle stance the feet then reach 0.8–5.3 mm lower.
+
+`floorfix.py` raises the three model-root children (`rootdummy`, `handconjure`, `headconjure`) of each race rig by
+its own idle sink. Raises: Dwarf 2.3–4.3 mm, Elf 0.8–1.3 mm, Ork 2.8–3.9 mm, Troll 4.2–5.3 mm. Every part rides on
+those nodes, so geometry, heights, joins and parts are unchanged, and every clip moves by the same amount. The
+tool proves the idle sole is 0 afterwards (within 0.02 mm) and that seven sampled poses each moved by exactly the
+raise. `r3-ascii/floorfix.json` holds the per-body numbers. The Humans are not changed; they idle 1.8–3.4 mm above
+the floor in 1.2.0, c6 and c7 alike.
+
+Walk, run and kick still dip below the floor at some phases, as the stock clips do: 8–23 mm on the pre-build
+bodies. On the widened race bodies some phases dip up to 16 mm more (Dwarf run), because the extra hip width
+changes the leg arcs. The raise brings those up by the same 1–5 mm, but it can't remove the extra dip without
+reworking the race animation libraries.
+
+**`pmh2` did not animate in game.** In the first r3 tour, `pmh2` (c7) held one stiff stance through every clip,
+while 1.2.0 `pmh2` animates normally in the same client. Every Neverblender compile since r1 had warned that
+supermodel `a_ba` was "not found ... node numbers assume no supermodel and may not match": the stock `a_ba`/`a_fa`
+were in no lookup folder. `pmh2` is the only Blender-compiled rig that uses stock `a_ba` directly, so the client
+mapped its animation nodes wrongly. The eight `srn_an_*` libraries carried the same warning. The race bodies
+animated because their clips come from those libraries, but any clip that falls through to `a_ba` was exposed. r2
+had the same fault: `pmh2` was not animating during the item 5 captures, so its calibration rows don't describe
+a real idle.
+
+Fix: r3 compiles against `race-sizing/stock-super/{a_ba,a_fa}.mdl` (extracted from the game). The result has no
+warnings and no audit failures. Exactly 25 binaries differ from r2: the 16 race rigs (raise), `pmh2`, and the 8
+libraries (numbering).
+
+Guard: `mdl-compile` now fails when any model's supermodel is in no lookup folder, unless
+`--allow-unresolved-supermodel` is given (`neverblender_mdl.unresolved_supermodels`, regression test
+`test_an_unresolved_supermodel_fails_unless_allowed`; 194 tests pass). `buildrace.sh` also refuses a compile receipt
+with such a warning. A search of every compile receipt under `output/phenomorpher` found the warning only in r1
+and r2.
+
+**r3 build.** `r3-compiled` holds 307 models with no audit failures. `combo-r3` is the combo-c6 stage with 297
+models overlaid, installed in `profile-combo`. The candidate contract `r3-release` (`1.3.0-r3-candidate`, not
+accepted) re-pins exactly those 25 resources. `verify-runtime` (structural) passed with no violations.
+
+**Client, r3 (2026-10-27).**
+* `pmh2` plays every clip: idle, castup, conjure1, victoryfr, walk, run, both kicks, sit, worship, meditate and
+  getlowlp. Checked front, profile and back.
+* Stock full plate and leather fit `pmh2` standing and in kick.
+* At the low floor camera the Dwarf feet stand on the floor.
+
+### Mistakes and guards
+
+| Mistake | Guard |
+|---|---|
+| Compile warnings about an unresolved supermodel went unread for two builds | `mdl-compile` fails on them unless explicitly allowed; `buildrace.sh` refuses such receipts |
+| `bulk.py` moved the idle sole off the floor | `floorfix.py` restores and proves idle sole = 0; run after any sideways or limb rig scaling |
+| Head tracking toward the camera anchor distorted client heights | calibration parks the anchor and freezes poses before capturing |
+| A desktop capture picked up another window | `capture.ps1` reads only the NWN window (`PrintWindow`) |
+| Stopping a background gate run left its sweep processes writing into the next run | kill the whole process tree, and remove any orphan output, before restarting a run |
+
 Next:
-* fix the r2 idle feet-to-floor offset;
-* in-game review and the c7 Human lock for `pmh2`.
+* finish the r3 static sweep (16 race bodies and `pmh2`) and the armour-profile comparison;
+* user review of `pmh2` in game, then the c7 Human lock.
