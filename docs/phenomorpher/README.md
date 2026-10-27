@@ -3,13 +3,41 @@
 Version 1.0 published twenty reviewed bodies: Human, Dwarf, Elf, Orc and Troll,
 female and male, Fit and Large. Version 1.1.0 keeps those shapes, UVs and rigs and
 optimizes their runtime resources (see [Runtime optimization](#runtime-optimization-110)).
+Version 1.3.0 reshapes the race bodies to canon lore and publishes the c7 Human lock
+(see [Release 1.3.0](#release-130-race-lore-sizing-and-the-c7-human-lock)).
 Use [game-ready-assets.json](game-ready-assets.json) as the current resource and
 target contract. Previous Human delivery manifests remain historical records.
 
 The user approved these shapes and requested publication on 2026-10-13 after
-the final client and clothing checks. This release changes resource routing and
-skin/material defaults; it does not reshape any approved body or change its rig.
+the final client and clothing checks. That release changed resource routing and
+skin/material defaults; it did not reshape any approved body or change its rig.
 The selected female posture is **hips level + original upper lean/breathing**.
+
+## Release 1.3.0: race lore sizing and the c7 Human lock
+
+The user reviewed every race in game and approved publication on 2026-10-27. Plan,
+evidence and gates: [race-sizing/plan.md](race-sizing/plan.md). Every changed
+resource and its 1.2.0 hash: [race-sizing/release-1.3.0.json](race-sizing/release-1.3.0.json).
+
+* **Race bodies.**
+  * Each body's rest pose is at its lore height (target = reference × 1.1051), with
+    Fit and Large equal.
+  * Large-male joint heights match Fit.
+  * Build matches lore relative to Human: Elf 0.80, Dwarf 2.15, Ork 1.28, Troll 1.32.
+  * The female hip, knee and torso joins are ported from the Human c6 lock.
+  * Idle soles rest on the floor.
+* **Humans (c7 lock).** These are the c6 female joins, torso polish and rebuilt skin, and
+  `pmh2` with its joint heights at Fit. See [human-bodies-lock-c7.md](human-bodies-lock-c7.md).
+* **Troll heads (`srn_head`).** All 34 published Troll heads are rescaled by the Troll
+  stature factor so they keep fitting the shorter Troll necks.
+* **Stock armour (`srn_armor`).** It is re-fitted to the new race bodies, user-approved in
+  game. Its manifest is [clothing/srn-armor-assets.json](clothing/srn-armor-assets.json).
+* **Height in game.** The client shows the idle stance, which is 0.8–2.6% shorter than
+  the rest-pose heights in the contract (calibrated in the plan, item 5).
+
+Rigs, the eight `srn_an_*` libraries and `pmh2` are compiled with Blender 5.2.1 and
+Neverblender 4.5.1 against the stock `a_ba`/`a_fa`. The 2DA tables are unchanged.
+Rollback is contract 1.2.0 and its resources at commit `d5f3645d`.
 
 ## Build and consume
 
@@ -85,7 +113,7 @@ for the Fit chest. Skin uses the selected no-grain detail and tone correction;
 garment and material-map resolutions retain their reviewed payloads. Original
 stock head001 geometry supplies context. Finished race-specific heads, a complete
 armor wardrobe, weighted robes/cloaks and exhaustive palette/frame testing are
-separate work. Bind stature is measured; absolute client height is not calibrated.
+separate work. Bind stature is measured; client height was calibrated for 1.3.0 (idle stance, see above).
 The previously observed client exit crash remains unsymbolicated and was also
 present before this package; the final checks had no in-session crash.
 

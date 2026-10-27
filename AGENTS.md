@@ -50,8 +50,8 @@ native attachment placement and require visual hand-fit review for departures.
 The user locked c7 as the current Human bodies on 2026-10-27. It is the c6 lock (2026-10-26: b13 female hip
 and knee joins, c6 torso polish, rebuilt skin textures) plus the Large male `pmh2` with its joint heights
 back at Fit. See `docs/phenomorpher/human-bodies-lock-c7.md` and its hash manifest. The c6 record
-(`human-bodies-lock.md`) stays as written. Start further body work from c7. It is not yet promoted into
-`srn_body/` or `srn_body_tex/`; publication needs explicit approval.
+(`human-bodies-lock.md`) stays as written. Start further body work from c7. c7 is published in contract 1.3.0
+(`srn_body/`, `srn_body_tex/`; user-approved 2026-10-27).
 
 ## Human female target authority
 

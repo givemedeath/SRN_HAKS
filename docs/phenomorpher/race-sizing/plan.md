@@ -353,7 +353,7 @@ keep their r2 sweep.
 | `bulk.py` moved the idle sole off the floor | `floorfix.py` restores and proves idle sole = 0; run after any sideways or limb rig scaling |
 | Head tracking toward the camera anchor distorted client heights | calibration parks the anchor and freezes poses before capturing |
 | A desktop capture picked up another window | `capture.ps1` reads only the NWN window (`PrintWindow`) |
-| Stopping a background gate run left its sweep processes writing into the next run | kill the whole process tree, and remove any orphan output, before restarting a run |
+| Stopping a background gate run left its sweep processes writing into the next run | `runguard.sh` (sourced by `gates-r3.sh` and `armorchain.sh`): refuses to start while any `-m phenomorpher` worker naming the output folder is alive, and kills its own process tree on exit; tested with a planted orphan |
 
 **User approval and c7 Human lock, 2026-10-27:** "pmh2 looks good. Record the c7 Human lock." Recorded in
 [`../human-bodies-lock-c7.md`](../human-bodies-lock-c7.md) with manifest `human-bodies-lock-c7.json`; the c6 record
@@ -367,4 +367,114 @@ All five brief items are now done on this branch:
 * Native gates and equipment profiles: recorded and approved.
 * c7 Human lock: recorded.
 
-Nothing is pushed, published or promoted. r3 remains a candidate (`1.3.0-r3-candidate`, not accepted).
+PR #67 merged these records on 2026-10-27; at that point nothing was published.
+
+## Release 1.3.0 (publication, 2026-10-27)
+
+The user approved publishing the r3 race bodies, the c7 Human lock and the r2 armour, a verified backup, and the
+follow-ups. Branch `claude/publish-race-r3` is cut from `main` at `d5f3645d`.
+
+**Backup.** `F:/repos/archives/SRN_HAKS/race-sizing-r3-and-human-locks-2026-10-27-v1` holds a content-addressed
+copy of every file the c6 and c7 manifests pin, the combo-c6 and combo-r3 stages and haks, the r2 `srn_armor` hak and
+all of `race-sizing/`. That is 106,762 files in 32,178 objects (3.64 GB). Every object was re-hashed after copying,
+with 0 mismatches. `restore.py` restores into a new folder.
+
+**Packs.** `publish13.py` writes contract 1.3.0 from the published 1.2.0 contract. Each changed or added resource
+keeps its 1.2.0 hash and a change class in `release130`. The receipt is `release-1.3.0.json`. The 2DA tables are
+unchanged. 517 resources change:
+
+| Change class | Resources |
+|---|---:|
+| race body parts | 256 |
+| c6 Human lock | 220 |
+| c7 `pmh2` | 17 |
+| race rigs | 16 |
+| race animation libraries | 8 |
+
+The 17 targets whose rest height changed get new `statureMeters`. The measure was checked first against the
+unchanged Human bodies, within 0.05 mm.
+
+**Troll heads.** `main` added 34 Troll heads (`srn_head`) after this work branched. They are decompiled with Blender
+5.2, rescaled with the Troll stature factors (`restature.py`; female 0.97864, male 0.98826), and recompiled. All
+34 compile with no warnings and no audit failures. Every published binary passes `leaked_text`.
+
+**Armour.** `armor-publish` against contract 1.3.0 reproduces the user-approved r2 pack byte for byte: 6,180 models,
+the same names as the shipped pack.
+
+**Checks on the repository tree.**
+* `verify-assets` passes: 935 resources, 20 targets.
+* `verify-runtime` (structural) passes with no violations.
+* `verify-armor` passes: 6,180 models.
+* `Build-Haks.ps1` builds `srn_body`, `srn_body_tex`, `srn_head`, `srn_armor` and `srn_2da`.
+* `Test-Repository.ps1` passes.
+* The full helper suite passes, apart from 5 tests that need `scipy`, which the desktop interpreter lacks and CI installs.
+
+**Client, with the HAKs built from the repository** (`srn_rrpub.mod`, which adds `!rr head <n>`): Troll heads 18,
+30 and 92 sit on the new Troll necks with clean joins. The male Troll heads look small against the lore-build
+shoulders. That follows from item 3 leaving heads unscaled sideways; it is a design question for the user, not a
+defect.
+
+Further client checks with the same HAKs:
+* All 20 bodies walking in scale armour (stock `nw_aarcl004`): an overview, then each race row up close. The armour
+  stays intact on every race, with no missing or floating parts.
+* `pmh2` height re-measured with the item 5 method (anchor parked, poses frozen, row soloed, front and back captures
+  averaged). Results are in `publish-r3/client/measured-human-v130.json`:
+
+| Body | Client (m) | vs model idle | vs rest |
+|---|---:|---:|---:|
+| `pmh2` | 1.9074 | −0.08% | −1.37% |
+| `pmh0` (control) | 1.9140 | +0.13% | −1.03% |
+| `pfh0` (control) | 1.7944 | −0.29% | −2.37% |
+| `pfh2` (control) | 1.7943 | −0.27% | −2.38% |
+
+  The `pmh2` row now matches its idle stance like every other body. The controls repeat their item 5 values within
+  0.3%.
+
+**Foot dip in walk and run** (follow-up; offline engine-style poses, 20 phases per cycle, `publish-r3/footdip.json`).
+Lowest sole over the cycle, 1.2.0 → r3:
+
+| Race | Walk | Run | Extra dip at the worst phase |
+|---|---|---|---|
+| Dwarf F | −28 → −41 mm | −16 → −11 mm | up to 22 mm |
+| Dwarf M | −13 → −23 mm | −25 → −27 mm | 12–15 mm |
+| Troll F | −35 → −50 mm | −22 → −18 mm | up to 22 mm |
+| Ork F | −29 → −39 mm | −17 → −15 mm | up to 15 mm |
+| Elf | unchanged or better | unchanged or better | about 3 mm or less |
+| Ork M, Troll M | about the same | better | up to 11 mm |
+
+The extra dip comes from the wider build (item 3) and the female joins port changing the leg arcs under the stock
+clip rotations. On average over the cycle the feet sit at the same height or higher.
+
+**Foot fix** (user request 2026-10-27, "fix the foot sinking issues in the animation libraries"; in 1.3.0). The race
+libraries now lift the root wherever a race body goes further below the floor than it did in 1.2.0:
+
+- Rule: in each clip, at every key time of any node, extra depth = max over the library's Fit and Large bodies of
+  `min(0, 1.2.0 lowest point) − r3 lowest point`. Rootdummy position keys are placed at those times (original root
+  motion interpolated) and raised by the extra depth. Halfway points are added while linear interpolation between
+  keys leaves more than 0.5 mm (at most 5 halvings). Nothing is lowered. Clips that never sink are unchanged, and a
+  1.2.0 body above the floor (jumps, `appear`/`disappear`) is not a target.
+- A first version that matched the 1.2.0 lowest point outright lifted `appear`/`disappear` by up to 1.43 m (1.2.0
+  flies higher there; that is a height difference, not a sink). It was discarded before compiling.
+- Result (`output/phenomorpher/race-sizing/r4-ascii/footfix.json`): 36–79 clips lifted per library, mostly
+  knockdowns, getting up, `sitcross`, `whirlwind`, `nwstab` and walk/run. Extra depth before: up to 52 mm
+  (`gustandb`, Troll male). After: 0 at every key time and halfway between the original keys; at most 2.2 mm halfway
+  between the refined keys (`gustandf`, Ork female). Walk and run: 0.
+- Compiled against the stock `a_ba`/`a_fa` (`r4-compiled`, 307 models, audits pass, no warnings). Only the 8
+  `srn_an_*` binaries differ from r3.
+
+| Library | r3 bytes | Foot fix bytes | Change | Clips lifted | Root keys added |
+|---|---|---|---|---|---|
+| `srn_an_df` | 2,258,156 | 2,276,380 | +18,224 | 79 | 1,139 |
+| `srn_an_dm` | 2,175,172 | 2,191,444 | +16,272 | 78 | 1,017 |
+| `srn_an_ef` | 2,093,952 | 2,101,568 | +7,616 | 36 | 476 |
+| `srn_an_em` | 2,004,636 | 2,018,508 | +13,872 | 69 | 867 |
+| `srn_an_gf` | 2,093,952 | 2,110,176 | +16,224 | 61 | 1,014 |
+| `srn_an_gm` | 2,004,636 | 2,021,436 | +16,800 | 73 | 1,050 |
+| `srn_an_of` | 2,093,952 | 2,109,696 | +15,744 | 62 | 984 |
+| `srn_an_om` | 2,004,636 | 2,020,108 | +15,472 | 74 | 967 |
+
+`srn_body.hak` grows by 120,224 bytes (669,240,028 → 669,360,252). `srn_armor.hak` is byte-identical; its
+`bodyContractSHA256` is re-pointed to the new contract (armour fits geometry only). verify-assets, verify-armor and
+verify-runtime pass; the contract tests pass. Client (repo-built HAKs, `srn_rrpub`, floor-level side camera): Dwarf,
+Troll and Ork rows, Fit and Large, walk and run with soles meeting the floor through the cycle; `sitcross` seated on
+the floor, not floating.
