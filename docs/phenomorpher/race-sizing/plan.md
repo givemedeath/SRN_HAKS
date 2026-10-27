@@ -414,6 +414,22 @@ the same names as the shipped pack.
 shoulders. That follows from item 3 leaving heads unscaled sideways; it is a design question for the user, not a
 defect.
 
+Further client checks with the same HAKs:
+* All 20 bodies walking in scale armour (stock `nw_aarcl004`): an overview, then each race row up close. The armour
+  stays intact on every race, with no missing or floating parts.
+* `pmh2` height re-measured with the item 5 method (anchor parked, poses frozen, row soloed, front and back captures
+  averaged). Results are in `publish-r3/client/measured-human-v130.json`:
+
+| Body | Client (m) | vs model idle | vs rest |
+|---|---:|---:|---:|
+| `pmh2` | 1.9074 | −0.08% | −1.37% |
+| `pmh0` (control) | 1.9140 | +0.13% | −1.03% |
+| `pfh0` (control) | 1.7944 | −0.29% | −2.37% |
+| `pfh2` (control) | 1.7943 | −0.27% | −2.38% |
+
+  The `pmh2` row now matches its idle stance like every other body. The controls repeat their item 5 values within
+  0.3%.
+
 **Foot dip in walk and run** (follow-up; offline engine-style poses, 20 phases per cycle, `publish-r3/footdip.json`).
 Lowest sole over the cycle, 1.2.0 → r3:
 
