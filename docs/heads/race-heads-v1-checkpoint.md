@@ -68,7 +68,7 @@ Every head's compute time is under the 2 h target; the longest is dwarf-female-b
   - Fix 79d0e3cb on `claude/headkit-pipeline-v3`, with a regression test in `test_entry_script_puts_bound_packages_first`, cherry-picked here as b44aa126.
   - Before: the native stage failed on all 8 human and dwarf heads. After: 7 heads compile in one 142 s launch, against 22-36 s per single-head launch.
   - No stage pins `run_headkit.py`, so no head went stale.
-- **Shell-table refusal and interiorOnly bubble deletion** (62d303a5, earlier in this batch) stay on the pipeline branch. Merging them stales precluster, repair, export and native for every in-progress head (runbook row 43).
+- **Shell-table refusal and interiorOnly bubble deletion** (62d303a5, earlier in this batch) were cherry-picked here as f5dc7fd1 after the batch finished. Rerunning a head under them stales precluster, repair, export and native (runbook row 43).
 
 ## Optimizations (batch tooling)
 
@@ -82,7 +82,7 @@ Thumbnail sheet of all 20 heads (front and left profile from each approved rende
 
 ## Toolkit follow-ups
 
-Items 1-5 were fixed on `claude/headkit-pipeline-v3` (2026-10-27) and replayed on this batch's retained data. They are not on this branch, and runbook rows 78-82 record them.
+Items 1-5 were fixed on `claude/headkit-pipeline-v3` as 3f937754 (2026-10-27) and replayed on this batch's retained data. They were cherry-picked here as 4222768f, and all 342 headkit tests pass on this branch. Runbook rows 78-82 record them. The 20 heads above were built before these fixes, so rerunning any of them stales repair and every later stage.
 
 1. **Reduction gate: fixed.** All ten failures were hair-strand relief: at most 11 vertices, at most 1.1% of the diagonal across, at most 1.16% error, and at most 0.17% of the surface. The new `mesh.fineRelief` (on by default) passes bounded relief at the strict 0.4% limit.
    - Replay: all 10 heads pass with no exception.
@@ -97,4 +97,4 @@ Items 1-5 were fixed on `claude/headkit-pipeline-v3` (2026-10-27) and replayed o
    - On failure, repair writes `cut-candidates.json` listing the cut variants that pass. Replay: it finds slope -0.25 at troll-male-b's first failure.
 5. **Fit references: measured ranking.** `headkit fit-references` ranks candidates by midline depth/height: pfh0_head001 1.64, pfd0_head008 2.02, pfo0_head009 1.97, against 1.23, 1.63 and 1.56 for their replacements.
    - No fit-result number separated the bad fits from good ones, so the ranking is the guard.
-6. **Merge 62d303a5, 79d0e3cb and the follow-up fixes** to main when no head is in progress. Merging stales repair and later stages on existing runs (the repair manifest digest changes).
+6. **Merge to main** when no head is in progress. This branch now carries 79d0e3cb (b44aa126), 62d303a5 (f5dc7fd1) and 3f937754 (4222768f). Merging stales repair and later stages on existing runs (the repair manifest digest changes).
