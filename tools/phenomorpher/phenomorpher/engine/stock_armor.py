@@ -346,8 +346,7 @@ def armory_ini(entries):
     for index, (name, transform) in enumerate(entries):
         text += f'[s{index}]\nmatch={name}\nsubstitute=*\n'
         for key, default in (('scale', None), ('rotate', [0, 0, 0]), ('translate', None)):
-            # Positional and round-trip exact: NWNArmory 1.3.4 reads exponent notation (2.3e-05) as 0.
-            text += key + '=(' + ','.join(np.format_float_positional(float(v), trim='-') for v in transform.get(key, default)) + ')\n'
+            text += key + '=(' + ','.join(format(float(v), '.17g') for v in transform.get(key, default)) + ')\n'
     return text
 
 

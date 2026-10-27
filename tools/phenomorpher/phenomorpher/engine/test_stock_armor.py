@@ -148,10 +148,6 @@ class ProfileTests(unittest.TestCase):
                         self.assertRaisesRegex(ValueError, 'not converted', armor.style_set, path)
         ini = armor.armory_ini([('pmh0_chest005', {'scale': [1, 2, 3], 'translate': [0, 0, .5]})])
         self.assertEqual(ini, '[Global]\nntransforms=1\n[s0]\nmatch=pmh0_chest005\nsubstitute=*\nscale=(1,2,3)\nrotate=(0,0,0)\ntranslate=(0,0,0.5)\n')
-        tiny = armor.armory_ini([('pmh0_neck002', {'scale': [0.99871756905388, 1, 1], 'translate': [2.3295510482068353e-05, 0, -1e-07]})])
-        self.assertNotRegex(tiny, '[eE]-?[0-9]')  # NWNArmory reads exponent notation as 0
-        self.assertIn('translate=(0.000023295510482068353,0,-0.0000001)', tiny)
-        self.assertIn('scale=(0.99871756905388,1,1)', tiny)
 
     def test_every_non_human_body_converts_human_parts(self):
         self.assertEqual([armor.source_slot(s) for s in ('pmg2', 'pfg0', 'pfd2', 'pme0', 'pfo2')], ['pmh2', 'pfh0', 'pfh2', 'pmh0', 'pfh2'])
@@ -191,6 +187,15 @@ class RigidCorrectionTests(unittest.TestCase):
             source.write_text(pivoted); target.write_text(pivoted)
             proof = correct_rigid(source, target, {'scale': [1, 1, 1], 'translate': [0, 0, 0]})
             self.assertEqual(proof['sourceFrames'][0]['sourceParent'], 'pivot')
+
+    def test_armory_skips_a_scale_or_translate_within_1e_4_of_identity(self):
+        # Pinned v1.3.4 drops these, so its raw output must be proven against what it applies (pme0 neck002:
+        # profile translate 2.3e-5 m). The baked result still uses the exact profile.
+        from .armory_rigid import armory_applied
+        self.assertEqual(armory_applied({'scale': [1.00005, 1, 1], 'translate': [2.3e-5, 2.4e-5, -9.999e-5], 'rotate': [1, 0, 0]}),
+                         {'scale': [1., 1., 1.], 'translate': [0., 0., 0.], 'rotate': [1, 0, 0]})
+        kept = {'scale': [1.0002, 1, 1], 'translate': [1e-4, 5e-5, 0]}
+        self.assertEqual(armory_applied(kept), kept)
 
 
 class SanitizeTests(unittest.TestCase):
