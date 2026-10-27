@@ -185,7 +185,7 @@ batch `mdl-compile`, followed by `armor-publish` and `verify-armor` into a stagi
 * Compile: 16 receipts, each complete with its inputs unchanged.
 * Publish and verify: 6,180 resources for 16 targets, verified. The same resource names as the shipped 1.2.0
   pack; every binary differs (refit, and the Neverblender compiler).
-* A review `srn_armor.hak` is packed in `combo-r2/hak`. It is not installed and has no client review yet.
+* A review `srn_armor.hak` is packed in `combo-r2/hak`; it is hardlinked into `profile-combo` for the client review below.
 
 The first runs exposed two toolkit bugs. Both are fixed with regression tests in 3c6d93db, which also
 corrects f776bec2's wrong exponent claim:
@@ -196,7 +196,28 @@ corrects f776bec2's wrong exponent claim:
   proof assumed it always applies them, and failed on `pme0` neck002 (translate 2.3e-5 m). The proof now models
   the skip; the baked output still uses the exact profile.
 
+### Armour client review (2026-10-27)
+
+`srn_rrarmor.mod` is a variant of the review module (`armour-review/armormod.py`, receipt `armormod.json`). It keeps the
+same area, bodies and `!rr` commands, adds `srn_armor` to the hak list after `srn_body_tex` (the two packs share
+no resource names), and adds `!rr armor <1-12|nw_aarclNNN|none>`, which equips a stock armour item in the chest
+slot. Every part of the twelve stock items `nw_aarcl001`–`012` exists for all 16 race bodies, in `srn_armor` or as
+a part-1 body model in `srn_body`.
+
+The tour ran under white light, and full plate also under flat light. It used three stock items on all 20 bodies,
+and the client log records 60 of 60 equips:
+* `nw_aarcl007` (full plate, torso 14): front, profile and back at idle, plus the right kick, on Dwarf, Elf, Orc
+  and Troll.
+* `nw_aarcl004` (scale and chain, torso 32): fronts on every race row. On the Dwarf males (the flagged
+  `pmd0` belt and pelvis) it was also checked in kick, profile and back.
+* `nw_aarcl001` (leather, torso 16, bare part-1 hands): fronts on every race row, plus the Troll kick.
+
+No gaps, floating plates, skin poking through or missing parts are visible at review distance. The `pmd0` belt and
+pelvis stretch (anisotropy 2.06) can't be resolved at this camera distance in the dark plate, so it stays a
+watch item, not a visible defect. Screenshots and the client log are in `armour-review/`. This records an
+observation, not an approval.
+
 Next:
-* client review of the r2 armour (`srn_armor.hak` alongside combo-r2);
+* user review of the armour tour;
 * client height calibration (item 5);
 * in-game review and the c7 Human lock for `pmh2`.
