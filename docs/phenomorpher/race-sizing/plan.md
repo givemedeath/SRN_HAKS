@@ -334,6 +334,10 @@ models overlaid, installed in `profile-combo`. The candidate contract `r3-releas
 accepted) re-pins exactly those 25 resources. `verify-runtime` (structural) passed with no violations.
 `armor-profiles` re-derived on r3 (`gates-r3-equip/`) matches the r2 profiles exactly; only the contract version
 field differs, and the same two parts are flagged. The user-approved r2 armour pack therefore stands for r3.
+The static sweep (`gates-r3/sweep`) ran for the 16 race bodies and `pmh2` with every run exit 0, and no
+measured value differs from r2. The donor-terminal flag that is false on the 12 Fit bodies and the Large
+females is false in r2 too: it is the known donor-topology coverage gap (see Native gates). The unchanged Humans
+keep their r2 sweep.
 
 **Client, r3 (2026-10-27).**
 * `pmh2` plays every clip: idle, castup, conjure1, victoryfr, walk, run, both kicks, sit, worship, meditate and
@@ -352,5 +356,4 @@ field differs, and the same two parts are flagged. The user-approved r2 armour p
 | Stopping a background gate run left its sweep processes writing into the next run | kill the whole process tree, and remove any orphan output, before restarting a run |
 
 Next:
-* finish the r3 static sweep (16 race bodies and `pmh2`);
 * user review of `pmh2` in game, then the c7 Human lock.
