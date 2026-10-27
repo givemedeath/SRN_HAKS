@@ -25,7 +25,7 @@ def toolchain(root):
     return blender, addon
 
 
-def fake_run(binary):
+def fake_run(binary, warnings=()):
     """Worker stand-in: writes `binary` for every compile job, as the real worker reports it."""
     calls = []
     def run(tools, jobs, timeout=600):
@@ -33,7 +33,7 @@ def fake_run(binary):
         for job in jobs:
             Path(job['output']).write_bytes(binary)
             rows.append({'input': str(job['input']), 'output': str(job['output']), 'sourceSha256': nvb.digest(Path(job['input']).read_bytes()),
-                         'outputSha256': nvb.digest(binary), 'bytes': len(binary), 'warnings': [], 'seconds': 0.0})
+                         'outputSha256': nvb.digest(binary), 'bytes': len(binary), 'warnings': list(warnings), 'seconds': 0.0})
         return {'blenderVersion': '5.2.1 LTS', 'results': rows}
     return run, calls
 
@@ -75,6 +75,21 @@ class CompileFolderTests(unittest.TestCase):
                 nvb.compile_folder(blender, addon, converted)
             self.assertEqual(list((converted/'resources').iterdir()), [])
             self.assertFalse((converted/'native-compile.json').exists())
+
+    def test_an_unresolved_supermodel_fails_unless_allowed(self):
+        """cleanmodels numbers nodes as if there were no supermodel; the client then animates the wrong nodes."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); blender, addon = toolchain(root); converted = root/'c'; (converted/'ascii').mkdir(parents=True)
+            (converted/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN)
+            warning = 'supermodel "a_ba" not found in c/ascii, c/resources; node numbers assume no supermodel and may not match its animations'
+            run, _ = fake_run(native('m', 'null', [('m', '', {})]), [warning])
+            with patch.object(nvb, 'run', side_effect=run):
+                with self.assertRaisesRegex(RuntimeError, 'Supermodel not found.*m.mdl'):
+                    nvb.compile_folder(blender, addon, converted)
+                self.assertEqual(list((converted/'resources').iterdir()), [])
+                self.assertFalse((converted/'native-compile.json').exists())
+                receipt = nvb.compile_folder(blender, addon, converted, allow_unresolved_supermodel=True)
+            self.assertEqual(receipt['models'][0]['warnings'], [warning])
 
     def test_worker_outputs_must_be_fresh(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,0 +1,370 @@
+# Race stature and build to canon lore
+
+Branch `claude/race-lore-sizing`, cut from the c6 Human lock (17f6dd5c). The brief comes from the lore-audit
+session, 2026-10-26: `output/phenomorpher/proportion-fix-prompt.md`. The c6 lock files were verified against
+`human-bodies-lock-c6.json` before use (307 files, no mismatch). Canon basis and rejected alternatives:
+[`../../phenotype-race-sizing-comparison.md`](../../phenotype-race-sizing-comparison.md).
+
+Working files live under `output/phenomorpher/race-sizing/` (ignored):
+
+| Folder | Contents |
+|---|---|
+| `src-ascii` | decompiles of the shipped bodies |
+| `s1-ascii` | stature-corrected bodies |
+| `s2-ascii` | Large males brought back to Fit joint heights |
+| `bulk/final`, `bulk/dwarf-half` | lore build, and the halfway Dwarf variant |
+| `c7h-ascii` | Human `pmh2` with the item 2 fix |
+| `tools-snapshot` | the tools, plus copies of the audit scripts |
+
+## 1. Stature (done, awaiting review together with item 3)
+
+* **Cause.** The derivation fitter (`fit_anatomy_stage1_v15a`) posed the source in `pause1` at t=0. It then
+  normalized that standing pose to the target, and its 1% gate also checked the standing pose. Height targets
+  are rest-pose crown to sole, and the standing stance is 1.2–1.3% lower. Every non-Human body's standing height
+  equals its target to 0.1 mm, measured on its own race library: Elf F matches the old 1.85 m reference
+  (2.0444 m).
+* **Source fix.** Commit 7d200faf: normalize, gate and report on rest-pose stature, with a regression test.
+* **Applying the fix.** The candidate recipes no longer exist, so the 1.0 derivation cannot be replayed. Stage 1's
+  normalization is one uniform scale per body, so the fix is applied as that exact rescale (`restature.py`):
+  rig, parts, head001, the Troll heads in `srn_head`, and the race library's position keys. Fit and Large share
+  one factor per race and sex.
+
+| Body | Rest before | Target | Factor |
+|---|---:|---:|---:|
+| Elf M | 2.1253 | 2.0997 | 0.98792 |
+| Elf F | 2.0892 | 1.9560 | 0.93626 |
+| Dwarf M | 1.3434 | 1.3261 | 0.98712 |
+| Dwarf F | 1.2997 | 1.2709 | 0.97782 |
+| Ork M | 2.1246 | 2.0997 | 0.98825 |
+| Ork F | 2.0327 | 1.9892 | 0.97859 |
+| Troll M | 2.7956 | 2.7627 | 0.98826 |
+| Troll F | 2.5972 | 2.5417 | 0.97864 |
+
+After the rescale every Fit body and every female Large body measures exactly its target.
+
+## 2. Large male joint heights (done, awaiting review)
+
+The pm?2 rigs raise `neck_g` (and the head) by 10–22 mm and the bicep chain by 28–56 mm. They also move them
+forward by 17–32 mm and 44–80 mm.
+
+`largefix.py` sets those joints' Z back to Fit and keeps the forward offsets. The Large chest is refit
+vertically: full at and above the shoulder pivots, easing out over the upper half of the chest, and blending
+from the shoulder drop to the neck drop toward the midline.
+
+All five Large males now measure exactly the Fit height. Human `pmh2` is 1.9339 m (c7 candidate,
+`c7h-ascii`).
+
+## 3. Build (standing stage; user review pending)
+
+`bulk.py` applies one sideways scale S to the whole rest-pose assembly about the pelvis centreline: rig joints,
+parts and feet. Height is unchanged and every join keeps its fit. The heads are left unscaled; they are
+separate work. `bulkfit.py` solves S so that the union-voxel build index (`voxvol` method, 5 mm, / height³)
+relative to the same-sex, same-phenotype Human reaches the lore target. The Human baselines are c6 for the
+females and c7h for `pmh2`.
+
+| Race | Target | Start M Fit/Large | Start F Fit/Large | S, M | S, F | Final index |
+|---|---:|---|---|---|---|---|
+| Elf | 0.80 | 0.941 / 0.935 | 0.928 / 0.936 | 0.921 / 0.925 | 0.926 / 0.923 | 0.800 |
+| Dwarf | 2.15 | 1.441 / 1.434 | 1.446 / 1.445 | 1.223 / 1.226 | 1.229 / 1.225 | 2.149–2.150 |
+| Ork | 1.28 | 1.041 / 1.040 | 0.997 / 1.015 | 1.109 / 1.110 | 1.136 / 1.125 | 1.280 |
+| Troll | 1.32 | 1.093 / 1.073 | 1.000 / 1.010 | 1.099 / 1.109 | 1.151 / 1.144 | 1.320 |
+
+The halfway Dwarf (index ≈1.76, S ≈1.11) is kept alongside the full target for the user's choice. Evidence:
+`output/phenomorpher/race-sizing/sheet-{elf,dwarf,ork,troll}.png`. Each row shows the Human reference, then the
+body before and after (plus the halfway step for Dwarf) in front, side and rear views, at one metric scale.
+
+User, 2026-10-26: "The standing shapes look right; take the full lore Dwarf build forward and continue with
+motion review and the female joins." The full-target Dwarf is used; the halfway variant stays as evidence only.
+
+### Motion review (all renders on the GPU, RTX 3060; no CPU pass)
+
+`bodymotion.py` poses every part and head001 from the body's own rig and race library chain (`srn_an_*`, then
+stock), with the engine's rules: orientation keys are absolute local rotations, node positions follow the body's
+own bind offsets, and the root takes its key relative to the owning animation model's rest. Ten poses (pause1,
+walk, run, nwkickl, castup, conjure1, victoryfr, sit, worship, getlowlp) × front, left, rear, 5.5 mm/px.
+Visible back faces count as holes. Rest geometry for ASCII rigs comes from `walkrender.rig_model`, because the
+ASCII loader leaves it at zero.
+
+* Males (r1): 0–2 px per pose, the same level as the shipped Troll male.
+* Human c6 females, as reference: 0–3 px per pose.
+
+## 4. Female joins port (in-game review pending)
+
+`portjoins.sh` ports the Human b13 hip/knee joins and the c6 torso polish to each non-Human female:
+
+* Scale the body uniformly to the c6 Human female rest height (exact, `restature.py`).
+* Run the Human recipes with their fixed lengths. Thigh poses come from the body's own rig and race library
+  (`RIGDIR`). The toolkit now honours race bind rotations on thigh, shin, foot, neck and head.
+* Scale back.
+
+Hole-fix renders must log a GPU pass; a CPU fallback aborts the port. Hole-fix history (px), every pass on the GPU:
+
+| Body | History | Body | History |
+|---|---|---|---|
+| pfe0 | 384 → 7 | pfe2 | 325 → 16 (worse last pass reverted) |
+| pfd0 | 0 | pfd2 | 7 → 0 |
+| pfo0 | 131 → 10 | pfo2 | 60 → 9 |
+| pfg0 | 111 → 8 | pfg2 | 51 → 12 |
+
+The Fit females showed new holes in motion, at the rear waist, in kick, run and victory (pfg0 kick 3 → 15).
+The Large females did not. The cause is the c6 pelvis-top rear roll. On the Fit bodies the pelvis top stands
+29–40 mm outside the chest at the back, so the roll moves it in by up to 40 mm. That tuck opens when the wider
+race torsos twist. The cornerround has no effect on the holes. `c6var.sh` replays the c6 stage with a weaker
+rear weight; the replay of the unchanged recipe reproduces the port byte for byte. For each Fit body the
+strongest weight kept was the one whose motion stays within 2 px of the pre-port body per pose:
+
+| Body | Rear weight (140°, 180°) | Rear roll at edge | Motion holes per pose, pre-port → final |
+|---|---|---:|---|
+| pfe0 | 0.9, 0.8 | 23 of 29 mm | kick 0 → 2, run 4 → 5, others equal |
+| pfd0 | 0.9, 0.8 | 32 of 40 mm | kick 1 → 2, others equal |
+| pfo0 | 0.9, 0.8 | 29 of 37 mm | kick 3 → 4, others equal |
+| pfg0 | 0.8, 0.6 | 24 of 39 mm | run 1 → 2, others equal |
+
+The Large females keep the full c6 recipe; their motion equals pre-port. A rear crest of 6–15 mm remains on the
+Fit bodies, where the Human keeps about 1 mm. The remaining extra pixels in the zoomed hip renders sit at the
+raised buttock in kick: the b13 hip join in deep flexion. This is the behaviour the user accepted on the Human.
+
+Evidence in `output/phenomorpher/race-sizing/`:
+* `motion/motion-*.png`: final motion sheets.
+* `motion-pre/`: pre-port motion sheets.
+* `joins-review/{pre,port}/motion-pf*.png`: hip to knee at about 2 mm/px, pause1, walk, kick and sit.
+* `r2-variants.txt`.
+
+### Build r2
+
+* `r2-ascii`: r1 with the eight ported females.
+* `r2-compiled`: 307 models, audit 0 failures, inputs pinned and unchanged.
+* `combo-r2`, made by `buildrace.sh`: the locked combo-c6 stage with 297 r2 models overlaid. Human bodies and
+  shared skin are unchanged. Race parts share the Human skin PLTs and maps through their UVs, so there is no
+  re-bake. The extra Troll heads in `srn_head` are not in the review profile.
+* Installed into `profile-combo` (hardlinks, hash-checked).
+
+In-game tours (`!rr show <race>`, white light; front, left and back, 4 s each; clips idle, castup, conjure1,
+victoryfr, walk, run, nwkickl, sit, worship, meditate, getlowlp):
+* Dwarf (pfd0, pfd2, pmd0, pmd2), 2026-10-26. User: "Looks good". The Dwarf bodies are the user-reviewed r2 stature, build and female joins.
+* Elf (pfe0, pfe2, pme0, pme2), 2026-10-26. User: "Elves look good". The Elf bodies are the user-reviewed r2
+  stature, build and female joins.
+* Ork (pfo0, pfo2, pmo0, pmo2), 2026-10-26. User: "Orks look good". The Ork bodies are the user-reviewed r2
+  stature, build and female joins.
+* Troll (pfg0, pfg2, pmg0, pmg2), 2026-10-26: idle, castup, conjure1, victoryfr, walk and run shown. User:
+  "Trolls look good" (given mid-tour). The Troll bodies are the user-reviewed r2 stature, build and female joins.
+
+All four races are user-reviewed in game (r2, combo-r2). Human `pmh2` (c7h) has not yet had its own in-game review.
+
+### Native gates (2026-10-27)
+
+User: "Go straight to native gates and equipment profiles." Every step ran through `pheno.sh` (inputs pinned
+before the run and re-checked after: "inputs unchanged" every time). Every compile and decompile used Blender
+5.2.1 LTS with Neverblender 4.5.1 (cleanmodels v4.10.0) in headless batch mode. The client compiler was not used.
+
+* Candidate contract `r2-release/game-ready-assets.json`, version `1.3.0-r2-candidate`, not accepted. It is the
+  1.2.0 contract re-pinned to the combo-r2 stage: 513 re-pinned resources, plus the four skin-rebuild Large chest
+  maps, 935 resources in all. The 2DA tables are unchanged.
+* `verify-runtime` (structural): passed, no violations.
+* `sweep` (static), all 20 bodies, one run per body:
+  * no degenerate or coincident cross-part triangles;
+  * no clearance gate false;
+  * Fit and Large share one body height per race and sex.
+* Compared with the shipped 1.2.0 (baseline sweep of pfg0, pmg0, pfo0):
+  * Every female, the locked Human pfh0/pfh2 included, has 3 self connectors unavailable. The c6/b13 pelvis has
+    open edges (the two-sided brief), so solid penetration against it is undefined. Those joins are covered by the
+    GPU motion and hole renders above.
+  * Donor comparisons: 1.2.0 measured 52 per Fit body; r2 measures 0–3 on the Fit bodies. The locked Human Fit
+    donors no longer share topology with the race Fit parts. The Large males still measure 55 against `pmh2`.
+    This is a gap in the gate's coverage, not a defect it found.
+
+### Equipment profiles (stock armour onto the 16 race bodies)
+
+The chain is `armor-extract`, `armor-profiles`, then `armor-convert` per Human source. Each body then gets one
+batch `mdl-compile`, followed by `armor-publish` and `verify-armor` into a staging root
+(`gates/equip/publish`). Nothing was written to `srn_armor/`.
+
+* Profiles: median fit residual per body 6.2–14.9 mm (largest on the Troll bodies). Flagged above 2.0 anisotropy:
+  `pmd0:belt` and `pmd0:pelvis` at 2.06, from the wider Dwarf build.
+* Conversion: 6,180 models, 764 of them danglymesh. Worst world-transform error 5e-11 m.
+* Compile: 16 receipts, each complete with its inputs unchanged.
+* Publish and verify: 6,180 resources for 16 targets, verified. The same resource names as the shipped 1.2.0
+  pack; every binary differs (refit, and the Neverblender compiler).
+* A review `srn_armor.hak` is packed in `combo-r2/hak`; it is hardlinked into `profile-combo` for the client review below.
+
+The first runs exposed two toolkit bugs. Both are fixed with regression tests in 3c6d93db, which also
+corrects f776bec2's wrong exponent claim:
+* The Neverblender decompiler indents node lines, and three `stock_armor` patterns were anchored at column 0.
+  Because of that, the inventory recorded no mesh types for 1,431 of 1,561 models (32 danglymesh instead of
+  191), and the `pmh2_footl014` duplicate-name rename stopped working.
+* NWNArmory 1.3.4 skips a scale or translate whose components all lie within 1e-4 of identity. The raw-output
+  proof assumed it always applies them, and failed on `pme0` neck002 (translate 2.3e-5 m). The proof now models
+  the skip; the baked output still uses the exact profile.
+
+### Armour client review (2026-10-27)
+
+`srn_rrarmor.mod` is a variant of the review module (`armour-review/armormod.py`, receipt `armormod.json`). It keeps the
+same area, bodies and `!rr` commands, adds `srn_armor` to the hak list after `srn_body_tex` (the two packs share
+no resource names), and adds `!rr armor <1-12|nw_aarclNNN|none>`, which equips a stock armour item in the chest
+slot. Every part of the twelve stock items `nw_aarcl001`–`012` exists for all 16 race bodies, in `srn_armor` or as
+a part-1 body model in `srn_body`.
+
+The tour ran under white light, and full plate also under flat light. It used three stock items on all 20 bodies,
+and the client log records 60 of 60 equips:
+* `nw_aarcl007` (full plate, torso 14): front, profile and back at idle, plus the right kick, on Dwarf, Elf, Orc
+  and Troll.
+* `nw_aarcl004` (scale and chain, torso 32): fronts on every race row. On the Dwarf males (the flagged
+  `pmd0` belt and pelvis) it was also checked in kick, profile and back.
+* `nw_aarcl001` (leather, torso 16, bare part-1 hands): fronts on every race row, plus the Troll kick.
+
+No gaps, floating plates, skin poking through or missing parts are visible at review distance. The `pmd0` belt and
+pelvis stretch (anisotropy 2.06) can't be resolved at this camera distance in the dark plate, so it stays a
+watch item, not a visible defect. Screenshots and the client log are in `armour-review/`.
+
+**User approval, 2026-10-27:** "Armour looks good." This approves the r2 armour as reviewed in the client. It
+does not promote anything into `srn_armor/` or approve publication.
+
+## 5. Client height calibration (2026-10-27)
+
+**Answer: in-game height is not the rest-pose height.** The client shows each body at its idle stance (`pause1`)
+height. That height is 0.8–2.6% below the rest-pose height: 0.8–1.9% for males (most near 1.1–1.3%) and
+2.1–2.6% for females.
+The difference is the same in 1.2.0 and r2. The lore targets in items 1–2 are rest-pose numbers, so in game every
+body stands that much shorter than its target.
+
+**Method.** `srn_rrcalib.mod` is the review module with the same hak list, so it runs in both review profiles. It
+adds four chat commands:
+* `!rr camset` sets a near-level camera 9 m out (pitch 89, the client's limit).
+* `!rr solo` hides the other rows.
+* `!rr park` moves the camera anchor 35 m away.
+* `!rr freeze` holds every body's pose with cutscene paralysis.
+
+Each row is captured from the front and the back with `capture.ps1`, which reads the NWN window's own image, at
+3840×2054. `measure.py` finds the crown and sole of each body to sub-pixel precision. It takes the pixel scale in
+the bodies' plane from their known 2.5 m spacing, and averages front and back so that the head's and feet's depth
+offsets cancel.
+
+`heights.py` computes the model side: the rest pose, and the `pause1` pose as the engine applies it, crown to sole,
+with the head001 the client actually uses (`pfh2` uses its own `srn_body` head; it measures the same).
+
+Three things had to be fixed before the numbers were trustworthy:
+* A camera farther than the 10 m row spacing is pulled in front of the row between it and its anchor.
+* Head tracking turns the bodies' heads toward the nearby camera anchor and changed the crown by up to 4%. Parking
+  the anchor and then freezing the pose removed it: both Human females then measure the same to 0.1 mm.
+* A desktop capture can include other windows on top of NWN. `capture.ps1` therefore reads the NWN window's own
+  image (`PrintWindow`); one such capture was deleted.
+
+**Results** (`calib/calibration.json`, front and back captures in `calib/shots/`, client logs alongside):
+
+| | Client vs model idle | Client vs rest |
+|---|---|---|
+| 1.2.0 (`profile-v120`, fixture-verified) | mean −0.13%, range −0.39 to +0.15% | −1.10 to −2.62% |
+| r2 (`profile-combo`) | mean −0.20%, range −0.77 to +0.18% | −0.84 to −2.62% |
+
+| Body | r2 rest | r2 idle | r2 client | 1.2.0 client |
+|---|---:|---:|---:|---:|
+| Dwarf F Fit / Large | 1.2709 | 1.2456 / 1.2450 | 1.2397 / 1.2375 | 1.2660 / 1.2656 |
+| Dwarf M Fit / Large | 1.3261 | 1.3143 / 1.3116 | 1.3119 / 1.3015 | 1.3261 / 1.3287 |
+| Elf F | 1.9560 | 1.9154 / 1.9149 | 1.9093 / 1.9092 | 2.0402 / 2.0399 |
+| Elf M | 2.0997 | 2.0747 / 2.0721 | 2.0723 / 2.0676 | 2.1005 / 2.1116 |
+| Human F | 1.8380 | 1.7996 / 1.7991 | 1.7964 / 1.7965 | 1.7926 / 1.7960 |
+| Human M | 1.9339 | 1.9114 / 1.9089 | 1.9128 / 1.9124 | 1.9120 / 1.9270 |
+| Ork F | 1.9892 | 1.9504 / 1.9494 | 1.9436 / 1.9435 | 1.9871 / 1.9830 |
+| Ork M | 2.0997 | 2.0797 / 2.0766 | 2.0769 / 2.0738 | 2.1012 / 2.1124 |
+| Troll F | 2.5417 | 2.4928 / 2.4917 | 2.4886 / 2.4870 | 2.5385 / 2.5381 |
+| Troll M | 2.7627 | 2.7359 / 2.7320 | 2.7396 / 2.7351 | 2.7635 / 2.7836 |
+
+Heights are crown to sole in metres, Fit / Large. "Rest" is the same for Fit and Large in r2. r2 Human F and M Fit
+are the c6 bodies; Human M Large is the c7 candidate.
+
+**Uncertainty.** The front and back captures of one body differ by up to 4%: the head sits forward of the body's
+plane and the toes and heels sit off it. Averaging the two views cancels this to first order.
+
+The camera pitch is nominally 1° below level and can't be read back from the client. Correcting for a 1° tilt would
+raise every client height by 0.2–0.5%. With that correction the mean is +0.20% (1.2.0) and +0.12% (r2) against the
+idle height, against −0.13% and −0.20% without it. Either way the client agrees with the idle pose to within about
+0.5%, and is far from the rest pose.
+
+**Finding: r2 feet sit slightly below the floor at idle.** In the model's idle pose the r2 race bodies' soles
+are 0.8–5.3 mm below the floor: Troll about 5 mm, Dwarf and Ork about 3–4 mm, Elf about 1 mm. In 1.2.0 they sat
+at 0.0–0.8 mm, and the Humans sit 1.8–3.4 mm above it in both builds. In game this hides that much of each foot
+in the ground, and it accounts for part of the Dwarf shortfall (−0.5 to −0.8% against idle). Nothing visibly
+sinks at review distance.
+
+Nothing here changes a model.
+
+**User decision, 2026-10-27:** the lore targets stay rest-pose heights, and the idle offset is accepted. The user
+asked for the idle feet-to-floor offset to be fixed.
+
+## Build r3 (2026-10-27): idle feet on the floor, `pmh2` animates
+
+**Feet to floor.** The stage-1 fitter puts each race body's idle sole (`pause1`, t=0, engine-style posing) at
+z = 0; the rest-pose sole was never constrained (−3.5 to +17.5 mm in 1.2.0). Traced per stage, the idle sole is
+still exactly 0 after items 1 and 2 (`s1-ascii`, `s2-ascii`). `bulk.py` (item 3) broke it: scaling the rig
+sideways changes the leg-chain offsets, and in the splayed idle stance the feet then reach 0.8–5.3 mm lower.
+
+`floorfix.py` raises the three model-root children (`rootdummy`, `handconjure`, `headconjure`) of each race rig by
+its own idle sink. Raises: Dwarf 2.3–4.3 mm, Elf 0.8–1.3 mm, Ork 2.8–3.9 mm, Troll 4.2–5.3 mm. Every part rides on
+those nodes, so geometry, heights, joins and parts are unchanged, and every clip moves by the same amount. The
+tool proves the idle sole is 0 afterwards (within 0.02 mm) and that seven sampled poses each moved by exactly the
+raise. `r3-ascii/floorfix.json` holds the per-body numbers. The Humans are not changed; they idle 1.8–3.4 mm above
+the floor in 1.2.0, c6 and c7 alike.
+
+Walk, run and kick still dip below the floor at some phases, as the stock clips do: 8–23 mm on the pre-build
+bodies. On the widened race bodies some phases dip up to 16 mm more (Dwarf run), because the extra hip width
+changes the leg arcs. The raise brings those up by the same 1–5 mm, but it can't remove the extra dip without
+reworking the race animation libraries.
+
+**`pmh2` did not animate in game.** In the first r3 tour, `pmh2` (c7) held one stiff stance through every clip,
+while 1.2.0 `pmh2` animates normally in the same client. Every Neverblender compile since r1 had warned that
+supermodel `a_ba` was "not found ... node numbers assume no supermodel and may not match": the stock `a_ba`/`a_fa`
+were in no lookup folder. `pmh2` is the only Blender-compiled rig that uses stock `a_ba` directly, so the client
+mapped its animation nodes wrongly. The eight `srn_an_*` libraries carried the same warning. The race bodies
+animated because their clips come from those libraries, but any clip that falls through to `a_ba` was exposed. r2
+had the same fault: `pmh2` was not animating during the item 5 captures, so its calibration rows don't describe
+a real idle.
+
+Fix: r3 compiles against `race-sizing/stock-super/{a_ba,a_fa}.mdl` (extracted from the game). The result has no
+warnings and no audit failures. Exactly 25 binaries differ from r2: the 16 race rigs (raise), `pmh2`, and the 8
+libraries (numbering).
+
+Guard: `mdl-compile` now fails when any model's supermodel is in no lookup folder, unless
+`--allow-unresolved-supermodel` is given (`neverblender_mdl.unresolved_supermodels`, regression test
+`test_an_unresolved_supermodel_fails_unless_allowed`; 194 tests pass). `buildrace.sh` also refuses a compile receipt
+with such a warning. A search of every compile receipt under `output/phenomorpher` found the warning only in r1
+and r2.
+
+**r3 build.** `r3-compiled` holds 307 models with no audit failures. `combo-r3` is the combo-c6 stage with 297
+models overlaid, installed in `profile-combo`. The candidate contract `r3-release` (`1.3.0-r3-candidate`, not
+accepted) re-pins exactly those 25 resources. `verify-runtime` (structural) passed with no violations.
+`armor-profiles` re-derived on r3 (`gates-r3-equip/`) matches the r2 profiles exactly; only the contract version
+field differs, and the same two parts are flagged. The user-approved r2 armour pack therefore stands for r3.
+The static sweep (`gates-r3/sweep`) ran for the 16 race bodies and `pmh2` with every run exit 0, and no
+measured value differs from r2. The donor-terminal flag that is false on the 12 Fit bodies and the Large
+females is false in r2 too: it is the known donor-topology coverage gap (see Native gates). The unchanged Humans
+keep their r2 sweep.
+
+**Client, r3 (2026-10-27).**
+* `pmh2` plays every clip: idle, castup, conjure1, victoryfr, walk, run, both kicks, sit, worship, meditate and
+  getlowlp. Checked front, profile and back.
+* Stock full plate and leather fit `pmh2` standing and in kick.
+* At the low floor camera the Dwarf feet stand on the floor.
+
+### Mistakes and guards
+
+| Mistake | Guard |
+|---|---|
+| Compile warnings about an unresolved supermodel went unread for two builds | `mdl-compile` fails on them unless explicitly allowed; `buildrace.sh` refuses such receipts |
+| `bulk.py` moved the idle sole off the floor | `floorfix.py` restores and proves idle sole = 0; run after any sideways or limb rig scaling |
+| Head tracking toward the camera anchor distorted client heights | calibration parks the anchor and freezes poses before capturing |
+| A desktop capture picked up another window | `capture.ps1` reads only the NWN window (`PrintWindow`) |
+| Stopping a background gate run left its sweep processes writing into the next run | kill the whole process tree, and remove any orphan output, before restarting a run |
+
+**User approval and c7 Human lock, 2026-10-27:** "pmh2 looks good. Record the c7 Human lock." Recorded in
+[`../human-bodies-lock-c7.md`](../human-bodies-lock-c7.md) with manifest `human-bodies-lock-c7.json`; the c6 record
+stays as written. The `pmh2` rows of the item 5 calibration were taken while `pmh2` did not animate, so they don't
+describe its idle stance.
+
+All five brief items are now done on this branch:
+* 1–3: stature, Large joint heights and lore build, user-reviewed per race.
+* 4: female joins, ported and reviewed.
+* 5: client height calibration.
+* Native gates and equipment profiles: recorded and approved.
+* c7 Human lock: recorded.
+
+Nothing is pushed, published or promoted. r3 remains a candidate (`1.3.0-r3-candidate`, not accepted).

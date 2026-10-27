@@ -136,6 +136,8 @@ def main(argv=None):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--resource-dir', type=Path, action='append', default=[], help='Extra supermodel/skeleton/material folder; repeat')
     p.add_argument('--cache', type=Path, help='Earlier converted folder whose unchanged binaries are reused (read only)')
+    p.add_argument('--allow-unresolved-supermodel', action='store_true',
+                   help='Publish models whose supermodel is in no lookup folder (their node numbers may not match it)')
     p.add_argument('--timeout', type=float, default=600)
     p = sub.add_parser('mdl-decompile', help='Decompile binary models to ASCII with Blender + Neverblender')
     for name in ('blender', 'neverblender', 'output'):
@@ -325,7 +327,8 @@ def main(argv=None):
         from .engine import neverblender_mdl as nvb
         declare_consumed(argv)
         if a.command == 'mdl-compile':
-            receipt = nvb.compile_folder(a.blender, a.neverblender, a.converted, a.resource_dir, a.timeout, a.cache)
+            receipt = nvb.compile_folder(a.blender, a.neverblender, a.converted, a.resource_dir, a.timeout, a.cache,
+                                         a.allow_unresolved_supermodel)
             print(json.dumps({k: receipt[k] for k in ('compilerSha256', 'compiled', 'reused', 'complete')}))
             return
         names = [p.name.lower() for p in a.input]

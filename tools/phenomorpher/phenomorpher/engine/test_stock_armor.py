@@ -120,6 +120,14 @@ class ProfileTests(unittest.TestCase):
         child = text + 'node dummy hook\n  parent pmh2_footl014\nendnode\n'
         self.assertRaisesRegex(ValueError, 'Ambiguous', armor.unique_mesh_names, child, 'pmh2_footl014')
 
+    def test_indented_neverblender_node_lines_are_recognised(self):
+        # The Neverblender decompiler indents node lines; patterns anchored at column 0 silently missed them.
+        text = ('newmodel pmh2_footl014\n  node dummy pmh2_footl014\n    parent NULL\n  endnode\n'
+                '  node trimesh pmh2_footl014\n    parent pmh2_footl014\n  endnode\n')
+        out, changes = armor.unique_mesh_names(text, 'pmh2_footl014')
+        self.assertIn('  node trimesh pmh2_footl014g\n    parent pmh2_footl014\n', out)
+        self.assertEqual(len(changes), 1)
+
     def test_armory_values_output_is_parsed(self):
         log = ('scale=(1.2000, 1.1000, 1.3000)\nrotate=(5.00, -3.00, 2.00)\ntranslate=(0.0100, 0.0200, -0.0300)\n'
                '; verts fit: n=66 max_residual=0.00000 mean_residual=0.00000 (note)\n; tverts fit: n=67 max_residual=0.5\n')
@@ -179,6 +187,15 @@ class RigidCorrectionTests(unittest.TestCase):
             source.write_text(pivoted); target.write_text(pivoted)
             proof = correct_rigid(source, target, {'scale': [1, 1, 1], 'translate': [0, 0, 0]})
             self.assertEqual(proof['sourceFrames'][0]['sourceParent'], 'pivot')
+
+    def test_armory_skips_a_scale_or_translate_within_1e_4_of_identity(self):
+        # Pinned v1.3.4 drops these, so its raw output must be proven against what it applies (pme0 neck002:
+        # profile translate 2.3e-5 m). The baked result still uses the exact profile.
+        from .armory_rigid import armory_applied
+        self.assertEqual(armory_applied({'scale': [1.00005, 1, 1], 'translate': [2.3e-5, 2.4e-5, -9.999e-5], 'rotate': [1, 0, 0]}),
+                         {'scale': [1., 1., 1.], 'translate': [0., 0., 0.], 'rotate': [1, 0, 0]})
+        kept = {'scale': [1.0002, 1, 1], 'translate': [1e-4, 5e-5, 0]}
+        self.assertEqual(armory_applied(kept), kept)
 
 
 class SanitizeTests(unittest.TestCase):
