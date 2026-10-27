@@ -219,6 +219,76 @@ watch item, not a visible defect. Screenshots and the client log are in `armour-
 **User approval, 2026-10-27:** "Armour looks good." This approves the r2 armour as reviewed in the client. It
 does not promote anything into `srn_armor/` or approve publication.
 
+## 5. Client height calibration (2026-10-27)
+
+**Answer: in-game height is not the rest-pose height.** The client shows each body at its idle stance (`pause1`)
+height. That height is 0.8–2.6% below the rest-pose height: 0.8–1.9% for males (most near 1.1–1.3%) and
+2.1–2.6% for females.
+The difference is the same in 1.2.0 and r2. The lore targets in items 1–2 are rest-pose numbers, so in game every
+body stands that much shorter than its target.
+
+**Method.** `srn_rrcalib.mod` is the review module with the same hak list, so it runs in both review profiles. It
+adds four chat commands:
+* `!rr camset` sets a near-level camera 9 m out (pitch 89, the client's limit).
+* `!rr solo` hides the other rows.
+* `!rr park` moves the camera anchor 35 m away.
+* `!rr freeze` holds every body's pose with cutscene paralysis.
+
+Each row is captured from the front and the back with `capture.ps1`, which reads the NWN window's own image, at
+3840×2054. `measure.py` finds the crown and sole of each body to sub-pixel precision. It takes the pixel scale in
+the bodies' plane from their known 2.5 m spacing, and averages front and back so that the head's and feet's depth
+offsets cancel.
+
+`heights.py` computes the model side: the rest pose, and the `pause1` pose as the engine applies it, crown to sole,
+with the head001 the client actually uses (`pfh2` uses its own `srn_body` head; it measures the same).
+
+Three things had to be fixed before the numbers were trustworthy:
+* A camera farther than the 10 m row spacing is pulled in front of the row between it and its anchor.
+* Head tracking turns the bodies' heads toward the nearby camera anchor and changed the crown by up to 4%. Parking
+  the anchor and then freezing the pose removed it: both Human females then measure the same to 0.1 mm.
+* A desktop capture can include other windows on top of NWN. `capture.ps1` therefore reads the NWN window's own
+  image (`PrintWindow`); one such capture was deleted.
+
+**Results** (`calib/calibration.json`, front and back captures in `calib/shots/`, client logs alongside):
+
+| | Client vs model idle | Client vs rest |
+|---|---|---|
+| 1.2.0 (`profile-v120`, fixture-verified) | mean −0.13%, range −0.39 to +0.15% | −1.10 to −2.62% |
+| r2 (`profile-combo`) | mean −0.20%, range −0.77 to +0.18% | −0.84 to −2.62% |
+
+| Body | r2 rest | r2 idle | r2 client | 1.2.0 client |
+|---|---:|---:|---:|---:|
+| Dwarf F Fit / Large | 1.2709 | 1.2456 / 1.2450 | 1.2397 / 1.2375 | 1.2660 / 1.2656 |
+| Dwarf M Fit / Large | 1.3261 | 1.3143 / 1.3116 | 1.3119 / 1.3015 | 1.3261 / 1.3287 |
+| Elf F | 1.9560 | 1.9154 / 1.9149 | 1.9093 / 1.9092 | 2.0402 / 2.0399 |
+| Elf M | 2.0997 | 2.0747 / 2.0721 | 2.0723 / 2.0676 | 2.1005 / 2.1116 |
+| Human F | 1.8380 | 1.7996 / 1.7991 | 1.7964 / 1.7965 | 1.7926 / 1.7960 |
+| Human M | 1.9339 | 1.9114 / 1.9089 | 1.9128 / 1.9124 | 1.9120 / 1.9270 |
+| Ork F | 1.9892 | 1.9504 / 1.9494 | 1.9436 / 1.9435 | 1.9871 / 1.9830 |
+| Ork M | 2.0997 | 2.0797 / 2.0766 | 2.0769 / 2.0738 | 2.1012 / 2.1124 |
+| Troll F | 2.5417 | 2.4928 / 2.4917 | 2.4886 / 2.4870 | 2.5385 / 2.5381 |
+| Troll M | 2.7627 | 2.7359 / 2.7320 | 2.7396 / 2.7351 | 2.7635 / 2.7836 |
+
+Heights are crown to sole in metres, Fit / Large. "Rest" is the same for Fit and Large in r2. r2 Human F and M Fit
+are the c6 bodies; Human M Large is the c7 candidate.
+
+**Uncertainty.** The front and back captures of one body differ by up to 4%: the head sits forward of the body's
+plane and the toes and heels sit off it. Averaging the two views cancels this to first order.
+
+The camera pitch is nominally 1° below level and can't be read back from the client. Correcting for a 1° tilt would
+raise every client height by 0.2–0.5%. With that correction the mean is +0.20% (1.2.0) and +0.12% (r2) against the
+idle height, against −0.13% and −0.20% without it. Either way the client agrees with the idle pose to within about
+0.5%, and is far from the rest pose.
+
+**Finding: r2 feet sit slightly below the floor at idle.** In the model's idle pose the r2 race bodies' soles
+are 0.8–5.3 mm below the floor: Troll about 5 mm, Dwarf and Ork about 3–4 mm, Elf about 1 mm. In 1.2.0 they sat
+at 0.0–0.8 mm, and the Humans sit 1.8–3.4 mm above it in both builds. In game this hides that much of each foot
+in the ground, and it accounts for part of the Dwarf shortfall (−0.5 to −0.8% against idle). Nothing visibly
+sinks at review distance.
+
+Nothing here changes a model. Whether the lore targets should be met in game (idle height) rather than at rest
+is a design decision for the user.
+
 Next:
-* client height calibration (item 5);
+* decide whether the race targets should apply to the in-game idle height;
 * in-game review and the c7 Human lock for `pmh2`.
