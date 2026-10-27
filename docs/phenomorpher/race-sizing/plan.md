@@ -332,6 +332,8 @@ and r2.
 **r3 build.** `r3-compiled` holds 307 models with no audit failures. `combo-r3` is the combo-c6 stage with 297
 models overlaid, installed in `profile-combo`. The candidate contract `r3-release` (`1.3.0-r3-candidate`, not
 accepted) re-pins exactly those 25 resources. `verify-runtime` (structural) passed with no violations.
+`armor-profiles` re-derived on r3 (`gates-r3-equip/`) matches the r2 profiles exactly; only the contract version
+field differs, and the same two parts are flagged. The user-approved r2 armour pack therefore stands for r3.
 
 **Client, r3 (2026-10-27).**
 * `pmh2` plays every clip: idle, castup, conjure1, victoryfr, walk, run, both kicks, sit, worship, meditate and
@@ -350,5 +352,5 @@ accepted) re-pins exactly those 25 resources. `verify-runtime` (structural) pass
 | Stopping a background gate run left its sweep processes writing into the next run | kill the whole process tree, and remove any orphan output, before restarting a run |
 
 Next:
-* finish the r3 static sweep (16 race bodies and `pmh2`) and the armour-profile comparison;
+* finish the r3 static sweep (16 race bodies and `pmh2`);
 * user review of `pmh2` in game, then the c7 Human lock.
