@@ -151,9 +151,52 @@ victoryfr, walk, run, nwkickl, sit, worship, meditate, getlowlp):
 
 All four races are user-reviewed in game (r2, combo-r2). Human `pmh2` (c7h) has not yet had its own in-game review.
 
+### Native gates (2026-10-27)
+
+User: "Go straight to native gates and equipment profiles." Every step ran through `pheno.sh` (inputs pinned
+before the run and re-checked after: "inputs unchanged" every time). Every compile and decompile used Blender
+5.2.1 LTS with Neverblender 4.5.1 (cleanmodels v4.10.0) in headless batch mode. The client compiler was not used.
+
+* Candidate contract `r2-release/game-ready-assets.json`, version `1.3.0-r2-candidate`, not accepted. It is the
+  1.2.0 contract re-pinned to the combo-r2 stage: 513 re-pinned resources, plus the four skin-rebuild Large chest
+  maps, 935 resources in all. The 2DA tables are unchanged.
+* `verify-runtime` (structural): passed, no violations.
+* `sweep` (static), all 20 bodies, one run per body:
+  * no degenerate or coincident cross-part triangles;
+  * no clearance gate false;
+  * Fit and Large share one body height per race and sex.
+* Compared with the shipped 1.2.0 (baseline sweep of pfg0, pmg0, pfo0):
+  * Every female, the locked Human pfh0/pfh2 included, has 3 self connectors unavailable. The c6/b13 pelvis has
+    open edges (the two-sided brief), so solid penetration against it is undefined. Those joins are covered by the
+    GPU motion and hole renders above.
+  * Donor comparisons: 1.2.0 measured 52 per Fit body; r2 measures 0–3 on the Fit bodies. The locked Human Fit
+    donors no longer share topology with the race Fit parts. The Large males still measure 55 against `pmh2`.
+    This is a gap in the gate's coverage, not a defect it found.
+
+### Equipment profiles (stock armour onto the 16 race bodies)
+
+The chain is `armor-extract`, `armor-profiles`, then `armor-convert` per Human source. Each body then gets one
+batch `mdl-compile`, followed by `armor-publish` and `verify-armor` into a staging root
+(`gates/equip/publish`). Nothing was written to `srn_armor/`.
+
+* Profiles: median fit residual per body 6.2–14.9 mm (largest on the Troll bodies). Flagged above 2.0 anisotropy:
+  `pmd0:belt` and `pmd0:pelvis` at 2.06, from the wider Dwarf build.
+* Conversion: 6,180 models, 764 of them danglymesh. Worst world-transform error 5e-11 m.
+* Compile: 16 receipts, each complete with its inputs unchanged.
+* Publish and verify: 6,180 resources for 16 targets, verified. The same resource names as the shipped 1.2.0
+  pack; every binary differs (refit, and the Neverblender compiler).
+* A review `srn_armor.hak` is packed in `combo-r2/hak`. It is not installed and has no client review yet.
+
+The first runs exposed two toolkit bugs. Both are fixed with regression tests in 3c6d93db, which also
+corrects f776bec2's wrong exponent claim:
+* The Neverblender decompiler indents node lines, and three `stock_armor` patterns were anchored at column 0.
+  Because of that, the inventory recorded no mesh types for 1,431 of 1,561 models (32 danglymesh instead of
+  191), and the `pmh2_footl014` duplicate-name rename stopped working.
+* NWNArmory 1.3.4 skips a scale or translate whose components all lie within 1e-4 of identity. The raw-output
+  proof assumed it always applies them, and failed on `pme0` neck002 (translate 2.3e-5 m). The proof now models
+  the skip; the baked output still uses the exact profile.
+
 Next:
-* in-game review per race (females' joins, all bodies' stature and build);
-* native gates;
-* equipment profiles;
+* client review of the r2 armour (`srn_armor.hak` alongside combo-r2);
 * client height calibration (item 5);
-* the c7 Human lock for `pmh2`.
+* in-game review and the c7 Human lock for `pmh2`.
