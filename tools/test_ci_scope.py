@@ -135,6 +135,9 @@ class LiveConfigurationTests(unittest.TestCase):
             self.assertEqual(sorted(ran),sorted(self.data['tests']));self.assertEqual(len(ran),len(set(ran)))
         durations=json.loads((REPO/ci_scope.DURATIONS).read_text(encoding='utf-8'))['seconds']
         self.assertLessEqual(set(durations),set(self.data['tests']),'Prune durations for removed tests')
+        # Unmeasured modules weigh the median and unbalance shards: a new test module must add its seconds.
+        self.assertEqual(sorted(set(self.data['tests'])-set(durations)),[],'Add new test modules to '+ci_scope.DURATIONS+
+                         ' (module seconds summed from unittest --durations 0)')
     def test_controlled_startup_suite_keeps_its_declared_pack_dependencies(self):
         target='tools/headkit/test_comfy_runtime_snapshot.py'
         required=reached_packs(self.data,target)

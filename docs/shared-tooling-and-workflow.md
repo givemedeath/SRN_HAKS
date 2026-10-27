@@ -262,6 +262,28 @@ The validation record pins the committed helper bytes, and clean-checkout tests
 verify the complete declared helper set. This avoids binding evidence to local
 line endings that differ from the committed files. Preserve older run receipts.
 
+`launch_shared_tool.py` hashes every declared input before the run and again
+after it, and snapshots every `.py` input into the launch folder. For a headkit
+stage launch (about 3,800 inputs, 1.4 GB, 1,500 Python helpers) that took 26-33 s
+of a launch whose stage may take seconds. Setting `SRN_LAUNCH_HASH_CACHE` to a local
+SQLite path (machine state: never a portable lock, a receipt input or committed)
+enables `launch_hash_cache.py`:
+- A file reuses its recorded SHA-256 only while its size, `st_mtime_ns`, file index
+  and device are unchanged since it was hashed. A writer that keeps size and
+  timestamp (one that resets mtime) is not detected; without the variable every
+  input is hashed in full, as before.
+- A file modified within 2 s of the stat is hashed and never stored (a write may
+  still be in progress); a digest is stored only when the stat before and after
+  hashing match. The post-run check uses the same cache, so a file written during
+  the run has a new stamp, is rehashed and invalidates the launch.
+- Helper snapshots come from a read-only content-addressed store beside the cache,
+  hardlinked into the launch folder: the link is the same file as the verified store
+  entry, so the folder keeps its snapshots without copying and rehashing them. A link
+  across volumes falls back to copy and hash.
+- Several launches may share the cache (SQLite WAL); `launch.json` records
+  `hashCache` with hits, misses and recent-file refusals, or `null` when disabled.
+On the headkit input set a warm cache took a launch from about 32 s to 6.5 s.
+
 `tools/test_impact.py` builds a catalog of local imports, literal helper launches,
 configuration dependencies and documents read by literal path. Use
 `--changed <repository-relative-file> --run` for iterations. Tests run from their
@@ -275,6 +297,14 @@ heads, robes, the PhenoMorpher package or root tools). Markdown that no test rea
 require full-suite review; focused selection is a convenience, not a release gate.
 Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers
 change; CI rejects a stale catalog.
+
+`--run` splits each import root's selected modules into duration-balanced shards
+(`tools/ci-test-durations.json`) and runs `--jobs` of them at once (default 3), one
+child process each, longest first. Each shard's output is printed whole when it
+finishes, under a `=== <root>: N modules, exit E, S s` header. `--jobs 1` keeps the
+serial order; CI uses it because its runners are already sharded per job. The
+full local helper suite took about 19 minutes serially and 6 minutes with `--jobs 3`
+(2026-10-25).
 
 CI runs one entry workflow, `.github/workflows/ci.yml`:
 1. **Scope** runs `tools/ci_scope.py` once. It publishes the changed files, the
@@ -301,6 +331,10 @@ Pushes to `main` and manual runs with `full` keep full coverage. A newer commit
 cancels the older run of the same pull request. All jobs share one tool-cache key
 per runner OS through `.github/actions/srn-tools`. Per-test durations are uploaded
 as artifacts; refresh `tools/ci-test-durations.json` from them when shards drift.
+Every catalogued test module needs an entry there: a pull request that adds a test
+module adds its seconds (summed from `unittest --durations 0`), and one that removes
+a module removes its entry. `test_ci_scope` fails otherwise, because an unmeasured
+module weighs the median and unbalances both CI shards and local `--jobs` runs.
 
 Before PR readiness select validation from the changed files and their dependencies:
 focused affected tests for helper, configuration and documentation changes, the full

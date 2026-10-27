@@ -113,9 +113,13 @@ def compile_inpaint(prompt, design, mask, seed, batch, prefix):
     return _validated(graph)
 
 
-def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700):
-    """POST once and poll /history until the prompt finishes. Never retries or resubmits."""
-    response = client.request('/prompt', {'prompt': graph, 'client_id': token})
+def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700, front=False):
+    """POST once and poll /history until the prompt finishes. Never retries or resubmits. `deadline` (seconds) counts
+    queue time too: on a ComfyUI shared with Pixal jobs, raise it or submit with `front` (ComfyUI queues the prompt ahead
+    of pending ones; a running prompt still finishes first)."""
+    require(0 <= deadline <= 21600, 'Design deadline must be 0-21600 s')
+    record['queue'] = {'deadline': deadline, 'front': bool(front)}
+    response = client.request('/prompt', dict({'prompt': graph, 'client_id': token}, **({'front': True} if front else {})))
     require(isinstance(response, dict) and response.get('prompt_id') and not response.get('node_errors'),
             'ComfyUI rejected the design request: ' + json.dumps(response)[:2000])
     record['promptId'] = prompt_id = response['prompt_id']; started = time.monotonic()
@@ -152,7 +156,7 @@ def _image(path, suffixes=SUFFIXES):
     return path
 
 
-def _execute(client, local, bindings_path, graph, receipt, sources, output, base, batch, runtime):
+def _execute(client, local, bindings_path, graph, receipt, sources, output, base, batch, runtime, queue=None):
     """Stage inputs, dispatch, copy outputs; always leave a receipt (complete or failed) once work has started."""
     output = Path(output); started = time.monotonic()
     receipt.update(state='dispatching', comfyEndpoint=client.url, bindings=pin(bindings_path), runtimeIdentity=runtime,
@@ -165,7 +169,7 @@ def _execute(client, local, bindings_path, graph, receipt, sources, output, base
             row = {'source': pin(source), 'staged': pin(target), 'comfyImage': f'{SUBFOLDER}/{receipt["token"]}/{name}'}
             require(row['source']['sha256'] == row['staged']['sha256'], 'Staged copy differs from its source'); staged[name] = row
         receipt['staged'] = staged; started = time.monotonic()
-        entry = dispatch(client, graph, receipt['token'], receipt)
+        entry = dispatch(client, graph, receipt['token'], receipt, **(queue or {}))
         receipt['elapsedSeconds'] = round(time.monotonic() - started, 1)
         comfy_outputs = [pin(path) for path in collect_images(entry, local['comfyOutput'], receipt['outputPrefix'], batch)]
         outputs = []
@@ -196,7 +200,7 @@ def _fresh(output, base):
     require(not (output / f'{base}.json').exists(), 'Receipt already exists; use another seed or output folder')
 
 
-def generate(client, local, bindings_path, spec_path, head, seed, batch, references, output, *, runtime=None):
+def generate(client, local, bindings_path, spec_path, head, seed, batch, references, output, *, runtime=None, queue=None):
     """`design`: N candidates for one spec head, conditioned on the species reference image(s)."""
     _bound(local); spec = load_spec(spec_path); prompt = design_prompt(spec, head)
     references = [_image(path) for path in references]
@@ -205,7 +209,7 @@ def generate(client, local, bindings_path, spec_path, head, seed, batch, referen
     graph = compile_design(prompt, [f'{SUBFOLDER}/{token}/{name}' for name in names], seed, batch, f'{SUBFOLDER}/{token}/{base}')
     receipt = _receipt('design', spec_path, prompt, seed, batch, token, graph['9']['inputs']['filename_prefix'])
     receipt.update(head=head, references=[f'{SUBFOLDER}/{token}/{name}' for name in names])
-    return _execute(client, local, bindings_path, graph, receipt, names, output, base, batch, runtime)
+    return _execute(client, local, bindings_path, graph, receipt, names, output, base, batch, runtime, queue)
 
 
 def waist(alpha):
@@ -240,7 +244,7 @@ def carve_guide(image, top, keep, stump):
 
 
 def inpaint(client, local, bindings_path, spec_path, design, skin, seed, batch, output, *, cut=None, lift=24, name=None, runtime=None,
-            carve=None):
+            carve=None, queue=None):
     """`design-inpaint`: resample only the rows below a cut row of a reviewed design (its neck); the head stays. With
     `carve` ({top, keep, stump}, see carve_guide) the staged image is the carve guide and only the keep region stays."""
     from .images import matte
@@ -281,4 +285,4 @@ def inpaint(client, local, bindings_path, spec_path, design, skin, seed, batch, 
                                  else 'rows at and below cutRow are 255 before blur; everything above is kept'})
     if carve is not None: receipt.update(carve={**carve, 'backdrop': list(backdrop)}, guide=pin(guide_path))
     staged = guide_path if carve is not None else design
-    return _execute(client, local, bindings_path, graph, receipt, {'design.png': staged, 'mask.png': mask_path}, output, base, batch, runtime)
+    return _execute(client, local, bindings_path, graph, receipt, {'design.png': staged, 'mask.png': mask_path}, output, base, batch, runtime, queue)

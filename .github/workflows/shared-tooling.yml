@@ -48,7 +48,7 @@ jobs:
         run: |
           $list = Join-Path $env:RUNNER_TEMP 'selected-tests.json'
           [IO.File]::WriteAllText($list, $env:TESTS)
-          & '${{ steps.interpreter.outputs.python-path }}' -B tools/test_impact.py --tests-from $list --timings (Join-Path $env:RUNNER_TEMP 'test-timings.json')
+          & '${{ steps.interpreter.outputs.python-path }}' -B tools/test_impact.py --tests-from $list --jobs 1 --timings (Join-Path $env:RUNNER_TEMP 'test-timings.json')
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Upload per-test durations
         if: always()

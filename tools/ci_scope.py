@@ -10,7 +10,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 import test_impact
 
 REPO=test_impact.REPO
-DURATIONS='tools/ci-test-durations.json'
+DURATIONS=test_impact.DURATIONS
 VERIFY='Repository verification'
 
 def changed_files(base,head='HEAD',repo=REPO):
@@ -20,13 +20,7 @@ def changed_files(base,head='HEAD',repo=REPO):
     if result.returncode:return None
     return sorted({line.strip().replace('\\','/') for line in result.stdout.splitlines() if line.strip()})
 
-def shards(tests,count,durations):
-    """Deterministic longest-processing-time split; unknown tests weigh the median measured duration."""
-    known=sorted(durations.values());default=known[len(known)//2] if known else 1.0
-    bins=[[0.0,i,[]] for i in range(count)]
-    for test in sorted(tests,key=lambda t:(-durations.get(t,default),t)):
-        target=min(bins,key=lambda b:(b[0],b[1]));target[0]+=durations.get(test,default);target[2].append(test)
-    return [sorted(b[2]) for b in bins]
+shards=test_impact.balance
 
 def plan(changed,data,config,durations=None,full_reason=None,base='',deleted=()):
     durations=durations or {}
