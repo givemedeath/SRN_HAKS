@@ -146,6 +146,10 @@ victoryfr, walk, run, nwkickl, sit, worship, meditate, getlowlp):
   stature, build and female joins.
 * Ork (pfo0, pfo2, pmo0, pmo2), 2026-10-26. User: "Orks look good". The Ork bodies are the user-reviewed r2
   stature, build and female joins.
+* Troll (pfg0, pfg2, pmg0, pmg2), 2026-10-26: idle, castup, conjure1, victoryfr, walk and run shown. User:
+  "Trolls look good" (given mid-tour). The Troll bodies are the user-reviewed r2 stature, build and female joins.
+
+All four races are user-reviewed in game (r2, combo-r2). Human `pmh2` (c7h) has not yet had its own in-game review.
 
 Next:
 * in-game review per race (females' joins, all bodies' stature and build);
