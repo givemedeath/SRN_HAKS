@@ -286,9 +286,11 @@ at 0.0–0.8 mm, and the Humans sit 1.8–3.4 mm above it in both builds. In gam
 in the ground, and it accounts for part of the Dwarf shortfall (−0.5 to −0.8% against idle). Nothing visibly
 sinks at review distance.
 
-Nothing here changes a model. Whether the lore targets should be met in game (idle height) rather than at rest
-is a design decision for the user.
+Nothing here changes a model.
+
+**User decision, 2026-10-27:** the lore targets stay rest-pose heights, and the idle offset is accepted. The user
+asked for the idle feet-to-floor offset to be fixed.
 
 Next:
-* decide whether the race targets should apply to the in-game idle height;
+* fix the r2 idle feet-to-floor offset;
 * in-game review and the c7 Human lock for `pmh2`.
