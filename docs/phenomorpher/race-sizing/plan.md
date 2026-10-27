@@ -214,10 +214,11 @@ and the client log records 60 of 60 equips:
 
 No gaps, floating plates, skin poking through or missing parts are visible at review distance. The `pmd0` belt and
 pelvis stretch (anisotropy 2.06) can't be resolved at this camera distance in the dark plate, so it stays a
-watch item, not a visible defect. Screenshots and the client log are in `armour-review/`. This records an
-observation, not an approval.
+watch item, not a visible defect. Screenshots and the client log are in `armour-review/`.
+
+**User approval, 2026-10-27:** "Armour looks good." This approves the r2 armour as reviewed in the client. It
+does not promote anything into `srn_armor/` or approve publication.
 
 Next:
-* user review of the armour tour;
 * client height calibration (item 5);
 * in-game review and the c7 Human lock for `pmh2`.
