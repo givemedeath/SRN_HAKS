@@ -78,11 +78,23 @@ Every head's compute time is under the 2 h target; the longest is dwarf-female-b
 - **CPU spool.** One queue holds stage, batch and diagnostic jobs at BelowNormal priority. It ended lock starvation, which had cost an 18 min wait for the native batch and 30 min for diagnostics.
 - **`cutreplay.py` with the master-audit crossing scan.** It found the clean neck-cut slope for troll-male-b's last repair attempt. `shells.py` now stops at the selection.
 
+Thumbnail sheet of all 20 heads (front and left profile from each approved render): [evidence/race-heads-v1-thumbnails.png](evidence/race-heads-v1-thumbnails.png).
+
 ## Toolkit follow-ups
 
-1. **Reduction gate.** The 0.4% surface-error limit failed on hair for 10 of 20 heads, always on isolated strand vertices. Add a reviewed per-region bound, or a feature-aware reduction that keeps tusks and small protrusions.
-2. **Repair binds all of `mesh`.** A `mesh.uv` edit stales an approved repair; repair should bind only the mesh keys it reads.
-3. **Palette row selection.** Design rows chose hue-wrong rows at the used shades for 16 heads: orange highs on dark skin, rose or tan rows for silver or red hair. Score candidates on the decoded colour over the tone-matched shades with full lightness weight.
-4. **Neck cut.** Add a cut dry run before the first repair, with the strict crossing scan, and drop zero-area slivers after the cut. Heads with nape-length hair need slope -0.3.
-5. **Fit references.** Choose them by measured depth/height. pfo0_head009 carries back hair (1.44); head011 has 1.16.
-6. **Merge 62d303a5 and 79d0e3cb** to main when no head is in progress.
+Items 1-5 were fixed on `claude/headkit-pipeline-v3` (2026-10-27) and replayed on this batch's retained data. They are not on this branch, and runbook rows 78-82 record them.
+
+1. **Reduction gate: fixed.** All ten failures were hair-strand relief: at most 11 vertices, at most 1.1% of the diagonal across, at most 1.16% error, and at most 0.17% of the surface. The new `mesh.fineRelief` (on by default) passes bounded relief at the strict 0.4% limit.
+   - Replay: all 10 heads pass with no exception.
+   - A flattened protrusion still fails (regression test).
+   - A feature-aware PyMeshLab reduction was also tried. It lowered the error but added 4-56 crossings, so it was dropped.
+2. **Repair binds all of `mesh`: fixed.** Repair now binds `mesh` without the UV and bake keys, so a reviewed UV floor stales only unwrap onward.
+3. **Palette row selection: not fixed by scoring; replaced with a review step.** Two scorers were measured against the 19 reviewed pins: full-lightness mean colour and a luma-quantile Lab profile. Neither recovered them (median 16 ΔE from the pin, the same as the current scorer).
+   - New: `headkit preview --what rows` shows each channel decoded on the head with its manifest row and the top-ranked rows, so rows can be pinned before the palette stage.
+4. **Neck cut: fixed.**
+   - Sliver vertices snap onto the plane. Replay: troll-male-a at slope -0.2 now passes.
+   - Repair checks each cut like the master audit and tries reviewed `cut.slopes` fallbacks.
+   - On failure, repair writes `cut-candidates.json` listing the cut variants that pass. Replay: it finds slope -0.25 at troll-male-b's first failure.
+5. **Fit references: measured ranking.** `headkit fit-references` ranks candidates by midline depth/height: pfh0_head001 1.64, pfd0_head008 2.02, pfo0_head009 1.97, against 1.23, 1.63 and 1.56 for their replacements.
+   - No fit-result number separated the bad fits from good ones, so the ranking is the guard.
+6. **Merge 62d303a5, 79d0e3cb and the follow-up fixes** to main when no head is in progress. Merging stales repair and later stages on existing runs (the repair manifest digest changes).
