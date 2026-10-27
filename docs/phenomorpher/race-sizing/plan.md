@@ -355,5 +355,16 @@ keep their r2 sweep.
 | A desktop capture picked up another window | `capture.ps1` reads only the NWN window (`PrintWindow`) |
 | Stopping a background gate run left its sweep processes writing into the next run | kill the whole process tree, and remove any orphan output, before restarting a run |
 
-Next:
-* user review of `pmh2` in game, then the c7 Human lock.
+**User approval and c7 Human lock, 2026-10-27:** "pmh2 looks good. Record the c7 Human lock." Recorded in
+[`../human-bodies-lock-c7.md`](../human-bodies-lock-c7.md) with manifest `human-bodies-lock-c7.json`; the c6 record
+stays as written. The `pmh2` rows of the item 5 calibration were taken while `pmh2` did not animate, so they don't
+describe its idle stance.
+
+All five brief items are now done on this branch:
+* 1–3: stature, Large joint heights and lore build, user-reviewed per race.
+* 4: female joins, ported and reviewed.
+* 5: client height calibration.
+* Native gates and equipment profiles: recorded and approved.
+* c7 Human lock: recorded.
+
+Nothing is pushed, published or promoted. r3 remains a candidate (`1.3.0-r3-candidate`, not accepted).

@@ -1,5 +1,8 @@
 # Locked Human bodies: c6 (2026-10-26)
 
+> **Superseded as the current lock by [c7](human-bodies-lock-c7.md) (2026-10-27)**, which adds the Large male `pmh2`.
+> The c6 record below is unchanged.
+
 The current locked Human bodies are **combo-c6**, the build installed in the
 `client-1.2.0-root-rebase/profile-combo` client. The user reviewed it in game. After an animation tour on
 2026-10-26 they said "looks good", then asked to "record this as the current locked human bodies".
