@@ -167,7 +167,8 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     `cone` (degrees from the face direction, where the chin, beard and any bust flare are) are hair and only the neck
     column inside them is removed; such vertices are not drawn onto the neck anywhere in the band either. Faces joining
     kept hair to the removed column are dropped and the rewrap closes the hair's open inner side, so a skirt needs the
-    wrapped repair (and skips the sliver snap, which the rewrap makes moot)."""
+    wrapped repair (and skips the sliver snap, which the rewrap makes moot). skirt_tuck then draws wrapped surface below
+    the plane that is not hair (the panel the wrap spans under the chin) into the body neck."""
     cut = dict(neck['cut']); skirt = cut.get('skirt'); band = cut['band']; bv, bf = body; jaw = None
     require(skirt is None or rewrap is not None, 'A neck cut skirt keeps open hair; only a wrapped repair (alphaWrap) can close it')
     local = transform(neck['frame'], vertices)
@@ -262,6 +263,7 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
         require(rewrap is not None, f'Neck cut leaves {len(loops)} rings (a hollow stump or a feature under the plane); '
                 'only a wrapped repair (alphaWrap) can close them')
         sealed, sealed_faces = rewrap(transform(np.linalg.inv(neck['frame']), all_vertices[used]), remap[kept])
+        if skirted: sealed, record['skirt']['tuck'] = skirt_tuck(sealed, neck, body, plane, local[hair], skirt['gap'])
         record.update(closure='rewrap', profile='stub drawn onto the smoothed body neck + offset (height x reach smoothsteps); '
                       'plane cut z=height+slope*y; open rings closed by the repair Alpha Wrap')
         return sealed, sealed_faces, record
@@ -275,6 +277,25 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     record.update(closure='fan', ringVertices=len(loop), capTriangles=len(cap), ringSpan=np.ptp(ring[:, :2], 0).tolist(),
                   profile='stub drawn onto the smoothed body neck + offset (height x reach smoothsteps); plane cut z=height+slope*y; shallow fan cap facing down')
     return transform(np.linalg.inv(neck['frame']), all_vertices[used]), remap[kept], record
+
+
+def skirt_tuck(vertices, neck, body, plane, hair, keep):
+    """After a skirt's rewrap: the wrap also spans the open space under the chin between hair curtains, a flat panel in
+    front of the throat (human-female-c, dwarf-male-c). Heads have no neck, so every wrapped surface below the plane
+    farther than `keep` from the kept hair is drawn radially onto the smoothed body neck plus the cut offset (inside the
+    body's neck part, which hides it); a smoothstep over the next `keep` blends it into the hair, and nothing moves
+    outward. Returns the vertices (input frame) and a record."""
+    from scipy.spatial import cKDTree
+    bv, bf = body; cut = neck['cut']; local = transform(neck['frame'], vertices); below = np.flatnonzero(local[:, 2] < plane(local))
+    record = {'keep': keep, 'tuckedVertices': 0, 'maximumMovementMetres': 0.}
+    if not len(below): return vertices, record
+    distance = cKDTree(hair).query(local[below])[0]; weight = np.clip((distance-keep)/keep, 0, 1); weight = weight*weight*(3-2*weight)
+    low = float(bv[:, 2].min())+1e-4; high = float(bv[:, 2].max())-1e-4
+    centre, surface, offset = body_profile(bv, bf, low, high)(local[below], local[below, 2]); radius = np.linalg.norm(offset, axis=1)
+    target = np.minimum(radius, surface+cut['offset']); scale = np.where(radius > 1e-9, (radius+weight*(target-radius))/np.maximum(radius, 1e-9), 1)
+    moved = local.copy(); moved[below, :2] = centre+offset*scale[:, None]; movement = np.linalg.norm(moved-local, axis=1)
+    record.update(tuckedVertices=int(np.count_nonzero(movement > 1e-6)), maximumMovementMetres=float(movement.max()))
+    return transform(np.linalg.inv(neck['frame']), moved), record
 
 
 def cut_problem(vertices, faces):

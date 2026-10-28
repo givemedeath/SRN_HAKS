@@ -1089,6 +1089,19 @@ class MeshTests(Temporary):
         self.assertGreater(face_angle(below).min(),60)  # outside the front cone
         self.assertGreater(np.linalg.norm(below[:,:2],axis=1).min(),.0416+.015)  # beyond the gap outside the body neck (octagon 4.16-4.5 cm)
         self.assertEqual(cut_candidates(self.glb(p),f,neck,body)[0]['result'],'not surveyed')  # the ladder has no rewrap
+        # The wrap also spans the open space under the chin (a flat panel in front of the throat, 7.5 cm forward and 1-4
+        # cm under the plane): the tuck draws it inside the body neck and leaves the hair where it hangs.
+        gx,gz=np.meshgrid(np.linspace(-.03,.03,7),np.linspace(-.01,-.04,4));n=len(gx.ravel())
+        panel=np.c_[gx.ravel(),np.full(n,.075),record['height']+gz.ravel()];base=len(v)
+        quads=[(r*7+c,r*7+c+1,(r+1)*7+c+1,(r+1)*7+c) for r in range(3) for c in range(6)]
+        panel_faces=np.array([t for a,b,c,d in quads for t in ((a,b,c),(a,c,d))])+base
+        def spanning(points,fs):
+            return np.r_[points,transform(np.linalg.inv(neck['frame']),panel)],np.r_[fs,panel_faces]
+        tucked,_,tucked_record=neck_cut(self.glb(p),f,neck,body,rewrap=spanning);tl=transform(neck['frame'],tucked)
+        self.assertLess(np.linalg.norm(tl[base:,:2],axis=1).max(),.045-.003+1e-6)  # inside the body neck (octagon 4.16-4.5 cm, offset -3 mm)
+        np.testing.assert_allclose(tl[:base],local,atol=1e-9)  # the kept hair (all within keep of itself) does not move
+        self.assertEqual(tucked_record['skirt']['tuck']['tuckedVertices'],n)
+        self.assertEqual(record['skirt']['tuck']['tuckedVertices'],0)
         for bad in ({'gap':.01},{'depth':.3},{'depth':.05,'cone':60},{'depth':.05,'width':1}):
             with self.assertRaisesRegex(ValueError,'skirt'):neck_policy({'cut':{'height':'measured','skirt':bad}},fit)
         with self.assertRaisesRegex(ValueError,'cone'):neck_policy({'cut':{'height':'measured','cone':10}},fit)
