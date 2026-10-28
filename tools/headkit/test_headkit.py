@@ -1067,6 +1067,37 @@ class MeshTests(Temporary):
         self.assertEqual((hollow_record['closure'],len(hollow_record['loops']),len(calls)),('rewrap',2,1))
         with self.assertRaisesRegex(ValueError,'cross the head'):neck_cut(self.glb(p),f,neck_policy({'cut':{'height':-.2}},fit),body)
 
+    def test_neck_cut_skirt_keeps_hair_hanging_below_the_jaw_and_removes_only_the_neck_column(self):
+        # User 2026-10-28: neck cuts avoid hair. Hair merged onto the back of the neck down to -0.10 (2.5 cm proud of
+        # the 5.5 cm neck) survives the cut down to the reviewed depth; the neck column inside it and the front are removed.
+        from headkit.neck import neck_policy,neck_cut,transform,face_angle,cut_candidates
+        p,f,body=self.necked_head();fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        theta=np.arctan2(p[:,0],p[:,1]);back=np.maximum(-np.cos(theta),0)**2;z=p[:,2]
+        hanging=(z<0)&(z>-.10);p=p.copy();p[hanging,:2]*=(1+back[hanging]*.025/.055)[:,None]
+        plain=neck_policy({'cut':{'height':'measured','slope':0.0}},fit)
+        v,_,record=neck_cut(self.glb(p),f,plain,body);local=transform(plain['frame'],v)
+        self.assertFalse(np.any(local[:,2]<record['height']-1e-6))  # a plain cut clips the hanging hair at the plane
+        neck=neck_policy({'cut':{'height':'measured','slope':0.0,'skirt':{'depth':.05}}},fit)
+        self.assertEqual((neck['cut']['skirt'],neck['cut']['cone']),({'depth':.05,'gap':.015},60.0))
+        with self.assertRaisesRegex(ValueError,'only a wrapped repair'):neck_cut(self.glb(p),f,neck,body)
+        calls=[];rewrap=lambda v,fs:(calls.append(len(fs)) or (v,fs))
+        v,faces,record=neck_cut(self.glb(p),f,neck,body,rewrap=rewrap);local=transform(neck['frame'],v)
+        self.assertEqual((record['closure'],len(calls)),('rewrap',1));self.assertGreater(record['skirt']['hairVertices'],0)
+        self.assertGreaterEqual(record['skirt']['boundaryComponents'],1);self.assertEqual(record['snappedToPlane'],0)
+        below=local[local[:,2]<record['height']-1e-6];self.assertGreater(len(below),0)
+        self.assertGreater(below[:,2].min(),record['height']-.05-1e-6)  # nothing deeper than the reviewed depth
+        self.assertGreater(face_angle(below).min(),60)  # outside the front cone
+        self.assertGreater(np.linalg.norm(below[:,:2],axis=1).min(),.0416+.015)  # beyond the gap outside the body neck (octagon 4.16-4.5 cm)
+        self.assertEqual(cut_candidates(self.glb(p),f,neck,body)[0]['result'],'not surveyed')  # the ladder has no rewrap
+        for bad in ({'gap':.01},{'depth':.3},{'depth':.05,'cone':60},{'depth':.05,'width':1}):
+            with self.assertRaisesRegex(ValueError,'skirt'):neck_policy({'cut':{'height':'measured','skirt':bad}},fit)
+        with self.assertRaisesRegex(ValueError,'cone'):neck_policy({'cut':{'height':'measured','cone':10}},fit)
+    def test_measured_jaw_with_a_front_cone_ignores_hair_hanging_beside_the_jaw(self):
+        from headkit.neck import jaw_line
+        p,f,body=self.necked_head();theta=np.arctan2(p[:,0],p[:,1]);side=np.exp(-((np.abs(theta)-np.radians(75))/.15)**2)
+        lock=(p[:,2]<0)&(p[:,2]>-.09);p=p.copy();p[lock,:2]*=(1+side[lock]*1.2)[:,None]  # side locks to -0.09, 6 cm proud
+        self.assertLess(jaw_line(p,*body,.04,-.2)['point'][2],-.06)  # the front half takes a lock for the chin
+        jaw=jaw_line(p,*body,.04,-.2,cone=60);self.assertTrue(-.04<jaw['point'][2]<-.03)  # the cone keeps the chin
     def test_measured_jaw_ignores_a_flared_bust_below_the_search_bottom(self):
         from headkit.neck import neck_policy,jaw_line
         p,f,body=self.necked_head();flared=p.copy()

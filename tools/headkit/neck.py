@@ -28,9 +28,9 @@ def neck_policy(neck, fit):
     taper, seal, shorten, cut = neck.get('taper'), neck.get('seal'), neck.get('shorten'), neck.get('cut')
     if cut is not None:
         require(isinstance(cut, dict) and 'height' in cut
-                and set(cut) <= {'height', 'slope', 'slopes', 'band', 'offset', 'reach', 'rise', 'clearance', 'searchBottom', 'notes'}
+                and set(cut) <= {'height', 'slope', 'slopes', 'band', 'offset', 'reach', 'rise', 'clearance', 'searchBottom', 'cone', 'skirt', 'notes'}
                 and (number(cut['height']) or cut['height'] == 'measured'),
-                "Neck cut declares a head-local height or 'measured' (optional slope, band, offset, reach, rise, clearance, searchBottom)")
+                "Neck cut declares a head-local height or 'measured' (optional slope, slopes, band, offset, reach, rise, clearance, searchBottom, cone, skirt)")
         cut = dict({'slope': 0.0, 'band': .03, 'offset': -.003, 'reach': .04, 'rise': .003, 'clearance': .01, 'searchBottom': -.16}, **cut)
         require(number(cut['clearance']) and 0 <= cut['clearance'] <= .04, 'Neck cut clearance outside the supported profile')
         require(number(cut['searchBottom']) and -.3 <= cut['searchBottom'] <= -.05, 'Neck cut searchBottom outside -0.3..-0.05')
@@ -41,6 +41,15 @@ def neck_policy(neck, fit):
         require(number(cut['band']) and .01 <= cut['band'] <= .08 and number(cut['offset']) and -.015 <= cut['offset'] <= .005
                 and number(cut['reach']) and .01 <= cut['reach'] <= .12 and number(cut['rise']) and 0 < cut['rise'] <= .02,
                 'Neck cut band, offset, reach or cap rise outside the supported profile')
+        if cut.get('skirt') is not None:
+            # Hair that hangs below the jaw line is kept (user 2026-10-28: neck cuts avoid hair); see neck_cut.
+            skirt = cut['skirt']
+            require(isinstance(skirt, dict) and 'depth' in skirt and set(skirt) <= {'depth', 'gap', 'notes'}, 'Neck cut skirt declares depth (optional gap)')
+            skirt = cut['skirt'] = dict({'gap': .015}, **skirt); cut.setdefault('cone', 60.0)
+            require(number(skirt['depth']) and .01 <= skirt['depth'] <= .25 and number(skirt['gap']) and .005 <= skirt['gap'] <= .04,
+                    'Neck cut skirt depth or gap outside the supported profile')
+        # The front cone (degrees from the face direction) bounds the chin search and, with a skirt, the hair test.
+        require(cut.get('cone') is None or (number(cut['cone']) and 30 <= cut['cone'] <= 90), 'Neck cut cone must be 30..90 degrees')
         require(seal is None, 'A cut neck is capped by the cut; it takes no seal')
     if shorten is not None:
         require(isinstance(shorten, dict) and {'start', 'rim'} <= set(shorten) <= {'start', 'rim', 'band', 'notes'}
@@ -115,17 +124,25 @@ def body_profile(bv, bf, low, high, bins=720):
     return lookup
 
 
-def jaw_line(local, bv, bf, reach, slope, bottom=-.16):
+def face_angle(offset):
+    """Degrees between head-local xy offsets and the face direction (+y), 0..180."""
+    return np.degrees(np.abs(np.arctan2(offset[:, 0], offset[:, 1])))
+
+
+def jaw_line(local, bv, bf, reach, slope, bottom=-.16, cone=None):
     """Highest cut plane z = h + slope*y that passes under every front feature: over the front half below the head
     joint (y forward of the body neck centre), vertices standing more than `reach` outside the body neck are the chin,
     jaw corners, tusks or beard, never neck. h is the lowest of their z - slope*y; the neck below is what the cut
     removes. Only heights above `bottom` are searched: a long generated neck flares into a bust base about 20-25 cm under
     the joint (from about -0.19), which stands outside the body neck too. -0.16 reproduces the reviewed explicit heights
-    of troll batch v2 (f15, f16, f19-f23; chins down to -0.136), where the unbounded search landed on the bust at -0.22..-0.25."""
+    of troll batch v2 (f15, f16, f19-f23; chins down to -0.136), where the unbounded search landed on the bust at -0.22..-0.25.
+    `cone` (degrees from the face direction) limits the features to the front, so hair hanging beside the jaw is not a chin."""
     low = max(float(local[:, 2].min()), float(bv[:, 2].min())+1e-4, bottom)
     candidates = local[(local[:, 2] < 0) & (local[:, 2] > low)]
     lookup = body_profile(bv, bf, low, -1e-4); centre, surface, offset = lookup(candidates, candidates[:, 2])
-    front = (offset[:, 1] > 0) & (np.linalg.norm(offset, axis=1)-surface > reach); features = candidates[front]
+    front = (offset[:, 1] > 0) & (np.linalg.norm(offset, axis=1)-surface > reach)
+    if cone is not None: front &= face_angle(offset) < cone
+    features = candidates[front]
     require(len(features) > 0, 'No front feature (chin) stands beyond the reach; set an explicit cut height')
     intercept = features[:, 2]-slope*features[:, 1]; lowest = int(np.argmin(intercept))
     return {'height': float(intercept[lowest]), 'point': features[lowest].round(5).tolist(), 'reach': reach, 'slope': slope}
@@ -144,16 +161,31 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     `reach`) that fades out toward the plane, so features above the plane do not move, the cut lands on the surface,
     and the map stays monotonic along every ray. The shell is clipped at the plane. A single boundary ring is capped
     by a shallow fan facing down, inside the body neck. Several rings (a hollow, double-walled stump from wrapping an
-    open neck) are closed by `rewrap`, the repair's own Alpha Wrap, which seals every boundary inside the body neck."""
-    cut = dict(neck['cut']); local = transform(neck['frame'], vertices); band = cut['band']; bv, bf = body; jaw = None
+    open neck) are closed by `rewrap`, the repair's own Alpha Wrap, which seals every boundary inside the body neck.
+    With `skirt` (user 2026-10-28: neck cuts avoid hair), hair hanging below the plane is kept instead of clipped: below
+    the plane, down to `depth`, vertices standing more than `gap` outside the body neck and outside the front
+    `cone` (degrees from the face direction, where the chin, beard and any bust flare are) are hair and only the neck
+    column inside them is removed; such vertices are not drawn onto the neck anywhere in the band either. Faces joining
+    kept hair to the removed column are dropped and the rewrap closes the hair's open inner side, so a skirt needs the
+    wrapped repair (and skips the sliver snap, which the rewrap makes moot)."""
+    cut = dict(neck['cut']); skirt = cut.get('skirt'); band = cut['band']; bv, bf = body; jaw = None
+    require(skirt is None or rewrap is not None, 'A neck cut skirt keeps open hair; only a wrapped repair (alphaWrap) can close it')
+    local = transform(neck['frame'], vertices)
     if cut['height'] == 'measured':
-        jaw = jaw_line(local, bv, bf, cut['reach'], cut['slope'], cut['searchBottom']); cut['height'] = jaw['height']-cut['clearance']
+        jaw = jaw_line(local, bv, bf, cut['reach'], cut['slope'], cut['searchBottom'], cut.get('cone')); cut['height'] = jaw['height']-cut['clearance']
     plane = lambda points: cut['height']+cut['slope']*points[:, 1]
     above = local[:, 2]-plane(local)
     require(above.min() < 0 < above.max(), 'Neck cut plane must cross the head')
+    zone = np.zeros(len(local), bool)  # skirt hair from `depth` below the plane to the band top: kept and not drawn
+    if skirt is not None:
+        region = np.flatnonzero((above >= -skirt['depth']) & (above < band))
+        low = max(float(bv[:, 2].min())+1e-4, float(local[:, 2].min())); high = float(bv[:, 2].max())-1e-4
+        _, surface, offset = body_profile(bv, bf, low, high)(local[region], local[region, 2])
+        zone[region] = (np.linalg.norm(offset, axis=1)-surface > skirt['gap']) & (face_angle(offset) >= cut['cone'])
+    hair = zone & (above < 0); skirted = bool(hair.any())
     # Vertices below the plane are drawn fully, at the body radius of the plane above them, so every clipped edge
     # interpolates between drawn points and the cut lands on the target surface.
-    moving = above < band; p = local[moving]
+    moving = (above < band) & ~zone; p = local[moving]
     require(np.count_nonzero(above[moving] > 0) > 0, 'Neck cut band holds no vertices')
     height_at = np.maximum(p[:, 2], plane(p)); lookup = body_profile(bv, bf, float(height_at.min()), float(height_at.max()))
     centre, surface, offset = lookup(p, height_at); radius = np.linalg.norm(offset, axis=1)
@@ -171,7 +203,7 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     # vertex in two rings) falls back to the unsnapped clip.
     def clip(on):
         moved = shaped.copy(); s = moved[:, 2]-plane(moved)
-        moved[on, 2] -= s[on]; s[on] = 0; s[(np.abs(s) < 1e-9) & ~on] = 1e-9; keep = s >= 0
+        moved[on, 2] -= s[on]; s[on] = 0; s[(np.abs(s) < 1e-9) & ~on] = 1e-9; keep = (s >= 0) | hair
         points = {}; extra = []
         def edge_point(i, j):
             key = (min(i, j), max(i, j))
@@ -179,6 +211,8 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
                 w = s[i]/(s[i]-s[j]); points[key] = len(moved)+len(extra); extra.append(moved[i]+w*(moved[j]-moved[i]))
             return points[key]
         count = keep[faces].sum(1); flat = on[faces].all(1); clipped = []
+        # A face joining kept hair below the plane to the removed column is dropped (the rewrap closes the hair).
+        count[hair[faces].any(1) & (count < 3)] = 0
         for face in faces[((count > 0) & (count < 3)) | flat]:
             polygon = []
             for corner in range(3):
@@ -190,12 +224,12 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
         all_vertices = np.r_[moved, np.array(extra).reshape(-1, 3)]; kept = np.r_[faces[(count == 3) & ~flat], np.array(clipped, int).reshape(-1, 3)]
         # The cut leaves boundary edges (used once) in closed loops.
         edges = np.concatenate([kept[:, [0, 1]], kept[:, [1, 2]], kept[:, [2, 0]]])
-        unique, counts = np.unique(np.sort(edges, 1), axis=0, return_counts=True); single = {tuple(e) for e in unique[counts == 1]}
-        boundary = np.array([e for e in edges if tuple(sorted(e)) in single]).reshape(-1, 2)
+        _, inverse, counts = np.unique(np.sort(edges, 1), axis=0, return_inverse=True, return_counts=True)
+        boundary = edges[counts[inverse.reshape(-1)] == 1]
         return all_vertices, kept, boundary, s
     scale = abs(np.linalg.det(neck['frame'][:3, :3]))**(1/3); on = np.zeros(len(shaped), bool)
     all_vertices, kept, boundary, s = clip(on)
-    for _ in range(5):
+    for _ in range(0 if skirted else 5):
         corners = all_vertices[kept]; twice = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)/scale**2
         near = {min((k for k in face if k < len(shaped) and not on[k]), key=lambda k: abs(s[k]), default=None) for face in kept[twice <= CUT_SLIVER]}
         near = [k for k in near if k is not None and abs(s[k]) < CUT_SNAP]
@@ -205,17 +239,26 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
         on = trial; all_vertices, kept, boundary, s = result
     snapped = int(on.sum())
     require(len(boundary) >= 3 and set(boundary[:, 0]) == set(boundary[:, 1]), 'Neck cut must leave closed boundary loops')
-    following = dict(zip(boundary[:, 0], boundary[:, 1])); loops = []; left = set(following)
-    while left:
-        start = min(left); loop = [start]; left.discard(start)
-        while following[loop[-1]] != start:
-            loop.append(following[loop[-1]]); require(loop[-1] in left, 'Broken cut ring'); left.discard(loop[-1])
-        loops.append(loop)
+    loops = []
+    if not skirted:  # the rewrap closes a skirt's open hair, whose boundary is not simple rings
+        following = dict(zip(boundary[:, 0], boundary[:, 1])); left = set(following)
+        while left:
+            start = min(left); loop = [start]; left.discard(start)
+            while following[loop[-1]] != start:
+                loop.append(following[loop[-1]]); require(loop[-1] in left, 'Broken cut ring'); left.discard(loop[-1])
+            loops.append(loop)
     record = dict(cut, jawLine=jaw, previousRimHeight=float(local[:, 2].min()), conformedVertices=int(np.count_nonzero(movement > 1e-6)), snappedToPlane=snapped,
                   maximumMovementMetres=float(movement.max()), loops=sorted((len(l) for l in loops), reverse=True))
     ring_all = all_vertices[np.unique(boundary)]; record.update(rimFront=float(ring_all[:, 2].min()), rimBack=float(ring_all[:, 2].max()))
     used = np.unique(kept); remap = np.full(len(all_vertices), -1); remap[used] = np.arange(len(used))
-    if len(loops) > 1:
+    if skirted:
+        from scipy.sparse import coo_matrix
+        from scipy.sparse.csgraph import connected_components
+        n = len(all_vertices); graph = coo_matrix((np.ones(len(boundary)), (boundary[:, 0], boundary[:, 1])), shape=(n, n))
+        labels = connected_components(graph, directed=False)[1]
+        record['skirt'] = dict(skirt, hairVertices=int(hair.sum()), lowest=float(local[hair, 2].min()),
+                               boundaryEdges=len(boundary), boundaryComponents=len(np.unique(labels[np.unique(boundary)])))
+    if len(loops) > 1 or skirted:
         require(rewrap is not None, f'Neck cut leaves {len(loops)} rings (a hollow stump or a feature under the plane); '
                 'only a wrapped repair (alphaWrap) can close them')
         sealed, sealed_faces = rewrap(transform(np.linalg.inv(neck['frame']), all_vertices[used]), remap[kept])
@@ -256,6 +299,9 @@ def cut_candidates(vertices, faces, neck, body):
     """The declared cut and nearby reviewed variants on one uncut master, each with the master-audit checks. Several rings
     need the repair's Alpha Wrap to close, which this survey does not run: such variants are reported unverified."""
     base = neck['cut']; rows = []
+    if base.get('skirt') is not None:
+        return [{'result': 'not surveyed', 'problem': 'a skirt needs the repair Alpha Wrap, which this survey does not run',
+                 'cut': {k: base[k] for k in ('height', 'slope', 'reach')}}]
     variants = [{}]+[{'slope': s} for s in CUT_LADDER['slope'] if s != base['slope']]
     variants += [dict(v, reach=r) for r in CUT_LADDER['reach'] if r != base['reach'] for v in variants]
     for variant in variants:
@@ -353,6 +399,7 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
                             or inspection.get('confirmedShellDefect') is True), 'Do not repair an assumed opening')
     neck = neck_policy(policy.get('neck'), fit); work_dir = Path(output).parent
     require((body is not None) == (neck is not None and neck['cut'] is not None), 'A neck cut needs the bodyNeck reference, and only a cut reads it')
+    require(not (neck and neck['cut'] and neck['cut'].get('skirt')) or do_wrap, 'A neck cut skirt keeps open hair; only a wrapped repair (alphaWrap) can close it')
     original = mesh(source); vertices, faces = physical(original['positions'], original['faces'])
 
     if do_wrap:
