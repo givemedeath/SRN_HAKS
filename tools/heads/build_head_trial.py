@@ -304,8 +304,10 @@ void HeadCamera(object p){
   float h=GetLocalFloat(m,"HEAD_HEIGHT");if(h<=0.0) h=HeadHeight(row);
   float d=GetLocalFloat(m,"HEAD_DISTANCE");if(d<=0.0) d=INSPECT_DISTANCE;
   // Both the player and the actors carry cutscene ghost, or the jump lands beside the actor; a fresh ghost gets 0.3 s to land first.
+  // The client drops the first placement after hiding (camera stayed at the chase view), so a fresh hide places it twice.
   float wait=0.0;if(HeadHide(p)) wait=0.3;
-  DelayCommand(wait,HeadJump(p,a));DelayCommand(wait+0.8,HeadCameraSet(p,a,v,h,d));}
+  DelayCommand(wait,HeadJump(p,a));DelayCommand(wait+0.8,HeadCameraSet(p,a,v,h,d));
+  if(wait>0.0) DelayCommand(wait+1.8,HeadCameraSet(p,a,v,h,d));}
 void HeadFree(object p){
   DeleteLocalString(GetModule(),"HEAD_VIEW");
   effect e=GetFirstEffect(p);

@@ -258,6 +258,8 @@ class TrialModuleTests(unittest.TestCase):
         for command in ('HeadView(m)>=0.0','"look "','"dist "','"height "','"anim"','"free"'):self.assertIn(command,chat)
         # cutscene ghost on both sides: the player (with its invisibility) and every spawned actor, or the jump lands beside the actor
         self.assertIn('SupernaturalEffect(EffectCutsceneGhost()),o);',chat);self.assertIn('DelayCommand(wait,HeadJump(p,a));',chat)
+        # the client drops the first placement after a fresh hide: it is placed again 1 s later
+        self.assertIn('if(wait>0.0) DelayCommand(wait+1.8,HeadCameraSet(p,a,v,h,d));',chat)
         for call in ('EffectCutsceneGhost()))','VFX_DUR_CUTSCENE_INVISIBILITY','SetCameraHeight(p,h)','SetCameraLimits(p,1.0,89.0,0.5,25.0)',
                      'CAMERA_FLAG_DISABLE_TURN','HEAD_INSPECT actor=','SetCameraFlags(p,0)'):self.assertIn(call,chat)
         # the view survives head changes: HeadShow re-places the camera after the new row spawns
