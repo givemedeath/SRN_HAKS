@@ -42,10 +42,12 @@ def neck_policy(neck, fit):
                 and number(cut['reach']) and .01 <= cut['reach'] <= .12 and number(cut['rise']) and 0 < cut['rise'] <= .02,
                 'Neck cut band, offset, reach or cap rise outside the supported profile')
         if cut.get('skirt') is not None:
-            # Hair that hangs below the jaw line is kept (user 2026-10-28: neck cuts avoid hair); see neck_cut.
+            # Hair that hangs below the jaw line is kept (user 2026-10-28: neck cuts avoid hair); see neck_cut. The 3 cm
+            # gap: generated necks stand 1-4 cm outside the body neck, so at 1.5 cm four of five race heads v1 skirt heads
+            # kept their own neck walls as hair (a column or sheet under the chin).
             skirt = cut['skirt']
             require(isinstance(skirt, dict) and 'depth' in skirt and set(skirt) <= {'depth', 'gap', 'notes'}, 'Neck cut skirt declares depth (optional gap)')
-            skirt = cut['skirt'] = dict({'gap': .015}, **skirt); cut.setdefault('cone', 60.0)
+            skirt = cut['skirt'] = dict({'gap': .03}, **skirt); cut.setdefault('cone', 60.0)
             require(number(skirt['depth']) and .01 <= skirt['depth'] <= .25 and number(skirt['gap']) and .005 <= skirt['gap'] <= .04,
                     'Neck cut skirt depth or gap outside the supported profile')
         # The front cone (degrees from the face direction) bounds the chin search and, with a skirt, the hair test.

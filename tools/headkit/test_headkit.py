@@ -1077,8 +1077,9 @@ class MeshTests(Temporary):
         plain=neck_policy({'cut':{'height':'measured','slope':0.0}},fit)
         v,_,record=neck_cut(self.glb(p),f,plain,body);local=transform(plain['frame'],v)
         self.assertFalse(np.any(local[:,2]<record['height']-1e-6))  # a plain cut clips the hanging hair at the plane
-        neck=neck_policy({'cut':{'height':'measured','slope':0.0,'skirt':{'depth':.05}}},fit)
-        self.assertEqual((neck['cut']['skirt'],neck['cut']['cone']),({'depth':.05,'gap':.015},60.0))
+        default=neck_policy({'cut':{'height':'measured','slope':0.0,'skirt':{'depth':.05}}},fit)
+        self.assertEqual((default['cut']['skirt'],default['cut']['cone']),({'depth':.05,'gap':.03},60.0))
+        neck=neck_policy({'cut':{'height':'measured','slope':0.0,'skirt':{'depth':.05,'gap':.015}}},fit)  # this hair is 2.5 cm proud
         with self.assertRaisesRegex(ValueError,'only a wrapped repair'):neck_cut(self.glb(p),f,neck,body)
         calls=[];rewrap=lambda v,fs:(calls.append(len(fs)) or (v,fs))
         v,faces,record=neck_cut(self.glb(p),f,neck,body,rewrap=rewrap);local=transform(neck['frame'],v)
