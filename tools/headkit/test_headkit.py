@@ -4025,6 +4025,21 @@ class DesignTests(Temporary):
         for skin in ('',' brown','dark\nbrown','SKIN','x'*81):
             with self.subTest(skin=skin),self.assertRaises(ValueError):inpaint_prompt(spec,skin)
         with self.assertRaisesRegex(ValueError,'no neckInpaint'):inpaint_prompt({'common':'c','designs':{'a':'x'}},'brown')
+    def test_design_prompt_refuses_ink_as_dark_as_the_hair(self):
+        from headkit.design import load_spec,design_prompt,colour_conflict
+        clash='One dwarf head.\nHair: black medium-length hair.\nTattoo: thin BLACK circuit lines on the cheek.'
+        self.assertIsNotNone(colour_conflict(clash))
+        self.assertIsNotNone(colour_conflict('Hair: dark brown bob.\nTattoo: a thin dark line under the eye.'))
+        for fine in ('Hair: black hair.\nTattoo: thin deep dark crimson-red circuit lines.','Hair: white hair.\nTattoo: thin black lines.',
+                     'Hair: black hair.\nTattoo: none.','Hair: none; bald scalp.\nTattoo: thin black lines.','Hair: black hair.'):
+            with self.subTest(fine=fine):self.assertIsNone(colour_conflict(fine))
+        write(self.root/'clash.json',{'common':'c','designs':{'a':clash}})
+        with self.assertRaisesRegex(ValueError,'Design colours do not separate for a'):design_prompt(load_spec(self.root/'clash.json'),'a')
+        write(self.root/'clash.json',{'common':'c','designs':{'a':clash},'colourReviewed':{'a':'ink split by position, reviewed'}})
+        self.assertTrue(design_prompt(load_spec(self.root/'clash.json'),'a').endswith('\nc'))
+        for bad in ({'b':'note'},{'a':' '},['a']):
+            write(self.root/'bad.json',{'common':'c','designs':{'a':clash},'colourReviewed':bad})
+            with self.subTest(bad=bad),self.assertRaises(ValueError):load_spec(self.root/'bad.json')
     def test_example_spec_shape_is_accepted(self):
         from headkit.design import load_spec
         write(self.root/'example.json',{'common':'c','designs':{'troll-male-02':'x','troll-male-04-stub':'y'},'neckEdit':'e','neckInpaint':'n SKIN'})
