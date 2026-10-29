@@ -2,21 +2,22 @@
  "schemaVersion": 1,
  "kind": "SRN-troll-head-build-allowance",
  "date": "2026-10-29",
- "rule": "Uniform vertex scale about each mesh node frame (identity local frames), on top of the 1.3.0 Troll stature scaling: the build allowance sqrt(S) of the Troll stature ratio S. Normals, UVs, faces, materials and PLTs are unchanged.",
+ "rule": "Uniform vertex scale about each mesh node frame (identity local frames), on top of the 1.3.0 Troll stature scaling. Female: the build allowance sqrt(S) of the Troll stature ratio S. Male: x1.5, chosen by the user from body renders, because the published male heads read about 20% smaller than the base head001 and left the neck showing behind the skull. Normals, UVs, faces, materials and PLTs are unchanged.",
  "factors": {
   "pmg0": {
    "statureRatioS": 1.099,
-   "scale": 1.0483
+   "scale": 1.5,
+   "supersedes": 1.0483
   },
   "pfg0": {
    "statureRatioS": 1.151,
    "scale": 1.0729
   }
  },
- "method": "mdl-decompile of the published 1.3.0 binaries, verts rows x scale, mdl-compile, fixed-string tails zeroed, leaked-text check; decoded positions = published x scale within 6e-8 and normals/UVs/tangents/faces/textures equal.",
+ "method": "mdl-decompile of the published 1.3.0 binaries, verts rows x scale, mdl-compile, fixed-string tails zeroed, leaked-text check; decoded positions = published x scale within 6e-8 (female) and 3e-8 (male) and normals/UVs/tangents/faces/textures equal.",
  "compilerSha256": "d2c6aaf4620db0415417ee88fb251e18b0b4204b06190a228267e9e115665214",
  "blenderVersion": "5.2.1 LTS",
- "userApproval": "2026-10-29: chose the build allowance sqrt(S) (male x1.048, female x1.073) for the published Troll heads, from main's published files only.",
+ "userApproval": "2026-10-29: chose the build allowance sqrt(S) (male x1.048, female x1.073) for the published Troll heads, from main's published files only. 2026-10-29 later: after reviewing the male heads on the 1.3.0 body at x1.2 to x1.5, chose male x1.5 over 1.3.0; female stays x1.073.",
  "clientValidated": false,
  "notChanged": [
   "srn_body/pmg0_head001.mdl",
@@ -151,114 +152,114 @@
   },
   {
    "path": "srn_head/pmg0_head015.mdl",
-   "sha256": "b4b4912a581d894522379a3ff587818153cd206602653a639f802b98604c7ff9",
+   "sha256": "8c0ec531edf1064499a164e8d62f173110ab608b0fd4c1c903527d51a5f18d59",
    "fromSHA256": "6b2d7b3a97c41dcfeebcfdf08b5ea9c9faa1108c32a76862c8f079f1069ffc13",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head016.mdl",
-   "sha256": "06fd61d36b6c95571f6ab006c68f14f1682ed75e3955142b77525bf94e54c665",
+   "sha256": "26801c912384303d5d30e4d0d45035c9cf307e584364cdc1b1bfceea3f0d143a",
    "fromSHA256": "a80b9df94a8853f4b055916f47c8db811ba0f6e78726b996096f56c074f21953",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head017.mdl",
-   "sha256": "1ec718076eb5c52bb93fc404a29a8998bda3847d8c384d80a9434e78f3ed8c11",
+   "sha256": "3a7b21c74fdfa2b530e343e37e7c29ef7378a72bbe63e2890f618e1f0d68cb31",
    "fromSHA256": "1a84ef71b824478237b5a4cd711d448cfbe434f6da09870861cc8cb704e1d4b7",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head018.mdl",
-   "sha256": "70f0470e97d233e237c7bd246b01c781f78aeb908355f5c9cc201a15a8023146",
+   "sha256": "f0187dc13abfdc55d83b58a3eb9341076dca48e0e3919531c3bed33bc9a051b7",
    "fromSHA256": "c815dc9a6180e3efcd7f1923ec03f64019f546ddd9cddc140aa3d197df0f1fa4",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head019.mdl",
-   "sha256": "66a7bc08f821d8585fc82bbed626cbd1833badeb89fd8ebabc6bb4a84560de42",
+   "sha256": "d5f01a6caa6aebd789c0b7fe6f433d5a8300222cd2e490afb68bc364656d52fb",
    "fromSHA256": "460f5bbc431fd6e5573a69203b0a7cc62dbc4faf669649f5479501f85f5227dd",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head020.mdl",
-   "sha256": "44cd64c0f0b54a5a1a991b8c51a51156f359b69e1ea64362b41765782f4f3721",
+   "sha256": "f07bb6d97a827f75b33aa227345c1407a3eed40cc99d3b25af919894de7fc665",
    "fromSHA256": "f5851702697493e24a1922b393ba95e7be5d6b3953ed0d2f57297acffb60d0c7",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head021.mdl",
-   "sha256": "145ad87b39405671fa627fa622c57d41c35a6efeafe2b8c40f9113275cfb88a7",
+   "sha256": "2514402f1de6bbebde64e14d9ebaa9db9009c511bbea587bbc03315dca894db0",
    "fromSHA256": "80e01ab19c71a022d80c9e5a30a3f417c47ba096882173b4e9a45a60b180d187",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head022.mdl",
-   "sha256": "7241f6a74de3dfcdaffce0794a4d9203e3aacd355a14469185755d4e10cb4bd4",
+   "sha256": "2d61a58d887a7ceb01316cca5d421879c16a6c2b2a781ab8359a98f3680d0ec9",
    "fromSHA256": "f0d32407e8c00d030c87814d1de0a081ac2733c294f118083f82401f6e40396a",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head023.mdl",
-   "sha256": "bed97d5fb597635f1a73acc4de6f979185eaab69625e99d5b11f98a81195e1e5",
+   "sha256": "c2d7e391a044b8e458d297fd2dcab4f63f551279acc7ad5938cddc218476d29b",
    "fromSHA256": "f88da4f604d77616011c999032bf6e96426e42c502ca4a59d1611f7239b3c58e",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head024.mdl",
-   "sha256": "1d2f8794f20ed902b0e1312211690e1b6111345888474acd5959c1a72861e595",
+   "sha256": "c2c3f2793c34094fc7194d2c1503ae830499593ce378b67c6446791073bc36c0",
    "fromSHA256": "512fe88b5fcc6985972df2637a749a8807dd3d3fd4914d8b76356870ae71bb57",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head025.mdl",
-   "sha256": "d0261b6f9d35f8413db53328bac4b3f4eee24426f8d724f2d5c5ee4e1771ef2c",
+   "sha256": "01b3bd58ac04762ccf67b9e56e008c724aec8eca881fed0934fc30714b297a9a",
    "fromSHA256": "fa6649c906e2ee371540b4c8baa74abe66405777b52d18a399c6bf8550da4547",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head026.mdl",
-   "sha256": "c1d06d94a0da019443dc83aee7af29d1dfddc14f1e18bb2bdf16694a16db7d19",
+   "sha256": "e70aa35fdd86e7fa19e511a4c457328e886d419f8b0cdb1558575b1a8cb8bb47",
    "fromSHA256": "5fe3f51da2b53366680f4899cb62e11405891f3b087beb970a2bb0316b7d241f",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head027.mdl",
-   "sha256": "3c6e1dd8d4e64fa9c6c544d8dfb9676341625a54ce4e257a4e0fdf33846220fc",
+   "sha256": "45730620cbac3a1697f2bab743ec03759cf5e1c37f73c385f20ccd8957a0307f",
    "fromSHA256": "3911711bf69c783c0a969d3aae6322873a31a0f79dc2214839dd057bb46d6edc",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head028.mdl",
-   "sha256": "e075e7e45bdeb7cb7690df5997150d6aad76b893bf83d66f8ff949297874a1df",
+   "sha256": "13daca66f744060a7df1ee943bd4b38d9845ccaccf6f44ab3ac8d095aac83203",
    "fromSHA256": "820b916e5ff59566278092d8cd88d66ccfb0d8e0f074af2176c5059f59bf2b47",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head029.mdl",
-   "sha256": "b5351b1ca7e006878a32c206f4204f7b1f048fa1ead9798b540d8c1661166a3f",
+   "sha256": "919725a49c088bc5f32437b7c3b6f0f288690c3e4a653008477d019c2dff80ad",
    "fromSHA256": "3251c044f1b6149fe2f8f60ae33b2ca08eadfd53ef3bae785a89b6e00e23c598",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   },
   {
    "path": "srn_head/pmg0_head030.mdl",
-   "sha256": "eb7932668d1988d9a4b6b197f614e889c7a3618cc5ed6cca56017390233911d7",
+   "sha256": "6433eabaa981edc9ef506e2ebb97c8bad0fcc5c81b9cecc9537a641a246b69a4",
    "fromSHA256": "3318cb6eceea08a47efca884180ccb3768c4f8dc57266aef78ef359120424ebb",
-   "scale": 1.0483,
+   "scale": 1.5,
    "zeroedTailBytes": 0
   }
  ]

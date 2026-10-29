@@ -491,11 +491,13 @@ production source packs.
 ## Troll heads: build allowance (`srn_head`, 2026-10-29)
 
 The 34 published Troll heads in `srn_head` are derived from their own 1.3.0 binaries, with no new source. On top of
-the 1.3.0 stature scaling, each head is scaled uniformly about its mesh node frame by the square root of the Troll
-stature ratio S: male ×1.0483 (S 1.099) and female ×1.0729 (S 1.151). The user chose this allowance on 2026-10-29.
-Normals, UVs, faces, materials and PLTs are unchanged.
+the 1.3.0 stature scaling, each head is scaled uniformly about its mesh node frame. Female heads use the square root
+of the Troll stature ratio S: ×1.0729 (S 1.151). Male heads use ×1.5. The user first chose ×1.0483 (the square root of
+S 1.099) for them, then chose ×1.5 after reviewing body renders. At ×1.0483 the male heads read about 20% smaller
+than the base head001 and left the neck showing behind the skull. Both choices were made on 2026-10-29. Normals, UVs,
+faces, materials and PLTs are unchanged.
 
 The heads are decompiled and recompiled with Blender 5.2.1 and Neverblender 4.5.1 (cleanmodels v4.10.0). Fixed-string
 tails are zeroed, and every binary passes the leaked-text check. Decoded positions equal the 1.3.0 positions × the
-factor within 6e-8. The stock-head routing aliases `srn_body/p[mf]g0_head001.mdl` belong to the PhenoMorpher contract
+factor within 6e-8 (female) and 3e-8 (male). The stock-head routing aliases `srn_body/p[mf]g0_head001.mdl` belong to the PhenoMorpher contract
 and are not changed. Per-head hashes are in `docs/heads/troll-build-allowance-r3.json`.
