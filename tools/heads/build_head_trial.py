@@ -269,6 +269,7 @@ SWEEP_SECONDS=5.0
 ROW_LIBRARY='''void HeadSpawn(string res,float x,float y,int row){
   object area=GetArea(GetObjectByTag("head_target"));
   object o=CreateObject(OBJECT_TYPE_CREATURE,res,Location(area,Vector(x,y,0.0),90.0));
+  ApplyEffectToObject(DURATION_TYPE_PERMANENT,SupernaturalEffect(EffectCutsceneGhost()),o);  // the inspection camera puts the player on this spot
   SetLocalInt(o,"HEAD_ROW",row+1);}
 void HeadClear(){
   object area=GetArea(GetObjectByTag("head_target"));object o=GetFirstObjectInArea(area);
@@ -284,10 +285,12 @@ void HeadClear(){
 ROW_INSPECT='''float HeadView(string v){
   if(v=="front") return 270.0; if(v=="back") return 90.0; if(v=="right") return 180.0; if(v=="left") return 0.0;
   if(v=="three") return 225.0; return -1.0;}
-void HeadHide(object p){
-  if(GetLocalInt(p,"HEAD_HIDDEN")) return;
+int HeadHide(object p){
+  if(GetLocalInt(p,"HEAD_HIDDEN")) return FALSE;
   effect e=TagEffect(SupernaturalEffect(EffectLinkEffects(EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),EffectCutsceneGhost())),"HEAD_INSPECT");
-  ApplyEffectToObject(DURATION_TYPE_PERMANENT,e,p);SetLocalInt(p,"HEAD_HIDDEN",1);}
+  ApplyEffectToObject(DURATION_TYPE_PERMANENT,e,p);SetLocalInt(p,"HEAD_HIDDEN",1);return TRUE;}
+void HeadJump(object p,object a){
+  AssignCommand(p,ClearAllActions(TRUE));AssignCommand(p,JumpToLocation(Location(GetArea(a),GetPosition(a),GetFacing(a))));}
 void HeadCameraSet(object p,object a,string v,float h,float d){
   SetCameraMode(p,CAMERA_MODE_TOP_DOWN);SetCameraLimits(p,1.0,89.0,0.5,25.0);SetCameraHeight(p,h);
   SetCameraFlags(p,CAMERA_FLAG_DISABLE_COLLISION|CAMERA_FLAG_DISABLE_SCROLL|CAMERA_FLAG_DISABLE_TURN|CAMERA_FLAG_DISABLE_TILT|CAMERA_FLAG_DISABLE_ZOOM);
@@ -300,8 +303,9 @@ void HeadCamera(object p){
   if(!GetIsObjectValid(a)){SendMessageToPC(p,"Head "+IntToString(row+1)+" has no actor "+IntToString(col+1));return;}
   float h=GetLocalFloat(m,"HEAD_HEIGHT");if(h<=0.0) h=HeadHeight(row);
   float d=GetLocalFloat(m,"HEAD_DISTANCE");if(d<=0.0) d=INSPECT_DISTANCE;
-  HeadHide(p);AssignCommand(p,ClearAllActions(TRUE));AssignCommand(p,JumpToLocation(Location(GetArea(a),GetPosition(a),GetFacing(a))));
-  DelayCommand(0.8,HeadCameraSet(p,a,v,h,d));}
+  // Both the player and the actors carry cutscene ghost, or the jump lands beside the actor; a fresh ghost gets 0.3 s to land first.
+  float wait=0.0;if(HeadHide(p)) wait=0.3;
+  DelayCommand(wait,HeadJump(p,a));DelayCommand(wait+0.8,HeadCameraSet(p,a,v,h,d));}
 void HeadFree(object p){
   DeleteLocalString(GetModule(),"HEAD_VIEW");
   effect e=GetFirstEffect(p);
