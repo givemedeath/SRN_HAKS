@@ -711,6 +711,35 @@ class MeshTests(Temporary):
         vertices=np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1]],np.float32)
         faces=np.array([[0,2,1],[0,1,3],[0,3,2],[1,2,3]])
         return vertices,faces
+    def test_precluster_matches_the_reference_bytes_without_loading_other_attributes(self):
+        # Race heads v1: the packed-key, block-wise precluster writes the same bytes as the row-unique original
+        # (human-female-d raw head: peak commit 6.24 -> 3.72 GB) and reads only positions and indices.
+        from headkit.mesh import precluster,BLOCK
+        from headkit.gltf import positions
+        class Igl:
+            def bfs_orient(self,faces):return faces.copy(),np.zeros(len(faces),np.int64)
+        rng=np.random.default_rng(3);p=rng.random((4000,3)).astype(np.float32);f=rng.integers(0,4000,(9000,3))
+        f=np.r_[f,f[:50],f[:20,[1,2,0]],np.c_[f[:5,0],f[:5,0],f[:5,1]]]  # duplicates, rotated duplicates, degenerate faces
+        uv=rng.random((len(f),3,2)).astype(np.float32);normals=np.tile([[0,0,1.]],(len(f)*3,1)).astype(np.float32)
+        source=self.root/'raw.glb';write_mesh(source,p[f].reshape(-1,3),np.arange(len(f)*3).reshape(-1,3),uv,normals)
+        def reference(path,out,resolution):
+            value=mesh(path);vertices,faces=value['positions'],value['faces'];lo=vertices.min(0);size=float(np.max(np.ptp(vertices,axis=0)))
+            _,groups=np.unique(np.floor((vertices-lo)/size*resolution).astype(np.int64),axis=0,return_inverse=True)
+            clustered=np.zeros((groups.max()+1,3));np.add.at(clustered,groups,vertices);clustered/=np.bincount(groups)[:,None];result=groups[faces]
+            result=result[np.all(np.diff(np.sort(result,axis=1),axis=1)!=0,axis=1)]
+            _,first=np.unique(np.sort(result,axis=1),axis=0,return_index=True);result=result[np.sort(first)]
+            tri=clustered[result];result=result[np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)>0]
+            used,inverse=np.unique(result,return_inverse=True);clustered=clustered[used];result,components=Igl().bfs_orient(np.asarray(inverse.reshape(-1,3),np.int32))
+            tri=clustered[result];volumes=np.bincount(components,weights=np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2]))/6)
+            flipped=volumes[components]<0;result[flipped]=result[flipped][:,[0,2,1]];write_mesh(out,clustered,result)
+        with patch('headkit.mesh.library',return_value=Igl()),patch('headkit.mesh.BLOCK',1000):
+            for resolution in (512,1024):
+                with self.subTest(resolution=resolution):
+                    lean,old=self.root/f'lean-{resolution}.glb',self.root/f'old-{resolution}.glb'
+                    record=precluster(source,lean,{},resolution);reference(source,old,resolution)
+                    self.assertEqual(lean.read_bytes(),old.read_bytes())
+                    self.assertEqual(record['beforeTriangles'],len(f))
+        self.assertEqual(positions(source)[0].shape,(len(f)*3,3));self.assertEqual(BLOCK,1<<22)
     def test_topology_survives_uniform_scale_and_translation(self):
         p,f=self.tetra()
         for scale in (.01,10):self.assertTrue(topology(p*scale+[4,2,8],f)['closed'])
@@ -1121,6 +1150,22 @@ class MeshTests(Temporary):
         for bad in ({'gap':.01},{'depth':.3},{'depth':.05,'cone':60},{'depth':.05,'width':1}):
             with self.assertRaisesRegex(ValueError,'skirt'):neck_policy({'cut':{'height':'measured','skirt':bad}},fit)
         with self.assertRaisesRegex(ValueError,'cone'):neck_policy({'cut':{'height':'measured','cone':10}},fit)
+    def test_chin_below_falls_back_to_a_shorter_reach_when_the_jaw_search_finds_the_lip(self):
+        # Race heads v1 dwarf-female-a / orc-male-d: at reach 0.08 the jaw search took the lower lip (z 0.0) and the cut ran
+        # through the mouth; a reviewed chinBelow makes the cut retry .06/.04/.03 and keep the first jaw under it.
+        from headkit.neck import neck_policy,measured_jaw
+        fit={'matrix':np.eye(4).tolist(),'reviewed':True};found={.08:0.0,.06:-.01,.04:-.032,.03:-.035}
+        def jaw(local,bv,bf,reach,slope,bottom,cone):
+            if reach==.06:raise ValueError('No front feature (chin) stands beyond the reach; set an explicit cut height')
+            return {'height':found[reach],'point':[0,.08,found[reach]],'reach':reach,'slope':slope}
+        cut=lambda **k:neck_policy({'cut':dict({'height':'measured','reach':.08},**k)},fit)['cut']
+        with patch('headkit.neck.jaw_line',side_effect=jaw):
+            plain=measured_jaw(None,None,None,cut());self.assertEqual(plain,jaw(None,None,None,.08,0.0,-.16,None))  # no chin rule: the record is unchanged
+            picked=measured_jaw(None,None,None,cut(chinBelow=-.02));self.assertEqual(picked['reach'],.04)
+            self.assertEqual([t['reach'] for t in picked['reachesTried']],[.08,.06]);self.assertIn('problem',picked['reachesTried'][1])
+            with self.assertRaisesRegex(ValueError,'No reach finds the chin at or below chinBelow'):measured_jaw(None,None,None,cut(chinBelow=-.05))
+        for bad in ({'chinBelow':.2},{'chinBelow':'low'},{'height':-.05,'chinBelow':-.02}):
+            with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'chinBelow'):neck_policy({'cut':dict({'height':'measured'},**bad)},fit)
     def test_measured_jaw_with_a_front_cone_ignores_hair_hanging_beside_the_jaw(self):
         from headkit.neck import jaw_line
         p,f,body=self.necked_head();theta=np.arctan2(p[:,0],p[:,1]);side=np.exp(-((np.abs(theta)-np.radians(75))/.15)**2)
@@ -3080,7 +3125,25 @@ class FitProposalTests(Temporary):
         nosed=propose(source,reference,self.root/'fit-nose',align='nose')
         self.assertEqual(nosed['align'],'nose');np.testing.assert_allclose(nosed['translation'],offset,atol=.004)
         np.testing.assert_allclose(np.asarray(nosed['sourceNose'])*nosed['scale']+nosed['translation'],nosed['referenceNose'],atol=1e-9)
-        with self.assertRaisesRegex(ValueError,'profile or nose'):propose(source,reference,self.root/'fit-bad',align='ears')
+        with self.assertRaisesRegex(ValueError,'profile, nose or landmarks'):propose(source,reference,self.root/'fit-bad',align='ears')
+        with self.assertRaisesRegex(ValueError,'landmark alignment'):propose(source,reference,self.root/'fit-bad2',landmarks={'base':'pfd0'})
+    def test_landmark_fit_maps_reviewed_face_landmarks_onto_the_base_head_whatever_the_eye_labels(self):
+        # Race heads v1: each race and sex has its own base head; a source scaled x0.8 and moved is mapped back exactly,
+        # with its eyes labelled either way (designs name the image-left eye 'left', the table is in head_g x order).
+        from headkit.fit import BASE_HEADS,LANDMARKS,landmark_policy,landmark_fit
+        base=BASE_HEADS['pfd0'];truth=np.asarray([base[k] for k in LANDMARKS]);shift=np.array([.01,-.02,.03])
+        source={k:((np.asarray(base[k])-shift)/.8).tolist() for k in LANDMARKS}
+        swapped=dict(source,eyeLeft=source['eyeRight'],eyeRight=source['eyeLeft'])
+        for given in (source,swapped):
+            with self.subTest(swapped=given is swapped):
+                a,b,residual=landmark_policy({'base':'pfd0','source':given,'reviewed':True});scale,translation,errors=landmark_fit(a,b,residual)
+                self.assertAlmostEqual(scale,.8,places=9);np.testing.assert_allclose(translation,shift,atol=1e-9);self.assertLess(errors.max(),1e-9)
+        bent=dict(source,lips=(np.asarray(source['lips'])+[0,0,.02]).tolist())
+        with self.assertRaisesRegex(ValueError,'Landmark residual'):landmark_fit(*landmark_policy({'base':'pfd0','source':bent,'reviewed':True}))
+        for bad in ({'base':'pfd0','source':source},{'base':'pzz0','source':source,'reviewed':True},{'base':'pfd0','source':source,'reviewed':True,'calibration':2},
+                    {'base':'pfd0','source':dict(source,eyeRight=source['eyeLeft']),'reviewed':True},{'base':'pfd0','source':source,'reviewed':True,'extra':1}):
+            with self.subTest(bad=sorted(bad)),self.assertRaises(ValueError):landmark_policy(bad)
+        np.testing.assert_allclose(truth,np.asarray([base[k] for k in LANDMARKS]))  # the table itself is untouched
     def test_nose_alignment_ignores_tusks_further_forward_than_the_nose(self):
         from headkit.fit import propose
         from headkit.gltf import write_mesh

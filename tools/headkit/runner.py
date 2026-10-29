@@ -357,7 +357,8 @@ class Runner:
             from .fit import propose
             require(self._staged_fit(),'The fit stage needs fit.matrixFrom: fit')
             source=self.input('comfyExport') if 'comfyExport' in m['inputs'] else self.result('precluster')['output']['path']
-            return propose(source,self.input('fitReference'),folder/'fit',exclude_lower=m['fit'].get('excludeLower',.25),align=m['fit'].get('align','profile'))
+            return propose(source,self.input('fitReference'),folder/'fit',exclude_lower=m['fit'].get('excludeLower',.25),align=m['fit'].get('align','profile'),
+                           landmarks=m['fit'].get('landmarks'))
         if stage=='repair':
             from .neck import repair
             if 'raw' not in m['inputs'] or 'comfyExport' in m['inputs']:

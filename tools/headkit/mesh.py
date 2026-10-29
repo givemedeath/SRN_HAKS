@@ -4,7 +4,7 @@ from pathlib import Path
 import time
 import numpy as np
 from .common import require, positive, library, pin, verify, write
-from .gltf import mesh, write_mesh
+from .gltf import mesh, positions, write_mesh
 from .intersections import scan
 
 
@@ -51,30 +51,44 @@ def audit(path, max_pairs=4000000):
             'visualReviewRequired': True}
 
 
+BLOCK = 1 << 22  # precluster rows per block for the float temporaries
+
+
 def precluster(source, output, bindings, resolution=512):
     """Bound CPU source size before the 768 UDF remesh; preserve this source separately."""
     require(type(resolution) is int and 64 <= resolution <= 2048, 'Declared precluster resolution required')
-    original = mesh(source); vertices, faces = original['positions'],original['faces']
+    vertices, faces = positions(source); before = len(faces)
     lo = vertices.min(0); size = float(np.max(np.ptp(vertices, axis=0)))
     positive(size, 'mesh extent')
-    cells = np.floor((vertices-lo) / size * resolution).astype(np.int64)
-    _, groups = np.unique(cells, axis=0, return_inverse=True)
-    clustered = np.zeros((groups.max()+1, 3), float); np.add.at(clustered, groups, vertices)
-    clustered /= np.bincount(groups)[:, None]; result = groups[faces]
-    keep = np.all(np.diff(np.sort(result, axis=1), axis=1) != 0, axis=1); result = result[keep]
+    # One int64 key per cell, axis by axis: cells are 0..resolution, so the packed key sorts exactly like the (x, y, z)
+    # rows np.unique(axis=0) sorted, at a fraction of the memory; float temporaries run in blocks (byte-identical output)
+    bits = resolution.bit_length(); key = np.zeros(len(vertices), np.int64)
+    for axis in range(3):
+        key <<= bits; key |= np.floor((vertices[:, axis]-lo[axis]) / size * resolution).astype(np.int64)
+    _, groups = np.unique(key, return_inverse=True); del key
+    count = int(groups.max())+1; clustered = np.zeros((count, 3), float); np.add.at(clustered, groups, vertices)
+    clustered /= np.bincount(groups)[:, None]
+    result = groups.astype(np.int32 if count < 2**31 else np.int64)[faces]; del faces
+    a, b, c = result[:, 0], result[:, 1], result[:, 2]; result = result[(a != b) & (b != c) & (a != c)]
     require(len(result) > 0, 'Precluster removed all faces')
-    _,first=np.unique(np.sort(result,axis=1),axis=0,return_index=True);result=result[np.sort(first)]
-    tri=clustered[result];result=result[np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)>0]
-    movement=float(np.max(np.linalg.norm(clustered[groups]-vertices,axis=1)))
+    # First occurrence of each corner set, in source order (np.unique's stable return_index)
+    ordered = np.sort(result, axis=1); order = np.lexsort((ordered[:, 2], ordered[:, 1], ordered[:, 0]))
+    ordered = ordered[order]; fresh = np.ones(len(order), bool); fresh[1:] = (ordered[1:] != ordered[:-1]).any(1); del ordered
+    result = result[np.sort(order[fresh])]; del order, fresh
+    def nonzero(tri):return np.linalg.norm(np.cross(tri[:, 1]-tri[:, 0], tri[:, 2]-tri[:, 0]), axis=1) > 0
+    result = result[np.concatenate([nonzero(clustered[result[i:i+BLOCK]]) for i in range(0, len(result), BLOCK)])]
+    movement = max(float(np.max(np.linalg.norm(clustered[groups[i:i+BLOCK]]-vertices[i:i+BLOCK], axis=1)))
+                   for i in range(0, len(vertices), BLOCK))
     diagonal=float(np.linalg.norm(np.ptp(vertices,axis=0)));require(movement/diagonal<=.004,'Precluster assigned-vertex displacement exceeds .4%')
+    del groups, vertices
     used,inverse=np.unique(result,return_inverse=True);clustered=clustered[used];result=inverse.reshape(-1,3)
     igl=library(bindings,'igl');result,components=igl.bfs_orient(np.asarray(result,np.int32))
     tri=clustered[result];volumes=np.bincount(components,weights=np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2]))/6)
-    flipped=volumes[components]<0;result[flipped]=result[flipped][:,[0,2,1]]
+    del tri;flipped=volumes[components]<0;result[flipped]=result[flipped][:,[0,2,1]]
     write_mesh(output, clustered, result)
     return {'source': pin(source), 'output': pin(output), 'resolution': resolution,
             'maximumAssignedVertexMovementRelativeToDiagonal':movement/diagonal,'notFullHausdorffBound':True,
-            'beforeTriangles': len(faces), 'afterTriangles': len(result), 'visualReviewRequired': True}
+            'beforeTriangles': before, 'afterTriangles': len(result), 'visualReviewRequired': True}
 
 
 BASIS = np.array([[1., 0, 0, 0], [0, 0, -1., 0], [0, 1., 0, 0], [0, 0, 0, 1.]])  # GLB -> NWN (x,-z,y)

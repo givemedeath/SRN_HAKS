@@ -28,9 +28,15 @@ def neck_policy(neck, fit):
     taper, seal, shorten, cut = neck.get('taper'), neck.get('seal'), neck.get('shorten'), neck.get('cut')
     if cut is not None:
         require(isinstance(cut, dict) and 'height' in cut
-                and set(cut) <= {'height', 'slope', 'slopes', 'band', 'offset', 'reach', 'rise', 'clearance', 'searchBottom', 'cone', 'skirt', 'notes'}
+                and set(cut) <= {'height', 'slope', 'slopes', 'band', 'offset', 'reach', 'rise', 'clearance', 'searchBottom', 'cone', 'skirt', 'chinBelow', 'notes'}
                 and (number(cut['height']) or cut['height'] == 'measured'),
-                "Neck cut declares a head-local height or 'measured' (optional slope, slopes, band, offset, reach, rise, clearance, searchBottom, cone, skirt)")
+                "Neck cut declares a head-local height or 'measured' (optional slope, slopes, band, offset, reach, rise, clearance, searchBottom, cone, skirt, chinBelow)")
+        # chinBelow (head-local z): the measured jaw point may not lie above it (race heads v1 dwarf-female-a, orc-male-d: at reach
+        # 0.08 the search took the lower lip and the cut ran through the mouth). Reviewed from the face landmarks: the lip seam less
+        # half the eye-to-lip distance (a chin lies 0.6-0.9 of it below the lips).
+        require('chinBelow' not in cut or (cut['height'] == 'measured' and type(cut['chinBelow']) in (int, float)
+                                           and np.isfinite(cut['chinBelow']) and -.25 <= cut['chinBelow'] <= .1),
+                'Neck cut chinBelow is a head-local height (-0.25..0.1) for a measured cut')
         cut = dict({'slope': 0.0, 'band': .03, 'offset': -.003, 'reach': .04, 'rise': .003, 'clearance': .01, 'searchBottom': -.16}, **cut)
         require(number(cut['clearance']) and 0 <= cut['clearance'] <= .04, 'Neck cut clearance outside the supported profile')
         require(number(cut['searchBottom']) and -.3 <= cut['searchBottom'] <= -.05, 'Neck cut searchBottom outside -0.3..-0.05')
@@ -150,6 +156,24 @@ def jaw_line(local, bv, bf, reach, slope, bottom=-.16, cone=None):
     return {'height': float(intercept[lowest]), 'point': features[lowest].round(5).tolist(), 'reach': reach, 'slope': slope}
 
 
+CHIN_REACHES = (.06, .04, .03)
+
+
+def measured_jaw(local, bv, bf, cut):
+    """jaw_line at the declared reach; with cut.chinBelow, a jaw point above it (a lip or mouth corner within reach of a wide
+    body neck) falls back to the shorter reaches .06/.04/.03 in turn, keeping the first whose jaw lies at or below it."""
+    tried = []
+    for reach in [cut['reach']]+[r for r in CHIN_REACHES if r < cut['reach']]:
+        try: jaw = jaw_line(local, bv, bf, reach, cut['slope'], cut['searchBottom'], cut.get('cone'))
+        except ValueError as error: tried.append({'reach': reach, 'problem': str(error)}); continue
+        if 'chinBelow' not in cut: return jaw
+        if jaw['point'][2] <= cut['chinBelow']: return dict(jaw, chinBelow=cut['chinBelow'], reachesTried=tried)
+        tried.append({'reach': reach, 'jawHeight': jaw['point'][2]})
+    require('chinBelow' in cut, tried[-1]['problem'] if tried and 'problem' in tried[-1] else 'No front feature (chin) stands beyond the reach; set an explicit cut height')
+    raise ValueError(f"No reach finds the chin at or below chinBelow {cut['chinBelow']:.4f} (tried "
+                     + ', '.join(f"{t['reach']}: {t.get('jawHeight', t.get('problem'))}" for t in tried) + '); review the cut')
+
+
 CUT_SNAP, CUT_SLIVER = 1e-5, 1e-8  # head-local metres a sliver's vertex may move onto the plane; physical twice-area of a sliver
 
 
@@ -175,7 +199,7 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     require(skirt is None or rewrap is not None, 'A neck cut skirt keeps open hair; only a wrapped repair (alphaWrap) can close it')
     local = transform(neck['frame'], vertices)
     if cut['height'] == 'measured':
-        jaw = jaw_line(local, bv, bf, cut['reach'], cut['slope'], cut['searchBottom'], cut.get('cone')); cut['height'] = jaw['height']-cut['clearance']
+        jaw = measured_jaw(local, bv, bf, cut); cut['height'] = jaw['height']-cut['clearance']
     plane = lambda points: cut['height']+cut['slope']*points[:, 1]
     above = local[:, 2]-plane(local)
     require(above.min() < 0 < above.max(), 'Neck cut plane must cross the head')

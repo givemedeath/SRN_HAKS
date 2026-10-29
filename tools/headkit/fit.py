@@ -8,7 +8,7 @@ The output is a proposal for review with an overlay; it never approves itself.""
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
-from .common import require, pin, write
+from .common import require, positive, pin, write
 from .gltf import mesh
 
 
@@ -117,13 +117,68 @@ def rank_references(paths, exclude_lower=.25, samples=40000):
     return sorted(rows,key=lambda row:row['depthRatio'])
 
 
-def propose(source, reference, output, *, exclude_lower=.25, align='profile'):
+LANDMARKS=('eyeLeft','eyeRight','lips','noseTip')
+# Face landmarks of the base heads, head_g frame (m): every non-Human r3 srn_body head001 (origin/main ea0dff41) is a reshaped
+# Human head001 sharing its texture, so pupils and the lip seam come from reviewed UV points on the Human PLT (pupil .186/.646 male,
+# .186/.644 female; lip seam .05/.272, .05/.275) and the nose tip is the most forward vertex between them (race heads v1
+# review-kit/base_landmarks.py). pmh0/pfh0 are the stock Human head001s, the reference for approved Human heads.
+BASE_HEADS={
+    'pmh0':{'eyeLeft':(-0.03359,0.09835,0.06378),'eyeRight':(0.03369,0.09832,0.06380),'lips':(-0.00018,0.11280,-0.01242),'noseTip':(-0.00020,0.13385,0.02779)},
+    'pfh0':{'eyeLeft':(-0.03326,0.09880,0.05858),'eyeRight':(0.03349,0.09876,0.05832),'lips':(0.00007,0.10728,-0.00532),'noseTip':(0.00017,0.13089,0.02382)},
+    'pme0':{'eyeLeft':(-0.03640,0.10658,0.06912),'eyeRight':(0.03651,0.10654,0.06914),'lips':(-0.00020,0.12223,-0.01346),'noseTip':(-0.00021,0.14505,0.03012)},
+    'pfe0':{'eyeLeft':(-0.03512,0.10431,0.06185),'eyeRight':(0.03536,0.10427,0.06157),'lips':(0.00008,0.11326,-0.00561),'noseTip':(0.00018,0.13819,0.02515)},
+    'pmd0':{'eyeLeft':(-0.02984,0.08738,0.05666),'eyeRight':(0.02993,0.08735,0.05668),'lips':(-0.00016,0.10021,-0.01104),'noseTip':(-0.00017,0.11892,0.02469)},
+    'pfd0':{'eyeLeft':(-0.02927,0.08695,0.05156),'eyeRight':(0.02948,0.08692,0.05133),'lips':(0.00006,0.09441,-0.00468),'noseTip':(0.00015,0.11519,0.02097)},
+    'pmo0':{'eyeLeft':(-0.03746,0.10969,0.07114),'eyeRight':(0.03757,0.10966,0.07116),'lips':(-0.00020,0.12581,-0.01386),'noseTip':(-0.00022,0.14929,0.03100)},
+    'pfo0':{'eyeLeft':(-0.03639,0.10809,0.06409),'eyeRight':(0.03664,0.10805,0.06380),'lips':(0.00008,0.11737,-0.00582),'noseTip':(0.00019,0.14319,0.02606)},
+    'pmg0':{'eyeLeft':(-0.04908,0.14371,0.09319),'eyeRight':(0.04922,0.14366,0.09322),'lips':(-0.00027,0.16482,-0.01815),'noseTip':(-0.00029,0.19558,0.04061)},
+    'pfg0':{'eyeLeft':(-0.04644,0.13794,0.08179),'eyeRight':(0.04676,0.13789,0.08143),'lips':(0.00010,0.14978,-0.00742),'noseTip':(0.00024,0.18274,0.03326)},
+}
+
+
+def landmark_policy(config):
+    """fit.landmarks: reviewed source landmarks (head-local, unscaled source units) and the race/sex base head they match."""
+    require(isinstance(config,dict) and config.get('reviewed') is True,'Landmark fit needs reviewed landmarks')
+    require(set(config)<={'base','calibration','source','reviewed','maximumResidual','notes'},'Unknown landmark fit key')
+    table=BASE_HEADS;require(config.get('base') in table,'Landmark fit base head is not in the table')
+    calibration=config.get('calibration',1.0);require(type(calibration) in (int,float) and .8<=calibration<=1.25,'Landmark calibration outside .8..1.25')
+    source=config.get('source');require(isinstance(source,dict) and set(source)==set(LANDMARKS),'Landmark fit needs '+', '.join(LANDMARKS))
+    a=np.asarray([source[k] for k in LANDMARKS],float);b=calibration*np.asarray([table[config['base']][k] for k in LANDMARKS],float)
+    require(a.shape==(4,3) and np.isfinite(a).all(),'Landmarks are finite xyz points')
+    # Eyes pair by side, not by label: a design's 'left' eye is image-left (the character's right) while the table is in
+    # head_g x order, and a positive scale plus translation keeps x order, so each pair is ordered by x before the fit.
+    for points in (a,b):
+        if points[0,0]>points[1,0]:points[[0,1]]=points[[1,0]]
+    require(a[1,0]-a[0,0]>0,'Landmark eyes must be apart in x')
+    residual=config.get('maximumResidual',.006);require(type(residual) in (int,float) and 0<residual<=.01,'Landmark residual bound outside 0..1 cm')
+    return a,b,residual
+
+
+def landmark_fit(source, target, maximum_residual):
+    """Uniform scale and translation (no rotation: the toolkit basis and yaw are kept) mapping source landmarks onto the base
+    head's, least squares. Base heads are bald and ours carry hair, beards, horns and ears, so faces are matched, not outlines
+    (user 2026-10-28: each race and sex has its own base head; scale heads to it)."""
+    a,b=np.asarray(source,float),np.asarray(target,float);ac,bc=a-a.mean(0),b-b.mean(0)
+    scale=float(np.sum(ac*bc)/np.sum(ac*ac));positive(scale,'landmark scale')
+    translation=b.mean(0)-scale*a.mean(0);errors=np.linalg.norm(a*scale+translation-b,axis=1)
+    require(errors.max()<=maximum_residual,f'Landmark residual {errors.max()*100:.2f} cm above {maximum_residual*100:.2f} cm; recheck the landmarks')
+    return scale,translation,errors
+
+
+def propose(source, reference, output, *, exclude_lower=.25, align='profile', landmarks=None):
     """align='nose' keeps the profile-matched scale but places the head by aligning nose tips (troll-male-01's
-    reviewed rule against pmg0_head014), so hair, crests or a neckless reference cannot shift the placement."""
-    require(align in ('profile','nose'),'Fit alignment is profile or nose')
+    reviewed rule against pmg0_head014), so hair, crests or a neckless reference cannot shift the placement.
+    align='landmarks' scales and places the head by its reviewed face landmarks on the base head's (BASE_HEADS)."""
+    require(align in ('profile','nose','landmarks'),'Fit alignment is profile, nose or landmarks')
+    require((align=='landmarks')==(landmarks is not None),'fit.landmarks is read only by the landmark alignment')
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     value=mesh(source);local=head_local(surface_samples(value['positions'][value['faces']],1000000));target=ascii_surface(reference)
-    result=match(local,target,exclude_lower=exclude_lower);s=result['scale'];result['align']=align
+    if align=='landmarks':
+        a,b,residual=landmark_policy(landmarks);s,translation,errors=landmark_fit(a,b,residual)
+        result={'scale':s,'translation':translation.tolist(),'align':align,'base':landmarks['base'],'calibration':landmarks.get('calibration',1.0),
+                'landmarkErrors':dict(zip(LANDMARKS,errors.round(5).tolist()))}
+    else:
+        result=match(local,target,exclude_lower=exclude_lower);s=result['scale'];result['align']=align
     result['referenceDepthRatio']=reference_depth(target,exclude_lower)  # compare candidates with `headkit fit-references`
     if align=='nose':
         # The same physical bin height and tip tolerance on both heads (0.5 mm after scaling). The source tip is searched
