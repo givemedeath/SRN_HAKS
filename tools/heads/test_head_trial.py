@@ -248,6 +248,23 @@ class TrialModuleTests(unittest.TestCase):
         self.assertEqual((ifo['Mod_OnPlrChat']['value'],ifo['Mod_OnClientEntr']['value']),('sr_h_chat','sr_h_enter'))
         with self.assertRaisesRegex(ValueError,'Mod_On'):module_documents([target],['a'],'ambient',events={'OnChat':'x'})
 
+    def test_inspection_camera_targets_each_heads_actors(self):
+        from build_head_trial import row_scripts,readme,INSPECT_HEIGHT
+        value=validate_spec(spec(inspect={'height':{'pmg0':2.62},'distance':1.2}));actors=plan_actors(value)
+        chat=row_scripts(value,actors)['sr_h_chat']
+        self.assertIn('if(row==0 && col==0) return "sr_h_actor0";',chat);self.assertIn('if(row==1 && col==0) return "sr_h_actor11";',chat)
+        self.assertEqual(chat.count('&& col=='),len(actors))
+        self.assertIn('if(row==0) return 2.620;',chat);self.assertIn('const float INSPECT_DISTANCE=1.20;',chat)
+        for command in ('HeadView(m)>=0.0','"look "','"dist "','"height "','"anim"','"free"'):self.assertIn(command,chat)
+        for call in ('EffectCutsceneGhost()','VFX_DUR_CUTSCENE_INVISIBILITY','SetCameraHeight(p,h)','SetCameraLimits(p,1.0,89.0,0.5,25.0)',
+                     'CAMERA_FLAG_DISABLE_TURN','HEAD_INSPECT actor=','SetCameraFlags(p,0)'):self.assertIn(call,chat)
+        # the view survives head changes: HeadShow re-places the camera after the new row spawns
+        self.assertIn('DelayCommand(1.2,HeadCamera(p))',chat)
+        self.assertIn(f'return {INSPECT_HEIGHT:.3f};}}',row_scripts(validate_spec(spec()),plan_actors(validate_spec(spec())))['sr_h_chat'])
+        self.assertIn('stand still in idle',readme(value,actors,['a']));self.assertIn('revive 10 s',readme(validate_spec(spec(motion=True)),actors,['a']))
+        for bad in ({'height':{'pfh0':1.6}},{'height':{'pmg0':9}},{'distance':.1},{'pitch':80}):
+            with self.assertRaisesRegex(ValueError,'inspect'):validate_spec(spec(inspect=bad))
+
     def test_input_paths_list_every_file_the_build_reads(self):
         from build_head_trial import input_paths
         with tempfile.TemporaryDirectory() as tmp:

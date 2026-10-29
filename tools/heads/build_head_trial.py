@@ -26,6 +26,9 @@ PALETTE_ROWS=176
 MAX_HEADS=8
 COLUMNS=12
 MAX_ROWS=7
+INSPECT_HEIGHT=1.7  # camera pivot above the floor when the spec gives no height for a prefix
+INSPECT_DISTANCE=1.5
+INSPECT_PITCH=87.0  # degrees from straight down: a level view with a slight downward look
 
 
 def entries(path,signature=b'HAK V1.0'):
@@ -85,6 +88,13 @@ def validate_spec(spec):
     _identity(spec['identity'],'identity')
     require(spec.get('lighting') in ('ambient','directional'),'Explicit lighting (ambient or directional) required')
     require(type(spec.get('motion',False)) is bool,'motion must be true or false')
+    inspect=spec.get('inspect',{})
+    require(isinstance(inspect,dict) and set(inspect)<={'height','distance'},'inspect may give height (per prefix) and distance only')
+    heights=inspect.get('height',{})
+    require(isinstance(heights,dict) and set(heights)<=set(families)
+            and all(type(v) in (int,float) and .3<=v<=6 for v in heights.values()),'inspect height must map trial prefixes to 0.3-6 m')
+    require(type(inspect.get('distance',INSPECT_DISTANCE)) in (int,float) and .5<=inspect.get('distance',INSPECT_DISTANCE)<=25,
+            'inspect distance must be 0.5-25 m')
     base=spec['base']
     require(isinstance(base,dict) and isinstance(base.get('haks'),list) and base['haks'] and isinstance(base.get('module'),dict),
             'base needs the fixture module and its HAKs')
@@ -268,13 +278,52 @@ void HeadClear(){
       AssignCommand(o,SetIsDestroyable(TRUE,FALSE,FALSE));DestroyObject(o,0.2);}
     o=GetNextObjectInArea(area);}}
 '''
+# Inspection camera: the camera orbits the player, so the player is hidden, ghosted and jumped onto the chosen actor
+# (actors face north), then the camera snaps to a fixed compass view at the head's height and is locked against
+# stray turn/tilt/zoom/scroll input until `free`. Each placement logs HEAD_INSPECT with the player-actor offset.
+ROW_INSPECT='''float HeadView(string v){
+  if(v=="front") return 270.0; if(v=="back") return 90.0; if(v=="right") return 180.0; if(v=="left") return 0.0;
+  if(v=="three") return 225.0; return -1.0;}
+void HeadHide(object p){
+  if(GetLocalInt(p,"HEAD_HIDDEN")) return;
+  effect e=TagEffect(SupernaturalEffect(EffectLinkEffects(EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),EffectCutsceneGhost())),"HEAD_INSPECT");
+  ApplyEffectToObject(DURATION_TYPE_PERMANENT,e,p);SetLocalInt(p,"HEAD_HIDDEN",1);}
+void HeadCameraSet(object p,object a,string v,float h,float d){
+  SetCameraMode(p,CAMERA_MODE_TOP_DOWN);SetCameraLimits(p,1.0,89.0,0.5,25.0);SetCameraHeight(p,h);
+  SetCameraFlags(p,CAMERA_FLAG_DISABLE_COLLISION|CAMERA_FLAG_DISABLE_SCROLL|CAMERA_FLAG_DISABLE_TURN|CAMERA_FLAG_DISABLE_TILT|CAMERA_FLAG_DISABLE_ZOOM);
+  AssignCommand(p,SetCameraFacing(HeadView(v),d,INSPECT_PITCH,CAMERA_TRANSITION_TYPE_SNAP));
+  WriteTimestampedLogEntry("HEAD_INSPECT actor="+GetTag(a)+" view="+v+" height="+FloatToString(h,0,2)+" distance="+FloatToString(d,0,2)
+    +" offset="+FloatToString(GetDistanceBetween(p,a),0,3));}
+void HeadCamera(object p){
+  object m=GetModule();string v=GetLocalString(m,"HEAD_VIEW");if(v=="") return;
+  int row=GetLocalInt(m,"HEAD_ROW_SHOWN");int col=GetLocalInt(m,"HEAD_COLUMN");object a=GetObjectByTag(HeadActor(row,col));
+  if(!GetIsObjectValid(a)){SendMessageToPC(p,"Head "+IntToString(row+1)+" has no actor "+IntToString(col+1));return;}
+  float h=GetLocalFloat(m,"HEAD_HEIGHT");if(h<=0.0) h=HeadHeight(row);
+  float d=GetLocalFloat(m,"HEAD_DISTANCE");if(d<=0.0) d=INSPECT_DISTANCE;
+  HeadHide(p);AssignCommand(p,ClearAllActions(TRUE));AssignCommand(p,JumpToLocation(Location(GetArea(a),GetPosition(a),GetFacing(a))));
+  DelayCommand(0.8,HeadCameraSet(p,a,v,h,d));}
+void HeadFree(object p){
+  DeleteLocalString(GetModule(),"HEAD_VIEW");
+  effect e=GetFirstEffect(p);
+  while(GetIsEffectValid(e)){if(GetEffectTag(e)=="HEAD_INSPECT") RemoveEffect(p,e);e=GetNextEffect(p);}
+  DeleteLocalInt(p,"HEAD_HIDDEN");SetCameraFlags(p,0);SetCameraLimits(p);SetCameraHeight(p,0.0);
+  WriteTimestampedLogEntry("HEAD_INSPECT free");}
+void HeadAnimate(int row){
+  object area=GetArea(GetObjectByTag("head_target"));object o=GetFirstObjectInArea(area);
+  while(GetIsObjectValid(o)){
+    if(GetLocalInt(o,"HEAD_ROW")==row+1){
+      AssignCommand(o,ClearAllActions());AssignCommand(o,ActionPlayAnimation(ANIMATION_LOOPING_TALK_FORCEFUL,1.0,3.0));
+      AssignCommand(o,ActionPlayAnimation(ANIMATION_LOOPING_LOOK_FAR,1.0,2.0));AssignCommand(o,ActionDoCommand(SetFacing(90.0)));}
+    o=GetNextObjectInArea(area);}}
+'''
 ROW_SHOW='''void HeadShow(int row){
   row=((row%HEAD_ROWS)+HEAD_ROWS)%HEAD_ROWS;
   HeadClear();DelayCommand(0.5,HeadSpawnRow(row));SetLocalInt(GetModule(),"HEAD_ROW_SHOWN",row);
   WriteTimestampedLogEntry("HEAD_FIXTURE_ROW shown="+IntToString(row)+" head="+HeadName(row));
   object p=GetFirstPC();
   while(GetIsObjectValid(p)){
-    SendMessageToPC(p,"Head "+IntToString(row+1)+"/"+IntToString(HEAD_ROWS)+": "+HeadName(row)+"   (chat: next, prev, head N, sweep)");
+    SendMessageToPC(p,"Head "+IntToString(row+1)+"/"+IntToString(HEAD_ROWS)+": "+HeadName(row)+"   (chat: next, prev, head N, sweep; front, left, right, back, three, look N, dist X, height X, anim, free)");
+    if(GetLocalString(GetModule(),"HEAD_VIEW")!="") DelayCommand(1.2,HeadCamera(p));
     p=GetNextPC();}}
 void HeadSweep(){
   int r;for(r=0;r<HEAD_ROWS;r++) DelayCommand(IntToFloat(r)*SWEEP,HeadShow(r));
@@ -288,11 +337,21 @@ ROW_ENTER='''void main(){object p=GetEnteringObject();if(!GetIsPC(p))return;
 '''
 ROW_CHAT='''void main(){
   string m=GetStringLowerCase(GetPCChatMessage());int row=GetLocalInt(GetModule(),"HEAD_ROW_SHOWN");int handled=TRUE;
+  object p=GetPCChatSpeaker();object mod=GetModule();
   if(m=="next") HeadShow(row+1);
   else if(m=="prev") HeadShow(row-1);
   else if(m=="sweep") HeadSweep();
   else if(GetStringLeft(m,5)=="head "){int n=StringToInt(GetStringRight(m,GetStringLength(m)-5));
     if(n>=1 && n<=HEAD_ROWS) HeadShow(n-1); else handled=FALSE;}
+  else if(HeadView(m)>=0.0){SetLocalString(mod,"HEAD_VIEW",m);HeadCamera(p);}
+  else if(GetStringLeft(m,5)=="look "){int n=StringToInt(GetStringRight(m,GetStringLength(m)-5));
+    if(HeadActor(row,n-1)!=""){SetLocalInt(mod,"HEAD_COLUMN",n-1);HeadCamera(p);} else handled=FALSE;}
+  else if(GetStringLeft(m,5)=="dist "){float d=StringToFloat(GetStringRight(m,GetStringLength(m)-5));
+    if(d>=0.5 && d<=25.0){SetLocalFloat(mod,"HEAD_DISTANCE",d);HeadCamera(p);} else handled=FALSE;}
+  else if(GetStringLeft(m,7)=="height "){float h=StringToFloat(GetStringRight(m,GetStringLength(m)-7));
+    if(h>=0.0 && h<=6.0){SetLocalFloat(mod,"HEAD_HEIGHT",h);HeadCamera(p);} else handled=FALSE;}
+  else if(m=="anim") HeadAnimate(row);
+  else if(m=="free") HeadFree(p);
   else handled=FALSE;
   if(handled) SetPCChatMessage("");}
 '''
@@ -313,7 +372,12 @@ def row_scripts(spec,actors,sweep=SWEEP_SECONDS):
         spawn.append(f'  if(row=={index}){{'+''.join(f'HeadSpawn("{_nss(a["tag"])}",{a["x"]:.2f},{a["y"]:.2f},{index});' for a in group)+'}')
     spawn.append('}')
     names=['string HeadName(int row){']+[f'  if(row=={i}) return "{_nss(h["id"])} ({_nss(h["model"])})";' for i,h in enumerate(spec['heads'])]+['  return "";}']
-    library=f'const int HEAD_ROWS={rows};\nconst float SWEEP={sweep:.1f};\n'+ROW_LIBRARY+'\n'.join(spawn+names)+'\n'+ROW_SHOW
+    inspect=spec.get('inspect',{});heights=inspect.get('height',{})
+    columns=['string HeadActor(int row,int col){']+[f'  if(row=={i} && col=={c}) return "{_nss(actor["tag"])}";'
+             for i in range(rows) for c,actor in enumerate([a for a in actors if a['row']==i])]+['  return "";}']
+    height=['float HeadHeight(int row){']+[f'  if(row=={i}) return {heights.get(h["model"][:4],INSPECT_HEIGHT):.3f};' for i,h in enumerate(spec['heads'])]+[f'  return {INSPECT_HEIGHT:.3f};}}']
+    library=(f'const int HEAD_ROWS={rows};\nconst float SWEEP={sweep:.1f};\nconst float INSPECT_DISTANCE={inspect.get("distance",INSPECT_DISTANCE):.2f};\n'
+             f'const float INSPECT_PITCH={INSPECT_PITCH:.1f};\n'+ROW_LIBRARY+'\n'.join(spawn+names+columns+height)+'\n'+ROW_INSPECT+ROW_SHOW)
     return {'sr_h_enter':library+ROW_ENTER,'sr_h_chat':library+ROW_CHAT}
 
 
@@ -333,10 +397,15 @@ def readme(spec,actors,hak_order):
            f"`{spec['module']}` test module. HAK order (first wins): {', '.join('`'+n+'`' for n in hak_order)}.",'',
            f"One head's actors stand on the floor at a time. On entry a sweep shows each head for {SWEEP_SECONDS:.0f} s (every spawn is logged "
            "for verification), then head 1 stays. Type in chat: `next`, `prev`, `head N` (the Head row column) or `sweep`.",'',
+           "Inspection camera: `front`, `left`, `right`, `back` or `three` (front three-quarter from the actor's right) hides and "
+           "ghosts the player on the shown head's actor and locks the camera on that view at head height; it stays on that view "
+           "through `next`/`prev`/`head N`. `look N` picks the head's Nth actor (default 1), `dist X` and `height X` (metres) adjust "
+           "the framing, `anim` plays a short talk and look cycle, and `free` gives the camera back. Each placement logs HEAD_INSPECT.",'',
            '| Head row | Actor | Head | Slot | Skin | Hair | Tattoo1 | Tattoo2 | Helmet |','|---|---|---|---|---|---|---|---|---|']
     lines+=[f"| {a['row']+1} | {a['tag']} | {a['headId']} | {a['model']} | {a['skin']} | {a['hair']} | {a['tattoo1']} | {a['tattoo2']} | {a['helmet'] or '-'} |" for a in actors]
     lines+=['','PLT channels: 0 skin, 1 hair, 2 metal, 8 tattoo1, 9 tattoo2. Metal shows stock row 0 because no armour is worn. '
-            'Actors stand still for inspection (no heartbeat animation cycle) and are plot, so they cannot be attacked.','',
+            +('Actors run the fixture walk/cast/attack/death cycle and revive 10 s after death (spec motion).' if spec.get('motion')
+              else 'Actors stand still in idle for inspection (no heartbeat animation cycle) and are plot, so they cannot be attacked.'),'',
             'After a run, check spawns with `verify_head_trial.py --manifest runtime-manifest.json`. Not client-validated or production-accepted.','']
     return '\n'.join(lines)
 
@@ -434,7 +503,9 @@ def build(spec_path,output):
         'trialHakResources':[{'name':f'{n}.{EXTENSIONS[k]}','sha256':expected[(n,k)]} for n,k,_ in planned],
         'identity':identity,'actorIdentity':template_identity,'gender':sex,'prefix':spec['prefix'],'lighting':spec['lighting'],'actors':[{k:v for k,v in a.items() if k not in ('x','y','name')} for a in actors],
         'rows':[{'index':i,'headId':h['id'],'model':h['model'],'actors':[a['tag'] for a in actors if a['row']==i]} for i,h in enumerate(spec['heads'])],
-        'rowSweepSeconds':SWEEP_SECONDS,
+        'rowSweepSeconds':SWEEP_SECONDS,'motion':spec.get('motion',False),
+        'inspect':{'height':{p:spec.get('inspect',{}).get('height',{}).get(p,INSPECT_HEIGHT) for p in prefixes(spec)},
+                   'distance':spec.get('inspect',{}).get('distance',INSPECT_DISTANCE),'pitch':INSPECT_PITCH},
         'ignoredActors':['head_target'],'colorsLogged':True,'clientObserved':False,'productionAccepted':False,
         'limitation':'Packaging and logged slots are not client or anatomy acceptance; review the heads in the client.'})
     return output/'runtime-manifest.json'
