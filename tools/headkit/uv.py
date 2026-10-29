@@ -131,12 +131,15 @@ def gutter_audit(uv,size,owners=None,charts=None):
 
 def coverage_floor(policy=None):
     """2K coverage floor: 30% by default. Dense heads (many small charts, each needing the 4 px gutter at 1K) may
-    declare a lower floor, at least 20%, only with a recorded review; the gutter floor itself never relaxes."""
+    declare a lower floor, at least 20%, only with a recorded review; the gutter floor itself never relaxes. Down to
+    15% needs the review to record the user's approval (userApproved: race heads v1 dwarf-female-c, whose kept hanging
+    bob fragments into ~2,000 charts that no chart option packs above 19%); the gutter floor still holds."""
     policy=policy or {};floor=policy.get('minimumCoverage',.30);review=policy.get('coverageReview')
-    if type(floor) not in (int,float) or not .20<=floor<=1:raise ValueError('UV coverage floor must be 0.20..1')
+    if type(floor) not in (int,float) or not .15<=floor<=1:raise ValueError('UV coverage floor must be 0.15..1')
     if floor<.30:
         require(isinstance(review,dict) and review.get('reviewed') is True and isinstance(review.get('notes'),str)
                 and bool(review['notes'].strip()),'A UV coverage floor below 30% needs a recorded review')
+        require(floor>=.20 or review.get('userApproved') is True,'A UV coverage floor below 20% needs the user\'s approval in its review')
         return float(floor),review
     return float(floor),None
 

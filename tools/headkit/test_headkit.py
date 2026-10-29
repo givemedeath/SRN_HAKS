@@ -1279,7 +1279,10 @@ class MeshTests(Temporary):
                        {'minimumCoverage':.25,'coverageReview':{'reviewed':False,'notes':'x'}}):
             with self.subTest(policy=policy),self.assertRaisesRegex(ValueError,'recorded review'):coverage_floor(policy)
         for floor in (.1,0.0,'0.3'):
-            with self.subTest(floor=floor),self.assertRaisesRegex(ValueError,'0.20..1'):coverage_floor({'minimumCoverage':floor})
+            with self.subTest(floor=floor),self.assertRaisesRegex(ValueError,'0.15..1'):coverage_floor({'minimumCoverage':floor})
+        with self.assertRaisesRegex(ValueError,"user's approval"):coverage_floor({'minimumCoverage':.17,'coverageReview':review})
+        approved=dict(review,userApproved=True)
+        self.assertEqual(coverage_floor({'minimumCoverage':.17,'coverageReview':approved}),(.17,approved))
 
     def test_unwrap_checks_the_coverage_floor_before_charting(self):
         from headkit.uv import unwrap
