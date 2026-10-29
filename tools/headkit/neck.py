@@ -263,7 +263,7 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
         require(rewrap is not None, f'Neck cut leaves {len(loops)} rings (a hollow stump or a feature under the plane); '
                 'only a wrapped repair (alphaWrap) can close them')
         sealed, sealed_faces = rewrap(transform(np.linalg.inv(neck['frame']), all_vertices[used]), remap[kept])
-        if skirted: sealed, record['skirt']['tuck'] = skirt_tuck(sealed, neck, body, plane, local[hair], skirt['gap'])
+        if skirted: sealed, record['skirt']['tuck'] = skirt_tuck(sealed, neck, body, plane, local[hair], skirt['gap'], all_vertices[used])
         record.update(closure='rewrap', profile='stub drawn onto the smoothed body neck + offset (height x reach smoothsteps); '
                       'plane cut z=height+slope*y; open rings closed by the repair Alpha Wrap')
         return sealed, sealed_faces, record
@@ -279,20 +279,31 @@ def neck_cut(vertices, faces, neck, body, rewrap=None):
     return transform(np.linalg.inv(neck['frame']), all_vertices[used]), remap[kept], record
 
 
-def skirt_tuck(vertices, neck, body, plane, hair, keep):
-    """After a skirt's rewrap: the wrap also spans the open space under the chin between hair curtains, a flat panel in
-    front of the throat (human-female-c, dwarf-male-c). Heads have no neck, so every wrapped surface below the plane
-    farther than `keep` from the kept hair is drawn radially onto the smoothed body neck plus the cut offset (inside the
-    body's neck part, which hides it); a smoothstep over the next `keep` blends it into the hair, and nothing moves
-    outward. Returns the vertices (input frame) and a record."""
+TUCK_CORE = .35  # share of the body neck radius the tucked surface narrows to, 2*keep below the plane
+TUCK_INVENTED = .004  # head-local metres from the pre-wrap surface beyond which wrapped surface was invented by the wrap
+
+
+def skirt_tuck(vertices, neck, body, plane, hair, keep, source):
+    """After a skirt's rewrap: the wrap also spans the open space under the chin between the hair curtains, a flat panel
+    in front of the throat (human-female-c, dwarf-male-c), standing up to the band top above the plane. Heads have no
+    neck, so wrapped surface below the band top that the wrap invented (farther than TUCK_INVENTED from the pre-wrap
+    `source` points, head-local) and farther than `keep` from the kept hair is drawn radially inside the smoothed body
+    neck plus the cut offset (the body's neck part hides it); smoothsteps over the next TUCK_INVENTED and `keep` blend
+    it into the real surface and the hair, and nothing moves outward. Original surface (the chin, the jaw) never moves.
+    Below the plane the target radius narrows over 2*`keep` to TUCK_CORE of the body neck, a short cone and a thin core
+    instead of a tube lining the body neck, so a turning head does not push it through the throat. Returns the vertices
+    (input frame) and a record."""
     from scipy.spatial import cKDTree
-    bv, bf = body; cut = neck['cut']; local = transform(neck['frame'], vertices); below = np.flatnonzero(local[:, 2] < plane(local))
-    record = {'keep': keep, 'tuckedVertices': 0, 'maximumMovementMetres': 0.}
+    bv, bf = body; cut = neck['cut']; local = transform(neck['frame'], vertices); below = np.flatnonzero(local[:, 2] < plane(local)+cut['band'])
+    record = {'keep': keep, 'invented': TUCK_INVENTED, 'tuckedVertices': 0, 'maximumMovementMetres': 0.}
     if not len(below): return vertices, record
-    distance = cKDTree(hair).query(local[below])[0]; weight = np.clip((distance-keep)/keep, 0, 1); weight = weight*weight*(3-2*weight)
+    smooth = lambda t: t*t*(3-2*t)
+    invented = smooth(np.clip((cKDTree(source).query(local[below])[0]-TUCK_INVENTED)/TUCK_INVENTED, 0, 1))
+    weight = invented*smooth(np.clip((cKDTree(hair).query(local[below])[0]-keep)/keep, 0, 1))
     low = float(bv[:, 2].min())+1e-4; high = float(bv[:, 2].max())-1e-4
     centre, surface, offset = body_profile(bv, bf, low, high)(local[below], local[below, 2]); radius = np.linalg.norm(offset, axis=1)
-    target = np.minimum(radius, surface+cut['offset']); scale = np.where(radius > 1e-9, (radius+weight*(target-radius))/np.maximum(radius, 1e-9), 1)
+    depth = np.clip((plane(local[below])-local[below, 2])/(2*keep), 0, 1); narrow = 1-(1-TUCK_CORE)*depth*depth*(3-2*depth)
+    target = np.minimum(radius, (surface+cut['offset'])*narrow); scale = np.where(radius > 1e-9, (radius+weight*(target-radius))/np.maximum(radius, 1e-9), 1)
     moved = local.copy(); moved[below, :2] = centre+offset*scale[:, None]; movement = np.linalg.norm(moved-local, axis=1)
     record.update(tuckedVertices=int(np.count_nonzero(movement > 1e-6)), maximumMovementMetres=float(movement.max()))
     return transform(np.linalg.inv(neck['frame']), moved), record

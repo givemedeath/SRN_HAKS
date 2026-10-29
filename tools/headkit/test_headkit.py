@@ -1099,9 +1099,24 @@ class MeshTests(Temporary):
             return np.r_[points,transform(np.linalg.inv(neck['frame']),panel)],np.r_[fs,panel_faces]
         tucked,_,tucked_record=neck_cut(self.glb(p),f,neck,body,rewrap=spanning);tl=transform(neck['frame'],tucked)
         self.assertLess(np.linalg.norm(tl[base:,:2],axis=1).max(),.045-.003+1e-6)  # inside the body neck (octagon 4.16-4.5 cm, offset -3 mm)
+        deep=tl[base:][panel[:,2]<record['height']-.03]  # past 2*gap below the plane: the narrow core, not a tube lining the neck
+        self.assertLess(np.linalg.norm(deep[:,:2],axis=1).max(),.35*(.045-.003)+1e-6)
         np.testing.assert_allclose(tl[:base],local,atol=1e-9)  # the kept hair (all within keep of itself) does not move
         self.assertEqual(tucked_record['skirt']['tuck']['tuckedVertices'],n)
         self.assertEqual(record['skirt']['tuck']['tuckedVertices'],0)
+        # The real panel (human-female-c) stands up to the band top ABOVE the plane, 3-4 cm outside the body neck, beside
+        # the chin: the invented surface is drawn in, the chin (original surface at the same height) does not move.
+        high=np.c_[gx.ravel(),np.full(n,.06),record['height']+.002-(gz.ravel()+.01)*.6]  # 2-20 mm above the plane, 6 cm forward
+        def spanning_high(points,fs):
+            return np.r_[points,transform(np.linalg.inv(neck['frame']),high)],np.r_[fs,panel_faces]
+        lifted,_,lifted_record=neck_cut(self.glb(p),f,neck,body,rewrap=spanning_high);ll=transform(neck['frame'],lifted)
+        from scipy.spatial import cKDTree
+        from headkit.neck import TUCK_INVENTED
+        away=cKDTree(local).query(high)[0]  # the panel's distance from the real (pre-wrap) surface
+        far,near=away>2*TUCK_INVENTED,away<TUCK_INVENTED;self.assertTrue(far.sum()>n//2)
+        self.assertLess(np.linalg.norm(ll[base:][far][:,:2],axis=1).max(),.045-.003+1e-6)  # invented: drawn inside the neck
+        np.testing.assert_allclose(ll[base:][near],high[near],atol=1e-9)  # touching the chin: left as real surface
+        np.testing.assert_allclose(ll[:base],local,atol=1e-9)  # every original vertex, the chin included, stays
         for bad in ({'gap':.01},{'depth':.3},{'depth':.05,'cone':60},{'depth':.05,'width':1}):
             with self.assertRaisesRegex(ValueError,'skirt'):neck_policy({'cut':{'height':'measured','skirt':bad}},fit)
         with self.assertRaisesRegex(ValueError,'cone'):neck_policy({'cut':{'height':'measured','cone':10}},fit)
