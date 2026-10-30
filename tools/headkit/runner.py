@@ -410,7 +410,7 @@ class Runner:
             require(isinstance(m.get('faceMasks'),dict),'Stage not configured: the manifest has no faceMasks section')
             return face_masks(self.source('uvMesh','unwrap','mesh'),self._color4k(),b,folder/'masks')
         if stage=='ownership':
-            from .palette import project_ownership
+            from .projection import project_ownership
             source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={}
             # Rules are bbox-relative data, not a mesh-bound annotation; the stage review binds their exact output.
             require(config.get('reviewed') is True and (config.get('mode')=='rules' or config.get('sourceSha256')==pin(source)['sha256']),
@@ -518,8 +518,16 @@ class Runner:
                 reference=design_reference(rgb,subject(rgb,m.get('matte',{}).get('backgroundTolerance',14))[0],
                                            mesh(self.source('uvMesh','unwrap','mesh')),layers,folder/'design-reference.png')
                 write(folder/'design-reference.json',reference,fresh=True);design=reference['channels']
+            full_range=m['palette'].get('fullShadeRange') is True;shading_only=m['palette'].get('stretchShadingOnly') is True;charts=None
+            if shading_only:
+                # 1K texel chart ids (gutters take the nearest chart) so the shading is smoothed within each chart only.
+                from .gltf import mesh
+                from .textures import pad
+                from .uv import chart_ids,raster_audit
+                uv=mesh(self.source('uvMesh','unwrap','mesh'))['uv'];_,owners=raster_audit(uv,1024)
+                charts=pad(np.where(owners>=0,np.asarray(chart_ids(uv))[np.maximum(owners,0)],-1)[...,None],owners>=0)[...,0]
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
-                            tone_match=m['palette'].get('toneMatch'),design=design,full_range=m['palette'].get('fullShadeRange') is True)
+                            tone_match=m['palette'].get('toneMatch'),design=design,full_range=full_range,shading_only=shading_only,charts=charts)
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result
@@ -527,7 +535,7 @@ class Runner:
             from .quality import quality
             require(isinstance(m.get('quality'),dict),'Stage not configured: the manifest has no quality section')
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
-            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality')
+            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality',settings=m['quality'])
         if stage=='export':
             from .native import prepare
             source=self.source('uvMesh','unwrap','mesh')

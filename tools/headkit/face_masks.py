@@ -13,7 +13,7 @@ from .common import require, pin, write, library
 from .gltf import mesh
 from .rays import EmbreeScene
 from .textures import surface, pad
-from .palette import lab as to_lab
+from .colour import lab as to_lab
 
 RENDER = 1024; BACKGROUND = 165.0
 # BiSeNet CelebAMask-HQ classes (yakhyo/face-parsing resnet18.onnx).

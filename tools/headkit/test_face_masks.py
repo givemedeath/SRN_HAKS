@@ -178,6 +178,14 @@ class Quality(unittest.TestCase):
         fails, exempt = shade_span_failures({'0': .5, '2': 0.0, '9': .9}, palette, .75)
         self.assertEqual(fails, ['shadeSpan0']); self.assertEqual(exempt, ['2'])
 
+    def test_cybereye_side_setting_is_checked_before_any_work(self):
+        from headkit.quality import quality
+        with tempfile.TemporaryDirectory() as root:
+            for settings in ({'cybereyeImageSide': 'top'}, {'cybereye': 'left'}):
+                with self.subTest(settings=settings), self.assertRaisesRegex(ValueError, 'cybereyeImageSide'):
+                    quality('uv.glb', {}, {}, {}, Path(root)/'q', settings=settings)
+                self.assertFalse((Path(root)/'q').exists())
+
 
 class Wiring(unittest.TestCase):
     def test_stage_order_and_declarations(self):

@@ -33,8 +33,12 @@ def shade_span_failures(spans, palette, minimum):
     return [f'shadeSpan{k}' for k, v in spans.items() if v < minimum and k not in flat], sorted(flat & set(spans))
 
 
-def quality(source, masks, palette, palettes, output, thresholds=None):
-    """masks: the masks stage result; palette: the palette stage result; palettes: {layer: palette image path}."""
+def quality(source, masks, palette, palettes, output, thresholds=None, settings=None):
+    """masks: the masks stage result; palette: the palette stage result; palettes: {layer: palette image path}.
+    settings (the manifest quality section): `cybereyeImageSide` 'left' or 'right' leaves that eye and brow out of the role
+    checks (RUNBOOK 150): a cybereye housing has no iris, whites or brow for the parser to find."""
+    settings = settings or {}; side = settings.get('cybereyeImageSide')
+    require(set(settings) <= {'cybereyeImageSide'} and side in (None, 'left', 'right'), 'quality.cybereyeImageSide must be left or right')
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     limits = thresholds if thresholds is not None else read(THRESHOLDS)['limits']; require(set(limits) == CHECKS, 'Incomplete quality thresholds')
     require(masks['source']['sha256'] == pin(source)['sha256'], 'Quality must read the masks of this UV mesh')
@@ -85,6 +89,9 @@ def quality(source, masks, palette, palettes, output, thresholds=None):
     top = eligible(tables['0'][0 if rows.get('0', 0) == 'auto' else int(rows.get('0', 0))])[1]-TOP
     parts, n = label(binary_opening(small((plain & (channel == 0) & (shade >= top)).astype(np.uint8)*255) > 127, np.ones((2, 2))))
     r['blotchPx'] = int(np.bincount(parts.ravel())[1:].max()) if n else 0
+    if side is not None:   # image left is the subject's right; the midline runs through the nose bridge (landmark 168)
+        cyber = (xs < pts[168, 0]) if side == 'left' else (xs >= pts[168, 0]); brows, iris, whites = brows & ~cyber, iris & ~cyber, whites & ~cyber
+        r['cybereyeImageSide'] = side
     share = lambda region, layer: round(float(np.isin(channel[region], layer).mean()), 3) if region.any() else None
     r['browsOnHair'] = share(brows, (1,)); r['irisOnTattoo1'] = share(iris, (8,)); r['whitesOnSkin'] = share(whites, (0,))
     # Above the nose only: below it the parser has no beard class and ownership keeps hair-coloured beards hair (RUNBOOK 145).

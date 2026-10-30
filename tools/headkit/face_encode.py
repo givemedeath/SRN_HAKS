@@ -9,7 +9,7 @@ from PIL import Image
 from scipy.ndimage import gaussian_filter, binary_dilation
 from scipy.spatial import cKDTree
 from .common import require
-from .palette import lab
+from .colour import lab
 from .textures import surface, pad
 from .uv import chart_ids, face_region
 

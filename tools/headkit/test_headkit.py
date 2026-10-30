@@ -1756,26 +1756,26 @@ class OwnershipModeTests(Temporary):
             with self.subTest(mask=mask.name):
                 with self.assertRaisesRegex(ValueError,'eight-bit L'):tone_match(color,mask,'unused',{},self.root/'tone.png')
     def test_projected_masks_reject_color_or_indexed_images(self):
-        from headkit.palette import project_ownership
+        from headkit.projection import project_ownership
         embree=pin(self.file('embree.dll'))
         for mask in self.bad_masks():
             with self.subTest(mask=mask.name), \
-                 patch('headkit.palette.mesh',return_value={'positions':np.zeros((3,3)), 'faces':np.array([[0,1,2]])}), \
-                 patch('headkit.palette.surface',return_value=(np.zeros((1,1,3)),np.zeros((1,1),int),{})), \
-                 patch('headkit.palette.EmbreeScene'):
+                 patch('headkit.projection.mesh',return_value={'positions':np.zeros((3,3)), 'faces':np.array([[0,1,2]])}), \
+                 patch('headkit.projection.surface',return_value=(np.zeros((1,1,3)),np.zeros((1,1),int),{})), \
+                 patch('headkit.projection.EmbreeScene'):
                 with self.assertRaisesRegex(ValueError,'eight-bit L'):
                     project_ownership('unused',[{'calibrationReviewed':True,'mask':str(mask)}],embree,self.root/'projected.png')
     def test_projection_uses_the_reviewed_subtexel_allowance(self):
-        from headkit.palette import project_ownership
+        from headkit.projection import project_ownership
         embree=pin(self.file('embree.dll'));stop=ValueError('surface gate reached')
-        with patch('headkit.palette.mesh',return_value='uv'),patch('headkit.palette.surface',side_effect=stop) as gate:
+        with patch('headkit.projection.mesh',return_value='uv'),patch('headkit.projection.surface',side_effect=stop) as gate:
             with self.assertRaisesRegex(ValueError,'surface gate'):project_ownership('unused',[],embree,self.root/'p.png',max_subtexel_fraction=.01)
         gate.assert_called_once_with('uv',1024,.01)
         source=self.file('uv.glb','frozen UV mesh')
         runner=SimpleNamespace(data={'mesh':{'maximumSubtexelFraction':.01},'ownership':{'reviewed':True,'mode':'project',
             'sourceSha256':pin(source)['sha256'],'views':[{'maskInput':'front'}]}},bindings={'embree':embree},
             source=lambda *args:source,input=lambda role:'mask-'+role)
-        with patch('headkit.palette.project_ownership',side_effect=stop) as project:
+        with patch('headkit.projection.project_ownership',side_effect=stop) as project:
             with self.assertRaisesRegex(ValueError,'surface gate'):Runner._execute(runner,'ownership',self.root)
         self.assertEqual(project.call_args.kwargs,{'max_subtexel_fraction':.01})
     def test_valid_labels_preserve_all_ten_channel_ids(self):
@@ -1853,6 +1853,30 @@ class ToneMatchTests(Temporary):
         with self.assertRaisesRegex(ValueError,'not both'):
             quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'offset',shade_offsets={'0':4},full_range=True)
         self.assertFalse((self.root/'spiky').exists());self.assertFalse((self.root/'offset').exists())
+    def test_shading_range_stretches_the_shading_not_the_fine_detail(self):
+        # RUNBOOK 149: a narrow smooth gradient with fine noise; two UV charts meet at x=512 with a luma step between them.
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(7);x=np.arange(1024)
+        luma=80+20*x[None,:]/1024+rng.normal(0,3,(1024,1024));luma[:,512:]+=15;luma[:,900:]=60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'g.png')
+        charts=np.zeros((1024,1024),int);charts[:,512:]=1
+        plain,full,shading=(quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/name,**kw) for name,kw in
+                            (('plain',{}),('full',{'full_range':True}),('shading',{'full_range':True,'shading_only':True,'charts':charts})))
+        shades={name:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,:900] for name,r in (('plain',plain),('full',full),('shading',shading))}
+        fine=lambda s:np.std(s[1:-1,1:-1]-(s[:-2,1:-1]+s[2:,1:-1]+s[1:-1,:-2]+s[1:-1,2:])/4)
+        self.assertGreaterEqual(shading['layers']['0']['shadeRange']['spanFraction'],.5);self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],3.0)
+        self.assertLess(fine(shades['shading']),1.3*fine(shades['plain']));self.assertGreater(fine(shades['full']),1.5*fine(shades['plain']))
+        # On skin the shading stops SKIN_HEADROOM shades below the top of the row; only fine detail may reach the top shades.
+        self.assertLess(np.percentile(shades['shading'],99),253-8);self.assertGreater(np.percentile(shades['full'],99),253-8)
+        trend=lambda s:s[:,400:500].mean()-s[:,10:110].mean()
+        self.assertGreater(trend(shades['shading']),1.5*trend(shades['plain']))  # the shading itself still uses the wider range
+        # Charts never mix: smoothed as one chart, the step between them would spread into both sides.
+        mixed=quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/'mixed',full_range=True,shading_only=True,charts=np.zeros((1024,1024),int))
+        mixed=np.asarray(Image.open(mixed['shades']['path'])).astype(float)[:,:900]
+        step=lambda s:s[:,512:515].mean()-s[:,509:512].mean()
+        self.assertGreater(step(shades['shading']),1.3*step(mixed))
+        for kw in ({'full_range':True},{'charts':charts}):
+            with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'chart ids'):
+                quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/'bad',shading_only=True,**kw)
     def test_plt_reader_and_reference_count_shared_textures_once(self):
         from headkit.palette import plt_shades,shade_reference
         def plt(name,shades,layers):
@@ -1895,6 +1919,14 @@ class ToneMatchTests(Temporary):
         runner.data['palette']['fullShadeRange']=True
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
         self.assertIs(quantizer.call_args.kwargs['full_range'],True)
+        # stretchShadingOnly also hands quantize the 1K chart ids; gutter texels take the nearest chart
+        runner.data['palette']['stretchShadingOnly']=True;runner.source=lambda *args:'uv.glb'
+        uv=np.array([[[0,0],[.4,0],[0,.4]],[[.6,.6],[1,.6],[.6,1]]],float);owners=np.full((1024,1024),-1);owners[:10,:10]=0;owners[-10:,-10:]=1
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.gltf.mesh',return_value={'uv':uv}),\
+             patch('headkit.uv.raster_audit',return_value=({},owners)):Runner._execute(runner,'palette',self.root)
+        charts=quantizer.call_args.kwargs['charts'];self.assertIs(quantizer.call_args.kwargs['shading_only'],True)
+        self.assertEqual((charts[0,0],charts[-1,-1],charts[100,100],charts[1000,1000]),(0,1,0,1))
+        del runner.data['palette']['stretchShadingOnly']
         runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
             Runner._execute(runner,'palette',self.root)

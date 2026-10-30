@@ -5,5 +5,5 @@
   "ownership": {"featureChannels": true},
   "tone": {"faceTreatment": {"delight": 0.8, "smooth": 0.7, "lipDark": 0.5, "socket": 0.3, "irisRim": 0.45, "lidLine": 0.6, "browEdge": 0.95}},
   "quality": {},
-  "palette": {"fullShadeRange": true}
+  "palette": {"fullShadeRange": true, "stretchShadingOnly": true}
 }
