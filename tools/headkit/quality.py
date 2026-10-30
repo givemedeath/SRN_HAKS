@@ -10,7 +10,7 @@ from PIL import Image
 from scipy.ndimage import label, binary_dilation, binary_erosion, binary_opening
 from .common import require, pin, write, read
 from .gltf import mesh
-from .face_masks import EYE_RING, EYES, IRIS, LIPS, NOSE_BASE, polygon, face_hull, brow_seed, plain_skin, hair_locks, sample, nearest
+from .face_masks import EYE_RING, EYES, IRIS, LIPS, NOSE_BASE, polygon, face_hull, brow_seed, brow_mask, plain_skin, hair_locks, sample, nearest
 
 THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
 FACE_PX = 100; DECODE_ROWS = {'1': 117, '8': 26}; TOP = 12
@@ -61,7 +61,9 @@ def quality(source, masks, palette, palettes, output, thresholds=None):
     for c, ring in IRIS.values(): iris |= np.hypot(xs-pts[c, 0], ys-pts[c, 1]) < .8*np.linalg.norm(pts[list(ring)]-pts[c], axis=1).mean()
     # The landmark iris circle runs under the lids on narrow eyes: like the iris mask, count only the parser's eye opening
     # (RUNBOOK 146). Whites stay measured outside the full circle.
-    iris &= eyes; whites = eyes & ~binary_dilation(iris, iterations=4); iris &= np.isin(labels, EYES); brows = brow_seed(labels, pts, eyes, view['hit']); plain = plain_skin(labels, face, eyes, brows)
+    iris &= eyes; whites = eyes & ~binary_dilation(iris, iterations=4); iris &= np.isin(labels, EYES); brows = brow_seed(labels, pts, eyes, view['hit'])
+    # Plain skin also excludes the colour-grown brow edges, which ownership rightly puts on hair (RUNBOOK 147).
+    plain = plain_skin(labels, face, eyes, brows | brow_mask(render, labels, brows, eyes, view['hit']))
     cheeks = np.zeros((S, S), bool)
     for i in (50, 280): cheeks |= np.hypot(xs-pts[i, 0], ys-pts[i, 1]) < .07*width
     features = eyes | polygon(labels.shape, pts, LIP_POLYGON) | brows
