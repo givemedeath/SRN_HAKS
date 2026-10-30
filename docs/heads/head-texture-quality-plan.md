@@ -67,6 +67,14 @@ What the plan does not fix: the 3D shape quality and the design itself. A weak d
 3. **Go:** the parser or landmarks work on the elves and humans.
 4. **Partial:** any race that fails gets landmarks-only masks or manual masks painted on the 2D design image. A mask per head takes minutes and is reviewable.
 
+**Result (2026-10-29): GO.** Evidence is in `race-heads-v1/trials/maskfeas-v1/` (`RESULTS.md`).
+- Landmarks and the parser worked on all six races: brows, eyes, iris centre, lips, nose and scalp hair.
+- Carry into steps 1-2:
+  - The MediaPipe iris radius is a prior, 5-15% large on the orc, dwarf and troll. Refine it from the image behind guards (change of at most 15%, left and right agreeing within 10%).
+  - Clip the parser's eye mask to the landmark eye contour.
+  - No parser class for beards, cyberwear, tattoos, scars, horns or tusks. Get these from colour/contrast segmentation guided by the feature inventory, or from a manual mask. They override the parser's hair label.
+  - Open decision: beards on hair or on skin.
+
 ## Step 1 - Masks onto the mesh
 
 1. Project the design-image labels onto the mesh through the existing front registration (`palette.design_reference` / `front_labels`), then into the 4K and 1K UV maps. Keep the edges soft.
