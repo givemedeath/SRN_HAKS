@@ -1,4 +1,5 @@
 """Focused tests of the face-mask stages on synthetic inputs (no models, Embree or xatlas needed)."""
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -133,6 +134,19 @@ class Wiring(unittest.TestCase):
             for drop in ('faceMasks', 'quality', 'palette'):
                 path.write_text(json.dumps({k: v for k, v in full.items() if k != drop}))
                 with self.assertRaises(ValueError): manifest(path)
+
+    def test_face_masks_refuse_imported_runtime_atlases(self):
+        """Export must ship the shades the quality gate measured, built through the channel moves and treatment."""
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); (root/'atlas.png').write_bytes(b'x'); path = root/'m.json'
+            full = {'schemaVersion': 1, 'id': 'x', 'inputs': {}, 'faceMasks': {}, 'quality': {}, 'ownership': {'featureChannels': True},
+                    'tone': {'faceTreatment': {}}, 'palette': {'fullShadeRange': True}}
+            for role in ('runtimeColor', 'runtimeShades', 'ownership1k'):
+                data = dict(full, inputs={role: {'path': 'atlas.png', 'sha256': hashlib.sha256(b'x').hexdigest()}})
+                path.write_text(json.dumps(data))
+                with self.assertRaisesRegex(ValueError, role): manifest(path)
+                path.write_text(json.dumps({k: v for k, v in data.items() if k not in ('faceMasks', 'quality', 'ownership', 'tone', 'palette')}))
+                manifest(path)
 
 
 if __name__ == '__main__':
