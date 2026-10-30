@@ -6,7 +6,7 @@ import tempfile
 import unittest
 import numpy as np
 from headkit.common import manifest, write, read
-from headkit.face_masks import hair_locks, brow_mask, iris_circles, IRIS, HAIR, SKIN
+from headkit.face_masks import hair_locks, brow_seed, brow_mask, iris_circles, IRIS, BROW_RING, HAIR, SKIN
 from headkit.face_encode import apply_channels, majority, consistent_blocks, treat, TREATMENT
 from headkit.quality import eligible, shade_span_failures, CHECKS, THRESHOLDS
 from headkit.uv import face_region
@@ -42,8 +42,34 @@ class Brows(unittest.TestCase):
         rgb[50:60, 40:100] = np.clip(np.random.default_rng(1).normal(60, 6, (10, 60, 3)), 0, 255)
         labels[52:58, 50:90] = 2   # parser brow shorter than the painted one
         rgb[50:60, 100:110] = 250                                    # bright highlight at the brow end
-        grown = brow_mask(rgb, labels, np.zeros((S, S), bool), np.ones((S, S), bool))
+        grown = brow_mask(rgb, labels, labels == 2, np.zeros((S, S), bool), np.ones((S, S), bool))
         self.assertGreater(grown[50:60, 41:99].mean(), .95); self.assertFalse(grown[:, 100:].any())
+
+    @staticmethod
+    def landmarks(S=220):
+        """Landmark brow polygons over y 50-60: subject's right brow x 20-100, left x 120-200."""
+        pts = np.zeros((478, 2))
+        for ring, (outer, inner) in ((BROW_RING['R'], (20, 100)), (BROW_RING['L'], (200, 120))):
+            xs = np.linspace(outer, inner, 5); pts[ring[:5]] = np.c_[xs, np.full(5, 50)]; pts[ring[5:]] = np.c_[xs[::-1], np.full(5, 60)]
+        return pts
+
+    def test_landmark_seed_for_white_brows_under_dark_marks(self):
+        # dwarf-male-c (RUNBOOK 143): the parser labels black forehead ink as brows and the white brows as skin.
+        S = 220; labels = np.full((S, S), SKIN, np.uint8); rgb = np.full((S, S, 3), (190, 130, 110), np.uint8)
+        noise = np.random.default_rng(1).normal(235, 6, (11, 81, 3)).clip(0, 255)
+        rgb[50:61, 20:101] = rgb[50:61, 120:201] = noise      # white brows on the landmark polygons
+        rgb[20:35, 40:80] = rgb[20:35, 140:180] = 15          # forehead ink
+        labels[20:35, 40:80] = labels[20:35, 140:180] = 2
+        none, hit = np.zeros((S, S), bool), np.ones((S, S), bool)
+        seed = brow_seed(labels, self.landmarks(), none, hit); grown = brow_mask(rgb, labels, seed, none, hit)
+        self.assertFalse(seed[20:35].any()); self.assertFalse(grown[20:35].any())
+        self.assertGreater(grown[51:60, 22:99].mean(), .95); self.assertGreater(grown[51:60, 122:199].mean(), .95)
+
+    def test_parser_brows_on_the_landmarks_kept_whole(self):
+        S = 220; labels = np.full((S, S), SKIN, np.uint8); labels[48:62, 15:105] = labels[48:62, 115:205] = 2   # past the polygons
+        labels[20:30, 60:70] = 3                                                                                # a stray parser brow
+        seed = brow_seed(labels, self.landmarks(), np.zeros((S, S), bool), np.ones((S, S), bool))
+        self.assertTrue(seed[48:62, 15:105].all() and seed[48:62, 115:205].all()); self.assertFalse(seed[20:30].any())
 
 
 class Iris(unittest.TestCase):

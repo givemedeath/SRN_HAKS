@@ -27,6 +27,8 @@ LIP_LINE = (61, 78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308, 291)
 SOFT = 1.0                 # render-space mask softening (px)
 IRIS_GUARD = (.15, .10)    # refined radius within 15% of MediaPipe's, left/right within 10% (step 0)
 BROW_BAND = 24             # px around the parser brow searched by colour (RUNBOOK 128)
+BROW_RING = {'R': [70, 63, 105, 66, 107, 55, 65, 52, 53, 46], 'L': [300, 293, 334, 296, 336, 285, 295, 282, 283, 276]}
+BROW_SEED = .25            # parser share of a landmark brow polygon below which the polygon seeds that brow (RUNBOOK 143)
 LOCK_RATIO, LOCK_SEPARATION = .6, 30   # hair locks: nearer hair than skin by this ratio; colours at least this far apart (RUNBOOK 133)
 SEEN_DEPTH, SEEN_FACING, FILL = .002, .1, .012   # depth match and unseen-texel fill distance, fractions of head width
 MASKS = ('brow', 'eye', 'iris', 'lips', 'nose', 'hair', 'skin', 'ear', 'hairlock', 'lipline', 'socket')
@@ -124,25 +126,37 @@ def polygon(shape, pts, index):
     return np.asarray(image) > 0
 
 
-def brow_mask(rgb, labels, eyes, hit):
-    """Parser brows grown by colour (RUNBOOK 128): inside a band around the parser brow, a pixel nearer the brow median than the
-    band's skin median and within 1.25x the parser brow's p90 colour distance, connected to the parser brow. Brows whose colour is
-    within 30 of the skin keep the parser mask."""
-    parser = np.isin(labels, BROWS); rgb = rgb.astype(np.float32)
-    band = binary_dilation(parser, iterations=BROW_BAND) & ~np.isin(labels, EYES) & ~eyes & hit
-    if not parser.any() or not (band & (labels == SKIN)).any(): return parser
-    brow = np.median(rgb[parser], 0); skin = np.median(rgb[band & (labels == SKIN)], 0)
-    if np.linalg.norm(brow-skin) < 30: return parser
-    db = np.linalg.norm(rgb-brow, axis=2); grown = band & (db < 1.25*np.percentile(db[parser], 90)) & (db < np.linalg.norm(rgb-skin, axis=2))
-    parts, _ = label(grown); keep = np.unique(parts[parser & grown]); return np.isin(parts, keep[keep > 0])
+def brow_seed(labels, pts, eyes, hit):
+    """Brows anchored to the landmark brows (RUNBOOK 143): per side, the parser brow parts overlapping the landmark brow polygon, or
+    the polygon itself when the parser covers under BROW_SEED of it (the parser takes dark forehead marks for brows and misses
+    white brows). Parser brows away from both polygons are dropped."""
+    parser = np.isin(labels, BROWS); parts, _ = label(parser); seed = np.zeros(labels.shape, bool)
+    for ring in BROW_RING.values():
+        poly = polygon(labels.shape, pts, ring) & hit & ~eyes
+        if (parser & poly).sum() >= BROW_SEED*poly.sum(): seed |= np.isin(parts, np.unique(parts[parser & poly]))
+        else: seed |= poly
+    return seed
+
+
+def brow_mask(rgb, labels, seed, eyes, hit):
+    """Brows grown by colour from the brow_seed (RUNBOOK 128): inside a band around the seed, a pixel nearer the brow median than
+    the band's skin median and within 1.25x the seed's p90 colour distance, connected to the seed. Brows whose colour is within 30
+    of the skin keep the seed."""
+    rgb = rgb.astype(np.float32); band = binary_dilation(seed, iterations=BROW_BAND) & ~np.isin(labels, EYES) & ~eyes & hit
+    skinband = band & (labels == SKIN) & ~seed   # a landmark seed sits on brows the parser labels skin
+    if not seed.any() or not skinband.any(): return seed
+    brow = np.median(rgb[seed], 0); skin = np.median(rgb[skinband], 0)
+    if np.linalg.norm(brow-skin) < 30: return seed
+    db = np.linalg.norm(rgb-brow, axis=2); grown = band & (db < 1.25*np.percentile(db[seed], 90)) & (db < np.linalg.norm(rgb-skin, axis=2))
+    parts, _ = label(grown); keep = np.unique(parts[seed & grown]); return np.isin(parts, keep[keep > 0])
 
 
 def face_hull(shape, pts): return polygon(shape, pts, SILHOUETTE)
 
 
-def plain_skin(labels, face, eyes):
-    """Parser skin inside the face, away from brows, eyes, nose and mouth."""
-    return face & (labels == SKIN) & ~binary_dilation(np.isin(labels, BROWS) | eyes | np.isin(labels, (NOSE, MOUTH)+LIPS), iterations=6)
+def plain_skin(labels, face, eyes, brows):
+    """Parser skin inside the face, away from brows (brow_seed), eyes, nose and mouth."""
+    return face & (labels == SKIN) & ~binary_dilation(brows | eyes | np.isin(labels, (NOSE, MOUTH)+LIPS), iterations=6)
 
 
 def hair_locks(rgb, labels, hit, face, plainskin):
@@ -166,9 +180,9 @@ def render_masks(rgb, labels, pts, circles, hit):
     opening = np.isin(labels, EYES) & eyes
     iris = np.zeros((S, S), np.float32)
     for c, r in circles.values(): iris = np.maximum(iris, np.clip(r+.75-np.hypot(xs+.5-c[0], ys+.5-c[1]), 0, 1.5)/1.5)   # 1.5 px soft rim
-    face = face_hull(labels.shape, pts); locks = hair_locks(rgb, labels, hit, face, plain_skin(labels, face, eyes))
+    seed = brow_seed(labels, pts, eyes, hit); face = face_hull(labels.shape, pts); locks = hair_locks(rgb, labels, hit, face, plain_skin(labels, face, eyes, seed))
     locks = np.zeros((S, S), bool) if locks is None else locks
-    hard = {'brow': brow_mask(rgb, labels, eyes, hit), 'eye': opening, 'lips': np.isin(labels, (MOUTH,)+LIPS), 'nose': labels == NOSE,
+    hard = {'brow': brow_mask(rgb, labels, seed, eyes, hit), 'eye': opening, 'lips': np.isin(labels, (MOUTH,)+LIPS), 'nose': labels == NOSE,
             'hair': (labels == HAIR) | locks, 'ear': np.isin(labels, EARS), 'skin': (labels == SKIN) & ~locks, 'hairlock': locks}
     soft = {k: gaussian_filter(v.astype(np.float32), SOFT) for k, v in hard.items()}
     soft['iris'] = iris*gaussian_filter(opening.astype(np.float32), .7); soft['eye'] = np.maximum(soft['eye'], soft['iris'])

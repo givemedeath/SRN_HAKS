@@ -10,7 +10,7 @@ from PIL import Image
 from scipy.ndimage import label, binary_dilation, binary_erosion, binary_opening
 from .common import require, pin, write, read
 from .gltf import mesh
-from .face_masks import EYE_RING, IRIS, BROWS, LIPS, polygon, face_hull, plain_skin, hair_locks, sample, nearest
+from .face_masks import EYE_RING, IRIS, LIPS, polygon, face_hull, brow_seed, plain_skin, hair_locks, sample, nearest
 
 THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
 FACE_PX = 100; DECODE_ROWS = {'1': 117, '8': 26}; TOP = 12
@@ -59,7 +59,7 @@ def quality(source, masks, palette, palettes, output, thresholds=None):
     face = face_hull(labels.shape, pts); eyes = polygon(labels.shape, pts, EYE_RING['R']) | polygon(labels.shape, pts, EYE_RING['L'])
     iris = np.zeros((S, S), bool)
     for c, ring in IRIS.values(): iris |= np.hypot(xs-pts[c, 0], ys-pts[c, 1]) < .8*np.linalg.norm(pts[list(ring)]-pts[c], axis=1).mean()
-    iris &= eyes; whites = eyes & ~binary_dilation(iris, iterations=4); brows = np.isin(labels, BROWS); plain = plain_skin(labels, face, eyes)
+    iris &= eyes; whites = eyes & ~binary_dilation(iris, iterations=4); brows = brow_seed(labels, pts, eyes, view['hit']); plain = plain_skin(labels, face, eyes, brows)
     cheeks = np.zeros((S, S), bool)
     for i in (50, 280): cheeks |= np.hypot(xs-pts[i, 0], ys-pts[i, 1]) < .07*width
     features = eyes | polygon(labels.shape, pts, LIP_POLYGON) | brows
