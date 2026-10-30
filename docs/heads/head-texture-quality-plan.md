@@ -189,6 +189,45 @@ Cut each eye region into its own UV chart, from the mask, and give it about 2x t
   - number and length of layer boundaries inside the face.
 - Calibrate the thresholds on steps 1-3 and stock. A head that fails is sent back before any client check.
 
+### Step 5 result (2026-10-29)
+
+`review-kit/qa_check.py HEAD OUT.json LABEL=DIR...` reads limits from `review-kit/qa_thresholds.json`. It was calibrated on elf-male-c and elf-male-d, with elf-male-a held out. Everything is measured on the head's own front render at game size (a 100 px wide face), decoded at hair 117 and tattoo1 26.
+
+| Check | Definition | Limit |
+|---|---|---|
+| featureFocus | As face_metrics.py, but cheek pixels must have skin on all 4 sides, so design lines on a cheek don't count as skin noise | >= 5.0 |
+| blotchPx | Largest patch of top skin shades (top 12) on plain skin (away from brows, eyes, nose and lips), opened 2x2 so 1 px highlight rims don't count | <= 20 |
+| specks | Skin, hair and iris islands of 1-2 px inside the face | <= 10 |
+| designSpecks | Islands on tattoo2 or metal: thin design marks breaking up at game size | Warning only (step 7) |
+| hairLockOnSkinPx | Skin-owned pixels whose source colour is clearly nearer the hair median than the skin median, in patches reaching the hairline or face edge | <= 4 |
+| Roles | Brows on hair, iris on tattoo1, whites on skin; hair on plain skin | >= .85, >= .85, >= .9; <= .03 |
+| shadeSpan | p1-p99 of each channel's shades over its row's eligible range (full-range rule) | >= .75 |
+
+The plan's "number and length of layer boundaries" was replaced by specks. Raw boundary length mostly counted intended borders (brows on hair, design lines), not defects.
+
+| Head, variant | featureFocus | blotchPx | specks | hairLockOnSkinPx | Verdict |
+|---|---|---|---|---|---|
+| c shipped | 3.17 | 0 | 5 | 1 | fail: featureFocus, roles, span |
+| c step 2 | 6.89 | 0 | 2 | 109 | fail: hair lock |
+| c step 3 | 8.68 | 0 | 2 | 109 | fail: hair lock |
+| d shipped | 3.88 | 0 | 3 | 0 | fail: featureFocus, roles, span |
+| d step 2 | 13.5 | 10 | 5 | 94 | fail: hair lock |
+| d step 3 | 20.0 | 0 | 5 | 94 | fail: hair lock |
+| a shipped (holdout) | 3.19 | 6 | 15 | 2 | fail: featureFocus, specks, roles, span |
+| a step 2 (holdout) | 5.37 | 48 | 2 | 86 | fail: blotch, hair lock |
+| a step 3 (holdout) | 6.16 | 13 | 2 | 86 | fail: hair lock (warning: 24 design specks) |
+
+- **Holdout:** elf-male-a step 2's known forehead blotches fail (48 px against at most 13 elsewhere).
+- **Rejected linear skin maps:** they fail on elf-male-d (blotch 93/88) but pass on elf-male-c. Flattened features and cheek patches still need the client check.
+- **New defect, found by the user in the blotch review:** steps 1-2 moved face-edge hair locks onto the skin channel:
+  - elf-male-d's cream lock beside the left eye;
+  - elf-male-a's white temple locks;
+  - elf-male-c's dark edge strands.
+
+  The face parser labels these locks skin. The shipped encodings kept them on hair (0-2 px).
+- **Gate status:** steps 1-3 pass every other check, but no prototype passes step 5 until the step 1 hair mask takes those locks. The fix is a colour grow from the parser hair, using the guard's rule.
+- **Evidence:** `trials/maskplt-v1/{qa-lock-sheet.png, qa-blotch-a-d.png}` and per-head `qa/`.
+
 ## Step 6 - Conditional: standard head mesh with shared UVs
 
 Start this only if steps 1-4 miss their gates because masks or density vary too much between heads.
