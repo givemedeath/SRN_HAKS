@@ -17,6 +17,8 @@ The prototypes chain into the pipeline through `exec` and hand-picked attempt fo
 | `mask_plt_proto.py` | Channel moves, de-light, smoothing, darks, brow and iris treatment, ownership-consistent 1K blocks |
 | `qa_check.py` + `qa_thresholds.json` | Automatic quality gate |
 
+**Step 7 (user 2026-10-30, added after approval):** the design prompt rules go in with the adoption. `design.py` appends `FEATURE_RULES` (flat lighting, brows in the hair colour with crisp edges, dark lid lines, matte irises with a dark rim) to every design prompt. It refuses text that asks for dramatic, rim or back lighting, or for glossy eyes. Distinct feature colours are already enforced (`colour_conflict`, claude/headkit-design-colours). No existing head is regenerated without the user's decision (slot caps).
+
 **Out of scope:**
 - **Shipped heads:** no shipped head, ledger or published asset changes. Re-encoding shipped heads is a later, separate decision.
 - **Other races:** encoding was validated only on elves; the parser worked on all six races in step 0. The feature stays opt-in, and a per-race client check comes before any race uses it.

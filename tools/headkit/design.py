@@ -25,6 +25,14 @@ SPEC_KEYS = {'common', 'designs', 'neckInpaint', 'neckEdit', 'colourReviewed'}
 DARK_HAIR = re.compile(r'\b(black|jet|raven|dark brown|dark auburn|dark buzz|near-black|charcoal)\b', re.I)
 NEUTRAL_INK = re.compile(r'\b(black|charcoal|near-black)\b', re.I)
 INK_HUE = re.compile(r'\b(red|crimson|scarlet|blue|navy|teal|cyan|green|violet|purple|orange|yellow|gold|white|pale|silver)\b', re.I)
+# Step 7 of docs/heads/head-texture-quality-plan.md (user 2026-10-30): every future design asks for what the face masks and the
+# PLT need to read at game size. Baked lighting turned into forehead blotches, glossy irises into white specks, soft lids and
+# skin-coloured brows into faces that read flat (steps 2-3).
+FEATURE_RULES = ('Flat, even, shadowless lighting with no shine and no specular highlights on skin or eyes. '
+                 'Eyebrows exactly the hair colour, with crisp, clearly defined edges. Clearly defined dark upper and lower eyelid lines. '
+                 'Matte, non-glossy irises with a clear dark outer rim.')
+FEATURE_CONFLICTS = re.compile(r'\b(dramatic|cinematic|moody|rim|back|side|spot)[- ]?(lit|light|lighting)\b|\bbacklit\b|\bchiaroscuro\b'
+                               r'|\b(glossy|shiny|wet|glassy|reflective|sparkling|glowing)\s+(eyes|irises|iris)\b', re.I)
 SUFFIXES = ('.png', '.jpg', '.jpeg', '.webp')
 MAX_BATCH = 8
 MAX_REFERENCES = 4
@@ -68,7 +76,10 @@ def design_prompt(spec, head):
     require(conflict is None or head in spec.get('colourReviewed', {}),
             f'Design colours do not separate for {head}: {conflict}. Give the ink a hue the hair lacks, as dark as the intended '
             'ink (the palette row sets the in-game colour), or record the head in colourReviewed')
-    return spec['designs'][head] + '\n' + spec['common']
+    contradiction = FEATURE_CONFLICTS.search(spec['designs'][head] + '\n' + spec['common'])
+    require(contradiction is None, f'Design text for {head} contradicts the face feature rules ("{contradiction and contradiction[0]}"): '
+            'designs need flat lighting and matte irises (step 7 of docs/heads/head-texture-quality-plan.md)')
+    return spec['designs'][head] + '\n' + spec['common'] + '\n' + FEATURE_RULES
 
 
 def inpaint_prompt(spec, skin):

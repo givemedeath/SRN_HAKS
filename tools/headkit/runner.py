@@ -10,7 +10,7 @@ from . import common
 from .common import read,write,require,pin,verify,asset,manifest,bindings,source_version,digest,code_pins,python_package_pins,stage_code_pins,stage_file_pins,stage_source_version
 
 # Every stage produces evidence that needs an explicit operator decision before consumption.
-STAGES=('prepare','precluster','fit','repair','unwrap','bake','paint','ownership','tone','palette','export','native','render')
+STAGES=('prepare','precluster','fit','repair','unwrap','bake','paint','masks','ownership','tone','palette','quality','export','native','render')
 
 
 def design_rows(data):
@@ -24,7 +24,7 @@ def stage_roles(stage,data):
     inputs=set(data.get('inputs',{}));palettes=set(data.get('palette',{}).get('inputs',{}).values())
     roles={'prepare':{r for r in inputs if r in ('clay','detail','design') or r.endswith(('Clay','Detail'))},
         'precluster':{'raw'},'fit':{'fitReference','comfyExport'},'repair':{'comfyExport','shellInspection','bodyNeck'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
-        'paint':{'uvMesh','basecolor4k'},
+        'paint':{'uvMesh','basecolor4k'},'masks':{'uvMesh','basecolor4k'},'quality':{'uvMesh'}|palettes,
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
         'tone':{'uvMesh','basecolor4k','metallic4k','ownership4k','ownership1k','detail','frontDetail'}|palettes,
         'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set()),'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
@@ -42,7 +42,7 @@ STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.re
     'repair':{'mesh!'+','.join(MESH_AFTER_REPAIR),'fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
     'tone':{'tone','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval'},
-    'native':{'fit'},'render':{'render','approval'}}
+    'native':{'fit'},'render':{'render','approval'},'masks':{'faceMasks'},'quality':{'quality','palette.inputs'}}
 
 
 def section_name(key):
@@ -62,7 +62,7 @@ def section_value(data,key):
 def stage_libraries(stage,data):
     """Byte-bound libraries a stage may load; enforced like stage_roles. Reviewed-UV reuse only audits, so it needs no xatlas."""
     if stage=='unwrap' and data.get('mesh',{}).get('reuseReviewedUvs',False):return set()
-    return {'precluster':{'igl','pymeshlab'},'repair':{'igl','pymeshlab'},'unwrap':{'xatlas'}}.get(stage,set())
+    return {'precluster':{'igl','pymeshlab'},'repair':{'igl','pymeshlab'},'unwrap':{'xatlas'},'masks':{'mediapipe','onnxruntime'}}.get(stage,set())
 
 
 def unworded(value):
@@ -197,11 +197,17 @@ class Runner:
             'tone':[] if 'basecolor4k' in inputs else ['bake'],
             'palette':[] if 'runtimeColor' in inputs else self._colour_stages() if self.tone_pass_through() else ['tone'],
             'export':([] if 'uvMesh' in inputs else ['unwrap'])+([] if 'runtimeShades' in inputs else ['palette'])+(['fit'] if staged else []),
+            'masks':([] if 'uvMesh' in inputs else ['unwrap'])+(['paint'] if 'paint' in self.data else [] if 'basecolor4k' in inputs else ['bake']),
+            'quality':([] if 'uvMesh' in inputs else ['unwrap'])+['masks','palette'],
             'native':['export'], 'render':([] if 'uvMesh' in inputs else ['unwrap'])+list(dict.fromkeys(self.data.get('render',{}).get('mapStages',{}).values()))
                 +(['ownership'] if self.data.get('render',{}).get('ownershipView') else [])}
         self._texture_dependencies(stage,table);dependencies=table[stage]
         if stage=='tone' and not any(role in inputs for role in ('ownership1k','ownership4k')):dependencies.append('ownership')
         if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
+        # Face masks (opt-in): channel moves read the masks, the colour treatment reads them too, and export waits for the quality gate.
+        if (stage=='ownership' and self.data.get('ownership',{}).get('featureChannels')) or (stage=='tone' and self.data.get('tone',{}).get('faceTreatment') is not None):
+            dependencies.append('masks')
+        if stage=='export' and 'quality' in self.data:dependencies.append('quality')
         if stage=='palette' and design_rows(self.data) and 'uvMesh' not in inputs and 'unwrap' not in dependencies:dependencies.append('unwrap')
         imported_atlases={'tone':('basecolor4k','ownership4k','ownership1k'),'palette':('runtimeColor','ownership1k'),
                           'export':('runtimeShades','ownership1k')}.get(stage,())
@@ -301,7 +307,8 @@ class Runner:
         """Tone without operations returns its input unchanged, so it is no stage: palette reads the colour itself and
         no review launch is spent on a byte copy. Imported 4K colour still goes through tone (it has no 1K map)."""
         tone=self.data.get('tone',{})
-        return tone.get('mode')=='adjust' and not tone.get('operations') and 'basecolor4k' not in self.data['inputs']
+        return (tone.get('mode')=='adjust' and not tone.get('operations') and tone.get('faceTreatment') is None
+                and 'basecolor4k' not in self.data['inputs'])
 
     def _colour_stages(self):
         return ['paint'] if 'paint' in self.data else ['bake']
@@ -396,6 +403,10 @@ class Runner:
             seal=None
             if self._sealed():seal=self.result('repair')['neck']['seal']['shellTriangles']
             return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps',seal_start=seal)
+        if stage=='masks':
+            from .face_masks import face_masks
+            require(isinstance(m.get('faceMasks'),dict),'Stage not configured: the manifest has no faceMasks section')
+            return face_masks(self.source('uvMesh','unwrap','mesh'),self._color4k(),b,folder/'masks')
         if stage=='ownership':
             from .palette import project_ownership
             source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={}
@@ -417,7 +428,17 @@ class Runner:
                 project_ownership(source,views,b['embree'],folder/'projected.png',max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005))
                 image=Image.open(folder/'projected.png').resize((4096,4096),Image.Resampling.NEAREST)
             require(np.max(np.asarray(image))<=9,'Unknown ownership must be resolved before proceeding')
-            image.save(folder/'ownership-4096.png');image.resize((1024,1024),Image.Resampling.NEAREST).save(folder/'ownership-1024.png')
+            onek=image.resize((1024,1024),Image.Resampling.NEAREST)
+            if config.get('featureChannels'):
+                # Channel roles from the face masks, then the 1K majority of each 4x4 block (the tone treatment keeps blocks consistent).
+                from .face_encode import apply_channels,majority,masks_at,CHANNEL_MASKS
+                from .gltf import mesh
+                from .textures import surface
+                require(image.size==(4096,4096),'Feature channels need the 4K ownership atlas')
+                _,owners,_=surface(mesh(source),4096,enforce=False)
+                labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0)
+                image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
+            image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
         if stage=='tone':
             from .textures import tone_match
@@ -449,6 +470,16 @@ class Runner:
                 keys={op['palette'] for op in m['tone'].get('operations',[]) if 'palette' in op}
                 result=adjust(color,ownership,m['tone'],{key:self.input(m['palette']['inputs'][key]) for key in keys},output)
             else:result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
+            if m['tone'].get('faceTreatment') is not None:
+                # Step 3 on the tone output with the feature-channel ownership; consistent 4x4 blocks before the 1K box filter.
+                from .face_encode import treat,masks_at,TREATMENT_MASKS
+                from .gltf import mesh
+                require(ownership_role=='ownership' and m['ownership'].get('featureChannels') is True,'Face treatment needs feature-channel ownership')
+                with Image.open(output) as image:rgb=np.asarray(image.convert('RGB'),np.float32)
+                with Image.open(ownership) as image:labels=np.asarray(image)
+                treated,result['faceTreatment']=treat(rgb,labels,masks_at(self.result('masks')['files'],TREATMENT_MASKS),
+                                                      mesh(self.source('uvMesh','unwrap','mesh')),m['tone']['faceTreatment'])
+                Image.fromarray(np.rint(treated).clip(0,255).astype(np.uint8)).save(output);result['output']=pin(output)
             result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
                           ownershipForTone=pin(ownership),ownershipUpsampling=upsampling)
             image=Image.open(output)
@@ -487,6 +518,11 @@ class Runner:
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result
+        if stage=='quality':
+            from .quality import quality
+            require(isinstance(m.get('quality'),dict),'Stage not configured: the manifest has no quality section')
+            palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
+            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality')
         if stage=='export':
             from .native import prepare
             source=self.source('uvMesh','unwrap','mesh')

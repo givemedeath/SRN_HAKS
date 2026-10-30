@@ -4111,9 +4111,9 @@ class DesignTests(Temporary):
             self.assertEqual((g['48']['inputs']['steps'],g['48']['inputs']['width'],g['26']['inputs']['guidance']),(FIXED['steps'],FIXED['size'],FIXED['guidance']))
             self.assertEqual((g['16']['inputs']['sampler_name'],g['89']['inputs']['strength_model']),(FIXED['sampler'],1.0))
     def test_spec_and_prompt_validation(self):
-        from headkit.design import load_spec,design_prompt,inpaint_prompt
+        from headkit.design import load_spec,design_prompt,inpaint_prompt,FEATURE_RULES
         spec=load_spec(self.spec)
-        self.assertEqual(design_prompt(spec,'troll-a'),'One adult troll head, ram horns.\nFront view, plain gray background.')
+        self.assertEqual(design_prompt(spec,'troll-a'),'One adult troll head, ram horns.\nFront view, plain gray background.\n'+FEATURE_RULES)
         self.assertEqual(inpaint_prompt(spec,'dark brown'),'A short neck of the same dark brown skin; dark brown pores.')
         for bad in ({'designs':{'a':'x'}},{'common':'c','designs':{}},{'common':'c','designs':{'Bad Name':'x'}},{'common':'c','designs':{'a':' '}},
                     {'common':'c','designs':{'a':'x'},'neckInpaint':'no placeholder'},{'common':'c','designs':{'a':'x'},'extra':1}):
@@ -4123,6 +4123,13 @@ class DesignTests(Temporary):
         for skin in ('',' brown','dark\nbrown','SKIN','x'*81):
             with self.subTest(skin=skin),self.assertRaises(ValueError):inpaint_prompt(spec,skin)
         with self.assertRaisesRegex(ValueError,'no neckInpaint'):inpaint_prompt({'common':'c','designs':{'a':'x'}},'brown')
+    def test_design_prompt_carries_and_guards_the_feature_rules(self):
+        from headkit.design import load_spec,design_prompt,FEATURE_RULES
+        for text in ('Dramatic lighting.','A rim-lit elf.','Backlit portrait.','Glossy eyes.','shiny irises','cinematic lighting'):
+            write(self.root/'rules.json',{'common':'Front view.','designs':{'a':'One elf head. '+text}})
+            with self.subTest(text=text),self.assertRaisesRegex(ValueError,'contradicts the face feature rules'):design_prompt(load_spec(self.root/'rules.json'),'a')
+        write(self.root/'rules.json',{'common':'Front view.','designs':{'a':'One elf head, sharp grey eyes, ink lines.'}})
+        self.assertTrue(design_prompt(load_spec(self.root/'rules.json'),'a').endswith(FEATURE_RULES))
     def test_design_prompt_refuses_ink_as_dark_as_the_hair(self):
         from headkit.design import load_spec,design_prompt,colour_conflict
         clash='One dwarf head.\nHair: black medium-length hair.\nTattoo: thin BLACK circuit lines on the cheek.'
@@ -4134,7 +4141,7 @@ class DesignTests(Temporary):
         write(self.root/'clash.json',{'common':'c','designs':{'a':clash}})
         with self.assertRaisesRegex(ValueError,'Design colours do not separate for a'):design_prompt(load_spec(self.root/'clash.json'),'a')
         write(self.root/'clash.json',{'common':'c','designs':{'a':clash},'colourReviewed':{'a':'ink split by position, reviewed'}})
-        self.assertTrue(design_prompt(load_spec(self.root/'clash.json'),'a').endswith('\nc'))
+        self.assertIn('\nc\n',design_prompt(load_spec(self.root/'clash.json'),'a'))
         for bad in ({'b':'note'},{'a':' '},['a']):
             write(self.root/'bad.json',{'common':'c','designs':{'a':clash},'colourReviewed':bad})
             with self.subTest(bad=bad),self.assertRaises(ValueError):load_spec(self.root/'bad.json')
@@ -4150,7 +4157,8 @@ class DesignTests(Temporary):
         receipt=read(result['receipt']);token=receipt['token']
         self.assertEqual((receipt['state'],receipt['kind'],receipt['seed'],receipt['batch'],receipt['promptId']),('complete','design',7,3,'prompt-7'))
         self.assertTrue(receipt['proposalOnly'] and receipt['reviewRequired']);self.assertIn('direct',receipt['dispatch'])
-        self.assertEqual(receipt['prompt'],'One adult troll head, ram horns.\nFront view, plain gray background.')
+        from headkit.design import FEATURE_RULES
+        self.assertEqual(receipt['prompt'],'One adult troll head, ram horns.\nFront view, plain gray background.\n'+FEATURE_RULES)
         self.assertEqual(receipt['graphSha256'],digest(receipt['graph']));self.assertEqual(receipt['graph']['47']['inputs']['batch_size'],3)
         self.assertEqual(receipt['outputPrefix'],f'{SUBFOLDER}/{token}/troll-a-s7');self.assertEqual(receipt['spec'],pin(self.spec))
         self.assertEqual(receipt['bindings'],pin(self.bindings));self.assertIsInstance(receipt['elapsedSeconds'],float)
