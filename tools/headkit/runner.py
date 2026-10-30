@@ -438,7 +438,8 @@ class Runner:
                 from .textures import surface
                 require(image.size==(4096,4096),'Feature channels need the 4K ownership atlas')
                 _,owners,_=surface(mesh(source),4096,enforce=False)
-                labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0)
+                with Image.open(self._color4k()) as colour:colour=np.asarray(colour.convert('RGB'))
+                labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0,colour)
                 image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
             image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}

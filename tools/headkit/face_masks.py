@@ -31,7 +31,8 @@ BROW_RING = {'R': [70, 63, 105, 66, 107, 55, 65, 52, 53, 46], 'L': [300, 293, 33
 BROW_SEED = .25            # parser share of a landmark brow polygon below which the polygon seeds that brow (RUNBOOK 143)
 LOCK_RATIO, LOCK_SEPARATION = .6, 30   # hair locks: nearer hair than skin by this ratio; colours at least this far apart (RUNBOOK 133)
 SEEN_DEPTH, SEEN_FACING, FILL = .002, .1, .012   # depth match and unseen-texel fill distance, fractions of head width
-MASKS = ('brow', 'eye', 'iris', 'lips', 'nose', 'hair', 'skin', 'ear', 'hairlock', 'lipline', 'socket')
+NOSE_BASE = 2              # MediaPipe subnasale: the beard zone starts below it (RUNBOOK 145)
+MASKS = ('brow', 'eye', 'iris', 'lips', 'nose', 'hair', 'skin', 'ear', 'hairlock', 'beard', 'lipline', 'socket')
 
 
 def front_view(value, embree, size=RENDER):
@@ -183,7 +184,8 @@ def render_masks(rgb, labels, pts, circles, hit):
     seed = brow_seed(labels, pts, eyes, hit); face = face_hull(labels.shape, pts); locks = hair_locks(rgb, labels, hit, face, plain_skin(labels, face, eyes, seed))
     locks = np.zeros((S, S), bool) if locks is None else locks
     hard = {'brow': brow_mask(rgb, labels, seed, eyes, hit), 'eye': opening, 'lips': np.isin(labels, (MOUTH,)+LIPS), 'nose': labels == NOSE,
-            'hair': (labels == HAIR) | locks, 'ear': np.isin(labels, EARS), 'skin': (labels == SKIN) & ~locks, 'hairlock': locks}
+            'hair': (labels == HAIR) | locks, 'ear': np.isin(labels, EARS), 'skin': (labels == SKIN) & ~locks, 'hairlock': locks,
+            'beard': hit & (ys > pts[NOSE_BASE, 1])}   # the parser has no beard class: below the nose, colour decides (face_encode)
     soft = {k: gaussian_filter(v.astype(np.float32), SOFT) for k, v in hard.items()}
     soft['iris'] = iris*gaussian_filter(opening.astype(np.float32), .7); soft['eye'] = np.maximum(soft['eye'], soft['iris'])
     # Darks from landmarks: the lip line and an eye-socket shadow, full strength above the eye and 40% below (step 3).

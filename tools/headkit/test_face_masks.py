@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from headkit.common import manifest, write, read
 from headkit.face_masks import hair_locks, brow_seed, brow_mask, iris_circles, IRIS, BROW_RING, HAIR, SKIN
-from headkit.face_encode import apply_channels, majority, consistent_blocks, treat, TREATMENT
+from headkit.face_encode import apply_channels, beard_hair, majority, consistent_blocks, treat, TREATMENT
 from headkit.quality import eligible, shade_span_failures, CHECKS, THRESHOLDS
 from headkit.uv import face_region
 from headkit.runner import STAGES, stage_roles, stage_libraries
@@ -70,6 +70,20 @@ class Brows(unittest.TestCase):
         labels[20:30, 60:70] = 3                                                                                # a stray parser brow
         seed = brow_seed(labels, self.landmarks(), np.zeros((S, S), bool), np.ones((S, S), bool))
         self.assertTrue(seed[48:62, 15:105].all() and seed[48:62, 115:205].all()); self.assertFalse(seed[20:30].any())
+
+
+class Beard(unittest.TestCase):
+    def test_hair_coloured_beard_stays_hair_below_the_nose(self):
+        # RUNBOOK 145: the parser calls beards skin. Grey beard (owned hair) and a skin-coloured patch the hair rule over-took,
+        # both under the parser skin mask; only the beard zone is judged by colour.
+        S = 64; labels = np.zeros((S, S), np.uint8); colour = np.zeros((S, S, 3), np.uint8); colour[:] = (190, 140, 100)
+        labels[:8] = 1; colour[:8] = (120, 120, 120)                                   # scalp hair, outside the parser skin
+        labels[40:50, 10:30] = 1; colour[40:50, 10:30] = (150, 150, 150)               # beard, a lighter grey
+        labels[40:50, 34:54] = 1                                                       # skin-coloured, owned hair by a rule
+        masks = {'skin': np.zeros((S, S), np.float32), 'brow': np.zeros((S, S), np.float32), 'beard': np.zeros((S, S), np.float32)}
+        masks['skin'][8:] = 1; masks['beard'][32:] = 1; skinlike = masks['skin'] > .5; mapped = np.ones((S, S), bool)
+        keep = beard_hair(labels, masks, mapped, colour, skinlike)
+        self.assertTrue(keep[40:50, 10:30].all()); self.assertFalse(keep[40:50, 34:54].any()); self.assertFalse(keep[:32].any())
 
 
 class Iris(unittest.TestCase):

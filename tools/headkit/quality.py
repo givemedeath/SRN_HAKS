@@ -10,7 +10,7 @@ from PIL import Image
 from scipy.ndimage import label, binary_dilation, binary_erosion, binary_opening
 from .common import require, pin, write, read
 from .gltf import mesh
-from .face_masks import EYE_RING, IRIS, LIPS, polygon, face_hull, brow_seed, plain_skin, hair_locks, sample, nearest
+from .face_masks import EYE_RING, IRIS, LIPS, NOSE_BASE, polygon, face_hull, brow_seed, plain_skin, hair_locks, sample, nearest
 
 THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
 FACE_PX = 100; DECODE_ROWS = {'1': 117, '8': 26}; TOP = 12
@@ -83,7 +83,8 @@ def quality(source, masks, palette, palettes, output, thresholds=None):
     r['blotchPx'] = int(np.bincount(parts.ravel())[1:].max()) if n else 0
     share = lambda region, layer: round(float(np.isin(channel[region], layer).mean()), 3) if region.any() else None
     r['browsOnHair'] = share(brows, (1,)); r['irisOnTattoo1'] = share(iris, (8,)); r['whitesOnSkin'] = share(whites, (0,))
-    r['hairOnFaceSkin'] = share(plain & ~locks if locks is not None else plain, (1,))
+    # Above the nose only: below it the parser has no beard class and ownership keeps hair-coloured beards hair (RUNBOOK 145).
+    upper = plain & (ys < pts[NOSE_BASE, 1]); r['hairOnFaceSkin'] = share(upper & ~locks if locks is not None else upper, (1,))
     r['hairLockOnSkinPx'] = None
     if locks is not None:
         parts, n = label(small((locks & (channel == 0)).astype(np.uint8)*255) > 127, np.ones((3, 3))); r['hairLockOnSkinPx'] = int(np.bincount(parts.ravel())[1:].max()) if n else 0

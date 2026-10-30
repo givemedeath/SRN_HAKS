@@ -160,6 +160,7 @@ Use `examples/processing.json` as the input-role map. Fill annotations per head;
      - eye whites, lids, lips and nose go to skin;
      - brows and hair locks go to hair;
      - lash lines and old tattoo iris rings go to skin.
+     - below the nose the parser has no beard class, so owned hair stays hair where its colour is clearly hair (beards, moustaches); the quality gate measures hair on face skin above the nose only.
 
      Gutters are re-padded, and the 1K atlas takes each 4x4 block's majority channel.
    - **Tone:** `faceTreatment` runs after the adjust or match:
