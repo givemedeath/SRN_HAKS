@@ -107,6 +107,15 @@ class Channels(unittest.TestCase):
         self.assertTrue((o[95:105, 100:200] == 1).all()); self.assertTrue((o[105:110, 100:200] == 0).all())
         self.assertTrue((o[3000:3010, 3000:3010] == 1).all()); self.assertEqual(report['hairLockToHair'], 100)
 
+    def test_tattoo1_holds_only_the_iris(self):
+        # rule-owned tattoo1 away from the eye (troll horns, tusks) takes tattoo2; tattoo2 ink stays (user 2026-10-30)
+        labels = np.zeros((4096, 4096), np.uint8); labels[2000:2010, 2000:2020] = 8; labels[2500:2510, 2500:2510] = 9
+        masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock'); mapped = np.ones((4096, 4096), bool)
+        masks['eye'][1000:1020, 1000:1040] = 1; masks['iris'][1005:1015, 1015:1025] = 1
+        o, report = apply_channels(labels, masks, mapped)
+        self.assertTrue((o[2000:2010, 2000:2020] == 9).all()); self.assertTrue((o[2500:2510, 2500:2510] == 9).all())
+        self.assertEqual(report['tattoo1ToTattoo2'], 200); self.assertEqual(int((o == 8).sum()), 100)
+
     def test_majority_and_consistent_blocks(self):
         labels = np.zeros((8, 8), np.uint8); labels[0, :3] = 1; labels[1, :3] = 1; labels[0:2, 3] = 9
         self.assertEqual(majority(labels).tolist(), [[0, 0], [0, 0]])

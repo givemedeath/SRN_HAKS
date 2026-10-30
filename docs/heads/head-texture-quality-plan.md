@@ -31,7 +31,7 @@ Known facts to keep:
   | hair (1) | Hair, eyebrows, beards and stubble (user 2026-10-29) |
   | metal1, metal2 (2-3) | Cyberwear |
   | tattoo1 (8) | Iris, so eye colour is always player-selectable |
-  | tattoo2 (9) | Open to the design: tattoos, scars, markings |
+  | tattoo2 (9) | Open to the design: tattoos, scars, markings. Orc and troll heads: tusks and horns instead; their design ink goes to skin (user 2026-10-30) |
 
 ## Crosscheck (independent research, 2026-10-29)
 

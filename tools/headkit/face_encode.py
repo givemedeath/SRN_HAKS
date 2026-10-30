@@ -1,7 +1,8 @@
 """PLT channels and colour treatment from the face masks (steps 2-3 of docs/heads/head-texture-quality-plan.md).
 
-Channel roles (user rule 2026-10-29): iris -> tattoo1 (8); eye whites, lids, lips and nose -> skin (0); brows, beards and hair
-locks -> hair (1); other channels as owned. Each boundary sits in a dark line painted on both sides (iris rim, lid line, brow edge), and
+Channel roles (user rule 2026-10-29): iris -> tattoo1 (8), and only the iris; eye whites, lids, lips and nose -> skin (0); brows,
+beards and hair locks -> hair (1); other tattoo1 texels -> tattoo2 (9), which on orc and troll heads holds their tusks and horns
+(user 2026-10-30: head metal/cloth/leather follow the worn armour); other channels as owned. Each boundary sits in a dark line painted on both sides (iris rim, lid line, brow edge), and
 each 4x4 block of 4K texels takes its 1K colour only from texels of its majority channel."""
 import numpy as np
 from PIL import Image
@@ -59,6 +60,8 @@ def apply_channels(labels, masks, mapped, colour=None):
     report = {'oldIrisRingToSkin': int(ring.sum()), 'lashToSkin': int(lash.sum()), 'beardKeptHair': int(beard.sum())}
     o[ring] = 0; o[lash] = 0
     o[skinlike & (o == 1)] = 0; o[eye & ~iris] = 0; o[brow & (o == 0)] = 1; o[iris] = 8
+    # tattoo1 is the iris only; whatever else the rules owned there (troll horns and tusks, old ink) takes tattoo2 (user 2026-10-30)
+    off_iris = (o == 8) & ~iris & mapped; report['tattoo1ToTattoo2'] = int(off_iris.sum()); o[off_iris] = 9
     lock = (masks['hairlock'] > .5) & mapped & (o == 0) & ~near_eye; report['hairLockToHair'] = int(lock.sum()); o[lock] = 1
     o = pad(o[..., None], mapped)[..., 0]
     report['moved'] = {f'{a}->{b}': int(((before == a) & (o == b) & mapped).sum()) for a in range(10) for b in range(10)
