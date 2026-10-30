@@ -483,7 +483,7 @@ class Runner:
                                            mesh(self.source('uvMesh','unwrap','mesh')),layers,folder/'design-reference.png')
                 write(folder/'design-reference.json',reference,fresh=True);design=reference['channels']
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
-                            tone_match=m['palette'].get('toneMatch'),design=design)
+                            tone_match=m['palette'].get('toneMatch'),design=design,full_range=m['palette'].get('fullShadeRange') is True)
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result

@@ -1795,7 +1795,7 @@ class ToneMatchTests(Temporary):
         rgb=np.repeat(luma[...,None],3,2);labels=np.zeros((1024,1024),np.uint8);labels[:,900:]=1
         Image.fromarray(rgb).save(self.root/'c.png');Image.fromarray(labels).save(self.root/'o.png')
         palette=np.full((2,256,4),255,np.uint8);palette[0,:,:3]=np.arange(256)[:,None];palette[1,:,:3]=255-np.arange(256)[:,None]
-        palette[0,7,3]=0;Image.fromarray(palette).save(self.root/'p.png')
+        palette[0,7,3]=0;palette[:,255,3]=0;Image.fromarray(palette).save(self.root/'p.png')  # 255 is transparent, as in the game palettes
         write(self.root/'refs.json',{'schemaVersion':1,'references':{'ref':{'layer':0,'quantiles':np.linspace(40,180,101).tolist()}}})
         return luma,labels,{'0':str(self.root/'p.png'),'1':str(self.root/'p.png')},{'0':0,'1':0}
     def test_opt_in_match_reaches_the_reference_keeps_order_and_isolates_channels(self):
@@ -1826,6 +1826,33 @@ class ToneMatchTests(Temporary):
                 with self.assertRaisesRegex(ValueError,message):
                     quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/f'bad{index}',shade_offsets=offsets,tone_match=spec)
                 self.assertFalse((self.root/f'bad{index}').exists())
+    def test_full_range_stretches_every_varied_channel_and_keeps_order(self):
+        luma,labels,palettes,rows=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            plain=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'plain')
+            full=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'full',full_range=True)
+            toned=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'toned',tone_match={'0':{'reference':'ref'}},full_range=True)
+        self.assertNotIn('shadeRange',plain['layers']['0'])
+        for result in (full,toned):
+            shades=np.asarray(Image.open(result['shades']['path']))
+            for key in ('0','1'):
+                selected=labels==int(key);report=result['layers'][key]['shadeRange']
+                self.assertEqual(report['eligible'],[0,253]);self.assertTrue(report['checked']);self.assertGreaterEqual(report['spanFraction'],.5)
+                order=np.argsort(luma[selected],kind='stable');self.assertTrue(np.all(np.diff(shades[selected][order].astype(int))>=0))
+                self.assertFalse({6,7,254}&set(np.unique(shades[selected]).tolist()))  # transparent shades and their lower neighbours
+        narrow=np.asarray(Image.open(plain['shades']['path']))[labels==0]
+        self.assertLess(np.percentile(narrow,99)-np.percentile(narrow,1),127)  # the nearest-colour fixture is the narrow case
+    def test_full_range_exempts_flat_channels_and_refuses_narrow_varied_ones(self):
+        _,_,palettes,rows=self.fixture()
+        Image.new('RGB',(1024,1024),(90,90,90)).save(self.root/'flat.png')
+        flat=quantize(self.root/'flat.png',self.root/'o.png',palettes,rows,self.root/'flat',full_range=True)
+        self.assertFalse(flat['layers']['0']['shadeRange']['checked'])
+        self.assertTrue(np.all(np.asarray(Image.open(flat['shades']['path']))==90))
+        with patch('headkit.palette.FULL_RANGE_SPAN',.999),self.assertRaisesRegex(ValueError,'full shade range required'):  # the guard trips
+            quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'spiky',full_range=True)
+        with self.assertRaisesRegex(ValueError,'not both'):
+            quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'offset',shade_offsets={'0':4},full_range=True)
+        self.assertFalse((self.root/'spiky').exists());self.assertFalse((self.root/'offset').exists())
     def test_plt_reader_and_reference_count_shared_textures_once(self):
         from headkit.palette import plt_shades,shade_reference
         def plt(name,shades,layers):
@@ -1864,6 +1891,10 @@ class ToneMatchTests(Temporary):
                                input=lambda name:name+'.png')
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
         self.assertEqual(quantizer.call_args.kwargs['tone_match'],{'0':{'reference':'troll-male-skin-v1'}})
+        self.assertIs(quantizer.call_args.kwargs['full_range'],False)
+        runner.data['palette']['fullShadeRange']=True
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
+        self.assertIs(quantizer.call_args.kwargs['full_range'],True)
         runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
             Runner._execute(runner,'palette',self.root)

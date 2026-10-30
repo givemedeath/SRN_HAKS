@@ -75,6 +75,11 @@ def rank_rows(color, ownership, palette_files, *, keep=4, chunk=512):
 
 
 REFERENCES=Path(__file__).with_name('stock-shades.json');GRID=(.05,.25,.5,.75,.95)
+# Full shade range (user rule 2026-10-29, RUNBOOK 121): every channel may use all shades its row offers. A channel with at least
+# FULL_RANGE_PIXELS texels and a source luma p1-p99 spread of at least FLAT_LUMA must reach FULL_RANGE_SPAN of that range (p1-p99).
+FULL_RANGE_PIXELS=1024;FLAT_LUMA=8.0;FULL_RANGE_SPAN=.5
+# Full-range shades also need an opaque next shade: in the client shade 254 picks up the transparent reserved 255 and renders as
+# dark blotches (elf-male-a brow highlights, 2026-10-29), so a shade whose upper neighbour is transparent is never used.
 # Design-referenced rows (toneMatch rowFrom 'design'): lightness weight of the Lab distance (the matched shades already
 # set lightness, so hue and chroma decide), front-view size, label erosion and the minimum design sample. Validated on the
 # troll heads' hand-pinned skin rows: closer to the pin than the bake-referenced row on 16 of 20 (median 6.0 vs 10.6).
@@ -203,11 +208,20 @@ def rows_for_shades(target, shades, palette, *, keep=4):
     return [{'row':row,'meanSquaredColorError':error} for error,row in scores[:keep]]
 
 
-def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None):
+def stretch(quantiles, lo, hi, *, tail=.005):
+    """A quantile function resampled to 1001 points and moved linearly so its `tail` and 1-`tail` points sit on the lowest
+    and highest eligible shade (a few outlier texels cannot hold the rest of the channel in a narrow band); tails clip."""
+    q=np.asarray(quantiles,float);q=np.interp(np.linspace(0,1,1001),np.linspace(0,1,len(q)),q);a,b=np.interp([tail,1-tail],np.linspace(0,1,1001),q)
+    return np.clip(lo+(q-a)/max(b-a,1e-9)*(hi-lo),lo,hi)
+
+
+def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None, full_range=False):
     """Nearest-colour shades per channel. Opt-in `tone_match` ({channel: {'reference': name}}) instead remaps a channel's shades
     by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads.
     A tone-matched 'auto' row comes from the source colours, or with `rowFrom: 'design'` from the design's colour for the
-    channel (`design`: design_reference channels), keeping the source-colour row in the report."""
+    channel (`design`: design_reference channels), keeping the source-colour row in the report. `full_range` stretches every
+    varied channel's shade distribution (its stock reference, else its nearest-colour shades) across all eligible shades of its
+    row, then rank-maps onto it, and refuses a varied channel that still spans less than FULL_RANGE_SPAN of that range."""
     require(set(rows)==set(palette_files),'Every selected layer needs its own stock palette image')
     rgb=np.asarray(Image.open(color).convert('RGB'),np.uint8)
     with Image.open(ownership) as image:
@@ -248,15 +262,29 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         require(type(offset) is int and abs(offset)<=32,'Bounded reviewed stock-skin shade offset required')
         if offset:
             shifted=np.clip(picked+offset,0,254);_,near=cKDTree(allowed[:,None]).query(shifted[:,None]);picked=allowed[near]
+        if full_range:
+            allowed=allowed[palette[row,np.minimum(allowed+1,255),3]>0];require(len(allowed)>0,'No palette shade with an opaque next shade')
+            _,near=cKDTree(allowed[:,None]).query(picked[:,None]);picked=allowed[near]
+        lo,hi=int(allowed.min()),int(allowed.max());luma=target@np.array([.299,.587,.114])
+        varied=bool(len(target)) and float(np.percentile(luma,99)-np.percentile(luma,1))>=FLAT_LUMA
+        if full_range:require(not offset,'Use a shade offset or the full shade range for a channel, not both')
         if spec is not None:
             require(not offset,'Use a shade offset or tone matching for a channel, not both')
-            nearest=picked;picked=match_shades(target,allowed,quantiles)
+            nearest=picked;picked=match_shades(target,allowed,stretch(quantiles,lo,hi) if full_range and varied else quantiles)
             matched={'reference':spec['reference'],'referenceFile':pin(REFERENCES),'before':shade_stats(nearest),'after':shade_stats(picked),
                      'referencePercentiles':{f'p{round(q*100)}':float(np.interp(q,np.linspace(0,1,len(quantiles)),quantiles)) for q in GRID},
                      'meanSquaredColorErrorBefore':float(np.mean((target-table[nearest])**2)),'rowsAfter':rows_for_shades(target,picked,palette)}
+        elif full_range and varied:picked=match_shades(target,allowed,stretch(np.quantile(picked,np.linspace(0,1,1001)),lo,hi))
+        if full_range:
+            span=float(np.percentile(picked,99)-np.percentile(picked,1)) if len(picked) else 0.0
+            checked=varied and len(picked)>=FULL_RANGE_PIXELS;fraction=span/max(hi-lo,1)
+            require(not checked or fraction>=FULL_RANGE_SPAN,f'Channel {key} spans {span:.0f} of {hi-lo} available shades (p1-p99); full shade range required')
+            range_report={'eligible':[lo,hi],'p1':float(np.percentile(picked,1)) if len(picked) else None,
+                          'p99':float(np.percentile(picked,99)) if len(picked) else None,'spanFraction':round(fraction,3),'checked':checked}
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
         report[key]={'pixels':int(selected.sum()),'meanSquaredColorError':float(np.mean((target-table[picked])**2)),'shadeOffset':offset}
         if spec is not None:report[key]['toneMatch']=matched
+        if full_range:report[key]['shadeRange']=range_report
         if spec is not None and spec.get('rowFrom')=='design' and rows[key]=='auto':report[key]['designRow']=chosen
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     Image.fromarray(shades).save(output/'shades.png');Image.fromarray(layers).save(output/'layers.png');Image.fromarray(decoded).save(output/'decoded.png')
