@@ -8,7 +8,7 @@ import numpy as np
 from headkit.common import manifest, write, read
 from headkit.face_masks import hair_locks, brow_mask, iris_circles, IRIS, HAIR, SKIN
 from headkit.face_encode import apply_channels, majority, consistent_blocks, treat, TREATMENT
-from headkit.quality import eligible, CHECKS, THRESHOLDS
+from headkit.quality import eligible, shade_span_failures, CHECKS, THRESHOLDS
 from headkit.uv import face_region
 from headkit.runner import STAGES, stage_roles, stage_libraries
 
@@ -115,6 +115,11 @@ class Quality(unittest.TestCase):
     def test_thresholds_complete_and_eligible_range(self):
         self.assertEqual(set(read(THRESHOLDS)['limits']), CHECKS)
         row = np.zeros((256, 4), np.uint8); row[10:200, 3] = 255; self.assertEqual(eligible(row), (10, 198))
+
+    def test_flat_channels_keep_the_palette_exemption(self):
+        palette = {'layers': {'0': {'shadeRange': {'checked': True}}, '2': {'shadeRange': {'checked': False}}, '9': {}}}
+        fails, exempt = shade_span_failures({'0': .5, '2': 0.0, '9': .9}, palette, .75)
+        self.assertEqual(fails, ['shadeSpan0']); self.assertEqual(exempt, ['2'])
 
 
 class Wiring(unittest.TestCase):

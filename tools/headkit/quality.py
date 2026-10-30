@@ -26,6 +26,13 @@ def eligible(row):
     return (int(index.min()), int(index.max())) if len(index) else (0, 254)
 
 
+def shade_span_failures(spans, palette, minimum):
+    """Failed shadeSpan checks and the exempt channels: a channel the palette left flat (shadeRange.checked false, its source
+    luminance spread below FLAT_LUMA) has no span to keep, as quantize(full_range=True) itself exempts it."""
+    flat = {k for k, layer in (palette.get('layers') or {}).items() if (layer.get('shadeRange') or {}).get('checked') is False}
+    return [f'shadeSpan{k}' for k, v in spans.items() if v < minimum and k not in flat], sorted(flat & set(spans))
+
+
 def quality(source, masks, palette, palettes, output, thresholds=None):
     """masks: the masks stage result; palette: the palette stage result; palettes: {layer: palette image path}."""
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
@@ -102,7 +109,7 @@ def quality(source, masks, palette, palettes, output, thresholds=None):
              ('browsOnHair', (r['browsOnHair'] or 0) >= limits['browsOnHairMin']), ('irisOnTattoo1', (r['irisOnTattoo1'] or 0) >= limits['irisOnTattoo1Min']),
              ('whitesOnSkin', (r['whitesOnSkin'] or 0) >= limits['whitesOnSkinMin']),
              ('hairOnFaceSkin', r['hairOnFaceSkin'] is None or r['hairOnFaceSkin'] <= limits['hairOnFaceSkinMax'])) if not ok]
-    fails += [f'shadeSpan{k}' for k, v in r['shadeSpan'].items() if v < limits['shadeSpanMin']]
+    span_fails, r['shadeSpanExempt'] = shade_span_failures(r['shadeSpan'], palette, limits['shadeSpanMin']); fails += span_fails
     warnings = [f"{r['designSpecks']} design-channel specks: thin marks break up at game size"] if r['designSpecks'] > limits['designSpecksWarn'] else []
     preview = np.repeat(np.clip(luma, 0, 255).astype(np.uint8)[..., None], 3, 2)
     Image.fromarray(preview).resize((preview.shape[1]*3, preview.shape[0]*3), Image.Resampling.NEAREST).save(output/'game-size.png')
