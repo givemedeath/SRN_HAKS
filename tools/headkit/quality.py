@@ -81,12 +81,16 @@ def quality(source, masks, palette, palettes, output, thresholds=None):
     if locks is not None:
         parts, n = label(small((locks & (channel == 0)).astype(np.uint8)*255) > 127, np.ones((3, 3))); r['hairLockOnSkinPx'] = int(np.bincount(parts.ravel())[1:].max()) if n else 0
     # Specks: 1-2 px channel islands inside the face at game size. Skin/hair/iris islands are ownership speckle; tattoo2/metal
-    # islands are thin design marks breaking up (a design matter, warning only).
+    # islands are thin design marks breaking up (a design matter, warning only). Islands touching the face outline are the hull
+    # clipping a hair/skin edge (face-edge locks, RUNBOOK 138), not speckle, and do not count.
     game = small(np.where(face, channel, 255).astype(np.uint8), True).astype(int); inside = mask(face); r['specks'] = r['designSpecks'] = 0
+    outline = inside & ~binary_erosion(inside, np.ones((3, 3)))
     for k in np.unique(game[inside]):
         if k == 255: continue
         parts, n = label((game == k) & inside, np.ones((3, 3)))
-        if n: r['specks' if k in (0, 1, 8) else 'designSpecks'] += int((np.bincount(parts.ravel())[1:] <= 2).sum())
+        if not n: continue
+        small_parts = np.bincount(parts.ravel()) <= 2; small_parts[0] = False; small_parts[np.unique(parts[outline])] = False
+        r['specks' if k in (0, 1, 8) else 'designSpecks'] += int(small_parts.sum())
     r['shadeSpan'] = {}
     for k in np.unique(layers):
         values = shades[layers == k]

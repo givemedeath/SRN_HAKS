@@ -1,8 +1,9 @@
 {
-  "description": "Face masks (opt-in, all five sections together): merge into a processing manifest. faceDensity gives the face charts 3x the texel density of the rest; masks parse the head's own front render; featureChannels moves iris to tattoo1, eyes/lips/nose to skin, brows and hair locks to hair; faceTreatment is step 3 of docs/heads/head-texture-quality-plan.md (these are its defaults); quality gates export. Validated on elf heads only (2026-10-30): check other races in the client before use. The bindings need libraries.mediapipe and libraries.onnxruntime (the .tools/headkit-facemasks-v1 folder) and Embree 4.4.0.",
+  "description": "Face masks (opt-in, all six sections together; the quality gate measures shade span, so palette.fullShadeRange is required): merge into a processing manifest. faceDensity gives the face charts 3x the texel density of the rest; masks parse the head's own front render; featureChannels moves iris to tattoo1, eyes/lips/nose to skin, brows and hair locks to hair; faceTreatment is step 3 of docs/heads/head-texture-quality-plan.md (these are its defaults); quality gates export. Validated on elf heads only (2026-10-30): check other races in the client before use. The bindings need libraries.mediapipe and libraries.onnxruntime (the .tools/headkit-facemasks-v1 folder) and Embree 4.4.0.",
   "mesh": {"uv": {"faceDensity": 3}},
   "faceMasks": {},
   "ownership": {"featureChannels": true},
   "tone": {"faceTreatment": {"delight": 0.8, "smooth": 0.7, "lipDark": 0.5, "socket": 0.3, "irisRim": 0.45, "lidLine": 0.6, "browEdge": 0.95}},
-  "quality": {}
+  "quality": {},
+  "palette": {"fullShadeRange": true}
 }

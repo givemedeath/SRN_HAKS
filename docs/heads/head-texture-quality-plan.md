@@ -1,6 +1,6 @@
 # Head texture quality plan (prototype and test)
 
-Date: 2026-10-29 (rev 2, after the crosscheck below). Status: steps 0-3 and 5 passed as prototypes; adoption into headkit approved 2026-10-30 ([headkit-face-masks-adoption-plan.md](headkit-face-masks-adoption-plan.md)), opt-in via the `masks` and `quality` stages; step 7 rules are enforced in `design.py`. Step 4 not started.
+Date: 2026-10-29 (rev 2, after the crosscheck below). Status: steps 0-3 and 5 passed as prototypes; adoption into headkit approved 2026-10-30 ([headkit-face-masks-adoption-plan.md](headkit-face-masks-adoption-plan.md)), opt-in via the `masks` and `quality` stages, parity-validated on three elf heads and in the client 2026-10-30; step 7 rules are enforced in `design.py`. Step 4 not started.
 
 Scope: prototypes outside the approved pipeline. No stage runs and no ledger or shipped-asset changes until a step passes its gate and the user approves adoption into headkit.
 

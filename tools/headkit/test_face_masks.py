@@ -91,6 +91,24 @@ class Region(unittest.TestCase):
         faces = np.array([[0, 1, 2], [3, 4, 5]]); face, area = face_region(positions, faces)
         self.assertEqual(face.tolist(), [True, False]); self.assertAlmostEqual(area[0], .5)
 
+    def scene(self, shared):
+        """A front quad (face) and a back quad at the same UV density; `shared` joins one face and one back triangle
+        into a single chart (a shared UV vertex), as mixed charts do on the real heads."""
+        positions = np.array([[0, 0, 1], [1, 0, 1], [1, .5, 1], [0, .5, 1], [0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]], float)
+        faces = np.array([[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7]])
+        x = .3 if shared else .5   # shared: the back chart's first corner is the face chart's (.3, .2) corner
+        uv = np.array([[[.1, .1], [.3, .1], [.3, .2]], [[.1, .1], [.3, .2], [.1, .2]],
+                       [[x, .2], [x, .4], [x+.2, .4]], [[x, .2], [x+.2, .4], [x+.2, .2]]])
+        return positions, faces, uv
+
+    def test_face_priority_reaches_the_ratio_on_pure_face_charts(self):
+        from headkit.test_headkit import FakePacker
+        from headkit.uv import face_priority
+        positions, faces, uv = self.scene(False); _, report = face_priority(FakePacker(), uv, positions, faces, 3.0, 2)
+        self.assertAlmostEqual(report['measuredDensityRatio'], 3.0, delta=.3)
+        positions, faces, uv = self.scene(True); _, mixed = face_priority(FakePacker(), uv, positions, faces, 3.0, 2)
+        self.assertLess(mixed['measuredDensityRatio'], 1.2)   # one chart, one scale: a mixed chart gives the face nothing extra
+
 
 class Quality(unittest.TestCase):
     def test_thresholds_complete_and_eligible_range(self):
@@ -109,9 +127,10 @@ class Wiring(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder)/'m.json'; base = {'schemaVersion': 1, 'id': 'x', 'inputs': {}}
             write(path, base); manifest(path)
-            full = dict(base, faceMasks={}, quality={}, ownership={'featureChannels': True}, tone={'faceTreatment': {}})
+            full = dict(base, faceMasks={}, quality={}, ownership={'featureChannels': True}, tone={'faceTreatment': {}},
+                        palette={'fullShadeRange': True})
             path.write_text(json.dumps(full)); manifest(path)
-            for drop in ('faceMasks', 'quality'):
+            for drop in ('faceMasks', 'quality', 'palette'):
                 path.write_text(json.dumps({k: v for k, v in full.items() if k != drop}))
                 with self.assertRaises(ValueError): manifest(path)
 

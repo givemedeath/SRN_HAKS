@@ -115,3 +115,32 @@ Changes to existing files:
 - **Client check:** trial `stockcmp-v12`, checked at 0.9 m and 2.5 m (hair 117/17/5, tattoo1 26/153) next to the prototypes on slots 193-195.
 
 **Not run:** no HAK rebuild, since no pack inputs change, and no shipped heads change.
+
+## Results (2026-10-30)
+
+Parity runs passed through the real runner, with launch receipts valid at every stage. Scratch evidence is in `race-heads-v1/trials/headkit-features-v1` and `trials/stockcmp-v12/evidence`.
+
+| Head | featureFocus (headkit / prototype) | cheekNoise | Interior specks | Blotch, lock px | Roles (brows, iris, whites, hair on skin) |
+|---|---|---|---|---|---|
+| elf-male-a | 6.32 / 6.11 | 2.00 / 2.00 | 0 | 0, 0 | .897 .954 .977 .017 (prototype .889 .963 .957 .017) |
+| elf-male-c | 5.60 / 8.65 | 2.59 / 1.66 | 2 | 0, 0 | .905 .948 .982 .002 (prototype .909 .925 .983 .002) |
+| elf-male-d | 10.54 / 17.84 | 1.13 / 0.59 | 1 | 0, 0 | .949 .903 .980 .000 (prototype .947 .890 .977 .000) |
+
+- **Within tolerance:** every head passes the quality gate. Roles are within 0.03 of the prototype, and blotch and lock pixels are zero. Every checked shade span is 0.81-0.95.
+- **Outside ±15%:** featureFocus for c and d. Cheek noise roughly doubled because the bake on the denser face layout keeps skin detail (pores, freckles) that the prototype's 3D remap of the old bake blurred. Feature contrast is the same. Both still pass the gate (≥ 5).
+- **Face density:** `faceDensity` 3 measured 2.03-2.12x the rest's area density, up from 0.95-1.01x. That is the prototype's algorithm. Face triangles share charts with about 3x their area of non-face triangles, so the chart-averaged scale dilutes (RUNBOOK 136). The docs now call it a request, and a unit test covers pure and mixed charts.
+
+Fixed during the parity runs:
+
+| RUNBOOK | Problem | Fix |
+|---|---|---|
+| 137 | The port dropped the prototypes' `quantize(full_range=True)` | The manifest now refuses the face-mask sections without `palette.fullShadeRange: true` |
+| 138 | Speck count included hull-clipped hair/skin fragments on the face outline | Those fragments no longer count |
+
+**Client (`stockcmp-v12`):**
+- **Spawns:** 21/21 actors on the expected slots.
+- **Inspected:** front view at 0.9 m and 2.5 m, hair 117 and tattoo1 26, beside the hair-lock prototypes (193-195) and a stock head. The headkit heads (196, 197, 199) match the prototypes: defined lids, irises and brows, and face-edge locks on the hair rows.
+- **Not inspected:** hair rows 17/5 and tattoo1 153 actors were spawned but not inspected this run.
+- **Sheet:** `evidence/ingame-closeups-v12.png`.
+
+**Status:** the adoption is validated as an opt-in feature on elf heads. This is not a production or ledger acceptance. No shipped head changes.
