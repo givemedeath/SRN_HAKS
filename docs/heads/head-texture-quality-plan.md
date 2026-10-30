@@ -28,7 +28,7 @@ Known facts to keep:
   | Channel | Use |
   |---|---|
   | skin (0) | Face skin, eye whites, lids, lips, nose |
-  | hair (1) | Hair and eyebrows |
+  | hair (1) | Hair, eyebrows, beards and stubble (user 2026-10-29) |
   | metal1, metal2 (2-3) | Cyberwear |
   | tattoo1 (8) | Iris, so eye colour is always player-selectable |
   | tattoo2 (9) | Open to the design: tattoos, scars, markings |
@@ -73,7 +73,7 @@ What the plan does not fix: the 3D shape quality and the design itself. A weak d
   - The MediaPipe iris radius is a prior, 5-15% large on the orc, dwarf and troll. Refine it from the image behind guards (change of at most 15%, left and right agreeing within 10%).
   - Clip the parser's eye mask to the landmark eye contour.
   - No parser class for beards, cyberwear, tattoos, scars, horns or tusks. Get these from colour/contrast segmentation guided by the feature inventory, or from a manual mask. They override the parser's hair label.
-  - Open decision: beards on hair or on skin.
+  - Beards and stubble go on hair (user decision 2026-10-29). They need their own mask, since the parser leaves them in skin. Stubble must be blended in with the hair mid-tones, like the brows, so it does not become a hard-edged block.
 
 ## Step 1 - Masks onto the mesh
 
@@ -86,7 +86,7 @@ What the plan does not fix: the 3D shape quality and the design itself. A weak d
 ## Step 2 - PLT encoding from the masks
 
 1. **Channels** (roles table above):
-   - Hair and brows go to hair; the iris goes to tattoo1.
+   - Hair, brows and beards go to hair; the iris goes to tattoo1.
    - Eye whites, lids, lips and nose go to skin.
    - Cyberwear goes to metal1 and metal2.
    - Design tattoos, scars and markings go to tattoo2.
