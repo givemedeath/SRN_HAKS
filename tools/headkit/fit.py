@@ -22,10 +22,12 @@ def _axis_angle(values):
 
 def ascii_surface(path, samples=200000, seed=0):
     """Area-weighted surface samples of every trimesh node of an ASCII MDL in model space: each node's verts go through its
-    own and its parents' position/orientation (stock heads carry small node offsets and 'orientation 0 0 1 0')."""
+    own and its parents' position/orientation (stock heads carry small node offsets and 'orientation 0 0 1 0'). Reading
+    stops at the end of the model geometry: animation blocks reuse the node names without geometry."""
     lines=Path(path).read_text(encoding='utf-8').splitlines();nodes={};node=None;i=0
     while i<len(lines):
         words=lines[i].split();key=words[0].lower() if words else ''
+        if key in ('endmodelgeom','newanim'):break
         if key=='node' and len(words)>=3:node=nodes[words[2].lower()]={'parent':None,'position':np.zeros(3),'rotation':np.eye(3),'triangles':[],'verts':None}
         elif key=='endnode':node=None
         elif node is not None and key=='parent' and len(words)==2:node['parent']=None if words[1].upper()=='NULL' else words[1].lower()

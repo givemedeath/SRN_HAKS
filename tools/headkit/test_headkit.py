@@ -3215,6 +3215,10 @@ class FitProposalTests(Temporary):
         np.testing.assert_allclose(ascii_surface(plain,samples=50)[:,2],0,atol=1e-12)
         broken=self.root/'broken.mdl';broken.write_text('node trimesh x\n  parent missing\n'+tri+'endnode')
         with self.assertRaisesRegex(ValueError,'hierarchy'):ascii_surface(broken)
+        # Animation blocks after the geometry reuse node names without verts; they must not replace the geometry nodes.
+        animated=self.root/'animated.mdl';animated.write_text('beginmodelgeom m\nnode trimesh x\n  parent NULL\n'+tri+'endnode\nendmodelgeom m\n'
+            'newanim pause1 m\n  length 1\nnode trimesh x\n  parent NULL\n  positionkey\n 0 0 0 9\n  endlist\nendnode\ndoneanim pause1 m\n')
+        np.testing.assert_allclose(ascii_surface(animated,samples=50)[:,2],0,atol=1e-12)
 
 
 class FitStageTests(Temporary):
