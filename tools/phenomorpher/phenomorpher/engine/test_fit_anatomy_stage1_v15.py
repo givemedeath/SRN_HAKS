@@ -47,6 +47,25 @@ class AnatomyFirstTests(unittest.TestCase):
         for name in ('pelvis_g','torso_g'):self.assertTrue(np.array_equal(result['standingFrames'][name][:3,:3],frames[name][:3,:3]))
         for old,new in zip(meshes,result['standingMeshes']):
             source_distance=np.linalg.norm(old['position'][1]-old['position'][0]);candidate_distance=np.linalg.norm(new['position'][1]-new['position'][0]);self.assertAlmostEqual(candidate_distance/source_distance,result['partScales'][old['part']])
+    def test_stature_target_is_rest_pose_not_standing_pose(self):
+        # The standing pause1 pose stands lower than rest; the target is rest-pose crown to sole.
+        frames={'pelvis_g':frame((0,0,1.)),'torso_g':frame((0,0,1.25)),'neck_g':frame((0,0,1.7)),'head_g':frame((0,0,1.85))}
+        parents={'pelvis_g':'null','torso_g':'pelvis_g','neck_g':'torso_g','head_g':'neck_g'}
+        for side,x in (('l',-.2),('r',.2)):
+            for name,z,parent in (('bicep',1.5,'torso_g'),('forearm',1.15,side+'bicep_g'),('hand',.9,side+'forearm_g'),('thigh',1.,'pelvis_g'),('shin',.6,side+'thigh_g'),('foot',.1,side+'shin_g')):
+                joint=side+name+'_g';frames[joint]=frame((x,0,z));parents[joint]=parent
+        meshes=[{'part':part,'name':part,'position':frames[joint][:3,3]+np.array([[0,0,0],[.04,0,0],[0,.03,.05]]),'faces':np.array([[0,1,2]]),'render':True}
+                for part,joint in engine.PART_JOINTS.items()]
+        skeleton={n:{'parent':parents[n],'position':f[:3,3].copy(),'rotation':np.eye(3)} for n,f in frames.items()};capture={}
+        def backsolve(b,w,s):capture['world']={n:f.copy() for n,f in w.items()};return {n:f[:3,3] for n,f in w.items()},{n:np.eye(3) for n in w}
+        def to_rest(m,*a):  # the rest pose is the standing pose stretched 2% upward from the floor
+            out=engine.copy_meshes(m)
+            for x in out:x['position']=x['position']*[1,1,1.02]
+            return out
+        with patch.object(engine,'backsolve_canonical_local_positions',side_effect=backsolve),patch.object(engine,'static_bind_frames',side_effect=lambda *a,**k:capture['world']),patch.object(engine,'evaluate_adjusted',side_effect=lambda *a,**k:capture['world']),patch.object(engine,'pose_rigid_meshes',side_effect=to_rest):
+            result=engine.build_candidate(meshes,frames,baseline:={'skeleton':skeleton},1.27,{p:1. for p in engine.PART_JOINTS})
+        rest=np.concatenate([m['position'] for m in result['bindMeshes']]);standing=np.concatenate([m['position'] for m in result['standingMeshes']])
+        self.assertAlmostEqual(float(np.ptp(rest[:,2])),1.27);self.assertAlmostEqual(float(np.ptp(standing[:,2])),1.27/1.02)
     def test_bilateral_multiplier_preserves_original_asymmetry(self):
         targets={name:{'preferredMultiplier':1.2} for name in engine.GROUPS};factors=engine.bilateral_factors(targets,.5)
         self.assertEqual(factors['legl'],factors['legr']);self.assertAlmostEqual(.4*factors['legl']/(.5*factors['legr']),.8)

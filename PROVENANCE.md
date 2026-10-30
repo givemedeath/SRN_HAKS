@@ -460,3 +460,30 @@ where present. Only the compiled MDL/PLT pairs are included; source images,
 masters, trial tools, demo modules and generated HAKs stay outside the production
 source pack. Checks do not establish exhaustive animation, equipment or
 palette-combination coverage.
+
+## PhenoMorpher release 1.3.0: race lore sizing and the c7 Human lock (2026-10-27)
+
+Derived from the project's own published PhenoMorpher bodies (contract 1.2.0), with no new external source. All
+changes come from local, deterministic transforms of those models:
+* uniform rest-pose stature rescales;
+* Large-male joint heights set to Fit;
+* a sideways lore build scale;
+* the Human b13/c6 hip, knee and torso join recipes ported to the race females;
+* a root raise that puts idle soles on the floor;
+* per-clip root lifts in the race animation libraries (`srn_an_*`), so no race body goes further below the floor
+  than it did in 1.2.0.
+
+The c7 Human lock adds the c6 female joins, torso polish and rebuilt skin, and `pmh2` with its joint heights at Fit.
+The skin re-bake reuses the published body textures. The 34 published Troll heads in `srn_head` are rescaled
+uniformly by the Troll stature factor. Their geometry is otherwise unchanged, and their PLTs are unchanged.
+
+`srn_armor` is the installed-game stock armour re-fitted to the new race bodies with NWNArmory 1.3.4, with the same
+origin and licensing note as the stock armour conversion above. A licensed NWN:EE installation is required.
+
+Models are compiled with Blender 5.2.1 and Neverblender 4.5.1 (cleanmodels v4.10.0). Fixed-string tails are zeroed,
+and every published binary passes the leaked-text check.
+
+The user approved every race body, the armour and `pmh2` in game, and approved publication on 2026-10-27. Evidence
+and per-resource hashes are in `docs/phenomorpher/race-sizing/` (`plan.md`, `release-1.3.0.json`) and
+`docs/phenomorpher/human-bodies-lock-c7.json`. Generated stages, client fixtures and captures stay outside the
+production source packs.

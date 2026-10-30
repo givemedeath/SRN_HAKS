@@ -128,7 +128,7 @@ def extract(extract_tool, neverblender, game_root, output, slots=SOURCES):
         names = references(text)
         row.update(rawSHA256=digest(data), rawFormat='binary' if data[:4] == b'\0\0\0\0' else 'ascii',
                    asciiSHA256=digest(target.read_bytes()), references=names,
-                   meshTypes=sorted({m.lower() for m in re.findall(r'(?mi)^node\s+(trimesh|danglymesh|skin|animmesh|emitter|aabb)\s', text)}))
+                   meshTypes=sorted({m.lower() for m in re.findall(r'(?mi)^\s*node\s+(trimesh|danglymesh|skin|animmesh|emitter|aabb)\s', text)}))
         for ref in names:
             found = [ref + ext for ext in ('.plt', '.tga', '.dds', '.mtr') if ref + ext in resources]
             referenced[ref] = found
@@ -363,7 +363,7 @@ def unique_mesh_names(text, model):
     """A few stock parts name their mesh like the model's root dummy (e.g. pmh2_footl014); the game resolves
     it, but frame proofs need unique names. Rename such a childless mesh to <model>g, as its sibling parts
     spell it. Returns the text and the name-only changes."""
-    nodes = re.findall(r'(?mi)^node\s+(\S+)\s+(\S+)\s*$', text)
+    nodes = re.findall(r'(?mi)^\s*node\s+(\S+)\s+(\S+)\s*$', text)  # Neverblender indents node lines
     clash = [kind for kind, name in nodes if name.lower() == model.lower() and kind.lower() != 'dummy']
     if not clash:
         return text, []
@@ -371,7 +371,7 @@ def unique_mesh_names(text, model):
     parented = re.findall(r'(?mi)^\s*parent\s+' + re.escape(model) + r'\s*$', text)
     if len(clash) != 1 or len(parented) != 1 or any(name.lower() == model.lower() + 'g' for _, name in nodes):
         raise ValueError('Ambiguous duplicate node names: ' + model)
-    pattern = r'(?mi)^(node\s+' + re.escape(clash[0]) + r'\s+)' + re.escape(model) + r'(\s*)$'
+    pattern = r'(?mi)^(\s*node\s+' + re.escape(clash[0]) + r'\s+)' + re.escape(model) + r'(\s*)$'
     return (re.sub(pattern, lambda m: m[1] + model + 'g' + m[2], text, count=1),
             [{'node': model, 'type': clash[0], 'renamedTo': model + 'g'}])
 
@@ -443,7 +443,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
             correct_rigid(normal, copy, {'scale': [1, 1, 1], 'translate': [0, 0, 0]})  # bake frames: attachment-local meshes
             normal.write_text(copy.read_text(encoding='ascii'), encoding='ascii'); copy.unlink()
             fitted = base/'fitted'/name; fitted.parent.mkdir(); body = normal.read_text(encoding='ascii')
-            for block in reversed(list(re.finditer(r'(?ms)^node\s+(trimesh|danglymesh)\s+\S+\n.*?^endnode', body))):
+            for block in reversed(list(re.finditer(r'(?ms)^\s*node\s+(trimesh|danglymesh)\s+\S+\n.*?^\s*endnode', body))):
                 verts = np.asarray(arrays(block[0], 'verts'), float)
                 if verts.size:
                     body = body[:block.start()] + replace_array(block[0], 'verts', verts @ linear.T + translate) + body[block.end():]

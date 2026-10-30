@@ -29,6 +29,18 @@ def profile_affine(transform):
     return rotation @ np.diag(scale), translation
 
 
+def armory_applied(transform):
+    """The SRT pinned v1.3.4 actually applies: it skips a scale or translate whose components all lie within
+    1e-4 of identity (measured 2026-10-27: translate 9.999e-5 and scale 1.00005 are dropped, 1e-4 and 1.0002
+    applied). The baked output always uses the exact profile; this only models Armory's raw output."""
+    applied = dict(transform)
+    if np.max(np.abs(np.asarray(transform['scale'], float) - 1)) < 1e-4:
+        applied['scale'] = [1., 1., 1.]
+    if np.max(np.abs(np.asarray(transform['translate'], float))) < 1e-4:
+        applied['translate'] = [0., 0., 0.]
+    return applied
+
+
 def rigid_frames(text):
     skeleton = nodes(text)
     matches = list(NODE.finditer(text.split('endmodelgeom', 1)[0]))
@@ -103,6 +115,7 @@ def correct_rigid(source, target, transform):
     original, text = source.read_text(encoding='ascii'), target.read_text(encoding='ascii')
     before = digest(target)
     linear, translation = profile_affine(transform)
+    raw_linear, raw_translation = profile_affine(armory_applied(transform))
     source_nodes, source_blocks, source_world = rigid_frames(original)
     _, target_blocks, _ = rigid_frames(text)
     source_meshes = {k: v for k, v in source_blocks.items() if arrays(v[3], 'verts')}
@@ -153,7 +166,7 @@ def correct_rigid(source, target, transform):
                 if not a or not b or float(a[1]) != float(b[1]):
                     raise RuntimeError('Dangly physics changed: ' + key + ' ' + field)
         vertices = np.asarray(arrays(src[3], 'verts'))
-        raw_error = error(arrays(dst[3], 'verts'), vertices @ linear.T + translation, 'Armory local vertices')
+        raw_error = error(arrays(dst[3], 'verts'), vertices @ raw_linear.T + raw_translation, 'Armory local vertices')
         source_frame = source_world[key]
         composite = linear @ source_frame[:3, :3]
         body = replace_array(dst[3], 'verts', vertices @ composite.T + linear @ source_frame[:3, 3] + translation)

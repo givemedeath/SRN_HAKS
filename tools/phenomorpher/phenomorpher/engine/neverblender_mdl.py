@@ -105,17 +105,24 @@ def audit(binary, source):
             'positionMetres': result['staticRig']['positionMetres'], 'rotationDegrees': result['staticRig']['rotationDegrees']}
 
 
-def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600, cache=None):
+def unresolved_supermodels(rows):
+    """Models whose supermodel cleanmodels could not find. It then numbers nodes as if there were none, and the
+    client applies the supermodel's animations to the wrong nodes (race-sizing r2 pmh2 stood stiff, 2026-10-27)."""
+    return sorted(name for name, row in rows.items() if any('supermodel' in w and 'not found' in w for w in row['warnings']))
+
+
+def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600, cache=None, allow_unresolved_supermodel=False):
     """Compile converted/ascii/*.mdl into converted/resources with a native-compile.json receipt.
 
     Same folder layout and receipt rows as tools/phenotypes/native_compile.py, so armor-publish and
     library restoration read either. The folder's own receipt and binaries are outputs and are never
     read back. `cache` names an earlier converted folder: its binaries are copied for sources whose
-    source, compiler and lookups are unchanged, so a managed launch can pin it as a read-only input."""
-    return compile_folders(blender, addon, [converted], resource_dirs, timeout, [cache])[0]
+    source, compiler and lookups are unchanged, so a managed launch can pin it as a read-only input.
+    A supermodel missing from every lookup folder fails the compile unless explicitly allowed."""
+    return compile_folders(blender, addon, [converted], resource_dirs, timeout, [cache], allow_unresolved_supermodel)[0]
 
 
-def compile_folders(blender, addon, converted, resource_dirs=(), timeout=600, caches=None):
+def compile_folders(blender, addon, converted, resource_dirs=(), timeout=600, caches=None, allow_unresolved_supermodel=False):
     """compile_folder for several converted folders in ONE Blender process (a batch pays one start-up). Each folder
     keeps its own lookups (its ascii/, resources/ and resource_dirs), staging and receipt, identical to a
     compile_folder call on it alone. Any failure fails the call and publishes nothing into any folder."""
@@ -129,7 +136,7 @@ def compile_folders(blender, addon, converted, resource_dirs=(), timeout=600, ca
         report = run(tools, [job for plan in plans for job in plan['jobs']], timeout)
         results = iter(report['results'])
         for plan in plans:
-            _verify(plan, [next(results) for _ in plan['jobs']])
+            _verify(plan, [next(results) for _ in plan['jobs']], allow_unresolved_supermodel)
         for plan in plans:  # publish only after every folder verified
             for name in plan['staged'] + [Path(job['input']).name for job in plan['jobs']]:
                 os.replace(plan['staging']/name, plan['resources']/name)
@@ -174,7 +181,7 @@ def _plan(converted, tools, resource_dirs, cache):
     return plan
 
 
-def _verify(plan, results):
+def _verify(plan, results, allow_unresolved_supermodel=False):
     failed = []
     for job, row in zip(plan['jobs'], results):
         name = Path(job['input']).name
@@ -188,6 +195,10 @@ def _verify(plan, results):
     if failed:
         raise RuntimeError('Compiled binary differs from its ASCII source (cleanmodels drops model-root node '
                            'position/orientation; keep the root at the origin): ' + ' | '.join(failed[:5]))
+    unresolved = unresolved_supermodels(plan['rows'])
+    if unresolved and not allow_unresolved_supermodel:
+        raise RuntimeError('Supermodel not found in any lookup folder, so node numbers would not match its animations '
+                           '(add its folder with --resource-dir, e.g. the stock a_ba/a_fa): ' + ', '.join(unresolved[:8]))
     if any(digest(p.read_bytes()) != plan['snapshot'][p.name] for p in plan['sources']):
         raise RuntimeError('Source changed before compiler verification completed')
     if any(digest(p.read_bytes()) != pin for p, pin in plan['pins'].items()):
