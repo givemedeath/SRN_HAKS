@@ -259,14 +259,18 @@ def face_region(positions,faces):
     return (centre[:,2]>hi[2]-.35*(hi[2]-lo[2]))&(normal[:,2]>.3)&(centre[:,1]<lo[1]+.8*(hi[1]-lo[1])),area
 
 
-def face_priority(xatlas,uv,positions,faces,ratio,padding):
+FACE_GROWTH_ROUNDS=5   # face-priority re-packs that grow sub-texel charts 1.5x (RUNBOOK 144)
+
+
+def face_priority(xatlas,uv,positions,faces,ratio,padding,grow=None):
     """Scale every chart about its centroid by the area-weighted sqrt(ratio) of its face triangles (1 elsewhere), then pack-only
     onto one square PAGE with the scale bisected to fill it, so the face gets `ratio` x the rest's texel density (step 1 of
-    docs/heads/head-texture-quality-plan.md: 7.9 vs 9.1 texels/cm on a uniform unwrap; stock heads give the face ~2.8x)."""
-    face,area=face_region(positions,faces);weight=np.where(face,np.sqrt(ratio),1.0)
+    docs/heads/head-texture-quality-plan.md: 7.9 vs 9.1 texels/cm on a uniform unwrap; stock heads give the face ~2.8x).
+    grow: extra scale per chart of uv (chart_ids by shared vertex) for charts the smaller page left sub-texel."""
+    face,area=face_region(positions,faces);weight=np.where(face,np.sqrt(ratio),1.0);grow=grow or {}
     labels=chart_ids(uv,shared='vertex').astype(np.int64);layout=uv.copy()
     for chart in np.unique(labels):
-        selected=labels==chart;w=np.average(weight[selected],weights=area[selected]+1e-12);centre=layout[selected].reshape(-1,2).mean(0)
+        selected=labels==chart;w=np.average(weight[selected],weights=area[selected]+1e-12)*grow.get(int(chart),1.0);centre=layout[selected].reshape(-1,2).mean(0)
         layout[selected]=centre+(layout[selected]-centre)*w
     keys=np.c_[np.repeat(labels,3),np.round(layout.reshape(-1,2),7)]
     _,index=np.unique(keys,axis=0,return_inverse=True);index=index.reshape(-1,3)
@@ -289,7 +293,7 @@ def face_priority(xatlas,uv,positions,faces,ratio,padding):
         return float(twice[selected].sum()/2/max(area[selected].sum(),1e-12))
     measured=density(new_uv,face)/max(density(new_uv,~face),1e-12) if face.any() and (~face).any() else None
     return new_uv,{'ratio':ratio,'faceTriangles':int(face.sum()),'packScale':scale,'charts':int(atlas.chart_count),
-                   'measuredDensityRatio':measured}
+                   'measuredDensityRatio':measured,'grownCharts':len(grow)}
 
 
 def unwrap(mesh,bindings,policy=None):
@@ -346,13 +350,24 @@ def unwrap(mesh,bindings,policy=None):
     ratio=policy.get('faceDensity',1);face=None
     require(type(ratio) in (int,float) and 1<=ratio<=4,'faceDensity must be a number from 1 to 4')
     if ratio!=1:
-        # Face priority after the repairs: a pack-only pass over the audited layout, then every audit again on the result.
-        new_uv,face=face_priority(xatlas,new_uv,mesh['positions'],mesh['faces'],float(ratio),padding);charts=chart_ids(new_uv,'vertex')
-        for size in (4096,2048,1024):
-            metrics[str(size)],owners[size]=raster_audit(new_uv,size)
-            subtexel[str(size)]=subtexel_audit(new_uv,size,metrics[str(size)],owners[size],0.0 if size==4096 else subtexel_fraction,charts)
-            if metrics[str(size)]['overlapFaces'] or metrics[str(size)]['degenerateUvFaces'] or subtexel[str(size)]['failingFaces']:
-                raise fail(f'Face-priority layout fails the {size} UV audit')
+        # Face priority after the repairs: a pack-only pass over the audited layout, then every audit again on the result. The
+        # smaller page can leave tiny hair charts sub-texel (dense-hair heads, RUNBOOK 144): their charts grow 1.5x and the pack
+        # repeats, up to FACE_GROWTH_ROUNDS times, while the failing count falls. Growth shrinks the pack scale for every chart, so
+        # a head near the 1K share limit before face priority can only take a lower faceDensity.
+        audited,grow,previous=new_uv,{},None;labels=chart_ids(audited,'vertex').astype(np.int64)
+        for growth in range(FACE_GROWTH_ROUNDS+1):
+            new_uv,face=face_priority(xatlas,audited,mesh['positions'],mesh['faces'],float(ratio),padding,grow);charts=chart_ids(new_uv,'vertex');failing=set()
+            for size in (4096,2048,1024):
+                metrics[str(size)],owners[size]=raster_audit(new_uv,size)
+                subtexel[str(size)]=subtexel_audit(new_uv,size,metrics[str(size)],owners[size],0.0 if size==4096 else subtexel_fraction,charts)
+                if metrics[str(size)]['overlapFaces'] or metrics[str(size)]['degenerateUvFaces']:raise fail(f'Face-priority layout fails the {size} UV audit')
+                failing.update(map(int,subtexel[str(size)]['failingFaces']))
+            if not failing:break
+            if growth==FACE_GROWTH_ROUNDS or (previous is not None and len(failing)>=previous):
+                raise fail(f'Face-priority layout keeps {len(failing)} sub-texel faces after {growth} growth rounds: lower mesh.uv.faceDensity')
+            previous=len(failing)
+            for chart in {int(labels[f]) for f in failing}:grow[chart]=grow.get(chart,1.0)*1.5
+        face['growthRounds']=growth
         gutters={str(size):gutter_audit(new_uv,size,owners[size],charts) for size in (2048,1024)};dims=(PAGE,PAGE);count=face['charts']
         if gutters['1024']['nearbyChartPixelsByRadius']['1']:raise fail('Face-priority layout has thin 1K gutters')
         if metrics['2048']['coverageFraction']<floor:raise fail(f"Insufficient useful UV coverage after face priority ({metrics['2048']['coverageFraction']:.3f} at 2K)")

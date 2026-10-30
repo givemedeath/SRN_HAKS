@@ -136,6 +136,14 @@ class Region(unittest.TestCase):
         positions, faces, uv = self.scene(True); _, mixed = face_priority(FakePacker(), uv, positions, faces, 3.0, 2)
         self.assertLess(mixed['measuredDensityRatio'], 1.2)   # one chart, one scale: a mixed chart gives the face nothing extra
 
+    def test_grown_charts_scale_on_top_of_the_ratio(self):
+        # RUNBOOK 144: a chart the smaller page left sub-texel grows; growing the back chart by sqrt(3) evens out the densities.
+        from headkit.test_headkit import FakePacker
+        from headkit.uv import face_priority, chart_ids
+        positions, faces, uv = self.scene(False); back = int(chart_ids(uv, shared='vertex')[2])
+        _, report = face_priority(FakePacker(), uv, positions, faces, 3.0, 2, {back: 3**.5})
+        self.assertAlmostEqual(report['measuredDensityRatio'], 1.0, delta=.1); self.assertEqual(report['grownCharts'], 1)
+
 
 class Quality(unittest.TestCase):
     def test_thresholds_complete_and_eligible_range(self):
