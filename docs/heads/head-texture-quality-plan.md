@@ -83,6 +83,11 @@ What the plan does not fix: the 3D shape quality and the design itself. A weak d
 
 **Gate:** masks cover the brows, eyes, iris and lips with no spill into the lids, temples or nose shadow, on both elves.
 
+**Result on elf-male-c (2026-10-29): passed.** Evidence is in `race-heads-v1/trials/maskplt-v1/elf-male-c/masks`; the script is `review-kit/mask_project_proto.py`.
+- The parser and landmarks run on the head's own orthographic front render (4K bake through the mesh), not the design image. The labels then share the mesh's camera, so no design-to-mesh registration is needed.
+- Texels the front view sees take the soft masks by depth match. Unseen texels take the nearest seen value in 3D.
+- Masks are padded into the chart gutters.
+
 ## Step 2 - PLT encoding from the masks
 
 1. **Channels** (roles table above):
@@ -102,6 +107,16 @@ What the plan does not fix: the 3D shape quality and the design itself. A weak d
 - Brows follow hair rows 117, 17 and 5 with no fringe.
 - The iris follows three tattoo1 rows, and the default row looks plausible on an NPC.
 - No visible staircase at 0.9 m.
+
+**Result on elf-male-c (2026-10-29): passed except the default eye colour.** Evidence: `race-heads-v1/trials/stockcmp-v8/evidence/maskplt-client-sheet.png`. Script: `review-kit/mask_plt_proto.py`.
+- **Brows:** follow hair rows 117, 17 and 5 with no fringe or specks.
+- **Iris:** follows tattoo1 rows 26 (blue) and 153 (green).
+- **At 2.5 m:** the brows, eyes and mouth read close to stock 01. No staircase at 0.9 m.
+- **Fixes this needed** (RUNBOOK 124-126):
+  - Re-pad ownership into the gutters after edits.
+  - Make each 4x4 block take its colour only from texels of its majority channel.
+  - Measure the brow edge by 3D distance.
+- **Fails: the default tattoo1 row 0 (NPCs) gives pale cream eyes.** Row 0 is cream above shade ~96. An iris shade curve (gamma 1.5, median 64) is not enough. The options are a much darker iris curve, which darkens every player colour, or always setting tattoo1 on NPC blueprints. Needs a user decision.
 
 ## Step 3 - Lighting and darks
 
