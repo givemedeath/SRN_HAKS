@@ -51,6 +51,7 @@ class TrialSpecTests(unittest.TestCase):
             'tattoo2Row':spec(heads=[head('a',16,tattoo2Row=[88])]),
             'metalRow':spec(heads=[head('a',16,metalRow=3)]),
             'helmets':spec(heads=[head('a',16,helmets=[3])]),
+            'armour':spec(heads=[head('a',16,armour=[176])]),
             'too many actors':spec(heads=[head('h0',16),head('h1',17,skinRows=list(range(10)),hairRows=list(range(9)))]),
             'identity':spec(identity={'appearanceRow':2,'raceId':2}),
             'base actorIdentity':spec(base={**spec()['base'],'actorIdentity':{'appearanceRow':2}}),
@@ -96,6 +97,10 @@ class TrialSpecTests(unittest.TestCase):
         self.assertEqual([(a['x'],a['y']) for a in actors[11:]],[(a['x'],a['y']) for a in first])
         self.assertEqual(len({(a['x'],a['y']) for a in first}),11)
         # Many heads no longer exhaust the floor: the limit is per head.
+        # Armour actors follow the helmets: first skin and hair rows, stock chest armour on each leather1 row.
+        armoured=plan_actors(validate_spec(spec(heads=[head('a',16,helmets=[1],armour=[0,40])])))
+        self.assertEqual([(a['skin'],a['hair'],a['helmet'],a['armour']) for a in armoured[9:]],[(65,65,1,None),(65,65,0,0),(65,65,0,40)])
+        self.assertEqual({a['armour'] for a in armoured[:10]},{None})
         many=validate_spec(spec(heads=[head(f'h{i}',16+i,skinRows=list(range(5)),hairRows=list(range(5))) for i in range(8)]))
         self.assertEqual(max(a['row'] for a in plan_actors(many)),7)
         self.assertTrue(all(len(a['tag'])<=16 and 0<a['x']<80 and 0<a['y']<80 for a in actors))
@@ -203,6 +208,13 @@ class TrialModuleTests(unittest.TestCase):
         self.assertIn('HEAD_FIXTURE_COLORS actor=',script);self.assertIn('HEAD_FIXTURE_SLOT actor=',script)
         self.assertLess(script.index('TATTOO1_ROW'),script.index('HEAD_FIXTURE_SLOT'))
         self.assertEqual(set(module_scripts(tattoo=True)),{'sr_h_spawn','sr_h_hb','sr_h_death','sr_h_enter'})
+        self.assertNotIn('HEAD_ARMOUR',script)
+        armoured=spawn_script(tattoo=True,armour=True)
+        self.assertIn('ITEM_APPR_ARMOR_COLOR_LEATHER1,armour-1',armoured);self.assertIn('HEAD_FIXTURE_ARMOUR actor=',armoured)
+        self.assertLess(armoured.index('HEAD_ARMOUR'),armoured.index('HEAD_FIXTURE_COLORS'))
+        dressed=make_creature({'FirstName':{'type':'cexolocstring','value':{}}},'t','n',0,0,16,65,5,2,2,1.0,tattoo=(85,88),armour=0)
+        self.assertEqual({v['Name']['value']:v['Value']['value'] for v in dressed['VarTable']['value']}['HEAD_ARMOUR'],1)
+        self.assertNotIn('HEAD_ARMOUR',{v['Name']['value'] for v in actor['VarTable']['value']})
 
     def test_module_documents_put_trial_hak_first(self):
         from build_head_fixture import module_documents,target_creature

@@ -66,17 +66,28 @@ COLORS='''  WriteTimestampedLogEntry("HEAD_FIXTURE_COLORS actor="+GetTag(OBJECT_
     +" hair="+IntToString(GetColor(OBJECT_SELF,COLOR_CHANNEL_HAIR))+" tattoo1="+IntToString(GetColor(OBJECT_SELF,COLOR_CHANNEL_TATTOO_1))
     +" tattoo2="+IntToString(GetColor(OBJECT_SELF,COLOR_CHANNEL_TATTOO_2)));
 '''
+# Armour actors (HEAD_ARMOUR = leather1 row + 1) wear the first stock chest armour the game resolves, recoloured on leather1,
+# so head PLT channels 2-7 can be compared bare and armoured. The log names the armour and the leather1 row the engine applied.
+ARMOUR='''  int armour=GetLocalInt(OBJECT_SELF,"HEAD_ARMOUR");
+  if(armour>0){object a=CreateItemOnObject("nw_aarcl001",OBJECT_SELF);
+    if(!GetIsObjectValid(a)) a=CreateItemOnObject("nw_aarcl009",OBJECT_SELF);
+    if(!GetIsObjectValid(a)) a=CreateItemOnObject("nw_cloth001",OBJECT_SELF);
+    object b=CopyItemAndModify(a,ITEM_APPR_TYPE_ARMOR_COLOR,ITEM_APPR_ARMOR_COLOR_LEATHER1,armour-1,TRUE);DestroyObject(a);
+    ActionEquipItem(b,INVENTORY_SLOT_CHEST);
+    WriteTimestampedLogEntry("HEAD_FIXTURE_ARMOUR actor="+GetTag(OBJECT_SELF)+" resref="+GetResRef(b)+" leather1="
+      +IntToString(GetItemAppearance(b,ITEM_APPR_TYPE_ARMOR_COLOR,ITEM_APPR_ARMOR_COLOR_LEATHER1)));}
+'''
 
 
-def spawn_script(tattoo=False):
+def spawn_script(tattoo=False,armour=False):
     if not tattoo:return SPAWN
     hair='  SetColor(OBJECT_SELF,COLOR_CHANNEL_HAIR,GetLocalInt(OBJECT_SELF,"HAIR_ROW"));\n'
     require(SPAWN.count(hair)==1 and SPAWN.endswith('\n}'),'Fixture spawn script layout changed')
-    return SPAWN.replace(hair,hair+TATTOO)[:-1]+COLORS+'}'
+    return SPAWN.replace(hair,hair+TATTOO)[:-1]+(ARMOUR if armour else '')+COLORS+'}'
 
 
-def module_scripts(tattoo=False):
-    return {'sr_h_spawn':spawn_script(tattoo),'sr_h_hb':HEARTBEAT,'sr_h_death':DEATH,'sr_h_enter':ENTER}
+def module_scripts(tattoo=False,armour=False):
+    return {'sr_h_spawn':spawn_script(tattoo,armour),'sr_h_hb':HEARTBEAT,'sr_h_death':DEATH,'sr_h_enter':ENTER}
 
 
 def fixture_identity(config):
@@ -100,7 +111,7 @@ def fixture_identity(config):
     return target['prefix'],row,row,scale
 
 
-def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_scale,helmet=0,tattoo=None,gender=0):
+def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_scale,helmet=0,tattoo=None,gender=0,armour=None):
     item=copy.deepcopy(template)
     item.pop('__data_type', None)
     item['__struct_id'] = 4
@@ -120,6 +131,8 @@ def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_sc
     if tattoo is not None:
         item['VarTable']['value']+=[{'__struct_id':0,'Name':field('cexostring',key),'Type':field('dword',1),'Value':field('int',value)}
                                     for key,value in zip(('TATTOO1_ROW','TATTOO2_ROW'),tattoo,strict=True)]
+    if armour is not None:
+        item['VarTable']['value'].append({'__struct_id':0,'Name':field('cexostring','HEAD_ARMOUR'),'Type':field('dword',1),'Value':field('int',armour+1)})
     return item
 
 

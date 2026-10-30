@@ -131,30 +131,34 @@ def validate_spec(spec):
         require(head.get('metalRow',0)==0,head['id']+': metal shows stock row 0 without armour; metalRow must be 0')
         helmets=head.get('helmets',[1,2])
         require(isinstance(helmets,list) and len(set(helmets))==len(helmets) and set(helmets)<={1,2},head['id']+': helmets must be drawn from 1 and 2')
+        armour=head.get('armour',[])
+        require(isinstance(armour,list) and len(set(armour))==len(armour) and all(isinstance(r,int) and 0<=r<=175 for r in armour),
+                head['id']+': armour must list distinct leather1 rows 0-175')
         external=head.get('externalTextures',[])
         require(isinstance(external,list) and all(isinstance(n,str) and RESREF.fullmatch(n) for n in external),head['id']+': externalTextures must be resrefs')
-        count=len(head['skinRows'])*len(head['hairRows'])+len(helmets)
+        count=len(head['skinRows'])*len(head['hairRows'])+len(helmets)+len(armour)
         rows_used=-(-count//COLUMNS)
         require(rows_used<=MAX_ROWS,f"{head['id']}: too many actors for the fixture floor ({rows_used} rows of {COLUMNS}; at most {MAX_ROWS})")
     require(isinstance(spec.get('shared',[]),list) and all(isinstance(p,str) for p in spec.get('shared',[])),'shared must list files')
     require(spec.get('client') is None or isinstance(spec['client'],str),'client must be a path string')
     return {**spec,'shared':spec.get('shared',[]),
-            'heads':[{**head,'slot':int(SLOT.fullmatch(head['model'])[2]),'gender':gender(SLOT.fullmatch(head['model'])[1]),'metalRow':0,'helmets':head.get('helmets',[1,2]),
+            'heads':[{**head,'slot':int(SLOT.fullmatch(head['model'])[2]),'gender':gender(SLOT.fullmatch(head['model'])[1]),'metalRow':0,'helmets':head.get('helmets',[1,2]),'armour':head.get('armour',[]),
                       'externalTextures':head.get('externalTextures',[])} for head in heads]}
 
 
 def plan_actors(spec):
-    """Actors per head: every skin x hair row pair, then each helmet. The module shows one head's group at a time, so
+    """Actors per head: every skin x hair row pair, then each helmet, then each armour (stock chest armour on that leather1 row). The module shows one head's group at a time, so
     every group uses the same floor positions; `row` is the head's index in spec order."""
     actors=[]
     for row,head in enumerate(spec['heads']):
-        cases=[(skin,hair,0) for skin in head['skinRows'] for hair in head['hairRows']]
-        cases+=[(head['skinRows'][0],head['hairRows'][0],helmet) for helmet in head['helmets']]
-        for column,(skin,hair,helmet) in enumerate(cases):
+        cases=[(skin,hair,0,None) for skin in head['skinRows'] for hair in head['hairRows']]
+        cases+=[(head['skinRows'][0],head['hairRows'][0],helmet,None) for helmet in head['helmets']]
+        cases+=[(head['skinRows'][0],head['hairRows'][0],0,row) for row in head.get('armour',[])]
+        for column,(skin,hair,helmet,armour) in enumerate(cases):
             index=len(actors)
             actors.append({'tag':f'sr_h_actor{index}','headId':head['id'],'model':head['model'],'slot':head['slot'],'gender':head['gender'],
-                           'skin':skin,'hair':hair,'tattoo1':head['tattoo1Row'],'tattoo2':head['tattoo2Row'],'metal':0,'helmet':helmet,
-                           'name':f"{head['id']} "+(f'helmet{helmet}' if helmet else f'skin{skin} hair{hair}'),
+                           'skin':skin,'hair':hair,'tattoo1':head['tattoo1Row'],'tattoo2':head['tattoo2Row'],'metal':0,'helmet':helmet,'armour':armour,
+                           'name':f"{head['id']} "+(f'helmet{helmet}' if helmet else f'armour leather1 {armour}' if armour is not None else f'skin{skin} hair{hair}'),
                            'row':row,'x':8+(column%COLUMNS)*5.5,'y':20+(column//COLUMNS)*7})
     return actors
 
@@ -408,8 +412,8 @@ def readme(spec,actors,hak_order):
            "through `next`/`prev`/`head N`. `look N` picks the head's Nth actor (default 1), `dist X` and `height X` (metres) adjust "
            "the framing, `anim` plays a short talk and look cycle, and `free` gives the camera back. Each placement logs HEAD_INSPECT.",'',
            '| Head row | Actor | Head | Slot | Skin | Hair | Tattoo1 | Tattoo2 | Helmet |','|---|---|---|---|---|---|---|---|---|']
-    lines+=[f"| {a['row']+1} | {a['tag']} | {a['headId']} | {a['model']} | {a['skin']} | {a['hair']} | {a['tattoo1']} | {a['tattoo2']} | {a['helmet'] or '-'} |" for a in actors]
-    lines+=['','PLT channels: 0 skin, 1 hair, 2 metal, 8 tattoo1, 9 tattoo2. Metal shows stock row 0 because no armour is worn. '
+    lines+=[f"| {a['row']+1} | {a['tag']} | {a['headId']} | {a['model']} | {a['skin']} | {a['hair']} | {a['tattoo1']} | {a['tattoo2']} | {a['helmet'] or (f"armour (leather1 {a['armour']})" if a['armour'] is not None else '-')} |" for a in actors]
+    lines+=['','PLT channels: 0 skin, 1 hair, 2 metal, 8 tattoo1, 9 tattoo2. Metal shows stock row 0 when no armour is worn. '
             +('Actors run the fixture walk/cast/attack/death cycle and revive 10 s after death (spec motion).' if spec.get('motion')
               else 'Actors stand still in idle for inspection (no heartbeat animation cycle) and are plot, so they cannot be attacked.'),'',
             'After a run, check spawns with `verify_head_trial.py --manifest runtime-manifest.json`. Not client-validated or production-accepted.','']
@@ -482,7 +486,7 @@ def build(spec_path,output):
     actors=plan_actors(spec)
     def creature(actor):
         return fixture.make_creature(creatures[0],actor['tag'],actor['name'],actor['x'],actor['y'],actor['slot'],actor['skin'],actor['hair'],
-            identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']),gender=actor['gender'])
+            identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']),gender=actor['gender'],armour=actor['armour'])
     hak_order=[spec['hak']]+[Path(item['path']).stem for item in base_haks]
     target_y=min(76,max(a['y'] for a in actors)+12)
     for actor in actors:gff(actor['tag']+'.utc',blueprint(creature(actor),spec.get('motion',False)))
@@ -491,7 +495,7 @@ def build(spec_path,output):
         name='SRN head trial '+spec['trial'],description='Trial heads: '+', '.join(h['model'] for h in spec['heads'])+'. Client acceptance pending.',
         events={'Mod_OnPlrChat':'sr_h_chat'})
     for name,document in documents.items():gff(name,document)
-    for name,text in {**fixture.module_scripts(tattoo=True),**row_scripts(spec,actors)}.items():
+    for name,text in {**fixture.module_scripts(tattoo=True,armour=any(a['armour'] is not None for a in actors)),**row_scripts(spec,actors)}.items():
         path=stage/(name+'.nss');path.write_text(text,encoding='ascii')
         run('nwn_script_comp',['--root',spec['gameRoot'],'--userdirectory',user,'--no-ovr',path])
         require(path.with_suffix('.ncs').is_file(),'Script compiler produced no bytecode')
