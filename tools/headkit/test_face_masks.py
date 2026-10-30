@@ -149,5 +149,41 @@ class Wiring(unittest.TestCase):
                 manifest(path)
 
 
+class ToneWithFaceTreatment(unittest.TestCase):
+    def runner(self, root, data):
+        from headkit.runner import Runner
+        from PIL import Image
+        colour, ownership, imported, detail = (root/n for n in ('colour.png', 'own.png', 'imported.png', 'detail.png'))
+        Image.new('RGB', (4096, 4096), (120, 90, 70)).save(colour); Image.new('L', (4096, 4096), 0).save(ownership)
+        Image.new('L', (4096, 4096), 1).save(imported); Image.new('RGB', (64, 64)).save(detail)
+        r = Runner.__new__(Runner); r.data = data; r.bindings = {}
+        results = {'ownership': {'fourk': {'path': str(ownership)}}, 'masks': {'files': {}}}
+        r.result = lambda stage, **_: results[stage]; r.source = lambda *a: None
+        r.input = lambda name: str({'ownership4k': imported, 'detail': detail}[name]); r._color4k = lambda **_: str(colour)
+        return r, ownership
+
+    def test_reference_matching_and_imported_atlas(self):
+        """Face treatment with reference tone matching and an imported ownership4k: tone_match gets only its skin/hair
+        samples, and the treatment reads the ownership stage's feature-adjusted atlas, not the imported one."""
+        from unittest import mock
+        data = {'inputs': {'ownership4k': {}, 'detail': {}}, 'ownership': {'featureChannels': True}, 'palette': {'inputs': {}},
+                'tone': {'skin': {'x': 1}, 'hair': {'x': 2}, 'faceTreatment': {}}}
+        self.assertNotIn('ownership4k', stage_roles('tone', data))
+        from headkit.runner import Runner
+        bare = Runner.__new__(Runner); bare.data = dict(data, fit={}); self.assertIn('ownership', bare.dependencies('tone'))
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); r, adjusted = self.runner(root, data); seen = {}
+            def fake_match(color, ownership, reference, config, output):
+                seen['config'] = set(config); seen['ownership'] = Path(ownership)
+                from PIL import Image
+                Image.open(color).save(output); return {}
+            def fake_treat(rgb, labels, masks, value, settings):
+                seen['labels'] = int(labels.max()); return rgb, {}
+            with mock.patch('headkit.textures.tone_match', fake_match), mock.patch('headkit.face_encode.treat', fake_treat),                  mock.patch('headkit.face_encode.masks_at', lambda *a: {}), mock.patch('headkit.gltf.mesh', lambda *a: None):
+                result = r._execute('tone', root)
+        self.assertEqual(seen['config'], {'skin', 'hair'}); self.assertEqual(seen['ownership'], adjusted)
+        self.assertEqual(seen['labels'], 0); self.assertEqual(result['ownershipInputRole'], 'ownership')
+
+
 if __name__ == '__main__':
     unittest.main()

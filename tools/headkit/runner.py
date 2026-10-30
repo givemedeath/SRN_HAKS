@@ -26,7 +26,8 @@ def stage_roles(stage,data):
         'precluster':{'raw'},'fit':{'fitReference','comfyExport'},'repair':{'comfyExport','shellInspection','bodyNeck'},'unwrap':{'repairedMesh'},'bake':{'field','uvMesh'},
         'paint':{'uvMesh','basecolor4k'},'masks':{'uvMesh','basecolor4k'},'quality':{'uvMesh'}|palettes,
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
-        'tone':{'uvMesh','basecolor4k','metallic4k','ownership4k','ownership1k','detail','frontDetail'}|palettes,
+        'tone':{'uvMesh','basecolor4k','metallic4k','detail','frontDetail'}|palettes
+               |(set() if data.get('tone',{}).get('faceTreatment') is not None else {'ownership4k','ownership1k'}),
         'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set()),'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
         'render':{'uvMesh'}|set(data.get('render',{}).get('mapInputs',{}).values())}[stage]
     return roles&inputs
@@ -202,7 +203,8 @@ class Runner:
             'native':['export'], 'render':([] if 'uvMesh' in inputs else ['unwrap'])+list(dict.fromkeys(self.data.get('render',{}).get('mapStages',{}).values()))
                 +(['ownership'] if self.data.get('render',{}).get('ownershipView') else [])}
         self._texture_dependencies(stage,table);dependencies=table[stage]
-        if stage=='tone' and not any(role in inputs for role in ('ownership1k','ownership4k')):dependencies.append('ownership')
+        if stage=='tone' and (not any(role in inputs for role in ('ownership1k','ownership4k'))
+                              or self.data.get('tone',{}).get('faceTreatment') is not None):dependencies.append('ownership')
         if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
         # Face masks (opt-in): channel moves read the masks, the colour treatment reads them too, and export waits for the quality gate.
         if (stage=='ownership' and self.data.get('ownership',{}).get('featureChannels')) or (stage=='tone' and self.data.get('tone',{}).get('faceTreatment') is not None):
@@ -442,10 +444,11 @@ class Runner:
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
         if stage=='tone':
             from .textures import tone_match
-            color=self._color4k()
-            if 'ownership4k' in m['inputs']:
+            color=self._color4k();face_treatment=m['tone'].get('faceTreatment')
+            # Face treatment reads the ownership stage's feature-adjusted atlas, which an imported atlas never has.
+            if 'ownership4k' in m['inputs'] and face_treatment is None:
                 ownership=self.input('ownership4k');ownership_source=ownership;ownership_role='ownership4k';upsampling=None
-            elif 'ownership1k' in m['inputs']:
+            elif 'ownership1k' in m['inputs'] and face_treatment is None:
                 ownership_source=self.input('ownership1k');ownership_role='ownership1k';upsampling='nearest'
                 with Image.open(ownership_source) as mask:
                     require(mask.mode=='L' and mask.size==(1024,1024),
@@ -469,8 +472,9 @@ class Runner:
                 from .paint import adjust
                 keys={op['palette'] for op in m['tone'].get('operations',[]) if 'palette' in op}
                 result=adjust(color,ownership,m['tone'],{key:self.input(m['palette']['inputs'][key]) for key in keys},output)
-            else:result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),m['tone'],output)
-            if m['tone'].get('faceTreatment') is not None:
+            else:result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),
+                                   {k:v for k,v in m['tone'].items() if k!='faceTreatment'},output)
+            if face_treatment is not None:
                 # Step 3 on the tone output with the feature-channel ownership; consistent 4x4 blocks before the 1K box filter.
                 from .face_encode import treat,masks_at,TREATMENT_MASKS
                 from .gltf import mesh
@@ -478,7 +482,7 @@ class Runner:
                 with Image.open(output) as image:rgb=np.asarray(image.convert('RGB'),np.float32)
                 with Image.open(ownership) as image:labels=np.asarray(image)
                 treated,result['faceTreatment']=treat(rgb,labels,masks_at(self.result('masks')['files'],TREATMENT_MASKS),
-                                                      mesh(self.source('uvMesh','unwrap','mesh')),m['tone']['faceTreatment'])
+                                                      mesh(self.source('uvMesh','unwrap','mesh')),face_treatment)
                 Image.fromarray(np.rint(treated).clip(0,255).astype(np.uint8)).save(output);result['output']=pin(output)
             result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
                           ownershipForTone=pin(ownership),ownershipUpsampling=upsampling)
