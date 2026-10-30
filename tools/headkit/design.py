@@ -18,7 +18,21 @@ from .common import read, write, require, pin, verify, digest, source_version
 TEMPLATES = Path(__file__).parent / 'templates'
 SUBFOLDER = 'headkit-design'
 NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
-SPEC_KEYS = {'common', 'designs', 'neckInpaint', 'neckEdit'}
+SPEC_KEYS = {'common', 'designs', 'neckInpaint', 'neckEdit', 'colourReviewed'}
+# Ownership splits a head's texels by their baked colour, while the palette row (not the generated hue) sets the in-game
+# colour and the baked luminance its shade. A feature drawn in its neighbour's colour can only be split by position (race
+# heads v1 dwarf-male-d: black circuit ink on black hair), so a prompt must give each owned feature a hue its neighbours lack.
+DARK_HAIR = re.compile(r'\b(black|jet|raven|dark brown|dark auburn|dark buzz|near-black|charcoal)\b', re.I)
+NEUTRAL_INK = re.compile(r'\b(black|charcoal|near-black)\b', re.I)
+INK_HUE = re.compile(r'\b(red|crimson|scarlet|blue|navy|teal|cyan|green|violet|purple|orange|yellow|gold|white|pale|silver)\b', re.I)
+# Step 7 of docs/heads/head-texture-quality-plan.md (user 2026-10-30): every future design asks for what the face masks and the
+# PLT need to read at game size. Baked lighting turned into forehead blotches, glossy irises into white specks, soft lids and
+# skin-coloured brows into faces that read flat (steps 2-3).
+FEATURE_RULES = ('Flat, even, shadowless lighting with no shine and no specular highlights on skin or eyes. '
+                 'Eyebrows exactly the hair colour, with crisp, clearly defined edges. Clearly defined dark upper and lower eyelid lines. '
+                 'Matte, non-glossy irises with a clear dark outer rim.')
+FEATURE_CONFLICTS = re.compile(r'\b(dramatic|cinematic|moody|rim|back|side|spot)[- ]?(lit|light|lighting)\b|\bbacklit\b|\bchiaroscuro\b'
+                               r'|\b(glossy|shiny|wet|glassy|reflective|sparkling|glowing)\s+(eyes|irises|iris)\b', re.I)
 SUFFIXES = ('.png', '.jpg', '.jpeg', '.webp')
 MAX_BATCH = 8
 MAX_REFERENCES = 4
@@ -39,12 +53,33 @@ def load_spec(path):
                 'Design names must be safe IDs with prompt text: ' + name)
     require('neckInpaint' not in spec or (isinstance(spec['neckInpaint'], str) and 'SKIN' in spec['neckInpaint']),
             'neckInpaint needs a SKIN placeholder')
+    reviewed = spec.get('colourReviewed', {})
+    require(isinstance(reviewed, dict) and all(name in spec['designs'] and isinstance(note, str) and note.strip()
+                                               for name, note in reviewed.items()),
+            'colourReviewed maps design names to review notes')
     return spec
+
+
+def colour_conflict(text):
+    """Why a design's tattoo ink cannot be told from its hair in the bake (dark neutral ink on dark hair), or None. Reads the
+    'Hair:' and 'Tattoo:' lines of the design text; ink with a stated hue (deep crimson, navy) separates by colour."""
+    hair = re.search(r'^Hair:(.*)$', text, re.M | re.I); ink = re.search(r'^Tattoo:(.*)$', text, re.M | re.I)
+    if hair is None or ink is None or re.match(r'\s*none\b', ink[1], re.I) or not DARK_HAIR.search(hair[1]):
+        return None
+    neutral = NEUTRAL_INK.search(ink[1]) or (re.search(r'\bdark\b', ink[1], re.I) and not INK_HUE.search(ink[1]))
+    return f'tattoo ink "{ink[1].strip()}" is as dark as the hair "{hair[1].strip()}"' if neutral else None
 
 
 def design_prompt(spec, head):
     require(head in spec['designs'], 'Unknown design head: ' + str(head))
-    return spec['designs'][head] + '\n' + spec['common']
+    conflict = colour_conflict(spec['designs'][head])
+    require(conflict is None or head in spec.get('colourReviewed', {}),
+            f'Design colours do not separate for {head}: {conflict}. Give the ink a hue the hair lacks, as dark as the intended '
+            'ink (the palette row sets the in-game colour), or record the head in colourReviewed')
+    contradiction = FEATURE_CONFLICTS.search(spec['designs'][head] + '\n' + spec['common'])
+    require(contradiction is None, f'Design text for {head} contradicts the face feature rules ("{contradiction and contradiction[0]}"): '
+            'designs need flat lighting and matte irises (step 7 of docs/heads/head-texture-quality-plan.md)')
+    return spec['designs'][head] + '\n' + spec['common'] + '\n' + FEATURE_RULES
 
 
 def inpaint_prompt(spec, skin):

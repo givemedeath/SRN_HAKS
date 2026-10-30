@@ -711,6 +711,35 @@ class MeshTests(Temporary):
         vertices=np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1]],np.float32)
         faces=np.array([[0,2,1],[0,1,3],[0,3,2],[1,2,3]])
         return vertices,faces
+    def test_precluster_matches_the_reference_bytes_without_loading_other_attributes(self):
+        # Race heads v1: the packed-key, block-wise precluster writes the same bytes as the row-unique original
+        # (human-female-d raw head: peak commit 6.24 -> 3.72 GB) and reads only positions and indices.
+        from headkit.mesh import precluster,BLOCK
+        from headkit.gltf import positions
+        class Igl:
+            def bfs_orient(self,faces):return faces.copy(),np.zeros(len(faces),np.int64)
+        rng=np.random.default_rng(3);p=rng.random((4000,3)).astype(np.float32);f=rng.integers(0,4000,(9000,3))
+        f=np.r_[f,f[:50],f[:20,[1,2,0]],np.c_[f[:5,0],f[:5,0],f[:5,1]]]  # duplicates, rotated duplicates, degenerate faces
+        uv=rng.random((len(f),3,2)).astype(np.float32);normals=np.tile([[0,0,1.]],(len(f)*3,1)).astype(np.float32)
+        source=self.root/'raw.glb';write_mesh(source,p[f].reshape(-1,3),np.arange(len(f)*3).reshape(-1,3),uv,normals)
+        def reference(path,out,resolution):
+            value=mesh(path);vertices,faces=value['positions'],value['faces'];lo=vertices.min(0);size=float(np.max(np.ptp(vertices,axis=0)))
+            _,groups=np.unique(np.floor((vertices-lo)/size*resolution).astype(np.int64),axis=0,return_inverse=True)
+            clustered=np.zeros((groups.max()+1,3));np.add.at(clustered,groups,vertices);clustered/=np.bincount(groups)[:,None];result=groups[faces]
+            result=result[np.all(np.diff(np.sort(result,axis=1),axis=1)!=0,axis=1)]
+            _,first=np.unique(np.sort(result,axis=1),axis=0,return_index=True);result=result[np.sort(first)]
+            tri=clustered[result];result=result[np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)>0]
+            used,inverse=np.unique(result,return_inverse=True);clustered=clustered[used];result,components=Igl().bfs_orient(np.asarray(inverse.reshape(-1,3),np.int32))
+            tri=clustered[result];volumes=np.bincount(components,weights=np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2]))/6)
+            flipped=volumes[components]<0;result[flipped]=result[flipped][:,[0,2,1]];write_mesh(out,clustered,result)
+        with patch('headkit.mesh.library',return_value=Igl()),patch('headkit.mesh.BLOCK',1000):
+            for resolution in (512,1024):
+                with self.subTest(resolution=resolution):
+                    lean,old=self.root/f'lean-{resolution}.glb',self.root/f'old-{resolution}.glb'
+                    record=precluster(source,lean,{},resolution);reference(source,old,resolution)
+                    self.assertEqual(lean.read_bytes(),old.read_bytes())
+                    self.assertEqual(record['beforeTriangles'],len(f))
+        self.assertEqual(positions(source)[0].shape,(len(f)*3,3));self.assertEqual(BLOCK,1<<22)
     def test_topology_survives_uniform_scale_and_translation(self):
         p,f=self.tetra()
         for scale in (.01,10):self.assertTrue(topology(p*scale+[4,2,8],f)['closed'])
@@ -857,6 +886,20 @@ class MeshTests(Temporary):
         self.assertEqual(result['surfaceDistance']['reference'],pin(self.root/'out'/'master.glb'))
         np.testing.assert_allclose(np.sort(distances[0],0),np.sort(np.unique(master,axis=0),0))  # tapered master, not the source
         self.assertGreater(np.abs(master-untapered).max(),.005);self.assertEqual(result['neck']['taper']['untapered'],pin(self.root/'out'/'master-untapered.glb'))
+    def test_interior_only_selection_deletes_bubbles_and_refuses_visible_floaters(self):
+        from headkit.mesh import select_shells,ShellReview
+        p,f=self.bell();t,tf=self.tetra();vertices=np.asarray(p,float);faces=np.asarray(f)
+        centre=vertices.mean(0);reach=np.linalg.norm(vertices-centre,axis=1).min()*.9
+        inside=lambda V,F,points:(np.linalg.norm(points-centre,axis=1)<reach).astype(float)  # stand-in winding number
+        def two(offset):
+            bubble=np.asarray(t,float)*.01+offset;return np.r_[vertices,bubble],np.r_[faces,np.asarray(tf)+len(vertices)]
+        policy={'keep':'largest','reviewed':True,'interiorOnly':True,'maximumDeletedAreaFraction':.05,'expectedDeleted':1}
+        V,F=two(centre);kept,kf,record=select_shells(V,F,policy,inside)
+        self.assertEqual(len(kf),len(faces));self.assertEqual(record['deleted'][0]['insideFraction'],1.0)
+        V,F=two(centre+[0,0,10]);outside=None
+        with self.assertRaisesRegex(ValueError,'not wholly inside') as raised:select_shells(V,F,policy,inside)
+        self.assertEqual(raised.exception.attempts['shells']['extra'][0]['insideFraction'],0.0)
+        with self.assertRaisesRegex(ValueError,'winding-number test'):select_shells(*two(centre),policy)
     def test_repair_keeps_one_shell_and_deletes_floaters_only_by_reviewed_selection(self):
         from headkit import neck as mesh_module
         p,f=self.bell();t,tf=self.tetra();floater=t*.01+[0,-.3,0]  # a detached floater behind the head (GLB +z faces front)
@@ -866,9 +909,12 @@ class MeshTests(Temporary):
         keep={'keep':'largest','reviewed':True,'maximumDeletedAreaFraction':.05,'expectedDeleted':1}
         for components,message in ((None,'2 separate shells'),(dict(keep,reviewed=False),'reviewed'),(dict(keep,expectedDeleted=0),'1 shells would be deleted'),
                                    (dict(keep,maximumDeletedAreaFraction=1e-6),'above the reviewed bound'),(dict(keep,maximumDeletedAreaFraction=.1),'supported profile')):
-            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message) as raised:
                 mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'components':components} if components else {'alphaWrap':False},inspection)
             self.assertFalse((self.root/'master.glb').exists())
+            if message!='supported profile':  # a refusal carries the shell table for review (stored in the refused receipt)
+                extra=raised.exception.attempts['shells']['extra'];self.assertEqual(len(extra),1);self.assertIn('at [',str(raised.exception))
+                self.assertEqual(len(extra[0]['centroid']),3);self.assertEqual(len(extra[0]['box']),2);self.assertLess(extra[0]['areaFraction'],.05)
         with patch.object(mesh_module,'library',lambda b,name:igl):
             result=mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'triangleBudget':len(f)+20,'components':keep},inspection)
         self.assertTrue(result['passed'] and result['componentDeletion']);self.assertEqual(result['topology']['triangles'],len(f))
@@ -877,6 +923,11 @@ class MeshTests(Temporary):
         area=lambda v,f:np.linalg.norm(np.cross(v[f][:,1]-v[f][:,0],v[f][:,2]-v[f][:,0]),axis=1).sum()/2
         self.assertAlmostEqual(result['shells']['deletedAreaFraction'],area(floater,tf)/(area(floater,tf)+area(p,f)),places=6)
         np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(self.glb(p),axis=0),0),atol=1e-6)
+        # interiorOnly reaches libigl 2.6.3's fast_winding_number(V, F, Q); the floater behind the head is visible, so it is refused
+        calls=[];igl.fast_winding_number=lambda V,F,Q:calls.append((V.dtype,F.dtype,len(Q))) or np.zeros(len(Q))
+        with patch.object(mesh_module,'library',lambda b,name:igl),self.assertRaisesRegex(ValueError,'not wholly inside'):
+            mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'triangleBudget':len(f)+20,'components':dict(keep,interiorOnly=True)},inspection)
+        self.assertEqual(calls,[(np.float64,np.int64,4)])
     def icosphere(self,radius=.1,levels=3):
         g=(1+5**.5)/2;v=[(-1,g,0),(1,g,0),(-1,-g,0),(1,-g,0),(0,-1,g),(0,1,g),(0,-1,-g),(0,1,-g),(g,0,-1),(g,0,1),(-g,0,-1),(-g,0,1)]
         f=[(0,11,5),(0,5,1),(0,1,7),(0,7,10),(0,10,11),(1,5,9),(5,11,4),(11,10,2),(10,7,6),(7,1,8),(3,9,4),(3,4,2),(3,2,6),(3,6,8),(3,8,9),(4,9,5),(2,4,11),(6,2,10),(8,6,7),(9,8,1)]
@@ -949,6 +1000,20 @@ class MeshTests(Temporary):
         self.assertEqual(len(inputs),2);self.assertTrue(result['smoothing']['rewrapped']);self.assertEqual(result['smoothing']['rewrapShells']['shells'],1)
         self.assertGreater(np.abs(inputs[1]-inputs[0]).max(),1e-4)  # the second wrap received the smoothed master
         np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(inputs[1],axis=0),0),atol=1e-6)
+    def test_reduction_gate_passes_bounded_fine_relief_but_not_a_flattened_protrusion(self):
+        # race heads v1: 10 of 20 heads failed the 0.4% bound only on hair-strand relief (<=11 vertices, extent <=1.1%, <=1.16%)
+        from headkit.neck import fine_relief
+        p,f=self.icosphere(levels=4);diagonal=float(np.linalg.norm(np.ptp(p,axis=0)));error=np.full(len(p),.001)
+        strands=np.random.default_rng(6).choice(len(p),5,replace=False);error[strands]=.009  # ~0.2% of the area
+        relief=fine_relief(p,f,error,.003,.004,{})
+        self.assertTrue(relief['passed']);self.assertLessEqual(relief["regions"],5);self.assertLess(relief['measured']['extent'],.015)
+        tusk=error.copy();tusk[np.linalg.norm(p-p[0],axis=1)<.03*diagonal]=.009  # a lost protrusion: one long connected region
+        failed=fine_relief(p,f,tusk,.003,.004,{});self.assertFalse(failed['passed']);self.assertGreater(failed['measured']['extent'],.015)
+        for value,outward,policy in ((.02,.003,{}),(.009,.005,{}),(.009,.003,False),(.009,.003,{'maximumError':.008})):
+            with self.subTest(value=value,outward=outward,policy=policy):
+                deep=error.copy();deep[strands]=value;self.assertFalse(fine_relief(p,f,deep,outward,.004,policy)['passed'])
+        for bad in ({'maximumExtent':.05},{'other':.01},{'maximumError':0},True):
+            with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'fineRelief'):fine_relief(p,f,error,.003,.004,bad)
     def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
         from headkit import neck as mesh_module
         from headkit.neck import neck_policy,neck_shorten,shorten_depth,transform
@@ -1031,6 +1096,82 @@ class MeshTests(Temporary):
         self.assertEqual((hollow_record['closure'],len(hollow_record['loops']),len(calls)),('rewrap',2,1))
         with self.assertRaisesRegex(ValueError,'cross the head'):neck_cut(self.glb(p),f,neck_policy({'cut':{'height':-.2}},fit),body)
 
+    def test_neck_cut_skirt_keeps_hair_hanging_below_the_jaw_and_removes_only_the_neck_column(self):
+        # User 2026-10-28: neck cuts avoid hair. Hair merged onto the back of the neck down to -0.10 (2.5 cm proud of
+        # the 5.5 cm neck) survives the cut down to the reviewed depth; the neck column inside it and the front are removed.
+        from headkit.neck import neck_policy,neck_cut,transform,face_angle,cut_candidates
+        p,f,body=self.necked_head();fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        theta=np.arctan2(p[:,0],p[:,1]);back=np.maximum(-np.cos(theta),0)**2;z=p[:,2]
+        hanging=(z<0)&(z>-.10);p=p.copy();p[hanging,:2]*=(1+back[hanging]*.025/.055)[:,None]
+        plain=neck_policy({'cut':{'height':'measured','slope':0.0}},fit)
+        v,_,record=neck_cut(self.glb(p),f,plain,body);local=transform(plain['frame'],v)
+        self.assertFalse(np.any(local[:,2]<record['height']-1e-6))  # a plain cut clips the hanging hair at the plane
+        default=neck_policy({'cut':{'height':'measured','slope':0.0,'skirt':{'depth':.05}}},fit)
+        self.assertEqual((default['cut']['skirt'],default['cut']['cone']),({'depth':.05,'gap':.03},60.0))
+        neck=neck_policy({'cut':{'height':'measured','slope':0.0,'skirt':{'depth':.05,'gap':.015}}},fit)  # this hair is 2.5 cm proud
+        with self.assertRaisesRegex(ValueError,'only a wrapped repair'):neck_cut(self.glb(p),f,neck,body)
+        calls=[];rewrap=lambda v,fs:(calls.append(len(fs)) or (v,fs))
+        v,faces,record=neck_cut(self.glb(p),f,neck,body,rewrap=rewrap);local=transform(neck['frame'],v)
+        self.assertEqual((record['closure'],len(calls)),('rewrap',1));self.assertGreater(record['skirt']['hairVertices'],0)
+        self.assertGreaterEqual(record['skirt']['boundaryComponents'],1);self.assertEqual(record['snappedToPlane'],0)
+        below=local[local[:,2]<record['height']-1e-6];self.assertGreater(len(below),0)
+        self.assertGreater(below[:,2].min(),record['height']-.05-1e-6)  # nothing deeper than the reviewed depth
+        self.assertGreater(face_angle(below).min(),60)  # outside the front cone
+        self.assertGreater(np.linalg.norm(below[:,:2],axis=1).min(),.0416+.015)  # beyond the gap outside the body neck (octagon 4.16-4.5 cm)
+        self.assertEqual(cut_candidates(self.glb(p),f,neck,body)[0]['result'],'not surveyed')  # the ladder has no rewrap
+        # The wrap also spans the open space under the chin (a flat panel in front of the throat, 7.5 cm forward and 1-4
+        # cm under the plane): the tuck draws it inside the body neck and leaves the hair where it hangs.
+        gx,gz=np.meshgrid(np.linspace(-.03,.03,7),np.linspace(-.01,-.04,4));n=len(gx.ravel())
+        panel=np.c_[gx.ravel(),np.full(n,.075),record['height']+gz.ravel()];base=len(v)
+        quads=[(r*7+c,r*7+c+1,(r+1)*7+c+1,(r+1)*7+c) for r in range(3) for c in range(6)]
+        panel_faces=np.array([t for a,b,c,d in quads for t in ((a,b,c),(a,c,d))])+base
+        def spanning(points,fs):
+            return np.r_[points,transform(np.linalg.inv(neck['frame']),panel)],np.r_[fs,panel_faces]
+        tucked,_,tucked_record=neck_cut(self.glb(p),f,neck,body,rewrap=spanning);tl=transform(neck['frame'],tucked)
+        self.assertLess(np.linalg.norm(tl[base:,:2],axis=1).max(),.045-.003+1e-6)  # inside the body neck (octagon 4.16-4.5 cm, offset -3 mm)
+        deep=tl[base:][panel[:,2]<record['height']-.03]  # past 2*gap below the plane: the narrow core, not a tube lining the neck
+        self.assertLess(np.linalg.norm(deep[:,:2],axis=1).max(),.35*(.045-.003)+1e-6)
+        np.testing.assert_allclose(tl[:base],local,atol=1e-9)  # the kept hair (all within keep of itself) does not move
+        self.assertEqual(tucked_record['skirt']['tuck']['tuckedVertices'],n)
+        self.assertEqual(record['skirt']['tuck']['tuckedVertices'],0)
+        # The real panel (human-female-c) stands up to the band top ABOVE the plane, 3-4 cm outside the body neck, beside
+        # the chin: the invented surface is drawn in, the chin (original surface at the same height) does not move.
+        high=np.c_[gx.ravel(),np.full(n,.06),record['height']+.002-(gz.ravel()+.01)*.6]  # 2-20 mm above the plane, 6 cm forward
+        def spanning_high(points,fs):
+            return np.r_[points,transform(np.linalg.inv(neck['frame']),high)],np.r_[fs,panel_faces]
+        lifted,_,lifted_record=neck_cut(self.glb(p),f,neck,body,rewrap=spanning_high);ll=transform(neck['frame'],lifted)
+        from scipy.spatial import cKDTree
+        from headkit.neck import TUCK_INVENTED
+        away=cKDTree(local).query(high)[0]  # the panel's distance from the real (pre-wrap) surface
+        far,near=away>2*TUCK_INVENTED,away<TUCK_INVENTED;self.assertTrue(far.sum()>n//2)
+        self.assertLess(np.linalg.norm(ll[base:][far][:,:2],axis=1).max(),.045-.003+1e-6)  # invented: drawn inside the neck
+        np.testing.assert_allclose(ll[base:][near],high[near],atol=1e-9)  # touching the chin: left as real surface
+        np.testing.assert_allclose(ll[:base],local,atol=1e-9)  # every original vertex, the chin included, stays
+        for bad in ({'gap':.01},{'depth':.3},{'depth':.05,'cone':60},{'depth':.05,'width':1}):
+            with self.assertRaisesRegex(ValueError,'skirt'):neck_policy({'cut':{'height':'measured','skirt':bad}},fit)
+        with self.assertRaisesRegex(ValueError,'cone'):neck_policy({'cut':{'height':'measured','cone':10}},fit)
+    def test_chin_below_falls_back_to_a_shorter_reach_when_the_jaw_search_finds_the_lip(self):
+        # Race heads v1 dwarf-female-a / orc-male-d: at reach 0.08 the jaw search took the lower lip (z 0.0) and the cut ran
+        # through the mouth; a reviewed chinBelow makes the cut retry .06/.04/.03 and keep the first jaw under it.
+        from headkit.neck import neck_policy,measured_jaw
+        fit={'matrix':np.eye(4).tolist(),'reviewed':True};found={.08:0.0,.06:-.01,.04:-.032,.03:-.035}
+        def jaw(local,bv,bf,reach,slope,bottom,cone):
+            if reach==.06:raise ValueError('No front feature (chin) stands beyond the reach; set an explicit cut height')
+            return {'height':found[reach],'point':[0,.08,found[reach]],'reach':reach,'slope':slope}
+        cut=lambda **k:neck_policy({'cut':dict({'height':'measured','reach':.08},**k)},fit)['cut']
+        with patch('headkit.neck.jaw_line',side_effect=jaw):
+            plain=measured_jaw(None,None,None,cut());self.assertEqual(plain,jaw(None,None,None,.08,0.0,-.16,None))  # no chin rule: the record is unchanged
+            picked=measured_jaw(None,None,None,cut(chinBelow=-.02));self.assertEqual(picked['reach'],.04)
+            self.assertEqual([t['reach'] for t in picked['reachesTried']],[.08,.06]);self.assertIn('problem',picked['reachesTried'][1])
+            with self.assertRaisesRegex(ValueError,'No reach finds the chin at or below chinBelow'):measured_jaw(None,None,None,cut(chinBelow=-.05))
+        for bad in ({'chinBelow':.2},{'chinBelow':'low'},{'height':-.05,'chinBelow':-.02}):
+            with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'chinBelow'):neck_policy({'cut':dict({'height':'measured'},**bad)},fit)
+    def test_measured_jaw_with_a_front_cone_ignores_hair_hanging_beside_the_jaw(self):
+        from headkit.neck import jaw_line
+        p,f,body=self.necked_head();theta=np.arctan2(p[:,0],p[:,1]);side=np.exp(-((np.abs(theta)-np.radians(75))/.15)**2)
+        lock=(p[:,2]<0)&(p[:,2]>-.09);p=p.copy();p[lock,:2]*=(1+side[lock]*1.2)[:,None]  # side locks to -0.09, 6 cm proud
+        self.assertLess(jaw_line(p,*body,.04,-.2)['point'][2],-.06)  # the front half takes a lock for the chin
+        jaw=jaw_line(p,*body,.04,-.2,cone=60);self.assertTrue(-.04<jaw['point'][2]<-.03)  # the cone keeps the chin
     def test_measured_jaw_ignores_a_flared_bust_below_the_search_bottom(self):
         from headkit.neck import neck_policy,jaw_line
         p,f,body=self.necked_head();flared=p.copy()
@@ -1054,6 +1195,31 @@ class MeshTests(Temporary):
         self.assertTrue(result['passed']);self.assertEqual(result['neck']['cut']['bodyNeck'],pin(reference))
         self.assertEqual(result['neck']['cut']['uncut'],pin(self.root/'master-uncut.glb'))
         master=mesh(self.root/'master.glb')['positions'];self.assertGreater(master[:,1].min(),-.07)  # GLB y = NWN z: the neck is gone
+    def test_neck_cut_snaps_a_vertex_just_above_the_plane_instead_of_leaving_a_sliver(self):
+        # troll-male-a repair 1: a kept vertex 1.1e-6 m above the plane left a zero-area triangle the master audit refused
+        from headkit.neck import neck_policy,neck_cut,cut_problem
+        p,f,body=self.necked_head();row=float(np.unique(p[:,2])[np.argmin(np.abs(np.unique(p[:,2])+.06))])
+        neck=neck_policy({'cut':{'height':row-2e-9,'slope':0.0}},{'matrix':np.eye(4).tolist(),'reviewed':True})
+        v,faces,record=neck_cut(self.glb(p),f,neck,body)
+        self.assertIsNone(cut_problem(v,faces));self.assertGreater(record['snappedToPlane'],0);self.assertEqual(record['closure'],'fan')
+    def test_repair_tries_reviewed_fallback_slopes_then_reports_passing_cut_variants(self):
+        from headkit import neck as mesh_module
+        p,f,body=self.necked_head();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        reference=self.root/'body-neck.json';write(reference,{'kind':'srn-head-body-neck','vertices':body[0].tolist(),'faces':body[1].tolist()},fresh=True)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True};igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'cut':{'height':'measured','slope':-.2,'slopes':[-.15]}}}
+        verdicts=iter(['22 crossing pairs',None])  # the declared slope crosses hanging hair; the reviewed fallback is clean
+        with patch.object(mesh_module,'library',lambda b,name:igl),patch.object(mesh_module,'cut_problem',lambda v,f:next(verdicts)):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=fit,body=reference)
+        self.assertEqual(result['neck']['cut']['slope'],-.15)
+        self.assertEqual(result['neck']['cut']['slopesTried'],[{'slope':-.2,'problem':'22 crossing pairs'},{'slope':-.15,'problem':None}])
+        failing=self.root/'failing';failing.mkdir()
+        with patch.object(mesh_module,'library',lambda b,name:igl),patch.object(mesh_module,'cut_problem',lambda v,f:'1 crossing pairs'):
+            with self.assertRaisesRegex(ValueError,'slope -0.2: 1 crossing pairs; slope -0.15: 1 crossing pairs.*cut-candidates.json'):
+                mesh_module.repair(source,failing/'final.glb',{},policy,inspection,fit=fit,body=reference)
+        survey=read(failing/'cut-candidates.json');self.assertEqual(len(survey['tried']),2)
+        self.assertIn({'height':'measured','slope':-.1,'reach':.08},[row['cut'] for row in survey['candidates']])
+        with self.assertRaisesRegex(ValueError,'fallback slopes'):mesh_module.neck_policy({'cut':{'height':'measured','slopes':[-.9]}},fit)
     def test_body_neck_reference_places_the_neck_part_in_the_head_frame(self):
         from headkit.body_neck import build
         skeleton=('newmodel pxg0\nnode dummy pxg0\n  parent NULL\nendnode\nnode dummy torso_g\n  parent pxg0\n  position 0 0 1.5\nendnode\n'
@@ -1140,6 +1306,15 @@ class MeshTests(Temporary):
         self.assertEqual(root(['x','status','--bindings',str(bindings_path)]),'D:/pkgs')
         self.assertIsNone(root(['x','status']));self.assertIsNone(root(['x','--bindings']))
         bindings_path.write_text('{}');self.assertIsNone(root(['x','--bindings',str(bindings_path)]))
+        # batch --heads: every head's bindings share one package directory (race-heads-v1: batch native failed on all heads
+        # with "resolves outside its byte-bound installation: numpy" because only --bindings was read)
+        bindings_path.write_text(json.dumps({'pythonPackages':{'directory':'D:/pkgs','files':[]}}))
+        other=self.root/'o.json';other.write_text(json.dumps({'pythonPackages':{'directory':'D:/other','files':[]}}))
+        heads=self.root/'heads.json';heads.write_text(json.dumps([{'bindings':str(bindings_path)},{'bindings':str(bindings_path)}]))
+        self.assertEqual(root(['x','batch','--heads',str(heads),'--stages','native']),'D:/pkgs')
+        heads.write_text(json.dumps([{'bindings':str(bindings_path)},{'bindings':str(other)}]));self.assertIsNone(root(['x','batch','--heads',str(heads)]))
+        for bad in ('[]','{}','[1]','not json'):
+            with self.subTest(heads=bad):heads.write_text(bad);self.assertIsNone(root(['x','batch','--heads',str(heads)]))
 
     def test_lower_coverage_floor_needs_a_recorded_review(self):
         from headkit.uv import coverage_floor
@@ -1150,7 +1325,10 @@ class MeshTests(Temporary):
                        {'minimumCoverage':.25,'coverageReview':{'reviewed':False,'notes':'x'}}):
             with self.subTest(policy=policy),self.assertRaisesRegex(ValueError,'recorded review'):coverage_floor(policy)
         for floor in (.1,0.0,'0.3'):
-            with self.subTest(floor=floor),self.assertRaisesRegex(ValueError,'0.20..1'):coverage_floor({'minimumCoverage':floor})
+            with self.subTest(floor=floor),self.assertRaisesRegex(ValueError,'0.15..1'):coverage_floor({'minimumCoverage':floor})
+        with self.assertRaisesRegex(ValueError,"user's approval"):coverage_floor({'minimumCoverage':.17,'coverageReview':review})
+        approved=dict(review,userApproved=True)
+        self.assertEqual(coverage_floor({'minimumCoverage':.17,'coverageReview':approved}),(.17,approved))
 
     def test_unwrap_checks_the_coverage_floor_before_charting(self):
         from headkit.uv import unwrap
@@ -1617,7 +1795,7 @@ class ToneMatchTests(Temporary):
         rgb=np.repeat(luma[...,None],3,2);labels=np.zeros((1024,1024),np.uint8);labels[:,900:]=1
         Image.fromarray(rgb).save(self.root/'c.png');Image.fromarray(labels).save(self.root/'o.png')
         palette=np.full((2,256,4),255,np.uint8);palette[0,:,:3]=np.arange(256)[:,None];palette[1,:,:3]=255-np.arange(256)[:,None]
-        palette[0,7,3]=0;Image.fromarray(palette).save(self.root/'p.png')
+        palette[0,7,3]=0;palette[:,255,3]=0;Image.fromarray(palette).save(self.root/'p.png')  # 255 is transparent, as in the game palettes
         write(self.root/'refs.json',{'schemaVersion':1,'references':{'ref':{'layer':0,'quantiles':np.linspace(40,180,101).tolist()}}})
         return luma,labels,{'0':str(self.root/'p.png'),'1':str(self.root/'p.png')},{'0':0,'1':0}
     def test_opt_in_match_reaches_the_reference_keeps_order_and_isolates_channels(self):
@@ -1648,6 +1826,33 @@ class ToneMatchTests(Temporary):
                 with self.assertRaisesRegex(ValueError,message):
                     quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/f'bad{index}',shade_offsets=offsets,tone_match=spec)
                 self.assertFalse((self.root/f'bad{index}').exists())
+    def test_full_range_stretches_every_varied_channel_and_keeps_order(self):
+        luma,labels,palettes,rows=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            plain=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'plain')
+            full=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'full',full_range=True)
+            toned=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'toned',tone_match={'0':{'reference':'ref'}},full_range=True)
+        self.assertNotIn('shadeRange',plain['layers']['0'])
+        for result in (full,toned):
+            shades=np.asarray(Image.open(result['shades']['path']))
+            for key in ('0','1'):
+                selected=labels==int(key);report=result['layers'][key]['shadeRange']
+                self.assertEqual(report['eligible'],[0,253]);self.assertTrue(report['checked']);self.assertGreaterEqual(report['spanFraction'],.5)
+                order=np.argsort(luma[selected],kind='stable');self.assertTrue(np.all(np.diff(shades[selected][order].astype(int))>=0))
+                self.assertFalse({6,7,254}&set(np.unique(shades[selected]).tolist()))  # transparent shades and their lower neighbours
+        narrow=np.asarray(Image.open(plain['shades']['path']))[labels==0]
+        self.assertLess(np.percentile(narrow,99)-np.percentile(narrow,1),127)  # the nearest-colour fixture is the narrow case
+    def test_full_range_exempts_flat_channels_and_refuses_narrow_varied_ones(self):
+        _,_,palettes,rows=self.fixture()
+        Image.new('RGB',(1024,1024),(90,90,90)).save(self.root/'flat.png')
+        flat=quantize(self.root/'flat.png',self.root/'o.png',palettes,rows,self.root/'flat',full_range=True)
+        self.assertFalse(flat['layers']['0']['shadeRange']['checked'])
+        self.assertTrue(np.all(np.asarray(Image.open(flat['shades']['path']))==90))
+        with patch('headkit.palette.FULL_RANGE_SPAN',.999),self.assertRaisesRegex(ValueError,'full shade range required'):  # the guard trips
+            quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'spiky',full_range=True)
+        with self.assertRaisesRegex(ValueError,'not both'):
+            quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'offset',shade_offsets={'0':4},full_range=True)
+        self.assertFalse((self.root/'spiky').exists());self.assertFalse((self.root/'offset').exists())
     def test_plt_reader_and_reference_count_shared_textures_once(self):
         from headkit.palette import plt_shades,shade_reference
         def plt(name,shades,layers):
@@ -1658,10 +1863,22 @@ class ToneMatchTests(Temporary):
         quantiles,unique=shade_reference([a,b,c],0,knots=3);self.assertEqual(unique,2);self.assertEqual(quantiles,[51.0,54.0,57.0])
         (self.root/'short.plt').write_bytes(a.read_bytes()[:-1])
         with self.assertRaisesRegex(ValueError,'size mismatch'):plt_shades(self.root/'short.plt')
+    def test_reference_entry_pins_every_source_and_counts_shared_textures_once(self):
+        from headkit.palette import shade_reference_entry
+        def plt(name,shades):
+            path=self.root/name;path.write_bytes(b'PLT V1  '+np.array([10,0,4,2],'<u4').tobytes()+np.stack([shades,np.zeros_like(shades)],-1)[::-1].tobytes());return path
+        top=np.arange(8,dtype=np.uint8).reshape(2,4);a=plt('X_HEAD001.plt',top);b=plt('x_head002.plt',top);c=plt('x_head003.plt',top+100)
+        entry=shade_reference_entry([c,a,b],0,'fixture skin')
+        self.assertEqual((entry['layer'],entry['uniqueTextures'],len(entry['quantiles'])),(0,2,101))
+        self.assertEqual([s['resref'] for s in entry['sources']],['x_head001.plt','x_head002.plt','x_head003.plt'])
+        self.assertEqual(entry['sources'][2]['sha256'],pin(c)['sha256'])
+        with self.assertRaisesRegex(ValueError,'Distinct stock PLT'):shade_reference_entry([a,a],0,'twice')
     def test_committed_references_and_stage_binding(self):
         from headkit.common import stage_code_files
         from headkit.palette import REFERENCES
         data=read(REFERENCES);self.assertTrue({'troll-male-skin-v1','troll-male-hair-v1'}<=set(data['references']))
+        races={f'{race}-{sex}-skin-v1' for race in ('human','dwarf','elf','orc','troll') for sex in ('male','female')}
+        self.assertLessEqual(races,set(data['references']))  # every playable metatype can tone-match its skin
         for name,row in data['references'].items():
             with self.subTest(reference=name):
                 q=np.asarray(row['quantiles']);self.assertEqual(len(q),101);self.assertTrue(np.all(np.diff(q)>=0) and 0<=q[0] and q[-1]<=254)
@@ -1674,10 +1891,66 @@ class ToneMatchTests(Temporary):
                                input=lambda name:name+'.png')
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
         self.assertEqual(quantizer.call_args.kwargs['tone_match'],{'0':{'reference':'troll-male-skin-v1'}})
+        self.assertIs(quantizer.call_args.kwargs['full_range'],False)
+        runner.data['palette']['fullShadeRange']=True
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
+        self.assertIs(quantizer.call_args.kwargs['full_range'],True)
         runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
             Runner._execute(runner,'palette',self.root)
         ranking.assert_not_called();self.assertEqual(quantizer.call_args.args[3],{'0':'auto'})
+    def tinted(self):
+        """Grey, reddish and bluish ramps: a grey source picks grey from the bake, a reddish design picks the red row."""
+        palette=np.full((3,256,4),255,np.uint8);ramp=np.arange(256)
+        palette[0,:,:3]=ramp[:,None];palette[1,:,:3]=np.c_[ramp,ramp*.6,ramp*.6];palette[2,:,:3]=np.c_[ramp*.6,ramp*.6,ramp]
+        Image.fromarray(palette).save(self.root/'tint.png');return palette
+    def test_design_row_takes_the_row_closest_to_the_design_colour(self):
+        from headkit.palette import lab
+        _,_,palettes,_=self.fixture();palette=self.tinted();palettes={'0':str(self.root/'tint.png'),'1':str(self.root/'p.png')}
+        target=lab(palette[2,40:180,:3]).mean(0).tolist()  # bluish design; the grey source's own row is another
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            chosen=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'design',
+                            tone_match={'0':{'reference':'ref','rowFrom':'design'}},design={'0':{'pixels':5000,'lab':target}})
+            few=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'few',
+                         tone_match={'0':{'reference':'ref','rowFrom':'design'}},design={'0':{'pixels':10,'lab':target}})
+            bake=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bake',tone_match={'0':{'reference':'ref'}})
+        report=chosen['layers']['0']['designRow']
+        self.assertEqual((chosen['rows']['0'],report['rows'][0]['row']),(2,2));self.assertEqual(report['bakeRow'],bake['rows']['0']);self.assertNotEqual(bake['rows']['0'],2)
+        self.assertEqual(few['rows']['0'],bake['rows']['0']);self.assertIn('Fewer than',few['layers']['0']['designRow']['fallback'])
+        self.assertNotIn('designRow',bake['layers']['0'])
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'),self.assertRaisesRegex(ValueError,'rowFrom bake or design'):
+            quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bad',tone_match={'0':{'reference':'ref','rowFrom':'render'}})
+    def quad(self,z,facing_front,uv_x):
+        # A unit square at depth z; vertex order sets the normal (+z or -z); UVs inside one vertical half of the atlas.
+        p=np.array([[-1,-1,z],[1,-1,z],[1,1,z],[-1,1,z]],float);f=np.array([[0,1,2],[0,2,3]]) if facing_front else np.array([[0,2,1],[0,3,2]])
+        uv=np.array([[uv_x,.1],[uv_x+.3,.1],[uv_x+.3,.9],[uv_x,.9]]);return p,f,uv
+    def mesh_value(self,*quads):
+        positions=[];faces=[];uvs=[]
+        for p,f,uv in quads:faces.append(f+len(positions)*0+sum(len(x) for x in positions));positions.append(p);uvs.append(uv[f])
+        return {'positions':np.concatenate(positions),'faces':np.concatenate(faces),'uv':np.concatenate(uvs)}
+    def test_front_view_keeps_the_nearest_front_facing_surface(self):
+        from headkit.palette import front_labels
+        layers=np.zeros((1024,1024),np.uint8);layers[:,512:]=1  # left atlas half channel 0, right half channel 1
+        front=self.quad(1,True,.1);behind=self.quad(-1,True,.6);back=self.quad(2,False,.6)  # back faces away, nearer in z
+        labels=front_labels(self.mesh_value(front,behind,back),layers,size=64)
+        inside=labels>=0;self.assertGreater(inside.mean(),.8);self.assertTrue(np.all(labels[inside]==0))
+    def test_design_reference_samples_each_channel_through_the_registered_front_view(self):
+        from headkit.palette import design_reference,lab
+        from headkit.images import subject
+        rgb=np.full((256,256,3),192,np.uint8);rgb[60:200,40:220]=(180,60,50)  # backdrop with a red subject block
+        layers=np.zeros((1024,1024),np.uint8)
+        reference=design_reference(rgb,subject(rgb)[0],self.mesh_value(self.quad(1,True,.1)),layers,self.root/'reference.png')
+        channel=reference['channels']['0'];self.assertGreater(channel['pixels'],1000)
+        np.testing.assert_allclose(channel['lab'],lab([[180,60,50]])[0],atol=.5);self.assertTrue((self.root/'reference.png').is_file())
+    def test_runner_reads_the_design_only_for_design_rows(self):
+        from headkit.runner import stage_roles,design_rows
+        from headkit.common import runner_slice
+        data={'inputs':{'design':{},'uvMesh':{}},'palette':{'inputs':{},'toneMatch':{'0':{'reference':'r'}}}}
+        self.assertNotIn('design',stage_roles('palette',data));self.assertFalse(design_rows(data))
+        data['palette']['toneMatch']['0']['rowFrom']='design';self.assertIn('design',stage_roles('palette',data));self.assertTrue(design_rows(data))
+        text=runner_slice(Path(__file__).parent/'runner.py','palette')
+        self.assertIn("design_reference(",text);self.assertIn("'design-reference.png'",text)
+        self.assertIn("dependencies.append('unwrap')",text)
     def test_automatic_row_follows_the_matched_shades(self):
         _,_,palettes,_=self.fixture()
         with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
@@ -2883,7 +3156,25 @@ class FitProposalTests(Temporary):
         nosed=propose(source,reference,self.root/'fit-nose',align='nose')
         self.assertEqual(nosed['align'],'nose');np.testing.assert_allclose(nosed['translation'],offset,atol=.004)
         np.testing.assert_allclose(np.asarray(nosed['sourceNose'])*nosed['scale']+nosed['translation'],nosed['referenceNose'],atol=1e-9)
-        with self.assertRaisesRegex(ValueError,'profile or nose'):propose(source,reference,self.root/'fit-bad',align='ears')
+        with self.assertRaisesRegex(ValueError,'profile, nose or landmarks'):propose(source,reference,self.root/'fit-bad',align='ears')
+        with self.assertRaisesRegex(ValueError,'landmark alignment'):propose(source,reference,self.root/'fit-bad2',landmarks={'base':'pfd0'})
+    def test_landmark_fit_maps_reviewed_face_landmarks_onto_the_base_head_whatever_the_eye_labels(self):
+        # Race heads v1: each race and sex has its own base head; a source scaled x0.8 and moved is mapped back exactly,
+        # with its eyes labelled either way (designs name the image-left eye 'left', the table is in head_g x order).
+        from headkit.fit import BASE_HEADS,LANDMARKS,landmark_policy,landmark_fit
+        base=BASE_HEADS['pfd0'];truth=np.asarray([base[k] for k in LANDMARKS]);shift=np.array([.01,-.02,.03])
+        source={k:((np.asarray(base[k])-shift)/.8).tolist() for k in LANDMARKS}
+        swapped=dict(source,eyeLeft=source['eyeRight'],eyeRight=source['eyeLeft'])
+        for given in (source,swapped):
+            with self.subTest(swapped=given is swapped):
+                a,b,residual=landmark_policy({'base':'pfd0','source':given,'reviewed':True});scale,translation,errors=landmark_fit(a,b,residual)
+                self.assertAlmostEqual(scale,.8,places=9);np.testing.assert_allclose(translation,shift,atol=1e-9);self.assertLess(errors.max(),1e-9)
+        bent=dict(source,lips=(np.asarray(source['lips'])+[0,0,.02]).tolist())
+        with self.assertRaisesRegex(ValueError,'Landmark residual'):landmark_fit(*landmark_policy({'base':'pfd0','source':bent,'reviewed':True}))
+        for bad in ({'base':'pfd0','source':source},{'base':'pzz0','source':source,'reviewed':True},{'base':'pfd0','source':source,'reviewed':True,'calibration':2},
+                    {'base':'pfd0','source':dict(source,eyeRight=source['eyeLeft']),'reviewed':True},{'base':'pfd0','source':source,'reviewed':True,'extra':1}):
+            with self.subTest(bad=sorted(bad)),self.assertRaises(ValueError):landmark_policy(bad)
+        np.testing.assert_allclose(truth,np.asarray([base[k] for k in LANDMARKS]))  # the table itself is untouched
     def test_nose_alignment_ignores_tusks_further_forward_than_the_nose(self):
         from headkit.fit import propose
         from headkit.gltf import write_mesh
@@ -2899,10 +3190,35 @@ class FitProposalTests(Temporary):
         # A nose fit that would move the head further than the agreement bound is refused, never applied.
         with patch('headkit.fit.nose_tip',side_effect=[np.array([0,.2,0.]),np.array([0,0,-.2])]):
             with self.assertRaisesRegex(ValueError,'disagree by'):propose(source,reference,self.root/'fit-far',align='nose')
-    def test_rejects_moved_reference_nodes(self):
+    def test_reference_ranking_puts_a_head_with_back_hair_last(self):
+        # race heads v1: pfh0_head001, pfd0_head008 and pfo0_head009 carried back hair and mis-scaled their fits (0.50-0.60)
+        from headkit.fit import rank_references
+        points,faces=self.head();hair=points.copy();back=(hair[:,1]<0)&(hair[:,2]<.06);hair[back,1]*=1.8  # hanging back hair
+        paths=[]
+        for name,p in (('hair',hair),('compact',points)):
+            lines=['node trimesh head','  position 0 0 0',f'  verts {len(p)}']+[f'    {x} {y} {z}' for x,y,z in p]
+            lines+=[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+            path=self.root/f'{name}.mdl';path.write_text('\n'.join(lines));paths.append(path)
+        ranking=rank_references(paths,samples=20000)
+        self.assertEqual([Path(row['reference']['path']).stem for row in ranking],['compact','hair'])
+        self.assertGreater(ranking[1]['depthRatio'],ranking[0]['depthRatio']*1.15)
+    def test_reference_nodes_are_placed_through_their_transforms(self):
+        # Stock heads (decompiled pmd0/pme0/pmo0_head001) carry node offsets and 'orientation 0 0 1 0' (identity).
         from headkit.fit import ascii_surface
-        path=self.root/'moved.mdl';path.write_text('node trimesh x\n  position 0 0 .1\n  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\nendnode')
-        with self.assertRaisesRegex(ValueError,'identity'):ascii_surface(path)
+        tri='  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\n'
+        path=self.root/'moved.mdl';path.write_text('node dummy root\n  parent NULL\n  position 0 0 .5\nendnode\n'
+            'node trimesh x\n  parent root\n  position 0 0 .1\n  orientation 0 0 1 1.5707963267948966\n'+tri+'endnode')
+        points=ascii_surface(path,samples=2000)
+        # Rotated 90 degrees about z (x -> y) then lifted by both offsets: x in [-1,0], y in [0,1], z = 0.6.
+        np.testing.assert_allclose(points[:,2],.6,atol=1e-9);self.assertTrue((points[:,0]<=1e-9).all() and (points[:,1]>=-1e-9).all())
+        plain=self.root/'plain.mdl';plain.write_text('node trimesh x\n  orientation 0 0 1 0\n'+tri+'endnode')
+        np.testing.assert_allclose(ascii_surface(plain,samples=50)[:,2],0,atol=1e-12)
+        broken=self.root/'broken.mdl';broken.write_text('node trimesh x\n  parent missing\n'+tri+'endnode')
+        with self.assertRaisesRegex(ValueError,'hierarchy'):ascii_surface(broken)
+        # Animation blocks after the geometry reuse node names without verts; they must not replace the geometry nodes.
+        animated=self.root/'animated.mdl';animated.write_text('beginmodelgeom m\nnode trimesh x\n  parent NULL\n'+tri+'endnode\nendmodelgeom m\n'
+            'newanim pause1 m\n  length 1\nnode trimesh x\n  parent NULL\n  positionkey\n 0 0 0 9\n  endlist\nendnode\ndoneanim pause1 m\n')
+        np.testing.assert_allclose(ascii_surface(animated,samples=50)[:,2],0,atol=1e-12)
 
 
 class FitStageTests(Temporary):
@@ -3194,6 +3510,49 @@ class OcciputTests(Temporary):
         self.assertTrue(shell['open']);self.assertEqual(shell['reason'],'no back surface')
 
 
+class BatchTests(Temporary):
+    def heads(self):
+        rows=[];base=self.root
+        for name in ('a','b'):
+            self.root=base/name;self.root.mkdir();ResumeTests.fixture(self)
+            rows.append({'manifest':str(self.root/'manifest.json'),'bindings':str(self.root/'bindings.json'),'run':str(self.root/'run')})
+            (self.root/'prepared'/'ascii').mkdir(parents=True)
+        self.root=base;return rows
+
+    def run_batch(self,heads,precompile):
+        import headkit.__main__ as cli
+        seen=[]
+        def chain(runner,stages):
+            seen.append((runner.data['id'],getattr(runner,'precompiled',None)));return {'stages':[],'stopped':None}
+        def result(runner,stage,**kw):
+            if stage=='native':raise ValueError('Stage not completed: native')
+            return {'ascii':{'path':str(Path(runner.bindings_path).parent/'prepared'/'ascii'/'head.mdl')}}
+        with patch('headkit.__main__.launched',return_value=None),patch('headkit.__main__.chain',side_effect=chain), \
+             patch.object(Runner,'native_compiler',return_value=[{'path':'mdl-compiler.json','sha256':'s'}]), \
+             patch.object(Runner,'result',autospec=True,side_effect=result), \
+             patch('headkit.native.mdl_compiler',return_value={}),patch('headkit.native.precompile',side_effect=precompile) as compile_many:
+            report=cli.batch(heads,['native'],precompile=self.root/'shared')
+        return report,seen,compile_many
+
+    def test_one_shared_compile_for_every_eligible_head(self):
+        heads=self.heads()
+        mapping=lambda prepared,mdl,folder:{str(Path(p).resolve()):Path(folder)/f'{i:02d}' for i,p in enumerate(prepared)}
+        report,seen,compile_many=self.run_batch(heads,mapping)
+        compile_many.assert_called_once();self.assertEqual(len(compile_many.call_args[0][0]),2)
+        self.assertEqual([len(folders) for _,folders in seen],[2,2]);self.assertEqual(report['precompile'][0]['heads'],['synthetic','synthetic'])
+        self.assertNotIn('error',report['precompile'][0])
+
+    def test_a_failed_shared_compile_falls_back_to_per_head_compiles(self):
+        def broken(prepared,mdl,folder):raise RuntimeError('worker failed')
+        report,seen,_=self.run_batch(self.heads(),broken)
+        self.assertEqual(seen,[('synthetic',None),('synthetic',None)]);self.assertIn('worker failed',report['precompile'][0]['error'])
+
+    def test_heads_must_be_distinct_runs(self):
+        import headkit.__main__ as cli
+        heads=self.heads()
+        with self.assertRaisesRegex(ValueError,'distinct head runs'):cli.batch([heads[0],heads[0]],['native'])
+
+
 class NeverblenderNativeTests(Temporary):
     def binding(self, addon=None):
         blender=self.file('blender.exe');path=self.root/'mdl-compiler.json'
@@ -3216,7 +3575,7 @@ class NeverblenderNativeTests(Temporary):
                                         'plt':rows['resources/head.plt'],'expected':rows['expected-native.npz']})
         engine=Path(self.root/'engine');engine.mkdir()
         for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py'):(engine/name).write_text(name)
-        def compile_folder(blender,addon,converted,dirs,timeout):
+        def compile_folder(blender,addon,converted,dirs,timeout,cache=None):
             (Path(converted)/'resources'/'head.mdl').write_bytes(b'binary');(Path(converted)/'native-compile.json').write_text('{}')
             return {'complete':True,'compiled':1,'executionMode':'neverblender-cleanmodels','compilerSha256':'c',
                     'blenderVersion':'5.2.1 LTS','compiler':{'cleanmodels':'v4.10.0'}}
@@ -3230,6 +3589,36 @@ class NeverblenderNativeTests(Temporary):
             audit=native.compile_and_package(prepared,{'path':'unused'},self.root/'out',native.mdl_compiler(self.binding()))
         client.assert_not_called()
         self.assertEqual(audit['compiler']['mode'],'neverblender-cleanmodels');self.assertEqual(len(audit['compiler']['engine']),3)
+
+    def test_a_precompiled_binary_is_reused_and_recorded(self):
+        from headkit import native
+        prepared=self.root/'prepared';(prepared/'ascii').mkdir(parents=True);(prepared/'resources').mkdir();rows={}
+        for name in ('source.glb','ascii/head.mdl','resources/head.plt','expected-native.npz'):
+            (prepared/name).write_bytes(name.encode());rows[name]=pin(prepared/name)
+        write(prepared/'prepared.json',{'model':'head','source':rows['source.glb'],'ascii':rows['ascii/head.mdl'],
+                                        'plt':rows['resources/head.plt'],'expected':rows['expected-native.npz']})
+        cache=self.root/'batch'/'00'/'converted';cache.mkdir(parents=True);write(cache/'native-compile.json',{'complete':True})
+        engine=self.root/'engine';engine.mkdir()
+        for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py'):(engine/name).write_text(name)
+        seen=[]
+        def compile_folder(blender,addon,converted,dirs,timeout,cache=None):
+            seen.append(cache);(Path(converted)/'resources'/'head.mdl').write_bytes(b'binary');(Path(converted)/'native-compile.json').write_text('{}')
+            return {'complete':True,'compiled':0 if cache else 1,'reused':1 if cache else 0,'executionMode':'neverblender-cleanmodels',
+                    'compilerSha256':'c','blenderVersion':'5.2.1 LTS','compiler':{'cleanmodels':'v4.10.0'}}
+        hak=SimpleNamespace(write_hak=lambda path,rows:Path(path).write_bytes(b'hak'),
+                            payload=lambda path:{('head',2002):pin(Path(path).parent/'resources/head.mdl')['sha256'],
+                                                 ('head',6):pin(Path(path).parent/'resources/head.plt')['sha256']})
+        with patch('headkit.native.neverblender',return_value=SimpleNamespace(compile_folder=compile_folder,__file__=str(engine/'neverblender_mdl.py'))), \
+             patch('headkit.native.audit_native',return_value=(b'binary',{'model':'head'})),patch('headkit.native.helpers',return_value=(None,hak,None,None,None)):
+            audit=native.compile_and_package(prepared,{'path':'unused'},self.root/'out',native.mdl_compiler(self.binding()),cache=cache)
+            with self.assertRaisesRegex(ValueError,'needs the Neverblender compiler'):
+                native.compile_and_package(prepared,{'path':'unused'},self.root/'client',None,cache=cache)
+        self.assertEqual(seen,[cache]);self.assertEqual(audit['compiler']['precompiled'],pin(cache/'native-compile.json'))
+
+    def test_native_branch_hands_its_precompiled_folder_to_the_compile(self):
+        from headkit.common import runner_slice
+        text=runner_slice(Path(__file__).parent/'runner.py','native')
+        self.assertIn("getattr(self,'precompiled',{})",text);self.assertIn('cache=cache',text)
 
     def test_native_receipt_is_bound_to_its_compiler_selection(self):
         runner=ResumeTests.fixture(self);binding=self.root/'mdl-compiler.json'
@@ -3401,7 +3790,21 @@ class TextureStageTests(Temporary):
         self.assertTrue(Path(result['preview']).is_file());self.assertEqual(sum(result['report']['channels'].values()),64*64)
         self.assertGreater(result['report']['rules'][0]['texels'],0)
         with self.assertRaisesRegex(ValueError,'named regions'):preview(runner,'stats',self.root/'stats')
-        with self.assertRaisesRegex(ValueError,'ownership, stats or relief'):preview(runner,'colour',self.root/'other')
+        with self.assertRaisesRegex(ValueError,'ownership, stats, relief or rows'):preview(runner,'colour',self.root/'other')
+    def test_preview_rows_decodes_each_channel_with_its_manifest_row_and_the_ranked_rows(self):
+        # race heads v1: automatic rows were hue-wrong on 16 of 20 heads; reviewers pin rows from this sheet before the palette
+        from headkit.preview import preview
+        source,rgb=self.two_faces();owners=np.zeros((64,64),np.uint8);owners[:,32:]=1;Image.fromarray(owners).save(self.root/'own.png')
+        ramp=np.arange(256)[:,None];palette=np.zeros((4,256,4),np.uint8);palette[...,3]=255;palette[3,:,3]=0
+        palette[0,:,:3]=ramp;palette[1,:,0]=ramp[:,0];palette[2,:,2]=ramp[:,0];Image.fromarray(palette).save(self.root/'pal.png')
+        paths={'paletteSkin':str(self.root/'pal.png'),'paletteHair':str(self.root/'pal.png'),'ownership1k':str(self.root/'own.png')}
+        runner=SimpleNamespace(data={'inputs':paths,'palette':{'inputs':{'0':'paletteSkin','1':'paletteHair'},'rows':{'0':2,'1':'auto'}}},
+            _sealed=lambda:False,input=lambda name:paths[name],
+            result=lambda stage,require_review=True:{'unwrap':{'mesh':{'path':str(source)}},'bake':{'maps':{'basecolor-4096.png':{'path':str(self.root/'color.png')}}}}[stage])
+        result=preview(runner,'rows',self.root/'rows');rows=[(c['channel'],c['row'],c['manifest']) for c in result['candidates']]
+        self.assertEqual(rows[0],('0',2,True));self.assertEqual(len({(c,r) for c,r,_ in rows}),len(rows))  # the manifest row once, first
+        self.assertEqual({r for c,r,_ in rows if c=='1'},{0,1,2});self.assertNotIn(3,{r for _,r,_ in rows})  # transparent row never offered
+        self.assertTrue(Path(result['preview']).is_file())
     def test_rule_ownership_first_match_wins_and_padding_takes_nearest_label(self):
         from headkit.paint import rule_ownership
         from headkit.uv import raster_audit
@@ -3507,7 +3910,11 @@ class TextureStageTests(Temporary):
         data=read(runner.manifest_path);data['ownership']['rules']=[{'name':'all-skin','channel':0,'when':{'mapped':True}}];data['tone']={'mode':'adjust','operations':[]}
         write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
         for stage in ('repair','unwrap','bake'):self.assertIn('artifact',runner.result(stage))
-        data['mesh']={'maximumSubtexelFraction':.004};write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        data['mesh']=dict(data.get('mesh') or {},maximumSubtexelFraction=.004);write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertIn('artifact',runner.result('repair'))  # repair does not read the UV and bake keys
+        for stage in ('unwrap','bake'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
+        data['mesh']=dict(data['mesh'],triangleBudget=19000);write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
         for stage in ('repair','unwrap','bake'):
             with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
         receipt=read(runner.state['stages']['repair']['path']);self.assertNotIn(str(runner.manifest_path),{p['path'] for p in receipt['inputs']})
@@ -3556,6 +3963,16 @@ class TextureStageTests(Temporary):
             runner.execute('repair');runner.review('repair','approved','Reviewed this stage')
         with patch('headkit.runner.stage_source_version',return_value='edited'),patch('headkit.common.runner_slice_sha',return_value='0'*64):
             with self.assertRaisesRegex(ValueError,'Stale stage; rerun with current input snapshot: repair'):runner.result('repair')
+    def test_a_uv_coverage_floor_stales_unwrap_but_not_the_approved_repair(self):
+        # race heads v1: a reviewed mesh.uv floor set after repair approval forced 4-7 min identical repair reruns
+        runner=self.texture_runner();before={stage:runner.manifest_digest(stage) for stage in ('repair','unwrap','bake')};data=read(runner.manifest_path)
+        for key,value in (('uv',{'minimumCoverage':.21,'coverageReview':'reviewed'}),('maximumSubtexelFraction',.004),('allowDecoderOvershoot',True),('reuseReviewedUvs',False)):
+            with self.subTest(key=key):
+                changed=copy.deepcopy(data);changed.setdefault('mesh',{})[key]=value;write(runner.manifest_path,changed)
+                fresh=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(fresh.manifest_digest('repair'),before['repair'])
+                self.assertNotEqual(fresh.manifest_digest('unwrap'),before['unwrap']);self.assertNotEqual(fresh.manifest_digest('bake'),before['bake'])
+        changed=copy.deepcopy(data);changed.setdefault('mesh',{})['triangleBudget']=19000;write(runner.manifest_path,changed)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('repair'),before['repair'])
     def test_later_approvals_do_not_stale_the_matte(self):
         runner=self.texture_runner();before=runner.manifest_digest('prepare');data=read(runner.manifest_path)
         data['approval'].update(appearanceField={'decision':'approved'},textureMaps={'basecolor4k':{'decision':'approved'}})
@@ -3698,9 +4115,9 @@ class DesignTests(Temporary):
             self.assertEqual((g['48']['inputs']['steps'],g['48']['inputs']['width'],g['26']['inputs']['guidance']),(FIXED['steps'],FIXED['size'],FIXED['guidance']))
             self.assertEqual((g['16']['inputs']['sampler_name'],g['89']['inputs']['strength_model']),(FIXED['sampler'],1.0))
     def test_spec_and_prompt_validation(self):
-        from headkit.design import load_spec,design_prompt,inpaint_prompt
+        from headkit.design import load_spec,design_prompt,inpaint_prompt,FEATURE_RULES
         spec=load_spec(self.spec)
-        self.assertEqual(design_prompt(spec,'troll-a'),'One adult troll head, ram horns.\nFront view, plain gray background.')
+        self.assertEqual(design_prompt(spec,'troll-a'),'One adult troll head, ram horns.\nFront view, plain gray background.\n'+FEATURE_RULES)
         self.assertEqual(inpaint_prompt(spec,'dark brown'),'A short neck of the same dark brown skin; dark brown pores.')
         for bad in ({'designs':{'a':'x'}},{'common':'c','designs':{}},{'common':'c','designs':{'Bad Name':'x'}},{'common':'c','designs':{'a':' '}},
                     {'common':'c','designs':{'a':'x'},'neckInpaint':'no placeholder'},{'common':'c','designs':{'a':'x'},'extra':1}):
@@ -3710,6 +4127,28 @@ class DesignTests(Temporary):
         for skin in ('',' brown','dark\nbrown','SKIN','x'*81):
             with self.subTest(skin=skin),self.assertRaises(ValueError):inpaint_prompt(spec,skin)
         with self.assertRaisesRegex(ValueError,'no neckInpaint'):inpaint_prompt({'common':'c','designs':{'a':'x'}},'brown')
+    def test_design_prompt_carries_and_guards_the_feature_rules(self):
+        from headkit.design import load_spec,design_prompt,FEATURE_RULES
+        for text in ('Dramatic lighting.','A rim-lit elf.','Backlit portrait.','Glossy eyes.','shiny irises','cinematic lighting'):
+            write(self.root/'rules.json',{'common':'Front view.','designs':{'a':'One elf head. '+text}})
+            with self.subTest(text=text),self.assertRaisesRegex(ValueError,'contradicts the face feature rules'):design_prompt(load_spec(self.root/'rules.json'),'a')
+        write(self.root/'rules.json',{'common':'Front view.','designs':{'a':'One elf head, sharp grey eyes, ink lines.'}})
+        self.assertTrue(design_prompt(load_spec(self.root/'rules.json'),'a').endswith(FEATURE_RULES))
+    def test_design_prompt_refuses_ink_as_dark_as_the_hair(self):
+        from headkit.design import load_spec,design_prompt,colour_conflict
+        clash='One dwarf head.\nHair: black medium-length hair.\nTattoo: thin BLACK circuit lines on the cheek.'
+        self.assertIsNotNone(colour_conflict(clash))
+        self.assertIsNotNone(colour_conflict('Hair: dark brown bob.\nTattoo: a thin dark line under the eye.'))
+        for fine in ('Hair: black hair.\nTattoo: thin deep dark crimson-red circuit lines.','Hair: white hair.\nTattoo: thin black lines.',
+                     'Hair: black hair.\nTattoo: none.','Hair: none; bald scalp.\nTattoo: thin black lines.','Hair: black hair.'):
+            with self.subTest(fine=fine):self.assertIsNone(colour_conflict(fine))
+        write(self.root/'clash.json',{'common':'c','designs':{'a':clash}})
+        with self.assertRaisesRegex(ValueError,'Design colours do not separate for a'):design_prompt(load_spec(self.root/'clash.json'),'a')
+        write(self.root/'clash.json',{'common':'c','designs':{'a':clash},'colourReviewed':{'a':'ink split by position, reviewed'}})
+        self.assertIn('\nc\n',design_prompt(load_spec(self.root/'clash.json'),'a'))
+        for bad in ({'b':'note'},{'a':' '},['a']):
+            write(self.root/'bad.json',{'common':'c','designs':{'a':clash},'colourReviewed':bad})
+            with self.subTest(bad=bad),self.assertRaises(ValueError):load_spec(self.root/'bad.json')
     def test_example_spec_shape_is_accepted(self):
         from headkit.design import load_spec
         write(self.root/'example.json',{'common':'c','designs':{'troll-male-02':'x','troll-male-04-stub':'y'},'neckEdit':'e','neckInpaint':'n SKIN'})
@@ -3722,7 +4161,8 @@ class DesignTests(Temporary):
         receipt=read(result['receipt']);token=receipt['token']
         self.assertEqual((receipt['state'],receipt['kind'],receipt['seed'],receipt['batch'],receipt['promptId']),('complete','design',7,3,'prompt-7'))
         self.assertTrue(receipt['proposalOnly'] and receipt['reviewRequired']);self.assertIn('direct',receipt['dispatch'])
-        self.assertEqual(receipt['prompt'],'One adult troll head, ram horns.\nFront view, plain gray background.')
+        from headkit.design import FEATURE_RULES
+        self.assertEqual(receipt['prompt'],'One adult troll head, ram horns.\nFront view, plain gray background.\n'+FEATURE_RULES)
         self.assertEqual(receipt['graphSha256'],digest(receipt['graph']));self.assertEqual(receipt['graph']['47']['inputs']['batch_size'],3)
         self.assertEqual(receipt['outputPrefix'],f'{SUBFOLDER}/{token}/troll-a-s7');self.assertEqual(receipt['spec'],pin(self.spec))
         self.assertEqual(receipt['bindings'],pin(self.bindings));self.assertIsInstance(receipt['elapsedSeconds'],float)

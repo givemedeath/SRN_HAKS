@@ -103,11 +103,24 @@ def mdl_compiler_files(path):
     return [pin(path)]+[pin(p) for p in sorted(neverblender().declared_files(config['blender']['path'],config['neverblender']))]
 
 
-def compile_and_package(prepared_dir, client, output, mdl=None):
+def precompile(prepared_dirs, mdl, folder):
+    """One headless Blender run for several heads' prepared exports (headkit `batch`): each gets folder/NN/converted with
+    its binary and its own native-compile.json, which compile_and_package then reuses as that head's `cache`. Returns
+    {resolved prepared dir: converted folder}."""
+    folder=Path(folder);folder.mkdir(parents=True,exist_ok=False);targets=[]
+    for index,prepared in enumerate(prepared_dirs):
+        target=folder/f'{index:02d}'/'converted';shutil.copytree(prepared,target);targets.append(target)
+    neverblender().compile_folders(mdl['blender']['path'],mdl['neverblender'],targets,(),300+60*len(targets))
+    return {str(Path(prepared).resolve()):target for prepared,target in zip(prepared_dirs,targets)}
+
+
+def compile_and_package(prepared_dir, client, output, mdl=None, cache=None):
     """Compile the prepared ASCII model to a binary MDL and package it. With `mdl` (mdl_compiler) the compile runs in
     headless Blender through the Neverblender add-on's bundled cleanmodels compiler; without it, through the EE client's
-    compilemodel (kept so earlier receipts replay)."""
+    compilemodel (kept so earlier receipts replay). `cache` (from precompile) supplies a binary compiled by the same
+    compiler from identical sources and lookups; Neverblender reuses it only then, and it is audited like a fresh one."""
     tool=client if mdl is None else mdl['blender']
+    require(mdl is not None or cache is None,'A precompiled cache needs the Neverblender compiler')
     verify([tool]);prepared_dir=Path(prepared_dir);output=Path(output);output.mkdir(parents=True,exist_ok=False)
     from .common import read
     preparation=read(prepared_dir/'prepared.json');verify([preparation[k] for k in ('source','ascii','plt','expected')])
@@ -119,14 +132,16 @@ def compile_and_package(prepared_dir, client, output, mdl=None):
         (output/'compiler.log').write_text(result.stdout+'\n'+result.stderr,encoding='utf-8');require(result.returncode==0,'Native compiler failed; inspect retained log')
         compiler=client
     else:
-        try:receipt=neverblender().compile_folder(mdl['blender']['path'],mdl['neverblender'],converted,(),600)
+        try:receipt=neverblender().compile_folder(mdl['blender']['path'],mdl['neverblender'],converted,(),600,cache=cache)
         except Exception as error:
             (output/'compiler.log').write_text(repr(error),encoding='utf-8');raise ValueError('Neverblender compile failed; inspect retained log') from error
-        require(receipt.get('complete') is True and receipt.get('compiled')==1,'Neverblender compile incomplete')
+        require(receipt.get('complete') is True and receipt.get('compiled',0)+receipt.get('reused',0)==1
+                and (cache is not None or receipt.get('compiled')==1),'Neverblender compile incomplete')
         engine=Path(neverblender().__file__).parent
         compiler=dict(receipt['compiler'],mode=receipt['executionMode'],compilerSha256=receipt['compilerSha256'],
                       blenderVersion=receipt['blenderVersion'],receipt=pin(converted/'native-compile.json'),
                       engine=[pin(engine/name) for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py')])
+        if receipt.get('reused'):compiler['precompiled']=pin(Path(cache)/'native-compile.json')
     model=preparation['model'];binary=converted/'resources'/f'{model}.mdl'
     clean,audit=audit_native(binary,model,preparation['expected']['path'])
     resources=output/'resources';resources.mkdir();target=resources/f'{model}.mdl';target.write_bytes(clean)

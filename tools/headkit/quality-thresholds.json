@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "source": "Step 5 of docs/heads/head-texture-quality-plan.md (2026-10-29/30): calibrated on elf-male-c/-d shipped (fail) vs step 2/3 prototypes (pass), elf-male-a held out. Each limit sits between the worst passing and best failing calibration value, with margin. hairLockOnSkinPx from RUNBOOK 133 (shipped 0-2 px, unfixed prototypes 86-109 px).",
+  "limits": {
+    "featureFocusMin": 5.0,
+    "blotchPxMax": 20,
+    "specksMax": 10,
+    "hairLockOnSkinPxMax": 4,
+    "designSpecksWarn": 10,
+    "browsOnHairMin": 0.85,
+    "irisOnTattoo1Min": 0.85,
+    "whitesOnSkinMin": 0.9,
+    "hairOnFaceSkinMax": 0.03,
+    "shadeSpanMin": 0.75
+  }
+}

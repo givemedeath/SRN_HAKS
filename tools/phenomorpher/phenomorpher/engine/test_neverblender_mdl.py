@@ -66,6 +66,36 @@ class CompileFolderTests(unittest.TestCase):
             with patch.object(nvb, 'run', side_effect=run):
                 self.assertEqual(nvb.compile_folder(blender, addon, converted)['compiled'], 1)
 
+    def test_several_folders_compile_in_one_worker_run_with_their_own_receipts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); blender, addon = toolchain(root); folders = []
+            for name in ('a', 'b'):
+                folder = root/name; (folder/'ascii').mkdir(parents=True); (folder/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN)
+                (folder/'resources').mkdir(); (folder/'resources'/f'{name}.plt').write_bytes(name.encode()); folders.append(folder)
+            run, calls = fake_run(native('m', 'null', [('m', '', {})]))
+            with patch.object(nvb, 'run', side_effect=run):
+                receipts = nvb.compile_folders(blender, addon, folders)
+                alone = root/'alone'; shutil.copytree(folders[0], alone); (alone/'native-compile.json').unlink(); (alone/'resources/m.mdl').unlink()
+                single = nvb.compile_folder(blender, addon, alone)
+                copies = []
+                for i, folder in enumerate(folders):  # same contents, no outputs: reuse each folder's own binary
+                    copy = root/f'copy{i}'; shutil.copytree(folder, copy); (copy/'native-compile.json').unlink(); (copy/'resources/m.mdl').unlink()
+                    copies.append(copy)
+                cached = nvb.compile_folders(blender, addon, copies, caches=folders)
+            self.assertEqual(calls[0], ['m.mdl', 'm.mdl'])  # one worker run for both folders
+            self.assertEqual([r['compiled'] for r in receipts], [1, 1]);self.assertEqual([r['reused'] for r in cached], [1, 1]);self.assertEqual(calls[2], [])
+            # Each folder looks up only its own files, exactly as compiling it alone would.
+            self.assertEqual([sorted(r['lookupHashes']) for r in receipts], [['ascii/m.mdl', 'resources/a.plt'], ['ascii/m.mdl', 'resources/b.plt']])
+            self.assertEqual(single['lookupHashes'], receipts[0]['lookupHashes'])
+            for folder in folders:self.assertTrue((folder/'resources/m.mdl').is_file() and (folder/'native-compile.json').is_file())
+            # One bad folder publishes nothing anywhere.
+            bad = root/'bad'; (bad/'ascii').mkdir(parents=True); (bad/'ascii/m.mdl').write_text(ROOT_OFFSET); good = root/'good'
+            (good/'ascii').mkdir(parents=True); (good/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN)
+            with patch.object(nvb, 'run', side_effect=run), self.assertRaisesRegex(RuntimeError, 'model-root node'):
+                nvb.compile_folders(blender, addon, [good, bad])
+            for folder in (good, bad):
+                self.assertEqual(list((folder/'resources').iterdir()), []);self.assertFalse((folder/'native-compile.json').exists())
+
     def test_a_dropped_root_transform_fails_and_publishes_nothing(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); blender, addon = toolchain(root); converted = root/'c'; (converted/'ascii').mkdir(parents=True)

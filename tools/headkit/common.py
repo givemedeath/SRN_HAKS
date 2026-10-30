@@ -119,13 +119,26 @@ def asset(manifest_path, item):
 def manifest(path):
     data = read(path)
     allowed = {'schemaVersion', 'id', 'inputs', 'features', 'alignment', 'matte', 'camera', 'mesh',
-               'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile'}
+               'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile', 'faceMasks', 'quality'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1, 'Unsupported manifest keys/version')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')) is not None, 'Safe asset ID required')
     require(data.get('profile', 'pixal-single-v1') in ('pixal-single-v1', 'pixal-multiview-v1'), 'Unsupported generation profile')
     require(isinstance(data.get('inputs'), dict), 'Named pinned inputs required')
     for item in data['inputs'].values():
         asset(path, item)
+    # Face masks are opt-in and come as a set: masks, feature channels, the colour treatment and the quality gate.
+    face = [isinstance(data.get('faceMasks'), dict), (data.get('ownership') or {}).get('featureChannels') is True,
+            isinstance((data.get('tone') or {}).get('faceTreatment'), dict), isinstance(data.get('quality'), dict)]
+    require(all(face) or (not any(face) and 'featureChannels' not in (data.get('ownership') or {})
+                          and 'faceTreatment' not in (data.get('tone') or {}) and 'faceMasks' not in data and 'quality' not in data),
+            'faceMasks, ownership.featureChannels: true, tone.faceTreatment and quality go together')
+    # The quality gate's shadeSpan check (and the calibrated prototypes) assume every channel uses its full shade range.
+    require(not all(face) or (data.get('palette') or {}).get('fullShadeRange') is True,
+            'Face masks need palette.fullShadeRange: true (the quality gate measures each channel\'s shade span)')
+    # Imported runtime atlases bypass the gated path: palette would skip the channel moves and treatment, and export would
+    # ship shades the quality gate never measured.
+    bypass = sorted({'runtimeColor', 'runtimeShades', 'ownership1k'} & set(data['inputs']))
+    require(not all(face) or not bypass, 'Face masks build and gate the runtime atlases; do not import ' + ', '.join(bypass))
     budget = data.get('mesh', {}).get('triangleBudget', 20000)
     require(type(budget) is int and 4 <= budget <= 20000, 'Initial supported runtime budget is <=20K')
     return data
@@ -335,7 +348,7 @@ NATIVE_HELPERS=('tools/heads/head_export.py','tools/heads/head_workflow.py','too
     'tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py','tools/phenomorpher/phenomorpher/engine/neverblender_worker.py',
     'tools/phenomorpher/phenomorpher/engine/rig_native.py')
 STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not imported
-STAGE_DATA={'palette':('stock-shades.json',)}  # committed measured references the stage reads
+STAGE_DATA={'palette':('stock-shades.json',),'quality':('quality-thresholds.json',)}  # committed measured references the stage reads
 
 
 def module_path(name, directory):

@@ -75,6 +75,82 @@ def rank_rows(color, ownership, palette_files, *, keep=4, chunk=512):
 
 
 REFERENCES=Path(__file__).with_name('stock-shades.json');GRID=(.05,.25,.5,.75,.95)
+# Full shade range (user rule 2026-10-29, RUNBOOK 121): every channel may use all shades its row offers. A channel with at least
+# FULL_RANGE_PIXELS texels and a source luma p1-p99 spread of at least FLAT_LUMA must reach FULL_RANGE_SPAN of that range (p1-p99).
+FULL_RANGE_PIXELS=1024;FLAT_LUMA=8.0;FULL_RANGE_SPAN=.5
+# Full-range shades also need an opaque next shade: in the client shade 254 picks up the transparent reserved 255 and renders as
+# dark blotches (elf-male-a brow highlights, 2026-10-29), so a shade whose upper neighbour is transparent is never used.
+# Design-referenced rows (toneMatch rowFrom 'design'): lightness weight of the Lab distance (the matched shades already
+# set lightness, so hue and chroma decide), front-view size, label erosion and the minimum design sample. Validated on the
+# troll heads' hand-pinned skin rows: closer to the pin than the bake-referenced row on 16 of 20 (median 6.0 vs 10.6).
+DESIGN_LIGHTNESS_WEIGHT,FRONT_SIZE,FRONT_EROSION,MINIMUM_DESIGN_PIXELS=.25,512,2,200
+
+
+def lab(rgb):
+    """CIE Lab (D65) of sRGB rows."""
+    c=np.asarray(rgb,float).reshape(-1,3)/255;c=np.where(c>.04045,((c+.055)/1.055)**2.4,c/12.92)
+    xyz=c@np.array([[.4124,.3576,.1805],[.2126,.7152,.0722],[.0193,.1192,.9505]]).T/np.array([.95047,1,1.08883])
+    f=np.where(xyz>.008856,np.cbrt(xyz),7.787*xyz+16/116);return np.c_[116*f[:,1]-16,500*(f[:,0]-f[:,1]),200*(f[:,1]-f[:,2])]
+
+
+def front_labels(value, layers, size=FRONT_SIZE):
+    """Front (+z, glTF) orthographic channel view of a UV mesh: interior barycentric lattice points of every face turned
+    toward the viewer splat to pixels (nearest wins) and read the 1K ownership label at their UV; gaps inside the
+    silhouette take the nearest label. Each face gets about one point per pixel of its projected edge length, so large
+    faces leave no holes; interior points avoid chart-border gutters, and front-facing faces keep the back of the head
+    out of sample gaps."""
+    from scipy import ndimage
+    p=np.asarray(value['positions'],float);corners=p[np.asarray(value['faces'])];uv=np.asarray(value['uv'],float).reshape(-1,3,2)
+    lo,hi=p.min(0),p.max(0);span=max(hi[0]-lo[0],hi[1]-lo[1])*1.02;centre=(lo+hi)/2
+    facing=np.cross(corners[:,1]-corners[:,0],corners[:,2]-corners[:,0])[:,2]>0;corners,uv=corners[facing],uv[facing]
+    edge=np.max(np.linalg.norm((corners-np.roll(corners,1,axis=1))[...,:2],axis=-1),axis=1)/span*size
+    levels=np.clip(np.ceil(edge).astype(int)+2,6,256);points=[];texels=[]
+    for level in np.unique(levels):  # one lattice per density, vectorized over its faces
+        i,j=np.mgrid[1:level,1:level];keep=i+j<level;w=np.c_[i[keep],j[keep],level-i[keep]-j[keep]]/level;chosen=levels==level
+        points.append(np.einsum('sk,fkd->fsd',w,corners[chosen]).reshape(-1,3));texels.append(np.einsum('sk,fkd->fsd',w,uv[chosen]).reshape(-1,2))
+    points,texels=np.concatenate(points),np.concatenate(texels)
+    n=len(layers);labels=layers[np.clip((texels[:,1]*n).astype(int),0,n-1),np.clip((texels[:,0]*n).astype(int),0,n-1)].astype(int)
+    x=np.clip(((points[:,0]-centre[0])/span*size+size/2).astype(int),0,size-1);y=np.clip(((centre[1]-points[:,1])/span*size+size/2).astype(int),0,size-1)
+    pixel=y*size+x;order=np.lexsort((-points[:,2],pixel));first=np.r_[True,np.diff(pixel[order])!=0]
+    out=np.full(size*size,-1);out[pixel[order][first]]=labels[order][first];out=out.reshape(size,size)
+    inside=ndimage.binary_fill_holes(ndimage.binary_closing(out>=0,iterations=2));_,(iy,ix)=ndimage.distance_transform_edt(out<0,return_indices=True)
+    return np.where(inside,out[iy,ix],-1)
+
+
+def register(design_mask, front_mask):
+    """Scale and offset mapping front-view pixels to design pixels from the top edge and horizontal extent of each
+    silhouette's upper 60% (below the jaw the design keeps a neck the head no longer has)."""
+    def upper(mask):
+        ys,xs=np.nonzero(mask);cut=ys.min()+int((ys.max()-ys.min())*.6);ys,xs=np.nonzero(mask[:cut]);return xs.min(),xs.max(),ys.min()
+    fx0,fx1,fy0=upper(front_mask);dx0,dx1,dy0=upper(design_mask);require(fx1>fx0 and dx1>dx0,'Degenerate silhouette')
+    scale=(dx1-dx0)/(fx1-fx0);return scale,dx0-scale*fx0,dy0-scale*fy0
+
+
+def design_reference(design_rgb, design_mask, value, layers, output):
+    """Mean Lab of the design's visible pixels per ownership channel, sampled through the registered front view
+    (labels eroded so registration error stays inside the channel). Writes design-reference.png for review."""
+    from scipy import ndimage
+    from .paint import PREVIEW
+    front=front_labels(value,layers);scale,ox,oy=register(design_mask,front>=0);h,w=front.shape;ys,xs=np.mgrid[0:h,0:w]
+    sy=np.clip(np.rint(ys*scale+oy).astype(int),0,design_rgb.shape[0]-1);sx=np.clip(np.rint(xs*scale+ox).astype(int),0,design_rgb.shape[1]-1)
+    warped=design_rgb[sy,sx];visible=design_mask[sy,sx];targets={}
+    for key in np.unique(front[front>=0]):
+        chosen=ndimage.binary_erosion(front==key,iterations=FRONT_EROSION)&visible;samples=warped[chosen]
+        targets[str(key)]={'pixels':int(len(samples)),**({'lab':lab(samples).mean(0).round(2).tolist()} if len(samples) else {})}
+    overlay=np.where((front>=0)[...,None],(warped*.6+PREVIEW[np.clip(front,0,9)].astype(float)*.4),warped*.35).astype(np.uint8)
+    Image.fromarray(np.concatenate([warped,overlay],1)).save(output)
+    return {'channels':targets,'registration':{'scale':round(float(scale),4),'offset':[round(float(ox),1),round(float(oy),1)]},'image':pin(output)}
+
+
+def design_rows(target, shades, palette, *, keep=4):
+    """Rows ranked by Lab distance of their decoded mean colour (shades fixed, count-weighted) to the design's mean
+    colour for the channel, lightness weighted DESIGN_LIGHTNESS_WEIGHT."""
+    used=np.unique(shades);counts=np.bincount(shades,minlength=256)[used].astype(float)
+    usable=np.flatnonzero(np.all(palette[:,used,3]>0,axis=1))  # rows that can show every matched shade
+    means=(lab(palette[usable][:,used,:3]).reshape(len(usable),len(used),3)*counts[None,:,None]).sum(1)/counts.sum()
+    delta=means-np.asarray(target,float);distance=np.sqrt(DESIGN_LIGHTNESS_WEIGHT*delta[:,0]**2+delta[:,1]**2+delta[:,2]**2)
+    rows=sorted(zip(distance.tolist(),usable.tolist()))
+    return [{'row':row,'designDistance':round(distance,3)} for distance,row in sorted(rows)[:keep]]
 
 
 def plt_shades(path):
@@ -94,6 +170,17 @@ def shade_reference(paths, layer, *, knots=101):
         if len(values):unique.setdefault(values.tobytes(),values)
     require(unique,'No reference texels for channel '+str(layer))
     return np.mean([np.quantile(v,np.linspace(0,1,knots)) for v in unique.values()],axis=0).round(2).tolist(),len(unique)
+
+
+def shade_reference_entry(paths, layer, description):
+    """One stock-shades.json reference (headkit `shade-reference`): the measured quantiles plus every source PLT's
+    resref and SHA-256, so the numbers stay bound to the base-game files they came from."""
+    paths=sorted(Path(p) for p in paths);require(paths and len({p.name.lower() for p in paths})==len(paths),'Distinct stock PLT files required')
+    quantiles,unique=shade_reference(paths,layer)
+    return {'layer':layer,'description':description,'uniqueTextures':unique,
+            'method':'headkit.palette.shade_reference(paths, layer): mean of the per-texture quantile functions at 101 evenly spaced '
+                     'probabilities; textures whose channel holds an identical shade multiset count once',
+            'quantiles':quantiles,'sources':[{'resref':p.name.lower(),'sha256':pin(p)['sha256']} for p in paths]}
 
 
 def shade_stats(shades):
@@ -121,9 +208,20 @@ def rows_for_shades(target, shades, palette, *, keep=4):
     return [{'row':row,'meanSquaredColorError':error} for error,row in scores[:keep]]
 
 
-def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None):
+def stretch(quantiles, lo, hi, *, tail=.005):
+    """A quantile function resampled to 1001 points and moved linearly so its `tail` and 1-`tail` points sit on the lowest
+    and highest eligible shade (a few outlier texels cannot hold the rest of the channel in a narrow band); tails clip."""
+    q=np.asarray(quantiles,float);q=np.interp(np.linspace(0,1,1001),np.linspace(0,1,len(q)),q);a,b=np.interp([tail,1-tail],np.linspace(0,1,1001),q)
+    return np.clip(lo+(q-a)/max(b-a,1e-9)*(hi-lo),lo,hi)
+
+
+def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None, full_range=False):
     """Nearest-colour shades per channel. Opt-in `tone_match` ({channel: {'reference': name}}) instead remaps a channel's shades
-    by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads."""
+    by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads.
+    A tone-matched 'auto' row comes from the source colours, or with `rowFrom: 'design'` from the design's colour for the
+    channel (`design`: design_reference channels), keeping the source-colour row in the report. `full_range` stretches every
+    varied channel's shade distribution (its stock reference, else its nearest-colour shades) across all eligible shades of its
+    row, then rank-maps onto it, and refuses a varied channel that still spans less than FULL_RANGE_SPAN of that range."""
     require(set(rows)==set(palette_files),'Every selected layer needs its own stock palette image')
     rgb=np.asarray(Image.open(color).convert('RGB'),np.uint8)
     with Image.open(ownership) as image:
@@ -140,13 +238,21 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         palette=np.asarray(Image.open(palette_files[key]).convert('RGBA'));row=rows[key];spec=tone_match.get(key)
         selected=layers==layer;target=rgb[selected].astype(float)
         if spec is not None:
-            require(type(spec) is dict and set(spec)=={'reference'} and spec['reference'] in references,'Tone matching needs one known stock shade reference')
+            require(type(spec) is dict and set(spec)-{'rowFrom'}=={'reference'} and spec['reference'] in references
+                    and spec.get('rowFrom','bake') in ('bake','design'),'Tone matching needs one known stock shade reference (rowFrom bake or design)')
             quantiles=references[spec['reference']]['quantiles']
         if row=='auto':
             # Matched shades depend only on luma rank, so the row follows them: the one that best shows the source colours.
             require(spec is not None and palette.shape[1]==256,'Rank automatic rows before quantization unless the channel is tone matched')
-            candidates=rows_for_shades(target,match_shades(target,np.arange(255),quantiles),palette,keep=1)
-            require(candidates,'No palette row shows every tone-matched shade');row=resolved[key]=candidates[0]['row']
+            matched_shades=match_shades(target,np.arange(255),quantiles);candidates=rows_for_shades(target,matched_shades,palette,keep=1)
+            require(candidates,'No palette row shows every tone-matched shade');row=candidates[0]['row']
+            if spec.get('rowFrom')=='design':
+                reference=(design or {}).get(key,{'pixels':0});chosen={'bakeRow':row,'designPixels':reference['pixels']}
+                if reference['pixels']>=MINIMUM_DESIGN_PIXELS:
+                    ranked=design_rows(reference['lab'],matched_shades,palette);require(ranked,'No palette row shows every tone-matched shade')
+                    row=ranked[0]['row'];chosen.update(designLab=reference['lab'],rows=ranked)
+                else:chosen['fallback']=f'Fewer than {MINIMUM_DESIGN_PIXELS} design pixels in this channel: row from the source colours'
+            resolved[key]=row
         require(type(row) is int and 0<=row<len(palette) and palette.shape[1]==256,'Invalid stock palette row')
         eligible=(palette[row,:,3]>0)&(np.arange(256)<255);allowed=np.flatnonzero(eligible)
         require(len(allowed)>0,'No opaque palette shades available')
@@ -156,15 +262,30 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         require(type(offset) is int and abs(offset)<=32,'Bounded reviewed stock-skin shade offset required')
         if offset:
             shifted=np.clip(picked+offset,0,254);_,near=cKDTree(allowed[:,None]).query(shifted[:,None]);picked=allowed[near]
+        if full_range:
+            allowed=allowed[palette[row,np.minimum(allowed+1,255),3]>0];require(len(allowed)>0,'No palette shade with an opaque next shade')
+            _,near=cKDTree(allowed[:,None]).query(picked[:,None]);picked=allowed[near]
+        lo,hi=int(allowed.min()),int(allowed.max());luma=target@np.array([.299,.587,.114])
+        varied=bool(len(target)) and float(np.percentile(luma,99)-np.percentile(luma,1))>=FLAT_LUMA
+        if full_range:require(not offset,'Use a shade offset or the full shade range for a channel, not both')
         if spec is not None:
             require(not offset,'Use a shade offset or tone matching for a channel, not both')
-            nearest=picked;picked=match_shades(target,allowed,quantiles)
+            nearest=picked;picked=match_shades(target,allowed,stretch(quantiles,lo,hi) if full_range and varied else quantiles)
             matched={'reference':spec['reference'],'referenceFile':pin(REFERENCES),'before':shade_stats(nearest),'after':shade_stats(picked),
                      'referencePercentiles':{f'p{round(q*100)}':float(np.interp(q,np.linspace(0,1,len(quantiles)),quantiles)) for q in GRID},
                      'meanSquaredColorErrorBefore':float(np.mean((target-table[nearest])**2)),'rowsAfter':rows_for_shades(target,picked,palette)}
+        elif full_range and varied:picked=match_shades(target,allowed,stretch(np.quantile(picked,np.linspace(0,1,1001)),lo,hi))
+        if full_range:
+            span=float(np.percentile(picked,99)-np.percentile(picked,1)) if len(picked) else 0.0
+            checked=varied and len(picked)>=FULL_RANGE_PIXELS;fraction=span/max(hi-lo,1)
+            require(not checked or fraction>=FULL_RANGE_SPAN,f'Channel {key} spans {span:.0f} of {hi-lo} available shades (p1-p99); full shade range required')
+            range_report={'eligible':[lo,hi],'p1':float(np.percentile(picked,1)) if len(picked) else None,
+                          'p99':float(np.percentile(picked,99)) if len(picked) else None,'spanFraction':round(fraction,3),'checked':checked}
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
         report[key]={'pixels':int(selected.sum()),'meanSquaredColorError':float(np.mean((target-table[picked])**2)),'shadeOffset':offset}
         if spec is not None:report[key]['toneMatch']=matched
+        if full_range:report[key]['shadeRange']=range_report
+        if spec is not None and spec.get('rowFrom')=='design' and rows[key]=='auto':report[key]['designRow']=chosen
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     Image.fromarray(shades).save(output/'shades.png');Image.fromarray(layers).save(output/'layers.png');Image.fromarray(decoded).save(output/'decoded.png')
     # Every channel is varied independently; other channels must remain byte-identical.

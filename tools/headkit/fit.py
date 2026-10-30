@@ -8,23 +8,45 @@ The output is a proposal for review with an overlay; it never approves itself.""
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
-from .common import require, pin, write
+from .common import require, positive, pin, write
 from .gltf import mesh
 
 
+def _axis_angle(values):
+    """3x3 rotation of an NWN ASCII orientation (axis x y z, angle radians); a zero angle is identity whatever the axis."""
+    x,y,z,angle=(float(v) for v in values);n=np.linalg.norm([x,y,z])
+    if angle==0 or n==0:return np.eye(3)
+    x,y,z=x/n,y/n,z/n;c,s=np.cos(angle),np.sin(angle);t=1-c
+    return np.array([[t*x*x+c,t*x*y-s*z,t*x*z+s*y],[t*x*y+s*z,t*y*y+c,t*y*z-s*x],[t*x*z-s*y,t*y*z+s*x,t*z*z+c]])
+
+
 def ascii_surface(path, samples=200000, seed=0):
-    """Area-weighted surface samples of every trimesh node of an ASCII MDL (node transforms must be identity)."""
-    lines=Path(path).read_text(encoding='utf-8').splitlines();points=[];triangles=[];verts=None;i=0
+    """Area-weighted surface samples of every trimesh node of an ASCII MDL in model space: each node's verts go through its
+    own and its parents' position/orientation (stock heads carry small node offsets and 'orientation 0 0 1 0'). Reading
+    stops at the end of the model geometry: animation blocks reuse the node names without geometry."""
+    lines=Path(path).read_text(encoding='utf-8').splitlines();nodes={};node=None;i=0
     while i<len(lines):
-        words=lines[i].split()
-        if words[:1]==['position'] or words[:1]==['orientation']:
-            require(all(float(v)==0 for v in words[1:]),'Reference node transforms must be identity')
-        if words[:1]==['verts']:
-            count=int(words[1]);verts=np.array([[float(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);i+=count
-        elif words[:1]==['faces']:
-            require(verts is not None,'Faces before verts');count=int(words[1])
-            idx=np.array([[int(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);triangles.append(verts[idx]);i+=count
+        words=lines[i].split();key=words[0].lower() if words else ''
+        if key in ('endmodelgeom','newanim'):break
+        if key=='node' and len(words)>=3:node=nodes[words[2].lower()]={'parent':None,'position':np.zeros(3),'rotation':np.eye(3),'triangles':[],'verts':None}
+        elif key=='endnode':node=None
+        elif node is not None and key=='parent' and len(words)==2:node['parent']=None if words[1].upper()=='NULL' else words[1].lower()
+        elif node is not None and key=='position' and len(words)==4:node['position']=np.array([float(v) for v in words[1:]])
+        elif node is not None and key=='orientation' and len(words)==5:node['rotation']=_axis_angle(words[1:])
+        elif node is not None and key=='verts':
+            count=int(words[1]);node['verts']=np.array([[float(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);i+=count
+        elif node is not None and key=='faces':
+            require(node['verts'] is not None,'Faces before verts');count=int(words[1])
+            idx=np.array([[int(v) for v in lines[i+1+k].split()[:3]] for k in range(count)]);node['triangles'].append(node['verts'][idx]);i+=count
         i+=1
+    def world(name,depth=0):
+        require(name in nodes and depth<64,'Reference node hierarchy is broken: '+str(name))
+        n=nodes[name];rotation,position=n['rotation'],n['position']
+        if n['parent'] is None:return rotation,position
+        parent_rotation,parent_position=world(n['parent'],depth+1);return parent_rotation@rotation,parent_rotation@position+parent_position
+    triangles=[]
+    for name,n in nodes.items():
+        if n['triangles']:rotation,position=world(name);triangles+=[t@rotation.T+position for t in n['triangles']]
     require(triangles,'Reference has no trimesh faces');return surface_samples(np.concatenate(triangles),samples,seed)
 
 
@@ -81,13 +103,85 @@ def nose_tip(points, step, tolerance, *, around=None, window=None):
 NOSE_WINDOW,NOSE_AGREEMENT=.015,.02  # metres, reference scale
 
 
-def propose(source, reference, output, *, exclude_lower=.25, align='profile'):
+def reference_depth(points, exclude_lower=.25, step=.004):
+    """Depth/height of the midline profile the fit matches (above exclude_lower): front-most minus back-most over the height.
+    Back hair (ponytails, buns, hanging hair) deepens it and pulls the profile fit to the wrong scale. Race heads v1: the
+    references that mis-scaled fits measured pfh0_head001 1.64, pfd0_head008 2.02 and pfo0_head009 1.97 (fit scale 0.50-0.60);
+    their replacements 1.23 (pfh0_head024), 1.63 (pfd0_head012) and 1.56 (pfo0_head011)."""
+    z,front,back=profile(points,step);keep=(z>=z.min()+exclude_lower*np.ptp(z))&np.isfinite(front)&np.isfinite(back)
+    require(keep.sum()>3,'Reference profile is too short');return float((front[keep].max()-back[keep].min())/np.ptp(z[keep]))
+
+
+def rank_references(paths, exclude_lower=.25, samples=40000):
+    """Candidate stock reference heads, most compact (lowest depth/height) first. Pick the lowest whose side silhouette shows
+    no hanging hair or bun; the ranking is measured, the choice still needs that look."""
+    rows=[{'reference':pin(path),'depthRatio':round(reference_depth(ascii_surface(path,samples),exclude_lower),3)} for path in paths]
+    return sorted(rows,key=lambda row:row['depthRatio'])
+
+
+LANDMARKS=('eyeLeft','eyeRight','lips','noseTip')
+# Face landmarks of the base heads, head_g frame (m): every non-Human r3 srn_body head001 (origin/main ea0dff41) is a reshaped
+# Human head001 sharing its texture, so pupils and the lip seam come from reviewed UV points on the Human PLT (pupil .186/.646 male,
+# .186/.644 female; lip seam .05/.272, .05/.275) and the nose tip is the most forward vertex between them (race heads v1
+# review-kit/base_landmarks.py). pmh0/pfh0 are the stock Human head001s, the reference for approved Human heads.
+BASE_HEADS={
+    'pmh0':{'eyeLeft':(-0.03359,0.09835,0.06378),'eyeRight':(0.03369,0.09832,0.06380),'lips':(-0.00018,0.11280,-0.01242),'noseTip':(-0.00020,0.13385,0.02779)},
+    'pfh0':{'eyeLeft':(-0.03326,0.09880,0.05858),'eyeRight':(0.03349,0.09876,0.05832),'lips':(0.00007,0.10728,-0.00532),'noseTip':(0.00017,0.13089,0.02382)},
+    'pme0':{'eyeLeft':(-0.03640,0.10658,0.06912),'eyeRight':(0.03651,0.10654,0.06914),'lips':(-0.00020,0.12223,-0.01346),'noseTip':(-0.00021,0.14505,0.03012)},
+    'pfe0':{'eyeLeft':(-0.03512,0.10431,0.06185),'eyeRight':(0.03536,0.10427,0.06157),'lips':(0.00008,0.11326,-0.00561),'noseTip':(0.00018,0.13819,0.02515)},
+    'pmd0':{'eyeLeft':(-0.02984,0.08738,0.05666),'eyeRight':(0.02993,0.08735,0.05668),'lips':(-0.00016,0.10021,-0.01104),'noseTip':(-0.00017,0.11892,0.02469)},
+    'pfd0':{'eyeLeft':(-0.02927,0.08695,0.05156),'eyeRight':(0.02948,0.08692,0.05133),'lips':(0.00006,0.09441,-0.00468),'noseTip':(0.00015,0.11519,0.02097)},
+    'pmo0':{'eyeLeft':(-0.03746,0.10969,0.07114),'eyeRight':(0.03757,0.10966,0.07116),'lips':(-0.00020,0.12581,-0.01386),'noseTip':(-0.00022,0.14929,0.03100)},
+    'pfo0':{'eyeLeft':(-0.03639,0.10809,0.06409),'eyeRight':(0.03664,0.10805,0.06380),'lips':(0.00008,0.11737,-0.00582),'noseTip':(0.00019,0.14319,0.02606)},
+    'pmg0':{'eyeLeft':(-0.04908,0.14371,0.09319),'eyeRight':(0.04922,0.14366,0.09322),'lips':(-0.00027,0.16482,-0.01815),'noseTip':(-0.00029,0.19558,0.04061)},
+    'pfg0':{'eyeLeft':(-0.04644,0.13794,0.08179),'eyeRight':(0.04676,0.13789,0.08143),'lips':(0.00010,0.14978,-0.00742),'noseTip':(0.00024,0.18274,0.03326)},
+}
+
+
+def landmark_policy(config):
+    """fit.landmarks: reviewed source landmarks (head-local, unscaled source units) and the race/sex base head they match."""
+    require(isinstance(config,dict) and config.get('reviewed') is True,'Landmark fit needs reviewed landmarks')
+    require(set(config)<={'base','calibration','source','reviewed','maximumResidual','notes'},'Unknown landmark fit key')
+    table=BASE_HEADS;require(config.get('base') in table,'Landmark fit base head is not in the table')
+    calibration=config.get('calibration',1.0);require(type(calibration) in (int,float) and .8<=calibration<=1.25,'Landmark calibration outside .8..1.25')
+    source=config.get('source');require(isinstance(source,dict) and set(source)==set(LANDMARKS),'Landmark fit needs '+', '.join(LANDMARKS))
+    a=np.asarray([source[k] for k in LANDMARKS],float);b=calibration*np.asarray([table[config['base']][k] for k in LANDMARKS],float)
+    require(a.shape==(4,3) and np.isfinite(a).all(),'Landmarks are finite xyz points')
+    # Eyes pair by side, not by label: a design's 'left' eye is image-left (the character's right) while the table is in
+    # head_g x order, and a positive scale plus translation keeps x order, so each pair is ordered by x before the fit.
+    for points in (a,b):
+        if points[0,0]>points[1,0]:points[[0,1]]=points[[1,0]]
+    require(a[1,0]-a[0,0]>0,'Landmark eyes must be apart in x')
+    residual=config.get('maximumResidual',.006);require(type(residual) in (int,float) and 0<residual<=.01,'Landmark residual bound outside 0..1 cm')
+    return a,b,residual
+
+
+def landmark_fit(source, target, maximum_residual):
+    """Uniform scale and translation (no rotation: the toolkit basis and yaw are kept) mapping source landmarks onto the base
+    head's, least squares. Base heads are bald and ours carry hair, beards, horns and ears, so faces are matched, not outlines
+    (user 2026-10-28: each race and sex has its own base head; scale heads to it)."""
+    a,b=np.asarray(source,float),np.asarray(target,float);ac,bc=a-a.mean(0),b-b.mean(0)
+    scale=float(np.sum(ac*bc)/np.sum(ac*ac));positive(scale,'landmark scale')
+    translation=b.mean(0)-scale*a.mean(0);errors=np.linalg.norm(a*scale+translation-b,axis=1)
+    require(errors.max()<=maximum_residual,f'Landmark residual {errors.max()*100:.2f} cm above {maximum_residual*100:.2f} cm; recheck the landmarks')
+    return scale,translation,errors
+
+
+def propose(source, reference, output, *, exclude_lower=.25, align='profile', landmarks=None):
     """align='nose' keeps the profile-matched scale but places the head by aligning nose tips (troll-male-01's
-    reviewed rule against pmg0_head014), so hair, crests or a neckless reference cannot shift the placement."""
-    require(align in ('profile','nose'),'Fit alignment is profile or nose')
+    reviewed rule against pmg0_head014), so hair, crests or a neckless reference cannot shift the placement.
+    align='landmarks' scales and places the head by its reviewed face landmarks on the base head's (BASE_HEADS)."""
+    require(align in ('profile','nose','landmarks'),'Fit alignment is profile, nose or landmarks')
+    require((align=='landmarks')==(landmarks is not None),'fit.landmarks is read only by the landmark alignment')
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     value=mesh(source);local=head_local(surface_samples(value['positions'][value['faces']],1000000));target=ascii_surface(reference)
-    result=match(local,target,exclude_lower=exclude_lower);s=result['scale'];result['align']=align
+    if align=='landmarks':
+        a,b,residual=landmark_policy(landmarks);s,translation,errors=landmark_fit(a,b,residual)
+        result={'scale':s,'translation':translation.tolist(),'align':align,'base':landmarks['base'],'calibration':landmarks.get('calibration',1.0),
+                'landmarkErrors':dict(zip(LANDMARKS,errors.round(5).tolist()))}
+    else:
+        result=match(local,target,exclude_lower=exclude_lower);s=result['scale'];result['align']=align
+    result['referenceDepthRatio']=reference_depth(target,exclude_lower)  # compare candidates with `headkit fit-references`
     if align=='nose':
         # The same physical bin height and tip tolerance on both heads (0.5 mm after scaling). The source tip is searched
         # within NOSE_WINDOW of where the profile fit puts the reference nose, and nose placement may refine the profile

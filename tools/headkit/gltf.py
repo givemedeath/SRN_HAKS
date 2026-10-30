@@ -83,6 +83,22 @@ def mesh(path):
             'uv': attributes.get('TEXCOORD_0', np.zeros((len(vertices), 2), np.float32))[faces]}
 
 
+def positions(path):
+    """POSITION and triangle indices only, with arrays()'s layout checks read from the accessor table: the other
+    attributes (normals, UVs) are never materialised (a 37M-triangle raw head: peak commit 6.2 -> 3.7 GB in precluster)."""
+    from pathlib import Path
+    document, binary, primitive = load(Path(path).read_bytes()); attributes = primitive['attributes']
+    if 'POSITION' not in attributes:raise ValueError('Invalid position/attribute layout')
+    vertices = accessor(document, binary, attributes['POSITION'])
+    if vertices.ndim != 2 or vertices.shape[1] != 3 or document['accessors'][attributes['POSITION']]['componentType'] != 5126 \
+            or any(document['accessors'][i]['count'] != len(vertices) for i in attributes.values()):raise ValueError('Invalid position/attribute layout')
+    index = document['accessors'][primitive['indices']]
+    if index['componentType'] not in (5121, 5123, 5125) or index['type'] != 'SCALAR':raise ValueError('Unsigned scalar indices required')
+    faces = accessor(document, binary, primitive['indices']).reshape(-1)
+    if len(faces) % 3 or faces.max() >= len(vertices):raise ValueError('Invalid triangle indices')
+    return vertices, faces.reshape(-1, 3)
+
+
 def require_textured_uvs(path):
     """Reject a textured render unless every source triangle has real UV area."""
     from pathlib import Path

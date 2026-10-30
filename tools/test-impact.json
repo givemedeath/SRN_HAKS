@@ -16,10 +16,12 @@
       "tools/headkit/generation.py",
       "tools/headkit/native.py",
       "tools/headkit/occiput.py",
+      "tools/headkit/palette.py",
       "tools/headkit/preview.py",
       "tools/headkit/replay.py",
       "tools/headkit/runner.py",
-      "tools/headkit/source_inventory.py"
+      "tools/headkit/source_inventory.py",
+      "tools/headkit/stock-shades.json"
     ],
     "tools/headkit/benchmark_verification.py": [],
     "tools/headkit/blender_render.py": [
@@ -83,6 +85,7 @@
       "tools/headkit/blender_render.py",
       "tools/headkit/comfy_nodes/verification.py",
       "tools/headkit/manifest.schema.json",
+      "tools/headkit/quality-thresholds.json",
       "tools/headkit/runner.py",
       "tools/headkit/stock-shades.json",
       "tools/heads/head_export.py",
@@ -116,6 +119,18 @@
       "tools/headkit/images.py",
       "tools/headkit/templates/flux2-design.json",
       "tools/headkit/templates/flux2-inpaint.json"
+    ],
+    "tools/headkit/face_encode.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/face_masks.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/palette.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/textures.py"
     ],
     "tools/headkit/field.py": [],
     "tools/headkit/fit.py": [
@@ -164,6 +179,7 @@
     "tools/headkit/neck.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/intersections.py",
       "tools/headkit/mesh.py",
       "tools/headkit/relief.py"
     ],
@@ -179,6 +195,7 @@
     "tools/headkit/palette.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
       "tools/headkit/rays.py",
       "tools/headkit/stock-shades.json",
       "tools/headkit/textures.py"
@@ -191,8 +208,15 @@
       "tools/headkit/gltf.py",
       "tools/headkit/mesh.py",
       "tools/headkit/paint.py",
+      "tools/headkit/palette.py",
       "tools/headkit/predicates.py",
       "tools/headkit/uv.py"
+    ],
+    "tools/headkit/quality.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/quality-thresholds.json"
     ],
     "tools/headkit/rays.py": [],
     "tools/headkit/reference_background.py": [
@@ -219,6 +243,8 @@
       "tools/headkit/blender_render.py",
       "tools/headkit/cameras.py",
       "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/face_masks.py",
       "tools/headkit/fit.py",
       "tools/headkit/gltf.py",
       "tools/headkit/images.py",
@@ -227,6 +253,7 @@
       "tools/headkit/neck.py",
       "tools/headkit/paint.py",
       "tools/headkit/palette.py",
+      "tools/headkit/quality.py",
       "tools/headkit/review_images.py",
       "tools/headkit/textures.py",
       "tools/headkit/uv.py",
@@ -243,6 +270,15 @@
       "tools/headkit/comfy_nodes/source_snapshot.py",
       "tools/headkit/comfy_nodes/verification.py",
       "tools/headkit/comfy_nodes/verified_loaders.py"
+    ],
+    "tools/headkit/test_face_masks.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/test_headkit.py",
+      "tools/headkit/uv.py"
     ],
     "tools/headkit/test_generation_export.py": [
       "tools/headkit/comfy.py",
@@ -3986,6 +4022,7 @@
   },
   "tests": [
     "tools/headkit/test_comfy_runtime_snapshot.py",
+    "tools/headkit/test_face_masks.py",
     "tools/headkit/test_generation_export.py",
     "tools/headkit/test_headkit.py",
     "tools/headkit/test_managed_startup.py",

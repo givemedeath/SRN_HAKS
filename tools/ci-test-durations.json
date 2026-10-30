@@ -2,6 +2,7 @@
  "source": "Local Windows serial run of the full helper suite (tools/test_impact.py --run --jobs 1, 2026-10-25, main 769673e7); seconds per test module, summed from unittest --durations 0.",
  "seconds": {
   "tools/headkit/test_comfy_runtime_snapshot.py": 129.03,
+  "tools/headkit/test_face_masks.py": 55.54,
   "tools/headkit/test_generation_export.py": 0.0,
   "tools/headkit/test_headkit.py": 167.08,
   "tools/headkit/test_managed_startup.py": 7.17,

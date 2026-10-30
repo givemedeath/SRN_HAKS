@@ -131,12 +131,15 @@ def gutter_audit(uv,size,owners=None,charts=None):
 
 def coverage_floor(policy=None):
     """2K coverage floor: 30% by default. Dense heads (many small charts, each needing the 4 px gutter at 1K) may
-    declare a lower floor, at least 20%, only with a recorded review; the gutter floor itself never relaxes."""
+    declare a lower floor, at least 20%, only with a recorded review; the gutter floor itself never relaxes. Down to
+    15% needs the review to record the user's approval (userApproved: race heads v1 dwarf-female-c, whose kept hanging
+    bob fragments into ~2,000 charts that no chart option packs above 19%); the gutter floor still holds."""
     policy=policy or {};floor=policy.get('minimumCoverage',.30);review=policy.get('coverageReview')
-    if type(floor) not in (int,float) or not .20<=floor<=1:raise ValueError('UV coverage floor must be 0.20..1')
+    if type(floor) not in (int,float) or not .15<=floor<=1:raise ValueError('UV coverage floor must be 0.15..1')
     if floor<.30:
         require(isinstance(review,dict) and review.get('reviewed') is True and isinstance(review.get('notes'),str)
                 and bool(review['notes'].strip()),'A UV coverage floor below 30% needs a recorded review')
+        require(floor>=.20 or review.get('userApproved') is True,'A UV coverage floor below 20% needs the user\'s approval in its review')
         return float(floor),review
     return float(floor),None
 
@@ -247,6 +250,48 @@ def _repack(xatlas,base_uv,dims,density,corners,own,padding,scale):
     return new_uv[new_indices].astype(np.float64),(atlas.width,atlas.height),atlas.chart_count,scale
 
 
+def face_region(positions,faces):
+    """Front face triangles in the glTF frame (+y up, +z front): centroid in the front 35% of the depth, normal facing front
+    (z > .3) and below the top 20% of the height (the crown). Also returns the triangle areas."""
+    corners=np.asarray(positions,float)[faces];n=np.cross(corners[:,1]-corners[:,0],corners[:,2]-corners[:,0])
+    area=np.linalg.norm(n,axis=1)/2;normal=n/np.maximum(2*area[:,None],1e-12);centre=corners.mean(1)
+    lo,hi=np.asarray(positions,float).min(0),np.asarray(positions,float).max(0)
+    return (centre[:,2]>hi[2]-.35*(hi[2]-lo[2]))&(normal[:,2]>.3)&(centre[:,1]<lo[1]+.8*(hi[1]-lo[1])),area
+
+
+def face_priority(xatlas,uv,positions,faces,ratio,padding):
+    """Scale every chart about its centroid by the area-weighted sqrt(ratio) of its face triangles (1 elsewhere), then pack-only
+    onto one square PAGE with the scale bisected to fill it, so the face gets `ratio` x the rest's texel density (step 1 of
+    docs/heads/head-texture-quality-plan.md: 7.9 vs 9.1 texels/cm on a uniform unwrap; stock heads give the face ~2.8x)."""
+    face,area=face_region(positions,faces);weight=np.where(face,np.sqrt(ratio),1.0)
+    labels=chart_ids(uv,shared='vertex').astype(np.int64);layout=uv.copy()
+    for chart in np.unique(labels):
+        selected=labels==chart;w=np.average(weight[selected],weights=area[selected]+1e-12);centre=layout[selected].reshape(-1,2).mean(0)
+        layout[selected]=centre+(layout[selected]-centre)*w
+    keys=np.c_[np.repeat(labels,3),np.round(layout.reshape(-1,2),7)]
+    _,index=np.unique(keys,axis=0,return_inverse=True);index=index.reshape(-1,3)
+    points=np.zeros((index.max()+1,2),np.float32);points[index.reshape(-1)]=layout.reshape(-1,2)*PAGE
+    def pack(scale):
+        atlas=xatlas.Atlas();atlas.add_uv_mesh(points,index.astype(np.uint32));atlas.generate(pack_options=_pack_options(xatlas,padding,scale))
+        return atlas if atlas.atlas_count==1 else None
+    fitted=spilled=None;scale=.5
+    for _ in range(40):
+        atlas=pack(scale)
+        if atlas:fitted=(scale,atlas);scale=scale*1.15 if spilled is None else float(np.sqrt(scale*spilled))
+        else:spilled=scale;scale=scale*.87 if fitted is None else float(np.sqrt(fitted[0]*spilled))
+        if fitted and spilled and spilled/fitted[0]<1.005:break
+    if fitted is None:raise ValueError('Face-priority re-pack spilled onto more than one atlas page')
+    scale,atlas=fitted;mapping,new_indices,new_uv=atlas[0]
+    if not np.array_equal(mapping[new_indices],index):raise ValueError('Face-priority re-pack changed face order')
+    new_uv=new_uv[new_indices].astype(np.float64)
+    def density(values,selected):
+        twice=np.abs((values[:,1,0]-values[:,0,0])*(values[:,2,1]-values[:,0,1])-(values[:,1,1]-values[:,0,1])*(values[:,2,0]-values[:,0,0]))
+        return float(twice[selected].sum()/2/max(area[selected].sum(),1e-12))
+    measured=density(new_uv,face)/max(density(new_uv,~face),1e-12) if face.any() and (~face).any() else None
+    return new_uv,{'ratio':ratio,'faceTriangles':int(face.sum()),'packScale':scale,'charts':int(atlas.chart_count),
+                   'measuredDensityRatio':measured}
+
+
 def unwrap(mesh,bindings,policy=None):
     begun=time.perf_counter();policy=policy or {}
     maximum_groups=policy.get('maximumLocalGroups')
@@ -298,8 +343,21 @@ def unwrap(mesh,bindings,policy=None):
     if metrics['2048']['coverageFraction']<floor:
         raise fail(f"Insufficient useful UV coverage ({metrics['2048']['coverageFraction']:.3f} at 2K, padding {padding})")
     if count>max(256,int(len(indices)*.3)):raise fail('Severe UV fragmentation')
+    ratio=policy.get('faceDensity',1);face=None
+    require(type(ratio) in (int,float) and 1<=ratio<=4,'faceDensity must be a number from 1 to 4')
+    if ratio!=1:
+        # Face priority after the repairs: a pack-only pass over the audited layout, then every audit again on the result.
+        new_uv,face=face_priority(xatlas,new_uv,mesh['positions'],mesh['faces'],float(ratio),padding);charts=chart_ids(new_uv,'vertex')
+        for size in (4096,2048,1024):
+            metrics[str(size)],owners[size]=raster_audit(new_uv,size)
+            subtexel[str(size)]=subtexel_audit(new_uv,size,metrics[str(size)],owners[size],0.0 if size==4096 else subtexel_fraction,charts)
+            if metrics[str(size)]['overlapFaces'] or metrics[str(size)]['degenerateUvFaces'] or subtexel[str(size)]['failingFaces']:
+                raise fail(f'Face-priority layout fails the {size} UV audit')
+        gutters={str(size):gutter_audit(new_uv,size,owners[size],charts) for size in (2048,1024)};dims=(PAGE,PAGE);count=face['charts']
+        if gutters['1024']['nearbyChartPixelsByRadius']['1']:raise fail('Face-priority layout has thin 1K gutters')
+        if metrics['2048']['coverageFraction']<floor:raise fail(f"Insufficient useful UV coverage after face priority ({metrics['2048']['coverageFraction']:.3f} at 2K)")
     result=dict(mesh,uv=np.asarray(new_uv,np.float64),chart_ids=chart_ids(new_uv),uv_pending_unwrap=False)
-    return result,{'charts':count,'atlasDimensions':list(dims),'pixelAudits':metrics,'gutters':gutters,
+    return result,{**({'facePriority':face} if face else {}),'charts':count,'atlasDimensions':list(dims),'pixelAudits':metrics,'gutters':gutters,
                    'geometryUnchanged':True,'preserveAuthoredSeams':preserve_seams,'elapsedSeconds':time.perf_counter()-begun,
                    'chartingSeconds':charted,'attempts':attempts,'ownCharts':sorted(own),
                    'chosenPadding':padding,'maximumSubtexelFraction':subtexel_fraction,'coverageFloor':floor,'coverageReview':review,
