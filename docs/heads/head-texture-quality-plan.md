@@ -147,6 +147,31 @@ What the plan does not fix: the 3D shape quality and the design itself. A weak d
 - No white blotches.
 - featureFocus at or above the stock median (1.6); cheek noise at or below shipped.
 
+**Result (2026-10-29): passed on elf-male-a, -c and -d.** Evidence: `race-heads-v1/trials/stockcmp-v10/evidence/step3-client-sheet.png`.
+- **Source check:** elf-male-a's bake is clean. The white blotches came from the full-range rank mapping of skin, which sends a broad, slightly bright forehead to the near-white top shades (RUNBOOK 131).
+- **What did not work:**
+  - A linear skin map flattened the features.
+  - Lighting the dark sides back up read as cheek patches.
+- **Recipe:**
+
+  | Setting | Effect |
+  |---|---|
+  | `DELIGHT=.8` | Darken-only division by the broad 3D-neighbourhood luminance, before the rank map |
+  | `SMOOTH=.7` | Skin detail reduced away from the feature masks |
+  | `LIPDARK=.5` | Lip line drawn from the landmarks |
+  | `SOCKET=.3` | Eye-socket shadow drawn from the landmarks |
+
+- **Metrics** (user: the c and d heads):
+  - The metric is `face_metrics.py`, which reads skin-only cheeks and landmark-placed regions. `proto_measure.py` counted hair locks in front of the face as cheek noise (RUNBOOK 132).
+
+  | Head | Shipped | Step 2 | Step 3 |
+  |---|---|---|---|
+  | elf-male-c | 3.1 / 2.9 | 2.7 / 5.3 | 2.4 / 5.9 |
+  | elf-male-d | 1.3 / 3.9 | 0.8 / 13.5 | 0.5 / 20.0 |
+
+  Values are cheek noise / featureFocus.
+- **In the game:** no blotches. Eyes and brows read at 2.5 m at least as clearly as stock 01 on all three heads.
+
 ## Step 4 - Optional texture density for the eyes
 
 Cut each eye region into its own UV chart, from the mask, and give it about 2x the face density in the face-priority repack. The earlier eye-only weighting failed because the eyes shared charts with the face.
