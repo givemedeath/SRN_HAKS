@@ -116,7 +116,17 @@ What the plan does not fix: the 3D shape quality and the design itself. A weak d
   - Re-pad ownership into the gutters after edits.
   - Make each 4x4 block take its colour only from texels of its majority channel.
   - Measure the brow edge by 3D distance.
-- **Fails: the default tattoo1 row 0 (NPCs) gives pale cream eyes.** Row 0 is cream above shade ~96. An iris shade curve (gamma 1.5, median 64) is not enough. The options are a much darker iris curve, which darkens every player colour, or always setting tattoo1 on NPC blueprints. Needs a user decision.
+- **Fails: the default tattoo1 row 0 (NPCs) gives pale cream eyes.** Row 0 is cream above shade ~96. An iris shade curve (gamma 1.5, median 64) is not enough. **User decision (2026-10-29):** keep the plain full-range iris shades. NPC blueprints using these heads always set a tattoo1 (eye) colour.
+
+**Result on elf-male-a (2026-10-29): passed.** Evidence: `race-heads-v1/trials/stockcmp-v9/evidence/elf-male-a-maskplt-client-sheet.png`.
+- **Compared with the shipped head:** the shipped head had only pupils on white, red eye whites with hair row 5, and brows that barely show.
+- **Brows:** follow hair rows 17, 117 and 5.
+- **Irises:** now visible, and they follow tattoo1 rows 26 and 153. The circuit tattoo stays on tattoo2.
+- **Fixes this head needed** (RUNBOOK 128-129):
+  - Pale brows are found by colour around the parser's brow.
+  - The brow edge is darkened only slightly.
+  - Lash lines and the rings left by the old tattoo iris move to skin.
+- **Remaining:** forehead white blotches (step 3) and a small spur at one brow tail.
 
 ## Step 3 - Lighting and darks
 
