@@ -228,6 +228,29 @@ The plan's "number and length of layer boundaries" was replaced by specks. Raw b
 - **Gate status:** steps 1-3 pass every other check, but no prototype passes step 5 until the step 1 hair mask takes those locks. The fix is a colour grow from the parser hair, using the guard's rule.
 - **Evidence:** `trials/maskplt-v1/{qa-lock-sheet.png, qa-blotch-a-d.png}` and per-head `qa/`.
 
+### Hair-lock fix (2026-10-30)
+
+- **Shared rule:** `review-kit/hairlock.py` holds one rule, used by both the step 1 hair mask (`mask_project_proto.py`) and the step 5 guard (`qa_check.py`).
+- **Step 1:** lock pixels join the hair mask, leave the skin mask, and are saved as `mask-hairlock-4096.png`.
+- **Encoder (`mask_plt_proto.py`):** keeps those texels on hair, or moves them there, except next to the eye. Cause of the defect: the encoder sent every texel under the parser's skin mask to skin.
+- **Masks:** the old masks are kept as `masks-v1` per head.
+
+| Head | Lock pixels in mask | Texels moved to hair | hairLockOnSkinPx | Verdict |
+|---|---|---|---|---|
+| elf-male-a | 7476 | 506 | 86 -> 0 | pass |
+| elf-male-c | 3703 | 75 | 109 -> 1 | pass (specks 10, at the limit) |
+| elf-male-d | 5490 | 157 | 94 -> 0 | pass |
+
+`hairOnFaceSkin` now leaves out lock pixels; without that, locks correctly on hair would count against it.
+
+**Client check (stockcmp-v11, slots pme0_head193-195 next to step 3 on 190-192), evidence `trials/stockcmp-v11/evidence/hairlock-client-sheet.png`:**
+
+- elf-male-d: the lock beside the left eye now takes the hair colour (red with hair 5), where step 3 showed a beige skin strip.
+- elf-male-a: both temple locks follow the hair.
+- elf-male-c: no visible change at 0.9 m.
+- Face, brows and eyes are otherwise unchanged.
+- Steps 1-3 plus the hair-lock fix pass step 5 on all three test heads.
+
 ## Step 6 - Conditional: standard head mesh with shared UVs
 
 Start this only if steps 1-4 miss their gates because masks or density vary too much between heads.
