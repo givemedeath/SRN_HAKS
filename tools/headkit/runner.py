@@ -519,19 +519,24 @@ class Runner:
                 reference=design_reference(rgb,subject(rgb,m.get('matte',{}).get('backgroundTolerance',14))[0],
                                            mesh(self.source('uvMesh','unwrap','mesh')),layers,folder/'design-reference.png')
                 write(folder/'design-reference.json',reference,fresh=True);design=reference['channels']
-            full_range=m['palette'].get('fullShadeRange') is True;shading_only=m['palette'].get('stretchShadingOnly') is True;positions=skin_median=None
-            if shading_only:
+            full_range=m['palette'].get('fullShadeRange') is True;shading_only=m['palette'].get('stretchShadingOnly') is True
+            body=m['palette'].get('matchBodySkin') is True;positions=skin_median=anchor=None
+            if body:require('bodySkin' in m['inputs'],'palette.matchBodySkin needs a bodySkin input (the body neck PLT)')
+            if shading_only or body:
                 # Each 1K texel's surface point (gutters take the nearest), so the shading is smoothed by 3D distance across chart seams.
                 from .gltf import mesh
                 from .textures import pad,surface
-                positions,owners,_=surface(mesh(self.source('uvMesh','unwrap','mesh')),1024,enforce=False);positions=pad(positions,owners>=0)
-            if m['palette'].get('matchBodySkin') is True:
-                # The body skin PLT the head meets at the neck: the stretched skin keeps its median shade (RUNBOOK 154).
+                value=mesh(self.source('uvMesh','unwrap','mesh'));points,owners,_=surface(value,1024,enforce=False)
+                if shading_only:positions=pad(points,owners>=0)
+            if body:
+                # The face's skin keeps the median shade of the body skin PLT the head meets at the neck (RUNBOOK 154).
                 from .palette import body_skin_median
-                require('bodySkin' in m['inputs'],'palette.matchBodySkin needs a bodySkin input (the body neck PLT)');skin_median=body_skin_median(self.input('bodySkin'))
+                from .uv import face_region
+                skin_median=body_skin_median(self.input('bodySkin'));front=face_region(value['positions'],value['faces'])[0]
+                anchor=(owners>=0)&front[np.maximum(owners,0)]
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
                             tone_match=m['palette'].get('toneMatch'),design=design,full_range=full_range,shading_only=shading_only,
-                            positions=positions,skin_median=skin_median)
+                            positions=positions,skin_median=skin_median,skin_anchor=anchor)
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result

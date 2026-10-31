@@ -1889,22 +1889,27 @@ class ToneMatchTests(Temporary):
                       for name,kw in (('nfull',{}),('nshading',{'shading_only':True,'positions':flat})))
         step=lambda s:abs(s[:,512:515].mean()-s[:,509:512].mean());self.assertGreater(step(full),20);self.assertLess(step(shading),.25*step(full))
     def test_skin_median_pins_the_body_skin_level(self):
-        # RUNBOOK 154: the full-range skin keeps the body neck's median shade; each half of the stretch still reaches its end.
+        # RUNBOOK 154: the face's skin keeps the body neck's median shade; the lower half of the stretch still reaches its end.
         from headkit.palette import stretch
         q=np.linspace(40,120,101);plain=stretch(q,0,200);low,high=stretch(q,0,200,median=50),stretch(q,0,200,median=150)
         mid=lambda s:float(np.interp(.5,np.linspace(0,1,1001),s));self.assertAlmostEqual(mid(low),50,delta=.5);self.assertAlmostEqual(mid(high),150,delta=.5)
         self.assertEqual((low.min(),high.min(),high.max()),(0,0,200))
         # A lowered median never spreads the highlights wider than the plain stretch (human-female-c blotch): the top stops short.
         self.assertAlmostEqual(low.max()-mid(low),plain.max()-mid(plain),delta=1.5);self.assertLess(low.max(),200)
+        at=lambda s,r:float(np.interp(r,np.linspace(0,1,1001),s));self.assertAlmostEqual(at(stretch(q,0,200,median=90,rank=.8),.8),90,delta=.5)
         _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(3)
         luma=90+30*np.arange(1024)[None,:]/1024+rng.normal(0,2,(1024,1024))
         Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'m.png')
-        for median in (60,180):
+        # The face is the bright right-hand quarter of the skin: its median, not the channel's, lands on the body level.
+        face=np.zeros((1024,1024),bool);face[:,650:900]=True
+        for median in (110,180):
             with self.subTest(median=median):
-                r=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/f'm{median}',full_range=True,skin_median=median)
-                shades=np.asarray(Image.open(r['shades']['path']))[labels==0];self.assertLessEqual(abs(np.median(shades)-median),3)
-                self.assertEqual(r['layers']['0']['shadeRange']['skinMedian']['target'],median);self.assertGreaterEqual(r['layers']['0']['shadeRange']['spanFraction'],.5)
-        with self.assertRaisesRegex(ValueError,'skin median'):quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mbad',skin_median=60)
+                r=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/f'm{median}',full_range=True,skin_median=median,skin_anchor=face)
+                shades=np.asarray(Image.open(r['shades']['path']));self.assertLessEqual(abs(np.median(shades[face&(labels==0)])-median),1)
+                self.assertGreater(abs(np.median(shades[labels==0])-median),10)
+                report=r['layers']['0']['shadeRange']['skinMedian'];self.assertEqual(report['target'],median);self.assertGreater(report['rank'],.6)
+        for kw in ({'skin_median':60},{'skin_median':60,'full_range':True}):
+            with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'skin median'):quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mbad',**kw)
     def test_body_skin_median_reads_the_plt_skin_layer(self):
         from headkit.palette import body_skin_median
         shades=np.array([[10,20,30,200]],np.uint8);layers=np.array([[0,0,0,1]],np.uint8);path=self.root/'neck.plt'
@@ -1960,13 +1965,17 @@ class ToneMatchTests(Temporary):
         positions=quantizer.call_args.kwargs['positions'];self.assertIs(quantizer.call_args.kwargs['shading_only'],True)
         self.assertEqual([positions[y,x,0] for y,x in ((0,0),(-1,-1),(100,100),(1000,1000))],[0,1,0,1]);self.assertIsNone(quantizer.call_args.kwargs['skin_median'])
         del runner.data['palette']['stretchShadingOnly']
-        # matchBodySkin reads the bodySkin PLT's skin median and needs that input
+        # matchBodySkin reads the bodySkin PLT's skin median, needs that input and pins it on the face region's texels
         runner.data['palette']['matchBodySkin']=True
         with self.assertRaisesRegex(ValueError,'bodySkin input'):Runner._execute(runner,'palette',self.root)
         runner.data['inputs']['bodySkin']={}
-        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.body_skin_median',return_value=99) as median:
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.body_skin_median',return_value=99) as median,\
+             patch('headkit.gltf.mesh',return_value={'positions':None,'faces':None}),patch('headkit.textures.surface',return_value=(points,owners,{})),\
+             patch('headkit.uv.face_region',return_value=(np.array([False,True]),None)):
             Runner._execute(runner,'palette',self.root)
         self.assertEqual(quantizer.call_args.kwargs['skin_median'],99);median.assert_called_once_with('bodySkin.png')
+        anchor=quantizer.call_args.kwargs['skin_anchor'];self.assertEqual((anchor[0,0],anchor[-1,-1],anchor[500,500]),(False,True,False))
+        self.assertIsNone(quantizer.call_args.kwargs['positions'])
         del runner.data['palette']['matchBodySkin'];del runner.data['inputs']['bodySkin']
         runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:

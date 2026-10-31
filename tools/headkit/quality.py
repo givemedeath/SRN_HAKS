@@ -17,7 +17,7 @@ THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
 FACE_PX = 100; DECODE_ROWS = {'1': 117, '8': 26}; TOP = 12
 CROSS = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], bool)
 CHECKS = {'featureFocusMin', 'blotchPxMax', 'specksMax', 'hairLockOnSkinPxMax', 'designSpecksWarn', 'browsOnHairMin', 'irisOnTattoo1Min',
-          'whitesOnSkinMin', 'hairOnFaceSkinMax', 'shadeSpanMin', 'seamStepRatioMax', 'skinMedianOffsetMax'}
+          'whitesOnSkinMin', 'hairOnFaceSkinMax', 'shadeSpanMin', 'seamStepRatioMax', 'skinMedianOffsetMax', 'bodySkinSpanMin'}
 SEAM_RADIUS = .012   # head widths: about 1.5 1K texels on the face, the neighbours a seam step is seen against
 LIP_POLYGON = (61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146)
 
@@ -28,11 +28,15 @@ def eligible(row):
     return (int(index.min()), int(index.max())) if len(index) else (0, 254)
 
 
-def shade_span_failures(spans, palette, minimum):
+def shade_span_failures(spans, palette, minimum, body_minimum=None):
     """Failed shadeSpan checks and the exempt channels: a channel the palette left flat (shadeRange.checked false, its source
-    luminance spread below FLAT_LUMA) has no span to keep, as quantize(full_range=True) itself exempts it."""
-    flat = {k for k, layer in (palette.get('layers') or {}).items() if (layer.get('shadeRange') or {}).get('checked') is False}
-    return [f'shadeSpan{k}' for k, v in spans.items() if v < minimum and k not in flat], sorted(flat & set(spans))
+    luminance spread below FLAT_LUMA) has no span to keep, as quantize(full_range=True) itself exempts it. A skin pinned to the
+    body skin's median (shadeRange.skinMedian) needs only `body_minimum`: when the face is the brightest skin, the capped highlights
+    leave the top of the row unused (user decision 2026-10-31, RUNBOOK 154)."""
+    layers = palette.get('layers') or {}
+    flat = {k for k, layer in layers.items() if (layer.get('shadeRange') or {}).get('checked') is False}
+    limit = lambda k: body_minimum if body_minimum is not None and ((layers.get(k) or {}).get('shadeRange') or {}).get('skinMedian') else minimum
+    return [f'shadeSpan{k}' for k, v in spans.items() if v < limit(k) and k not in flat], sorted(flat & set(spans))
 
 
 def seam_step_ratio(points, charts, shades, width):
@@ -148,7 +152,7 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
              ('hairOnFaceSkin', r['hairOnFaceSkin'] is None or r['hairOnFaceSkin'] <= limits['hairOnFaceSkinMax']),
              ('seamStep', r['seamStepRatio'] is None or r['seamStepRatio'] <= limits['seamStepRatioMax']),
              ('bodySkin', r['skinMedianOffset'] is not None and r['skinMedianOffset'] <= limits['skinMedianOffsetMax'])) if not ok]
-    span_fails, r['shadeSpanExempt'] = shade_span_failures(r['shadeSpan'], palette, limits['shadeSpanMin']); fails += span_fails
+    span_fails, r['shadeSpanExempt'] = shade_span_failures(r['shadeSpan'], palette, limits['shadeSpanMin'], limits['bodySkinSpanMin']); fails += span_fails
     warnings = [f"{r['designSpecks']} design-channel specks: thin marks break up at game size"] if r['designSpecks'] > limits['designSpecksWarn'] else []
     preview = np.repeat(np.clip(luma, 0, 255).astype(np.uint8)[..., None], 3, 2)
     Image.fromarray(preview).resize((preview.shape[1]*3, preview.shape[0]*3), Image.Resampling.NEAREST).save(output/'game-size.png')

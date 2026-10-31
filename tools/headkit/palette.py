@@ -175,13 +175,13 @@ def rows_for_shades(target, shades, palette, *, keep=4):
     return [{'row':row,'meanSquaredColorError':error} for error,row in scores[:keep]]
 
 
-def stretch(quantiles, lo, hi, *, tail=.005, median=None):
+def stretch(quantiles, lo, hi, *, tail=.005, median=None, rank=.5):
     """A quantile function resampled to 1001 points and moved linearly so its `tail` and 1-`tail` points sit on the lowest
     and highest eligible shade (a few outlier texels cannot hold the rest of the channel in a narrow band); tails clip.
-    `median` also pins the middle point there: each half moves linearly on its own, the lower half down to `lo`, the upper half
+    `median` also pins the `rank` point there: each half moves linearly on its own, the lower half down to `lo`, the upper half
     up to `hi` but never steeper than the plain stretch (a lowered median would otherwise spread broad highlights onto the top
     shades: human-female-c blotch 16 -> 24, RUNBOOK 154)."""
-    q=np.asarray(quantiles,float);q=np.interp(np.linspace(0,1,1001),np.linspace(0,1,len(q)),q);a,m,b=np.interp([tail,.5,1-tail],np.linspace(0,1,1001),q)
+    q=np.asarray(quantiles,float);q=np.interp(np.linspace(0,1,1001),np.linspace(0,1,len(q)),q);a,m,b=np.interp([tail,rank,1-tail],np.linspace(0,1,1001),q)
     gain=(hi-lo)/max(b-a,1e-9)
     if median is None:return np.clip(lo+(q-a)*gain,lo,hi)
     t=float(np.clip(median,lo,hi));up=min((hi-t)/max(b-m,1e-9),gain)
@@ -217,7 +217,7 @@ def shading_shades(luma, smooth, unstretched, allowed, quantiles):
 
 
 def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None, full_range=False, shading_only=False,
-             positions=None, skin_median=None):
+             positions=None, skin_median=None, skin_anchor=None):
     """Nearest-colour shades per channel. Opt-in `tone_match` ({channel: {'reference': name}}) instead remaps a channel's shades
     by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads.
     A tone-matched 'auto' row comes from the source colours, or with `rowFrom: 'design'` from the design's colour for the
@@ -225,12 +225,14 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
     varied channel's shade distribution (its stock reference, else its nearest-colour shades) across all eligible shades of its
     row, then rank-maps onto it, and refuses a varied channel that still spans less than FULL_RANGE_SPAN of that range.
     `shading_only` (with full_range) stretches only the surface-smoothed shading (`positions`: each 1K texel's surface point) and keeps
-    fine detail at its unstretched amplitude (shading_shades). `skin_median` (with full_range) pins the stretched skin's median shade
-    there, the body skin's level, so the face meets the neck at the same tone (RUNBOOK 154)."""
+    fine detail at its unstretched amplitude (shading_shades). `skin_median` (with full_range) pins the median shade of the skin texels in
+    `skin_anchor` (1K mask: the face) there, the body skin's level, so the face reads as the neck's skin (RUNBOOK 154). The whole channel's
+    median does not: hidden texels and gutters left the visible faces 20-77 shades above the neck."""
     require(set(rows)==set(palette_files),'Every selected layer needs its own stock palette image')
     require(not shading_only or (full_range and positions is not None and np.shape(positions)==(1024,1024,3)),
             'Stretching only the shading needs the full shade range and the 1K texel surface points')
-    require(skin_median is None or (full_range and type(skin_median) is int and 0<=skin_median<=254),'A skin median needs the full shade range and a 0..254 shade')
+    require(skin_median is None or (full_range and type(skin_median) is int and 0<=skin_median<=254 and np.shape(skin_anchor)==(1024,1024)),
+            'A skin median needs the full shade range, a 0..254 shade and the 1K face texels it applies to')
     rgb=np.asarray(Image.open(color).convert('RGB'),np.uint8)
     with Image.open(ownership) as image:
         require(image.mode=='L','Ownership masks must be eight-bit L images')
@@ -281,19 +283,30 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
             positions=np.asarray(positions,float);sigma=SHADING_SIGMA*float(np.ptp(positions[...,0]))
             field=np.zeros(layers.shape);field[selected]=luma;smooth=surface_smooth(field,selected,positions,sigma)[selected]
             top=hi-SKIN_HEADROOM if key=='0' else hi
-        median=skin_median if key=='0' and full_range and varied else None
+        median=skin_median if key=='0' and full_range and varied else None;rank=.5
+        if median is not None:
+            # The face's median rank in the channel, by the values the stretch maps (the smoothed shading or the luma).
+            inside=np.asarray(skin_anchor,bool)[selected];require(inside.sum()>=FULL_RANGE_PIXELS,'Too few face texels on the skin channel to pin its median')
+            ref=smooth if smooth is not None else luma;x=np.median(ref[inside]);rank=float((np.mean(ref<x)+np.mean(ref<=x))/2)
+        nearest=picked
+        def pick(median):
+            if spec is not None:
+                if smooth is not None:
+                    return shading_shades(luma,smooth,match_shades(target,allowed,quantiles),allowed,stretch(quantiles,lo,top,tail=SHADING_TAIL,median=median,rank=rank))
+                return match_shades(target,allowed,stretch(quantiles,lo,hi,median=median,rank=rank) if full_range and varied else quantiles)
+            own=np.quantile(nearest,np.linspace(0,1,1001))
+            if smooth is not None:return shading_shades(luma,smooth,nearest,allowed,stretch(own,lo,top,tail=SHADING_TAIL,median=median,rank=rank))
+            return match_shades(target,allowed,stretch(own,lo,hi,median=median,rank=rank)) if full_range and varied else nearest
+        if spec is not None:require(not offset,'Use a shade offset or tone matching for a channel, not both')
+        picked=pick(median)
+        if median is not None:
+            # The fine detail and shade snapping move the face's median off the pinned point: correct once by the miss.
+            miss=float(np.median(picked[inside]))-median
+            if abs(miss)>1:picked=pick(median-miss)
         if spec is not None:
-            require(not offset,'Use a shade offset or tone matching for a channel, not both')
-            nearest=picked
-            if smooth is not None:
-                picked=shading_shades(luma,smooth,match_shades(target,allowed,quantiles),allowed,stretch(quantiles,lo,top,tail=SHADING_TAIL,median=median))
-            else:picked=match_shades(target,allowed,stretch(quantiles,lo,hi,median=median) if full_range and varied else quantiles)
             matched={'reference':spec['reference'],'referenceFile':pin(REFERENCES),'before':shade_stats(nearest),'after':shade_stats(picked),
                      'referencePercentiles':{f'p{round(q*100)}':float(np.interp(q,np.linspace(0,1,len(quantiles)),quantiles)) for q in GRID},
                      'meanSquaredColorErrorBefore':float(np.mean((target-table[nearest])**2)),'rowsAfter':rows_for_shades(target,picked,palette)}
-        elif smooth is not None:
-            picked=shading_shades(luma,smooth,picked,allowed,stretch(np.quantile(picked,np.linspace(0,1,1001)),lo,top,tail=SHADING_TAIL,median=median))
-        elif full_range and varied:picked=match_shades(target,allowed,stretch(np.quantile(picked,np.linspace(0,1,1001)),lo,hi,median=median))
         if full_range:
             span=float(np.percentile(picked,99)-np.percentile(picked,1)) if len(picked) else 0.0
             checked=varied and len(picked)>=FULL_RANGE_PIXELS;fraction=span/max(hi-lo,1)
@@ -301,7 +314,7 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
             range_report={'eligible':[lo,hi],'p1':float(np.percentile(picked,1)) if len(picked) else None,
                           'p99':float(np.percentile(picked,99)) if len(picked) else None,'spanFraction':round(fraction,3),'checked':checked,
                           **({'shadingSigma':SHADING_SIGMA} if smooth is not None else {}),
-                          **({'skinMedian':{'target':median,'achieved':float(np.median(picked))}} if median is not None else {})}
+                          **({'skinMedian':{'target':median,'achieved':float(np.median(picked[inside])),'faceTexels':int(inside.sum()),'rank':round(rank,3)}} if median is not None else {})}
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
         report[key]={'pixels':int(selected.sum()),'meanSquaredColorError':float(np.mean((target-table[picked])**2)),'shadeOffset':offset}
         if spec is not None:report[key]['toneMatch']=matched
