@@ -196,6 +196,11 @@ class Quality(unittest.TestCase):
         self.assertIsNone(skin_median_offset(layer(checked=True)))
         self.assertEqual(skin_median_offset(layer(checked=True, skinMedian={'target': 99, 'achieved': 104.0})), 5.0)
         self.assertEqual(skin_median_offset(layer(checked=False)), 0.0); self.assertEqual(skin_median_offset({'layers': {}}), 0.0)
+        # RUNBOOK 158: the darkest face skin against the plain skin, measured only for a body-pinned skin.
+        from headkit.quality import face_dark_ratio
+        face, plain = np.r_[np.zeros(5), np.full(95, 60)], np.full(50, 100); pinned = layer(checked=True, skinMedian={'target': 99, 'achieved': 99.0})
+        self.assertEqual(face_dark_ratio(pinned, face, plain), 0.0); self.assertEqual(face_dark_ratio(pinned, face+20, plain), .2)
+        self.assertIsNone(face_dark_ratio(layer(checked=True), face, plain)); self.assertIsNone(face_dark_ratio(pinned, face[:0], plain))
 
     def test_cybereye_side_setting_is_checked_before_any_work(self):
         from headkit.quality import quality

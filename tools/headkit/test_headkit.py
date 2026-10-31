@@ -1908,8 +1908,50 @@ class ToneMatchTests(Temporary):
                 shades=np.asarray(Image.open(r['shades']['path']));self.assertLessEqual(abs(np.median(shades[face&(labels==0)])-median),1)
                 self.assertGreater(abs(np.median(shades[labels==0])-median),10)
                 report=r['layers']['0']['shadeRange']['skinMedian'];self.assertEqual(report['target'],median);self.assertGreater(report['rank'],.6)
+                self.assertIn(report['darkPower'],(2.,3.,4.5,None))
         for kw in ({'skin_median':60},{'skin_median':60,'full_range':True}):
             with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'skin median'):quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mbad',**kw)
+    def test_pinned_skin_darkens_no_texel_past_its_source_contrast(self):
+        # RUNBOOK 158: lips at 0.7 and a lip line at 0.45 of the face's luma. The pinned stretch sends the channel's dark tail
+        # to shade 0 (orc-female-c lips 0.73 -> 0.15 of the face, lip line 0); the cap keeps each below-face texel at least
+        # (luma ratio)^power of the pinned median and never below SKIN_DARK_FLOOR of it.
+        from headkit import palette as P
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(4)
+        face=np.zeros((1024,1024),bool);face[300:600,350:650]=True;lips=np.zeros_like(face);lips[400:418,400:600]=True;line=np.zeros_like(face);line[418:422,400:600]=True
+        luma=60+90*np.arange(1024)[None,:]/1024+rng.normal(0,2,(1024,1024));level=np.median(luma[face])
+        luma[400:440,400:600]=.7*level+rng.normal(0,2,(40,200));luma[line]=.45*level
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'d.png')
+        def run(name,powers=P.SKIN_DARK_POWERS):
+            with patch.object(P,'SKIN_DARK_POWERS',powers):
+                r=quantize(self.root/'d.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,skin_median=100,skin_anchor=face)
+            return np.asarray(Image.open(r['shades']['path'])).astype(float),r['layers']['0']['shadeRange']
+        capped,report=run('dcap');loose,_=run('dloose',())
+        self.assertLessEqual(abs(np.median(capped[face])-100),1);self.assertGreaterEqual(report['spanFraction'],.5);self.assertEqual(report['skinMedian']['darkPower'],2)
+        self.assertLess(np.median(loose[lips]),40);self.assertEqual(loose[line].min(),0)  # the uncapped stretch crushes both
+        self.assertGreaterEqual(np.median(capped[lips]),.7**2*100-2);self.assertGreaterEqual(capped[line].min(),P.SKIN_DARK_FLOOR*100-1)
+        # Brighter-than-face texels keep their stretch; a low-contrast skin that the power-2 cap would leave narrow takes a steeper power.
+        bright=(labels==0)&(luma>level+5);self.assertTrue(np.array_equal(capped[bright],loose[bright]))
+        with patch.object(P,'FULL_RANGE_SPAN',.8):self.assertNotEqual(run('dsteep')[1]['skinMedian']['darkPower'],2)
+    def test_shading_only_applies_to_skin_and_hair_keeps_its_strands(self):
+        # RUNBOOK 158: stretching only the hair's smooth shading turned broad bake variation into camouflage patches while the
+        # strands kept their faint source amplitude (human-female-d, dwarf-female-d). Hair stretches whole: strands and shading.
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(9);x=np.arange(1024)
+        luma=np.broadcast_to(100+10*np.sin(x/1024*np.pi)[None,:],(1024,1024)).copy();luma[:,900:]=40+15*np.sin(np.arange(1024)/1024*np.pi)[:,None]
+        luma[:,900:]+=np.where(np.arange(124)%3==0,6,0)[None,:]+rng.normal(0,1,(1024,124))
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'h.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat3=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.
+        full,shading=(quantize(self.root/'h.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,**kw) for name,kw in
+                      (('hfull',{}),('hshading',{'shading_only':True,'positions':flat3})))
+        self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],.02);self.assertNotIn('shadingSigma',shading['layers']['1']['shadeRange'])
+        hair=lambda r:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,900:];source=luma[:,900:].round()
+        strands=lambda h:abs(h[:,0::3].mean()-h[:,1::3].mean());self.assertGreater(strands(hair(shading)),.8*strands(hair(full)))
+        order=np.argsort(source.ravel(),kind='stable');self.assertTrue(np.all(np.diff(hair(shading).ravel()[order])[np.diff(source.ravel()[order])>0]>=0))
+        # A flat hair whose texels sit on a few luma values, one of them holding the top 15%: equal lumas take their own ranks
+        # (ordered by the smooth shading), so the stretch still reaches the row's ends.
+        flat=np.where(np.arange(1024)[:,None]<870,30+np.arange(1024)[:,None]%5,47)*np.ones((1,124));luma[:,900:]=flat
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'t.png')
+        tied=quantize(self.root/'t.png',self.root/'o.png',palettes,rows,self.root/'ttied',full_range=True,shading_only=True,positions=flat3)
+        self.assertGreaterEqual(tied['layers']['1']['shadeRange']['spanFraction'],.9)
     def test_body_skin_median_reads_the_plt_skin_layer(self):
         from headkit.palette import body_skin_median
         shades=np.array([[10,20,30,200]],np.uint8);layers=np.array([[0,0,0,1]],np.uint8);path=self.root/'neck.plt'

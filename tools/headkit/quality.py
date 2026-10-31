@@ -17,7 +17,8 @@ THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
 FACE_PX = 100; DECODE_ROWS = {'1': 117, '8': 26}; TOP = 12
 CROSS = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], bool)
 CHECKS = {'featureFocusMin', 'blotchPxMax', 'specksMax', 'hairLockOnSkinPxMax', 'designSpecksWarn', 'browsOnHairMin', 'irisOnTattoo1Min',
-          'whitesOnSkinMin', 'hairOnFaceSkinMax', 'shadeSpanMin', 'seamStepRatioMax', 'skinMedianOffsetMax', 'bodySkinSpanMin'}
+          'whitesOnSkinMin', 'hairOnFaceSkinMax', 'shadeSpanMin', 'seamStepRatioMax', 'skinMedianOffsetMax', 'bodySkinSpanMin',
+          'faceDarkRatioMin'}
 SEAM_RADIUS = .012   # head widths: about 1.5 1K texels on the face, the neighbours a seam step is seen against
 LIP_POLYGON = (61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146)
 
@@ -55,6 +56,15 @@ def skin_median_offset(palette):
     skin = ((palette.get('layers') or {}).get('0') or {}).get('shadeRange') or {}
     if not skin.get('checked'): return 0.0
     median = skin.get('skinMedian'); return None if median is None else abs(median['achieved']-median['target'])
+
+
+def face_dark_ratio(palette, face_skin, plain_skin):
+    """The darkest face skin shade (p1 of the front-visible face skin) over the plain skin's median, for a body-pinned skin
+    (palette skinMedian; None otherwise): its stretch once sent lips, lip lines and sockets to shade 0, black on the skin rows
+    (RUNBOOK 158)."""
+    pinned = (((palette.get('layers') or {}).get('0') or {}).get('shadeRange') or {}).get('skinMedian')
+    if not pinned or not len(face_skin) or not len(plain_skin): return None
+    return round(float(np.percentile(face_skin, 1)/max(np.median(plain_skin), 1)), 3)
 
 
 def quality(source, masks, palette, palettes, output, thresholds=None, settings=None):
@@ -139,6 +149,7 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
     points, owners, _ = surface(value, shades.shape[0], enforce=False); skin = (owners >= 0) & (layers == 0)
     r['seamStepRatio'] = seam_step_ratio(points[skin].astype(float), np.asarray(chart_ids(uv))[owners[skin]], shades[skin], float(np.ptp(value['positions'][:, 0])))
     r['skinMedianOffset'] = skin_median_offset(palette)
+    r['faceDarkRatio'] = face_dark_ratio(palette, shade[face & view['hit'] & (channel == 0)], shade[plain & (channel == 0)])
     r['shadeSpan'] = {}
     for k in np.unique(layers):
         values = shades[layers == k]
@@ -151,7 +162,8 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
              ('whitesOnSkin', (r['whitesOnSkin'] or 0) >= limits['whitesOnSkinMin']),
              ('hairOnFaceSkin', r['hairOnFaceSkin'] is None or r['hairOnFaceSkin'] <= limits['hairOnFaceSkinMax']),
              ('seamStep', r['seamStepRatio'] is None or r['seamStepRatio'] <= limits['seamStepRatioMax']),
-             ('bodySkin', r['skinMedianOffset'] is not None and r['skinMedianOffset'] <= limits['skinMedianOffsetMax'])) if not ok]
+             ('bodySkin', r['skinMedianOffset'] is not None and r['skinMedianOffset'] <= limits['skinMedianOffsetMax']),
+             ('faceDark', r['faceDarkRatio'] is None or r['faceDarkRatio'] >= limits['faceDarkRatioMin'])) if not ok]
     span_fails, r['shadeSpanExempt'] = shade_span_failures(r['shadeSpan'], palette, limits['shadeSpanMin'], limits['bodySkinSpanMin']); fails += span_fails
     warnings = [f"{r['designSpecks']} design-channel specks: thin marks break up at game size"] if r['designSpecks'] > limits['designSpecksWarn'] else []
     preview = np.repeat(np.clip(luma, 0, 255).astype(np.uint8)[..., None], 3, 2)
