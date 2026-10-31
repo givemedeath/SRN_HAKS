@@ -178,10 +178,14 @@ def rows_for_shades(target, shades, palette, *, keep=4):
 def stretch(quantiles, lo, hi, *, tail=.005, median=None):
     """A quantile function resampled to 1001 points and moved linearly so its `tail` and 1-`tail` points sit on the lowest
     and highest eligible shade (a few outlier texels cannot hold the rest of the channel in a narrow band); tails clip.
-    `median` also pins the middle point there: each half moves linearly on its own."""
+    `median` also pins the middle point there: each half moves linearly on its own, the lower half down to `lo`, the upper half
+    up to `hi` but never steeper than the plain stretch (a lowered median would otherwise spread broad highlights onto the top
+    shades: human-female-c blotch 16 -> 24, RUNBOOK 154)."""
     q=np.asarray(quantiles,float);q=np.interp(np.linspace(0,1,1001),np.linspace(0,1,len(q)),q);a,m,b=np.interp([tail,.5,1-tail],np.linspace(0,1,1001),q)
-    if median is None:return np.clip(lo+(q-a)/max(b-a,1e-9)*(hi-lo),lo,hi)
-    t=float(np.clip(median,lo,hi));return np.clip(np.where(q<m,t-(m-q)/max(m-a,1e-9)*(t-lo),t+(q-m)/max(b-m,1e-9)*(hi-t)),lo,hi)
+    gain=(hi-lo)/max(b-a,1e-9)
+    if median is None:return np.clip(lo+(q-a)*gain,lo,hi)
+    t=float(np.clip(median,lo,hi));up=min((hi-t)/max(b-m,1e-9),gain)
+    return np.clip(np.where(q<m,t-(m-q)/max(m-a,1e-9)*(t-lo),t+(q-m)*up),lo,hi)
 
 
 def surface_smooth(values, mask, positions, sigma):

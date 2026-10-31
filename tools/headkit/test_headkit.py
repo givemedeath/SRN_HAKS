@@ -1891,8 +1891,11 @@ class ToneMatchTests(Temporary):
     def test_skin_median_pins_the_body_skin_level(self):
         # RUNBOOK 154: the full-range skin keeps the body neck's median shade; each half of the stretch still reaches its end.
         from headkit.palette import stretch
-        q=np.linspace(40,120,101);s=stretch(q,0,200,median=50)
-        self.assertAlmostEqual(float(np.interp(.5,np.linspace(0,1,1001),s)),50,delta=.5);self.assertEqual((s.min(),s.max()),(0,200))
+        q=np.linspace(40,120,101);plain=stretch(q,0,200);low,high=stretch(q,0,200,median=50),stretch(q,0,200,median=150)
+        mid=lambda s:float(np.interp(.5,np.linspace(0,1,1001),s));self.assertAlmostEqual(mid(low),50,delta=.5);self.assertAlmostEqual(mid(high),150,delta=.5)
+        self.assertEqual((low.min(),high.min(),high.max()),(0,0,200))
+        # A lowered median never spreads the highlights wider than the plain stretch (human-female-c blotch): the top stops short.
+        self.assertAlmostEqual(low.max()-mid(low),plain.max()-mid(plain),delta=1.5);self.assertLess(low.max(),200)
         _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(3)
         luma=90+30*np.arange(1024)[None,:]/1024+rng.normal(0,2,(1024,1024))
         Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'m.png')
