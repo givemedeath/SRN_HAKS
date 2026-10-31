@@ -180,6 +180,10 @@ class Quality(unittest.TestCase):
         # A body-pinned skin needs only the body minimum (RUNBOOK 154); other channels keep the full one.
         palette['layers']['0']['shadeRange']['skinMedian'] = {'target': 99, 'achieved': 99.0}
         self.assertEqual(shade_span_failures({'0': .6, '9': .6}, palette, .75, .5)[0], ['shadeSpan9'])
+        # RUNBOOK 159: hair whose brightest or darkest source value holds over the limit is exempt; other channels are not.
+        palette['layers']['1'] = {'shadeRange': {'checked': True, 'endTie': .14}}; palette['layers']['9'] = {'shadeRange': {'checked': True, 'endTie': .14}}
+        self.assertEqual(shade_span_failures({'1': .66, '9': .66}, palette, .75, .5, .1), (['shadeSpan9'], ['1']))
+        palette['layers']['1']['shadeRange']['endTie'] = .05; self.assertEqual(shade_span_failures({'1': .66}, palette, .75, .5, .1)[0], ['shadeSpan1'])
 
     def test_seam_step_ratio_finds_tone_patches_at_chart_borders(self):
         # RUNBOOK 153: a plane of skin texels split into two charts at x=.5; even texture scores ~1, a flat offset at the seam more.

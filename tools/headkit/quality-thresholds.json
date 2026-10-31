@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "source": "Step 5 of docs/heads/head-texture-quality-plan.md (2026-10-29/30): calibrated on elf-male-c/-d shipped (fail) vs step 2/3 prototypes (pass), elf-male-a held out. Each limit sits between the worst passing and best failing calibration value, with margin. hairLockOnSkinPx from RUNBOOK 133 (shipped 0-2 px, unfixed prototypes 86-109 px). seamStepRatio from RUNBOOK 153 (race validation copies 2026-10-30: dwarf-female-c per-chart shading 1.71/1.81 fail; every other attempt 0.95-1.22, surface shading 0.89-0.95). skinMedianOffset from RUNBOOK 154 (face skin pinned within 0-1 shades of the srn_body neck median; unpinned visible faces 20-77 above). bodySkinSpanMin: a body-pinned skin needs only the palette's own full-range floor (user decision 2026-10-31: face-pinned skins on human-female-c/-d and orc-female-c span 0.60-0.61). faceDarkRatio from RUNBOOK 158 (15 race validation copies 2026-10-31: crushed pinned faces 0.0-0.135, dark-capped 0.159-0.546).",
+  "source": "Step 5 of docs/heads/head-texture-quality-plan.md (2026-10-29/30): calibrated on elf-male-c/-d shipped (fail) vs step 2/3 prototypes (pass), elf-male-a held out. Each limit sits between the worst passing and best failing calibration value, with margin. hairLockOnSkinPx from RUNBOOK 133 (shipped 0-2 px, unfixed prototypes 86-109 px). seamStepRatio from RUNBOOK 153 (race validation copies 2026-10-30: dwarf-female-c per-chart shading 1.71/1.81 fail; every other attempt 0.95-1.22, surface shading 0.89-0.95). skinMedianOffset from RUNBOOK 154 (face skin pinned within 0-1 shades of the srn_body neck median; unpinned visible faces 20-77 above). bodySkinSpanMin: a body-pinned skin needs only the palette's own full-range floor (user decision 2026-10-31: face-pinned skins on human-female-c/-d and orc-female-c span 0.60-0.61). faceDarkRatio from RUNBOOK 158 (15 race validation copies 2026-10-31: crushed pinned faces 0.0-0.135, dark-capped 0.159-0.546). hairEndTieExempt from RUNBOOK 159 (user decision 2026-10-31: hair with more than 10% on its brightest or darkest source luma is exempt from the span check; human-female-d 0.14).",
   "limits": {
     "featureFocusMin": 5.0,
     "blotchPxMax": 20,
@@ -15,6 +15,7 @@
     "seamStepRatioMax": 1.4,
     "skinMedianOffsetMax": 8,
     "bodySkinSpanMin": 0.5,
-    "faceDarkRatioMin": 0.15
+    "faceDarkRatioMin": 0.15,
+    "hairEndTieExempt": 0.1
   }
 }
