@@ -178,6 +178,22 @@ class Quality(unittest.TestCase):
         fails, exempt = shade_span_failures({'0': .5, '2': 0.0, '9': .9}, palette, .75)
         self.assertEqual(fails, ['shadeSpan0']); self.assertEqual(exempt, ['2'])
 
+    def test_seam_step_ratio_finds_tone_patches_at_chart_borders(self):
+        # RUNBOOK 153: a plane of skin texels split into two charts at x=.5; even texture scores ~1, a flat offset at the seam more.
+        from headkit.quality import seam_step_ratio
+        ys, xs = np.mgrid[0:64, 0:64]/64.; points = np.c_[xs.ravel(), ys.ravel(), np.zeros(xs.size)]; charts = (points[:, 0] >= .5).astype(int)
+        ramp = np.random.default_rng(1).integers(100, 104, len(points)).astype(np.uint8); patch = ramp+np.where(charts == 1, 12, 0).astype(np.uint8)
+        smooth, stepped = (seam_step_ratio(points, charts, s, 1.5) for s in (ramp, patch))
+        self.assertLess(smooth, 1.3); self.assertGreater(stepped, 2.0); self.assertIsNone(seam_step_ratio(points, np.zeros(len(points), int), ramp, 1.5))
+
+    def test_skin_median_offset_needs_the_body_anchor(self):
+        # RUNBOOK 154: a stretched skin without the body skin's median fails; a flat skin has nothing to anchor.
+        from headkit.quality import skin_median_offset
+        layer = lambda **range_: {'layers': {'0': {'shadeRange': range_}}}
+        self.assertIsNone(skin_median_offset(layer(checked=True)))
+        self.assertEqual(skin_median_offset(layer(checked=True, skinMedian={'target': 99, 'achieved': 104.0})), 5.0)
+        self.assertEqual(skin_median_offset(layer(checked=False)), 0.0); self.assertEqual(skin_median_offset({'layers': {}}), 0.0)
+
     def test_cybereye_side_setting_is_checked_before_any_work(self):
         from headkit.quality import quality
         with tempfile.TemporaryDirectory() as root:

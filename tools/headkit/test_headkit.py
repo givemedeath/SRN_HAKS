@@ -1854,29 +1854,59 @@ class ToneMatchTests(Temporary):
             quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'offset',shade_offsets={'0':4},full_range=True)
         self.assertFalse((self.root/'spiky').exists());self.assertFalse((self.root/'offset').exists())
     def test_shading_range_stretches_the_shading_not_the_fine_detail(self):
-        # RUNBOOK 149: a narrow smooth gradient with fine noise; two UV charts meet at x=512 with a luma step between them.
+        # RUNBOOK 149: a narrow smooth gradient with fine noise and a luma step at x=512; texels sit on a flat 3D surface
+        # (positions), the right half far behind the left in the separate case, as two unconnected parts of a head.
         _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(7);x=np.arange(1024)
         luma=80+20*x[None,:]/1024+rng.normal(0,3,(1024,1024));luma[:,512:]+=15;luma[:,900:]=60
         Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'g.png')
-        charts=np.zeros((1024,1024),int);charts[:,512:]=1
+        ys,xs=np.mgrid[0:1024,0:1024];flat=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.;apart=flat.copy();apart[:,512:,2]=1
         plain,full,shading=(quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/name,**kw) for name,kw in
-                            (('plain',{}),('full',{'full_range':True}),('shading',{'full_range':True,'shading_only':True,'charts':charts})))
+                            (('plain',{}),('full',{'full_range':True}),('shading',{'full_range':True,'shading_only':True,'positions':apart})))
         shades={name:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,:900] for name,r in (('plain',plain),('full',full),('shading',shading))}
         fine=lambda s:np.std(s[1:-1,1:-1]-(s[:-2,1:-1]+s[2:,1:-1]+s[1:-1,:-2]+s[1:-1,2:])/4)
-        self.assertGreaterEqual(shading['layers']['0']['shadeRange']['spanFraction'],.5);self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],3.0)
+        self.assertGreaterEqual(shading['layers']['0']['shadeRange']['spanFraction'],.5);self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],.02)
         self.assertLess(fine(shades['shading']),1.3*fine(shades['plain']));self.assertGreater(fine(shades['full']),1.5*fine(shades['plain']))
         # On skin the shading stops SKIN_HEADROOM shades below the top of the row; only fine detail may reach the top shades.
         self.assertLess(np.percentile(shades['shading'],99),253-8);self.assertGreater(np.percentile(shades['full'],99),253-8)
         trend=lambda s:s[:,400:500].mean()-s[:,10:110].mean()
         self.assertGreater(trend(shades['shading']),1.5*trend(shades['plain']))  # the shading itself still uses the wider range
-        # Charts never mix: smoothed as one chart, the step between them would spread into both sides.
-        mixed=quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/'mixed',full_range=True,shading_only=True,charts=np.zeros((1024,1024),int))
-        mixed=np.asarray(Image.open(mixed['shades']['path'])).astype(float)[:,:900]
-        step=lambda s:s[:,512:515].mean()-s[:,509:512].mean()
-        self.assertGreater(step(shades['shading']),1.3*step(mixed))
-        for kw in ({'full_range':True},{'charts':charts}):
-            with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'chart ids'):
+        # Surface neighbours only: atlas neighbours far apart in 3D keep their step in the smoothed shading; on one continuous
+        # surface it spreads.
+        from headkit.palette import surface_smooth
+        mask=labels==0;sharp,spread=(surface_smooth(luma,mask,points,.02)[:,:900] for points in (apart,flat))
+        step=lambda s:s[:,512].mean()-s[:,511].mean();self.assertGreater(step(sharp),14);self.assertLess(step(spread),2)
+        for kw in ({'full_range':True},{'positions':flat}):
+            with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'surface points'):
                 quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/'bad',shading_only=True,**kw)
+    def test_shading_range_keeps_seam_offsets_at_their_own_amplitude(self):
+        # RUNBOOK 153: a near-flat skin whose two UV charts (x<512, x>=512) differ by 2 luma where they meet on the surface. The
+        # full stretch multiplies that offset into a tone step; surface-smoothed shading keeps it near its source size.
+        _,labels,palettes,rows=self.fixture();x=np.arange(1024)
+        luma=np.broadcast_to(100+10*np.sin(x/1024*np.pi)[None,:],(1024,1024)).copy();luma[:,512:]+=2;luma[:,900:]=60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'n.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.
+        full,shading=(np.asarray(Image.open(quantize(self.root/'n.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,**kw)['shades']['path'])).astype(float)
+                      for name,kw in (('nfull',{}),('nshading',{'shading_only':True,'positions':flat})))
+        step=lambda s:abs(s[:,512:515].mean()-s[:,509:512].mean());self.assertGreater(step(full),20);self.assertLess(step(shading),.25*step(full))
+    def test_skin_median_pins_the_body_skin_level(self):
+        # RUNBOOK 154: the full-range skin keeps the body neck's median shade; each half of the stretch still reaches its end.
+        from headkit.palette import stretch
+        q=np.linspace(40,120,101);s=stretch(q,0,200,median=50)
+        self.assertAlmostEqual(float(np.interp(.5,np.linspace(0,1,1001),s)),50,delta=.5);self.assertEqual((s.min(),s.max()),(0,200))
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(3)
+        luma=90+30*np.arange(1024)[None,:]/1024+rng.normal(0,2,(1024,1024))
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'m.png')
+        for median in (60,180):
+            with self.subTest(median=median):
+                r=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/f'm{median}',full_range=True,skin_median=median)
+                shades=np.asarray(Image.open(r['shades']['path']))[labels==0];self.assertLessEqual(abs(np.median(shades)-median),3)
+                self.assertEqual(r['layers']['0']['shadeRange']['skinMedian']['target'],median);self.assertGreaterEqual(r['layers']['0']['shadeRange']['spanFraction'],.5)
+        with self.assertRaisesRegex(ValueError,'skin median'):quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mbad',skin_median=60)
+    def test_body_skin_median_reads_the_plt_skin_layer(self):
+        from headkit.palette import body_skin_median
+        shades=np.array([[10,20,30,200]],np.uint8);layers=np.array([[0,0,0,1]],np.uint8);path=self.root/'neck.plt'
+        path.write_bytes(b'PLT V1  '+np.array([10,0,4,1],'<u4').tobytes()+np.stack([shades,layers],-1)[::-1].tobytes())
+        self.assertEqual(body_skin_median(path),20)
     def test_plt_reader_and_reference_count_shared_textures_once(self):
         from headkit.palette import plt_shades,shade_reference
         def plt(name,shades,layers):
@@ -1919,14 +1949,22 @@ class ToneMatchTests(Temporary):
         runner.data['palette']['fullShadeRange']=True
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
         self.assertIs(quantizer.call_args.kwargs['full_range'],True)
-        # stretchShadingOnly also hands quantize the 1K chart ids; gutter texels take the nearest chart
+        # stretchShadingOnly also hands quantize each 1K texel's surface point; gutter texels take the nearest
         runner.data['palette']['stretchShadingOnly']=True;runner.source=lambda *args:'uv.glb'
-        uv=np.array([[[0,0],[.4,0],[0,.4]],[[.6,.6],[1,.6],[.6,1]]],float);owners=np.full((1024,1024),-1);owners[:10,:10]=0;owners[-10:,-10:]=1
-        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.gltf.mesh',return_value={'uv':uv}),\
-             patch('headkit.uv.raster_audit',return_value=({},owners)):Runner._execute(runner,'palette',self.root)
-        charts=quantizer.call_args.kwargs['charts'];self.assertIs(quantizer.call_args.kwargs['shading_only'],True)
-        self.assertEqual((charts[0,0],charts[-1,-1],charts[100,100],charts[1000,1000]),(0,1,0,1))
+        owners=np.full((1024,1024),-1);owners[:10,:10]=0;owners[-10:,-10:]=1;points=np.zeros((1024,1024,3),np.float32);points[-10:,-10:]=1
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.gltf.mesh',return_value={'uv':None}),\
+             patch('headkit.textures.surface',return_value=(points,owners,{})):Runner._execute(runner,'palette',self.root)
+        positions=quantizer.call_args.kwargs['positions'];self.assertIs(quantizer.call_args.kwargs['shading_only'],True)
+        self.assertEqual([positions[y,x,0] for y,x in ((0,0),(-1,-1),(100,100),(1000,1000))],[0,1,0,1]);self.assertIsNone(quantizer.call_args.kwargs['skin_median'])
         del runner.data['palette']['stretchShadingOnly']
+        # matchBodySkin reads the bodySkin PLT's skin median and needs that input
+        runner.data['palette']['matchBodySkin']=True
+        with self.assertRaisesRegex(ValueError,'bodySkin input'):Runner._execute(runner,'palette',self.root)
+        runner.data['inputs']['bodySkin']={}
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.body_skin_median',return_value=99) as median:
+            Runner._execute(runner,'palette',self.root)
+        self.assertEqual(quantizer.call_args.kwargs['skin_median'],99);median.assert_called_once_with('bodySkin.png')
+        del runner.data['palette']['matchBodySkin'];del runner.data['inputs']['bodySkin']
         runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
             Runner._execute(runner,'palette',self.root)
@@ -1980,6 +2018,8 @@ class ToneMatchTests(Temporary):
         data={'inputs':{'design':{},'uvMesh':{}},'palette':{'inputs':{},'toneMatch':{'0':{'reference':'r'}}}}
         self.assertNotIn('design',stage_roles('palette',data));self.assertFalse(design_rows(data))
         data['palette']['toneMatch']['0']['rowFrom']='design';self.assertIn('design',stage_roles('palette',data));self.assertTrue(design_rows(data))
+        data['inputs']['bodySkin']={};self.assertNotIn('bodySkin',stage_roles('palette',data))   # read only with matchBodySkin
+        data['palette']['matchBodySkin']=True;self.assertIn('bodySkin',stage_roles('palette',data));self.assertNotIn('bodySkin',stage_roles('tone',data))
         text=runner_slice(Path(__file__).parent/'runner.py','palette')
         self.assertIn("design_reference(",text);self.assertIn("'design-reference.png'",text)
         self.assertIn("dependencies.append('unwrap')",text)

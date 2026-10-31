@@ -28,7 +28,8 @@ def stage_roles(stage,data):
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
         'tone':{'uvMesh','basecolor4k','metallic4k','detail','frontDetail'}|palettes
                |(set() if data.get('tone',{}).get('faceTreatment') is not None else {'ownership4k','ownership1k'}),
-        'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set()),'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
+        'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set())
+                  |({'bodySkin'} if (data.get('palette') or {}).get('matchBodySkin') is True else set()),'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
         'render':{'uvMesh'}|set(data.get('render',{}).get('mapInputs',{}).values())}[stage]
     return roles&inputs
 
@@ -518,16 +519,19 @@ class Runner:
                 reference=design_reference(rgb,subject(rgb,m.get('matte',{}).get('backgroundTolerance',14))[0],
                                            mesh(self.source('uvMesh','unwrap','mesh')),layers,folder/'design-reference.png')
                 write(folder/'design-reference.json',reference,fresh=True);design=reference['channels']
-            full_range=m['palette'].get('fullShadeRange') is True;shading_only=m['palette'].get('stretchShadingOnly') is True;charts=None
+            full_range=m['palette'].get('fullShadeRange') is True;shading_only=m['palette'].get('stretchShadingOnly') is True;positions=skin_median=None
             if shading_only:
-                # 1K texel chart ids (gutters take the nearest chart) so the shading is smoothed within each chart only.
+                # Each 1K texel's surface point (gutters take the nearest), so the shading is smoothed by 3D distance across chart seams.
                 from .gltf import mesh
-                from .textures import pad
-                from .uv import chart_ids,raster_audit
-                uv=mesh(self.source('uvMesh','unwrap','mesh'))['uv'];_,owners=raster_audit(uv,1024)
-                charts=pad(np.where(owners>=0,np.asarray(chart_ids(uv))[np.maximum(owners,0)],-1)[...,None],owners>=0)[...,0]
+                from .textures import pad,surface
+                positions,owners,_=surface(mesh(self.source('uvMesh','unwrap','mesh')),1024,enforce=False);positions=pad(positions,owners>=0)
+            if m['palette'].get('matchBodySkin') is True:
+                # The body skin PLT the head meets at the neck: the stretched skin keeps its median shade (RUNBOOK 154).
+                from .palette import body_skin_median
+                require('bodySkin' in m['inputs'],'palette.matchBodySkin needs a bodySkin input (the body neck PLT)');skin_median=body_skin_median(self.input('bodySkin'))
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
-                            tone_match=m['palette'].get('toneMatch'),design=design,full_range=full_range,shading_only=shading_only,charts=charts)
+                            tone_match=m['palette'].get('toneMatch'),design=design,full_range=full_range,shading_only=shading_only,
+                            positions=positions,skin_median=skin_median)
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result

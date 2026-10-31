@@ -8,6 +8,7 @@ import json
 import numpy as np
 from PIL import Image
 from scipy.ndimage import label, binary_dilation, binary_erosion, binary_opening
+from scipy.spatial import cKDTree
 from .common import require, pin, write, read
 from .gltf import mesh
 from .face_masks import EYE_RING, EYES, IRIS, LIPS, NOSE_BASE, polygon, face_hull, brow_seed, brow_mask, plain_skin, hair_locks, sample, nearest
@@ -16,7 +17,8 @@ THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
 FACE_PX = 100; DECODE_ROWS = {'1': 117, '8': 26}; TOP = 12
 CROSS = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], bool)
 CHECKS = {'featureFocusMin', 'blotchPxMax', 'specksMax', 'hairLockOnSkinPxMax', 'designSpecksWarn', 'browsOnHairMin', 'irisOnTattoo1Min',
-          'whitesOnSkinMin', 'hairOnFaceSkinMax', 'shadeSpanMin'}
+          'whitesOnSkinMin', 'hairOnFaceSkinMax', 'shadeSpanMin', 'seamStepRatioMax', 'skinMedianOffsetMax'}
+SEAM_RADIUS = .012   # head widths: about 1.5 1K texels on the face, the neighbours a seam step is seen against
 LIP_POLYGON = (61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146)
 
 
@@ -31,6 +33,24 @@ def shade_span_failures(spans, palette, minimum):
     luminance spread below FLAT_LUMA) has no span to keep, as quantize(full_range=True) itself exempts it."""
     flat = {k for k, layer in (palette.get('layers') or {}).items() if (layer.get('shadeRange') or {}).get('checked') is False}
     return [f'shadeSpan{k}' for k, v in spans.items() if v < minimum and k not in flat], sorted(flat & set(spans))
+
+
+def seam_step_ratio(points, charts, shades, width):
+    """Mean skin shade difference between surface neighbours (within SEAM_RADIUS head widths) on different UV charts over that
+    between neighbours on the same chart. Near 1 when shading runs on across seams; flat tone patches meeting at chart
+    borders raise it (dwarf-female-c per-chart shading 1.7-1.8, surface shading 0.9; RUNBOOK 153)."""
+    pairs = cKDTree(points).query_pairs(SEAM_RADIUS*width, output_type='ndarray')
+    if not len(pairs): return None
+    step = np.abs(shades[pairs[:, 0]].astype(float)-shades[pairs[:, 1]]); cross = charts[pairs[:, 0]] != charts[pairs[:, 1]]
+    return round(float(step[cross].mean()/max(step[~cross].mean(), 1e-6)), 3) if cross.any() and (~cross).any() else None
+
+
+def skin_median_offset(palette):
+    """How far the stretched skin's median shade landed from the body skin's (palette matchBodySkin): None when the skin was
+    stretched without the body anchor (a face that reads as a different skin from the neck, RUNBOOK 154), 0 for a flat skin."""
+    skin = ((palette.get('layers') or {}).get('0') or {}).get('shadeRange') or {}
+    if not skin.get('checked'): return 0.0
+    median = skin.get('skinMedian'); return None if median is None else abs(median['achieved']-median['target'])
 
 
 def quality(source, masks, palette, palettes, output, thresholds=None, settings=None):
@@ -110,6 +130,11 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
         if not n: continue
         small_parts = np.bincount(parts.ravel()) <= 2; small_parts[0] = False; small_parts[np.unique(parts[outline])] = False
         r['specks' if k in (0, 1, 8) else 'designSpecks'] += int(small_parts.sum())
+    from .textures import surface
+    from .uv import chart_ids
+    points, owners, _ = surface(value, shades.shape[0], enforce=False); skin = (owners >= 0) & (layers == 0)
+    r['seamStepRatio'] = seam_step_ratio(points[skin].astype(float), np.asarray(chart_ids(uv))[owners[skin]], shades[skin], float(np.ptp(value['positions'][:, 0])))
+    r['skinMedianOffset'] = skin_median_offset(palette)
     r['shadeSpan'] = {}
     for k in np.unique(layers):
         values = shades[layers == k]
@@ -120,7 +145,9 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
              ('specks', r['specks'] <= limits['specksMax']), ('hairLockOnSkin', (r['hairLockOnSkinPx'] or 0) <= limits['hairLockOnSkinPxMax']),
              ('browsOnHair', (r['browsOnHair'] or 0) >= limits['browsOnHairMin']), ('irisOnTattoo1', (r['irisOnTattoo1'] or 0) >= limits['irisOnTattoo1Min']),
              ('whitesOnSkin', (r['whitesOnSkin'] or 0) >= limits['whitesOnSkinMin']),
-             ('hairOnFaceSkin', r['hairOnFaceSkin'] is None or r['hairOnFaceSkin'] <= limits['hairOnFaceSkinMax'])) if not ok]
+             ('hairOnFaceSkin', r['hairOnFaceSkin'] is None or r['hairOnFaceSkin'] <= limits['hairOnFaceSkinMax']),
+             ('seamStep', r['seamStepRatio'] is None or r['seamStepRatio'] <= limits['seamStepRatioMax']),
+             ('bodySkin', r['skinMedianOffset'] is not None and r['skinMedianOffset'] <= limits['skinMedianOffsetMax'])) if not ok]
     span_fails, r['shadeSpanExempt'] = shade_span_failures(r['shadeSpan'], palette, limits['shadeSpanMin']); fails += span_fails
     warnings = [f"{r['designSpecks']} design-channel specks: thin marks break up at game size"] if r['designSpecks'] > limits['designSpecksWarn'] else []
     preview = np.repeat(np.clip(luma, 0, 255).astype(np.uint8)[..., None], 3, 2)
