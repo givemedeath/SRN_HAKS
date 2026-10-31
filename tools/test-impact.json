@@ -35,6 +35,7 @@
     "tools/headkit/cameras.py": [
       "tools/headkit/common.py"
     ],
+    "tools/headkit/colour.py": [],
     "tools/headkit/comfy.py": [
       "tools/headkit/checkpoints.json",
       "tools/headkit/comfy_nodes/model_resolution.py",
@@ -121,14 +122,15 @@
       "tools/headkit/templates/flux2-inpaint.json"
     ],
     "tools/headkit/face_encode.py": [
+      "tools/headkit/colour.py",
       "tools/headkit/common.py",
       "tools/headkit/textures.py",
       "tools/headkit/uv.py"
     ],
     "tools/headkit/face_masks.py": [
+      "tools/headkit/colour.py",
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
-      "tools/headkit/palette.py",
       "tools/headkit/rays.py",
       "tools/headkit/textures.py"
     ],
@@ -193,12 +195,10 @@
       "tools/headkit/uv.py"
     ],
     "tools/headkit/palette.py": [
+      "tools/headkit/colour.py",
       "tools/headkit/common.py",
-      "tools/headkit/gltf.py",
       "tools/headkit/paint.py",
-      "tools/headkit/rays.py",
-      "tools/headkit/stock-shades.json",
-      "tools/headkit/textures.py"
+      "tools/headkit/stock-shades.json"
     ],
     "tools/headkit/predicates.py": [
       "tools/headkit/common.py"
@@ -212,11 +212,19 @@
       "tools/headkit/predicates.py",
       "tools/headkit/uv.py"
     ],
+    "tools/headkit/projection.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/textures.py"
+    ],
     "tools/headkit/quality.py": [
       "tools/headkit/common.py",
       "tools/headkit/face_masks.py",
       "tools/headkit/gltf.py",
-      "tools/headkit/quality-thresholds.json"
+      "tools/headkit/quality-thresholds.json",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
     ],
     "tools/headkit/rays.py": [],
     "tools/headkit/reference_background.py": [
@@ -253,6 +261,7 @@
       "tools/headkit/neck.py",
       "tools/headkit/paint.py",
       "tools/headkit/palette.py",
+      "tools/headkit/projection.py",
       "tools/headkit/quality.py",
       "tools/headkit/review_images.py",
       "tools/headkit/textures.py",
@@ -319,6 +328,7 @@
       "tools/headkit/paint.py",
       "tools/headkit/palette.py",
       "tools/headkit/preview.py",
+      "tools/headkit/projection.py",
       "tools/headkit/relief.py",
       "tools/headkit/replay.py",
       "tools/headkit/review_images.py",
