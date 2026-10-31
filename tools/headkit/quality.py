@@ -33,8 +33,8 @@ def shade_span_failures(spans, palette, minimum, body_minimum=None, hair_end_tie
     """Failed shadeSpan checks and the exempt channels: a channel the palette left flat (shadeRange.checked false, its source
     luminance spread below FLAT_LUMA) has no span to keep, as quantize(full_range=True) itself exempts it. A skin pinned to the
     body skin's median (shadeRange.skinMedian) needs only `body_minimum`: when the face is the brightest skin, the capped highlights
-    leave the top of the row unused (user decision 2026-10-31, RUNBOOK 154). Hair with more than `hair_end_tie` of its texels on its
-    brightest or darkest source luma value (shadeRange.endTie) is exempt: rank order cannot spread one flat value (human-female-d,
+    leave the top of the row unused (user decision 2026-10-31, RUNBOOK 154). Hair with more than `hair_end_tie` of its texels on the
+    source luma value at its p1 or p99 (shadeRange.endTie) is exempt: rank order cannot spread one flat value (human-female-d,
     14% of its hair on one value, mostly UV gutters and the back of the head; user decision 2026-10-31, RUNBOOK 159)."""
     layers = palette.get('layers') or {}
     flat = {k for k, layer in layers.items() if (layer.get('shadeRange') or {}).get('checked') is False}

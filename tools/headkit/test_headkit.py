@@ -1949,9 +1949,10 @@ class ToneMatchTests(Temporary):
         # A flat hair whose texels sit on a few luma values, one of them holding the top 15%: equal lumas take their own ranks
         # (ordered by the smooth shading), so the stretch still reaches the row's ends.
         flat=np.where(np.arange(1024)[:,None]<870,30+np.arange(1024)[:,None]%5,47)*np.ones((1,124));luma[:,900:]=flat
+        luma[1:4,900:],luma[6:9,900:]=10,90   # a few outliers past both blocks: endTie reads the p1/p99 value, not the min or max
         Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'t.png')
         tied=quantize(self.root/'t.png',self.root/'o.png',palettes,rows,self.root/'ttied',full_range=True,shading_only=True,positions=flat3)
-        self.assertGreaterEqual(tied['layers']['1']['shadeRange']['spanFraction'],.9);self.assertAlmostEqual(tied['layers']['1']['shadeRange']['endTie'],174/1024,delta=.002)  # the darkest value, every fifth row below 870
+        self.assertGreaterEqual(tied['layers']['1']['shadeRange']['spanFraction'],.9);self.assertAlmostEqual(tied['layers']['1']['shadeRange']['endTie'],174/1024,delta=.002)  # the p1 value, every fifth row below 870
     def test_body_skin_median_reads_the_plt_skin_layer(self):
         from headkit.palette import body_skin_median
         shades=np.array([[10,20,30,200]],np.uint8);layers=np.array([[0,0,0,1]],np.uint8);path=self.root/'neck.plt'

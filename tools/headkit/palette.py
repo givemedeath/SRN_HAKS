@@ -337,8 +337,10 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
             range_report={'eligible':[lo,hi],'p1':float(np.percentile(picked,1)) if len(picked) else None,
                           'p99':float(np.percentile(picked,99)) if len(picked) else None,'spanFraction':round(fraction,3),'checked':checked,
                           **({'shadingSigma':SHADING_SIGMA} if smooth is not None else {}),
-                          # Share of the channel on its brightest or darkest source luma value: a flat block no stretch can spread (RUNBOOK 159).
-                          'endTie':round(max(float(np.mean(level==level.max())),float(np.mean(level==level.min()))),3) if len(picked) and (level:=np.rint(luma)).size else 0.0,
+                          # Share of the channel on the source luma value at its p1 or p99, where the span check reads: a flat block there
+                          # holds that percentile to one shade whatever the stretch (RUNBOOK 159).
+                          'endTie':round(max(float(np.mean(level==np.percentile(level,q,method='nearest'))) for q in (1,99)),3)
+                                   if len(picked) and (level:=np.rint(luma)).size else 0.0,
                           **({'skinMedian':{'target':median,'achieved':float(np.median(picked[inside])),'faceTexels':int(inside.sum()),'rank':round(rank,3),
                                                   'darkPower':power}} if median is not None else {})}
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
