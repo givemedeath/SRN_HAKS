@@ -1,46 +1,11 @@
-"""Per-texel ownership, palette quantization and isolated channel diagnostics."""
+"""Palette quantization, row ranking and isolated channel diagnostics."""
 from pathlib import Path
 import numpy as np
 from PIL import Image
+from scipy.ndimage import gaussian_filter, map_coordinates
 from scipy.spatial import cKDTree
-from .common import require, verify, pin, read, write
-from .gltf import mesh
-from .textures import surface,pad
-from .rays import EmbreeScene
-
-
-def project_ownership(source, views, embree, output, *, max_subtexel_fraction=.005):
-    """View labels are measured annotations, not RGB-threshold skin/hair guesses. The 1K sampling gate uses the same
-    reviewed sub-texel allowance as unwrap and bake."""
-    verify([embree]);value=mesh(source);positions,owners,_=surface(value,1024,max_subtexel_fraction);mapped=owners>=0
-    labels=np.full((1024,1024),255,np.uint8);points=positions[mapped];chosen=np.full(len(points),255,np.uint8)
-    scene=EmbreeScene(embree['path'],value['positions'],value['faces']);reports=[]
-    try:
-        for row in views:
-            require(row.get('calibrationReviewed') is True,'Review camera and withheld landmark alignment first')
-            with Image.open(row['mask']) as image:
-                require(image.mode=='L','Ownership masks must be eight-bit L images')
-                mask=np.asarray(image).copy()
-            require(np.all((mask<=9)|(mask==255)),'Invalid semantic labels')
-            matrix=np.asarray(row['viewProjection'],float);origin=np.asarray(row['cameraOrigin'],float)
-            require(matrix.shape==(4,4) and origin.shape==(3,) and np.isfinite(matrix).all() and np.isfinite(origin).all(),'Perspective camera matrix/origin required')
-            clip=np.c_[points,np.ones(len(points))]@matrix.T;positive=clip[:,3]>0
-            uv=clip[:,:2]/np.maximum(clip[:,3,None],1e-20);uv=uv*np.array([.5,-.5])+.5
-            valid=positive&(uv>=0).all(1)&(uv<1).all(1)&(chosen==255)
-            index=np.flatnonzero(valid);delta=points[index]-origin;distance=np.linalg.norm(delta,axis=1)
-            require(np.all(distance>0),'Camera lies on sampled surface')
-            directions=delta/distance[:,None];depth,face_ids,_=scene.query(np.broadcast_to(origin,delta.shape),directions)
-            diagonal=float(np.linalg.norm(np.ptp(value['positions'],axis=0)))
-            visible=(face_ids>=0)&(np.abs(depth-distance)<=diagonal*1e-5)
-            ii=index[visible];q=uv[ii];samples=mask[(q[:,1]*len(mask)).astype(int),(q[:,0]*mask.shape[1]).astype(int)]
-            accepted=samples<=9;chosen[ii[accepted]]=samples[accepted]
-            reports.append({'name':row['name'],'visible':int(visible.sum()),'assigned':int(accepted.sum())})
-    finally:scene.close()
-    labels[mapped]=chosen;unresolved=int(np.count_nonzero(chosen==255))
-    Image.fromarray(labels).save(output)
-    require(unresolved==0,'Unobserved ownership remains; annotate a qualified atlas fallback instead of defaulting to hair')
-    labels=pad(labels,mapped);Image.fromarray(labels).save(output)
-    return {'output':pin(output),'views':reports,'unresolvedMappedSamples':unresolved}
+from .common import require, pin, read, write
+from .colour import lab
 
 
 def rank_rows(color, ownership, palette_files, *, keep=4, chunk=512):
@@ -78,19 +43,31 @@ REFERENCES=Path(__file__).with_name('stock-shades.json');GRID=(.05,.25,.5,.75,.9
 # Full shade range (user rule 2026-10-29, RUNBOOK 121): every channel may use all shades its row offers. A channel with at least
 # FULL_RANGE_PIXELS texels and a source luma p1-p99 spread of at least FLAT_LUMA must reach FULL_RANGE_SPAN of that range (p1-p99).
 FULL_RANGE_PIXELS=1024;FLAT_LUMA=8.0;FULL_RANGE_SPAN=.5
+# stretchShadingOnly (RUNBOOK 149), with fullShadeRange: only the channel's smooth shading (Gaussian SHADING_SIGMA head widths on
+# the surface, about 3 1K texels) is stretched across the row; finer structure (pores, stubble, wrinkles) keeps its unstretched shade
+# amplitude. Stretching it all multiplied skin noise up to 8x while the eyes, brows and lips on other channels kept theirs
+# (orc-female-c feature focus 26.7 -> 4.1). The shading is smoothed by 3D distance, not within each UV chart: on a near-flat skin
+# the stretch is ~10x, and per-chart means turned 1-2 luma offsets between charts into flat tone patches (dwarf-female-c, RUNBOOK 153).
+# The smooth shading is stretched onto the shades the quality gate's span check measures (p1-p99, SHADING_TAIL), and on skin
+# it stops SKIN_HEADROOM shades below the top: broad smooth cheeks on the near-white end of the skin rows read as pale blotches
+# in game (quality blotch check); fine highlights from the detail term may still reach them.
+SHADING_SIGMA=.02;SHADING_TAIL=.01;SKIN_HEADROOM=16
+# Hair stretches whole, not just its shading: it has no skin noise to protect, and stretching only its smooth shading turned
+# broad bake variation into camouflage patches while the strands kept their faint source amplitude (human-female-d,
+# dwarf-female-d, RUNBOOK 158). Its plain rank stretch cannot spread a flat block of equal lumas: human-female-d keeps 14% of its
+# hair on its p99 value (mostly UV gutters), which holds it to a 0.66 span; quality exempts such hair (endTie, RUNBOOK 159).
+# The pinned skin's dark side: the stretch sends the channel's darkest 1% to shade 0, black on the skin rows, so lips
+# at 0.73 of the face's luma decoded at 0.15 of its shade and lip lines and sockets at 0 (orc-female-c, human-male-c). A texel below
+# the face keeps at least (luma ratio)^power of the pinned median (power 2: lips 0.51-0.79, lip lines 0.21-0.28), never under
+# SKIN_DARK_FLOOR of it (the stock skin references' p1/p50, 0.15-0.24); a steeper power is used only where the gentler one
+# would leave the skin under FULL_RANGE_SPAN.
+SKIN_DARK_FLOOR=.2;SKIN_DARK_POWERS=(2.,3.,4.5)
 # Full-range shades also need an opaque next shade: in the client shade 254 picks up the transparent reserved 255 and renders as
 # dark blotches (elf-male-a brow highlights, 2026-10-29), so a shade whose upper neighbour is transparent is never used.
 # Design-referenced rows (toneMatch rowFrom 'design'): lightness weight of the Lab distance (the matched shades already
 # set lightness, so hue and chroma decide), front-view size, label erosion and the minimum design sample. Validated on the
 # troll heads' hand-pinned skin rows: closer to the pin than the bake-referenced row on 16 of 20 (median 6.0 vs 10.6).
 DESIGN_LIGHTNESS_WEIGHT,FRONT_SIZE,FRONT_EROSION,MINIMUM_DESIGN_PIXELS=.25,512,2,200
-
-
-def lab(rgb):
-    """CIE Lab (D65) of sRGB rows."""
-    c=np.asarray(rgb,float).reshape(-1,3)/255;c=np.where(c>.04045,((c+.055)/1.055)**2.4,c/12.92)
-    xyz=c@np.array([[.4124,.3576,.1805],[.2126,.7152,.0722],[.0193,.1192,.9505]]).T/np.array([.95047,1,1.08883])
-    f=np.where(xyz>.008856,np.cbrt(xyz),7.787*xyz+16/116);return np.c_[116*f[:,1]-16,500*(f[:,0]-f[:,1]),200*(f[:,1]-f[:,2])]
 
 
 def front_labels(value, layers, size=FRONT_SIZE):
@@ -208,21 +185,64 @@ def rows_for_shades(target, shades, palette, *, keep=4):
     return [{'row':row,'meanSquaredColorError':error} for error,row in scores[:keep]]
 
 
-def stretch(quantiles, lo, hi, *, tail=.005):
+def stretch(quantiles, lo, hi, *, tail=.005, median=None, rank=.5):
     """A quantile function resampled to 1001 points and moved linearly so its `tail` and 1-`tail` points sit on the lowest
-    and highest eligible shade (a few outlier texels cannot hold the rest of the channel in a narrow band); tails clip."""
-    q=np.asarray(quantiles,float);q=np.interp(np.linspace(0,1,1001),np.linspace(0,1,len(q)),q);a,b=np.interp([tail,1-tail],np.linspace(0,1,1001),q)
-    return np.clip(lo+(q-a)/max(b-a,1e-9)*(hi-lo),lo,hi)
+    and highest eligible shade (a few outlier texels cannot hold the rest of the channel in a narrow band); tails clip.
+    `median` also pins the `rank` point there: each half moves linearly on its own, the lower half down to `lo`, the upper half
+    up to `hi` but never steeper than the plain stretch (a lowered median would otherwise spread broad highlights onto the top
+    shades: human-female-c blotch 16 -> 24, RUNBOOK 154)."""
+    q=np.asarray(quantiles,float);q=np.interp(np.linspace(0,1,1001),np.linspace(0,1,len(q)),q);a,m,b=np.interp([tail,rank,1-tail],np.linspace(0,1,1001),q)
+    gain=(hi-lo)/max(b-a,1e-9)
+    if median is None:return np.clip(lo+(q-a)*gain,lo,hi)
+    t=float(np.clip(median,lo,hi));up=min((hi-t)/max(b-m,1e-9),gain)
+    return np.clip(np.where(q<m,t-(m-q)/max(m-a,1e-9)*(t-lo),t+(q-m)*up),lo,hi)
 
 
-def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None, full_range=False):
+def surface_smooth(values, mask, positions, sigma):
+    """Gaussian mean (sigma in model units) of `values` over the `mask` texels by 3D distance between their surface points
+    (`positions`, gutters padded): splatted trilinearly on a sigma/2 voxel grid, blurred and read back trilinearly. Continuous
+    across UV chart seams, and atlas neighbours that are not surface neighbours never mix."""
+    points=positions[mask].astype(float);step=sigma/2;origin=points.min(0)-4*sigma;grid=(points-origin)/step
+    shape=tuple(np.ceil(grid.max(0)).astype(int)+5);cell=np.floor(grid).astype(int);frac=grid-cell
+    total=np.zeros(shape);weight=np.zeros(shape);v=values[mask].astype(float)
+    for corner in np.ndindex(2,2,2):
+        w=np.prod(np.where(np.array(corner),frac,1-frac),1);index=tuple((cell+corner).T)
+        np.add.at(total,index,w*v);np.add.at(weight,index,w)
+    total,weight=gaussian_filter(total,2.0),gaussian_filter(weight,2.0)
+    out=np.zeros(values.shape,float);out[mask]=map_coordinates(total,grid.T,order=1)/np.maximum(map_coordinates(weight,grid.T,order=1),1e-12)
+    return out
+
+
+def body_skin_median(path):
+    """Median skin (layer 0) shade of a body part PLT: the shade level the head's skin meets at the neck."""
+    shades,layers=plt_shades(path);require((layers==0).any(),'Body skin PLT has no skin texels');return int(np.median(shades[layers==0]))
+
+
+def shading_shades(luma, smooth, unstretched, allowed, quantiles):
+    """Full-range shades for the smooth shading (rank-mapped onto `quantiles`) plus the fine detail at its unstretched
+    amplitude: the slope of the channel's unstretched shades against luma."""
+    slope=float(np.polyfit(luma,unstretched,1)[0]) if np.ptp(luma)>0 else 0.0
+    base=match_shades(np.repeat(smooth[:,None],3,1),allowed,quantiles)
+    _,near=cKDTree(allowed[:,None]).query(np.clip(base+slope*(luma-smooth),allowed.min(),allowed.max())[:,None]);return allowed[near]
+
+
+def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None, full_range=False, shading_only=False,
+             positions=None, skin_median=None, skin_anchor=None):
     """Nearest-colour shades per channel. Opt-in `tone_match` ({channel: {'reference': name}}) instead remaps a channel's shades
     by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads.
     A tone-matched 'auto' row comes from the source colours, or with `rowFrom: 'design'` from the design's colour for the
     channel (`design`: design_reference channels), keeping the source-colour row in the report. `full_range` stretches every
     varied channel's shade distribution (its stock reference, else its nearest-colour shades) across all eligible shades of its
-    row, then rank-maps onto it, and refuses a varied channel that still spans less than FULL_RANGE_SPAN of that range."""
+    row, then rank-maps onto it, and refuses a varied channel that still spans less than FULL_RANGE_SPAN of that range.
+    `shading_only` (with full_range) stretches only the surface-smoothed shading (`positions`: each 1K texel's surface point) and keeps
+    fine detail at its unstretched amplitude (shading_shades). `skin_median` (with full_range) pins the median shade of the skin texels in
+    `skin_anchor` (1K mask: the face) there, the body skin's level, so the face reads as the neck's skin (RUNBOOK 154). The whole channel's
+    median does not: hidden texels and gutters left the visible faces 20-77 shades above the neck."""
     require(set(rows)==set(palette_files),'Every selected layer needs its own stock palette image')
+    require(not shading_only or (full_range and positions is not None and np.shape(positions)==(1024,1024,3)),
+            'Stretching only the shading needs the full shade range and the 1K texel surface points')
+    require(skin_median is None or (full_range and type(skin_median) is int and 0<=skin_median<=254 and np.shape(skin_anchor)==(1024,1024)),
+            'A skin median needs the full shade range, a 0..254 shade and the 1K face texels it applies to')
     rgb=np.asarray(Image.open(color).convert('RGB'),np.uint8)
     with Image.open(ownership) as image:
         require(image.mode=='L','Ownership masks must be eight-bit L images')
@@ -268,19 +288,59 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         lo,hi=int(allowed.min()),int(allowed.max());luma=target@np.array([.299,.587,.114])
         varied=bool(len(target)) and float(np.percentile(luma,99)-np.percentile(luma,1))>=FLAT_LUMA
         if full_range:require(not offset,'Use a shade offset or the full shade range for a channel, not both')
+        smooth=None
+        if shading_only and varied and key!='1':   # hair stretches whole
+            positions=np.asarray(positions,float);sigma=SHADING_SIGMA*float(np.ptp(positions[...,0]))
+            field=np.zeros(layers.shape);field[selected]=luma;smooth=surface_smooth(field,selected,positions,sigma)[selected]
+            top=hi-SKIN_HEADROOM if key=='0' else hi
+        median=skin_median if key=='0' and full_range and varied else None;rank=.5
+        if median is not None:
+            # The face's median rank in the channel, by the values the stretch maps (the smoothed shading or the luma).
+            inside=np.asarray(skin_anchor,bool)[selected];require(inside.sum()>=FULL_RANGE_PIXELS,'Too few face texels on the skin channel to pin its median')
+            ref=smooth if smooth is not None else luma;x=np.median(ref[inside]);rank=float((np.mean(ref<x)+np.mean(ref<=x))/2)
+        nearest=picked
+        def pick(median):
+            if spec is not None:
+                if smooth is not None:
+                    return shading_shades(luma,smooth,match_shades(target,allowed,quantiles),allowed,stretch(quantiles,lo,top,tail=SHADING_TAIL,median=median,rank=rank))
+                return match_shades(target,allowed,stretch(quantiles,lo,hi,median=median,rank=rank) if full_range and varied else quantiles)
+            own=np.quantile(nearest,np.linspace(0,1,1001))
+            if smooth is not None:return shading_shades(luma,smooth,nearest,allowed,stretch(own,lo,top,tail=SHADING_TAIL,median=median,rank=rank))
+            return match_shades(target,allowed,stretch(own,lo,hi,median=median,rank=rank)) if full_range and varied else nearest
+        if spec is not None:require(not offset,'Use a shade offset or tone matching for a channel, not both')
+        power=None
+        if median is None:picked=pick(median)
+        else:
+            # A texel darker than the face keeps at least (its luma / the face's)^power of the pinned median, and SKIN_DARK_FLOOR
+            # of it: the gentlest SKIN_DARK_POWERS step that still spans FULL_RANGE_SPAN, else uncapped (RUNBOOK 158).
+            ratio=np.clip(luma/max(float(np.median(luma[inside])),1e-9),0,None);_,snap=cKDTree(allowed[:,None]).query(np.arange(256.)[:,None])
+            picks={};uncapped=pick;pick=lambda median:picks[median] if median in picks else picks.setdefault(median,uncapped(median))  # pick ignores the power
+            def pinned(power):
+                shades=lambda median:pick(median) if power is None else np.maximum(pick(median),allowed[snap[np.clip(np.rint(
+                    np.where(ratio<1,np.maximum(SKIN_DARK_FLOOR,ratio**power)*median,0)),0,255).astype(int)]])
+                out=shades(median);miss=float(np.median(out[inside]))-median   # the detail and shade snapping move the face's median
+                return shades(median-miss) if abs(miss)>1 else out
+            for power in SKIN_DARK_POWERS+(None,):
+                picked=pinned(power)
+                if np.percentile(picked,99)-np.percentile(picked,1)>=FULL_RANGE_SPAN*(hi-lo):break
         if spec is not None:
-            require(not offset,'Use a shade offset or tone matching for a channel, not both')
-            nearest=picked;picked=match_shades(target,allowed,stretch(quantiles,lo,hi) if full_range and varied else quantiles)
             matched={'reference':spec['reference'],'referenceFile':pin(REFERENCES),'before':shade_stats(nearest),'after':shade_stats(picked),
                      'referencePercentiles':{f'p{round(q*100)}':float(np.interp(q,np.linspace(0,1,len(quantiles)),quantiles)) for q in GRID},
                      'meanSquaredColorErrorBefore':float(np.mean((target-table[nearest])**2)),'rowsAfter':rows_for_shades(target,picked,palette)}
-        elif full_range and varied:picked=match_shades(target,allowed,stretch(np.quantile(picked,np.linspace(0,1,1001)),lo,hi))
         if full_range:
             span=float(np.percentile(picked,99)-np.percentile(picked,1)) if len(picked) else 0.0
+            # Share of the channel on its source luma value at p1 or p99, at the end with more unused shades, where a flat block of
+            # equal lumas holds the span short whatever the stretch (RUNBOOK 159).
+            level=np.rint(luma);end=1 if len(picked) and np.percentile(picked,1)-lo>hi-np.percentile(picked,99) else 99
+            end_tie=round(float(np.mean(level==np.percentile(level,end,method='nearest'))),3) if len(picked) else 0.0
             checked=varied and len(picked)>=FULL_RANGE_PIXELS;fraction=span/max(hi-lo,1)
             require(not checked or fraction>=FULL_RANGE_SPAN,f'Channel {key} spans {span:.0f} of {hi-lo} available shades (p1-p99); full shade range required')
             range_report={'eligible':[lo,hi],'p1':float(np.percentile(picked,1)) if len(picked) else None,
-                          'p99':float(np.percentile(picked,99)) if len(picked) else None,'spanFraction':round(fraction,3),'checked':checked}
+                          'p99':float(np.percentile(picked,99)) if len(picked) else None,'spanFraction':round(fraction,3),'checked':checked,
+                          **({'shadingSigma':SHADING_SIGMA} if smooth is not None else {}),
+                          'endTie':end_tie,
+                          **({'skinMedian':{'target':median,'achieved':float(np.median(picked[inside])),'faceTexels':int(inside.sum()),'rank':round(rank,3),
+                                                  'darkPower':power}} if median is not None else {})}
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
         report[key]={'pixels':int(selected.sum()),'meanSquaredColorError':float(np.mean((target-table[picked])**2)),'shadeOffset':offset}
         if spec is not None:report[key]['toneMatch']=matched

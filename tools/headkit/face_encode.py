@@ -1,18 +1,22 @@
 """PLT channels and colour treatment from the face masks (steps 2-3 of docs/heads/head-texture-quality-plan.md).
 
-Channel roles (user rule 2026-10-29): iris -> tattoo1 (8); eye whites, lids, lips and nose -> skin (0); brows and hair locks ->
-hair (1); other channels as owned. Each boundary sits in a dark line painted on both sides (iris rim, lid line, brow edge), and
+Channel roles (user rule 2026-10-29): iris -> tattoo1 (8), and only the iris; eye whites, lids, lips and nose -> skin (0); brows,
+beards and hair locks -> hair (1); other tattoo1 texels -> tattoo2 (9), which on orc and troll heads holds their tusks and horns
+(user 2026-10-30: head metal/cloth/leather follow the worn armour); other channels as owned. Each boundary sits in a dark line painted on both sides (iris rim, lid line, brow edge), and
 each 4x4 block of 4K texels takes its 1K colour only from texels of its majority channel."""
 import numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter, binary_dilation
 from scipy.spatial import cKDTree
 from .common import require
+from .colour import lab
 from .textures import surface, pad
 from .uv import chart_ids, face_region
 
 NEAR_EYE = 12   # 4K texels around the eye opening where hair-owned lash lines and old tattoo iris rings become skin (RUNBOOK 129)
-CHANNEL_MASKS = ('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock')
+CHANNEL_MASKS = ('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock', 'beard')
+BEARD_RATIO = .8   # below the nose, hair-owned texels nearer the hair median than this x the skin median stay hair (RUNBOOK 145)
+BEARD_LIGHTNESS = .5   # Lab L weight in that test: shading moves a beard's lightness, not its chroma
 TREATMENT_MASKS = ('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket')
 TREATMENT = {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3, 'irisRim': .45, 'lidLine': .6, 'browEdge': .95}
 BROW_FRINGE = .02   # head widths around the brow searched for leftover brow colour on skin
@@ -25,21 +29,40 @@ def masks_at(files, names):
     """Soft 4K masks (0..1) from the masks stage."""
     out = {}
     for name in names:
+        require(name in files, 'Masks stage has no '+name+' mask; rerun masks with the current headkit')
         with Image.open(files[name]['path']) as image:
             require(image.mode == 'L' and image.size == (4096, 4096), '4K L feature mask required: '+name); out[name] = np.asarray(image, np.float32)/255
     return out
 
 
-def apply_channels(labels, masks, mapped):
-    """Channel moves from the masks on a 4K ownership atlas; gutters re-padded so chart-border 1K blocks follow the edits."""
+def beard_hair(labels, masks, mapped, colour, skinlike):
+    """Hair-owned texels below the nose that the skin, lip and nose masks would take but whose colour is clearly hair (nearer
+    the owned hair's Lab median than BEARD_RATIO x the parser skin's, lightness weighted BEARD_LIGHTNESS): beards and moustaches,
+    which the parser calls skin."""
+    candidates = skinlike & (masks['beard'] > .5) & (labels == 1) & mapped; skin = masks['skin'] > .5
+    hair_ref = (labels == 1) & ~skin & ~(masks['brow'] > .5) & mapped; skin_ref = (labels == 0) & skin & mapped
+    if not candidates.any() or not hair_ref.any() or not skin_ref.any(): return np.zeros_like(candidates)
+    weighted = lambda rgb: lab(rgb)*[BEARD_LIGHTNESS, 1, 1]; median = lambda sel: np.median(weighted(colour[sel][::max(1, int(sel.sum())//200000)]), 0)
+    hair, plain = median(hair_ref), median(skin_ref); c = weighted(colour[candidates])
+    keep = np.zeros_like(candidates); keep[candidates] = np.linalg.norm(c-hair, axis=1) < BEARD_RATIO*np.linalg.norm(c-plain, axis=1)
+    return keep
+
+
+def apply_channels(labels, masks, mapped, colour=None):
+    """Channel moves from the masks on a 4K ownership atlas; gutters re-padded so chart-border 1K blocks follow the edits.
+    colour (the 4K bake) keeps hair-coloured beards hair (beard_hair)."""
     o = labels.copy(); before = labels
     iris = masks['iris'] > .5; eye = masks['eye'] > .5; brow = (masks['brow'] > .5) & mapped
     skinlike = ((masks['skin'] > .5) | eye | (masks['lips'] > .5) | (masks['nose'] > .5)) & ~brow & ~iris
+    beard = beard_hair(labels, masks, mapped, colour, skinlike & ~eye) if colour is not None else np.zeros_like(skinlike)
+    skinlike &= ~beard
     near_eye = binary_dilation(eye, iterations=NEAR_EYE) & mapped
     ring = near_eye & ~iris & np.isin(o, (8, 9)); lash = near_eye & ~brow & (o == 1)
-    report = {'oldIrisRingToSkin': int(ring.sum()), 'lashToSkin': int(lash.sum())}
+    report = {'oldIrisRingToSkin': int(ring.sum()), 'lashToSkin': int(lash.sum()), 'beardKeptHair': int(beard.sum())}
     o[ring] = 0; o[lash] = 0
     o[skinlike & (o == 1)] = 0; o[eye & ~iris] = 0; o[brow & (o == 0)] = 1; o[iris] = 8
+    # tattoo1 is the iris only; whatever else the rules owned there (troll horns and tusks, old ink) takes tattoo2 (user 2026-10-30)
+    off_iris = (o == 8) & ~iris & mapped; report['tattoo1ToTattoo2'] = int(off_iris.sum()); o[off_iris] = 9
     lock = (masks['hairlock'] > .5) & mapped & (o == 0) & ~near_eye; report['hairLockToHair'] = int(lock.sum()); o[lock] = 1
     o = pad(o[..., None], mapped)[..., 0]
     report['moved'] = {f'{a}->{b}': int(((before == a) & (o == b) & mapped).sum()) for a in range(10) for b in range(10)

@@ -22,7 +22,7 @@ The prototypes chain into the pipeline through `exec` and hand-picked attempt fo
 **Out of scope:**
 - **Shipped heads:** no shipped head, ledger or published asset changes. Re-encoding shipped heads is a later, separate decision.
 - **Other races:** encoding was validated only on elves; the parser worked on all six races in step 0. The feature stays opt-in, and a per-race client check comes before any race uses it.
-- **Step 4** (eye UV chart) is not done.
+- **Step 4** (eye UV chart): trialled 2026-10-30, a small gain that is marginal at game size; not adopted (user decision). See the quality plan.
 
 ## Pipeline shape
 

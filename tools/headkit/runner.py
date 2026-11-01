@@ -28,7 +28,8 @@ def stage_roles(stage,data):
         'ownership':{'uvMesh','basecolor4k','metallic4k','ownership4k'}|{row.get('maskInput') for row in data.get('ownership',{}).get('views',[])},
         'tone':{'uvMesh','basecolor4k','metallic4k','detail','frontDetail'}|palettes
                |(set() if data.get('tone',{}).get('faceTreatment') is not None else {'ownership4k','ownership1k'}),
-        'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set()),'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
+        'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set())
+                  |({'bodySkin'} if (data.get('palette') or {}).get('matchBodySkin') is True else set()),'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
         'render':{'uvMesh'}|set(data.get('render',{}).get('mapInputs',{}).values())}[stage]
     return roles&inputs
 
@@ -410,7 +411,7 @@ class Runner:
             require(isinstance(m.get('faceMasks'),dict),'Stage not configured: the manifest has no faceMasks section')
             return face_masks(self.source('uvMesh','unwrap','mesh'),self._color4k(),b,folder/'masks')
         if stage=='ownership':
-            from .palette import project_ownership
+            from .projection import project_ownership
             source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={}
             # Rules are bbox-relative data, not a mesh-bound annotation; the stage review binds their exact output.
             require(config.get('reviewed') is True and (config.get('mode')=='rules' or config.get('sourceSha256')==pin(source)['sha256']),
@@ -438,7 +439,8 @@ class Runner:
                 from .textures import surface
                 require(image.size==(4096,4096),'Feature channels need the 4K ownership atlas')
                 _,owners,_=surface(mesh(source),4096,enforce=False)
-                labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0)
+                with Image.open(self._color4k()) as colour:colour=np.asarray(colour.convert('RGB'))
+                labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0,colour)
                 image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
             image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
@@ -517,8 +519,24 @@ class Runner:
                 reference=design_reference(rgb,subject(rgb,m.get('matte',{}).get('backgroundTolerance',14))[0],
                                            mesh(self.source('uvMesh','unwrap','mesh')),layers,folder/'design-reference.png')
                 write(folder/'design-reference.json',reference,fresh=True);design=reference['channels']
+            full_range=m['palette'].get('fullShadeRange') is True;shading_only=m['palette'].get('stretchShadingOnly') is True
+            body=m['palette'].get('matchBodySkin') is True;positions=skin_median=anchor=None
+            if body:require('bodySkin' in m['inputs'],'palette.matchBodySkin needs a bodySkin input (the body neck PLT)')
+            if shading_only or body:
+                # Each 1K texel's surface point (gutters take the nearest), so the shading is smoothed by 3D distance across chart seams.
+                from .gltf import mesh
+                from .textures import pad,surface
+                value=mesh(self.source('uvMesh','unwrap','mesh'));points,owners,_=surface(value,1024,enforce=False)
+                if shading_only:positions=pad(points,owners>=0)
+            if body:
+                # The face's skin keeps the median shade of the body skin PLT the head meets at the neck (RUNBOOK 154).
+                from .palette import body_skin_median
+                from .uv import face_region
+                skin_median=body_skin_median(self.input('bodySkin'));front=face_region(value['positions'],value['faces'])[0]
+                anchor=(owners>=0)&front[np.maximum(owners,0)]
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
-                            tone_match=m['palette'].get('toneMatch'),design=design,full_range=m['palette'].get('fullShadeRange') is True)
+                            tone_match=m['palette'].get('toneMatch'),design=design,full_range=full_range,shading_only=shading_only,
+                            positions=positions,skin_median=skin_median,skin_anchor=anchor)
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result
@@ -526,7 +544,7 @@ class Runner:
             from .quality import quality
             require(isinstance(m.get('quality'),dict),'Stage not configured: the manifest has no quality section')
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
-            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality')
+            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality',settings=m['quality'])
         if stage=='export':
             from .native import prepare
             source=self.source('uvMesh','unwrap','mesh')

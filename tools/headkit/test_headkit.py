@@ -1756,26 +1756,26 @@ class OwnershipModeTests(Temporary):
             with self.subTest(mask=mask.name):
                 with self.assertRaisesRegex(ValueError,'eight-bit L'):tone_match(color,mask,'unused',{},self.root/'tone.png')
     def test_projected_masks_reject_color_or_indexed_images(self):
-        from headkit.palette import project_ownership
+        from headkit.projection import project_ownership
         embree=pin(self.file('embree.dll'))
         for mask in self.bad_masks():
             with self.subTest(mask=mask.name), \
-                 patch('headkit.palette.mesh',return_value={'positions':np.zeros((3,3)), 'faces':np.array([[0,1,2]])}), \
-                 patch('headkit.palette.surface',return_value=(np.zeros((1,1,3)),np.zeros((1,1),int),{})), \
-                 patch('headkit.palette.EmbreeScene'):
+                 patch('headkit.projection.mesh',return_value={'positions':np.zeros((3,3)), 'faces':np.array([[0,1,2]])}), \
+                 patch('headkit.projection.surface',return_value=(np.zeros((1,1,3)),np.zeros((1,1),int),{})), \
+                 patch('headkit.projection.EmbreeScene'):
                 with self.assertRaisesRegex(ValueError,'eight-bit L'):
                     project_ownership('unused',[{'calibrationReviewed':True,'mask':str(mask)}],embree,self.root/'projected.png')
     def test_projection_uses_the_reviewed_subtexel_allowance(self):
-        from headkit.palette import project_ownership
+        from headkit.projection import project_ownership
         embree=pin(self.file('embree.dll'));stop=ValueError('surface gate reached')
-        with patch('headkit.palette.mesh',return_value='uv'),patch('headkit.palette.surface',side_effect=stop) as gate:
+        with patch('headkit.projection.mesh',return_value='uv'),patch('headkit.projection.surface',side_effect=stop) as gate:
             with self.assertRaisesRegex(ValueError,'surface gate'):project_ownership('unused',[],embree,self.root/'p.png',max_subtexel_fraction=.01)
         gate.assert_called_once_with('uv',1024,.01)
         source=self.file('uv.glb','frozen UV mesh')
         runner=SimpleNamespace(data={'mesh':{'maximumSubtexelFraction':.01},'ownership':{'reviewed':True,'mode':'project',
             'sourceSha256':pin(source)['sha256'],'views':[{'maskInput':'front'}]}},bindings={'embree':embree},
             source=lambda *args:source,input=lambda role:'mask-'+role)
-        with patch('headkit.palette.project_ownership',side_effect=stop) as project:
+        with patch('headkit.projection.project_ownership',side_effect=stop) as project:
             with self.assertRaisesRegex(ValueError,'surface gate'):Runner._execute(runner,'ownership',self.root)
         self.assertEqual(project.call_args.kwargs,{'max_subtexel_fraction':.01})
     def test_valid_labels_preserve_all_ten_channel_ids(self):
@@ -1853,6 +1853,110 @@ class ToneMatchTests(Temporary):
         with self.assertRaisesRegex(ValueError,'not both'):
             quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'offset',shade_offsets={'0':4},full_range=True)
         self.assertFalse((self.root/'spiky').exists());self.assertFalse((self.root/'offset').exists())
+    def test_shading_range_stretches_the_shading_not_the_fine_detail(self):
+        # RUNBOOK 149: a narrow smooth gradient with fine noise and a luma step at x=512; texels sit on a flat 3D surface
+        # (positions), the right half far behind the left in the separate case, as two unconnected parts of a head.
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(7);x=np.arange(1024)
+        luma=80+20*x[None,:]/1024+rng.normal(0,3,(1024,1024));luma[:,512:]+=15;luma[:,900:]=60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'g.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.;apart=flat.copy();apart[:,512:,2]=1
+        plain,full,shading=(quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/name,**kw) for name,kw in
+                            (('plain',{}),('full',{'full_range':True}),('shading',{'full_range':True,'shading_only':True,'positions':apart})))
+        shades={name:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,:900] for name,r in (('plain',plain),('full',full),('shading',shading))}
+        fine=lambda s:np.std(s[1:-1,1:-1]-(s[:-2,1:-1]+s[2:,1:-1]+s[1:-1,:-2]+s[1:-1,2:])/4)
+        self.assertGreaterEqual(shading['layers']['0']['shadeRange']['spanFraction'],.5);self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],.02)
+        self.assertLess(fine(shades['shading']),1.3*fine(shades['plain']));self.assertGreater(fine(shades['full']),1.5*fine(shades['plain']))
+        # On skin the shading stops SKIN_HEADROOM shades below the top of the row; only fine detail may reach the top shades.
+        self.assertLess(np.percentile(shades['shading'],99),253-8);self.assertGreater(np.percentile(shades['full'],99),253-8)
+        trend=lambda s:s[:,400:500].mean()-s[:,10:110].mean()
+        self.assertGreater(trend(shades['shading']),1.5*trend(shades['plain']))  # the shading itself still uses the wider range
+        # Surface neighbours only: atlas neighbours far apart in 3D keep their step in the smoothed shading; on one continuous
+        # surface it spreads.
+        from headkit.palette import surface_smooth
+        mask=labels==0;sharp,spread=(surface_smooth(luma,mask,points,.02)[:,:900] for points in (apart,flat))
+        step=lambda s:s[:,512].mean()-s[:,511].mean();self.assertGreater(step(sharp),14);self.assertLess(step(spread),2)
+        for kw in ({'full_range':True},{'positions':flat}):
+            with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'surface points'):
+                quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/'bad',shading_only=True,**kw)
+    def test_shading_range_keeps_seam_offsets_at_their_own_amplitude(self):
+        # RUNBOOK 153: a near-flat skin whose two UV charts (x<512, x>=512) differ by 2 luma where they meet on the surface. The
+        # full stretch multiplies that offset into a tone step; surface-smoothed shading keeps it near its source size.
+        _,labels,palettes,rows=self.fixture();x=np.arange(1024)
+        luma=np.broadcast_to(100+10*np.sin(x/1024*np.pi)[None,:],(1024,1024)).copy();luma[:,512:]+=2;luma[:,900:]=60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'n.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.
+        full,shading=(np.asarray(Image.open(quantize(self.root/'n.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,**kw)['shades']['path'])).astype(float)
+                      for name,kw in (('nfull',{}),('nshading',{'shading_only':True,'positions':flat})))
+        step=lambda s:abs(s[:,512:515].mean()-s[:,509:512].mean());self.assertGreater(step(full),20);self.assertLess(step(shading),.25*step(full))
+    def test_skin_median_pins_the_body_skin_level(self):
+        # RUNBOOK 154: the face's skin keeps the body neck's median shade; the lower half of the stretch still reaches its end.
+        from headkit.palette import stretch
+        q=np.linspace(40,120,101);plain=stretch(q,0,200);low,high=stretch(q,0,200,median=50),stretch(q,0,200,median=150)
+        mid=lambda s:float(np.interp(.5,np.linspace(0,1,1001),s));self.assertAlmostEqual(mid(low),50,delta=.5);self.assertAlmostEqual(mid(high),150,delta=.5)
+        self.assertEqual((low.min(),high.min(),high.max()),(0,0,200))
+        # A lowered median never spreads the highlights wider than the plain stretch (human-female-c blotch): the top stops short.
+        self.assertAlmostEqual(low.max()-mid(low),plain.max()-mid(plain),delta=1.5);self.assertLess(low.max(),200)
+        at=lambda s,r:float(np.interp(r,np.linspace(0,1,1001),s));self.assertAlmostEqual(at(stretch(q,0,200,median=90,rank=.8),.8),90,delta=.5)
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(3)
+        luma=90+30*np.arange(1024)[None,:]/1024+rng.normal(0,2,(1024,1024))
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'m.png')
+        # The face is the bright right-hand quarter of the skin: its median, not the channel's, lands on the body level.
+        face=np.zeros((1024,1024),bool);face[:,650:900]=True
+        for median in (110,180):
+            with self.subTest(median=median):
+                r=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/f'm{median}',full_range=True,skin_median=median,skin_anchor=face)
+                shades=np.asarray(Image.open(r['shades']['path']));self.assertLessEqual(abs(np.median(shades[face&(labels==0)])-median),1)
+                self.assertGreater(abs(np.median(shades[labels==0])-median),10)
+                report=r['layers']['0']['shadeRange']['skinMedian'];self.assertEqual(report['target'],median);self.assertGreater(report['rank'],.6)
+                self.assertIn(report['darkPower'],(2.,3.,4.5,None))
+        for kw in ({'skin_median':60},{'skin_median':60,'full_range':True}):
+            with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'skin median'):quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mbad',**kw)
+    def test_pinned_skin_darkens_no_texel_past_its_source_contrast(self):
+        # RUNBOOK 158: lips at 0.7 and a lip line at 0.45 of the face's luma. The pinned stretch sends the channel's dark tail
+        # to shade 0 (orc-female-c lips 0.73 -> 0.15 of the face, lip line 0); the cap keeps each below-face texel at least
+        # (luma ratio)^power of the pinned median and never below SKIN_DARK_FLOOR of it.
+        from headkit import palette as P
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(4)
+        face=np.zeros((1024,1024),bool);face[300:600,350:650]=True;lips=np.zeros_like(face);lips[400:418,400:600]=True;line=np.zeros_like(face);line[418:422,400:600]=True
+        luma=60+90*np.arange(1024)[None,:]/1024+rng.normal(0,2,(1024,1024));level=np.median(luma[face])
+        luma[400:440,400:600]=.7*level+rng.normal(0,2,(40,200));luma[line]=.45*level
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'d.png')
+        def run(name,powers=P.SKIN_DARK_POWERS):
+            with patch.object(P,'SKIN_DARK_POWERS',powers):
+                r=quantize(self.root/'d.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,skin_median=100,skin_anchor=face)
+            return np.asarray(Image.open(r['shades']['path'])).astype(float),r['layers']['0']['shadeRange']
+        capped,report=run('dcap');loose,_=run('dloose',())
+        self.assertLessEqual(abs(np.median(capped[face])-100),1);self.assertGreaterEqual(report['spanFraction'],.5);self.assertEqual(report['skinMedian']['darkPower'],2)
+        self.assertLess(np.median(loose[lips]),40);self.assertEqual(loose[line].min(),0)  # the uncapped stretch crushes both
+        self.assertGreaterEqual(np.median(capped[lips]),.7**2*100-2);self.assertGreaterEqual(capped[line].min(),P.SKIN_DARK_FLOOR*100-1)
+        # Brighter-than-face texels keep their stretch; a low-contrast skin that the power-2 cap would leave narrow takes a steeper power.
+        bright=(labels==0)&(luma>level+5);self.assertTrue(np.array_equal(capped[bright],loose[bright]))
+        with patch.object(P,'FULL_RANGE_SPAN',.8):self.assertNotEqual(run('dsteep')[1]['skinMedian']['darkPower'],2)
+    def test_shading_only_applies_to_skin_and_hair_keeps_its_strands(self):
+        # RUNBOOK 158: stretching only the hair's smooth shading turned broad bake variation into camouflage patches while the
+        # strands kept their faint source amplitude (human-female-d, dwarf-female-d). Hair stretches whole, as without shading_only.
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(9);x=np.arange(1024)
+        luma=np.broadcast_to(100+10*np.sin(x/1024*np.pi)[None,:],(1024,1024)).copy();luma[:,900:]=40+15*np.sin(np.arange(1024)/1024*np.pi)[:,None]
+        luma[:,900:]+=np.where(np.arange(124)%3==0,6,0)[None,:]+rng.normal(0,1,(1024,124))
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'h.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat3=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.
+        full,shading=(quantize(self.root/'h.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,**kw) for name,kw in
+                      (('hfull',{}),('hshading',{'shading_only':True,'positions':flat3})))
+        self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],.02);self.assertNotIn('shadingSigma',shading['layers']['1']['shadeRange'])
+        hair=lambda r:np.asarray(Image.open(r['shades']['path']))[:,900:];self.assertTrue(np.array_equal(hair(full),hair(shading)))
+        # RUNBOOK 159: a flat hair with 15% on its p99 value and a few brighter outliers. The stretch cannot spread that block, so
+        # the span stops short at the top; endTie reports the block at that end (not the 17% block at p1, which reaches the row's
+        # bottom), and the outliers keep it from being the channel's maximum.
+        flat=np.where(np.arange(1024)[:,None]<870,30+np.arange(1024)[:,None]%5,47)*np.ones((1,124));luma[:,900:]=flat
+        luma[1:4,900:],luma[6:14,900:]=10,60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'t.png')
+        tied=quantize(self.root/'t.png',self.root/'o.png',palettes,rows,self.root/'ttied',full_range=True,shading_only=True,positions=flat3)['layers']['1']['shadeRange']
+        self.assertTrue(.5<=tied['spanFraction']<.75,tied);self.assertLess(tied['p99'],200);self.assertAlmostEqual(tied['endTie'],154/1024,delta=.002)
+    def test_body_skin_median_reads_the_plt_skin_layer(self):
+        from headkit.palette import body_skin_median
+        shades=np.array([[10,20,30,200]],np.uint8);layers=np.array([[0,0,0,1]],np.uint8);path=self.root/'neck.plt'
+        path.write_bytes(b'PLT V1  '+np.array([10,0,4,1],'<u4').tobytes()+np.stack([shades,layers],-1)[::-1].tobytes())
+        self.assertEqual(body_skin_median(path),20)
     def test_plt_reader_and_reference_count_shared_textures_once(self):
         from headkit.palette import plt_shades,shade_reference
         def plt(name,shades,layers):
@@ -1895,6 +1999,26 @@ class ToneMatchTests(Temporary):
         runner.data['palette']['fullShadeRange']=True
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
         self.assertIs(quantizer.call_args.kwargs['full_range'],True)
+        # stretchShadingOnly also hands quantize each 1K texel's surface point; gutter texels take the nearest
+        runner.data['palette']['stretchShadingOnly']=True;runner.source=lambda *args:'uv.glb'
+        owners=np.full((1024,1024),-1);owners[:10,:10]=0;owners[-10:,-10:]=1;points=np.zeros((1024,1024,3),np.float32);points[-10:,-10:]=1
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.gltf.mesh',return_value={'uv':None}),\
+             patch('headkit.textures.surface',return_value=(points,owners,{})):Runner._execute(runner,'palette',self.root)
+        positions=quantizer.call_args.kwargs['positions'];self.assertIs(quantizer.call_args.kwargs['shading_only'],True)
+        self.assertEqual([positions[y,x,0] for y,x in ((0,0),(-1,-1),(100,100),(1000,1000))],[0,1,0,1]);self.assertIsNone(quantizer.call_args.kwargs['skin_median'])
+        del runner.data['palette']['stretchShadingOnly']
+        # matchBodySkin reads the bodySkin PLT's skin median, needs that input and pins it on the face region's texels
+        runner.data['palette']['matchBodySkin']=True
+        with self.assertRaisesRegex(ValueError,'bodySkin input'):Runner._execute(runner,'palette',self.root)
+        runner.data['inputs']['bodySkin']={}
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.body_skin_median',return_value=99) as median,\
+             patch('headkit.gltf.mesh',return_value={'positions':None,'faces':None}),patch('headkit.textures.surface',return_value=(points,owners,{})),\
+             patch('headkit.uv.face_region',return_value=(np.array([False,True]),None)):
+            Runner._execute(runner,'palette',self.root)
+        self.assertEqual(quantizer.call_args.kwargs['skin_median'],99);median.assert_called_once_with('bodySkin.png')
+        anchor=quantizer.call_args.kwargs['skin_anchor'];self.assertEqual((anchor[0,0],anchor[-1,-1],anchor[500,500]),(False,True,False))
+        self.assertIsNone(quantizer.call_args.kwargs['positions'])
+        del runner.data['palette']['matchBodySkin'];del runner.data['inputs']['bodySkin']
         runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
         with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
             Runner._execute(runner,'palette',self.root)
@@ -1948,6 +2072,8 @@ class ToneMatchTests(Temporary):
         data={'inputs':{'design':{},'uvMesh':{}},'palette':{'inputs':{},'toneMatch':{'0':{'reference':'r'}}}}
         self.assertNotIn('design',stage_roles('palette',data));self.assertFalse(design_rows(data))
         data['palette']['toneMatch']['0']['rowFrom']='design';self.assertIn('design',stage_roles('palette',data));self.assertTrue(design_rows(data))
+        data['inputs']['bodySkin']={};self.assertNotIn('bodySkin',stage_roles('palette',data))   # read only with matchBodySkin
+        data['palette']['matchBodySkin']=True;self.assertIn('bodySkin',stage_roles('palette',data));self.assertNotIn('bodySkin',stage_roles('tone',data))
         text=runner_slice(Path(__file__).parent/'runner.py','palette')
         self.assertIn("design_reference(",text);self.assertIn("'design-reference.png'",text)
         self.assertIn("dependencies.append('unwrap')",text)

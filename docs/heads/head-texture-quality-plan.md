@@ -1,6 +1,6 @@
 # Head texture quality plan (prototype and test)
 
-Date: 2026-10-29 (rev 2, after the crosscheck below). Status: steps 0-3 and 5 passed as prototypes; adoption into headkit approved 2026-10-30 ([headkit-face-masks-adoption-plan.md](headkit-face-masks-adoption-plan.md)), opt-in via the `masks` and `quality` stages, parity-validated on three elf heads and in the client 2026-10-30; step 7 rules are enforced in `design.py`. Step 4 not started.
+Date: 2026-10-29 (rev 2, after the crosscheck below). Status: steps 0-3 and 5 passed as prototypes; adoption into headkit approved 2026-10-30 ([headkit-face-masks-adoption-plan.md](headkit-face-masks-adoption-plan.md)), opt-in via the `masks` and `quality` stages, parity-validated on three elf heads and in the client 2026-10-30; step 7 rules are enforced in `design.py`. Step 4 trialled 2026-10-30: small gain, marginal at game size (not adopted).
 
 Scope: prototypes outside the approved pipeline. No stage runs and no ledger or shipped-asset changes until a step passes its gate and the user approves adoption into headkit.
 
@@ -31,7 +31,7 @@ Known facts to keep:
   | hair (1) | Hair, eyebrows, beards and stubble (user 2026-10-29) |
   | metal1, metal2 (2-3) | Cyberwear |
   | tattoo1 (8) | Iris, so eye colour is always player-selectable |
-  | tattoo2 (9) | Open to the design: tattoos, scars, markings |
+  | tattoo2 (9) | Open to the design: tattoos, scars, markings. Orc and troll heads: tusks and horns instead; their design ink goes to skin (user 2026-10-30) |
 
 ## Crosscheck (independent research, 2026-10-29)
 
@@ -177,6 +177,29 @@ What the plan does not fix: the 3D shape quality and the design itself. A weak d
 Cut each eye region into its own UV chart, from the mask, and give it about 2x the face density in the face-priority repack. The earlier eye-only weighting failed because the eyes shared charts with the face.
 
 **Gate:** iris and lid edges visibly cleaner at 0.9 m than the face x3 layout alone.
+
+### Step 4 result (2026-10-30): small gain, marginal at game size
+
+Evidence is in `race-heads-v1/trials/headkit-eyes-v1` and `trials/stockcmp-v13/evidence`; the script is `review-kit/eye_charts_proto.py`.
+- **Layout:** started from each head's approved face x3 headkit unwrap (elf-male-a, -c, -d).
+  - **Selection:** each eye's triangles come from the head's own front render: the landmark eye ring dilated by 0.35 x the eye width, covering the lids and lash lines (on a, also the lower brow edge).
+  - **Cut and scale:** the selection is cut into its own charts and scaled to 2x the face's measured area density.
+  - **Repack:** the pipeline's pack-only pass. One sliver chart was grown 1.5x to keep the 4K subtexel audit at zero.
+  - **Result:** eyes went from 0.93-1.05x to 2.00-2.02x the face density. The face lost 1-3% (face/rest 2.03-2.11x).
+- **Pipeline:** the layouts were imported as `uvMesh` and ran bake through export in the runner with the face-mask stages. All three pass the quality gate. Roles are within 0.03 of face x3, and iris texels on tattoo1 roughly doubled.
+
+  | Head | featureFocus (eye charts / face x3) |
+  |---|---|
+  | a | 6.87 / 6.32 |
+  | c | 6.38 / 5.60 |
+  | d | 11.3 / 10.54 |
+
+- **Offline (decoded PLT through the front view, enlarged):** irises are rounder and lid lines less stair-stepped on all three, clearest on c and d. No new seams.
+- **Client (`stockcmp-v13`, 21/21 spawns, 0.9 m front, hair 117, tattoo1 26):** the gain is real but small.
+  - **Enlarged grabs:** the eye-chart irises are rounder; the pupil reads on a and the iris is less blocky on c.
+  - **True screen size:** at 0.9 m the two layouts are hard to tell apart.
+  - **Not checked:** 2.5 m.
+- **Verdict:** a technical pass, but the visible gain at game size is marginal. Adoption into headkit (an eye-chart option in `unwrap`) is the user's decision. It costs little: 1-3% face density and about 10 more charts.
 
 ## Step 5 - Automatic quality check
 
