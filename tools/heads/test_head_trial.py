@@ -212,6 +212,10 @@ class TrialModuleTests(unittest.TestCase):
         armoured=spawn_script(tattoo=True,armour=True)
         self.assertIn('ITEM_APPR_ARMOR_COLOR_LEATHER1,armour-1',armoured);self.assertIn('HEAD_FIXTURE_ARMOUR actor=',armoured)
         self.assertLess(armoured.index('HEAD_ARMOUR'),armoured.index('HEAD_FIXTURE_COLORS'))
+        # Armour without tattoo rows still dresses the actor; a missing or unrecoloured armour is logged, never equipped.
+        bare=spawn_script(armour=True);self.assertIn('HEAD_ARMOUR',bare);self.assertNotIn('TATTOO1_ROW',bare);self.assertNotIn('HEAD_FIXTURE_COLORS',bare)
+        self.assertTrue(bare.endswith('\n}'));self.assertIn(' missing");',bare);self.assertIn(' recolour-failed leather1="',bare)
+        self.assertLess(bare.index('recolour-failed'),bare.index('ActionEquipItem(b,'))
         dressed=make_creature({'FirstName':{'type':'cexolocstring','value':{}}},'t','n',0,0,16,65,5,2,2,1.0,tattoo=(85,88),armour=0)
         self.assertEqual({v['Name']['value']:v['Value']['value'] for v in dressed['VarTable']['value']}['HEAD_ARMOUR'],1)
         self.assertNotIn('HEAD_ARMOUR',{v['Name']['value'] for v in actor['VarTable']['value']})

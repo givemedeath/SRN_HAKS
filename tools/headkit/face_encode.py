@@ -29,6 +29,7 @@ def masks_at(files, names):
     """Soft 4K masks (0..1) from the masks stage."""
     out = {}
     for name in names:
+        require(name in files, 'Masks stage has no '+name+' mask; rerun masks with the current headkit')
         with Image.open(files[name]['path']) as image:
             require(image.mode == 'L' and image.size == (4096, 4096), '4K L feature mask required: '+name); out[name] = np.asarray(image, np.float32)/255
     return out
@@ -53,7 +54,7 @@ def apply_channels(labels, masks, mapped, colour=None):
     o = labels.copy(); before = labels
     iris = masks['iris'] > .5; eye = masks['eye'] > .5; brow = (masks['brow'] > .5) & mapped
     skinlike = ((masks['skin'] > .5) | eye | (masks['lips'] > .5) | (masks['nose'] > .5)) & ~brow & ~iris
-    beard = beard_hair(labels, masks, mapped, colour, skinlike & ~eye) if colour is not None and 'beard' in masks else np.zeros_like(skinlike)
+    beard = beard_hair(labels, masks, mapped, colour, skinlike & ~eye) if colour is not None else np.zeros_like(skinlike)
     skinlike &= ~beard
     near_eye = binary_dilation(eye, iterations=NEAR_EYE) & mapped
     ring = near_eye & ~iris & np.isin(o, (8, 9)); lash = near_eye & ~brow & (o == 1)

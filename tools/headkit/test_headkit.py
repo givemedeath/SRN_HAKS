@@ -1934,7 +1934,7 @@ class ToneMatchTests(Temporary):
         with patch.object(P,'FULL_RANGE_SPAN',.8):self.assertNotEqual(run('dsteep')[1]['skinMedian']['darkPower'],2)
     def test_shading_only_applies_to_skin_and_hair_keeps_its_strands(self):
         # RUNBOOK 158: stretching only the hair's smooth shading turned broad bake variation into camouflage patches while the
-        # strands kept their faint source amplitude (human-female-d, dwarf-female-d). Hair stretches whole: strands and shading.
+        # strands kept their faint source amplitude (human-female-d, dwarf-female-d). Hair stretches whole, as without shading_only.
         _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(9);x=np.arange(1024)
         luma=np.broadcast_to(100+10*np.sin(x/1024*np.pi)[None,:],(1024,1024)).copy();luma[:,900:]=40+15*np.sin(np.arange(1024)/1024*np.pi)[:,None]
         luma[:,900:]+=np.where(np.arange(124)%3==0,6,0)[None,:]+rng.normal(0,1,(1024,124))
@@ -1943,16 +1943,15 @@ class ToneMatchTests(Temporary):
         full,shading=(quantize(self.root/'h.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,**kw) for name,kw in
                       (('hfull',{}),('hshading',{'shading_only':True,'positions':flat3})))
         self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],.02);self.assertNotIn('shadingSigma',shading['layers']['1']['shadeRange'])
-        hair=lambda r:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,900:];source=luma[:,900:].round()
-        strands=lambda h:abs(h[:,0::3].mean()-h[:,1::3].mean());self.assertGreater(strands(hair(shading)),.8*strands(hair(full)))
-        order=np.argsort(source.ravel(),kind='stable');self.assertTrue(np.all(np.diff(hair(shading).ravel()[order])[np.diff(source.ravel()[order])>0]>=0))
-        # A flat hair whose texels sit on a few luma values, one of them holding the top 15%: equal lumas take their own ranks
-        # (ordered by the smooth shading), so the stretch still reaches the row's ends.
+        hair=lambda r:np.asarray(Image.open(r['shades']['path']))[:,900:];self.assertTrue(np.array_equal(hair(full),hair(shading)))
+        # RUNBOOK 159: a flat hair with 15% on its p99 value and a few brighter outliers. The stretch cannot spread that block, so
+        # the span stops short at the top; endTie reports the block at that end (not the 17% block at p1, which reaches the row's
+        # bottom), and the outliers keep it from being the channel's maximum.
         flat=np.where(np.arange(1024)[:,None]<870,30+np.arange(1024)[:,None]%5,47)*np.ones((1,124));luma[:,900:]=flat
-        luma[1:4,900:],luma[6:9,900:]=10,90   # a few outliers past both blocks: endTie reads the p1/p99 value, not the min or max
+        luma[1:4,900:],luma[6:14,900:]=10,60
         Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'t.png')
-        tied=quantize(self.root/'t.png',self.root/'o.png',palettes,rows,self.root/'ttied',full_range=True,shading_only=True,positions=flat3)
-        self.assertGreaterEqual(tied['layers']['1']['shadeRange']['spanFraction'],.9);self.assertAlmostEqual(tied['layers']['1']['shadeRange']['endTie'],174/1024,delta=.002)  # the p1 value, every fifth row below 870
+        tied=quantize(self.root/'t.png',self.root/'o.png',palettes,rows,self.root/'ttied',full_range=True,shading_only=True,positions=flat3)['layers']['1']['shadeRange']
+        self.assertTrue(.5<=tied['spanFraction']<.75,tied);self.assertLess(tied['p99'],200);self.assertAlmostEqual(tied['endTie'],154/1024,delta=.002)
     def test_body_skin_median_reads_the_plt_skin_layer(self):
         from headkit.palette import body_skin_median
         shades=np.array([[10,20,30,200]],np.uint8);layers=np.array([[0,0,0,1]],np.uint8);path=self.root/'neck.plt'

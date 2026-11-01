@@ -72,18 +72,21 @@ ARMOUR='''  int armour=GetLocalInt(OBJECT_SELF,"HEAD_ARMOUR");
   if(armour>0){object a=CreateItemOnObject("nw_aarcl001",OBJECT_SELF);
     if(!GetIsObjectValid(a)) a=CreateItemOnObject("nw_aarcl009",OBJECT_SELF);
     if(!GetIsObjectValid(a)) a=CreateItemOnObject("nw_cloth001",OBJECT_SELF);
-    object b=CopyItemAndModify(a,ITEM_APPR_TYPE_ARMOR_COLOR,ITEM_APPR_ARMOR_COLOR_LEATHER1,armour-1,TRUE);DestroyObject(a);
-    ActionEquipItem(b,INVENTORY_SLOT_CHEST);
-    WriteTimestampedLogEntry("HEAD_FIXTURE_ARMOUR actor="+GetTag(OBJECT_SELF)+" resref="+GetResRef(b)+" leather1="
-      +IntToString(GetItemAppearance(b,ITEM_APPR_TYPE_ARMOR_COLOR,ITEM_APPR_ARMOR_COLOR_LEATHER1)));}
+    if(!GetIsObjectValid(a)) WriteTimestampedLogEntry("HEAD_FIXTURE_ARMOUR actor="+GetTag(OBJECT_SELF)+" missing");
+    else{object b=CopyItemAndModify(a,ITEM_APPR_TYPE_ARMOR_COLOR,ITEM_APPR_ARMOR_COLOR_LEATHER1,armour-1,TRUE);DestroyObject(a);
+      if(!GetIsObjectValid(b)) WriteTimestampedLogEntry("HEAD_FIXTURE_ARMOUR actor="+GetTag(OBJECT_SELF)+" recolour-failed leather1="+IntToString(armour-1));
+      else{ActionEquipItem(b,INVENTORY_SLOT_CHEST);
+        WriteTimestampedLogEntry("HEAD_FIXTURE_ARMOUR actor="+GetTag(OBJECT_SELF)+" resref="+GetResRef(b)+" leather1="
+          +IntToString(GetItemAppearance(b,ITEM_APPR_TYPE_ARMOR_COLOR,ITEM_APPR_ARMOR_COLOR_LEATHER1)));}}}
 '''
 
 
 def spawn_script(tattoo=False,armour=False):
-    if not tattoo:return SPAWN
+    if not tattoo and not armour:return SPAWN
     hair='  SetColor(OBJECT_SELF,COLOR_CHANNEL_HAIR,GetLocalInt(OBJECT_SELF,"HAIR_ROW"));\n'
     require(SPAWN.count(hair)==1 and SPAWN.endswith('\n}'),'Fixture spawn script layout changed')
-    return SPAWN.replace(hair,hair+TATTOO)[:-1]+(ARMOUR if armour else '')+COLORS+'}'
+    body=SPAWN.replace(hair,hair+TATTOO) if tattoo else SPAWN
+    return body[:-1]+(ARMOUR if armour else '')+(COLORS if tattoo else '')+'}'
 
 
 def module_scripts(tattoo=False,armour=False):

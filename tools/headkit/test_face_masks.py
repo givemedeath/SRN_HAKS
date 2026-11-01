@@ -116,6 +116,10 @@ class Channels(unittest.TestCase):
         self.assertTrue((o[2000:2010, 2000:2020] == 9).all()); self.assertTrue((o[2500:2510, 2500:2510] == 9).all())
         self.assertEqual(report['tattoo1ToTattoo2'], 200); self.assertEqual(int((o == 8).sum()), 100)
 
+    def test_masks_at_names_a_missing_mask(self):
+        from headkit.face_encode import masks_at
+        with self.assertRaisesRegex(ValueError, 'no beard mask'): masks_at({}, ('beard',))
+
     def test_majority_and_consistent_blocks(self):
         labels = np.zeros((8, 8), np.uint8); labels[0, :3] = 1; labels[1, :3] = 1; labels[0:2, 3] = 9
         self.assertEqual(majority(labels).tolist(), [[0, 0], [0, 0]])
