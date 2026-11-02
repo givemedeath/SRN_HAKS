@@ -235,6 +235,22 @@ def list_weapon_files() -> list[Path]:
     return sorted(p for p in (ROOT / WEAPON_PACK).iterdir() if p.is_file())
 
 
+def tracked_pack_files(pack_names: list[str]) -> dict[str, list[str]]:
+    # The git index lists every tracked pack file even in a sparse checkout; walk folders only without git.
+    try:
+        out = subprocess.run(['git', 'ls-files', '-z', '--', *pack_names], cwd=ROOT, capture_output=True,
+                             check=True).stdout.decode('utf-8')
+    except (OSError, subprocess.CalledProcessError):
+        return {n: sorted(f.name for f in (ROOT / n).iterdir() if f.is_file())
+                for n in pack_names if (ROOT / n).is_dir()}
+    files: dict[str, list[str]] = {}
+    for path in filter(None, out.split('\0')):
+        pack, _, name = path.partition('/')
+        if pack in pack_names and name and '/' not in name:
+            files.setdefault(pack, []).append(name)
+    return files
+
+
 def build(check_git: bool = True) -> dict:
     publication = load_json(PUBLICATION)
     validation_sha = sha256(read(VALIDATION))
@@ -336,12 +352,9 @@ def build(check_git: bool = True) -> dict:
 
     # Resref collisions: across registered packs, and against staged MDRNEE item content.
     pack_files: dict[str, list[str]] = {}
-    for name in pack_names:
-        d = ROOT / name
-        if d.is_dir():
-            for f in d.iterdir():
-                if f.is_file():
-                    pack_files.setdefault(f.name.lower(), []).append(name)
+    for name, files in tracked_pack_files(pack_names).items():
+        for f in files:
+            pack_files.setdefault(f.lower(), []).append(name)
     weapon_names = {r['path'].split('/', 1)[1].lower() for r in resources}
     pack_collisions = sorted(
         ({'resource': n, 'packs': sorted(pack_files[n])} for n in weapon_names | {'baseitems.2da'}
