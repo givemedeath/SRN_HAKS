@@ -6,6 +6,19 @@
       "tools/test-impact.json",
       "tools/test_impact.py"
     ],
+    "tools/combat_release_manifest.py": [
+      "docs/imports/mdrnee_item-manifest.json",
+      "docs/imports/mdrnee_item-migration-manifest.json",
+      "docs/items/approved-weapons-v1.json",
+      "docs/items/approved-weapons-validation.json",
+      "docs/items/combat-2a-release-manifest-v1.json",
+      "docs/items/combat-2a-release-manifest.md",
+      "docs/items/firearm-grip-standard-v1.json",
+      "docs/items/weapon-grip-standard-v1.json",
+      "hakbuilder.json",
+      "srn_tlk/allocations.json",
+      "srn_tlk/srn.tlk.json"
+    ],
     "tools/headkit/__init__.py": [],
     "tools/headkit/__main__.py": [
       "tools/headkit/comfy.py",
@@ -3930,6 +3943,9 @@
     "tools/test_clean_checkout.py": [
       "docs/shared-tool-validation.json"
     ],
+    "tools/test_combat_release_manifest.py": [
+      "tools/combat_release_manifest.py"
+    ],
     "tools/test_impact.py": [
       "tools/ci-scope.json",
       "tools/ci-test-durations.json",
@@ -3952,6 +3968,11 @@
   },
   "unresolved": [],
   "packReferences": {
+    "tools/combat_release_manifest.py": [
+      "srn_2da",
+      "srn_tlk",
+      "srn_weapon"
+    ],
     "tools/heads/build_head_fixture.py": [
       "srn_body",
       "srn_head"
@@ -4027,6 +4048,9 @@
       "srn_2da"
     ],
     "tools/robes/package_trial.py": [
+      "srn_2da"
+    ],
+    "tools/test_combat_release_manifest.py": [
       "srn_2da"
     ]
   },
@@ -4248,6 +4272,7 @@
     "tools/test_ci_result.py",
     "tools/test_ci_scope.py",
     "tools/test_clean_checkout.py",
+    "tools/test_combat_release_manifest.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"
   ]
