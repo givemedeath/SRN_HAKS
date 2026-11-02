@@ -26,12 +26,15 @@ VALIDATION = Path('docs/items/approved-weapons-validation.json')
 FIREARM_GRIP = Path('docs/items/firearm-grip-standard-v1.json')
 BLADE_GRIP = Path('docs/items/weapon-grip-standard-v1.json')
 BASEITEMS = Path('srn_2da/baseitems.2da')
-TLK = Path('srn_tlk/srn.tlk.json')
-ALLOCATIONS = Path('srn_tlk/allocations.json')
+# Pack files are split so the test-impact catalog tracks srn_tlk as a pack reference, which stays the same in
+# sparse CI checkouts that omit pack folders.
+TLK = Path('srn_tlk', 'srn.tlk.json')
+ALLOCATIONS = Path('srn_tlk', 'allocations.json')
 MDRNEE_ITEMS = Path('docs/imports/mdrnee_item-manifest.json')
 MDRNEE_MIGRATION = Path('docs/imports/mdrnee_item-migration-manifest.json')
 HAKBUILDER = Path('hakbuilder.json')
 WEAPON_PACK = 'srn_weapon'
+TEXTURE_SUFFIXES = ('.tga', '.dds', '.plt')
 TABLE_PACK = 'srn_2da'
 PINNED_COMMIT = '53948783596331a15ec300a28ae824993c7aa812'
 TLK_CUSTOM_BASE = 0x01000000
@@ -228,6 +231,10 @@ def expected_resources(bp: dict) -> list[str]:
     return out
 
 
+def list_weapon_files() -> list[Path]:
+    return sorted(p for p in (ROOT / WEAPON_PACK).iterdir() if p.is_file())
+
+
 def build(check_git: bool = True) -> dict:
     publication = load_json(PUBLICATION)
     validation_sha = sha256(read(VALIDATION))
@@ -238,10 +245,14 @@ def build(check_git: bool = True) -> dict:
     hak = load_json(HAKBUILDER)
     pack_names = [h['Name'] for h in hak['HakList']]
 
-    weapon_files = sorted(p for p in (ROOT / WEAPON_PACK).iterdir() if p.is_file())
+    weapon_files = list_weapon_files()
     pub_by_path = {r['path']: r for r in publication['resources']}
     item_by_blueprint = {bp: item for item in publication['items'] for bp in item['blueprints']}
-    texture_names = {p.stem.lower() for p in weapon_files if p.suffix.lower() in ('.tga', '.dds', '.plt')}
+    published_weapon = {r['path'].split('/', 1)[1]: r for r in publication['resources']
+                        if r['path'].startswith(WEAPON_PACK + '/')}
+    # Published maps count as candidates even when absent, so a deleted texture stays a missing dependency.
+    texture_names = {Path(n).stem.lower() for n in [p.name for p in weapon_files] + list(published_weapon)
+                     if Path(n).suffix.lower() in TEXTURE_SUFFIXES}
 
     # Resource inventory (with publication hash comparison).
     resources = []
@@ -283,11 +294,11 @@ def build(check_git: bool = True) -> dict:
                         closure.add(f'{tex}.tga')
                 else:
                     missing.append(name)
-        closure_missing = sorted(set(missing) | {n for n in closure if n not in by_name})
-        owned = {r['path'].split('/', 1)[1] for r in resources if r['item'] == item['id']}
+        owned = {n for n, r in published_weapon.items() if r['item'] == item['id']}
+        closure_missing = sorted(set(missing) | {n for n in closure | owned if n.lower() not in by_name})
         # Hidden placeholder parts (and their icons) fill unused multipart slots; see pistol-trial-checkpoint.md.
         placeholders = sorted(n for n in owned - closure
-                              if (n.endswith('.mdl') and by_name[n.lower()].get('invisiblePart'))
+                              if (n.endswith('.mdl') and by_name.get(n.lower(), {}).get('invisiblePart'))
                               or (n.startswith('i') and by_name.get(n[1:-4].lower() + '.mdl', {}).get('invisiblePart')))
         base_rows = sorted({bp['baseItem'] for bp in bps})
         items.append({

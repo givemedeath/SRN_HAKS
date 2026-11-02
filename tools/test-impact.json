@@ -15,9 +15,7 @@
       "docs/items/combat-2a-release-manifest.md",
       "docs/items/firearm-grip-standard-v1.json",
       "docs/items/weapon-grip-standard-v1.json",
-      "hakbuilder.json",
-      "srn_tlk/allocations.json",
-      "srn_tlk/srn.tlk.json"
+      "hakbuilder.json"
     ],
     "tools/headkit/__init__.py": [],
     "tools/headkit/__main__.py": [

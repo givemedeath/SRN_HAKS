@@ -78,6 +78,17 @@ class RepositoryManifestTests(unittest.TestCase):
         roles = {r['row']: r['role'] for r in self.manifest['tables'][0]['rows']}
         self.assertIn('sling ammunition', roles[27])
 
+    def test_missing_published_texture_blocks_closure(self):
+        original = crm.list_weapon_files
+        crm.list_weapon_files = lambda: [p for p in original() if p.name.lower() != 'sr_cfk_07.tga']
+        try:
+            manifest = crm.build(check_git=False)
+        finally:
+            crm.list_weapon_files = original
+        knife = next(i for i in manifest['items'] if i['id'] == 'cougar-fineblade-knife')
+        self.assertIn('sr_cfk_07.tga', knife['closureMissing'])
+        self.assertIn('closure-missing-cougar-fineblade-knife', [g['id'] for g in manifest['gaps']])
+
     def test_tracked_manifest_is_current_apart_from_git_comparison(self):
         tracked = json.loads((crm.ROOT / crm.JSON_OUT).read_text(encoding='utf-8'))
         self.manifest['pinnedComparison'] = tracked['pinnedComparison']
