@@ -501,4 +501,3 @@ The payload manifest records exact bytes; source books, generation intermediates
 local bindings, HAK archives and body-pack duplicates are excluded. This publishes
 a reproducible private test fixture, with no production promotion or new rights
 claim over Shadowrun or Neverwinter Nights material.
-

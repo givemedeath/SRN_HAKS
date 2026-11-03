@@ -56,5 +56,5 @@ srn_2da/appearance.2da -diff linguist-generated=true
 docs/phenomorpher/runtime-optimization/baseline.json -diff linguist-generated=true
 
 # Preserve exact reviewed private weapon payloads, including source scripts.
-test-modules/weapon-waves/module/** -text
-test-modules/weapon-waves/haks/** -text
+test-modules/weapon-waves/module/** -text whitespace=cr-at-eol,-blank-at-eof,-blank-at-eol
+test-modules/weapon-waves/haks/** -text whitespace=cr-at-eol,-blank-at-eof,-blank-at-eol
