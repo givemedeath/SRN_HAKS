@@ -23,6 +23,9 @@ def repair_uv(vertices,faces,initial,size=4096,diagnostic_path=None):
         charts=chart_ids(uv);mapped=np.unique(owners[owners>=0])
         missing_charts=np.setdiff1d(np.unique(charts),np.unique(charts[mapped]))
         bad=set(audit['overlapFaces']+audit['degenerateUvFaces'])
+        # The source bake requires every face to own a 4K sample, including
+        # tiny faces inside charts that already have other sampled faces.
+        bad.update(audit['unmappedUvFaces'])
         bad.update(np.flatnonzero(np.isin(charts,missing_charts)).tolist())
         iterations.append({'iteration':iteration,'badFaces':sorted(bad),'unmappedCharts':missing_charts.tolist()})
         if not bad:break
@@ -50,7 +53,7 @@ def repair_uv(vertices,faces,initial,size=4096,diagnostic_path=None):
             'unmappedCharts':missing_charts.tolist(),'healthyDomainsUnchanged':True,
             'samplingResolution':size,'diagnosticMapsAreNotDonorSamplingInputs':True}
     if diagnostic_path is not None:write(diagnostic_path,report,fresh=True)
-    require(not missing_charts.size and missing_fraction<.001,'Unsampled source atlas surface/chart')
+    require(not missing.size and not missing_charts.size,'Unsampled source atlas surface/chart')
     require(audit['coverageFraction']>=.30,
             f"Insufficient useful source UV coverage ({audit['coverageFraction']:.6f} < 0.30)")
     return uv,proof,report

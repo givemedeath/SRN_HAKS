@@ -29,6 +29,50 @@ def sling_row(table):
     return key, row
 
 
+def longarm_row(table):
+    """The F8 carrier is already multipart; it needs no display-table override."""
+    rows = twoda(table.decode('utf-8-sig'))
+    row = rows.get('6', {})
+    require(row.get('label', '').lower() == 'heavycrossbow'
+            and row.get('ItemClass', '').lower() == 'wbwxh' and row.get('ModelType') == '2',
+            'Unexpected Heavy Crossbow carrier identity')
+    require((row.get('InvSlotWidth'), row.get('InvSlotHeight')) == ('2','4'),
+            'Review changed Heavy Crossbow inventory dimensions')
+    require(0 <= int(row['MinRange']) <= int(row['MaxRange']) <= 255,
+            'Crossbow appearance range must fit a byte')
+    return '6', row
+
+
+def longarm_plan(appearance, occupied, texture_prefix, blueprint_prefix):
+    """One rigid longarm, with private placeholders at the SAME raw byte.
+
+    Reserving individual bytes instead of entire ten-value shape groups leaves
+    room for the catalog's F8 owners. These addresses do not prove client lookup
+    or toolset discovery beyond the installed table's advertised range.
+    """
+    resref(texture_prefix); resref(blueprint_prefix)
+    if appearance is not None:
+        integer(appearance, 11, 255, 'raw appearance')
+        require(appearance % 10 != 0, 'Raw appearance needs a nonzero colour digit')
+    occupied = {name.lower() for name in occupied}
+    for value in ([appearance] if appearance is not None else range(11,256)):
+        if value % 10 == 0: continue
+        models = {p:resref(f'wbwxh_{p}_{value:03d}') for p in PART_FIELDS}
+        icons = {p:resref('i'+name) for p,name in models.items()}
+        texture = resref(f'{texture_prefix}_{value:03d}')
+        blueprint = resref(f'{blueprint_prefix}_{value%10}')
+        resources = {name+'.mdl' for name in models.values()} | {name+'.tga' for name in icons.values()} | {texture+'.tga',blueprint+'.uti'}
+        conflicts = resources | {name+'.dds' for name in icons.values()} | {texture+ext for ext in ('.dds','.mtr','.txi')}
+        if conflicts & occupied: continue
+        variant = {'colour':value%10,'models':models,'icons':icons,
+                   'utiParts':dict.fromkeys(PART_FIELDS.values(),value),'texture':texture,'blueprint':blueprint}
+        return {'schemaVersion':1,'baseItem':6,'itemClass':'wbwxh','modelType':2,
+                'subtype':'rifle','slot':'t','modelIndex':value//10,'appearanceByte':value,
+                'colours':[value%10],'placeholders':sorted(models[p] for p in ('b','m')),
+                'variants':[variant],'resources':sorted(resources),'clientValidated':False}
+    raise ValueError('No collision-free raw longarm appearance')
+
+
 def part_name(part, index, colour):
     require(part in PART_FIELDS, 'Unknown firearm slot')
     integer(index, 1, 25, 'model index')
@@ -139,13 +183,23 @@ def private_override(table, allocation):
 def validate_assembly(allocation, variant, counts):
     """Validate exact declared assembly and caps, including active placeholders."""
     require(variant in allocation['variants'], 'Undeclared Color/assembly')
-    slot = SLOTS[allocation['subtype']]
+    longarm = allocation['itemClass'] == 'wbwxh'
+    if longarm:
+        require(allocation['subtype'] in ('rifle','crossbow'), 'Unsupported F8 presentation')
+    slot = 't' if longarm else SLOTS[allocation['subtype']]
+    if longarm:
+        value = integer(allocation['appearanceByte'],11,255,'raw appearance')
+        require(allocation['baseItem']==6 and allocation['modelType']==2 and slot=='t'
+                and value%10==variant['colour'] and value//10==allocation['modelIndex'],
+                'Malformed F8 longarm allocation')
+    else:
+        require(allocation['baseItem']==61 and allocation['itemClass']=='wbwsl', 'Unsupported firearm carrier')
     for p in PART_FIELDS:
         index = allocation['modelIndex'] if p == slot else 1
-        expected = part_name(p, index, variant['colour'])
+        expected = f'wbwxh_{p}_{value:03d}' if longarm else part_name(p, index, variant['colour'])
         require(variant['models'][p] == expected and variant['icons'][p] == 'i'+expected,
                 'Mixed or malformed firearm assembly')
-        require(variant['utiParts'][PART_FIELDS[p]] == index*10+variant['colour'], 'UTI part mismatch')
+        require(variant['utiParts'][PART_FIELDS[p]] == (value if longarm else index*10+variant['colour']), 'UTI part mismatch')
     require(set(counts) == set(PART_FIELDS), 'All active parts must be counted')
     for p, values in counts.items():
         require(set(values) == {'visible', 'shadow'}, 'Visible and shadow counts required')

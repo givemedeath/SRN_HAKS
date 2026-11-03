@@ -9,15 +9,17 @@ def apply_export_settings(graph, settings):
     """Apply bounded mesh-only settings; omitted options preserve the frozen CLI recipe."""
     require(isinstance(settings, dict)
             and {'remeshResolution', 'targetFaceCount'} <= set(settings)
-            and set(settings) <= {'remeshResolution', 'targetFaceCount', 'signMode', 'manifold'},
+            and set(settings) <= {'remeshResolution', 'targetFaceCount', 'signMode', 'manifold', 'fill'},
             'Unsupported mesh export settings')
     resolution=settings['remeshResolution']; count=settings['targetFaceCount']
     require(type(resolution) is int and 128 <= resolution <= 1536
             and type(count) is int and 4 <= count <= 200000, 'Invalid item export settings')
     mode=settings.get('signMode')
-    require(mode is None or mode in ('udf', 'sdf'), 'Unsupported remesh sign mode')
+    require(mode is None or mode in ('udf', 'sdf', 'solid'), 'Unsupported remesh sign mode')
     require('manifold' not in settings or (mode == 'sdf' and type(settings['manifold']) is bool),
             'Manifold remeshing requires explicit SDF mode')
+    require('fill' not in settings or (mode == 'solid' and type(settings['fill']) in (int, float)
+            and 0 <= settings['fill'] <= 1000), 'Solid fill must be finite and within the node range')
     for node in graph.values():
         if node['class_type'] == 'RemeshMesh':
             node['inputs']['resolution']=resolution
@@ -29,6 +31,7 @@ def apply_export_settings(graph, settings):
                 node['inputs']['sign_mode']=mode
                 node['inputs']['sign_mode.qef']=False
                 if mode == 'sdf': node['inputs']['sign_mode.manifold']=settings.get('manifold', False)
+                elif mode == 'solid': node['inputs']['sign_mode.fill']=settings.get('fill', 20.0)
                 else:
                     node['inputs']['sign_mode.drop_inverted_components']=False
                     node['inputs']['sign_mode.drop_enclosed_components']=False
@@ -46,6 +49,28 @@ def apply_geometry_seed_offset(graph, offset):
     return graph
 
 
+def appearance_donor_graph(graph, settings, prefix):
+    """Append the qualified donor export to the exact saved-shape appearance job.
+
+    Raw geometry and field outputs remain intact. The donor uses the same decoded
+    shape, avoiding another file load and a separate verified dispatch/collection.
+    """
+    require(settings == {'remeshResolution':768, 'targetFaceCount':200000, 'signMode':'udf'},
+            'Combined appearance export requires the qualified 200K/768 UDF donor')
+    require(graph.get('92',{}).get('class_type')=='HeadkitDecodeShapeV1'
+            and graph.get('970',{}).get('class_type')=='HeadkitLoadShapeV1'
+            and graph.get('961',{}).get('class_type')=='Save3DAdvanced'
+            and graph.get('962',{}).get('class_type')=='HeadkitSaveFieldV1',
+            'Combined donor requires the exact saved-shape appearance outputs')
+    branch={k:v for k,v in read(comfy.TEMPLATES/'export.json').items()
+            if k in ('241','186','187','188','922')}
+    require(not graph.keys() & branch.keys(), 'Combined donor node collision')
+    branch['241']['inputs']['mesh']=['92',0]
+    apply_export_settings(branch, settings)
+    branch['922']['inputs']['filename_prefix']=prefix+'/node-922'
+    return graph | branch
+
+
 def prepare_request(*args,**kwargs):
     with verification_pass('client-prepare') as session:
         result=_prepare_request(*args,**kwargs)
@@ -57,6 +82,7 @@ def prepare_request(*args,**kwargs):
 def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=None, comfy_runtime=None,
                     manifest_reader=manifest, extra_pins=(), namespace="headkit",
                     version=None, read_json=read, export_settings=None, generation_subject=None,background=None,
+                    appearance_export_settings=None,
                     geometry_seed_offset=0, model_verification=None):
     require(namespace in ("headkit", "itemkit"), "Unsupported generation namespace")
     data=manifest_reader(manifest_path);local=bindings(bindings_path)
@@ -89,9 +115,10 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
     from .source_inventory import freeze_sources,validate_comfy_runtime
     inventory=freeze_sources(local)
     comfy_runtime=validate_comfy_runtime(comfy_runtime,inventory['roots'],inventory)
-    # Runtime dependency bytes are checked in the owning Comfy process at
-    # preparation and again under the submission lock. Do not make the client
-    # and its launcher read that same environment several more times.
+    # Live runtime bytes are checked by Comfy under the submission lock and
+    # at completion. Opt-in preparation binds only the startup baseline for
+    # an unsent plan; legacy preparation additionally requests the full check.
+    # Do not make the client/launcher reread that environment themselves.
     pins+=inventory['files']
     require(comfy_runtime['session']['configuration']==pin(local['comfyStartupConfig']),
             'Controlled startup configuration differs from local bindings')
@@ -121,6 +148,9 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
     pins += [p for p in (shape,export_source) if p]
     if expected_mesh:pins.append(expected_mesh)
     graph=comfy.compile_graph(stage,profile,images,namespace+'/'+token,fov=camera.get('fovDegrees'),shape=shape,source=export_source,background=background)
+    if appearance_export_settings is not None:
+        require(stage=='appearance', 'Combined donor export is appearance-only')
+        graph=appearance_donor_graph(graph,appearance_export_settings,namespace+'/'+token)
     if stage == 'geometry':
         apply_geometry_seed_offset(graph, geometry_seed_offset)
     if export_settings is not None:

@@ -19,7 +19,7 @@ from tools.headkit.gltf import load as load_glb
 from tools.headkit.uv import raster_audit, gutter_audit
 from tools.itemkit.geometry import similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
 from tools.itemkit.transfer import finished_colour,validate_texture_patch
-from tools.itemkit.parts import active_parts, assembly_budget, firearm_views
+from tools.itemkit.parts import active_parts, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
 
 def arrays(obj):
     mesh = obj.data; mesh.calc_loop_triangles()
@@ -40,6 +40,9 @@ def combined(objects):
 
 def world_bounds(objects):
     """Camera bounds need no triangle arrays or copies of applied mesh vertices."""
+    # A just-applied data transform can leave object bounds stale until the
+    # dependency graph updates. Flush once, retaining the cheap bounds path.
+    bpy.context.view_layer.update()
     bounds = []
     for obj in objects:
         require(len(obj.data.vertices) > 0, 'Empty inspection mesh')
@@ -130,8 +133,7 @@ def apply_fit(obj, matrix, evidence=None):
     return result
 
 
-def cut(obj, plane_y, keep_above):
-    mesh = bmesh.new(); mesh.from_mesh(obj.data)
+def _weld_exact_vertices(mesh):
     # glTF splits vertices at normal/UV seams. Weld exact positions explicitly;
     # Blender's distance merge becomes unreliable at sub-nanometre thresholds.
     positions, targetmap = {}, {}
@@ -140,6 +142,27 @@ def cut(obj, plane_y, keep_above):
         if key in positions: targetmap[vertex] = positions[key]
         else: positions[key] = vertex
     if targetmap: bmesh.ops.weld_verts(mesh, targetmap=targetmap)
+    return len(targetmap)
+
+
+def weld_exact_object(obj):
+    before, faces = arrays(obj)
+    uv = uv_corners(obj) if obj.data.uv_layers.active else None
+    mesh = bmesh.new(); mesh.from_mesh(obj.data)
+    count = _weld_exact_vertices(mesh)
+    if count: mesh.to_mesh(obj.data); obj.data.update()
+    mesh.free()
+    if count:
+        after, triangles = arrays(obj)
+        require(np.array_equal(before[faces], after[triangles]), 'Exact seam weld changed triangle geometry')
+        if uv is not None:
+            require(np.array_equal(uv, uv_corners(obj)), 'Exact seam weld changed corner UVs')
+    return count
+
+
+def cut(obj, plane_y, keep_above):
+    mesh = bmesh.new(); mesh.from_mesh(obj.data)
+    _weld_exact_vertices(mesh)
     layer = mesh.faces.layers.int.get('item_cap') or mesh.faces.layers.int.new('item_cap')
     result = bmesh.ops.bisect_plane(mesh, geom=list(mesh.verts)+list(mesh.edges)+list(mesh.faces),
         dist=1e-8, plane_co=(0, plane_y, 0), plane_no=(0, 1, 0),
@@ -186,17 +209,28 @@ def fit(cfg, out):
     # Measure the retained working mesh before transformation. Re-importing a
     # dense donor solely to measure it duplicates geometry and image residency.
     working = import_source(cfg['workingSource'], 'working-source') if cfg.get('workingSource') else donor
-    if cfg['family']['family']=='firearm-sling':
+    if cfg['family']['family'] == 'crossbow':
+        require(pin(cfg.get('workingSource',cfg['source']))['sha256'] == cfg['family']['native']['motion']['working']['sha256'],
+                'Crossbow fit source differs from its qualified moving mesh')
+    if cfg['family']['family'] in WHOLE_NATIVE_FAMILIES:
         require(cfg.get('gripStandard'), 'Whole-firearm fitting requires the approved measured grip standard')
     matrix = similarity_matrix(cfg['fit'], pin(cfg['source'])['sha256'])
     grip_report = None
     if cfg.get('gripStandard'):
         from tools.itemkit.grip import calibration
         standard=json.loads(Path(cfg['gripStandard']).read_text())
-        require(abs(cfg['family']['native']['gripLength']-standard['usableLength'])<1e-9,
-                'Native target length differs from the approved grip standard')
+        thickness_fit = (cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
+                         and cfg['fit'].get('sizingAuthority')=='midpoint-depth')
+        two_hand_fit = cfg['fit'].get('sizingAuthority')=='midpoint-depth-two-hand'
+        if two_hand_fit:
+            require(cfg['family']['family']=='greatsword' and cfg['family']['native']['baseItem']==13,
+                    'Explicit two-handed sword carrier required for the length departure')
+            require(pin(cfg['gripStandard']) in cfg['inputs'],'Bind the exact approved melee standard')
+        if not thickness_fit and not two_hand_fit:
+            require(abs(cfg['family']['native']['gripLength']-standard['usableLength'])<1e-9,
+                    'Native target length differs from the approved grip standard')
         mv,mf=arrays(working)
-        if cfg['family']['family']=='firearm-sling':
+        if cfg['family']['family'] in WHOLE_NATIVE_FAMILIES:
             from tools.itemkit.firearm_grip import measured_fit, GripDeparture
             try:
                 matrix,grip_report=measured_fit(mv,mf,cfg['fit'],pin(cfg['source'])['sha256'],
@@ -204,6 +238,9 @@ def fit(cfg, out):
             except GripDeparture as exc:
                 write(out/'grip-measurement.json',exc.report,fresh=True)
                 raise
+        elif two_hand_fit:
+            from tools.itemkit.grip import two_hand_uniform
+            matrix,grip_report=two_hand_uniform(mv,mf,matrix,cfg['fit']['gripEndpoints'],cfg['family']['native']['gripOrigin'],standard)
         else:
             matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
     donor_fit = apply_fit(donor, matrix, out/'donor-fit-normals.npz')
@@ -217,7 +254,7 @@ def fit(cfg, out):
     require(abs(length/native['gripLength']-1) <= .02, 'Fitted grip differs from the measured native hand')
     require(np.linalg.norm(fitted.mean(0)-np.asarray(native['gripOrigin'])) <= .002, 'Grip origin differs from native hand')
     joins = cfg['processing'].get('joinY', [])
-    firearm = cfg['family']['family']=='firearm-sling'
+    firearm = cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
     if firearm: require(not joins, 'A whole firearm must not inherit melee part cuts')
     else: require(len(joins) == 2 and np.isfinite(joins).all() and joins[0] < joins[1], 'Two ordered natural part cuts required')
     objects = []
@@ -239,11 +276,26 @@ def fit(cfg, out):
 
 def reduce(cfg, out, shadow=False):
     bpy.ops.wm.open_mainfile(filepath=cfg['scene'])
-    objects = [];pommel_construction=None;proxy_reports={}
+    objects = [];pommel_construction=None;proxy_reports={};seam_welds={}
     for part in active_parts(cfg['family']):
         obj = bpy.data.objects['item_'+part]
         if shadow: obj = duplicate(obj, 'shadow_'+part)
         obj.hide_set(False); set_active([obj])
+        candidate=cfg.get('visibleCandidates',{}).get(part) if not shadow else None
+        if candidate is not None:
+            from tools.itemkit.reduction import validate,policy
+            source_p,source_f=arrays(obj);budget=cfg['family']['budgets']['parts'][part]['visible']
+            require(candidate['arrays'] in cfg['inputs'],'Declare the constrained visible candidate')
+            require(candidate['sourceCornerHash']==hashlib.sha256(np.asarray(source_p[source_f],dtype='<f8').tobytes()).hexdigest()
+                    and candidate['policyHash']==policy(budget,cfg['processing']['joinY']),
+                    'Constrained candidate source or policy changed')
+            verify([candidate['arrays']])
+            with np.load(candidate['arrays']['path'],allow_pickle=False) as data:cp,cf=data['positions'],data['faces']
+            validate(source_p,cp,cf,budget,cfg['processing']['joinY'])
+            mesh=bpy.data.meshes.new('constrained-visible-'+part);mesh.from_pydata(cp.tolist(),[],cf.tolist());mesh.update()
+            for polygon in mesh.polygons:polygon.use_smooth=True
+            mesh.use_auto_smooth=True
+            obj.data=mesh;obj.matrix_world=Matrix.Identity(4)
         proxy = cfg['processing'].get('shadowProxies', {}).get(part)
         if shadow and proxy:
             require(proxy.get('method') == 'projected-silhouette', 'Unknown shadow proxy method')
@@ -252,8 +304,10 @@ def reduce(cfg, out, shadow=False):
             require(candidate is not None and candidate['arrays'] in cfg['inputs'], 'Declare the checked CPU shadow candidate')
             verify([candidate['arrays']])
             require(candidate['sourceCornerHash']==hashlib.sha256(np.asarray(source_p[source_f],dtype='<f8').tobytes()).hexdigest(), 'Shadow candidate source changed')
-            require(candidate['policyHash']==digest({'settings':proxy,'openingProbes':cfg['processing'].get('openingProbes',[]),
-                    'budget':cfg['family']['budgets']['parts'][part]['shadow']}), 'Shadow candidate policy changed')
+            policy={'settings':proxy,'openingProbes':cfg['processing'].get('openingProbes',[]),
+                    'budget':cfg['family']['budgets']['parts'][part]['shadow']}
+            if cfg['processing'].get('thicknessProbes'):policy['thicknessProbes']=cfg['processing']['thicknessProbes']
+            require(candidate['policyHash']==digest(policy), 'Shadow candidate policy changed')
             with np.load(candidate['arrays']['path'],allow_pickle=False) as data:proxy_p=data['positions'];proxy_f=data['faces']
             proxy_reports[part]=candidate['checks']
             require(len(proxy_f)<=cfg['family']['budgets']['parts'][part]['shadow'] and topology(proxy_p,proxy_f)['closedWound'], 'Invalid CPU shadow candidate')
@@ -265,6 +319,7 @@ def reduce(cfg, out, shadow=False):
             proxy_p,proxy_f,pommel_construction=loop_shadow_proxy(source_p,source_f,probe)
             mesh=bpy.data.meshes.new('closed-pommel-loop-shadow');mesh.from_pydata(proxy_p.tolist(),[],proxy_f.tolist());mesh.update()
             obj.data=mesh;obj.matrix_world=Matrix.Identity(4)
+        seam_welds[part] = weld_exact_object(obj)
         before_vertices, _ = arrays(obj)
         seam_before = [np.unique(before_vertices[np.abs(before_vertices[:, 1]-y) < 1e-7], axis=0)
                        for y in cfg['processing'].get('joinY', [])]
@@ -287,6 +342,7 @@ def reduce(cfg, out, shadow=False):
         objects.append(obj)
         if shadow: obj.hide_render = True; obj.hide_set(True)
     report = measure(objects, cfg, kind='shadow' if shadow else 'visible')
+    report['exactVerticesWelded'] = seam_welds
     if pommel_construction:report['pommelConstruction']=pommel_construction
     if proxy_reports:report['shadowProxies']=proxy_reports;report['visualReviewRequired']=True
     if not shadow and cfg['processing'].get('shadowProxies'):
@@ -365,7 +421,7 @@ def uv_arrays(cfg,out):
     bpy.ops.wm.open_mainfile(filepath=cfg['scene']);values={}
     for part in active_parts(cfg['family']):
         p,f=arrays(bpy.data.objects['item_'+part]);values[part+'_positions']=p;values[part+'_faces']=f
-        values[part+'_hiddenCaps']=hidden_cap_faces(p,f,cfg['processing'].get('joinY', []))
+        values[part+'_hiddenCaps']=hidden_cap_faces(p,f,cfg['processing'].get('joinY', []),planes=cfg['processing'].get('capPlanes',()),quadrics=cfg['processing'].get('capQuadrics',()))
     target=out/'uv-source.npz';np.savez_compressed(target,**values);return {'arrays':pin(target)}
 
 
@@ -436,7 +492,7 @@ def finish(cfg, out):
 
 def transfer_preflight(cfg, out, donor, low):
     from tools.itemkit.preflight import uv_report
-    p,f=arrays(low);uv=uv_corners(low);caps=hidden_cap_faces(p,f,cfg['processing'].get('joinY',[]))
+    p,f=arrays(low);uv=uv_corners(low);caps=hidden_cap_faces(p,f,cfg['processing'].get('joinY',[]),planes=cfg['processing'].get('capPlanes',()),quadrics=cfg['processing'].get('capQuadrics',()))
     regions=None
     if low.get('itemkit_uv_regions_verified'):
         attribute=low.data.attributes['itemkit_uv_region']
@@ -482,6 +538,7 @@ def joined_target(cfg):
             require(obj.get('itemkit_uv_region_hash')==region_hash(p[f],uv_corners(obj),labels), 'Stale atlas UV-region lineage')
         qualified.append(attribute is not None)
     copies=[duplicate(obj,'bake_'+obj.name) for obj in objects]
+    for obj in copies: obj.hide_render=False
     set_active(copies);bpy.ops.object.join()
     bpy.context.object['itemkit_uv_regions_verified']=all(qualified)
     return bpy.context.object
@@ -513,7 +570,7 @@ def bake(cfg, out):
         else: emission.inputs['Color'].default_value = colour.default_value
         mat.node_tree.links.new(emission.outputs[0], output.inputs['Surface'])
     uv = uv_corners(low); cap_vertices, cap_triangles = arrays(low)
-    cap_faces = hidden_cap_faces(cap_vertices,cap_triangles,cfg['processing'].get('joinY', []))
+    cap_faces = hidden_cap_faces(cap_vertices,cap_triangles,cfg['processing'].get('joinY', []),planes=cfg['processing'].get('capPlanes',()),quadrics=cfg['processing'].get('capQuadrics',()))
     visible_ids=np.flatnonzero(~cap_faces); cap_ids=np.flatnonzero(cap_faces)
     audit, owners = raster_audit(uv[visible_ids], cfg['family']['bakeSize'])
     require(not audit['overlapFaces'] and not audit['degenerateUvFaces'], 'Invalid bake UVs')
@@ -631,16 +688,26 @@ def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
         patch_bound=policy.get('maximumUnorientedDistance',.0021)
         require(patch_bound<=maximum,'Texture patch qualification exceeds this transfer distance')
         patch_faces=validate_texture_patch(p[f],patch,maximum_distance=patch_bound)
-    locations=[];sources=[];distances=[];dots=[];unoriented=[]
+    locations=[];sources=[];distances=[];dots=[];unoriented=[];failed_faces=[]
     for face,point,normal in zip(ids,points,normals):
         candidates=[row for row in bvh.find_nearest_range(Vector(point),maximum) if np.dot(row[1],normal)>=alignment]
         patched=False
         if not candidates and int(face) in patch_faces:
             nearest=bvh.find_nearest(Vector(point))
             if nearest[3]<=patch['maximumDistance']:candidates=[nearest];patched=True
-        require(bool(candidates),'No compatible donor surface within the recorded miss-correction bound; target face '+str(face))
+        if not candidates:
+            failed_faces.append(int(face));continue
         position,source_normal,index,distance=min(candidates,key=lambda row:row[3])
         locations.append(position);sources.append(index);distances.append(distance);dots.append(np.dot(source_normal,normal));unoriented.append(patched)
+    if failed_faces:
+        from tools.itemkit.preflight import target_hash
+        write(out/'donor-miss-diagnostic.json',{'blockers':['donor-distance-or-facing'],
+              'targetHash':target_hash(p[f],uv_corners(low)),
+              'donorSampling':{'failedFaces':sorted(set(failed_faces)),
+                  'failedSamples':len(failed_faces),'sample':'actual retained visible-miss texel centers',
+                  'policyDistance':maximum,'minimumNormalAlignment':alignment}},fresh=True)
+        raise ValueError('No compatible donor surface within the recorded miss-correction bound; '
+                         +str(len(set(failed_faces)))+' faces; see donor-miss-diagnostic.json')
     require(not any(unoriented) or sum(unoriented)/np.count_nonzero(owners>=0)<=patch['maximumTextureFraction'],'Unoriented donor repair exceeds its reviewed texel scope')
     locations=np.asarray(locations);sources=np.asarray(sources);source_tri=dp[df[sources]]
     a=source_tri[:,1]-source_tri[:,0];b=source_tri[:,2]-source_tri[:,0];c=locations-source_tri[:,0]
@@ -649,13 +716,6 @@ def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
     require(np.all(det>1e-25),'Degenerate donor triangle in colour transfer')
     u=(bb*ca-ab*cb)/det;v=(aa*cb-ab*ca)/det;bary=np.c_[1-u-v,u,v]
     source_uv=np.einsum('ij,ijk->ik',bary,uv_corners(donor)[sources])
-    require(len(donor.material_slots)==1,'Miss correction requires the verified single donor material')
-    material=donor.material_slots[0].material
-    # bake() replaced the output with emission, while the original diffuse graph
-    # remains available at the Principled input for this colour-only correction.
-    node=material.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].links[0].from_node
-    while node.type=='MIX_RGB':node=node.inputs[1].links[0].from_node
-    require(node.type=='TEX_IMAGE' and node.image is not None,'Unsupported donor colour graph for miss correction')
     colour_probes={}
     def raw_image(image,role):
         copy=image.copy();copy.colorspace_settings.name='Non-Color'
@@ -663,13 +723,30 @@ def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
         xy=np.array([[(k*811)%copy.size[0],(k*137)%copy.size[1]] for k in range(16)])
         colour_probes[role+'XY']=xy;colour_probes[role+'RGB']=result[xy[:,1],xy[:,0]]
         bpy.data.images.remove(copy);return result
-    base=raw_image(node.image,'base');reference=raw_image(bpy.data.images.load(cfg['reference'],check_existing=True),'reference') if cfg.get('reference') else None
-    donor.data.calc_normals_split();corner_normals=np.array([[tuple(donor.data.loops[i].normal) for i in t.loops] for t in donor.data.loop_triangles])
-    smooth=np.einsum('ij,ijk->ik',bary,corner_normals[sources]);smooth/=np.linalg.norm(smooth,axis=1)[:,None]
-    colours=finished_colour(base,source_uv,locations,smooth,reference,cfg['processing'].get('donorFinish'))
+    reference=raw_image(bpy.data.images.load(cfg['reference'],check_existing=True),'reference') if cfg.get('reference') else None
+    donor.data.calc_normals_split()
+    # Only touched triangles need corner normals or image decoding. Preserve each
+    # triangle's material instead of assigning the first image to every surface.
+    triangles=[donor.data.loop_triangles[int(i)] for i in sources]
+    materials=np.array([t.material_index for t in triangles],int)
+    corner_normals=np.array([[tuple(donor.data.loops[i].normal) for i in t.loops] for t in triangles])
+    smooth=np.einsum('ij,ijk->ik',bary,corner_normals);smooth/=np.linalg.norm(smooth,axis=1)[:,None]
+    colours=np.empty((len(sources),3));images={}
+    for index in np.unique(materials):
+        require(0<=index<len(donor.material_slots),'Donor triangle has no material')
+        material=donor.material_slots[int(index)].material
+        shader=material.node_tree.nodes.get('Principled BSDF') if material and material.use_nodes else None
+        require(shader is not None and shader.inputs['Base Color'].is_linked,'Textured donor base colour required')
+        node=shader.inputs['Base Color'].links[0].from_node
+        while node.type=='MIX_RGB':node=node.inputs[1].links[0].from_node
+        require(node.type=='TEX_IMAGE' and node.image is not None,'Unsupported donor colour graph for miss correction')
+        key=node.image.as_pointer()
+        if key not in images:images[key]=raw_image(node.image,'base' if len(donor.material_slots)==1 else 'base'+str(index))
+        selected=materials==index
+        colours[selected]=finished_colour(images[key],source_uv[selected],locations[selected],smooth[selected],reference,cfg['processing'].get('donorFinish'))
     require(np.isfinite(colours).all() and np.all((colours>=0)&(colours<=1)),'Invalid transferred donor colour')
     pixels[y,x,:3]=colours
-    proof=out/'donor-miss-transfer.npz';np.savez_compressed(proof,y=y,x=x,targetFaces=ids,sourceFaces=sources,sourceUV=source_uv,sourcePositions=locations,distances=distances,normalAlignment=dots,unorientedPatch=unoriented,colours=colours,**colour_probes)
+    proof=out/'donor-miss-transfer.npz';np.savez_compressed(proof,y=y,x=x,targetFaces=ids,sourceFaces=sources,sourceMaterials=materials,sourceUV=source_uv,sourcePositions=locations,distances=distances,normalAlignment=dots,unorientedPatch=unoriented,colours=colours,**colour_probes)
     return {'method':'nearest-finished-donor','correctedTexels':len(y),'unorientedPatchTexels':sum(unoriented),'maximumDistance':float(max(distances)),'minimumNormalAlignment':float(min(dots)),'policy':policy,'proof':pin(proof),'successfulBakeTexelsUnchanged':True,'appearanceFieldSampled':False,'visualReviewRequired':True}
 
 
@@ -678,7 +755,12 @@ def render_still():
 
 
 def render(cfg, out, source=False, *, _clay_review=None):
-    firearm=cfg['family']['family']=='firearm-sling'
+    firearm=cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
+    if not source:
+        mesh_name=cfg.get('render',{}).get('meshName','item-runtime.glb' if firearm else 'cougar-4956tri-runtime.glb')
+        require(isinstance(mesh_name,str) and Path(mesh_name).name==mesh_name
+                and not Path(mesh_name).drive and Path(mesh_name).suffix=='.glb',
+                'Runtime mesh name must be a local GLB filename')
     if source:
         reset(); obj = import_source(cfg['source'], 'review-source'); objects = [obj]
     else:
@@ -739,7 +821,9 @@ def render(cfg, out, source=False, *, _clay_review=None):
             frames.append(pin(scene.render.filepath))
             record(mode,name)
         if not source and not firearm:
-            grip_min, grip_max = world_bounds([bpy.data.objects['item_m']]); target = (grip_max+grip_min)/2
+            grip_part=cfg['family']['native'].get('gripPart','m')
+            require(grip_part in active_parts(cfg['family']),'Grip close-up must use an active part')
+            grip_min, grip_max = world_bounds([bpy.data.objects['item_'+grip_part]]); target = (grip_max+grip_min)/2
             camera.data.ortho_scale = np.linalg.norm(grip_max-grip_min)*1.8
             camera.location = Vector(target)+Vector((1, 0, 0))*extent*2
             aim(target)
@@ -769,7 +853,6 @@ def render(cfg, out, source=False, *, _clay_review=None):
         scene.view_settings.view_transform=original_view[0];scene.view_settings.look=original_view[1]
         camera.data.ortho_scale=extent*1.1;camera.location=Vector(center)+Vector((1,0,0))*extent*2
         aim(center)
-        mesh_name='item-runtime.glb' if firearm else 'cougar-4956tri-runtime.glb'
         set_active(objects);bpy.ops.export_scene.gltf(filepath=str(out/mesh_name),export_format='GLB',use_selection=True)
         bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'))
     return {'frames': frames, 'icons': icons,'cameras':camera_records, 'threads': 4, 'runtimeTexture': cfg.get('texture'), 'visualApproval': False,

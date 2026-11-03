@@ -30,7 +30,13 @@ def measured_fit(vertices, faces, config, donor_sha, working_sha, standard, nati
     require(endpoints.shape == (2,3) and np.isfinite(endpoints).all(), 'Finite usable grip endpoints required')
     fitted_ends = transform(endpoints, matrix); center = fitted_ends.mean(axis=0)
     length = float(np.linalg.norm(fitted_ends[1]-fitted_ends[0]))
-    require(abs(length/standard['usableLength']-1) <= 1e-5, 'Scale from the approved usable grip length')
+    authority = config.get('sizingAuthority', 'usable-length')
+    require(authority in ('usable-length', 'midpoint-depth'), 'Unknown firearm grip sizing authority')
+    require(length > 0, 'Distinct usable grip endpoints required')
+    if authority == 'usable-length':
+        require(abs(length/standard['usableLength']-1) <= 1e-5, 'Scale from the approved usable grip length')
+    else:
+        require(historical is None, 'Thickness sizing requires the current approved firearm standard')
     require(np.linalg.norm(center-np.asarray(native_origin)) <= .002, 'Grip midpoint differs from native hand attachment')
     axis = (fitted_ends[1]-fitted_ends[0])/length
     depth = np.asarray(config['nativeGripDepthAxis'], float)
@@ -51,12 +57,17 @@ def measured_fit(vertices, faces, config, donor_sha, working_sha, standard, nati
     middle=next(row for row in sections if row['fractionFromPommel']==.5)
     target=standard['targetMidpointSection']
     differences={name:middle[name]/target[name]-1 for name in ('depth','visibleFaceWidth')}
+    if authority == 'midpoint-depth':
+        require(abs(differences['depth']) <= 1e-5, 'Scale from the approved midpoint grip thickness')
+        differences['usableLength'] = length/standard['usableLength']-1
     report={'reference':standard['id'],'standardDigest':digest(standard),'workingSourceSha256':working_sha,
             'fitMatrix':matrix.tolist(),'usableLength':length,'nativeGripOrigin':center.tolist(),
             'nativeGripAxis':axis.tolist(),'nativeGripDepthAxis':depth.tolist(),
             'gripSurfaceFaceDigest':digest(selected.tolist()),'measuredFittedSections':sections,
             'midpointRelativeDifferences':differences,'uniformScale':float(np.linalg.norm(matrix[:3,0])),
             'proportionsAndAnglesPreserved':True}
+    if authority == 'midpoint-depth':
+        report['sizingAuthority'] = authority
     report['measurementDigest']=digest(report)
     if any(abs(v)>.05 for v in differences.values()):
         review=config.get('gripDeparture',{})

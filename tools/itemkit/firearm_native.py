@@ -102,7 +102,7 @@ def audit_placeholder(binary, name, expected):
 def variant_blueprint(allocation, variant, counts, display_name):
     validate_assembly(allocation, variant, counts)
     require(isinstance(display_name, str) and display_name.strip(), 'Named variant required')
-    result = blueprint(61, {'modelIndex': allocation['modelIndex'], 'colourIndex': variant['colour']},
+    result = blueprint(allocation['baseItem'], {'modelIndex': allocation['modelIndex'], 'colourIndex': variant['colour']},
                        {'blueprint': variant['blueprint'], 'displayName': display_name})
     for p in PART_FIELDS: result[PART_FIELDS[p]] = field('byte', variant['utiParts'][PART_FIELDS[p]])
     return result

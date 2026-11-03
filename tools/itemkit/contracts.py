@@ -9,6 +9,11 @@ GENERATION = {'preset': 'pixal-single-v1', 'shapeResolution': 1536, 'shapeCFG': 
               'textureCFG': 1, 'textureSteps': 12}
 
 
+def whole_shield(data):
+    return (data.get('family') == 'shield' and data.get('nativePackaging') == 'enabled'
+            and data.get('native', {}).get('kind') == 'shield-whole-v1')
+
+
 def resref(value):
     require(isinstance(value, str) and re.fullmatch(r'[a-z][a-z0-9_]{0,15}', value),
             'NWN resref must be lowercase and at most 16 characters')
@@ -23,37 +28,59 @@ def integer(value, low, high, label):
 def family(path, *, validate_native=True):
     data = read(path)
     require(data.get('schemaVersion') == 1 and data.get('kind') == 'item-family', 'Unsupported item family')
-    require(data.get('family') in ('shortsword', 'dagger', 'longsword', 'shield', 'firearm-sling'), 'Unsupported item family')
+    require(data.get('family') in ('shortsword', 'dagger', 'throwing-knife', 'longsword', 'greatsword', 'staff', 'bow', 'whip', 'shield', 'firearm-sling', 'firearm-crossbow', 'crossbow', 'catalog-object'), 'Unsupported item family')
+    generation_only = data['family'] == 'catalog-object'
+    shield = whole_shield(data)
+    parts = ('whole',) if generation_only or shield else PARTS
     require(data.get('materialRoute') == 'diffuse', 'Only diffuse materials are qualified for this pilot')
     require(data.get('runtimeTextureSize') in (512, 1024, 2048), 'Unsupported runtime texture size')
     require(data.get('bakeSize') == 4096, 'Source bake must be 4K')
     require(data.get('nativePackaging') in ('pending-contract', 'enabled', 'blocked'), 'Explicit native packaging state required')
+    if generation_only:
+        require(data['nativePackaging'] == 'blocked', 'Catalog objects require a separately qualified native adapter')
+        require(data.get('sourceExport') == {'remeshResolution':768, 'targetFaceCount':200000, 'signMode':'udf'},
+                'Catalog generation uses the qualified 200K UDF donor route')
     settings=data.get('resources', {})
     require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName'}, 'Unsupported resource identity')
     for key in ('texturePrefix','hak','module','blueprint'):
         if key in settings: resref(settings[key])
     if 'texturePrefix' in settings: require(len(settings['texturePrefix'])<=13,'Texture prefix leaves no appearance suffix')
-    if data['family'] == 'shield' or data['family'] == 'firearm-sling' and 'firearm' not in data:
+    if data['family'] == 'shield' and not shield or data['family'] == 'firearm-sling' and 'firearm' not in data:
         require(data['nativePackaging'] == 'blocked', 'Shield and unqualified Sling native adapters are deferred')
     budgets = data['budgets']
+    if shield:
+        require('firearm' not in data and budgets['visible']==10000 and budgets['shadow']==500,
+                'Whole Shield has its own 10000/500 budget and handling')
+    if data['family'] == 'firearm-crossbow':
+        require(data.get('firearm') == {'subtype':'rifle'}, 'Explicit longarm firearm configuration required')
     firearm_slot = None
+    if data['family'] in ('bow', 'whip'):
+        require('firearm' not in data and budgets['visible']==10000 and budgets['shadow']==500,
+                'Rigged weapons require their own 10000/500 route')
+        firearm_slot = 'm'
+    if data['family'] == 'crossbow':
+        require('firearm' not in data, 'Crossbows retain their own handling identity')
+        require(budgets['visible'] == 10000 and budgets['shadow'] == 500, 'Crossbow cap is 10000/500')
+        firearm_slot = 't'
     if 'firearm' in data:
         from .firearms import SLOTS
-        require(data['family'] == 'firearm-sling' and set(data['firearm']) == {'subtype'}
+        require(data['family'] in ('firearm-sling', 'firearm-crossbow') and set(data['firearm']) == {'subtype'}
                 and data['firearm']['subtype'] in SLOTS, 'Explicit supported firearm slot required')
+        if data['family'] == 'firearm-crossbow':
+            require(data['firearm']['subtype'] == 'rifle', 'Crossbow-carried firearms require the longarm slot')
         firearm_slot = SLOTS[data['firearm']['subtype']]
         require(budgets['visible'] == 10000 and budgets['shadow'] == 500, 'Firearm trial cap is 10000/500')
     require(set(budgets) == {'visible', 'shadow', 'parts'}, 'Explicit whole-object and per-part budgets required')
     for kind in ('visible', 'shadow'):
         integer(budgets[kind], 4, 200000, kind + ' assembly budget')
-        require(set(budgets['parts']) == set(PARTS), 'All native parts require budgets')
+        require(set(budgets['parts']) == set(parts), 'Declare exactly the processing parts for this route')
         for part, row in budgets['parts'].items():
             integer(row[kind], 0 if firearm_slot and kind == 'shadow' and part != firearm_slot else 4,
                     budgets[kind], kind + ' part budget')
             if firearm_slot and part != firearm_slot:
                 require(row == {'visible': 4, 'shadow': 0}, 'Inactive firearm slots require hidden placeholders')
         require(sum(row[kind] for row in budgets['parts'].values()) <= budgets[kind], 'Part budgets exceed assembly budget')
-    require(data.get('allowedAssemblies') and all(isinstance(row, dict) and set(row) == set(PARTS)
+    require(data.get('allowedAssemblies') and all(isinstance(row, dict) and set(row) == set(parts)
             for row in data['allowedAssemblies']), 'Declare exact allowed assemblies')
     require(len({digest(row) for row in data['allowedAssemblies']}) == len(data['allowedAssemblies']), 'Duplicate allowed assembly')
     for row in data['allowedAssemblies']:
@@ -76,8 +103,40 @@ def twoda(text):
     return rows
 
 
+def crossbow_motion_inputs(path, data):
+    motion = data['native'].get('motion', {})
+    require(set(motion) == {'method','proof','review','working'}
+            and motion.get('method') == 'skinned-xbowshot-v1', 'Reviewed skinned crossbow motion required')
+    proof_pin = asset(path, motion['proof']); review_pin = asset(path, motion['review'])
+    proof, review = read(proof_pin['path']), read(review_pin['path'])
+    require(asset(path, motion['working']) == proof['working'], 'Crossbow motion belongs to another working mesh')
+    rows = [proof_pin, review_pin]+[proof[key] for key in
+            ('working','fit','ascii','binary','decompiled','rigRoundtrip','poses')]+review['frames']
+    verify(rows)
+    return rows, proof, review
+
+
+def rigged_motion_inputs(path, data):
+    """Reuse one reviewed motion result, while freshly checking its actual bytes."""
+    motion=data['native'].get('motion',{});family=data['family']
+    require(set(motion)=={'method','proof','review','bodyReview'}
+            and motion['method']=='skinned-'+family+'-v1', 'Reviewed rigged motion required')
+    proof_pin=asset(path,motion['proof']);review_pin=asset(path,motion['review']);body_pin=asset(path,motion['bodyReview'])
+    proof,review,body=read(proof_pin['path']),read(review_pin['path']),read(body_pin['path'])
+    require(proof.get('rigRoundtrip',{}).get('passed') is True
+            and proof.get('skinRoundtrip',{}).get('nativeWeightRoundtrip') is True
+            and review.get('decision')=='approved-generated-'+family+'-motion-for-appearance'
+            and review.get('nativeTarget')==proof_pin and review.get('bodyMotionReview')==body_pin
+            and body.get('currentShippedBodies') is True and len(body.get('frames',()))>=6,
+            'Rigged hierarchy/weight/body-motion review is incomplete')
+    rows=[proof_pin,review_pin,body_pin]+[proof[k] for k in ('ascii','binary','decompiled','poses','atlas','measurement')]+body['frames']
+    verify(rows)
+    return rows,proof,review
+
+
 def native_contract(path, data):
     import numpy as np
+    require(data.get('family') != 'catalog-object', 'Catalog objects have no qualified native attachment or resource contract')
     native = data.get('native', {})
     require(native.get('reviewed') is True, 'Native frame, grip and donors need review')
     stack = asset(path, native['stack'])
@@ -102,10 +161,74 @@ def native_contract(path, data):
             resources[name] = bound
     table = resources.get('baseitems.2da')
     require(table is not None and table['sha256'] == native.get('baseitemsSha256'), 'Effective baseitems pin mismatch')
-    row = twoda(Path(table['path']).read_text(encoding='utf-8-sig'))[str(native['baseItem'])]
+    row = twoda(Path(table['path']).read_text(encoding='utf-8-sig')).get(str(native['baseItem']))
+    require(row is not None, 'Missing effective native BaseItem row')
     require(row['ItemClass'].lower() == native['itemClass'] and int(row['ModelType']) == native['modelType'],
             'Native family differs from effective baseitems')
     firearm = data['family'] == 'firearm-sling'
+    crossbow = data['family'] == 'crossbow'
+    longarm = data['family'] in ('firearm-crossbow', 'crossbow')
+    shield = whole_shield(data)
+    if data['family'] in ('bow', 'whip'):
+        from PIL import Image
+        bow = data['family'] == 'bow'
+        base, item_class, size = (8, 'wbwln', [64,128]) if bow else (111, 'wwhip', [64,64])
+        require(native['baseItem']==base and native['itemClass']==item_class and native['modelType']==2,
+                'Rigged weapon must retain its actual native carrier')
+        require([int(row['InvSlotWidth'])*32,int(row['InvSlotHeight'])*32]==size,
+                'Rigged weapon native footprint changed')
+        require(row['WeaponWield']==('5' if bow else '****'), 'Rigged weapon handling changed')
+        if bow: require(row['AmmunitionType']=='1', 'Bow requires native Arrow ammunition')
+        require(native.get('iconDimensions')==dict.fromkeys(PARTS,size)
+                and set(native.get('iconDonors',{}))==set(PARTS), 'Rigged multipart icons required')
+        for part in PARTS:
+            require(re.fullmatch(item_class+'_'+part+r'_\d{3}\.mdl',native['donors'][part].lower()),
+                    'Wrong rigged donor part')
+            require(re.fullmatch('i'+item_class+'_'+part+r'_\d{3}\.tga',native['iconDonors'][part].lower()),
+                    'Wrong rigged icon part')
+            icon=resources.get(native['iconDonors'][part].lower());require(icon is not None,'Missing rigged icon donor')
+            with Image.open(icon['path']) as image: require(list(image.size)==size, 'Rigged stock icon canvas changed')
+        rigged_motion_inputs(path, data)
+    if shield:
+        from PIL import Image
+        require(native['baseItem']==56 and native['itemClass']=='ashlw' and native['modelType']==0
+                and int(row['WeaponWield'])==7, 'Shield requires the native offhand single-model carrier')
+        dimensions=[int(row['InvSlotWidth'])*32,int(row['InvSlotHeight'])*32]
+        require(dimensions==[64,96] and native.get('iconDimensions')=={'whole':dimensions},
+                'Shield inventory dimensions differ')
+        require(set(native['donors'])=={'whole','icon'}
+                and re.fullmatch(r'ashlw_\d{3}\.mdl',native['donors']['whole'].lower()),
+                'Installed whole Shield and icon required')
+    if longarm:
+        from .firearms import longarm_row
+        from PIL import Image
+        longarm_row(Path(table['path']).read_bytes())
+        require(native['baseItem'] == 6 and native['itemClass'] == 'wbwxh' and native['modelType'] == 2,
+                'Longarm contract must use native Heavy Crossbow without a table override')
+        if crossbow:
+            from tools.phenomorpher.phenomorpher.engine.anim_library import load_model
+            from tools.phenomorpher.phenomorpher.engine.rig_native import compare
+            rows, proof, review = crossbow_motion_inputs(path, data)
+            require(proof.get('skinPositionAndWeightRoundtrip') is True
+                    and review.get('decision') == 'approved-native-motion-prototype'
+                    and review.get('nativeProof') == rows[0]
+                    and len(review['frames']) >= 12
+                    and 0 <= review.get('maximumReceiverCoreDisplacement', 1) <= 1e-6,
+                    'Crossbow motion/skin/receiver review is incomplete')
+            model = load_model(proof['binary']['path'])
+            require(re.fullmatch(r'wbwxh_t_\d{3}', model['name'])
+                    and model['parent'] == 'null' and set(model['clips']) == {'xbowshot'}
+                    and {'body_bind','limb_l','limb_r','drawdummy'} <= set(model['nodes'])
+                    and any(row['flags'] == 97 for row in model['nodes'].values())
+                    and compare(proof['binary']['path'], proof['ascii']['path'])['passed'],
+                    'Crossbow requires its actual skinned firing hierarchy')
+        else:
+            require(data.get('firearm') == {'subtype':'rifle'}, 'Explicit rigid longarm route required')
+        require(set(native['donors']) == {*PARTS, 'icon'}, 'All installed crossbow parts and inventory icon required')
+        require(native.get('iconDimensions') == {'t':[64,128]}, 'Review changed longarm inventory dimensions')
+        for part in PARTS:
+            require(re.fullmatch(r'wbwxh_'+part+r'_\d{3}\.mdl',native['donors'][part].lower()),
+                    'Installed crossbow donor assignment differs from its native part')
     if firearm:
         from .firearms import sling_row
         from .parts import active_parts
@@ -118,16 +241,56 @@ def native_contract(path, data):
         dimensions = [int(row['InvSlotWidth'])*32, int(row['InvSlotHeight'])*32]
         require(dimensions == [32,64] and native.get('iconDimensions') == {slot:dimensions},
                 'Review changed Sling inventory dimensions')
-    else:
+    elif not shield:
         require(native['modelType'] == 2, 'Pilot requires a verified composite weapon contract')
     if data['family'] == 'dagger':
         require(native['baseItem'] == 22 and native['itemClass'] == 'wswdg', 'Dagger contract must match native dagger')
+    if data['family'] == 'throwing-knife':
+        from PIL import Image
+        require(native['baseItem']==63 and native['itemClass']=='wthax' and native['modelType']==2
+                and int(row['WeaponWield'])==11, 'Throwing Knife requires the native thrown-weapon carrier')
+        require([int(row['InvSlotWidth']),int(row['InvSlotHeight'])]==[1,2], 'Thrown native footprint changed')
+        require(native.get('iconDimensions')==dict.fromkeys(PARTS,[32,64])
+                and set(native.get('iconDonors',{}))==set(PARTS), 'Thrown multipart inventory icons required')
+        for part in PARTS:
+            require(re.fullmatch(r'wthax_'+part+r'_\d{3}\.mdl',native['donors'][part].lower()), 'Wrong thrown donor part')
+            require(re.fullmatch(r'iwthax_'+part+r'_\d{3}\.tga',native['iconDonors'][part].lower()), 'Wrong thrown icon part')
+            icon=resources.get(native['iconDonors'][part].lower());require(icon is not None, 'Missing thrown icon donor')
+            with Image.open(icon['path']) as image:require(image.size==(32,64), 'Thrown stock icon canvas changed')
     if data['family'] == 'longsword':
         require(native['baseItem'] == 1 and native['itemClass'] == 'wswls', 'Longsword contract must match native longsword')
+    if data['family'] == 'greatsword':
+        from PIL import Image
+        require(native['baseItem']==13 and native['itemClass']=='wswgs' and native['modelType']==2,
+                'Two-handed sword requires the native Greatsword carrier')
+        require([int(row['InvSlotWidth']),int(row['InvSlotHeight'])]==[2,5], 'Greatsword native footprint changed')
+        require(native.get('iconDimensions')==dict.fromkeys(PARTS,[64,160])
+                and native.get('iconCanvasDimensions')==dict.fromkeys(PARTS,[64,256])
+                and set(native.get('iconDonors',{}))==set(PARTS),'Greatsword logical icons and stock canvases required')
+        for part in PARTS:
+            require(re.fullmatch(r'wswgs_'+part+r'_\d{3}\.mdl',native['donors'][part].lower()),'Wrong Greatsword donor part')
+            icon=resources.get(native['iconDonors'][part].lower());require(icon is not None,'Missing Greatsword icon donor')
+            with Image.open(icon['path']) as image:require(image.size==(64,256),'Greatsword stock icon canvas changed')
+    if data['family'] == 'staff':
+        from PIL import Image
+        require(native['baseItem']==50 and native['itemClass']=='wdbqs' and native['modelType']==2,
+                'Staff requires the native Quarterstaff carrier')
+        require([int(row['InvSlotWidth']),int(row['InvSlotHeight'])]==[1,4], 'Staff native footprint changed')
+        require(native.get('iconDimensions')==dict.fromkeys(PARTS,[32,128])
+                and set(native.get('iconDonors',{}))==set(PARTS),'Staff multipart inventory icons required')
+        for part in PARTS:
+            require(re.fullmatch(r'wdbqs_'+part+r'_\d{3}\.mdl',native['donors'][part].lower()),'Wrong Staff donor part')
+            require(re.fullmatch(r'iwdbqs_'+part+r'_\d{3}\.tga',native['iconDonors'][part].lower()),'Wrong Staff icon part')
+            icon=resources.get(native['iconDonors'][part].lower());require(icon is not None,'Missing Staff icon donor')
+            with Image.open(icon['path']) as image:require(image.size==(32,128),'Staff stock icon canvas changed')
     resref(native['itemClass'])
-    if not firearm: require(set(native['donors']) == set(PARTS), 'All composite donor parts required')
+    if not firearm and not longarm and not shield: require(set(native['donors']) == set(PARTS), 'All composite donor parts required')
     for name in native['donors'].values():
         require(resources.get(name.lower()) is not None, 'Missing native donor: ' + name)
+    if longarm or shield:
+        with Image.open(resources[native['donors']['icon'].lower()]['path']) as icon:
+            # Shield has a2x3 logical footprint on the stock power-of-two canvas.
+            require(icon.size == (64,128), 'Native icon donor differs from its qualified canvas')
     if firearm:
         require(native['donors']['whole'].lower().endswith('.mdl'), 'Whole Sling model donor required')
         with Image.open(resources[native['donors']['icon'].lower()]['path']) as icon:
@@ -147,7 +310,7 @@ def model_names(data, index, colour=1):
     integer(index, 1, 25, 'model index'); integer(colour, 1, 9, 'colour index')
     require(index*10+colour <= 255, 'Native appearance value must fit the UTI byte')
     require(data.get('nativePackaging') == 'enabled', 'Native packaging remains blocked without a verified contract')
-    require(data.get('family') != 'firearm-sling', 'Use the explicit firearm assembly allocator')
+    require(data.get('family') not in ('firearm-sling','firearm-crossbow','crossbow','shield'), 'Use the explicit whole-weapon assembly allocator')
     return {part: resref(f"{data['native']['itemClass']}_{part}_{index*10+colour:03d}") for part in PARTS}
 
 
@@ -191,7 +354,8 @@ def manifest(path, *, input_roles=None, validate_native=True):
     profile = asset(path, data['familyProfile']); profile_data = family(profile['path'],validate_native=validate_native)
     if profile_data['nativePackaging'] == 'enabled':
         expected = dict.fromkeys(PARTS, data['id'])
-        if profile_data['family'] == 'firearm-sling':
+        if whole_shield(profile_data): expected={'whole':data['id']}
+        if profile_data['family'] in ('firearm-sling','firearm-crossbow','bow','whip'):
             from .parts import active_parts
             expected = {part:data['id'] if part in active_parts(profile_data) else 'hidden-placeholder' for part in PARTS}
         require(profile_data['allowedAssemblies'] == [expected],
@@ -236,9 +400,9 @@ def stage_roles(stage):
     return {'prepare':{'reference'},'inspect':{'geometryRaw'},'donor':{'geometryDonor','field'},
             'fit':{'texturedDonor','workingMesh','gripStandard'},'finish':{'reference'},'bake':{'reference'},
             'fixture':{'fixtureTemplate','maleCreature','femaleCreature','nwscript','comparisonBlueprint'},
-            'calibrate':{'reference','geometry','detail','mask'},
-            'geometry':{'reference','clayReference','geometry','detail','foregroundMask','geometryForegroundMask'},
-            'appearance':{'reference','clayReference','geometry','detail','foregroundMask','geometryForegroundMask','geometryRaw','shape'}}.get(stage,set())
+            'calibrate':{'reference','geometry','detail','mask','calibrationReference','calibrationDetail','sourceAudit','referenceApproval'},
+            'geometry':{'reference','clayReference','geometry','detail','foregroundMask','geometryForegroundMask','sourceAudit','referenceApproval'},
+            'appearance':{'reference','clayReference','geometry','detail','foregroundMask','geometryForegroundMask','geometryRaw','shape','sourceAudit','referenceApproval','geometryReview','workingMesh'}}.get(stage,set())
 
 
 def all_pins(manifest_path, *, roles=None, native=True):
@@ -253,6 +417,10 @@ def all_pins(manifest_path, *, roles=None, native=True):
     # The consumed namespace pins and final byte verification remain below.
     profile = read(pins[1]['path'])
     if profile['nativePackaging'] == 'enabled' and native:
+        if profile['family'] == 'crossbow':
+            pins += crossbow_motion_inputs(pins[1]['path'], profile)[0]
+        if profile['family'] in ('bow','whip'):
+            pins += rigged_motion_inputs(pins[1]['path'], profile)[0]
         stack = asset(pins[1]['path'], profile['native']['stack']); pins.append(stack)
         for layer in read(stack['path'])['layers']:
             from .native_stack import namespace

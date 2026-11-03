@@ -184,8 +184,10 @@ class Runner:
                     and review.get('fieldSha256')==pin(field)['sha256'] and review.get('notes','').strip(),
                     'Review the exact exported donor geometry and appearance field before source baking')
             from .donor import build,unwrap_source
-            uv=unwrap_source(source,self.local,folder/'source-unwrap')
-            return build(source,uv['uvMesh']['path'],field,self.data['processing'].get('sourceFieldPolicy'),folder/'donor')
+            uv=unwrap_source(source,self.local,folder/'source-unwrap',
+                             topology_policy=self.data['processing'].get('sourceDonorTopologyPolicy','closed-solid-v1'))
+            sampling=uv['samplingSource']['path'] if 'samplingSource' in uv else source
+            return build(sampling,uv['uvMesh']['path'],field,self.data['processing'].get('sourceFieldPolicy'),folder/'donor')
         if stage == 'fit':
             require(self.family['nativePackaging'] == 'enabled', 'Fitting requires a measured native contract')
             donor = self.input('texturedDonor'); review = self.data.get('approval', {}).get('texturedDonor', {})
@@ -228,7 +230,7 @@ class Runner:
         if stage == 'export':
             arrays = self.worker('export-arrays', folder, scene=parent_result('shadow')['scene']['path'])
             icons = parent_result('render')['icons']
-            if self.family['family'] == 'firearm-sling':
+            if self.family['family'] in ('firearm-sling','firearm-crossbow'):
                 from .parts import active_parts
                 slot, = active_parts(self.family)
                 require(set(arrays['parts']) == set(icons) == {slot}, 'Whole firearm export contains unexpected parts')
@@ -241,7 +243,7 @@ class Runner:
             return {'preparedDirectory': str(folder/'export'), **prepare(self.profile_path, self.family, arrays['parts'],
                 parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'], icons, folder/'export')}
         if stage == 'native':
-            require(self.family['family'] != 'firearm-sling',
+            require(self.family['family'] not in ('firearm-sling','firearm-crossbow'),
                     'Combine reviewed Color exports with firearm-prepare, firearm-native and firearm-fixture')
             from .native import compile_package
             return compile_package(parent_result('export')['preparedDirectory'], self.local['client'], folder/'native')

@@ -20,6 +20,38 @@ from .firearms import plan
 
 
 class FirearmPackageTests(unittest.TestCase):
+    def test_f8_longarm_has_private_byte_assembly_and_no_table_override(self):
+        write(self.profile,{'family':'firearm-crossbow'})
+        self.table.write_text('2DA V2.0\n\nlabel ItemClass ModelType MinRange MaxRange InvSlotWidth InvSlotHeight\n'
+                              '6 heavycrossbow WBwXh 2 10 100 2 4\n')
+        table_before=self.table.read_bytes();self.resources={'baseitems.2da':pin(self.table)}
+        self.spec['sourceProfile']=pin(self.profile);self.spec['subtype']='rifle';self.spec['carrierAppearance']=15
+        self.spec['variants']=self.spec['variants'][:1];self.spec['variants'][0]['colour']=5
+        icon=self.root/'longarm-icon.png';Image.new('RGBA',(64,128)).save(icon)
+        self.spec['variants'][0]['icon']=pin(icon)
+        result=self.prepare()
+        self.assertFalse(result['intentionalOverride']['intentionalOverride'])
+        self.assertFalse((self.output/'resources/baseitems.2da').exists())
+        self.assertEqual(self.table.read_bytes(),table_before)
+        self.assertEqual(len(list((self.output/'ascii').glob('*.mdl'))),3)
+        self.assertEqual(result['iconSize'],[64,128])
+        self.assertEqual(result['allocation']['variants'][0]['utiParts'],dict.fromkeys(['ModelPart1','ModelPart2','ModelPart3'],15))
+        bp=read(self.output/'sr_p_5.json');self.assertEqual(bp['BaseItem']['value'],6)
+        for name in result['allocation']['placeholders']:
+            self.assertIn('render 0\n  shadow 0',(self.output/'ascii'/f'{name}.mdl').read_text())
+    def test_offline_compiler_failure_never_falls_back_to_client(self):
+        self.prepare()
+        executable=self.root/'blender.exe';executable.write_bytes(b'offline compiler')
+        addon=self.root/'addon';addon.mkdir();module=addon/'__init__.py';module.write_text('# installed addon\n')
+        compiler={'blender':pin(executable),'neverblender':{'path':str(addon)},
+                  'files':{'__init__.py':pin(module)['sha256']},'sha256':'a'*64}
+        with patch.object(firearm_package,'compile_offline',side_effect=ValueError('frozen compiler rejected')) as offline, \
+             patch.object(firearm_package.subprocess,'run') as process:
+            with self.assertRaisesRegex(ValueError,'frozen compiler rejected'):
+                firearm_package.compile_package(self.output,None,self.root/'native',compiler=compiler)
+            offline.assert_called_once();process.assert_not_called()
+        self.assertFalse((self.root/'native/compiler-userdir').exists())
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)

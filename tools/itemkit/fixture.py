@@ -26,11 +26,26 @@ def audit_module_payload(resources, extracted):
 
 
 def packaged_blueprints(native):
-    """Select exact packaged firearm UTIs rather than generating melee part bytes."""
+    """Select audited package UTIs instead of inventing composite part bytes."""
     if 'blueprints' not in native: return []
     from .firearms import validate_assembly
     from .native import archive_helpers
-    require(native.get('kind') == 'firearm-native-package' and native['baseItem'] == 61,
+    if native.get('kind') == 'shield-native-package':
+        allocation=native['allocation'];rows=native['blueprints'];name=native['identity']['blueprint']
+        require(native['baseItem']==allocation['baseItem']==56 and len(rows)==1
+                and allocation['blueprint']==name
+                and rows[0]['utiParts']==allocation['utiParts']=={
+                    'ModelPart1':allocation['appearance'],'ModelPart2':0,'ModelPart3':0}
+                and native['audits'].get('nativePositionNormalUVShadowRoundtrip') is True
+                and rows[0]['audit']=={'allFieldsExact':True,'rootStructId':-1},
+                'Shield fixture requires its audited single-model appearance')
+        bound=rows[0]['file'];verify([native['hak'],native['rigAudit'],bound])
+        require(Path(bound['path']).name==name+'.uti'
+                and archive_helpers().payload(native['hak']['path']).get((name,2025))==bound['sha256'],
+                'Shield blueprint differs from packaged bytes')
+        return [(name,bound)]
+    require(native.get('kind') == 'firearm-native-package' and native['baseItem'] in (6,61)
+            and native['baseItem'] == native['allocation']['baseItem'],
             'Only the audited firearm package supplies multipart variant blueprints')
     allocation = native['allocation']; rows = native['blueprints']
     require(len(rows) == len(allocation['variants']), 'Incomplete firearm blueprint set')
@@ -254,12 +269,12 @@ def build(manifest_path, manifest, native, local, output):
     result = {'module': pin(module), 'hak': pin(userdir/'hak'/(hak_name+'.hak')),
               'fixtureHaks': [pin(p) for p in sorted((userdir/'hak').iterdir())],
               'userDirectory': str(userdir), 'clientValidated': False,
-              'requiredChecks': {body: list(FIREARM_CHECKS if variants else CHECKS) for body in manifest['clientCoverage']},
+              'requiredChecks': {body: list(FIREARM_CHECKS if native.get('kind')=='firearm-native-package' else CHECKS) for body in manifest['clientCoverage']},
               'actorPlacement': pin(readback), 'actorPlacementMode': 'native-entry-area-instances',
               'entryReadiness': 'bounded-area-and-actor-check', 'playerCameraControlled': False}
     result['modulePayloadAudit'] = pin(output/'module-payload.json')
     if variants:
-        result['family'] = 'firearm-sling'
+        result['family'] = 'shield' if native.get('kind')=='shield-native-package' else 'firearm-crossbow' if native['baseItem']==6 else 'firearm-sling'
         result['variantBlueprints'] = [bound for _, bound in variants]
     write(output/'fixture.json', result, fresh=True)
     return result
@@ -271,7 +286,7 @@ def validate_evidence(path, fixture):
             and evidence.get('fixtureHaks') == fixture['fixtureHaks'], 'Client evidence belongs to another package')
     verify([fixture['module'], fixture['hak']]+fixture['fixtureHaks'])
     observations = evidence.get('observations', [])
-    checks = FIREARM_CHECKS if fixture.get('family') == 'firearm-sling' else CHECKS
+    checks = FIREARM_CHECKS if fixture.get('family') in ('firearm-sling','firearm-crossbow') else CHECKS
     required = {(body, name) for body in ('human-male', 'human-female') for name in checks}
     require(len(observations) == len(required) and {(r['body'], r['check']) for r in observations} == required,
             'Incomplete or duplicate Human client check matrix')

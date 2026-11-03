@@ -4,6 +4,8 @@ from .firearms import SLOTS
 from .geometry import check_budgets
 
 FIREARM_VIEWS = ('left','right','muzzle','rear','top','underside','grip','oblique')
+WHOLE_NATIVE_FAMILIES = ('firearm-sling', 'firearm-crossbow', 'crossbow')
+RIGGED_NATIVE_FAMILIES = ('bow', 'whip')
 
 
 def firearm_views(settings):
@@ -24,7 +26,12 @@ def firearm_views(settings):
 
 
 def active_parts(profile):
-    if profile['family'] != 'firearm-sling': return ('b', 'm', 't')
+    from .contracts import whole_shield
+    if whole_shield(profile): return ('whole',)
+    if profile['family'] == 'catalog-object': return ('whole',)
+    if profile['family'] == 'crossbow': return ('t',)
+    if profile['family'] in RIGGED_NATIVE_FAMILIES: return ('m',)
+    if profile['family'] not in ('firearm-sling','firearm-crossbow'): return ('b', 'm', 't')
     subtype = profile.get('firearm', {}).get('subtype')
     require(subtype in SLOTS, 'Declare the whole-firearm native slot before processing')
     return (SLOTS[subtype],)
@@ -34,7 +41,7 @@ def assembly_budget(profile, counts, kind):
     active = active_parts(profile)
     require(set(counts) == set(active), 'Count every active processing part exactly once')
     full = dict(counts)
-    if profile['family'] == 'firearm-sling':
+    if profile['family'] in WHOLE_NATIVE_FAMILIES + RIGGED_NATIVE_FAMILIES:
         require(kind in ('visible', 'shadow'), 'Known budget kind required')
         for part in set(('b','m','t'))-set(active):
             require(profile['budgets']['parts'][part] == {'visible':4, 'shadow':0},

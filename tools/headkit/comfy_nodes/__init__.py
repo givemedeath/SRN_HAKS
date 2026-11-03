@@ -66,6 +66,15 @@ else:
             return web.json_response({'verified': False}, status=409)
         return web.json_response(current, headers={'X-Headkit-Verification': json.dumps(audit.report(), separators=(',', ':'))})
 
+    @PromptServer.instance.routes.get('/headkit/preparation-identity')
+    async def headkit_preparation_identity(request):
+        # This is a planning baseline, never evidence of current loaded state.
+        # Submission and completion use the full runtime-identity endpoint.
+        if _STARTUP_RUNTIME_IDENTITY is None:
+            return web.json_response({'verified': False}, status=409)
+        return web.json_response({'kind': 'preparation-baseline-v1',
+            'runtimeIdentity': _STARTUP_RUNTIME_IDENTITY, 'requiresFreshDispatch': True})
+
     @PromptServer.instance.routes.post('/headkit/verify-loader-models')
     async def verify_headkit_loader_models(request):
         try:

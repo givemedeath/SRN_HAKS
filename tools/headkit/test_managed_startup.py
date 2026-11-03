@@ -21,6 +21,74 @@ from headkit.comfy_nodes.runtime_identity import same_runtime_environment
 
 
 class ControlledStartupTests(unittest.TestCase):
+    def test_declared_import_path_prefix_is_exact_and_required(self):
+        self.config['launch']['environment']['PATH']='original'
+        self.config['launch']['importPathPrefixes']=[str(self.runtime)]
+        write(self.path,self.config)
+        def entry(*args,**kwargs):
+            os.environ['PATH']=str(self.runtime)+os.pathsep+'original'
+            startup.session_context(self.core)
+            for bad in ('original',str(self.runtime)+os.pathsep+'changed',
+                        str(self.runtime)+os.pathsep+str(self.runtime)+os.pathsep+'original'):
+                os.environ['PATH']=bad
+                with self.assertRaisesRegex(ValueError,'environment changed.*PATH'):
+                    startup.session_context(self.core)
+            os.environ['PATH']=str(self.runtime)+os.pathsep+'original'
+        self.assertTrue(self.run_stub(entry)['inputsUnchanged'])
+
+    def test_import_path_prefix_rejects_uninventoried_directory(self):
+        self.config['launch']['environment']['PATH']='original'
+        self.config['launch']['importPathPrefixes']=[str(self.scratch)]
+        with self.assertRaisesRegex(ValueError,'inventoried runtime directories'):
+            startup.launch_arguments(self.config)
+
+    def test_undeclared_path_mutation_is_rejected(self):
+        self.config['launch']['environment']['PATH']='original';write(self.path,self.config)
+        with self.assertRaisesRegex(ValueError,'environment changed.*PATH'):
+            self.run_stub(lambda *a,**k:os.environ.update(PATH='unreviewed'))
+
+    def test_runtime_census_requires_explicit_active_site_roots(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve();site=root/'Lib/site-packages';site.mkdir(parents=True)
+            library=root/'Lib/os.py';library.write_text('stdlib')
+            package=site/'package.py';package.write_text('package')
+            self.assertEqual(startup.runtime_inventory([root]),[pin(library)])
+            self.assertEqual(startup.runtime_inventory([root,site]),[pin(library),pin(package)])
+            package.write_text('changed')
+            self.assertEqual(startup.runtime_inventory([root,site])[-1],pin(package))
+
+    def test_large_runtime_inventory_hashes_once_per_pass_and_rechecks_next_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve()
+            for index in range(140):
+                (root/(str(index)+'.opaque')).write_bytes(('runtime-'+str(index)).encode())
+            with verification_pass('large-runtime-inventory') as session:
+                first=startup.runtime_inventory([root])
+                self.assertEqual(first,startup.runtime_inventory([root]))
+                self.assertEqual(session.counts['filesHashed'],140)
+                self.assertEqual(session.counts['hashHits'],140)
+            changed=root/'0.opaque';changed.write_bytes(b'changed-runtime')
+            with verification_pass('fresh-runtime-inventory') as session:
+                second=startup.runtime_inventory([root])
+                self.assertEqual(session.counts['filesHashed'],140)
+            self.assertNotEqual(first,second)
+            self.assertIn(pin(changed),second)
+
+    def test_runtime_census_resolves_roots_only_and_preserves_all_file_types(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve();nested=root/'nested';nested.mkdir()
+            for name in ('module.py','settings.ini','native.dll','opaque','notes.txt'):
+                (nested/name).write_bytes(name.encode())
+            expected=[pin(p) for p in sorted(nested.iterdir(),key=lambda p:str(p).casefold())]
+            original=Path.resolve;calls=[]
+            def counted(path,*args,**kwargs):
+                calls.append(path);return original(path,*args,**kwargs)
+            with patch.object(Path,'resolve',counted):
+                self.assertEqual(startup.runtime_inventory([root,nested]),expected)
+            self.assertEqual(calls,[root,nested])
+            (nested/'settings.ini').write_text('changed')
+            self.assertNotEqual(startup.runtime_inventory([root]),expected)
+
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name).resolve()
         self.core=self.root/'comfy';self.adapter=self.core/'custom_nodes'/'srn_headkit'
