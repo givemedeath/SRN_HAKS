@@ -118,9 +118,11 @@ class Channels(unittest.TestCase):
 
     def test_protected_hair_joined_to_hair_stays_hair(self):
         # RUNBOOK 161: a widow's peak (hair-owned, under the parser skin, touching hair outside it) stays hair when its rule is
-        # marked overFaceMasks; a freckle the same rule owns, away from the hair, and hair beside the eye still go to skin.
+        # marked overFaceMasks; a freckle the same rule owns, away from the hair, and hair beside the eye still go to skin. So do
+        # scattered dots below the hairline, however many: the join radius is the texel pitch, not their own spacing.
         labels = np.zeros((4096, 4096), np.uint8); labels[1000:1100, 1000:1400] = 1; labels[1100:1160, 1180:1220] = 1   # hair, peak
         labels[1300:1303, 1100:1103] = 1; labels[1500:1504, 1280:1300] = 1   # freckle, lash-side strand
+        labels[1104:1300:8, 1004:1170:8] = 1   # 525 dots 8 texels apart, beside the peak
         masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock', 'beard'); mapped = np.ones((4096, 4096), bool)
         masks['skin'][1100:1700, 1000:1400] = 1; masks['eye'][1505:1515, 1280:1300] = 1
         ys, xs = np.mgrid[0:4096, 0:4096]; positions = np.stack([xs, ys, np.zeros_like(xs)], -1).astype(np.float32)
@@ -128,7 +130,7 @@ class Channels(unittest.TestCase):
         o, report = apply_channels(labels, masks, mapped, protected=labels == 1, positions=positions)
         self.assertTrue((plain[1100:1160, 1180:1220] == 0).all()); self.assertTrue((o[1100:1160, 1180:1220] == 1).all())
         self.assertTrue((o[1300:1303, 1100:1103] == 0).all()); self.assertTrue((o[1500:1504, 1280:1300] == 0).all())
-        self.assertEqual(report['protectedKeptHair'], 60*40)
+        self.assertFalse((o[1104:1300:8, 1004:1170:8] == 1).any()); self.assertEqual(report['protectedKeptHair'], 60*40)
         with self.assertRaisesRegex(ValueError, 'positions'): apply_channels(labels, masks, mapped, protected=labels == 1)
 
     def test_masks_at_names_a_missing_mask(self):
@@ -152,6 +154,28 @@ class Treatment(unittest.TestCase):
         settings = {k: 0 for k in TREATMENT}; settings['delight'] = .8
         out, report = treat(colour, np.zeros((4096, 4096), np.uint8), flat('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket'), value, settings)
         self.assertLessEqual(float((out-colour).max()), 1e-3); self.assertLess(float(out[2048, 2048, 0]), float(colour[2048, 2048, 0]))
+
+    def test_scalp_delight_darkens_visible_bright_skin_off_the_face_to_the_face_level(self):
+        # RUNBOOK 165: a front quad (the face region, skin 100) and a top quad off it (bright baked light 180, shade 60), in the
+        # atlas's top-left 1024 texels. Only the bright off-face skin of outer faces comes down, never below 0.6 of itself; the
+        # top quad's first triangle is marked hidden (inner wall) and keeps its colour.
+        value = {'positions': np.array([[0, 0, 1], [1, 0, 1], [1, .5, 1], [0, .5, 1], [0, 1, 0], [0, 1, 1], [1, 1, 1], [1, 1, 0]], float),
+                 'faces': np.array([[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7]]),
+                 'uv': (np.array([[[0, 0], [.5, 0], [.5, 1]], [[0, 0], [.5, 1], [0, 1]], [[.5, 0], [.5, 1], [1, 1]], [[.5, 0], [1, 1], [1, 0]]])*.998+.001)/4}
+        colour = np.full((4096, 4096, 3), 100, np.float32); colour[:512, 512:1024] = 180; colour[512:1024, 512:1024] = 60
+        masks = flat('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket'); labels = np.zeros((4096, 4096), np.uint8)
+        outer = np.array([True, True, False, True])
+        for strength in (0, .8):
+            settings = {k: 0 for k in TREATMENT}; settings['scalpDelight'] = strength
+            out, report = treat(colour, labels, masks, value, settings, outer=outer)
+            with self.subTest(strength=strength):
+                self.assertTrue(np.allclose(out[250:750, 25:475], 100)); self.assertTrue(np.allclose(out[750:875, 875:975], 60))
+                self.assertTrue(np.allclose(out[375:475, 550:600], 180))   # hidden
+                bright = out[75:225, 900:1000, 0]
+                if strength: self.assertTrue((bright < 140).all() and (bright >= .6*180-1e-3).all(), report)
+                else: self.assertTrue(np.allclose(bright, 180)); self.assertNotIn('scalpDelightGainP5P95', report)
+        with self.assertRaisesRegex(ValueError, 'outer faces'): treat(colour, labels, masks, value, settings)
+        with self.assertRaisesRegex(ValueError, 'setting'): treat(colour, labels, masks, value, dict(settings, scalpDelight=True), outer=outer)
 
 
 class Region(unittest.TestCase):
@@ -298,7 +322,7 @@ class ToneWithFaceTreatment(unittest.TestCase):
                 seen['config'] = set(config); seen['ownership'] = Path(ownership)
                 from PIL import Image
                 Image.open(color).save(output); return {}
-            def fake_treat(rgb, labels, masks, value, settings):
+            def fake_treat(rgb, labels, masks, value, settings, outer=None):
                 seen['labels'] = int(labels.max()); return rgb, {}
             with mock.patch('headkit.textures.tone_match', fake_match), mock.patch('headkit.face_encode.treat', fake_treat),                  mock.patch('headkit.face_encode.masks_at', lambda *a: {}), mock.patch('headkit.gltf.mesh', lambda *a: None):
                 result = r._execute('tone', root)

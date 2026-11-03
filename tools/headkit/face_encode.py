@@ -15,13 +15,13 @@ from .colour import lab
 from .textures import surface, pad
 from .uv import chart_ids, face_region
 
-JOIN_SPACING = 3   # protected hair joins hair through texels within this x their median 3D spacing (RUNBOOK 161)
+JOIN_SPACING = 3   # protected hair joins hair through texels within this x the atlas's median 3D texel pitch (RUNBOOK 161)
 NEAR_EYE = 12   # 4K texels around the eye opening where hair-owned lash lines and old tattoo iris rings become skin (RUNBOOK 129)
 CHANNEL_MASKS = ('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock', 'beard')
 BEARD_RATIO = .8   # below the nose, hair-owned texels nearer the hair median than this x the skin median stay hair (RUNBOOK 145)
 BEARD_LIGHTNESS = .5   # Lab L weight in that test: shading moves a beard's lightness, not its chroma
 TREATMENT_MASKS = ('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket')
-TREATMENT = {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3, 'irisRim': .45, 'lidLine': .6, 'browEdge': .95}
+TREATMENT = {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3, 'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0}
 BROW_FRINGE = .02   # head widths around the brow searched for leftover brow colour on skin
 
 
@@ -51,16 +51,22 @@ def beard_hair(labels, masks, mapped, colour, skinlike):
     return keep
 
 
-def joined(candidates, anchors, positions):
-    """Candidate texels linked in 3D to an anchor texel through candidates no more than JOIN_SPACING x their median spacing apart."""
+def texel_pitch(positions, mapped):
+    """Median 3D distance between horizontally adjacent mapped texels."""
+    both = mapped[:, 1:] & mapped[:, :-1]; require(both.any(), 'No adjacent mapped texels')
+    return float(np.median(np.linalg.norm(positions[:, 1:][both].astype(float)-positions[:, :-1][both], axis=1)))
+
+
+def joined(candidates, anchors, positions, pitch):
+    """Candidate texels linked in 3D to an anchor texel through candidates no more than JOIN_SPACING x the texel pitch apart:
+    a fixed radius, so scattered dots (freckles) stay apart however sparse they are."""
     cy, cx = np.nonzero(candidates); out = np.zeros_like(candidates)
     if not len(cy) or not anchors.any(): return out
-    P = positions[cy, cx].astype(float); tree = cKDTree(P); n = len(P)
-    r = JOIN_SPACING*np.median(tree.query(P, k=2)[0][:, 1]) if n > 1 else 1e-9; ay, ax = np.nonzero(anchors)
+    P = positions[cy, cx].astype(float); tree = cKDTree(P); n = len(P); r = JOIN_SPACING*pitch; ay, ax = np.nonzero(anchors)
     touch = cKDTree(positions[ay, ax].astype(float)).query(P, distance_upper_bound=r)[0] < np.inf
     pairs = tree.query_pairs(r, output_type='ndarray')
     _, part = connected_components(coo_matrix((np.ones(len(pairs)), (pairs[:, 0], pairs[:, 1])), shape=(n, n)), directed=False)
-    good = np.isin(part, np.unique(part[touch])); out[cy[good], cx[good]] = True; return out
+    good = np.isin(part, part[touch]); out[cy[good], cx[good]] = True; return out
 
 
 def apply_channels(labels, masks, mapped, colour=None, protected=None, positions=None):
@@ -75,13 +81,12 @@ def apply_channels(labels, masks, mapped, colour=None, protected=None, positions
     skinlike &= ~beard
     near_eye = binary_dilation(eye, iterations=NEAR_EYE) & mapped
     ring = near_eye & ~iris & np.isin(o, (8, 9)); lash = near_eye & ~brow & (o == 1)
+    report = {'oldIrisRingToSkin': int(ring.sum()), 'lashToSkin': int(lash.sum()), 'beardKeptHair': int(beard.sum())}
     if protected is not None:
         require(positions is not None, 'Protected hair needs the 4K surface positions')
         moving = skinlike & ~near_eye & (labels == 1) & mapped   # lash lines and the eye opening still go to skin
-        kept = joined(protected & moving, (labels == 1) & ~skinlike & ~near_eye & ~brow & mapped, positions)
-        skinlike &= ~kept; report_kept = int(kept.sum())
-    report = {'oldIrisRingToSkin': int(ring.sum()), 'lashToSkin': int(lash.sum()), 'beardKeptHair': int(beard.sum())}
-    if protected is not None: report['protectedKeptHair'] = report_kept
+        kept = joined(protected & moving, (labels == 1) & ~skinlike & ~near_eye & ~brow & mapped, positions, texel_pitch(positions, mapped))
+        skinlike &= ~kept; report['protectedKeptHair'] = int(kept.sum())
     o[ring] = 0; o[lash] = 0
     o[skinlike & (o == 1)] = 0; o[eye & ~iris] = 0; o[brow & (o == 0)] = 1; o[iris] = 8
     # tattoo1 is the iris only; whatever else the rules owned there (troll horns and tusks, old ink) takes tattoo2 (user 2026-10-30)
@@ -116,25 +121,37 @@ def _surface_mean(points, values, k):
     return (sampled[near]*(w if sampled.ndim == 1 else w[..., None])).sum(1)/(w.sum(1) if sampled.ndim == 1 else w.sum(1)[:, None])
 
 
-def treat(colour, labels, masks, value, settings=None):
+def treat(colour, labels, masks, value, settings=None, outer=None):
     """Step 3 on a 4K colour atlas (0..255) with the final 4K ownership: darken-only broad de-light, skin smoothing away from the
     features, lip line and eye-socket darks, iris rim, lid line, brows in the hair mid tones with a darker outer edge and their
-    skin fringe refilled from plain skin on the surface; then ownership-consistent blocks."""
-    s = dict(TREATMENT, **(settings or {})); require(set(s) == set(TREATMENT) and all(0 <= v <= 1 for v in s.values()), 'Unknown face treatment setting')
+    skin fringe refilled from plain skin on the surface; then ownership-consistent blocks. outer (per face, rays.outer_faces) is
+    needed with scalpDelight: only visible skin off the face is darkened, and only it sets the broad level."""
+    s = dict(TREATMENT, **(settings or {}))
+    require(set(s) == set(TREATMENT) and all(type(v) in (int, float) and 0 <= v <= 1 for v in s.values()), 'Unknown face treatment setting')
+    require(not s['scalpDelight'] or outer is not None, 'scalpDelight needs the outer faces')
     P = value['positions'].astype(float); F = value['faces']; width = np.ptp(P[:, 0])
     positions, owners, _ = surface(value, 4096, enforce=False); mapped = owners >= 0; fid = np.maximum(owners, 0)
     onface = mapped & face_region(P, F)[0][fid]; c = colour.astype(np.float32).copy(); o = labels; report = {}
-    iris = masks['iris'] > .5; eye = masks['eye'] > .5; brow = (masks['brow'] > .5) & mapped
-    if s['delight'] and (mapped & (o == 0) & onface).sum() > 16:
+    iris = masks['iris'] > .5; eye = masks['eye'] > .5; brow = (masks['brow'] > .5) & mapped; skin = mapped & (o == 0)
+    def darken(sy, sx, broad, level, power):
+        """Darken only, toward a broad luma level, never below 0.6 of the texel; returns the unclipped gain."""
+        gain = np.minimum(1.0, (level/np.maximum(broad, 1))**power); c[sy, sx] *= np.clip(gain, .6, 1)[:, None]; return gain
+    if s['delight'] and (skin & onface).sum() > 16:
         # Darken only: broad baked highlights come down; shaded sides keep their form shading (lifting them read as cheek patches).
-        sy, sx = np.nonzero(mapped & (o == 0) & onface); broad = _surface_mean(positions[sy, sx].astype(float), luma(c[sy, sx]), 256)
-        gain = np.minimum(1.0, (np.median(broad)/np.maximum(broad, 1))**s['delight']); c[sy, sx] *= np.clip(gain, .6, 1)[:, None]
-        report['delightGainP5P95'] = np.percentile(gain, [5, 95]).round(3).tolist()
-    if s['smooth'] and (mapped & (o == 0)).sum() > 16:
-        sy, sx = np.nonzero(mapped & (o == 0)); col = c[sy, sx]; local = _surface_mean(positions[sy, sx].astype(float), col, 32)
+        sy, sx = np.nonzero(skin & onface); broad = _surface_mean(positions[sy, sx].astype(float), luma(c[sy, sx]), 256)
+        report['delightGainP5P95'] = np.percentile(darken(sy, sx, broad, np.median(broad), s['delight']), [5, 95]).round(3).tolist()
+    scalp = skin & ~onface & outer[fid] if s['scalpDelight'] else None
+    if s['scalpDelight'] and (skin & onface).sum() > 16 and scalp.any():
+        # Visible skin off the face region, darkened only to the face skin's broad level: baked top light on a shaved scalp
+        # (troll-female-a beside its horns, RUNBOOK 165) otherwise ranks onto the pale top of the skin row and steps against the
+        # face at chart borders. The hidden inner wall is left alone and kept out of the broad means.
+        sy, sx = np.nonzero(skin & (onface | scalp)); broad = _surface_mean(positions[sy, sx].astype(float), luma(c[sy, sx]), 256); off = scalp[sy, sx]
+        gain = darken(sy[off], sx[off], broad[off], np.median(broad[~off]), s['scalpDelight'])
+        report['scalpDelightGainP5P95'] = np.percentile(gain, [5, 95]).round(3).tolist()
+    if s['smooth'] and skin.sum() > 16:
+        sy, sx = np.nonzero(skin); col = c[sy, sx]; local = _surface_mean(positions[sy, sx].astype(float), col, 32)
         near = np.clip(gaussian_filter(np.maximum.reduce([masks[k] for k in ('brow', 'eye', 'lips', 'nose')]), 24)*3, 0, 1)
         c[sy, sx] = local+(col-local)*(1-s['smooth']*(1-near[sy, sx]))[:, None]
-    skin = mapped & (o == 0)
     c[skin] *= (1-s['lipDark']*masks['lipline'][skin])[:, None]; c[skin] *= (1-s['socket']*masks['socket'][skin])[:, None]
     c[iris & (gaussian_filter(iris.astype(np.float32), 3) < .8)] *= s['irisRim']
     charts = np.where(mapped, chart_ids(value['uv'], shared='vertex')[fid], -1)

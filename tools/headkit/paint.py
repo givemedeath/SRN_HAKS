@@ -3,13 +3,13 @@ Selections are manifest data (bbox-relative regions, colour predicates, priority
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
-from scipy.ndimage import distance_transform_edt, binary_closing, binary_fill_holes, binary_opening
+from scipy.ndimage import distance_transform_edt, binary_closing, binary_fill_holes
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 from .common import require, pin, write
 from .gltf import mesh
 from .uv import raster_audit
-from .rays import EmbreeScene
+from .rays import EmbreeScene, outer_faces
 from .predicates import COMPARE, Values, when  # noqa: F401 - re-exported for texture rules
 
 PREVIEW=np.array([[150,120,100],[30,30,30],[80,160,255],[60,90,140],[120,60,160],[160,90,200],[110,80,40],[150,110,60],[240,220,150],[230,30,40]],np.uint8)
@@ -110,36 +110,31 @@ def fill(value, rgb, op, report, texels, regions, seal_start=None):
 # Protrusions (RUNBOOK 163): ball radius, clearance and growth in head heights; grid voxels across the bbox's longest side.
 PROTRUSION={'ball':.08,'clearance':.01,'bridge':2,'grow':2,'voxels':128}
 PROTRUSION_RANGES={'ball':(.02,.25),'clearance':(.002,.05),'bridge':(0,6),'grow':(0,8),'voxels':(32,256)}
-WALL=.02         # head heights: an inward hit closer than this is the repaired shell's own inner wall (Alpha Wrap double wall)
 GROW_FLOOR=.4    # growth toward the junction only through faces still this x the clearance outside the opened head
-
-
-def outer_faces(scene, positions, faces, height):
-    """Faces of the outer surface and their unit normals. An outer face's inward ray meets the far side of the head (or of a
-    horn), or crosses a thin wall and then the cavity behind it (the repaired shell is double-walled); an inner-wall face's
-    inward ray crosses the outer wall and leaves the shell."""
-    a,b,c=(positions[faces[:,i]] for i in range(3));normal=np.cross(b-a,c-a);normal/=np.maximum(np.linalg.norm(normal,axis=1),1e-12)[:,None]
-    origin=(a+b+c)/3-normal*1e-4*height;near,first,_=scene.query(origin,-normal);hit=first>=0
-    _,second,_=scene.query(origin-normal*(np.where(hit,near,0)+1e-4*height)[:,None],-normal)
-    return hit&((near>=WALL*height)|(second>=0)),normal
 
 
 def solid_gap(embree, positions, faces, outer, normal, centre, lo, hi, settings):
     """Each face centroid's distance (head heights) outside the head solid opened with a ball of settings['ball']: thin parts
     (horns, ears, tusks) drop out of the opening, the skull stays. A voxel is inside when at least three of its six axis rays
-    first meet an outer face from behind (the shell's cavity counts as inside; a ray out through the neck opening misses)."""
+    first meet an outer face from behind (the shell's cavity counts as inside; a ray out through the neck opening misses).
+    Distances come in whole voxel steps, so the clearance may not be finer than one step."""
     height=hi[1]-lo[1];step=(hi-lo).max()/settings['voxels'];radius=max(1,int(round(settings['ball']*height/step)));pad=radius+2
-    shape=np.ceil((hi-lo)/step).astype(int)+2*pad;origin=lo-pad*step
-    grid=np.stack(np.meshgrid(*[origin[a]+(np.arange(shape[a])+.5)*step for a in range(3)],indexing='ij'),-1).reshape(-1,3)
+    require(settings['clearance']>=step/height,f"Protrusion clearance {settings['clearance']} is finer than the voxel step {step/height:.4f} head heights; raise voxels")
+    shape=np.ceil((hi-lo)/step).astype(int)+2*pad;origin=lo-pad*step;centres=[origin[a]+(np.arange(shape[a])+.5)*step for a in range(3)]
+    # Only voxels inside the bbox: one outside it meets the head along one axis at most, so it never reaches three votes.
+    box=tuple(slice(*np.flatnonzero((t>=lo[a])&(t<=hi[a]))[[0,-1]]+[0,1]) for a,t in enumerate(centres))
+    grid=np.stack(np.meshgrid(*[t[b] for t,b in zip(centres,box)],indexing='ij'),-1).reshape(-1,3)
     votes=np.zeros(len(grid),np.int8);facing=normal[outer];scene=EmbreeScene(embree,positions.astype(np.float32),faces[outer].astype(np.uint32))
     try:
         for axis in np.r_[np.eye(3),-np.eye(3)]:
             for start in range(0,len(grid),1<<20):
                 _,ids,_=scene.query(grid[start:start+(1<<20)],axis);votes[start:start+(1<<20)]+=(ids>=0)&(facing[np.maximum(ids,0)]@axis>0)
     finally:scene.close()
-    solid=binary_fill_holes(binary_closing((votes>=3).reshape(shape),iterations=2))   # seal stripes from misread outer faces
-    z,y,x=np.mgrid[-radius:radius+1,-radius:radius+1,-radius:radius+1]
-    opened=binary_opening(solid,structure=x*x+y*y+z*z<=radius*radius)
+    inside=np.zeros(shape,bool);inside[box]=(votes>=3).reshape([b.stop-b.start for b in box])
+    solid=binary_fill_holes(binary_closing(inside,iterations=2))   # seal stripes from misread outer faces
+    # Opening with a ball by distance transforms: the same voxels as binary_opening with a ball structure, in seconds at any radius.
+    eroded=distance_transform_edt(solid)>radius;require(eroded.any(),'Protrusion ball opens the whole head away; lower ball')
+    opened=distance_transform_edt(~eroded)<=radius
     index=np.clip(((centre-origin)/step).astype(int),0,shape-1)
     return distance_transform_edt(~opened)[tuple(index.T)]*step/height,{'voxels':shape.tolist(),'solidVoxels':int(solid.sum()),'openedVoxels':int(opened.sum())}
 
@@ -149,27 +144,27 @@ def protrusion_faces(value, rgb, op, regions, embree, seal_start=None):
     connected part holding each seed's outermost such face, opened by `bridge` face rings (a datajack plate beside a horn base
     joined troll-female-a's horn to its brows and nose), then up to `grow` rings toward the junction."""
     settings=dict(PROTRUSION,**{k:op[k] for k in PROTRUSION if k in op})
-    require(set(op)<={'op','name','seeds',*PROTRUSION} and all(type(settings[k]) in ((int,) if k in ('bridge','grow','voxels') else (int,float))
+    require(set(op)<={'op','name','seeds',*PROTRUSION} and all(type(settings[k]) in ((int,) if type(PROTRUSION[k]) is int else (int,float))
             and PROTRUSION_RANGES[k][0]<=settings[k]<=PROTRUSION_RANGES[k][1] for k in PROTRUSION),'Protrusion settings out of range: '+op['name'])
     require(isinstance(op.get('seeds'),list) and op['seeds'],'Protrusion needs seed face conditions: '+op['name'])
     require(embree is not None,'Protrusion needs the bound Embree runtime')
     positions=value['positions'].astype(float);faces=value['faces'];centre,lo,hi=frame(value);height=hi[1]-lo[1]
-    scene=EmbreeScene(embree,positions.astype(np.float32),faces.astype(np.uint32))
-    try:outer,normal=outer_faces(scene,positions,faces,height)
-    finally:scene.close()
-    gap,report=solid_gap(embree,positions,faces,outer,normal,centre,lo,hi,settings)
+    outer,normal=outer_faces(embree,positions,faces,height);gap,report=solid_gap(embree,positions,faces,outer,normal,centre,lo,hi,settings)
     up=outer&(gap>settings['clearance']);neighbours=adjacency(value['positions'],faces)
     _,part=connected_components(neighbours[up][:,up],directed=False);component=np.full(len(faces),-1);component[up]=part
-    values=face_values(value,rgb,seal_start);middle=(lo+hi)/2;selected=np.zeros(len(faces),bool);tips=[]
+    values=face_values(value,rgb,seal_start);middle=(lo+hi)/2;selected=np.zeros(len(faces),bool);tips=[];anchors=[]
     for number,seed in enumerate(op['seeds']):
         candidates=when(seed,values,regions)&up
         require(candidates.any(),f"Protrusion seed {number} of {op['name']} meets no face standing out of the head")
         tip=np.flatnonzero(candidates)[np.argmax(np.linalg.norm(centre[candidates]-middle,axis=1))];region=component==component[tip];core=region.copy()
         for _ in range(settings['bridge']):core&=~(neighbours@(~core).astype(np.int32)>0)
-        if settings['bridge'] and core[tip]:
-            _,piece=connected_components(neighbours[core][:,core],directed=False);pieces=np.full(len(faces),-1);pieces[core]=piece;kept=pieces==pieces[tip]
+        require(not settings['bridge'] or core.any(),f"Protrusion seed {number} of {op['name']}: the part is thinner than {settings['bridge']} bridge rings")
+        if settings['bridge']:
+            # The opened piece holding the tip, or the one nearest it when the tip sits within the bridge rings of the edge.
+            anchor=tip if core[tip] else np.flatnonzero(core)[np.argmin(np.linalg.norm(centre[core]-centre[tip],axis=1))]
+            _,piece=connected_components(neighbours[core][:,core],directed=False);pieces=np.full(len(faces),-1);pieces[core]=piece;kept=pieces==pieces[anchor]
             for _ in range(settings['bridge']):kept|=region&(neighbours@kept.astype(np.int32)>0)
-            region=kept
+            region=kept;anchors.append(int(anchor))
         selected|=region;tips.append(int(tip))
     floor=outer&(gap>GROW_FLOOR*settings['clearance']);grown=0
     for _ in range(settings['grow']):
@@ -177,6 +172,7 @@ def protrusion_faces(value, rgb, op, regions, embree, seal_start=None):
         if not add.any():break
         selected|=add;grown+=int(add.sum())
     report.update(settings=settings,outerFaces=int(outer.sum()),standingOut=int(up.sum()),tips=tips,faces=int(selected.sum()),grownFaces=grown)
+    if anchors!=tips[:len(anchors)]:report['bridgeAnchors']=anchors   # a tip within the bridge rings of its part's edge
     return selected,report
 
 
@@ -229,7 +225,8 @@ def paint(source, color, config, output, *, seal_start=None, embree=None):
 
 def rule_ownership(source, color, config, *, metallic=None, masks=None, protected=False):
     """First matching rule wins (list order is priority); padding takes the label of the nearest mapped texel. With protected,
-    also returns the texels of hair rules marked overFaceMasks (face_encode keeps them hair where they join hair, RUNBOOK 161)."""
+    also returns the mapped texels of hair rules marked overFaceMasks, or None when no rule marks any (face_encode keeps them hair
+    where they join hair, RUNBOOK 161)."""
     value=mesh(source);rgb=np.asarray(Image.open(color).convert('RGB'))
     require(rgb.shape[0]==rgb.shape[1],'Rule ownership needs a square colour atlas')
     extra={'mask:'+name:(lambda path=path:np.asarray(Image.open(path).convert('L'))>0) for name,path in (masks or {}).items()}
@@ -243,9 +240,9 @@ def rule_ownership(source, color, config, *, metallic=None, masks=None, protecte
         selected=when(rule['when'],values,config.get('regions',{}))&free&mapped;labels[selected]=rule['channel'];free&=~selected
         if over:keep|=selected
         counts.append({'name':rule['name'],'channel':rule['channel'],'texels':int(selected.sum())})
-    nearest=tuple(distance_transform_edt(~mapped,return_distances=False,return_indices=True));labels=labels[nearest]
+    labels=labels[tuple(distance_transform_edt(~mapped,return_distances=False,return_indices=True))]
     report={'rules':counts,'defaultTexels':int((free&mapped).sum()),'channels':{str(k):int(n) for k,n in enumerate(np.bincount(labels.reshape(-1),minlength=10)) if n}}
-    return (labels,report,keep[nearest]&mapped) if protected else (labels,report)
+    return (labels,report,keep if keep.any() else None) if protected else (labels,report)
 
 
 def adjust(color, ownership, config, palettes, output):

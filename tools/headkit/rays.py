@@ -102,3 +102,22 @@ class EmbreeScene:
         if self.scene:self.dll.rtcReleaseScene(self.scene); self.scene=None
         if self.device:self.dll.rtcReleaseDevice(self.device); self.device=None
         if self.dll_directory:self.dll_directory.close(); self.dll_directory=None
+
+
+WALL=.02   # head heights: an inward hit closer than this is the repaired shell's own inner wall (Alpha Wrap double wall)
+
+
+def outer_faces(dll_path, positions, faces, height):
+    """Faces of the outer surface and their unit normals (paint protrusions, RUNBOOK 163; quality seam steps, RUNBOOK 164).
+    An outer face's inward ray meets the far side of the head (or of a horn), or crosses a thin wall and then the cavity behind
+    it (the repaired shell is double-walled); an inner-wall face's inward ray crosses the outer wall and leaves the shell.
+    A zero-area face has no normal (Embree refuses its ray) and is not outer; its normal is returned as zero."""
+    positions=np.asarray(positions,float);faces=np.asarray(faces);a,b,c=(positions[faces[:,i]] for i in range(3))
+    normal=np.cross(b-a,c-a);length=np.linalg.norm(normal,axis=1);flat=length<=1e-12
+    normal=np.where(flat[:,None],np.array([0.,0.,1.]),normal/np.maximum(length,1e-12)[:,None])
+    scene=EmbreeScene(dll_path,positions.astype(np.float32),faces.astype(np.uint32))
+    try:
+        origin=(a+b+c)/3-normal*1e-4*height;near,first,_=scene.query(origin,-normal);hit=first>=0
+        _,second,_=scene.query(origin-normal*(np.where(hit,near,0)+1e-4*height)[:,None],-normal)
+    finally:scene.close()
+    return hit&((near>=WALL*height)|(second>=0))&~flat,np.where(flat[:,None],0.,normal)

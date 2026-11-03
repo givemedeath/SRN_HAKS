@@ -3855,10 +3855,13 @@ class TextureStageTests(Temporary):
         uv=np.stack([np.c_[u0+.1*s,v0+.1*s],np.c_[u0+.9*s,v0+.1*s],np.c_[u0+.1*s,v0+.9*s]],1)
         return {'positions':triangles.reshape(-1,3),'faces':np.arange(3*n).reshape(n,3),'uv':uv},side*cell
     class Rays:
-        """Brute-force stand-in for rays.EmbreeScene: nearest hit distance and face per ray (-1 on a miss)."""
+        """Brute-force stand-in for rays.EmbreeScene: nearest hit distance and face per ray (-1 on a miss); like Embree's
+        wrapper it refuses rays that are not finite unit vectors."""
         def __init__(self,dll,points,faces):self.t=np.asarray(points,float)[np.asarray(faces)]
         def query(self,origins,directions):
             o=np.asarray(origins,float);d=np.broadcast_to(np.asarray(directions,float),o.shape);a,b,c=self.t[:,0],self.t[:,1],self.t[:,2]
+            if not (np.isfinite(o).all() and np.isfinite(d).all() and np.allclose(np.linalg.norm(d,axis=1),1,atol=1e-5,rtol=0)):
+                raise ValueError('Require finite unit rays')
             e1,e2=b-a,c-a;best=np.full(len(o),np.inf);ids=np.full(len(o),-1)
             for s in range(0,len(o),1024):
                 oo,dd=o[s:s+1024,None],d[s:s+1024,None];p=np.cross(dd,e2);det=(e1*p).sum(-1)
@@ -3909,7 +3912,7 @@ class TextureStageTests(Temporary):
     def test_protrusion_selects_the_seeded_horn_not_the_skull_or_an_unseeded_ear(self):
         # RUNBOOK 163: a sphere skull with a horn cylinder out along +x and an ear cylinder along -x; Embree replaced by a
         # brute-force ray caster. The ball-opened solid keeps the sphere and drops both cylinders; only the seeded one is horn.
-        from headkit import paint
+        from headkit import paint,rays
         lat,lon=np.meshgrid(np.radians(np.linspace(-90,90,13)),np.radians(np.linspace(0,360,25)),indexing='ij')
         sphere=self.quads(np.stack([np.cos(lat)*np.cos(lon),np.sin(lat),np.cos(lat)*np.sin(lon)],-1))
         def tube(x0,x1):
@@ -3924,10 +3927,13 @@ class TextureStageTests(Temporary):
         horn,ear=tube(.85,2.2),tube(-.85,-1.6);sphere=outward(sphere,np.zeros(3))
         horn,ear=outward(horn,axis(horn,.85,2.2)),outward(ear,axis(ear,-.85,-1.6));value,size=self.soup(np.r_[sphere,horn,ear])
         kind=np.repeat([0,1,2],[len(sphere),len(horn),len(ear)]);centre=value['positions'][value['faces']].mean(1)
-        op={'op':'protrusion','name':'horns','seeds':[{'of':'x','gt':.8}],'ball':.15,'clearance':.02,'voxels':32}
-        with patch.object(paint,'EmbreeScene',self.Rays):
+        # Clearance just over one voxel step (3.8 wide / 48 voxels = 0.0396 head heights): the skull's surface voxels stay in.
+        op={'op':'protrusion','name':'horns','seeds':[{'of':'x','gt':.8}],'ball':.15,'clearance':.045,'voxels':48}
+        with patch.object(paint,'EmbreeScene',self.Rays),patch.object(rays,'EmbreeScene',self.Rays):
             selected,report=paint.protrusion_faces(value,np.full((size,size,3),128,np.uint8),op,{},'embree.dll')
             self.assertFalse(selected[kind==0].any());self.assertFalse(selected[kind==2].any())
+            self.assertLessEqual(report['standingOut'],len(horn)+len(ear),report)   # no skull face stands out
+            with self.assertRaisesRegex(ValueError,'voxel step'):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),dict(op,clearance=.03),{},'embree.dll')
             self.assertTrue(selected[(kind==1)&(centre[:,0]>1.2)].all(),report)
             for bad in (dict(op,ball=.5),dict(op,grow=1.5),dict(op,seeds=[]),dict(op,extra=1)):
                 with self.subTest(op=bad),self.assertRaises(ValueError):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),bad,{},'embree.dll')
@@ -3935,7 +3941,7 @@ class TextureStageTests(Temporary):
     def test_outer_faces_drop_the_inner_wall_of_a_double_shell(self):
         # RUNBOOK 164: a repaired head is double-walled (Alpha Wrap). Outer wall faces outward, a hidden inner wall 0.005 head
         # heights behind it faces the cavity; the seam check and the horn detector must see only the outer wall.
-        from headkit.paint import outer_faces
+        from headkit import rays
         lat,lon=np.meshgrid(np.radians(np.linspace(-90,90,13)),np.radians(np.linspace(0,360,25)),indexing='ij')
         unit=np.stack([np.cos(lat)*np.cos(lon),np.sin(lat),np.cos(lat)*np.sin(lon)],-1)
         def wound(tris,out):
@@ -3943,13 +3949,15 @@ class TextureStageTests(Temporary):
             flip=((np.cross(tris[:,1]-tris[:,0],tris[:,2]-tris[:,0])*tris.mean(1)).sum(1)<0)==out
             tris=tris.copy();tris[flip]=tris[flip][:,[0,2,1]];return tris
         shell=np.r_[wound(self.quads(unit),True),wound(self.quads(.99*unit),False)];half=len(shell)//2
-        value,_=self.soup(shell);positions=value['positions'].astype(float)
-        outer,normal=outer_faces(self.Rays(None,positions,value['faces']),positions,value['faces'],2.)
-        np.testing.assert_array_equal(outer,np.arange(len(shell))<half)
-        self.assertTrue(((normal*positions[value['faces']].mean(1)).sum(1)[:half]>0).all())
-        # A single solid wall: every face is outer.
-        solid,_=self.soup(shell[:half]);p=solid['positions'].astype(float)
-        self.assertTrue(outer_faces(self.Rays(None,p,solid['faces']),p,solid['faces'],2.)[0].all())
+        # A zero-area face last: Embree refuses its ray, so it is simply not outer.
+        value,_=self.soup(np.r_[shell,np.zeros((1,3,3))]);positions=value['positions'].astype(float)
+        with patch.object(rays,'EmbreeScene',self.Rays):
+            outer,normal=rays.outer_faces('embree.dll',positions,value['faces'],2.)
+            np.testing.assert_array_equal(outer,np.arange(len(shell)+1)<half)
+            self.assertTrue(((normal*positions[value['faces']].mean(1)).sum(1)[:half]>0).all());self.assertFalse(normal[-1].any())
+            # A single solid wall: every face is outer.
+            solid,_=self.soup(shell[:half]);p=solid['positions'].astype(float)
+            self.assertTrue(rays.outer_faces('embree.dll',p,solid['faces'],2.)[0].all())
     def two_faces(self, size=64):
         p=np.array([[0,0,0],[1,0,0],[0,1,1],[1,0,0],[1,1,1],[0,1,1]],np.float32)
         uv=np.array([[[.02,.02],[.9,.02],[.02,.9]],[[.98,.1],[.98,.98],[.1,.98]]])
@@ -4012,6 +4020,7 @@ class TextureStageTests(Temporary):
         marked=[dict(rules[0],channel=1,overFaceMasks=True),rules[1]]
         labels,_,keep=rule_ownership(source,self.root/'color.png',{'rules':marked},protected=True)
         self.assertTrue((keep==(mapped&red)).all());self.assertEqual(len(rule_ownership(source,self.root/'color.png',{'rules':marked})),2)
+        self.assertIsNone(rule_ownership(source,self.root/'color.png',{'rules':rules},protected=True)[2])   # nothing marked
         for bad in (dict(rules[0],overFaceMasks=True),dict(rules[1],overFaceMasks=1)):
             with self.subTest(rule=bad),self.assertRaisesRegex(ValueError,'overFaceMasks'):
                 rule_ownership(source,self.root/'color.png',{'rules':[bad]})

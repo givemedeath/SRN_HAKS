@@ -77,6 +77,7 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
     checks (RUNBOOK 150): a cybereye housing has no iris, whites or brow for the parser to find."""
     settings = settings or {}; side = settings.get('cybereyeImageSide')
     require(set(settings) <= {'cybereyeImageSide'} and side in (None, 'left', 'right'), 'quality.cybereyeImageSide must be left or right')
+    require(embree is not None, 'Quality needs the bound Embree runtime')
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     limits = thresholds if thresholds is not None else read(THRESHOLDS)['limits']; require(set(limits) == CHECKS, 'Incomplete quality thresholds')
     require(masks['source']['sha256'] == pin(source)['sha256'], 'Quality must read the masks of this UV mesh')
@@ -150,16 +151,13 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
         r['specks' if k in (0, 1, 8) else 'designSpecks'] += int(small_parts.sum())
     from .textures import surface
     from .uv import chart_ids
-    from .paint import outer_faces
-    from .rays import EmbreeScene
+    from .rays import outer_faces
     # Seam steps on outer faces only: the repaired shell is double-walled, and its hidden inner wall sits within SEAM_RADIUS of
     # the visible skin on other charts (83-90% of the cross-chart pairs on the race validation copies, RUNBOOK 164).
-    require(embree is not None, 'Quality needs the bound Embree runtime')
-    positions = value['positions'].astype(float); faces = value['faces']; height = float(np.ptp(positions[:, 1]))
-    scene = EmbreeScene(embree, positions.astype(np.float32), faces.astype(np.uint32))
-    try: outer, _ = outer_faces(scene, positions, faces, height)
-    finally: scene.close()
+    positions = value['positions'].astype(float); outer, _ = outer_faces(embree, positions, value['faces'], float(np.ptp(positions[:, 1])))
+    require(outer.any(), 'No outer faces: the UV mesh must face outward')
     points, owners, _ = surface(value, shades.shape[0], enforce=False); skin = (owners >= 0) & (layers == 0) & outer[np.maximum(owners, 0)]
+    r['seamOuterFaces'] = int(outer.sum()); r['seamSkinTexels'] = int(skin.sum())
     r['seamStepRatio'] = seam_step_ratio(points[skin].astype(float), np.asarray(chart_ids(uv))[owners[skin]], shades[skin], float(np.ptp(value['positions'][:, 0])))
     r['skinMedianOffset'] = skin_median_offset(palette)
     r['faceDarkRatio'] = face_dark_ratio(palette, shade[face & view['hit'] & (channel == 0)], shade[plain & (channel == 0)])

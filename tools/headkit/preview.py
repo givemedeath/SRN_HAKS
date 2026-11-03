@@ -139,7 +139,8 @@ def preview(runner, what, output, regions=None):
     if 'paint' in m:
         from .paint import paint
         seal = runner.result('repair', require_review=False)['neck']['seal']['shellTriangles'] if runner._sealed() else None
-        painted = paint(source, colour, m['paint'], output/'paint', seal_start=seal)
+        embree = runner.bindings['embree']['path'] if 'embree' in getattr(runner, 'bindings', {}) else None   # protrusion ops cast rays
+        painted = paint(source, colour, m['paint'], output/'paint', seal_start=seal, embree=embree)
         colour = painted['maps']['basecolor-4096.png']['path']; masks = {name: row['path'] for name, row in painted['masks'].items()}
     if what == 'rows':
         return palette_rows(runner, value, colour, output)
