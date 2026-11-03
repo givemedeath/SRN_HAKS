@@ -54,3 +54,7 @@ srn_2da/baseitems.2da -text
 docs/phenomorpher/game-ready-assets.json -diff linguist-generated=true
 srn_2da/appearance.2da -diff linguist-generated=true
 docs/phenomorpher/runtime-optimization/baseline.json -diff linguist-generated=true
+
+# Preserve exact reviewed private weapon payloads, including source scripts.
+test-modules/weapon-waves/module/** -text
+test-modules/weapon-waves/haks/** -text

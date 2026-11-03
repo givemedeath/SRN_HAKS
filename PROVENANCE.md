@@ -487,3 +487,18 @@ The user approved every race body, the armour and `pmh2` in game, and approved p
 and per-resource hashes are in `docs/phenomorpher/race-sizing/` (`plan.md`, `release-1.3.0.json`) and
 `docs/phenomorpher/human-bodies-lock-c7.json`. Generated stages, client fixtures and captures stay outside the
 production source packs.
+
+## Approved Waves 1 and 2 private weapon review (2026-11-03)
+
+The source-accurate SR4 catalog references and generated itemkit weapon assets in
+`test-modules/weapon-waves` are the user-reviewed private candidates. Geometry
+and appearance were produced through the retained clay/detail workflow, fitted
+to the shipped Humans and converted to native resources. Katana, Crossbow, Bow,
+Ingram orientation and Human weapon motion include the final reviewed repairs.
+Stock-derived carrier/animation/environment resources require a licensed NWN:EE
+installation. Existing approved comparison assets retain their prior provenance.
+The payload manifest records exact bytes; source books, generation intermediates,
+local bindings, HAK archives and body-pack duplicates are excluded. This publishes
+a reproducible private test fixture, with no production promotion or new rights
+claim over Shadowrun or Neverwinter Nights material.
+
