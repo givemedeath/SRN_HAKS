@@ -46,7 +46,7 @@ def shade_span_failures(spans, palette, minimum, body_minimum=None, hair_end_tie
 def seam_step_ratio(points, charts, shades, width):
     """Mean skin shade difference between surface neighbours (within SEAM_RADIUS head widths) on different UV charts over that
     between neighbours on the same chart. Near 1 when shading runs on across seams; flat tone patches meeting at chart
-    borders raise it (dwarf-female-c per-chart shading 1.7-1.8, surface shading 0.9; RUNBOOK 153)."""
+    borders raise it (dwarf-female-c per-chart shading 1.47-1.55, surface shading 0.68-0.79 on outer faces; RUNBOOK 153, 164)."""
     pairs = cKDTree(points).query_pairs(SEAM_RADIUS*width, output_type='ndarray')
     if not len(pairs): return None
     step = np.abs(shades[pairs[:, 0]].astype(float)-shades[pairs[:, 1]]); cross = charts[pairs[:, 0]] != charts[pairs[:, 1]]
@@ -70,8 +70,9 @@ def face_dark_ratio(palette, face_skin, plain_skin):
     return round(float(np.percentile(face_skin, 1)/max(np.median(plain_skin), 1)), 3)
 
 
-def quality(source, masks, palette, palettes, output, thresholds=None, settings=None):
-    """masks: the masks stage result; palette: the palette stage result; palettes: {layer: palette image path}.
+def quality(source, masks, palette, palettes, output, thresholds=None, settings=None, embree=None):
+    """masks: the masks stage result; palette: the palette stage result; palettes: {layer: palette image path}; embree: the
+    bound Embree DLL path (seam steps count outer faces only, RUNBOOK 164).
     settings (the manifest quality section): `cybereyeImageSide` 'left' or 'right' leaves that eye and brow out of the role
     checks (RUNBOOK 150): a cybereye housing has no iris, whites or brow for the parser to find."""
     settings = settings or {}; side = settings.get('cybereyeImageSide')
@@ -149,7 +150,16 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
         r['specks' if k in (0, 1, 8) else 'designSpecks'] += int(small_parts.sum())
     from .textures import surface
     from .uv import chart_ids
-    points, owners, _ = surface(value, shades.shape[0], enforce=False); skin = (owners >= 0) & (layers == 0)
+    from .paint import outer_faces
+    from .rays import EmbreeScene
+    # Seam steps on outer faces only: the repaired shell is double-walled, and its hidden inner wall sits within SEAM_RADIUS of
+    # the visible skin on other charts (83-90% of the cross-chart pairs on the race validation copies, RUNBOOK 164).
+    require(embree is not None, 'Quality needs the bound Embree runtime')
+    positions = value['positions'].astype(float); faces = value['faces']; height = float(np.ptp(positions[:, 1]))
+    scene = EmbreeScene(embree, positions.astype(np.float32), faces.astype(np.uint32))
+    try: outer, _ = outer_faces(scene, positions, faces, height)
+    finally: scene.close()
+    points, owners, _ = surface(value, shades.shape[0], enforce=False); skin = (owners >= 0) & (layers == 0) & outer[np.maximum(owners, 0)]
     r['seamStepRatio'] = seam_step_ratio(points[skin].astype(float), np.asarray(chart_ids(uv))[owners[skin]], shades[skin], float(np.ptp(value['positions'][:, 0])))
     r['skinMedianOffset'] = skin_median_offset(palette)
     r['faceDarkRatio'] = face_dark_ratio(palette, shade[face & view['hit'] & (channel == 0)], shade[plain & (channel == 0)])

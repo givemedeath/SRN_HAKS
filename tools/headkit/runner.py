@@ -547,7 +547,8 @@ class Runner:
             from .quality import quality
             require(isinstance(m.get('quality'),dict),'Stage not configured: the manifest has no quality section')
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
-            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality',settings=m['quality'])
+            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality',settings=m['quality'],
+                           embree=b['embree']['path'] if 'embree' in b else None)
         if stage=='export':
             from .native import prepare
             source=self.source('uvMesh','unwrap','mesh')

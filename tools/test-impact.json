@@ -223,7 +223,9 @@
       "tools/headkit/common.py",
       "tools/headkit/face_masks.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
       "tools/headkit/quality-thresholds.json",
+      "tools/headkit/rays.py",
       "tools/headkit/textures.py",
       "tools/headkit/uv.py"
     ],
