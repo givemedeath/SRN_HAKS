@@ -110,8 +110,8 @@ class ClientTransportTests(unittest.TestCase):
         for route, expected in [('/headkit/runtime-identity', 300),
                                 ('/headkit/verify-loader-models', 300),
                                 ('/queue', 30), ('/prompt', 30)]:
-            with self.subTest(route=route), patch.object(comfy.urllib.request, 'urlopen') as opened, \
-                    patch.object(comfy.json, 'load', return_value={'verified': True}):
+            with self.subTest(route=route), patch.object(comfy.urllib.request, 'urlopen') as opened:
+                opened.return_value.__enter__.return_value.read.return_value = b'{"verified":true}'
                 self.assertEqual(client.request(route), {'verified': True})
                 self.assertEqual(opened.call_args.kwargs['timeout'], expected)
 

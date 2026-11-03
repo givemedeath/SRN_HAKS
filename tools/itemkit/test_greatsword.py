@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 from PIL import Image
 from tools.headkit.common import read,write,pin
 from .test_itemkit import Fixture
@@ -42,7 +43,7 @@ class GreatswordTests(Fixture):
                 self.assertFalse(np.asarray(padded)[160:].any())
 
     def test_two_hand_melee_thickness_does_not_shorten_the_hilt(self):
-        standard=read('docs/items/weapon-grip-standard-v1.json');a=np.arange(32)*2*np.pi/32
+        standard=read(Path(__file__).resolve().parents[2]/'docs/items/weapon-grip-standard-v1.json');a=np.arange(32)*2*np.pi/32
         ring=np.c_[np.cos(a)*standard['targetMidpointSection']['depth']/4,np.zeros(32),np.sin(a)*.01]
         p=np.concatenate([ring+[0,-.07,0],ring+[0,.07,0]])
         f=np.array([(i,(i+1)%32,(i+1)%32+32) for i in range(32)]+[(i,(i+1)%32+32,i+32) for i in range(32)])
