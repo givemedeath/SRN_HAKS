@@ -1477,17 +1477,19 @@ class InputInventoryTests(Temporary):
 
     def test_inputs_skips_receipts_from_other_code_instead_of_failing(self):
         from headkit.__main__ import main
-        from headkit.common import stage_source_version,digest,manifest
+        from headkit.common import stage_source_version,digest,manifest,bindings
         source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
         write(manifest_path,{'schemaVersion':1,'id':'stale-run','inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
         bindings_path=self.root/'bindings.json';write(bindings_path,self.bindings_data())
         run=self.root/'run';run.mkdir();changed=self.file('changed.py','old helper')
         old_pin=pin(changed);changed.write_text('helper edited since that receipt')
         current=self.file('current.json','current output')
-        rows={}
-        for stage,code,inputs in (('repair','old-code',[old_pin]),('unwrap',stage_source_version('unwrap'),[pin(current)])):
+        rows={};now=digest(bindings(bindings_path))
+        # bake ran under other bindings (a repinned runtime, RUNBOOK 168): rerun like the runner does, not a stale pin of them.
+        for stage,code,inputs,bound in (('repair','old-code',[old_pin],now),('unwrap',stage_source_version('unwrap'),[pin(current)],now),
+                                        ('bake',stage_source_version('bake'),[old_pin],'other-bindings')):
             scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
-            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
+            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'bindingsHash':bound,'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
         write(run/'state.json',{'schemaVersion':1,'id':'stale-run','stages':rows})
         output=self.root/'inputs.json'
         with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),'--bindings',str(bindings_path),
@@ -1495,7 +1497,7 @@ class InputInventoryTests(Temporary):
             main()
         paths=read(output);self.assertIn(str(current.resolve()),paths);self.assertNotIn(str(changed.resolve()),paths)
         self.assertNotIn(str((run/'state.json').resolve()),paths)
-        self.assertIn('"staleStagesSkipped": [\n    "repair"\n  ]',shown.call_args.args[0])
+        self.assertIn('"staleStagesSkipped": [\n    "bake",\n    "repair"\n  ]',shown.call_args.args[0])
 
     def test_inputs_requires_the_declared_installed_snapshot(self):
         adapter,local=self.installed_adapter()

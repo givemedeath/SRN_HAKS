@@ -151,8 +151,10 @@ def launch_inputs(manifest_path, bindings_path, run=None, stages=None):
         for stage,row in state['stages'].items():
             if closure is not None and stage not in closure:continue
             receipt=read(row['path'])
-            # A receipt from other code or another manifest is rerun, not consumed; its old pins are not inputs.
-            if receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage):stale.append(stage);continue
+            # A receipt from other code, another manifest or other bindings (a repinned runtime) is rerun, as the runner
+            # does, not consumed; its old pins are not inputs.
+            if (receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage)
+                    or receipt.get('bindingsHash')!=digest(scoped.bindings)):stale.append(stage);continue
             pins.append(row);pins+=receipt['inputs']+receipt['outputs']
             if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
     verify(pins);return pins,(stale if run and (run/'state.json').exists() else None)
