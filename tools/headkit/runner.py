@@ -405,7 +405,8 @@ class Runner:
             from .paint import paint
             seal=None
             if self._sealed():seal=self.result('repair')['neck']['seal']['shellTriangles']
-            return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps',seal_start=seal)
+            return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps',seal_start=seal,
+                         embree=b['embree']['path'] if 'embree' in b else None)
         if stage=='masks':
             from .face_masks import face_masks
             require(isinstance(m.get('faceMasks'),dict),'Stage not configured: the manifest has no faceMasks section')

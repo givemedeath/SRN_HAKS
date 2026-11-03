@@ -3892,6 +3892,45 @@ class TextureStageTests(Temporary):
         painted=masks['crest-stripe'].copy();painted[:,:8]=False;outside=~masks['crest'];outside[:,:8]=False
         self.assertTrue(painted.any() and (rgb[painted]==(120,14,22)).all() and (rgb[outside]==180).all())
         self.assertEqual(report['paintedTexels']['crest-stripe'],int(painted.sum()))
+    def test_protrusion_selects_the_seeded_horn_not_the_skull_or_an_unseeded_ear(self):
+        # RUNBOOK 163: a sphere skull with a horn cylinder out along +x and an ear cylinder along -x; Embree replaced by a
+        # brute-force ray caster. The ball-opened solid keeps the sphere and drops both cylinders; only the seeded one is horn.
+        from headkit import paint
+        class Rays:
+            def __init__(self,dll,points,faces):self.t=np.asarray(points,float)[np.asarray(faces)]
+            def query(self,origins,directions):
+                o=np.asarray(origins,float);d=np.broadcast_to(np.asarray(directions,float),o.shape);a,b,c=self.t[:,0],self.t[:,1],self.t[:,2]
+                e1,e2=b-a,c-a;best=np.full(len(o),np.inf);ids=np.full(len(o),-1)
+                for s in range(0,len(o),1024):
+                    oo,dd=o[s:s+1024,None],d[s:s+1024,None];p=np.cross(dd,e2);det=(e1*p).sum(-1)
+                    with np.errstate(divide='ignore',invalid='ignore'):
+                        inv=1/det;tv=oo-a;u=(tv*p).sum(-1)*inv;q=np.cross(tv,e1);v=(dd*q).sum(-1)*inv;t=(e2*q).sum(-1)*inv
+                        t=np.where((np.abs(det)>1e-12)&(u>=0)&(v>=0)&(u+v<=1)&(t>1e-9),t,np.inf);k=t.argmin(1)
+                    best[s:s+1024]=t[np.arange(len(k)),k];ids[s:s+1024]=np.where(np.isfinite(best[s:s+1024]),k,-1)
+                return best,ids,None
+            def close(self):pass
+        lat,lon=np.meshgrid(np.radians(np.linspace(-90,90,13)),np.radians(np.linspace(0,360,25)),indexing='ij')
+        sphere=self.quads(np.stack([np.cos(lat)*np.cos(lon),np.sin(lat),np.cos(lat)*np.sin(lon)],-1))
+        def tube(x0,x1):
+            x,t=np.meshgrid(np.linspace(x0,x1,5),np.radians(np.linspace(0,360,9)),indexing='ij')
+            side=self.quads(np.stack([x,.2*np.cos(t),.2*np.sin(t)],-1));rim=np.stack([np.full(9,x1),.2*np.cos(t[0]),.2*np.sin(t[0])],-1)
+            return np.r_[side,np.stack([np.broadcast_to([x1,0,0],(8,3)),rim[:-1],rim[1:]],1)]
+        def outward(tris,inside):
+            """Wind each triangle so its normal points away from the given inside point (repaired meshes face outward)."""
+            n=np.cross(tris[:,1]-tris[:,0],tris[:,2]-tris[:,0]);flip=(n*(tris.mean(1)-inside)).sum(1)<0
+            tris=tris.copy();tris[flip]=tris[flip][:,[0,2,1]];return tris
+        axis=lambda tris,x0,x1:np.c_[np.clip(tris.mean(1)[:,0],min(x0,x1)+.05,max(x0,x1)-.05),np.zeros((len(tris),2))]
+        horn,ear=tube(.85,2.2),tube(-.85,-1.6);sphere=outward(sphere,np.zeros(3))
+        horn,ear=outward(horn,axis(horn,.85,2.2)),outward(ear,axis(ear,-.85,-1.6));value,size=self.soup(np.r_[sphere,horn,ear])
+        kind=np.repeat([0,1,2],[len(sphere),len(horn),len(ear)]);centre=value['positions'][value['faces']].mean(1)
+        op={'op':'protrusion','name':'horns','seeds':[{'of':'x','gt':.8}],'ball':.15,'clearance':.02,'voxels':32}
+        with patch.object(paint,'EmbreeScene',Rays):
+            selected,report=paint.protrusion_faces(value,np.full((size,size,3),128,np.uint8),op,{},'embree.dll')
+            self.assertFalse(selected[kind==0].any());self.assertFalse(selected[kind==2].any())
+            self.assertTrue(selected[(kind==1)&(centre[:,0]>1.2)].all(),report)
+            for bad in (dict(op,ball=.5),dict(op,grow=1.5),dict(op,seeds=[]),dict(op,extra=1)):
+                with self.subTest(op=bad),self.assertRaises(ValueError):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),bad,{},'embree.dll')
+            with self.assertRaisesRegex(ValueError,'Embree'):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),op,{},None)
     def two_faces(self, size=64):
         p=np.array([[0,0,0],[1,0,0],[0,1,1],[1,0,0],[1,1,1],[0,1,1]],np.float32)
         uv=np.array([[[.02,.02],[.9,.02],[.02,.9]],[[.98,.1],[.98,.98],[.1,.98]]])

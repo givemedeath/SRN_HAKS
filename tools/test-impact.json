@@ -192,6 +192,7 @@
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
       "tools/headkit/predicates.py",
+      "tools/headkit/rays.py",
       "tools/headkit/uv.py"
     ],
     "tools/headkit/palette.py": [
