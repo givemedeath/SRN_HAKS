@@ -164,6 +164,7 @@ Use `examples/processing.json` as the input-role map. Fill annotations per head;
      - lash lines and old tattoo iris rings go to skin.
      - orc and troll heads keep tattoo2 for their tusks and horns (user 2026-10-30): author those rules on channel 9 and their design ink on skin (0). A head's metal, cloth and leather take the worn armour's colours in game, so natural features never go there.
      - below the nose the parser has no beard class, so owned hair stays hair where its colour is clearly hair (beards, moustaches); the quality gate measures hair on face skin above the nose only.
+     - a hair rule marked `"overFaceMasks": true` keeps its texels hair where the masks would move them to skin, if they join, in 3D, hair the masks leave alone (lash lines and the eye opening still go to skin). Use it where the parser calls a widow's peak or hanging strands skin and the head's hair and skin bake too close in colour for the hair-lock test (race heads v1 troll-female-a, 7.9 Lab apart). Mark a rule that holds only that hair: a broad hair rule also keeps every dark texel it owns beside the hair (human-male-d's barcode and temple wire), so add a narrow rule for the strands first. Isolated texels of a marked rule (freckle dots) still go to skin. The ownership report's `protectedKeptHair` counts the kept texels.
 
      Gutters are re-padded, and the 1K atlas takes each 4x4 block's majority channel.
    - **Tone:** `faceTreatment` runs after the adjust or match:

@@ -144,21 +144,25 @@ def paint(source, color, config, output, *, seal_start=None):
     write(output/'paint.json',result,fresh=True);return result
 
 
-def rule_ownership(source, color, config, *, metallic=None, masks=None):
-    """First matching rule wins (list order is priority); padding takes the label of the nearest mapped texel."""
+def rule_ownership(source, color, config, *, metallic=None, masks=None, protected=False):
+    """First matching rule wins (list order is priority); padding takes the label of the nearest mapped texel. With protected,
+    also returns the texels of hair rules marked overFaceMasks (face_encode keeps them hair where they join hair, RUNBOOK 161)."""
     value=mesh(source);rgb=np.asarray(Image.open(color).convert('RGB'))
     require(rgb.shape[0]==rgb.shape[1],'Rule ownership needs a square colour atlas')
     extra={'mask:'+name:(lambda path=path:np.asarray(Image.open(path).convert('L'))>0) for name,path in (masks or {}).items()}
     if metallic is not None:extra['metallic']=lambda:np.asarray(Image.open(metallic).convert('L'))
     values=texel_values(value,rgb,raster_audit(value['uv'],len(rgb))[1],extra);mapped=values['mapped']
     default=config.get('default',0);require(type(default) is int and 0<=default<=9,'Default channel 0..9 required')
-    labels=np.full(mapped.shape,default,np.uint8);free=np.ones(mapped.shape,bool);counts=[]
+    labels=np.full(mapped.shape,default,np.uint8);free=np.ones(mapped.shape,bool);keep=np.zeros(mapped.shape,bool);counts=[]
     for rule in config['rules']:
         require(type(rule.get('channel')) is int and 0<=rule['channel']<=9 and isinstance(rule.get('name'),str),'Named rule with channel 0..9 required')
+        over=rule.get('overFaceMasks',False);require(type(over) is bool and (not over or rule['channel']==1),'overFaceMasks is a boolean on hair (1) rules')
         selected=when(rule['when'],values,config.get('regions',{}))&free&mapped;labels[selected]=rule['channel'];free&=~selected
+        if over:keep|=selected
         counts.append({'name':rule['name'],'channel':rule['channel'],'texels':int(selected.sum())})
-    labels=labels[tuple(distance_transform_edt(~mapped,return_distances=False,return_indices=True))]
-    return labels,{'rules':counts,'defaultTexels':int((free&mapped).sum()),'channels':{str(k):int(n) for k,n in enumerate(np.bincount(labels.reshape(-1),minlength=10)) if n}}
+    nearest=tuple(distance_transform_edt(~mapped,return_distances=False,return_indices=True));labels=labels[nearest]
+    report={'rules':counts,'defaultTexels':int((free&mapped).sum()),'channels':{str(k):int(n) for k,n in enumerate(np.bincount(labels.reshape(-1),minlength=10)) if n}}
+    return (labels,report,keep[nearest]&mapped) if protected else (labels,report)
 
 
 def adjust(color, ownership, config, palettes, output):

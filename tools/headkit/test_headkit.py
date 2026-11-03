@@ -3950,6 +3950,13 @@ class TextureStageTests(Temporary):
         for bad in ({'of':'metallic','gt':1},{'region':'missing'},{'of':'lum'},{'channel':1}):
             with self.subTest(condition=bad),self.assertRaises(ValueError):
                 rule_ownership(source,self.root/'color.png',{'rules':[{'name':'x','channel':1,'when':bad}]})
+        # overFaceMasks (RUNBOOK 161): the marked hair rule's texels, padded like the labels; only on hair rules, only booleans.
+        marked=[dict(rules[0],channel=1,overFaceMasks=True),rules[1]]
+        labels,_,keep=rule_ownership(source,self.root/'color.png',{'rules':marked},protected=True)
+        self.assertTrue((keep==(mapped&red)).all());self.assertEqual(len(rule_ownership(source,self.root/'color.png',{'rules':marked})),2)
+        for bad in (dict(rules[0],overFaceMasks=True),dict(rules[1],overFaceMasks=1)):
+            with self.subTest(rule=bad),self.assertRaisesRegex(ValueError,'overFaceMasks'):
+                rule_ownership(source,self.root/'color.png',{'rules':[bad]})
     def test_worked_texture_example_conditions_evaluate(self):
         from headkit.paint import rule_ownership,adjust
         example=read(Path(__file__).parent/'examples'/'texture-rules.json');source,rgb=self.two_faces()

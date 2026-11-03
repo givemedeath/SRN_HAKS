@@ -8,11 +8,14 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter, binary_dilation
 from scipy.spatial import cKDTree
+from scipy.sparse import coo_matrix
+from scipy.sparse.csgraph import connected_components
 from .common import require
 from .colour import lab
 from .textures import surface, pad
 from .uv import chart_ids, face_region
 
+JOIN_SPACING = 3   # protected hair joins hair through texels within this x their median 3D spacing (RUNBOOK 161)
 NEAR_EYE = 12   # 4K texels around the eye opening where hair-owned lash lines and old tattoo iris rings become skin (RUNBOOK 129)
 CHANNEL_MASKS = ('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock', 'beard')
 BEARD_RATIO = .8   # below the nose, hair-owned texels nearer the hair median than this x the skin median stay hair (RUNBOOK 145)
@@ -48,9 +51,23 @@ def beard_hair(labels, masks, mapped, colour, skinlike):
     return keep
 
 
-def apply_channels(labels, masks, mapped, colour=None):
+def joined(candidates, anchors, positions):
+    """Candidate texels linked in 3D to an anchor texel through candidates no more than JOIN_SPACING x their median spacing apart."""
+    cy, cx = np.nonzero(candidates); out = np.zeros_like(candidates)
+    if not len(cy) or not anchors.any(): return out
+    P = positions[cy, cx].astype(float); tree = cKDTree(P); n = len(P)
+    r = JOIN_SPACING*np.median(tree.query(P, k=2)[0][:, 1]) if n > 1 else 1e-9; ay, ax = np.nonzero(anchors)
+    touch = cKDTree(positions[ay, ax].astype(float)).query(P, distance_upper_bound=r)[0] < np.inf
+    pairs = tree.query_pairs(r, output_type='ndarray')
+    _, part = connected_components(coo_matrix((np.ones(len(pairs)), (pairs[:, 0], pairs[:, 1])), shape=(n, n)), directed=False)
+    good = np.isin(part, np.unique(part[touch])); out[cy[good], cx[good]] = True; return out
+
+
+def apply_channels(labels, masks, mapped, colour=None, protected=None, positions=None):
     """Channel moves from the masks on a 4K ownership atlas; gutters re-padded so chart-border 1K blocks follow the edits.
-    colour (the 4K bake) keeps hair-coloured beards hair (beard_hair)."""
+    colour (the 4K bake) keeps hair-coloured beards hair (beard_hair). protected (hair rules marked overFaceMasks, with the 4K
+    surface positions) stays hair where it joins hair the masks leave alone: a widow's peak or a hanging strand the parser
+    calls skin on a head whose hair and skin colours are too close to tell apart; never near the eye (RUNBOOK 161)."""
     o = labels.copy(); before = labels
     iris = masks['iris'] > .5; eye = masks['eye'] > .5; brow = (masks['brow'] > .5) & mapped
     skinlike = ((masks['skin'] > .5) | eye | (masks['lips'] > .5) | (masks['nose'] > .5)) & ~brow & ~iris
@@ -58,7 +75,13 @@ def apply_channels(labels, masks, mapped, colour=None):
     skinlike &= ~beard
     near_eye = binary_dilation(eye, iterations=NEAR_EYE) & mapped
     ring = near_eye & ~iris & np.isin(o, (8, 9)); lash = near_eye & ~brow & (o == 1)
+    if protected is not None:
+        require(positions is not None, 'Protected hair needs the 4K surface positions')
+        moving = skinlike & ~near_eye & (labels == 1) & mapped   # lash lines and the eye opening still go to skin
+        kept = joined(protected & moving, (labels == 1) & ~skinlike & ~near_eye & ~brow & mapped, positions)
+        skinlike &= ~kept; report_kept = int(kept.sum())
     report = {'oldIrisRingToSkin': int(ring.sum()), 'lashToSkin': int(lash.sum()), 'beardKeptHair': int(beard.sum())}
+    if protected is not None: report['protectedKeptHair'] = report_kept
     o[ring] = 0; o[lash] = 0
     o[skinlike & (o == 1)] = 0; o[eye & ~iris] = 0; o[brow & (o == 0)] = 1; o[iris] = 8
     # tattoo1 is the iris only; whatever else the rules owned there (troll horns and tusks, old ink) takes tattoo2 (user 2026-10-30)

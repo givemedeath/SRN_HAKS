@@ -116,6 +116,21 @@ class Channels(unittest.TestCase):
         self.assertTrue((o[2000:2010, 2000:2020] == 9).all()); self.assertTrue((o[2500:2510, 2500:2510] == 9).all())
         self.assertEqual(report['tattoo1ToTattoo2'], 200); self.assertEqual(int((o == 8).sum()), 100)
 
+    def test_protected_hair_joined_to_hair_stays_hair(self):
+        # RUNBOOK 161: a widow's peak (hair-owned, under the parser skin, touching hair outside it) stays hair when its rule is
+        # marked overFaceMasks; a freckle the same rule owns, away from the hair, and hair beside the eye still go to skin.
+        labels = np.zeros((4096, 4096), np.uint8); labels[1000:1100, 1000:1400] = 1; labels[1100:1160, 1180:1220] = 1   # hair, peak
+        labels[1300:1303, 1100:1103] = 1; labels[1500:1504, 1280:1300] = 1   # freckle, lash-side strand
+        masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock', 'beard'); mapped = np.ones((4096, 4096), bool)
+        masks['skin'][1100:1700, 1000:1400] = 1; masks['eye'][1505:1515, 1280:1300] = 1
+        ys, xs = np.mgrid[0:4096, 0:4096]; positions = np.stack([xs, ys, np.zeros_like(xs)], -1).astype(np.float32)
+        plain, _ = apply_channels(labels, masks, mapped)
+        o, report = apply_channels(labels, masks, mapped, protected=labels == 1, positions=positions)
+        self.assertTrue((plain[1100:1160, 1180:1220] == 0).all()); self.assertTrue((o[1100:1160, 1180:1220] == 1).all())
+        self.assertTrue((o[1300:1303, 1100:1103] == 0).all()); self.assertTrue((o[1500:1504, 1280:1300] == 0).all())
+        self.assertEqual(report['protectedKeptHair'], 60*40)
+        with self.assertRaisesRegex(ValueError, 'positions'): apply_channels(labels, masks, mapped, protected=labels == 1)
+
     def test_masks_at_names_a_missing_mask(self):
         from headkit.face_encode import masks_at
         with self.assertRaisesRegex(ValueError, 'no beard mask'): masks_at({}, ('beard',))
@@ -236,6 +251,10 @@ class Wiring(unittest.TestCase):
             for drop in ('faceMasks', 'quality', 'palette'):
                 path.write_text(json.dumps({k: v for k, v in full.items() if k != drop}))
                 with self.assertRaises(ValueError): manifest(path)
+            rule = {'name': 'peak', 'channel': 1, 'when': {}, 'overFaceMasks': True}
+            path.write_text(json.dumps(dict(full, ownership={'featureChannels': True, 'rules': [rule]}))); manifest(path)
+            path.write_text(json.dumps(dict(base, ownership={'rules': [rule]})))
+            with self.assertRaisesRegex(ValueError, 'overFaceMasks'): manifest(path)
 
     def test_face_masks_refuse_imported_runtime_atlases(self):
         """Export must ship the shades the quality gate measured, built through the channel moves and treatment."""
