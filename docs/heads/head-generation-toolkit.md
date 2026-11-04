@@ -25,7 +25,7 @@ The bootstrap verifies frozen source/runtime files and declared configuration be
 
 This contract assumes trusted reviewed plugins and an unchanged installation throughout the session. It does not inspect loaded objects, compare live Python state to source, or detect in-memory mutations or imports made from temporarily changed-and-restored files between checks. Hot reload and attaching an arbitrary running server are unsupported. After any software/configuration change, start a fresh controlled session and prepare new requests; do not use a restored file hash as proof of the prior process's loaded state.
 
-Put large intermediates and temporary files under **`S:\Scratch\codex-scratch`** on this machine. Keep head manifests, references, meshes, local bindings, requests and receipts under ignored `output/`, `.tools/` or external scratch. Only code, templates, examples and portable research evidence are committed. Before retiring scratch or a worktree, copy the complete used asset chain into durable ignored storage outside it and verify every file hash; a provenance note is not a backup.
+Put large intermediates and temporary files in a local scratch folder outside the repository. Keep head manifests, references, meshes, local bindings, requests and receipts under ignored `output/`, `.tools/` or external scratch. Only code, templates, examples and portable research evidence are committed. Before retiring scratch or a worktree, copy the complete used asset chain into durable ignored storage outside it and verify every file hash; a provenance note is not a backup.
 
 ## Generate design proposals (direct dispatch)
 
@@ -205,6 +205,8 @@ Render plans require nonempty camera and material-mode lists. Every requested si
 Before calling a head good enough to publish, check the four three-quarter views (`three`, `threeleft`, `backright`, `backleft`), one motion frame (`anim`) and a second look: a front view cannot show rear hair or scalp defects.
 
 ## Running a head batch
+
+Use `tools/headbatch` to run a batch: `docs/heads/head-batch-orchestration.md` covers its workspace, commands, guards and spooler.
 
 Lessons from the 20-head troll batch v2 (2026-10-25), where one orchestrator dispatched one CPU agent per head. Each rule answers a mistake that actually happened.
 

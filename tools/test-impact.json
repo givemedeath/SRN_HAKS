@@ -17,6 +17,67 @@
       "docs/items/weapon-grip-standard-v1.json",
       "hakbuilder.json"
     ],
+    "tools/headbatch/__init__.py": [],
+    "tools/headbatch/gpu_job.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/occiput.py"
+    ],
+    "tools/headbatch/guards.py": [
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/head_setup.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/launcher.py": [
+      "tools/headbatch/gpu_job.py",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/workspace.py",
+      "tools/headkit/__main__.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/gltf.py",
+      "tools/headkit/common.py",
+      "tools/headkit/design.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/occiput.py",
+      "tools/headkit/run_headkit.py",
+      "tools/headkit/source_inventory.py",
+      "tools/itemkit/__main__.py",
+      "tools/phenomorpher/phenomorpher/__main__.py",
+      "tools/phenotypes/launch_shared_tool.py"
+    ],
+    "tools/headbatch/run_headbatch.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_setup.py",
+      "tools/headbatch/launcher.py",
+      "tools/headbatch/spool.py",
+      "tools/headbatch/trials.py",
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/spool.py": [
+      "docs/phenomorpher/runtime-optimization/review.md",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/run_headbatch.py",
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/test_headbatch.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_setup.py",
+      "tools/headbatch/launcher.py",
+      "tools/headbatch/run_headbatch.py",
+      "tools/headbatch/spool.py",
+      "tools/headbatch/trials.py",
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/trials.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/launcher.py",
+      "tools/headbatch/workspace.py",
+      "tools/heads/build_head_trial.py"
+    ],
+    "tools/headbatch/workspace.py": [
+      "tools/headbatch/races.json"
+    ],
     "tools/headkit/__init__.py": [],
     "tools/headkit/__main__.py": [
       "tools/headkit/comfy.py",
@@ -3262,6 +3323,7 @@
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
     "tools/phenotypes/test_finalize_shared_tool_migration.py": [
+      "tools/headbatch/launcher.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
       "tools/phenotypes/shared_toolchain.py"
     ],
@@ -4103,7 +4165,9 @@
       "tools/test_impact.py"
     ]
   },
-  "unresolved": [],
+  "unresolved": [
+    "tools/headbatch/launcher.py"
+  ],
   "packReferences": {
     "tools/combat_release_manifest.py": [
       "srn_2da",
@@ -4198,6 +4262,7 @@
     ]
   },
   "tests": [
+    "tools/headbatch/test_headbatch.py",
     "tools/headkit/test_comfy_runtime_snapshot.py",
     "tools/headkit/test_comfy_transport.py",
     "tools/headkit/test_face_masks.py",
