@@ -2,7 +2,7 @@
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 
 def read(path):
@@ -27,6 +27,21 @@ def sha(path):
 
 def attempts(head, stage):
     return sorted((Path(head)/'run'/stage).glob('attempt-*'))
+
+
+def complete(head, stage):
+    """The newest attempt with a complete receipt, or None: a failed one can still hold files (RUNBOOK 142)."""
+    for attempt in reversed(attempts(head, stage)):
+        if (attempt/'receipt.json').exists() and read(attempt/'receipt.json').get('state') == 'complete':
+            return attempt
+    return None
+
+
+def consumed(head, attempt, stage):
+    """The attempt of stage that a receipt was built from, or None. The newest attempt of an earlier stage may be a later rerun (RUNBOOK 195, 196).
+    By folder name, because a head can be copied away from where it ran; receipts hold Windows paths."""
+    row = read(Path(attempt)/'receipt.json').get('dependencies', {}).get(stage)
+    return Path(head)/'run'/stage/PureWindowsPath(row['path']).parent.name if row else None
 
 
 def fit_matrix(head):

@@ -1,10 +1,10 @@
 """Client trial specs and builds: both sexes of one race in one module, on the workspace's base HAKs."""
-from pathlib import Path, PureWindowsPath
+from pathlib import Path
 import shutil
 import subprocess
 
 import guards
-from head_files import sha, write_json
+from head_files import complete, consumed, sha, write_json
 import launcher
 from workspace import PYTHON, RACE_DATA, TOOLS, prefix
 
@@ -21,29 +21,17 @@ def rows_with_alternates(chosen, others):
     return [chosen]+[row for row in others if row != chosen][:2]
 
 
-def completed(head, stage):
-    """The newest attempt with a complete receipt: a failed one can still hold files (RUNBOOK 142)."""
-    for attempt in reversed(guards.attempts(head, stage)):
-        if (attempt/'receipt.json').exists() and guards.read(attempt/'receipt.json').get('state') == 'complete':
-            return attempt
-    return None
-
-
-def consumed(head, attempt, stage):
-    """The attempt of stage that a receipt was built from. By folder name, because a head can be copied away from where it ran; receipts hold Windows paths."""
-    row = guards.read(attempt/'receipt.json')['dependencies'].get(stage)
-    if row is None:
-        raise guards.Refused(f'{head.name}: {attempt.parent.name} {attempt.name} consumed no {stage} stage, so its palette rows are unknown')
-    return head/'run'/stage/PureWindowsPath(row['path']).parent.name
-
-
 def head_entry(workspace, name, slot):
     head = workspace.head(name)
-    native = completed(head, 'native')
+    native = complete(head, 'native')
     if native is None or not (native/'native').is_dir():
         return None
     # The rows of the palette this HAK holds: a palette rerun after this native has other shades (RUNBOOK 195).
-    rows = guards.read(consumed(head, consumed(head, native, 'export'), 'palette')/'receipt.json')['result']['rows']
+    export = consumed(head, native, 'export')
+    palette = consumed(head, export, 'palette') if export else None
+    if palette is None:
+        raise guards.Refused(f'{name}: {native.name} of native has no palette lineage, so its rows are unknown')
+    rows = guards.read(palette/'receipt.json')['result']['rows']
     # metalRow 0: the game shows stock metal row 0 on heads without armour; palette metal pins only steer previews.
     return {'id': name, 'model': slot, 'native': (native/'native').as_posix(), 'skinRows': rows_with_alternates(rows['0'], ALTERNATE_SKIN_ROWS),
             'hairRows': rows_with_alternates(rows['1'], ALTERNATE_HAIR_ROWS), 'tattoo1Row': rows.get('8', 0), 'tattoo2Row': rows.get('9', 0), 'metalRow': 0, 'helmets': []}

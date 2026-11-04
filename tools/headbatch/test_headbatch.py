@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import re
+import runpy
 import subprocess
 import sys
 import tempfile
@@ -487,7 +488,7 @@ class Trials(Base):
         (head/'run/native/attempt-01/native').mkdir(parents=True)
         self.receipt(head, 'native', 1, {'state': 'complete', 'dependencies': {'export': {'path': 'run/export/attempt-01/receipt.json'}}})
         self.receipt(head, 'export', 1, {'state': 'complete', 'dependencies': {}})
-        with self.assertRaisesRegex(guards.Refused, 'palette rows are unknown'):
+        with self.assertRaisesRegex(guards.Refused, 'rows are unknown'):
             trials.head_entry(self.workspace, 'elf-male-a', 'pme0_head020')
 
     def test_spec_needs_the_trial_settings(self):
@@ -604,6 +605,26 @@ class Review(Base):
             self.assertEqual(run_headbatch.review(self.workspace, 'rowramps', ['elf-male-a'], False), 0)
         self.assertEqual(run.call_args.kwargs['cwd'], self.workspace.heads)
         self.assertTrue(run.call_args.args[0][2].endswith('rowramps.py'))
+
+    def views_of(self, *arguments):
+        head = self.head()
+        self.receipt(head, 'unwrap', 1, {'state': 'complete'})
+        self.receipt(head, 'unwrap', 2, {'state': 'complete'})  # a rerun the bake never used
+        self.receipt(head, 'bake', 1, {'state': 'complete', 'dependencies': {'unwrap': {'path': 'S:\\elsewhere\\run\\unwrap\\attempt-01\\receipt.json'}}})
+        self.receipt(head, 'bake', 2, {'state': 'failed', 'dependencies': {'unwrap': {'path': 'run/unwrap/attempt-02/receipt.json'}}})
+        with unittest.mock.patch.object(sys, 'argv', ['bakeviews.py', str(head), *arguments]), unittest.mock.patch.object(sys, 'path', [str(HERE.parent), *sys.path]), \
+                unittest.mock.patch.object(subprocess, 'Popen') as popen, self.assertRaises(SystemExit):
+            popen.return_value.wait.return_value = 0
+            runpy.run_path(str(HERE/'review/bakeviews.py'), run_name='__main__')
+        return ' '.join(str(item) for item in popen.call_args.args[0])
+
+    def test_bakeviews_shows_a_bake_on_the_mesh_it_was_baked_on(self):
+        job = self.views_of().replace('\\', '/')
+        self.assertIn('run/unwrap/attempt-01/uv.glb', job)
+        self.assertIn('run/bake/attempt-01/maps/basecolor-2048.png', job)
+
+    def test_bakeviews_takes_the_named_attempt(self):
+        self.assertIn('run/bake/attempt-02/maps', self.views_of('attempt-02').replace('\\', '/'))
 
     def test_unknown_tool_is_refused(self):
         with self.assertRaises(SystemExit):
@@ -762,7 +783,7 @@ class SpoolTests(Base):
         head = self.head()
         self.receipt(head, 'bake', 1, {'result': {}})
         self.finish(stage='bake')
-        self.assertEqual(self.queued, [('bakeviews', 'elf-male-a')])
+        self.assertEqual(self.queued, [('bakeviews', 'elf-male-a', 'attempt-01')])
         self.receipt(head, 'ownership', 1, {'result': {}})
         self.finish(stage='ownership')
         self.assertEqual(self.queued[-1][:2], ('own_draft', 'elf-male-a'))

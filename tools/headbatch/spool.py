@@ -163,7 +163,7 @@ class Spool:
         if stage == 'repair':
             self.review(head, stage, f'{attempt}: {self.repair_evidence(head, attempt, manifest)}')
         elif stage == 'bake':
-            self.later('bakeviews', head)
+            self.later('bakeviews', head, attempt)  # named, because the head can move on while the sheet waits for a slot
             self.review(head, stage, f'{attempt}: bakeviews queued: {head}/review-evidence/bake-tex.png, bake-grid.png')
         elif stage == 'ownership':
             rules = self.sheets/f'{head}-ownership-{attempt}.json'

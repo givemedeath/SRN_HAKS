@@ -1,9 +1,9 @@
 """own_draft.py HEAD_DIR RULES.json OUT.png [NAME=CONDITION_JSON ...]: offline ownership preview of a draft rule set (no launch, no
 attempt). Evaluates RULES.json (the ownership block: regions, rules, default)
-with the toolkit's own rule_ownership on the head's newest bake, draws colour / ownership (toolkit preview colours: skin brown,
+with the toolkit's own rule_ownership on the head's newest complete bake, draws colour / ownership (toolkit preview colours: skin brown,
 hair black, metal blue, tattoo1 cream, tattoo2 red), prints channel and per-rule texel counts, and for each NAME=CONDITION prints
 the 10/50/90th percentiles of lum, sat, red, rb, r, g, b and metallic of the texels it selects (rule thresholds)."""
-import glob, json, sys
+import json, sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -11,11 +11,12 @@ from headkit.paint import rule_ownership, texel_values, PREVIEW
 from headkit.predicates import when
 from headkit.preview import splat, sheet
 from headkit.gltf import mesh
+from headbatch.head_files import complete, read
 from headkit.uv import raster_audit
 
 head, rules, out = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]); name = head.name
 config = json.loads(rules.read_text(encoding='utf-8'))
-bake = json.loads(Path(sorted(glob.glob(str(head/'run/bake/attempt-*/receipt.json')))[-1]).read_text())
+bake = read(complete(head, 'bake')/'receipt.json')
 source = json.loads(Path(bake['dependencies']['unwrap']['path']).read_text())['result']['mesh']['path']; maps = bake['result']['maps']
 colour, metallic = maps['basecolor-4096.png']['path'], maps['metallic-4096.png']['path']
 labels, report = rule_ownership(source, colour, config, metallic=metallic)

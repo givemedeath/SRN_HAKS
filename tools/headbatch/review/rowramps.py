@@ -1,9 +1,10 @@
 """rowramps.py HEAD_DIR: after a palette run, one sheet (review-evidence/rowramps.png) with each mapped channel's chosen row and
 its next ranked rows as ramps, plus the median design colour of that channel's texels, so a hue-wrong winner (rose-brown hair
 row 65 for silver hair, maroon accent row 64 for a dark undercut) is caught before the render (RUNBOOK 61)."""
-import glob, json, os, sys
+import json, os, sys
 from PIL import Image, ImageDraw
-head = sys.argv[1]; A = sorted(glob.glob(head+'/run/palette/attempt-*'))[-1]
+from headbatch.head_files import complete
+head = sys.argv[1]; A = str(complete(head, 'palette'))
 rows = json.load(open(A+'/receipt.json'))['result']['rows']; rank = json.load(open(A+'/row-ranking.json')) if os.path.exists(A+'/row-ranking.json') else {}  # every row pinned: no ranking
 man = json.load(open(head+'/manifest.json')); inputs = man['palette']['inputs']
 files = {k: v['path'] for k, v in man['inputs'].items() if k.startswith('palette')}

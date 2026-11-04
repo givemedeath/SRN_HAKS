@@ -120,13 +120,16 @@
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/review/own_draft.py": [
+      "tools/headbatch/head_files.py",
       "tools/headkit/gltf.py",
       "tools/headkit/paint.py",
       "tools/headkit/predicates.py",
       "tools/headkit/preview.py",
       "tools/headkit/uv.py"
     ],
-    "tools/headbatch/review/rowramps.py": [],
+    "tools/headbatch/review/rowramps.py": [
+      "tools/headbatch/head_files.py"
+    ],
     "tools/headbatch/review/shells.py": [
       "tools/headbatch/head_files.py",
       "tools/headkit/__init__.py",
@@ -166,6 +169,7 @@
       "tools/headbatch/head_setup.py",
       "tools/headbatch/launcher.py",
       "tools/headbatch/presets.py",
+      "tools/headbatch/review/bakeviews.py",
       "tools/headbatch/review/rowramps.py",
       "tools/headbatch/run_headbatch.py",
       "tools/headbatch/spool.py",
