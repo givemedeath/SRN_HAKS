@@ -16,3 +16,9 @@ indent_size = 2
 
 [*.cmd]
 end_of_line = crlf
+
+[*.set]
+charset = unset
+end_of_line = crlf
+insert_final_newline = unset
+trim_trailing_whitespace = false

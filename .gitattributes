@@ -6,7 +6,7 @@
 docs/items/itemgen-handoff-v1/*.json -text whitespace=cr-at-eol
 *.md text eol=lf
 *.2da text eol=lf whitespace=-trailing-space
-*.set text eol=lf whitespace=-trailing-space
+*.set -text whitespace=cr-at-eol,-trailing-space
 *.mtr text eol=lf whitespace=-trailing-space
 *.txi text eol=lf whitespace=-trailing-space
 *.ini text eol=lf whitespace=-trailing-space
