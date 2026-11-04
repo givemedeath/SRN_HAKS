@@ -1,6 +1,7 @@
 """Reading a head folder and writing batch JSON. Standard library only and no sibling imports, so review tools can import it as headbatch.head_files."""
 import hashlib
 import json
+import os
 from pathlib import Path
 
 
@@ -11,7 +12,9 @@ def read(path):
 def write_json(path, data):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=1)+'\n', encoding='utf-8', newline='\n')
+    temporary = path.with_name(f'{path.name}.{os.getpid()}.tmp')  # readers poll these files, so they never see half of one
+    temporary.write_text(json.dumps(data, indent=1)+'\n', encoding='utf-8', newline='\n')
+    temporary.replace(path)
 
 
 def sha(path):

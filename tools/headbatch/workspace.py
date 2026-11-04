@@ -116,8 +116,9 @@ class Workspace:
         return self.require('bodyNecks')/f'{prefix(race, sex)}-neck001-ref.json'
 
     def landmarks(self):
+        """None until the file exists: it is written from precluster output, so a new batch runs before it can have one."""
         path = self.setting('landmarks')
-        return json.loads(path.read_text(encoding='utf-8-sig')) if path else None
+        return json.loads(path.read_text(encoding='utf-8-sig')) if path and path.exists() else None
 
     def design_reference(self, race, sex):
         reference = self.data.get('designReferences', {}).get(race, {}).get(sex)

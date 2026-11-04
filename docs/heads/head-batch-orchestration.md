@@ -17,7 +17,7 @@ Pass `--workspace DIR` or set `SRN_HEAD_WORKSPACE`.
 | `designBindings`, `comfy` | Design and GPU work: bindings, ComfyUI `url` and `root` |
 | `mdlCompiler`, `palettes`, `bodyNecks` | Per-head inputs for `setup` |
 | `fitReferences`, `fitReferenceOverrides` | Decompiled stock heads, plus explicit models for prefixes with none (Trolls) |
-| `landmarks` | Optional coarse face marks for the jaw guard; without them the jaw needs a visual review |
+| `landmarks` | Optional coarse face marks for the jaw guard; until the file exists the jaw needs a visual review |
 | `designReferences` | Optional species reference by race and sex |
 | `game`, `trialBase`, `clientSettings` | Client trials: install paths, base HAKs and module, and an optional `settings.tml` |
 | `slots` | Slot numbers this batch fills, from `docs/heads/slot-catalog.json`: `"elf-male": [20, 21]` gives `elf-male-a`, `elf-male-b` |
@@ -79,27 +79,29 @@ Quality-gate prototypes that headkit adopted are not here; nor are one-off audit
 - an ownership stage with no rules;
 - a repair approval whose neck cut can reach the mouth, unless `HEAD/jaw-reviewed` exists.
 
-`gpu` stops at 5 geometry submissions per slot, counted in `gpu/gpu.json`; at the cap, stop and ask the user. A `HEAD/geometry-cap-override` file records the user's exception. `manifest` refuses while a launch of that head is queued or running, because the manifest is a pinned input. An `active-*.json` file in `launches/` left by a killed process names what to clear.
+`gpu` stops at 5 geometry submissions per slot, counted in `gpu/gpu.json`; at the cap, stop and ask the user. A `HEAD/geometry-cap-override` file records the user's exception. `manifest` refuses while a launch of that head is queued or running, because the manifest is a pinned input.
+
+A `run` or `gpu` launch holds a lock on its head from queueing to its end, so a second launch of that head is refused. Head, CPU and GPU locks are held by the system for the process, so a killed launch leaves nothing to clear.
 
 ## Spooler
 
 Drop JSON requests into the workspace's `spool` folder and run `spool`. The module docstring in `tools/headbatch/spool.py` gives the formats.
 
-It launches each head separately and advances by itself only on numeric gates: unwrap to bake, palette to export when rows equal the pins in `spool/reviewed-rows.json`, export to native, native to render. Everything else lands in `spool/review.md` or `spool/attention.md`. A launch with no result goes to attention rather than passing silently.
+It launches each head separately and advances by itself only on numeric gates: unwrap to bake, palette to export when rows equal the pins in `spool/reviewed-rows.json`, export to native, native to render. Everything else lands in `spool/review.md` or `spool/attention.md`. A launch with no result goes to attention rather than passing silently, and so does a bad request file or head: the file moves to `spool/done` and the batch keeps going. A review closes only when its launch has recorded the approval; a refused approval stays open with the reason. A queue file changed while its presets ran stays queued and is read afresh.
 
 Each finished stage gets its evidence before it reaches the review list:
 
 | Event | What the spooler does |
 |---|---|
 | Repair queued | `presets --apply --keep-floor`; a HOLD goes to attention and no launch starts |
-| Repair ran | Jaw result; queues the clay pair in `spool/sheets`, and the skirt zone at its gap and at 3 cm when the head has a skirt |
-| Repair refused on its shells | Queues `cutshells` |
+| Repair ran | Jaw result, stating when nothing could be checked; queues the clay pair in `spool/sheets`, and the skirt zone at its gap and at 3 cm when the head has a skirt |
+| Neck cut left several shells | Queues `cutshells` from the uncut master |
 | Unwrap failed on coverage | Attention, with the floor `presets --uv-only` proposes |
 | Bake ran | Queues `bakeviews` |
 | Ownership ran | Queues the manifest's rules through `own_draft` |
 | Palette ran | Draws `rowramps`, then checks the pins |
 
-Queued sheets wait for a CPU slot in their own process, so a review line can arrive before its sheet. A reused stage keeps the sheet it has. The spooler changes `overrides.json` only through `presets`, and never lowers a UV floor: that records a review, so a person runs `presets HEAD --uv-only --apply`. Any other neck cut is a reviewer's edit.
+Queued sheets wait for a CPU slot in their own process, so a review line can arrive before its sheet. Each writes a log in `spool/sheets`, and one that exits nonzero goes to attention. A reused stage keeps the sheet it has, except `bakeviews`, which always redraws. The spooler changes `overrides.json` only through `presets`, and never lowers a UV floor: that records a review, so a person runs `presets HEAD --uv-only --apply`. Any other neck cut is a reviewer's edit.
 
 ## Before publishing
 
@@ -122,3 +124,4 @@ Every confirmed mistake gets a guard and a row in `docs/heads/race-heads-v1-runb
 | `bakeviews.sh` | `review bakeviews` |
 | `review-kit/*.py`, `own_draft.py` | `review TOOL` |
 | `jaw_guard.sh`, `jawcheck.py`, `uv_margin.py`, `unwrapcheck.py`, `pkg_extra.py`, `clean_pyc.py` | `guards.py` |
+| `pyc_guard.ps1` | `run` cleans before queueing and again on taking its slot; no watcher runs during a stage |

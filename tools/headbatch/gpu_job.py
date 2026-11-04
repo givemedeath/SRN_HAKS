@@ -11,7 +11,7 @@ import urllib.request
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from headkit.comfy import compile_graph  # noqa: E402
-from headkit.common import sha  # noqa: E402
+from headkit.common import sha, write  # noqa: E402
 
 GEOMETRY_NODE = '961:'
 FIELD_NODE = '962:'
@@ -111,8 +111,7 @@ def calibrate(comfy, head, gpu, ledger, stage_input, prefix):
 
 
 def save_ledger(gpu, ledger):
-    gpu.mkdir(parents=True, exist_ok=True)
-    (gpu/'gpu.json').write_text(json.dumps(ledger, indent=1))
+    write(gpu/'gpu.json', ledger)
 
 
 def spend_geometry_submission(head, gpu, ledger):
@@ -129,8 +128,6 @@ def geometry(comfy, head, gpu, ledger, prefix, offset):
     graph = compile_graph('geometry', 'pixal-single-v1', {'geometry': f'headkit/{head.name}/normalized.png'}, prefix, fov=fov)
     shift_seeds(graph, offset)
     spend = lambda: spend_geometry_submission(head, gpu, ledger)
-    # An appearance field belongs to one saved shape, and the manifest approves whichever pair the ledger names.
-    ledger['stages'].pop('appearance', None)
     try:
         entry, files, seconds = comfy.run(graph, gpu/'geometry', spend)
     except SystemExit as error:
@@ -140,11 +137,15 @@ def geometry(comfy, head, gpu, ledger, prefix, offset):
         offset += OOM_RESEED
         shift_seeds(graph, OOM_RESEED)
         entry, files, seconds = comfy.run(graph, gpu/f'geometry-oom-r{offset}', spend)
+    # An appearance field belongs to one saved shape, and the manifest approves whichever pair the ledger names; a failed run keeps the pair it found.
+    ledger['stages'].pop('appearance', None)
     return {'seconds': seconds, 'fov': fov, 'files': files, 'seedOffset': offset}
 
 
 def appearance(comfy, head, gpu, ledger, prefix, offset):
     fov = ledger['stages']['calibrate']['fov']['detail']
+    if ledger['stages']['geometry'].get('occiput', {}).get('open'):
+        raise SystemExit(f'{head.name}: the saved geometry has an open occiput: reseed before appearance')
     shape = file_from(ledger['stages']['geometry']['files'], SHAPE_NODE)
     suffix = f'-r{offset}' if offset else ''
     graph = compile_graph('appearance', 'pixal-single-v1', {'detail': f'headkit/{head.name}/normalized.png'}, prefix+suffix, fov=fov, shape=shape)

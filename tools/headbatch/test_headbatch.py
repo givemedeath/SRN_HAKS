@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 import tempfile
 import threading
@@ -63,6 +64,12 @@ class Portable(unittest.TestCase):
 
 
 class WorkspaceTests(Base):
+    def test_a_landmarks_file_not_written_yet_means_no_marks(self):
+        data = json.loads((self.root/'workspace.json').read_text())
+        data['landmarks'] = 'marks.json'
+        write(self.root/'workspace.json', data)
+        self.assertIsNone(Workspace.load(self.root).landmarks())
+
     def test_paths_resolve_against_the_workspace_folder(self):
         self.assertEqual(self.workspace.path('a/b'), self.root/'a/b')
         self.assertEqual(self.workspace.path(str(self.root/'x')), self.root/'x')
@@ -150,12 +157,35 @@ class Guards(Base):
         with self.assertRaisesRegex(guards.Refused, 'stop and ask'):
             guards.geometry_cap(head)
 
+    def test_jaw_says_when_it_checked_nothing(self):
+        head = self.head()
+        marks = {head.name: {'source': {'eyeLeft': [0, 0, .1], 'eyeRight': [0, 0, .1], 'lips': [0, 0, .06]}}}
+        self.assertIn('no face marks', guards.jaw(head, None))
+        self.assertIn('no repair audit', guards.jaw(head, marks))
+        for audit in ({'neck': {'cut': {'jawLine': None}}}, {'neck': None}):
+            write(head/'run/repair/attempt-01/reduction-audit.json', audit)
+            self.assertIn('no jaw line', guards.jaw(head, marks))
+        write(head/'jaw-reviewed')
+        self.assertEqual(guards.jaw(head, marks), 'jaw reviewed visually')
+
+    def test_jaw_reads_the_named_attempt(self):
+        head = self.head()
+        marks = {head.name: {'source': {'eyeLeft': [0, 0, .1], 'eyeRight': [0, 0, .1], 'lips': [0, 0, .06]}}}
+        write(head/'run/repair/attempt-01/reduction-audit.json', {'neck': {'cut': {'jawLine': {'point': [0, 0, .03]}}}})
+        write(head/'run/repair/attempt-02/reduction-audit.json', {'neck': {'cut': {'jawLine': {'point': [0, 0, .05]}}}})
+        self.assertIn('attempt-01', guards.jaw(head, marks, 'attempt-01'))
+
+    def test_a_stray_another_launch_removed_is_no_failure(self):
+        gone = guards.Path(guards.read(self.root/'head-bindings.json')['pythonPackages']['directory']).resolve()/'gone.pyc'
+        with unittest.mock.patch.object(guards.Path, 'rglob', return_value=[gone]):
+            self.assertEqual(guards.clean_stray_bytecode(self.root/'head-bindings.json'), ['gone.pyc'])
+
     def test_jaw_guard(self):
         head = self.head()
         marks = {head.name: {'source': {'eyeLeft': [0, 0, .1], 'eyeRight': [0, 0, .1], 'lips': [0, 0, .06]}}}
         self.assertAlmostEqual(guards.jaw_limit(head, marks), .04)
         write(head/'run/repair/attempt-01/reduction-audit.json', {'neck': {'cut': {'jawLine': {'point': [0, 0, .03]}}}})
-        guards.jaw(head, marks)
+        self.assertIn('jaw OK: attempt-01', guards.jaw(head, marks))
         write(head/'run/repair/attempt-02/reduction-audit.json', {'neck': {'cut': {'jawLine': {'point': [0, 0, .05]}}}})
         with self.assertRaisesRegex(guards.Refused, 'RUNBOOK 103'):
             guards.jaw(head, marks)
@@ -213,6 +243,20 @@ class GpuJob(Base):
         self.run_geometry(head, ledger)
         self.assertNotIn('appearance', ledger['stages'])
 
+    def test_a_failed_geometry_keeps_the_pair_it_found(self):
+        head = self.head()
+        ledger = self.ledger()
+        with self.assertRaises(SystemExit):
+            self.run_geometry(head, ledger, failures=2)
+        self.assertIn('appearance', ledger['stages'])
+
+    def test_appearance_refuses_a_rejected_shape(self):
+        head = self.head()
+        ledger = self.ledger()
+        ledger['stages']['geometry'] = {'files': self.GEOMETRY, 'occiput': {'open': True}}
+        with self.assertRaisesRegex(SystemExit, 'open occiput'):
+            gpu_job.appearance(None, head, head/'gpu', ledger, 'prefix', 0)
+
     def reused(self, stages):
         data = json.loads((self.root/'workspace.json').read_text())
         data['comfy'] = {'url': 'http://127.0.0.1:1', 'root': 'comfy'}
@@ -253,33 +297,46 @@ class GpuJob(Base):
 
 
 class Locks(Base):
-    def test_lock_waits_then_clears(self):
+    def test_lock_waits_then_takes_it(self):
         path = self.root/'locks/gpu'
-        path.mkdir(parents=True)
+        held = launcher.locked(path)
+        held.__enter__()
         waits = []
-        with launcher.lock(lambda: [path.parent/'other'], 'me', waits.append):
-            pass
-        self.assertEqual(waits, [])
 
         def free(_):
             waits.append(1)
-            path.rmdir()
-        with launcher.lock(lambda: [path], 'me', free):
-            self.assertEqual((path/'owner').read_text(), 'me')
+            held.__exit__(None, None, None)
+        with launcher.lock(lambda: [path], free):
+            pass
         self.assertEqual(waits, [1])
-        self.assertFalse(path.exists())
 
     def test_cpu_slot_takes_the_next_free_one(self):
-        (self.workspace.locks/'cpu-1').mkdir(parents=True)
-        with launcher.cpu_slot(self.workspace, 'me') as slot:
-            self.assertEqual(slot.name, 'cpu-2')
-        self.assertFalse(slot.exists())
+        with launcher.cpu_slot(self.workspace):
+            with launcher.cpu_slot(self.workspace) as slot:
+                self.assertEqual(slot.name, 'cpu-2')
 
     def test_cpu_slot_released_when_the_body_raises(self):
         with self.assertRaises(RuntimeError):
-            with launcher.cpu_slot(self.workspace, 'me') as slot:
+            with launcher.cpu_slot(self.workspace) as slot:
                 raise RuntimeError
-        self.assertFalse(slot.exists())
+        with launcher.lock(lambda: [slot], self.fail):
+            pass
+
+    def test_a_killed_holder_leaves_nothing_to_clear(self):
+        path = self.root/'locks/gpu'
+        code = 'import sys, time; sys.path.insert(0, sys.argv[1]); from headkit.comfy import locked; h = locked(sys.argv[2]); h.__enter__(); print(1, flush=True); time.sleep(60)'
+        child = subprocess.Popen([sys.executable, '-B', '-c', code, str(HERE.parent), str(path)], stdout=subprocess.PIPE, text=True)
+        self.addCleanup(child.stdout.close)
+        self.addCleanup(child.wait)
+        self.addCleanup(child.kill)
+        child.stdout.readline()
+        with self.assertRaises(FileExistsError):
+            with launcher.locked(path):
+                pass
+        child.kill()
+        child.wait()
+        with launcher.lock(lambda: [path], self.fail):
+            pass
 
 
 class Launches(Base):
@@ -298,9 +355,20 @@ class Launches(Base):
         self.head()
         for number in (1, 2):
             self.receipt(self.workspace.head('elf-male-a'), 'ownership', number, {})
-        with self.assertRaisesRegex(guards.Refused, 'limit 2'):
+        with unittest.mock.patch.object(launcher, 'cpu_slot') as slot, self.assertRaisesRegex(guards.Refused, 'limit 2'):
             launcher.run_stages(self.workspace, 'n', 'ownership', ['elf-male-a'])
-        self.assertFalse(self.workspace.locks.exists())
+        slot.assert_not_called()
+
+    def test_a_busy_head_refuses_a_second_launch(self):
+        self.head()
+        with guards.head_lock(self.workspace, 'elf-male-a'), self.assertRaisesRegex(guards.Refused, 'RUNBOOK 190'):
+            launcher.run_stages(self.workspace, 'n', 'bake', ['elf-male-a'])
+        self.assertFalse(guards.head_busy(self.workspace, 'elf-male-a'))
+
+    def test_design_reports_a_failed_launch(self):
+        row = {'head': 'h', 'seed': '1', 'elapsedSeconds': 1, 'exitCode': 3}
+        with unittest.mock.patch.object(launcher, 'run_design', return_value=[row]):
+            self.assertEqual(run_headbatch.main(['--workspace', str(self.root), 'design', 'elf', 'h:1']), 3)
 
     def test_run_command_reports_a_refusal_as_a_result(self):
         self.head()
@@ -354,10 +422,22 @@ class Setup(Base):
         self.assertEqual(path.read_bytes(), before)
         self.assertFalse((path.parent/'manifest.check.json').exists())
 
+    def test_a_presets_edit_the_manifest_refuses_changes_nothing(self):
+        head = self.head()
+        write(head/'overrides.json', {'mesh': {}})
+        with unittest.mock.patch.object(head_setup, 'write_manifest', side_effect=guards.Refused('bad')), unittest.mock.patch.object(presets, 'plan', return_value=({'mesh': {'x': 1}}, [], [], True)):
+            with self.assertRaises(guards.Refused):
+                presets.apply(self.workspace, head.name)
+        self.assertEqual(json.loads((head/'overrides.json').read_text()), {'mesh': {}})
+
     def test_manifest_refused_under_a_queued_launch(self):
-        write(self.workspace.launches/'active-x.json', {'heads': ['elf-male-a']})
-        with self.assertRaisesRegex(guards.Refused, 'RUNBOOK 111'):
+        with guards.head_lock(self.workspace, 'elf-male-a'), self.assertRaisesRegex(guards.Refused, 'RUNBOOK 111'):
             head_setup.write_manifest(self.workspace, 'elf-male-a')
+
+    def test_unused_channels_get_a_row_and_used_ones_stay_auto(self):
+        data = {'ownership': {'mode': 'rules', 'default': 0, 'rules': [{'channel': 2}]}, 'palette': {'rows': {'0': 'auto', '1': 'auto', '2': 'auto', '8': 'auto', '9': 5}, 'toneMatch': {}}}
+        head_setup.tone_every_channel(data, 'elf', 'male', 'h')
+        self.assertEqual(data['palette']['rows'], {'0': 'auto', '1': 0, '2': 'auto', '8': 0, '9': 5})
 
     def test_tone_and_shade_offset_clash(self):
         data = {'ownership': {'default': 0, 'rules': [{'channel': 1}]}, 'palette': {'toneMatch': {}, 'shadeOffsets': {'1': 2}}}
@@ -375,8 +455,11 @@ class Trials(Base):
         workspace = Workspace.load(self.root)
         head = workspace.head('elf-male-a')
         (head/'run/native/attempt-01/native').mkdir(parents=True)
-        (head/'run/native/attempt-02').mkdir()
-        self.receipt(head, 'palette', 1, {'result': {'rows': {'0': 3, '1': 5, '9': 33}}})
+        (head/'run/native/attempt-02/native').mkdir(parents=True)
+        self.receipt(head, 'native', 1, {'state': 'complete'})
+        self.receipt(head, 'native', 2, {'state': 'failed'})
+        self.receipt(head, 'palette', 1, {'state': 'complete', 'result': {'rows': {'0': 3, '1': 5, '9': 33}}})
+        self.receipt(head, 'palette', 2, {'state': 'failed', 'error': 'no rows'})
         out, count = trials.write_spec(workspace, 'elf', '2')
         spec = json.loads(out.read_text())
         self.assertEqual(count, 1)
@@ -429,6 +512,12 @@ class Presets(Base):
         self.assertEqual(overrides['mesh']['uv']['minimumCoverage'], .29)
         self.assertEqual(hold, [])
         self.assertIn('uv floor', notes[0])
+
+    def test_a_round_coverage_keeps_its_floor(self):
+        head = self.head()
+        self.overrides(head, {})
+        self.receipt(head, 'unwrap', 1, {'error': 'Insufficient useful UV coverage (0.291 at 2K)'})
+        self.assertEqual(presets.plan(self.workspace, head.name, uv_only=True)[0]['mesh']['uv']['minimumCoverage'], .28)
 
     def test_keep_floor_reports_the_floor_and_records_no_review(self):
         head = self.head()
@@ -515,11 +604,12 @@ class Review(Base):
         head = self.head()
         self.receipt(head, 'bake', 1, {'result': {}})
         self.assertEqual(launcher.status(self.workspace), ['elf-male-a | bake attempt-01 ran | WAITING ON REVIEW'])
-        write(self.workspace.launches/'active-x.json', {'heads': ['elf-male-a']})
-        self.assertIn('launch queued or running', launcher.status(self.workspace)[0])
-        (self.workspace.launches/'active-x.json').unlink()
+        with guards.head_lock(self.workspace, 'elf-male-a'):
+            self.assertIn('launch queued or running', launcher.status(self.workspace)[0])
         self.receipt(head, 'render', 1, {'result': {}})
         os.utime(head/'run/render/attempt-01/receipt.json', (2**31, 2**31))
+        self.assertIn('WAITING ON REVIEW', launcher.status(self.workspace)[0])
+        write(head/'run/state.json', {'reviews': {'render': {}}})
         self.assertIn('| finished', launcher.status(self.workspace)[0])
 
 
@@ -674,6 +764,9 @@ class SpoolTests(Base):
         self.receipt(head, 'palette', 1, {'result': {'rows': {'0': 7}}})
         self.finish(stage='palette')
         self.assertEqual(self.tools, [('review', 'rowramps', 'elf-male-a')])
+        self.tool_result = (1, ['no such attempt'])
+        self.finish(stage='palette')
+        self.assertIn('ROWRAMPS FAILED: no such attempt', self.spool.state['review']['elf-male-a/palette']['text'])
 
     def test_coverage_failure_proposes_the_floor_and_waits_for_a_person(self):
         head = self.head()
@@ -686,11 +779,121 @@ class SpoolTests(Base):
 
     def test_shell_failure_queues_the_shell_sheet(self):
         head = self.head()
-        self.receipt(head, 'repair', 1, {'error': 'Master has 3 separate shells', 'attempts': {'shells': {'count': 3}}})
+        self.receipt(head, 'repair', 1, {'error': 'Neck cut failed (slope -0.2: Master has 3 separate shells; review them and declare mesh.components). Cut variants that pass: none'})
         write(head/'run/repair/attempt-01/master-uncut.glb')
         self.finish('failed', 'repair')
         self.assertEqual(self.queued[0][:2], ('cutshells', 'elf-male-a'))
         self.assertIn('cutshells queued', self.spool.state['attention']['elf-male-a/repair']['text'])
+
+    def test_a_shell_refusal_before_the_cut_has_no_sheet_to_queue(self):
+        head = self.head()
+        self.receipt(head, 'repair', 1, {'error': 'Master has 3 separate shells; review them and declare mesh.components'})
+        self.finish('failed', 'repair')
+        self.assertEqual(self.queued, [])
+        self.assertIn('3 separate shells', self.spool.state['attention']['elf-male-a/repair']['text'])
+
+    def approved(self, row):
+        write(self.workspace.spool/'approve/a.json', {'heads': ['elf-male-a'], 'approve': 'bake', 'next': 'paint'})
+        self.spool.scan_requests()
+        name = next(iter(self.spool.state['launches']))
+        write(self.workspace.spool/'results'/f'{name}.json', {'heads': [{'id': 'elf-male-a', **row}]})
+        self.spool.step()
+
+    def test_a_refused_approval_stays_open_with_its_reason(self):
+        self.head()
+        self.spool.review('elf-male-a', 'bake', 'waiting')
+        self.approved({'error': 'Approval not recorded: notes required', 'stages': []})
+        self.assertIn('elf-male-a/bake', self.spool.state['review'])
+        self.assertIn('Approval not recorded', self.spool.state['attention']['elf-male-a/bake']['text'])
+
+    def test_a_recorded_approval_closes_its_review(self):
+        self.head()
+        self.spool.review('elf-male-a', 'bake', 'waiting')
+        self.spool.attention('elf-male-a', 'bake', 'waiting')
+        self.approved({'stages': [{'stage': 'paint', 'status': 'skipped'}, {'stage': 'tone', 'status': 'ran'}]})
+        self.assertNotIn('elf-male-a/bake', self.spool.state['review'])
+        self.assertNotIn('elf-male-a/bake', self.spool.state['attention'])
+
+    def test_a_launch_where_nothing_ran_is_reported(self):
+        self.head()
+        self.approved({'stages': [{'stage': 'tone', 'status': 'skipped'}]})
+        self.assertIn('nothing ran', self.spool.state['attention']['elf-male-a/launch']['text'])
+
+    def test_a_reused_stage_is_judged_on_the_attempt_batch_named(self):
+        head = self.head()
+        self.receipt(head, 'unwrap', 1, {'result': {'attempts': [{'badFaceCount': 0, 'subtexel': {}}], 'gutters': {}, 'geometryUnchanged': True, 'charts': 9}})
+        self.receipt(head, 'unwrap', 2, {'error': 'trial override failed'})
+        name = self.spool.launch('unwrap', head.name)
+        self.started.clear()
+        write(self.workspace.spool/'results'/f'{name}.json', {'heads': [{'id': head.name, 'stages': [{'stage': 'unwrap', 'status': 'reused', 'attempt': str(head/'run/unwrap/attempt-01')}]}]})
+        self.spool.step()
+        self.assertEqual(self.started, [('bake', 'elf-male-a', 'unwrap')])
+
+    def test_a_failure_before_any_attempt_shows_its_own_error(self):
+        head = self.head()
+        self.receipt(head, 'bake', 1, {'error': 'an old failure'})
+        name = self.spool.launch('bake', head.name)
+        write(self.workspace.spool/'results'/f'{name}.json', {'heads': [{'id': head.name, 'stages': [{'stage': 'bake', 'status': 'failed', 'error': 'Two stage failures retained', 'attempt': None}]}]})
+        self.spool.step()
+        self.assertIn('before any attempt: Two stage failures retained', self.spool.state['attention']['elf-male-a/bake']['text'])
+
+    def test_a_gate_the_chain_passed_launches_nothing(self):
+        head = self.head()
+        self.receipt(head, 'unwrap', 1, {'result': {'attempts': [{'badFaceCount': 0, 'subtexel': {}}], 'gutters': {}, 'geometryUnchanged': True, 'charts': 9}})
+        self.receipt(head, 'bake', 1, {'result': {}})
+        name = self.spool.launch('unwrap', head.name)
+        self.started.clear()
+        write(self.workspace.spool/'results'/f'{name}.json', {'heads': [{'id': head.name, 'stages': [{'stage': 'unwrap', 'status': 'reused'}, {'stage': 'bake', 'status': 'ran'}]}]})
+        self.spool.step()
+        self.assertEqual(self.started, [])
+
+    def test_a_bad_request_goes_to_attention_and_the_rest_still_run(self):
+        self.head()
+        write(self.workspace.spool/'queue/a.json', '{"heads": [')
+        write(self.workspace.spool/'queue/b.json', {'heads': ['no-such-head', 'elf-male-a'], 'stages': 'export'})
+        write(self.workspace.spool/'queue/c.json', '\ufeff'+json.dumps({'heads': ['elf-male-a'], 'stages': 'bake'}))
+        write(self.workspace.spool/'approve/a.json', 'not json')
+        self.spool.step()
+        self.assertEqual(self.started, [('bake', 'elf-male-a', None)])
+        self.assertIn('a.json/queue', self.spool.state['attention'])
+        self.assertIn('a.json/approve', self.spool.state['attention'])
+        self.assertIn('no-such-head/export', self.spool.state['attention'])
+        self.assertEqual(list((self.workspace.spool/'queue').glob('*')), [])
+
+    def test_a_bad_result_goes_to_attention(self):
+        name = self.spool.launch('bake', 'elf-male-a')
+        write(self.workspace.spool/'results'/f'{name}.json', {'heads': [{'id': 'elf-male-a', 'stages': [{}]}]})
+        self.spool.step()
+        self.assertIn(f'{name}/launch', self.spool.state['attention'])
+
+    def test_a_launch_is_on_disk_as_it_starts(self):
+        name = self.spool.launch('bake', 'elf-male-a')
+        self.assertIn(name, json.loads((self.workspace.spool/'state.json').read_text())['launches'])
+
+    def test_a_queue_file_edited_during_the_presets_stays_queued(self):
+        self.head()
+        path = write(self.workspace.spool/'queue/a.json', {'heads': ['elf-male-a'], 'stages': 'repair'})
+
+        def edit(*_):
+            write(path, {'heads': ['elf-male-a'], 'stages': 'prepare'})
+            return 0, ['done']
+        self.spool.tool = edit
+        self.spool.scan_requests()
+        self.assertEqual(self.started, [])
+        self.assertTrue(path.exists())
+
+    def test_a_sheet_that_dies_goes_to_attention(self):
+        self.spool.drawing[Path('clay-1.log')] = unittest.mock.Mock(poll=lambda: 2)
+        self.spool.drawing[Path('clay-2.log')] = unittest.mock.Mock(poll=lambda: None)
+        self.spool.scan_sheets()
+        self.assertIn('exit 2', self.spool.state['attention']['clay-1/sheet']['text'])
+        self.assertEqual(list(self.spool.drawing), [Path('clay-2.log')])
+
+    def test_repair_evidence_says_what_the_jaw_check_did(self):
+        head = self.head()
+        self.receipt(head, 'repair', 1, {'result': {}})
+        self.finish(stage='repair')
+        self.assertIn('jaw not checked: no face marks', self.spool.state['review']['elf-male-a/repair']['text'])
 
     def test_queued_repair_runs_the_presets_and_a_hold_stops_it(self):
         self.head()
@@ -710,19 +913,19 @@ class SpoolTests(Base):
         self.spool.state['attention'].clear()
         return name
 
-    def test_a_launch_from_before_a_restart_is_kept_while_its_marker_stands(self):
+    def test_a_launch_from_before_a_restart_is_kept_while_it_holds_its_head(self):
         name = self.restored(600)
-        write(self.workspace.launches/f'active-20261104-120000-{name}.json', {'heads': ['elf-male-a']})
-        self.spool.scan_launches()
+        with guards.head_lock(self.workspace, 'elf-male-a'):
+            self.spool.scan_launches()
         self.assertIn(name, self.spool.state['launches'])
         self.assertEqual(self.spool.state['attention'], {})
 
-    def test_a_restored_launch_gets_time_to_write_its_marker(self):
+    def test_a_restored_launch_gets_time_to_take_its_lock(self):
         name = self.restored(5)
         self.spool.scan_launches()
         self.assertIn(name, self.spool.state['launches'])
 
-    def test_a_restored_launch_with_no_marker_and_no_result_goes_to_attention(self):
+    def test_a_restored_launch_with_no_lock_and_no_result_goes_to_attention(self):
         name = self.restored(600)
         self.spool.scan_launches()
         self.assertNotIn(name, self.spool.state['launches'])

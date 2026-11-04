@@ -17,4 +17,7 @@ for variant in variants:
         problem = N.cut_problem(v, f)  # the master audit's own refusal (troll-male-b attempt 2)
         print(label, 'PASS' if problem is None else f'FAIL ({problem})', 'jaw', record.get('jawLine'), 'rings', record['loops'])
     except ValueError as error:
-        print(label, 'PASS (several rings, rewrap closes them); jaw', N.measured_jaw(N.transform(neck['frame'], V), *body, neck['cut']) if 'only a wrapped repair' in str(error) else f'FAIL: {error}')
+        if 'only a wrapped repair' in str(error):
+            print(label, 'PASS (several rings, rewrap closes them); jaw', N.measured_jaw(N.transform(neck['frame'], V), *body, neck['cut']))
+        else:
+            print(label, f'FAIL: {error}')

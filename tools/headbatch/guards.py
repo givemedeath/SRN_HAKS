@@ -3,7 +3,8 @@ from pathlib import Path
 import re
 
 from gpu_job import GEOMETRY_CAP
-from head_files import attempts, fit_matrix, read  # noqa: F401
+from head_files import attempts, fit_matrix, read
+from headkit.comfy import locked
 from workspace import TOOLS
 
 UV_MARGIN = 0.01
@@ -39,7 +40,7 @@ def clean_stray_bytecode(bindings):
     removed = []
     for path in sorted(root.rglob('*.pyc')):
         if path.resolve() not in pinned:
-            path.unlink()
+            path.unlink(missing_ok=True)  # launches that start together clean the same tree
             removed.append(path.relative_to(root).as_posix())
     left = sorted(path.relative_to(root).as_posix() for path in root.rglob('*') if path.is_file() and path.resolve() not in pinned)
     if left:
@@ -93,19 +94,25 @@ def jaw_limit(head, landmarks):
     return height['lips']-.5*(eye-height['lips'])
 
 
-def jaw(head, landmarks):
-    """Refuse a repair approval whose neck cut can reach the mouth, unless HEAD/jaw-reviewed records a visual review (RUNBOOK 103)."""
+def jaw(head, landmarks, attempt=None):
+    """Refuse a repair approval whose neck cut can reach the mouth, unless HEAD/jaw-reviewed records a visual review (RUNBOOK 103).
+    Checks the named attempt, or else the newest with an audit. Returns what was checked: no marks, no audit, or an explicit cut height (no jaw line) checks nothing, and a report must say so (RUNBOOK 189)."""
+    if (head/'jaw-reviewed').exists():
+        return 'jaw reviewed visually'
     limit = jaw_limit(head, landmarks)
-    if limit is None or (head/'jaw-reviewed').exists():
-        return
-    for attempt in reversed(attempts(head, 'repair')):
-        audit = attempt/'reduction-audit.json'
-        cut = read(audit)['neck'].get('cut') if audit.exists() else None
-        if cut and 'jawLine' in cut:
-            height = cut['jawLine']['point'][2]
-            if height > limit:
-                raise Refused(f'{head.name}: {attempt.name} jaw {height*100:.1f} cm is above the chin limit {limit*100:.1f} cm: review, then add jaw-reviewed (RUNBOOK 103)')
-            return
+    if limit is None:
+        return 'jaw not checked: no face marks'
+    for folder in [head/'run'/'repair'/attempt] if attempt else reversed(attempts(head, 'repair')):
+        audit = folder/'reduction-audit.json'
+        if audit.exists():
+            line = ((read(audit).get('neck') or {}).get('cut') or {}).get('jawLine')
+            if line is None:
+                return f'jaw not checked: {folder.name} has no jaw line'
+            height = line['point'][2]
+            if not height <= limit:  # a mark off the mesh gives a NaN limit, which must not pass
+                raise Refused(f'{head.name}: {folder.name} jaw {height*100:.1f} cm is above the chin limit {limit*100:.1f} cm: review, then add jaw-reviewed (RUNBOOK 103)')
+            return f'jaw OK: {folder.name} {height*100:.1f} cm <= {limit*100:.1f}'
+    return 'jaw not checked: no repair audit'
 
 
 def unwrap_gates(receipt):
@@ -117,9 +124,15 @@ def unwrap_gates(receipt):
     return passed, f"charts {receipt['charts']} bad faces {last['badFaceCount']} gutters {gutters} subtexel {subtexel}"
 
 
+def head_lock(workspace, name):
+    """Held by a launch from queueing to its end; the system frees it if the process dies (RUNBOOK 190). Busy raises FileExistsError."""
+    return locked(workspace.locks/f'head-{name}')
+
+
 def head_busy(workspace, name):
     """A head's manifest is a pinned input, so rewriting it under a queued or running launch invalidates that launch (RUNBOOK 49, 111)."""
-    for marker in workspace.launches.glob('active-*.json'):
-        if name in read(marker)['heads']:
-            return marker
-    return None
+    try:
+        with head_lock(workspace, name):
+            return False
+    except FileExistsError:
+        return True

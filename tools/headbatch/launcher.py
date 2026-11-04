@@ -1,8 +1,7 @@
 """Stage, GPU and design launches through the shared-tool launcher, with their locks, guards and timing log."""
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from datetime import datetime
 import json
-import os
 from pathlib import Path
 import subprocess
 import time
@@ -11,12 +10,13 @@ import urllib.request
 from gpu_job import SHAPE_NODE, file_from
 import guards
 from head_files import write_json
+from headkit.comfy import locked
 from workspace import PYTHON, REPO, TOOLS
 
 HEADKIT = TOOLS/'headkit'
 RUN_HEADKIT = HEADKIT/'run_headkit.py'
 GPU_JOB = Path(__file__).with_name('gpu_job.py')
-FINISHED_STAGES = ('native', 'render')
+FINISHED_STAGES = ('export', 'native')  # the spooler or a person takes these on; a render waits for its review (RUNBOOK 63)
 LOCK_POLL_SECONDS = 2
 # Only what each job imports: a toolkit edit elsewhere must not invalidate a GPU or design launch in flight (RUNBOOK 40).
 GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'common', 'gltf', 'occiput', 'source_inventory'))
@@ -38,33 +38,43 @@ def timing(workspace, text, started):
 
 
 @contextmanager
-def lock(paths, owner, sleep=time.sleep):
-    """Take the first free folder of paths(), asked again on each pass. mkdir is atomic, so a lock needs no server and works on every drive the workspace can use."""
+def lock(paths, sleep=time.sleep):
+    """Take the first free lock of paths(), asked again on each pass. The system holds it for this process, so a killed launch leaves nothing to clear (RUNBOOK 190)."""
     while True:
         for path in paths():
-            path.parent.mkdir(parents=True, exist_ok=True)
+            held = locked(path)
             try:
-                path.mkdir()
+                held.__enter__()
             except FileExistsError:
                 continue
             try:
-                (path/'owner').write_text(owner, encoding='utf-8')
                 yield path
             finally:
-                (path/'owner').unlink(missing_ok=True)
-                path.rmdir()
+                held.__exit__(None, None, None)
             return
         sleep(LOCK_POLL_SECONDS)
 
 
-def cpu_slot(workspace, owner):
+def cpu_slot(workspace):
     """The first free slot of the current limit, which can change while this waits."""
-    return lock(lambda: [workspace.locks/f'cpu-{index+1}' for index in range(workspace.cpu_slots())], owner)
+    return lock(lambda: [workspace.locks/f'cpu-{index+1}' for index in range(workspace.cpu_slots())])
 
 
 def gpu_lock(workspace):
     """One GPU job at a time: designs behind Pixal jobs time out or run out of memory."""
-    return lock(lambda: [workspace.locks/'gpu'], f'{os.getpid()} {stamp()}')
+    return lock(lambda: [workspace.locks/'gpu'])
+
+
+@contextmanager
+def head_locks(workspace, names):
+    """One launch per head: headkit refuses a second runner on a head outright, which would lose every head of that launch (RUNBOOK 190)."""
+    with ExitStack() as stack:
+        for name in names:
+            try:
+                stack.enter_context(guards.head_lock(workspace, name))
+            except FileExistsError:
+                raise guards.Refused(f'{name}: another launch of this head is queued or running (RUNBOOK 190)') from None
+        yield
 
 
 def launch(workspace, output, inputs, arguments, environment=None):
@@ -90,22 +100,21 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None):
     dirs = [workspace.head(head) for head in heads]
     bindings = workspace.path(workspace.data['headBindings'])
     landmarks = workspace.landmarks()
-    guards.crlf_in_pinned_code()
-    guards.clean_stray_bytecode(bindings)
-    for head in dirs:
-        guards.loop_budget(head, stage_list, workspace.data.get('loopBudget'))
-        if 'repair' in stage_list:
-            guards.uv_margin(head)
-        if 'ownership' in stage_list:
-            guards.ownership_rules(head)
-        if approve == 'repair':
-            guards.jaw(head, landmarks)
     label = f'{stamp()}-{name}'
     folder = workspace.launches
-    marker = folder/f'active-{label}.json'
-    write_json(marker, {'heads': heads, 'stages': stages})
-    try:
-        with cpu_slot(workspace, f'{os.getpid()} {label} {" ".join(heads)}'):
+    with head_locks(workspace, heads):
+        guards.crlf_in_pinned_code()
+        guards.clean_stray_bytecode(bindings)
+        for head in dirs:
+            guards.loop_budget(head, stage_list, workspace.data.get('loopBudget'))
+            if 'repair' in stage_list:
+                guards.uv_margin(head)
+            if 'ownership' in stage_list:
+                guards.ownership_rules(head)
+            if approve == 'repair':
+                guards.jaw(head, landmarks)
+        with cpu_slot(workspace):
+            guards.clean_stray_bytecode(bindings)  # strays recur, and the wait for a slot can be long (RUNBOOK 92)
             started = time.time()
             head_list = folder/f'heads-{label}.json'
             input_list = folder/f'inputs-{label}.json'
@@ -119,8 +128,6 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None):
             output = folder/f'launch-{label}'
             data = launch(workspace, output, input_list, batch)
             timing(workspace, f'cpu {name} {stages}', started)
-    finally:
-        marker.unlink(missing_ok=True)
     return {'label': label, 'exitCode': data['exitCode'], 'elapsedSeconds': data['elapsedSeconds'], 'heads': results(output/'stdout.log')}
 
 
@@ -131,7 +138,7 @@ def results(stdout):
     except (OSError, ValueError):
         return []
     rows = parsed.get('heads', parsed) if isinstance(parsed, dict) else parsed
-    return [{'id': row.get('id'), 'error': row.get('error', ''), 'stages': [{'stage': s['stage'], 'status': s['status']} for s in row.get('stages', [])]}
+    return [{'id': row.get('id'), 'error': row.get('error', ''), 'stages': [{key: s[key] for key in ('stage', 'status', 'error', 'attempt') if key in s} for s in row.get('stages', [])]}
             for row in rows if isinstance(row, dict)]
 
 
@@ -149,7 +156,10 @@ def status(workspace):
         receipt = guards.read(newest)
         state = 'failed' if receipt.get('error') else 'ran'
         stage = newest.parts[-3]
-        note = 'launch queued or running' if guards.head_busy(workspace, head.name) else 'finished' if stage in FINISHED_STAGES and state == 'ran' else 'WAITING ON REVIEW'
+        progress = head/'run'/'state.json'
+        reviewed = stage == 'render' and progress.exists() and stage in guards.read(progress).get('reviews', {})
+        finished = state == 'ran' and (stage in FINISHED_STAGES or reviewed)
+        note = 'launch queued or running' if guards.head_busy(workspace, head.name) else 'finished' if finished else 'WAITING ON REVIEW'
         lines.append(f'{head.name} | {stage} {newest.parts[-2]} {state} | {note}')
     return lines
 
@@ -179,23 +189,24 @@ def run_gpu(workspace, name, arguments):
     """Calibrate, geometry with its occiput check, and appearance for one head on the workspace's ComfyUI."""
     head = workspace.head(name)
     stages = (arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES).split(',')
-    if 'geometry' in stages:  # appearance reuses the saved shape and spends no submission
-        guards.geometry_cap(head)
     comfy = workspace.data.get('comfy')
-    if not comfy:
-        raise guards.Refused('This step needs "comfy" in workspace.json')
-    with gpu_lock(workspace):
-        started = time.time()
-        label = f'{stamp()}-gpu'
-        matte = guards.attempts(head, 'prepare')[-1]/'images'/'design-rgba.png'
-        templates = sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))
-        input_list = head/'launches'/f'inputs-{label}.json'
-        reused, upstream = reused_gpu_inputs(workspace, head, label, stages)
-        write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), str(matte)]+reused)
-        job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream]
-        data = launch(workspace, head/'launches'/f'launch-{label}', input_list, job, workspace.python_environment(packages=True))
-        timing(workspace, f'gpu {name} {" ".join(arguments)} exit {data["exitCode"]}', started)
-    return data
+    with head_locks(workspace, [name]):
+        if 'geometry' in stages:  # appearance reuses the saved shape and spends no submission
+            guards.geometry_cap(head)
+        if not comfy:
+            raise guards.Refused('This step needs "comfy" in workspace.json')
+        with gpu_lock(workspace):
+            started = time.time()
+            label = f'{stamp()}-gpu'
+            matte = guards.attempts(head, 'prepare')[-1]/'images'/'design-rgba.png'
+            templates = sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))
+            input_list = head/'launches'/f'inputs-{label}.json'
+            reused, upstream = reused_gpu_inputs(workspace, head, label, stages)
+            write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), str(matte)]+reused)
+            job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream]
+            data = launch(workspace, head/'launches'/f'launch-{label}', input_list, job, workspace.python_environment(packages=True))
+            timing(workspace, f'gpu {name} {" ".join(arguments)} exit {data["exitCode"]}', started)
+    return {**data, 'errors': head/'launches'/f'launch-{label}'/'stderr.log'}
 
 
 def run_design(workspace, race, requests):
@@ -227,6 +238,9 @@ def run_design(workspace, race, requests):
         finished.append({'head': head, 'seed': seed, 'exitCode': data['exitCode'], 'elapsedSeconds': data['elapsedSeconds']})
     if comfy:
         request = urllib.request.Request(comfy['url']+'/free', data=b'{"unload_models": true, "free_memory": true}', headers={'Content-Type': 'application/json'})
-        urllib.request.urlopen(request, timeout=120).read()
+        try:
+            urllib.request.urlopen(request, timeout=120).read()
+        except OSError as error:  # the designs are done; only the courtesy to the next job failed
+            print(f'ComfyUI kept its models: {error}')
     return finished
 

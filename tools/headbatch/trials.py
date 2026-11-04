@@ -21,14 +21,22 @@ def rows_with_alternates(chosen, others):
     return [chosen]+[row for row in others if row != chosen][:2]
 
 
+def completed(head, stage):
+    """The newest attempt with a complete receipt: a failed one can still hold files (RUNBOOK 142)."""
+    for attempt in reversed(guards.attempts(head, stage)):
+        if (attempt/'receipt.json').exists() and guards.read(attempt/'receipt.json').get('state') == 'complete':
+            return attempt
+    return None
+
+
 def head_entry(workspace, name, slot):
     head = workspace.head(name)
-    natives = [attempt/'native' for attempt in guards.attempts(head, 'native') if (attempt/'native').is_dir()]
-    if not natives:
+    native, palette = completed(head, 'native'), completed(head, 'palette')
+    if native is None or palette is None or not (native/'native').is_dir():
         return None
-    rows = guards.read(guards.attempts(head, 'palette')[-1]/'receipt.json')['result']['rows']
+    rows = guards.read(palette/'receipt.json')['result']['rows']
     # metalRow 0: the game shows stock metal row 0 on heads without armour; palette metal pins only steer previews.
-    return {'id': name, 'model': slot, 'native': natives[-1].as_posix(), 'skinRows': rows_with_alternates(rows['0'], ALTERNATE_SKIN_ROWS),
+    return {'id': name, 'model': slot, 'native': (native/'native').as_posix(), 'skinRows': rows_with_alternates(rows['0'], ALTERNATE_SKIN_ROWS),
             'hairRows': rows_with_alternates(rows['1'], ALTERNATE_HAIR_ROWS), 'tattoo1Row': rows.get('8', 0), 'tattoo2Row': rows.get('9', 0), 'metalRow': 0, 'helmets': []}
 
 

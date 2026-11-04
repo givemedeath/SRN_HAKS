@@ -26,7 +26,8 @@
     "tools/headbatch/guards.py": [
       "tools/headbatch/gpu_job.py",
       "tools/headbatch/head_files.py",
-      "tools/headbatch/workspace.py"
+      "tools/headbatch/workspace.py",
+      "tools/headkit/comfy.py"
     ],
     "tools/headbatch/head_files.py": [],
     "tools/headbatch/head_setup.py": [
@@ -40,12 +41,12 @@
       "tools/headbatch/guards.py",
       "tools/headbatch/head_files.py",
       "tools/headbatch/workspace.py",
+      "tools/headkit/comfy.py",
       "tools/headkit/run_headkit.py",
       "tools/phenotypes/launch_shared_tool.py"
     ],
     "tools/headbatch/presets.py": [
       "tools/headbatch/guards.py",
-      "tools/headbatch/head_files.py",
       "tools/headbatch/head_setup.py",
       "tools/headbatch/review/slopescan.py",
       "tools/headbatch/workspace.py"
@@ -99,6 +100,7 @@
       "tools/headkit/palette.py"
     ],
     "tools/headbatch/review/fitcheck.py": [
+      "tools/headbatch/head_files.py",
       "tools/headkit/fit.py",
       "tools/headkit/gltf.py"
     ],
@@ -154,6 +156,7 @@
     "tools/headbatch/spool.py": [
       "docs/phenomorpher/runtime-optimization/review.md",
       "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
       "tools/headbatch/run_headbatch.py",
       "tools/headbatch/workspace.py"
     ],

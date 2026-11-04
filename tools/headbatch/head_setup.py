@@ -96,6 +96,11 @@ def tone_every_channel(data, race, sex, name):
             tone.pop(channel, None)
         else:
             tone.setdefault(channel, channel_reference(race, sex, channel))
+    rows = data['palette'].get('rows')
+    if data['ownership'].get('mode') == 'rules' and isinstance(rows, dict):
+        for channel, row in rows.items():  # no rule, no pixels, and 'auto' cannot rank an empty channel (RUNBOOK 44, 74)
+            if row == 'auto' and channel not in used and channel not in tone:
+                rows[channel] = 0
     clash = sorted(set(tone) & {key for key, value in data['palette'].get('shadeOffsets', {}).items() if value})
     if clash:
         raise guards.Refused(f'{name}: channels {clash} have both toneMatch and a shade offset; drop the offset (RUNBOOK 83)')
@@ -109,13 +114,14 @@ def validate(workspace, path):
         raise guards.Refused(f'{path.parent.name}: manifest refused by the toolkit loader: {done.stderr.strip()[-600:]}')
 
 
-def write_manifest(workspace, name, check=validate):
-    busy = guards.head_busy(workspace, name)
-    if busy:
-        raise guards.Refused(f'{name}: a stage launch is queued or running ({busy.name}); edit after it ends (RUNBOOK 111)')
+def write_manifest(workspace, name, check=validate, overrides=None):
+    """overrides, when given, replace overrides.json once the manifest built from them passes: a refused edit leaves both files as they were."""
+    if guards.head_busy(workspace, name):
+        raise guards.Refused(f'{name}: a stage launch is queued or running; edit after it ends (RUNBOOK 111)')
     head = workspace.head(name)
     receipt = guards.read(head/'design'/'design-receipt.json')
-    overrides = guards.read(head/'overrides.json') if (head/'overrides.json').exists() else {}
+    stored = head/'overrides.json'
+    chosen = overrides if overrides is not None else guards.read(stored) if stored.exists() else {}
     race, sex = receipt['race'], receipt['sex']
     inputs = {'design': link(head, head/'design'/receipt['selectedDesign']['file'], 'design.png')}
     for role, file in PALETTE_ROLES:
@@ -130,7 +136,7 @@ def write_manifest(workspace, name, check=validate):
     reference = workspace.fit_reference(race, sex)
     inputs['fitReference'] = link(head, reference, 'fit-reference-'+reference.name)
     data = defaults(name, receipt, inputs, reference)
-    merge(data, overrides)
+    merge(data, chosen)
     tone_every_channel(data, race, sex, name)
     candidate = head/'manifest.check.json'
     write_json(candidate, data)
@@ -140,6 +146,8 @@ def write_manifest(workspace, name, check=validate):
         candidate.unlink()
         raise
     candidate.replace(head/'manifest.json')
+    if overrides is not None:
+        write_json(stored, overrides)
     return head/'manifest.json'
 
 

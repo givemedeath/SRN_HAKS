@@ -100,7 +100,7 @@ def sheet(rgb, marks, depth, fmarks, out, title):
     for (name, (x, y)), (_, (u, v)) in zip(marks.items(), fmarks.items()):
         col = (255, 60, 60) if name != 'lips' else (60, 200, 255)
         for draw, a, b in ((dd, x, y), (fd, u, v)): draw.ellipse((a-6, b-6, a+6, b+6), outline=col, width=2); draw.line((a-14, b, a+14, b), fill=col); draw.line((a, b-14, a, b+14), fill=col)
-    out_img = Image.new('RGB', (2048, 1024+24), (0, 0, 0)); out_img.paste(d.resize((1024, 1024)), (0, 24)); out_img.paste(f, (1024, 24))
+    out_img = Image.new('RGB', (2048, 1024+24), (0, 0, 0)); out_img.paste(d.resize((1024, 1024)), (0, 24)); out_img.paste(f.resize((1024, 1024)), (1024, 24))
     ImageDraw.Draw(out_img).text((6, 4), title, fill='white'); out_img.save(out)
 
 

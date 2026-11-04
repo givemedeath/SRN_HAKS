@@ -1,7 +1,5 @@
 """Run head batches through headkit: `run_headbatch.py --workspace DIR COMMAND`. See docs/heads/head-batch-orchestration.md."""
 import argparse
-import json
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -28,7 +26,7 @@ def review(workspace, tool, arguments, slot):
         return subprocess.run(command, env=environment, cwd=workspace.heads).returncode
     if not slot:
         return run()
-    with launcher.cpu_slot(workspace, f'{os.getpid()} review {tool}'):
+    with launcher.cpu_slot(workspace):
         return run()
 
 
@@ -129,10 +127,14 @@ def main(argv=None):
             print('gpu launch', round(data['elapsedSeconds'], 1), 's exit', data['exitCode'])
             if data['exitCode'] == 0:
                 print('manifest', head_setup.write_manifest(workspace, args.head))
+            else:
+                print('reason:', data['errors'])  # a cap or an open occiput stops the job with only its message there
             return data['exitCode']
         elif args.command == 'design':
-            for row in launcher.run_design(workspace, args.race, args.requests):
+            rows = launcher.run_design(workspace, args.race, args.requests)
+            for row in rows:
                 print(row['head'], 'seed', row['seed'], round(row['elapsedSeconds'], 1), 's exit', row['exitCode'])
+            return max(row['exitCode'] for row in rows)  # RUNBOOK 119
         elif args.command == 'trial-spec':
             out, count = trials.write_spec(workspace, args.race, args.version)
             print(out, count, 'heads')

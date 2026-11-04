@@ -5,9 +5,10 @@ from PIL import Image, ImageDraw
 from scipy import ndimage
 from headkit.fit import *
 from headkit.gltf import mesh
+from headbatch.head_files import read
 H, out, mout = sys.argv[1:4]
 value = mesh(sorted(glob.glob(H+'/run/precluster/attempt-*/oriented.glb'))[-1]); local = head_local(surface_samples(value['positions'][value['faces']], 1000000))
-target = ascii_surface(glob.glob(H+'/inputs/fit-reference-*.mdl')[0])
+target = ascii_surface(H+'/'+read(H+'/manifest.json')['inputs']['fitReference']['path'])  # a head can hold older references beside the bound one
 r = match(local, target, exclude_lower=.25); s = r['scale']; prof = np.array(r['translation'])
 tn = nose_tip(target, .001, .0005); sn = nose_tip(local, .001/s, .0005/s); t = tn-s*sn
 print('scale', s, 'profile', prof.round(5), 'target nose', tn.round(5), 'source nose', sn.round(5), 'nose translation', t.round(5), 'shift', round(float(np.linalg.norm(t-prof)), 4))

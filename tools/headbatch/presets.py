@@ -12,7 +12,6 @@ import re
 import subprocess
 
 import guards
-from head_files import write_json
 import head_setup
 from workspace import PYTHON
 
@@ -42,7 +41,7 @@ def uv_floor(head, mesh, uv_only, keep_floor, notes, hold):
         if coverage is None:
             continue
         if coverage < floor+guards.UV_MARGIN:
-            new = math.floor((coverage-.011)*100)/100
+            new = math.floor(round((coverage-.011)*100, 6))/100  # .291 would otherwise land on .27
             if new >= UV_MINIMUM and keep_floor:
                 notes.append(f'proposed uv floor {floor} -> {new} (coverage {coverage:.3f}), needs a person')
             elif new >= UV_MINIMUM:
@@ -108,7 +107,5 @@ def apply(workspace, name, uv_only=False, scan=slopescan, check=head_setup.valid
     """Returns (summary, held). Overrides change only when a policy actually changed something."""
     overrides, notes, hold, changed = plan(workspace, name, uv_only, scan, keep_floor)
     if changed:
-        head = workspace.head(name)
-        write_json(head/'overrides.json', overrides)
-        head_setup.write_manifest(workspace, name, check)
+        head_setup.write_manifest(workspace, name, check, overrides)
     return summary(name, notes, hold), bool(hold)
