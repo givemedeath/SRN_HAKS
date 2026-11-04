@@ -1,4 +1,5 @@
 import numpy as np
+from .firearm_grip import GripDeparture
 from pathlib import Path
 from PIL import Image
 from tools.headkit.common import read,write,pin
@@ -48,7 +49,9 @@ class GreatswordTests(Fixture):
         p=np.concatenate([ring+[0,-.07,0],ring+[0,.07,0]])
         f=np.array([(i,(i+1)%32,(i+1)%32+32) for i in range(32)]+[(i,(i+1)%32+32,i+32) for i in range(32)])
         m=np.diag([2.,2.,2.,1.]);m[1,3]=-.09
-        actual,r=two_hand_uniform(p,f,m,[[0,-.07,0],[0,.07,0]],[0,-.09,0],standard)
+        with self.assertRaises(GripDeparture) as caught:two_hand_uniform(p,f,m,[[0,-.07,0],[0,.07,0]],[0,-.09,0],standard)
+        review={'decision':'approved','measurementDigest':caught.exception.report['measurementDigest'],'notes':'Reviewed on both bodies'}
+        actual,r=two_hand_uniform(p,f,m,[[0,-.07,0],[0,.07,0]],[0,-.09,0],standard,review)
         self.assertTrue(np.array_equal(actual,m));self.assertAlmostEqual(r['usableLength'],.28)
         self.assertTrue(r['bothBodyVisualReviewRequired']);self.assertGreater(r['midpointRelativeDifferences']['usableLength'],.5)
         bad=m.copy();bad[0,0]=1.7

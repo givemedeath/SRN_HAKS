@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 from tools.headkit.common import require,pin,write,verify,read,verification_pass
 from tools.headkit.gltf import load,arrays,encode,require_textured_uvs
+from .geometry import corner_hash,transform
 
 
 def geometry_frame(source,uv_mesh):
@@ -43,7 +44,9 @@ def unwrap_source(source,local,output,*,topology_policy='closed-solid-v1'):
     else:
         p=np.asarray(original['positions'],float)[original['faces']]
         areas=np.linalg.norm(np.cross(p[:,1]-p[:,0],p[:,2]-p[:,0]),axis=1)/2
-        bad=areas==0
+        # Later area gates see the stored float32 positions, so a face zero there is degenerate too.
+        single=np.asarray(original['positions'],np.float32)[original['faces']]
+        bad=(areas==0)|(np.linalg.norm(np.cross(single[:,1]-single[:,0],single[:,2]-single[:,0]),axis=1)==0)
         if bad.any():
             require(bad.mean()<.03 and areas.sum()>0,'Degenerate donor surface blocks UV/bake processing')
             keep=np.asarray(original['faces'])[~bad]
@@ -53,7 +56,7 @@ def unwrap_source(source,local,output,*,topology_policy='closed-solid-v1'):
                           normals=normals[used] if normals is not None else None,uv=original['uv'][~bad])
             sampling_source=output/'sampling-source.glb'
             write_mesh(sampling_source,original['positions'],original['faces'],original['uv'],original['normals'])
-            cleanup={'removedZeroAreaFaces':int(bad.sum()),'removedSurfaceArea':0.,'remainingCornersExact':True}
+            cleanup={'removedZeroAreaFaces':int(bad.sum()),'removedSurfaceArea':float(areas[bad].sum()),'remainingCornersExact':True}
     unwrapped,report=unwrap(original,local,output/'atlas')
     path=output/'source-uv.glb'
     write_mesh(path,unwrapped['positions'],unwrapped['faces'],unwrapped['uv'],unwrapped['normals'])
@@ -129,7 +132,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
     New sampling triangles do not modify the visible target or its UVs. Colour
     comes from the original textured donor within3mm, not a transformed field.
     """
-    import hashlib,time
+    import time
     from PIL import Image
     from tools.headkit.common import library
     from tools.headkit.gltf import write_mesh
@@ -167,7 +170,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
         require(matrix.shape==(4,4) and np.isfinite(matrix).all() and np.allclose(matrix[3],[0,0,0,1])
                 and np.linalg.det(matrix[:3,:3])>0 and np.allclose(matrix[:3,:3].T@matrix[:3,:3],
                     np.eye(3)*np.sum(matrix[:3,0]**2),atol=1e-10,rtol=1e-7),'Positive uniform donor fit required')
-        fitted=v@matrix[:3,:3].T+matrix[:3,3];points=corners[ids].reshape(-1,3)
+        fitted=transform(v,matrix);points=corners[ids].reshape(-1,3)
         igl=library(local,'igl');distance,nearest,closest=igl.point_mesh_squared_distance(points,fitted,df)
         maximum=float(np.sqrt(distance.max()));require(maximum<=.003,'Repair-cap RGB source exceeds3mm')
         tri=fitted[df[nearest]];a=tri[:,1]-tri[:,0];b=tri[:,2]-tri[:,0];q=closest-tri[:,0]
@@ -180,7 +183,8 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
             require(image.size==(4096,4096),'Original4K baked donor colour required')
             original=np.asarray(image.convert('RGB')).copy()
         pixels=np.flipud(original).copy()
-        colours=sample_image(pixels.astype(float)/255,sample_uv,repeat=False,decode_srgb=True).reshape(-1,3,3)
+        # Raw glTF V runs top-down in the donor PNG; `pixels` is the sampler's bottom-up order.
+        colours=sample_image(pixels.astype(float)/255,sample_uv*[1,-1]+[0,1],repeat=False,decode_srgb=True).reshape(-1,3,3)
         changed=np.zeros((4096,4096),bool);patch_uv=[]
         for k,colour in enumerate(colours):
             x0=4074;y0=32+k*32;side=16
@@ -190,7 +194,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
             linear=colour[0]+u[:,:,None]*(colour[1]-colour[0])+w[:,:,None]*(colour[2]-colour[0])
             srgb=np.where(linear<=.0031308,12.92*linear,1.055*np.power(linear,1/2.4)-.055)
             pixels[yy,xx]=np.rint(np.clip(srgb,0,1)*255).astype(np.uint8);changed[yy,xx]=True
-            patch_uv.append([[x0/4096,y0/4096],[(x0+side)/4096,y0/4096],[x0/4096,(y0+side)/4096]])
+            patch_uv.append([[x0/4096,1-y0/4096],[(x0+side)/4096,1-y0/4096],[x0/4096,1-(y0+side)/4096]])
         require(np.array_equal(pixels[~changed],np.flipud(original)[~changed]),'Healthy donor RGB changed')
         inverse=np.linalg.inv(matrix);raw=(np.c_[points,np.ones(len(points))]@inverse.T)[:,:3]
         added=np.arange(len(v),len(v)+len(raw)).reshape(-1,3)
@@ -205,7 +209,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
                 and np.array_equal(attributes['NORMAL'][ff[:len(df)]],normals),'Original donor attributes changed')
         donor=embed_diffuse(mesh,colour_path,out/'textured-donor.glb');verify(rows,fresh=True)
         result={'donor':donor,'source':source,'originalTexture':texture,'target':target,'fit':fit,'diagnostic':diagnostic,
-            'texture':pin(colour_path),'targetCornerHash':hashlib.sha256(np.asarray(corners,dtype='<f8').tobytes()).hexdigest(),
+            'texture':pin(colour_path),'targetCornerHash':corner_hash(corners),
             'explicitRepairCapFaces':ids.tolist(),'capSurfaceFraction':fraction,'maximumLocalColourSampleDistance':maximum,
             'capColourMethod':'linear interpolation of nearby original baked donor RGB',
             'originalMappedTexelsExact':True,'originalGeometryAndUVMappingsExact':True,'targetGeometryAndUVsUnchanged':True,

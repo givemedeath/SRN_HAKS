@@ -28,6 +28,9 @@ class RecoveryTests(unittest.TestCase):
             self.assertEqual(len(recovery_inputs(proof)),4)
             proof.update(family={'bakeSize':4096},processing={'capColour':[0,0,0]})
             write(root/'proof.json',proof);write(root/'policy.json',{'method':'nearest-finished-donor','maximumDistance':.003,'minimumNormalAlignment':.5})
+            write(root/'loose.json',{'method':'nearest-finished-donor','maximumDistance':.003,'minimumNormalAlignment':.4})
+            with self.assertRaisesRegex(ValueError,'bounded donor correction'):
+                prepare_recovery(root/'proof.json',root/'loose.json',root/'rejected')
             with patch('tools.itemkit.contracts.code_pins',return_value=[]):
                 result=prepare_recovery(root/'proof.json',root/'policy.json',root/'prepared')
             config=read(result['config']['path']);self.assertEqual(config['scene'],proof['sourceScene']['path'])

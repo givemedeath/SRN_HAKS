@@ -2,10 +2,9 @@
 from tools.headkit.common import require
 from .firearms import SLOTS
 from .geometry import check_budgets
+from .routes import GRIP_BOUND_FAMILIES, MULTIPART, RIGGED_NATIVE_FAMILIES, ROUTES, WHOLE_NATIVE_FAMILIES, whole_shield
 
 FIREARM_VIEWS = ('left','right','muzzle','rear','top','underside','grip','oblique')
-WHOLE_NATIVE_FAMILIES = ('firearm-sling', 'firearm-crossbow', 'crossbow')
-RIGGED_NATIVE_FAMILIES = ('bow', 'whip')
 
 
 def firearm_views(settings):
@@ -26,12 +25,10 @@ def firearm_views(settings):
 
 
 def active_parts(profile):
-    from .contracts import whole_shield
-    if whole_shield(profile): return ('whole',)
-    if profile['family'] == 'catalog-object': return ('whole',)
-    if profile['family'] == 'crossbow': return ('t',)
-    if profile['family'] in RIGGED_NATIVE_FAMILIES: return ('m',)
-    if profile['family'] not in ('firearm-sling','firearm-crossbow'): return ('b', 'm', 't')
+    route = ROUTES[profile['family']]
+    # A shield without the whole-model contract stays a blocked multipart design.
+    if profile['family'] == 'shield' and not whole_shield(profile): return MULTIPART
+    if route.parts is not None: return route.parts
     subtype = profile.get('firearm', {}).get('subtype')
     require(subtype in SLOTS, 'Declare the whole-firearm native slot before processing')
     return (SLOTS[subtype],)

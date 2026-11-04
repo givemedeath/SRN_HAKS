@@ -86,6 +86,12 @@ class ShieldTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'compiler rejected'):
                     shield_native.compile_package(prepared,{},root/'compiled')
                 compile_call.assert_called_once();process.assert_not_called()
+            rendered=root/'icon-whole.png';Image.new('RGBA',(64,96),(9,9,9,255)).save(rendered)
+            shield_native.prepare(path,geometry,texture,rendered,impacts,[],root/'rendered')
+            with Image.open(root/'rendered/resources/iashlw_014.tga') as image:
+                self.assertEqual(image.size,(64,128));self.assertEqual(image.getpixel((0,95)),(9,9,9,255));self.assertEqual(image.getpixel((0,96))[3],0)
+            with patch('tools.itemkit.contracts.source_version',return_value='changed'):
+                with self.assertRaisesRegex(ValueError,'Stale Shield'):shield_native.compile_package(prepared,{},root/'stale')
             bad=copy.deepcopy(profile);bad['native']['iconDimensions']={'whole':[64,128]};write(path,bad)
             with self.assertRaisesRegex(ValueError,'dimensions'):contracts.family(path)
             bad=copy.deepcopy(profile);del bad['native']['kind'];write(path,bad)

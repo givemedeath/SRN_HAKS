@@ -2503,6 +2503,39 @@ class CollectionReceiptTests(Temporary):
         self.assertEqual(read(ledger)['jobs'][0]['state'],'failed-validation')
         with patch.object(client,'request',side_effect=AssertionError('Failed receipt must not repoll')):
             self.assertEqual(comfy.collect(client,ledger,token,output,job),result)
+    def test_lost_connection_at_completion_stays_collectable(self):
+        import http.client,urllib.error
+        for lost in (urllib.error.URLError('refused'),TimeoutError('slow read'),http.client.RemoteDisconnected('closed')):
+            with self.subTest(lost=type(lost).__name__):
+                client,ledger,token,output,job,_=self.fixture(server_owned=True);answer=client.request
+                def unavailable(route,data=None):
+                    if route=='/headkit/runtime-identity':raise lost
+                    return answer(route,data)
+                with patch.object(client,'request',unavailable):
+                    with self.assertRaisesRegex(comfy.CollectionInterrupted,'job remains unresolved'):
+                        comfy.collect(client,ledger,token,output,job)
+                self.assertEqual(read(ledger)['jobs'][0]['state'],'submitted')
+                self.assertFalse((job/'collection.json').exists())
+                # The restarted server no longer has the prompt; the retained history still resumes it.
+                def restarted(route,data=None):return {} if route.startswith('/history/') else answer(route,data)
+                with patch.object(client,'request',restarted):
+                    self.assertEqual(comfy.collect(client,ledger,token,output,job)['state'],'complete')
+    def test_server_answers_at_completion_remain_terminal(self):
+        import io,urllib.error
+        client,ledger,token,output,job,_=self.fixture(server_owned=True);answer=client.request
+        def refused(route,data=None):
+            if route=='/headkit/runtime-identity':
+                raise urllib.error.HTTPError(route,409,'Conflict',{},io.BytesIO(b'mismatch'))
+            return answer(route,data)
+        with patch.object(client,'request',refused):
+            with self.assertRaises(urllib.error.HTTPError):comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(read(job/'collection.json')['state'],'failed-validation')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'failed-validation')
+    def test_local_file_failure_at_completion_remains_terminal(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True)
+        with patch.object(comfy,'verify_comfy_runtime',side_effect=FileNotFoundError('binding')):
+            with self.assertRaises(FileNotFoundError):comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'failed-validation')
     def test_repeat_collection_reuses_verified_receipt_without_server_or_writes(self):
         client,ledger,token,output,job,artifact=self.fixture();first=comfy.collect(client,ledger,token,output,job,wait=True)
         paths=[ledger,job/'history.json',job/'memory-samples.json',job/'collection.json'];before=[p.read_bytes() for p in paths]

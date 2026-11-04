@@ -1,13 +1,13 @@
 """Colour-only donor sampling for explicitly bounded projection-miss correction."""
 import numpy as np
-import hashlib
 from tools.headkit.common import require
+from .geometry import corner_hash
 
 
 def validate_texture_patch(corners,patch,*,maximum_distance=.0021):
     require(patch.get('reviewed') is True and patch.get('notes','').strip(),'Review the exact bounded donor texture patch')
     corners=np.asarray(corners,dtype='<f8')
-    require(hashlib.sha256(corners.tobytes()).hexdigest()==patch['targetCornerHash'],'Texture patch belongs to different target geometry')
+    require(corner_hash(corners)==patch['targetCornerHash'],'Texture patch belongs to different target geometry')
     require(0<maximum_distance<=.003,'Texture patch qualification exceeds the global transfer distance')
     require(0<patch['maximumDistance']<=maximum_distance and 0<patch['maximumTextureFraction']<=.0001,'Texture patch exceeds its measured local scope')
     faces=patch['faces'];require(faces and all(type(i) is int and 0<=i<len(corners) for i in faces) and len(set(faces))==len(faces),'Invalid texture patch face scope')

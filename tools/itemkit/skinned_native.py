@@ -20,7 +20,9 @@ def model_text(name,texture,geometry,rig_text,bone_names):
         count=int(re.search(r'(?m)^  verts (\d+)\s*$',block)[1]);require(w.shape==(count,len(bones)) and np.isfinite(w).all() and (w>=0).all() and np.allclose(w.sum(1),1,atol=1e-7),'Invalid exact skin weights')
         rows=['  weights '+str(count)]+['    '+' '.join(b+' '+format(float(v),'.17g') for b,v in zip(bones,row) if v>0) for row in w]
         result.append(block.replace('node trimesh ','node skin ',1).rsplit('endnode',1)[0]+'\n'.join(rows)+'\nendnode')
-    return prefix.replace(old,name)+'\n'.join(result)+'\n'+suffix.replace(old,name)
+    # Whole names only: bones and clips may contain the rig's model name.
+    rename=lambda text:re.sub(r'\b'+re.escape(old)+r'\b',name,text)
+    return rename(prefix)+'\n'.join(result)+'\n'+rename(suffix)
 
 
 def decode_meshes(raw):
@@ -51,12 +53,9 @@ def decode_meshes(raw):
 
 
 def audit(binary,name,texture,expected,decompiled,bone_names):
-    from tools.phenomorpher.phenomorpher.engine.stock_armor import sanitize_binary,string_fields,leaked_text
     from tools.itemkit.geometry import topology
-    raw=Path(binary).read_bytes();clean=sanitize_binary(raw);allowed=np.zeros(len(raw),bool)
-    for offset,count in string_fields(raw):allowed[offset:offset+count]=True
-    changed=np.frombuffer(raw,np.uint8)!=np.frombuffer(clean,np.uint8)
-    require(not changed[~allowed].any() and clean==sanitize_binary(clean) and not leaked_text(clean),'Skin sanitizer changed non-string bytes or retained leaked tails')
+    from tools.itemkit.native import sanitize_proof
+    raw=Path(binary).read_bytes();clean,changed=sanitize_proof(raw)
     before,after=decode_meshes(raw),decode_meshes(clean);require(set(after)=={name+'v',name+'s'},'Unexpected skin nodes')
     text=Path(decompiled).read_text(encoding='cp1252');bones=list(bone_names)
     for label,visible in [(name+'v',True),(name+'s',False)]:
@@ -78,4 +77,4 @@ def audit(binary,name,texture,expected,decompiled,bone_names):
             for j in range(0,len(values),2):ww[i,bones.index(values[j].lower())]=float(values[j+1])
         wanted=expected['weights'] if visible else expected['shadowWeights'][expected['shadowFaces']]
         require(np.allclose(p[ff],target,atol=2e-6,rtol=0) and ww[ff].shape==wanted.shape and np.allclose(ww[ff],wanted,atol=2e-6,rtol=0),'Native skin weight roundtrip mismatch')
-    return clean,{'nativePositionNormalUVShadowRoundtrip':True,'nativeWeightRoundtrip':True,'attributesPreserved':True,'zeroedTailBytes':int(changed.sum())}
+    return clean,{'nativePositionNormalUVShadowRoundtrip':True,'nativeWeightRoundtrip':True,'attributesPreserved':True,'zeroedTailBytes':changed}

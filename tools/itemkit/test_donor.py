@@ -95,7 +95,7 @@ class DonorTests(unittest.TestCase):
         with patch.object(runner,'input',side_effect=[str(self.source),str(field)]), \
              patch('tools.itemkit.donor.unwrap_source',return_value={'samplingSource':pin(self.source),'uvMesh':pin(self.unwrapped)}) as unwrap, \
              patch('tools.itemkit.donor.build',return_value={'baked':True}) as bake:
-            self.assertEqual(runner._execute('donor',self.root/'stage'),{'baked':True})
+            self.assertEqual(runner._execute('donor',self.root/'stage',parent_results={}),{'baked':True})
             self.assertEqual(unwrap.call_args.kwargs['topology_policy'],'sampling-surface-v1')
             self.assertEqual(Path(bake.call_args.args[0]).resolve(),self.source.resolve())
     def test_transformed_or_reversed_source_cannot_sample_original_field(self):

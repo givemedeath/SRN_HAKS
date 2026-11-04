@@ -14,7 +14,7 @@ class DonorCapTests(unittest.TestCase):
     def fixture(self,root):
         source=root/'source.glb';p=np.array([[0,0,0],[1,0,0],[0,1,0]],float);f=np.array([[0,1,2]])
         write_mesh(source,p,f,uv=np.array([[[.1,.1],[.8,.1],[.1,.8]]]))
-        image=np.empty((4096,4096,3),np.uint8);image[:,:,0]=np.arange(4096,dtype=np.uint16)[None,:]//16;image[:,:,1:]=[80,90]
+        image=np.empty((4096,4096,3),np.uint8);image[:,:,0]=np.arange(4096,dtype=np.uint16)[None,:]//16;image[:,:,1:]=[80,90];image[:,:,1]=np.arange(4096,dtype=np.uint16)[:,None]//16
         texture=root/'colour.png';Image.fromarray(image).save(texture)
         target=root/'target.npz';positions=np.array([[.1,.1,.0005],[.15,.1,.0005],[.1,.15,.0005]])
         faces=np.tile(f,(1000,1));faces[1]=[1,2,0]
@@ -47,6 +47,21 @@ class DonorCapTests(unittest.TestCase):
             self.assertEqual(r['originalDonorTriangles'],1)
             self.assertEqual(r['auxiliarySamplingTriangles'],1)
             self.assertEqual(r['nativeTargetTriangleAllowance'],0)
+
+    def test_cap_colour_comes_from_its_source_row_and_its_uv_addresses_the_swatch(self):
+        class Igl:
+            def point_mesh_squared_distance(self,points,vertices,faces):
+                closest=points.copy();closest[:,2]=0
+                return np.full(len(points),.0005**2),np.zeros(len(points),int),closest
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);pins,_=self.fixture(root)
+            with patch('tools.headkit.common.library',return_value=Igl()):
+                r=add_source_matched_caps(*pins,{},root/'repaired',sampling_triangle_allowance=2)
+            _,ff,aa=arrays(*load(Path(r['donor']['path']).read_bytes()))
+            with Image.open(r['texture']['path']) as image:actual=np.asarray(image)
+            column,row=(aa['TEXCOORD_0'][ff[1]].mean(0)*4096).astype(int)
+            # The target centroid sits at source UV (.182,.182), which is PNG row 744.
+            self.assertAlmostEqual(int(actual[row,column,1]),744//16,delta=3)
 
     def test_auxiliary_allowance_is_bounded_and_explicit(self):
         with tempfile.TemporaryDirectory() as tmp:

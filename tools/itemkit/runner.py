@@ -7,9 +7,12 @@ import sys
 import time
 import traceback
 import uuid
+import numpy as np
 from PIL import Image
-from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, python_package_pins
+from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
 from .contracts import all_pins, code_pins, source_version, manifest, family, evidence_pins, stage_roles
+from .geometry import corner_hash
+from .routes import GRIP_BOUND_FAMILIES, PACKAGED_FIREARMS, ROUTES
 from .verification import VerificationPass
 
 DEPENDENCIES = {'prepare': (), 'inspect': (), 'donor': (), 'fit': (), 'reduce': ('fit',), 'unwrap': ('reduce',),
@@ -35,13 +38,30 @@ def attempt_snapshot(receipt):
                   | {'inputs': sorted({(str(row['path']), row['sha256']) for row in receipt.get('inputs', [])})})
 
 
+def run_logged(command, log, timeout, **options):
+    """Run a launcher, retain its output, and stop its whole process tree on timeout."""
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **options)
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        # The launcher runs Blender as its own child, which Popen.kill alone would orphan.
+        if os.name == 'nt':
+            subprocess.run(['taskkill', '/T', '/F', '/PID', str(process.pid)], capture_output=True,
+                           creationflags=subprocess.CREATE_NO_WINDOW)
+        process.kill(); stdout, stderr = process.communicate()
+        log.write_text(stdout+'\n'+stderr, encoding='utf-8')
+        raise
+    log.write_text(stdout+'\n'+stderr, encoding='utf-8')
+    return process.returncode
+
+
 class Runner:
-    def __init__(self, manifest_path, bindings_path, run, *, runtime=None, evidence=None):
+    def __init__(self, manifest_path, bindings_path, run, *, runtime=None, evidence=None, package_pins=None):
         self.manifest_path = Path(manifest_path).resolve(); self.bindings_path = Path(bindings_path).resolve()
         self.data = manifest(self.manifest_path,input_roles=set(),validate_native=False); self.local = bindings(self.bindings_path)
         self.profile_path = Path(asset(self.manifest_path, self.data['familyProfile'])['path'])
         self.family = family(self.profile_path,validate_native=False); self.run = Path(run).resolve(); self.runtime = runtime
-        self.evidence = Path(evidence).resolve() if evidence else None
+        self.evidence = Path(evidence).resolve() if evidence else None; self.package_pins = package_pins
         self.state_path = self.run/'state.json'
         self.state = read(self.state_path) if self.state_path.exists() else {'schemaVersion': 1, 'id': self.data['id'], 'stages': {}, 'reviews': {}}
         require(self.state['id'] == self.data['id'], 'Run belongs to another item')
@@ -83,7 +103,8 @@ class Runner:
         if stage in self.state['stages']:
             try: return {'reused': True, 'result': self.result(stage, review=False)}
             except (ValueError, OSError): pass
-        package_pins = python_package_pins(self.local, require_imports=True)
+        # Launched CLI startup already proved these imports for this one-stage process.
+        package_pins = self.package_pins or python_package_pins(self.local)
         inputs = all_pins(self.manifest_path,roles=stage_roles(stage),native=stage in ('fit','export'))+code_pins()+[pin(self.bindings_path)]+package_pins
         for library in self.local.get('libraries',{}).values():inputs += library['files']
         inputs += [self.runtime[key] for key in ('toolchain', 'migrationReceipt', 'python')]
@@ -121,7 +142,7 @@ class Runner:
             for parent in parents:
                 require(self.state['stages'].get(parent) == parents[parent], 'Dependency changed: '+parent)
                 self.result(parent, _audit=completion_audit)
-            python_package_pins(self.local, require_imports=True)
+            python_package_pins(self.local)
             receipt.update(state='complete', result=result)
         except Exception as exc:
             receipt.update(state='failed', error=str(exc), traceback=traceback.format_exc())
@@ -144,28 +165,40 @@ class Runner:
                   'processing': self.data.get('processing', {}),'render':self.data.get('render',{}), 'output': str(folder/'worker'), **values}
         config['inputs'] = all_pins(self.manifest_path,roles=stage_roles(stage),native=stage=='fit')+code_pins()+[self.local['blender']]
         config['inputs'] += [pin(values[key]) for key in ('source', 'workingSource', 'scene', 'texture', 'reference', 'atlas', 'gripStandard') if key in values]
-        if 'shadowCandidates' in values:config['inputs'] += [row['arrays'] for row in values['shadowCandidates'].values()]
+        for key in ('shadowCandidates', 'visibleCandidates'):
+            if key in values: config['inputs'] += [row['arrays'] for row in values[key].values()]
         target = folder/'worker.json'; write(target, config, fresh=True)
         inputs = folder/'worker-inputs.json'; write(inputs, config['inputs']+[pin(target)], fresh=True)
         command = [sys.executable, str(ROOT/'tools/phenotypes/launch_shared_tool.py'),
                    '--toolchain', self.local['toolchain'], '--migration-receipt', self.local['migrationReceipt'],
                    '--tool', 'blender', '--output', str(folder/'worker-launch'), '--input-manifest', str(inputs),
                    '--', '--python', str(Path(__file__).parent/'blender_worker.py'), '--', '--config', str(target)]
-        result = subprocess.run(command, capture_output=True, text=True, timeout=2700,env=blender_environment(self.local),
+        returncode = run_logged(command, folder/'blender.log', 2700, env=blender_environment(self.local),
                                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-        (folder/'blender.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
-        require(result.returncode == 0, 'Blender worker failed; inspect retained log')
+        require(returncode == 0, 'Blender worker failed; inspect retained log')
         # Worker inputs are stage inputs or this stage's own outputs; execute()'s completion audit rereads them fresh.
         verify(config['inputs']); return read(folder/'worker'/'result.json')
 
-    def _execute(self, stage, folder, *, parent_results=None):
-        # Only this synchronous stage shares dependency verification. Completion
-        # above uses a new pass, including ancestor bytes and review decisions.
-        dependency_audit = VerificationPass()
-        def parent_result(stage):
-            if parent_results is not None:
-                return parent_results[stage]
-            return self.result(stage, _audit=dependency_audit)
+    def constrained_candidates(self, scene, folder):
+        """Reduce each fitted part outside its seam band; the worker validates these before use."""
+        from .parts import active_parts
+        from .reduction import policy, reduce
+        extracted = self.worker('uv-arrays', folder/'extract', scene=scene)
+        meshlab = library(self.local, 'pymeshlab'); igl = library(self.local, 'igl'); joins = self.data['processing'].get('joinY', [])
+        root = folder/'constrained'; root.mkdir(); candidates = {}
+        with np.load(extracted['arrays']['path'], allow_pickle=False) as data:
+            for part in active_parts(self.family):
+                p, f = data[part+'_positions'], data[part+'_faces']
+                budget = self.family['budgets']['parts'][part]['visible']
+                v, t, _ = reduce(p, f, budget, joins, meshlab,
+                                 lambda points: np.sqrt(igl.point_mesh_squared_distance(points, p, f)[0]))
+                target = root/(part+'.npz'); np.savez_compressed(target, positions=v, faces=t)
+                candidates[part] = {'arrays': pin(target), 'policyHash': policy(budget, joins),
+                                    'sourceCornerHash': corner_hash(p[f])}
+        return candidates
+
+    def _execute(self, stage, folder, *, parent_results):
+        parent_result = parent_results.__getitem__
         if stage == 'prepare':
             require(self.data.get('approval', {}).get('referenceDesignReviewed') is True, 'Reference design review required')
             source = Path(self.input('reference')); target = folder/'reference.png'
@@ -173,8 +206,9 @@ class Runner:
                 require(image.format == 'PNG' and min(image.size) >= 512, 'Use a PNG reference at least 512 pixels on each axis')
                 info = {'size': list(image.size), 'mode': image.mode}
             shutil.copyfile(source, target)
-            return {'reference': pin(target), 'geometryAndAppearanceUseSameReference': True,
-                    'clayReferenceRequired': False, 'image': info, 'cameraReviewPending': True}
+            clay = self.data.get('conditioning', 'detailed-v1') == 'clay-detail-v1'
+            return {'reference': pin(target), 'geometryAndAppearanceUseSameReference': not clay,
+                    'clayReferenceRequired': clay, 'image': info, 'cameraReviewPending': True}
         if stage == 'inspect':
             return self.worker('inspect', folder, source=self.input('geometryRaw'))
         if stage == 'donor':
@@ -190,6 +224,8 @@ class Runner:
             return build(sampling,uv['uvMesh']['path'],field,self.data['processing'].get('sourceFieldPolicy'),folder/'donor')
         if stage == 'fit':
             require(self.family['nativePackaging'] == 'enabled', 'Fitting requires a measured native contract')
+            if self.family['family'] in GRIP_BOUND_FAMILIES:
+                require('gripStandard' in self.data['inputs'], 'Bind the approved grip standard before fitting this weapon')
             donor = self.input('texturedDonor'); review = self.data.get('approval', {}).get('texturedDonor', {})
             require(review.get('decision') == 'approved' and review.get('sha256') == pin(donor)['sha256']
                     and review.get('notes', '').strip(), 'Review this exact generated textured donor before fitting')
@@ -208,12 +244,15 @@ class Runner:
             extracted=self.worker('uv-arrays',folder/'extract',scene=parent['scene']['path'])
             from .parts import active_parts
             atlas=unwrap_parts(extracted['arrays']['path'],self.local,folder/'atlas',self.family['runtimeTextureSize'],
-                               packing_paddings=self.data.get('processing',{}).get('uvPackingPaddings'),parts=active_parts(self.family))
+                               packing_paddings=self.data.get('processing',{}).get('uvPackingPaddings'),parts=active_parts(self.family),
+                               coordinate_scale=self.data.get('processing',{}).get('uvCoordinateScale',1.0))
             result=self.worker('unwrap',folder/'apply',scene=parent['scene']['path'],atlas=atlas['atlas']['path'])
             result['validation']=atlas;return result
         if stage in ('reduce', 'finish', 'bake', 'shadow'):
             parent = parent_result(DEPENDENCIES[stage][0]); values = {'scene': parent['scene']['path']}
             if stage == 'finish': values['reference'] = self.input('reference')
+            if stage == 'reduce' and self.data.get('processing',{}).get('constrainedReduction'):
+                values['visibleCandidates'] = self.constrained_candidates(parent['scene']['path'], folder)
             if stage=='shadow' and self.data.get('processing',{}).get('shadowProxies'):
                 values['shadowCandidates']=parent_result('reduce')['shadowPreflight']
             result = self.worker(stage, folder, **values)
@@ -222,21 +261,23 @@ class Runner:
                 result['shadowPreflight']=build_candidates(result['shadowSource']['path'],self.family,self.data['processing'],folder/'shadow-preflight')
             if stage == 'bake':
                 from .textures import finish_bake
-                result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures'))
+                result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures',
+                                               palettes=self.data['processing'].get('materialPalettes',())))
             return result
         if stage == 'render':
             return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'],
                                texture=parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'])
         if stage == 'export':
-            require(self.family['family'] != 'shield',
+            adapter = ROUTES[self.family['family']].adapter
+            require(adapter != 'shield',
                     'Shield native export requires the reviewed shield_native adapter; '
                     'the rigid Runner exporter cannot preserve the pane material contract')
-            require(self.family['family'] not in ('bow','whip','crossbow'),
+            require(adapter not in ('rigged', 'whole-skinned'),
                     'Rigged native export requires the reviewed skinned_native adapter and inactive placeholders; '
                     'the rigid Runner exporter cannot preserve skin weights or animation')
             arrays = self.worker('export-arrays', folder, scene=parent_result('shadow')['scene']['path'])
             icons = parent_result('render')['icons']
-            if self.family['family'] in ('firearm-sling','firearm-crossbow'):
+            if self.family['family'] in PACKAGED_FIREARMS:
                 from .parts import active_parts
                 slot, = active_parts(self.family)
                 require(set(arrays['parts']) == set(icons) == {slot}, 'Whole firearm export contains unexpected parts')
@@ -249,7 +290,7 @@ class Runner:
             return {'preparedDirectory': str(folder/'export'), **prepare(self.profile_path, self.family, arrays['parts'],
                 parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'], icons, folder/'export')}
         if stage == 'native':
-            require(self.family['family'] not in ('firearm-sling','firearm-crossbow'),
+            require(self.family['family'] not in PACKAGED_FIREARMS,
                     'Combine reviewed Color exports with firearm-prepare, firearm-native and firearm-fixture')
             from .native import compile_package
             return compile_package(parent_result('export')['preparedDirectory'], self.local['client'], folder/'native')

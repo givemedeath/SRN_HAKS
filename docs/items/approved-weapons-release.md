@@ -62,6 +62,17 @@ Production weapon-animation integration belongs to the PhenoMorpher toolkit.
 In particular, this asset release does not claim a production replacement for
 the Sling carrier's stock throwing motion or a firearm ammunition/reload system.
 
+## Throwing Knife size revision
+
+The user approved the 50% Throwing Knife on 2026-11-04 after seeing the candidate.
+All three parts were scaled uniformly about the native grip origin with
+`resize-corners`, then recompiled offline; UVs, normals, texture and icons are
+unchanged. `wthax_001` carries the same scale in its vertex floats only, so its
+flight, impact and emitter data stay byte-identical. It remains the projectile for
+every Base 63 throw. Length is now 0.252 and midpoint grip depth about half the
+melee reference, a deliberate departure from it. No client validation record or
+production acceptance is created here.
+
 ## Separate comparison module
 
 `test-modules/weapon-waves` contains the review module and two fixture-only HAKs.

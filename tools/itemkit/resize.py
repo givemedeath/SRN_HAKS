@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 from tools.headkit.common import pin,verify,require,write
 from .grip import affine_corners
-from .geometry import topology
+from .geometry import topology, transform
 
 
 def transform_part(source,matrix,output):
@@ -12,7 +12,7 @@ def transform_part(source,matrix,output):
         require(set(data.files)=={'positions','normals','uv','shadowVertices','shadowFaces'},'Expected native corner archive')
         old={key:data[key].copy() for key in data.files}
     positions,normals,uv=affine_corners(old['positions'],old['normals'],old['uv'],m)
-    shadow=old['shadowVertices']@m[:3,:3].T+m[:3,3]
+    shadow=transform(old['shadowVertices'],m)
     require(topology(shadow,old['shadowFaces'])['closedWound'],'Transformed shadow must remain closed and outward')
     visible=positions.reshape(-1,3);faces=np.arange(len(visible)).reshape(-1,3)
     require(topology(visible,faces)['closedWound'],'Transformed visible mesh must remain closed and outward')

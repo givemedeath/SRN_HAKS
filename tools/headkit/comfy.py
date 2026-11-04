@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from pathlib import Path
 import copy
 import errno
+import http.client
 import json
 import os
 import threading
@@ -377,6 +378,25 @@ def _record_collection(ledger, token, output, result):
     return result
 
 
+class CollectionInterrupted(RuntimeError):
+    """The server never answered, so nothing about this job was decided."""
+
+
+class CompletionClient:
+    """Separates a lost connection from any answer the server gave, including an HTTP error."""
+    def __init__(self, client):
+        self.client=client
+
+    def __getattr__(self, name):
+        return getattr(self.client,name)
+
+    def request(self, route, data=None):
+        try:return self.client.request(route,data)
+        except urllib.error.HTTPError:raise
+        except (OSError,http.client.HTTPException) as exc:
+            raise CollectionInterrupted('Comfy unavailable during completion ('+route+'); job remains unresolved, collect again: '+str(exc)) from exc
+
+
 def collect(client, ledger, token, output_root, output, *, wait=False):
     output=Path(output).resolve()
     with locked(ledger):
@@ -402,6 +422,8 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
                 samples.append({'timestamp':time.time(),'devices':[{k:d.get(k) for k in ('name','type','vram_total','vram_free','torch_vram_total','torch_vram_free')} for d in devices]})
             except OSError:samples.append({'timestamp':time.time(),'unavailable':True})
         found=client.request('/history/'+job['promptId']).get(job['promptId'])
+        # A restarted server forgets history an interrupted collection already retained.
+        if not found and (output/'history.json').is_file():found=read(output/'history.json')
         if found: break
         if time.time()-job['started'] > 2700:
             with locked(ledger):
@@ -459,13 +481,16 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
         # verification must finish before publishing a successful collection.
         with verification_pass('client-completion') as completion:
             verify(intent['prepared']['inputs']);request_sources(intent['prepared']);verify(pins)
+            server=CompletionClient(client)
             if intent['prepared'].get('runtimeVerification')=='server-owned':
                 with completion.phase('server-runtime'):
-                    verify_comfy_runtime(client,intent['prepared'])
+                    verify_comfy_runtime(server,intent['prepared'])
             model_proof=None
             if intent['prepared'].get('modelVerification') is not None:
                 with completion.phase('server-loader-models'):
-                    model_proof=verify_loader_models(client,intent['prepared'])
+                    model_proof=verify_loader_models(server,intent['prepared'])
+    except CollectionInterrupted:
+        raise
     except Exception as exc:
         _record_collection(ledger,token,output,{'state':'failed-validation','token':token,'promptId':job['promptId'],
             'error':str(exc),'history':pin(output/'history.json'),'memorySamples':pin(output/'memory-samples.json')})

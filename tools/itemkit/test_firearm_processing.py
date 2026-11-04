@@ -248,9 +248,9 @@ class FirearmProcessingTests(unittest.TestCase):
                     'bake':{'maps':{'1024':{'path':'texture','sha256':'bound'}}}}
             with patch.object(runner,'result',side_effect=lambda stage, **kwargs:result[stage]), \
                  patch.object(runner,'worker',return_value={'parts':{'b':{'path':'arrays','sha256':'bound'}}}):
-                exported=runner._execute('export',folder)
+                exported=runner._execute('export',folder,parent_results=result)
             self.assertEqual(exported['slot'],'b');self.assertEqual(exported['kind'],'firearm-processed-variant')
-            with self.assertRaisesRegex(ValueError,'firearm-prepare'):runner._execute('native',folder)
+            with self.assertRaisesRegex(ValueError,'firearm-prepare'):runner._execute('native',folder,parent_results=result)
 
 
 if __name__=='__main__':unittest.main()
