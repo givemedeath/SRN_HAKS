@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 
 from tools.headkit.common import pin, read, write
-from .__main__ import intake
+from .__main__ import firearm_compile_tools, intake
 from .contracts import family, manifest
 from .firearm_native import placeholder_geometry, audit_blueprint_roundtrip
 from . import firearm_package
@@ -51,6 +51,13 @@ class FirearmPackageTests(unittest.TestCase):
                 firearm_package.compile_package(self.output,None,self.root/'native',compiler=compiler)
             offline.assert_called_once();process.assert_not_called()
         self.assertFalse((self.root/'native/compiler-userdir').exists())
+
+    def test_offline_compile_does_not_need_a_client_binding(self):
+        compiler=self.root/'compiler.json';write(compiler,{'sha256':'frozen'})
+        with patch('tools.itemkit.__main__.bindings',return_value={}):
+            self.assertEqual(firearm_compile_tools(self.root/'local.json',compiler),(None,{'sha256':'frozen'}))
+        with patch('tools.itemkit.__main__.bindings',return_value={'client':'bound'}):
+            self.assertEqual(firearm_compile_tools(self.root/'local.json',None),('bound',None))
 
     def test_melee_package_can_use_the_offline_compiler(self):
         from tools.itemkit import native

@@ -55,6 +55,11 @@ def intake(reference, output, design_id='cougar-fineblade-longblade', family_nam
     return {'manifest': pin(output/'asset.json'), 'reference': pin(target), 'clayReferenceRequired': False}
 
 
+def firearm_compile_tools(bindings_path, compiler_path):
+    """An offline compiler replaces the client, so only the client route needs that binding."""
+    return (None, read(compiler_path)) if compiler_path else (bindings(bindings_path)['client'], None)
+
+
 def launcher_pins(bindings_path, local):
     """What every explicit-spec route consumes besides its own inputs."""
     return code_pins()+[pin(bindings_path), pin(local['toolchain']), pin(local['migrationReceipt'])]+python_package_pins(local)+[local['python']]
@@ -274,8 +279,8 @@ def main():
         result = prepare(a.spec, a.output)
     elif a.command == 'firearm-native':
         from .firearm_package import compile_package
-        result = compile_package(a.prepared, bindings(a.bindings)['client'], a.output,
-                                 compiler=read(a.compiler) if a.compiler else None)
+        client, compiler = firearm_compile_tools(a.bindings, a.compiler)
+        result = compile_package(a.prepared, client, a.output, compiler=compiler)
     elif a.command == 'firearm-fixture':
         from .firearm_package import native_inputs
         from .fixture import build
