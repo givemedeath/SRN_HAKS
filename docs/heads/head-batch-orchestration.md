@@ -22,7 +22,8 @@ Pass `--workspace DIR` or set `SRN_HEAD_WORKSPACE`.
 | `game`, `trialBase`, `clientSettings` | Client trials: install paths, base HAKs and module, and an optional `settings.tml` |
 | `slots` | Slot numbers this batch fills, from `docs/heads/slot-catalog.json`: `"elf-male": [20, 21]` gives `elf-male-a`, `elf-male-b` |
 | `headsDirectory`, `hashCache`, `cpuSlots`, `loopBudget` | Optional. A `cpu-slots` file in the workspace changes the limit while launches wait |
-| `repairDefaults` | Optional fine relief for `presets` |
+| `ramGates` | Optional `{slot: free GB}` a slot needs to start a job; replaces the defaults of 10, 13, 16 and 16 GB for slots 3 to 6 |
+| `repairDefaults` | Optional replacement for the fine relief `presets` applies |
 
 Race constants that do not depend on the machine are in `tools/headbatch/races.json`.
 
@@ -64,7 +65,7 @@ Quality-gate prototypes that headkit adopted are not here; nor are one-off audit
 
 - **UV floor:** when the newest unwrap cleared its floor by under .01, the floor becomes coverage minus .011 rounded down to .01. Below .20 it reports HOLD: the head needs fewer charts. `--apply` records a review, so run it only after looking at the head; `--keep-floor` reports the floor and changes nothing.
 - **Neck reach:** when `landmarks` is set, `slopescan` finds the jaw. If it sits above the chin limit, the largest reach of .06, .04 and .03 that passes is used, otherwise HOLD. `HEAD/jaw-reviewed` skips this.
-- **Fine relief:** the optional workspace `repairDefaults`, `{"fineRelief": {...}, "skipRaces": [...]}`, applies to heads that declare none.
+- **Fine relief:** the user-approved wide profile applies to non-Human heads that declare none. Workspace `repairDefaults`, `{"fineRelief": {...}, "skipRaces": [...]}`, replaces either key.
 
 `--uv-only` is for a head whose repair is already approved: fine relief and the cut are repair keys, and changing them stales the repair (RUNBOOK 106).
 
@@ -79,7 +80,7 @@ Quality-gate prototypes that headkit adopted are not here; nor are one-off audit
 - an ownership stage with no rules;
 - a repair approval whose neck cut can reach the mouth, unless `HEAD/jaw-reviewed` exists.
 
-`gpu` stops at 5 geometry submissions per slot, counted in `gpu/gpu.json`; at the cap, stop and ask the user. A `HEAD/geometry-cap-override` file records the user's exception. `manifest` refuses while a launch of that head is queued or running, because the manifest is a pinned input.
+`gpu` stops at 5 geometry submissions per slot, counted in `gpu/gpu.json` and, for older ledgers, from ComfyUI's numbering of the head's geometry files; at the cap, stop and ask the user. A `HEAD/geometry-cap-override` file records the user's exception. Every GPU run keeps its own folder under `gpu`, and a shape that fails the occiput check goes to `rejectedGeometry`, so the ledger keeps its shape and appearance pair. `manifest` holds the head lock from its first read to the replace, because the manifest and inputs are pinned, and refuses while a launch of that head is queued or running.
 
 A `run` or `gpu` launch holds a lock on its head from queueing to its end, so a second launch of that head is refused. Head, CPU and GPU locks are held by the system for the process, so a killed launch leaves nothing to clear.
 
@@ -87,7 +88,7 @@ A `run` or `gpu` launch holds a lock on its head from queueing to its end, so a 
 
 Drop JSON requests into the workspace's `spool` folder and run `spool`. The module docstring in `tools/headbatch/spool.py` gives the formats.
 
-It launches each head separately and advances by itself only on numeric gates: unwrap to bake, palette to export when rows equal the pins in `spool/reviewed-rows.json`, export to native, native to render. Everything else lands in `spool/review.md` or `spool/attention.md`. A launch with no result goes to attention rather than passing silently, and so does a bad request file or head: the file moves to `spool/done` and the batch keeps going. A review closes only when its launch has recorded the approval; a refused approval stays open with the reason. A queue file changed while its presets ran stays queued and is read afresh.
+It launches each head separately and advances by itself only on numeric gates: unwrap to bake, palette to export when rows equal the pins in `spool/reviewed-rows.json`, export to native, native to render. Everything else lands in `spool/review.md` or `spool/attention.md`. A launch with no result goes to attention rather than passing silently, and so does a bad request file or head: the file moves to `spool/done` and the batch keeps going. An approval names the attempt reviewed per head, and is refused if that is no longer the current attempt. A review closes only when its launch has recorded the approval; a refused approval stays open with the reason. Export and later stages refuse rows missing from `spool/reviewed-rows.json` however they are launched. A queue file changed while its presets ran stays queued and is read afresh.
 
 Each finished stage gets its evidence before it reaches the review list:
 

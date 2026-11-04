@@ -14,6 +14,7 @@ TOOLS = REPO/'tools'
 RACE_DATA = json.loads(Path(__file__).with_name('races.json').read_text(encoding='utf-8'))
 REQUIRED = ('toolchain', 'migrationReceipt', 'headBindings', 'slots')
 ENVIRONMENT = 'SRN_HEAD_WORKSPACE'
+RAM_GATES = {3: 10, 4: 13, 5: 16, 6: 16}  # slot: free GB it needs to start a job (user 2026-10-28, race-heads-v1 tracking)
 
 
 class WorkspaceError(ValueError):
@@ -92,6 +93,11 @@ class Workspace:
         except (OSError, ValueError):
             value = int(self.data.get('cpuSlots', 2))
         return value if 1 <= value <= 6 else 2
+
+    def ram_gates(self):
+        """{slot number: free GB}; workspace "ramGates" replaces the defaults."""
+        chosen = self.data.get('ramGates')
+        return RAM_GATES if chosen is None else {int(slot): free for slot, free in chosen.items()}
 
     def head_ids(self):
         """{head id: (race, sex, slot resref)}; slots lists read as human-male: [84, 85] give human-male-a, human-male-b."""

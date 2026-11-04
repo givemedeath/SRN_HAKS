@@ -1,8 +1,10 @@
 """Checks that refuse a launch before it spends CPU. Each one answers a confirmed batch mistake (docs/heads/race-heads-v1-runbook.md)."""
-from pathlib import Path
+from contextlib import ExitStack, contextmanager
+import os
 import re
+import time
 
-from gpu_job import GEOMETRY_CAP
+from gpu_job import GEOMETRY_CAP, submissions
 from head_files import attempts, fit_matrix, read
 from headkit.comfy import locked
 from workspace import TOOLS
@@ -10,6 +12,8 @@ from workspace import TOOLS
 UV_MARGIN = 0.01
 UV_DEFAULT_FLOOR = 0.30
 LOOP_BUDGET = {'repair': 3, 'ownership': 2, 'tone': 4, 'palette': 3, 'render': 3}
+STAGES_ON_REVIEWED_ROWS = {'export', 'native', 'render'}
+DELETE_TRIES = 5
 COVERAGE = re.compile(r'Insufficient useful UV coverage(?: after face priority)? \(([.\d]+) at 2K')
 
 
@@ -35,17 +39,36 @@ def crlf_in_pinned_code():
 def clean_stray_bytecode(bindings):
     """Remove bytecode the package pins do not list, then refuse any other unpinned file (RUNBOOK 90, 155). Returns what it removed."""
     packages = read(bindings)['pythonPackages']
-    root = Path(packages['directory']).resolve()
-    pinned = {Path(row['path'] if isinstance(row, dict) else row).resolve() for row in packages['files']}
-    removed = []
-    for path in sorted(root.rglob('*.pyc')):
-        if path.resolve() not in pinned:
-            path.unlink(missing_ok=True)  # launches that start together clean the same tree
-            removed.append(path.relative_to(root).as_posix())
-    left = sorted(path.relative_to(root).as_posix() for path in root.rglob('*') if path.is_file() and path.resolve() not in pinned)
+    key = lambda path: os.path.normcase(os.path.abspath(path))  # pins are canonical paths, and this runs on thousands of files per launch
+    root = os.path.abspath(packages['directory'])
+    pinned = {key(row['path'] if isinstance(row, dict) else row) for row in packages['files']}
+    removed, left = [], []
+    for folder, _, names in os.walk(root):
+        for name in names:
+            path = os.path.join(folder, name)
+            if key(path) in pinned:
+                continue
+            relative = os.path.relpath(path, root).replace(os.sep, '/')
+            if name.endswith('.pyc') and remove(path):
+                removed.append(relative)
+            else:
+                left.append(relative)
     if left:
-        raise Refused(f'Unpinned files in the bound package tree (RUNBOOK 90): {left[:5]}')
-    return removed
+        raise Refused(f'Unpinned files in the bound package tree (RUNBOOK 90): {sorted(left)[:5]}')
+    return sorted(removed)
+
+
+def remove(path):
+    """Launches that start together clean the same tree, and on Windows the loser of a delete can see access denied until the winner's finishes (RUNBOOK 194, 198)."""
+    for _ in range(DELETE_TRIES):
+        try:
+            os.unlink(path)
+            return True
+        except FileNotFoundError:
+            return True
+        except PermissionError:
+            time.sleep(.05)
+    return not os.path.exists(path)
 
 
 def ownership_rules(head):
@@ -78,9 +101,20 @@ def loop_budget(head, stages, limits=None):
 def geometry_cap(head):
     """User rule: at most 5 geometry submissions per head slot, reseeds and out-of-memory failures included."""
     ledger = head/'gpu'/'gpu.json'
-    count = read(ledger).get('geometrySubmissions', 0) if ledger.exists() else 0
+    count = submissions(head/'gpu', read(ledger) if ledger.exists() else {})
     if count >= GEOMETRY_CAP and not (head/'geometry-cap-override').exists():
         raise Refused(f'{head.name}: {count} geometry submissions reached the cap of {GEOMETRY_CAP}: stop and ask the user')
+
+
+def rows_reviewed(workspace, name):
+    path = workspace.spool/'reviewed-rows.json'
+    return path.exists() and read(path).get(name) == read(workspace.head(name)/'manifest.json')['palette'].get('rows', {})
+
+
+def palette_rows(workspace, name, stages):
+    """Export and later stages ship the rows, so they run only on rows a person reviewed, however they are launched (RUNBOOK 112)."""
+    if STAGES_ON_REVIEWED_ROWS & set(stages) and not rows_reviewed(workspace, name):
+        raise Refused(f'{name}: palette rows are not in reviewed-rows.json (RUNBOOK 112)')
 
 
 def jaw_limit(head, landmarks):
@@ -127,6 +161,18 @@ def unwrap_gates(receipt):
 def head_lock(workspace, name):
     """Held by a launch from queueing to its end; the system frees it if the process dies (RUNBOOK 190). Busy raises FileExistsError."""
     return locked(workspace.locks/f'head-{name}')
+
+
+@contextmanager
+def head_locks(workspace, names):
+    """One launch per head: headkit refuses a second runner on a head outright, which would lose every head of that launch (RUNBOOK 190)."""
+    with ExitStack() as stack:
+        for name in names:
+            try:
+                stack.enter_context(head_lock(workspace, name))
+            except FileExistsError:
+                raise Refused(f'{name}: another launch of this head is queued or running (RUNBOOK 190)') from None
+        yield
 
 
 def head_busy(workspace, name):

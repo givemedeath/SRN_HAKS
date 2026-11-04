@@ -2,7 +2,7 @@
 
 Plans per head; apply writes overrides.json with notes and regenerates the manifest. A lowered UV floor records a review, so only a
 person's --apply sets one: the spooler passes keep_floor and only reports the proposal.
-1. Fine relief: workspace repairDefaults {"fineRelief": {...}, "skipRaces": [...]} on heads that do not declare one.
+1. Fine relief: the user-approved wide profile on non-Human heads that do not declare one. Workspace repairDefaults {"fineRelief": {...}, "skipRaces": [...]} replaces either key.
 2. UV floor: when the newest unwrap cleared its floor by under .01, floor = coverage - .011 rounded down to .01, never under .20.
 3. Neck cut jaw: slopescan at the declared slope and reach; if the jaw is above the chin limit, the largest reach of .06/.04/.03 that passes."""
 import copy
@@ -18,6 +18,7 @@ from workspace import PYTHON
 SLOPESCAN = Path(__file__).with_name('review')/'slopescan.py'
 UV_MINIMUM = .20
 REACHES = (.06, .04, .03)
+FINE_RELIEF = {'fineRelief': {'maximumError': .02, 'maximumExtent': .025, 'maximumAreaShare': .0075}, 'skipRaces': ['human']}  # user-approved r3 budget override
 SCAN = re.compile(r'jaw z ([-+.\d]+) y ([-+.\d]+) band top ([-+.\d]+) body neck top ([-+.\d]+) (OK|FAIL)')
 
 
@@ -84,10 +85,10 @@ def plan(workspace, name, uv_only=False, scan=slopescan, keep_floor=False):
     mesh = overrides.setdefault('mesh', {})
     before = copy.deepcopy(overrides)
     notes, hold = [], []
-    defaults = workspace.data.get('repairDefaults', {})
-    if not uv_only and defaults.get('fineRelief') and 'fineRelief' not in mesh and name.split('-')[0] not in defaults.get('skipRaces', []):
+    defaults = {**FINE_RELIEF, **workspace.data.get('repairDefaults', {})}
+    if not uv_only and defaults['fineRelief'] and 'fineRelief' not in mesh and name.split('-')[0] not in defaults['skipRaces']:
         mesh['fineRelief'] = dict(defaults['fineRelief'])
-        notes.append('fineRelief from workspace repairDefaults')
+        notes.append(f"fineRelief {mesh['fineRelief']}")
     uv_floor(head, mesh, uv_only, keep_floor, notes, hold)
     cut = None if uv_only else mesh.get('neck', {}).get('cut')
     landmarks = workspace.landmarks()

@@ -6,7 +6,7 @@ import re
 import shutil
 import subprocess
 
-from gpu_job import FIELD_NODE, GEOMETRY_NODE, file_from
+from gpu_job import FIELD_NODE, GEOMETRY_NODE, file_from, link_or_copy
 import guards
 from head_files import sha, write_json
 from workspace import PYTHON, RACE_DATA
@@ -31,15 +31,15 @@ def channel_reference(race, sex, channel):
     return {'reference': 'head-metal-v1'}
 
 
-def link(head, source, name):
+def link(head, source, name, replaced):
+    """The input named for the manifest. The loader checks it against the bytes it finds, so a re-rolled GPU output goes in first; the old file waits in replaced until the manifest passes."""
     target = head/'inputs'/name
     if target.exists() and not os.path.samefile(source, target) and sha(source) != sha(target):
-        target.unlink()  # a re-rolled GPU output replaces the stale link
+        held = target.with_name(target.name+'.replaced')
+        target.replace(held)
+        replaced.append((held, target))
     if not target.exists():
-        try:
-            os.link(source, target)
-        except OSError:
-            shutil.copy2(source, target)
+        link_or_copy(source, target)
     return {'path': f'inputs/{name}', 'sha256': sha(target)}
 
 
@@ -115,26 +115,40 @@ def validate(workspace, path):
 
 
 def write_manifest(workspace, name, check=validate, overrides=None):
-    """overrides, when given, replace overrides.json once the manifest built from them passes: a refused edit leaves both files as they were."""
-    if guards.head_busy(workspace, name):
-        raise guards.Refused(f'{name}: a stage launch is queued or running; edit after it ends (RUNBOOK 111)')
+    """overrides, when given, replace overrides.json once the manifest built from them passes: a refused edit leaves the head as it was.
+    The manifest and inputs are pinned by a launch, so the head lock is held from the first read to the replace (RUNBOOK 49, 111)."""
+    with guards.head_locks(workspace, [name]):
+        replaced = []
+        try:
+            return rewrite_manifest(workspace, name, check, overrides, replaced)
+        except Exception:
+            for held, target in replaced:
+                target.unlink(missing_ok=True)
+                held.replace(target)
+            raise
+        finally:
+            for held, _ in replaced:
+                held.unlink(missing_ok=True)
+
+
+def rewrite_manifest(workspace, name, check, overrides, replaced):
     head = workspace.head(name)
     receipt = guards.read(head/'design'/'design-receipt.json')
     stored = head/'overrides.json'
     chosen = overrides if overrides is not None else guards.read(stored) if stored.exists() else {}
     race, sex = receipt['race'], receipt['sex']
-    inputs = {'design': link(head, head/'design'/receipt['selectedDesign']['file'], 'design.png')}
+    inputs = {'design': link(head, head/'design'/receipt['selectedDesign']['file'], 'design.png', replaced)}
     for role, file in PALETTE_ROLES:
         inputs[role] = {'path': f'inputs/{file}', 'sha256': sha(head/'inputs'/file)}
     gpu = head/'gpu'/'gpu.json'
     if gpu.exists():
         stages = guards.read(gpu)['stages']
         if 'geometry' in stages:
-            inputs['raw'] = link(head, file_from(stages['geometry']['files'], GEOMETRY_NODE)['path'], 'raw.glb')
+            inputs['raw'] = link(head, file_from(stages['geometry']['files'], GEOMETRY_NODE)['path'], 'raw.glb', replaced)
         if 'appearance' in stages:
-            inputs['field'] = link(head, file_from(stages['appearance']['files'], FIELD_NODE)['path'], 'field.npz')
+            inputs['field'] = link(head, file_from(stages['appearance']['files'], FIELD_NODE)['path'], 'field.npz', replaced)
     reference = workspace.fit_reference(race, sex)
-    inputs['fitReference'] = link(head, reference, 'fit-reference-'+reference.name)
+    inputs['fitReference'] = link(head, reference, 'fit-reference-'+reference.name, replaced)
     data = defaults(name, receipt, inputs, reference)
     merge(data, chosen)
     tone_every_channel(data, race, sex, name)
@@ -142,7 +156,7 @@ def write_manifest(workspace, name, check=validate, overrides=None):
     write_json(candidate, data)
     try:
         check(workspace, candidate)
-    except guards.Refused:
+    except Exception:
         candidate.unlink()
         raise
     candidate.replace(head/'manifest.json')

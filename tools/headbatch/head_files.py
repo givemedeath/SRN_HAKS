@@ -44,6 +44,28 @@ def consumed(head, attempt, stage):
     return Path(head)/'run'/stage/PureWindowsPath(row['path']).parent.name if row else None
 
 
+def state(head):
+    path = Path(head)/'run'/'state.json'
+    return read(path) if path.exists() else {}
+
+
+def current(head, stage):
+    """The attempt folder name headkit holds as this stage's result, or None. A review binds to it, whatever the newest folder is. By folder name: see consumed."""
+    row = state(head).get('stages', {}).get(stage)
+    return PureWindowsPath(row['path']).parent.name if row else None
+
+
+def decision(head, stage):
+    """A stage's review as headkit counts it (headkit __main__ chain): 'pending' unless it is bound to the current receipt."""
+    progress = state(head)
+    row = progress.get('reviews', {}).get(stage)
+    path = Path(head)/'run'/'reviews'/PureWindowsPath(row['path']).name if row else None
+    if path is None or not path.is_file():
+        return 'pending'
+    review = read(path)
+    return review.get('decision') if review.get('stageReceipt') == progress.get('stages', {}).get(stage) else 'pending'
+
+
 def fit_matrix(head):
     """The manifest's reviewed matrix first, then the fit stage's result (RUNBOOK 100)."""
     head = Path(head)

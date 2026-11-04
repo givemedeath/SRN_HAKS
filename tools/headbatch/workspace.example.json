@@ -21,5 +21,6 @@
     "actorIdentity": {"appearanceRow": 2, "raceId": 2, "visualScale": 1.4285714285714286}
   },
   "slots": {"elf-female": [18, 19], "elf-male": [20, 21]},
-  "cpuSlots": 2
+  "cpuSlots": 2,
+  "ramGates": {"3": 10, "4": 13, "5": 16, "6": 16}
 }

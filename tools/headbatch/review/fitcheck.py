@@ -1,4 +1,4 @@
-"""fitcheck.py HEAD_DIR OUT.png OUT_MATRIX.json: read-only nose-tip placement (unwindowed toolkit nose_tip, profile scale)
+"""fitcheck.py HEAD_DIR OUT.png OUT_MATRIX.json: read-only nose-tip placement (the fit stage's windowed nose_tip, profile scale)
 drawn like the fit overlay, both placements side by side (profile left pair, nose right pair)."""
 import glob, sys, json, numpy as np
 from PIL import Image, ImageDraw
@@ -10,7 +10,7 @@ H, out, mout = sys.argv[1:4]
 value = mesh(sorted(glob.glob(H+'/run/precluster/attempt-*/oriented.glb'))[-1]); local = head_local(surface_samples(value['positions'][value['faces']], 1000000))
 target = ascii_surface(H+'/'+read(H+'/manifest.json')['inputs']['fitReference']['path'])  # a head can hold older references beside the bound one
 r = match(local, target, exclude_lower=.25); s = r['scale']; prof = np.array(r['translation'])
-tn = nose_tip(target, .001, .0005); sn = nose_tip(local, .001/s, .0005/s); t = tn-s*sn
+tn = nose_tip(target, .001, .0005); sn = nose_tip(local, .001/s, .0005/s, around=(tn[2]-prof[2])/s, window=NOSE_WINDOW/s); t = tn-s*sn
 print('scale', s, 'profile', prof.round(5), 'target nose', tn.round(5), 'source nose', sn.round(5), 'nose translation', t.round(5), 'shift', round(float(np.linalg.norm(t-prof)), 4))
 M = np.eye(4); M[:3, :3] = np.diag([-s, -s, s]); M[:3, 3] = t; json.dump(M.tolist(), open(mout, 'w'))
 size = 700; pad = max(.32, float(np.abs(target).max())*1.15); canvas = np.zeros((size, size*4, 3), np.uint8)

@@ -1,7 +1,8 @@
 """Auto-advance spooler. Runs queued stages one head per launch, passes numeric gates by itself, and leaves every visual gate to a reviewer.
 
   spool/queue/*.json    {"heads": [...], "stages": STAGES[, "approve": STAGE, "notes": TEXT]} launches each head
-  spool/approve/*.json  {"heads": [...], "approve": STAGE, "next": STAGES, "notes": TEXT} records a review and launches the next stages
+  spool/approve/*.json  {"heads": [...], "approve": STAGE, "attempts": {head: ATTEMPT}, "next": STAGES, "notes": TEXT} records a review of
+                        the attempts named, and launches the next stages. An attempt that is no longer current is refused (RUNBOOK 200)
   spool/reviewed-rows.json  {head: palette rows}: export and later run only on rows reviewed here (RUNBOOK 109, 112)
   spool/review.md, attention.md, log.txt  what waits for a person
   spool/STOP            ends the loop
@@ -18,7 +19,7 @@ import subprocess
 import time
 
 import guards
-from head_files import write_json
+from head_files import current, write_json
 from workspace import PYTHON
 
 RUNNER = Path(__file__).with_name('run_headbatch.py')
@@ -28,7 +29,6 @@ SKIRT_GAP = .03  # the default of headkit neck_policy
 READ_BACK_LIMIT = 1e-6
 POLL_SECONDS = 20
 RESTART_GRACE_SECONDS = 60
-STAGE_GATED_ON_ROWS = {'export', 'native', 'render'}
 NUMERIC_GATES = {'unwrap', 'palette', 'export', 'native'}
 FINISHED = ('ran', 'reused')
 
@@ -120,16 +120,6 @@ class Spool:
                 return attempt.name, guards.read(attempt/'receipt.json')
         return None, {}
 
-    def rows_unreviewed(self, head, stages):
-        if not set(stages.split(',')) & STAGE_GATED_ON_ROWS:
-            return False
-        return not self.rows_reviewed(head)
-
-    def rows_reviewed(self, head):
-        path = self.folder/'reviewed-rows.json'
-        pins = guards.read(self.workspace.head(head)/'manifest.json')['palette'].get('rows', {})
-        return path.exists() and guards.read(path).get(head) == pins
-
     def on_failure(self, head, stage, item):
         attempt, receipt = self.receipt(head, stage)
         if item.get('error') and not item.get('attempt'):  # refused before an attempt began: the newest receipt is an older failure
@@ -179,7 +169,7 @@ class Spool:
             rows = {key: value for key, value in result.get('rows', {}).items() if key in manifest['palette'].get('rows', {})}
             code, text = self.tool('review', 'rowramps', head)
             sheet = f'ROWRAMPS FAILED: {text[0]}' if code else f'sheet {head}/review-evidence/rowramps.png'
-            if rows == manifest['palette'].get('rows', {}) and self.rows_reviewed(head):
+            if rows == manifest['palette'].get('rows', {}) and guards.rows_reviewed(self.workspace, head):
                 self.launch('export', head, 'palette', f'{approved} every palette row equals its reviewed pin {rows}')
             else:
                 self.review(head, stage, f'{attempt}: rows {rows} | {sheet}')
@@ -283,12 +273,6 @@ class Spool:
     def retire(self, path):
         path.rename(self.folder/'done'/f'{datetime.now():%H%M%S%f}-{path.parent.name}-{path.name}')  # approve/a.json and queue/a.json can retire in one clock tick
 
-    def launch_reviewed(self, head, stages, label, approve, notes):
-        if self.rows_unreviewed(head, stages):
-            self.attention(head, label, 'REFUSED: palette rows are not in reviewed-rows.json (RUNBOOK 112)')
-            return
-        self.launch(stages, head, approve, notes)
-
     def scan_requests(self):
         self.scan_approvals()
         self.scan_queue()
@@ -304,10 +288,19 @@ class Spool:
             self.guarded(head, request['approve'], lambda: self.approve_head(head, request))
 
     def approve_head(self, head, request):
-        """The review stays open until its launch records the approval: headkit can still refuse it (RUNBOOK 188)."""
-        if request['approve'] == 'repair':
+        """The review stays open until its launch records the approval: headkit can still refuse it (RUNBOOK 188). Headkit binds an approval to the
+        stage's current attempt, so the attempt the reviewer saw must still be that one (RUNBOOK 200)."""
+        stage, seen = request['approve'], request.get('attempts', {}).get(head)
+        now = current(self.workspace.head(head), stage)
+        if seen is None:
+            raise guards.Refused(f'{head}: name the attempt reviewed in "attempts"; {stage} is at {now}')
+        if seen != now:
+            raise guards.Refused(f'{head}: {seen} of {stage} was reviewed, but the current attempt is {now}: review that one')
+        if not request.get('next'):
+            raise guards.Refused(f'{head}: an approval records through its next launch, so give "next"; a last stage needs a headkit review')
+        if stage == 'repair':
             guards.jaw(self.workspace.head(head), self.workspace.landmarks())
-        self.launch_reviewed(head, request['next'], request['next'], request['approve'], request.get('notes'))
+        self.launch(request['next'], head, stage, request.get('notes'))
 
     def scan_queue(self):
         for path in sorted((self.folder/'queue').glob('*.json')):
@@ -335,7 +328,7 @@ class Spool:
         if not path.exists() or path.read_bytes() != raw:  # the check follows the presets, which take seconds: withdrawn or edited in that time (RUNBOOK 114)
             self.log(f'{path.name} changed before launch: {head} skipped')
             return True
-        self.launch_reviewed(head, stages, stages.split(',')[0], request.get('approve'), request.get('notes'))
+        self.launch(stages, head, request.get('approve'), request.get('notes'))
         return False
 
     def report(self):

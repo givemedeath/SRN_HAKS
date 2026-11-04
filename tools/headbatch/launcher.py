@@ -1,7 +1,9 @@
 """Stage, GPU and design launches through the shared-tool launcher, with their locks, guards and timing log."""
-from contextlib import ExitStack, contextmanager
+from contextlib import contextmanager
+import ctypes
 from datetime import datetime
 import json
+import os
 from pathlib import Path
 import subprocess
 import time
@@ -9,7 +11,7 @@ import urllib.request
 
 from gpu_job import SHAPE_NODE, file_from
 import guards
-from head_files import write_json
+from head_files import complete, decision, write_json
 from headkit.comfy import locked
 from workspace import PYTHON, REPO, TOOLS
 
@@ -55,26 +57,33 @@ def lock(paths, sleep=time.sleep):
         sleep(LOCK_POLL_SECONDS)
 
 
+def free_memory_gb():
+    if os.name != 'nt':
+        return os.sysconf('SC_AVPHYS_PAGES')*os.sysconf('SC_PAGE_SIZE')/2**30
+
+    class Status(ctypes.Structure):
+        _fields_ = [('length', ctypes.c_uint32), ('load', ctypes.c_uint32), ('total', ctypes.c_uint64), ('available', ctypes.c_uint64), ('rest', ctypes.c_uint64*5)]
+    status = Status(length=ctypes.sizeof(Status))
+    if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status)):
+        raise OSError('GlobalMemoryStatusEx failed')
+    return status.available/2**30
+
+
+def open_slots(workspace, free=free_memory_gb):
+    """The slots a job may take now: the current limit, less those whose free-memory gate is closed. Heavy stages page at about 6 GB free (user 2026-10-28)."""
+    numbers, gates = range(1, workspace.cpu_slots()+1), workspace.ram_gates()
+    available = free() if any(number in gates for number in numbers) else 0
+    return [workspace.locks/f'cpu-{number}' for number in numbers if available >= gates.get(number, 0)]
+
+
 def cpu_slot(workspace):
-    """The first free slot of the current limit, which can change while this waits."""
-    return lock(lambda: [workspace.locks/f'cpu-{index+1}' for index in range(workspace.cpu_slots())])
+    """The first free slot that is open now: the limit and free memory can both change while this waits."""
+    return lock(lambda: open_slots(workspace))
 
 
 def gpu_lock(workspace):
     """One GPU job at a time: designs behind Pixal jobs time out or run out of memory."""
     return lock(lambda: [workspace.locks/'gpu'])
-
-
-@contextmanager
-def head_locks(workspace, names):
-    """One launch per head: headkit refuses a second runner on a head outright, which would lose every head of that launch (RUNBOOK 190)."""
-    with ExitStack() as stack:
-        for name in names:
-            try:
-                stack.enter_context(guards.head_lock(workspace, name))
-            except FileExistsError:
-                raise guards.Refused(f'{name}: another launch of this head is queued or running (RUNBOOK 190)') from None
-        yield
 
 
 def launch(workspace, output, inputs, arguments, environment=None):
@@ -102,11 +111,12 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None):
     landmarks = workspace.landmarks()
     label = f'{stamp()}-{name}'
     folder = workspace.launches
-    with head_locks(workspace, heads):
+    with guards.head_locks(workspace, heads):
         guards.crlf_in_pinned_code()
         guards.clean_stray_bytecode(bindings)
         for head in dirs:
             guards.loop_budget(head, stage_list, workspace.data.get('loopBudget'))
+            guards.palette_rows(workspace, head.name, stage_list)
             if 'repair' in stage_list:
                 guards.uv_margin(head)
             if 'ownership' in stage_list:
@@ -156,9 +166,7 @@ def status(workspace):
         receipt = guards.read(newest)
         state = 'failed' if receipt.get('error') else 'ran'
         stage = newest.parts[-3]
-        progress = head/'run'/'state.json'
-        reviewed = stage == 'render' and progress.exists() and stage in guards.read(progress).get('reviews', {})
-        finished = state == 'ran' and (stage in FINISHED_STAGES or reviewed)
+        finished = state == 'ran' and (stage in FINISHED_STAGES or (stage == 'render' and decision(head, stage) == 'approved'))
         note = 'launch queued or running' if guards.head_busy(workspace, head.name) else 'finished' if finished else 'WAITING ON REVIEW'
         lines.append(f'{head.name} | {stage} {newest.parts[-2]} {state} | {note}')
     return lines
@@ -190,20 +198,25 @@ def run_gpu(workspace, name, arguments):
     head = workspace.head(name)
     stages = (arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES).split(',')
     comfy = workspace.data.get('comfy')
-    with head_locks(workspace, [name]):
+    with guards.head_locks(workspace, [name]):
         if 'geometry' in stages:  # appearance reuses the saved shape and spends no submission
             guards.geometry_cap(head)
         if not comfy:
             raise guards.Refused('This step needs "comfy" in workspace.json')
+        matte = []
+        if 'calibrate' in stages:  # the only stage that reads it; a failed attempt can still hold one (RUNBOOK 142)
+            prepare = complete(head, 'prepare')
+            if prepare is None:
+                raise guards.Refused(f'{name}: calibrate needs a complete prepare attempt')
+            matte = [prepare/'images'/'design-rgba.png']
         with gpu_lock(workspace):
             started = time.time()
             label = f'{stamp()}-gpu'
-            matte = guards.attempts(head, 'prepare')[-1]/'images'/'design-rgba.png'
             templates = sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))
             input_list = head/'launches'/f'inputs-{label}.json'
             reused, upstream = reused_gpu_inputs(workspace, head, label, stages)
-            write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), str(matte)]+reused)
-            job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream]
+            write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), *map(str, matte)]+reused)
+            job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream, *(['--matte', *matte] if matte else [])]
             data = launch(workspace, head/'launches'/f'launch-{label}', input_list, job, workspace.python_environment(packages=True))
             timing(workspace, f'gpu {name} {" ".join(arguments)} exit {data["exitCode"]}', started)
     return {**data, 'errors': head/'launches'/f'launch-{label}'/'stderr.log'}
