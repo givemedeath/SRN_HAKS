@@ -1,7 +1,10 @@
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 import numpy as np
 from tools.itemkit.firearm_native import placeholder_geometry
-from tools.itemkit.skinned_native import model_text,decode_meshes
+from tools.itemkit.skinned_native import audit,model_text,decode_meshes
 
 
 class SkinnedNativeTests(unittest.TestCase):
@@ -20,6 +23,25 @@ class SkinnedNativeTests(unittest.TestCase):
                 'newanim xbowshot original\n length 1\n transtime .25\n animroot original\n'
                 ' node dummy limb_l\n  parent original\n  orientationkey 2\n   0 0 1 0 0\n   1 0 1 0 .1\n endnode\n'
                 'doneanim xbowshot original\ndonemodel original\n')
+
+    def test_audit_reports_the_sanitized_tail_byte_count(self):
+        p=np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1]],float);f=np.array([[0,2,1],[0,1,3],[1,2,3],[2,0,3]])
+        base={'positions':p,'normals':p,'uv':p[:,:2],'faces':f}
+        rows={'kv':{**base,'flags':{'render':1,'shadow':0},'textures':['tex']},
+              'ks':{**base,'flags':{'render':0,'shadow':1},'textures':['null']}}
+        expected={'positions':p[f],'normals':p[f],'uv':p[f][...,:2],'shadowVertices':p,'shadowFaces':f,
+                  'weights':np.tile([1.,0.],(4,3,1)),'shadowWeights':np.tile([1.,0.],(4,1))}
+        def node(label):
+            lines=[f'node skin {label}','verts 4',*[' '.join(map(str,row)) for row in p],
+                   'faces 4',*[' '.join(map(str,row)) for row in f],'weights 4',*['body 1']*4,'endnode']
+            return '\n'.join(lines)+'\n'
+        with tempfile.TemporaryDirectory() as folder:
+            binary=Path(folder)/'k.mdl';binary.write_bytes(b'raw');decompiled=Path(folder)/'k.txt'
+            decompiled.write_text(node('kv')+node('ks'),encoding='cp1252')
+            with patch('tools.itemkit.native.sanitize_proof',return_value=(b'clean',3)), \
+                 patch('tools.itemkit.skinned_native.decode_meshes',return_value=rows):
+                clean,report=audit(binary,'k','tex',expected,decompiled,['body','limb'])
+        self.assertEqual((clean,report['zeroedTailBytes']),(b'clean',3))
 
     def test_rename_leaves_bones_and_clips_containing_the_rig_name(self):
         rig=self.rig().replace('original','xbow').replace('body_bind','xbow_bind')

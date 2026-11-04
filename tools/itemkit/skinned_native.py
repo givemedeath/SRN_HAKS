@@ -77,4 +77,4 @@ def audit(binary,name,texture,expected,decompiled,bone_names):
             for j in range(0,len(values),2):ww[i,bones.index(values[j].lower())]=float(values[j+1])
         wanted=expected['weights'] if visible else expected['shadowWeights'][expected['shadowFaces']]
         require(np.allclose(p[ff],target,atol=2e-6,rtol=0) and ww[ff].shape==wanted.shape and np.allclose(ww[ff],wanted,atol=2e-6,rtol=0),'Native skin weight roundtrip mismatch')
-    return clean,{'nativePositionNormalUVShadowRoundtrip':True,'nativeWeightRoundtrip':True,'attributesPreserved':True,'zeroedTailBytes':int(changed.sum())}
+    return clean,{'nativePositionNormalUVShadowRoundtrip':True,'nativeWeightRoundtrip':True,'attributesPreserved':True,'zeroedTailBytes':changed}
