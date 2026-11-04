@@ -134,6 +134,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
     from tools.headkit.common import library
     from tools.headkit.gltf import write_mesh
     from .transfer import sample_image
+    from .preflight import target_hash
     rows=[source,texture,target,fit,diagnostic]
     with verification_pass('source-matched-donor-caps'):
         verify(rows);begun=time.monotonic();report=read(diagnostic['path'])
@@ -145,6 +146,9 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
         ids=np.sort(ids)
         with np.load(target['path'],allow_pickle=False) as archive:
             p,f=archive[part+'_positions'],archive[part+'_faces']
+            target_uv=archive[part+'_uv']
+        require(report.get('targetHash')==target_hash(p[f],target_uv),
+                'Repair diagnostic belongs to different target geometry or UVs')
         require(ids.min()>=0 and ids.max()<len(f),'Repair face outside this target')
         corners=p[f];area=np.linalg.norm(np.cross(corners[:,1]-corners[:,0],corners[:,2]-corners[:,0]),axis=1)/2
         fraction=float(area[ids].sum()/area.sum())

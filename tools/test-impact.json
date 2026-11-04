@@ -744,6 +744,7 @@
       "tools/headkit/gltf.py",
       "tools/headkit/textures.py",
       "tools/itemkit/geometry.py",
+      "tools/itemkit/preflight.py",
       "tools/itemkit/source_atlas.py",
       "tools/itemkit/transfer.py"
     ],
@@ -956,7 +957,8 @@
     "tools/itemkit/test_donor_caps.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
-      "tools/itemkit/donor.py"
+      "tools/itemkit/donor.py",
+      "tools/itemkit/preflight.py"
     ],
     "tools/itemkit/test_firearm_package.py": [
       "tools/headkit/common.py",
