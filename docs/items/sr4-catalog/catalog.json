@@ -825,7 +825,13 @@
         "readyForGeometry": false
       },
       "sourceEvidenceOriginalSha256": "8fc93cfbb872c9458dfa79f8a62b5b88d671cd3aa70ff3284fd16ddeaf8c4c19",
-      "geometryDispatchReady": false
+      "geometryDispatchReady": false,
+      "references": {
+        "conceptualInternalReference": {
+          "path": "images/788c97ac1ad920560a5448a6b9941f3be60f65f702622dd9a46d21604b189fe9.png",
+          "sha256": "788c97ac1ad920560a5448a6b9941f3be60f65f702622dd9a46d21604b189fe9"
+        }
+      }
     },
     {
       "entryId": "G-E19111B70E",
@@ -886,7 +892,13 @@
         "readyForGeometry": false
       },
       "sourceEvidenceOriginalSha256": "0e11bfc03b03d6c8532f39f85e7fd36ee0140b46c44ab4ab9b2884463023d745",
-      "geometryDispatchReady": false
+      "geometryDispatchReady": false,
+      "references": {
+        "conceptualInternalReference": {
+          "path": "images/a32af7e6eb63050f60b0db6739461d02043a8dccd007600d04ebcea3da6654b6.png",
+          "sha256": "a32af7e6eb63050f60b0db6739461d02043a8dccd007600d04ebcea3da6654b6"
+        }
+      }
     },
     {
       "entryId": "G-53246FC9ED",
@@ -947,7 +959,13 @@
         "readyForGeometry": false
       },
       "sourceEvidenceOriginalSha256": "3ca9a0006815d2361e746386a81804c45137f15917ca8750ab94ffa21ea06114",
-      "geometryDispatchReady": false
+      "geometryDispatchReady": false,
+      "references": {
+        "conceptualInternalReference": {
+          "path": "images/3c53e79aac56826e31174470d1f30eed995eae507545b7846e93e8423588c6ff.png",
+          "sha256": "3c53e79aac56826e31174470d1f30eed995eae507545b7846e93e8423588c6ff"
+        }
+      }
     },
     {
       "entryId": "G-0EABACE56A",
@@ -1588,7 +1606,17 @@
         "readyForGeometry": false
       },
       "sourceEvidenceOriginalSha256": "ab14e6d1415f0dc1cdec97efb3e6f39938b1e83edaf5b41a6e35d9b17d0e3e87",
-      "geometryDispatchReady": false
+      "geometryDispatchReady": false,
+      "references": {
+        "detail": {
+          "path": "images/4ea64d6965f555c650d240dae0d72063fba365c648b22d1be39dd0dc679bf2c7.png",
+          "sha256": "4ea64d6965f555c650d240dae0d72063fba365c648b22d1be39dd0dc679bf2c7"
+        },
+        "clay": {
+          "path": "images/3b94ec831c80b975c32cec62e187d752a9323793b97173dd6a6b4ab84af79dc8.png",
+          "sha256": "3b94ec831c80b975c32cec62e187d752a9323793b97173dd6a6b4ab84af79dc8"
+        }
+      }
     },
     {
       "entryId": "G-B9C2DF967C",
@@ -1640,7 +1668,13 @@
         "artworkAvailability": "Core printed313 describes this ammunition but does not provide a uniquely attributable exterior illustration; adjacent grenade art excluded."
       },
       "sourceEvidenceOriginalSha256": "3be8de30359cf169bf6f5b3f0c022bfffdfb9ea2cfb496769b8c01432097b1f4",
-      "geometryDispatchReady": false
+      "geometryDispatchReady": false,
+      "references": {
+        "ammunitionInventoryReference": {
+          "path": "images/be798d10a783f5cdb09656bbdb1c7926add6d57ae11c73ae6feeaf08720c74c8.png",
+          "sha256": "be798d10a783f5cdb09656bbdb1c7926add6d57ae11c73ae6feeaf08720c74c8"
+        }
+      }
     },
     {
       "entryId": "G-7F6AC2799C",
@@ -28128,67 +28162,11 @@
       "familyReferenceMembers": [
         {
           "designId": "sr4-sa-retiarius-net-gun-normal-c819d9bd25",
-          "name": "SA Retiarius Net Gun — Normal",
-          "sourceAudit": {
-            "path": "source-locator:source-audit-v1.json",
-            "sha256": "7508737f66493e12bc793e448c2b4fabce0776c596bae5a5d20131f606680da6"
-          },
-          "referenceCompletion": {
-            "path": "source-locator:completion.json",
-            "sha256": "273b7285d53e3ad4635a9aa02557307b9c90d331b9a9ac7eccdab7f4d6f5f9d7"
-          },
-          "conditionedReferences": {
-            "clay": {
-              "path": "source-locator:clay-rgba-2048.png",
-              "sha256": "b8cafec922e8db5e3ae3938cbb58e7997a5051bf1dd026dfbf61ba9c44cd5b50"
-            },
-            "detail": {
-              "path": "source-locator:detail-rgba-2048.png",
-              "sha256": "af4e4b0f6a5d682b5a74274b88a6369f330953f4270d300ebaf2e98a78b3f7af"
-            }
-          },
-          "referenceMasks": {
-            "clay": {
-              "path": "source-locator:clay-mask-2048.png",
-              "sha256": "0319d6d5d69d7076754f0d16fee635f3c11a08292efba413a8ec3a582b09cc98"
-            },
-            "detail": {
-              "path": "source-locator:detail-mask-2048.png",
-              "sha256": "8791277514b8decc55940420c8465e8e7604c49f0d4199c59cf96f303c888ab2"
-            }
-          }
+          "name": "SA Retiarius Net Gun — Normal"
         },
         {
           "designId": "sr4-sa-retiarius-net-gun-large-5f8a612869",
-          "name": "SA Retiarius Net Gun — Large",
-          "sourceAudit": {
-            "path": "source-locator:source-audit-v1.json",
-            "sha256": "14849a9c79d4111d81510e2ebeabf5d2b91dafd6aa4cf97e46e0b271f70fbe90"
-          },
-          "referenceCompletion": {
-            "path": "source-locator:completion.json",
-            "sha256": "573551eee208db8a758ec101964e96c398df49490cf7c13c214e9528e9a17a6b"
-          },
-          "conditionedReferences": {
-            "clay": {
-              "path": "source-locator:clay-rgba-2048.png",
-              "sha256": "44a84c8ab8ee7703da53711012515a2c05b1277efb15f0c822734035b640af06"
-            },
-            "detail": {
-              "path": "source-locator:detail-rgba-2048.png",
-              "sha256": "9278fe07ea47dfbda40b1adc64fa28e75e1481fd2405753887abfa3d2cefeb1e"
-            }
-          },
-          "referenceMasks": {
-            "clay": {
-              "path": "source-locator:clay-mask-2048.png",
-              "sha256": "26ac49965202f199717d6727b6c8d347771f7b26bb18eeefb6f6b19a826949f3"
-            },
-            "detail": {
-              "path": "source-locator:detail-mask-2048.png",
-              "sha256": "9c11724738895fbd9f47365905cc1258957362d5ac101208e94daa4479b1e847"
-            }
-          }
+          "name": "SA Retiarius Net Gun — Large"
         }
       ],
       "sourceInterpretationCaption": "SA Retiarius Net Gun family overview. Arsenal printed40/PDF42 explicitly offers Normal and Large physical sizes; the unsized catalog entry does not describe a third model. This overview reuses the already accepted Normal and Large detailed/clay references and links to their individual WIP pages. The panels have independent framing: no canonical size ratio, identical bodies, shared dimensions or interchangeable nets are claimed. Each exterior/finish remains a source-constrained artistic interpretation; no own labeled silhouette is established. This is reference-form coverage for the family row, not a third mesh, native-fit approval or production approval.",
@@ -36678,6 +36656,16 @@
       "bytes": 1974467
     },
     {
+      "path": "images/3b94ec831c80b975c32cec62e187d752a9323793b97173dd6a6b4ab84af79dc8.png",
+      "sha256": "3b94ec831c80b975c32cec62e187d752a9323793b97173dd6a6b4ab84af79dc8",
+      "bytes": 1825642
+    },
+    {
+      "path": "images/3c53e79aac56826e31174470d1f30eed995eae507545b7846e93e8423588c6ff.png",
+      "sha256": "3c53e79aac56826e31174470d1f30eed995eae507545b7846e93e8423588c6ff",
+      "bytes": 1851497
+    },
+    {
       "path": "images/3ce6a9dcc0a7e64124db5c5b9d7fc2e834184a5dc07e36dcff12f8e3acaf296a.png",
       "sha256": "3ce6a9dcc0a7e64124db5c5b9d7fc2e834184a5dc07e36dcff12f8e3acaf296a",
       "bytes": 1442751
@@ -36861,6 +36849,11 @@
       "path": "images/4d6579c295c5d5dd626ff9b6e1992183fb9f342bccbc91bfe90eb62ca3bb7ea4.png",
       "sha256": "4d6579c295c5d5dd626ff9b6e1992183fb9f342bccbc91bfe90eb62ca3bb7ea4",
       "bytes": 663143
+    },
+    {
+      "path": "images/4ea64d6965f555c650d240dae0d72063fba365c648b22d1be39dd0dc679bf2c7.png",
+      "sha256": "4ea64d6965f555c650d240dae0d72063fba365c648b22d1be39dd0dc679bf2c7",
+      "bytes": 2864109
     },
     {
       "path": "images/4eb5b3734c9c12698ed06ce8d7128a65ccf3d421cecd02fb3698cee2ddafba5b.png",
@@ -37313,6 +37306,11 @@
       "bytes": 354886
     },
     {
+      "path": "images/788c97ac1ad920560a5448a6b9941f3be60f65f702622dd9a46d21604b189fe9.png",
+      "sha256": "788c97ac1ad920560a5448a6b9941f3be60f65f702622dd9a46d21604b189fe9",
+      "bytes": 1808570
+    },
+    {
       "path": "images/78bb57cd5aab16cd5f0bbb672576d7e348d082511edf0524c59036bee036ec38.png",
       "sha256": "78bb57cd5aab16cd5f0bbb672576d7e348d082511edf0524c59036bee036ec38",
       "bytes": 1495444
@@ -37723,6 +37721,11 @@
       "bytes": 1259506
     },
     {
+      "path": "images/a32af7e6eb63050f60b0db6739461d02043a8dccd007600d04ebcea3da6654b6.png",
+      "sha256": "a32af7e6eb63050f60b0db6739461d02043a8dccd007600d04ebcea3da6654b6",
+      "bytes": 1786527
+    },
+    {
       "path": "images/a3aa8acd0d2b9f543cd71032c2f2b82e7a73d37f110bd614efaa6a2a5adab771.png",
       "sha256": "a3aa8acd0d2b9f543cd71032c2f2b82e7a73d37f110bd614efaa6a2a5adab771",
       "bytes": 1913676
@@ -37961,6 +37964,11 @@
       "path": "images/be35a4f0e918e85833fc555b79382cb1e924dd57eaebc6ec780f35326c76d76a.png",
       "sha256": "be35a4f0e918e85833fc555b79382cb1e924dd57eaebc6ec780f35326c76d76a",
       "bytes": 144738
+    },
+    {
+      "path": "images/be798d10a783f5cdb09656bbdb1c7926add6d57ae11c73ae6feeaf08720c74c8.png",
+      "sha256": "be798d10a783f5cdb09656bbdb1c7926add6d57ae11c73ae6feeaf08720c74c8",
+      "bytes": 1665955
     },
     {
       "path": "images/beb9246e69f6582aea0654f9320308d20a94fcebfb7b705caf6ee49d759eef71.png",

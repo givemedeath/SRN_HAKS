@@ -13,9 +13,12 @@ user-deferred). The three flechette entries are base-weapon ammunition modes.
 Four integral launchers remain separate gameplay entries using parent models.
 246 independent final detailed/clay pairs are stored once by content hash.
 Other entries explicitly reuse an accepted parent or depict a contextual feature.
+Approved final bone-lacing, ammunition and wearable depictions are also included,
+even where their accepted original is the final representation rather than a
+conditioned geometry input. The Retiarius family links to its two physical sizes.
 
 Only selected conditioned references are included. No drafts, refused outputs,
-retry journals, historical galleries, intermediate masks, raw service outputs,
+retry journals, historical galleries, intermediate masks, superseded raw service outputs,
 Comfy configuration, machine bindings, PDFs or generated 3D models are included.
 Some 2K inputs are explicitly resampled rather than native 2K.
 Camera calibration, current family/native contracts, grip fitting and runtime
