@@ -23,12 +23,26 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 53,
-      "sha256": "b337db568c685080a366bb80445ed259966648798dbd1d3f4b737965861705d9",
+      "resources": 63,
+      "sha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1",
       "exactPayload": true
     }
   ],
   "normalReleaseDependencyValidation": "docs/items/approved-weapon-waves-release-validation.json",
   "motionOverlaysTestingOnly": true,
-  "newClientAcceptanceClaimed": false
+  "newClientAcceptanceClaimed": true,
+  "reviewers": {
+    "pairs": 15,
+    "NPCs": 30,
+    "allWeaponFinishesOnBothHumanBodies": true,
+    "initialPair": "Cougar Fineblade Knife",
+    "clientReviewPending": false
+  },
+  "clientApproval": {
+    "status": "approved",
+    "date": "2026-11-03",
+    "statement": "looks good",
+    "scope": "Updated grouping and all fifteen male/female NPC weapon-finish pairs",
+    "moduleSha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1"
+  }
 }

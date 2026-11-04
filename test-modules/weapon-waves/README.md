@@ -29,9 +29,12 @@ if ($LASTEXITCODE) { throw 'Module build failed' }
 Use a separate NWN user directory. Supply the released `srn_weapon.hak` and
 `srn_2da.hak`, the existing `srn_body.hak` and `srn_body_tex.hak`, plus the two
 fixture HAKs built above. The module IFO records the priority order. It starts
-on Katana pair 6; click the male reviewer for the next pair or the female for a
-60-second action test. Both shipped Human reviewers and all four earlier weapons
-are available. Launching and client controls remain manual.
+on Cougar Knife pair 11; click the male reviewer for the next pair or the female
+for a 60-second action test. There are fifteen distinct male/female NPC pairs:
+the ten Wave 1/2 designs, all three Cougar blades, and both Colt finishes. The
+Cougar/Colt pairs occupy the southern row and are included in the full selector
+cycle. Both shipped Human bodies are represented for every weapon/finish.
+Launching and client controls remain manual.
 
 `sw_f7motion` and `sr_f7_*` are itemkit experiments only. They retain the approved
 Ingram, AK and Crossbow body poses; the test F7 selector also recognizes both Colt

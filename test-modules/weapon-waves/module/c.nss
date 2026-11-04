@@ -68,23 +68,23 @@ void main() {
  if(!GetIsObjectValid(area)){DelayCommand(1.0,ExecuteScript("c",m));return;}
  if(stage==0) {
   int count=0;object o=GetFirstObjectInArea(area,OBJECT_TYPE_CREATURE);
-  while(GetIsObjectValid(o)){string t=GetTag(o);if(GetStringLeft(t,4)=="sw1_"||GetStringLeft(t,4)=="sw2_"){Report(o);count++;}o=GetNextObjectInArea(area,OBJECT_TYPE_CREATURE);}
-  WriteTimestampedLogEntry("SW2_FIXED_START reviewers="+IntToString(count)+" thrown="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sr2273b8c")))+" arrows="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sw2_arrow"))));stage=6;
+  while(GetIsObjectValid(o)){string t=GetTag(o);if(GetStringLeft(t,4)=="sw1_"||GetStringLeft(t,4)=="sw2_"||GetStringLeft(t,4)=="sw3_"){Report(o);count++;}o=GetNextObjectInArea(area,OBJECT_TYPE_CREATURE);}
+  WriteTimestampedLogEntry("SW2_FIXED_START reviewers="+IntToString(count)+" thrown="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sr2273b8c")))+" arrows="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sw2_arrow"))));stage=11;
  }
- if(stage>=1&&stage<=20) {
-  int pair=(stage-1)%10;int index=pair%5;float y=17.0;string prefix="sw1_";if(pair>=5){y=29.0;prefix="sw2_";}
+ if(stage>=1&&stage<=30) {
+  int pair=(stage-1)%15;int index=pair%5;float y=17.0;string prefix="sw1_";if(pair>=5){y=29.0;prefix="sw2_";}if(pair>=10){y=7.0;prefix="sw3_";}
   object male=GetObjectByTag(prefix+"m"+IntToString(index));object female=GetObjectByTag(prefix+"f"+IntToString(index));Arrange(male,female,pc,pair);Report(male);Report(female);
-  if(stage>10 && pair==4){DelayCommand(0.5,ShieldProbe(male));DelayCommand(0.5,ShieldProbe(female));}
-  if(stage>10) {
+  if(stage>15 && pair==4){DelayCommand(0.5,ShieldProbe(male));DelayCommand(0.5,ShieldProbe(female));}
+  if(stage>15) {
  if(pair==3){}
 
    DelayCommand(15.0,AssignCommand(pc,SetCameraFacing(45.0,7.0,65.0)));
    DelayCommand(35.0,AssignCommand(pc,SetCameraFacing(135.0,7.0,65.0)));
    DelayCommand(61.0,AssignCommand(pc,SetCameraFacing(90.0,5.5,65.0)));
   }
-  if(stage<=10){SendMessageToPC(pc,"Static inspection "+IntToString(pair+1)+"/10");WriteTimestampedLogEntry("SW2_FIXED_VIEW pair="+IntToString(pair+1));}
-  else if(pair!=4) {DelayCommand(0.5,Attack(male));DelayCommand(0.5,Attack(female));SendMessageToPC(pc,"Actual engine attack test "+IntToString(pair+1)+"/10;60second bounded visual action.");}
+  if(stage<=15){SendMessageToPC(pc,"Static inspection "+IntToString(pair+1)+"/15");WriteTimestampedLogEntry("SW2_FIXED_VIEW pair="+IntToString(pair+1));}
+  else if(pair!=4) {DelayCommand(0.5,Attack(male));DelayCommand(0.5,Attack(female));SendMessageToPC(pc,"Actual engine attack test "+IntToString(pair+1)+"/15;60second bounded visual action.");}
  }
- if(stage>20){SendMessageToPC(pc,"Inspection sequence complete. Client visual and attack outcomes remain individually recorded.");}
+ if(stage>30){SendMessageToPC(pc,"Inspection sequence complete. Client visual and attack outcomes remain individually recorded.");}
  SetLocalInt(m,"SW2_FIXED_STAGE",stage+1);
 }
