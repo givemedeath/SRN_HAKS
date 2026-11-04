@@ -43,7 +43,8 @@ now finishes within two hours.
 Temporary catalog image retry runners, machine bindings, generated assets and
 historical run receipts are excluded. Existing local work is preserved separately.
 The dependency catalog is regenerated from the complete tracked documentation.
-Validation uses the affected helper modules and native package checks; the full
-regression suite is not rerun. GitHub's existing catch-all CI rules can request a
-full suite for new resource paths or catalog changes; that run must be cancelled
-for this review under the user's explicit validation constraint.
+Local validation uses the affected helper modules and native package checks;
+unnecessary local full regression reruns are excluded. Required GitHub CI runs
+normally, including the full suite when selected by the existing scope rules.
+The user clarified this distinction on 2026-11-03; the earlier CI cancellations
+were an overly broad interpretation of the local testing constraint.
