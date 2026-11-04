@@ -102,8 +102,9 @@ def launch(workspace, output, inputs, arguments, environment=None):
     return data
 
 
-def run_stages(workspace, name, stages, heads, approve=None, notes=None):
-    """Guards, then one launch for all heads (native compiles every eligible head in one Blender run). Returns the per-head stage results."""
+def run_stages(workspace, name, stages, heads, approve=None, notes=None, attempt=None):
+    """Guards, then one launch for all heads (native compiles every eligible head in one Blender run). Returns the per-head stage results.
+    attempt is the attempt of approve the approval was given for: checked under the head lock, so no run can replace it before headkit records the approval."""
     stage_list = stages.split(',')
     dirs = [workspace.head(head) for head in heads]
     bindings = workspace.path(workspace.data['headBindings'])
@@ -120,6 +121,8 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None):
                 guards.uv_margin(head)
             if 'ownership' in stage_list:
                 guards.ownership_rules(head)
+            if attempt:
+                guards.approved_attempt(head, approve, attempt)
             if approve == 'repair':
                 guards.jaw(head, landmarks)
         with cpu_slot(workspace):

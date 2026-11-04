@@ -67,6 +67,7 @@ def parser():
     p.add_argument('heads', nargs='+')
     p.add_argument('--approve')
     p.add_argument('--notes')
+    p.add_argument('--approve-attempt', help='refuse unless this is still the current attempt of the approved stage')
     p.add_argument('--result', type=Path, help='also write the result here as JSON')
     p = commands.add_parser('gpu', help='calibrate, geometry and appearance for one head')
     p.add_argument('head')
@@ -102,7 +103,7 @@ def parser():
 def run_stages(workspace, args):
     outcome = {'name': args.name}
     try:
-        outcome.update(launcher.run_stages(workspace, args.name, args.stages, args.heads, args.approve, args.notes))
+        outcome.update(launcher.run_stages(workspace, args.name, args.stages, args.heads, args.approve, args.notes, args.approve_attempt))
     except guards.Refused as refusal:
         outcome['refused'] = str(refusal)
     except launcher.LaunchFailed as error:

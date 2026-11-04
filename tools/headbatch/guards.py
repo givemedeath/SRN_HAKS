@@ -5,7 +5,7 @@ import re
 import time
 
 from gpu_job import GEOMETRY_CAP, submissions
-from head_files import attempts, fit_matrix, read
+from head_files import attempts, current, fit_matrix, read
 from headkit.comfy import locked
 from workspace import TOOLS
 
@@ -123,6 +123,13 @@ def palette_rows(workspace, name, stages):
     """Export and later stages ship the rows, so they run only on rows a person reviewed, however they are launched (RUNBOOK 112)."""
     if STAGES_ON_REVIEWED_ROWS & set(stages) and not rows_reviewed(workspace, name):
         raise Refused(f'{name}: palette rows are not in reviewed-rows.json (RUNBOOK 112)')
+
+
+def approved_attempt(head, stage, attempt):
+    """Headkit binds an approval to the stage's current attempt, so the one the approval was given for must still be it (RUNBOOK 200)."""
+    now = current(head, stage)
+    if attempt != now:
+        raise Refused(f'{head.name}: {attempt} of {stage} was reviewed, but the current attempt is {now}: review that one')
 
 
 def jaw_limit(head, landmarks):

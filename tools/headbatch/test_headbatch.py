@@ -585,6 +585,18 @@ class Launches(Base):
             launcher.run_stages(self.workspace, 'n', 'bake', ['elf-male-a'], 'unwrap', '-a note')
         return launch.call_args.args[3]
 
+    def test_a_replaced_attempt_is_refused_under_the_head_lock(self):
+        head = self.head()
+        write(head/'run/state.json', {'stages': {'bake': {'path': 'S:\\elsewhere\\run\\bake\\attempt-02\\receipt.json'}}})
+        with unittest.mock.patch.object(guards, 'crlf_in_pinned_code'), unittest.mock.patch.object(launcher, 'cpu_slot') as slot, \
+                unittest.mock.patch.object(guards, 'approved_attempt', wraps=guards.approved_attempt) as check, self.assertRaisesRegex(guards.Refused, 'current attempt is attempt-02'):
+            def held(*arguments):
+                self.assertTrue(guards.head_busy(self.workspace, head.name))
+                raise guards.Refused('current attempt is attempt-02')
+            check.side_effect = held
+            launcher.run_stages(self.workspace, 'n', 'tone', [head.name], 'bake', 'ok', 'attempt-01')
+        slot.assert_not_called()
+
     def test_a_note_can_start_with_a_dash(self):
         self.assertIn('--notes=-a note', self.launched_stages(unittest.mock.Mock(returncode=0)))
 
@@ -969,6 +981,7 @@ class SpoolTests(Base):
     def setUp(self):
         super().setUp()
         self.started = []
+        self.attempts = []
         self.tools = []
         self.queued = []
         self.tool_result = (0, ['done'])
@@ -981,8 +994,9 @@ class SpoolTests(Base):
         self.tools.append(arguments)
         return self.tool_result
 
-    def start(self, name, stages, head, approve, notes):
+    def start(self, name, stages, head, approve, notes, attempt=None):
         self.started.append((stages, head, approve))
+        self.attempts.append(attempt)
 
     def finish(self, status='ran', stage='unwrap', head='elf-male-a'):
         name = self.spool.launch(stage, head)
@@ -1167,6 +1181,19 @@ class SpoolTests(Base):
         self.assertEqual(self.started, [])
         self.assertIn('current attempt is attempt-02', self.spool.state['attention']['elf-male-a/repair']['text'])
 
+    def test_an_approval_sends_its_attempt_to_the_launch(self):
+        head = self.head()
+        self.current(head, 'bake', 'attempt-01')
+        write(self.workspace.spool/'approve/a.json', {'heads': [head.name], 'approve': 'bake', 'attempts': {head.name: 'attempt-01'}, 'next': 'tone'})
+        self.spool.scan_requests()
+        self.assertEqual(self.attempts, ['attempt-01'])
+
+    def test_a_passed_gate_sends_the_attempt_it_judged(self):
+        head = self.head()
+        self.receipt(head, 'unwrap', 1, {'result': {'attempts': [{'badFaceCount': 0, 'subtexel': {}}], 'gutters': {}, 'geometryUnchanged': True, 'charts': 9}})
+        self.finish()
+        self.assertEqual(self.attempts[-1], 'attempt-01')
+
     def test_an_approval_must_name_what_was_reviewed(self):
         head = self.head()
         self.current(head, 'repair', 'attempt-01')
@@ -1324,10 +1351,10 @@ class SpoolTests(Base):
         write(self.workspace.spool/'queue/b.json', {'heads': ['no-such-head', 'elf-male-a'], 'stages': 'export'})
         started = self.spool.starter
 
-        def start(name, stages, head, approve, notes):
+        def start(name, stages, head, approve, notes, attempt=None):
             if head == 'no-such-head':
                 raise FileNotFoundError(head)
-            started(name, stages, head, approve, notes)
+            started(name, stages, head, approve, notes, attempt)
         self.spool.starter = start
         write(self.workspace.spool/'queue/c.json', '\ufeff'+json.dumps({'heads': ['elf-male-a'], 'stages': 'bake'}))
         write(self.workspace.spool/'approve/a.json', 'not json')

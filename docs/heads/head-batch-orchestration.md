@@ -37,7 +37,7 @@ run_headbatch.py gpu HEAD [--stages S] [--seed-offset N] calibrate, geometry wit
 run_headbatch.py manifest HEAD                           rewrite the manifest from overrides.json
 run_headbatch.py components HEAD --notes TEXT             record the reviewed shell selection
 run_headbatch.py ownership HEAD RULES.json                record a reviewed ownership rule set
-run_headbatch.py run NAME STAGES HEAD... [--approve STAGE --notes TEXT]
+run_headbatch.py run NAME STAGES HEAD... [--approve STAGE --notes TEXT [--approve-attempt ATTEMPT]]
 run_headbatch.py spool [--once]                          auto-advance queued heads
 run_headbatch.py trial-spec RACE [--version N]           specs/trial-RACE-vN.json
 run_headbatch.py trial NAME [--version N]                build trials/NAME-vN
@@ -93,7 +93,7 @@ A `run` or `gpu` launch holds a lock on its head from queueing to its end, so a 
 
 Drop JSON requests into the workspace's `spool` folder and run `spool`; a second spooler on one workspace is refused. The module docstring in `tools/headbatch/spool.py` gives the formats.
 
-It launches each head separately and advances by itself only on numeric gates: unwrap to bake, palette to export when rows equal the pins in `spool/reviewed-rows.json`, export to native, native to render. Everything else lands in `spool/review.md` or `spool/attention.md`. A launch with no result goes to attention rather than passing silently, and so does a bad request file or head: the file moves to `spool/done` and the batch keeps going. An approval names the attempt reviewed per head, and is refused if that is no longer the current attempt. A review closes only when its launch has recorded the approval; a refused approval stays open with the reason. Export and later stages refuse rows missing from `spool/reviewed-rows.json` however they are launched. A queue file changed while its presets ran stays queued and is read afresh, and heads it already launched do not launch again. A stage that later runs closes its attention entry.
+It launches each head separately and advances by itself only on numeric gates: unwrap to bake, palette to export when rows equal the pins in `spool/reviewed-rows.json`, export to native, native to render. Everything else lands in `spool/review.md` or `spool/attention.md`. A launch with no result goes to attention rather than passing silently, and so does a bad request file or head: the file moves to `spool/done` and the batch keeps going. An approval names the attempt reviewed per head, and its launch refuses it under the head lock if that is no longer the current attempt. A review closes only when its launch has recorded the approval; a refused approval stays open with the reason. Export and later stages refuse rows missing from `spool/reviewed-rows.json` however they are launched. A queue file changed while its presets ran stays queued and is read afresh, and heads it already launched do not launch again. A stage that later runs closes its attention entry.
 
 Each finished stage gets its evidence before it reaches the review list:
 

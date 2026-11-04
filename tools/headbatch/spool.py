@@ -83,10 +83,12 @@ class Spool:
     def save(self):
         write_json(self.folder/'state.json', self.state)
 
-    def start_process(self, name, stages, head, approve, notes):
+    def start_process(self, name, stages, head, approve, notes, attempt=None):
         command = self.command(['run', name, stages, head, '--result', self.folder/'results'/f'{name}.json'])
         if approve:
             command += ['--approve', approve, f"--notes={notes or ''}"]  # joined: a note can start with a dash
+        if attempt:
+            command += ['--approve-attempt', attempt]
         with open(self.folder/'results'/f'{name}.out', 'w', encoding='utf-8') as out:
             return subprocess.Popen(command, stdout=out, stderr=subprocess.STDOUT)
 
@@ -108,10 +110,10 @@ class Spool:
         if not sheet.exists():
             self.later(*arguments)
 
-    def launch(self, stages, head, approve=None, notes=None):
+    def launch(self, stages, head, approve=None, notes=None, attempt=None):
         name = f"sp-{stages.split(',')[0]}-{head}-{datetime.now():%H%M%S%f}"
         self.log(f"launch {name}: {stages}{f' --approve {approve}' if approve else ''} {head}")
-        self.running[name] = self.starter(name, stages, head, approve, notes)
+        self.running[name] = self.starter(name, stages, head, approve, notes, attempt)
         self.state['launches'][name] = {'started': clock(), 'startedAt': time.time(), 'head': head, 'approve': approve}
         self.save()  # a launch the state does not name would be lost to a restart
         return name
@@ -168,7 +170,7 @@ class Spool:
         elif stage == 'unwrap':
             passed, text = guards.unwrap_gates(result)
             if passed:
-                self.launch('bake', head, 'unwrap', f'{approved} unwrap gates passed, {text}')
+                self.launch('bake', head, 'unwrap', f'{approved} unwrap gates passed, {text}', attempt)
             else:
                 self.attention(head, stage, f'{attempt}: {text}')
         elif stage == 'palette':
@@ -178,7 +180,7 @@ class Spool:
             if code:
                 self.attention(head, stage, sheet)
             if rows == manifest['palette'].get('rows', {}) and guards.rows_reviewed(self.workspace, head):
-                self.launch('export', head, 'palette', f'{approved} every palette row equals its reviewed pin {rows}')
+                self.launch('export', head, 'palette', f'{approved} every palette row equals its reviewed pin {rows}', attempt)
             else:
                 self.review(head, stage, f'{attempt}: rows {rows} | {sheet}')
         elif stage == 'export':
@@ -186,14 +188,14 @@ class Spool:
             budget = manifest['mesh'].get('triangleBudget', 20000)
             text = f"{result.get('model')} {result.get('triangles')} tri, matrix {'= reviewed fit' if result.get('matrix') == matrix else 'DIFFERS from the reviewed fit'}"
             if result.get('matrix') == matrix and 0 < result.get('triangles', 0) <= budget and result.get('plt', {}).get('sha256'):
-                self.launch('native', head, 'export', f'{approved} export {text}, PLT bound')
+                self.launch('native', head, 'export', f'{approved} export {text}, PLT bound', attempt)
             else:
                 self.review(head, stage, f'{attempt}: {text}')
         elif stage == 'native':
             errors = [result.get(key, 1) for key in ('positionsMaximumError', 'normalsMaximumError', 'uvMaximumError')]
             text = f"{result.get('model')} read-back errors {errors}"
             if result.get('onlyFixedStringFieldsChanged') and max(errors) < READ_BACK_LIMIT:
-                self.launch('render', head, 'native', f'{approved} native {text}, only fixed string fields changed')
+                self.launch('render', head, 'native', f'{approved} native {text}, only fixed string fields changed', attempt)
             else:
                 self.review(head, stage, f'{attempt}: {text}')
         else:
@@ -307,20 +309,18 @@ class Spool:
                 taken.append(head)
 
     def approve_head(self, head, request):
-        """The review stays open until its launch records the approval: headkit can still refuse it (RUNBOOK 188). Headkit binds an approval to the
-        stage's current attempt, so the attempt the reviewer saw must still be that one (RUNBOOK 200)."""
+        """The review stays open until its launch records the approval: headkit can still refuse it (RUNBOOK 188). The attempt is checked here to
+        spare the launch, and again by that launch under the head lock, because a running stage can replace it in between (RUNBOOK 200)."""
         stage, seen = request['approve'], request.get('attempts', {}).get(head)
-        now = current(self.workspace.head(head), stage)
         if seen is None:
-            raise guards.Refused(f'{head}: name the attempt reviewed in "attempts"; {stage} is at {now}')
-        if seen != now:
-            raise guards.Refused(f'{head}: {seen} of {stage} was reviewed, but the current attempt is {now}: review that one')
+            raise guards.Refused(f'{head}: name the attempt reviewed in "attempts"; {stage} is at {current(self.workspace.head(head), stage)}')
+        guards.approved_attempt(self.workspace.head(head), stage, seen)
         if not request.get('next'):
             raise guards.Refused(f'{head}: an approval records through its next launch, so give "next"; a last stage needs a headkit review')
         if stage == 'repair':
             guards.jaw(self.workspace.head(head), self.workspace.landmarks())
         if 'repair' not in request['next'].split(',') or self.repair_presets(head):
-            self.launch(request['next'], head, stage, request.get('notes'))
+            self.launch(request['next'], head, stage, request.get('notes'), seen)
 
     def scan_queue(self):
         for path in sorted((self.folder/'queue').glob('*.json')):
