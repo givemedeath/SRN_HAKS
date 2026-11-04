@@ -70,16 +70,28 @@ def face_dark_ratio(palette, face_skin, plain_skin):
     return round(float(np.percentile(face_skin, 1)/max(np.median(plain_skin), 1)), 3)
 
 
+def seam_limit(limit, approved):
+    """The seamStep limit for this head: the shared limit, or the ratio a client-viewed head was approved at (RUNBOOK 178).
+    An approval raises it for that head only, and a later rise past `ratioMax` fails again."""
+    if approved is None: return limit
+    require(isinstance(approved, dict) and set(approved) == {'ratioMax', 'approval'} and type(approved['ratioMax']) in (int, float) and approved['ratioMax'] > limit
+            and isinstance(approved['approval'], str) and approved['approval'].strip() != '', 'quality.seamStepApproved needs ratioMax above the limit and an approval note')
+    return approved['ratioMax']
+
+
 def quality(source, masks, palette, palettes, output, thresholds=None, settings=None, embree=None):
     """masks: the masks stage result; palette: the palette stage result; palettes: {layer: palette image path}; embree: the
     bound Embree DLL path (seam steps count outer faces only, RUNBOOK 164).
     settings (the manifest quality section): `cybereyeImageSide` 'left' or 'right' leaves that eye and brow out of the role
-    checks (RUNBOOK 150): a cybereye housing has no iris, whites or brow for the parser to find."""
+    checks (RUNBOOK 150): a cybereye housing has no iris, whites or brow for the parser to find. `seamStepApproved`
+    {ratioMax, approval} is one head's user approval of its seamStep ratio after a client view (RUNBOOK 178)."""
     settings = settings or {}; side = settings.get('cybereyeImageSide')
-    require(set(settings) <= {'cybereyeImageSide'} and side in (None, 'left', 'right'), 'quality.cybereyeImageSide must be left or right')
+    require(set(settings) <= {'cybereyeImageSide', 'seamStepApproved'} and side in (None, 'left', 'right'), 'quality.cybereyeImageSide must be left or right')
+    approved = settings.get('seamStepApproved')
     require(embree is not None, 'Quality needs the bound Embree runtime')
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     limits = thresholds if thresholds is not None else read(THRESHOLDS)['limits']; require(set(limits) == CHECKS, 'Incomplete quality thresholds')
+    seam_max = seam_limit(limits['seamStepRatioMax'], approved)
     require(masks['source']['sha256'] == pin(source)['sha256'], 'Quality must read the masks of this UV mesh')
     files = masks['files']; value = mesh(source); uv = value['uv'].astype(float)
     with np.load(files['frontView']['path']) as data: view = {k: data[k] for k in ('hit', 'face', 'bary')}
@@ -167,12 +179,13 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
         if len(values) < 1024: continue
         row = rows.get(str(k), 0); lo, hi = eligible(tables.get(str(k), tables['0'])[0 if row == 'auto' else int(row)])
         r['shadeSpan'][str(k)] = round(float((np.percentile(values, 99)-np.percentile(values, 1))/max(hi-lo, 1)), 3)
+    if approved is not None: r['seamStepApproved'] = approved
     fails = [name for name, ok in (('featureFocus', r['featureFocus'] >= limits['featureFocusMin']), ('blotch', r['blotchPx'] <= limits['blotchPxMax']),
              ('specks', r['specks'] <= limits['specksMax']), ('hairLockOnSkin', (r['hairLockOnSkinPx'] or 0) <= limits['hairLockOnSkinPxMax']),
              ('browsOnHair', (r['browsOnHair'] or 0) >= limits['browsOnHairMin']), ('irisOnTattoo1', (r['irisOnTattoo1'] or 0) >= limits['irisOnTattoo1Min']),
              ('whitesOnSkin', (r['whitesOnSkin'] or 0) >= limits['whitesOnSkinMin']),
              ('hairOnFaceSkin', r['hairOnFaceSkin'] is None or r['hairOnFaceSkin'] <= limits['hairOnFaceSkinMax']),
-             ('seamStep', r['seamStepRatio'] is None or r['seamStepRatio'] <= limits['seamStepRatioMax']),
+             ('seamStep', r['seamStepRatio'] is None or r['seamStepRatio'] <= seam_max),
              ('bodySkin', r['skinMedianOffset'] is not None and r['skinMedianOffset'] <= limits['skinMedianOffsetMax']),
              ('faceDark', r['faceDarkRatio'] is None or r['faceDarkRatio'] >= limits['faceDarkRatioMin'])) if not ok]
     span_fails, r['shadeSpanExempt'] = shade_span_failures(r['shadeSpan'], palette, limits['shadeSpanMin'], limits['bodySkinSpanMin'], limits['hairEndTieExempt']); fails += span_fails
