@@ -98,3 +98,20 @@ Items 1-5 were fixed on `claude/headkit-pipeline-v3` as 3f937754 (2026-10-27) an
 5. **Fit references: measured ranking.** `headkit fit-references` ranks candidates by midline depth/height: pfh0_head001 1.64, pfd0_head008 2.02, pfo0_head009 1.97, against 1.23, 1.63 and 1.56 for their replacements.
    - No fit-result number separated the bad fits from good ones, so the ranking is the guard.
 6. **Merge to main** when no head is in progress. This branch now carries 79d0e3cb (b44aa126), 62d303a5 (f5dc7fd1) and 3f937754 (4222768f). Merging stales repair and later stages on existing runs (the repair manifest digest changes).
+
+## First publish: 12 heads (2026-11-03)
+
+The user chose to publish these 12 heads in `srn_head`. They are the race heads that pass the face-mask quality gate, compiled to native MDL and PLT from the validation copies. The other candidates stay unpublished: three failed the gate and were cancelled, and 21 never had the current encoding.
+
+| Race | Heads |
+|---|---|
+| Human | `pfh0_head028`, `pfh0_head030`, `pfh0_head031`, `pmh0_head086`, `pmh0_head087` |
+| Orc | `pfo0_head015`, `pfo0_head016`, `pmo0_head015`, `pmo0_head018` |
+| Dwarf | `pfd0_head015`, `pfd0_head016` |
+| Troll | `pfg0_head024` |
+
+The first release has no elf and no dwarf male heads. Each head's iris uses tattoo1. Orc and troll tusks and horns use tattoo2.
+
+The same pack update adds the Troll build allowance on the 34 published Troll heads (`troll-build-allowance-r3.json`).
+
+Client check of these exact compiled files: `verify_head_trial` passed in all four race trials, and every head was viewed from the front at 0.9 m ([sheet](evidence/race-heads-publish-12-sheet.jpg)). Motion and helmets were not rechecked for this set. The toolkit's client and acceptance reports were not produced; the user's decision stands in for production acceptance.

@@ -524,3 +524,21 @@ normal packs. Prototype Human motion roots and event hooks stay there exclusivel
 for itemkit testing. The production body packs and roots are unchanged;
 production weapon animation belongs to PhenoMorpher toolkit. This PR publishes
 release sources and performs no live deployment or new rights assertion.
+
+## Troll heads: build allowance (`srn_head`, 2026-10-29)
+
+The 34 published Troll heads in `srn_head` are derived from their own 1.3.0 binaries, with no new source. On top of
+the 1.3.0 stature scaling, each head is scaled uniformly about its mesh node frame. Female heads use the square root
+of the Troll stature ratio S: ×1.0729 (S 1.151). Male heads use ×1.5. The user first chose ×1.0483 (the square root of
+S 1.099) for them, then chose ×1.5 after reviewing body renders. At ×1.0483 the male heads read about 20% smaller
+than the base head001 and left the neck showing behind the skull. Both choices were made on 2026-10-29. Normals, UVs,
+faces, materials and PLTs are unchanged.
+
+The heads are decompiled and recompiled with Blender 5.2.1 and Neverblender 4.5.1 (cleanmodels v4.10.0). Fixed-string
+tails are zeroed, and every binary passes the leaked-text check. Decoded positions equal the 1.3.0 positions × the
+factor within 6e-8 (female) and 3e-8 (male). The stock-head routing aliases `srn_body/p[mf]g0_head001.mdl` belong to the PhenoMorpher contract
+and are not changed. Per-head hashes are in `docs/heads/troll-build-allowance-r3.json`.
+
+## Race heads v1: first 12 heads (`srn_head`, 2026-11-03)
+
+Twelve generated heads join `srn_head`: five Human, four Orc, two Dwarf and one Troll. Each started from a local Flux.2 front design, then Pixal geometry and appearance, then the headkit chain with face masks, and native compile through Blender 5.2 and Neverblender. The content is contributed by the SRN project operator with Claude-assisted generation, fitting, texturing and validation. Stock palettes and body necks were local validation inputs and are not redistributed. The slots and client evidence are in `docs/heads/race-heads-v1-checkpoint.md`. This publishes no stock head, table or body change.
