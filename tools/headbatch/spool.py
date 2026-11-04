@@ -117,12 +117,8 @@ class Spool:
             self.launch(stage, head)
             return
         if stage == 'unwrap' and guards.COVERAGE.search(error):
-            code, text = self.tool('presets', head, '--uv-only', '--apply')
-            if code == 0:
-                self.log(f'{head} unwrap: {text[0]}')
-                self.launch('unwrap', head)
-            else:
-                self.attention(head, stage, f'{attempt}: {text[0]}')
+            _, text = self.tool('presets', head, '--uv-only')  # plans only: a lower floor records a review, which is a person's (RUNBOOK 186)
+            self.attention(head, stage, f'{attempt}: {text[0]} | after review: presets {head} --uv-only --apply, then requeue unwrap')
             return
         if stage == 'repair' and 'shells' in receipt.get('attempts', {}):  # a ShellReview refusal carries the shell table
             uncut = self.workspace.head(head)/'run'/'repair'/attempt/'master-uncut.glb'
@@ -270,7 +266,7 @@ class Spool:
                     self.log(f'{path.name} changed before launch: {head} skipped')
                     break
                 if 'repair' in request['stages'].split(','):
-                    code, text = self.tool('presets', head, '--apply')
+                    code, text = self.tool('presets', head, '--apply', '--keep-floor')
                     self.log(f'preset {text[0]}')
                     if code:
                         self.attention(head, 'repair', f'presets: {text[0]}')

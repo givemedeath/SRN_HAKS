@@ -337,6 +337,15 @@ class Presets(Base):
         self.assertEqual(hold, [])
         self.assertIn('uv floor', notes[0])
 
+    def test_keep_floor_reports_the_floor_and_records_no_review(self):
+        head = self.head()
+        self.overrides(head, {})
+        self.receipt(head, 'unwrap', 1, {'result': RECEIPT_RESULT})
+        overrides, notes, _, changed = presets.plan(self.workspace, head.name, uv_only=True, keep_floor=True)
+        self.assertNotIn('uv', overrides['mesh'])
+        self.assertFalse(changed)
+        self.assertIn('needs a person', notes[0])
+
     def test_coverage_reads_both_refusal_messages(self):
         for text in ('Insufficient useful UV coverage (0.281 at 2K, padding 8)', 'Insufficient useful UV coverage after face priority (0.281 at 2K)'):
             self.assertEqual(guards.coverage({'error': text}), .281)
@@ -572,16 +581,14 @@ class SpoolTests(Base):
         self.finish(stage='palette')
         self.assertEqual(self.tools, [('review', 'rowramps', 'elf-male-a')])
 
-    def test_coverage_failure_applies_the_floor_and_relaunches(self):
+    def test_coverage_failure_proposes_the_floor_and_waits_for_a_person(self):
         head = self.head()
         self.receipt(head, 'unwrap', 1, {'error': 'Insufficient useful UV coverage (0.281 at 2K)'})
+        self.tool_result = (0, ['elf-male-a | uv floor 0.3 -> 0.27 | ready'])
         self.finish('failed')
-        self.assertEqual(self.tools, [('presets', 'elf-male-a', '--uv-only', '--apply')])
-        self.assertEqual(self.started, [('unwrap', 'elf-male-a', None)])
-        self.tool_result = (1, ['HOLD: needs fewer charts'])
-        self.finish('failed')
+        self.assertEqual(self.tools, [('presets', 'elf-male-a', '--uv-only')])
         self.assertEqual(self.started, [])
-        self.assertIn('fewer charts', self.spool.state['attention']['elf-male-a/unwrap']['text'])
+        self.assertIn('0.27', self.spool.state['attention']['elf-male-a/unwrap']['text'])
 
     def test_shell_failure_queues_the_shell_sheet(self):
         head = self.head()
@@ -596,6 +603,7 @@ class SpoolTests(Base):
         write(self.workspace.spool/'queue/a.json', {'heads': ['elf-male-a'], 'stages': 'repair'})
         self.tool_result = (1, ['HOLD: no reach finds the chin'])
         self.spool.scan_requests()
+        self.assertEqual(self.tools, [('presets', 'elf-male-a', '--apply', '--keep-floor')])
         self.assertEqual(self.started, [])
         self.assertIn('elf-male-a/repair', self.spool.state['attention'])
 

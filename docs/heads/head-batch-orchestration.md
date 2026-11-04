@@ -62,7 +62,7 @@ Quality-gate prototypes that headkit adopted are not here; nor are one-off audit
 
 `presets` covers failures already known before a repair runs. It writes `overrides.json` with notes and regenerates the manifest, only with `--apply` and only when a policy changed something:
 
-- **UV floor:** when the newest unwrap cleared its floor by under .01, the floor becomes coverage minus .011 rounded down to .01. Below .20 it reports HOLD: the head needs fewer charts.
+- **UV floor:** when the newest unwrap cleared its floor by under .01, the floor becomes coverage minus .011 rounded down to .01. Below .20 it reports HOLD: the head needs fewer charts. `--apply` records a review, so run it only after looking at the head; `--keep-floor` reports the floor and changes nothing.
 - **Neck reach:** when `landmarks` is set, `slopescan` finds the jaw. If it sits above the chin limit, the largest reach of .06, .04 and .03 that passes is used, otherwise HOLD. `HEAD/jaw-reviewed` skips this.
 - **Fine relief:** the optional workspace `repairDefaults`, `{"fineRelief": {...}, "skipRaces": [...]}`, applies to heads that declare none.
 
@@ -91,15 +91,15 @@ Each finished stage gets its evidence before it reaches the review list:
 
 | Event | What the spooler does |
 |---|---|
-| Repair queued | `presets --apply`; a HOLD goes to attention and no launch starts |
+| Repair queued | `presets --apply --keep-floor`; a HOLD goes to attention and no launch starts |
 | Repair ran | Jaw result; queues the clay pair in `spool/sheets`, and the skirt zone at its gap and at 3 cm when the head has a skirt |
 | Repair refused on its shells | Queues `cutshells` |
-| Unwrap failed on coverage | `presets --uv-only --apply` and a relaunch, or attention on HOLD |
+| Unwrap failed on coverage | Attention, with the floor `presets --uv-only` proposes |
 | Bake ran | Queues `bakeviews` |
 | Ownership ran | Queues the manifest's rules through `own_draft` |
 | Palette ran | Draws `rowramps`, then checks the pins |
 
-Queued sheets wait for a CPU slot in their own process, so a review line can arrive before its sheet. A reused stage keeps the sheet it has. The spooler changes `overrides.json` only through `presets`; any other UV floor or neck cut is a reviewer's edit.
+Queued sheets wait for a CPU slot in their own process, so a review line can arrive before its sheet. A reused stage keeps the sheet it has. The spooler changes `overrides.json` only through `presets`, and never lowers a UV floor: that records a review, so a person runs `presets HEAD --uv-only --apply`. Any other neck cut is a reviewer's edit.
 
 ## Before publishing
 

@@ -36,9 +36,9 @@ def show_presets(workspace, args):
     held = False
     for head in args.heads:
         if args.apply:
-            line, hold = presets.apply(workspace, head, args.uv_only)
+            line, hold = presets.apply(workspace, head, args.uv_only, keep_floor=args.keep_floor)
         else:
-            _, notes, reasons, _ = presets.plan(workspace, head, args.uv_only)
+            _, notes, reasons, _ = presets.plan(workspace, head, args.uv_only, keep_floor=args.keep_floor)
             line, hold = presets.summary(head, notes, reasons), bool(reasons)
         print(line)
         held = held or hold
@@ -82,6 +82,7 @@ def parser():
     p = commands.add_parser('presets', help='plan or apply the up-front repair policies')
     p.add_argument('heads', nargs='+')
     p.add_argument('--uv-only', action='store_true')
+    p.add_argument('--keep-floor', action='store_true', help='report a lower UV floor instead of recording its review')
     p.add_argument('--apply', action='store_true')
     commands.add_parser('status', help='one line per head: newest stage and what it waits for')
     p = commands.add_parser('review', help='a review sheet or diagnostic from tools/headbatch/review, run in the heads folder')

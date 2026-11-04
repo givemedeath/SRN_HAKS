@@ -1,6 +1,7 @@
 """Up-front repair policies, so repairs do not fail for reasons already known (RUNBOOK 87, 96, 101, 103, 106).
 
-Plans per head; apply writes overrides.json with notes and regenerates the manifest.
+Plans per head; apply writes overrides.json with notes and regenerates the manifest. A lowered UV floor records a review, so only a
+person's --apply sets one: the spooler passes keep_floor and only reports the proposal.
 1. Fine relief: workspace repairDefaults {"fineRelief": {...}, "skipRaces": [...]} on heads that do not declare one.
 2. UV floor: when the newest unwrap cleared its floor by under .01, floor = coverage - .011 rounded down to .01, never under .20.
 3. Neck cut jaw: slopescan at the declared slope and reach; if the jaw is above the chin limit, the largest reach of .06/.04/.03 that passes."""
@@ -30,7 +31,7 @@ def slopescan(workspace, head, slope, reach):
     return {'jaw': float(found[1]), 'band': float(found[3]), 'top': float(found[4]), 'ok': found[5] == 'OK'}
 
 
-def uv_floor(head, mesh, uv_only, notes, hold):
+def uv_floor(head, mesh, uv_only, keep_floor, notes, hold):
     uv = mesh.get('uv', {})
     floor = uv.get('minimumCoverage', guards.UV_DEFAULT_FLOOR)
     for attempt in reversed(guards.attempts(head, 'unwrap')):
@@ -42,7 +43,9 @@ def uv_floor(head, mesh, uv_only, notes, hold):
             continue
         if coverage < floor+guards.UV_MARGIN:
             new = math.floor((coverage-.011)*100)/100
-            if new >= UV_MINIMUM:
+            if new >= UV_MINIMUM and keep_floor:
+                notes.append(f'proposed uv floor {floor} -> {new} (coverage {coverage:.3f}), needs a person')
+            elif new >= UV_MINIMUM:
                 review = f'{attempt.name} coverage {coverage:.3f} cleared floor {floor} by under .01 (RUNBOOK 87): reviewed floor {new}.'
                 mesh['uv'] = dict(uv, minimumCoverage=new, coverageReview={'reviewed': True, 'notes': review})
                 notes.append(f'uv floor {floor} -> {new} (coverage {coverage:.3f})')
@@ -75,7 +78,7 @@ def jaw_reach(workspace, head, cut, limit, notes, hold, scan):
         hold.append(f'no reach finds the chin at slope {slope} (limit {limit*100:.1f} cm)')
 
 
-def plan(workspace, name, uv_only=False, scan=slopescan):
+def plan(workspace, name, uv_only=False, scan=slopescan, keep_floor=False):
     """(overrides, notes, hold, changed). uv_only is the path after an approved repair: fine relief and the cut are repair keys, and changing them stales it (RUNBOOK 106)."""
     head = workspace.head(name)
     overrides = guards.read(head/'overrides.json') if (head/'overrides.json').exists() else {}
@@ -86,7 +89,7 @@ def plan(workspace, name, uv_only=False, scan=slopescan):
     if not uv_only and defaults.get('fineRelief') and 'fineRelief' not in mesh and name.split('-')[0] not in defaults.get('skipRaces', []):
         mesh['fineRelief'] = dict(defaults['fineRelief'])
         notes.append('fineRelief from workspace repairDefaults')
-    uv_floor(head, mesh, uv_only, notes, hold)
+    uv_floor(head, mesh, uv_only, keep_floor, notes, hold)
     cut = None if uv_only else mesh.get('neck', {}).get('cut')
     landmarks = workspace.landmarks()
     limit = guards.jaw_limit(head, landmarks) if cut else None
@@ -101,9 +104,9 @@ def summary(name, notes, hold):
     return f"{name} | {'; '.join(notes) or 'no change'} | {('HOLD: '+'; '.join(hold)) if hold else 'ready'}"
 
 
-def apply(workspace, name, uv_only=False, scan=slopescan, check=head_setup.validate):
+def apply(workspace, name, uv_only=False, scan=slopescan, check=head_setup.validate, keep_floor=False):
     """Returns (summary, held). Overrides change only when a policy actually changed something."""
-    overrides, notes, hold, changed = plan(workspace, name, uv_only, scan)
+    overrides, notes, hold, changed = plan(workspace, name, uv_only, scan, keep_floor)
     if changed:
         head = workspace.head(name)
         write_json(head/'overrides.json', overrides)
