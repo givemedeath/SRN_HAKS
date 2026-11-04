@@ -95,6 +95,16 @@ class WorkspaceTests(Base):
         with self.assertRaisesRegex(WorkspaceError, 'pfg0'):
             self.workspace.fit_reference('troll', 'female')
 
+    def test_cpu_slots_read_what_windows_powershell_writes(self):
+        for raw in ('4\r\n'.encode('utf-8-sig'), '4\r\n'.encode('utf-16')):
+            (self.root/'cpu-slots').write_bytes(raw)
+            self.assertEqual(self.workspace.cpu_slots(), 4)
+
+    def test_a_spooler_child_loads_the_workspace_file_given(self):
+        other = write(self.root/'other.json', json.loads((self.root/'workspace.json').read_text()))
+        command = spool.Spool(Workspace.load(other)).command(['status'])
+        self.assertEqual(command[command.index('--workspace')+1], str(other))
+
     def test_cpu_slots_follow_a_live_file(self):
         self.assertEqual(self.workspace.cpu_slots(), 2)
         write(self.root/'cpu-slots', '4\n')
@@ -527,6 +537,66 @@ class Launches(Base):
             launcher.run_stages(self.workspace, 'n', 'bake', ['elf-male-a'])
         self.assertFalse(guards.head_busy(self.workspace, 'elf-male-a'))
 
+    def designs(self, outcomes):
+        data = json.loads((self.root/'workspace.json').read_text())
+        data.update(designBindings='design-bindings.json', comfy={'url': 'http://127.0.0.1:1', 'root': 'comfy'})
+        write(self.root/'workspace.json', data)
+        workspace = Workspace.load(self.root)
+        write(self.root/'design/designs-elf.json', {'designs': {}})
+        with unittest.mock.patch.object(launcher, 'launch', side_effect=outcomes) as launch, unittest.mock.patch.object(launcher.Comfy, 'free') as free:
+            rows = launcher.run_design(workspace, 'elf', ['elf-male-a:1', 'elf-male-b:2', 'elf-male-c:3'])
+        return rows, launch, free
+
+    def test_one_bad_design_keeps_the_rest_and_frees_the_card(self):
+        good = {'exitCode': 0, 'elapsedSeconds': 1}
+        rows, launch, free = self.designs([launcher.LaunchFailed('input changed'), good, good])
+        self.assertEqual(launch.call_count, 3)
+        self.assertEqual([row['exitCode'] for row in rows], [1, 0, 0])
+        self.assertEqual(rows[0]['error'], 'input changed')
+        free.assert_called_once()
+
+    def test_a_crashed_design_still_frees_the_card(self):
+        with unittest.mock.patch.object(launcher.Comfy, 'free') as free, self.assertRaises(KeyError):
+            data = json.loads((self.root/'workspace.json').read_text())
+            data.update(designBindings='design-bindings.json', comfy={'url': 'http://127.0.0.1:1', 'root': 'comfy'})
+            write(self.root/'workspace.json', data)
+            write(self.root/'design/designs-elf.json', {'designs': {}})
+            with unittest.mock.patch.object(launcher, 'launch', side_effect=KeyError('x')):
+                launcher.run_design(Workspace.load(self.root), 'elf', ['elf-male-a:1'])
+        free.assert_called_once()
+
+    def test_designs_stop_at_the_cap(self):
+        for number in range(3):
+            (self.root/f'design/launches/launch-{number}-elf-male-a-s{number}').mkdir(parents=True)
+        rows, launch, _ = self.designs([{'exitCode': 0, 'elapsedSeconds': 1}]*2)
+        self.assertEqual(launch.call_count, 2)
+        self.assertIn('stop and ask', rows[0]['error'])
+        write(self.root/'design/design-cap-override-elf-male-a', '')
+        self.assertEqual(self.designs([{'exitCode': 0, 'elapsedSeconds': 1}]*3)[1].call_count, 3)
+
+    def test_two_labels_in_one_second_differ(self):
+        self.assertGreaterEqual(len(launcher.stamp()), len('20261104-120000')+6)
+
+    def launched_stages(self, inputs):
+        self.head()
+        write(self.workspace.spool/'reviewed-rows.json', {'elf-male-a': {'0': 7}})
+        with unittest.mock.patch.object(launcher.subprocess, 'run', return_value=inputs), unittest.mock.patch.object(launcher, 'launch', return_value={'exitCode': 0, 'elapsedSeconds': 1}) as launch, \
+                unittest.mock.patch.object(guards, 'crlf_in_pinned_code'):
+            launcher.run_stages(self.workspace, 'n', 'bake', ['elf-male-a'], 'unwrap', '-a note')
+        return launch.call_args.args[3]
+
+    def test_a_note_can_start_with_a_dash(self):
+        self.assertIn('--notes=-a note', self.launched_stages(unittest.mock.Mock(returncode=0)))
+
+    def test_an_inputs_failure_keeps_its_reason(self):
+        with self.assertRaisesRegex(launcher.LaunchFailed, 'Stale file pin'):
+            self.launched_stages(unittest.mock.Mock(returncode=1, stderr='Traceback\nValueError: Stale file pin'))
+
+    def test_a_blocked_stage_keeps_its_reason(self):
+        row = {'stage': 'quality', 'status': 'blocked-on-dependency', 'dependency': 'unwrap', 'reason': 'Stale stage', 'next': 'Run unwrap'}
+        out = write(self.root/'out.log', {'heads': [{'id': 'h', 'stages': [row]}]})
+        self.assertEqual(launcher.results(out)[0]['stages'], [row])
+
     def test_design_reports_a_failed_launch(self):
         row = {'head': 'h', 'seed': '1', 'elapsedSeconds': 1, 'exitCode': 3}
         with unittest.mock.patch.object(launcher, 'run_design', return_value=[row]):
@@ -566,6 +636,48 @@ class Setup(Base):
             head_setup.set_up(self.workspace, 'elf-male-a', design, check=lambda *_: None)
         with self.assertRaisesRegex(guards.Refused, 'not in workspace slots'):
             head_setup.set_up(self.workspace, 'elf-male-z', design)
+
+    def test_a_blank_approval_is_refused(self):
+        with self.assertRaisesRegex(guards.Refused, '--approval'):
+            head_setup.set_up(self.workspace, 'elf-male-a', self.root/'d.png', approval='  ')
+
+    def test_a_failed_setup_can_run_again(self):
+        design = self.prepare()
+        data = json.loads((self.root/'workspace.json').read_text())
+        compiler = data.pop('mdlCompiler')
+        write(self.root/'workspace.json', data)
+        with self.assertRaises(WorkspaceError):
+            head_setup.set_up(Workspace.load(self.root), 'elf-male-a', design, approval='t', check=lambda *_: None)
+        data['mdlCompiler'] = compiler
+        write(self.root/'workspace.json', data)
+        path = head_setup.set_up(Workspace.load(self.root), 'elf-male-a', design, approval='t', check=lambda *_: None)
+        self.assertFalse((path.parent/head_setup.SETUP_MARKER).exists())
+
+    def test_components_count_the_extra_shells_not_the_table(self):
+        design = self.prepare()
+        head_setup.set_up(self.workspace, 'elf-male-a', design, approval='t', check=lambda *_: None)
+        head = self.workspace.head('elf-male-a')
+        write(head/'review-evidence/shells.json', {'count': 8, 'extra': [{}]*7, 'deletedAreaFraction': .001})
+        self.assertEqual(head_setup.set_components(self.workspace, 'elf-male-a', 'studs', lambda *_: None), (7, .0011))
+        components = guards.read(head/'manifest.json')['mesh']['components']
+        self.assertEqual(components['expectedDeleted'], 7)
+        write(head/'review-evidence/shells.json', {'count': 7, 'extra': [{}]*7, 'deletedAreaFraction': .001})
+        with self.assertRaisesRegex(guards.Refused, 'counts 7'):
+            head_setup.set_components(self.workspace, 'elf-male-a', 'studs', lambda *_: None)
+
+    def test_ownership_replaces_the_rule_set(self):
+        design = self.prepare()
+        head_setup.set_up(self.workspace, 'elf-male-a', design, approval='t', check=lambda *_: None)
+        rules = write(self.root/'rules.json', {'regions': {'hair': {}}, 'rules': [{'channel': 1}], 'notes': 'n'})
+        path = head_setup.set_ownership(self.workspace, 'elf-male-a', rules, lambda *_: None)
+        data = guards.read(path)['ownership']
+        self.assertEqual((data['mode'], data['rules']), ('rules', [{'channel': 1}]))
+        self.assertNotIn('$replace', data)
+
+    def test_route_declarations_name_their_gate(self):
+        declared = head_setup.route_declarations({'raw': {'sha256': 'a'}, 'field': {'sha256': 'b'}})
+        self.assertIn('repair gate', declared['shellInspection']['notes'])
+        self.assertIn('bake gate', declared['appearanceField']['notes'])
 
     def test_overrides_merge_remove_and_replace(self):
         base = {'a': {'x': 1, 'y': 2}, 'b': {'z': 3}, 'c': 4}
@@ -701,9 +813,10 @@ class Presets(Base):
         head = self.head()
         self.overrides(head, {})
         self.receipt(head, 'unwrap', 1, {'result': RECEIPT_RESULT})
-        overrides, notes, hold, changed = presets.plan(self.workspace, head.name, uv_only=True)
+        overrides, notes, hold, changed = presets.plan(self.workspace, head.name, uv_only=True, floor_review='charts checked')
         self.assertTrue(changed)
         self.assertEqual(overrides['mesh']['uv']['minimumCoverage'], .29)
+        self.assertIn('charts checked', overrides['mesh']['uv']['coverageReview']['notes'])
         self.assertEqual(hold, [])
         self.assertIn('uv floor', notes[0])
 
@@ -711,13 +824,13 @@ class Presets(Base):
         head = self.head()
         self.overrides(head, {})
         self.receipt(head, 'unwrap', 1, {'error': 'Insufficient useful UV coverage (0.291 at 2K)'})
-        self.assertEqual(presets.plan(self.workspace, head.name, uv_only=True)[0]['mesh']['uv']['minimumCoverage'], .28)
+        self.assertEqual(presets.plan(self.workspace, head.name, uv_only=True, floor_review='checked')[0]['mesh']['uv']['minimumCoverage'], .28)
 
-    def test_keep_floor_reports_the_floor_and_records_no_review(self):
+    def test_no_review_notes_report_the_floor_and_record_nothing(self):
         head = self.head()
         self.overrides(head, {})
         self.receipt(head, 'unwrap', 1, {'result': RECEIPT_RESULT})
-        overrides, notes, _, changed = presets.plan(self.workspace, head.name, uv_only=True, keep_floor=True)
+        overrides, notes, _, changed = presets.plan(self.workspace, head.name, uv_only=True)
         self.assertNotIn('uv', overrides['mesh'])
         self.assertFalse(changed)
         self.assertIn('needs a person', notes[0])
@@ -768,7 +881,7 @@ class Presets(Base):
         workspace = self.marks(head)
         self.overrides(head, {'slope': -.2, 'reach': .08})
         results = {.08: {'jaw': .03, 'band': .1, 'top': .05, 'ok': False}}
-        self.assertIn('RUNBOOK 76', presets.plan(workspace, head.name, scan=self.scan(results))[2][0])
+        self.assertIn('RUNBOOK 47', presets.plan(workspace, head.name, scan=self.scan(results))[2][0])
 
     def test_report_only_plans_change_nothing(self):
         head = self.head()
@@ -827,6 +940,10 @@ class Review(Base):
     def test_unknown_tool_is_refused(self):
         with self.assertRaises(SystemExit):
             run_headbatch.parser().parse_args(['review', 'no-such-tool'])
+
+    def test_status_lists_a_head_that_has_never_launched(self):
+        self.head()
+        self.assertEqual(launcher.status(self.workspace), ['elf-male-a | no stage yet'])
 
     def test_status_names_a_head_waiting_on_review(self):
         head = self.head()
@@ -937,6 +1054,92 @@ class SpoolTests(Base):
         write(self.workspace.spool/'results'/f'{name}.json', {'refused': 'too many'})
         self.spool.step()
         self.assertEqual(self.spool.state['attention'][f'{name}/launch']['text'], 'too many')
+
+    def test_a_second_spooler_is_refused(self):
+        with guards.only_spooler(self.workspace), self.assertRaisesRegex(guards.Refused, 'Another spooler'):
+            self.spool.loop(once=True)
+        self.spool.loop(once=True)
+
+    def test_a_held_report_does_not_end_the_loop(self):
+        with unittest.mock.patch.object(self.spool, 'report', side_effect=PermissionError('held')):
+            self.spool.step()
+        self.assertIn('spool/report', self.spool.state['attention'])
+
+    def test_a_closed_console_does_not_end_the_loop(self):
+        with unittest.mock.patch('builtins.print', side_effect=OSError(22, 'Invalid argument')):
+            self.spool.log('line')
+        self.assertIn('line', (self.workspace.spool/'log.txt').read_text())
+
+    def test_a_request_that_cannot_retire_fires_once(self):
+        self.head()
+        write(self.workspace.spool/'queue/a.json', {'heads': ['elf-male-a'], 'stages': 'bake'})
+        with unittest.mock.patch.object(Path, 'rename', side_effect=PermissionError('held')):
+            self.spool.scan_requests()
+            self.spool.scan_requests()
+        self.assertEqual(self.started, [('bake', 'elf-male-a', None)])
+        self.spool.scan_requests()
+        self.assertEqual(list((self.workspace.spool/'queue').glob('*')), [])
+        self.assertEqual(self.spool.state['taken'], {})
+
+    def test_a_queue_file_edited_between_heads_launches_only_the_rest(self):
+        self.head()
+        self.head('elf-male-b')
+        path = write(self.workspace.spool/'queue/a.json', {'heads': ['elf-male-a', 'elf-male-b'], 'stages': 'repair'})
+
+        def edit_at_the_second_head(*arguments):
+            if arguments[1] == 'elf-male-b' and not self.tools:
+                self.tools.append(arguments)
+                path.write_text(path.read_text()+' ')
+            return (0, ['done'])
+        self.spool.tool = edit_at_the_second_head
+        self.spool.scan_requests()
+        self.assertEqual(self.started, [('repair', 'elf-male-a', None)])
+        self.spool.scan_requests()
+        self.assertEqual(self.started, [('repair', 'elf-male-a', None), ('repair', 'elf-male-b', None)])
+
+    def test_a_stage_that_later_runs_closes_its_attention(self):
+        head = self.head()
+        self.spool.attention(head.name, 'tone', 'failed attempt-01')
+        self.receipt(head, 'tone', 2, {'result': {}})
+        self.finish(stage='tone')
+        self.assertNotIn('elf-male-a/tone', self.spool.state['attention'])
+
+    def test_a_blocked_stage_says_why(self):
+        name = self.spool.launch('quality', 'elf-male-a')
+        write(self.workspace.spool/'results'/f'{name}.json', {'heads': [{'id': 'elf-male-a', 'stages': [{'stage': 'quality', 'status': 'blocked-on-dependency', 'reason': 'Stale stage: unwrap'}]}]})
+        self.spool.step()
+        self.assertIn('Stale stage: unwrap', self.spool.state['attention']['elf-male-a/quality']['text'])
+
+    def test_a_launcher_error_keeps_its_end(self):
+        name = self.spool.launch('bake', 'elf-male-a')
+        write(self.workspace.spool/'results'/f'{name}.json', {'error': 'x'*900+'ValueError: Stale file pin'})
+        self.spool.step()
+        self.assertIn('Stale file pin', self.spool.state['attention'][f'{name}/launch']['text'])
+
+    def test_a_failed_row_sheet_reaches_attention_on_an_advance(self):
+        head = self.head()
+        write(self.workspace.spool/'reviewed-rows.json', {head.name: {'0': 7}})
+        self.receipt(head, 'palette', 1, {'result': {'rows': {'0': 7}}})
+        self.tool_result = (1, ['no attempt'])
+        self.finish(stage='palette')
+        self.assertEqual(self.started, [('export', 'elf-male-a', 'palette')])
+        self.assertIn('ROWRAMPS FAILED', self.spool.state['attention']['elf-male-a/palette']['text'])
+
+    def test_a_repair_approved_as_next_gets_its_presets(self):
+        head = self.head()
+        self.current(head, 'fit', 'attempt-01')
+        write(self.workspace.spool/'approve/a.json', {'heads': [head.name], 'approve': 'fit', 'attempts': {head.name: 'attempt-01'}, 'next': 'repair'})
+        self.tool_result = (1, ['HOLD: no reach finds the chin'])
+        self.spool.scan_requests()
+        self.assertEqual(self.tools, [('presets', 'elf-male-a', '--apply')])
+        self.assertEqual(self.started, [])
+
+    def test_two_sheets_in_one_tick_keep_their_logs(self):
+        with unittest.mock.patch.object(spool.subprocess, 'Popen') as popen:
+            popen.side_effect = [unittest.mock.Mock(), unittest.mock.Mock()]
+            self.spool.run_later('bakeviews', 'a')
+            self.spool.run_later('bakeviews', 'b')
+        self.assertEqual(len(self.spool.drawing), 2)
 
     def test_queue_launches_each_head(self):
         self.head()
@@ -1175,7 +1378,7 @@ class SpoolTests(Base):
         write(self.workspace.spool/'queue/a.json', {'heads': ['elf-male-a'], 'stages': 'repair'})
         self.tool_result = (1, ['HOLD: no reach finds the chin'])
         self.spool.scan_requests()
-        self.assertEqual(self.tools, [('presets', 'elf-male-a', '--apply', '--keep-floor')])
+        self.assertEqual(self.tools, [('presets', 'elf-male-a', '--apply')])
         self.assertEqual(self.started, [])
         self.assertIn('elf-male-a/repair', self.spool.state['attention'])
 

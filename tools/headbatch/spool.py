@@ -8,11 +8,12 @@
   spool/STOP            ends the loop
 
 Numeric gates: unwrap to bake, palette to export when rows equal the reviewed pins, export to native, native to render.
-A launch whose own record never arrives goes to attention, never silently past (RUNBOOK 117).
+A launch whose own record never arrives goes to attention, never silently past (RUNBOOK 117). Only one spooler runs on a workspace.
 
 Each finished stage gets its review evidence: repair the clay pair and skirt zone, bake the textured views and grid, ownership its
 saved atlas, palette the row ramps, and a refused shell selection the shell sheet. A queued repair gets the repair presets first."""
 from datetime import datetime
+import itertools
 import json
 from pathlib import Path
 import subprocess
@@ -46,17 +47,22 @@ class Spool:
             (self.folder/name).mkdir(parents=True, exist_ok=True)
         path = self.folder/'state.json'
         self.state = json.loads(path.read_text()) if path.exists() else {'launches': {}, 'review': {}, 'attention': {}, 'retries': {}}
+        self.state.setdefault('taken', {})
         self.starter = starter or self.start_process
         self.tool = tool or self.run_tool
         self.later = later or self.run_later
         self.running = {}
         self.drawing = {}
+        self.sheet_numbers = itertools.count()
 
     def log(self, message):
         line = f'{clock()} {message}'
-        print(line, flush=True)
-        with open(self.folder/'log.txt', 'a', encoding='utf-8') as log:
-            log.write(line+'\n')
+        try:
+            with open(self.folder/'log.txt', 'a', encoding='utf-8') as log:
+                log.write(line+'\n')
+            print(line, flush=True)
+        except (OSError, ValueError):  # a closed console or a held log must not end the loop
+            pass
 
     def review(self, head, stage, text):
         self.state['review'][f'{head}/{stage}'] = {'at': clock(), 'text': text}
@@ -80,12 +86,12 @@ class Spool:
     def start_process(self, name, stages, head, approve, notes):
         command = self.command(['run', name, stages, head, '--result', self.folder/'results'/f'{name}.json'])
         if approve:
-            command += ['--approve', approve, '--notes', notes or '']
+            command += ['--approve', approve, f"--notes={notes or ''}"]  # joined: a note can start with a dash
         with open(self.folder/'results'/f'{name}.out', 'w', encoding='utf-8') as out:
             return subprocess.Popen(command, stdout=out, stderr=subprocess.STDOUT)
 
     def command(self, arguments):
-        return [PYTHON, '-B', str(RUNNER), '--workspace', str(self.workspace.root), *[str(item) for item in arguments]]
+        return [PYTHON, '-B', str(RUNNER), '--workspace', str(self.workspace.file or self.workspace.root), *[str(item) for item in arguments]]
 
     def run_tool(self, *arguments):
         done = subprocess.run(self.command(arguments), capture_output=True, text=True)
@@ -93,7 +99,7 @@ class Spool:
 
     def run_later(self, *arguments):
         """Heavy sheets wait for a CPU slot in their own process, so the spooler keeps moving. A sheet that dies goes to attention (RUNBOOK 102)."""
-        log = self.sheets/f'{arguments[0]}-{datetime.now():%H%M%S%f}.log'
+        log = self.sheets/f'{arguments[0]}-{datetime.now():%H%M%S}-{next(self.sheet_numbers)}.log'
         with open(log, 'w', encoding='utf-8') as out:
             self.drawing[log] = subprocess.Popen(self.command(['review', '--slot', *arguments]), stdout=out, stderr=subprocess.STDOUT)
 
@@ -133,7 +139,7 @@ class Spool:
             return
         if stage == 'unwrap' and guards.COVERAGE.search(error):
             _, text = self.tool('presets', head, '--uv-only')  # plans only: a lower floor records a review, which is a person's (RUNBOOK 186)
-            self.attention(head, stage, f'{attempt}: {text[0]} | after review: presets {head} --uv-only --apply, then requeue unwrap')
+            self.attention(head, stage, f'{attempt}: {text[0]} | after review: presets {head} --uv-only --apply --review-floor NOTES, then requeue unwrap')
             return
         queued = ''
         if stage == 'repair' and NECK_CUT_FAILED in error and 'shells' in error:  # the cut left several shells; a refusal before the cut has no uncut master, and carries its table in the receipt
@@ -169,6 +175,8 @@ class Spool:
             rows = {key: value for key, value in result.get('rows', {}).items() if key in manifest['palette'].get('rows', {})}
             code, text = self.tool('review', 'rowramps', head)
             sheet = f'ROWRAMPS FAILED: {text[0]}' if code else f'sheet {head}/review-evidence/rowramps.png'
+            if code:
+                self.attention(head, stage, sheet)
             if rows == manifest['palette'].get('rows', {}) and guards.rows_reviewed(self.workspace, head):
                 self.launch('export', head, 'palette', f'{approved} every palette row equals its reviewed pin {rows}')
             else:
@@ -211,10 +219,10 @@ class Spool:
 
     def handle(self, name, data, approved=None):
         if data.get('refused') or data.get('error'):
-            self.attention(name, 'launch', str(data.get('refused') or data.get('error'))[:300])
+            self.attention(name, 'launch', str(data.get('refused') or data.get('error'))[-300:])  # the reason ends a launcher's stderr
             return
         if not data.get('heads'):
-            self.attention(name, 'launch', 'a launch finished with no stage result (RUNBOOK 117)')
+            self.attention(name, 'launch', f"a launch finished with no stage result (RUNBOOK 117): see {data.get('errors')}")
             return
         for row in data['heads']:
             self.handle_row(name, row, approved)
@@ -234,6 +242,7 @@ class Spool:
         for index, item in enumerate(stages):
             stage, status = item['stage'], item['status']
             if status in FINISHED:  # an earlier valid result stands; review it like a fresh one
+                self.state['attention'].pop(f'{head}/{stage}', None)  # a requeue that worked answers the failure that asked for it
                 went_on = any(later['status'] in (*FINISHED, 'failed') for later in stages[index+1:])
                 if not (went_on and stage in NUMERIC_GATES):  # the chain is already past this gate: passing it again would launch the next stage twice
                     self.on_success(head, stage, item)
@@ -242,7 +251,7 @@ class Spool:
                 self.on_failure(head, stage, item)
                 ran = False
             elif status.startswith('blocked') and not ran:
-                self.attention(head, stage, f'{status} in {name}')
+                self.attention(head, stage, f"{status} in {name}: {item.get('reason', '')}"[:500])
 
     def launch_alive(self, name, info):
         """A launch from before a restart has no process here: the lock on its head shows it is still going, once it has had time to take it."""
@@ -270,22 +279,32 @@ class Spool:
                 if code:
                     self.attention(log.stem, 'sheet', f'exit {code}: see {log}')
 
+    def taken(self, path):
+        """The heads a request file has already launched or refused: it can outlive a pass, edited or held open, and none of them must fire twice (RUNBOOK 207)."""
+        return self.state['taken'].setdefault(f'{path.parent.name}/{path.name}', [])
+
     def retire(self, path):
         path.rename(self.folder/'done'/f'{datetime.now():%H%M%S%f}-{path.parent.name}-{path.name}')  # approve/a.json and queue/a.json can retire in one clock tick
+        self.state['taken'].pop(f'{path.parent.name}/{path.name}', None)
 
     def scan_requests(self):
+        waiting = {f'{path.parent.name}/{path.name}' for name in ('approve', 'queue') for path in (self.folder/name).glob('*.json')}
+        self.state['taken'] = {key: heads for key, heads in self.state['taken'].items() if key in waiting}  # withdrawn files
         self.scan_approvals()
         self.scan_queue()
 
     def scan_approvals(self):
         for path in sorted((self.folder/'approve').glob('*.json')):
             self.guarded(path.name, 'approve', lambda: self.take_approval(path))
-            self.retire(path)
+            self.guarded(path.name, 'approve', lambda: self.retire(path))
 
     def take_approval(self, path):
         request = guards.read(path)
+        taken = self.taken(path)
         for head in request['heads']:
-            self.guarded(head, request['approve'], lambda: self.approve_head(head, request))
+            if head not in taken:
+                self.guarded(head, request['approve'], lambda: self.approve_head(head, request))
+                taken.append(head)
 
     def approve_head(self, head, request):
         """The review stays open until its launch records the approval: headkit can still refuse it (RUNBOOK 188). Headkit binds an approval to the
@@ -300,31 +319,40 @@ class Spool:
             raise guards.Refused(f'{head}: an approval records through its next launch, so give "next"; a last stage needs a headkit review')
         if stage == 'repair':
             guards.jaw(self.workspace.head(head), self.workspace.landmarks())
-        self.launch(request['next'], head, stage, request.get('notes'))
+        if 'repair' not in request['next'].split(',') or self.repair_presets(head):
+            self.launch(request['next'], head, stage, request.get('notes'))
 
     def scan_queue(self):
         for path in sorted((self.folder/'queue').glob('*.json')):
             changed = self.guarded(path.name, 'queue', lambda: self.take_queue(path))
             if path.exists() and not changed:
-                self.retire(path)
+                self.guarded(path.name, 'queue', lambda: self.retire(path))
 
     def take_queue(self, path):
         """True when the file changed under it: it stays queued, to be read afresh on the next pass."""
         raw = path.read_bytes()
         request = guards.read(path)
+        taken = self.taken(path)
         for head in request['heads']:
+            if head in taken:
+                continue
             if self.guarded(head, request['stages'].split(',')[0], lambda: self.queue_head(path, raw, head, request)):
                 return True
+            taken.append(head)
+            self.guarded('spool', 'scan_launches', self.scan_launches)  # presets take up to a minute a head, and a finished launch should not idle its slot for them
         return False
+
+    def repair_presets(self, head):
+        code, text = self.tool('presets', head, '--apply')
+        self.log(f'preset {text[0]}')
+        if code:
+            self.attention(head, 'repair', f'presets: {text[0]}')
+        return not code
 
     def queue_head(self, path, raw, head, request):
         stages = request['stages']
-        if 'repair' in stages.split(','):
-            code, text = self.tool('presets', head, '--apply', '--keep-floor')
-            self.log(f'preset {text[0]}')
-            if code:
-                self.attention(head, 'repair', f'presets: {text[0]}')
-                return False
+        if 'repair' in stages.split(',') and not self.repair_presets(head):
+            return False
         if not path.exists() or path.read_bytes() != raw:  # the check follows the presets, which take seconds: withdrawn or edited in that time (RUNBOOK 114)
             self.log(f'{path.name} changed before launch: {head} skipped')
             return True
@@ -341,7 +369,7 @@ class Spool:
     def step(self):
         for scan in (self.scan_launches, self.scan_sheets, self.scan_requests):
             self.guarded('spool', scan.__name__, scan)
-        self.report()
+        self.guarded('spool', 'report', self.report)  # a reader holding one of its files must not end the loop; the next pass writes it again
 
     def wait(self):
         """Up to POLL_SECONDS, ending when a launch finishes, so a numeric gate advances without idling a slot."""
@@ -351,10 +379,11 @@ class Spool:
                 return
 
     def loop(self, once=False):
-        self.log('spool start')
-        while not (self.folder/'STOP').exists():
-            self.step()
-            if once:
-                break
-            self.wait()
-        self.log('spool stop')
+        with guards.only_spooler(self.workspace):
+            self.log('spool start')
+            while not (self.folder/'STOP').exists():
+                self.step()
+                if once:
+                    break
+                self.wait()
+            self.log('spool stop')

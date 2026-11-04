@@ -1,4 +1,4 @@
-"""design_landmarks.py OUT_DIR HEAD... [--override JSON]: per-head face landmarks for the landmark fit (user 2026-10-28: per-head
+"""design_landmarks.py OUT_DIR HEAD... [--override JSON] [--no-refine]: OUT_DIR must be absolute: per-head face landmarks for the landmark fit (user 2026-10-28: per-head
 landmarks, a pupil/lip detector on the design images with reviewed overlays).
 1. Detect on the matted design (run/prepare/*/images/design-rgba.png): pupils = the best left/right pair of dark blobs
    (difference of Gaussians on luminance) at one height in the upper face; lip seam = the darkest row on the face midline between
@@ -105,7 +105,10 @@ def sheet(rgb, marks, depth, fmarks, out, title):
 
 
 if __name__ == '__main__':
-    args = sys.argv[1:]; out = Path(args[0]); out.mkdir(parents=True, exist_ok=True)
+    args = sys.argv[1:]; out = Path(args[0])
+    if not out.is_absolute():  # this runs in the heads folder but `landmarks` resolves against the workspace, so a relative path would leave the jaw guard off
+        sys.exit(f'OUT_DIR must be absolute: {out}')
+    out.mkdir(parents=True, exist_ok=True)
     override = json.loads(Path(args[args.index('--override')+1]).read_text()) if '--override' in args else {}
     heads = [a for a in args[1:] if not a.startswith('--') and not a.endswith('.json')]
     result = json.loads((out/'landmarks.json').read_text()) if (out/'landmarks.json').exists() else {}

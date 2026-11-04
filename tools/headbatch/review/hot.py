@@ -1,4 +1,4 @@
-"""hot.py HEAD_DIR ATTEMPT OUT_PNG: master->final and final->master distances (relative to master diagonal), stats, clusters
+"""hot.py HEAD_DIR ATTEMPT_NUMBER OUT_PNG (e.g. 01): master->final and final->master distances (relative to master diagonal), stats, clusters
 of master vertices >0.4% in head-local coordinates, and a four-view point plot of hot vertices on the master."""
 import json, sys
 import numpy as np

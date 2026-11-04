@@ -138,6 +138,7 @@
     ],
     "tools/headbatch/review/shells.py": [
       "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/__init__.py",
       "tools/headkit/common.py",
       "tools/headkit/mesh.py",
@@ -149,6 +150,7 @@
     ],
     "tools/headbatch/review/slopescan.py": [
       "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/gltf.py",
       "tools/headkit/neck.py"
     ],

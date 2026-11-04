@@ -64,9 +64,12 @@ class Comfy:
             time.sleep(POLL_SECONDS)
         raise SystemExit(f'prompt {prompt} did not finish in {self.deadline} s and may still be on the card: check ComfyUI before the next GPU job')
 
+    def free(self):
+        self.send('/free', {'unload_models': True, 'free_memory': True})
+
     def submit(self, graph, before_prompt=lambda: None):
         # Free cached models first (applied between prompts): the card is shared with the desktop, so a decode can run out on cache alone.
-        self.send('/free', {'unload_models': True, 'free_memory': True})
+        self.free()
         before_prompt()  # after /free: a server that cannot be reached has received no submission
         reply = self.call('/prompt', {'prompt': graph})
         if reply.get('node_errors'):

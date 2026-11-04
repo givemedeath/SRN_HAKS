@@ -7,9 +7,8 @@ import os
 from pathlib import Path
 import subprocess
 import time
-import urllib.request
 
-from gpu_job import SHAPE_NODE, file_from
+from gpu_job import SHAPE_NODE, Comfy, file_from
 import guards
 from head_files import complete, decision, write_json
 from headkit.comfy import locked
@@ -31,7 +30,7 @@ class LaunchFailed(Exception):
 
 
 def stamp():
-    return datetime.now().strftime('%Y%m%d-%H%M%S')
+    return datetime.now().strftime('%Y%m%d-%H%M%S%f')  # labels name files shared with no lock held
 
 
 def timing(workspace, text, started):
@@ -130,15 +129,17 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None):
             input_list = folder/f'inputs-{label}.json'
             write_json(head_list, [{'manifest': str(d/'manifest.json'), 'bindings': str(d/'bindings.json'), 'run': str(d/'run')} for d in dirs])
             wanted = stages+(f',{approve}' if approve else '')
-            subprocess.run([PYTHON, '-B', str(RUN_HEADKIT), 'inputs', '--heads', str(head_list), '--output', str(input_list), '--stages', wanted],
-                           env=workspace.python_environment(), check=True, stdout=subprocess.DEVNULL)
+            pinned = subprocess.run([PYTHON, '-B', str(RUN_HEADKIT), 'inputs', '--heads', str(head_list), '--output', str(input_list), '--stages', wanted],
+                                    env=workspace.python_environment(), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+            if pinned.returncode:
+                raise LaunchFailed(f'inputs failed (exit {pinned.returncode}): {pinned.stderr.strip()[-800:]}')
             batch = [RUN_HEADKIT, 'batch', '--heads', head_list, '--stages', stages, '--precompile', folder/f'precompile-{label}']
             if approve:
-                batch += ['--approve', approve, '--notes', notes or '']
+                batch += ['--approve', approve, f"--notes={notes or ''}"]  # joined: a note can start with a dash
             output = folder/f'launch-{label}'
             data = launch(workspace, output, input_list, batch)
             timing(workspace, f'cpu {name} {stages}', started)
-    return {'label': label, 'exitCode': data['exitCode'], 'elapsedSeconds': data['elapsedSeconds'], 'heads': results(output/'stdout.log')}
+    return {'label': label, 'exitCode': data['exitCode'], 'elapsedSeconds': data['elapsedSeconds'], 'heads': results(output/'stdout.log'), 'errors': str(output/'stderr.log')}
 
 
 def results(stdout):
@@ -148,7 +149,7 @@ def results(stdout):
     except (OSError, ValueError):
         return []
     rows = parsed.get('heads', parsed) if isinstance(parsed, dict) else parsed
-    return [{'id': row.get('id'), 'error': row.get('error', ''), 'stages': [{key: s[key] for key in ('stage', 'status', 'error', 'attempt') if key in s} for s in row.get('stages', [])]}
+    return [{'id': row.get('id'), 'error': row.get('error', ''), 'stages': [{key: s[key] for key in ('stage', 'status', 'error', 'attempt', 'reason', 'dependency', 'next') if key in s} for s in row.get('stages', [])]}
             for row in rows if isinstance(row, dict)]
 
 
@@ -157,7 +158,7 @@ def status(workspace):
     lines = []
     if not workspace.heads.is_dir():
         return lines
-    for head in sorted(path for path in workspace.heads.iterdir() if (path/'run').is_dir()):
+    for head in sorted(path for path in workspace.heads.iterdir() if (path/'manifest.json').exists() or (path/'run').is_dir()):
         receipts = sorted(head.glob('run/*/attempt-*/receipt.json'), key=lambda path: path.stat().st_mtime)
         if not receipts:
             lines.append(f'{head.name} | no stage yet')
@@ -223,37 +224,47 @@ def run_gpu(workspace, name, arguments):
 
 
 def run_design(workspace, race, requests):
-    """One launch per HEAD:SEED[:BATCH], each with a frozen copy of the race's prompt file (RUNBOOK 26)."""
+    """One launch per HEAD:SEED[:BATCH]. A refused or invalid one is reported and the rest still run, and ComfyUI frees its models for the next GPU job however they end."""
     comfy = workspace.data.get('comfy')
     folder = workspace.root/'design'
     bindings = workspace.require('designBindings')
     (folder/'launches').mkdir(parents=True, exist_ok=True)
     finished = []
-    for request in requests:
-        head, seed, *rest = request.split(':')
-        batch = rest[0] if rest else '2'
-        label = f'{stamp()}-{head}-s{seed}'
-        spec = folder/'launches'/f'spec-{label}.json'
-        spec.write_bytes((folder/f'designs-{race}.json').read_bytes())
-        reference = workspace.design_reference(race, head.split('-')[1])
-        files = [PYTHON]+[str(REPO/module) for module in DESIGN_MODULES]+sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))+[str(spec), str(bindings)]
-        extra = []
-        if reference:
-            files.append(str(reference))
-            extra = ['--reference', reference]
-        input_list = folder/'launches'/f'inputs-{label}.json'
-        write_json(input_list, files)
-        with gpu_lock(workspace):
-            started = time.time()
-            data = launch(workspace, folder/'launches'/f'launch-{label}', input_list,
-                          [RUN_HEADKIT, 'design', '--bindings', bindings, '--spec', spec, '--head', head, '--seed', seed, '--batch', batch, *extra, '--output', folder/'raw'])
-            timing(workspace, f'design {head} s{seed} exit {data["exitCode"]}', started)
-        finished.append({'head': head, 'seed': seed, 'exitCode': data['exitCode'], 'elapsedSeconds': data['elapsedSeconds']})
-    if comfy:
-        request = urllib.request.Request(comfy['url']+'/free', data=b'{"unload_models": true, "free_memory": true}', headers={'Content-Type': 'application/json'})
-        try:
-            urllib.request.urlopen(request, timeout=120).read()
-        except OSError as error:  # the designs are done; only the courtesy to the next job failed
-            print(f'ComfyUI kept its models: {error}')
+    try:
+        for request in requests:
+            head, seed, *rest = request.split(':')
+            try:
+                guards.design_cap(folder, head)
+                finished.append(run_one_design(workspace, race, folder, bindings, head, seed, rest[0] if rest else '2'))
+            except (guards.Refused, LaunchFailed) as error:
+                finished.append({'head': head, 'seed': seed, 'exitCode': 1, 'elapsedSeconds': 0, 'error': str(error)})
+    finally:
+        if comfy:
+            with gpu_lock(workspace):
+                try:
+                    Comfy(comfy['url'], None).free()
+                except OSError as error:  # the designs are done; only the courtesy to the next job failed
+                    print(f'ComfyUI kept its models: {error}')
     return finished
+
+
+def run_one_design(workspace, race, folder, bindings, head, seed, batch):
+    """A frozen copy of the race's prompt file, because an edit during a queued launch would otherwise change what it runs (toolkit: re-roll bookkeeping)."""
+    label = f'{stamp()}-{head}-s{seed}'
+    spec = folder/'launches'/f'spec-{label}.json'
+    spec.write_bytes((folder/f'designs-{race}.json').read_bytes())
+    reference = workspace.design_reference(race, head.split('-')[1])
+    files = [PYTHON]+[str(REPO/module) for module in DESIGN_MODULES]+sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))+[str(spec), str(bindings)]
+    extra = []
+    if reference:
+        files.append(str(reference))
+        extra = ['--reference', reference]
+    input_list = folder/'launches'/f'inputs-{label}.json'
+    write_json(input_list, files)
+    with gpu_lock(workspace):
+        started = time.time()
+        data = launch(workspace, folder/'launches'/f'launch-{label}', input_list,
+                      [RUN_HEADKIT, 'design', '--bindings', bindings, '--spec', spec, '--head', head, '--seed', seed, '--batch', batch, *extra, '--output', folder/'raw'])
+        timing(workspace, f'design {head} s{seed} exit {data["exitCode"]}', started)
+    return {'head': head, 'seed': seed, 'exitCode': data['exitCode'], 'elapsedSeconds': data['elapsedSeconds']}
 

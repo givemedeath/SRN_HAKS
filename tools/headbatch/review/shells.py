@@ -1,12 +1,14 @@
 """shells.py HEAD_DIR [--interior]: read-only reproduction of the head's repair up to the shell selection, with the pipeline
 toolkit's ShellReview table: every extra shell's triangles, area fraction, centroid and box (repair frame). Writes nothing
-into the run."""
+into the run. Record the selection with `run_headbatch.py components`, which reads review-evidence/shells.json: the printed
+count includes the kept shell, so it is not expectedDeleted (RUNBOOK 93)."""
 import json, sys, tempfile
 from pathlib import Path
 head = Path(next(a for a in sys.argv[1:] if not a.startswith('--')))
 from headkit import neck, mesh as meshmod
 from headkit.common import read
 from headbatch.head_files import fit_matrix
+from _frame import band
 man = json.load(open(head/'manifest.json')); st = read(head/'run/state.json')['stages']; b = read(head/'bindings.json')
 source = read(st['precluster']['path'])['result']['output']
 fit = dict(man['fit'], matrix=fit_matrix(head), reviewed=True); fit.pop('matrixFrom', None)
@@ -28,7 +30,7 @@ with tempfile.TemporaryDirectory() as tmp:
         print('single shell: no components review needed')
     except meshmod.ShellReview as error:
         import numpy as np
-        table = error.attempts['shells']; print('shells', table['count'], 'extra area %.4f%%' % (100*table['deletedAreaFraction']))
+        table = error.attempts['shells']; print('shells', table['count'], 'including the kept one; extra area %.4f%%' % (100*table['deletedAreaFraction']))
         V, F = np.asarray(captured['vertices'], float), np.asarray(captured['faces']); label = meshmod.shells(V, F)
         corners = V[F]; area = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)/2
         keep = int(np.argmax(np.bincount(label, area))); main = F[label == keep]
@@ -68,7 +70,6 @@ if body is not None and captured:
     import numpy as np
     V = np.asarray(captured['vertices'], float); cut_policy = neck.neck_policy(man['mesh']['neck'], {'matrix': fit['matrix'], 'reviewed': True})
     bv, bf = neck.body_neck(str(body)); L = neck.transform(cut_policy['frame'], V); cut = cut_policy['cut']
-    jaw = neck.measured_jaw(L, bv, bf, cut); h = jaw['height']-cut['clearance']
-    plane = h+cut['slope']*L[:, 1]; band = L[(L[:, 2]-plane) < cut['band']]; top = np.maximum(band[:, 2], h+cut['slope']*band[:, 1]).max()
-    low, high = bv[:, 2].min(), bv[:, 2].max()
+    jaw = neck.measured_jaw(L, bv, bf, cut); plane, moving = band(L, cut, jaw, bv, bf)
+    top = np.maximum(L[moving, 2], plane[moving]).max(); high = bv[:, 2].max()
     print('neck cut: slope', cut['slope'], 'band top %.4f' % top, 'body neck top %.4f' % high, 'OK' if top < high else 'FAIL: lower the slope magnitude (the band at the nape is above the body neck)')

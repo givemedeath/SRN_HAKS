@@ -34,9 +34,9 @@ def show_presets(workspace, args):
     held = False
     for head in args.heads:
         if args.apply:
-            line, hold = presets.apply(workspace, head, args.uv_only, keep_floor=args.keep_floor)
+            line, hold = presets.apply(workspace, head, args.uv_only, floor_review=args.review_floor)
         else:
-            _, notes, reasons, _ = presets.plan(workspace, head, args.uv_only, keep_floor=args.keep_floor)
+            _, notes, reasons, _ = presets.plan(workspace, head, args.uv_only, floor_review=args.review_floor)
             line, hold = presets.summary(head, notes, reasons), bool(reasons)
         print(line)
         held = held or hold
@@ -55,6 +55,12 @@ def parser():
     p.add_argument('--slope', type=float, default=-.2, help='-0.3 when hair reaches the nape (RUNBOOK 76)')
     p.add_argument('--deviation', action='append', default=[], help='observed departure of the design from its prompt')
     commands.add_parser('manifest', help='rewrite a head manifest').add_argument('head')
+    p = commands.add_parser('components', help="record the reviewed shell selection from review-evidence/shells.json")
+    p.add_argument('head')
+    p.add_argument('--notes', required=True, help='what the shell review found')
+    p = commands.add_parser('ownership', help='record a reviewed ownership rule set')
+    p.add_argument('head')
+    p.add_argument('rules', type=Path, help='JSON with regions, rules and notes')
     p = commands.add_parser('run', help='run stages for heads in one launch')
     p.add_argument('name')
     p.add_argument('stages')
@@ -80,7 +86,7 @@ def parser():
     p = commands.add_parser('presets', help='plan or apply the up-front repair policies')
     p.add_argument('heads', nargs='+')
     p.add_argument('--uv-only', action='store_true')
-    p.add_argument('--keep-floor', action='store_true', help='report a lower UV floor instead of recording its review')
+    p.add_argument('--review-floor', metavar='NOTES', help='what you checked before lowering the UV floor; without it a lower floor is only reported')
     p.add_argument('--apply', action='store_true')
     commands.add_parser('status', help='one line per head: newest stage and what it waits for')
     p = commands.add_parser('review', help='a review sheet or diagnostic from tools/headbatch/review, run in the heads folder')
@@ -99,15 +105,20 @@ def run_stages(workspace, args):
         outcome.update(launcher.run_stages(workspace, args.name, args.stages, args.heads, args.approve, args.notes))
     except guards.Refused as refusal:
         outcome['refused'] = str(refusal)
-    except (launcher.LaunchFailed, subprocess.CalledProcessError) as error:
+    except launcher.LaunchFailed as error:
         outcome['error'] = str(error)
     if args.result:
         write_json(args.result, outcome)
     for row in outcome.get('heads', []):
         print(row['id'], row['error'], ' '.join(f"{item['stage']}:{item['status']}" for item in row['stages']))
+        for item in row['stages']:
+            if 'reason' in item and item['status'].startswith('blocked'):
+                print(' ', item['stage'], item['reason'])
     if 'refused' in outcome or 'error' in outcome:
         raise SystemExit(f"REFUSED: {outcome['refused']}" if 'refused' in outcome else f"FAILED: {outcome['error']}")
     print('launch', outcome['label'], round(outcome['elapsedSeconds'], 1), 's exit', outcome['exitCode'])
+    if outcome['exitCode']:
+        print('reason:', outcome['errors'])
     return outcome['exitCode']
 
 
@@ -119,6 +130,10 @@ def main(argv=None):
             print('ready', head_setup.set_up(workspace, args.head, args.design, args.reach, args.slope, args.deviation, args.approval))
         elif args.command == 'manifest':
             print('manifest', head_setup.write_manifest(workspace, args.head))
+        elif args.command == 'components':
+            print('components', *head_setup.set_components(workspace, args.head, args.notes))
+        elif args.command == 'ownership':
+            print('manifest', head_setup.set_ownership(workspace, args.head, args.rules))
         elif args.command == 'run':
             return run_stages(workspace, args)
         elif args.command == 'gpu':
@@ -133,7 +148,7 @@ def main(argv=None):
         elif args.command == 'design':
             rows = launcher.run_design(workspace, args.race, args.requests)
             for row in rows:
-                print(row['head'], 'seed', row['seed'], round(row['elapsedSeconds'], 1), 's exit', row['exitCode'])
+                print(row['head'], 'seed', row['seed'], round(row['elapsedSeconds'], 1), 's exit', row['exitCode'], row.get('error', ''))
             return max(row['exitCode'] for row in rows)  # RUNBOOK 119
         elif args.command == 'trial-spec':
             out, count = trials.write_spec(workspace, args.race, args.version)

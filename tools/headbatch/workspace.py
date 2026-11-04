@@ -29,6 +29,7 @@ def prefix(race, sex):
 class Workspace:
     root: Path
     data: dict
+    file: Path = None  # any file load accepted, which child processes must load too
 
     @classmethod
     def load(cls, path=None):
@@ -47,7 +48,7 @@ class Workspace:
         missing = [key for key in REQUIRED if key not in data]
         if missing:
             raise WorkspaceError(f'{path} is missing {missing}')
-        return cls(path.parent, data)
+        return cls(path.parent, data, path)
 
     def path(self, value):
         """A workspace path: absolute as written, otherwise relative to the workspace folder."""
@@ -89,7 +90,8 @@ class Workspace:
     def cpu_slots(self):
         """Read on every attempt, so a cpu-slots file can change the limit while launches wait."""
         try:
-            value = int((self.root/'cpu-slots').read_text().strip())
+            raw = (self.root/'cpu-slots').read_bytes()  # Windows PowerShell's echo writes UTF-16 and its Set-Content a BOM
+            value = int(raw.decode('utf-16' if raw[:2] in (b'\xff\xfe', b'\xfe\xff') else 'utf-8-sig').strip())
         except (OSError, ValueError):
             value = int(self.data.get('cpuSlots', 2))
         return value if 1 <= value <= 6 else 2

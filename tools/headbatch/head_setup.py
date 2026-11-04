@@ -1,5 +1,5 @@
 """Create a head folder from a picked design and write its manifest from the design receipt, GPU outputs and overrides.json."""
-import json
+import math
 import os
 from pathlib import Path
 import re
@@ -12,6 +12,7 @@ from head_files import sha, write_json
 from workspace import PYTHON, RACE_DATA
 
 FEATURE = re.compile(r'^(Face|Ears|Brows|Horns|Tusks|Beard|Hair|Cyberware|Piercings|Tattoo|Scars): (.*)$', re.M)
+SETUP_MARKER = '.setup-incomplete'
 PALETTE_ROLES = (('paletteSkin', 'pal-skin01.tga'), ('paletteHair', 'pal-hair01.tga'), ('paletteArmor', 'pal-armor01.tga'), ('paletteTattoo', 'pal-tattoo01.tga'))
 
 
@@ -54,8 +55,22 @@ def merge(base, extra):
             base[key] = {a: b for a, b in value.items() if a != '$replace'} if isinstance(value, dict) else value
 
 
+def route_declarations(inputs):
+    """What the toolkit loader needs stated before this route has produced anything to look at. They declare the route, and nobody has looked at this
+    head yet: each is checked at a later visual gate. shellInspection: the shell review of the repair. appearanceField: the bake review. Ownership
+    `reviewed`: the ownership review of its rules. placementReviewed: the design pick, and the `setup --approval` a person gave for it."""
+    data = {'shellInspection': {'visualReviewed': True, 'confirmedShellDefect': True,
+                                'notes': 'Route declaration, reviewed at the repair gate: Pixal raw shell preclustered to 512; the closed shell comes from Alpha Wrap because the raw UDF export is non-manifold.'}}
+    if 'field' in inputs and 'raw' in inputs:
+        data['appearanceField'] = {
+            'decision': 'approved', 'geometryInput': 'raw', 'geometrySha256': inputs['raw']['sha256'], 'fieldSha256': inputs['field']['sha256'],
+            'notes': 'Route declaration, reviewed at the bake gate: Pixal appearance field generated in one ComfyUI session from this exact saved shape.'}
+    return data
+
+
 def defaults(name, receipt, inputs, reference):
     race, sex = receipt['race'], receipt['sex']
+    declared = route_declarations(inputs)
     data = {
         'schemaVersion': 1, 'id': name, 'profile': 'pixal-single-v1', 'inputs': inputs,
         'features': [dict(name=key, description=value, placementReviewed=True) for key, value in receipt['featureInventory'].items()],
@@ -64,8 +79,7 @@ def defaults(name, receipt, inputs, reference):
         'mesh': {
             'alphaWrap': True, 'offsetRelative': 0.0005, 'triangleBudget': 20000, 'maximumRelativeSurfaceError': 0.004, 'allowDecoderOvershoot': True,
             'maximumSubtexelFraction': 0.005,
-            'shellInspection': {'visualReviewed': True, 'confirmedShellDefect': True,
-                                'notes': 'Pixal raw shell preclustered to 512; the closed shell comes from Alpha Wrap because the raw UDF export is non-manifold.'},
+            'shellInspection': declared['shellInspection'],
             'uv': {'chartOptions': {'max_cost': 16.0, 'normal_deviation_weight': 0.5, 'max_iterations': 2}},
             'neck': {'taper': {'minScale': 0.5, 'frontStart': -0.078, 'backStart': -0.035, 'axis': [0.0, 0.03]}},
         },
@@ -79,10 +93,8 @@ def defaults(name, receipt, inputs, reference):
         'fit': {'matrixFrom': 'fit', 'align': 'nose', 'excludeLower': 0.25, 'sourceStage': 'unwrap', 'model': receipt['slot'],
                 'notes': f'Matrix from the reviewed fit stage: profile-matched scale and nose-tip alignment vs {reference.stem} ({race} {sex} proportion reference); profile matched above the lowest 25% of the reference.'},
     }
-    if 'field' in inputs and 'raw' in inputs:
-        data['approval']['appearanceField'] = {
-            'decision': 'approved', 'geometryInput': 'raw', 'geometrySha256': inputs['raw']['sha256'], 'fieldSha256': inputs['field']['sha256'],
-            'notes': 'Pixal appearance field generated in the same ComfyUI session from this exact saved shape; the bake review checks it visually.'}
+    if 'appearanceField' in declared:
+        data['approval']['appearanceField'] = declared['appearanceField']
     return data
 
 
@@ -165,20 +177,47 @@ def rewrite_manifest(workspace, name, check, overrides, replaced):
     return head/'manifest.json'
 
 
+def set_components(workspace, name, notes, check=validate):
+    """The reviewed shell selection from `review shells`: keep the largest, bound = extra area rounded up + 10 %. The table's count includes the kept shell, and the repair expects the extras (RUNBOOK 93)."""
+    head = workspace.head(name)
+    table = guards.read(head/'review-evidence'/'shells.json')
+    extra, area = len(table['extra']), table['deletedAreaFraction']
+    if table['count'] != extra+1:
+        raise guards.Refused(f"{name}: the shell table counts {table['count']} with {extra} extra: rerun review shells")
+    bound = math.ceil(area*1.1*1e4)/1e4
+    overrides = guards.read(head/'overrides.json')
+    overrides.setdefault('mesh', {})['components'] = {'keep': 'largest', 'reviewed': True, 'maximumDeletedAreaFraction': bound, 'expectedDeleted': extra,
+                                                      'notes': f'review shells --interior + shells.png: {extra} extra shells, {area*100:.4f}% of area. {notes}'}
+    write_manifest(workspace, name, check, overrides)
+    return extra, bound
+
+
+def set_ownership(workspace, name, rules, check=validate):
+    """A reviewed rule set (regions, rules, notes), replacing any earlier one. Coordinates are bbox-relative GLB frame; `review grid` draws the iso-lines."""
+    overrides = guards.read(workspace.head(name)/'overrides.json')
+    overrides['ownership'] = {'$replace': True, 'mode': 'rules', 'reviewed': True, 'default': 0, **guards.read(rules)}
+    return write_manifest(workspace, name, check, overrides)
+
+
 def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approval='', check=validate):
-    """A new head folder: design receipt, stock palettes, bindings, compiler binding, body neck, neck-cut overrides, then the manifest."""
+    """A new head folder: design receipt, stock palettes, bindings, compiler binding, body neck, neck-cut overrides, then the manifest.
+    A marker stands until the manifest passes, so a failed setup can be run again once its cause is fixed."""
     known = workspace.head_ids()
     if name not in known:
         raise guards.Refused(f'{name} is not in workspace slots')
     race, sex, slot = known[name]
     head = workspace.head(name)
-    if head.exists() and any(head.iterdir()):
+    marker = head/SETUP_MARKER
+    if head.exists() and any(head.iterdir()) and not marker.exists():
         raise guards.Refused(f'{head} already exists and is not empty')
+    if not approval.strip():
+        raise guards.Refused(f'{name}: --approval must say who picked the design and on what basis')
     prompt = guards.read(workspace.root/'design'/f'designs-{race}.json')['designs'][name]
     features = {key.lower(): value.strip() for key, value in FEATURE.findall(prompt)}
     features['neck'] = 'removed by mesh.neck.cut; the body neck part forms the neck'
     for folder in ('design', 'inputs', 'review-evidence'):
         (head/folder).mkdir(parents=True, exist_ok=True)
+    marker.touch()
     design = Path(design)
     shutil.copy2(design, head/'design'/design.name)
     for file in RACE_DATA['designPalettes']:
@@ -202,4 +241,6 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
     if race == 'troll':  # horn curls enclose backdrop that the border flood fill keeps (RUNBOOK 57); review the matte check
         overrides['matte'] = {'enclosedBackgroundMinimumPixels': 400}
     write_json(head/'overrides.json', overrides)
-    return write_manifest(workspace, name, check)
+    manifest = write_manifest(workspace, name, check)
+    marker.unlink()
+    return manifest

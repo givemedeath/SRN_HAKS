@@ -1,8 +1,8 @@
-"""jaw.py HEAD_DIR [UNCUT]: dry-run the measured jaw line / cut band of the current toolkit neck cut (read-only)."""
+"""jaw.py HEAD_DIR [UNCUT.glb]: dry-run the measured jaw line / cut band of the current toolkit neck cut (read-only)."""
 import glob, json, sys
 import numpy as np
 import headkit.neck as N
-from _frame import head_neck, local_positions
+from _frame import band, head_neck, local_positions
 head = sys.argv[1]
 uncut = sys.argv[2] if len(sys.argv) > 2 else sorted(glob.glob(head+'/run/repair/attempt-*/master-uncut.glb'))[-1]
 man, neck, bv, bf = head_neck(head)
@@ -10,7 +10,7 @@ L = local_positions(neck, uncut)
 cut = dict(neck['cut']); print('cut', {k: v for k, v in cut.items() if k != 'notes'})
 print('head local bounds', L.min(0).round(4), L.max(0).round(4), 'body z', bv[:, 2].min().round(4), bv[:, 2].max().round(4))
 jaw = N.measured_jaw(L, bv, bf, cut); print('jaw', jaw)
-h = jaw['height']-cut['clearance']; plane = h+cut['slope']*L[:, 1]; above = L[:, 2]-plane; mv = above < cut['band']
+plane, mv = band(L, cut, jaw, bv, bf); h = float((plane-cut['slope']*L[:, 1])[0])
 ha = np.maximum(L[mv, 2], plane[mv]); print('plane h', round(h, 4), 'band height_at', ha.min().round(4), ha.max().round(4))
 i = np.argmax(ha); print('highest band vertex', L[mv][i].round(4))
 # which features are low: list front features by intercept

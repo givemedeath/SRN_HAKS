@@ -9,6 +9,7 @@ from head_files import attempts, fit_matrix, read
 from headkit.comfy import locked
 from workspace import TOOLS
 
+DESIGN_CAP = 3
 UV_MARGIN = 0.01
 UV_DEFAULT_FLOOR = 0.30
 LOOP_BUDGET = {'repair': 3, 'ownership': 2, 'tone': 4, 'palette': 3, 'render': 3}
@@ -78,7 +79,7 @@ def ownership_rules(head):
 
 
 def uv_margin(head):
-    """A repair moves coverage by up to 0.01, and a floor set afterwards stales it, so it must clear the floor first (RUNBOOK 87)."""
+    """A repair moves coverage by up to 0.01, so a head must clear its floor by that much before the repair runs (RUNBOOK 87)."""
     floor = read(head/'manifest.json')['mesh'].get('uv', {}).get('minimumCoverage', UV_DEFAULT_FLOOR)
     for attempt in reversed(attempts(head, 'unwrap')):
         receipt = read(attempt/'receipt.json') if (attempt/'receipt.json').exists() else {}
@@ -104,6 +105,13 @@ def geometry_cap(head):
     count = submissions(head/'gpu', read(ledger) if ledger.exists() else {})
     if count >= GEOMETRY_CAP and not (head/'geometry-cap-override').exists():
         raise Refused(f'{head.name}: {count} geometry submissions reached the cap of {GEOMETRY_CAP}: stop and ask the user')
+
+
+def design_cap(folder, head):
+    """User rule: at most 3 designs per head slot, each launch counted, refused ones included. design/design-cap-override-HEAD records the user's exception."""
+    count = len(list((folder/'launches').glob(f'launch-*-{head}-s*')))
+    if count >= DESIGN_CAP and not (folder/f'design-cap-override-{head}').exists():
+        raise Refused(f'{head}: {count} designs reached the cap of {DESIGN_CAP}: stop and ask the user')
 
 
 def rows_reviewed(workspace, name):
@@ -172,6 +180,17 @@ def head_locks(workspace, names):
                 stack.enter_context(head_lock(workspace, name))
             except FileExistsError:
                 raise Refused(f'{name}: another launch of this head is queued or running (RUNBOOK 190)') from None
+        yield
+
+
+@contextmanager
+def only_spooler(workspace):
+    """Two spoolers would both pass one result's numeric gate and launch its next stage twice, and each would overwrite the other's state (RUNBOOK 207)."""
+    with ExitStack() as stack:
+        try:
+            stack.enter_context(locked(workspace.locks/'spooler'))
+        except FileExistsError:
+            raise Refused('Another spooler is running on this workspace') from None
         yield
 
 
