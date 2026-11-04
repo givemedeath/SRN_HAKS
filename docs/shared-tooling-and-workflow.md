@@ -184,13 +184,24 @@ registration marks coverage incomplete until reconciled again.
 
 `Invoke-SrnRetirementAudit.ps1` exposes the same read-only audit with explicit
 `-Python`, `-Worktree` and optional `-ToolsRoot`. Reports list consuming worktrees,
-required paths inside the target, missing paths, hash drift and incomplete
-declarations, including current Git worktrees with no registration. Historical
-provenance does not count as an active dependency. `dependencyClear` requires no
-active dependencies, missing files, drift or incomplete consumers.
+required paths inside the target, and missing paths/hash drift **inside that target**.
+Historical provenance does not count as an active dependency. References outside
+the target are not byte-verified by this retirement audit. Each distinct target
+file is freshly hashed once per invocation; every expected pin is still checked,
+including conflicting pins. No persistent hash cache or registry mutation is used.
+
+Incomplete declarations, including current worktrees with no registration, remain
+visible as advisory information. They do not veto this target's retirement, and
+unrelated stale records do not require a registry-wide cleanup or simultaneous
+agreement across branches. Schema v2's `knownDependenciesClear` means no blockers
+were found in recorded inbound references. `dependencyClear` is retained as a
+compatibility alias with that same target-scoped meaning. Neither field proves
+absence of undeclared reads. This replaces the former global-consensus policy.
 
 `safeToRetire` remains false: dependency clearance does not prove ignored assets
 are archived or authorize removal. The command neither copies nor deletes files.
+A target owner must review its archive and known inbound findings, then obtain
+explicit removal approval. There is no automatic deletion or force-clear option.
 A borrowed generated input needs a verified local or durable copy before its
 source worktree is retired. Mark the old location as provenance only after
 configurations and actual consumers use the verified copy. Shared kit code used
