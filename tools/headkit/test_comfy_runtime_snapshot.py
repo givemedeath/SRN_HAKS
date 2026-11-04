@@ -5,6 +5,7 @@ import functools
 from pathlib import Path
 import sys
 import tempfile
+import threading
 import types
 import unittest
 from unittest.mock import Mock, patch
@@ -96,6 +97,37 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'startup snapshot'):
             verify_inventory(startup)
         self.assertNotEqual(inventory['files'], startup['files'])
+
+    def test_inventory_resolves_each_regular_file_once(self):
+        original=Path.resolve;calls={}
+        def counted(path,*args,**kwargs):
+            if path.is_file():calls[path]=calls.get(path,0)+1
+            return original(path,*args,**kwargs)
+        with patch.object(Path,'resolve',counted):
+            inventory=capture_inventory(self.core,[self.core])
+        self.assertEqual(set(calls),{Path(row['path']) for row in inventory['files']})
+        self.assertTrue(all(count==1 for count in calls.values()),calls)
+
+    def test_parallel_inventory_reuses_only_the_current_pass_and_rechecks_bytes(self):
+        import hashlib
+        from headkit.comfy_nodes.verification import verification_pass
+        for index in range(300):
+            (self.core/('extra_'+str(index)+'.py')).write_bytes(('VALUE='+str(index)+'\n').encode())
+        with verification_pass('parallel-inventory-test') as session:
+            first=capture_inventory(self.core,[self.core])
+            second=capture_inventory(self.core,[self.core])
+            self.assertEqual(first,second)
+            self.assertEqual(session.counts['filesHashed'],len(first['files']))
+            self.assertEqual(session.counts['hashHits'],len(first['files']))
+            for row in first['files']:
+                self.assertEqual(row['sha256'],hashlib.sha256(Path(row['path']).read_bytes()).hexdigest())
+        changed=self.core/'extra_0.py';changed.write_bytes(b'VALUE=changed\n')
+        with verification_pass('fresh-inventory-test') as session:
+            fresh=capture_inventory(self.core,[self.core])
+            self.assertEqual(session.counts['filesHashed'],len(first['files']))
+        self.assertNotEqual(first,fresh)
+        with self.assertRaisesRegex(ValueError,'startup snapshot'):
+            verify_inventory(first)
 
     def test_loaded_stale_function_is_rejected_after_disk_restore(self):
         path = self.core / 'comfy' / 'model.py'
@@ -192,6 +224,461 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         path.write_text(reviewed, encoding='utf-8')
         with patch.dict(sys.modules, {module.__name__: module}):
             with self.assertRaisesRegex(ValueError, 'class attributes differ from source'):
+                loaded_source_code([self.core])
+
+    def test_enum_members_match_declared_values_and_reject_stale_values(self):
+        for kind in ('Enum','IntEnum','Flag','IntFlag'):
+            source=('import enum\nclass Mode(enum.'+kind+'):\n    LOW=1\n    HIGH=2\n'
+                    'def read():return Mode.HIGH\n')
+            with self.subTest(kind=kind):
+                self.assert_snapshot_matches_source(source)
+                self.assert_snapshot_matches_source(source,source.replace('HIGH=2','HIGH=4'),
+                                                    'class attributes differ from source')
+
+    def test_classmethod_runtime_cache_preserves_fixed_settings_and_code_checks(self):
+        source=('class Cache:\n    pool=None\n    initialized=False\n    scale=7\n'
+                '    entries={}\n    events=[]\n'
+                '    @classmethod\n    def warm(cls):\n'
+                '        cls.pool=object()\n        cls.initialized=True\n'
+                '        cls.entries["ready"]=1\n        cls.events.append(1)\n'
+                'Cache.warm()\ndef read():return Cache.scale\n')
+        self.assert_snapshot_matches_source(source)
+        self.assert_snapshot_matches_source(source,source.replace('scale=7','scale=8'),
+                                            'class attributes differ from source')
+        self.assert_snapshot_matches_source(source,source.replace('initialized=True','initialized=False'),
+                                            'Python code differs')
+
+    def test_instance_method_and_decorator_lookalike_do_not_exempt_class_settings(self):
+        from headkit.comfy_nodes.source_snapshot import _source_class_literals, _LoadedClassState
+        source=('class Cache:\n    scale=7\n    @classmethod\n'
+                '    def change(cls):\n        cls.scale=8\n')
+        methods={};_source_class_literals(source,runtime_methods=methods)
+        class Cache:
+            scale=7
+            def change(self):self.scale=8
+        self.assertEqual(_LoadedClassState(Cache).runtime_fields(methods['Cache']),set())
+
+    def test_pydantic_defaults_match_source_and_reject_stale_defaults(self):
+        import pydantic.main  # Preserve provider identity across fixture import restoration.
+        source=('from pydantic import BaseModel\nclass Config(BaseModel):\n'
+                '    name:str=""\n    version:str="1"\n    author:str|None=None\n'
+                'def read():return Config.model_fields["version"].default\n')
+        # Keep the real provider registered, as in Comfy. An evicted provider
+        # cannot establish the standard BaseModel identity used by this check.
+        self.assert_snapshot_matches_source(source,full_census=True)
+        self.assert_snapshot_matches_source(source,source.replace('version:str="1"','version:str="2"'),
+                                            'class attributes differ from source',full_census=True)
+        self.assert_snapshot_matches_source(source,error='class attributes differ from source')
+
+    def test_pydantic_default_verification_does_not_call_factories(self):
+        from pydantic import BaseModel, Field
+        from headkit.comfy_nodes.source_snapshot import _LoadedClassState
+        def forbidden():raise AssertionError('Default factory must not run during verification')
+        class Config(BaseModel):
+            count:int=7
+            deferred:int=Field(default_factory=forbidden)
+        record=_LoadedClassState(Config)
+        self.assertEqual(record.signature('count'),['int',7])
+        self.assertIsNone(record.signature('deferred'))
+        Config.model_fields['count'].default=9
+        self.assertEqual(_LoadedClassState(Config).signature('count'),['int',9])
+        Config.model_fields['count'].default_factory=forbidden
+        self.assertIsNone(_LoadedClassState(Config).signature('count'))
+
+    def test_namedtuple_defaults_match_source_and_reject_stale_defaults(self):
+        source=('from typing import NamedTuple\nclass Page(NamedTuple):\n'
+                '    tags:tuple[str,...]=()\n    limit:int=20\n    offset:int=0\n'
+                'def read():return Page().limit\n')
+        self.assert_snapshot_matches_source(source)
+        self.assert_snapshot_matches_source(source,source.replace('limit:int=20','limit:int=30'),
+                                            'class attributes differ from source')
+
+    def test_namedtuple_constructor_defaults_and_field_positions_are_checked(self):
+        from typing import NamedTuple
+        from headkit.comfy_nodes.source_snapshot import _LoadedClassState
+        class Page(NamedTuple):
+            limit:int=20
+            offset:int=0
+        self.assertEqual(_LoadedClassState(Page).signature('limit'),['int',20])
+        Page.__new__.__defaults__=(30,0)
+        self.assertIsNone(_LoadedClassState(Page).signature('limit'))
+        Page.__new__.__defaults__=(20,0)
+        Page.limit=Page.offset
+        self.assertIsNone(_LoadedClassState(Page).signature('limit'))
+
+    def test_proven_instance_failure_reports_all_affected_instances(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class First:\n    def __init__(self):self.scale=1\n'
+                'class Second:\n    def __init__(self):self.bias=2\n'
+                'first=First()\nsecond=Second()\n')
+        path.write_text(source,encoding='utf-8')
+        code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('instance_diagnostic_fixture');module.__file__=str(path)
+        exec(code,module.__dict__)
+        module.first.scale=10;module.second.bias=20
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',
+                   return_value={path.resolve():_code_hash(code)}), patch.dict(
+                       sys.modules,{module.__name__:module},clear=True):
+            with self.assertRaisesRegex(ValueError,r'(?s)instance attributes differ.*First: scale.*Second: bias'):
+                loaded_source_code([self.core])
+
+    def test_proven_instance_accepts_only_declared_runtime_literal_states(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Seeder:\n    def __init__(self):\n'
+                '        self.disabled=False\n        self.scale=7\n'
+                '    def disable(self):self.disabled=True\n'
+                'seeder=Seeder()\nseeder.disable()\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('instance_transition_fixture');module.__file__=str(path)
+        exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',
+                   return_value={path.resolve():_code_hash(code)}), patch.dict(
+                       sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.seeder.disabled=2
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*disabled'):
+                loaded_source_code([self.core])
+            module.seeder.disabled=True;module.seeder.scale=8
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*scale'):
+                loaded_source_code([self.core])
+
+    def test_instance_transitions_ignore_decorators_and_rebound_receivers(self):
+        from headkit.comfy_nodes.source_snapshot import _constructor_index,_instance_literal_transitions
+        source=('class Flags:\n'
+                '    @staticmethod\n    def static(self):self.flag=True\n'
+                '    @classmethod\n    def cls(self):self.flag=True\n'
+                '    def rebound(self):\n        self=object()\n        self.flag=True\n'
+                '    def valid(self):self.flag=True\n')
+        methods=_instance_literal_transitions(_constructor_index(source)['Flags'])
+        self.assertEqual(methods,{'valid':{'flag':[['bool',True]]}})
+
+    def test_proven_instance_runtime_objects_require_exact_source_constructor_types(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Session:pass\nclass WrongSession:pass\n'
+                'class Server:\n    def __init__(self):self.session=None\n'
+                '    async def setup(self):self.session=Session()\n'
+                'server=Server()\nserver.session=Session()\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('runtime_objects_fixture');module.__file__=str(path)
+        exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',
+                   return_value={path.resolve():_code_hash(code)}), patch.dict(
+                       sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.server.session=module.WrongSession()
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*session'):
+                loaded_source_code([self.core])
+            module.server.session=42
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*session'):
+                loaded_source_code([self.core])
+
+    def test_proven_runtime_counters_keep_the_declared_scalar_kind(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Queue:\n    def __init__(self):\n        self.counter=0\n        self.scale=7\n'
+                '    def put(self):self.counter+=1\nqueue=Queue()\nqueue.put()\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('runtime_counter_fixture');module.__file__=str(path)
+        exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',
+                   return_value={path.resolve():_code_hash(code)}), patch.dict(
+                       sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.queue.counter='wrong kind'
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*counter'):
+                loaded_source_code([self.core])
+            module.queue.counter=2;module.queue.scale=8
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*scale'):
+                loaded_source_code([self.core])
+
+    def test_constructor_callback_writes_keep_captured_receiver_ownership(self):
+        from headkit.comfy_nodes.source_snapshot import _constructor_index,_instance_literal_transitions
+        source=('class Server:\n    def __init__(self):\n        self.number=0\n        self.scale=7\n'
+                '        async def request_handler(request):self.number+=1\n'
+                '        def shadow(self):self.scale=8\n'
+                '        def rebound():\n            self=object()\n            self.scale=9\n')
+        dynamic={};_instance_literal_transitions(_constructor_index(source)['Server'],dynamic=dynamic)
+        self.assertEqual(dynamic,{'__init__':{'number'}})
+
+    def test_standard_parameter_slots_reject_unrelated_objects_and_provider_changes(self):
+        from headkit.comfy_nodes.source_snapshot import _LoadedInstanceState
+        module=types.ModuleType('torch.nn.modules.module');parameter=types.ModuleType('torch.nn.parameter')
+        class Module:pass
+        class Parameter:pass
+        class Layer(Module):pass
+        module.Module=Module;parameter.Parameter=Parameter
+        layer=Layer();layer._parameters={'weight':Parameter(),'bias':None}
+        with patch.dict(sys.modules,{module.__name__:module,parameter.__name__:parameter}):
+            self.assertTrue(_LoadedInstanceState(layer).parameter_slot('weight'))
+            self.assertTrue(_LoadedInstanceState(layer).parameter_slot('bias'))
+            layer._parameters['weight']=7
+            self.assertFalse(_LoadedInstanceState(layer).parameter_slot('weight'))
+            layer._parameters['weight']=Parameter();layer.weight=8
+            self.assertFalse(_LoadedInstanceState(layer).parameter_slot('weight'))
+            del layer.weight;parameter.Parameter=type('Foreign',(),{})
+            self.assertFalse(_LoadedInstanceState(layer).parameter_slot('weight'))
+
+    def test_worker_owned_writes_are_bound_to_the_exact_referenced_instance(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Server:\n    def __init__(self):self.client_id=None\n'
+                'class Executor:\n    def __init__(self,server):self.server=server\n'
+                '    def execute(self,name):self.server.client_id=name\n'
+                'first=Server()\nsecond=Server()\n'
+                'def worker():\n    executor=Executor(first)\n    executor.execute("job")\n'
+                '    ready.set()\n    release.wait(10)\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('worker_mutation_fixture');module.__file__=str(path)
+        module.ready=threading.Event();module.release=threading.Event()
+        exec(code,module.__dict__)
+        thread=threading.Thread(target=module.worker);thread.start()
+        try:
+            self.assertTrue(module.ready.wait(2))
+            with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',
+                       return_value={path.resolve():_code_hash(code)}), patch.dict(
+                           sys.modules,{module.__name__:module},clear=True):
+                loaded_source_code([self.core])
+                module.second.client_id='unrelated mutation'
+                with self.assertRaisesRegex(ValueError,'instance attributes differ.*client_id'):
+                    loaded_source_code([self.core])
+        finally:
+            module.release.set();thread.join(2)
+        self.assertFalse(thread.is_alive())
+
+    def test_source_owned_container_mutation_keeps_kind_fixed_fields_and_callbacks(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Holder:\n    def __init__(self):\n        self.options={"nested":{}}\n        self.fixed=7\n'
+                '    def install(self,callback):self.options["nested"]["callback"]=callback\n'
+                'def callback():return 3\nholder=Holder()\nholder.install(callback)\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('container_mutation_fixture');module.__file__=str(path);exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.holder.fixed=8
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*fixed'):loaded_source_code([self.core])
+            module.holder.fixed=7;module.holder.options=[]
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*options'):loaded_source_code([self.core])
+            module.holder.options={'nested':{'callback':module.callback}}
+            module.callback.__code__=compile('lambda:4',str(path),'eval').co_consts[0]
+            with self.assertRaisesRegex(ValueError,'Python code differs|expression could not be matched'):loaded_source_code([self.core])
+
+    def test_clone_copies_require_source_parent_and_do_not_exempt_nonclones(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Holder:\n    def __init__(self):\n        self.parent=None\n        self.config={"x":{}}\n        self.cached=None\n'
+                '    def clone(self):\n        class_=self.__class__\n        n=class_()\n'
+                '        n.parent=self\n        n.config=self.config.copy()\n        n.cached=self.cached\n        return n\n'
+                'parent=Holder()\nparent.cached=(1,("input",))\nclone=parent.clone()\nordinary=Holder()\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('clone_mutation_fixture');module.__file__=str(path);exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.ordinary.cached=(1,('input',))
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*cached'):loaded_source_code([self.core])
+            module.ordinary.cached=None;module.clone.cached=(1,('other',))
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*cached'):loaded_source_code([self.core])
+            module.clone.cached=module.parent.cached;module.clone.parent=7
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*parent'):loaded_source_code([self.core])
+
+    def test_clone_plan_rejects_shadowed_class_constructor_and_data_equality_hooks(self):
+        from headkit.comfy_nodes.source_snapshot import _constructor_index,_source_clone_plans,_same_stored_data
+        class Holder:pass
+        source='class Holder:\n    def clone(self,Holder):\n        n=Holder()\n        n.parent=self\n        n.cached=self.cached\n        return n\n'
+        self.assertEqual(_source_clone_plans(_constructor_index(source)['Holder'],{'Holder':Holder},Holder),[])
+        class Opaque:
+            def __eq__(self,other):raise AssertionError('user equality ran')
+            def __hash__(self):raise AssertionError('user hash ran')
+        first=Opaque();second=Opaque()
+        self.assertTrue(_same_stored_data({'callback':first},{'callback':first}))
+        self.assertFalse(_same_stored_data({'callback':first},{'callback':second}))
+        self.assertFalse(_same_stored_data(list(range(5000)),list(range(5000))))
+
+    def test_returned_factory_states_check_exact_types_references_and_fixed_settings(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Session:pass\nclass Wrong:pass\n'
+                'class Holder:\n    def __init__(self):\n        self.session=None\n        self.cached=None\n        self.fixed=7\n'
+                'def base():return Holder()\n'
+                'def reload(path,options):return 1\n'
+                'def assemble(path,options):\n    value=base()\n    value.session=Session()\n'
+                '    value.cached=(reload,(path,options))\n    return value\n'
+                'active=assemble("model",{"cfg":12})\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('factory_mutation_fixture');module.__file__=str(path);exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.active.session=module.Wrong()
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*session'):loaded_source_code([self.core])
+            module.active.session=module.Session();module.active.cached=(module.base,('model',{}))
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*cached'):loaded_source_code([self.core])
+            module.active.cached=(module.reload,('model',{}));module.active.fixed=8
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*fixed'):loaded_source_code([self.core])
+
+    def test_reload_factory_can_capture_computed_path_and_unpacked_header_data(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Holder:\n    def __init__(self):self.cached=None;self.fixed=7\n'
+                'class Wrapper:\n    def __init__(self):self.patcher=Holder()\n'
+                'def locate(name):return "models/"+name\n'
+                'def read_header(path):return None,{"format":"pt","version":1}\n'
+                'def reload(path,metadata,device):return None\n'
+                'class Loader:\n    def load(self,name):\n        path=locate(name)\n'
+                '        weights,metadata=read_header(path)\n        value=Wrapper()\n'
+                '        value.patcher.cached=(reload,(path,metadata,None))\n        return (value,)\n'
+                'active=Loader().load("asset")[0]\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('reload_data_fixture');module.__file__=str(path);exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            original=module.active.patcher.cached
+            for value in ((module.locate,original[1]),
+                          (module.reload,(original[1][0],{'callback':module.locate},None)),
+                          (module.reload,(*original[1][:2],'changed fixed device'))):
+                module.active.patcher.cached=value
+                with self.assertRaisesRegex(ValueError,'instance attributes differ.*cached'):loaded_source_code([self.core])
+            module.active.patcher.cached=original;module.active.patcher.fixed=8
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*fixed'):loaded_source_code([self.core])
+
+    def test_computed_capture_rejects_foreign_producers_cycles_and_opaque_values(self):
+        from headkit.comfy_nodes.source_snapshot import _SourceFactoryWrites,_SourceRoots,_code_hash
+        path=self.core/'comfy'/'model.py'
+        source='def source():return {}\n'
+        path.write_text(source,encoding='utf-8');tree=ast.parse(source);code=compile(source,str(path),'exec')
+        scope={};exec(code,scope)
+        node=ast.parse('def writer():\n    value=source()\n').body[0]
+        roots=_SourceRoots([self.core]);roots.execution_proof={path.resolve():_code_hash(code)}
+        checker=_SourceFactoryWrites(roots,lambda p:tree)
+        call=node.body[0].value
+        self.assertTrue(checker.captured_data(call,{'metadata':['safe',1]},node,scope))
+        cycle=[];cycle.append(cycle)
+        class Opaque:
+            def __eq__(self,other):raise AssertionError('equality ran')
+        for value in (cycle,{'opaque':Opaque()},{'callback':scope['source']},list(range(5000))):
+            self.assertFalse(checker.captured_data(call,value,node,scope))
+        scope['source']=lambda:{}
+        self.assertFalse(checker.captured_data(call,{},node,scope))
+
+    def test_temporary_sampler_protocol_does_not_exempt_fixed_fields_or_properties(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Data:\n    def __init__(self):self.state=None;self.fixed=7\n'
+                '    def encode(self,value):return value\n    def decode(self,value):return value\n'
+                'class Sampler:\n    def run(self,state):\n        self.data.state=state\n'
+                '        self.data.encode(state)\n        self.data.decode(state)\n'
+                'data=Data()\nsampler=Sampler()\nsampler.data=data\nsampler.run((1,2))\ndel sampler\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('sampler_mutation_fixture');module.__file__=str(path);exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.data.fixed=8
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*fixed'):loaded_source_code([self.core])
+            module.data.fixed=7
+            module.Data.encode=property(lambda self:(_ for _ in ()).throw(AssertionError('getter ran')))
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*state'):loaded_source_code([self.core])
+
+    def test_registry_writes_bind_only_registered_instances_and_literal_states(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Loaded:\n    def __init__(self):self.used=True;self.fixed=7\n'
+                'first=Loaded()\nsecond=Loaded()\nregistry=[first]\n'
+                'def release(index):\n    selected=registry[index]\n    selected.used=False\n'
+                'release(0)\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('registry_mutation_fixture');module.__file__=str(path);exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.second.used=False
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*used'):loaded_source_code([self.core])
+            module.second.used=True;module.first.used='wrong'
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*used'):loaded_source_code([self.core])
+            module.first.used=False;module.first.fixed=8
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*fixed'):loaded_source_code([self.core])
+
+    def test_retired_cache_boolean_uses_verified_pop_and_method_protocol(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Loaded:\n    def __init__(self):self.used=True;self.fixed=7\n'
+                '    def footprint(self):return 1\n'
+                'registry=[]\n'
+                'def release(index):\n    selected=registry[index]\n'
+                '    if selected.footprint():selected.used=False\n'
+                '    return registry.pop(index)\n'
+                'first=Loaded()\nregistry.append(first)\nretained=release(0)\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('retired_cache_fixture');module.__file__=str(path);exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.retained.used='wrong'
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*used'):loaded_source_code([self.core])
+            module.retained.used=False;module.retained.fixed=8
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*fixed'):loaded_source_code([self.core])
+            module.retained.fixed=7
+            module.Loaded.footprint=property(lambda self:(_ for _ in ()).throw(AssertionError('getter ran')))
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*used'):loaded_source_code([self.core])
+
+    def test_retired_cache_requires_exact_builtin_registry_and_matching_pop(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        template=('class Loaded:\n    def __init__(self):self.used=True\n'
+                  '    def footprint(self):return 1\n'
+                  'registry=[]\nother=[]\n'
+                  'def release(index):\n    selected=registry[index]\n'
+                  '    if selected.footprint():selected.used=False\n'
+                  '    POP\n'
+                  'first=Loaded()\n')
+        for pop in ('other.pop(index)','registry.pop(0)','registry.clear()'):
+            source=template.replace('POP',pop);path.write_text(source,encoding='utf-8')
+            code=compile(source,str(path),'exec',dont_inherit=True)
+            module=types.ModuleType('unproved_retirement_fixture');module.__file__=str(path);exec(code,module.__dict__)
+            module.first.used=False
+            with self.subTest(pop=pop),patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+                with self.assertRaisesRegex(ValueError,'instance attributes differ.*used'):loaded_source_code([self.core])
+
+    def test_replaced_factory_and_sampler_methods_grant_no_state_exemption(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('class Data:\n    def __init__(self):self.state=None\n'
+                '    def encode(self,value):return value\n'
+                'def suppress(function):return lambda *args:None\n'
+                '@suppress\ndef factory():\n    data=Data()\n    data.state=(1,2)\n    return data\n'
+                'class Sampler:\n    @suppress\n    def run(self,state):\n'
+                '        self.data.state=state\n        self.data.encode(state)\n'
+                'data=Data()\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('replaced_writer_fixture');module.__file__=str(path);exec(code,module.__dict__)
+        module.data.state=(1,2)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',return_value={path.resolve():_code_hash(code)}),patch.dict(sys.modules,{module.__name__:module},clear=True):
+            with self.assertRaisesRegex(ValueError,'instance attributes differ.*state'):loaded_source_code([self.core])
+
+    def test_proven_closure_selects_global_flags_without_trusting_shadowed_globals(self):
+        from headkit.comfy_nodes.source_snapshot import _code_hash
+        path=self.core/'comfy'/'model.py'
+        source=('from types import SimpleNamespace\nflags=SimpleNamespace(enabled=False)\n'
+                'def factory():\n    callback=None\n    if flags.enabled:\n'
+                '        def startup():return 1\n        callback=startup\n'
+                '    async def run():return callback\n    return run\nrun=factory()\n')
+        path.write_text(source,encoding='utf-8');code=compile(source,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('conditional_closure_fixture');module.__file__=str(path)
+        exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',
+                   return_value={path.resolve():_code_hash(code)}), patch.dict(
+                       sys.modules,{module.__name__:module},clear=True):
+            loaded_source_code([self.core])
+            module.run.__closure__[0].cell_contents=42
+            with self.assertRaisesRegex(ValueError,'defaults or closure differ'):
+                loaded_source_code([self.core])
+        shadowed=source.replace('def factory():','def factory(flags):').replace('run=factory()','run=factory(flags)')
+        path.write_text(shadowed,encoding='utf-8');code=compile(shadowed,str(path),'exec',dont_inherit=True)
+        module=types.ModuleType('conditional_closure_fixture');module.__file__=str(path)
+        exec(code,module.__dict__)
+        with patch('headkit.comfy_nodes.source_snapshot._startup_execution_proof',
+                   return_value={path.resolve():_code_hash(code)}), patch.dict(
+                       sys.modules,{module.__name__:module},clear=True):
+            with self.assertRaisesRegex(ValueError,'ambiguous live closure'):
                 loaded_source_code([self.core])
 
     def test_loaded_stale_instance_class_literal_is_rejected_after_disk_restore(self):
@@ -1099,6 +1586,27 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                                'else:\n    pending.scale = 2\n').body
         with self.assertRaisesRegex(ValueError, 'Ambiguous'):
             list(_source_attribute_literals(_conditional_statements(statements)))
+
+    def test_optional_unknown_override_cannot_select_later_branch(self):
+        from headkit.comfy_nodes.source_snapshot import _conditional_statements, _source_attribute_literals
+        import ast
+        statements=ast.parse('disabled=False\nif unknown():\n    disabled=True\n'
+                             'if disabled:\n    pending.scale=1\nelse:\n    pending.scale=2\n').body
+        with self.assertRaisesRegex(ValueError,'Ambiguous'):
+            list(_source_attribute_literals(_conditional_statements(statements)))
+
+    def test_proven_dynamic_memory_initializer_is_not_its_literal_sentinel(self):
+        from headkit.comfy_nodes.source_snapshot import _source_constants
+        source=('MAX_PINNED_MEMORY=-1\nDISABLE_PINNED_MEMORY=args.disable_pinned_memory\n'
+                'if not DISABLE_PINNED_MEMORY and is_integrated_gpu():\n    DISABLE_PINNED_MEMORY=True\n'
+                'if not DISABLE_PINNED_MEMORY:\n    if is_nvidia():\n'
+                '        MAX_PINNED_MEMORY=total_memory()*0.4\n'
+                'FIXED_SETTING=7\n')
+        namespace={'args':types.SimpleNamespace(disable_pinned_memory=False),
+                   'DISABLE_PINNED_MEMORY':False,'MAX_PINNED_MEMORY':123456}
+        constants=_source_constants(source,proven=True,namespace=namespace)
+        self.assertNotIn('MAX_PINNED_MEMORY',constants)
+        self.assertEqual(constants['FIXED_SETTING'],7)
 
     def test_compound_collection_preserves_lexical_scope(self):
         from headkit.comfy_nodes.source_snapshot import _source_constants

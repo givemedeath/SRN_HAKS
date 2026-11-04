@@ -110,11 +110,33 @@ class Client:
                 try:measurement=json.loads(metrics)
                 except ValueError:measurement=None
                 if isinstance(measurement,dict):self.verification_metrics.append(measurement)
-            return json.load(response)
+            body=response.read()
+            # Current Comfy acknowledges /free with an empty HTTP 200. This
+            # acknowledges the request only; callers still verify release.
+            if route=='/free' and not body and response.status==200:
+                return {'accepted':True,'emptyResponse':True}
+            return json.loads(body)
 
     def idle(self):
         queue = self.request('/queue')
         return not queue.get('queue_running') and not queue.get('queue_pending')
+
+
+def preparation_runtime(client, local):
+    """Bind a plan to startup identity; dispatch/completion still verify live bytes.
+
+    The opt-in baseline is only for building an unsent request. It never replaces
+    verify_comfy_runtime under the submission lock or after execution. Legacy
+    callers retain their full preparation check.
+    """
+    mode=local.get('comfyPreparationVerification')
+    require(mode in (None,'dispatch-gated-baseline-v1'),'Unsupported Comfy preparation verification')
+    if mode is None:return client.request('/headkit/runtime-identity')
+    baseline=client.request('/headkit/preparation-identity')
+    require(isinstance(baseline,dict)and set(baseline)=={'kind','runtimeIdentity','requiresFreshDispatch'}
+            and baseline['kind']=='preparation-baseline-v1'and baseline['requiresFreshDispatch']is True,
+            'Preparation baseline cannot establish a live verification pass')
+    return baseline['runtimeIdentity']
 
 
 @contextmanager

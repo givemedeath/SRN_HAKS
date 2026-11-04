@@ -59,6 +59,15 @@ class PlacementTests(unittest.TestCase):
         self.assertNotIn('sr_cfk', sword)
         with self.assertRaises(ValueError): entry_script('bad"resref')
 
+    def test_shield_equip_and_report_use_offhand(self):
+        script = entry_script('sr_shield', equipment_slot='left')
+        self.assertIn('ActionEquipItem(item,INVENTORY_SLOT_LEFTHAND)', script)
+        self.assertIn('GetItemInSlot(INVENTORY_SLOT_LEFTHAND,actor)', script)
+        self.assertIn(' left=', script)
+        self.assertNotIn('INVENTORY_SLOT_RIGHTHAND', script)
+        self.assertIn('INVENTORY_SLOT_RIGHTHAND', entry_script('sr_blade'))
+        with self.assertRaises(ValueError): entry_script('sr_shield', equipment_slot='bad')
+
     def test_two_comparison_items_are_safe_distinct_and_available(self):
         script = entry_script('sr_cfs', ['sr_cougar', 'sr_cfk'])
         self.assertIn('CreateItemOnObject("sr_cfs",actor)', script)

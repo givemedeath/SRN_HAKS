@@ -22,10 +22,12 @@ def build_candidates(source, profile, processing, output):
             require(policy.get('method')=='projected-silhouette','Unknown shadow proxy method')
             p=data[part+'_positions'];f=data[part+'_faces']
             budget=profile['budgets']['parts'][part]['shadow'];probes=processing.get('openingProbes',[])
-            v,t,checks=silhouette_proxy(p,f,{'openingProbes':probes},budget,policy,diagnostics=root/(part+'-attempts'))
+            protected={'openingProbes':probes}
+            if processing.get('thicknessProbes'):protected['thicknessProbes']=processing['thicknessProbes']
+            v,t,checks=silhouette_proxy(p,f,protected,budget,policy,diagnostics=root/(part+'-attempts'))
             target=root/(part+'.npz');np.savez_compressed(target,positions=v,faces=t)
             candidates[part]={'arrays':pin(target),'sourceCornerHash':hashlib.sha256(np.asarray(p[f],dtype='<f8').tobytes()).hexdigest(),
-                              'policyHash':digest({'settings':policy,'openingProbes':probes,'budget':budget}),
+                              'policyHash':digest({'settings':policy,**protected,'budget':budget}),
                               'checks':checks,'visualReviewRequired':True}
     verify([bound], fresh=True);write(root/'result.json',{'source':bound,'candidates':candidates},fresh=True)
     return candidates
@@ -55,6 +57,22 @@ def silhouette_proxy(vertices, faces, processing, budget, settings, *, diagnosti
     if diagnostics is not None:diagnostics=Path(diagnostics);diagnostics.mkdir(parents=True,exist_ok=False)
     low=p[:,1:].min(0);span=np.ptp(p[:,1:],axis=0);scale=(resolution-24)/float(span.max())
     xy=(p[:,1:]-low)*scale+12
+    # Contour vertices alone can miss a thick interior surface. Retain measured
+    # opposed-depth contacts as interior triangulation controls, after proving
+    # those contacts against the actual source with the same distance bounds.
+    control_depths={}
+    if processing.get('thicknessProbes'):
+        protected_checks(original,f,processing)
+        for probe in processing['thicknessProbes']:
+            ends=(np.asarray(probe['points'],float)-origin)@basis
+            if np.linalg.norm(ends[0,1:]-ends[1,1:])>extent*1e-7:continue
+            point=tuple((ends[:,1:].mean(0)-low)*scale+12)
+            bounds=tuple(sorted(ends[:,0]))
+            require(point not in control_depths or np.allclose(control_depths[point],bounds,atol=1e-10,rtol=0),
+                    'Conflicting shadow thickness contacts')
+            control_depths[point]=bounds
+    controls=np.asarray(list(control_depths),float).reshape(-1,2)
+    tree=cKDTree(p[:,1:])
     canvas=Image.new('1',(resolution,resolution));draw=ImageDraw.Draw(canvas)
     for t in xy[f]:draw.polygon([tuple(v) for v in t],fill=1)
     mask=np.asarray(canvas)
@@ -101,7 +119,7 @@ def silhouette_proxy(vertices, faces, processing, budget, settings, *, diagnosti
             split=int(np.argmax(np.linalg.norm(loop-loop[0],axis=1)))
             contours.append(np.r_[rdp(loop[:split+1],tolerance)[:-1],rdp(np.r_[loop[split:],loop[:1]],tolerance)[:-1]])
         for refinement in range(12):
-            points=np.unique(np.concatenate(contours),axis=0);lookup={tuple(p):i for i,p in enumerate(points)}
+            points=np.unique(np.concatenate([*contours,controls]),axis=0);lookup={tuple(p):i for i,p in enumerate(points)}
             triangles=Delaunay(points).simplices
             edges={tuple(sorted((int(a),int(b)))) for face in triangles for a,b in ((face[0],face[1]),(face[1],face[2]),(face[2],face[0]))}
             missing=0;refined=[]
@@ -144,11 +162,14 @@ def silhouette_proxy(vertices, faces, processing, budget, settings, *, diagnosti
             for edge in ((a,b),(b,c),(c,a)):incidence[tuple(sorted(edge))].append(edge)
         boundary=[v[0] for v in incidence.values() if len(v)==1]
         yz=(points-12)/scale+low
-        tree=cKDTree(p[:,1:]);depth=[]
-        for point in yz:
-            distance,index=tree.query(point)
-            neighbors=tree.query_ball_point(point,float(distance)+depth_radius)
-            values=p[neighbors,0];lo,hi=float(values.min()),float(values.max())
+        depth=[]
+        for index,point in enumerate(yz):
+            bound=control_depths.get(tuple(points[index]))
+            if bound is None:
+                distance,_=tree.query(point)
+                neighbors=tree.query_ball_point(point,float(distance)+depth_radius)
+                values=p[neighbors,0];lo,hi=float(values.min()),float(values.max())
+            else:lo,hi=bound
             center=(lo+hi)/2;half=max((hi-lo)/2,minimum_thickness/2);depth.append((center-half,center+half))
         depth=np.asarray(depth)
         vertices=np.r_[np.c_[depth[:,0],yz],np.c_[depth[:,1],yz]]
@@ -170,4 +191,5 @@ def silhouette_proxy(vertices, faces, processing, budget, settings, *, diagnosti
     vertices,faces,report,opening,iou=accepted
     return vertices,faces,{'attempts':attempts,'topology':report,'openings':opening,'sideSilhouetteIoU':iou,
         'frame':{'basis':basis.tolist(),'origin':origin.tolist()},'depthMethod':'local-source-envelope',
+        'verifiedThicknessControls':len(control_depths),
         'visualReviewRequired':True,'visibleGeometryUnchanged':True}

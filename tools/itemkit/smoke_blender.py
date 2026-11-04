@@ -33,6 +33,16 @@ def main():
         rim = vertices_cut[np.abs(vertices_cut[:,1]-.13783)<1e-7]
         cuts.append(np.unique(rim, axis=0))
     require(np.array_equal(cuts[0], cuts[1]), 'Mating cap contours differ')
+    # A closed glTF surface may have disconnected vertices at authored seams.
+    # Join only exact positions before decimation, retaining geometry and UVs.
+    seam_mesh=bpy.data.meshes.new('exact-seam-regression')
+    seam_mesh.from_pydata(vertices[faces].reshape(-1,3).tolist(),[],np.arange(len(faces)*3).reshape(-1,3).tolist())
+    seam_mesh.update();seam_obj=bpy.data.objects.new('exact-seam-regression',seam_mesh)
+    bpy.context.collection.objects.link(seam_obj)
+    seam_mesh.uv_layers.new(name='retained-uv')
+    for i,row in enumerate(seam_mesh.uv_layers.active.data):row.uv=(i/100.,i/200.)
+    require(worker.weld_exact_object(seam_obj)==len(faces)*3-len(vertices),'Exact seam weld count differs')
+    require(worker.topology(*worker.arrays(seam_obj))['closedWound'],'Welded regression shell is not closed/outward')
     # Native-axis width/depth calibration following a general rotation contains
     # shear in source axes. Object-transform assignment silently decomposes it.
     worker.reset(); affine = worker.import_source(source, 'affine-regression')

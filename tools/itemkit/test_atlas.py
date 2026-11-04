@@ -8,10 +8,33 @@ from tools.itemkit.atlas import region_gutters,unwrap_parts
 
 
 class AtlasTests(unittest.TestCase):
+    def test_whole_object_atlas_preserves_geometry_and_audits_coverage(self):
+        from tools.itemkit.test_itemkit import GeometryTests
+        p,f=GeometryTests().tetra()
+        uv=[]
+        for i in range(4):
+            x=(i%2)/2+.01; y=(i//2)/2+.01
+            uv.append(((x,y),(x+.47,y),(x,y+.47)))
+        class Atlas: width=2048; height=2048
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); source=root/'whole.npz'
+            np.savez(source,whole_positions=p,whole_faces=f,whole_hiddenCaps=np.zeros(len(f),bool))
+            with patch('tools.itemkit.atlas.library'),patch('tools.itemkit.atlas._pack',return_value=(np.array(uv),Atlas(),4)) as pack:
+                result=unwrap_parts(source,{},root/'atlas',parts=('whole',),coordinate_scale=1000)
+                self.assertGreater(np.max(np.abs(pack.call_args.args[1])),10)
+            with np.load(result['atlas']['path']) as output:
+                np.testing.assert_array_equal(output['whole_positions'],p)
+                np.testing.assert_array_equal(output['whole_faces'],f)
+                self.assertEqual(output['whole_uv'].shape,(4,3,2))
+            self.assertGreater(result['attempts'][0]['audits']['1024']['coverageFraction'],.3)
+
     def test_padding_candidates_are_bounded_before_asset_work(self):
         for values in ([],[4],[33],[8,8],[16,8],[True],[8,12,16,32]):
             with self.assertRaisesRegex(ValueError,'Ordered unique atlas paddings'):
                 unwrap_parts('not-opened',{},'not-created',packing_paddings=values)
+        for scale in (0,True,float('nan'),10001):
+            with self.assertRaisesRegex(ValueError,'coordinate scale'):
+                unwrap_parts('not-opened',{},'not-created',coordinate_scale=scale)
     def test_separable_gutters_match_explicit_neighbourhoods(self):
         rng=np.random.default_rng(317)
         for shape in ((1,1),(1,13),(17,1),(9,11),(31,27)):

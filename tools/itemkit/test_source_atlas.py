@@ -37,6 +37,16 @@ class SourceAtlasTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Finite source UV'):repair_uv(p,f,bad)
         with self.assertRaisesRegex(ValueError,'4K donor'):repair_uv(p,f,uv,size=1024)
 
+    def test_unmapped_face_in_an_otherwise_sampled_chart_is_repaired(self):
+        p,f,uv=self.fixture()
+        # Share an edge with face98, but make face99 too thin to own a texel.
+        a,b=uv[98,:2];uv[99]=[b,a,(a+b)/2+[0,-1e-8]]
+        result,proof,report=repair_uv(p,f,uv)
+        self.assertIn(99,report['isolatedFaces'])
+        self.assertEqual(report['unmappedFaces'],[])
+        healthy=np.setdiff1d(np.arange(len(uv)),report['isolatedFaces'])
+        np.testing.assert_array_equal(result[healthy],proof['originalUV'][healthy])
+
     def test_large_surface_patch_cannot_hide_behind_small_face_count(self):
         p,f,uv=self.fixture();uv[-1]=uv[0];p[f[0]]*=100
         with self.assertRaisesRegex(ValueError,'face/area scope'):repair_uv(p,f,uv)

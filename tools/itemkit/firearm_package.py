@@ -15,9 +15,9 @@ from PIL import Image
 
 from tools.headkit.common import ROOT, asset, pin, read, require, verify, write, verification_pass
 from .contracts import native_contract, resref, source_version, code_pins
-from .firearms import plan, private_override, sling_row, validate_assembly
+from .firearms import plan, longarm_plan, longarm_row, private_override, sling_row, validate_assembly
 from .firearm_native import placeholder_geometry, placeholder_ascii, audit_placeholder, variant_blueprint, mesh_flags, audit_blueprint_roundtrip
-from .native import ascii_model, sanitize_and_audit, archive_helpers
+from .native import ascii_model, sanitize_and_audit, archive_helpers,offline_compiler_inputs,compile_offline
 
 
 def stack_inputs(profile_path):
@@ -29,6 +29,9 @@ def stack_inputs(profile_path):
     for layer in read(stack['path'])['layers']:
         result += namespace(stack['path'], layer)[2]
         result += [asset(stack['path'], row['file']) for row in layer['resources']]
+    if profile.get('family') == 'crossbow':
+        from .contracts import crossbow_motion_inputs
+        result += crossbow_motion_inputs(profile_path, profile)[0]
     return result
 
 
@@ -51,19 +54,26 @@ def prepare(spec_path, output):
         spec = read(spec_path)
         require(spec.get('schemaVersion') == 1, 'Unsupported firearm package specification')
         require(set(spec) <= {'schemaVersion', 'sourceProfile', 'comparisonHaks', 'variants',
-                             'subtype', 'identity', 'placeholderCenter'}, 'Unknown package specification field')
+                             'subtype', 'identity', 'placeholderCenter', 'carrierAppearance'}, 'Unknown package specification field')
         identity = spec['identity']
         require(set(identity) == {'texturePrefix', 'blueprintPrefix', 'hak', 'module', 'displayName'},
                 'Explicit firearm resource identity required')
         for key in ('texturePrefix', 'blueprintPrefix', 'hak', 'module'): resref(identity[key])
         require(isinstance(identity['displayName'], str) and identity['displayName'].strip(), 'Display name required')
         profile_path = spec['sourceProfile']['path']
-        _, resources = native_contract(profile_path, read(profile_path))
+        profile = read(profile_path)
+        _, resources = native_contract(profile_path, profile)
+        skinned = profile.get('family') == 'crossbow'
+        longarm = skinned or profile.get('family') == 'firearm-crossbow'
+        motion = None
+        if skinned:
+            from .contracts import crossbow_motion_inputs
+            _, motion, _ = crossbow_motion_inputs(profile_path, profile)
         original = resources['baseitems.2da']
         table = Path(original['path']).read_bytes()
-        _, row = sling_row(table)
+        _, row = (longarm_row if longarm else sling_row)(table)
         icon_size = (int(row['InvSlotWidth'])*32, int(row['InvSlotHeight'])*32)
-        require(icon_size == (32, 64), 'Review changed Sling inventory dimensions')
+        require(icon_size == ((64,128) if longarm else (32,64)), 'Review changed carrier inventory dimensions')
         archive = archive_helpers()
         occupied = set(resources)
         type_extensions = {value: key for key, value in {**archive.TYPES, '2da': 2017, 'uti': 2025}.items()}
@@ -74,9 +84,19 @@ def prepare(spec_path, output):
         variants = spec['variants']
         require(variants and all(set(v) == {'colour', 'displayName', 'arrays', 'texture', 'icon'} for v in variants),
                 'Each Color needs a name and bound arrays, texture and icon')
-        allocation = plan(spec['subtype'], [v['colour'] for v in variants], occupied,
-                          identity['texturePrefix'], identity['blueprintPrefix'])
-        override, override_report = private_override(table, allocation)
+        if longarm:
+            require(spec['subtype']==('crossbow' if skinned else 'rifle') and len(variants)==1 and 'carrierAppearance' in spec,
+                    'One explicit raw-byte longarm assembly required')
+            allocation = longarm_plan(spec['carrierAppearance'],occupied,identity['texturePrefix'],identity['blueprintPrefix'])
+            if skinned: allocation['subtype'] = 'crossbow'
+            require(variants[0]['colour']==allocation['colours'][0], 'Variant colour differs from its raw appearance byte')
+            override_report = {'resource':'baseitems.2da','intentionalOverride':False,
+                               'originalSha256':original['sha256'],'changes':{}}
+        else:
+            require('carrierAppearance' not in spec, 'Raw appearance applies only to the qualified F8 longarm route')
+            allocation = plan(spec['subtype'], [v['colour'] for v in variants], occupied,
+                              identity['texturePrefix'], identity['blueprintPrefix'])
+            override, override_report = private_override(table, allocation)
         placeholder = placeholder_geometry(spec.get('placeholderCenter', (0, 0, 0)))
         # Validate every variant before producing a partial prepared directory.
         selected = {v['colour']: v for v in variants}
@@ -84,14 +104,22 @@ def prepare(spec_path, output):
         for variant in allocation['variants']:
             source = selected[variant['colour']]
             with np.load(source['arrays']['path'], allow_pickle=False) as data:
-                require(set(data.files) == {'positions', 'normals', 'uv', 'shadowVertices', 'shadowFaces'},
+                required = {'positions', 'normals', 'uv', 'shadowVertices', 'shadowFaces'}
+                if skinned: required |= {'weights', 'shadowWeights'}
+                require(set(data.files) == required,
                         'Exact native corner archive required')
                 counts = {p: {'visible': 4, 'shadow': 0} for p in ('b', 'm', 't')}
                 counts[allocation['slot']] = {'visible': len(data['positions']), 'shadow': len(data['shadowFaces'])}
                 validate_assembly(allocation, variant, counts)
-                text = ascii_model(variant['models'][allocation['slot']], variant['texture'],
-                                   **{k: data[k] for k in ('positions', 'normals', 'uv')},
-                                   shadow_vertices=data['shadowVertices'], shadow_faces=data['shadowFaces'])
+                if skinned:
+                    from .skinned_native import model_text
+                    text = model_text(variant['models'][allocation['slot']], variant['texture'],
+                                      {k:data[k] for k in data.files},
+                                      Path(motion['ascii']['path']).read_text(encoding='ascii'), motion['boneNames'])
+                else:
+                    text = ascii_model(variant['models'][allocation['slot']], variant['texture'],
+                                       **{k: data[k] for k in ('positions', 'normals', 'uv')},
+                                       shadow_vertices=data['shadowVertices'], shadow_faces=data['shadowFaces'])
             for key, size, mode in (('texture', (1024, 1024), None), ('icon', icon_size, 'RGBA')):
                 with Image.open(source[key]['path']) as image:
                     require(image.size == size and (mode is None or image.mode == mode),
@@ -100,7 +128,7 @@ def prepare(spec_path, output):
             checked.append((variant, source, counts, text, item))
         out = Path(output); out.mkdir(parents=True, exist_ok=False)
         (out/'ascii').mkdir(); (out/'resources').mkdir()
-        (out/'resources/baseitems.2da').write_bytes(override)
+        if not longarm: (out/'resources/baseitems.2da').write_bytes(override)
         np.savez(out/'placeholder.npz', **placeholder)
         for name in allocation['placeholders']:
             (out/'ascii'/f'{name}.mdl').write_text(placeholder_ascii(name, placeholder), encoding='ascii')
@@ -121,9 +149,10 @@ def prepare(spec_path, output):
         result = {'schemaVersion': 1, 'kind': 'firearm-native-prepared', 'codeVersion': source_version(), 'allocation': allocation,
                   'identity': identity, 'expected': expected, 'counts': counts, 'blueprints': blueprints,
                   'placeholder': pin(out/'placeholder.npz'), 'intentionalOverride': override_report,
-                  'effectiveBaseitems': original, 'inheritedSlingFields': row, 'iconSize': list(icon_size),
+                  'effectiveBaseitems': original, ('inheritedCarrierFields' if longarm else 'inheritedSlingFields'): row, 'iconSize': list(icon_size),
                   'inputs': inputs, 'outputs': outputs, 'elapsedSeconds': time.perf_counter()-started,
                   'clientValidated': False, 'productionAccepted': False}
+        if skinned: result['skin'] = {'rig':motion['ascii'],'boneNames':motion['boneNames']}
     # A separate pass checks fresh bytes at completion, never a timestamp cache.
     verify(inputs, fresh=True)
     write(out/'prepared.json', result, fresh=True)
@@ -149,22 +178,25 @@ def native_inputs(native_path):
     return result
 
 
-def compile_package(prepared_dir, client, output):
+def compile_package(prepared_dir, client, output, *, compiler=None):
     from tools.phenotypes import tool_runtime
     started = time.perf_counter()
     prepared_dir = Path(prepared_dir)
     with verification_pass('firearm-native-dispatch'):
-        inputs = prepared_inputs(prepared_dir)+[client]
+        inputs = prepared_inputs(prepared_dir)+(offline_compiler_inputs(compiler) if compiler is not None else [client])
         verify(inputs)
         prepared = read(prepared_dir/'prepared.json')
     out = Path(output); out.mkdir(parents=True, exist_ok=False)
     converted = out/'converted'; shutil.copytree(prepared_dir, converted)
-    command = [sys.executable, '-B', str(ROOT/'tools/phenotypes/native_compile.py'), '--client', client['path'],
-               '--user-directory', str(out/'compiler-userdir'), '--converted', str(converted), '--timeout', '120']
-    result = subprocess.run(command, capture_output=True, text=True, timeout=450,
-                            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-    (out/'compiler.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
-    require(result.returncode == 0, 'Native compilation failed; retain log and reconcile before retry')
+    if compiler is not None:
+        compile_offline(converted,compiler,out)
+    else:
+        command = [sys.executable, '-B', str(ROOT/'tools/phenotypes/native_compile.py'), '--client', client['path'],
+                   '--user-directory', str(out/'compiler-userdir'), '--converted', str(converted), '--timeout', '120']
+        result = subprocess.run(command, capture_output=True, text=True, timeout=450,
+                                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        (out/'compiler.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
+        require(result.returncode == 0, 'Native compilation failed; retain log and reconcile before retry')
     res = converted/'resources'; allocation = prepared['allocation']; audits = {}
     with np.load(prepared['placeholder']['path'], allow_pickle=False) as data:
         expected_placeholder = {k: data[k] for k in data.files}
@@ -175,9 +207,18 @@ def compile_package(prepared_dir, client, output):
     gff = tool_runtime.tool('nwn_gff', inputs=[p['path'] for p in inputs])
     for variant in allocation['variants']:
         name = variant['models'][allocation['slot']]; target = res/(name+'.mdl')
-        clean, audit = sanitize_and_audit(target, name, variant['texture'], prepared['expected'][name])
-        require(mesh_flags(clean, name) == {name+'v': {'render': 1, 'shadow': 0},
-                                           name+'s': {'render': 0, 'shadow': 1}}, 'Incorrect native visibility flags')
+        if prepared.get('skin'):
+            require(compiler is not None, 'Skinned crossbows require the qualified offline compiler')
+            from tools.phenomorpher.phenomorpher.engine import neverblender_mdl
+            from .skinned_native import audit as audit_skin
+            decoded=out/(name+'-skin-readback.mdl')
+            neverblender_mdl.decompile_files(compiler['blender']['path'],compiler['neverblender']['path'],[(target,decoded)],timeout=120)
+            with np.load(prepared['expected'][name]['path'],allow_pickle=False) as data:
+                clean,audit=audit_skin(target,name,variant['texture'],{k:data[k] for k in data.files},decoded,prepared['skin']['boneNames'])
+        else:
+            clean, audit = sanitize_and_audit(target, name, variant['texture'], prepared['expected'][name])
+            require(mesh_flags(clean, name) == {name+'v': {'render': 1, 'shadow': 0},
+                                               name+'s': {'render': 0, 'shadow': 1}}, 'Incorrect native visibility flags')
         target.write_bytes(clean); audits[name] = audit
         source = prepared['blueprints'][variant['blueprint']]; target = res/(variant['blueprint']+'.uti')
         readback = out/(variant['blueprint']+'-readback.json')
@@ -187,7 +228,7 @@ def compile_package(prepared_dir, client, output):
             require(done.returncode == 0, 'Blueprint conversion failed: '+done.stderr[-1000:])
         audit = audit_blueprint_roundtrip(target, read(readback), read(source['path']))
         blueprints.append({'file': pin(target), 'colour': variant['colour'], 'utiParts': variant['utiParts'], 'audit': audit})
-    expected_names = set(allocation['resources']) | {'baseitems.2da'}
+    expected_names = set(allocation['resources']) | ({'baseitems.2da'} if prepared['intentionalOverride']['intentionalOverride'] else set())
     require({p.name for p in res.iterdir()} == expected_names, 'Missing or unexpected firearm payload resource')
     archive = archive_helpers(); types = {**archive.TYPES, '2da': 2017, 'uti': 2025}
     files = sorted(res.iterdir()); hak = out/(prepared['identity']['hak']+'.hak')
@@ -196,11 +237,13 @@ def compile_package(prepared_dir, client, output):
             'Exact firearm HAK payload differs')
     verify(inputs, fresh=True)
     result = {'schemaVersion': 1, 'kind': 'firearm-native-package', 'codeVersion': prepared['codeVersion'], 'hak': pin(hak),
-              'baseItem': 61, 'allocation': allocation,
+              'baseItem': allocation['baseItem'], 'allocation': allocation,
               'identity': {**prepared['identity'], 'blueprint': allocation['variants'][0]['blueprint']},
               'blueprints': blueprints, 'counts': prepared['counts'], 'audits': audits,
               'intentionalOverride': prepared['intentionalOverride'], 'inputs': inputs,
               'resources': [pin(p) for p in files], 'elapsedSeconds': time.perf_counter()-started,
               'clientValidated': False, 'productionAccepted': False}
+    if prepared.get('skin'): result['geometryRoute'] = 'skinned-crossbow'
+    if compiler is not None:result['compilationBackend']='neverblender-cleanmodels'
     write(out/'native.json', result, fresh=True)
     return result

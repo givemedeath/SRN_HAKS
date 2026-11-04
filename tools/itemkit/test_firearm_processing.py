@@ -14,6 +14,40 @@ from .firearm_grip import measured_fit, GripDeparture
 
 
 class FirearmProcessingTests(unittest.TestCase):
+    def test_crossbow_processing_has_its_own_identity_and_counts_hidden_parts(self):
+        profile={'family':'crossbow','budgets':{'visible':10000,'shadow':500,'parts':{
+            'b':{'visible':4,'shadow':0},'m':{'visible':4,'shadow':0},'t':{'visible':9992,'shadow':500}}}}
+        self.assertEqual(active_parts(profile),('t',))
+        self.assertEqual(assembly_budget(profile,{'t':9992},'visible')['assembly'],10000)
+        with self.assertRaises(ValueError):assembly_budget(profile,{'t':9993},'visible')
+        profile['budgets']['parts']['m']['shadow']=4
+        with self.assertRaisesRegex(ValueError,'hidden placeholders'):assembly_budget(profile,{'t':496},'shadow')
+
+    def test_crossbow_cannot_substitute_a_rigid_motion_declaration(self):
+        with self.assertRaisesRegex(ValueError,'skinned crossbow'):
+            contracts.crossbow_motion_inputs(None,{'native':{'motion':{'method':'rigid'}}})
+
+    def test_crossbow_motion_closure_rejects_changed_published_bytes(self):
+        from tools.headkit.common import verification_pass
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);rows={}
+            for key in ('working','fit','ascii','binary','decompiled','rigRoundtrip','poses'):
+                p=root/key;p.write_bytes(key.encode());rows[key]=pin(p)
+            frame=root/'view.png';frame.write_bytes(b'view')
+            proof=root/'proof.json';write(proof,rows)
+            review=root/'review.json';write(review,{'frames':[pin(frame)]})
+            profile={'native':{'motion':{'method':'skinned-xbowshot-v1',
+                'proof':{'path':proof.name,'sha256':pin(proof)['sha256']},
+                'review':{'path':review.name,'sha256':pin(review)['sha256']},
+                'working':{'path':'working','sha256':rows['working']['sha256']}}}}
+            with verification_pass('crossbow-motion-before'):
+                pins,_,_=contracts.crossbow_motion_inputs(root/'profile.json',profile)
+                self.assertIn(rows['binary'],pins)
+            p=root/'binary';stamp=p.stat();p.write_bytes(b'edited');os.utime(p,ns=(stamp.st_atime_ns,stamp.st_mtime_ns))
+            with verification_pass('crossbow-motion-after'):
+                with self.assertRaises(ValueError):contracts.crossbow_motion_inputs(root/'profile.json',profile)
+
     def setUp(self):
         self.standard={'id':'colt-l36-approved-firearm-grip-v1','approval':{'gripSizingApproved':True},
             'usableLength':.18,'targetMidpointSection':{'depth':.03,'visibleFaceWidth':.05},
@@ -80,6 +114,32 @@ class FirearmProcessingTests(unittest.TestCase):
         self.p[:,2]*=1.1
         with self.assertRaises(GripDeparture):self.fit()
 
+    def test_thickness_authority_preserves_longer_grip_and_requires_exact_departure_review(self):
+        self.config['sizingAuthority']='midpoint-depth'
+        self.p[:,1]*=1.25
+        self.config['gripEndpoints']=[[0,-.1125,0],[0,.1125,0]]
+        with self.assertRaises(GripDeparture) as caught:self.fit()
+        report=caught.exception.report
+        self.assertEqual(report['sizingAuthority'],'midpoint-depth')
+        self.assertAlmostEqual(report['usableLength'],.225)
+        self.assertAlmostEqual(report['midpointRelativeDifferences']['usableLength'],.25)
+        self.config['gripDeparture']={'decision':'approved','measurementDigest':report['measurementDigest'],
+                                     'notes':'Both native hand fits reviewed'}
+        np.testing.assert_array_equal(self.fit()[0],self.config['matrix'])
+        self.p[:,2]*=1.1
+        with self.assertRaises(GripDeparture):self.fit()
+
+    def test_thickness_authority_cannot_waive_scale_standard_or_identity_checks(self):
+        self.config['sizingAuthority']='midpoint-depth'
+        self.p[:,0]*=1.05
+        with self.assertRaisesRegex(ValueError,'midpoint grip thickness'):self.fit()
+        self.p[:,0]/=1.05
+        self.config['historicalGripStandard']='cougar-approved-grip-v1'
+        self.standard['id']='cougar-approved-grip-v1'
+        with self.assertRaisesRegex(ValueError,'current approved firearm'):self.fit()
+        self.config['sizingAuthority']='unknown'
+        with self.assertRaisesRegex(ValueError,'Unknown firearm'):self.fit()
+
     def test_stale_surface_binding_and_bad_selections_fail(self):
         self.config['workingSourceSha256']='changed'
         with self.assertRaisesRegex(ValueError,'another working mesh'):self.fit()
@@ -100,6 +160,45 @@ class FirearmProcessingTests(unittest.TestCase):
         with self.assertRaises(ValueError):assembly_budget(self.profile,{'b':9993},'visible')
         with self.assertRaises(ValueError):assembly_budget(self.profile,{'b':0},'visible')
         with self.assertRaises(ValueError):assembly_budget(self.profile,{'b':500,'m':0},'shadow')
+
+    def test_longarm_processing_enforces_active_part_and_inactive_budget(self):
+        profile=copy.deepcopy(self.profile);profile['family']='firearm-crossbow';profile['firearm']['subtype']='rifle'
+        profile['budgets']['parts']['t'],profile['budgets']['parts']['b']=profile['budgets']['parts']['b'],profile['budgets']['parts']['t']
+        self.assertEqual(active_parts(profile),('t',))
+        self.assertEqual(assembly_budget(profile,{'t':9992},'visible')['assembly'],10000)
+        with self.assertRaises(ValueError): assembly_budget(profile,{'t':9993},'visible')
+        profile['budgets']['parts']['b']['shadow']=4
+        with self.assertRaisesRegex(ValueError,'hidden placeholders'):assembly_budget(profile,{'t':496},'shadow')
+
+    def test_f8_contract_uses_all_installed_crossbow_parts_and_native_dimensions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);ref=root/'ref.png';Image.new('RGB',(512,512)).save(ref)
+            intake_pistol(ref,root/'asset','synthetic-longarm')
+            profile_path=root/'asset/family.json';mp=root/'asset/asset.json';profile=read(profile_path);manifest=read(mp)
+            profile['family']='firearm-crossbow';profile['firearm']={'subtype':'rifle'}
+            profile['budgets']['parts']={'b':{'visible':4,'shadow':0},'m':{'visible':4,'shadow':0},'t':{'visible':9992,'shadow':500}}
+            profile['allowedAssemblies']=[{'b':'hidden-placeholder','m':'hidden-placeholder','t':'synthetic-longarm'}]
+            stock=root/'asset/stock';stock.mkdir();table=stock/'baseitems.2da'
+            table.write_text('2DA V2.0\n\nlabel ItemClass ModelType MinRange MaxRange InvSlotWidth InvSlotHeight\n6 heavycrossbow WBwXh 2 10 100 2 4\n')
+            for p in ('b','m','t'):(stock/f'wbwxh_{p}_011.mdl').write_bytes(b'synthetic installed part')
+            Image.new('RGBA',(64,128)).save(stock/'iwbwxh_t_011.tga')
+            stack=root/'asset/stack.json'
+            write(stack,{'complete':True,'order':'low-to-high','layers':[{'resources':[
+                {'resource':p.name,'file':{'path':'stock/'+p.name,'sha256':pin(p)['sha256']}} for p in sorted(stock.iterdir())]}]})
+            profile['nativePackaging']='enabled'
+            profile['native']={'reviewed':True,'stack':{'path':'stack.json','sha256':pin(stack)['sha256']},
+                'baseItem':6,'itemClass':'wbwxh','modelType':2,'baseitemsSha256':pin(table)['sha256'],
+                'donors':{**{p:f'wbwxh_{p}_011.mdl' for p in ('b','m','t')},'icon':'iwbwxh_t_011.tga'},
+                'iconDimensions':{'t':[64,128]},'frame':np.eye(3).tolist(),'gripOrigin':[0,0,0],'gripLength':.18}
+            def save():
+                write(profile_path,profile);manifest['familyProfile']['sha256']=pin(profile_path)['sha256'];write(mp,manifest)
+            save();self.assertEqual(contracts.manifest(mp)['id'],'synthetic-longarm')
+            for key,bad in [('baseItem',61),('iconDimensions',{'t':[32,64]})]:
+                old=profile['native'][key];profile['native'][key]=bad;save()
+                with self.assertRaises(ValueError):contracts.family(profile_path)
+                profile['native'][key]=old
+            profile['native']['donors']['b']='wbwxh_t_011.mdl';save()
+            with self.assertRaisesRegex(ValueError,'assignment'):contracts.family(profile_path)
 
     def test_eight_explicit_views_and_nondegenerate_camera_frames(self):
         views={name:{'direction':[1,0,0],'target':[0,0,0],'up':[0,1,0],'scale':1.1} for name in FIREARM_VIEWS}

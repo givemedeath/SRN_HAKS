@@ -17,6 +17,48 @@ from headkit.comfy_nodes.verification import CURRENT_PASS,HEAVY_VERIFICATION_LOC
 
 
 class VerificationPerformanceTests(unittest.TestCase):
+    def test_own_cache_alias_mutations_require_direct_unique_bindings(self):
+        cases=[('out=CACHE\n    out["key"]=1',{'CACHE'}),
+               ('out=CACHE\n    alias=out\n    alias.update({"key":1})',{'CACHE'}),
+               ('out=CACHE.copy()\n    out["key"]=1',set()),
+               ('out=CACHE\n    out={}\n    out["key"]=1',set()),
+               ('CACHE={}\n    out=CACHE\n    out["key"]=1',set())]
+        for body,expected in cases:
+            with self.subTest(body=body):
+                self.assertEqual(snapshot._runtime_state(ast.parse('CACHE={}\ndef fill():\n    '+body+'\n')),expected)
+
+    def test_owned_alias_cache_does_not_exempt_neighbor_setting(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory).resolve()/'model.py'
+            source='CACHE={}\nSETTING={}\ndef fill():\n    out=CACHE\n    out["x"]=1\nfill()\n'
+            path.write_text(source);module=types.ModuleType('fixture');module.__file__=str(path)
+            compiled=compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
+            exec(compiled,vars(module));proof={path:snapshot._code_hash(compiled)}
+            with patch.object(snapshot,'_startup_execution_proof',return_value=proof):
+                with patch.dict(sys.modules,{'fixture':module},clear=True):
+                    snapshot.loaded_source_code([directory])
+                    module.SETTING['changed']=1
+                    with self.assertRaisesRegex(ValueError,'module constants.*SETTING'):
+                        snapshot.loaded_source_code([directory])
+
+    def test_uninstantiated_ambiguous_closure_defers_but_live_closure_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory).resolve()/'model.py'
+            source='def factory(flag):\n    value=None\n    if flag: value=object()\n    return lambda: value\n'
+            path.write_text(source);module=types.ModuleType('fixture');module.__file__=str(path)
+            compiled=compile(source,str(path),'exec',dont_inherit=True,optimize=sys.flags.optimize)
+            exec(compiled,vars(module))
+            proof={path:snapshot._code_hash(compiled)}
+            with patch.object(snapshot,'_startup_execution_proof',return_value=proof):
+                with patch.dict(sys.modules,{'fixture':module},clear=True):
+                    snapshot.loaded_source_code([directory])
+                module.callback=module.factory(False)
+                with patch.dict(sys.modules,{'fixture':module},clear=True):
+                    with self.assertRaisesRegex(ValueError,'ambiguous live closure'):
+                        snapshot.loaded_source_code([directory])
+            with self.assertRaisesRegex(ValueError,'Ambiguous source literal'):
+                snapshot._source_function_literals(ast.parse(source),compiled)
+
     def test_one_read_per_pass_conflicting_pins_and_fresh_next_pass(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'source.py';path.write_bytes(b'VALUE=1\n')
