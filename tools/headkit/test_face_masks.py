@@ -257,6 +257,14 @@ class Quality(unittest.TestCase):
                     quality('uv.glb', {}, {}, {}, Path(root)/'q', settings=settings)
                 self.assertFalse((Path(root)/'q').exists())
 
+    def test_seam_approval_raises_one_heads_limit_to_its_viewed_ratio(self):
+        # RUNBOOK 178: a head's own approved ratio, with its note; anything else keeps the shared limit or stops.
+        from headkit.quality import seam_limit
+        self.assertEqual(seam_limit(1.45, None), 1.45); self.assertEqual(seam_limit(1.45, {'ratioMax': 1.65, 'approval': 'user 2026-11-04'}), 1.65)
+        for bad in ({'ratioMax': 1.65}, {'ratioMax': 1.4, 'approval': 'x'}, {'ratioMax': True, 'approval': 'x'}, {'ratioMax': 1.65, 'approval': ' '}, {'ratioMax': 1.65, 'approval': 'x', 'more': 1}, 1.65):
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, 'seamStepApproved'):
+                seam_limit(1.45, bad)
+
 
 class Wiring(unittest.TestCase):
     def test_stage_order_and_declarations(self):
