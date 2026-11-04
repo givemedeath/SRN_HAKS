@@ -120,8 +120,9 @@ def validate_spec(spec):
         require(match is not None and match[1] in families,head['id']+': model must be '+' or '.join(f+'_headNNN' for f in families))
         slot=int(match[2]);require(model_name(match[1],slot)==head['model'] and head['model'] not in models,head['id']+': head slot repeats or is out of range')
         models.add(head['model'])
-        require(('native' in head)!=('resources' in head),head['id']+': give exactly one of native or resources')
-        if 'resources' in head:
+        require(sum(key in head for key in ('native','resources','fromBase'))==1 and head.get('fromBase',True) is True,head['id']+': give exactly one of native, resources or fromBase: true')
+        if 'fromBase' in head:pass
+        elif 'resources' in head:
             require(isinstance(head['resources'],list) and head['resources'] and all(isinstance(p,str) for p in head['resources']),
                     head['id']+': resources must list files')
             require(isinstance(head.get('ascii',''),str),head['id']+': ascii must be the ASCII model path')
@@ -177,7 +178,9 @@ def texture_references(text):
 
 
 def head_resources(head):
-    """Read one head's resources as (name, type, bytes) plus the ASCII model used for dependency checks, if any."""
+    """Read one head's resources as (name, type, bytes) plus the ASCII model used for dependency checks, if any.
+    A fromBase head has none: it shows the published bytes in a base HAK."""
+    if 'fromBase' in head:return [],None,[]
     if 'native' in head:
         stage=Path(head['native']);record=read(stage/'native.json')
         require(record.get('model')==head['model'],head['id']+': native stage builds '+str(record.get('model')))
@@ -218,6 +221,9 @@ def plan_hak(heads,shared,base):
             return
         owners[key]=(owner,kind);merged[(name,kind)]=data
     for head,resources,_ in heads:
+        if 'fromBase' in head:
+            require(all(any((head['model'],TYPES[key]) in rows for rows in base.values()) for key in ('mdl','plt')),head['id']+': fromBase, but no base HAK holds '+head['model'])
+            continue
         models=[data for name,kind,data in resources if (name,kind)==(head['model'],TYPES['mdl'])]
         require(models,head['id']+': no '+head['model']+'.mdl')
         require(model_identity(models[0])==head['model'],head['id']+': '+head['model']+'.mdl is internally named '+str(model_identity(models[0])))
@@ -285,7 +291,7 @@ void HeadClear(){
 # stray turn/tilt/zoom/scroll input until `free`. Each placement logs HEAD_INSPECT with the player-actor offset.
 ROW_INSPECT='''float HeadView(string v){
   if(v=="front") return 270.0; if(v=="back") return 90.0; if(v=="right") return 180.0; if(v=="left") return 0.0;
-  if(v=="three") return 225.0; return -1.0;}
+  if(v=="three") return 225.0; if(v=="threeleft") return 315.0; if(v=="backright") return 135.0; if(v=="backleft") return 45.0; return -1.0;}
 int HeadHide(object p){
   if(GetLocalInt(p,"HEAD_HIDDEN")) return FALSE;
   effect e=TagEffect(SupernaturalEffect(EffectLinkEffects(EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),EffectCutsceneGhost())),"HEAD_INSPECT");
@@ -329,7 +335,7 @@ ROW_SHOW='''void HeadPut(int row,int col){
   WriteTimestampedLogEntry("HEAD_FIXTURE_ROW shown="+IntToString(row)+" head="+HeadName(row)+" look="+IntToString(col+1));
   object p=GetFirstPC();
   while(GetIsObjectValid(p)){
-    SendMessageToPC(p,"Head "+IntToString(row+1)+"/"+IntToString(HEAD_ROWS)+": "+HeadName(row)+"   (chat: next, prev, head N, look N, sweep; front, left, right, back, three, dist X, height X, anim, free)");
+    SendMessageToPC(p,"Head "+IntToString(row+1)+"/"+IntToString(HEAD_ROWS)+": "+HeadName(row)+"   (chat: next, prev, head N, look N, sweep; front, left, right, back, three, threeleft, backright, backleft, dist X, height X, anim, free)");
     if(GetLocalString(GetModule(),"HEAD_VIEW")!="") DelayCommand(1.2,HeadCamera(p));
     p=GetNextPC();}}
 void HeadShow(int row){HeadPut(((row%HEAD_ROWS)+HEAD_ROWS)%HEAD_ROWS,0);}
@@ -404,7 +410,7 @@ def readme(spec,actors,hak_order):
            f"One NPC stands on the floor at a time. On entry a sweep shows each head's first look for {SWEEP_SECONDS:.0f} s (every spawn is logged "
            "for verification), then head 1 stays. Type in chat: `next`, `prev`, `head N` (the Head row column) or `sweep`. "
            "`look N` swaps in that head's Nth look (the Look column): other colours, helmets and armour.",'',
-           "Inspection camera: `front`, `left`, `right`, `back` or `three` (front three-quarter from the actor's right) hides and "
+           "Inspection camera: `front`, `left`, `right`, `back`, or a three-quarter view (`three` front right, `threeleft` front left, `backright`, `backleft`; sides are the actor's) hides and "
            "ghosts the player on the shown head's actor and locks the camera on that view at head height; it stays on that view "
            "through `next`/`prev`/`head N`/`look N`. `dist X` and `height X` (metres) adjust "
            "the framing, `anim` plays a short talk and look cycle, and `free` gives the camera back. Each placement logs HEAD_INSPECT.",'',
@@ -427,7 +433,7 @@ def input_paths(spec_path):
             stage=Path(head['native']);paths+=[stage/'native.json',stage/(head['model']+'.hak')]
             ascii_model=stage/'converted'/'ascii'/(head['model']+'.mdl')
             if ascii_model.is_file():paths.append(ascii_model)
-        else:
+        elif 'resources' in head:
             paths+=[Path(item) for item in head['resources']]
             if head.get('ascii'):paths.append(Path(head['ascii']))
     paths+=[Path(item) for item in spec['shared']]
@@ -453,6 +459,7 @@ def build(spec_path,output):
     planned,dependencies=plan_hak(heads,shared,base)
     user=output/'userdir';work=output/'work';stage=work/'module'
     for folder in (user/'hak',user/'modules',user/'override',stage):folder.mkdir(parents=True)
+    require(planned,'The trial HAK would be empty, and the client refuses to load one: add a shared resource')
     trial_hak=user/'hak'/(spec['hak']+'.hak');write_hak(trial_hak,planned)
     expected={(name,kind):hashlib.sha256(data).hexdigest() for name,kind,data in planned}
     require(payload(trial_hak)==expected,'Trial HAK payload differs from its plan')
