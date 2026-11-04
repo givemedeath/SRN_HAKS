@@ -1,4 +1,5 @@
 import json
+import re
 import struct
 import unittest
 
@@ -93,6 +94,31 @@ class RepositoryManifestTests(unittest.TestCase):
         hooks=crm.parse_gff((fixture/'module/module.ifo').read_bytes())
         names={h['Mod_Hak'] for h in hooks['Mod_HakList']}
         self.assertEqual(names,{'sw_reviewenv','sw_f7motion','srn_weapon','srn_2da','srn_body','srn_body_tex'})
+
+    def test_every_released_weapon_finish_has_both_npc_reviewers(self):
+        module=crm.ROOT/'test-modules/weapon-waves/module'
+        placed=crm.parse_gff((module/'sr_it_floor.git').read_bytes())['Creature List']
+        actors={actor['Tag']:actor for actor in placed}
+        self.assertEqual(len(actors),30)
+        self.assertEqual(len(placed),len(actors))
+        bindings=re.findall(r'Equip\("(sw[123]_[mf][0-4])","([^"]+)"',
+                            (module/'sw2_enter.nss').read_text())
+        self.assertEqual(len(bindings),len(actors))
+        self.assertEqual({tag for tag,_ in bindings},set(actors))
+        expected={bp['resRef'] for item in self.manifest['items'] for bp in item['blueprints']}
+        # The launcher is a gameplay entry sharing its AK-98 parent's model.
+        expected.remove('sra84e4660gl')
+        by_item={}
+        for tag,resref in bindings:
+            by_item.setdefault(resref,[]).append(actors[tag]['Gender'])
+            self.assertEqual(actors[tag]['ScriptDialogue'],'sw_review')
+            if tag.startswith('sw3_'):
+                self.assertEqual(crm.parse_gff((module/(tag+'.utc')).read_bytes()),actors[tag])
+                reference=crm.parse_gff((module/('sw2_'+tag[4]+'0.utc')).read_bytes())
+                for field in ('Appearance_Type','Phenotype','Appearance_Head','BodyPart_Torso'):
+                    self.assertEqual(actors[tag][field],reference[field])
+        self.assertEqual(set(by_item),expected)
+        self.assertTrue(all(sorted(genders)==[0,1] for genders in by_item.values()))
 
     def test_longblade_alias_changes_only_model_identity(self):
         publication=json.loads((crm.ROOT/crm.PUBLICATION).read_text(encoding='utf-8'))
