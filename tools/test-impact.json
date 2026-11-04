@@ -4123,6 +4123,9 @@
     "tools/heads/test_head_pipeline.py": [
       "srn_head"
     ],
+    "tools/heads/test_head_trial.py": [
+      "srn_head"
+    ],
     "tools/heads/test_target_and_publication.py": [
       "srn_head"
     ],
