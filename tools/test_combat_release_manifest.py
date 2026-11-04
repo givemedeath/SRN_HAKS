@@ -1,4 +1,5 @@
 import json
+import re
 import struct
 import unittest
 
@@ -30,6 +31,9 @@ def gff(fields):
 
 
 class ParserTests(unittest.TestCase):
+    def test_whole_shield_resource_names_use_single_model_address(self):
+        self.assertEqual(crm.expected_resources({'modelType':'0','itemClass':'AShLw','modelParts':{'ModelPart1':14}}),
+                         ['ashlw_014.mdl','iashlw_014.tga'])
     def test_gff_reads_scalar_and_resref_fields(self):
         data = gff([('BaseItem', 4, 61), ('ModelPart1', 0, 51), ('TemplateResRef', 11, 'sr_cl36_1')])
         self.assertEqual(crm.parse_gff(data), {'BaseItem': 61, 'ModelPart1': 51, 'TemplateResRef': 'sr_cl36_1'})
@@ -71,9 +75,61 @@ class RepositoryManifestTests(unittest.TestCase):
             self.assertEqual(item['closureMissing'], [], item['id'])
             self.assertTrue(item['closureMatchesPublicationOwnership'], item['id'])
 
+    def test_approved_controls_use_the_selected_family_groups(self):
+        expected={'cougar-fineblade-knife':('F1',22),'cougar-fineblade-longblade':('F1',22),
+                  'cougar-fineblade-longsword':('F2',1),'colt-l36-pistol':('F7',61)}
+        for item in self.manifest['items']:
+            if item['id'] in expected:
+                family,base=expected[item['id']]
+                self.assertEqual(item['family'],family)
+                self.assertTrue(all(bp['baseItem']==base for bp in item['blueprints']))
+
+    def test_motion_overlay_and_hooks_remain_fixture_only(self):
+        names={p.name for p in (crm.ROOT/'srn_weapon').iterdir()}
+        self.assertTrue({'pmh0.mdl','pfh0.mdl','srf7_pmh0.mdl','srf7_pfh0.mdl','sr_f7_inc.nss','sr_f7_eq.ncs','sr_f7_un.ncs'}.isdisjoint(names))
+        fixture=crm.ROOT/'test-modules/weapon-waves'
+        self.assertEqual({p.name for p in (fixture/'haks').iterdir()},{'sw_reviewenv','sw_f7motion'})
+        for item in self.manifest['items']:
+            for bp in item['blueprints']:self.assertFalse((fixture/'module'/(bp['resRef']+'.uti')).exists())
+        hooks=crm.parse_gff((fixture/'module/module.ifo').read_bytes())
+        names={h['Mod_Hak'] for h in hooks['Mod_HakList']}
+        self.assertEqual(names,{'sw_reviewenv','sw_f7motion','srn_weapon','srn_2da','srn_body','srn_body_tex'})
+
+    def test_every_released_weapon_finish_has_both_npc_reviewers(self):
+        module=crm.ROOT/'test-modules/weapon-waves/module'
+        placed=crm.parse_gff((module/'sr_it_floor.git').read_bytes())['Creature List']
+        actors={actor['Tag']:actor for actor in placed}
+        self.assertEqual(len(actors),30)
+        self.assertEqual(len(placed),len(actors))
+        bindings=re.findall(r'Equip\("(sw[123]_[mf][0-4])","([^"]+)"',
+                            (module/'sw2_enter.nss').read_text())
+        self.assertEqual(len(bindings),len(actors))
+        self.assertEqual({tag for tag,_ in bindings},set(actors))
+        expected={bp['resRef'] for item in self.manifest['items'] for bp in item['blueprints']}
+        # The launcher is a gameplay entry sharing its AK-98 parent's model.
+        expected.remove('sra84e4660gl')
+        by_item={}
+        for tag,resref in bindings:
+            by_item.setdefault(resref,[]).append(actors[tag]['Gender'])
+            self.assertEqual(actors[tag]['ScriptDialogue'],'sw_review')
+            if tag.startswith('sw3_'):
+                self.assertEqual(crm.parse_gff((module/(tag+'.utc')).read_bytes()),actors[tag])
+                reference=crm.parse_gff((module/('sw2_'+tag[4]+'0.utc')).read_bytes())
+                for field in ('Appearance_Type','Phenotype','Appearance_Head','BodyPart_Torso'):
+                    self.assertEqual(actors[tag][field],reference[field])
+        self.assertEqual(set(by_item),expected)
+        self.assertTrue(all(sorted(genders)==[0,1] for genders in by_item.values()))
+
+    def test_longblade_alias_changes_only_model_identity(self):
+        publication=json.loads((crm.ROOT/crm.PUBLICATION).read_text(encoding='utf-8'))
+        item=next(i for i in publication['items'] if i['id']=='cougar-fineblade-longblade')
+        for alias in item['migration']['modelAliases']:
+            a,b=(crm.ROOT/alias[k]['path'] for k in ('source','release'))
+            self.assertEqual(b.read_bytes().replace(b.stem.encode(),a.stem.encode()),a.read_bytes())
+
     def test_sling_is_flagged_and_loads_table_pack(self):
         sling = [i for i in self.manifest['items'] if i['slingRelevant']]
-        self.assertEqual([i['id'] for i in sling], ['colt-l36-pistol'])
+        self.assertEqual({i['id'] for i in sling}, {'colt-l36-pistol','ingram-smartgun-x'})
         self.assertIn('srn_2da', sling[0]['packs'])
         roles = {r['row']: r['role'] for r in self.manifest['tables'][0]['rows']}
         self.assertIn('sling ammunition', roles[27])

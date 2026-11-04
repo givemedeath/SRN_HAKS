@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "hakPriorityOrder": [
+    "sw_reviewenv",
+    "sw_f7motion",
+    "srn_weapon",
+    "srn_body_tex",
+    "srn_body",
+    "srn_2da"
+  ],
+  "archives": [
+    {
+      "archive": "sw_f7motion.hak",
+      "resources": 4,
+      "sha256": "ba5a1852190e6eef7e286d6ef45c00eb9081ee94eb3cb78e6c576b978beec4f2",
+      "exactPayload": true
+    },
+    {
+      "archive": "sw_reviewenv.hak",
+      "resources": 3,
+      "sha256": "885aa5a8d0aa9561f7f6feeefc50c0961636e1b9a20fe53b664e30bce7c2b830",
+      "exactPayload": true
+    },
+    {
+      "archive": "sw_weapon_w2.mod",
+      "resources": 63,
+      "sha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1",
+      "exactPayload": true
+    }
+  ],
+  "normalReleaseDependencyValidation": "docs/items/approved-weapon-waves-release-validation.json",
+  "motionOverlaysTestingOnly": true,
+  "newClientAcceptanceClaimed": true,
+  "reviewers": {
+    "pairs": 15,
+    "NPCs": 30,
+    "allWeaponFinishesOnBothHumanBodies": true,
+    "initialPair": "Cougar Fineblade Knife",
+    "clientReviewPending": false
+  },
+  "clientApproval": {
+    "status": "approved",
+    "date": "2026-11-03",
+    "statement": "looks good",
+    "scope": "Updated grouping and all fifteen male/female NPC weapon-finish pairs",
+    "moduleSha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1"
+  }
+}
