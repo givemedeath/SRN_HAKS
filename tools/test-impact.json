@@ -1961,6 +1961,7 @@
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
       "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/equipment_frames.py",
+      "tools/phenotypes/stock_dwarf_control.py",
       "tools/phenotypes/target_contract.py",
       "tools/shared_tools.py"
     ],
@@ -2452,7 +2453,6 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/preflight_derived_dwarf_client.py": [
-      "tools/phenotypes/run_derived_dwarf_client_test.py",
       "tools/phenotypes/stock_dwarf_control.py"
     ],
     "tools/phenotypes/preflight_target_body_client.py": [
@@ -2733,7 +2733,8 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/run_derived_dwarf_client_test.py": [
-      "tools/phenotypes/preflight_derived_dwarf_client.py"
+      "tools/phenotypes/preflight_derived_dwarf_client.py",
+      "tools/phenotypes/stock_dwarf_control.py"
     ],
     "tools/phenotypes/run_mesh_refinement_trial.py": [
       "tools/phenotypes/pipeline.py",
@@ -3270,8 +3271,11 @@
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
     "tools/phenotypes/test_finalize_shared_tool_migration.py": [
+      "tools/heads/finalize_head_migration.py",
+      "tools/phenomorpher/finalize_runtime.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
-      "tools/phenotypes/shared_toolchain.py"
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/robes/finalize_robe_migration.py"
     ],
     "tools/phenotypes/test_fixed_material_dependencies.py": [
       "tools/phenotypes/build_test_module.py",

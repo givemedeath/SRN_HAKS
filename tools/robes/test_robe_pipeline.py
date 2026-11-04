@@ -432,17 +432,66 @@ class MeshyPolicyTests(unittest.TestCase):
             binding = Path(folder) / "binding.json"
             binding.write_text("{}")
 
-            def upload_swaps_image(_binding, _arguments, out):
+            def upload_swaps_image(_binding, _arguments, out, _executable):
                 Path(request["payload"]["image_url"]).write_bytes(b"other")
                 response = Path(out) / "stdout.json"
                 response.write_text(json.dumps({"result": {"task_id": "t1"}}))
-                return 0, response
+                return 0, response, None
 
-            with mock.patch.object(meshy_robe, "invoke", upload_swaps_image):
+            with mock.patch.object(meshy_robe, "launcher", lambda *_: None), \
+                    mock.patch.object(meshy_robe, "run_cli", upload_swaps_image):
                 with self.assertRaises(ValueError):
                     meshy_robe.dispatch(session, request_file, binding, approval, Path(folder))
             submitted = [e for e in session.events() if e["kind"] == "submitted"]
             self.assertEqual([(e["taskId"], e["inputsUnchanged"]) for e in submitted], [("t1", False)])
+
+    def test_dispatch_local_refusal_leaves_no_reservation(self):
+        import meshy_robe
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as folder:
+            session = Session.create(Path(folder) / "session", 40, ["workwear"])
+            request = self.request(folder)
+            request_file = Path(folder) / "request.json"
+            request_file.write_text(json.dumps(request))
+            approval = Path(folder) / "approval.json"
+            approval.write_text(json.dumps({"kind": "srn-robe-reference-approval", "outfit": "workwear",
+                                            "request": {"sha256": meshy_robe.sha(request_file)}, "userInstruction": "go"}))
+            binding = Path(folder) / "binding.json"
+            binding.write_text(json.dumps({"command": ["npm.cmd", meshy_robe.CLI_PACKAGE], "workspace": folder}))
+            with mock.patch.object(meshy_robe.shutil, "which", lambda _name: None), \
+                    self.assertRaisesRegex(ValueError, "launcher not found"):
+                meshy_robe.dispatch(session, request_file, binding, approval, Path(folder) / "op")
+            self.assertFalse([e for e in session.events() if e["kind"] == "reserved"])
+
+    def test_dispatch_records_a_paid_task_when_the_launcher_changed(self):
+        import meshy_robe
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as folder:
+            session = Session.create(Path(folder) / "session", 40, ["workwear"])
+            request = self.request(folder)
+            request_file = Path(folder) / "request.json"
+            request_file.write_text(json.dumps(request))
+            approval = Path(folder) / "approval.json"
+            approval.write_text(json.dumps({"kind": "srn-robe-reference-approval", "outfit": "workwear",
+                                            "request": {"sha256": meshy_robe.sha(request_file)}, "userInstruction": "go"}))
+            binding = Path(folder) / "binding.json"
+            binding.write_text("{}")
+
+            def changed(_binding, _arguments, out, _executable):
+                out = Path(out); out.mkdir()
+                (out / "stdout.json").write_text(json.dumps({"result": {"task_id": "t1"}}))
+                return 0, out / "stdout.json", "launcher changed"
+
+            with mock.patch.object(meshy_robe, "launcher", lambda *_: None), mock.patch.object(meshy_robe, "run_cli", changed), \
+                    self.assertRaisesRegex(ValueError, "cannot be attributed"):
+                meshy_robe.dispatch(session, request_file, binding, approval, Path(folder) / "op")
+            submitted = [e for e in session.events() if e["kind"] == "submitted"]
+            self.assertEqual([(e["taskId"], e["inputsCheckError"]) for e in submitted], [("t1", "launcher changed")])
+
+    def test_task_fields_survives_envelopes_without_a_task_object(self):
+        from meshy_robe import task_fields
+        self.assertEqual(task_fields({"result": "t1"})["id"], "t1")
+        self.assertIsNone(task_fields({"ok": False, "result": None})["id"])
 
 
 if __name__ == "__main__":

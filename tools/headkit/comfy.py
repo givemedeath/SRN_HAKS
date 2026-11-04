@@ -436,7 +436,11 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
         found=client.request('/history/'+job['promptId']).get(job['promptId'])
         # A restarted server forgets history an interrupted collection already retained.
         retained=not found and (output/'history.json').is_file()
-        if retained:found=read(output/'history.json')
+        if retained:
+            # The server that ran the job is gone, so its history has to name this job instead. A foreign file
+            # says nothing about the job, so it is refused before anything could record a verdict.
+            found=read(output/'history.json')
+            require(names_job(found,token,job['promptId']),'Retained Comfy history does not belong to this job')
         if found: break
         if time.time()-job['started'] > 2700:
             with locked(ledger):
@@ -497,11 +501,6 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
             server=CompletionClient(client)
             completion_runtime=None
             if intent['prepared'].get('runtimeVerification')=='server-owned':
-                if retained:
-                    # The server that ran the job is gone, so its history has to name this job instead.
-                    prompt=found.get('prompt',[])
-                    require(len(prompt)>3 and prompt[1]==job['promptId'] and prompt[3].get('headkitToken')==token,
-                            'Retained Comfy history does not belong to this job')
                 with completion.phase('server-runtime'):
                     completion_runtime=verify_comfy_runtime(server,intent['prepared'],restarted=retained)
             model_proof=None
@@ -528,6 +527,11 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
     return _record_collection(ledger,token,output,result)
 
 
+def names_job(history, token, prompt_id=None):
+    prompt=history.get('prompt',[])
+    return len(prompt)>3 and prompt[3].get('headkitToken')==token and prompt_id in (None,prompt[1])
+
+
 def reconcile(client, ledger, token):
     # Search both queues and retained history by the original client token; never resubmit.
     queue=client.request('/queue'); history=client.request('/history?max_items=1000')
@@ -535,8 +539,7 @@ def reconcile(client, ledger, token):
     for row in queue.get('queue_running',[])+queue.get('queue_pending',[]):
         if len(row)>3 and row[3].get('headkitToken')==token:matches.append(row[1])
     for prompt_id,row in history.items():
-        prompt=row.get('prompt',[])
-        if len(prompt)>3 and prompt[3].get('headkitToken')==token:matches.append(prompt_id)
+        if names_job(row,token):matches.append(prompt_id)
     matches=sorted(set(matches));require(len(matches)==1,'Cannot uniquely reconcile; retain intent and inspect server evidence manually')
     with locked(ledger):
         state=read(ledger);job=next(j for j in state['jobs'] if j['token']==token)

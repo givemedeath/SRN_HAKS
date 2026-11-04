@@ -337,7 +337,7 @@ function Update-GffNode {
         foreach ($property in @($Node.PSObject.Properties)) {
             $value = $property.Value
             # A localized string's or struct's inner value object has no type of its own.
-            $typed = $value -is [Management.Automation.PSCustomObject] -and $value.PSObject.Properties.Name -contains 'type'
+            $typed = $value -is [Management.Automation.PSCustomObject] -and $null -ne $value.PSObject.Properties['type']
             if ($property.Name -ceq 'STRREF' -and $typed -and [string]$value.type -ceq 'dword') {
                 $key = [string][int64]$value.value
                 if ($RemapByValue.ContainsKey($key)) {

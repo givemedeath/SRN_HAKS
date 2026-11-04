@@ -372,6 +372,8 @@ def main():
     parser.add_argument('--female-ledger', type=Path, default=None, help='Declared Human female selection ledger binding')
     parser.add_argument('--toolchain', type=Path)
     args = parser.parse_args()
+    if not args.game_root.is_dir():
+        parser.error(f'--game-root is not a directory: {args.game_root}')
 
     print("Freezing Human male master...")
     male_receipt = freeze_human_male_master(

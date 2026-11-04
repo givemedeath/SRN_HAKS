@@ -47,16 +47,19 @@ def resolve_client(explicit: Path | None = None, game_root: Path | None = None) 
     env_client = os.environ.get("NWN_CLIENT")
     if env_client and Path(env_client).exists():
         return Path(env_client).resolve()
-    if game_root is not None:
+    env_root = os.environ.get("NWN_ROOT") or os.environ.get("NWN_GAME_ROOT")
+    for root in (game_root, Path(env_root) if env_root else None):
+        if root is None:
+            continue
         for candidate in [
-            game_root / "bin/win32/nwmain.exe",
-            game_root / "bin/linux-x86/nwmain",
-            game_root / "nwmain.exe",
-            game_root / "bin/win32/nwserver.exe",
+            root / "bin/win32/nwmain.exe",
+            root / "bin/linux-x86/nwmain",
+            root / "nwmain.exe",
+            root / "bin/win32/nwserver.exe",
         ]:
             if candidate.exists():
                 return candidate.resolve()
-    raise FileNotFoundError("NWN client binary not found. Please provide --client or ensure nwmain exists in game root.")
+    raise FileNotFoundError("NWN client binary not found. Please provide --client, set NWN_CLIENT, or ensure nwmain exists in the game root.")
 
 
 def digest(path: Path) -> str:

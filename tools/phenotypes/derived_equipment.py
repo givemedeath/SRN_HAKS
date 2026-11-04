@@ -7,7 +7,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 from pathlib import Path
 import re
 import subprocess
@@ -21,6 +20,7 @@ from target_contract import require
 
 sys.path.insert(0, str(REPO / "tools"))
 from shared_tools import resolve_tool
+from stock_dwarf_control import resolve_game_root
 
 
 def get_resman_grep() -> Path:
@@ -136,14 +136,8 @@ def audit_stock_armor_compatibility(
     race = target_config["identity"]["race"]
     frames = target_config["rig"]["frames"]["working"]
 
-    inventory_root = game_root or (
-        Path(os.environ["NWN_ROOT"]) if "NWN_ROOT" in os.environ and Path(os.environ["NWN_ROOT"]).exists()
-        else None
-    )
-    if inventory_root is None:
-        raise FileNotFoundError("NWN game root not found. Please provide it or set NWN_ROOT.")
     inventory_result = inventory_installed_styles(
-        inventory_root,
+        resolve_game_root(game_root),
         REPO / f"output/phenotypes/derived-{race}-male-v1/compiler-userdir",
         prefix=prefix
     )
@@ -281,16 +275,11 @@ def main():
     ascii_dir = args.ascii_dir or (REPO / f"output/phenotypes/derived-v1/parts/{race}-male/ascii")
     output_path = args.output or (REPO / f"output/phenotypes/derived-{race}-male-v1/review/equipment-receipt.json")
 
-    game_root = args.game_root or (
-        Path(os.environ["NWN_ROOT"]) if "NWN_ROOT" in os.environ and Path(os.environ["NWN_ROOT"]).exists()
-        else None
-    )
-
     audit_stock_armor_compatibility(
         config,
         ascii_dir,
         output_path,
-        game_root=game_root,
+        game_root=args.game_root,
         connector_audit_path=args.connector_audit,
     )
 

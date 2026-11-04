@@ -385,8 +385,10 @@ def armory_values(armory, source, fitted):
     if re.search(r'(?mi)^(?:(?:scale|rotate|translate)=|; verts fit:).*\b(?:nan|inf)\b', result.stdout):
         raise ValueError('Armory fit is not finite: ' + str(fitted))
     vector = lambda key: [float(v) for v in re.search(r'(?m)^' + key + r'=\(([^)]*)\)', result.stdout)[1].split(',')]
-    residual = float(re.search(r'verts fit: n=\d+ max_residual=([\d.eE+\-]+)', result.stdout)[1])
-    return vector('scale'), vector('rotate'), vector('translate'), residual, result.stdout
+    fit = re.search(r'verts fit: n=\d+ max_residual=([\d.eE+\-]+)', result.stdout)
+    if fit is None:
+        raise ValueError('Armory reported no vertex fit; degenerate source: ' + str(fitted))
+    return vector('scale'), vector('rotate'), vector('translate'), float(fit[1]), result.stdout
 
 
 def style_set(path):

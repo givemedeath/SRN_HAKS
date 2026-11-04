@@ -39,8 +39,6 @@ if ($LASTEXITCODE -ne 0) { throw 'Derived phenotype client preflight failed' }
 $null=Resolve-SrnRuntime -Name python -Path $WorkspacePython -ExpectedSha256 $taskPython.sha256
 $null=Resolve-SrnRuntime -Name nwn -Path $Client -ExpectedSha256 $taskClient.sha256
 
-if ($LASTEXITCODE -ne 0) { throw 'Derived-phenotype client preflight failed' }
-
 # Verify and compare ReceiptSha256 against the fixture build receipt hash
 $fixtureReceiptPath=Join-Path $taskStage 'test-module/receipt.json'
 if (-not (Test-Path -LiteralPath $fixtureReceiptPath)) {
@@ -64,7 +62,7 @@ $taskRunning=@(Get-Process | Where-Object { $_.ProcessName -ieq 'nwmain' })
 if ($taskRunning.Count -ne 0) { throw 'A client is already running; observe ownership before replacing it' }
 
 # Explicitly authorized interactive game test window
-$taskStarted=Start-Process -FilePath $Client -WorkingDirectory (Split-Path -Parent $Client) -WindowStyle Normal -ArgumentList @('-userdirectory',$taskProof.userDirectory,'+TestNewModule','srn_pheno_test') -PassThru
+$taskStarted=Start-Process -FilePath $Client -WorkingDirectory (Split-Path -Parent $Client) -WindowStyle Normal -ArgumentList @('-userdirectory',('"'+$taskProof.userDirectory+'"'),'+TestNewModule','srn_pheno_test') -PassThru
 $taskLaunch=@{
   processId=$taskStarted.Id;
   launchedAt=(Get-Date).ToUniversalTime().ToString('o');

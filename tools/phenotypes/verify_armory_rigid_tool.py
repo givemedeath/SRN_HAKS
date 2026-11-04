@@ -53,8 +53,8 @@ def verify(args):
     nested=source/'pmh0_chest099.mdl';nested.write_text(text,encoding='ascii')
     selected.append({'part':'nested-rotation-fixture','sourcePath':str(chest),'sourceSha256':digest(chest),
                      'fixturePath':str(nested),'fixtureSha256':digest(nested),'sameVertexUvFaceArrays':True})
-    surface=source/'pmh0_chest998.mdl'
-    surface.write_text('newmodel pmh0_chest998\nsetsupermodel pmh0_chest998 NULL\nbeginmodelgeom pmh0_chest998\nnode dummy pmh0_chest998\n parent NULL\nendnode\nnode trimesh support_surface\n parent pmh0_chest998\n position .1 -.2 .3\n orientation 0 1 0 .21\n bitmap support\n verts 3\n 0 0 0\n 0 0 1\n 1 -1 0\n normals 3\n .7071067811865475 .7071067811865475 0\n .7071067811865475 .7071067811865475 0\n .7071067811865475 .7071067811865475 0\n tangents 3\n 0 0 1 1\n 0 0 1 1\n 0 0 1 1\n tverts 3\n 0 0 0\n 1 0 0\n 0 1 0\n faces 1\n 0 1 2 1 0 1 2 0\nendnode\nendmodelgeom pmh0_chest998\n',encoding='ascii')
+    surface=source/'pmh0_chest998.mdl'  # the fourth, off-plane vertex keeps Armory's three-axis fit solvable
+    surface.write_text('newmodel pmh0_chest998\nsetsupermodel pmh0_chest998 NULL\nbeginmodelgeom pmh0_chest998\nnode dummy pmh0_chest998\n parent NULL\nendnode\nnode trimesh support_surface\n parent pmh0_chest998\n position .1 -.2 .3\n orientation 0 1 0 .21\n bitmap support\n verts 4\n 0 0 0\n 0 0 1\n 1 -1 0\n .5 .5 .5\n normals 4\n .7071067811865475 .7071067811865475 0\n .7071067811865475 .7071067811865475 0\n .7071067811865475 .7071067811865475 0\n .7071067811865475 .7071067811865475 0\n tangents 4\n 0 0 1 1\n 0 0 1 1\n 0 0 1 1\n 0 0 1 1\n tverts 4\n 0 0 0\n 1 0 0\n 0 1 0\n 1 1 0\n faces 1\n 0 1 2 1 0 1 2 0\nendnode\nendmodelgeom pmh0_chest998\n',encoding='ascii')
     selected.append({'part':'authored-normal-surface-fixture','sourcePath':str(surface),
                      'sourceSha256':digest(surface),'fixturePath':str(surface),'fixtureSha256':digest(surface),
                      'supportOnlySyntheticSurface':True})

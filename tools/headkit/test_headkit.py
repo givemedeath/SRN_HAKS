@@ -1512,7 +1512,7 @@ class InputInventoryTests(Temporary):
         for stage,code,inputs,bound in (('repair','old-code',[old_pin],now),('unwrap',stage_source_version('unwrap'),[pin(current)],now),
                                         ('bake',stage_source_version('bake'),[old_pin],'other-bindings')):
             scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
-            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'bindingsHash':bound,'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
+            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'bindingsHash':bound,'inputs':inputs,'outputs':[],'state':'complete','result':{}});rows[stage]=pin(path)
         write(run/'state.json',{'schemaVersion':1,'id':'stale-run','stages':rows})
         output=self.root/'inputs.json'
         with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),'--bindings',str(bindings_path),
@@ -1534,13 +1534,15 @@ class InputInventoryTests(Temporary):
         rows={}
         for stage,outputs in (('repair',[old]),('unwrap',[pin(kept)])):
             path=run/f'{stage}.json';scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
-            write(path,{'codeVersion':stage_source_version(stage),'manifestHash':scoped,'bindingsHash':now,'inputs':[],'outputs':outputs})
+            write(path,{'codeVersion':stage_source_version(stage),'manifestHash':scoped,'bindingsHash':now,'inputs':[],'outputs':outputs,'state':'complete','result':{}})
             rows[stage]=pin(path)
+        failed=run/'paint.json';write(failed,{'codeVersion':stage_source_version('paint'),'manifestHash':Runner(manifest_path,bindings_path,run).manifest_digest('paint'),
+            'bindingsHash':now,'inputs':[],'outputs':[pin(kept)],'state':'failed','result':{}});rows['paint']=pin(failed)
         missing=run/'bake.json';missing.write_text('{}');rows['bake']=pin(missing);missing.unlink()
         write(run/'state.json',{'schemaVersion':1,'id':'stale-pins','stages':rows,'reviews':{'unwrap':review_pin}})
         pins,stale=launch_inputs(manifest_path,bindings_path,run)
         paths={row['path'] for row in pins}
-        self.assertEqual(sorted(stale),['bake','repair']);self.assertIn(str(kept.resolve()),paths)
+        self.assertEqual(sorted(stale),['bake','paint','repair']);self.assertIn(str(kept.resolve()),paths)
         self.assertNotIn(str(changed.resolve()),paths);self.assertNotIn(str(review.resolve()),paths)
 
     def test_helper_pins_split_into_shared_tooling_and_native_helpers(self):
@@ -2599,6 +2601,7 @@ class CollectionReceiptTests(Temporary):
         collect,arguments,restarted,client=self.interrupted_then_restarted(lambda new,job:None)
         job=arguments[4];history=read(job/'history.json');history['prompt'][3]['headkitToken']='other-job';(job/'history.json').write_text(json.dumps(history))
         with patch.object(client,'request',restarted),self.assertRaisesRegex(ValueError,'does not belong to this job'):collect(*arguments)
+        self.assertEqual(read(arguments[1])['jobs'][0]['state'],'submitted');self.assertFalse((job/'collection.json').exists())
     def test_wrong_collection_folder_leaves_the_job_collectable(self):
         client,ledger,token,output,job,_=self.fixture(server_owned=True);wrong=job.parent/'mistyped-job'
         with self.assertRaisesRegex(ValueError,'Use the job directory given to submit'):comfy.collect(client,ledger,token,output,wrong)

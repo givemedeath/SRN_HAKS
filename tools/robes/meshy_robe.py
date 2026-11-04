@@ -168,6 +168,8 @@ class Session:
 
 def task_fields(response):
     result = response.get("result", response)
+    if not isinstance(result, dict):  # a bare task id, or null on a refused call
+        result = {"id": result} if isinstance(result, str) else {}
     task = result.get("task") or result.get("submission") or result
     identity = task.get("task_id") or task.get("id") or result.get("task_id")
     return {"id": identity, "status": task.get("status"), "credits": task.get("consumed_credits")}
@@ -179,16 +181,23 @@ def load_binding(binding_file):
     return {**json.loads(data.decode("utf-8-sig")), "bindingPin": binding_pin}
 
 
-def invoke(binding, arguments, folder):
+def launcher(binding, folder):
+    """Every local refusal before a call, so dispatch never holds a reservation for a job it could not send.
+    The command runs by its resolved absolute path, hashed before and after the call and recorded in the
+    receipt. The package cache and its transitive dependencies are not byte-pinned (npm resolves them)."""
     command = binding["command"]
     require(CLI_PACKAGE in command, "Pinned Meshy plugin CLI required")
-    # The command runs by its resolved absolute path, hashed before and after the call and recorded in the
-    # receipt. The package cache and its transitive dependencies are not byte-pinned (npm resolves them).
     executable = shutil.which(command[0])
     require(executable is not None, "Meshy CLI launcher not found: " + command[0])
-    executable_pin = pin(executable)
+    require(not Path(folder).exists(), "Fresh CLI operation folder required")
+    return pin(executable)
+
+
+def run_cli(binding, arguments, folder, executable_pin):
+    """(exit code, stdout path, what changed during the call or None). The caller decides what a change means,
+    because a paid submission has to be recorded first."""
+    command = binding["command"]
     folder = Path(folder)
-    require(not folder.exists(), "Fresh CLI operation folder required")
     folder.mkdir(parents=True)
     full = [executable_pin["path"], *command[1:], *arguments, "--output-schema", "v1", "--format", "json",
             "--no-update-check", "--workspace", binding["workspace"]]
@@ -205,8 +214,13 @@ def invoke(binding, arguments, folder):
                 "arguments": arguments, "exitCode": result.returncode, "executable": executable_pin,
                 "binding": binding.get("bindingPin"), "launchInputsChanged": changed,
                 "stdout": pin(folder / "stdout.json"), "stderr": pin(folder / "stderr.log")})
+    return result.returncode, folder / "stdout.json", changed
+
+
+def invoke(binding, arguments, folder):
+    code, response, changed = run_cli(binding, arguments, folder, launcher(binding, folder))
     require(changed is None, "CLI launcher or binding changed during the call: " + str(changed))
-    return result.returncode, folder / "stdout.json"
+    return code, response
 
 
 def _json(path):
@@ -228,13 +242,14 @@ def dispatch(session, request_file, binding_file, approval_file, folder):
             require(record.get("kind") == "srn-robe-reference-approval" and record.get("outfit") == request["outfit"]
                     and record.get("request", {}).get("sha256") == request_pin["sha256"]
                     and bool(record.get("userInstruction")), "Approval does not cover this exact request")
+        executable_pin = launcher(binding, folder)
         session.reserve(request, request_pin, approval)
-        code, response = invoke(binding, arguments, folder)
+        code, response, changed = run_cli(binding, arguments, folder, executable_pin)
         identity = task_fields(_json(response))["id"] if code == 0 else None
         require(code == 0 and identity, "Submission uncertain; reconcile CLI journal before any retry")
         try:  # an input replaced during upload means the paid task may not match the reserved hashes
             verify_pins([request_pin, *([approval] if approval else []), *request["inputs"]])
-            unchanged, problem = True, None
+            unchanged, problem = changed is None, changed
         except Exception as error:  # any failure here must not lose the paid task's record
             unchanged, problem = False, f"{type(error).__name__}: {error}"
         # The task is paid either way, so the submission is recorded before refusing to attribute it.

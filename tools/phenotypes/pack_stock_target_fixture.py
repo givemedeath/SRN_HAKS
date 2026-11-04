@@ -236,17 +236,18 @@ def pack(target_path, prepared_path, prepared_sha256, tools, game_root, output, 
     if shared_overlay:
         contract.require(stock and body is None and posture_roster is not None,
                          'Shared posture comparison requires stock body and an explicit roster')
+    erf = resolved_tool('nwn_erf',tools); gff = resolved_tool('nwn_gff',tools); resman = resolved_tool('nwn_resman_cat',tools)
     if posture_roster is not None:
         contract.require(stock and body is None and (overlay is None or shared_overlay),
                          'Posture roster requires a stock-body shared comparison')
-        roster = verified_posture_roster(posture_roster,target_path,prepared,module_source,resolved_tool('nwn_gff',tools))
+        roster = verified_posture_roster(posture_roster,target_path,prepared,module_source,gff)
     else:
         contract.require(prepared.get('postureRoster') is None,'Prepared posture roster must be explicitly supplied')
         roster = None
     if posture_roster is not None:
         contract.require(posture_stock_binding is not None, 'Posture roster requires an explicit installed stock binding')
         stock_basis = verified_posture_source(posture_stock_binding,target_path,prepared,source,
-            module_source,resolved_tool('nwn_gff',tools),game_root,transition_source_proof,transition_animation_authority,**({'animation_preparation':animation_preparation} if animation_preparation is not None else {}))
+            module_source,gff,game_root,transition_source_proof,transition_animation_authority,**({'animation_preparation':animation_preparation} if animation_preparation is not None else {}))
         stock_basis['frozenInputs'][str(prepared_path.resolve())] = prepared_sha256
     else:
         contract.require(posture_stock_binding is None and prepared.get('postureStockBinding') is None,
@@ -272,7 +273,6 @@ def pack(target_path, prepared_path, prepared_sha256, tools, game_root, output, 
     user = output/'userdir'; user_layout(user)
     name = prepared['moduleName']; module = user/'modules'/(name+'.mod'); shutil.copyfile(module_source,module)
     hak = user/'hak'/(name+'.hak')
-    erf = resolved_tool('nwn_erf',tools); gff = resolved_tool('nwn_gff',tools); resman = resolved_tool('nwn_resman_cat',tools)
     subprocess.run([str(erf),'-c','-f',str(hak),'-e','HAK',str(module_root/'hak-resources')],check=True,capture_output=True)
     compare_archive(archive(hak),module_root/'hak-resources')
     table_pins = prepared['stockTableBaselines']

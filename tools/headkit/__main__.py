@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import shutil
 import uuid
-from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,digest,stage_code_pins,stage_source_version,verification_pass
+from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,stage_code_pins,verification_pass
 from . import comfy
 
 
@@ -156,13 +156,10 @@ def launch_inputs(manifest_path, bindings_path, run=None, stages=None):
         from .runner import Runner;scoped=Runner(manifest_path,bindings_path,run)
         for stage,row in state['stages'].items():
             if closure is not None and stage not in closure:continue
-            # A receipt from other code, another manifest or other bindings (a repinned runtime), or one whose pins
-            # no longer hold, is rerun, as the runner does, not consumed; its old pins are not inputs.
+            # What the runner would rerun is not consumed, so its old pins are not inputs. KeyError: an older receipt.
             try:
-                receipt=read(row['path'])
-                if (receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage)
-                        or receipt.get('bindingsHash')!=digest(scoped.bindings)):stale.append(stage);continue
-                rows=[row,*receipt['inputs'],*receipt['outputs']];verify(rows)
+                scoped.result(stage,require_review=False)
+                receipt=read(row['path']);rows=[row,*receipt['inputs'],*receipt['outputs']]
             except (KeyError,OSError,ValueError):stale.append(stage);continue
             pins+=rows
             # The runner reuses a stage without its review, so a changed review drops only that pin.

@@ -88,6 +88,7 @@ def verify_blender_bootstrap(bootstrap, imported, launch, config, toolchain):
     require(imported['actuallyLoadedAddon'] == str(addon_root / 'neverblender/__init__.py')
             and imported['loadedAddonSha256'] == sha(imported['actuallyLoadedAddon']), 'Import addon origin differs')
     require('--factory-startup' in launch['command'] and '-b' in launch['command'], 'Isolated Blender startup command required')
+    return modules
 
 
 def finalize(config, verification_dir, output):
@@ -129,8 +130,8 @@ def finalize(config, verification_dir, output):
             and imported['sourceSha256'] == inputs['stockAscii']['sha256'], 'Declared stock import source differs')
     require(imported['importedMeshes'] and all(row['vertices'] > 0 and row['faces'] > 0
             for row in imported['importedMeshes']), 'No usable imported stock mesh')
-    verify_blender_bootstrap(read(root / 'blender-import-smoke/loaded-addons.json'), imported,
-                             reports['blenderImportLaunch'], config, toolchain)
+    modules = verify_blender_bootstrap(read(root / 'blender-import-smoke/loaded-addons.json'), imported,
+                                       reports['blenderImportLaunch'], config, toolchain)
     equipment = read(root / 'equipment-smoke/proof.json')
     inventory = read(inputs['equipmentInventory']['path'])
     fixture_declaration(inputs,equipment,inventory)
@@ -180,7 +181,7 @@ def finalize(config, verification_dir, output):
                    'sourceFileCount': len(toolchain['addons']['files']), 'actuallyLoadedModuleCount': len(modules)},
         'smokeChecks': {name: entry(path) for name, path in smoke_paths.items()}, 'frozenSmokeFiles': frozen_files,
         'smokeChecksPassed': True, 'launchHelpers': helpers,
-        'executedSmokeHelpers': {name: value for name, value in inputs['launchHelpers'].items() if Path(name).name not in core},
+        'executedSmokeHelpers': {name: value for name, value in inputs['launchHelpers'].items() if Path(name).name not in LAUNCH_HELPERS},
         'executedFinalizer': entry(Path(__file__).resolve()),
         'preservedHistoricalReceipts': inputs['preservedHistoricalReceipts'],
         'blenderSavedPreferencesBeforeAndAfter': saved, 'savedBlenderPreferencesModified': False,

@@ -86,18 +86,15 @@ def write(path, data, *, fresh=False):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(data, indent=2, sort_keys=True, allow_nan=False) + '\n'
-    if fresh:
-        with path.open('x', encoding='utf-8', newline='\n') as stream:
+    fd, temporary = tempfile.mkstemp(prefix=path.name + '.', dir=path.parent)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as stream:
             stream.write(text)
-    else:
-        fd, temporary = tempfile.mkstemp(prefix=path.name + '.', dir=path.parent)
-        try:
-            with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as stream:
-                stream.write(text)
-            os.replace(temporary, path)
-        finally:
-            if os.path.exists(temporary):
-                os.unlink(temporary)
+        # A kill leaves no partial file. A fresh file links, which unlike replace refuses an existing path.
+        (os.link if fresh else os.replace)(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def positive(value, name):

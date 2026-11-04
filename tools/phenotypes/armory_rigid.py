@@ -29,14 +29,19 @@ def profile_affine(transform):
     return rotation @ np.diag(scale), translation
 
 
+def near_identity(values, identity):
+    """Armory's skip test. It behaves as a float32 comparison, which puts the round 1.0001 and 0.9999 outside it."""
+    return np.max(np.abs(np.asarray(values, np.float32) - np.float32(identity))) < np.float32(1e-4)
+
+
 def armory_applied(transform):
     """The SRT pinned v1.3.4 actually applies: it skips a scale or translate whose components all lie within
     1e-4 of identity (measured 2026-10-27: translate 9.999e-5 and scale 1.00005 are dropped, 1e-4 and 1.0002
     applied). The baked output always uses the exact profile; this only models Armory's raw output."""
     applied = dict(transform)
-    if np.max(np.abs(np.asarray(transform['scale'], float) - 1)) < 1e-4:
+    if near_identity(transform['scale'], 1):
         applied['scale'] = [1., 1., 1.]
-    if np.max(np.abs(np.asarray(transform['translate'], float))) < 1e-4:
+    if near_identity(transform['translate'], 0):
         applied['translate'] = [0., 0., 0.]
     return applied
 
@@ -49,7 +54,10 @@ def fit_residuals(output):
         raise RuntimeError('Armory reported no vertex fit; degenerate source')
     if re.search(r'(?i)\b(?:nan|inf)\b', '\n'.join(lines)):
         raise RuntimeError('Armory fit is not finite')
-    return [float(value) for value in re.findall(r'max_residual\s*[=:]\s*([\d.eE+\-]+)', output)]
+    residuals = [float(value) for value in re.findall(r'max_residual\s*[=:]\s*([\d.eE+\-]+)', output)]
+    if not residuals:
+        raise RuntimeError('Armory printed no fit residual')
+    return residuals
 
 
 def rigid_frames(text):
@@ -175,7 +183,7 @@ def correct_rigid(source, target, transform):
             raise RuntimeError('Equipment authored normals appeared/disappeared: ' + key)
         normal_error = None
         if normals:
-            normal_error = error(arrays(dst[3], 'normals'), directions(normals, np.linalg.inv(linear).T), 'Armory normals')
+            normal_error = error(arrays(dst[3], 'normals'), directions(normals, np.linalg.inv(raw_linear).T), 'Armory normals')
             final_normals = directions(normals, np.linalg.inv(composite).T)
             body = replace_array(body, 'normals', final_normals)
         tangents = arrays(src[3], 'tangents')
@@ -185,7 +193,7 @@ def correct_rigid(source, target, transform):
             tangent_values = np.asarray(tangents, float)
             if tangent_values.ndim != 2 or tangent_values.shape[1] != 4:
                 raise RuntimeError('Equipment tangents must contain XYZ and handedness')
-            raw = np.c_[directions(tangent_values[:, :3], np.linalg.inv(linear).T), tangent_values[:, 3]]
+            raw = np.c_[directions(tangent_values[:, :3], np.linalg.inv(raw_linear).T), tangent_values[:, 3]]
             error(arrays(dst[3], 'tangents'), raw, 'Armory tangents')
             final_tangents = directions(tangent_values[:, :3], composite)
             if normals:

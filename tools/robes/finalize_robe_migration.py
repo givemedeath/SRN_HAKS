@@ -61,7 +61,7 @@ def finalize(config, directory, output):
                "toolchainInitialSnapshot": inputs["toolchainInitialSnapshot"], "activeWorktree": str(active),
                "verificationInputs": pin(root / "input-pins.json"), "launchHelpers": helpers,
                "executedSmokeHelpers": {name: value for name, value in inputs["launchHelpers"].items()
-                                        if Path(name).name not in CORE},
+                                        if Path(name).name not in LAUNCH_HELPERS},
                "smokeLaunches": {"python": python["exitCode"], "extraction": extraction["exitCode"],
                                  "blender": blender["exitCode"]},
                "versions": {"python": smoke["version"], "numpy": smoke["numpy"], "pillow": smoke["pillow"],
