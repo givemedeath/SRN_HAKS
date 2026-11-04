@@ -125,6 +125,12 @@ foreach ($name in $registeredNames) {
                     Add-ValidationError "SET boolean field '$($Matches[1])' must be 0 or 1 at '$relativeFile`:$setLineNumber'; found '$($Matches[2])'."
                 }
             }
+            $setText = [System.Text.Encoding]::GetEncoding(28591).GetString([System.IO.File]::ReadAllBytes($file.FullName))
+            $loneLineFeed = [regex]::Match($setText, '(?<!\r)\n')
+            if ($loneLineFeed.Success) {
+                $setLineNumber = $setText.Substring(0, $loneLineFeed.Index).Split("`n").Count
+                Add-ValidationError "SET resource '$relativeFile`:$setLineNumber' has a lone LF; SET files must use CRLF."
+            }
         }
     }
 }
