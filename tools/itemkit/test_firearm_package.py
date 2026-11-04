@@ -9,7 +9,8 @@ import numpy as np
 from PIL import Image
 
 from tools.headkit.common import pin, read, write
-from .__main__ import intake
+from . import __main__ as cli
+from .__main__ import firearm_compile_tools, intake
 from .contracts import family, manifest
 from .firearm_native import placeholder_geometry, audit_blueprint_roundtrip
 from . import firearm_package
@@ -46,16 +47,43 @@ class FirearmPackageTests(unittest.TestCase):
         compiler={'blender':pin(executable),'neverblender':{'path':str(addon)},
                   'files':{'__init__.py':pin(module)['sha256']},'sha256':'a'*64}
         with patch.object(firearm_package,'compile_offline',side_effect=ValueError('frozen compiler rejected')) as offline, \
-             patch.object(firearm_package.subprocess,'run') as process:
+             patch('tools.itemkit.native.subprocess.run') as process:
             with self.assertRaisesRegex(ValueError,'frozen compiler rejected'):
                 firearm_package.compile_package(self.output,None,self.root/'native',compiler=compiler)
             offline.assert_called_once();process.assert_not_called()
         self.assertFalse((self.root/'native/compiler-userdir').exists())
 
+    def test_offline_compile_does_not_need_a_client_binding(self):
+        compiler=self.root/'compiler.json';write(compiler,{'sha256':'frozen'})
+        with patch.object(cli,'bindings',return_value={}):
+            self.assertEqual(firearm_compile_tools(self.root/'local.json',compiler),(None,{'sha256':'frozen'}))
+        with patch.object(cli,'bindings',return_value={'client':'bound'}):
+            self.assertEqual(firearm_compile_tools(self.root/'local.json',None),('bound',None))
+
+    def test_melee_package_can_use_the_offline_compiler(self):
+        from tools.itemkit import native
+        prepared=self.root/'melee';(prepared/'resources').mkdir(parents=True)
+        write(prepared/'prepared.json',{'inputs':[],'outputs':[],'expected':{},'allocation':{'models':{}},'baseItem':63})
+        with patch.object(native,'offline_compiler_inputs',return_value=[]), patch.object(native,'compile_offline') as offline, \
+             patch('tools.itemkit.native.subprocess.run') as process:
+            result=native.compile_package(prepared,None,self.root/'melee-native',compiler={'sha256':'frozen'})
+        offline.assert_called_once();process.assert_not_called()
+        self.assertEqual(result['compilationBackend'],'neverblender-cleanmodels')
+
+    def test_skinned_package_without_compiler_stops_before_output(self):
+        self.prepare()
+        prepared=read(self.output/'prepared.json')
+        with patch.object(firearm_package,'read',return_value={**prepared,'skin':{'rig':'rig'}}), \
+             patch('tools.itemkit.native.subprocess.run') as process:
+            with self.assertRaisesRegex(ValueError,'qualified offline compiler'):
+                firearm_package.compile_package(self.output,pin(self.table),self.root/'native')
+            process.assert_not_called()
+        self.assertFalse((self.root/'native').exists())
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        self.profile = self.root/'profile.json'; write(self.profile, {})
+        self.profile = self.root/'profile.json'; write(self.profile, {'family':'firearm-sling'})
         self.table = self.root/'baseitems.2da'
         self.table.write_text('2DA V2.0\n\nlabel ItemClass ModelType MinRange MaxRange InvSlotWidth InvSlotHeight\n'
                               '61 sling WBwSl 0 0 50 1 2\n')

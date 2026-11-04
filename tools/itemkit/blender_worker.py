@@ -14,12 +14,14 @@ from mathutils import Matrix, Vector
 from mathutils.bvhtree import BVHTree
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from tools.headkit.common import pin, require, verify, write,digest
+from tools.headkit.common import pin, read, require, verify, write,digest
 from tools.headkit.gltf import load as load_glb
 from tools.headkit.uv import raster_audit, gutter_audit
-from tools.itemkit.geometry import similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
+from tools.itemkit.geometry import corner_hash, similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
 from tools.itemkit.transfer import finished_colour,validate_texture_patch
 from tools.itemkit.parts import active_parts, active_icon_dimensions, fitting_parts, grip_render_part, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
+from tools.itemkit.reduction import rims
+from tools.itemkit.routes import ROUTES
 
 def arrays(obj):
     mesh = obj.data; mesh.calc_loop_triangles()
@@ -191,17 +193,20 @@ def measure(objects, config, kind='visible'):
         from tools.itemkit.preflight import geometry_report
         v, f = arrays(obj); early = geometry_report(v, f, {})
         reports[part] = early['topology']; counts[part] = len(f)
-        reports[part]['totalGenus'] = early['totalGenus']
         reports[part]['shadowRecommendation'] = early['shadowRecommendation']
         require(reports[part]['closedWound'], 'Repair/classify nonclosed or inconsistently wound part: '+part+' '+json.dumps(reports[part]))
     v, f = combined(objects)
     report = protected_checks(v, f, config['processing'])
-    report['geometryCornerHash']=hashlib.sha256(np.asarray(v[f],dtype='<f8').tobytes()).hexdigest()
+    report['geometryCornerHash']=corner_hash(v[f])
     expected=config['processing'].get('missCorrection',{}).get('unorientedSourcePatch',{}).get('targetCornerHash')
-    if kind!='shadow' and expected:require(report['geometryCornerHash']==expected,'Visible assembly differs from the exact reviewed texture-patch geometry')
+    if kind=='visible' and expected:require(report['geometryCornerHash']==expected,'Visible assembly differs from the exact reviewed texture-patch geometry')
     report['topology'] = reports
     if kind: report['budget'] = assembly_budget(config['family'], counts, kind)
     return report
+
+
+# The glTF importer maps (x,y,z) to (x,-z,y); fitMatrix acts on the imported coordinates.
+RAW_GLTF_TO_BLENDER = np.array([[1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1]], float)
 
 
 def fit(cfg, out):
@@ -209,16 +214,14 @@ def fit(cfg, out):
     # Measure the retained working mesh before transformation. Re-importing a
     # dense donor solely to measure it duplicates geometry and image residency.
     working = import_source(cfg['workingSource'], 'working-source') if cfg.get('workingSource') else donor
-    if cfg['family']['family'] == 'crossbow':
+    if ROUTES[cfg['family']['family']].adapter == 'whole-skinned':
         require(pin(cfg.get('workingSource',cfg['source']))['sha256'] == cfg['family']['native']['motion']['working']['sha256'],
                 'Crossbow fit source differs from its qualified moving mesh')
-    if cfg['family']['family'] in WHOLE_NATIVE_FAMILIES:
-        require(cfg.get('gripStandard'), 'Whole-firearm fitting requires the approved measured grip standard')
     matrix = similarity_matrix(cfg['fit'], pin(cfg['source'])['sha256'])
     grip_report = None
     if cfg.get('gripStandard'):
-        from tools.itemkit.grip import calibration
-        standard=json.loads(Path(cfg['gripStandard']).read_text())
+        from tools.itemkit.grip import GripDeparture, calibration, two_hand_uniform
+        standard=read(cfg['gripStandard'])
         thickness_fit = (cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
                          and cfg['fit'].get('sizingAuthority')=='midpoint-depth')
         two_hand_fit = cfg['fit'].get('sizingAuthority')=='midpoint-depth-two-hand'
@@ -230,19 +233,19 @@ def fit(cfg, out):
             require(abs(cfg['family']['native']['gripLength']-standard['usableLength'])<1e-9,
                     'Native target length differs from the approved grip standard')
         mv,mf=arrays(working)
-        if cfg['family']['family'] in WHOLE_NATIVE_FAMILIES:
-            from tools.itemkit.firearm_grip import measured_fit, GripDeparture
-            try:
+        try:
+            if cfg['family']['family'] in WHOLE_NATIVE_FAMILIES:
+                from tools.itemkit.firearm_grip import measured_fit
                 matrix,grip_report=measured_fit(mv,mf,cfg['fit'],pin(cfg['source'])['sha256'],
                     pin(cfg.get('workingSource',cfg['source']))['sha256'],standard,cfg['family']['native']['gripOrigin'])
-            except GripDeparture as exc:
-                write(out/'grip-measurement.json',exc.report,fresh=True)
-                raise
-        elif two_hand_fit:
-            from tools.itemkit.grip import two_hand_uniform
-            matrix,grip_report=two_hand_uniform(mv,mf,matrix,cfg['fit']['gripEndpoints'],cfg['family']['native']['gripOrigin'],standard)
-        else:
-            matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
+            elif two_hand_fit:
+                matrix,grip_report=two_hand_uniform(mv,mf,matrix,cfg['fit']['gripEndpoints'],cfg['family']['native']['gripOrigin'],
+                                                    standard,cfg['fit'].get('gripDeparture'))
+            else:
+                matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
+        except GripDeparture as exc:
+            write(out/'grip-measurement.json',exc.report,fresh=True)
+            raise
     donor_fit = apply_fit(donor, matrix, out/'donor-fit-normals.npz')
     if working != donor:
         working_fit = apply_fit(working, matrix, out/'working-fit-normals.npz')
@@ -265,11 +268,20 @@ def fit(cfg, out):
     donor.hide_render = True; donor.hide_set(True)
     if working != donor: working.hide_render = True; working.hide_set(True)
     report = measure(objects, cfg, kind=None)
-    report.update(fitMatrix=matrix.tolist(), gripLength=length, donorAndTargetTransformIdentical=True)
+    report.update(fitMatrix=matrix.tolist(), gripLength=length, donorAndTargetTransformIdentical=True,
+                  rawToNativeMatrix=(np.asarray(matrix,float)@RAW_GLTF_TO_BLENDER).tolist())
     report['affineApplication'] = {'donor': donor_fit, 'working': working_fit if working != donor else donor_fit}
     if grip_report is not None: report['gripCalibration']=grip_report
     bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'))
     return report
+
+
+def swap_mesh(obj, name, positions, faces, smooth=False):
+    mesh=bpy.data.meshes.new(name);mesh.from_pydata(positions.tolist(),[],faces.tolist());mesh.update()
+    if smooth:
+        for polygon in mesh.polygons:polygon.use_smooth=True
+        mesh.use_auto_smooth=True
+    obj.data=mesh;obj.matrix_world=Matrix.Identity(4)
 
 
 def reduce(cfg, out, shadow=False):
@@ -284,16 +296,15 @@ def reduce(cfg, out, shadow=False):
             from tools.itemkit.reduction import validate,policy
             source_p,source_f=arrays(obj);budget=cfg['family']['budgets']['parts'][part]['visible']
             require(candidate['arrays'] in cfg['inputs'],'Declare the constrained visible candidate')
-            require(candidate['sourceCornerHash']==hashlib.sha256(np.asarray(source_p[source_f],dtype='<f8').tobytes()).hexdigest()
+            require(candidate['sourceCornerHash']==corner_hash(source_p[source_f])
                     and candidate['policyHash']==policy(budget,cfg['processing'].get('joinY',[])),
                     'Constrained candidate source or policy changed')
             verify([candidate['arrays']])
             with np.load(candidate['arrays']['path'],allow_pickle=False) as data:cp,cf=data['positions'],data['faces']
-            validate(source_p,cp,cf,budget,cfg['processing'].get('joinY',[]))
-            mesh=bpy.data.meshes.new('constrained-visible-'+part);mesh.from_pydata(cp.tolist(),[],cf.tolist());mesh.update()
-            for polygon in mesh.polygons:polygon.use_smooth=True
-            mesh.use_auto_smooth=True
-            obj.data=mesh;obj.matrix_world=Matrix.Identity(4)
+            tree=BVHTree.FromPolygons([Vector(row) for row in source_p],source_f.tolist(),all_triangles=True)
+            validate(source_p,source_f,cp,cf,budget,cfg['processing'].get('joinY',[]),
+                     lambda points:[(Vector(point)-tree.find_nearest(Vector(point))[0]).length for point in points])
+            swap_mesh(obj,'constrained-visible-'+part,cp,cf,smooth=True)
         proxy = cfg['processing'].get('shadowProxies', {}).get(part)
         if shadow and proxy:
             require(proxy.get('method') == 'projected-silhouette', 'Unknown shadow proxy method')
@@ -301,28 +312,25 @@ def reduce(cfg, out, shadow=False):
             candidate=cfg.get('shadowCandidates',{}).get(part)
             require(candidate is not None and candidate['arrays'] in cfg['inputs'], 'Declare the checked CPU shadow candidate')
             verify([candidate['arrays']])
-            require(candidate['sourceCornerHash']==hashlib.sha256(np.asarray(source_p[source_f],dtype='<f8').tobytes()).hexdigest(), 'Shadow candidate source changed')
+            require(candidate['sourceCornerHash']==corner_hash(source_p[source_f]), 'Shadow candidate source changed')
             policy={'settings':proxy,'openingProbes':cfg['processing'].get('openingProbes',[]),
                     'budget':cfg['family']['budgets']['parts'][part]['shadow']}
-            if cfg['processing'].get('thicknessProbes'):policy['thicknessProbes']=cfg['processing']['thicknessProbes']
+            thickness=[row for row in cfg['processing'].get('thicknessProbes',[]) if part in row.get('parts',[part])]
+            if thickness:policy['thicknessProbes']=thickness
             require(candidate['policyHash']==digest(policy), 'Shadow candidate policy changed')
             with np.load(candidate['arrays']['path'],allow_pickle=False) as data:proxy_p=data['positions'];proxy_f=data['faces']
             proxy_reports[part]=candidate['checks']
             require(len(proxy_f)<=cfg['family']['budgets']['parts'][part]['shadow'] and topology(proxy_p,proxy_f)['closedWound'], 'Invalid CPU shadow candidate')
-            mesh=bpy.data.meshes.new('measured-shadow-'+part);mesh.from_pydata(proxy_p.tolist(),[],proxy_f.tolist());mesh.update()
-            obj.data=mesh;obj.matrix_world=Matrix.Identity(4)
+            swap_mesh(obj,'measured-shadow-'+part,proxy_p,proxy_f)
         if shadow and not proxy and part=='b' and cfg['processing'].get('shadowPommel',{}).get('method')=='projected-loop':
             source_p,source_f=arrays(obj);settings=cfg['processing']['shadowPommel']
             probe=next(r for r in cfg['processing']['openingProbes'] if r['name']==settings['centreProbe'])
             proxy_p,proxy_f,pommel_construction=loop_shadow_proxy(source_p,source_f,probe)
-            mesh=bpy.data.meshes.new('closed-pommel-loop-shadow');mesh.from_pydata(proxy_p.tolist(),[],proxy_f.tolist());mesh.update()
-            obj.data=mesh;obj.matrix_world=Matrix.Identity(4)
+            swap_mesh(obj,'closed-pommel-loop-shadow',proxy_p,proxy_f)
         seam_welds[part] = weld_exact_object(obj)
-        before_vertices, _ = arrays(obj)
-        seam_before = [np.unique(before_vertices[np.abs(before_vertices[:, 1]-y) < 1e-7], axis=0)
-                       for y in cfg['processing'].get('joinY', [])]
+        before_vertices, faces = arrays(obj)
+        joins = cfg['processing'].get('joinY', []); seam_before = rims(before_vertices, joins)
         budget = cfg['family']['budgets']['parts'][part]['shadow' if shadow else 'visible']
-        _, faces = arrays(obj)
         if len(faces) > budget:
             modifier = obj.modifiers.new('Measured reduction', 'DECIMATE')
             modifier.decimate_type = 'COLLAPSE'; modifier.ratio = max(4, budget-4)/len(faces)
@@ -332,9 +340,7 @@ def reduce(cfg, out, shadow=False):
         bmesh.ops.triangulate(mesh, faces=list(mesh.faces))
         mesh.to_mesh(obj.data); mesh.free()
         if not shadow:
-            after_vertices, _ = arrays(obj)
-            for y, before in zip(cfg['processing'].get('joinY', []), seam_before):
-                after = np.unique(after_vertices[np.abs(after_vertices[:, 1]-y) < 1e-7], axis=0)
+            for before, after in zip(seam_before, rims(arrays(obj)[0], joins)):
                 require(before.shape == after.shape and np.allclose(before, after, atol=2e-6, rtol=0),
                         'Reduction changed a mating contour; use a constrained repair before retrying')
         objects.append(obj)
@@ -388,6 +394,7 @@ def unwrap(cfg, out):
         require(all(np.array_equal(old,corners(obj)) for old,obj in zip(before,objects)),'Atlas application changed final geometry')
         bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'))
         return {'atlas':pin(cfg['atlas']),'geometryUnchanged':True}
+    # Runner always supplies an atlas; only smoke_blender.py reaches this fallback.
     set_active(objects); bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=cfg['processing']['uvMargin'])
     bpy.ops.uv.pack_islands(rotate=True, margin=cfg['processing']['uvMargin'])
@@ -502,7 +509,7 @@ def transfer_preflight(cfg, out, donor, low):
     dp,df=arrays(donor);tree=BVHTree.FromPolygons([Vector(row) for row in dp],df.tolist(),all_triangles=True)
     policy=cfg['processing'].get('missCorrection',{})
     maximum=policy.get('maximumDistance',.003);alignment=policy.get('minimumNormalAlignment',.5)
-    require(0<maximum<=.003 and 0<alignment<=1, 'Bounded preflight donor policy required')
+    require(0<maximum<=.003 and .5<=alignment<=1, 'Bounded preflight donor policy required')
     patch=policy.get('unorientedSourcePatch');allowed=set()
     if patch:
         allowed=validate_texture_patch(p[f],patch,maximum_distance=min(maximum,policy.get('maximumUnorientedDistance',.0021)))
@@ -640,7 +647,7 @@ def recover_bake(cfg,out):
     from tools.itemkit.recovery import recovery_inputs,validate_pixels,successful_pixel_hash
     from tools.itemkit.preflight import target_hash
     proof_path=cfg['recoveryProof'];require(pin(proof_path) in cfg['inputs'],'Declare the recovery proof')
-    proof=json.loads(Path(proof_path).read_text(encoding='utf-8-sig'))
+    proof=read(proof_path)
     inputs=recovery_inputs(proof)
     require(all(row in cfg['inputs'] for row in inputs),'Declare all recovery artifacts and external images')
     require(pin(cfg['scene'])==proof['sourceScene'], 'Recovery source scene differs')
@@ -673,8 +680,8 @@ def recover_bake(cfg,out):
 def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
     policy=cfg['processing'].get('missCorrection',{})
     require(policy.get('method')=='nearest-finished-donor','Visible bake misses require an explicit bounded donor correction; padding cannot repair them')
-    maximum=policy['maximumDistance'];alignment=policy['minimumNormalAlignment']
-    require(0<maximum<=.003 and 0<alignment<=1,'Bounded outward donor transfer required')
+    maximum=policy.get('maximumDistance',.003);alignment=policy.get('minimumNormalAlignment',.5)
+    require(0<maximum<=.003 and .5<=alignment<=1,'Bounded outward donor transfer required')
     y,x=np.nonzero(misses);ids=owners[y,x];size=len(owners);uv=uv_corners(low)[ids]
     p,f=arrays(low);tri=p[f[ids]];ab=uv[:,1]-uv[:,0];ac=uv[:,2]-uv[:,0];q=np.c_[(x+.5)/size,(y+.5)/size]-uv[:,0]
     det=ab[:,0]*ac[:,1]-ab[:,1]*ac[:,0];u=(q[:,0]*ac[:,1]-q[:,1]*ac[:,0])/det;v=(ab[:,0]*q[:,1]-ab[:,1]*q[:,0])/det
@@ -683,9 +690,7 @@ def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
     dp,df=arrays(donor);bvh=BVHTree.FromPolygons([Vector(row) for row in dp],df.tolist(),all_triangles=True)
     patch=policy.get('unorientedSourcePatch');patch_faces=set()
     if patch:
-        patch_bound=policy.get('maximumUnorientedDistance',.0021)
-        require(patch_bound<=maximum,'Texture patch qualification exceeds this transfer distance')
-        patch_faces=validate_texture_patch(p[f],patch,maximum_distance=patch_bound)
+        patch_faces=validate_texture_patch(p[f],patch,maximum_distance=min(maximum,policy.get('maximumUnorientedDistance',.0021)))
     locations=[];sources=[];distances=[];dots=[];unoriented=[];failed_faces=[]
     for face,point,normal in zip(ids,points,normals):
         candidates=[row for row in bvh.find_nearest_range(Vector(point),maximum) if np.dot(row[1],normal)>=alignment]
@@ -878,7 +883,7 @@ def render_finish_variants(cfg, out):
 
 def main():
     parser = argparse.ArgumentParser(); parser.add_argument('--config', required=True)
-    args = parser.parse_args(sys.argv[sys.argv.index('--')+1:]); cfg = json.loads(Path(args.config).read_text())
+    args = parser.parse_args(sys.argv[sys.argv.index('--')+1:]); cfg = read(args.config)
     verify(cfg['inputs']); output = Path(cfg['output']); output.mkdir(parents=True, exist_ok=False)
     started = time.monotonic()
     actions = {'fit': fit, 'reduce': reduce, 'uv-arrays': uv_arrays, 'unwrap': unwrap, 'finish': finish, 'bake': bake,

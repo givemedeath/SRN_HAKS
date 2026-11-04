@@ -1,26 +1,10 @@
 """Focused invariants for additive one-handed firearm motion."""
 import unittest
 import numpy as np
-from tools.itemkit.onehand_fire_motion import rotation_between, fitted_frame, alias_weapon_clips
+from tools.itemkit.onehand_fire_motion import rotation_between, fitted_frame
 
 
 class MotionRotationTests(unittest.TestCase):
-    def test_weapon_alias_retains_stock_clip_and_payload(self):
-        prefix = 'newmodel bow\nbeginmodelgeom bow\nendmodelgeom bow\n'
-        clip = 'newanim bowshot bow\n  length 1\n  transtime 0.25\n  event 0.5 hit\n  node dummy drawdummy\n    positionkey 2\n      0 0 0 0.1\n      0.5 0 0 0.8\n  endnode\ndoneanim bowshot bow'
-        text = prefix+clip+'\ndonemodel bow\n'
-        result = alias_weapon_clips(text, {'bowshot': 'srbowfire'})
-        self.assertTrue(result.startswith(prefix+clip+'\n'))
-        self.assertIn(clip.replace('anim bowshot bow', 'anim srbowfire bow'), result)
-        self.assertTrue(result.endswith('donemodel bow\n'))
-        windows = text.replace('\n', '\r\n')
-        self.assertTrue(alias_weapon_clips(windows, {'bowshot': 'srbowfire'}).startswith(
-            (prefix+clip+'\n').replace('\n', '\r\n')))
-        with self.assertRaises(ValueError):
-            alias_weapon_clips(result, {'bowshot': 'srbowfire'})
-        with self.assertRaises(ValueError):
-            alias_weapon_clips(text, {'xbowshot': 'srcbfire'})
-
     def test_receiver_top_is_not_weapon_width(self):
         # Independent source landmarks under the actual Ingram fit: muzzle -X,
         # receiver top +Z, width +Y. This catches the previous 90-degree roll.

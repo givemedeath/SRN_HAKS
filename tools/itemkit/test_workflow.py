@@ -1,6 +1,10 @@
 """Dagger identity, operation-local verification and calibrated grip regressions."""
 from pathlib import Path
+import os
+import subprocess
+import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 import numpy as np
@@ -25,12 +29,9 @@ class VerificationTests(unittest.TestCase):
                     'codeVersion':'version','inputs':[],'outputs':[],'dependencies':{k:r.state['stages'][k] for k in parents},'result':result})
                 r.state['stages'][stage]=pin(p);q=root/(stage+'-review.json')
                 write(q,{'stageReceipt':pin(p),'decision':'approved'});r.state['reviews'][stage]=pin(q)
-            with patch('tools.itemkit.runner.source_version',return_value='version') as version, patch.object(r,'worker',return_value={}) as worker:
-                r._execute('render',root)
-                self.assertEqual(version.call_count,1)
-                worker.assert_called_once_with('render',root,scene='scene',texture='texture')
-            with patch.object(r,'result',side_effect=AssertionError('Repeated dependency validation')), patch.object(r,'worker',return_value={}):
+            with patch.object(r,'result',side_effect=AssertionError('Repeated dependency validation')), patch.object(r,'worker',return_value={}) as worker:
                 r._execute('render',root,parent_results={'shadow':{'scene':{'path':'scene'}},'bake':{'maps':{'1024':{'path':'texture'}}}})
+                worker.assert_called_once_with('render',root,scene='scene',texture='texture')
 
     def test_hash_once_conflict_and_fresh_pass(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -39,6 +40,36 @@ class VerificationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Conflicting'):a.verify([{**row,'sha256':'0'*64}])
             p.write_bytes(b'xyz')
             with self.assertRaisesRegex(ValueError,'Stale'):VerificationPass().verify([row])
+
+    def test_constrained_candidates_bind_their_source_and_policy(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);p=np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1]],float);f=np.array([[0,2,1],[0,1,3],[1,2,3],[2,0,3]])
+            arrays=root/'source.npz';np.savez(arrays,whole_positions=p,whole_faces=f)
+            r=Runner.__new__(Runner);r.local={};r.data={'processing':{'joinY':[-1.,2.]}}
+            r.family={'family':'catalog-object','budgets':{'parts':{'whole':{'visible':4}}}}
+            with patch('tools.itemkit.parts.active_parts',return_value=('whole',)), patch('tools.itemkit.runner.library') as library, \
+                 patch.object(r,'worker',return_value={'arrays':pin(arrays)}):
+                library.return_value.point_mesh_squared_distance.return_value=(np.zeros(4),None,None)
+                candidate=r.constrained_candidates('scene',root)['whole']
+            self.assertEqual(candidate['policyHash'],digest({'budget':4,'joinY':[-1.,2.],'maximumSourceDistance':.003}))
+            with np.load(candidate['arrays']['path']) as data:np.testing.assert_array_equal(data['faces'],f)
+
+    def test_caught_stale_pin_does_not_poison_the_current_pin(self):
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/'data';p.write_bytes(b'abc');old=pin(p);p.write_bytes(b'xyz');audit=VerificationPass()
+            with self.assertRaisesRegex(ValueError,'Stale'):audit.verify([old])
+            audit.verify([pin(p)])
+
+    @unittest.skipUnless(os.name=='nt','Windows process tree')
+    def test_timeout_stops_the_launched_child_and_keeps_the_log(self):
+        from tools.itemkit.runner import run_logged
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);marker=root/'marker';log=root/'blender.log'
+            child=f"import pathlib,time;time.sleep(3);pathlib.Path({str(marker)!r}).write_text('late')"
+            parent=f"import subprocess,sys;subprocess.run([sys.executable,'-B','-c',{child!r}])"
+            with self.assertRaises(subprocess.TimeoutExpired):
+                run_logged([sys.executable,'-B','-c',parent],log,1)
+            self.assertTrue(log.exists());time.sleep(3.5);self.assertFalse(marker.exists())
 
     def test_new_pass_rereads_same_size_rewrite_with_restored_timestamp(self):
         import os
@@ -67,6 +98,16 @@ class VerificationTests(unittest.TestCase):
 
 
 class DaggerTests(Fixture):
+    def test_new_design_never_inherits_a_shipped_cougar_identity(self):
+        for name,family_name in (('other-knife','dagger'),('other-sword','longsword'),('other-blade','shortsword')):
+            intake(self.root/'reference.png',self.root/name,name,family_name)
+            names=read(self.root/name/'family.json')['resources']
+            self.assertEqual(len(set(names.values())),4)
+            self.assertNotIn('Cougar',names['displayName'])
+            self.assertTrue(all(len(value)<=16 for key,value in names.items() if key!='displayName'))
+        kept=self.root/'knife';intake(self.root/'reference.png',kept,'cougar-fineblade-knife','dagger')
+        self.assertEqual(read(kept/'family.json')['resources']['blueprint'],'sr_cfk')
+
     def test_longsword_intake_contract_and_comparison_scope(self):
         intake(self.root/'reference.png',self.root/'long','cougar-fineblade-longsword','longsword')
         profile=read(self.root/'long/family.json')

@@ -96,6 +96,8 @@ def main():
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     argv=args.arguments[1:] if args.arguments[:1]==['--'] else args.arguments
     env=os.environ.copy();env['SRN_SHARED_TOOLCHAIN']=str(config)
+    # Children resolving shared tools must use this launch's bank, not the default one.
+    if data.get('toolsRoot'):env['SRN_TOOLS_ROOT']=str(data['toolsRoot'])
     env['PYTHONUTF8']='1';env['PYTHONIOENCODING']='utf-8';env['PYTHONDONTWRITEBYTECODE']='1'
     env['SRN_SHARED_ADDON_BOOTSTRAP_RECEIPT']=str(output/'loaded-addons.json')
     if migration:env['SRN_SHARED_TOOL_MIGRATION']=str(migration)

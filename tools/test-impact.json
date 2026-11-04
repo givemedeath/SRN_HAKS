@@ -704,9 +704,11 @@
       "tools/itemkit/firearm_package.py",
       "tools/itemkit/fixture.py",
       "tools/itemkit/generation.py",
+      "tools/itemkit/native.py",
       "tools/itemkit/profiles/cougar-shortsword.json",
       "tools/itemkit/resize.py",
-      "tools/itemkit/runner.py"
+      "tools/itemkit/runner.py",
+      "tools/itemkit/shield_native.py"
     ],
     "tools/itemkit/atlas.py": [
       "tools/headkit/common.py",
@@ -725,10 +727,13 @@
       "tools/itemkit/recovery.py",
       "tools/itemkit/reduction.py",
       "tools/itemkit/review.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/transfer.py"
     ],
     "tools/itemkit/client_fixture_repair.py": [
-      "tools/phenotypes/target_fixture.py"
+      "tools/headkit/common.py",
+      "tools/phenotypes/target_fixture.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/conditioning.py": [
       "tools/headkit/common.py",
@@ -740,6 +745,7 @@
       "tools/itemkit/firearms.py",
       "tools/itemkit/native_stack.py",
       "tools/itemkit/parts.py",
+      "tools/itemkit/routes.py",
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/rig_native.py"
     ],
@@ -768,6 +774,7 @@
       "tools/itemkit/firearms.py",
       "tools/itemkit/fixture.py",
       "tools/itemkit/geometry.py",
+      "tools/itemkit/native.py",
       "tools/phenomorpher/phenomorpher/engine/stock_armor.py"
     ],
     "tools/itemkit/firearm_package.py": [
@@ -776,11 +783,10 @@
       "tools/itemkit/firearm_native.py",
       "tools/itemkit/firearms.py",
       "tools/itemkit/native.py",
-      "tools/itemkit/native_stack.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/skinned_native.py",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
-      "tools/phenotypes/native_compile.py",
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/firearms.py": [
@@ -792,6 +798,7 @@
       "tools/itemkit/contracts.py",
       "tools/itemkit/firearms.py",
       "tools/itemkit/native.py",
+      "tools/itemkit/routes.py",
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/generation.py": [
@@ -806,13 +813,15 @@
       "tools/headkit/common.py"
     ],
     "tools/itemkit/grip.py": [
-      "tools/headkit/common.py"
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py"
     ],
     "tools/itemkit/native.py": [
       "tools/headkit/common.py",
       "tools/headkit/native_reader.py",
       "tools/heads/verify_head_hak.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_native.py",
       "tools/itemkit/geometry.py",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
@@ -828,9 +837,9 @@
     ],
     "tools/itemkit/parts.py": [
       "tools/headkit/common.py",
-      "tools/itemkit/contracts.py",
       "tools/itemkit/firearms.py",
-      "tools/itemkit/geometry.py"
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/routes.py"
     ],
     "tools/itemkit/preflight.py": [
       "tools/headkit/common.py",
@@ -855,6 +864,7 @@
       "tools/headkit/common.py",
       "tools/itemkit/blender_worker.py"
     ],
+    "tools/itemkit/routes.py": [],
     "tools/itemkit/run_itemkit.py": [
       "tools/itemkit/__main__.py"
     ],
@@ -865,8 +875,11 @@
       "tools/itemkit/contracts.py",
       "tools/itemkit/donor.py",
       "tools/itemkit/fixture.py",
+      "tools/itemkit/geometry.py",
       "tools/itemkit/native.py",
       "tools/itemkit/parts.py",
+      "tools/itemkit/reduction.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/shadow.py",
       "tools/itemkit/textures.py",
       "tools/itemkit/verification.py",
@@ -880,8 +893,6 @@
     "tools/itemkit/shield_native.py": [
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py",
-      "tools/itemkit/firearm_native.py",
-      "tools/itemkit/firearm_package.py",
       "tools/itemkit/fixture.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/native.py",
@@ -966,6 +977,7 @@
     ],
     "tools/itemkit/test_firearm_package.py": [
       "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
       "tools/itemkit/__main__.py",
       "tools/itemkit/contracts.py",
       "tools/itemkit/firearm_native.py",
@@ -995,6 +1007,7 @@
       "docs/items/weapon-grip-standard-v1.json",
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_grip.py",
       "tools/itemkit/firearm_native.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/native.py",
@@ -1007,12 +1020,12 @@
       "tools/itemkit/__main__.py",
       "tools/itemkit/atlas.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/examples/firearm-sling-blocked.json",
       "tools/itemkit/fixture.py",
       "tools/itemkit/generation.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/native.py",
       "tools/itemkit/profiles/cougar-shortsword.json",
-      "tools/itemkit/profiles/firearm-sling.json",
       "tools/itemkit/runner.py",
       "tools/itemkit/textures.py",
       "tools/itemkit/transfer.py"
@@ -1050,6 +1063,12 @@
       "tools/itemkit/parts.py",
       "tools/itemkit/runner.py",
       "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_routes.py": [
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/routes.py"
     ],
     "tools/itemkit/test_shadow.py": [
       "tools/headkit/common.py",
@@ -1105,7 +1124,8 @@
       "tools/headkit/textures.py"
     ],
     "tools/itemkit/transfer.py": [
-      "tools/headkit/common.py"
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py"
     ],
     "tools/itemkit/verification.py": [
       "tools/headkit/common.py"
@@ -4221,6 +4241,7 @@
     "tools/itemkit/test_reduction.py",
     "tools/itemkit/test_review.py",
     "tools/itemkit/test_rigged_contracts.py",
+    "tools/itemkit/test_routes.py",
     "tools/itemkit/test_shadow.py",
     "tools/itemkit/test_shield_native.py",
     "tools/itemkit/test_skinned_native.py",

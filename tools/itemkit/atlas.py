@@ -107,7 +107,7 @@ def unwrap_parts(source, local, output, runtime_size=1024, *, packing_paddings=N
         require(np.array_equal(uv[np.setdiff1d(np.arange(len(uv)),ids)],original_uv[np.setdiff1d(np.arange(len(uv)),ids)]),'Healthy atlas domain changed during local repair')
         all_uv=np.concatenate([uv,palette[None]]);_,filter_owners=raster_audit(all_uv,runtime_size)
         gutters=region_gutters(filter_owners,np.r_[regions,int(regions.max()+1)])
-        connected_gutters=gutter_audit(all_uv,runtime_size);charts=chart_ids(uv);coverage=[]
+        connected_gutters=gutter_audit(all_uv,runtime_size,filter_owners);charts=current_charts;coverage=[]
         for size,owner in owners.items():
             mapped=np.unique(owner[owner>=0]);missing=np.setdiff1d(np.arange(len(faces)),mapped)
             missing_charts=np.setdiff1d(np.unique(charts),np.unique(charts[mapped]))

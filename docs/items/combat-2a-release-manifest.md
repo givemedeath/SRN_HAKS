@@ -160,10 +160,10 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wswss_b_071.mdl` | cougar-fineblade-longblade | 100728 | `9e36bc4006599d85b31d934d1e283e651794c1435abaa2b2c6d9e670e4a5cb0e` | sr_cfl_07 | yes |
 | `srn_weapon/wswss_m_071.mdl` | cougar-fineblade-longblade | 111220 | `3b8de2d7212d3d5d1d16640352ffcd536cd14bbdec45e37f5d585dde38b6655e` | sr_cfl_07 | yes |
 | `srn_weapon/wswss_t_071.mdl` | cougar-fineblade-longblade | 206120 | `baae4366988bb9fe35b90be6f2505cc3362ffebd8dcdaaa95ff9dd39f4de7c15` | sr_cfl_07 | yes |
-| `srn_weapon/wthax_001.mdl` | sr4-throwing-knife-2273b8c3cf | 697436 | `af253700e21f80774680929a6c6eafded7c48b5d848b5f3e3b28b3bc0f506437` | sr2273b8c_06 | yes |
-| `srn_weapon/wthax_b_061.mdl` | sr4-throwing-knife-2273b8c3cf | 141244 | `d986e887933956d8fa82bd649ac33f981ce007ee4471c8f415906821cef17765` | sr2273b8c_06 | yes |
-| `srn_weapon/wthax_m_061.mdl` | sr4-throwing-knife-2273b8c3cf | 240604 | `3b4b039b8dba5289cd17b00cdd30448ad5dea736b48b37557f891ef0f77ae9ca` | sr2273b8c_06 | yes |
-| `srn_weapon/wthax_t_061.mdl` | sr4-throwing-knife-2273b8c3cf | 313300 | `b7767b9eb4726e9b6b38a175147482f76de980422153d92756e18a523c6bb707` | sr2273b8c_06 | yes |
+| `srn_weapon/wthax_001.mdl` | sr4-throwing-knife-2273b8c3cf | 697436 | `88c828027588993c985472d6b3a75f913c12153bd418439145bf104988e2fbf4` | sr2273b8c_06 | yes |
+| `srn_weapon/wthax_b_061.mdl` | sr4-throwing-knife-2273b8c3cf | 141244 | `a15214d5571d88e1a3b35ccefd6bc52b370c3c5c5cc5554a6f4d2eed3955b14a` | sr2273b8c_06 | yes |
+| `srn_weapon/wthax_m_061.mdl` | sr4-throwing-knife-2273b8c3cf | 240604 | `7c614eba5dfdf4c4e5e41a77a90adbf804e8b7a760391ef5f5d12520568e1076` | sr2273b8c_06 | yes |
+| `srn_weapon/wthax_t_061.mdl` | sr4-throwing-knife-2273b8c3cf | 313300 | `2232525fe75b28d3c01364969bad90c7b2496a18ef08b6d64dceea2d36b2d8f9` | sr2273b8c_06 | yes |
 | `srn_weapon/wwhip_b_021.mdl` | sr4-whip-eab35fc25c | 1588 | `2aa122f35c589cd654e5456a48742862c0b519c52163d49b4e71158471286bbb` | (invisible part) | yes |
 | `srn_weapon/wwhip_m_021.mdl` | sr4-whip-eab35fc25c | 1064980 | `29f2d803dc8898938c46b3237841983c317af8df7385cb49936ee2e0f1ea2780` | sreab35fc_02 | yes |
 | `srn_weapon/wwhip_t_021.mdl` | sr4-whip-eab35fc25c | 1588 | `eafd6ebfe82183cf3190191d74abbecf8810e3bf82ab324628e391f015f54a94` | (invisible part) | yes |

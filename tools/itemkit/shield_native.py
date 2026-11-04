@@ -100,17 +100,40 @@ def audit(binary,name,texture,geometry,*,alpha=.3):
                   'shadowTriangles':len(geometry['shadowFaces'])}
 
 
+def specification_inputs(spec_path):
+    from tools.headkit.common import pin,read
+    from .contracts import stack_inputs
+    spec=read(spec_path)
+    require({'profile','arrays','texture','icon','impacts'}<=set(spec)<={'profile','arrays','texture','icon','impacts','evidence','appearance','alpha'},
+            'Explicit Shield specification required')
+    return [pin(spec_path)]+stack_inputs(spec['profile'])+[pin(spec[key]) for key in ('arrays','texture','icon')]+spec.get('evidence',[])
+
+
+def prepare_specification(spec_path, output):
+    from tools.headkit.common import read
+    spec=read(spec_path)
+    return prepare(spec['profile'],spec['arrays'],spec['texture'],spec['icon'],spec['impacts'],spec.get('evidence',[]),output,
+                   appearance=spec.get('appearance',14),alpha=spec.get('alpha',.3))
+
+
+def prepared_inputs(prepared_dir, compiler):
+    from tools.headkit.common import pin,read
+    from .native import offline_compiler_inputs
+    p=read(Path(prepared_dir)/'prepared.json')
+    return [pin(Path(prepared_dir)/'prepared.json')]+p['inputs']+p['outputs']+offline_compiler_inputs(compiler)
+
+
 def prepare(profile_path, arrays, texture, icon, impacts, evidence, output, *, appearance=14, alpha=.3):
     import shutil
     from PIL import Image
     from tools.headkit.common import pin,read,write,verify,verification_pass
-    from .contracts import family,native_contract,whole_shield
-    from .firearm_package import stack_inputs
+    from .contracts import code_pins,family,native_contract,source_version,stack_inputs,whole_shield
+    from .native import pad_icon
     with verification_pass('shield-prepare'):
         profile=family(profile_path,validate_native=False)
         require(whole_shield(profile),'Explicit qualified whole Shield profile required')
         _,resources=native_contract(profile_path,profile)
-        inputs=stack_inputs(profile_path)+[pin(p) for p in (arrays,texture,icon)]+evidence
+        inputs=stack_inputs(profile_path)+[pin(p) for p in (arrays,texture,icon)]+evidence+code_pins()
         verify(inputs)
         identity=profile.get('resources',{})
         require(set(identity)=={'texturePrefix','blueprint','displayName','hak','module'},'Explicit Shield asset identity required')
@@ -123,30 +146,31 @@ def prepare(profile_path, arrays, texture, icon, impacts, evidence, output, *, a
             require(image.size==(profile['runtimeTextureSize'],)*2,'Shield runtime diffuse size differs')
             image.convert('RGB').save(out/'resources'/(assigned['texture']+'.tga'))
         with Image.open(icon) as image:
-            require(image.mode=='RGBA' and image.size==(64,128),'Shield icon needs the stock64x128 RGBA canvas for its2x3 footprint')
-            image.save(out/'resources'/(assigned['icons']['whole']+'.tga'))
+            # The render is the logical 2x3 footprint; the stock canvas pads it to a power of two.
+            require(image.mode=='RGBA' and image.size in ((64,96),(64,128)),'Shield icon needs its 64x96 render or the stock 64x128 RGBA canvas')
+            pad_icon(image,(64,128)).save(out/'resources'/(assigned['icons']['whole']+'.tga'))
         shutil.copyfile(arrays,out/'expected.npz')
         write(out/(identity['blueprint']+'.json'),blueprint(assigned,identity),fresh=True)
         outputs=[pin(p) for folder in ('ascii','resources') for p in sorted((out/folder).iterdir())]
         outputs += [pin(out/'expected.npz'),pin(out/(identity['blueprint']+'.json'))]
     verify(inputs,fresh=True)
-    result={'kind':'shield-native-prepared','baseItem':56,'allocation':assigned,'identity':identity,
+    result={'kind':'shield-native-prepared','baseItem':56,'codeVersion':source_version(),'allocation':assigned,'identity':identity,
             'alpha':alpha,'impacts':impacts,'inputs':inputs,'outputs':outputs,'expected':pin(out/'expected.npz')}
     write(out/'prepared.json',result,fresh=True);return result
 
 
 def compile_package(prepared_dir,compiler,output):
     import shutil
-    import subprocess
     import time
     from tools.headkit.common import pin,read,write,verify,verification_pass
     from tools.phenotypes import tool_runtime
     from tools.phenomorpher.phenomorpher.engine.rig_native import compare
-    from .native import offline_compiler_inputs,compile_offline,archive_helpers
-    from .firearm_native import audit_blueprint_roundtrip
+    from .contracts import source_version
+    from .native import blueprint_roundtrip,compile_offline,write_verified_hak
     started=time.monotonic();prepared_dir=Path(prepared_dir);p=read(prepared_dir/'prepared.json')
     require(p.get('kind')=='shield-native-prepared','Expected whole Shield preparation')
-    inputs=[pin(prepared_dir/'prepared.json')]+p['inputs']+p['outputs']+offline_compiler_inputs(compiler)
+    require(p.get('codeVersion')==source_version(),'Stale Shield preparation code')
+    inputs=prepared_inputs(prepared_dir,compiler)
     with verification_pass('shield-native-dispatch'):verify(inputs)
     out=Path(output);out.mkdir(parents=True,exist_ok=False)
     converted=out/'converted';shutil.copytree(prepared_dir,converted)
@@ -158,16 +182,10 @@ def compile_package(prepared_dir,compiler,output):
     write(out/'rig-roundtrip.json',rig,fresh=True)
     gff=tool_runtime.tool('nwn_gff',inputs=[r['path'] for r in inputs]);bp=p['identity']['blueprint']
     source=converted/(bp+'.json');binary=res/(bp+'.uti');readback=out/(bp+'-readback.json')
-    for a,b in ((source,binary),(binary,readback)):
-        done=subprocess.run([str(gff),'-i',str(a),'-o',str(b)],capture_output=True,text=True,timeout=120,
-                            creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
-        require(done.returncode==0,'Shield blueprint conversion failed: '+done.stderr[-1000:])
-    bp_report=audit_blueprint_roundtrip(binary,read(readback),read(source))
+    bp_report=blueprint_roundtrip(gff,source,binary,readback)
     expected={name+'.mdl',p['allocation']['texture']+'.tga',p['allocation']['icons']['whole']+'.tga',bp+'.uti'}
     require({f.name for f in res.iterdir()}==expected,'Exact Shield payload differs')
-    archive=archive_helpers();types={**archive.TYPES,'uti':2025};files=sorted(res.iterdir());hak=out/(p['identity']['hak']+'.hak')
-    archive.write_hak(hak,[(f.stem,types[f.suffix[1:]],f.read_bytes()) for f in files])
-    require(archive.payload(hak)=={(f.stem,types[f.suffix[1:]]):pin(f)['sha256'] for f in files},'Shield HAK payload mismatch')
+    files=sorted(res.iterdir());hak=out/(p['identity']['hak']+'.hak');write_verified_hak(hak,files)
     verify(inputs,fresh=True)
     result={'schemaVersion':1,'kind':'shield-native-package','baseItem':56,'allocation':p['allocation'],
             'identity':p['identity'],'hak':pin(hak),'resources':[pin(f) for f in files],'inputs':inputs,

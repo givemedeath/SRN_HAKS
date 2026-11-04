@@ -75,20 +75,12 @@ def mesh_flags(data, model):
 
 def audit_placeholder(binary, name, expected):
     """Sanitize fresh binary and prove exact hidden geometry and no shadow node."""
-    raw = Path(binary).read_bytes()
-    before = decode(raw, name, require_tangents=False)
-    require(len(before) == 1 and before[0]['name'] == name+'v', 'One placeholder mesh required')
-    sys.path.insert(0, str(ROOT/'tools/phenomorpher'))
-    from phenomorpher.engine.stock_armor import sanitize_binary, string_fields, leaked_text
-    clean = sanitize_binary(raw)
-    allowed = np.zeros(len(raw), bool)
-    for offset, count in string_fields(raw): allowed[offset:offset+count] = True
-    changed = np.frombuffer(raw, np.uint8) != np.frombuffer(clean, np.uint8)
-    require(not changed[~allowed].any() and clean == sanitize_binary(clean) and not leaked_text(clean),
-            'Placeholder sanitization changed non-string bytes or retained leaked text')
+    from .native import sanitize_and_decode
+    clean, rows, changed = sanitize_and_decode(binary, name)
+    require(len(rows) == 1 and rows[0]['name'] == name+'v', 'One placeholder mesh required')
     flags = mesh_flags(clean, name)
     require(flags == {name+'v': {'render': 0, 'shadow': 0}}, 'Placeholder is rendered or casts a shadow')
-    actual = decode(clean, name, require_tangents=False)[0]
+    actual = rows[0]
     require(all(t.lower() in ('', 'null') for t in actual['textures']), 'Placeholder has a material dependency')
     for native_key, key in [('position', 'positions'), ('normal', 'normals'), ('uv', 'uv')]:
         corners = actual[native_key][actual['faces']]
@@ -96,7 +88,7 @@ def audit_placeholder(binary, name, expected):
                 'Placeholder corner attribute mismatch: '+key)
     require(topology(actual['position'], actual['faces'])['closedWound'], 'Compiled placeholder not closed/outward')
     return clean, {'triangles': 4, 'shadowTriangles': 0, 'flags': flags, 'nativeRoundtrip': True,
-                   'zeroedTailBytes': int(changed.sum())}
+                   'zeroedTailBytes': changed}
 
 
 def variant_blueprint(allocation, variant, counts, display_name):

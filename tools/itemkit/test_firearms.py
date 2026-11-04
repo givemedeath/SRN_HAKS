@@ -152,7 +152,7 @@ class FirearmTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Mixed'): f.validate_assembly(a, v, counts)
 
     def test_legacy_melee_naming_and_blueprint_unchanged(self):
-        profile = {'nativePackaging': 'enabled', 'native': {'itemClass': 'wswls'}}
+        profile = {'family': 'longsword', 'nativePackaging': 'enabled', 'native': {'itemClass': 'wswls'}}
         self.assertEqual(model_names(profile, 10), {p: f'wswls_{p}_101' for p in ('b', 'm', 't')})
         item = blueprint(1, {'modelIndex': 10, 'colourIndex': 1})
         self.assertEqual([item['ModelPart'+str(i)]['value'] for i in (1, 2, 3)], [101]*3)

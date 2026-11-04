@@ -2,11 +2,11 @@
 from pathlib import Path
 import copy
 import re
-import json
 import shutil
+import struct
 import subprocess
-import sys
-from tools.headkit.common import ROOT, asset, pin, read, require, verify, write
+from tools.headkit.common import asset, pin, read, require, verify, write
+from .routes import PACKAGED_FIREARMS
 
 CHECKS = ('front-rear-sides', 'idle', 'walk', 'run', 'equip-unequip', 'attacks', 'shadows',
           'gloves-armor', 'shield-offhand')
@@ -71,8 +71,6 @@ def field(kind, value):
 def blueprint(base_item, allocation, identity=None):
     identity = identity or {}
     item = {'__data_type': 'UTI ', '__struct_id': -1, 'BaseItem': field('int', base_item),
-            'TemplateResRef': field('resref', 'sr_cougar'), 'Tag': field('cexostring', 'sr_cougar'),
-            'LocalizedName': field('cexolocstring', {'0': 'Cougar Fineblade Longblade'}),
             'Identified': field('byte', 1), 'StackSize': field('word', 1), 'Charges': field('byte', 0),
             'Plot': field('byte', 0), 'Stolen': field('byte', 0), 'Cost': field('dword', 0),
             'AddCost': field('dword', 0), 'PropertiesList': field('list', []),
@@ -84,6 +82,11 @@ def blueprint(base_item, allocation, identity=None):
     item['Tag'] = field('cexostring', identity.get('blueprint', 'sr_cougar'))
     item['LocalizedName'] = field('cexolocstring', {'0':identity.get('displayName','Cougar Fineblade Longblade')})
     return item
+
+
+def gff_float(value):
+    """GFF floats are 32-bit; store what the native readback will report."""
+    return field('float', struct.unpack('<f', struct.pack('<f', value))[0])
 
 
 def place_review_actors(git, area, ifo, actors):
@@ -106,8 +109,8 @@ def place_review_actors(git, area, ifo, actors):
         px, py = x + 3*dx - side*dy, y + 3*dy + side*dx
         require(1 <= px <= width-1 and 1 <= py <= height-1, 'Review actors fall outside the entry area')
         placed = copy.deepcopy(actor); placed.pop('__data_type', None); placed['__struct_id'] = 4
-        placed.update(XPosition=field('float', px), YPosition=field('float', py), ZPosition=field('float', z),
-                      XOrientation=field('float', -dx), YOrientation=field('float', -dy))
+        placed.update(XPosition=gff_float(px), YPosition=gff_float(py), ZPosition=gff_float(z),
+                      XOrientation=gff_float(-dx), YOrientation=gff_float(-dy))
         rows.append(placed); tags.add(tag)
     return result
 
@@ -116,7 +119,7 @@ def entry_script(item_name, comparison=False, previous='', *, equipment_slot='ri
     from .contracts import resref
     resref(item_name)
     require(equipment_slot in ('right', 'left'), 'Unsupported fixture equipment slot')
-    comparisons = ('sr_cougar',) if comparison is True else tuple(comparison or ())
+    comparisons = tuple(comparison or ())
     require(len(set(comparisons)) == len(comparisons) and item_name not in comparisons, 'Comparison blueprint collision')
     for name in comparisons: resref(name)
     if previous: resref(previous)
@@ -173,9 +176,11 @@ def build(manifest_path, manifest, native, local, output):
     variants = packaged_blueprints(native)
     inputs += [bound for _, bound in variants]
 
+    tools = {}
+
     def run(name, args, cwd=None):
-        executable = tool_runtime.tool(name, inputs=[row['path'] for row in inputs])
-        result = subprocess.run([str(executable), *map(str, args)], cwd=cwd, capture_output=True, text=True, timeout=120,
+        if name not in tools: tools[name] = tool_runtime.tool(name, inputs=[row['path'] for row in inputs])
+        result = subprocess.run([str(tools[name]), *map(str, args)], cwd=cwd, capture_output=True, text=True, timeout=120,
                                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         require(result.returncode == 0, name+' failed: '+result.stderr[-2000:])
         return result.stdout
@@ -192,7 +197,7 @@ def build(manifest_path, manifest, native, local, output):
     require(not any(row['Mod_Hak']['value'] == hak_name for row in haks), 'Fixture already has candidate HAK')
     for name, bound in local.get('comparisonHaks', {}).items():
         resref(name); verify([bound]); inputs.append(bound)
-        require(not any(row['Mod_Hak']['value']==name for row in haks), 'Comparison HAK collision')
+        require(name != hak_name and not any(row['Mod_Hak']['value']==name for row in haks), 'Comparison HAK collision')
         haks.append({'__struct_id':8,'Mod_Hak':field('cexostring',name)})
     haks.append({'__struct_id': 8, 'Mod_Hak': field('cexostring', hak_name)})
     ifo['Mod_OnClientEntr'] = field('resref', 'sr_it_enter')
@@ -268,8 +273,11 @@ def build(manifest_path, manifest, native, local, output):
         from .contracts import resref
         name = resref(row['Mod_Hak']['value']); bound = {**local.get('fixtureHaks', {}), **local.get('comparisonHaks', {})}.get(name)
         require(bound is not None, 'Missing bound fixture dependency HAK: '+name); verify([bound]); inputs.append(bound)
+        require_unshadowed(native['hak'], bound, name)
         shutil.copyfile(bound['path'], userdir/'hak'/(name+'.hak'))
     verify(inputs, fresh=True)
+    # Tools resolve once; this records every input the build came to consume.
+    tool_runtime.tool('nwn_erf', inputs=[row['path'] for row in inputs])
     result = {'module': pin(module), 'hak': pin(userdir/'hak'/(hak_name+'.hak')),
               'fixtureHaks': [pin(p) for p in sorted((userdir/'hak').iterdir())],
               'userDirectory': str(userdir), 'clientValidated': False,
@@ -284,13 +292,21 @@ def build(manifest_path, manifest, native, local, output):
     return result
 
 
+def require_unshadowed(candidate, other, name):
+    """The candidate HAK is listed last, so any HAK above it wins a shared resource."""
+    from .native import archive_helpers
+    archive = archive_helpers()
+    shared = sorted(set(archive.payload(candidate['path'])) & set(archive.payload(other['path'])))
+    require(not shared, 'Bound HAK '+name+' shadows candidate resources: '+str(shared[:5]))
+
+
 def validate_evidence(path, fixture):
     evidence = read(path)
     require(evidence.get('module') == fixture['module'] and evidence.get('hak') == fixture['hak']
             and evidence.get('fixtureHaks') == fixture['fixtureHaks'], 'Client evidence belongs to another package')
     verify([fixture['module'], fixture['hak']]+fixture['fixtureHaks'])
     observations = evidence.get('observations', [])
-    checks = FIREARM_CHECKS if fixture.get('family') in ('firearm-sling','firearm-crossbow') else CHECKS
+    checks = FIREARM_CHECKS if fixture.get('family') in PACKAGED_FIREARMS else CHECKS
     required = {(body, name) for body in ('human-male', 'human-female') for name in checks}
     require(len(observations) == len(required) and {(r['body'], r['check']) for r in observations} == required,
             'Incomplete or duplicate Human client check matrix')

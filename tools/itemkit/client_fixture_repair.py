@@ -1,4 +1,9 @@
-"""Apply the bounded Wave client-fixture corrections to a retained prototype."""
+"""Apply the bounded Wave client-fixture corrections to a retained prototype.
+
+Historical: this rebuilds the 10-pair Wave 2 prototype only. It refuses the tracked
+15-pair module, which is hand-maintained under test-modules/weapon-waves. Launch it
+through launch_shared_tool.py with every file `build` pins declared as an input.
+"""
 import argparse
 import hashlib
 import json
@@ -8,18 +13,29 @@ import subprocess
 import sys
 from PIL import Image
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.headkit.common import pin, require, verify
+from tools.phenotypes import tool_runtime
+
 
 def build(source, output, config, controller, start_pair=1, firearm_motion=None):
     source, output = Path(source).resolve(), Path(output).resolve()
-    cfg = json.loads(Path(config).read_text())
-    ready = json.loads((source / 'ready.json').read_text())
-    assert hashlib.sha256(Path(ready['module']['path']).read_bytes()).hexdigest() == ready['module']['sha256']
+    cfg = json.loads(Path(config).read_text(encoding='utf-8-sig'))
+    ready = json.loads((source / 'ready.json').read_text(encoding='utf-8-sig'))
+    inputs = [pin(config), pin(controller), pin(source / 'ready.json'), ready['module'], cfg['nwscript'],
+              pin(source / 'corrected-instances.json'), pin(source / 'inspection-lighting.json')]
+    inputs += [pin(p) for p in sorted((source / 'resources').iterdir())]
+    if firearm_motion: inputs += [pin(p) for p in sorted(Path(firearm_motion).iterdir())]
+    verify(inputs)
     output.mkdir()
     resources = output / 'resources'
     shutil.copytree(source / 'resources', resources)
 
+    tools = {}
+
     def run(tool, args, cwd=None):
-        result = subprocess.run([cfg['tools'][tool]['path'], *map(str, args)], cwd=cwd,
+        if tool not in tools: tools[tool] = tool_runtime.tool(tool, inputs=[row['path'] for row in inputs])
+        result = subprocess.run([str(tools[tool]), *map(str, args)], cwd=cwd,
                                 capture_output=True, timeout=150)
         if result.returncode:
             raise RuntimeError(result.stderr.decode(errors='replace'))
@@ -42,12 +58,12 @@ def build(source, output, config, controller, start_pair=1, firearm_motion=None)
         sys.path.remove(phenotype_tools)
     ifo_path = output / 'module.json'
     run('nwn_gff', ['-i', resources / 'module.ifo', '-o', ifo_path])
-    ifo = json.loads(ifo_path.read_text())
+    ifo = json.loads(ifo_path.read_text(encoding='utf-8-sig'))
     for key, value in module_identity().items():
         ifo.setdefault(key, value)
     encode(ifo, resources / 'module.ifo')
 
-    git = json.loads((source / 'corrected-instances.json').read_text())
+    git = json.loads((source / 'corrected-instances.json').read_text(encoding='utf-8-sig'))
     actors = [a for a in git['Creature List']['value'] if a['Tag']['value'].startswith(('sw1_', 'sw2_'))]
     assert len(actors) == 20
     for actor in actors:
@@ -58,7 +74,7 @@ def build(source, output, config, controller, start_pair=1, firearm_motion=None)
         utc = dict(actor, __data_type='UTC ', __struct_id=-1)
         encode(utc, resources / (actor['Tag']['value'] + '.utc'))
     encode(git, resources / 'sr_it_floor.git')
-    area = json.loads((source / 'inspection-lighting.json').read_text())
+    area = json.loads((source / 'inspection-lighting.json').read_text(encoding='utf-8-sig'))
     area['SunAmbientColor']['value'] = 0x909090
     area['SunDiffuseColor']['value'] = 0x909090
     area['ShadowOpacity']['value'] = 60
@@ -77,7 +93,7 @@ def build(source, output, config, controller, start_pair=1, firearm_motion=None)
     ifo['Mod_HakList']['value'].insert(0, {'__struct_id': 8, 'Mod_Hak': field('cexostring', 'sw_reviewenv')})
     encode(ifo, resources / 'module.ifo')
 
-    script = Path(controller).read_text()
+    script = Path(controller).read_text(encoding='utf-8-sig')
     assert 1 <= start_pair <= 10
     assert script.count('stage=1;') == 1
     script = script.replace('stage=1;', f'stage={start_pair};')
@@ -183,7 +199,7 @@ else if(OBJECT_SELF!=GetLocalObject(m,"SW_FEMALE")) {
 SetLocalInt(m,"SW2_FIXED_STAGE",stage);ExecuteScript("c",m);
 SendMessageToPC(GetFirstPC(),"Click MALE for next weapon; FEMALE for this pair's 60-second visual action. Shield is visual-only here.");
 }''')
-    entry = (resources / 'sw2_enter.nss').read_text()
+    entry = (resources / 'sw2_enter.nss').read_text(encoding='utf-8-sig')
     # The stock TestNewModule Elf wears stock armour over a differently sized
     # custom rig. Use the same supported bare Human Fit assembly as reviewers;
     # unequip, never destroy, the private test character's clothing.
@@ -217,13 +233,13 @@ void main(){''')
         run('nwn_erf', ['-c', '-e', 'HAK', '-f', output / 'sw_f7motion.hak', motion])
         ifo_path = output / 'module.json'
         run('nwn_gff', ['-i', resources / 'module.ifo', '-o', ifo_path])
-        ifo = json.loads(ifo_path.read_text())
+        ifo = json.loads(ifo_path.read_text(encoding='utf-8-sig'))
         ifo['Mod_HakList']['value'].insert(0, {'__struct_id': 8, 'Mod_Hak': field('cexostring', 'sw_f7motion')})
         for key, name in [('Mod_OnPlrEqItm', 'sr_f7_eq'), ('Mod_OnPlrUnEqItm', 'sr_f7_un')]:
             assert not ifo.get(key, {}).get('value'), 'Do not replace an existing event handler'
             ifo[key] = field('resref', name)
         encode(ifo, resources / 'module.ifo')
-        motion_texts = [(motion / ('srf7_'+body+'.mdl')).read_text() for body in ('pmh0', 'pfh0')]
+        motion_texts = [(motion / ('srf7_'+body+'.mdl')).read_text(encoding='utf-8-sig') for body in ('pmh0', 'pfh0')]
         two_hand = all(all('newanim '+clip+' ' in text for clip in
                           ('srakready', 'srakfire', 'srcbready', 'srcbfire')) for text in motion_texts)
         motion_script = '''void SyncFirearm(object actor) {
@@ -253,15 +269,18 @@ void main(){''')
         entry = entry.replace('SetLocalInt(actor,"SW2_EQUIPPED",1);', 'SetLocalInt(actor,"SW2_EQUIPPED",1);DelayCommand(0.5,SyncFirearm(actor));')
     (resources / 'sw2_enter.nss').write_text(entry)
     compiler = output / 'compiler'; (compiler / 'lang/en').mkdir(parents=True)
+    # Only the pinned nwscript is visible, never its neighbours in an install folder.
+    includes = output / 'includes'; includes.mkdir()
+    shutil.copyfile(cfg['nwscript']['path'], includes / Path(cfg['nwscript']['path']).name)
     user = output / 'compiler-user'; user.mkdir()
     for name in ('c', 'sw_review', 'sw2_enter', *extra_scripts):
         compiled = compiler / (name + '.ncs')
         run('nwn_script_comp', ['--root', compiler, '--no-keys', '--no-ovr', '--userdirectory', user,
-                              '--dirs', str(Path(cfg['nwscript']['path']).parent)+','+str(resources),
+                              '--dirs', str(includes)+','+str(resources),
                               '-o', compiled, resources/(name+'.nss')])
         # The native compiler can report an error with exit 0. A fresh output
         # prevents a copied historical NCS from masquerading as a new compile.
-        assert compiled.read_bytes().startswith(b'NCS V1.0'), 'Fresh compiled script required'
+        require(compiled.read_bytes().startswith(b'NCS V1.0'), 'Fresh compiled script required')
         shutil.copyfile(compiled, resources / compiled.name)
     module = output / 'sw_weapon_w2.mod'
     run('nwn_erf', ['-c', '-e', 'MOD', '-f', module, resources])
@@ -270,7 +289,8 @@ void main(){''')
     def hashes(folder):
         return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir()}
     assert hashes(resources) == hashes(audit)
-    result = {'module': str(module), 'sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
+    verify(inputs, fresh=True)
+    result = {'module': pin(module), 'inputs': inputs,
               'source': str(source), 'actors': 20, 'exactNativePayload': True, 'clientValidated': False}
     (output / 'ready.json').write_text(json.dumps(result, indent=2))
     print(json.dumps(result))

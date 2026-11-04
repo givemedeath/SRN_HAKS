@@ -3,7 +3,8 @@ import copy
 import unittest
 import tempfile
 from pathlib import Path
-from tools.itemkit.fixture import field, place_review_actors, entry_script, audit_module_payload
+from unittest.mock import patch
+from tools.itemkit.fixture import field, place_review_actors, entry_script, audit_module_payload, require_unshadowed, gff_float
 
 
 class PlacementTests(unittest.TestCase):
@@ -33,6 +34,22 @@ class PlacementTests(unittest.TestCase):
                         'BodyPart': field('byte', 7), 'ScriptHeartbeat': field('resref', 'sr_it_hb')}
                        for tag, gender in (('sr_it_male', 0), ('sr_it_female', 1))]
 
+    def test_placement_float_survives_the_native_float32_roundtrip(self):
+        import struct
+        value=gff_float(7.9+1.5)['value']
+        self.assertEqual(struct.unpack('<f',struct.pack('<f',value))[0],value)
+
+    def test_bound_hak_cannot_shadow_candidate_resources(self):
+        class Archive:
+            @staticmethod
+            def payload(path):
+                return {'candidate':{('sr_a',2017):'1',('baseitems',2017):'2'},'other':{('baseitems',2017):'3'},
+                        'clean':{('sr_b',2017):'4'}}[path]
+        with patch('tools.itemkit.native.archive_helpers',return_value=Archive):
+            require_unshadowed({'path':'candidate'},{'path':'clean'},'clean')
+            with self.assertRaisesRegex(ValueError,'shadows candidate'):
+                require_unshadowed({'path':'candidate'},{'path':'other'},'other')
+
     def test_both_bodies_embedded_without_mutating_donors(self):
         before = copy.deepcopy(self.actors)
         result = place_review_actors(self.git, self.area, self.ifo, self.actors)
@@ -52,7 +69,7 @@ class PlacementTests(unittest.TestCase):
             place_review_actors(self.git, self.area, self.ifo, self.actors)
 
     def test_dagger_and_legacy_entry_identity_are_isolated(self):
-        knife = entry_script('sr_cfk', True)
+        knife = entry_script('sr_cfk', ('sr_cougar',))
         sword = entry_script('sr_cougar')
         self.assertIn('CreateItemOnObject("sr_cfk",actor)', knife)
         self.assertIn('CreateItemOnObject("sr_cougar",pc)', knife)

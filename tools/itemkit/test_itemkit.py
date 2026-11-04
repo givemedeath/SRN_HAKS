@@ -219,7 +219,7 @@ class ContractTests(Fixture):
         self.profile['budgets']['parts']['b']['visible'] += 1; self.save_profile()
         with self.assertRaisesRegex(ValueError, 'assembly budget'): contracts.family(self.profile_path)
     def test_firearm_native_export_blocked(self):
-        data = read(Path(__file__).parent/'profiles/firearm-sling.json')
+        data = read(Path(__file__).parent/'examples/firearm-sling-blocked.json')
         with self.assertRaisesRegex(ValueError, 'blocked'): contracts.model_names(data, 1)
         data['nativePackaging'] = 'enabled'; write(self.profile_path, data)
         with self.assertRaisesRegex(ValueError, 'deferred'): contracts.family(self.profile_path)

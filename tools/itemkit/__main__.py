@@ -9,8 +9,13 @@ from .contracts import all_pins, code_pins, family, manifest, source_version, ev
 from .generation import request_stage, shared_ledger, initialize_trial, set_trial_limit
 
 
+GENERATION_STAGES = ('calibrate', 'geometry', 'appearance', 'export')
+PROCESSING_STAGES = ('prepare', 'inspect', 'donor', 'fit', 'reduce', 'unwrap', 'finish', 'bake', 'shadow', 'render', 'native', 'fixture', 'client')
+COUGAR_INTAKE_IDS = ('cougar-fineblade-longblade', 'cougar-fineblade-longsword', 'cougar-fineblade-knife')
+
+
 def intake(reference, output, design_id='cougar-fineblade-longblade', family_name='shortsword'):
-    import re
+    import hashlib, re
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', design_id), 'Safe item ID required')
     require(family_name in ('shortsword', 'dagger', 'longsword', 'firearm-sling'), 'Supported intake family required')
     if family_name == 'firearm-sling':
@@ -36,6 +41,11 @@ def intake(reference, output, design_id='cougar-fineblade-longblade', family_nam
             'b':{'visible':1200,'shadow':100},'m':{'visible':2300,'shadow':100},'t':{'visible':8500,'shadow':300}}}
         profile_data['resources'] = {'texturePrefix':'sr_cfs','blueprint':'sr_cfs','hak':'srn_cfs_test',
             'module':'sr_cfs_test','displayName':'Cougar Fineblade Longsword'}
+    if design_id not in COUGAR_INTAKE_IDS:
+        # The Cougar names are shipped identities, never defaults for a new design.
+        stem = 'sr'+hashlib.sha256(design_id.encode()).hexdigest()[:8]
+        profile_data['resources'] = {'texturePrefix':stem,'blueprint':stem,'hak':stem+'h','module':stem+'m',
+                                     'displayName':design_id.replace('-',' ').title()}
     write(output/'family.json', profile_data, fresh=True)
     data = read(Path(__file__).parent/'examples'/'cougar.json')
     data['id'] = design_id
@@ -43,6 +53,21 @@ def intake(reference, output, design_id='cougar-fineblade-longblade', family_nam
     data['familyProfile'] = {'path': 'family.json', 'sha256': pin(output/'family.json')['sha256']}
     write(output/'asset.json', data, fresh=True)
     return {'manifest': pin(output/'asset.json'), 'reference': pin(target), 'clayReferenceRequired': False}
+
+
+def firearm_compile_tools(bindings_path, compiler_path):
+    """An offline compiler replaces the client, so only the client route needs that binding."""
+    return (None, read(compiler_path)) if compiler_path else (bindings(bindings_path)['client'], None)
+
+
+def launcher_pins(bindings_path, local):
+    """What every explicit-spec route consumes besides its own inputs."""
+    return code_pins()+[pin(bindings_path), pin(local['toolchain']), pin(local['migrationReceipt'])]+python_package_pins(local)+[local['python']]
+
+
+def write_input_paths(output, pins):
+    paths = sorted({row['path'] for row in pins}); write(output, paths, fresh=True)
+    return {'inputs': str(output), 'count': len(paths)}
 
 
 def consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None):
@@ -64,7 +89,7 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         if key in local: pins.append(pin(local[key]))
     for key in ('python', 'blender', 'client', 'embree'):
         if key in local: pins.append(local[key])
-    cpu=run is not None or stage in {'prepare','inspect','donor','fit','reduce','unwrap','finish','bake','shadow','render','native','fixture','client'}
+    cpu=run is not None or stage in PROCESSING_STAGES
     models={} if cpu else local.get('models', {})
     # New GPU requests bind model paths/hashes in the configuration, but only
     # Comfy consumes those bytes. Its fresh preparation/dispatch/completion
@@ -121,18 +146,20 @@ def run_receipt_pins(state, stage=None):
     return pins
 
 
-def preflight(manifest_path, bindings_path, probe=False):
+def preflight(manifest_path, bindings_path, probe=False, scope='processing'):
     data = manifest(manifest_path); profile = family(asset(manifest_path, data['familyProfile'])['path'])
     local = read(bindings_path); issues = []
-    for key in ('toolchain', 'migrationReceipt', 'python', 'pythonPackages', 'blender', 'client', 'submissionLedger'):
+    # Generation bindings deliberately omit the processing-only Blender and client.
+    processing = ('blender', 'client') if scope == 'processing' else ()
+    for key in ('toolchain', 'migrationReceipt', 'python', 'pythonPackages', *processing, 'submissionLedger'):
         if not local.get(key): issues.append('Missing runtime binding: '+key)
-    for key in ('python', 'blender', 'client'):
+    for key in ('python', *processing):
         if local.get(key):
             try: verify([local[key]])
             except (OSError, ValueError) as exc: issues.append(str(exc))
     adapter = Path(local.get('comfyCustomNodes', '.'))/'srn_headkit'
     if not (adapter/'source-roots.json').is_file(): issues.append('Pinned headkit Comfy adapter/source snapshot not installed')
-    if profile['nativePackaging'] != 'enabled': issues.append('Measured effective native contract pending')
+    if scope == 'processing' and profile['nativePackaging'] != 'enabled': issues.append('Measured effective native contract pending')
     if not data.get('camera', {}).get('reviewed'): issues.append('Camera calibration/review pending')
     try:
         from .conditioning import require_conditioning_review
@@ -144,7 +171,8 @@ def preflight(manifest_path, bindings_path, probe=False):
             client = comfy.Client(local['comfyUrl']); live = {'idle': client.idle()}
             identity = client.request('/headkit/runtime-identity'); live['runtimeFingerprint'] = identity['fingerprint']
         except Exception as exc: issues.append('Comfy preflight unavailable: '+str(exc))
-    return {'id': data['id'], 'ready': not issues, 'issues': issues, 'comfy': live, 'clayReferenceRequired': False}
+    return {'id': data['id'], 'ready': not issues, 'issues': issues, 'comfy': live,
+            'clayReferenceRequired': data.get('conditioning') == 'clay-detail-v1'}
 
 
 def main():
@@ -154,12 +182,22 @@ def main():
     c = commands.add_parser('firearm-inputs'); c.add_argument('--bindings', type=Path, required=True)
     group = c.add_mutually_exclusive_group(required=True)
     group.add_argument('--spec', type=Path); group.add_argument('--prepared', type=Path); group.add_argument('--native', type=Path)
-    c.add_argument('--manifest', type=Path)
+    c.add_argument('--manifest', type=Path); c.add_argument('--compiler', type=Path)
     c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('firearm-prepare'); c.add_argument('--bindings', type=Path, required=True)
     c.add_argument('--spec', type=Path, required=True); c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('firearm-native'); c.add_argument('--bindings', type=Path, required=True)
     c.add_argument('--prepared', type=Path, required=True); c.add_argument('--output', type=Path, required=True)
+    c.add_argument('--compiler', type=Path)
+    c = commands.add_parser('shield-inputs'); c.add_argument('--bindings', type=Path, required=True)
+    group = c.add_mutually_exclusive_group(required=True)
+    group.add_argument('--spec', type=Path); group.add_argument('--prepared', type=Path)
+    c.add_argument('--compiler', type=Path); c.add_argument('--output', type=Path, required=True)
+    c = commands.add_parser('shield-prepare'); c.add_argument('--bindings', type=Path, required=True)
+    c.add_argument('--spec', type=Path, required=True); c.add_argument('--output', type=Path, required=True)
+    c = commands.add_parser('shield-native'); c.add_argument('--bindings', type=Path, required=True)
+    c.add_argument('--prepared', type=Path, required=True); c.add_argument('--compiler', type=Path, required=True)
+    c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('firearm-fixture'); c.add_argument('--bindings', type=Path, required=True)
     c.add_argument('--native', type=Path, required=True); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--output', type=Path, required=True)
@@ -178,14 +216,14 @@ def main():
             c.add_argument('--decision', choices=['approved', 'rejected'], required=True); c.add_argument('--notes', required=True)
     c = commands.add_parser('preflight'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--probe', action='store_true')
+    c.add_argument('--scope', choices=['generation', 'processing'], default='processing')
     c = commands.add_parser('inputs'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--run', type=Path)
-    c.add_argument('--stage',choices=['calibrate','geometry','appearance','export','prepare','inspect','donor',
-                                    'fit','reduce','unwrap','finish','bake','shadow','render','native','fixture','client'])
+    c.add_argument('--stage',choices=GENERATION_STAGES+PROCESSING_STAGES)
     c.add_argument('--extra', type=Path, action='append', default=[]); c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('request')
     for key in ('manifest', 'bindings', 'output'): c.add_argument('--'+key, type=Path, required=True)
-    c.add_argument('--stage', choices=['calibrate', 'geometry', 'appearance', 'export'], required=True)
+    c.add_argument('--stage', choices=GENERATION_STAGES, required=True)
     c.add_argument('--working-shell', action='store_true',
                    help='Export a separate solid engineering shell; preserve the family UDF colour-donor settings')
     c.add_argument('--appearance-donor', action='store_true',
@@ -200,8 +238,8 @@ def main():
     if a.command == 'request':
         require(not a.working_shell or a.stage == 'export', 'Working-shell option is export-only')
     with verification_pass('item-cli-startup'):
-        runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'status', 'preflight') else launched(a.bindings)
-        if runtime is not None: python_package_pins(bindings(a.bindings), require_imports=True)
+        runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'shield-inputs', 'status', 'preflight') else launched(a.bindings)
+        package_pins = python_package_pins(bindings(a.bindings), require_imports=True) if runtime is not None else None
     if a.command == 'intake': result = intake(a.reference, a.output, a.id, a.family)
     elif a.command == 'firearm-inputs':
         from .firearm_package import specification_inputs, prepared_inputs, native_inputs
@@ -214,18 +252,35 @@ def main():
             else:
                 require(a.manifest is None, '--manifest is only used with --native')
                 pins = specification_inputs(a.spec) if a.spec else prepared_inputs(a.prepared)
-            pins += code_pins()+[pin(a.bindings), pin(local['toolchain']), pin(local['migrationReceipt'])]
-            pins += python_package_pins(local)+[local['python']]
-            if a.prepared: pins.append(local['client'])
+            pins += launcher_pins(a.bindings, local)
+            require(a.compiler is None or a.prepared, '--compiler is only used with --prepared')
+            if a.prepared:
+                from .native import offline_compiler_inputs
+                pins += offline_compiler_inputs(read(a.compiler))+[pin(a.compiler)] if a.compiler else [local['client']]
             verify(pins)
-        write(a.output, sorted({p['path'] for p in pins}), fresh=True)
-        result = {'inputs': str(a.output), 'count': len({p['path'] for p in pins})}
+        result = write_input_paths(a.output, pins)
+    elif a.command == 'shield-inputs':
+        from .shield_native import specification_inputs, prepared_inputs
+        with verification_pass('shield-consumed-inputs'):
+            local = bindings(a.bindings)
+            require(bool(a.compiler) == bool(a.prepared), '--compiler is required with --prepared and only with it')
+            pins = specification_inputs(a.spec) if a.spec else prepared_inputs(a.prepared, read(a.compiler))+[pin(a.compiler)]
+            pins += launcher_pins(a.bindings, local)
+            verify(pins)
+        result = write_input_paths(a.output, pins)
+    elif a.command == 'shield-prepare':
+        from .shield_native import prepare_specification
+        result = prepare_specification(a.spec, a.output)
+    elif a.command == 'shield-native':
+        from .shield_native import compile_package
+        result = compile_package(a.prepared, read(a.compiler), a.output)
     elif a.command == 'firearm-prepare':
         from .firearm_package import prepare
         result = prepare(a.spec, a.output)
     elif a.command == 'firearm-native':
         from .firearm_package import compile_package
-        result = compile_package(a.prepared, bindings(a.bindings)['client'], a.output)
+        client, compiler = firearm_compile_tools(a.bindings, a.compiler)
+        result = compile_package(a.prepared, client, a.output, compiler=compiler)
     elif a.command == 'firearm-fixture':
         from .firearm_package import native_inputs
         from .fixture import build
@@ -244,7 +299,7 @@ def main():
     elif a.command == 'set-trial-limit':
         local=bindings(a.bindings)
         result=set_trial_limit(shared_ledger(local), local['itemTrialId'], a.maximum, a.evidence, a.output)
-    elif a.command == 'preflight': result = preflight(a.manifest, a.bindings, a.probe)
+    elif a.command == 'preflight': result = preflight(a.manifest, a.bindings, a.probe, a.scope)
     elif a.command == 'inputs':
         paths = consumed_inputs(a.manifest, a.bindings, a.run, a.extra,a.stage); write(a.output, paths, fresh=True)
         result = {'inputs': str(a.output), 'count': len(paths)}
@@ -253,7 +308,7 @@ def main():
         if a.command == 'status': result = Runner(a.manifest, a.bindings, a.run).status()
         else:
             with comfy.locked(a.run/'runner'):
-                runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, evidence=getattr(a, 'evidence', None))
+                runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, evidence=getattr(a, 'evidence', None), package_pins=package_pins)
                 result = runner.review(a.stage, a.decision, a.notes) if a.command == 'review' else runner.execute('prepare' if a.command == 'prepare' else a.stage)
     elif a.command == 'request':
         local = bindings(a.bindings); identity = comfy.preparation_runtime(comfy.Client(local['comfyUrl']),local)

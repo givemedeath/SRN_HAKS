@@ -11,10 +11,44 @@ from .contracts import PARTS, resref, native_contract, reserve
 from .geometry import topology, check_budgets
 
 
+EXTRA_RESOURCE_TYPES = {'2da': 2017, 'uti': 2025}
+
+
 def archive_helpers():
     sys.path.insert(0, str(ROOT/'tools/heads'))
     import verify_head_hak
     return verify_head_hak
+
+
+def write_verified_hak(target, files):
+    archive = archive_helpers(); types = {**archive.TYPES, **EXTRA_RESOURCE_TYPES}
+    archive.write_hak(target, [(p.stem, types[p.suffix[1:]], p.read_bytes()) for p in files])
+    require(archive.payload(target) == {(p.stem, types[p.suffix[1:]]): pin(p)['sha256'] for p in files}, 'HAK payload mismatch')
+
+
+def compile_with_client(converted, client, output):
+    command = [sys.executable, '-B', str(ROOT/'tools/phenotypes/native_compile.py'), '--client', client['path'],
+               '--user-directory', str(output/'compiler-userdir'), '--converted', str(converted), '--timeout', '120']
+    result = subprocess.run(command, capture_output=True, text=True, timeout=450,
+                            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    (output/'compiler.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
+    require(result.returncode == 0, 'Native compilation failed; retain log and reconcile before retry')
+
+
+def blueprint_roundtrip(gff, source, binary, readback):
+    """Convert JSON to UTI and back, returning the audit of what the tool wrote."""
+    from .firearm_native import audit_blueprint_roundtrip
+    for first, second in ((source, binary), (binary, readback)):
+        done = subprocess.run([str(gff), '-i', str(first), '-o', str(second)], capture_output=True, text=True, timeout=120,
+                              creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        require(done.returncode == 0, 'Blueprint conversion failed: '+done.stderr[-1000:])
+    return audit_blueprint_roundtrip(binary, read(readback), read(source))
+
+
+def pad_icon(image, canvas):
+    """Place a logical footprint at the top left of its stock power-of-two canvas."""
+    padded = Image.new('RGBA', tuple(canvas), (0, 0, 0, 0)); padded.paste(image, (0, 0))
+    return padded
 
 
 def offline_compiler_inputs(compiler):
@@ -66,12 +100,11 @@ def ascii_model(name, texture, positions, normals, uv, shadow_vertices, shadow_f
     return '\n'.join(lines)+'\n'
 
 
-def prepare(profile_path, profile, arrays, texture, icons, output, index=None):
+def prepare(profile_path, profile, arrays, texture, icons, output):
     native, resources = native_contract(profile_path, profile)
-    allocation = reserve(profile, resources, index)
+    allocation = reserve(profile, resources)
     output = Path(output); (output/'ascii').mkdir(parents=True); (output/'resources').mkdir()
-    texture_name = profile.get('resources', {}).get('texturePrefix', 'sr_cfl')+'_'+str(allocation['modelIndex']).zfill(2)
-    require(not any(texture_name+suffix in resources for suffix in ('.tga', '.dds', '.mtr', '.txi')), 'Texture resref collision')
+    texture_name = allocation['texture']
     with Image.open(texture) as image:
         require(image.size == (profile['runtimeTextureSize'],)*2, 'Runtime texture size differs from family')
         image.convert('RGB').save(output/'resources'/f'{texture_name}.tga')
@@ -94,7 +127,7 @@ def prepare(profile_path, profile, arrays, texture, icons, output, index=None):
                 require(list(image.size)==profile['native']['iconDimensions'][part]
                         and len(canvas)==2 and all(type(v)is int and v>0 and v&(v-1)==0 for v in canvas)
                         and canvas[0]>=image.width and canvas[1]>=image.height,'Invalid native icon padding contract')
-                padded=Image.new('RGBA',tuple(canvas),(0,0,0,0));padded.paste(image,(0,0));image=padded
+                image=pad_icon(image,canvas)
             image.save(output/'resources'/f"{allocation['icons'][part]}.tga")
         target = output/f'expected-{part}.npz'; shutil.copyfile(arrays[part]['path'], target); expected[part] = pin(target)
     for kind in counts: check_budgets(counts[kind], profile['budgets'], kind)
@@ -107,15 +140,21 @@ def prepare(profile_path, profile, arrays, texture, icons, output, index=None):
     return result
 
 
-def sanitize_and_decode(binary, name, *, allow_constant_alpha=False, apply_rigid_transforms=False):
-    """Shared string-tail sanitization; material-node audits remain route-specific."""
+def sanitize_proof(raw):
+    """Clear string tails, proving nothing else changed; returns the bytes and changed-byte count."""
     sys.path.insert(0, str(ROOT/'tools/phenomorpher'))
     from phenomorpher.engine.stock_armor import sanitize_binary, string_fields, leaked_text
-    raw = Path(binary).read_bytes(); clean = sanitize_binary(raw)
+    clean = sanitize_binary(raw)
     allowed = np.zeros(len(raw), bool)
     for offset, count in string_fields(raw): allowed[offset:offset+count] = True
     changed = np.frombuffer(raw, np.uint8) != np.frombuffer(clean, np.uint8)
     require(not changed[~allowed].any() and clean == sanitize_binary(clean) and not leaked_text(clean), 'Sanitizer changed non-string data')
+    return clean, int(changed.sum())
+
+
+def sanitize_and_decode(binary, name, *, allow_constant_alpha=False, apply_rigid_transforms=False):
+    """Shared string-tail sanitization; material-node audits remain route-specific."""
+    raw = Path(binary).read_bytes(); clean, changed = sanitize_proof(raw)
     options={'require_tangents':False,'allow_constant_alpha':allow_constant_alpha,
              'apply_rigid_transforms':apply_rigid_transforms}
     before = decode(raw, name, **options); after = decode(clean, name, **options)
@@ -125,7 +164,7 @@ def sanitize_and_decode(binary, name, *, allow_constant_alpha=False, apply_rigid
                 and old.get('alpha')==new.get('alpha'),'Sanitizer changed native material identity')
         for key in ('position','normal','uv','faces'):
             require(np.array_equal(old[key],new[key]),'Sanitizer changed decoded attributes')
-    return clean,after,int(changed.sum())
+    return clean,after,changed
 
 
 def sanitize_and_audit(binary, name, texture, expected):
@@ -133,6 +172,9 @@ def sanitize_and_audit(binary, name, texture, expected):
     require(len(after) == 2, 'One visible mesh and one shadow mesh required')
     by_name = {row['name']: row for row in after}
     require(set(by_name) == {name+'v', name+'s'}, 'Unexpected native nodes')
+    from .firearm_native import mesh_flags
+    require(mesh_flags(clean, name) == {name+'v': {'render': 1, 'shadow': 0},
+                                       name+'s': {'render': 0, 'shadow': 1}}, 'Incorrect native visibility flags')
     require(by_name[name+'v']['textures'][0] == texture, 'Wrong diffuse dependency')
     require(all(value.lower() in ('', 'null', texture) for row in after for value in row['textures']), 'Unexpected native material dependency')
     with np.load(expected['path'], allow_pickle=False) as target:
@@ -154,30 +196,21 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
     verify(tool_inputs); prepared_dir = Path(prepared_dir); output = Path(output); output.mkdir()
     preparation = read(prepared_dir/'prepared.json'); verify(preparation['inputs']+preparation['outputs']+list(preparation['expected'].values()))
     converted = output/'converted'; shutil.copytree(prepared_dir, converted)
-    if compiler is not None:
-        compile_offline(converted,compiler,output)
-    else:
-        command = [sys.executable, str(ROOT/'tools/phenotypes/native_compile.py'), '--client', client['path'],
-                   '--user-directory', str(output/'compiler-userdir'), '--converted', str(converted), '--timeout', '120']
-        result = subprocess.run(command, capture_output=True, text=True, timeout=450,
-                                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-        (output/'compiler.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
-        require(result.returncode == 0, 'Native compilation failed; inspect retained compiler log')
+    if compiler is not None: compile_offline(converted, compiler, output)
+    else: compile_with_client(converted, client, output)
     audits = {}
     for part, name in preparation['allocation']['models'].items():
         binary = converted/'resources'/f'{name}.mdl'
         clean, audits[part] = sanitize_and_audit(binary, name, preparation['texture'], preparation['expected'][part])
         binary.write_bytes(clean)
-    archive = archive_helpers(); resources = sorted((converted/'resources').iterdir())
+    resources = sorted((converted/'resources').iterdir())
     require(all(p.suffix in ('.mdl', '.tga') for p in resources), 'Unexpected package resources')
-    entries = [(p.stem, archive.TYPES[p.suffix[1:]], p.read_bytes()) for p in resources]
-    target = output/(preparation.get('identity', {}).get('hak', 'srn_cougar_test')+'.hak'); archive.write_hak(target, entries)
-    require(archive.payload(target) == {(p.stem, archive.TYPES[p.suffix[1:]]): pin(p)['sha256'] for p in resources}, 'HAK payload mismatch')
+    target = output/(preparation.get('identity', {}).get('hak', 'srn_cougar_test')+'.hak'); write_verified_hak(target, resources)
     verify(tool_inputs+preparation['inputs']+preparation['outputs'], fresh=True)
     result = {'hak': pin(target), 'resources': [pin(p) for p in resources], 'audits': audits,
               'allocation': preparation['allocation'], 'baseItem': preparation['baseItem'],
               'clientValidated': False, 'productionAccepted': False}
     if preparation.get('identity'): result['identity'] = preparation['identity']
-    if compiler is not None:result['compilationBackend']='neverblender-cleanmodels'
+    if compiler is not None: result['compilationBackend'] = 'neverblender-cleanmodels'
     write(output/'native.json', result, fresh=True)
     return result
