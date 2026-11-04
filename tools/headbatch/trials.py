@@ -44,7 +44,7 @@ def write_spec(workspace, race, version):
     name = f'srn_rh_{race[:3]}{version}'
     spec = {'kind': 'srn-head-trial-spec', 'trial': f'race-heads-{race}-v{version}', 'hak': name, 'module': name,
             'prefix': [prefix(race, 'male'), prefix(race, 'female')], 'identity': {'appearanceRow': race_row['appearanceRow'], 'raceId': race_row['raceId'], 'visualScale': 1.0},
-            'motion': True, 'lighting': 'ambient', 'gameRoot': game['root'], 'client': game['client'],
+            'motion': True, 'lighting': 'ambient', 'gameRoot': workspace.path(game['root']).as_posix(), 'client': workspace.path(game['client']).as_posix(),
             'base': {'haks': [pin(workspace.path(hak)) for hak in base['haks']], 'module': pin(workspace.path(base['module'])), 'actorIdentity': base['actorIdentity']},
             'heads': heads}
     out = workspace.root/'specs'/f'trial-{race}-v{version}.json'

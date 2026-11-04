@@ -178,7 +178,9 @@ def reused_gpu_inputs(workspace, head, label, stages):
 def run_gpu(workspace, name, arguments):
     """Calibrate, geometry with its occiput check, and appearance for one head on the workspace's ComfyUI."""
     head = workspace.head(name)
-    guards.geometry_cap(head)
+    stages = (arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES).split(',')
+    if 'geometry' in stages:  # appearance reuses the saved shape and spends no submission
+        guards.geometry_cap(head)
     comfy = workspace.data.get('comfy')
     if not comfy:
         raise guards.Refused('This step needs "comfy" in workspace.json')
@@ -188,7 +190,6 @@ def run_gpu(workspace, name, arguments):
         matte = guards.attempts(head, 'prepare')[-1]/'images'/'design-rgba.png'
         templates = sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))
         input_list = head/'launches'/f'inputs-{label}.json'
-        stages = (arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES).split(',')
         reused, upstream = reused_gpu_inputs(workspace, head, label, stages)
         write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), str(matte)]+reused)
         job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream]

@@ -237,6 +237,14 @@ class GpuJob(Base):
         self.assertEqual(self.reused(['calibrate', 'geometry', 'appearance'])[1], ([], []))
         self.assertEqual(self.reused(['calibrate'])[1], ([], []))
 
+    def test_only_geometry_runs_meet_the_cap(self):
+        head = self.head()
+        write(head/'gpu/gpu.json', {'geometrySubmissions': 5, 'stages': {}})
+        with self.assertRaisesRegex(guards.Refused, 'cap of 5'):
+            launcher.run_gpu(self.workspace, head.name, ['--stages', 'geometry'])
+        with self.assertRaisesRegex(guards.Refused, 'comfy'):  # past the cap check
+            launcher.run_gpu(self.workspace, head.name, ['--stages', 'appearance'])
+
     def test_a_partial_run_needs_its_earlier_stages(self):
         head = self.head()
         write(head/'gpu/gpu.json', {'stages': {}})
@@ -379,6 +387,16 @@ class Trials(Base):
         self.assertEqual(row['skinRows'], [3, 6, 13])
         self.assertEqual(row['hairRows'], [5, 65, 21])
         self.assertEqual(row['tattoo2Row'], 33)
+
+    def test_spec_resolves_game_paths_against_the_workspace(self):
+        data = json.loads((self.root/'workspace.json').read_text())
+        data.update(game={'root': 'game', 'client': 'game/client'}, trialBase={'haks': ['head.hak'], 'module': 'mod.mod', 'actorIdentity': {}})
+        write(self.root/'workspace.json', data)
+        write(self.root/'head.hak')
+        write(self.root/'mod.mod')
+        spec = json.loads(trials.write_spec(Workspace.load(self.root), 'elf', 1)[0].read_text())
+        self.assertEqual(spec['gameRoot'], (self.root/'game').as_posix())
+        self.assertEqual(spec['client'], (self.root/'game/client').as_posix())
 
     def test_spec_needs_the_trial_settings(self):
         with self.assertRaisesRegex(guards.Refused, 'trialBase'):
@@ -585,6 +603,7 @@ class SpoolTests(Base):
     def test_a_launch_with_no_result_goes_to_attention(self):
         self.head()
         name = self.spool.launch('bake', 'elf-male-a')
+        self.spool.running[name] = unittest.mock.Mock(poll=lambda: 1)
         self.spool.step()
         self.assertIn(f'{name}/launch', self.spool.state['attention'])
 
@@ -681,6 +700,33 @@ class SpoolTests(Base):
         self.assertEqual(self.tools, [('presets', 'elf-male-a', '--apply', '--keep-floor')])
         self.assertEqual(self.started, [])
         self.assertIn('elf-male-a/repair', self.spool.state['attention'])
+
+    def restored(self, age):
+        self.head()
+        self.spool.launch('bake', 'elf-male-a')
+        name, info = next(iter(self.spool.state['launches'].items()))
+        info['startedAt'] -= age
+        self.spool.running.clear()
+        self.spool.state['attention'].clear()
+        return name
+
+    def test_a_launch_from_before_a_restart_is_kept_while_its_marker_stands(self):
+        name = self.restored(600)
+        write(self.workspace.launches/f'active-20261104-120000-{name}.json', {'heads': ['elf-male-a']})
+        self.spool.scan_launches()
+        self.assertIn(name, self.spool.state['launches'])
+        self.assertEqual(self.spool.state['attention'], {})
+
+    def test_a_restored_launch_gets_time_to_write_its_marker(self):
+        name = self.restored(5)
+        self.spool.scan_launches()
+        self.assertIn(name, self.spool.state['launches'])
+
+    def test_a_restored_launch_with_no_marker_and_no_result_goes_to_attention(self):
+        name = self.restored(600)
+        self.spool.scan_launches()
+        self.assertNotIn(name, self.spool.state['launches'])
+        self.assertIn(f'{name}/launch', self.spool.state['attention'])
 
     def test_stop_file_ends_the_loop(self):
         write(self.workspace.spool/'STOP')

@@ -25,6 +25,7 @@ PACKAGE_PINS = 'Python package file pins'
 SKIRT_GAP = .03  # the default of headkit neck_policy
 READ_BACK_LIMIT = 1e-6
 POLL_SECONDS = 20
+RESTART_GRACE_SECONDS = 60
 STAGE_GATED_ON_ROWS = {'export', 'native', 'render'}
 
 
@@ -87,7 +88,7 @@ class Spool:
         name = f"sp-{stages.split(',')[0]}-{head}-{datetime.now():%H%M%S%f}"
         self.log(f"launch {name}: {stages}{f' --approve {approve}' if approve else ''} {head}")
         self.running[name] = self.starter(name, stages, head, approve, notes)
-        self.state['launches'][name] = {'started': clock(), 'head': head}
+        self.state['launches'][name] = {'started': clock(), 'startedAt': time.time(), 'head': head}
         return name
 
     def receipt(self, head, stage):
@@ -215,11 +216,17 @@ class Spool:
                 elif status.startswith('blocked') and not ran:
                     self.attention(row['id'], stage, f'{status} in {name}')
 
+    def launch_alive(self, name, info):
+        """A launch from before a restart has no process here: its active marker shows it is still going, once it has had time to write one."""
+        process = self.running.get(name)
+        if process is not None:
+            return process.poll() is None
+        return time.time()-info['startedAt'] < RESTART_GRACE_SECONDS or any(self.workspace.launches.glob(f'active-*-{name}.json'))
+
     def scan_launches(self):
-        for name in list(self.state['launches']):
+        for name, info in list(self.state['launches'].items()):
             path = self.folder/'results'/f'{name}.json'
-            process = self.running.get(name)
-            if path.exists() or process is None or process.poll() is not None:
+            if path.exists() or not self.launch_alive(name, info):
                 del self.state['launches'][name]
                 self.running.pop(name, None)
                 if path.exists():
