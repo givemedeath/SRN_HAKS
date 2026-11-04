@@ -52,7 +52,7 @@ class TrialSpecTests(unittest.TestCase):
             'metalRow':spec(heads=[head('a',16,metalRow=3)]),
             'helmets':spec(heads=[head('a',16,helmets=[3])]),
             'armour':spec(heads=[head('a',16,armour=[176])]),
-            'too many actors':spec(heads=[head('h0',16),head('h1',17,skinRows=list(range(10)),hairRows=list(range(9)))]),
+            'At least one head':spec(heads=[]),
             'identity':spec(identity={'appearanceRow':2,'raceId':2}),
             'base actorIdentity':spec(base={**spec()['base'],'actorIdentity':{'appearanceRow':2}}),
             'Explicit lighting':spec(lighting='bright'),
@@ -92,17 +92,17 @@ class TrialSpecTests(unittest.TestCase):
         self.assertEqual([(a['skin'],a['hair'],a['helmet']) for a in first[9:]],[(65,65,1),(65,65,2)])
         self.assertEqual({(a['tattoo1'],a['tattoo2'],a['metal']) for a in first},{(85,88,0)})
         self.assertEqual({(a['slot'],a['tattoo1']) for a in actors[11:]},{(17,80)})
-        # One head's group is on the floor at a time: groups share the floor positions, tagged by head row.
+        # One NPC is on the floor at a time: every actor uses the same spot, tagged by head row and column.
         self.assertEqual([a['row'] for a in actors],[0]*11+[1]*11)
-        self.assertEqual([(a['x'],a['y']) for a in actors[11:]],[(a['x'],a['y']) for a in first])
-        self.assertEqual(len({(a['x'],a['y']) for a in first}),11)
-        # Many heads no longer exhaust the floor: the limit is per head.
+        self.assertEqual([a['column'] for a in actors],list(range(11))*2)
+        self.assertEqual(len({(a['x'],a['y']) for a in actors}),1)
         # Armour actors follow the helmets: first skin and hair rows, stock chest armour on each leather1 row.
         armoured=plan_actors(validate_spec(spec(heads=[head('a',16,helmets=[1],armour=[0,40])])))
         self.assertEqual([(a['skin'],a['hair'],a['helmet'],a['armour']) for a in armoured[9:]],[(65,65,1,None),(65,65,0,0),(65,65,0,40)])
         self.assertEqual({a['armour'] for a in armoured[:10]},{None})
-        many=validate_spec(spec(heads=[head(f'h{i}',16+i,skinRows=list(range(5)),hairRows=list(range(5))) for i in range(8)]))
-        self.assertEqual(max(a['row'] for a in plan_actors(many)),7)
+        # No head cap: a trial can hold a whole race.
+        many=validate_spec(spec(heads=[head(f'h{i}',16+i,skinRows=list(range(5)),hairRows=list(range(5))) for i in range(24)]))
+        self.assertEqual(max(a['row'] for a in plan_actors(many)),23)
         self.assertTrue(all(len(a['tag'])<=16 and 0<a['x']<80 and 0<a['y']<80 for a in actors))
 
 
@@ -238,10 +238,13 @@ class TrialModuleTests(unittest.TestCase):
         self.assertEqual(set(scripts),{'sr_h_enter','sr_h_chat'})
         enter,chat=scripts['sr_h_enter'],scripts['sr_h_chat']
         self.assertIn('const int HEAD_ROWS=2;',enter);self.assertIn(f'const float SWEEP={SWEEP_SECONDS:.1f};',enter)
-        spawn=[line for line in enter.splitlines() if line.startswith('  if(row==') and 'HeadSpawn(' in line]
-        self.assertEqual(len(spawn),2)
-        for index,line in enumerate(spawn):
-            self.assertEqual(line.count('HeadSpawn('),11);self.assertTrue(all(f'"sr_h_actor{i}"' in line for i in range(index*11,index*11+11)))
+        # A show or a look spawns one actor, and a newer command replaces a pending spawn.
+        self.assertIn('DelayCommand(0.5,HeadSpawnActor(row,col,request));',enter)
+        self.assertIn('"HEAD_REQUEST")==request) HeadSpawn(HeadActor(row,col),row);',enter)
+        self.assertEqual(enter.count('HeadSpawn('),2)  # its definition and the one call
+        self.assertIn('HeadPut(((row%HEAD_ROWS)+HEAD_ROWS)%HEAD_ROWS,0);',enter)
+        self.assertIn('if(HeadActor(row,n-1)!="") HeadPut(row,n-1);',chat)
+        self.assertNotIn('head_target',enter+chat)
         self.assertIn('return "troll-male-03 (pmg0_head017)";',enter)
         self.assertIn('AssignCommand(GetModule(),HeadSweep());',enter);self.assertIn('HEAD_FIXTURE_CLIENT_ENTER',enter)
         self.assertIn('HEAD_FIXTURE_ROW shown=',chat)
@@ -281,7 +284,7 @@ class TrialModuleTests(unittest.TestCase):
         # the view survives head changes: HeadShow re-places the camera after the new row spawns
         self.assertIn('DelayCommand(1.2,HeadCamera(p))',chat)
         self.assertIn(f'return {INSPECT_HEIGHT:.3f};}}',row_scripts(validate_spec(spec()),plan_actors(validate_spec(spec())))['sr_h_chat'])
-        self.assertIn('stand still in idle',readme(value,actors,['a']));self.assertIn('revive 10 s',readme(validate_spec(spec(motion=True)),actors,['a']))
+        self.assertIn('| 2 | 3 | sr_h_actor13 |',readme(value,actors,['a']));self.assertIn('stand still in idle',readme(value,actors,['a']));self.assertIn('revive 10 s',readme(validate_spec(spec(motion=True)),actors,['a']))
         for bad in ({'height':{'pfh0':1.6}},{'height':{'pmg0':9}},{'distance':.1},{'pitch':80}):
             with self.assertRaisesRegex(ValueError,'inspect'):validate_spec(spec(inspect=bad))
 
@@ -361,6 +364,17 @@ class TrialLogTests(unittest.TestCase):
         report=verify_head_trial.check(manifest(colorsLogged=False),LOG.replace('HEAD_FIXTURE_COLORS','OTHER'))
         self.assertTrue(report['passed'])
 
+    def test_only_first_looks_are_required_but_shown_looks_are_checked(self):
+        look={'tag':'sr_h_actor2','headId':'a','model':'pmg0_head016','slot':16,'skin':3,'hair':65,'tattoo1':85,'tattoo2':88,'column':1}
+        first=[{**row,'column':0} for row in manifest()['actors']]
+        report=verify_head_trial.check(manifest(actors=first+[look]),LOG)
+        self.assertTrue(report['passed'],report['problems']);self.assertEqual(report['actors'][2]['status'],'not-shown')
+        shown=LOG+'[Fri Oct 23 13:01:30] HEAD_FIXTURE_SLOT actor=sr_h_actor2 selected=15\n'
+        report=verify_head_trial.check(manifest(actors=first+[look]),shown)
+        self.assertFalse(report['passed']);self.assertEqual(report['actors'][2]['status'],'wrong-slot')
+        report=verify_head_trial.check(manifest(actors=first),LOG.replace('actor=sr_h_actor0','actor=x'))
+        self.assertEqual(report['actors'][0]['status'],'missing');self.assertFalse(report['passed'])
+
     def test_row_cycling_modules_must_show_every_head_row(self):
         rows=[{'index':0,'headId':'a','model':'pmg0_head016','actors':['sr_h_actor0']},{'index':1,'headId':'b','model':'pmg0_head017','actors':['sr_h_actor1']}]
         report=verify_head_trial.check(manifest(rows=rows),LOG)
@@ -374,7 +388,7 @@ class TrialLogTests(unittest.TestCase):
             (root/'userdir/logs').mkdir(parents=True);log=root/'userdir/logs/nwclientLog1.txt';log.write_text(LOG)
             with contextlib.redirect_stdout(io.StringIO()) as out:
                 self.assertEqual(verify_head_trial.main(['--manifest',str(root/'runtime-manifest.json'),'--output',str(root/'report.json')]),0)
-            self.assertIn('PASSED (2/2',out.getvalue());self.assertTrue((root/'report.json').is_file())
+            self.assertIn('PASSED (2/2 required',out.getvalue());self.assertTrue((root/'report.json').is_file())
             log.write_text(LOG.replace('selected=16','selected=15'))
             with contextlib.redirect_stdout(io.StringIO()) as out:
                 self.assertEqual(verify_head_trial.main(['--manifest',str(root/'runtime-manifest.json'),'--log',str(log)]),1)

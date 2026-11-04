@@ -1,4 +1,5 @@
-"""Read a trial client log and confirm every expected actor spawned on its head slot (and palette rows when logged)."""
+"""Read a trial client log and confirm each head's first look spawned on its head slot (and palette rows when logged).
+Other looks spawn only on `look N` and are checked when the log has them. Manifests without columns require every actor."""
 import argparse
 from pathlib import Path
 import re
@@ -41,8 +42,9 @@ def check(manifest,text,*,check_colors=True):
     actors=[]
     for actor in manifest['actors']:
         seen=[event.get('selected') for event in slots.get(actor['tag'],[])]
-        row={'tag':actor['tag'],'headId':actor['headId'],'model':actor['model'],'expectedSlot':actor['slot'],'observedSlots':seen}
-        if not seen:row['status']='missing'
+        required=actor.get('column',0)==0
+        row={'tag':actor['tag'],'headId':actor['headId'],'model':actor['model'],'expectedSlot':actor['slot'],'observedSlots':seen,'required':required}
+        if not seen:row['status']='missing' if required else 'not-shown'
         elif any(value!=str(actor['slot']) for value in seen):row['status']='wrong-slot'
         else:row['status']='spawned'
         if check_colors and manifest.get('colorsLogged') and row['status']=='spawned':
@@ -58,7 +60,7 @@ def check(manifest,text,*,check_colors=True):
     if started is None:problems.append('No client session banner in log')
     if manifest['module'] not in loaded:problems.append('Module '+manifest['module']+' was not loaded in the newest session')
     if 'HEAD_FIXTURE_CLIENT_ENTER' not in lines:problems.append('Player never entered the module (no HEAD_FIXTURE_CLIENT_ENTER)')
-    problems+=[f"{row['tag']} ({row['model']}): {row['status']}" for row in actors if row['status']!='spawned']
+    problems+=[f"{row['tag']} ({row['model']}): {row['status']}" for row in actors if row['status'] not in ('spawned','not-shown')]
     problems+=['Unexpected actor in log: '+tag for tag in unexpected]
     if 'rows' in manifest:
         shown={line.split('shown=',1)[1].split()[0] for line in lines if line.startswith('HEAD_FIXTURE_ROW shown=')}
@@ -87,8 +89,9 @@ def main(argv=None):
     for row in report['actors']:
         print(f"{row['status']:<14} {row['tag']:<16} {row['model']:<14} expected={row['expectedSlot']} observed={','.join(row['observedSlots']) or '-'}")
     for problem in report['problems']:print('PROBLEM: '+problem)
-    slotted=sum(r['status'] not in ('missing','wrong-slot') for r in report['actors'])
-    print('PASSED' if report['passed'] else 'FAILED',f"({slotted}/{len(report['actors'])} actors on expected slots)")
+    required=[r for r in report['actors'] if r['required']]
+    slotted=sum(r['status'] not in ('missing','wrong-slot') for r in required)
+    print('PASSED' if report['passed'] else 'FAILED',f"({slotted}/{len(required)} required actors on expected slots)")
     if args.output:write_fresh(args.output,{**report,'manifest':pin(args.manifest),'log':pin(log)})
     return 0 if report['passed'] else 1
 
