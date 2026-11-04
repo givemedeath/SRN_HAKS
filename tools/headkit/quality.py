@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import label, binary_dilation, binary_erosion, binary_opening
 from scipy.spatial import cKDTree
-from .common import require, pin, write, read
+from .common import require, pin, write, read, positive
 from .gltf import mesh
 from .face_masks import EYE_RING, EYES, IRIS, LIPS, NOSE_BASE, polygon, face_hull, brow_seed, brow_mask, plain_skin, hair_locks, sample, nearest
 
@@ -74,9 +74,9 @@ def seam_limit(limit, approved):
     """The seamStep limit for this head: the shared limit, or the ratio a client-viewed head was approved at (RUNBOOK 178).
     An approval raises it for that head only, and a later rise past `ratioMax` fails again."""
     if approved is None: return limit
-    require(isinstance(approved, dict) and set(approved) == {'ratioMax', 'approval'} and type(approved['ratioMax']) in (int, float) and approved['ratioMax'] > limit
+    require(isinstance(approved, dict) and set(approved) == {'ratioMax', 'approval'} and positive(approved.get('ratioMax'), 'quality.seamStepApproved ratioMax') > limit
             and isinstance(approved['approval'], str) and approved['approval'].strip() != '', 'quality.seamStepApproved needs ratioMax above the limit and an approval note')
-    return approved['ratioMax']
+    return float(approved['ratioMax'])
 
 
 def quality(source, masks, palette, palettes, output, thresholds=None, settings=None, embree=None):
@@ -89,9 +89,9 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
     require(set(settings) <= {'cybereyeImageSide', 'seamStepApproved'} and side in (None, 'left', 'right'), 'quality.cybereyeImageSide must be left or right')
     approved = settings.get('seamStepApproved')
     require(embree is not None, 'Quality needs the bound Embree runtime')
-    output = Path(output); output.mkdir(parents=True, exist_ok=False)
     limits = thresholds if thresholds is not None else read(THRESHOLDS)['limits']; require(set(limits) == CHECKS, 'Incomplete quality thresholds')
     seam_max = seam_limit(limits['seamStepRatioMax'], approved)
+    output = Path(output); output.mkdir(parents=True, exist_ok=False)
     require(masks['source']['sha256'] == pin(source)['sha256'], 'Quality must read the masks of this UV mesh')
     files = masks['files']; value = mesh(source); uv = value['uv'].astype(float)
     with np.load(files['frontView']['path']) as data: view = {k: data[k] for k in ('hit', 'face', 'bary')}

@@ -259,11 +259,17 @@ class Quality(unittest.TestCase):
 
     def test_seam_approval_raises_one_heads_limit_to_its_viewed_ratio(self):
         # RUNBOOK 178: a head's own approved ratio, with its note; anything else keeps the shared limit or stops.
-        from headkit.quality import seam_limit
+        from headkit.quality import quality, seam_limit
         self.assertEqual(seam_limit(1.45, None), 1.45); self.assertEqual(seam_limit(1.45, {'ratioMax': 1.65, 'approval': 'user 2026-11-04'}), 1.65)
-        for bad in ({'ratioMax': 1.65}, {'ratioMax': 1.4, 'approval': 'x'}, {'ratioMax': True, 'approval': 'x'}, {'ratioMax': 1.65, 'approval': ' '}, {'ratioMax': 1.65, 'approval': 'x', 'more': 1}, 1.65):
+        bads = ({'ratioMax': 1.65}, {'ratioMax': 1.4, 'approval': 'x'}, {'ratioMax': True, 'approval': 'x'}, {'ratioMax': float('inf'), 'approval': 'x'},
+                {'ratioMax': 1.65, 'approval': ' '}, {'ratioMax': 1.65, 'approval': 'x', 'more': 1}, 1.65)
+        for bad in bads:
             with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, 'seamStepApproved'):
                 seam_limit(1.45, bad)
+        with tempfile.TemporaryDirectory() as root:   # through quality(): the allow-list takes the key, and a bad value stops before any work
+            with self.assertRaisesRegex(ValueError, 'seamStepApproved'):
+                quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'seamStepApproved': bads[0]}, embree='embree.dll')
+            self.assertFalse((Path(root)/'q').exists())
 
 
 class Wiring(unittest.TestCase):
