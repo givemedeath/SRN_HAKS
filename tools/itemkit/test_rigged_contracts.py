@@ -3,11 +3,21 @@ from PIL import Image
 from tools.headkit.common import write,pin
 from .test_itemkit import Fixture
 from . import contracts
-from .parts import active_parts,active_icon_dimensions,assembly_budget,WHOLE_NATIVE_FAMILIES
+from .parts import active_parts,active_icon_dimensions,fitting_parts,assembly_budget,WHOLE_NATIVE_FAMILIES
 from .runner import Runner
 
 
 class RiggedContractTests(Fixture):
+    def test_single_part_fitting_keeps_whole_mesh_without_melee_cuts(self):
+        for family,part in (('bow','m'),('whip','m'),('crossbow','t'),('shield','whole')):
+            profile={'family':family}
+            if family=='shield':profile.update(nativePackaging='enabled',native={'kind':'shield-whole-v1'})
+            self.assertEqual(fitting_parts(profile,[]),(part,))
+            with self.assertRaisesRegex(ValueError,'single-part'):
+                fitting_parts(profile,[-.1,.1])
+        self.assertEqual(fitting_parts({'family':'shortsword'},[-.1,.1]),('b','m','t'))
+        with self.assertRaisesRegex(ValueError,'Two ordered'):fitting_parts({'family':'shortsword'},[])
+
     def test_rigid_runner_rejects_rigged_export_before_dropping_weights(self):
         runner=Runner.__new__(Runner);runner.worker=Mock()
         for family in ('bow','whip','crossbow'):

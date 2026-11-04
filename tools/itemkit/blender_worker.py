@@ -19,7 +19,7 @@ from tools.headkit.gltf import load as load_glb
 from tools.headkit.uv import raster_audit, gutter_audit
 from tools.itemkit.geometry import similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
 from tools.itemkit.transfer import finished_colour,validate_texture_patch
-from tools.itemkit.parts import active_parts, active_icon_dimensions, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
+from tools.itemkit.parts import active_parts, active_icon_dimensions, fitting_parts, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
 
 def arrays(obj):
     mesh = obj.data; mesh.calc_loop_triangles()
@@ -254,13 +254,11 @@ def fit(cfg, out):
     require(abs(length/native['gripLength']-1) <= .02, 'Fitted grip differs from the measured native hand')
     require(np.linalg.norm(fitted.mean(0)-np.asarray(native['gripOrigin'])) <= .002, 'Grip origin differs from native hand')
     joins = cfg['processing'].get('joinY', [])
-    firearm = cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
-    if firearm: require(not joins, 'A whole firearm must not inherit melee part cuts')
-    else: require(len(joins) == 2 and np.isfinite(joins).all() and joins[0] < joins[1], 'Two ordered natural part cuts required')
+    fitted_parts = fitting_parts(cfg['family'], joins)
     objects = []
-    for part in active_parts(cfg['family']):
+    for part in fitted_parts:
         obj = duplicate(working, 'item_'+part); objects.append(obj)
-        if firearm: continue
+        if len(fitted_parts)==1: continue
         if part == 'b': cut(obj, joins[0], False)
         if part == 'm': cut(obj, joins[0], True); cut(obj, joins[1], False)
         if part == 't': cut(obj, joins[1], True)
@@ -287,11 +285,11 @@ def reduce(cfg, out, shadow=False):
             source_p,source_f=arrays(obj);budget=cfg['family']['budgets']['parts'][part]['visible']
             require(candidate['arrays'] in cfg['inputs'],'Declare the constrained visible candidate')
             require(candidate['sourceCornerHash']==hashlib.sha256(np.asarray(source_p[source_f],dtype='<f8').tobytes()).hexdigest()
-                    and candidate['policyHash']==policy(budget,cfg['processing']['joinY']),
+                    and candidate['policyHash']==policy(budget,cfg['processing'].get('joinY',[])),
                     'Constrained candidate source or policy changed')
             verify([candidate['arrays']])
             with np.load(candidate['arrays']['path'],allow_pickle=False) as data:cp,cf=data['positions'],data['faces']
-            validate(source_p,cp,cf,budget,cfg['processing']['joinY'])
+            validate(source_p,cp,cf,budget,cfg['processing'].get('joinY',[]))
             mesh=bpy.data.meshes.new('constrained-visible-'+part);mesh.from_pydata(cp.tolist(),[],cf.tolist());mesh.update()
             for polygon in mesh.polygons:polygon.use_smooth=True
             mesh.use_auto_smooth=True

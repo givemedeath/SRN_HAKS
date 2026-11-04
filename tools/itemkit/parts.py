@@ -48,6 +48,18 @@ def active_icon_dimensions(profile):
     return dimensions
 
 
+def fitting_parts(profile, joins):
+    """Whole meshes keep both ends; only multipart melee uses cut planes."""
+    import math
+    active=active_parts(profile)
+    if len(active)==1:
+        require(not joins, 'A single-part weapon must not inherit melee part cuts')
+    else:
+        require(len(joins)==2 and all(math.isfinite(y) for y in joins) and joins[0]<joins[1],
+                'Two ordered natural part cuts required')
+    return active
+
+
 def assembly_budget(profile, counts, kind):
     active = active_parts(profile)
     require(set(counts) == set(active), 'Count every active processing part exactly once')
