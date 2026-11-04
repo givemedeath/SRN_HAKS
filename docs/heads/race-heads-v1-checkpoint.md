@@ -112,4 +112,6 @@ The user chose to publish these 12 heads in `srn_head`. They are the race heads 
 
 The first release has no elf and no dwarf male heads. Each head's iris uses tattoo1. Orc and troll tusks and horns use tattoo2.
 
+The same pack update adds the Troll build allowance on the 34 published Troll heads (`troll-build-allowance-r3.json`).
+
 Client check of these exact compiled files: `verify_head_trial` passed in all four race trials, and every head was viewed from the front at 0.9 m ([sheet](evidence/race-heads-publish-12-sheet.jpg)). Motion and helmets were not rechecked for this set. The toolkit's client and acceptance reports were not produced; the user's decision stands in for production acceptance.
