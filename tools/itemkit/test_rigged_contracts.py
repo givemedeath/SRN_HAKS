@@ -1,12 +1,22 @@
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from PIL import Image
 from tools.headkit.common import write,pin
 from .test_itemkit import Fixture
 from . import contracts
 from .parts import active_parts,assembly_budget,WHOLE_NATIVE_FAMILIES
+from .runner import Runner
 
 
 class RiggedContractTests(Fixture):
+    def test_rigid_runner_rejects_rigged_export_before_dropping_weights(self):
+        runner=Runner.__new__(Runner);runner.worker=Mock()
+        for family in ('bow','whip','crossbow'):
+            runner.family={'family':family}
+            with self.subTest(family=family), self.assertRaisesRegex(ValueError,'reviewed skinned_native adapter'):
+                runner._execute('export',self.root/'unwritten',parent_results={})
+        runner.worker.assert_not_called()
+        self.assertFalse((self.root/'unwritten').exists())
+
     def qualified(self,family):
         self.native();self.profile['family']=family;n=self.profile['native'];bow=family=='bow'
         base,cls,size,wield=(8,'wbwln',[64,128],'5') if bow else (111,'wwhip',[64,64],'****')

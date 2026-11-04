@@ -1044,6 +1044,7 @@
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py",
       "tools/itemkit/parts.py",
+      "tools/itemkit/runner.py",
       "tools/itemkit/test_itemkit.py"
     ],
     "tools/itemkit/test_shadow.py": [

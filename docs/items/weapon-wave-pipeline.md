@@ -29,6 +29,10 @@ table or Human motion overrides into the production packs.
 - Export exact native skin corner attributes, shadows and animation controllers;
   retain original weapon clips when adding body-animation aliases. Qualify
   binary NeverBlender roundtrips separately from display normals.
+  Bow, Whip and Crossbow use the separately reviewed `skinned_native` adapter
+  with their qualified rig, weights and inactive placeholders. The generic
+  rigid Runner exporter rejects those families before writing output; it does
+  not provide automatic skin-weight transfer or a complete rigged package route.
 - Keep one-handed firearm motion additive and private. Fixture repair retains
   save/reload environment resources, waits for a valid player area and clears
   queued reviewer actions before staging.
