@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-mitsubishi-yakusoku-mrl-9e62ecc7e9",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-left-edge-native-row500",
+      "pixel": [
+        19.000000000000004,
+        500.0
+      ]
+    },
+    {
+      "name": "smartgun-housing-top-native-x600-900",
+      "pixel": [
+        693.0000000000002,
+        333.0
+      ]
+    },
+    {
+      "name": "upper-muzzle-right-edge-native-row600",
+      "pixel": [
+        1239.0,
+        600.0
+      ]
+    },
+    {
+      "name": "grip-bottom-tangent",
+      "pixel": [
+        387.0,
+        896.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-mitsubishi-yakusoku-mrl-9e62ecc7e9.family.json",
+    "sha256": "fca18370ef51397a39ff6128d95ae5be576a346437c2882fedebea918cb874a7"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/ea0e8a32fab324a623b6ad51339855f267b8da6935d1c11f7b43cdf1595cd18e.png",
+      "sha256": "ea0e8a32fab324a623b6ad51339855f267b8da6935d1c11f7b43cdf1595cd18e"
+    },
+    "clayReference": {
+      "path": "inputs/c28b3a5a6fcf0b92093ae7da496108b18837267dd20310a92adaa8da2d128743.png",
+      "sha256": "c28b3a5a6fcf0b92093ae7da496108b18837267dd20310a92adaa8da2d128743"
+    },
+    "geometry": {
+      "path": "inputs/9af03df11e567b8e48a656a13c857b0ef7d4c32ef1447a7d6a0b16ab858db5be.png",
+      "sha256": "9af03df11e567b8e48a656a13c857b0ef7d4c32ef1447a7d6a0b16ab858db5be"
+    },
+    "detail": {
+      "path": "inputs/54904b02787841f977df101dd24448facb430f1e8fb8b85296e237389b277ad6.png",
+      "sha256": "54904b02787841f977df101dd24448facb430f1e8fb8b85296e237389b277ad6"
+    },
+    "foregroundMask": {
+      "path": "inputs/565ab90aa531d74919bf4814be1cea4ad94dbea070df5e3d830e4cd62b43ba09.png",
+      "sha256": "565ab90aa531d74919bf4814be1cea4ad94dbea070df5e3d830e4cd62b43ba09"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/b28de668d5d4104945428528fec76f2f529114aad71d060db06c55449c9cf321.png",
+      "sha256": "b28de668d5d4104945428528fec76f2f529114aad71d060db06c55449c9cf321"
+    },
+    "mask": {
+      "path": "inputs/b28de668d5d4104945428528fec76f2f529114aad71d060db06c55449c9cf321.png",
+      "sha256": "b28de668d5d4104945428528fec76f2f529114aad71d060db06c55449c9cf321"
+    },
+    "calibrationReference": {
+      "path": "inputs/c7923e45c1e5b71935e60d9221b13ee598eed2b24b6c974b6f5fc0e2d8fc0d8a.png",
+      "sha256": "c7923e45c1e5b71935e60d9221b13ee598eed2b24b6c974b6f5fc0e2d8fc0d8a"
+    },
+    "sourceAudit": {
+      "path": "inputs/22550252d549d5b8b97cc2bd16b51fffb1ce995134c76cfc001857fd5a3cf79e.json",
+      "sha256": "22550252d549d5b8b97cc2bd16b51fffb1ce995134c76cfc001857fd5a3cf79e"
+    },
+    "referenceApproval": {
+      "path": "inputs/a04df19b05d2f8352221b5732a899f736fd2cc5402a60247a159af3d0eb62756.json",
+      "sha256": "a04df19b05d2f8352221b5732a899f736fd2cc5402a60247a159af3d0eb62756"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0026016925b81c78701af0e35deff4e1ef5f2736a06e5e47455e40179059f691.png",
+      "sha256": "0026016925b81c78701af0e35deff4e1ef5f2736a06e5e47455e40179059f691"
+    }
+  },
+  "features": [
+    {
+      "name": "Two firing tubes and internal loading mechanism for up to four missile types, two each; integrated smartgun connection (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve two distinct firing tubes and substantial internal loading body; exact tube arrangement, grip and stock remain unconstrained by art in the reviewed pages.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected after actual raw pair/alpha review: two coherent stacked tubes/mouths, body, smartgun housing, stock/trigger openings and paired framing preserved. No actual alpha debris. Native1254 originals retained; resampled2048 disclosed. Shallow cosmetic lines nonblocking; approved pair review reused with fresh bytes.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        334,
+        831,
+        415,
+        941
+      ],
+      "referenceAreaPixels": 6203,
+      "referenceMaskSha256": "b28de668d5d4104945428528fec76f2f529114aad71d060db06c55449c9cf321",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        843,
+        1114,
+        900,
+        1225
+      ],
+      "referenceAreaPixels": 4619,
+      "referenceMaskSha256": "b28de668d5d4104945428528fec76f2f529114aad71d060db06c55449c9cf321",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ea0e8a32fab324a623b6ad51339855f267b8da6935d1c11f7b43cdf1595cd18e",
+      "imageSha256": "54904b02787841f977df101dd24448facb430f1e8fb8b85296e237389b277ad6",
+      "maskSha256": "565ab90aa531d74919bf4814be1cea4ad94dbea070df5e3d830e4cd62b43ba09",
+      "notes": "Final prepared overlay inspected after actual raw pair/alpha review: two coherent stacked tubes/mouths, body, smartgun housing, stock/trigger openings and paired framing preserved. No actual alpha debris. Native1254 originals retained; resampled2048 disclosed. Shallow cosmetic lines nonblocking; approved pair review reused with fresh bytes."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c28b3a5a6fcf0b92093ae7da496108b18837267dd20310a92adaa8da2d128743",
+      "imageSha256": "9af03df11e567b8e48a656a13c857b0ef7d4c32ef1447a7d6a0b16ab858db5be",
+      "maskSha256": "b28de668d5d4104945428528fec76f2f529114aad71d060db06c55449c9cf321",
+      "notes": "Final prepared overlay inspected after actual raw pair/alpha review: two coherent stacked tubes/mouths, body, smartgun housing, stock/trigger openings and paired framing preserved. No actual alpha debris. Native1254 originals retained; resampled2048 disclosed. Shallow cosmetic lines nonblocking; approved pair review reused with fresh bytes."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "ea0e8a32fab324a623b6ad51339855f267b8da6935d1c11f7b43cdf1595cd18e",
+      "detailSha256": "54904b02787841f977df101dd24448facb430f1e8fb8b85296e237389b277ad6",
+      "geometrySha256": "9af03df11e567b8e48a656a13c857b0ef7d4c32ef1447a7d6a0b16ab858db5be",
+      "foregroundMaskSha256": "565ab90aa531d74919bf4814be1cea4ad94dbea070df5e3d830e4cd62b43ba09",
+      "geometryForegroundMaskSha256": "b28de668d5d4104945428528fec76f2f529114aad71d060db06c55449c9cf321",
+      "landmarks": [
+        {
+          "name": "stock-left-edge-native-row500",
+          "detail": [
+            0.050540902238348326,
+            0.4151305073984099
+          ],
+          "geometry": [
+            0.050540902238348326,
+            0.4151305073984099
+          ]
+        },
+        {
+          "name": "smartgun-housing-top-native-x600-900",
+          "detail": [
+            0.5467496358851187,
+            0.29223977887588337
+          ],
+          "geometry": [
+            0.5445409916700736,
+            0.29150390624999994
+          ]
+        },
+        {
+          "name": "upper-muzzle-right-edge-native-row600",
+          "detail": [
+            0.9487228830233033,
+            0.4887177699867491
+          ],
+          "geometry": [
+            0.9494590977616517,
+            0.4887177699867491
+          ]
+        },
+        {
+          "name": "grip-bottom-tangent",
+          "detail": [
+            0.3214679259505315,
+            0.7065360672482333
+          ],
+          "geometry": [
+            0.32073171121218313,
+            0.7072719398741166
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected after actual raw pair/alpha review: two coherent stacked tubes/mouths, body, smartgun housing, stock/trigger openings and paired framing preserved. No actual alpha debris. Native1254 originals retained; resampled2048 disclosed. Shallow cosmetic lines nonblocking; approved pair review reused with fresh bytes."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

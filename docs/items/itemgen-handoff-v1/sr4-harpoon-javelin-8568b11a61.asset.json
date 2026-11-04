@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-harpoon-javelin-8568b11a61",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        29.0,
+        27.999999999999996
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1219.0,
+        27.999999999999996
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        29.0,
+        1221.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1219.0,
+        1221.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-harpoon-javelin-8568b11a61.family.json",
+    "sha256": "1b1c1e7386c88915ed849c78f54d017301d5448e55ef482fef262a9e5a18ba88"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/70328532f843886627ad5c83d454605acacc03f65f19abf08e994f5827224a00.png",
+      "sha256": "70328532f843886627ad5c83d454605acacc03f65f19abf08e994f5827224a00"
+    },
+    "clayReference": {
+      "path": "inputs/5441ddae971db81f7e44995ad204730b96cca79d5ad89abd0ea3981795da7732.png",
+      "sha256": "5441ddae971db81f7e44995ad204730b96cca79d5ad89abd0ea3981795da7732"
+    },
+    "geometry": {
+      "path": "inputs/a679ee0d01e5eec62ff6c52f6d3a0482897e7722ac792fb24c9bd54dc089101c.png",
+      "sha256": "a679ee0d01e5eec62ff6c52f6d3a0482897e7722ac792fb24c9bd54dc089101c"
+    },
+    "detail": {
+      "path": "inputs/99e865c82406da162b0e7dc61868f1d22129120a5237de13faa9dcc85d6aae08.png",
+      "sha256": "99e865c82406da162b0e7dc61868f1d22129120a5237de13faa9dcc85d6aae08"
+    },
+    "foregroundMask": {
+      "path": "inputs/ca98cb220e37944850393eedd0b5e88667c9fa6462fbba96df53a53beb036cad.png",
+      "sha256": "ca98cb220e37944850393eedd0b5e88667c9fa6462fbba96df53a53beb036cad"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/cef87bb17737c645700f37cbc15c5a1ec5ecacd1791ca7299c33751807f60c91.png",
+      "sha256": "cef87bb17737c645700f37cbc15c5a1ec5ecacd1791ca7299c33751807f60c91"
+    },
+    "mask": {
+      "path": "inputs/cef87bb17737c645700f37cbc15c5a1ec5ecacd1791ca7299c33751807f60c91.png",
+      "sha256": "cef87bb17737c645700f37cbc15c5a1ec5ecacd1791ca7299c33751807f60c91"
+    },
+    "calibrationReference": {
+      "path": "inputs/cb9ba9180ffaf72378ad0c189d41d42cc0f8b1b0468ffb179ae65401fcda9d1b.png",
+      "sha256": "cb9ba9180ffaf72378ad0c189d41d42cc0f8b1b0468ffb179ae65401fcda9d1b"
+    },
+    "sourceAudit": {
+      "path": "inputs/e95ebce0e966d1f33036e7f49a4d48b8c73cbee23d955948b29f88aae48b68a9.json",
+      "sha256": "e95ebce0e966d1f33036e7f49a4d48b8c73cbee23d955948b29f88aae48b68a9"
+    },
+    "referenceApproval": {
+      "path": "inputs/255f8e5c37fd782d7453d61c92b48689d77d93ceefb9c9580690420036bf24fa.json",
+      "sha256": "255f8e5c37fd782d7453d61c92b48689d77d93ceefb9c9580690420036bf24fa"
+    },
+    "calibrationDetail": {
+      "path": "inputs/94bc0646715c212962bfded47fd83be957146baeae15b2100a3d3dbe76a0eeef.png",
+      "sha256": "94bc0646715c212962bfded47fd83be957146baeae15b2100a3d3dbe76a0eeef"
+    }
+  },
+  "features": [
+    {
+      "name": "Javelin is a spear made for throwing; harpoon is spear-like with a barbed head for spear fishing/hunting",
+      "placementReviewed": true
+    },
+    {
+      "name": "Modern versions may use plastics/metal alloys; traditional versions a wooden shaft and bone/stone head",
+      "placementReviewed": true
+    },
+    {
+      "name": "Both alternatives share one catalog row, but barbs are required for the harpoon interpretation, not universally for javelin",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay and original pair reviewed: matched framing/proportions; complete shaft, head and barb gaps retained. Shallow grooves accepted. Arsenal printed19/PDF21 and printed173/PDF175: this combined Harpoon/Javelin row explicitly selects the barbed harpoon alternative. Long shaft and barbed head meet the prose; not every javelin has barbs. Exact proportions, materials/finish, colors and grip treatment are artistic interpretation; no own labeled harpoon illustration claimed.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "70328532f843886627ad5c83d454605acacc03f65f19abf08e994f5827224a00",
+      "imageSha256": "99e865c82406da162b0e7dc61868f1d22129120a5237de13faa9dcc85d6aae08",
+      "maskSha256": "ca98cb220e37944850393eedd0b5e88667c9fa6462fbba96df53a53beb036cad",
+      "notes": "Actual conditioned overlay and original pair reviewed: matched framing/proportions; complete shaft, head and barb gaps retained. Shallow grooves accepted. Arsenal printed19/PDF21 and printed173/PDF175: this combined Harpoon/Javelin row explicitly selects the barbed harpoon alternative. Long shaft and barbed head meet the prose; not every javelin has barbs. Exact proportions, materials/finish, colors and grip treatment are artistic interpretation; no own labeled harpoon illustration claimed."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "5441ddae971db81f7e44995ad204730b96cca79d5ad89abd0ea3981795da7732",
+      "imageSha256": "a679ee0d01e5eec62ff6c52f6d3a0482897e7722ac792fb24c9bd54dc089101c",
+      "maskSha256": "cef87bb17737c645700f37cbc15c5a1ec5ecacd1791ca7299c33751807f60c91",
+      "notes": "Actual conditioned overlay and original pair reviewed: matched framing/proportions; complete shaft, head and barb gaps retained. Shallow grooves accepted. Arsenal printed19/PDF21 and printed173/PDF175: this combined Harpoon/Javelin row explicitly selects the barbed harpoon alternative. Long shaft and barbed head meet the prose; not every javelin has barbs. Exact proportions, materials/finish, colors and grip treatment are artistic interpretation; no own labeled harpoon illustration claimed."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual conditioned overlay and original pair reviewed: matched framing/proportions; complete shaft, head and barb gaps retained. Shallow grooves accepted. Arsenal printed19/PDF21 and printed173/PDF175: this combined Harpoon/Javelin row explicitly selects the barbed harpoon alternative. Long shaft and barbed head meet the prose; not every javelin has barbs. Exact proportions, materials/finish, colors and grip treatment are artistic interpretation; no own labeled harpoon illustration claimed.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.0517578125,
+            0.05055689353592314
+          ],
+          "geometry": [
+            0.0517578125,
+            0.0498046875
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9470016005457599,
+            0.05055689353592314
+          ],
+          "geometry": [
+            0.94775390625,
+            0.0498046875
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.0517578125,
+            0.9479386943922306
+          ],
+          "geometry": [
+            0.0517578125,
+            0.9501953125
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9470016005457599,
+            0.9479386943922306
+          ],
+          "geometry": [
+            0.94775390625,
+            0.9501953125
+          ]
+        }
+      ],
+      "referenceSha256": "70328532f843886627ad5c83d454605acacc03f65f19abf08e994f5827224a00",
+      "geometrySha256": "a679ee0d01e5eec62ff6c52f6d3a0482897e7722ac792fb24c9bd54dc089101c",
+      "detailSha256": "99e865c82406da162b0e7dc61868f1d22129120a5237de13faa9dcc85d6aae08",
+      "geometryForegroundMaskSha256": "cef87bb17737c645700f37cbc15c5a1ec5ecacd1791ca7299c33751807f60c91",
+      "foregroundMaskSha256": "ca98cb220e37944850393eedd0b5e88667c9fa6462fbba96df53a53beb036cad"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

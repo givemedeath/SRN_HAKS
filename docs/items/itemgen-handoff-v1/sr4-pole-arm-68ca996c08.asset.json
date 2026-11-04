@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-pole-arm-68ca996c08",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-blade",
+      "pixel": [
+        80.0,
+        100.00000000000001
+      ]
+    },
+    {
+      "name": "lower-blade",
+      "pixel": [
+        320.0,
+        375.9999999999999
+      ]
+    },
+    {
+      "name": "head-socket",
+      "pixel": [
+        289.0,
+        85.0
+      ]
+    },
+    {
+      "name": "butt",
+      "pixel": [
+        1096.0,
+        1167.0
+      ]
+    },
+    {
+      "name": "grip",
+      "pixel": [
+        835.0000000000001,
+        861.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-pole-arm-68ca996c08.family.json",
+    "sha256": "01c649efa83fc0980c513fc72a3c8d81b83fa5f3300651c08f3ed40bc00b1edb"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/4728bd1699b1c23a1a3124642c2b0538daac87cf08b81af7c2837c22ccf41754.png",
+      "sha256": "4728bd1699b1c23a1a3124642c2b0538daac87cf08b81af7c2837c22ccf41754"
+    },
+    "clayReference": {
+      "path": "inputs/93ebe78cfb68e320ab79bcd373cce33dadec48f40de288a6e30885cc9705ccd3.png",
+      "sha256": "93ebe78cfb68e320ab79bcd373cce33dadec48f40de288a6e30885cc9705ccd3"
+    },
+    "geometry": {
+      "path": "inputs/296b5a0faecab297d8d0ed268f452ee79c673955388114bc1459fbeef31619f0.png",
+      "sha256": "296b5a0faecab297d8d0ed268f452ee79c673955388114bc1459fbeef31619f0"
+    },
+    "detail": {
+      "path": "inputs/54ef705091fe0eddd3d3f3d82aeae6ecc2cbb2bab9af834d3f71abf07ac806ee.png",
+      "sha256": "54ef705091fe0eddd3d3f3d82aeae6ecc2cbb2bab9af834d3f71abf07ac806ee"
+    },
+    "foregroundMask": {
+      "path": "inputs/1e342fbbf00aa725cdaeaff5d142ae175eef2863a5d28575e39c0444f76ff4f5.png",
+      "sha256": "1e342fbbf00aa725cdaeaff5d142ae175eef2863a5d28575e39c0444f76ff4f5"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/fee37ecc07bbe2f700a023bc06139ae02076b21abb565dd668be98909e2ed447.png",
+      "sha256": "fee37ecc07bbe2f700a023bc06139ae02076b21abb565dd668be98909e2ed447"
+    },
+    "mask": {
+      "path": "inputs/fee37ecc07bbe2f700a023bc06139ae02076b21abb565dd668be98909e2ed447.png",
+      "sha256": "fee37ecc07bbe2f700a023bc06139ae02076b21abb565dd668be98909e2ed447"
+    },
+    "calibrationReference": {
+      "path": "inputs/52bb25f3f0586957640743c784ae9a06f1949471112a9e9e78d8e957148b7ca9.png",
+      "sha256": "52bb25f3f0586957640743c784ae9a06f1949471112a9e9e78d8e957148b7ca9"
+    },
+    "sourceAudit": {
+      "path": "inputs/509a33ab456e0f758fa7b90b9910c7361c4300dbb0fc57c249aab6fcb1615dcc.json",
+      "sha256": "509a33ab456e0f758fa7b90b9910c7361c4300dbb0fc57c249aab6fcb1615dcc"
+    },
+    "referenceApproval": {
+      "path": "inputs/c7b929673ccf74452028f3b9d2aa0f3d08db2f87f856c61b90dd21dd59db269d.json",
+      "sha256": "c7b929673ccf74452028f3b9d2aa0f3d08db2f87f856c61b90dd21dd59db269d"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f6318b00b3fc5db0e1061c6e106f561f166d804612fd6cca2fe0fdd4594ef620.png",
+      "sha256": "f6318b00b3fc5db0e1061c6e106f561f166d804612fd6cca2fe0fdd4594ef620"
+    }
+  },
+  "features": [
+    {
+      "name": "Long spear-like shaft",
+      "placementReviewed": true
+    },
+    {
+      "name": "Axe-head or similar blade",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Full axe-head outline, shaft, grip masses and butt retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4728bd1699b1c23a1a3124642c2b0538daac87cf08b81af7c2837c22ccf41754",
+      "imageSha256": "54ef705091fe0eddd3d3f3d82aeae6ecc2cbb2bab9af834d3f71abf07ac806ee",
+      "maskSha256": "1e342fbbf00aa725cdaeaff5d142ae175eef2863a5d28575e39c0444f76ff4f5",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Full axe-head outline, shaft, grip masses and butt retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "93ebe78cfb68e320ab79bcd373cce33dadec48f40de288a6e30885cc9705ccd3",
+      "imageSha256": "296b5a0faecab297d8d0ed268f452ee79c673955388114bc1459fbeef31619f0",
+      "maskSha256": "fee37ecc07bbe2f700a023bc06139ae02076b21abb565dd668be98909e2ed447",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Full axe-head outline, shaft, grip masses and butt retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Full axe-head outline, shaft, grip masses and butt retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "upper-blade",
+          "detail": [
+            0.10597707264458955,
+            0.10683956661739866
+          ],
+          "geometry": [
+            0.10597707264458955,
+            0.10683956661739866
+          ]
+        },
+        {
+          "name": "lower-blade",
+          "detail": [
+            0.28853595790578357,
+            0.3167279217694256
+          ],
+          "geometry": [
+            0.28853595790578357,
+            0.3167279217694256
+          ]
+        },
+        {
+          "name": "head-socket",
+          "detail": [
+            0.2649554352262127,
+            0.09543259079391891
+          ],
+          "geometry": [
+            0.2649554352262127,
+            0.09543259079391891
+          ]
+        },
+        {
+          "name": "butt",
+          "detail": [
+            0.8788096869169776,
+            0.9182557801942568
+          ],
+          "geometry": [
+            0.8788096869169776,
+            0.9182557801942568
+          ]
+        },
+        {
+          "name": "grip",
+          "detail": [
+            0.6802768991954292,
+            0.6855534733952703
+          ],
+          "geometry": [
+            0.6802768991954292,
+            0.6855534733952703
+          ]
+        }
+      ],
+      "referenceSha256": "4728bd1699b1c23a1a3124642c2b0538daac87cf08b81af7c2837c22ccf41754",
+      "geometrySha256": "296b5a0faecab297d8d0ed268f452ee79c673955388114bc1459fbeef31619f0",
+      "detailSha256": "54ef705091fe0eddd3d3f3d82aeae6ecc2cbb2bab9af834d3f71abf07ac806ee",
+      "geometryForegroundMaskSha256": "fee37ecc07bbe2f700a023bc06139ae02076b21abb565dd668be98909e2ed447",
+      "foregroundMaskSha256": "1e342fbbf00aa725cdaeaff5d142ae175eef2863a5d28575e39c0444f76ff4f5"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

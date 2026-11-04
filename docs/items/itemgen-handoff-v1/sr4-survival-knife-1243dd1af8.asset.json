@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-survival-knife-1243dd1af8",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "blade-tip",
+      "pixel": [
+        46.0,
+        515.0
+      ]
+    },
+    {
+      "name": "monitor-upper-right",
+      "pixel": [
+        1202.0,
+        198.00000000000003
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        998.0,
+        622.0
+      ]
+    },
+    {
+      "name": "blade-heel",
+      "pixel": [
+        890.9999999999999,
+        580.0
+      ]
+    },
+    {
+      "name": "pommel-end",
+      "pixel": [
+        1720.0,
+        351.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-survival-knife-1243dd1af8.family.json",
+    "sha256": "a5805dbd02815725132e8dfcc7a9b8c69d70c539c45c4da9594b9e2ac3419f2e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/09f32b062edcc51c32e1d1b1d14c53cf9b5c8513275b89843b6bda9082d3e855.png",
+      "sha256": "09f32b062edcc51c32e1d1b1d14c53cf9b5c8513275b89843b6bda9082d3e855"
+    },
+    "clayReference": {
+      "path": "inputs/690540ea44ecd3984433532cff173f5c02b7b5f38012fd1625e1740877633ed2.png",
+      "sha256": "690540ea44ecd3984433532cff173f5c02b7b5f38012fd1625e1740877633ed2"
+    },
+    "geometry": {
+      "path": "inputs/7b7702c9f174f7deeeccaff3112722c5fbe977cb5b6c2f2a110d1f602b7c9ffc.png",
+      "sha256": "7b7702c9f174f7deeeccaff3112722c5fbe977cb5b6c2f2a110d1f602b7c9ffc"
+    },
+    "detail": {
+      "path": "inputs/70367594a39bad1b144e355dfe5daf0ee533e3a2007afdde9d8303bc2b96ec73.png",
+      "sha256": "70367594a39bad1b144e355dfe5daf0ee533e3a2007afdde9d8303bc2b96ec73"
+    },
+    "foregroundMask": {
+      "path": "inputs/0095b459c773552ecf49c42cdb9411c1b15066d11c3a8062c778be834280371b.png",
+      "sha256": "0095b459c773552ecf49c42cdb9411c1b15066d11c3a8062c778be834280371b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/b06d7e29aaa5d8a786e7a876f73ec2c7f57afcf75ce6906f520c3f6b063f7a35.png",
+      "sha256": "b06d7e29aaa5d8a786e7a876f73ec2c7f57afcf75ce6906f520c3f6b063f7a35"
+    },
+    "mask": {
+      "path": "inputs/b06d7e29aaa5d8a786e7a876f73ec2c7f57afcf75ce6906f520c3f6b063f7a35.png",
+      "sha256": "b06d7e29aaa5d8a786e7a876f73ec2c7f57afcf75ce6906f520c3f6b063f7a35"
+    },
+    "calibrationReference": {
+      "path": "inputs/f7c0aaee64aa037c8f5d63c424dfcfb8fb564b1a3ef84b03958c47525b218a18.png",
+      "sha256": "f7c0aaee64aa037c8f5d63c424dfcfb8fb564b1a3ef84b03958c47525b218a18"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/b7580995ffe7a8c61f01de265e3046ed5c6854cefcd41971c735123b7c92f0c3.json",
+      "sha256": "b7580995ffe7a8c61f01de265e3046ed5c6854cefcd41971c735123b7c92f0c3"
+    },
+    "referenceApproval": {
+      "path": "inputs/aa4a13c8da6937705ff2ea13a5d8a5548aeeade9de67abeed269e82a3fc388ea.json",
+      "sha256": "aa4a13c8da6937705ff2ea13a5d8a5548aeeade9de67abeed269e82a3fc388ea"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0604e4bec1a1dc8df9523a60a43fd90b791f185255d12f29c8cd50998f71c1a9.png",
+      "sha256": "0604e4bec1a1dc8df9523a60a43fd90b791f185255d12f29c8cd50998f71c1a9"
+    }
+  },
+  "features": [
+    {
+      "name": "Preserve the complete source-approved exterior, structural members and intentional openings.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Parent inspected actual detailed/clay teal previews and overlay against Core printed305/PDF307. Tip, bevel, guard, grip, GPS raised frame/solid screen, compartment cover and pommel retained. No detached islands or intended through-holes. Thin gray antialias transitions follow the actual edges; no broad pale halo as on held Sap. Clay removes microtexture, grip grooves and tiny hinges. Major cap boundary remains. Exact accessory placement and phosphorescent color are artistic interpretation.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "09f32b062edcc51c32e1d1b1d14c53cf9b5c8513275b89843b6bda9082d3e855",
+      "imageSha256": "70367594a39bad1b144e355dfe5daf0ee533e3a2007afdde9d8303bc2b96ec73",
+      "maskSha256": "0095b459c773552ecf49c42cdb9411c1b15066d11c3a8062c778be834280371b",
+      "notes": "Parent inspected actual detailed/clay teal previews and overlay against Core printed305/PDF307. Tip, bevel, guard, grip, GPS raised frame/solid screen, compartment cover and pommel retained. No detached islands or intended through-holes. Thin gray antialias transitions follow the actual edges; no broad pale halo as on held Sap. Clay removes microtexture, grip grooves and tiny hinges. Major cap boundary remains. Exact accessory placement and phosphorescent color are artistic interpretation."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "690540ea44ecd3984433532cff173f5c02b7b5f38012fd1625e1740877633ed2",
+      "imageSha256": "7b7702c9f174f7deeeccaff3112722c5fbe977cb5b6c2f2a110d1f602b7c9ffc",
+      "maskSha256": "b06d7e29aaa5d8a786e7a876f73ec2c7f57afcf75ce6906f520c3f6b063f7a35",
+      "notes": "Parent inspected actual detailed/clay teal previews and overlay against Core printed305/PDF307. Tip, bevel, guard, grip, GPS raised frame/solid screen, compartment cover and pommel retained. No detached islands or intended through-holes. Thin gray antialias transitions follow the actual edges; no broad pale halo as on held Sap. Clay removes microtexture, grip grooves and tiny hinges. Major cap boundary remains. Exact accessory placement and phosphorescent color are artistic interpretation."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Parent inspected actual detailed/clay teal previews and overlay against Core printed305/PDF307. Tip, bevel, guard, grip, GPS raised frame/solid screen, compartment cover and pommel retained. No detached islands or intended through-holes. Thin gray antialias transitions follow the actual edges; no broad pale halo as on held Sap. Clay removes microtexture, grip grooves and tiny hinges. Major cap boundary remains. Exact accessory placement and phosphorescent color are artistic interpretation.",
+      "landmarks": [
+        {
+          "name": "blade-tip",
+          "detail": [
+            0.0514077568620178,
+            0.5512825810829621
+          ],
+          "geometry": [
+            0.0514077568620178,
+            0.5512825810829621
+          ]
+        },
+        {
+          "name": "monitor-upper-right",
+          "detail": [
+            0.6691238176928783,
+            0.38201863516146994
+          ],
+          "geometry": [
+            0.6680551047848665,
+            0.38201863516146994
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.5601151010756676,
+            0.6084158372772829
+          ],
+          "geometry": [
+            0.5595807446216617,
+            0.6089497929426504
+          ]
+        },
+        {
+          "name": "blade-heel",
+          "detail": [
+            0.5029389604970326,
+            0.5859896993318485
+          ],
+          "geometry": [
+            0.5029389604970326,
+            0.586523654997216
+          ]
+        },
+        {
+          "name": "pommel-end",
+          "detail": [
+            0.9459204608679526,
+            0.4637138519626949
+          ],
+          "geometry": [
+            0.9475235302299704,
+            0.4637138519626949
+          ]
+        }
+      ],
+      "referenceSha256": "09f32b062edcc51c32e1d1b1d14c53cf9b5c8513275b89843b6bda9082d3e855",
+      "geometrySha256": "7b7702c9f174f7deeeccaff3112722c5fbe977cb5b6c2f2a110d1f602b7c9ffc",
+      "detailSha256": "70367594a39bad1b144e355dfe5daf0ee533e3a2007afdde9d8303bc2b96ec73",
+      "foregroundMaskSha256": "0095b459c773552ecf49c42cdb9411c1b15066d11c3a8062c778be834280371b",
+      "geometryForegroundMaskSha256": "b06d7e29aaa5d8a786e7a876f73ec2c7f57afcf75ce6906f520c3f6b063f7a35"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

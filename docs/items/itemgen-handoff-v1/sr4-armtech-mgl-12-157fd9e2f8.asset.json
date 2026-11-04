@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-armtech-mgl-12-157fd9e2f8",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-left-tangent",
+      "pixel": [
+        26.0,
+        592.0
+      ]
+    },
+    {
+      "name": "carry-handle-top-tangent",
+      "pixel": [
+        782.0,
+        290.0
+      ]
+    },
+    {
+      "name": "body-right-edge-native-row550",
+      "pixel": [
+        1229.0,
+        550.0
+      ]
+    },
+    {
+      "name": "magazine-bottom-tangent",
+      "pixel": [
+        1083.0000000000002,
+        968.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-armtech-mgl-12-157fd9e2f8.family.json",
+    "sha256": "86ad8204c6240a6d0f2722e3277b2dfeb613213a60e04ad480d09547bf866d03"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/d26695d845aac0911b0dd3e9c457753d69ef64f181c6e6f2cfffa7e1e02d57c7.png",
+      "sha256": "d26695d845aac0911b0dd3e9c457753d69ef64f181c6e6f2cfffa7e1e02d57c7"
+    },
+    "clayReference": {
+      "path": "inputs/2e0cc2b39e85c04e66d44a4f88edcc2ec2e50149464060a9e8f6710ae258432b.png",
+      "sha256": "2e0cc2b39e85c04e66d44a4f88edcc2ec2e50149464060a9e8f6710ae258432b"
+    },
+    "geometry": {
+      "path": "inputs/030c54a79a6b3136e82eb6ca524bb52b36c277b0ec372b6abc1ef6427a241cb3.png",
+      "sha256": "030c54a79a6b3136e82eb6ca524bb52b36c277b0ec372b6abc1ef6427a241cb3"
+    },
+    "detail": {
+      "path": "inputs/547e6ec858962d7415afdfb5597003bd6246b5a51720c399aef1c2106f4cc6bc.png",
+      "sha256": "547e6ec858962d7415afdfb5597003bd6246b5a51720c399aef1c2106f4cc6bc"
+    },
+    "foregroundMask": {
+      "path": "inputs/73b122f52801cd7b69871bb490bfa08ecfd1629f26693a81b3b491dfcd52b85f.png",
+      "sha256": "73b122f52801cd7b69871bb490bfa08ecfd1629f26693a81b3b491dfcd52b85f"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/4c00139269a10e8c0a158f03b93450394b64f3c4e7145e9d35513e5e91f4e9ac.png",
+      "sha256": "4c00139269a10e8c0a158f03b93450394b64f3c4e7145e9d35513e5e91f4e9ac"
+    },
+    "mask": {
+      "path": "inputs/4c00139269a10e8c0a158f03b93450394b64f3c4e7145e9d35513e5e91f4e9ac.png",
+      "sha256": "4c00139269a10e8c0a158f03b93450394b64f3c4e7145e9d35513e5e91f4e9ac"
+    },
+    "calibrationReference": {
+      "path": "inputs/0d62a228959af0bdac3195816d535d248d076052a871f3f9b209642ea1258178.png",
+      "sha256": "0d62a228959af0bdac3195816d535d248d076052a871f3f9b209642ea1258178"
+    },
+    "sourceAudit": {
+      "path": "inputs/2d4a487ac550d0cd13295e93d5319553d760941384ea898b4a266dd36a4a58c4.json",
+      "sha256": "2d4a487ac550d0cd13295e93d5319553d760941384ea898b4a266dd36a4a58c4"
+    },
+    "referenceApproval": {
+      "path": "inputs/36c6fac48957eb05b91a4b8d2b98bf0d467f976f13ac261756c12793c22109e9.json",
+      "sha256": "36c6fac48957eb05b91a4b8d2b98bf0d467f976f13ac261756c12793c22109e9"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0bb64c96cdf9137ec41f9c999ab4e7993b3e03eeb5eff784944a7fbb3efc7f88.png",
+      "sha256": "0bb64c96cdf9137ec41f9c999ab4e7993b3e03eeb5eff784944a7fbb3efc7f88"
+    }
+  },
+  "features": [
+    {
+      "name": "Bullpup configuration, semi-automatic launcher and twelve-round clip (description/table).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the illustrated long upper body, carry handle, pistol grip, trigger opening and straight magazine behind the grip; do not substitute a revolver-cylinder launcher.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected after raw pair and actual-alpha review. Coherent MGL12 bullpup form, paired framing, carry-handle and trigger openings, straight rear magazine and muzzle preserved. No actual alpha debris. Native1254 originals retained; resampled2048 disclosed. Small shallow channels nonblocking; original final pair review reused at integration with fresh bytes.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        552,
+        641,
+        1194,
+        797
+      ],
+      "referenceAreaPixels": 79257,
+      "referenceMaskSha256": "4c00139269a10e8c0a158f03b93450394b64f3c4e7145e9d35513e5e91f4e9ac",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        663,
+        1057,
+        811,
+        1185
+      ],
+      "referenceAreaPixels": 12455,
+      "referenceMaskSha256": "4c00139269a10e8c0a158f03b93450394b64f3c4e7145e9d35513e5e91f4e9ac",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d26695d845aac0911b0dd3e9c457753d69ef64f181c6e6f2cfffa7e1e02d57c7",
+      "imageSha256": "547e6ec858962d7415afdfb5597003bd6246b5a51720c399aef1c2106f4cc6bc",
+      "maskSha256": "73b122f52801cd7b69871bb490bfa08ecfd1629f26693a81b3b491dfcd52b85f",
+      "notes": "Final prepared overlay inspected after raw pair and actual-alpha review. Coherent MGL12 bullpup form, paired framing, carry-handle and trigger openings, straight rear magazine and muzzle preserved. No actual alpha debris. Native1254 originals retained; resampled2048 disclosed. Small shallow channels nonblocking; original final pair review reused at integration with fresh bytes."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2e0cc2b39e85c04e66d44a4f88edcc2ec2e50149464060a9e8f6710ae258432b",
+      "imageSha256": "030c54a79a6b3136e82eb6ca524bb52b36c277b0ec372b6abc1ef6427a241cb3",
+      "maskSha256": "4c00139269a10e8c0a158f03b93450394b64f3c4e7145e9d35513e5e91f4e9ac",
+      "notes": "Final prepared overlay inspected after raw pair and actual-alpha review. Coherent MGL12 bullpup form, paired framing, carry-handle and trigger openings, straight rear magazine and muzzle preserved. No actual alpha debris. Native1254 originals retained; resampled2048 disclosed. Small shallow channels nonblocking; original final pair review reused at integration with fresh bytes."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "d26695d845aac0911b0dd3e9c457753d69ef64f181c6e6f2cfffa7e1e02d57c7",
+      "detailSha256": "547e6ec858962d7415afdfb5597003bd6246b5a51720c399aef1c2106f4cc6bc",
+      "geometrySha256": "030c54a79a6b3136e82eb6ca524bb52b36c277b0ec372b6abc1ef6427a241cb3",
+      "foregroundMaskSha256": "73b122f52801cd7b69871bb490bfa08ecfd1629f26693a81b3b491dfcd52b85f",
+      "geometryForegroundMaskSha256": "4c00139269a10e8c0a158f03b93450394b64f3c4e7145e9d35513e5e91f4e9ac",
+      "landmarks": [
+        {
+          "name": "muzzle-left-tangent",
+          "detail": [
+            0.050550043977649006,
+            0.47203675660792954
+          ],
+          "geometry": [
+            0.0498046875,
+            0.4724095998531571
+          ]
+        },
+        {
+          "name": "carry-handle-top-tangent",
+          "detail": [
+            0.614039541080298,
+            0.2468394364904552
+          ],
+          "geometry": [
+            0.6136668628414734,
+            0.24609375
+          ]
+        },
+        {
+          "name": "body-right-edge-native-row550",
+          "detail": [
+            0.947213886589404,
+            0.4407179240088106
+          ],
+          "geometry": [
+            0.948704599544702,
+            0.4407179240088106
+          ]
+        },
+        {
+          "name": "magazine-bottom-tangent",
+          "detail": [
+            0.8383918408526491,
+            0.7524148770190896
+          ],
+          "geometry": [
+            0.8432366579573676,
+            0.7531605635095447
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected after raw pair and actual-alpha review. Coherent MGL12 bullpup form, paired framing, carry-handle and trigger openings, straight rear magazine and muzzle preserved. No actual alpha debris. Native1254 originals retained; resampled2048 disclosed. Small shallow channels nonblocking; original final pair review reused at integration with fresh bytes."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

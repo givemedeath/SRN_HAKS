@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ruger-thunderbolt-4cea7d2590",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-sight-top",
+      "pixel": [
+        160.0,
+        287.0
+      ]
+    },
+    {
+      "name": "grip-heel",
+      "pixel": [
+        1090.0,
+        1001.0000000000001
+      ]
+    },
+    {
+      "name": "muzzle-face",
+      "pixel": [
+        34.0,
+        400.0
+      ]
+    },
+    {
+      "name": "rear-body",
+      "pixel": [
+        1169.9999999999998,
+        500.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ruger-thunderbolt-4cea7d2590.family.json",
+    "sha256": "fe0158503903b1a4804bf3ff3642a1f9a32c1ad46bbdbe01d44d237b0eb0e3f9"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/40334f015ea950a750c0ffb1613f1799042ed41afb390e11cc4e08fdd831dcaf.png",
+      "sha256": "40334f015ea950a750c0ffb1613f1799042ed41afb390e11cc4e08fdd831dcaf"
+    },
+    "clayReference": {
+      "path": "inputs/033a5ab8b75c4dcb1e3695ca18e1ff567f5b6004186c12494d0ea54c6a474715.png",
+      "sha256": "033a5ab8b75c4dcb1e3695ca18e1ff567f5b6004186c12494d0ea54c6a474715"
+    },
+    "geometry": {
+      "path": "inputs/2248f2a4c0deeaf1f5e289d8008c787f716ea7400935edd8f2c8af59d10a8213.png",
+      "sha256": "2248f2a4c0deeaf1f5e289d8008c787f716ea7400935edd8f2c8af59d10a8213"
+    },
+    "detail": {
+      "path": "inputs/dd8d1908e25b1c89f82ac5b229048a316af291cdb897d65b28c3369c8df5b320.png",
+      "sha256": "dd8d1908e25b1c89f82ac5b229048a316af291cdb897d65b28c3369c8df5b320"
+    },
+    "foregroundMask": {
+      "path": "inputs/8519a3b6c67cf53ae12691d371be655434d3d0e837d9daaf2c221581130bd51f.png",
+      "sha256": "8519a3b6c67cf53ae12691d371be655434d3d0e837d9daaf2c221581130bd51f"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/90ead60ae4913db3cdb07d6f25e41d71c51c3128afd594372704f21515c62ce8.png",
+      "sha256": "90ead60ae4913db3cdb07d6f25e41d71c51c3128afd594372704f21515c62ce8"
+    },
+    "mask": {
+      "path": "inputs/90ead60ae4913db3cdb07d6f25e41d71c51c3128afd594372704f21515c62ce8.png",
+      "sha256": "90ead60ae4913db3cdb07d6f25e41d71c51c3128afd594372704f21515c62ce8"
+    },
+    "calibrationReference": {
+      "path": "inputs/2d530c8c9ffb2ee9ec24cd189bc6f5364eebfaf2643a9dd0fb0f74d92818acf7.png",
+      "sha256": "2d530c8c9ffb2ee9ec24cd189bc6f5364eebfaf2643a9dd0fb0f74d92818acf7"
+    },
+    "sourceAudit": {
+      "path": "inputs/80f55deafe343e07bd7dc5e17a2dd87e940d8f21f0e3413c0006af4c2a2a039a.json",
+      "sha256": "80f55deafe343e07bd7dc5e17a2dd87e940d8f21f0e3413c0006af4c2a2a039a"
+    },
+    "referenceApproval": {
+      "path": "inputs/5b2ae451cf66aad5a13b874a0e6defa5774b134d1053094b610e6b0bff855a28.json",
+      "sha256": "5b2ae451cf66aad5a13b874a0e6defa5774b134d1053094b610e6b0bff855a28"
+    },
+    "calibrationDetail": {
+      "path": "inputs/c95740f05a905b483e619c355019c24c438021f8b6a8ed94cecb6204286dae2c.png",
+      "sha256": "c95740f05a905b483e619c355019c24c438021f8b6a8ed94cecb6204286dae2c"
+    }
+  },
+  "features": [
+    {
+      "name": "Special chamber design provides recoil compensation; preserve own labeled pistol outline rather than adding an external compensator.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Comes with EITHER internal smartgun OR built-in underbarrel laser. Declare one package; do not automatically combine both.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own THUNDERBOLT art printed24/PDF26: substantial upper/front, rounded grip/trigger opening and major body/control boundaries.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reference reviewer inspected native detail/clay, before/after interior fills, independent guard masks, final2048 teal views/mask/overlay. Internal-smartgun Thunderbolt silhouette, muzzle collar, sights, guard/trigger, finger-contoured grip and major raised controls retained; three small front pockets and shallow connecting channel filled, broad structural side recesses retained. Interior host-plane shading is not a geometric recess. No silhouette/major boundary edit, mask transfer or warp. Four excluded detail1–4px guard-edge AA labels are background fringe, not subject parts; clay excluded none. Actual thin members and connected guard clearance retained. Retouch preserves original RGB outside explicit patches and all original alpha. Both original generator images1254square RGB opaque; common2048 resampling honestly disclosed. Reference-only approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        984,
+        876,
+        1312,
+        1098
+      ],
+      "referenceAreaPixels": 47217,
+      "referenceMaskSha256": "90ead60ae4913db3cdb07d6f25e41d71c51c3128afd594372704f21515c62ce8",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "40334f015ea950a750c0ffb1613f1799042ed41afb390e11cc4e08fdd831dcaf",
+      "imageSha256": "dd8d1908e25b1c89f82ac5b229048a316af291cdb897d65b28c3369c8df5b320",
+      "maskSha256": "8519a3b6c67cf53ae12691d371be655434d3d0e837d9daaf2c221581130bd51f",
+      "notes": "Assigned sole final reference reviewer inspected native detail/clay, before/after interior fills, independent guard masks, final2048 teal views/mask/overlay. Internal-smartgun Thunderbolt silhouette, muzzle collar, sights, guard/trigger, finger-contoured grip and major raised controls retained; three small front pockets and shallow connecting channel filled, broad structural side recesses retained. Interior host-plane shading is not a geometric recess. No silhouette/major boundary edit, mask transfer or warp. Four excluded detail1–4px guard-edge AA labels are background fringe, not subject parts; clay excluded none. Actual thin members and connected guard clearance retained. Retouch preserves original RGB outside explicit patches and all original alpha. Both original generator images1254square RGB opaque; common2048 resampling honestly disclosed. Reference-only approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "033a5ab8b75c4dcb1e3695ca18e1ff567f5b6004186c12494d0ea54c6a474715",
+      "imageSha256": "2248f2a4c0deeaf1f5e289d8008c787f716ea7400935edd8f2c8af59d10a8213",
+      "maskSha256": "90ead60ae4913db3cdb07d6f25e41d71c51c3128afd594372704f21515c62ce8",
+      "notes": "Assigned sole final reference reviewer inspected native detail/clay, before/after interior fills, independent guard masks, final2048 teal views/mask/overlay. Internal-smartgun Thunderbolt silhouette, muzzle collar, sights, guard/trigger, finger-contoured grip and major raised controls retained; three small front pockets and shallow connecting channel filled, broad structural side recesses retained. Interior host-plane shading is not a geometric recess. No silhouette/major boundary edit, mask transfer or warp. Four excluded detail1–4px guard-edge AA labels are background fringe, not subject parts; clay excluded none. Actual thin members and connected guard clearance retained. Retouch preserves original RGB outside explicit patches and all original alpha. Both original generator images1254square RGB opaque; common2048 resampling honestly disclosed. Reference-only approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reference reviewer inspected native detail/clay, before/after interior fills, independent guard masks, final2048 teal views/mask/overlay. Internal-smartgun Thunderbolt silhouette, muzzle collar, sights, guard/trigger, finger-contoured grip and major raised controls retained; three small front pockets and shallow connecting channel filled, broad structural side recesses retained. Interior host-plane shading is not a geometric recess. No silhouette/major boundary edit, mask transfer or warp. Four excluded detail1–4px guard-edge AA labels are background fringe, not subject parts; clay excluded none. Actual thin members and connected guard clearance retained. Retouch preserves original RGB outside explicit patches and all original alpha. Both original generator images1254square RGB opaque; common2048 resampling honestly disclosed. Reference-only approval.",
+      "landmarks": [
+        {
+          "name": "front-sight-top",
+          "detail": [
+            0.1461396574873631,
+            0.22362104668674698
+          ],
+          "geometry": [
+            0.1461396574873631,
+            0.22362104668674698
+          ]
+        },
+        {
+          "name": "grip-heel",
+          "detail": [
+            0.851584713300337,
+            0.7650053338353414
+          ],
+          "geometry": [
+            0.851584713300337,
+            0.7657635751338687
+          ]
+        },
+        {
+          "name": "muzzle-face",
+          "detail": [
+            0.050563230570766636,
+            0.3093023134203481
+          ],
+          "geometry": [
+            0.050563230570766636,
+            0.3093023134203481
+          ]
+        },
+        {
+          "name": "rear-body",
+          "detail": [
+            0.912268158961668,
+            0.38512644327309237
+          ],
+          "geometry": [
+            0.9130267020324347,
+            0.38512644327309237
+          ]
+        }
+      ],
+      "referenceSha256": "40334f015ea950a750c0ffb1613f1799042ed41afb390e11cc4e08fdd831dcaf",
+      "geometrySha256": "2248f2a4c0deeaf1f5e289d8008c787f716ea7400935edd8f2c8af59d10a8213",
+      "detailSha256": "dd8d1908e25b1c89f82ac5b229048a316af291cdb897d65b28c3369c8df5b320",
+      "foregroundMaskSha256": "8519a3b6c67cf53ae12691d371be655434d3d0e837d9daaf2c221581130bd51f",
+      "geometryForegroundMaskSha256": "90ead60ae4913db3cdb07d6f25e41d71c51c3128afd594372704f21515c62ce8"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

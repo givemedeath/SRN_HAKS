@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-browning-ultra-power-95d4d723da",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle",
+      "pixel": [
+        48.0,
+        370.0
+      ]
+    },
+    {
+      "name": "top",
+      "pixel": [
+        424.0,
+        157.00000000000003
+      ]
+    },
+    {
+      "name": "back",
+      "pixel": [
+        1160.0,
+        531.0
+      ]
+    },
+    {
+      "name": "pommel",
+      "pixel": [
+        1176.0,
+        1060.0
+      ]
+    },
+    {
+      "name": "trigger",
+      "pixel": [
+        659.9999999999999,
+        630.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-browning-ultra-power-95d4d723da.family.json",
+    "sha256": "9dc664f30781d00c97ec83db7abcc540bec7a1712a683895be286f5cc8b96c06"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/848c62116b5753e545a35010e1505f51d6391aa7b544ce5fd6bccd1746e84ae8.png",
+      "sha256": "848c62116b5753e545a35010e1505f51d6391aa7b544ce5fd6bccd1746e84ae8"
+    },
+    "clayReference": {
+      "path": "inputs/bc358a5618a6b87ebcc365b2f62b54a30e3d1a9d3d099cd0b1cdf800c606c995.png",
+      "sha256": "bc358a5618a6b87ebcc365b2f62b54a30e3d1a9d3d099cd0b1cdf800c606c995"
+    },
+    "geometry": {
+      "path": "inputs/83e7e571091e79f69064c0be3c64e9f6846b439f764743e2c0d51fa5bfc80b3b.png",
+      "sha256": "83e7e571091e79f69064c0be3c64e9f6846b439f764743e2c0d51fa5bfc80b3b"
+    },
+    "detail": {
+      "path": "inputs/fe0c1259767d7110ff1cfc533b08cfd56351c4adea1773ef2e83778e4e3a203b.png",
+      "sha256": "fe0c1259767d7110ff1cfc533b08cfd56351c4adea1773ef2e83778e4e3a203b"
+    },
+    "foregroundMask": {
+      "path": "inputs/c1de197fda2f306580f9cb38fa71cb640cdf70544d7c4806a6aed51edc175e21.png",
+      "sha256": "c1de197fda2f306580f9cb38fa71cb640cdf70544d7c4806a6aed51edc175e21"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/9cfa00b5135c3f3be5531f0f95183ec275422e8739ece4075d58640a212cf7db.png",
+      "sha256": "9cfa00b5135c3f3be5531f0f95183ec275422e8739ece4075d58640a212cf7db"
+    },
+    "mask": {
+      "path": "inputs/9cfa00b5135c3f3be5531f0f95183ec275422e8739ece4075d58640a212cf7db.png",
+      "sha256": "9cfa00b5135c3f3be5531f0f95183ec275422e8739ece4075d58640a212cf7db"
+    },
+    "calibrationReference": {
+      "path": "inputs/9e109534d0451b0f36a226ed364f8496256f41751214c5e062988591e7115c55.png",
+      "sha256": "9e109534d0451b0f36a226ed364f8496256f41751214c5e062988591e7115c55"
+    },
+    "sourceAudit": {
+      "path": "inputs/1ff1dcfb074d4687c3e5faf1d2271cee369f6d9dffaa5b5de77d42a16ee48d40.json",
+      "sha256": "1ff1dcfb074d4687c3e5faf1d2271cee369f6d9dffaa5b5de77d42a16ee48d40"
+    },
+    "referenceApproval": {
+      "path": "inputs/cc92b630912cfe5ad707fc3c0bae8146a81dd1737880e591110d6deb7c60847a.json",
+      "sha256": "cc92b630912cfe5ad707fc3c0bae8146a81dd1737880e591110d6deb7c60847a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/e1a71715b82bef005ae12b371f317d9f1e26f860bc265892be86c57c15e9fdb5.png",
+      "sha256": "e1a71715b82bef005ae12b371f317d9f1e26f860bc265892be86c57c15e9fdb5"
+    }
+  },
+  "features": [
+    {
+      "name": "More compact than the AresPredator; built-in top-mounted laser sight is standard.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Use the labeled ULTRA-POWER illustration for short stepped rectangular upper, raised top unit, angled grip and open trigger guard proportions.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Existing pair approval reused. Actual masks inspected, trigger opening and muzzle/top unit retained. Native1254-square resampled2048. Bounded retouch harmless lighting remains accepted.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        991,
+        936,
+        1285,
+        1152
+      ],
+      "referenceAreaPixels": 39166,
+      "referenceMaskSha256": "9cfa00b5135c3f3be5531f0f95183ec275422e8739ece4075d58640a212cf7db",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "848c62116b5753e545a35010e1505f51d6391aa7b544ce5fd6bccd1746e84ae8",
+      "imageSha256": "fe0c1259767d7110ff1cfc533b08cfd56351c4adea1773ef2e83778e4e3a203b",
+      "maskSha256": "c1de197fda2f306580f9cb38fa71cb640cdf70544d7c4806a6aed51edc175e21",
+      "notes": "Existing pair approval reused. Actual masks inspected, trigger opening and muzzle/top unit retained. Native1254-square resampled2048. Bounded retouch harmless lighting remains accepted."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "bc358a5618a6b87ebcc365b2f62b54a30e3d1a9d3d099cd0b1cdf800c606c995",
+      "imageSha256": "83e7e571091e79f69064c0be3c64e9f6846b439f764743e2c0d51fa5bfc80b3b",
+      "maskSha256": "9cfa00b5135c3f3be5531f0f95183ec275422e8739ece4075d58640a212cf7db",
+      "notes": "Existing pair approval reused. Actual masks inspected, trigger opening and muzzle/top unit retained. Native1254-square resampled2048. Bounded retouch harmless lighting remains accepted."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Existing pair approval reused. Actual masks inspected, trigger opening and muzzle/top unit retained. Native1254-square resampled2048. Bounded retouch harmless lighting remains accepted.",
+      "landmarks": [
+        {
+          "name": "muzzle",
+          "detail": [
+            0.05289350611063465,
+            0.2954585261339937
+          ],
+          "geometry": [
+            0.05289350611063465,
+            0.2954585261339937
+          ]
+        },
+        {
+          "name": "top",
+          "detail": [
+            0.3432424555102916,
+            0.1309393125977581
+          ],
+          "geometry": [
+            0.3432424555102916,
+            0.1309393125977581
+          ]
+        },
+        {
+          "name": "back",
+          "detail": [
+            0.9115850798670669,
+            0.4198134246285193
+          ],
+          "geometry": [
+            0.9115850798670669,
+            0.4198134246285193
+          ]
+        },
+        {
+          "name": "pommel",
+          "detail": [
+            0.9239403543096055,
+            0.8284080911105318
+          ],
+          "geometry": [
+            0.9239403543096055,
+            0.8284080911105318
+          ]
+        },
+        {
+          "name": "trigger",
+          "detail": [
+            0.5254827535377358,
+            0.4962801013425443
+          ],
+          "geometry": [
+            0.5254827535377358,
+            0.4962801013425443
+          ]
+        }
+      ],
+      "referenceSha256": "848c62116b5753e545a35010e1505f51d6391aa7b544ce5fd6bccd1746e84ae8",
+      "geometrySha256": "83e7e571091e79f69064c0be3c64e9f6846b439f764743e2c0d51fa5bfc80b3b",
+      "detailSha256": "fe0c1259767d7110ff1cfc533b08cfd56351c4adea1773ef2e83778e4e3a203b",
+      "foregroundMaskSha256": "c1de197fda2f306580f9cb38fa71cb640cdf70544d7c4806a6aed51edc175e21",
+      "geometryForegroundMaskSha256": "9cfa00b5135c3f3be5531f0f95183ec275422e8739ece4075d58640a212cf7db"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

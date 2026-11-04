@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-molotov-cocktail-395b45c06d",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "neck-rim-left",
+      "pixel": [
+        877.2692307692307,
+        263.1888111888112
+      ]
+    },
+    {
+      "name": "neck-left",
+      "pixel": [
+        782.1360946745563,
+        666.1608391608391
+      ]
+    },
+    {
+      "name": "bottle-left",
+      "pixel": [
+        538.6597633136096,
+        1472.1048951048951
+      ]
+    },
+    {
+      "name": "base-bottom",
+      "pixel": [
+        813.5784023668639,
+        1933.1048951048951
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-molotov-cocktail-395b45c06d.family.json",
+    "sha256": "c6b58ff832abced718b6cbfc11b045c399d0b769c57aeeb2457b6512c1c0cabe"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/2db80048c7fbc7dabe3f15e47a33e433ff906b03b0f7b56efe86cba8be45578b.png",
+      "sha256": "2db80048c7fbc7dabe3f15e47a33e433ff906b03b0f7b56efe86cba8be45578b"
+    },
+    "clayReference": {
+      "path": "inputs/506c91714a2a92a995abce91d5d64e79c441318b8949213aec118b9ac0e2d641.png",
+      "sha256": "506c91714a2a92a995abce91d5d64e79c441318b8949213aec118b9ac0e2d641"
+    },
+    "geometry": {
+      "path": "inputs/24bd185950829a636e988e288cff6fb4358971b73c0fe43e3afbb628b2d0fec7.png",
+      "sha256": "24bd185950829a636e988e288cff6fb4358971b73c0fe43e3afbb628b2d0fec7"
+    },
+    "detail": {
+      "path": "inputs/5cf4e2ccd7eacc26512d90215939d35831da4f472ac7240124051d8c8e24d984.png",
+      "sha256": "5cf4e2ccd7eacc26512d90215939d35831da4f472ac7240124051d8c8e24d984"
+    },
+    "foregroundMask": {
+      "path": "inputs/8f1c9be4eb0b550d820cfa64615be7428d2cd6883523296a6f8d04ebfa6e6091.png",
+      "sha256": "8f1c9be4eb0b550d820cfa64615be7428d2cd6883523296a6f8d04ebfa6e6091"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/bbd8dfaed997c8f7f4a6e1fc2ffe9d257c8936bf6d1a4eb83ab77a051c6af937.png",
+      "sha256": "bbd8dfaed997c8f7f4a6e1fc2ffe9d257c8936bf6d1a4eb83ab77a051c6af937"
+    },
+    "mask": {
+      "path": "inputs/bbd8dfaed997c8f7f4a6e1fc2ffe9d257c8936bf6d1a4eb83ab77a051c6af937.png",
+      "sha256": "bbd8dfaed997c8f7f4a6e1fc2ffe9d257c8936bf6d1a4eb83ab77a051c6af937"
+    },
+    "calibrationReference": {
+      "path": "inputs/8fafe2a3214eca37c166541e5ff39f0464876b4f5dde65ea00c000907401655c.png",
+      "sha256": "8fafe2a3214eca37c166541e5ff39f0464876b4f5dde65ea00c000907401655c"
+    },
+    "sourceAudit": {
+      "path": "inputs/c932221174f947cf7daadc2e1261d22198409108764ae5ea5924d68e03d0c287.json",
+      "sha256": "c932221174f947cf7daadc2e1261d22198409108764ae5ea5924d68e03d0c287"
+    },
+    "referenceApproval": {
+      "path": "inputs/6053d349578e5ffac407e3d48ac79fa5c40af344d8719ea7506e29aa42d2fb9f.json",
+      "sha256": "6053d349578e5ffac407e3d48ac79fa5c40af344d8719ea7506e29aa42d2fb9f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/c080031725c0e4c5669b081b0915d8ed679d9c0bfdb480a52212a6125e771b80.png",
+      "sha256": "c080031725c0e4c5669b081b0915d8ed679d9c0bfdb480a52212a6125e771b80"
+    }
+  },
+  "features": [
+    {
+      "name": "Source provides an object-class name and gameplay fire effect, without specifying exterior container shape, material or hardware.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each normalized preparation mask retains its own components/openings. Explicit user-authorized Molotov native alpha cleanup is separately bound and disclosed; no further native edits or common-mask replacement occurred. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Retained source-reviewed unlit cosmetic Molotov inventory representation,amber bottle exterior with connected draped cloth;no active effects or instructions. Actual detailed/clay pair inspected:matching bottle proportions/pose/rim/neck/shoulder/base and cloth attachment;major cloth folds and clear neck-side gap retained. Clay removes glass/liquid appearance,label,grain and tiny frayed fibers as intended;minor shallow marks/harmless edge pixels nonblocking. Own exact finished bottle/cloth styling is disclosed artistic interpretation of source class. Original1254RGBA retained;2048conditioned images are resampled. Single final pair reviewer,no model/client/production approval. Native1254 sources retained; explicit NEAREST prefit to2K avoids Lanczos inventing tiny topology changes. Each mask retains its own components/openings; no common-mask replacement or new native edit. Maintained conditioning uses identity scale. Resampled2K,not native2K. User authorized54 native cloth-fringe alpha pixels. ALL RGB and every outside-patch RGBA byte remain exact. Raw detailed18components/8tinyholes remains immutable; authorized patched preparation is1component/0holes; main outline and intentional neck gap preserved.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2db80048c7fbc7dabe3f15e47a33e433ff906b03b0f7b56efe86cba8be45578b",
+      "imageSha256": "5cf4e2ccd7eacc26512d90215939d35831da4f472ac7240124051d8c8e24d984",
+      "maskSha256": "8f1c9be4eb0b550d820cfa64615be7428d2cd6883523296a6f8d04ebfa6e6091",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each normalized preparation mask retains its own components/openings. Explicit user-authorized Molotov native alpha cleanup is separately bound and disclosed; no further native edits or common-mask replacement occurred. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Retained source-reviewed unlit cosmetic Molotov inventory representation,amber bottle exterior with connected draped cloth;no active effects or instructions. Actual detailed/clay pair inspected:matching bottle proportions/pose/rim/neck/shoulder/base and cloth attachment;major cloth folds and clear neck-side gap retained. Clay removes glass/liquid appearance,label,grain and tiny frayed fibers as intended;minor shallow marks/harmless edge pixels nonblocking. Own exact finished bottle/cloth styling is disclosed artistic interpretation of source class. Original1254RGBA retained;2048conditioned images are resampled. Single final pair reviewer,no model/client/production approval. Native1254 sources retained; explicit NEAREST prefit to2K avoids Lanczos inventing tiny topology changes. Each mask retains its own components/openings; no common-mask replacement or new native edit. Maintained conditioning uses identity scale. Resampled2K,not native2K. User authorized54 native cloth-fringe alpha pixels. ALL RGB and every outside-patch RGBA byte remain exact. Raw detailed18components/8tinyholes remains immutable; authorized patched preparation is1component/0holes; main outline and intentional neck gap preserved."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "506c91714a2a92a995abce91d5d64e79c441318b8949213aec118b9ac0e2d641",
+      "imageSha256": "24bd185950829a636e988e288cff6fb4358971b73c0fe43e3afbb628b2d0fec7",
+      "maskSha256": "bbd8dfaed997c8f7f4a6e1fc2ffe9d257c8936bf6d1a4eb83ab77a051c6af937",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each normalized preparation mask retains its own components/openings. Explicit user-authorized Molotov native alpha cleanup is separately bound and disclosed; no further native edits or common-mask replacement occurred. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Retained source-reviewed unlit cosmetic Molotov inventory representation,amber bottle exterior with connected draped cloth;no active effects or instructions. Actual detailed/clay pair inspected:matching bottle proportions/pose/rim/neck/shoulder/base and cloth attachment;major cloth folds and clear neck-side gap retained. Clay removes glass/liquid appearance,label,grain and tiny frayed fibers as intended;minor shallow marks/harmless edge pixels nonblocking. Own exact finished bottle/cloth styling is disclosed artistic interpretation of source class. Original1254RGBA retained;2048conditioned images are resampled. Single final pair reviewer,no model/client/production approval. Native1254 sources retained; explicit NEAREST prefit to2K avoids Lanczos inventing tiny topology changes. Each mask retains its own components/openings; no common-mask replacement or new native edit. Maintained conditioning uses identity scale. Resampled2K,not native2K. User authorized54 native cloth-fringe alpha pixels. ALL RGB and every outside-patch RGBA byte remain exact. Raw detailed18components/8tinyholes remains immutable; authorized patched preparation is1component/0holes; main outline and intentional neck gap preserved."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "2db80048c7fbc7dabe3f15e47a33e433ff906b03b0f7b56efe86cba8be45578b",
+      "detailSha256": "5cf4e2ccd7eacc26512d90215939d35831da4f472ac7240124051d8c8e24d984",
+      "geometrySha256": "24bd185950829a636e988e288cff6fb4358971b73c0fe43e3afbb628b2d0fec7",
+      "foregroundMaskSha256": "8f1c9be4eb0b550d820cfa64615be7428d2cd6883523296a6f8d04ebfa6e6091",
+      "geometryForegroundMaskSha256": "bbd8dfaed997c8f7f4a6e1fc2ffe9d257c8936bf6d1a4eb83ab77a051c6af937",
+      "landmarks": [
+        {
+          "name": "neck-rim-left",
+          "detail": [
+            0.42835411658653844,
+            0.12851016171328672
+          ],
+          "geometry": [
+            0.42914143398668636,
+            0.12851016171328672
+          ]
+        },
+        {
+          "name": "neck-left",
+          "detail": [
+            0.3819023899778107,
+            0.3252738472465035
+          ],
+          "geometry": [
+            0.38111507257766275,
+            0.3252738472465035
+          ]
+        },
+        {
+          "name": "bottle-left",
+          "detail": [
+            0.2630174625554734,
+            0.7188012183129371
+          ],
+          "geometry": [
+            0.255931605954142,
+            0.7188012183129371
+          ]
+        },
+        {
+          "name": "base-bottom",
+          "detail": [
+            0.39725507928069526,
+            0.9438988745629371
+          ],
+          "geometry": [
+            0.3976487379807692,
+            0.9486212030157343
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each normalized preparation mask retains its own components/openings. Explicit user-authorized Molotov native alpha cleanup is separately bound and disclosed; no further native edits or common-mask replacement occurred. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Retained source-reviewed unlit cosmetic Molotov inventory representation,amber bottle exterior with connected draped cloth;no active effects or instructions. Actual detailed/clay pair inspected:matching bottle proportions/pose/rim/neck/shoulder/base and cloth attachment;major cloth folds and clear neck-side gap retained. Clay removes glass/liquid appearance,label,grain and tiny frayed fibers as intended;minor shallow marks/harmless edge pixels nonblocking. Own exact finished bottle/cloth styling is disclosed artistic interpretation of source class. Original1254RGBA retained;2048conditioned images are resampled. Single final pair reviewer,no model/client/production approval. Native1254 sources retained; explicit NEAREST prefit to2K avoids Lanczos inventing tiny topology changes. Each mask retains its own components/openings; no common-mask replacement or new native edit. Maintained conditioning uses identity scale. Resampled2K,not native2K. User authorized54 native cloth-fringe alpha pixels. ALL RGB and every outside-patch RGBA byte remain exact. Raw detailed18components/8tinyholes remains immutable; authorized patched preparation is1component/0holes; main outline and intentional neck gap preserved."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

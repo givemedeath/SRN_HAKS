@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-tiffani-l-gance-shooting-bracer-1576c8f4f4",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "round-face",
+      "pixel": [
+        345.0,
+        295.0
+      ]
+    },
+    {
+      "name": "raised-control",
+      "pixel": [
+        665.0,
+        513.0
+      ]
+    },
+    {
+      "name": "rear-cuff",
+      "pixel": [
+        1126.0,
+        740.9999999999999
+      ]
+    },
+    {
+      "name": "lower-cuff-tip",
+      "pixel": [
+        822.0,
+        1092.0
+      ]
+    },
+    {
+      "name": "left-cuff-tip",
+      "pixel": [
+        386.00000000000006,
+        733.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-tiffani-l-gance-shooting-bracer-1576c8f4f4.family.json",
+    "sha256": "20b845d1c74559acd6cb12676a7a85b847f7719426858304925b7a56c0368970"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/69ed29848239c73fcc4845fe2dfc924d4bb1bf1384d972f545cea03077732d15.png",
+      "sha256": "69ed29848239c73fcc4845fe2dfc924d4bb1bf1384d972f545cea03077732d15"
+    },
+    "clayReference": {
+      "path": "inputs/1c05f1eec44208daf2f16f872ea06203734f40653bc62eafe4746c30c2350b18.png",
+      "sha256": "1c05f1eec44208daf2f16f872ea06203734f40653bc62eafe4746c30c2350b18"
+    },
+    "geometry": {
+      "path": "inputs/47d5a0a4196015ea7f8857fec3809142d9ca3aa944cd8e395cea18270586b102.png",
+      "sha256": "47d5a0a4196015ea7f8857fec3809142d9ca3aa944cd8e395cea18270586b102"
+    },
+    "detail": {
+      "path": "inputs/18c5d840d924a3502ee097d2caaeb7cd3e4cd21ff06f6a01c5ce3def5edf7640.png",
+      "sha256": "18c5d840d924a3502ee097d2caaeb7cd3e4cd21ff06f6a01c5ce3def5edf7640"
+    },
+    "foregroundMask": {
+      "path": "inputs/13b92649f3a16d6a07edb6148b3fe676bb8d96ee2f5b4a4a9b1b8fbc6fade1b7.png",
+      "sha256": "13b92649f3a16d6a07edb6148b3fe676bb8d96ee2f5b4a4a9b1b8fbc6fade1b7"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/1d835d28f010c10b7e75543a574deff1ec98f051f6d9cbbe8058662a914c52d9.png",
+      "sha256": "1d835d28f010c10b7e75543a574deff1ec98f051f6d9cbbe8058662a914c52d9"
+    },
+    "mask": {
+      "path": "inputs/1d835d28f010c10b7e75543a574deff1ec98f051f6d9cbbe8058662a914c52d9.png",
+      "sha256": "1d835d28f010c10b7e75543a574deff1ec98f051f6d9cbbe8058662a914c52d9"
+    },
+    "calibrationReference": {
+      "path": "inputs/27f9429b80518f1f1b1b655c8416400f0137ac2f34c79619c6810956af545338.png",
+      "sha256": "27f9429b80518f1f1b1b655c8416400f0137ac2f34c79619c6810956af545338"
+    },
+    "sourceAudit": {
+      "path": "inputs/6acc899c1a6f02d8a821f7b1a8fadbc859addf4a8f134297507ee630f6783096.json",
+      "sha256": "6acc899c1a6f02d8a821f7b1a8fadbc859addf4a8f134297507ee630f6783096"
+    },
+    "referenceApproval": {
+      "path": "inputs/20ae1b155e9a5d2236d97a295068a8ef6608e98de5beffa63af537d3d6508227.json",
+      "sha256": "20ae1b155e9a5d2236d97a295068a8ef6608e98de5beffa63af537d3d6508227"
+    },
+    "calibrationDetail": {
+      "path": "inputs/80bc183c6c3181a1e73c7b24d415aa45acc606bac22def743dd7b6f68a17a572.png",
+      "sha256": "80bc183c6c3181a1e73c7b24d415aa45acc606bac22def743dd7b6f68a17a572"
+    }
+  },
+  "features": [
+    {
+      "name": "Large PLATINUM-COVERED bracelet with small trigger below the wrist and NO BARREL.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own ELEGANCESHOOTINGBRACER picture printed39/PDF41: broad cuff/bracelet and circular upper face with open wearable interior. Preserve the wearable form; never invent a pistol grip or exposed gun body.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact assigned source/pair and native foreground approvals reused; root inspected actual conditioned paired overlay. Full silhouette, intentional openings and thin structure retained with shared framing and clear padding. Native1254-square sources resampled to2048; no further image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "69ed29848239c73fcc4845fe2dfc924d4bb1bf1384d972f545cea03077732d15",
+      "imageSha256": "18c5d840d924a3502ee097d2caaeb7cd3e4cd21ff06f6a01c5ce3def5edf7640",
+      "maskSha256": "13b92649f3a16d6a07edb6148b3fe676bb8d96ee2f5b4a4a9b1b8fbc6fade1b7",
+      "notes": "Exact assigned source/pair and native foreground approvals reused; root inspected actual conditioned paired overlay. Full silhouette, intentional openings and thin structure retained with shared framing and clear padding. Native1254-square sources resampled to2048; no further image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1c05f1eec44208daf2f16f872ea06203734f40653bc62eafe4746c30c2350b18",
+      "imageSha256": "47d5a0a4196015ea7f8857fec3809142d9ca3aa944cd8e395cea18270586b102",
+      "maskSha256": "1d835d28f010c10b7e75543a574deff1ec98f051f6d9cbbe8058662a914c52d9",
+      "notes": "Exact assigned source/pair and native foreground approvals reused; root inspected actual conditioned paired overlay. Full silhouette, intentional openings and thin structure retained with shared framing and clear padding. Native1254-square sources resampled to2048; no further image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact assigned source/pair and native foreground approvals reused; root inspected actual conditioned paired overlay. Full silhouette, intentional openings and thin structure retained with shared framing and clear padding. Native1254-square sources resampled to2048; no further image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "round-face",
+          "detail": [
+            0.27450812718914186,
+            0.25245738636363635
+          ],
+          "geometry": [
+            0.27450812718914186,
+            0.25245738636363635
+          ]
+        },
+        {
+          "name": "raised-control",
+          "detail": [
+            0.5268067261383538,
+            0.4243181818181818
+          ],
+          "geometry": [
+            0.5268067261383538,
+            0.4243181818181818
+          ]
+        },
+        {
+          "name": "rear-cuff",
+          "detail": [
+            0.8902743952495622,
+            0.6040625
+          ],
+          "geometry": [
+            0.8902743952495622,
+            0.6040625
+          ]
+        },
+        {
+          "name": "lower-cuff-tip",
+          "detail": [
+            0.6505907262478109,
+            0.8807741477272727
+          ],
+          "geometry": [
+            0.6505907262478109,
+            0.8807741477272727
+          ]
+        },
+        {
+          "name": "left-cuff-tip",
+          "detail": [
+            0.30683388517950966,
+            0.5977556818181818
+          ],
+          "geometry": [
+            0.30683388517950966,
+            0.5977556818181818
+          ]
+        }
+      ],
+      "referenceSha256": "69ed29848239c73fcc4845fe2dfc924d4bb1bf1384d972f545cea03077732d15",
+      "geometrySha256": "47d5a0a4196015ea7f8857fec3809142d9ca3aa944cd8e395cea18270586b102",
+      "detailSha256": "18c5d840d924a3502ee097d2caaeb7cd3e4cd21ff06f6a01c5ce3def5edf7640",
+      "geometryForegroundMaskSha256": "1d835d28f010c10b7e75543a574deff1ec98f051f6d9cbbe8058662a914c52d9",
+      "foregroundMaskSha256": "13b92649f3a16d6a07edb6148b3fe676bb8d96ee2f5b4a4a9b1b8fbc6fade1b7"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

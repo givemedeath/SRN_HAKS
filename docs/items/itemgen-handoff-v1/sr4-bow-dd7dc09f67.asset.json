@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-bow-dd7dc09f67",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-tip",
+      "pixel": [
+        10.999999999999995,
+        521.5000000000001
+      ]
+    },
+    {
+      "name": "central-grip-top",
+      "pixel": [
+        887.0,
+        346.99999999999994
+      ]
+    },
+    {
+      "name": "right-tip",
+      "pixel": [
+        1763.0,
+        522.0
+      ]
+    },
+    {
+      "name": "central-string",
+      "pixel": [
+        887.0,
+        559.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-bow-dd7dc09f67.family.json",
+    "sha256": "02dd5ac132ffee594d8c187e1381ae7e96867134a16c17d245b451cc37f06703"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/46d752e7b566a2e4f80ec5dcccb0604fe92979de267752894d875782f87586c3.png",
+      "sha256": "46d752e7b566a2e4f80ec5dcccb0604fe92979de267752894d875782f87586c3"
+    },
+    "clayReference": {
+      "path": "inputs/0fe3c653c8fcf48942686a9dfe95cf7df69a5c7c2f1b689180a927c392fc7782.png",
+      "sha256": "0fe3c653c8fcf48942686a9dfe95cf7df69a5c7c2f1b689180a927c392fc7782"
+    },
+    "geometry": {
+      "path": "inputs/3036bd40c72cf0bd54afbb716943f41d85c2f1ebc65b2ef5dae822aa160a109c.png",
+      "sha256": "3036bd40c72cf0bd54afbb716943f41d85c2f1ebc65b2ef5dae822aa160a109c"
+    },
+    "detail": {
+      "path": "inputs/68115052549fbd0d0772e3169105e833bba65c8559ffab14cb835ee885b5e0ca.png",
+      "sha256": "68115052549fbd0d0772e3169105e833bba65c8559ffab14cb835ee885b5e0ca"
+    },
+    "foregroundMask": {
+      "path": "inputs/93e882b5b2994343cd15094c131dc51aa5c3ceb3b98ce33c2ab3ad735b8de915.png",
+      "sha256": "93e882b5b2994343cd15094c131dc51aa5c3ceb3b98ce33c2ab3ad735b8de915"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/eef756e6337afbaf0da320da21f91d72ed0ed2efb5f6ad0a8a6a2c9ce8df7dab.png",
+      "sha256": "eef756e6337afbaf0da320da21f91d72ed0ed2efb5f6ad0a8a6a2c9ce8df7dab"
+    },
+    "mask": {
+      "path": "inputs/eef756e6337afbaf0da320da21f91d72ed0ed2efb5f6ad0a8a6a2c9ce8df7dab.png",
+      "sha256": "eef756e6337afbaf0da320da21f91d72ed0ed2efb5f6ad0a8a6a2c9ce8df7dab"
+    },
+    "calibrationReference": {
+      "path": "inputs/c4bb3fe6a77e1a3f6f75aaaa6daaf21a5244e0b54990800fd95eee77b1daa4cb.png",
+      "sha256": "c4bb3fe6a77e1a3f6f75aaaa6daaf21a5244e0b54990800fd95eee77b1daa4cb"
+    },
+    "sourceAudit": {
+      "path": "inputs/728328c68f015203ef8ab329174bbd920bfbb728e0db2b6cc72f49d345ad7cb2.json",
+      "sha256": "728328c68f015203ef8ab329174bbd920bfbb728e0db2b6cc72f49d345ad7cb2"
+    },
+    "referenceApproval": {
+      "path": "inputs/e3a9903929ca78e202461428fb55a2ed6dbea6757b9fc561372d22f37b9eceae.json",
+      "sha256": "e3a9903929ca78e202461428fb55a2ed6dbea6757b9fc561372d22f37b9eceae"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f3971ccd191bb79e82dc39eca347e59aa6886e4175c8e98eacf6a467fe33f3a6.png",
+      "sha256": "f3971ccd191bb79e82dc39eca347e59aa6886e4175c8e98eacf6a467fe33f3a6"
+    }
+  },
+  "features": [
+    {
+      "name": "Longbow of wood/fiberglass OR modern compound-and-pulley bow",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1774x887 images retained;2048 is resampled, not native2K. Core306/PDF308 permits traditional wood longbow; retained source-form choice selects wood/integrated grip/ONE tip-to-tip string,not compound hardware. Exact unlabelled variant finish/unseen depth is artistic interpretation. Actual retained detailed and new clay images inspected:matching entire curved limb silhouette,integrated center grip,both tips and ONE continuous string/open interior. No arrows,extra accessories or cutaways. Clay removes woodgrain/color,while minor shallow seams/fringe do not block. Preserve native1774x887 originals;2K conditioning is resampled,not native2K. No geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        200,
+        952,
+        1848,
+        1131
+      ],
+      "referenceAreaPixels": 189466,
+      "referenceMaskSha256": "eef756e6337afbaf0da320da21f91d72ed0ed2efb5f6ad0a8a6a2c9ce8df7dab",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "46d752e7b566a2e4f80ec5dcccb0604fe92979de267752894d875782f87586c3",
+      "imageSha256": "68115052549fbd0d0772e3169105e833bba65c8559ffab14cb835ee885b5e0ca",
+      "maskSha256": "93e882b5b2994343cd15094c131dc51aa5c3ceb3b98ce33c2ab3ad735b8de915",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1774x887 images retained;2048 is resampled, not native2K. Core306/PDF308 permits traditional wood longbow; retained source-form choice selects wood/integrated grip/ONE tip-to-tip string,not compound hardware. Exact unlabelled variant finish/unseen depth is artistic interpretation. Actual retained detailed and new clay images inspected:matching entire curved limb silhouette,integrated center grip,both tips and ONE continuous string/open interior. No arrows,extra accessories or cutaways. Clay removes woodgrain/color,while minor shallow seams/fringe do not block. Preserve native1774x887 originals;2K conditioning is resampled,not native2K. No geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0fe3c653c8fcf48942686a9dfe95cf7df69a5c7c2f1b689180a927c392fc7782",
+      "imageSha256": "3036bd40c72cf0bd54afbb716943f41d85c2f1ebc65b2ef5dae822aa160a109c",
+      "maskSha256": "eef756e6337afbaf0da320da21f91d72ed0ed2efb5f6ad0a8a6a2c9ce8df7dab",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1774x887 images retained;2048 is resampled, not native2K. Core306/PDF308 permits traditional wood longbow; retained source-form choice selects wood/integrated grip/ONE tip-to-tip string,not compound hardware. Exact unlabelled variant finish/unseen depth is artistic interpretation. Actual retained detailed and new clay images inspected:matching entire curved limb silhouette,integrated center grip,both tips and ONE continuous string/open interior. No arrows,extra accessories or cutaways. Clay removes woodgrain/color,while minor shallow seams/fringe do not block. Preserve native1774x887 originals;2K conditioning is resampled,not native2K. No geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "46d752e7b566a2e4f80ec5dcccb0604fe92979de267752894d875782f87586c3",
+      "detailSha256": "68115052549fbd0d0772e3169105e833bba65c8559ffab14cb835ee885b5e0ca",
+      "geometrySha256": "3036bd40c72cf0bd54afbb716943f41d85c2f1ebc65b2ef5dae822aa160a109c",
+      "foregroundMaskSha256": "93e882b5b2994343cd15094c131dc51aa5c3ceb3b98ce33c2ab3ad735b8de915",
+      "geometryForegroundMaskSha256": "eef756e6337afbaf0da320da21f91d72ed0ed2efb5f6ad0a8a6a2c9ce8df7dab",
+      "landmarks": [
+        {
+          "name": "left-tip",
+          "detail": [
+            0.050318023090079815,
+            0.5348708618721462
+          ],
+          "geometry": [
+            0.050318023090079815,
+            0.5353836686643836
+          ]
+        },
+        {
+          "name": "central-grip-top",
+          "detail": [
+            0.5,
+            0.4453860766267123
+          ],
+          "geometry": [
+            0.5,
+            0.4443604630422374
+          ]
+        },
+        {
+          "name": "right-tip",
+          "detail": [
+            0.9496819769099202,
+            0.5351272652682648
+          ],
+          "geometry": [
+            0.9491686413198404,
+            0.5356400720605022
+          ]
+        },
+        {
+          "name": "central-string",
+          "detail": [
+            0.5,
+            0.5541011165810502
+          ],
+          "geometry": [
+            0.5,
+            0.5551267301655252
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1774x887 images retained;2048 is resampled, not native2K. Core306/PDF308 permits traditional wood longbow; retained source-form choice selects wood/integrated grip/ONE tip-to-tip string,not compound hardware. Exact unlabelled variant finish/unseen depth is artistic interpretation. Actual retained detailed and new clay images inspected:matching entire curved limb silhouette,integrated center grip,both tips and ONE continuous string/open interior. No arrows,extra accessories or cutaways. Clay removes woodgrain/color,while minor shallow seams/fringe do not block. Preserve native1774x887 originals;2K conditioning is resampled,not native2K. No geometry/native/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-katar-6abae69983",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "blade-tip",
+      "pixel": [
+        13.999999999999998,
+        603.9999999999999
+      ]
+    },
+    {
+      "name": "blade-base-top",
+      "pixel": [
+        630.0000000000001,
+        461.0
+      ]
+    },
+    {
+      "name": "rail-top-end",
+      "pixel": [
+        1235.0,
+        447.99999999999994
+      ]
+    },
+    {
+      "name": "rail-bottom-end",
+      "pixel": [
+        1235.0,
+        747.0000000000002
+      ]
+    },
+    {
+      "name": "hole-left",
+      "pixel": [
+        702.9999999999999,
+        600.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-katar-6abae69983.family.json",
+    "sha256": "836177b04815f41fd3ffc8f8a42dcc9f36a5071743e7ad44c463c6261856127b"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f19f4039c7310f54b97bbfadb2787aae899e3cd555057217996bdfeb0dd83cce.png",
+      "sha256": "f19f4039c7310f54b97bbfadb2787aae899e3cd555057217996bdfeb0dd83cce"
+    },
+    "clayReference": {
+      "path": "inputs/e97eeed238a9a1c0321ebbd867c9b97f464c565860acc3354b4d5f324032395c.png",
+      "sha256": "e97eeed238a9a1c0321ebbd867c9b97f464c565860acc3354b4d5f324032395c"
+    },
+    "geometry": {
+      "path": "inputs/6ffc53f489e4681b429111d51a00cc223928936766c49e377f01c26dbf224913.png",
+      "sha256": "6ffc53f489e4681b429111d51a00cc223928936766c49e377f01c26dbf224913"
+    },
+    "detail": {
+      "path": "inputs/2fba0a36552a0cdacca5e92cd2924e90d017ce99bb089a749726391a2f3341ec.png",
+      "sha256": "2fba0a36552a0cdacca5e92cd2924e90d017ce99bb089a749726391a2f3341ec"
+    },
+    "foregroundMask": {
+      "path": "inputs/9e3f01a195a3073f45dd6d51c0c90b184fafe9b505f2411a27217313e0e926b7.png",
+      "sha256": "9e3f01a195a3073f45dd6d51c0c90b184fafe9b505f2411a27217313e0e926b7"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c96034d3ac4c8201bd766f4d11182f4f42e5377d52161cb2ab87b04400762b2c.png",
+      "sha256": "c96034d3ac4c8201bd766f4d11182f4f42e5377d52161cb2ab87b04400762b2c"
+    },
+    "mask": {
+      "path": "inputs/c96034d3ac4c8201bd766f4d11182f4f42e5377d52161cb2ab87b04400762b2c.png",
+      "sha256": "c96034d3ac4c8201bd766f4d11182f4f42e5377d52161cb2ab87b04400762b2c"
+    },
+    "calibrationReference": {
+      "path": "inputs/dfeec95ae5ccd0d783b3bcfc42b9a17a08c425dd8197ade561c30734c597044c.png",
+      "sha256": "dfeec95ae5ccd0d783b3bcfc42b9a17a08c425dd8197ade561c30734c597044c"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/5106103b867fbe3aeb505c229e470631be13521dc78b850f1708e84f198fd050.json",
+      "sha256": "5106103b867fbe3aeb505c229e470631be13521dc78b850f1708e84f198fd050"
+    },
+    "referenceApproval": {
+      "path": "inputs/2a9f61c3522d8842b4950c96b178a42f25d1c193547ec8f8a688f0dbf8b2cc58.json",
+      "sha256": "2a9f61c3522d8842b4950c96b178a42f25d1c193547ec8f8a688f0dbf8b2cc58"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0b2feb2f58ff1df5d2887aaebaa282280b519fc71be49816b4ce02b1b2c10046.png",
+      "sha256": "0b2feb2f58ff1df5d2887aaebaa282280b519fc71be49816b4ce02b1b2c10046"
+    }
+  },
+  "features": [
+    {
+      "name": "Punching dagger with an H-shaped frame and the crossbar used as the hand grip.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Wide-based triangular blade sits above the H-shaped handle frame.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual Arsenal printed14/PDF16 labeled KATAR and generated detail compared. Wide-based triangular blade with intact apex and broad blade facets, two long frame rails, transverse handhold and actual open frame spaces agree. Near-profile interpretation preserves source H-frame rather than a normal handled dagger or scissor blade. Dark frame/brushed blade and fine rivet/wrap details are appearance choices, not unique canonical colors. Full object fits the1254 square; RGB white background still needs foreground conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1139,
+        824,
+        1337,
+        1220
+      ],
+      "referenceAreaPixels": 66558,
+      "referenceMaskSha256": "c96034d3ac4c8201bd766f4d11182f4f42e5377d52161cb2ab87b04400762b2c",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f19f4039c7310f54b97bbfadb2787aae899e3cd555057217996bdfeb0dd83cce",
+      "imageSha256": "2fba0a36552a0cdacca5e92cd2924e90d017ce99bb089a749726391a2f3341ec",
+      "maskSha256": "9e3f01a195a3073f45dd6d51c0c90b184fafe9b505f2411a27217313e0e926b7",
+      "notes": "Actual Arsenal printed14/PDF16 labeled KATAR and generated detail compared. Wide-based triangular blade with intact apex and broad blade facets, two long frame rails, transverse handhold and actual open frame spaces agree. Near-profile interpretation preserves source H-frame rather than a normal handled dagger or scissor blade. Dark frame/brushed blade and fine rivet/wrap details are appearance choices, not unique canonical colors. Full object fits the1254 square; RGB white background still needs foreground conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e97eeed238a9a1c0321ebbd867c9b97f464c565860acc3354b4d5f324032395c",
+      "imageSha256": "6ffc53f489e4681b429111d51a00cc223928936766c49e377f01c26dbf224913",
+      "maskSha256": "c96034d3ac4c8201bd766f4d11182f4f42e5377d52161cb2ab87b04400762b2c",
+      "notes": "Actual Arsenal printed14/PDF16 labeled KATAR and generated detail compared. Wide-based triangular blade with intact apex and broad blade facets, two long frame rails, transverse handhold and actual open frame spaces agree. Near-profile interpretation preserves source H-frame rather than a normal handled dagger or scissor blade. Dark frame/brushed blade and fine rivet/wrap details are appearance choices, not unique canonical colors. Full object fits the1254 square; RGB white background still needs foreground conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual Arsenal printed14/PDF16 labeled KATAR and generated detail compared. Wide-based triangular blade with intact apex and broad blade facets, two long frame rails, transverse handhold and actual open frame spaces agree. Near-profile interpretation preserves source H-frame rather than a normal handled dagger or scissor blade. Dark frame/brushed blade and fine rivet/wrap details are appearance choices, not unique canonical colors. Full object fits the1254 square; RGB white background still needs foreground conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "blade-tip",
+          "detail": [
+            0.051272316880603096,
+            0.5008576044617563
+          ],
+          "geometry": [
+            0.051272316880603096,
+            0.5008576044617563
+          ]
+        },
+        {
+          "name": "blade-base-top",
+          "detail": [
+            0.503302166106357,
+            0.3958245728576487
+          ],
+          "geometry": [
+            0.503302166106357,
+            0.3958245728576487
+          ]
+        },
+        {
+          "name": "rail-top-end",
+          "detail": [
+            0.9472600537387939,
+            0.38627611543909346
+          ],
+          "geometry": [
+            0.9472600537387939,
+            0.38627611543909346
+          ]
+        },
+        {
+          "name": "rail-bottom-end",
+          "detail": [
+            0.9472600537387939,
+            0.6058906360658641
+          ],
+          "geometry": [
+            0.9472600537387939,
+            0.6058906360658641
+          ]
+        },
+        {
+          "name": "hole-left",
+          "detail": [
+            0.5568706384983699,
+            0.49791961756373937
+          ],
+          "geometry": [
+            0.5568706384983699,
+            0.49791961756373937
+          ]
+        }
+      ],
+      "referenceSha256": "f19f4039c7310f54b97bbfadb2787aae899e3cd555057217996bdfeb0dd83cce",
+      "geometrySha256": "6ffc53f489e4681b429111d51a00cc223928936766c49e377f01c26dbf224913",
+      "detailSha256": "2fba0a36552a0cdacca5e92cd2924e90d017ce99bb089a749726391a2f3341ec",
+      "foregroundMaskSha256": "9e3f01a195a3073f45dd6d51c0c90b184fafe9b505f2411a27217313e0e926b7",
+      "geometryForegroundMaskSha256": "c96034d3ac4c8201bd766f4d11182f4f42e5377d52161cb2ab87b04400762b2c"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-steyr-aug-csl-rifle-ce3fd91fa6",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "buttstock-left",
+      "pixel": [
+        15.000000000000004,
+        554.0
+      ]
+    },
+    {
+      "name": "solid-laser-top-at-shared-column",
+      "pixel": [
+        640.0,
+        408.99999999999994
+      ]
+    },
+    {
+      "name": "muzzle-right",
+      "pixel": [
+        1237.0,
+        546.0
+      ]
+    },
+    {
+      "name": "main-grip-bottom",
+      "pixel": [
+        558.0,
+        826.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-steyr-aug-csl-rifle-ce3fd91fa6.family.json",
+    "sha256": "2572af80865e92b5b287cf2463a5e3ccbe04dd80b441c74161251f6e9a8387fe"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/50f6572995112195658aa2a917c787be31066ab200352f84df055114fd6dc184.png",
+      "sha256": "50f6572995112195658aa2a917c787be31066ab200352f84df055114fd6dc184"
+    },
+    "clayReference": {
+      "path": "inputs/90874d0c26efd2ac2fbccf17944f0df470f51a187396f4765debf4ce6c2eb28e.png",
+      "sha256": "90874d0c26efd2ac2fbccf17944f0df470f51a187396f4765debf4ce6c2eb28e"
+    },
+    "geometry": {
+      "path": "inputs/71f61c08dd3aad6ce18259b05efddba247c5a493cf88b8253802934a41f2c3f7.png",
+      "sha256": "71f61c08dd3aad6ce18259b05efddba247c5a493cf88b8253802934a41f2c3f7"
+    },
+    "detail": {
+      "path": "inputs/8ec59b06fb165c169420dcc30ab5c57c9e2d8326b297a9578419335473bc1f4b.png",
+      "sha256": "8ec59b06fb165c169420dcc30ab5c57c9e2d8326b297a9578419335473bc1f4b"
+    },
+    "foregroundMask": {
+      "path": "inputs/7be9f28f97fff09b6612e187d03078711614e1a68cbb0efe1441b364c0d039dd.png",
+      "sha256": "7be9f28f97fff09b6612e187d03078711614e1a68cbb0efe1441b364c0d039dd"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/2e8f91265a88da20d8a812c948a3984cb2bb4447940ef02c669577b2fddc3ac6.png",
+      "sha256": "2e8f91265a88da20d8a812c948a3984cb2bb4447940ef02c669577b2fddc3ac6"
+    },
+    "mask": {
+      "path": "inputs/2e8f91265a88da20d8a812c948a3984cb2bb4447940ef02c669577b2fddc3ac6.png",
+      "sha256": "2e8f91265a88da20d8a812c948a3984cb2bb4447940ef02c669577b2fddc3ac6"
+    },
+    "calibrationReference": {
+      "path": "inputs/ce6fb8a0d1b0e23e0cfc0a2d7c19192f93217b19db793f35f95aecb7885eceee.png",
+      "sha256": "ce6fb8a0d1b0e23e0cfc0a2d7c19192f93217b19db793f35f95aecb7885eceee"
+    },
+    "sourceAudit": {
+      "path": "inputs/0affb8d5e1f833ae7dc62dc448a67c6ab75df62dab51394c8b2f90f8222e18f9.json",
+      "sha256": "0affb8d5e1f833ae7dc62dc448a67c6ab75df62dab51394c8b2f90f8222e18f9"
+    },
+    "referenceApproval": {
+      "path": "inputs/4b2192b21f9500a3c7ca76a6dbdfc511c5d311bb927648b100b274faac96c241.json",
+      "sha256": "4b2192b21f9500a3c7ca76a6dbdfc511c5d311bb927648b100b274faac96c241"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0d31b2f863fdb5ee182210740b91aacfba2b379d96f68e36a8d7674301d7c6fe.png",
+      "sha256": "0d31b2f863fdb5ee182210740b91aacfba2b379d96f68e36a8d7674301d7c6fe"
+    }
+  },
+  "features": [
+    {
+      "name": "One modular AUG-CSL family, supplied in a large component briefcase; basic weapon is assault rifle and components support AR/SMG/rifle/LMG configurations.",
+      "placementReviewed": true
+    },
+    {
+      "name": "ALL configurations retain integral top laser, barrel-mounted gas-vent1 system and RIGID stock. They share assault-rifle ammunition but use different feed clips/configurations.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own AUGCSL family picture printed27/PDF29 supplies the broad body, rear stock opening, forward grip/support and upper laser unit; it does not individually label all four configurations.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Compared own labeled isolated AUG-CSL family art Arsenal27/PDF29 and176/PDF178 configuration table with actual corrected343detail and matching345clay. Low continuous tapered body/rigidstock,ONE main grip with clear OPEN triggerguard/retainedtrigger,narrow separate forward grip,small SOLID raised laser,slender exposed muzzle-right barrel and20-round REARclip retained. No false carryhandle,scope,launcher,belt,bipod or duplicate grip. Exact clip contour,finish and hidden depth are disclosed artistic interpretation. Matching silhouette/framing/openings inspected once;minor shallow grooves and harmless edge fringe nonblocking. Native1254RGBA originals retained;2048conditioning is resampled,not native2K. No geometry/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        936,
+        997,
+        1157,
+        1243
+      ],
+      "referenceAreaPixels": 24322,
+      "referenceMaskSha256": "2e8f91265a88da20d8a812c948a3984cb2bb4447940ef02c669577b2fddc3ac6",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "50f6572995112195658aa2a917c787be31066ab200352f84df055114fd6dc184",
+      "imageSha256": "8ec59b06fb165c169420dcc30ab5c57c9e2d8326b297a9578419335473bc1f4b",
+      "maskSha256": "7be9f28f97fff09b6612e187d03078711614e1a68cbb0efe1441b364c0d039dd",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Compared own labeled isolated AUG-CSL family art Arsenal27/PDF29 and176/PDF178 configuration table with actual corrected343detail and matching345clay. Low continuous tapered body/rigidstock,ONE main grip with clear OPEN triggerguard/retainedtrigger,narrow separate forward grip,small SOLID raised laser,slender exposed muzzle-right barrel and20-round REARclip retained. No false carryhandle,scope,launcher,belt,bipod or duplicate grip. Exact clip contour,finish and hidden depth are disclosed artistic interpretation. Matching silhouette/framing/openings inspected once;minor shallow grooves and harmless edge fringe nonblocking. Native1254RGBA originals retained;2048conditioning is resampled,not native2K. No geometry/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "90874d0c26efd2ac2fbccf17944f0df470f51a187396f4765debf4ce6c2eb28e",
+      "imageSha256": "71f61c08dd3aad6ce18259b05efddba247c5a493cf88b8253802934a41f2c3f7",
+      "maskSha256": "2e8f91265a88da20d8a812c948a3984cb2bb4447940ef02c669577b2fddc3ac6",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Compared own labeled isolated AUG-CSL family art Arsenal27/PDF29 and176/PDF178 configuration table with actual corrected343detail and matching345clay. Low continuous tapered body/rigidstock,ONE main grip with clear OPEN triggerguard/retainedtrigger,narrow separate forward grip,small SOLID raised laser,slender exposed muzzle-right barrel and20-round REARclip retained. No false carryhandle,scope,launcher,belt,bipod or duplicate grip. Exact clip contour,finish and hidden depth are disclosed artistic interpretation. Matching silhouette/framing/openings inspected once;minor shallow grooves and harmless edge fringe nonblocking. Native1254RGBA originals retained;2048conditioning is resampled,not native2K. No geometry/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "50f6572995112195658aa2a917c787be31066ab200352f84df055114fd6dc184",
+      "detailSha256": "8ec59b06fb165c169420dcc30ab5c57c9e2d8326b297a9578419335473bc1f4b",
+      "geometrySha256": "71f61c08dd3aad6ce18259b05efddba247c5a493cf88b8253802934a41f2c3f7",
+      "foregroundMaskSha256": "7be9f28f97fff09b6612e187d03078711614e1a68cbb0efe1441b364c0d039dd",
+      "geometryForegroundMaskSha256": "2e8f91265a88da20d8a812c948a3984cb2bb4447940ef02c669577b2fddc3ac6",
+      "landmarks": [
+        {
+          "name": "buttstock-left",
+          "detail": [
+            0.050539700255102044,
+            0.45224286925117924
+          ],
+          "geometry": [
+            0.050539700255102044,
+            0.45261023179540094
+          ]
+        },
+        {
+          "name": "solid-laser-top-at-shared-column",
+          "detail": [
+            0.5099226721938775,
+            0.34570773142688677
+          ],
+          "geometry": [
+            0.5099226721938775,
+            0.3464424565153302
+          ]
+        },
+        {
+          "name": "muzzle-right",
+          "detail": [
+            0.948725286989796,
+            0.44636506854363206
+          ],
+          "geometry": [
+            0.948725286989796,
+            0.4448956183667453
+          ]
+        },
+        {
+          "name": "main-grip-bottom",
+          "detail": [
+            0.4496516262755102,
+            0.6528228183962264
+          ],
+          "geometry": [
+            0.4489166135204082,
+            0.6550269936615567
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Compared own labeled isolated AUG-CSL family art Arsenal27/PDF29 and176/PDF178 configuration table with actual corrected343detail and matching345clay. Low continuous tapered body/rigidstock,ONE main grip with clear OPEN triggerguard/retainedtrigger,narrow separate forward grip,small SOLID raised laser,slender exposed muzzle-right barrel and20-round REARclip retained. No false carryhandle,scope,launcher,belt,bipod or duplicate grip. Exact clip contour,finish and hidden depth are disclosed artistic interpretation. Matching silhouette/framing/openings inspected once;minor shallow grooves and harmless edge fringe nonblocking. Native1254RGBA originals retained;2048conditioning is resampled,not native2K. No geometry/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

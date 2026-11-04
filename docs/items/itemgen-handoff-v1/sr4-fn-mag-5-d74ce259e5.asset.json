@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-fn-mag-5-d74ce259e5",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-left-row600",
+      "pixel": [
+        14.999999999999993,
+        600.0
+      ]
+    },
+    {
+      "name": "stock-right-row600",
+      "pixel": [
+        1234.0,
+        600.0
+      ]
+    },
+    {
+      "name": "carry-form-upper-surface-native-column640",
+      "pixel": [
+        640.0000000000001,
+        462.0
+      ]
+    },
+    {
+      "name": "feed-box-bottom-x650-850",
+      "pixel": [
+        742.0000000000001,
+        824.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-fn-mag-5-d74ce259e5.family.json",
+    "sha256": "9b1f75276a88b599e19f064daa8a4070e40f99ed034058f0ce56c559754f7c1c"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/4532603e973fdfbdcd3f258eb8a8bbdd719fa0258a6bac174c1e96838f210411.png",
+      "sha256": "4532603e973fdfbdcd3f258eb8a8bbdd719fa0258a6bac174c1e96838f210411"
+    },
+    "clayReference": {
+      "path": "inputs/3f2f26cdc1535f054f7a29366c7328a4e01d4e4159260e1e7da78a008f27a2b9.png",
+      "sha256": "3f2f26cdc1535f054f7a29366c7328a4e01d4e4159260e1e7da78a008f27a2b9"
+    },
+    "geometry": {
+      "path": "inputs/12d6eaff7e02f931099100133b1b77d040264721ec7771945ec01010e123f086.png",
+      "sha256": "12d6eaff7e02f931099100133b1b77d040264721ec7771945ec01010e123f086"
+    },
+    "detail": {
+      "path": "inputs/375dbfbbee782a824d7b23a113fcf44f6f7f17131981b35da778820e7e88d98d.png",
+      "sha256": "375dbfbbee782a824d7b23a113fcf44f6f7f17131981b35da778820e7e88d98d"
+    },
+    "foregroundMask": {
+      "path": "inputs/2fe528b40fa57b3652eb87b0bbcd7ba11b3d655f8c795595ca1077801121378d.png",
+      "sha256": "2fe528b40fa57b3652eb87b0bbcd7ba11b3d655f8c795595ca1077801121378d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/ef1113fe8d873c1ee511ca2877c4c3b73c312cb938628f2c9f3adcc9ba9d77f4.png",
+      "sha256": "ef1113fe8d873c1ee511ca2877c4c3b73c312cb938628f2c9f3adcc9ba9d77f4"
+    },
+    "mask": {
+      "path": "inputs/ef1113fe8d873c1ee511ca2877c4c3b73c312cb938628f2c9f3adcc9ba9d77f4.png",
+      "sha256": "ef1113fe8d873c1ee511ca2877c4c3b73c312cb938628f2c9f3adcc9ba9d77f4"
+    },
+    "calibrationReference": {
+      "path": "inputs/53fbc9361dae494d675cf3ec657fe259e55a1b0a8502c66be3e0269d6369b7be.png",
+      "sha256": "53fbc9361dae494d675cf3ec657fe259e55a1b0a8502c66be3e0269d6369b7be"
+    },
+    "sourceAudit": {
+      "path": "inputs/4f7b4d35c4949d4f3340dafcdffbdaa2b05c50c0b11063635eda7b5f53c008c5.json",
+      "sha256": "4f7b4d35c4949d4f3340dafcdffbdaa2b05c50c0b11063635eda7b5f53c008c5"
+    },
+    "referenceApproval": {
+      "path": "inputs/750a8e9dddb65ba51ce201d1cf5ce7aa78473241ff3aa9b911fce885550785eb.json",
+      "sha256": "750a8e9dddb65ba51ce201d1cf5ce7aa78473241ff3aa9b911fce885550785eb"
+    },
+    "calibrationDetail": {
+      "path": "inputs/a3b53e1b0de11b8544b0a88eca9a8b915c4114bfea69f77de00b3df5ae270d41.png",
+      "sha256": "a3b53e1b0de11b8544b0a88eca9a8b915c4114bfea69f77de00b3df5ae270d41"
+    }
+  },
+  "features": [
+    {
+      "name": "Top-mounted laser sight, barrel-mounted gas-vent 2 and folding underbarrel tripod",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own MAG-5 art: long forward shroud/barrel, substantial receiver/feed assembly, upper carry form, rear stock and trigger/grip opening",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected using the single approved actual raw-pair/alpha review. Main source construction, silhouette, framing and major openings preserved; existing registration gates pass. Shallow surface differences nonblocking. Each role topology preserved independently: {\"detail\": {\"components\": 1, \"holes\": 12}, \"clay\": {\"components\": 1, \"holes\": 2}}. No discarded components or conditioning-filled holes. Native1254 originals retained; common2048 resampling disclosed.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1283,
+        1061,
+        1381,
+        1209
+      ],
+      "referenceAreaPixels": 8889,
+      "referenceMaskSha256": "ef1113fe8d873c1ee511ca2877c4c3b73c312cb938628f2c9f3adcc9ba9d77f4",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        822,
+        1099,
+        831,
+        1108
+      ],
+      "referenceAreaPixels": 65,
+      "referenceMaskSha256": "ef1113fe8d873c1ee511ca2877c4c3b73c312cb938628f2c9f3adcc9ba9d77f4",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4532603e973fdfbdcd3f258eb8a8bbdd719fa0258a6bac174c1e96838f210411",
+      "imageSha256": "375dbfbbee782a824d7b23a113fcf44f6f7f17131981b35da778820e7e88d98d",
+      "maskSha256": "2fe528b40fa57b3652eb87b0bbcd7ba11b3d655f8c795595ca1077801121378d",
+      "notes": "Final prepared overlay inspected using the single approved actual raw-pair/alpha review. Main source construction, silhouette, framing and major openings preserved; existing registration gates pass. Shallow surface differences nonblocking. Each role topology preserved independently: {\"detail\": {\"components\": 1, \"holes\": 12}, \"clay\": {\"components\": 1, \"holes\": 2}}. No discarded components or conditioning-filled holes. Native1254 originals retained; common2048 resampling disclosed."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "3f2f26cdc1535f054f7a29366c7328a4e01d4e4159260e1e7da78a008f27a2b9",
+      "imageSha256": "12d6eaff7e02f931099100133b1b77d040264721ec7771945ec01010e123f086",
+      "maskSha256": "ef1113fe8d873c1ee511ca2877c4c3b73c312cb938628f2c9f3adcc9ba9d77f4",
+      "notes": "Final prepared overlay inspected using the single approved actual raw-pair/alpha review. Main source construction, silhouette, framing and major openings preserved; existing registration gates pass. Shallow surface differences nonblocking. Each role topology preserved independently: {\"detail\": {\"components\": 1, \"holes\": 12}, \"clay\": {\"components\": 1, \"holes\": 2}}. No discarded components or conditioning-filled holes. Native1254 originals retained; common2048 resampling disclosed."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "4532603e973fdfbdcd3f258eb8a8bbdd719fa0258a6bac174c1e96838f210411",
+      "detailSha256": "375dbfbbee782a824d7b23a113fcf44f6f7f17131981b35da778820e7e88d98d",
+      "geometrySha256": "12d6eaff7e02f931099100133b1b77d040264721ec7771945ec01010e123f086",
+      "foregroundMaskSha256": "2fe528b40fa57b3652eb87b0bbcd7ba11b3d655f8c795595ca1077801121378d",
+      "geometryForegroundMaskSha256": "ef1113fe8d873c1ee511ca2877c4c3b73c312cb938628f2c9f3adcc9ba9d77f4",
+      "landmarks": [
+        {
+          "name": "muzzle-left-row600",
+          "detail": [
+            0.10562434736654441,
+            0.472084377122962
+          ],
+          "geometry": [
+            0.10562434736654441,
+            0.472084377122962
+          ]
+        },
+        {
+          "name": "stock-right-row600",
+          "detail": [
+            0.890512380934189,
+            0.472084377122962
+          ],
+          "geometry": [
+            0.890512380934189,
+            0.472084377122962
+          ]
+        },
+        {
+          "name": "carry-form-upper-surface-native-column640",
+          "detail": [
+            0.5080484827068052,
+            0.383278224779212
+          ],
+          "geometry": [
+            0.5080484827068052,
+            0.383278224779212
+          ]
+        },
+        {
+          "name": "feed-box-bottom-x650-850",
+          "detail": [
+            0.5737241015943358,
+            0.6162334939707881
+          ],
+          "geometry": [
+            0.5753337981356967,
+            0.6175205396569293
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected using the single approved actual raw-pair/alpha review. Main source construction, silhouette, framing and major openings preserved; existing registration gates pass. Shallow surface differences nonblocking. Each role topology preserved independently: {\"detail\": {\"components\": 1, \"holes\": 12}, \"clay\": {\"components\": 1, \"holes\": 2}}. No discarded components or conditioning-filled holes. Native1254 originals retained; common2048 resampling disclosed."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

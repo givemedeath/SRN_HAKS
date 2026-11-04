@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-screamer-head-3769bd87b7",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-through-slot",
+      "pixel": [
+        271.4954142701694,
+        451.07072905331876
+      ]
+    },
+    {
+      "name": "middle-through-slot",
+      "pixel": [
+        322.2329716696805,
+        603.8124515629037
+      ]
+    },
+    {
+      "name": "lower-through-slot",
+      "pixel": [
+        275.4115221751727,
+        757.9939826164475
+      ]
+    },
+    {
+      "name": "rear-through-slot",
+      "pixel": [
+        828.5927627800115,
+        609.8575531303848
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-screamer-head-3769bd87b7.family.json",
+    "sha256": "997e5551044b185e78c850030514a291ccc3de7af9152c19e675c424fa5fdea3"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/9655606ad38197bb784545c36dc796cd4beb731b20569924a57053aedec9f8bd.png",
+      "sha256": "9655606ad38197bb784545c36dc796cd4beb731b20569924a57053aedec9f8bd"
+    },
+    "clayReference": {
+      "path": "inputs/56abbe55b8cffcd80b1dbac2551fa0aadfc21498492892bbf6c78616587b4b95.png",
+      "sha256": "56abbe55b8cffcd80b1dbac2551fa0aadfc21498492892bbf6c78616587b4b95"
+    },
+    "geometry": {
+      "path": "inputs/efb9d510832554f689c85d478d8daf8996d4fcccbd98011cdc0509a78540325e.png",
+      "sha256": "efb9d510832554f689c85d478d8daf8996d4fcccbd98011cdc0509a78540325e"
+    },
+    "detail": {
+      "path": "inputs/ef14af7141637d6896fd1e2bb8885e67f11fef4e0f24c15424b839c90e68ba3d.png",
+      "sha256": "ef14af7141637d6896fd1e2bb8885e67f11fef4e0f24c15424b839c90e68ba3d"
+    },
+    "foregroundMask": {
+      "path": "inputs/a8656ad2e55b069b50766b17a5d6641043f55c95db30837684d850eb3ada72e3.png",
+      "sha256": "a8656ad2e55b069b50766b17a5d6641043f55c95db30837684d850eb3ada72e3"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af.png",
+      "sha256": "88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af"
+    },
+    "mask": {
+      "path": "inputs/88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af.png",
+      "sha256": "88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af"
+    },
+    "calibrationReference": {
+      "path": "inputs/0d58846192b865ac7ecb46688ddf3db8e9158bbc039f356460e019604afef692.png",
+      "sha256": "0d58846192b865ac7ecb46688ddf3db8e9158bbc039f356460e019604afef692"
+    },
+    "sourceAudit": {
+      "path": "inputs/26e92e267e7957675e7db753b7809b1145fdefbd469aadc93cb435843e89140a.json",
+      "sha256": "26e92e267e7957675e7db753b7809b1145fdefbd469aadc93cb435843e89140a"
+    },
+    "referenceApproval": {
+      "path": "inputs/119b308e2f786edbc1216dfdf3d687227153ac6bfd902987d84c82c3a1560cb4.json",
+      "sha256": "119b308e2f786edbc1216dfdf3d687227153ac6bfd902987d84c82c3a1560cb4"
+    },
+    "calibrationDetail": {
+      "path": "inputs/396f0af4d7235f16dd15e71d7d80c90177c5fff1b6c25da08199ca793977fa7f.png",
+      "sha256": "396f0af4d7235f16dd15e71d7d80c90177c5fff1b6c25da08199ca793977fa7f"
+    }
+  },
+  "features": [
+    {
+      "name": "Hollow pipe/whistle projectile for signaling/distraction, not primarily a damaging blade",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own SCREAMER art: short broad hollow-looking body, multiple large elongated openings and rear neck",
+      "placementReviewed": true
+    },
+    {
+      "name": "Retain actual large apertures and thin separating shell members; these are not tiny cosmetic grooves",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual prepared overlay inspected: framing and all four through-openings retained; no backdrop remnant. Matched hollow shell, three broad elongated slots plus small rear through-opening, short neck and dark front/interior surfaces. Clay removes scratches, fine neck grooves and metal finish; through-openings remain open. Actual raw pair and both foregrounds reviewed: common camera/framing; no backdrop debris. Arsenal printed19/PDF21 own SCREAMER head illustration and prose: short rounded hollow whistle/pipe head with elongated structural apertures and short rear neck. Exact finish, hidden depth and small rear treatment are artistic interpretations. This is an ammunition-component depiction, not a standalone firearm or complete arrow.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        267,
+        738,
+        711,
+        796
+      ],
+      "referenceAreaPixels": 15462,
+      "referenceMaskSha256": "88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        296,
+        940,
+        831,
+        1070
+      ],
+      "referenceAreaPixels": 56312,
+      "referenceMaskSha256": "88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1310,
+        965,
+        1363,
+        1066
+      ],
+      "referenceAreaPixels": 4159,
+      "referenceMaskSha256": "88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        271,
+        1204,
+        745,
+        1280
+      ],
+      "referenceAreaPixels": 21872,
+      "referenceMaskSha256": "88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "9655606ad38197bb784545c36dc796cd4beb731b20569924a57053aedec9f8bd",
+      "imageSha256": "ef14af7141637d6896fd1e2bb8885e67f11fef4e0f24c15424b839c90e68ba3d",
+      "maskSha256": "a8656ad2e55b069b50766b17a5d6641043f55c95db30837684d850eb3ada72e3",
+      "notes": "Actual prepared overlay inspected: framing and all four through-openings retained; no backdrop remnant. Matched hollow shell, three broad elongated slots plus small rear through-opening, short neck and dark front/interior surfaces. Clay removes scratches, fine neck grooves and metal finish; through-openings remain open. Actual raw pair and both foregrounds reviewed: common camera/framing; no backdrop debris. Arsenal printed19/PDF21 own SCREAMER head illustration and prose: short rounded hollow whistle/pipe head with elongated structural apertures and short rear neck. Exact finish, hidden depth and small rear treatment are artistic interpretations. This is an ammunition-component depiction, not a standalone firearm or complete arrow."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "56abbe55b8cffcd80b1dbac2551fa0aadfc21498492892bbf6c78616587b4b95",
+      "imageSha256": "efb9d510832554f689c85d478d8daf8996d4fcccbd98011cdc0509a78540325e",
+      "maskSha256": "88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af",
+      "notes": "Actual prepared overlay inspected: framing and all four through-openings retained; no backdrop remnant. Matched hollow shell, three broad elongated slots plus small rear through-opening, short neck and dark front/interior surfaces. Clay removes scratches, fine neck grooves and metal finish; through-openings remain open. Actual raw pair and both foregrounds reviewed: common camera/framing; no backdrop debris. Arsenal printed19/PDF21 own SCREAMER head illustration and prose: short rounded hollow whistle/pipe head with elongated structural apertures and short rear neck. Exact finish, hidden depth and small rear treatment are artistic interpretations. This is an ammunition-component depiction, not a standalone firearm or complete arrow."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "9655606ad38197bb784545c36dc796cd4beb731b20569924a57053aedec9f8bd",
+      "detailSha256": "ef14af7141637d6896fd1e2bb8885e67f11fef4e0f24c15424b839c90e68ba3d",
+      "geometrySha256": "efb9d510832554f689c85d478d8daf8996d4fcccbd98011cdc0509a78540325e",
+      "foregroundMaskSha256": "a8656ad2e55b069b50766b17a5d6641043f55c95db30837684d850eb3ada72e3",
+      "geometryForegroundMaskSha256": "88b12344098f2b4b0dcf41f327d6886ae27c06d00801d16b8879b74697cc99af",
+      "landmarks": [
+        {
+          "name": "upper-through-slot",
+          "detail": [
+            0.22766083989112298,
+            0.3733862153394451
+          ],
+          "geometry": [
+            0.22795582377824722,
+            0.37338119029284944
+          ]
+        },
+        {
+          "name": "middle-through-slot",
+          "detail": [
+            0.2664744516310713,
+            0.4902893936696207
+          ],
+          "geometry": [
+            0.2663727299277825,
+            0.4903390100758718
+          ]
+        },
+        {
+          "name": "lower-through-slot",
+          "detail": [
+            0.23065661461002981,
+            0.6082945511591918
+          ],
+          "geometry": [
+            0.23111005333742704,
+            0.6081882491102
+          ]
+        },
+        {
+          "name": "rear-through-slot",
+          "detail": [
+            0.6538335075297123,
+            0.4949161032219038
+          ],
+          "geometry": [
+            0.6536672619596537,
+            0.4951617669872364
+          ]
+        }
+      ],
+      "notes": "Actual prepared overlay inspected: framing and all four through-openings retained; no backdrop remnant. Matched hollow shell, three broad elongated slots plus small rear through-opening, short neck and dark front/interior surfaces. Clay removes scratches, fine neck grooves and metal finish; through-openings remain open. Actual raw pair and both foregrounds reviewed: common camera/framing; no backdrop debris. Arsenal printed19/PDF21 own SCREAMER head illustration and prose: short rounded hollow whistle/pipe head with elongated structural apertures and short rear neck. Exact finish, hidden depth and small rear treatment are artistic interpretations. This is an ammunition-component depiction, not a standalone firearm or complete arrow."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

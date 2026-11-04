@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-colt-m23-fc5579fdba",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-left-row600",
+      "pixel": [
+        21.0,
+        600.0
+      ]
+    },
+    {
+      "name": "muzzle-right-row570",
+      "pixel": [
+        1234.0,
+        570.0
+      ]
+    },
+    {
+      "name": "carry-handle-top-x350-680",
+      "pixel": [
+        429.0,
+        451.0
+      ]
+    },
+    {
+      "name": "magazine-bottom-x500-700",
+      "pixel": [
+        584.5000000000001,
+        812.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-colt-m23-fc5579fdba.family.json",
+    "sha256": "a607b4f79bde6d7e0266fedb01ce1a7628b2125c4b7ea186b90eb327bc7dab3e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f9141806e9f630d09914efdffb361be299bbd0dc4e01d73af55e8613227ef7b2.png",
+      "sha256": "f9141806e9f630d09914efdffb361be299bbd0dc4e01d73af55e8613227ef7b2"
+    },
+    "clayReference": {
+      "path": "inputs/7aecdfd3b6aa42c3c21348d38a43e28e530743db51ab456ac3390f9b4a6e81c8.png",
+      "sha256": "7aecdfd3b6aa42c3c21348d38a43e28e530743db51ab456ac3390f9b4a6e81c8"
+    },
+    "geometry": {
+      "path": "inputs/437615d9e530b5efeda0cdd5b5bff6ca5a6ab7a4945c3b85531da0d9edbe3696.png",
+      "sha256": "437615d9e530b5efeda0cdd5b5bff6ca5a6ab7a4945c3b85531da0d9edbe3696"
+    },
+    "detail": {
+      "path": "inputs/f4786cc2434d9b73fe8cb9ff9feaf9c4656ac7fd5fa66a2fc1378d313d9521bc.png",
+      "sha256": "f4786cc2434d9b73fe8cb9ff9feaf9c4656ac7fd5fa66a2fc1378d313d9521bc"
+    },
+    "foregroundMask": {
+      "path": "inputs/4a0a441949dc4e1e23212d9e3b78e2600790f060fa349947618356b6c39341fd.png",
+      "sha256": "4a0a441949dc4e1e23212d9e3b78e2600790f060fa349947618356b6c39341fd"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409.png",
+      "sha256": "8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409"
+    },
+    "mask": {
+      "path": "inputs/8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409.png",
+      "sha256": "8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409"
+    },
+    "calibrationReference": {
+      "path": "inputs/c8415890030c07fb15a90f62c297331f4b6e04fdb673863621f170a7de5ff42a.png",
+      "sha256": "c8415890030c07fb15a90f62c297331f4b6e04fdb673863621f170a7de5ff42a"
+    },
+    "sourceAudit": {
+      "path": "inputs/85e64b32ce098f349f472065674775ecd770746e4191ff053b9f4a0f37b6651d.json",
+      "sha256": "85e64b32ce098f349f472065674775ecd770746e4191ff053b9f4a0f37b6651d"
+    },
+    "referenceApproval": {
+      "path": "inputs/6e9ec08f34d3bffb6dd02d85d553b6deda416327752aaf337566713736af4630.json",
+      "sha256": "6e9ec08f34d3bffb6dd02d85d553b6deda416327752aaf337566713736af4630"
+    },
+    "calibrationDetail": {
+      "path": "inputs/09fe67573d761096708e3b799dd56cf19223e9ba4612054939247b2d91c9803e.png",
+      "sha256": "09fe67573d761096708e3b799dd56cf19223e9ba4612054939247b2d91c9803e"
+    }
+  },
+  "features": [
+    {
+      "name": "Follow own M23 art, bottom firearm in the printed26/PDF28 left panel: fixed buttstock/receiver, integral open carry-handle structure, rear pistol grip, forward box magazine, fore-end and thin barrel/front sight.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Printed27/PDF29 explicitly defines M23 as an M22-derived stripped-down rifle lacking accessories. Do not add M22A3 imaging scope, gas-vent accessory package or underbarrel grenade launcher.",
+      "placementReviewed": true
+    },
+    {
+      "name": "The source-shown carry-handle opening and basic sights are major construction; lacking accessories is not permission to erase this structure.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected using the single approved actual raw-pair/alpha review. Source-required forms and major openings preserved; paired landmarks pass existing2% gate. Shallow surface differences nonblocking. Each role topology preserved independently: {\"detail\": {\"components\": 1, \"holes\": 5}, \"clay\": {\"components\": 1, \"holes\": 4}}. Native dimensions [1254, 1254] retained; common2048 resampling disclosed. No components discarded or holes filled.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        742,
+        809,
+        1051,
+        860
+      ],
+      "referenceAreaPixels": 14066,
+      "referenceMaskSha256": "8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1570,
+        832,
+        1611,
+        889
+      ],
+      "referenceAreaPixels": 1632,
+      "referenceMaskSha256": "8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        792,
+        1043,
+        875,
+        1107
+      ],
+      "referenceAreaPixels": 4633,
+      "referenceMaskSha256": "8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        766,
+        1049,
+        789,
+        1105
+      ],
+      "referenceAreaPixels": 575,
+      "referenceMaskSha256": "8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f9141806e9f630d09914efdffb361be299bbd0dc4e01d73af55e8613227ef7b2",
+      "imageSha256": "f4786cc2434d9b73fe8cb9ff9feaf9c4656ac7fd5fa66a2fc1378d313d9521bc",
+      "maskSha256": "4a0a441949dc4e1e23212d9e3b78e2600790f060fa349947618356b6c39341fd",
+      "notes": "Final prepared overlay inspected using the single approved actual raw-pair/alpha review. Source-required forms and major openings preserved; paired landmarks pass existing2% gate. Shallow surface differences nonblocking. Each role topology preserved independently: {\"detail\": {\"components\": 1, \"holes\": 5}, \"clay\": {\"components\": 1, \"holes\": 4}}. Native dimensions [1254, 1254] retained; common2048 resampling disclosed. No components discarded or holes filled."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7aecdfd3b6aa42c3c21348d38a43e28e530743db51ab456ac3390f9b4a6e81c8",
+      "imageSha256": "437615d9e530b5efeda0cdd5b5bff6ca5a6ab7a4945c3b85531da0d9edbe3696",
+      "maskSha256": "8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409",
+      "notes": "Final prepared overlay inspected using the single approved actual raw-pair/alpha review. Source-required forms and major openings preserved; paired landmarks pass existing2% gate. Shallow surface differences nonblocking. Each role topology preserved independently: {\"detail\": {\"components\": 1, \"holes\": 5}, \"clay\": {\"components\": 1, \"holes\": 4}}. Native dimensions [1254, 1254] retained; common2048 resampling disclosed. No components discarded or holes filled."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "f9141806e9f630d09914efdffb361be299bbd0dc4e01d73af55e8613227ef7b2",
+      "detailSha256": "f4786cc2434d9b73fe8cb9ff9feaf9c4656ac7fd5fa66a2fc1378d313d9521bc",
+      "geometrySha256": "437615d9e530b5efeda0cdd5b5bff6ca5a6ab7a4945c3b85531da0d9edbe3696",
+      "foregroundMaskSha256": "4a0a441949dc4e1e23212d9e3b78e2600790f060fa349947618356b6c39341fd",
+      "geometryForegroundMaskSha256": "8001b7f84ef7875e402bb1b7eb20fa1e2aaa1641e0810352a3270da4df195409",
+      "landmarks": [
+        {
+          "name": "stock-left-row600",
+          "detail": [
+            0.051284376283894824,
+            0.47743794703678477
+          ],
+          "geometry": [
+            0.051284376283894824,
+            0.47743794703678477
+          ]
+        },
+        {
+          "name": "muzzle-right-row570",
+          "detail": [
+            0.9487156237161052,
+            0.45524576379427795
+          ],
+          "geometry": [
+            0.9487156237161052,
+            0.45524576379427795
+          ]
+        },
+        {
+          "name": "carry-handle-top-x350-680",
+          "detail": [
+            0.3531408881984388,
+            0.36721677026566757
+          ],
+          "geometry": [
+            0.3531408881984388,
+            0.3649975519414169
+          ]
+        },
+        {
+          "name": "magazine-bottom-x500-700",
+          "detail": [
+            0.4681866911462613,
+            0.6342627086171662
+          ],
+          "geometry": [
+            0.46929645773418244,
+            0.6350024480585831
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected using the single approved actual raw-pair/alpha review. Source-required forms and major openings preserved; paired landmarks pass existing2% gate. Shallow surface differences nonblocking. Each role topology preserved independently: {\"detail\": {\"components\": 1, \"holes\": 5}, \"clay\": {\"components\": 1, \"holes\": 4}}. Native dimensions [1254, 1254] retained; common2048 resampling disclosed. No components discarded or holes filled."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

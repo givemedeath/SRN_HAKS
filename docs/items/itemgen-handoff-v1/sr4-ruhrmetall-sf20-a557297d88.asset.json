@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ruhrmetall-sf20-a557297d88",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "pad-stock-left-boundary-native-row800",
+      "pixel": [
+        41.0,
+        800.0000000000002
+      ]
+    },
+    {
+      "name": "top-silhouette-tangent",
+      "pixel": [
+        1040.0,
+        394.0
+      ]
+    },
+    {
+      "name": "muzzle-right-tangent",
+      "pixel": [
+        1250.0,
+        442.5
+      ]
+    },
+    {
+      "name": "pad-foot-bottom-tangent",
+      "pixel": [
+        108.00000000000001,
+        952.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ruhrmetall-sf20-a557297d88.family.json",
+    "sha256": "0d77ebd54352879d4d0530deda524a9fccf4f4d8e67ef8d495a7b002d5decf31"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/7fdebc7c5bf3d0c849ca02a9aceddd3a4d6099bb5d3ffd343ae480d7de9af9ee.png",
+      "sha256": "7fdebc7c5bf3d0c849ca02a9aceddd3a4d6099bb5d3ffd343ae480d7de9af9ee"
+    },
+    "clayReference": {
+      "path": "inputs/e5f6e4b87ffe13e86b6197a3690d61fff6f80abba3477aaaaad0821fb292edcc.png",
+      "sha256": "e5f6e4b87ffe13e86b6197a3690d61fff6f80abba3477aaaaad0821fb292edcc"
+    },
+    "geometry": {
+      "path": "inputs/cf0e62d3d667d5bcb84917f9babd3281d20348e16341a7278dd3c42e29187e7f.png",
+      "sha256": "cf0e62d3d667d5bcb84917f9babd3281d20348e16341a7278dd3c42e29187e7f"
+    },
+    "detail": {
+      "path": "inputs/6563ee9277fe22296ad9c972d8c8c2e62824bbbb1b30c9c17c612c439cee9ba8.png",
+      "sha256": "6563ee9277fe22296ad9c972d8c8c2e62824bbbb1b30c9c17c612c439cee9ba8"
+    },
+    "foregroundMask": {
+      "path": "inputs/305f069441790666421e6f72875a0050e321b2068c550983aa9e5feda979496d.png",
+      "sha256": "305f069441790666421e6f72875a0050e321b2068c550983aa9e5feda979496d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5.png",
+      "sha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5"
+    },
+    "mask": {
+      "path": "inputs/a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5.png",
+      "sha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5"
+    },
+    "calibrationReference": {
+      "path": "inputs/110671e00ff52cd2d625a469486272ba3985c38d33760274661e2925b921f679.png",
+      "sha256": "110671e00ff52cd2d625a469486272ba3985c38d33760274661e2925b921f679"
+    },
+    "sourceAudit": {
+      "path": "inputs/8e09d73997a05e6612e847d221745416ceec9993f397c51352db60af1ddd9f77.json",
+      "sha256": "8e09d73997a05e6612e847d221745416ceec9993f397c51352db60af1ddd9f77"
+    },
+    "referenceApproval": {
+      "path": "inputs/cbe7a49fe4501f437be9957d2f7216b555d79db7a289a17015863973cbb0052a.json",
+      "sha256": "cbe7a49fe4501f437be9957d2f7216b555d79db7a289a17015863973cbb0052a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/28935298c6bd19cd3099fa982741500cfd36f84b5cd4128fff4e83442ea1e228.png",
+      "sha256": "28935298c6bd19cd3099fa982741500cfd36f84b5cd4128fff4e83442ea1e228"
+    }
+  },
+  "features": [
+    {
+      "name": "Barrel-mounted gas-vent3 system and HIP-PAD BRACING system are delivered standard.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source emphasizes mounting adaptability but does not establish unique visible receiver/stock geometry in prose.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete coherent source form, matched framing, structural openings and thin supports preserved. Low hip-pad/brace retained. Native1254 originals preserved, 2048 resampling disclosed; no new image call or source edits for conditioning. Shallow cosmetic differences nonblocking.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        888,
+        706,
+        1078,
+        781
+      ],
+      "referenceAreaPixels": 8066,
+      "referenceMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1458,
+        804,
+        1527,
+        861
+      ],
+      "referenceAreaPixels": 1244,
+      "referenceMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1279,
+        862,
+        1416,
+        911
+      ],
+      "referenceAreaPixels": 2469,
+      "referenceMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        853,
+        1027,
+        865,
+        1076
+      ],
+      "referenceAreaPixels": 457,
+      "referenceMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        812,
+        1032,
+        858,
+        1096
+      ],
+      "referenceAreaPixels": 1654,
+      "referenceMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        543,
+        1121,
+        553,
+        1140
+      ],
+      "referenceAreaPixels": 131,
+      "referenceMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        437,
+        1216,
+        452,
+        1250
+      ],
+      "referenceAreaPixels": 390,
+      "referenceMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        375,
+        1226,
+        401,
+        1279
+      ],
+      "referenceAreaPixels": 1067,
+      "referenceMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7fdebc7c5bf3d0c849ca02a9aceddd3a4d6099bb5d3ffd343ae480d7de9af9ee",
+      "imageSha256": "6563ee9277fe22296ad9c972d8c8c2e62824bbbb1b30c9c17c612c439cee9ba8",
+      "maskSha256": "305f069441790666421e6f72875a0050e321b2068c550983aa9e5feda979496d",
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete coherent source form, matched framing, structural openings and thin supports preserved. Low hip-pad/brace retained. Native1254 originals preserved, 2048 resampling disclosed; no new image call or source edits for conditioning. Shallow cosmetic differences nonblocking."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e5f6e4b87ffe13e86b6197a3690d61fff6f80abba3477aaaaad0821fb292edcc",
+      "imageSha256": "cf0e62d3d667d5bcb84917f9babd3281d20348e16341a7278dd3c42e29187e7f",
+      "maskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete coherent source form, matched framing, structural openings and thin supports preserved. Low hip-pad/brace retained. Native1254 originals preserved, 2048 resampling disclosed; no new image call or source edits for conditioning. Shallow cosmetic differences nonblocking."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "7fdebc7c5bf3d0c849ca02a9aceddd3a4d6099bb5d3ffd343ae480d7de9af9ee",
+      "detailSha256": "6563ee9277fe22296ad9c972d8c8c2e62824bbbb1b30c9c17c612c439cee9ba8",
+      "geometrySha256": "cf0e62d3d667d5bcb84917f9babd3281d20348e16341a7278dd3c42e29187e7f",
+      "foregroundMaskSha256": "305f069441790666421e6f72875a0050e321b2068c550983aa9e5feda979496d",
+      "geometryForegroundMaskSha256": "a1a07b61485cd98e241cd021a0f451455f1de4d7b959e5b1d4e2ec326c70c5c5",
+      "landmarks": [
+        {
+          "name": "pad-stock-left-boundary-native-row800",
+          "detail": [
+            0.07951732673267327,
+            0.5874431786588079
+          ],
+          "geometry": [
+            0.07882116336633663,
+            0.5874431786588079
+          ]
+        },
+        {
+          "name": "top-silhouette-tangent",
+          "detail": [
+            0.7749845297029703,
+            0.30489514985542704
+          ],
+          "geometry": [
+            0.7749845297029703,
+            0.30419921875000006
+          ]
+        },
+        {
+          "name": "muzzle-right-tangent",
+          "detail": [
+            0.9211788366336634,
+            0.3386478084686388
+          ],
+          "geometry": [
+            0.9204826732673267,
+            0.3386478084686388
+          ]
+        },
+        {
+          "name": "pad-foot-bottom-tangent",
+          "detail": [
+            0.12616027227722773,
+            0.6939206377891458
+          ],
+          "geometry": [
+            0.12685643564356436,
+            0.6946165688945729
+          ]
+        }
+      ],
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete coherent source form, matched framing, structural openings and thin supports preserved. Low hip-pad/brace retained. Native1254 originals preserved, 2048 resampling disclosed; no new image call or source edits for conditioning. Shallow cosmetic differences nonblocking."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

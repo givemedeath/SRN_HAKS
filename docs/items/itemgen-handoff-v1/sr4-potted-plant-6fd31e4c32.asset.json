@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-potted-plant-6fd31e4c32",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-profile-y350-left",
+      "pixel": [
+        234.0,
+        350.00000000000006
+      ]
+    },
+    {
+      "name": "outer-profile-y350-right",
+      "pixel": [
+        968.0,
+        350.00000000000006
+      ]
+    },
+    {
+      "name": "outer-profile-y500-left",
+      "pixel": [
+        173.0,
+        500.0
+      ]
+    },
+    {
+      "name": "outer-profile-y500-right",
+      "pixel": [
+        1000.0,
+        500.0
+      ]
+    },
+    {
+      "name": "outer-profile-y700-left",
+      "pixel": [
+        344.0,
+        700.0
+      ]
+    },
+    {
+      "name": "outer-profile-y700-right",
+      "pixel": [
+        1013.0,
+        700.0
+      ]
+    },
+    {
+      "name": "outer-profile-y1000-left",
+      "pixel": [
+        466.00000000000006,
+        1000.0
+      ]
+    },
+    {
+      "name": "outer-profile-y1000-right",
+      "pixel": [
+        825.0000000000001,
+        1000.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-potted-plant-6fd31e4c32.family.json",
+    "sha256": "502d8d7d30af7d9f918d5d1fe798ff5f042b865bdc6f6e1b4da9249d3affe298"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/41e149480d8a35a78f646c4ef73aa6a8ca020879e62ec79ce12b371735699013.png",
+      "sha256": "41e149480d8a35a78f646c4ef73aa6a8ca020879e62ec79ce12b371735699013"
+    },
+    "clayReference": {
+      "path": "inputs/cc16a5ff7b2f7244c6ffe67bc104150e13dce9dae42ffb14613e804b25d15d1a.png",
+      "sha256": "cc16a5ff7b2f7244c6ffe67bc104150e13dce9dae42ffb14613e804b25d15d1a"
+    },
+    "geometry": {
+      "path": "inputs/be1d4c683452865cc0d992ca1ffc23a8d93989b2454f5962adc100eb6558b0ff.png",
+      "sha256": "be1d4c683452865cc0d992ca1ffc23a8d93989b2454f5962adc100eb6558b0ff"
+    },
+    "detail": {
+      "path": "inputs/d3a12c2cd65756a8f8a55b5866d8d2c32ddeb30c8ba9cb9182c79c50b0d6a06e.png",
+      "sha256": "d3a12c2cd65756a8f8a55b5866d8d2c32ddeb30c8ba9cb9182c79c50b0d6a06e"
+    },
+    "foregroundMask": {
+      "path": "inputs/4c92db30ae8f1585b2ae303ecfa1301bdaab607326a395aec2aa79c5c71c2dfc.png",
+      "sha256": "4c92db30ae8f1585b2ae303ecfa1301bdaab607326a395aec2aa79c5c71c2dfc"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07.png",
+      "sha256": "e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07"
+    },
+    "mask": {
+      "path": "inputs/e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07.png",
+      "sha256": "e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07"
+    },
+    "calibrationReference": {
+      "path": "inputs/a0a6862a5d8cf109f849e64eaf43cc85e88cf55d2d844034b65cc13409b2607a.png",
+      "sha256": "a0a6862a5d8cf109f849e64eaf43cc85e88cf55d2d844034b65cc13409b2607a"
+    },
+    "sourceAudit": {
+      "path": "inputs/7908beb59495cef199adc10bd9afd4f119a7c31b92b640f4165f27cbc678829f.json",
+      "sha256": "7908beb59495cef199adc10bd9afd4f119a7c31b92b640f4165f27cbc678829f"
+    },
+    "referenceApproval": {
+      "path": "inputs/d2dd744a1edd11dbfeb4f9e2225c806e8da67b121b5b63ac88cf90283e26de58.json",
+      "sha256": "d2dd744a1edd11dbfeb4f9e2225c806e8da67b121b5b63ac88cf90283e26de58"
+    },
+    "calibrationDetail": {
+      "path": "inputs/89feb05b81029ec55016a2a4306631798e382bf1b49f78b3a0f71c6c83b3f4b0.png",
+      "sha256": "89feb05b81029ec55016a2a4306631798e382bf1b49f78b3a0f71c6c83b3f4b0"
+    }
+  },
+  "features": [
+    {
+      "name": "Recognizable plant held in a pot/container. Species, leaf arrangement, pot material, color and exact dimensions are unspecified.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Seven broad leaves, all visible stems, pot rim and recessed top retained. Clay fills leaf veins, soil granules and pot scratches; major leaf curvature remains. Three enclosed white inter-stem gaps and border-connected inter-leaf spaces remain transparent. Pot top is a solid recessed surface; do not cut it out. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1113,
+        812,
+        1225,
+        1036
+      ],
+      "referenceAreaPixels": 3362,
+      "referenceMaskSha256": "e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1006,
+        890,
+        1063,
+        1033
+      ],
+      "referenceAreaPixels": 5065,
+      "referenceMaskSha256": "e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        861,
+        988,
+        934,
+        1054
+      ],
+      "referenceAreaPixels": 2057,
+      "referenceMaskSha256": "e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "41e149480d8a35a78f646c4ef73aa6a8ca020879e62ec79ce12b371735699013",
+      "imageSha256": "d3a12c2cd65756a8f8a55b5866d8d2c32ddeb30c8ba9cb9182c79c50b0d6a06e",
+      "maskSha256": "4c92db30ae8f1585b2ae303ecfa1301bdaab607326a395aec2aa79c5c71c2dfc",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Seven broad leaves, all visible stems, pot rim and recessed top retained. Clay fills leaf veins, soil granules and pot scratches; major leaf curvature remains. Three enclosed white inter-stem gaps and border-connected inter-leaf spaces remain transparent. Pot top is a solid recessed surface; do not cut it out. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "cc16a5ff7b2f7244c6ffe67bc104150e13dce9dae42ffb14613e804b25d15d1a",
+      "imageSha256": "be1d4c683452865cc0d992ca1ffc23a8d93989b2454f5962adc100eb6558b0ff",
+      "maskSha256": "e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Seven broad leaves, all visible stems, pot rim and recessed top retained. Clay fills leaf veins, soil granules and pot scratches; major leaf curvature remains. Three enclosed white inter-stem gaps and border-connected inter-leaf spaces remain transparent. Pot top is a solid recessed surface; do not cut it out. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Seven broad leaves, all visible stems, pot rim and recessed top retained. Clay fills leaf veins, soil granules and pot scratches; major leaf curvature remains. Three enclosed white inter-stem gaps and border-connected inter-leaf spaces remain transparent. Pot top is a solid recessed surface; do not cut it out. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K.",
+      "landmarks": [
+        {
+          "name": "outer-profile-y350-left",
+          "detail": [
+            0.18832680885529157,
+            0.28303362472466964
+          ],
+          "geometry": [
+            0.1859476241900648,
+            0.28303362472466964
+          ]
+        },
+        {
+          "name": "outer-profile-y350-right",
+          "detail": [
+            0.7704339902807775,
+            0.28303362472466964
+          ],
+          "geometry": [
+            0.7728131749460043,
+            0.28303362472466964
+          ]
+        },
+        {
+          "name": "outer-profile-y500-left",
+          "detail": [
+            0.13995005399568033,
+            0.40202798045154187
+          ],
+          "geometry": [
+            0.13836393088552915,
+            0.40202798045154187
+          ]
+        },
+        {
+          "name": "outer-profile-y500-right",
+          "detail": [
+            0.7958119600431965,
+            0.40202798045154187
+          ],
+          "geometry": [
+            0.798984206263499,
+            0.40202798045154187
+          ]
+        },
+        {
+          "name": "outer-profile-y700-left",
+          "detail": [
+            0.2755635799136069,
+            0.5606871214207049
+          ],
+          "geometry": [
+            0.2755635799136069,
+            0.5606871214207049
+          ]
+        },
+        {
+          "name": "outer-profile-y700-right",
+          "detail": [
+            0.8061217602591793,
+            0.5606871214207049
+          ],
+          "geometry": [
+            0.8069148218142549,
+            0.5606871214207049
+          ]
+        },
+        {
+          "name": "outer-profile-y1000-left",
+          "detail": [
+            0.3723170896328294,
+            0.7986758328744493
+          ],
+          "geometry": [
+            0.3723170896328294,
+            0.7986758328744493
+          ]
+        },
+        {
+          "name": "outer-profile-y1000-right",
+          "detail": [
+            0.6570261879049677,
+            0.7986758328744493
+          ],
+          "geometry": [
+            0.6570261879049677,
+            0.7986758328744493
+          ]
+        }
+      ],
+      "referenceSha256": "41e149480d8a35a78f646c4ef73aa6a8ca020879e62ec79ce12b371735699013",
+      "geometrySha256": "be1d4c683452865cc0d992ca1ffc23a8d93989b2454f5962adc100eb6558b0ff",
+      "detailSha256": "d3a12c2cd65756a8f8a55b5866d8d2c32ddeb30c8ba9cb9182c79c50b0d6a06e",
+      "foregroundMaskSha256": "4c92db30ae8f1585b2ae303ecfa1301bdaab607326a395aec2aa79c5c71c2dfc",
+      "geometryForegroundMaskSha256": "e85cbf5f39d4f9b85737f287e9413a4cc828ae8c8ea476d16b9afeec96787b07"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,974 @@
+{
+  "schemaVersion": 1,
+  "trialId": "items-2026-10-21-two-attempts",
+  "maximumGeometryAttempts": 5,
+  "originalLedgerSha256": "36c47bff052bc7023270e570822fa9c229e3f467d2841404f5662f768c404c14",
+  "priorGenerationAttempts": 0,
+  "jobs": [
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "bf29bc0b5bfe4b79a0c4467b2666790b",
+      "promptId": "ed4d19f4-923b-4817-90af-cb13cb550c84",
+      "requestSha256": "d4751822acb33066162c4a158a28fa752ec3850d0d7fad00ca70ee7f8c01e5ce"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "d63ed72ea144468fa309d7a890ee0f55",
+      "promptId": "5ea919dc-5a2a-4175-8317-db81a254a539",
+      "requestSha256": "a1d48b4e816cf041140fd5bfdcd7a94d2f1a18d9de0cd603f4ecee3d9c462537"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "37772f6a53b94d76a16a92a27aa99e2d",
+      "promptId": "ff145624-5ed5-4f7d-80cf-a699606724f5",
+      "requestSha256": "83feb62cc301ae10970fbde4d50cea73c15469db24828c3c97f5586eef605cd1"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "63c7144f2a45404ea7708f77b4c342b7",
+      "promptId": "4fdb5263-f867-4a32-87b4-51d84bf1ca69",
+      "requestSha256": "f791bc137b6337d089bda225e5ba80c775c70e788a71e67d1fe816f6418a4f4f"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "9feb6a708d0a49929ca218b926e93e0c",
+      "promptId": "d5699f58-2c5f-44f6-983c-c3f3ed521bea",
+      "requestSha256": "3a1baaecfd3020795c23c6cf7f76f30e9f9b05c3980fa1f8e3a44a034208f783"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "47f9507922f34edca96c7059c0c7aa9d",
+      "promptId": "c0cd9404-d924-4106-968e-c7c1f8160b86",
+      "requestSha256": "5235493467f0d32115c7eed4932af2544d600cba61b535c1e3f0b8edc78f4ca0"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "export",
+      "state": "failed",
+      "token": "e14e151d8d1340ca83fc4ff256309ac1",
+      "promptId": "a6926b3d-ea68-4f46-9317-cb15bbd273a1",
+      "requestSha256": "833ecce7c29702b8f6c44f85118e35e10692f7691d5cf0d881825982aa3a1563"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "51904d12e9cc4d14921be27f682cf100",
+      "promptId": "e5edf919-51fb-45cd-967a-616bbd9b628f",
+      "requestSha256": "4c8a87e17c30c8f2a3c73ed4e97e1fd30a77d6e927fbc4993e69bbb4cf5d9f60"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "03cfdcf2214042d5b5e1a59022fc361c",
+      "promptId": "8c7a551f-6125-4df1-b7da-ce13efd3efe0",
+      "requestSha256": "dbb0d55977ed1c8c87d04a193ab1f580272740cfb81461aa2fa9df96bf032c0b"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longblade",
+        "referenceSha256": "d17b9478d822d534955c88f2e07c35828213debc3a1dd1ccfa80c9fa3e75549b"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "e2e5322ba5b949168dc798275638961d",
+      "promptId": "fb10eb68-b895-465e-b1e5-e9fb81edd889",
+      "requestSha256": "55b50e6d6b38dd9ab3483ddc1e2c05cfc89746314c549a5dbe8e885b69399102"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-knife",
+        "referenceSha256": "3c697aa120b1d1deece42bf9d542f2c301e1099854ed463ca8739b1876a47ec3"
+      },
+      "stage": "calibrate",
+      "state": "failed-validation",
+      "token": "115262f95d6e41a3b73e8a47fefd6d67",
+      "promptId": "4c9f884d-14e7-4664-93ae-685b1624bafa",
+      "requestSha256": "c024ceda2782feef0b9216cbbbad733025ff5d37a5adfbc61b170510d206de17"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-knife",
+        "referenceSha256": "3c697aa120b1d1deece42bf9d542f2c301e1099854ed463ca8739b1876a47ec3"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "a8daafd75d674f35a692eefc0ede9744",
+      "promptId": "58211f65-7eb4-4ccf-88c7-f1178acfaf92",
+      "requestSha256": "21691ef8c28f983c2f14338d1e42fee6cdea9a30d811a523b4bb3cd6a036cb6c"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-knife",
+        "referenceSha256": "3c697aa120b1d1deece42bf9d542f2c301e1099854ed463ca8739b1876a47ec3"
+      },
+      "stage": "geometry",
+      "state": "preflight-rejected",
+      "token": "6a572abe750d437391023bf6221db4b6",
+      "requestSha256": "76e164be4bd85a570b136114e486eafff1254224025fffed22cb9a7199278f6c"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-knife",
+        "referenceSha256": "3c697aa120b1d1deece42bf9d542f2c301e1099854ed463ca8739b1876a47ec3"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "21c4641b0da74ee7827cb9e32420f5b6",
+      "promptId": "40909c0f-b830-4d94-b7d1-5f2313fc663c",
+      "requestSha256": "ecbe231f5b294c98b0011df7c9264a5008dd7fe527ce4758508db7dc4e7c76ac"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-knife",
+        "referenceSha256": "3c697aa120b1d1deece42bf9d542f2c301e1099854ed463ca8739b1876a47ec3"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "be735cb149b149deb8addfe8e5d1ed80",
+      "promptId": "e1338ff6-d8eb-4fdb-b828-6066f9efee18",
+      "requestSha256": "8b83cb45cc795bc54d284b01b3cb08882906b92903c7444560ca4e6a523bb336"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-knife",
+        "referenceSha256": "3c697aa120b1d1deece42bf9d542f2c301e1099854ed463ca8739b1876a47ec3"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "b9e682e877ef42679db1148a7490b87a",
+      "promptId": "63ecca6e-c1aa-4372-8fe2-fa8cf7f5e967",
+      "requestSha256": "b419e1b05e5b3ae14b48f2d658114cc2592ff9ea229de233717fd8bd95be47ed"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longsword",
+        "referenceSha256": "2f32a7ffe5cf9953c285d208b700d04e018c13dcde8bdc5a822167ef0d0ac5d4"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "0db6613944bb484f845fe82461151cc0",
+      "promptId": "31af4b67-7b07-4f71-8ea3-60fdf25c7f87",
+      "requestSha256": "0d3f17f38caa20d26c243a48eac232b6e4aacad69bd6bfefe603aed64cc20186"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longsword",
+        "referenceSha256": "2f32a7ffe5cf9953c285d208b700d04e018c13dcde8bdc5a822167ef0d0ac5d4"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "5759cbd471bc44969030b95d2bb2344a",
+      "promptId": "96ad4db6-ca91-4bd0-b55f-ef7e7d945f17",
+      "requestSha256": "24ad3db5f697949db5d90682b2d8f84371a1d52cc621cded0c3979d9c7803ffd"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longsword",
+        "referenceSha256": "2f32a7ffe5cf9953c285d208b700d04e018c13dcde8bdc5a822167ef0d0ac5d4"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "3fa61de56088436eb69c61d8a01b8b8b",
+      "promptId": "9a4882c7-a5ef-46d1-84b5-3dd9ba42c7ed",
+      "requestSha256": "09360a41f5feec810f98c21676bedc22a2f44731620e56b1ee325833d9bd5a1f"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longsword",
+        "referenceSha256": "2f32a7ffe5cf9953c285d208b700d04e018c13dcde8bdc5a822167ef0d0ac5d4"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "acca1e40c8ca4618b8c4e77980ec611d",
+      "promptId": "534b107b-d301-47bd-a1fd-5e5252506f9e",
+      "requestSha256": "812f48ad03b4ecadaf7c8909cc0d893f5de04c88d1178c0dd4249f84788cd5e3"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longsword",
+        "referenceSha256": "2f32a7ffe5cf9953c285d208b700d04e018c13dcde8bdc5a822167ef0d0ac5d4"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "6f5a5381da2440c78210e3fd3ea6a521",
+      "promptId": "a5510148-c949-4095-8638-acf0a16d1b03",
+      "requestSha256": "6fb02f6fce24784f4b3371937b411a1a396a46e1927a7dd1f0ab8d8451149b44"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longsword",
+        "referenceSha256": "2f32a7ffe5cf9953c285d208b700d04e018c13dcde8bdc5a822167ef0d0ac5d4"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "7b04922e477e406690147374d35de39b",
+      "promptId": "eb7e541f-2063-49ed-9b86-66ed66ed591b",
+      "requestSha256": "53faf06a21fcacbeee8147ad274cdc09527cc872e07042f41ba7ac28a9aeaab8"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longsword",
+        "referenceSha256": "2f32a7ffe5cf9953c285d208b700d04e018c13dcde8bdc5a822167ef0d0ac5d4"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "d65f2d4438664d06884082884082582c",
+      "promptId": "38d3e860-dea8-434c-8b01-58965f8f6ce8",
+      "requestSha256": "1eb0baeb956388af9ada1449dc465984af11d9032603439c417c5dc63943e181"
+    },
+    {
+      "generationSubject": {
+        "id": "cougar-fineblade-longsword",
+        "referenceSha256": "2f32a7ffe5cf9953c285d208b700d04e018c13dcde8bdc5a822167ef0d0ac5d4"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "b07ccfc04c48475aa45829a977d6dc8f",
+      "promptId": "c0f5c7bf-3eca-4935-8619-c668caa8ee45",
+      "requestSha256": "8ad4deb105fd67768ad0cfe2646145aab798e07c9c547b1a337cb5f38cf8c744"
+    },
+    {
+      "generationSubject": {
+        "id": "colt-l36-pistol",
+        "referenceSha256": "1ca1586fd873c6976438abe089a8eab189e4f51d5e46ee50214f987ce750e7b7"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "042a7a500ab4473c9b177b785290d751",
+      "promptId": "b02b0a01-c7b9-4688-911c-b98021c3318e",
+      "requestSha256": "c0f99968a20c5d0f3343b27797f52d43e2f057eed4946bd3aece154f3d096756"
+    },
+    {
+      "generationSubject": {
+        "id": "colt-l36-pistol",
+        "referenceSha256": "1ca1586fd873c6976438abe089a8eab189e4f51d5e46ee50214f987ce750e7b7"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "ebd45b3ebb7044dea65a8c0012396e0f",
+      "promptId": "d324366a-dca3-4d7e-abea-8da0165ae358",
+      "requestSha256": "328bcd97a20e680147d1f037489b3e80143c8febd0ab5af97eaaa39285881292"
+    },
+    {
+      "generationSubject": {
+        "id": "colt-l36-pistol",
+        "referenceSha256": "1ca1586fd873c6976438abe089a8eab189e4f51d5e46ee50214f987ce750e7b7"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "1b165e5d4372449c9656e62d86e0fadb",
+      "promptId": "56dd6414-148f-47fc-9d69-377c5280f5e8",
+      "requestSha256": "6cbfc7ab62e767d6d4a3eda21c5e8eb7aec3d61d31fa9d116b58eebaebbbff8c"
+    },
+    {
+      "generationSubject": {
+        "id": "colt-l36-pistol",
+        "referenceSha256": "1ca1586fd873c6976438abe089a8eab189e4f51d5e46ee50214f987ce750e7b7"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "059880028d7d472a8714c044a5098465",
+      "promptId": "36089f8d-89eb-4882-b0f1-69d7d31859d0",
+      "requestSha256": "99375f0bbb8c3ae5a04a71e8f08586814a33474856011d6ddfbbe07fa500ed0d"
+    },
+    {
+      "generationSubject": {
+        "id": "colt-l36-pistol",
+        "referenceSha256": "1ca1586fd873c6976438abe089a8eab189e4f51d5e46ee50214f987ce750e7b7"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "f70f1530419546d591c4ff6942ea2d5c",
+      "promptId": "ff254b1a-62a8-4b31-9473-ff94ab8c6449",
+      "requestSha256": "dc373589d3f559146e70c9657cc0c3e7a7766128ab9571dfc45eec2d47d46d5e"
+    },
+    {
+      "generationSubject": {
+        "id": "ingram-smartgun-x",
+        "referenceSha256": "82931e9be46100b59b50a7220ada934ddbbe6888f259370d6f8af64020ea4bea"
+      },
+      "stage": "calibrate",
+      "state": "failed-validation",
+      "token": "61e0393385ae46b0a90c9d528e887f08",
+      "promptId": "38f6dda1-3749-4f5b-aee6-84868ec6eda2",
+      "requestSha256": "61211bbd4297873f84c833f5851bc6f4064fdd4720a1936d2b382d460eb68aff"
+    },
+    {
+      "generationSubject": {
+        "id": "ingram-smartgun-x",
+        "referenceSha256": "82931e9be46100b59b50a7220ada934ddbbe6888f259370d6f8af64020ea4bea"
+      },
+      "stage": "calibrate",
+      "state": "failed-validation",
+      "token": "91f395e884454caa9eda39682588dc0a",
+      "promptId": "a3b8a469-5341-4a90-8488-3e2f1305bd6a",
+      "requestSha256": "eb1c5b0de2124a59734849c87c50bc350887268c50c9c3d4ce142465db710d5a"
+    },
+    {
+      "generationSubject": {
+        "id": "ingram-smartgun-x",
+        "referenceSha256": "82931e9be46100b59b50a7220ada934ddbbe6888f259370d6f8af64020ea4bea"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "306f5cb99c9d45dabc985e829b12baf5",
+      "promptId": "764cdddb-a52d-471a-ab1b-04b1e67a6a5b",
+      "requestSha256": "704e48e1f9c239fb214c4563d4fb9383fe546542d9fa845eb32d363d0ce0613a"
+    },
+    {
+      "generationSubject": {
+        "id": "ingram-smartgun-x",
+        "referenceSha256": "82931e9be46100b59b50a7220ada934ddbbe6888f259370d6f8af64020ea4bea"
+      },
+      "stage": "geometry",
+      "state": "failed-validation",
+      "token": "aa3a2298c11d427a8c34014f97f8c0e6",
+      "promptId": "6f1adffd-7b5a-48f6-aa74-205b8300ea89",
+      "requestSha256": "fbcaa8781a12b0b9091285ab40096f906b9bffcad25db4075a90dd18a53ce312"
+    },
+    {
+      "generationSubject": {
+        "id": "ingram-smartgun-x",
+        "referenceSha256": "82931e9be46100b59b50a7220ada934ddbbe6888f259370d6f8af64020ea4bea"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "54b35699e207427f8e320f21ca3108f9",
+      "promptId": "cf89a7d5-60d4-405c-af17-efc76cfa51a0",
+      "requestSha256": "69a08740e3d1616885271fbc7c8a78026a8d3747a8bdc5fcabc3d1f82ae98233"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-stun-baton-7f6ac2799c",
+        "referenceSha256": "b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "4ce761b53edd41fdbd5a50d5cbd220ed",
+      "promptId": "c3b98245-c1f2-4a2b-9415-c95659d96227",
+      "requestSha256": "cb41e034399e3e5c5bf2555e1e2129d1018e99403675bbed1f5eeaa997b00106"
+    },
+    {
+      "generationSubject": {
+        "id": "ingram-smartgun-x",
+        "referenceSha256": "82931e9be46100b59b50a7220ada934ddbbe6888f259370d6f8af64020ea4bea"
+      },
+      "stage": "appearance",
+      "state": "failed-validation",
+      "token": "52fe2fba6c58485897f9d6ba08b4d92e",
+      "promptId": "a08aa96c-24eb-4a9b-b2bd-f203a35da1b6",
+      "requestSha256": "0461ef5854979fd10b55af106b7ba93f9f8c3b8d4fee81738d526eb980e98bc2"
+    },
+    {
+      "generationSubject": {
+        "id": "ingram-smartgun-x",
+        "referenceSha256": "82931e9be46100b59b50a7220ada934ddbbe6888f259370d6f8af64020ea4bea"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "57dace133a1544bcb3098ec5bc95ed3e",
+      "promptId": "b2bb6316-ec31-4f57-889c-088a94a68f4d",
+      "requestSha256": "4ea776486e0a1a965fc7a659192b3ed92807d493e0ad5c4576cd37bf7f83e40b"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-stun-baton-7f6ac2799c",
+        "referenceSha256": "b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd"
+      },
+      "stage": "geometry",
+      "state": "preflight-rejected",
+      "token": "38cc791bb0234d32ab0c41710fb1d661",
+      "requestSha256": "eb31a36c94f17d2b397b7c8606f043286d434e15a92435bdb8571424141da5c1"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-stun-baton-7f6ac2799c",
+        "referenceSha256": "b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd"
+      },
+      "stage": "geometry",
+      "state": "failed-validation",
+      "token": "624a4681ff1f427f8b435f4451138131",
+      "promptId": "949d5b85-3803-42fa-9197-377f73075d02",
+      "requestSha256": "354f4555ab31739d461e1cb62afa95e22f63ca2421e1e70973f75c38c732619f"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-stun-baton-7f6ac2799c",
+        "referenceSha256": "b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "c302820a0b2e41ba859aed71914c37b8",
+      "promptId": "b973987f-132e-45b3-8e40-1c50598e32b8",
+      "requestSha256": "678121cb11658f7c94896de6f6f44dc98bb605766cc55eacb6a30527cb3027e1"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-stun-baton-7f6ac2799c",
+        "referenceSha256": "b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "177c86b5c118486092e342a39e73f1da",
+      "promptId": "33d314b3-cbf5-45ab-802e-2a22814e0669",
+      "requestSha256": "81e28c60a293c1639b80914a810384a0416c2412391b424a0dccc47190363513"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "calibrate",
+      "state": "preflight-rejected",
+      "token": "987886581a0844c184e626ece259073f",
+      "requestSha256": "321d4e86c005c9fab3941cddf4feef5800dc463abe92ccf37bc65a62cda1b704"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "0b8c607eba2e4076a16b6ef2d6365fcc",
+      "promptId": "11816efc-35a0-4792-853b-e14c3df37478",
+      "requestSha256": "d17b695d42cf2a53d746b09d4672c4b2fe56ca1d3621009073290fb974c92560"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "geometry",
+      "state": "failed-validation",
+      "token": "83b23dbd247e42c2af8d35066720129e",
+      "promptId": "841d9121-4d36-4add-b28d-3acc2bd16c64",
+      "requestSha256": "2576ca867589b0d842ecb2ab5296a3d8cfc405de235cba27edd60be9d444d0fc"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "c13f5c85dc8445dba2746a46af286bd0",
+      "promptId": "2f27db29-ef77-47a0-96ee-1a17ea07d7ec",
+      "requestSha256": "09b9929c20c6b8832b41781cc0747d4a938b09d1bc8453631c5dfa1d1fa2bc31"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-crossbows-heavy-6abe18c0e6",
+        "referenceSha256": "318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "b88119505f004cbdab77d2460dc0d352",
+      "promptId": "07c9919c-daa4-4a46-ad56-304a2fdd2a8b",
+      "requestSha256": "ab3cee7669b839d24e164f39608af514fe7042e7e25693eff8a20a0ee8fb7aed"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-crossbows-heavy-6abe18c0e6",
+        "referenceSha256": "318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "597c46250daf4b0381021e151c18f48c",
+      "promptId": "90c23b1a-bf80-469f-8611-368de18bc081",
+      "requestSha256": "6134681e0fe679e20ed0aa89ddc53f62a4402ec2f3f3aab28579684157a336fe"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-crossbows-heavy-6abe18c0e6",
+        "referenceSha256": "318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "e778e723c907484ebd9df935d1b84ab8",
+      "promptId": "8e5996d0-4b6f-42a4-9f45-b5546f7caed1",
+      "requestSha256": "b1325d3de9ce072e4f265ed268746350d59e5e64178f2888549ddb1125907208"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-crossbows-heavy-6abe18c0e6",
+        "referenceSha256": "318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "cb06eb9d6d7e472b960eca811b6f9904",
+      "promptId": "015ef9b7-d6f1-4325-b9e6-929485c8ed18",
+      "requestSha256": "18d672f87b50d7af299de0af1f5c8a5f206ce958a686976f92af3e42492a5776"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "bddd035af56942c09ee74b67e1c0e167",
+      "promptId": "3de073a5-478d-4c64-8aa0-c4d5d6c3077f",
+      "requestSha256": "e228f420bb2ada4791a1f08e08629763ea351f3aa736db8cf907dec0f66c3904"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "1803acd9b05a4715a8b6ebe70284470c",
+      "promptId": "d38a8e0e-78b3-4bdf-80cd-a60d64a0cb5a",
+      "requestSha256": "87e96808f463907de721381a84666e7a90b0313ec971a458cef23d0305f99785"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "084c0cf9d795441393fead3760c91458",
+      "promptId": "12e0c321-f9f8-463c-ae4b-d840b79be4bb",
+      "requestSha256": "78ec1b5f8a6162530848b548dff1f94195c179aa258880e11b3029ab5b116f3b"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "e3b06467c2c74344b483f1ad00739f9a",
+      "promptId": "7d44e77d-3e64-48d0-8ac5-aa756c0dcca5",
+      "requestSha256": "da1c8e3e1d328cea9864b795a87c2d67eff9d4423a63392b72373dda0c9c2095"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-ak-98-84e46602ea",
+        "referenceSha256": "5b416a9f4c8dbbe204af18f17e39b902d05ef6f05eaf9cff905ceb1eea5ade85"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "b8bca7f21ab6490db3418ea84738ba9a",
+      "promptId": "ffe38c20-b745-459d-9ffb-4b3495e439eb",
+      "requestSha256": "7f789e0bebc1b36759b178aac5cfbc2edc2690ec89f7f9cadcfbde3e912e156e"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-crossbows-heavy-6abe18c0e6",
+        "referenceSha256": "318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "f124d72945524a349b7c955451e2290c",
+      "promptId": "5d2622b2-c55f-4b3a-b18b-8cb7bc86841b",
+      "requestSha256": "6fe7fe5826f025a3d3f1e478ac75a7472950aee2036111399286ac8a21de996c"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "cc5d46113485a8ae9b90eff313a9747ae0c847234e6d7684b74ce215c726982e"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "28ce94b0d0a44881a0bccb441e95556e",
+      "promptId": "9b468a02-8987-40ac-a3c9-cc1dfb80a4e9",
+      "requestSha256": "f1583921f56364bebdc8146414a5b45c21fcb232a0d213c05a913ae0b21a5c31"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "cc5d46113485a8ae9b90eff313a9747ae0c847234e6d7684b74ce215c726982e"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "e039955f8114493687d418ad26b7d318",
+      "promptId": "0d48a70c-793a-400c-b061-3fa04290df43",
+      "requestSha256": "fcb66239f42035970cfddc4d1de14ce939a1443ee93054edb9c58cb60c37454d"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "cc5d46113485a8ae9b90eff313a9747ae0c847234e6d7684b74ce215c726982e"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "c95187a897f54304a593a724a597d0c3",
+      "promptId": "10083c38-6c1e-49f9-9d05-4da7f0e8a702",
+      "requestSha256": "aa8b531203cf57f4615e7ba1c9dc4fb8bb2fbc1a43c9f8079afa674225d133cf"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "47b4c419abcd8224c10077aac146bf082a10fbb12dd5b9fdf1d431bbc630aabf"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "c688a6b5a57a47109341c2556d9ec33f",
+      "promptId": "fe115162-88c9-4b5b-b715-3f6efe07897b",
+      "requestSha256": "7bbdcd310d735908b43e58757cc4c68d2248b7cffc4d51223e6abe60c2c3db99"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "205deefdc98ade929d179bd0359db967120817daae90e601c41664d830878e2e"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "3ed1d70316f749a3a0c38fe5c16ca312",
+      "promptId": "5add66e0-dd39-494d-87b7-c434361fbd06",
+      "requestSha256": "b9ea4473f9396dd2c5e0d44307f03a7987540a7a5651b2fa697910161d495fdd"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "205deefdc98ade929d179bd0359db967120817daae90e601c41664d830878e2e"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "23d378a59cbb4a5b9f2a856221b2abd4",
+      "promptId": "1e042e59-52fb-465d-aa8c-0867b2102cd8",
+      "requestSha256": "8660b0fdb423cdea2fe592abb04601da7f564ed3244978e8dfefbe669df7abb4"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "205deefdc98ade929d179bd0359db967120817daae90e601c41664d830878e2e"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "4f9eab2f14aa4220812b3d42410fe85b",
+      "promptId": "4b79e199-1fee-474c-9540-d771cdf3dd9a",
+      "requestSha256": "c9f43de0759edbbf370a33e1973e8e7580cbce7d426abae24841deb3bcd6f65c"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "205deefdc98ade929d179bd0359db967120817daae90e601c41664d830878e2e"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "7ef6c7ea28d442c0ace44a214dd2afab",
+      "promptId": "e66bb0be-5206-4e0d-981f-74c07d922bde",
+      "requestSha256": "8fd62832cba26e6e5d73815ff4a55012ad28f81c7e84d441a179d156f4f1722a"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-riot-shield-800e3413e3",
+        "referenceSha256": "205deefdc98ade929d179bd0359db967120817daae90e601c41664d830878e2e"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "012b029b524442dbbbaaa134f64fc0b1",
+      "promptId": "be57c9ca-1cbf-4b57-a0ff-4f636831eea8",
+      "requestSha256": "e0fcaa77b18c6a8c31a65b3fe5a585db5f885bde5e3aac5f419972022eb730f1"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-katana-f7ac8ecfb3",
+        "referenceSha256": "4038617c90fda05f1e0b54b1566c71b65e933f77284fec47c99714fd073c1bf3"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "2d43413edb5e421ab9978d9b9ad584b8",
+      "promptId": "c9df7995-51d9-4a50-8210-18ea2dd79c78",
+      "requestSha256": "92eee4b8dfc4a8725660224cf262a9d98f0161f4fc4bc3cf0ec37925c5b7366e"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-katana-f7ac8ecfb3",
+        "referenceSha256": "4038617c90fda05f1e0b54b1566c71b65e933f77284fec47c99714fd073c1bf3"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "2ca578075f1648e3b93d69ef305d1a74",
+      "promptId": "d6c1a3f5-03dd-436b-98c9-4be240e4c58a",
+      "requestSha256": "23e5bedad1cb86b6697f1cbcddcb0158d3a472d6594514f95e4ae77bbadd3893"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-katana-f7ac8ecfb3",
+        "referenceSha256": "4038617c90fda05f1e0b54b1566c71b65e933f77284fec47c99714fd073c1bf3"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "61a43b9ecade46bfab82bbc573d48e51",
+      "promptId": "2fdac24e-e33d-47b9-9806-ca4be46f8f3c",
+      "requestSha256": "736a0b8c1168c563c3c55ed5d55c4791694a3747a76e5a1231c5d44db7951ea8"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-katana-f7ac8ecfb3",
+        "referenceSha256": "4038617c90fda05f1e0b54b1566c71b65e933f77284fec47c99714fd073c1bf3"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "cc25da04c6ba4cc898f8bb2d6b0758ab",
+      "promptId": "b0714877-677c-41db-a10d-6082c75f91f2",
+      "requestSha256": "82e4184f264800aeff766cd79c8c0a0b2a674440dfb47541ce80d4af9293bafa"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-staff-dc4c1668ea",
+        "referenceSha256": "8a39a8bf6c72446908bfffc4d0858145f60f789a2a5b4f0a2bbfda212bc92819"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "1ec71f83df22409bbda00090849ade92",
+      "promptId": "56ca2508-617f-4fa3-bcf3-65e30eae0cb3",
+      "requestSha256": "f06057dfc3649cb8ce1bef817ad92615dea0137301f376fc549d469739ca30e0"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-staff-dc4c1668ea",
+        "referenceSha256": "8a39a8bf6c72446908bfffc4d0858145f60f789a2a5b4f0a2bbfda212bc92819"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "a4b8531411fa4643a3edc7c6612ed3f1",
+      "promptId": "f0154c8f-b4ab-483f-8317-5a45d7d3d675",
+      "requestSha256": "98af71468a402ba2baa56d599e44272113db2e177b80e62a8c510382ab6d95d8"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-staff-dc4c1668ea",
+        "referenceSha256": "8a39a8bf6c72446908bfffc4d0858145f60f789a2a5b4f0a2bbfda212bc92819"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "a9986aab3e6e44c49b1b136e967b002b",
+      "promptId": "c3dbc95f-b707-4fbe-a68f-ab372c2c6801",
+      "requestSha256": "fc5c55d45f336a29bf78bdddcdff243d3b94ab02ec607b8d9cff53b78ab80a21"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-staff-dc4c1668ea",
+        "referenceSha256": "3f559ac4e910ed6bf7a759394c28f3d926813268f24091852d353fa150b7efe9"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "a02493a2d8e447e68807bc633ae26efc",
+      "promptId": "15a367cf-f1aa-45ea-8a4b-37ea512577be",
+      "requestSha256": "63d6f2c483bb0810be95aae36190b29106280fdd665dc4d3bc0e76b614a41652"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-staff-dc4c1668ea",
+        "referenceSha256": "3f559ac4e910ed6bf7a759394c28f3d926813268f24091852d353fa150b7efe9"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "b6f6b3f856ae471e9bee655715c3e44e",
+      "promptId": "11a70cc8-3a1e-4402-9e7b-048be4e97d0e",
+      "requestSha256": "818649ce747d60a314c2cfdf739e6bf750a2f5ac49abda6597b86426e81a00df"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-bow-dd7dc09f67",
+        "referenceSha256": "46d752e7b566a2e4f80ec5dcccb0604fe92979de267752894d875782f87586c3"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "67d0f654a10c442c8f08433e841bc8ff",
+      "promptId": "8d414022-938c-404f-96c1-54fc9380d832",
+      "requestSha256": "d5fe59dfdd07c78215276f6ef33031218cfb1af1ec5a3cfa7ebbb671ce79651a"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-staff-dc4c1668ea",
+        "referenceSha256": "3f559ac4e910ed6bf7a759394c28f3d926813268f24091852d353fa150b7efe9"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "ed287739ed554cb28233f43fb09a626f",
+      "promptId": "c53790e5-fd44-412c-99bd-d129e1f707d0",
+      "requestSha256": "bfd8a98017de4176789911525b14470e9231a64f2e160bc4ec180cb79ae85b68"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-bow-dd7dc09f67",
+        "referenceSha256": "46d752e7b566a2e4f80ec5dcccb0604fe92979de267752894d875782f87586c3"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "6f3ca0dfda944da0bb79a2c3f337ac0f",
+      "promptId": "943c9ca7-0540-4177-b0b8-85d1b9bab7ec",
+      "requestSha256": "17c301d52ed671de25665f4bd56ab63464b10eba604919e2979e3a08976d8ed2"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-staff-dc4c1668ea",
+        "referenceSha256": "3f559ac4e910ed6bf7a759394c28f3d926813268f24091852d353fa150b7efe9"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "ca838d9a40c34fbdb865934d493d84ce",
+      "promptId": "cc436643-4c4a-4a57-a006-ba361cbb2b2b",
+      "requestSha256": "0ef5d13d67cae64eed3366b66bced038814c3f2b15a8c56dfde1afd8d33f9364"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-throwing-knife-2273b8c3cf",
+        "referenceSha256": "43fc090f4ec760413c0897115feeec9299261b018fa3b650ec55b0c9a8ca097a"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "e9d1b484cf1448a4a257b033a4f7cd7b",
+      "promptId": "c8311d01-c726-45ae-aa8c-8d6ffbfbba41",
+      "requestSha256": "99c7ab0eaf5f7e6ac6095e2faf0ce07e1d4ef012a88762b42e92e957549fae0e"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-throwing-knife-2273b8c3cf",
+        "referenceSha256": "43fc090f4ec760413c0897115feeec9299261b018fa3b650ec55b0c9a8ca097a"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "e493306e6c29460e86fa895394e757a5",
+      "promptId": "2edad2ab-82ad-437f-95a3-c0f078432acb",
+      "requestSha256": "5000c3752ff77461ab62d04021d186cada5fe3772ffa206129f41e601bad7f7e"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-bow-dd7dc09f67",
+        "referenceSha256": "46d752e7b566a2e4f80ec5dcccb0604fe92979de267752894d875782f87586c3"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "83bf1f25a2904030a69321b825d6e67e",
+      "promptId": "117f2bc7-82fd-400b-a346-b2d1711969f6",
+      "requestSha256": "9cbb61b11301e2115f9217fcdf599028075bdddd0d11e0f23ee4a6441cde39cc"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-throwing-knife-2273b8c3cf",
+        "referenceSha256": "43fc090f4ec760413c0897115feeec9299261b018fa3b650ec55b0c9a8ca097a"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "53062b4df14a4f41a34d1b5a406e3211",
+      "promptId": "4b2e2c2e-0783-48e2-82f9-2d250f498555",
+      "requestSha256": "c082a8f00088b463c62f74706833ed70903329b5784072c9e838b6e330a7e018"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-whip-eab35fc25c",
+        "referenceSha256": "da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db"
+      },
+      "stage": "calibrate",
+      "state": "complete",
+      "token": "e11b3cd873d84797a1874197489067fd",
+      "promptId": "9575f22a-a790-40ef-9be8-5d5dc335e5b0",
+      "requestSha256": "6dac33b198e7539eb211da17895c8ee5fd82f90aa971333b13ca774d0851a9ad"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-throwing-knife-2273b8c3cf",
+        "referenceSha256": "43fc090f4ec760413c0897115feeec9299261b018fa3b650ec55b0c9a8ca097a"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "27bf6a8858064395ab0edaeb9e7417fa",
+      "promptId": "34b630db-a131-46a6-b9ee-2af5e9ba39fb",
+      "requestSha256": "2327b0cf6dc99602a4f3f8a8b655c3e72959806b2fb9617a089fac60ca7bfba3"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-whip-eab35fc25c",
+        "referenceSha256": "da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db"
+      },
+      "stage": "geometry",
+      "state": "preflight-rejected",
+      "token": "76df914b37d34129b9ec47c54b3c08ce",
+      "requestSha256": "df8d0f9b9dc908245e61c2fadb845737e735b2a351260595c465c9e16ed207ff"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-whip-eab35fc25c",
+        "referenceSha256": "da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db"
+      },
+      "stage": "geometry",
+      "state": "complete",
+      "token": "1ec614de28db477497012caf32b37fd7",
+      "promptId": "9c21cff4-90eb-4a44-81bf-594fcaabb4df",
+      "requestSha256": "0a5eaadd58ee77b6ef92d037cc38ceb3b09504fd994c2e436dd3a6c0f3704b11"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-bow-dd7dc09f67",
+        "referenceSha256": "46d752e7b566a2e4f80ec5dcccb0604fe92979de267752894d875782f87586c3"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "ea4545a55cf34abfa1cdf3b3af5f8f79",
+      "promptId": "67abb41c-60b8-4557-9555-ddefc6a0e956",
+      "requestSha256": "80f12fc6c75f5774dc50257d3768307122c0b228646556742d34a2d652c04e0e"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-whip-eab35fc25c",
+        "referenceSha256": "da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db"
+      },
+      "stage": "export",
+      "state": "complete",
+      "token": "4099fffafbd34d46bf121c1223b8611c",
+      "promptId": "37394230-e230-40d4-b92e-2ca11df0445f",
+      "requestSha256": "eae6eadeeb3de415ec361361b7bbc8dc2f4baa7192fb1ba9fca297ba5245a2b5"
+    },
+    {
+      "generationSubject": {
+        "id": "sr4-whip-eab35fc25c",
+        "referenceSha256": "da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db"
+      },
+      "stage": "appearance",
+      "state": "complete",
+      "token": "e4625023bf3e4fd19bfebdc1f05641cc",
+      "promptId": "c59ac0b8-f1cc-441e-bc2f-2c6008326a24",
+      "requestSha256": "686e8fc7861725d8ca659f6f0b93b4c7669f9c89e0e4c0b85448d69b5eb763fb"
+    }
+  ],
+  "policy": "Bind/reconcile the existing live ledger. On relocation reconcile archived exact state before dispatch; never initialize a fresh trial to reset limits. Snapshot is not a runtime lease."
+}

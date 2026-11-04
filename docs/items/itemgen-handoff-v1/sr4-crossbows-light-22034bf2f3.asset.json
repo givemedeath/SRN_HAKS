@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-crossbows-light-22034bf2f3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-tip-left",
+      "pixel": [
+        97.0,
+        562.5
+      ]
+    },
+    {
+      "name": "upper-tip",
+      "pixel": [
+        1231.0000000000002,
+        327.0
+      ]
+    },
+    {
+      "name": "stock-right",
+      "pixel": [
+        1289.0,
+        364.49999999999994
+      ]
+    },
+    {
+      "name": "lower-limb-or-magazine-bottom",
+      "pixel": [
+        863.0,
+        1023.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-crossbows-light-22034bf2f3.family.json",
+    "sha256": "54f94676f491aa4e4cdb0812ec138b4f294b7c13c024fa01d98c002904a5c92d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8b5a4caa585383f9e4650852ac995a203524a1d298440adcd913f2960a22adf6.png",
+      "sha256": "8b5a4caa585383f9e4650852ac995a203524a1d298440adcd913f2960a22adf6"
+    },
+    "clayReference": {
+      "path": "inputs/2a9d71915c3f6fcbaf9077f297826dac254b567a5dce7942e34b0b1c17e2cdcf.png",
+      "sha256": "2a9d71915c3f6fcbaf9077f297826dac254b567a5dce7942e34b0b1c17e2cdcf"
+    },
+    "geometry": {
+      "path": "inputs/139b7491f409a1d684327919a79d2e84e871d8473407a5f1f14e6ad803556fde.png",
+      "sha256": "139b7491f409a1d684327919a79d2e84e871d8473407a5f1f14e6ad803556fde"
+    },
+    "detail": {
+      "path": "inputs/585e70942f9bae3495c8f4ccc17c3225b5b90819bdd41f00ab7a86dea5ba195d.png",
+      "sha256": "585e70942f9bae3495c8f4ccc17c3225b5b90819bdd41f00ab7a86dea5ba195d"
+    },
+    "foregroundMask": {
+      "path": "inputs/337597cfc632e402b2e8eeac2f27fdca93cb8d799954aaf99a6726ca11e98e15.png",
+      "sha256": "337597cfc632e402b2e8eeac2f27fdca93cb8d799954aaf99a6726ca11e98e15"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab.png",
+      "sha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab"
+    },
+    "mask": {
+      "path": "inputs/a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab.png",
+      "sha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab"
+    },
+    "calibrationReference": {
+      "path": "inputs/e01a5f9f33e7f862e9ee1770e3b3c27449a6d700e3ee240f50fa768a064d0ed5.png",
+      "sha256": "e01a5f9f33e7f862e9ee1770e3b3c27449a6d700e3ee240f50fa768a064d0ed5"
+    },
+    "sourceAudit": {
+      "path": "inputs/88277bb01ea38c93445eafbab33f54a147ae5a1c74e0e7237a8f61d3dac84c03.json",
+      "sha256": "88277bb01ea38c93445eafbab33f54a147ae5a1c74e0e7237a8f61d3dac84c03"
+    },
+    "referenceApproval": {
+      "path": "inputs/e3d3af54ce7e2d5f566dfc1cf75c7b1e93681bdaf158baf93261ef28c5e04ac8.json",
+      "sha256": "e3d3af54ce7e2d5f566dfc1cf75c7b1e93681bdaf158baf93261ef28c5e04ac8"
+    },
+    "calibrationDetail": {
+      "path": "inputs/2af3f7ee183cb9d89b491bcfc0c36fa5ac90276c57decb9d4293bf05d347c536.png",
+      "sha256": "2af3f7ee183cb9d89b491bcfc0c36fa5ac90276c57decb9d4293bf05d347c536"
+    }
+  },
+  "features": [
+    {
+      "name": "Modern crossbow identity",
+      "placementReviewed": true
+    },
+    {
+      "name": "Automatic reloading identity",
+      "placementReviewed": true
+    },
+    {
+      "name": "Internal magazine up to four bolts",
+      "placementReviewed": true
+    },
+    {
+      "name": "Light class distinct from Medium/Heavy",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded;2048 is resampled, not native2K. Core306/PDF308 Light modern crossbow,automatic reload internal magazine up to4;no own labeled exact Light silhouette/dimensions. Actual320detail compact transverse compound limbs/string,track/stock,trigger/stock openings;no scope/electronics or external box magazine. Some bolts visible in track/internal feed,not exposed invented hanging magazine. Color/unseen depth artistic. Source-form accepted. Actual raw pair and foreground inspected once:source silhouette,structural openings and thin members retained. Fine grooves nonblocking. Camera/proportions match. Native1254square originals retained;2048 resampled. Equal transparent64px padding preserves every native source pixel after reviewed background removal. No geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        176,
+        619,
+        906,
+        1069
+      ],
+      "referenceAreaPixels": 179832,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1669,
+        636,
+        1796,
+        773
+      ],
+      "referenceAreaPixels": 10058,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        217,
+        661,
+        241,
+        701
+      ],
+      "referenceAreaPixels": 414,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        170,
+        723,
+        192,
+        779
+      ],
+      "referenceAreaPixels": 483,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1286,
+        933,
+        1313,
+        1011
+      ],
+      "referenceAreaPixels": 1029,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1202,
+        954,
+        1272,
+        1051
+      ],
+      "referenceAreaPixels": 3970,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        173,
+        998,
+        185,
+        1023
+      ],
+      "referenceAreaPixels": 108,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        642,
+        1088,
+        1557,
+        1410
+      ],
+      "referenceAreaPixels": 170416,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-9",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        638,
+        1152,
+        738,
+        1208
+      ],
+      "referenceAreaPixels": 1610,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-10",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        177,
+        1222,
+        317,
+        1376
+      ],
+      "referenceAreaPixels": 10328,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-11",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        649,
+        1336,
+        737,
+        1398
+      ],
+      "referenceAreaPixels": 1980,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-12",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        786,
+        1383,
+        862,
+        1443
+      ],
+      "referenceAreaPixels": 1934,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-13",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1017,
+        1439,
+        1226,
+        1508
+      ],
+      "referenceAreaPixels": 7820,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-14",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1289,
+        1455,
+        1453,
+        1513
+      ],
+      "referenceAreaPixels": 4641,
+      "referenceMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8b5a4caa585383f9e4650852ac995a203524a1d298440adcd913f2960a22adf6",
+      "imageSha256": "585e70942f9bae3495c8f4ccc17c3225b5b90819bdd41f00ab7a86dea5ba195d",
+      "maskSha256": "337597cfc632e402b2e8eeac2f27fdca93cb8d799954aaf99a6726ca11e98e15",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded;2048 is resampled, not native2K. Core306/PDF308 Light modern crossbow,automatic reload internal magazine up to4;no own labeled exact Light silhouette/dimensions. Actual320detail compact transverse compound limbs/string,track/stock,trigger/stock openings;no scope/electronics or external box magazine. Some bolts visible in track/internal feed,not exposed invented hanging magazine. Color/unseen depth artistic. Source-form accepted. Actual raw pair and foreground inspected once:source silhouette,structural openings and thin members retained. Fine grooves nonblocking. Camera/proportions match. Native1254square originals retained;2048 resampled. Equal transparent64px padding preserves every native source pixel after reviewed background removal. No geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2a9d71915c3f6fcbaf9077f297826dac254b567a5dce7942e34b0b1c17e2cdcf",
+      "imageSha256": "139b7491f409a1d684327919a79d2e84e871d8473407a5f1f14e6ad803556fde",
+      "maskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded;2048 is resampled, not native2K. Core306/PDF308 Light modern crossbow,automatic reload internal magazine up to4;no own labeled exact Light silhouette/dimensions. Actual320detail compact transverse compound limbs/string,track/stock,trigger/stock openings;no scope/electronics or external box magazine. Some bolts visible in track/internal feed,not exposed invented hanging magazine. Color/unseen depth artistic. Source-form accepted. Actual raw pair and foreground inspected once:source silhouette,structural openings and thin members retained. Fine grooves nonblocking. Camera/proportions match. Native1254square originals retained;2048 resampled. Equal transparent64px padding preserves every native source pixel after reviewed background removal. No geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "8b5a4caa585383f9e4650852ac995a203524a1d298440adcd913f2960a22adf6",
+      "detailSha256": "585e70942f9bae3495c8f4ccc17c3225b5b90819bdd41f00ab7a86dea5ba195d",
+      "geometrySha256": "139b7491f409a1d684327919a79d2e84e871d8473407a5f1f14e6ad803556fde",
+      "foregroundMaskSha256": "337597cfc632e402b2e8eeac2f27fdca93cb8d799954aaf99a6726ca11e98e15",
+      "geometryForegroundMaskSha256": "a12bb7cd1368c7dc5f27d8dc749ee5387ebf524dcc12db4f111389416bf514ab",
+      "landmarks": [
+        {
+          "name": "front-tip-left",
+          "detail": [
+            0.05422401904662781,
+            0.4132266287076271
+          ],
+          "geometry": [
+            0.05347919702331391,
+            0.4199301509533898
+          ]
+        },
+        {
+          "name": "upper-tip",
+          "detail": [
+            0.8988521934845962,
+            0.2378177966101695
+          ],
+          "geometry": [
+            0.9096521128226478,
+            0.236328125
+          ]
+        },
+        {
+          "name": "stock-right",
+          "detail": [
+            0.9420518708368026,
+            0.2657491393008474
+          ],
+          "geometry": [
+            0.9457759809533722,
+            0.2702181541313559
+          ]
+        },
+        {
+          "name": "lower-limb-or-magazine-bottom",
+          "detail": [
+            0.6247576889050791,
+            0.7569683527542372
+          ],
+          "geometry": [
+            0.632950731161532,
+            0.7629270391949152
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded;2048 is resampled, not native2K. Core306/PDF308 Light modern crossbow,automatic reload internal magazine up to4;no own labeled exact Light silhouette/dimensions. Actual320detail compact transverse compound limbs/string,track/stock,trigger/stock openings;no scope/electronics or external box magazine. Some bolts visible in track/internal feed,not exposed invented hanging magazine. Color/unseen depth artistic. Source-form accepted. Actual raw pair and foreground inspected once:source silhouette,structural openings and thin members retained. Fine grooves nonblocking. Camera/proportions match. Native1254square originals retained;2048 resampled. Equal transparent64px padding preserves every native source pixel after reviewed background removal. No geometry/native/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

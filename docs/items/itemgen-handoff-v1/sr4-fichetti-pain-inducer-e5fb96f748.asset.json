@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-fichetti-pain-inducer-e5fb96f748",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        31.0,
+        307.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1224.0,
+        307.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        31.0,
+        942.9999999999999
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1224.0,
+        942.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-fichetti-pain-inducer-e5fb96f748.family.json",
+    "sha256": "473dab285b55b929b20ff62d314a52472bbf17c339cae1baed5c23958a52567c"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/287bc221a7e5c45c2b0e4ea055152f990004aa4acb5607120939191ffa858781.png",
+      "sha256": "287bc221a7e5c45c2b0e4ea055152f990004aa4acb5607120939191ffa858781"
+    },
+    "clayReference": {
+      "path": "inputs/67f79b0c6a946d7f0d67dc1506309e584ffc1fa6d3c30f67a05dedace5bd7ddf.png",
+      "sha256": "67f79b0c6a946d7f0d67dc1506309e584ffc1fa6d3c30f67a05dedace5bd7ddf"
+    },
+    "geometry": {
+      "path": "inputs/c83ab3ec93ca46ba8ba9ad4b0daf4ed0b3ed52ae74587b056546722dfc64b0eb.png",
+      "sha256": "c83ab3ec93ca46ba8ba9ad4b0daf4ed0b3ed52ae74587b056546722dfc64b0eb"
+    },
+    "detail": {
+      "path": "inputs/8f7ceb500561b4ad13df794e84d27c9c299c0a919a9d47bf93787015fd21dcf4.png",
+      "sha256": "8f7ceb500561b4ad13df794e84d27c9c299c0a919a9d47bf93787015fd21dcf4"
+    },
+    "foregroundMask": {
+      "path": "inputs/ef8bfa4ac38676257bccb89c51d3b9eff02e96270c006ff05e160af077fa0781.png",
+      "sha256": "ef8bfa4ac38676257bccb89c51d3b9eff02e96270c006ff05e160af077fa0781"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/3ec5a94846f11b78aa549d81658aaef02e59a72ccb26c2fbe06452be8d35c5f7.png",
+      "sha256": "3ec5a94846f11b78aa549d81658aaef02e59a72ccb26c2fbe06452be8d35c5f7"
+    },
+    "mask": {
+      "path": "inputs/3ec5a94846f11b78aa549d81658aaef02e59a72ccb26c2fbe06452be8d35c5f7.png",
+      "sha256": "3ec5a94846f11b78aa549d81658aaef02e59a72ccb26c2fbe06452be8d35c5f7"
+    },
+    "calibrationReference": {
+      "path": "inputs/11a090e51516dd05c6c23620ade346964e161a219fd96d33b0b5447732652eb7.png",
+      "sha256": "11a090e51516dd05c6c23620ade346964e161a219fd96d33b0b5447732652eb7"
+    },
+    "sourceAudit": {
+      "path": "inputs/ad8e786aee265232e3e0767b31c5e56408d88bbf0ad8663ee5a5953429237b44.json",
+      "sha256": "ad8e786aee265232e3e0767b31c5e56408d88bbf0ad8663ee5a5953429237b44"
+    },
+    "referenceApproval": {
+      "path": "inputs/60ab1c335af2c98b47c63c66fac4eeb3111a6049bfc39008613e2acd56b62ade.json",
+      "sha256": "60ab1c335af2c98b47c63c66fac4eeb3111a6049bfc39008613e2acd56b62ade"
+    },
+    "calibrationDetail": {
+      "path": "inputs/aab6f8d12f4c608af354a6b95c4e303a66347849bfd9a7047268093899c2c3a5.png",
+      "sha256": "aab6f8d12f4c608af354a6b95c4e303a66347849bfd9a7047268093899c2c3a5"
+    }
+  },
+  "features": [
+    {
+      "name": "Non-lethal directed microwave weapon, ten charges and power-point recharging (description continues on printed page 310).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve broad boxy emitter nose, raised upper housing, pistol grip, large trigger opening and rear butt profile in the adjacent drawing; shallow emitter grille details belong in appearance.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Reviewed against SR4 artwork and original pair; conditioned overlay and masks retain form and opening. Shallow channels accepted. Native 1254 image resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1217,
+        1041,
+        1437,
+        1304
+      ],
+      "referenceAreaPixels": 39574,
+      "referenceMaskSha256": "3ec5a94846f11b78aa549d81658aaef02e59a72ccb26c2fbe06452be8d35c5f7",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "287bc221a7e5c45c2b0e4ea055152f990004aa4acb5607120939191ffa858781",
+      "imageSha256": "8f7ceb500561b4ad13df794e84d27c9c299c0a919a9d47bf93787015fd21dcf4",
+      "maskSha256": "ef8bfa4ac38676257bccb89c51d3b9eff02e96270c006ff05e160af077fa0781",
+      "notes": "Reviewed against SR4 artwork and original pair; conditioned overlay and masks retain form and opening. Shallow channels accepted. Native 1254 image resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "67f79b0c6a946d7f0d67dc1506309e584ffc1fa6d3c30f67a05dedace5bd7ddf",
+      "imageSha256": "c83ab3ec93ca46ba8ba9ad4b0daf4ed0b3ed52ae74587b056546722dfc64b0eb",
+      "maskSha256": "3ec5a94846f11b78aa549d81658aaef02e59a72ccb26c2fbe06452be8d35c5f7",
+      "notes": "Reviewed against SR4 artwork and original pair; conditioned overlay and masks retain form and opening. Shallow channels accepted. Native 1254 image resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Reviewed against SR4 artwork and original pair; conditioned overlay and masks retain form and opening. Shallow channels accepted. Native 1254 image resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.0498046875,
+            0.25927734375
+          ],
+          "geometry": [
+            0.049049326237416105,
+            0.2585223091640502
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9509506737625839,
+            0.25927734375
+          ],
+          "geometry": [
+            0.9509506737625839,
+            0.2585223091640502
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.0498046875,
+            0.7394793404140502
+          ],
+          "geometry": [
+            0.049049326237416105,
+            0.7409894095859497
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9509506737625839,
+            0.7394793404140502
+          ],
+          "geometry": [
+            0.9509506737625839,
+            0.7409894095859497
+          ]
+        }
+      ],
+      "referenceSha256": "287bc221a7e5c45c2b0e4ea055152f990004aa4acb5607120939191ffa858781",
+      "geometrySha256": "c83ab3ec93ca46ba8ba9ad4b0daf4ed0b3ed52ae74587b056546722dfc64b0eb",
+      "detailSha256": "8f7ceb500561b4ad13df794e84d27c9c299c0a919a9d47bf93787015fd21dcf4",
+      "geometryForegroundMaskSha256": "3ec5a94846f11b78aa549d81658aaef02e59a72ccb26c2fbe06452be8d35c5f7",
+      "foregroundMaskSha256": "ef8bfa4ac38676257bccb89c51d3b9eff02e96270c006ff05e160af077fa0781"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

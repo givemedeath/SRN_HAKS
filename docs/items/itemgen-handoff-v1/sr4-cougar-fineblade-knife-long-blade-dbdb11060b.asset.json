@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-cougar-fineblade-knife-long-blade-dbdb11060b",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "pommel-upper",
+      "pixel": [
+        60.0,
+        588.0
+      ]
+    },
+    {
+      "name": "guard-upper",
+      "pixel": [
+        400.0,
+        548.0
+      ]
+    },
+    {
+      "name": "blade-upper",
+      "pixel": [
+        900.0,
+        598.0
+      ]
+    },
+    {
+      "name": "tip-upper",
+      "pixel": [
+        1200.0,
+        620.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-cougar-fineblade-knife-long-blade-dbdb11060b.family.json",
+    "sha256": "f1bc1f7737efdbdba8b3bc9a159cf7f4e7d83fa5fd50eca8dc4547f867a621e1"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/013875f23bafd4723c2f9c523f140d40b6b2feb2c5dbbe8af08ea76b1f72d8a9.png",
+      "sha256": "013875f23bafd4723c2f9c523f140d40b6b2feb2c5dbbe8af08ea76b1f72d8a9"
+    },
+    "clayReference": {
+      "path": "inputs/b4f260b37e2c299b31af6997181ed3680fabfe8b9428c7e22559033f6ef3692b.png",
+      "sha256": "b4f260b37e2c299b31af6997181ed3680fabfe8b9428c7e22559033f6ef3692b"
+    },
+    "geometry": {
+      "path": "inputs/1053e552e5154783b450056ae8d4e83542c278efcfda9e912faccdc1f7d9b05e.png",
+      "sha256": "1053e552e5154783b450056ae8d4e83542c278efcfda9e912faccdc1f7d9b05e"
+    },
+    "detail": {
+      "path": "inputs/84ad8cfd1c809ef2d9d74c974f1d2ae13e97ce15e139889afb539d9a6fe17b7d.png",
+      "sha256": "84ad8cfd1c809ef2d9d74c974f1d2ae13e97ce15e139889afb539d9a6fe17b7d"
+    },
+    "foregroundMask": {
+      "path": "inputs/12413183fd23b6fa3208593d009f7598819be0ae5faae3841ca558503e2c5d06.png",
+      "sha256": "12413183fd23b6fa3208593d009f7598819be0ae5faae3841ca558503e2c5d06"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/9ec7d4e76da52e6916d0cbf60b4f61935dd95050b0618e0ccebdf17de8ee4a96.png",
+      "sha256": "9ec7d4e76da52e6916d0cbf60b4f61935dd95050b0618e0ccebdf17de8ee4a96"
+    },
+    "mask": {
+      "path": "inputs/9ec7d4e76da52e6916d0cbf60b4f61935dd95050b0618e0ccebdf17de8ee4a96.png",
+      "sha256": "9ec7d4e76da52e6916d0cbf60b4f61935dd95050b0618e0ccebdf17de8ee4a96"
+    },
+    "calibrationReference": {
+      "path": "inputs/53a832db16f2ea59c083e17a83836482722747a030b8003dc35a101b63f500ff.png",
+      "sha256": "53a832db16f2ea59c083e17a83836482722747a030b8003dc35a101b63f500ff"
+    },
+    "sourceAudit": {
+      "path": "inputs/77198737fbbdaa96951aa33779a077b6258048b47304f265040b6f58ed847cf6.json",
+      "sha256": "77198737fbbdaa96951aa33779a077b6258048b47304f265040b6f58ed847cf6"
+    },
+    "referenceApproval": {
+      "path": "inputs/6b6e2c3f0645d351bd5c18ae1105362b166fca826cd924fe9506df7c05a1930c.json",
+      "sha256": "6b6e2c3f0645d351bd5c18ae1105362b166fca826cd924fe9506df7c05a1930c"
+    },
+    "calibrationDetail": {
+      "path": "inputs/05be4d7d4a44cdb47adf4ad7c200e82115a60fc44de79e08e8655777ac96a3d3.png",
+      "sha256": "05be4d7d4a44cdb47adf4ad7c200e82115a60fc44de79e08e8655777ac96a3d3"
+    }
+  },
+  "features": [
+    {
+      "name": "Long-bladed version is approximately human-forearm length; distinguish from normal-knife-sized short version.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Double-edged combat blade with advanced edge/bonding technology.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Follow the own published family outline: closed simple dark grip/pommel, small near-perpendicular metal guard and straight double-edged metal blade tapering to an angular spear point. No sculpted oversized guard or open pommel loop from the separately approved local custom design.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Long/Short exterior proportions are explicit text-constrained interpretations of a shared family illustration, not independent variant artwork.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual long Fineblade detail and matching clay against Arsenal14/PDF16 own family silhouette/text and172/PDF174 table. Long version is a forearm-length interpretation with longer blade than short; shared family illustration is not variant-labeled. Straight double-edged spearpoint, closed grip/pommel, small transverse guard and major bevels remain. Precise proportions, finish, small fittings and unseen depth are artistic. The final clay removes surface fittings while preserving construction; shallow channel nonblocking. No replacement or change to approved custom native Cougars. Actual returned images and alpha comparison reviewed; no opaque background, clipping or cast shadow.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "013875f23bafd4723c2f9c523f140d40b6b2feb2c5dbbe8af08ea76b1f72d8a9",
+      "imageSha256": "84ad8cfd1c809ef2d9d74c974f1d2ae13e97ce15e139889afb539d9a6fe17b7d",
+      "maskSha256": "12413183fd23b6fa3208593d009f7598819be0ae5faae3841ca558503e2c5d06",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual long Fineblade detail and matching clay against Arsenal14/PDF16 own family silhouette/text and172/PDF174 table. Long version is a forearm-length interpretation with longer blade than short; shared family illustration is not variant-labeled. Straight double-edged spearpoint, closed grip/pommel, small transverse guard and major bevels remain. Precise proportions, finish, small fittings and unseen depth are artistic. The final clay removes surface fittings while preserving construction; shallow channel nonblocking. No replacement or change to approved custom native Cougars. Actual returned images and alpha comparison reviewed; no opaque background, clipping or cast shadow."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "b4f260b37e2c299b31af6997181ed3680fabfe8b9428c7e22559033f6ef3692b",
+      "imageSha256": "1053e552e5154783b450056ae8d4e83542c278efcfda9e912faccdc1f7d9b05e",
+      "maskSha256": "9ec7d4e76da52e6916d0cbf60b4f61935dd95050b0618e0ccebdf17de8ee4a96",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual long Fineblade detail and matching clay against Arsenal14/PDF16 own family silhouette/text and172/PDF174 table. Long version is a forearm-length interpretation with longer blade than short; shared family illustration is not variant-labeled. Straight double-edged spearpoint, closed grip/pommel, small transverse guard and major bevels remain. Precise proportions, finish, small fittings and unseen depth are artistic. The final clay removes surface fittings while preserving construction; shallow channel nonblocking. No replacement or change to approved custom native Cougars. Actual returned images and alpha comparison reviewed; no opaque background, clipping or cast shadow."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "013875f23bafd4723c2f9c523f140d40b6b2feb2c5dbbe8af08ea76b1f72d8a9",
+      "detailSha256": "84ad8cfd1c809ef2d9d74c974f1d2ae13e97ce15e139889afb539d9a6fe17b7d",
+      "geometrySha256": "1053e552e5154783b450056ae8d4e83542c278efcfda9e912faccdc1f7d9b05e",
+      "foregroundMaskSha256": "12413183fd23b6fa3208593d009f7598819be0ae5faae3841ca558503e2c5d06",
+      "geometryForegroundMaskSha256": "9ec7d4e76da52e6916d0cbf60b4f61935dd95050b0618e0ccebdf17de8ee4a96",
+      "landmarks": [
+        {
+          "name": "pommel-upper",
+          "detail": [
+            0.07947159441927512,
+            0.4693603515625
+          ],
+          "geometry": [
+            0.07947159441927512,
+            0.4693603515625
+          ]
+        },
+        {
+          "name": "guard-upper",
+          "detail": [
+            0.33164030323311366,
+            0.43970619759908536
+          ],
+          "geometry": [
+            0.33164030323311366,
+            0.43970619759908536
+          ]
+        },
+        {
+          "name": "blade-upper",
+          "detail": [
+            0.7024766397240527,
+            0.4767738900533537
+          ],
+          "geometry": [
+            0.7024766397240527,
+            0.47454982850609756
+          ]
+        },
+        {
+          "name": "tip-upper",
+          "detail": [
+            0.9249784416186162,
+            0.4930836747332317
+          ],
+          "geometry": [
+            0.9249784416186162,
+            0.4923423208841463
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual long Fineblade detail and matching clay against Arsenal14/PDF16 own family silhouette/text and172/PDF174 table. Long version is a forearm-length interpretation with longer blade than short; shared family illustration is not variant-labeled. Straight double-edged spearpoint, closed grip/pommel, small transverse guard and major bevels remain. Precise proportions, finish, small fittings and unseen depth are artistic. The final clay removes surface fittings while preserving construction; shallow channel nonblocking. No replacement or change to approved custom native Cougars. Actual returned images and alpha comparison reviewed; no opaque background, clipping or cast shadow."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

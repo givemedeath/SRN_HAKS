@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "catalog-object",
+  "nativePackaging": "blocked",
+  "materialRoute": "diffuse",
+  "runtimeTextureSize": 1024,
+  "bakeSize": 4096,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "targetFaceCount": 200000,
+    "signMode": "udf"
+  },
+  "budgets": {
+    "visible": 10000,
+    "shadow": 500,
+    "parts": {
+      "whole": {
+        "visible": 10000,
+        "shadow": 500
+      }
+    }
+  },
+  "allowedAssemblies": [
+    {
+      "whole": "sr4-blowgun-c42847cdb4"
+    }
+  ],
+  "notes": "Geometry-only whole-object route. Preliminary10K/500 working caps; reassess after measured geometry. No native attachment, gameplay class, packing index or handedness is asserted. Adopt an explicit qualified target adapter before fit/export."
+}

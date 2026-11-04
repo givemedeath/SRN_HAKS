@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-remington-roomsweeper-36dd607045",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "framing-upper-left",
+      "pixel": [
+        23.0,
+        397.0
+      ]
+    },
+    {
+      "name": "framing-upper-right",
+      "pixel": [
+        1230.0,
+        397.0
+      ]
+    },
+    {
+      "name": "framing-lower-left",
+      "pixel": [
+        23.0,
+        941.0
+      ]
+    },
+    {
+      "name": "framing-lower-right",
+      "pixel": [
+        1230.0,
+        941.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-remington-roomsweeper-36dd607045.family.json",
+    "sha256": "b4dd5fb6cff53ae41d4d83574bfbde4f00d4e1e0fe84c15c88166b0f0bfdff15"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/e37fbbabcfda10ff4e70a1102b16a33998264e11bb46fcbf38587a1285918281.png",
+      "sha256": "e37fbbabcfda10ff4e70a1102b16a33998264e11bb46fcbf38587a1285918281"
+    },
+    "clayReference": {
+      "path": "inputs/2e53676128fbf3290a4b5a8283c0153cad9ab424754acd3a74fccac5f6afca31.png",
+      "sha256": "2e53676128fbf3290a4b5a8283c0153cad9ab424754acd3a74fccac5f6afca31"
+    },
+    "geometry": {
+      "path": "inputs/956399690ab737f02adb106f6e09239ce678711fd654f360b31d59b7ab95afeb.png",
+      "sha256": "956399690ab737f02adb106f6e09239ce678711fd654f360b31d59b7ab95afeb"
+    },
+    "detail": {
+      "path": "inputs/44a68d7a5b2a27a94e77984fa2165a8c541dfb002c31f31d9439048c45dc21e2.png",
+      "sha256": "44a68d7a5b2a27a94e77984fa2165a8c541dfb002c31f31d9439048c45dc21e2"
+    },
+    "foregroundMask": {
+      "path": "inputs/c92dbc85cea175c46d5811f7da4e901622a44731cc717754f4b64dcee9bde914.png",
+      "sha256": "c92dbc85cea175c46d5811f7da4e901622a44731cc717754f4b64dcee9bde914"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e30173648ef1508e9340645e016ef821738f7678e7f7a03ae4b39fcd37d87131.png",
+      "sha256": "e30173648ef1508e9340645e016ef821738f7678e7f7a03ae4b39fcd37d87131"
+    },
+    "mask": {
+      "path": "inputs/e30173648ef1508e9340645e016ef821738f7678e7f7a03ae4b39fcd37d87131.png",
+      "sha256": "e30173648ef1508e9340645e016ef821738f7678e7f7a03ae4b39fcd37d87131"
+    },
+    "calibrationReference": {
+      "path": "inputs/7cf0557493a4708291fff8f83270aaa7d5996993fdf585c2533555d9ef487aee.png",
+      "sha256": "7cf0557493a4708291fff8f83270aaa7d5996993fdf585c2533555d9ef487aee"
+    },
+    "sourceAudit": {
+      "path": "inputs/72551f46dfcce490816fa0afe106973c3210eebb2d53add255e13ba9ebdbff40.json",
+      "sha256": "72551f46dfcce490816fa0afe106973c3210eebb2d53add255e13ba9ebdbff40"
+    },
+    "referenceApproval": {
+      "path": "inputs/e6790a45a337584b965efce118acc6d6b82316f1e83e877b56aaf6a7fe84ddcb.json",
+      "sha256": "e6790a45a337584b965efce118acc6d6b82316f1e83e877b56aaf6a7fe84ddcb"
+    },
+    "calibrationDetail": {
+      "path": "inputs/3ce6a9dcc0a7e64124db5c5b9d7fc2e834184a5dc07e36dcff12f8e3acaf296a.png",
+      "sha256": "3ce6a9dcc0a7e64124db5c5b9d7fc2e834184a5dc07e36dcff12f8e3acaf296a"
+    }
+  },
+  "features": [
+    {
+      "name": "Short-barreled shotgun pistol capable of slug or shot ammunition (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Keep pistol-scale handling and short shotgun barrel; text/table do not establish exact grip, receiver or stock silhouette.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned pair and masks reviewed; main silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        652,
+        918,
+        805,
+        1062
+      ],
+      "referenceAreaPixels": 17791,
+      "referenceMaskSha256": "e30173648ef1508e9340645e016ef821738f7678e7f7a03ae4b39fcd37d87131",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        591,
+        959,
+        665,
+        1062
+      ],
+      "referenceAreaPixels": 2232,
+      "referenceMaskSha256": "e30173648ef1508e9340645e016ef821738f7678e7f7a03ae4b39fcd37d87131",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e37fbbabcfda10ff4e70a1102b16a33998264e11bb46fcbf38587a1285918281",
+      "imageSha256": "44a68d7a5b2a27a94e77984fa2165a8c541dfb002c31f31d9439048c45dc21e2",
+      "maskSha256": "c92dbc85cea175c46d5811f7da4e901622a44731cc717754f4b64dcee9bde914",
+      "notes": "Actual conditioned pair and masks reviewed; main silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2e53676128fbf3290a4b5a8283c0153cad9ab424754acd3a74fccac5f6afca31",
+      "imageSha256": "956399690ab737f02adb106f6e09239ce678711fd654f360b31d59b7ab95afeb",
+      "maskSha256": "e30173648ef1508e9340645e016ef821738f7678e7f7a03ae4b39fcd37d87131",
+      "notes": "Actual conditioned pair and masks reviewed; main silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual conditioned pair and masks reviewed; main silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "framing-upper-left",
+          "detail": [
+            0.05129293646694215,
+            0.2968990138319672
+          ],
+          "geometry": [
+            0.050548811983471074,
+            0.29615458504098363
+          ]
+        },
+        {
+          "name": "framing-upper-right",
+          "detail": [
+            0.949451188016529,
+            0.2968990138319672
+          ],
+          "geometry": [
+            0.949451188016529,
+            0.29615458504098363
+          ]
+        },
+        {
+          "name": "framing-lower-left",
+          "detail": [
+            0.05129293646694215,
+            0.7018682761270492
+          ],
+          "geometry": [
+            0.050548811983471074,
+            0.7033571337090163
+          ]
+        },
+        {
+          "name": "framing-lower-right",
+          "detail": [
+            0.949451188016529,
+            0.7018682761270492
+          ],
+          "geometry": [
+            0.949451188016529,
+            0.7033571337090163
+          ]
+        }
+      ],
+      "referenceSha256": "e37fbbabcfda10ff4e70a1102b16a33998264e11bb46fcbf38587a1285918281",
+      "geometrySha256": "956399690ab737f02adb106f6e09239ce678711fd654f360b31d59b7ab95afeb",
+      "detailSha256": "44a68d7a5b2a27a94e77984fa2165a8c541dfb002c31f31d9439048c45dc21e2",
+      "geometryForegroundMaskSha256": "e30173648ef1508e9340645e016ef821738f7678e7f7a03ae4b39fcd37d87131",
+      "foregroundMaskSha256": "c92dbc85cea175c46d5811f7da4e901622a44731cc717754f4b64dcee9bde914"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

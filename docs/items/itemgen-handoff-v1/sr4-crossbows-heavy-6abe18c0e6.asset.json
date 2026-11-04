@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-crossbows-heavy-6abe18c0e6",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        17.0,
+        235.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1239.0,
+        235.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        17.0,
+        956.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1239.0,
+        956.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-crossbows-heavy-6abe18c0e6.family.json",
+    "sha256": "943058d3c399789234dc7943b4ad0f093d1fee7584e4142a4617790eff05b4d5"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0.png",
+      "sha256": "318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0"
+    },
+    "clayReference": {
+      "path": "inputs/259e0005da4d1d3cf050675e848f31fb30dd0179785d89ca3bc40c38b4c00453.png",
+      "sha256": "259e0005da4d1d3cf050675e848f31fb30dd0179785d89ca3bc40c38b4c00453"
+    },
+    "geometry": {
+      "path": "inputs/55538cd8f9a6a1c6f664bcb53375fd99fbf5a7dc7d46ef0f999f85d49a5a2693.png",
+      "sha256": "55538cd8f9a6a1c6f664bcb53375fd99fbf5a7dc7d46ef0f999f85d49a5a2693"
+    },
+    "detail": {
+      "path": "inputs/b8eb2bf82f3a18f8bbc3c20331857f8be3fbd21293d2e7cb7f38114e76d5d539.png",
+      "sha256": "b8eb2bf82f3a18f8bbc3c20331857f8be3fbd21293d2e7cb7f38114e76d5d539"
+    },
+    "foregroundMask": {
+      "path": "inputs/2f943c6f5dae2fa8056fbf245281679659745ebae2ed46f5438eb6221b9af866.png",
+      "sha256": "2f943c6f5dae2fa8056fbf245281679659745ebae2ed46f5438eb6221b9af866"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204.png",
+      "sha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204"
+    },
+    "mask": {
+      "path": "inputs/8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204.png",
+      "sha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204"
+    },
+    "calibrationReference": {
+      "path": "inputs/d11281df39016e8638fb72f1665374537e43c89d5ed4c3d9b9c4ddfca90371ad.png",
+      "sha256": "d11281df39016e8638fb72f1665374537e43c89d5ed4c3d9b9c4ddfca90371ad"
+    },
+    "sourceAudit": {
+      "path": "inputs/f8c099caa336629ccbe5bb5c58a506512f4e7cb849d951b200ef1dc3513579ef.json",
+      "sha256": "f8c099caa336629ccbe5bb5c58a506512f4e7cb849d951b200ef1dc3513579ef"
+    },
+    "referenceApproval": {
+      "path": "inputs/7a8b8c9c7a52efe522b4d98f39f2051b4e29975ebc64b2cf2a0579ca78b8d281.json",
+      "sha256": "7a8b8c9c7a52efe522b4d98f39f2051b4e29975ebc64b2cf2a0579ca78b8d281"
+    },
+    "calibrationDetail": {
+      "path": "inputs/43a7fe40d3d37e1827d273fd9e98ef02e28ba1be5d81b12364e7136a3938fc7b.png",
+      "sha256": "43a7fe40d3d37e1827d273fd9e98ef02e28ba1be5d81b12364e7136a3938fc7b"
+    }
+  },
+  "features": [
+    {
+      "name": "Modern crossbow class with recognizable transverse limbs, string and bolt-bearing stock/track",
+      "placementReviewed": true
+    },
+    {
+      "name": "Automatic reloading identity and internal magazine holding up to4bolts",
+      "placementReviewed": true
+    },
+    {
+      "name": "Heavy table class preserved separately from Light and other size rows",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and teal masks viewed. Matching framing, perspective, compound limbs/cams, strings, track, stock, grip and loaded-bolt forms. Stock/trigger/stirrup and limb/string gaps preserved, no detached debris. Main clay microtexture and fine fasteners removed. Shallow channels accepted. Core printed306/PDF308 description and size table: modern self-reloading crossbow with transverse limbs, string, track and internal magazine up to4bolts. Heavy class remains distinct. Its loaded track, compound cams, exact feed layout, skeletonized limbs, colors and dimensions are artistic interpretation; no labeled Heavy-specific art or mechanical blueprint is claimed.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        258,
+        754,
+        890,
+        1027
+      ],
+      "referenceAreaPixels": 86391,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1485,
+        757,
+        1685,
+        980
+      ],
+      "referenceAreaPixels": 25310,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        158,
+        840,
+        470,
+        1072
+      ],
+      "referenceAreaPixels": 33825,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1245,
+        930,
+        1313,
+        1008
+      ],
+      "referenceAreaPixels": 3226,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        757,
+        1087,
+        1733,
+        1378
+      ],
+      "referenceAreaPixels": 123930,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        833,
+        1266,
+        1666,
+        1433
+      ],
+      "referenceAreaPixels": 32490,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        229,
+        1271,
+        435,
+        1398
+      ],
+      "referenceAreaPixels": 12151,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        930,
+        1386,
+        1030,
+        1445
+      ],
+      "referenceAreaPixels": 3145,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-9",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1097,
+        1427,
+        1380,
+        1489
+      ],
+      "referenceAreaPixels": 10972,
+      "referenceMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "b8eb2bf82f3a18f8bbc3c20331857f8be3fbd21293d2e7cb7f38114e76d5d539",
+      "maskSha256": "2f943c6f5dae2fa8056fbf245281679659745ebae2ed46f5438eb6221b9af866",
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and teal masks viewed. Matching framing, perspective, compound limbs/cams, strings, track, stock, grip and loaded-bolt forms. Stock/trigger/stirrup and limb/string gaps preserved, no detached debris. Main clay microtexture and fine fasteners removed. Shallow channels accepted. Core printed306/PDF308 description and size table: modern self-reloading crossbow with transverse limbs, string, track and internal magazine up to4bolts. Heavy class remains distinct. Its loaded track, compound cams, exact feed layout, skeletonized limbs, colors and dimensions are artistic interpretation; no labeled Heavy-specific art or mechanical blueprint is claimed.",
+      "referenceSha256": "318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "55538cd8f9a6a1c6f664bcb53375fd99fbf5a7dc7d46ef0f999f85d49a5a2693",
+      "maskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and teal masks viewed. Matching framing, perspective, compound limbs/cams, strings, track, stock, grip and loaded-bolt forms. Stock/trigger/stirrup and limb/string gaps preserved, no detached debris. Main clay microtexture and fine fasteners removed. Shallow channels accepted. Core printed306/PDF308 description and size table: modern self-reloading crossbow with transverse limbs, string, track and internal magazine up to4bolts. Heavy class remains distinct. Its loaded track, compound cams, exact feed layout, skeletonized limbs, colors and dimensions are artistic interpretation; no labeled Heavy-specific art or mechanical blueprint is claimed.",
+      "referenceSha256": "259e0005da4d1d3cf050675e848f31fb30dd0179785d89ca3bc40c38b4c00453",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "b8eb2bf82f3a18f8bbc3c20331857f8be3fbd21293d2e7cb7f38114e76d5d539",
+      "foregroundMaskSha256": "2f943c6f5dae2fa8056fbf245281679659745ebae2ed46f5438eb6221b9af866",
+      "geometryForegroundMaskSha256": "8c2991b557b300fa4310760d315dce75ddda5c94ce5ae409f7f2170ecfe85204",
+      "geometrySha256": "55538cd8f9a6a1c6f664bcb53375fd99fbf5a7dc7d46ef0f999f85d49a5a2693",
+      "landmarks": [
+        {
+          "detail": [
+            0.0498046875,
+            0.23487137430939226
+          ],
+          "geometry": [
+            0.0498046875,
+            0.2333984375
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.9494590977616517,
+            0.23487137430939226
+          ],
+          "geometry": [
+            0.9501953125,
+            0.2333984375
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.0498046875,
+            0.7658650940953039
+          ],
+          "geometry": [
+            0.0498046875,
+            0.7666015625
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.9494590977616517,
+            0.7658650940953039
+          ],
+          "geometry": [
+            0.9501953125,
+            0.7666015625
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and teal masks viewed. Matching framing, perspective, compound limbs/cams, strings, track, stock, grip and loaded-bolt forms. Stock/trigger/stirrup and limb/string gaps preserved, no detached debris. Main clay microtexture and fine fasteners removed. Shallow channels accepted. Core printed306/PDF308 description and size table: modern self-reloading crossbow with transverse limbs, string, track and internal magazine up to4bolts. Heavy class remains distinct. Its loaded track, compound cams, exact feed layout, skeletonized limbs, colors and dimensions are artistic interpretation; no labeled Heavy-specific art or mechanical blueprint is claimed.",
+      "referenceSha256": "318a72db217ef455e78b2d0bb03bd5b738fb74b086672505ffb8c9ac9c28acc0"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

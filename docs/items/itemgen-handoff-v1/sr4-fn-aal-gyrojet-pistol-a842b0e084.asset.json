@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-fn-aal-gyrojet-pistol-a842b0e084",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-silhouette-tangent",
+      "pixel": [
+        11.0,
+        350.5
+      ]
+    },
+    {
+      "name": "top-silhouette-tangent",
+      "pixel": [
+        172.00000000000003,
+        170.0
+      ]
+    },
+    {
+      "name": "rear-silhouette-tangent",
+      "pixel": [
+        1240.0,
+        979.0
+      ]
+    },
+    {
+      "name": "grip-bottom-tangent",
+      "pixel": [
+        976.0,
+        1104.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-fn-aal-gyrojet-pistol-a842b0e084.family.json",
+    "sha256": "02abb5eaf4a525182f70e28e5cc280af1a7c7d0c8d5356da74cd15fae681eeb4"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/ab4201b60119fba271ac2c25c900cee712e6bab8ed013f0ddf8f1e1645eb1728.png",
+      "sha256": "ab4201b60119fba271ac2c25c900cee712e6bab8ed013f0ddf8f1e1645eb1728"
+    },
+    "clayReference": {
+      "path": "inputs/528021d760744fd315f15d3d23a7b6e2ac8f4fd70220d0addee3e5d3aa3e30fe.png",
+      "sha256": "528021d760744fd315f15d3d23a7b6e2ac8f4fd70220d0addee3e5d3aa3e30fe"
+    },
+    "geometry": {
+      "path": "inputs/ae1c50948fa403f9e2e06cfd93a42fc4fdcfb49ed483626f90bf8a37c7bfa341.png",
+      "sha256": "ae1c50948fa403f9e2e06cfd93a42fc4fdcfb49ed483626f90bf8a37c7bfa341"
+    },
+    "detail": {
+      "path": "inputs/221c7bb2eac7ac98a39cf38698bb7a5c2d65e6338d2696c31db23bbce13a5dd4.png",
+      "sha256": "221c7bb2eac7ac98a39cf38698bb7a5c2d65e6338d2696c31db23bbce13a5dd4"
+    },
+    "foregroundMask": {
+      "path": "inputs/d8821813e7ad25d802f9893017ab762f9d97fd1497542fa1985251e5108581bb.png",
+      "sha256": "d8821813e7ad25d802f9893017ab762f9d97fd1497542fa1985251e5108581bb"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/fb1fce4a30a64886a3e5423384684fb7e9b7b7b3c55173549b70dad4eccd915b.png",
+      "sha256": "fb1fce4a30a64886a3e5423384684fb7e9b7b7b3c55173549b70dad4eccd915b"
+    },
+    "mask": {
+      "path": "inputs/fb1fce4a30a64886a3e5423384684fb7e9b7b7b3c55173549b70dad4eccd915b.png",
+      "sha256": "fb1fce4a30a64886a3e5423384684fb7e9b7b7b3c55173549b70dad4eccd915b"
+    },
+    "calibrationReference": {
+      "path": "inputs/36f8a41359cef3ee8dd2032237180913043a2c9d9e33d106e96c27b637be3b67.png",
+      "sha256": "36f8a41359cef3ee8dd2032237180913043a2c9d9e33d106e96c27b637be3b67"
+    },
+    "sourceAudit": {
+      "path": "inputs/3f7fb9821a18c7c022bc66fd2da562f85d53b03da6d91c70e5f29211b7ea5ab4.json",
+      "sha256": "3f7fb9821a18c7c022bc66fd2da562f85d53b03da6d91c70e5f29211b7ea5ab4"
+    },
+    "referenceApproval": {
+      "path": "inputs/66055e203a82a01dcbe3c41889a5957c889bac748128053ac784c68905d09976.json",
+      "sha256": "66055e203a82a01dcbe3c41889a5957c889bac748128053ac784c68905d09976"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4f994cd946a6e5d754ac37949c9c09cd2d8c21ffc0e3033baf061b85dfe02402.png",
+      "sha256": "4f994cd946a6e5d754ac37949c9c09cd2d8c21ffc0e3033baf061b85dfe02402"
+    }
+  },
+  "features": [
+    {
+      "name": "Pistol firing miniature self-propelled rocket ammunition; underwater origin with use on land also supported",
+      "placementReviewed": true
+    },
+    {
+      "name": "Heavy-pistol range/accessory rules do not establish a heavy-pistol exterior or a uniquely prescribed silhouette",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected: matched complete outline, camera/framing, muzzle recess, integral controls, grip and trigger clearance, no background debris. Root inspected actual raw detailed/clay pair and teal actual-alpha diagnostic. Complete matched outline, proportions, perspective/framing, recessed muzzle and solid barrel/body, integral grip, trigger/guard and real trigger-clearance spaces retained. No background debris, external tank/hose or mounted accessory. Clay removes metal finish, wear, stippling and fine cuts. Minor shallow lines are nonblocking. The exterior remains an explicit artistic realization of the own primary description, not a uniquely published silhouette or inference from heavy-pistol rules.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        859,
+        894,
+        1201,
+        1138
+      ],
+      "referenceAreaPixels": 53578,
+      "referenceMaskSha256": "fb1fce4a30a64886a3e5423384684fb7e9b7b7b3c55173549b70dad4eccd915b",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ab4201b60119fba271ac2c25c900cee712e6bab8ed013f0ddf8f1e1645eb1728",
+      "imageSha256": "221c7bb2eac7ac98a39cf38698bb7a5c2d65e6338d2696c31db23bbce13a5dd4",
+      "maskSha256": "d8821813e7ad25d802f9893017ab762f9d97fd1497542fa1985251e5108581bb",
+      "notes": "Final prepared overlay inspected: matched complete outline, camera/framing, muzzle recess, integral controls, grip and trigger clearance, no background debris. Root inspected actual raw detailed/clay pair and teal actual-alpha diagnostic. Complete matched outline, proportions, perspective/framing, recessed muzzle and solid barrel/body, integral grip, trigger/guard and real trigger-clearance spaces retained. No background debris, external tank/hose or mounted accessory. Clay removes metal finish, wear, stippling and fine cuts. Minor shallow lines are nonblocking. The exterior remains an explicit artistic realization of the own primary description, not a uniquely published silhouette or inference from heavy-pistol rules."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "528021d760744fd315f15d3d23a7b6e2ac8f4fd70220d0addee3e5d3aa3e30fe",
+      "imageSha256": "ae1c50948fa403f9e2e06cfd93a42fc4fdcfb49ed483626f90bf8a37c7bfa341",
+      "maskSha256": "fb1fce4a30a64886a3e5423384684fb7e9b7b7b3c55173549b70dad4eccd915b",
+      "notes": "Final prepared overlay inspected: matched complete outline, camera/framing, muzzle recess, integral controls, grip and trigger clearance, no background debris. Root inspected actual raw detailed/clay pair and teal actual-alpha diagnostic. Complete matched outline, proportions, perspective/framing, recessed muzzle and solid barrel/body, integral grip, trigger/guard and real trigger-clearance spaces retained. No background debris, external tank/hose or mounted accessory. Clay removes metal finish, wear, stippling and fine cuts. Minor shallow lines are nonblocking. The exterior remains an explicit artistic realization of the own primary description, not a uniquely published silhouette or inference from heavy-pistol rules."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "ab4201b60119fba271ac2c25c900cee712e6bab8ed013f0ddf8f1e1645eb1728",
+      "detailSha256": "221c7bb2eac7ac98a39cf38698bb7a5c2d65e6338d2696c31db23bbce13a5dd4",
+      "geometrySha256": "ae1c50948fa403f9e2e06cfd93a42fc4fdcfb49ed483626f90bf8a37c7bfa341",
+      "foregroundMaskSha256": "d8821813e7ad25d802f9893017ab762f9d97fd1497542fa1985251e5108581bb",
+      "geometryForegroundMaskSha256": "fb1fce4a30a64886a3e5423384684fb7e9b7b7b3c55173549b70dad4eccd915b",
+      "landmarks": [
+        {
+          "name": "front-silhouette-tangent",
+          "detail": [
+            0.0498046875,
+            0.2903716033513046
+          ],
+          "geometry": [
+            0.0498046875,
+            0.2892772605497871
+          ]
+        },
+        {
+          "name": "top-silhouette-tangent",
+          "detail": [
+            0.16727866693679094,
+            0.15868568623535675
+          ],
+          "geometry": [
+            0.16363040670583467,
+            0.1572265625
+          ]
+        },
+        {
+          "name": "rear-silhouette-tangent",
+          "detail": [
+            0.9465470522690438,
+            0.7489012371871672
+          ],
+          "geometry": [
+            0.9494656604538088,
+            0.7478068943856495
+          ]
+        },
+        {
+          "name": "grip-bottom-tangent",
+          "detail": [
+            0.7539189120745543,
+            0.8400964706469649
+          ],
+          "geometry": [
+            0.756107868213128,
+            0.8415555943823216
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected: matched complete outline, camera/framing, muzzle recess, integral controls, grip and trigger clearance, no background debris. Root inspected actual raw detailed/clay pair and teal actual-alpha diagnostic. Complete matched outline, proportions, perspective/framing, recessed muzzle and solid barrel/body, integral grip, trigger/guard and real trigger-clearance spaces retained. No background debris, external tank/hose or mounted accessory. Clay removes metal finish, wear, stippling and fine cuts. Minor shallow lines are nonblocking. The exterior remains an explicit artistic realization of the own primary description, not a uniquely published silhouette or inference from heavy-pistol rules."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

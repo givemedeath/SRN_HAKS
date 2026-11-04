@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-macauitl-76b21d59a8",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "reviewed-feature-1",
+      "pixel": [
+        54.99999999999999,
+        599.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-2",
+      "pixel": [
+        170.0,
+        599.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-3",
+      "pixel": [
+        1225.0,
+        600.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-4",
+      "pixel": [
+        305.0,
+        540.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-macauitl-76b21d59a8.family.json",
+    "sha256": "3d7f472fe9fe1836066d2286dcb7ad10a94fc5b292245e5f3d77670c7ed2ee84"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/b9758c136d2009d7c7aa6ef31d22d7108a8d8099b39066b483a7fdc62117c6be.png",
+      "sha256": "b9758c136d2009d7c7aa6ef31d22d7108a8d8099b39066b483a7fdc62117c6be"
+    },
+    "clayReference": {
+      "path": "inputs/684b5e5a34afa8d05d30ade264ea2fd7a49570c4e24c9b53780d78833df19570.png",
+      "sha256": "684b5e5a34afa8d05d30ade264ea2fd7a49570c4e24c9b53780d78833df19570"
+    },
+    "geometry": {
+      "path": "inputs/3ed93d6d1bfbf8e073c409cc82e65433ab23bb06ffc696e003fa93162d256db4.png",
+      "sha256": "3ed93d6d1bfbf8e073c409cc82e65433ab23bb06ffc696e003fa93162d256db4"
+    },
+    "detail": {
+      "path": "inputs/cbe7803865dc587ac2f6d8b020edde02826f25d914f6efd443889be85899c6b0.png",
+      "sha256": "cbe7803865dc587ac2f6d8b020edde02826f25d914f6efd443889be85899c6b0"
+    },
+    "foregroundMask": {
+      "path": "inputs/b1f857c5974e4a47450d42447edc3c9d3e3ab6b4998ac43c38c2ba8e0f02d75c.png",
+      "sha256": "b1f857c5974e4a47450d42447edc3c9d3e3ab6b4998ac43c38c2ba8e0f02d75c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c07d87abf72c774443c2a08e69bee8307d6cc124a51c727943def47ec116e885.png",
+      "sha256": "c07d87abf72c774443c2a08e69bee8307d6cc124a51c727943def47ec116e885"
+    },
+    "mask": {
+      "path": "inputs/c07d87abf72c774443c2a08e69bee8307d6cc124a51c727943def47ec116e885.png",
+      "sha256": "c07d87abf72c774443c2a08e69bee8307d6cc124a51c727943def47ec116e885"
+    },
+    "calibrationReference": {
+      "path": "inputs/cfc79b75ddfd14017c02a1dda8b052cfd3a06a13495340991341aa382181733d.png",
+      "sha256": "cfc79b75ddfd14017c02a1dda8b052cfd3a06a13495340991341aa382181733d"
+    },
+    "sourceAudit": {
+      "path": "inputs/579f3d2edf2e8445feacb94a7d389403f2c9277a0a1506212583ec8cd78fdc7d.json",
+      "sha256": "579f3d2edf2e8445feacb94a7d389403f2c9277a0a1506212583ec8cd78fdc7d"
+    },
+    "referenceApproval": {
+      "path": "inputs/913237feb7f3c7ad24cda728b5d16ced0f5d054d0643995678a22c362f1d404c.json",
+      "sha256": "913237feb7f3c7ad24cda728b5d16ced0f5d054d0643995678a22c362f1d404c"
+    },
+    "calibrationDetail": {
+      "path": "inputs/9d3a2ee38bfa02bf4cc7eeb49becfe1ab7bbcd1a5a3a3cd83d32e74c625edb20.png",
+      "sha256": "9d3a2ee38bfa02bf4cc7eeb49becfe1ab7bbcd1a5a3a3cd83d32e74c625edb20"
+    }
+  },
+  "features": [
+    {
+      "name": "Heavy wooden body with sharp obsidian slivers along two edges.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Retain the major obsidian edge elements and their distinct material boundary; do not reinterpret as a solid metal sword.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Whole wood body, discrete obsidian pieces/gaps, major face features and ringbutt opening retained; selected new successful raw correction, rejected manual is not consumed. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        149,
+        995,
+        193,
+        1042
+      ],
+      "referenceAreaPixels": 1634,
+      "referenceMaskSha256": "c07d87abf72c774443c2a08e69bee8307d6cc124a51c727943def47ec116e885",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "b9758c136d2009d7c7aa6ef31d22d7108a8d8099b39066b483a7fdc62117c6be",
+      "imageSha256": "cbe7803865dc587ac2f6d8b020edde02826f25d914f6efd443889be85899c6b0",
+      "maskSha256": "b1f857c5974e4a47450d42447edc3c9d3e3ab6b4998ac43c38c2ba8e0f02d75c",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Whole wood body, discrete obsidian pieces/gaps, major face features and ringbutt opening retained; selected new successful raw correction, rejected manual is not consumed. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "684b5e5a34afa8d05d30ade264ea2fd7a49570c4e24c9b53780d78833df19570",
+      "imageSha256": "3ed93d6d1bfbf8e073c409cc82e65433ab23bb06ffc696e003fa93162d256db4",
+      "maskSha256": "c07d87abf72c774443c2a08e69bee8307d6cc124a51c727943def47ec116e885",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Whole wood body, discrete obsidian pieces/gaps, major face features and ringbutt opening retained; selected new successful raw correction, rejected manual is not consumed. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Whole wood body, discrete obsidian pieces/gaps, major face features and ringbutt opening retained; selected new successful raw correction, rejected manual is not consumed. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "reviewed-feature-1",
+          "detail": [
+            0.08130737006712774,
+            0.49755859375
+          ],
+          "geometry": [
+            0.08130737006712774,
+            0.49755859375
+          ]
+        },
+        {
+          "name": "reviewed-feature-2",
+          "detail": [
+            0.16555873042107405,
+            0.49755859375
+          ],
+          "geometry": [
+            0.16555873042107405,
+            0.49755859375
+          ]
+        },
+        {
+          "name": "reviewed-feature-3",
+          "detail": [
+            0.9384733841029292,
+            0.498291015625
+          ],
+          "geometry": [
+            0.9384733841029292,
+            0.498291015625
+          ]
+        },
+        {
+          "name": "reviewed-feature-4",
+          "detail": [
+            0.26446250127135884,
+            0.454345703125
+          ],
+          "geometry": [
+            0.26446250127135884,
+            0.454345703125
+          ]
+        }
+      ],
+      "referenceSha256": "b9758c136d2009d7c7aa6ef31d22d7108a8d8099b39066b483a7fdc62117c6be",
+      "geometrySha256": "3ed93d6d1bfbf8e073c409cc82e65433ab23bb06ffc696e003fa93162d256db4",
+      "detailSha256": "cbe7803865dc587ac2f6d8b020edde02826f25d914f6efd443889be85899c6b0",
+      "geometryForegroundMaskSha256": "c07d87abf72c774443c2a08e69bee8307d6cc124a51c727943def47ec116e885",
+      "foregroundMaskSha256": "b1f857c5974e4a47450d42447edc3c9d3e3ab6b4998ac43c38c2ba8e0f02d75c"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

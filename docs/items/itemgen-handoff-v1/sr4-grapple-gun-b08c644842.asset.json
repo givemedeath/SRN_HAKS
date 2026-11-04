@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-grapple-gun-b08c644842",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "round-housing-top",
+      "pixel": [
+        660.0,
+        45.999999999999964
+      ]
+    },
+    {
+      "name": "barrel-top",
+      "pixel": [
+        1100.0000000000002,
+        43.00000000000003
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        330.0,
+        824.0000000000001
+      ]
+    },
+    {
+      "name": "cable-loop-bottom",
+      "pixel": [
+        1150.0000000000002,
+        593.0000000000001
+      ]
+    },
+    {
+      "name": "rear-spine-top",
+      "pixel": [
+        315.0,
+        209.00000000000003
+      ]
+    },
+    {
+      "name": "hook-tip",
+      "pixel": [
+        1760.0,
+        320.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-grapple-gun-b08c644842.family.json",
+    "sha256": "31ba70151923a6ee83d9cc324842444178132efa7df03bbe5c10cd1a4a2e6cfd"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/08c8028479073e24807a990e2de4b81fe644ad46ca65098115ece86e0dab71aa.png",
+      "sha256": "08c8028479073e24807a990e2de4b81fe644ad46ca65098115ece86e0dab71aa"
+    },
+    "clayReference": {
+      "path": "inputs/d6515a70487dd7642d9f75621dbfef14c59eccb1ecfdbc9762a51fb3f6e95912.png",
+      "sha256": "d6515a70487dd7642d9f75621dbfef14c59eccb1ecfdbc9762a51fb3f6e95912"
+    },
+    "geometry": {
+      "path": "inputs/7966b39dc2a614f9a08951d7683ff28ed8db8db46ff7f359e7e7605efc771ba7.png",
+      "sha256": "7966b39dc2a614f9a08951d7683ff28ed8db8db46ff7f359e7e7605efc771ba7"
+    },
+    "detail": {
+      "path": "inputs/cbec08f780e4e49296f60d4c25ddd37c8eefebc1adbb556cfc91301eb5e84455.png",
+      "sha256": "cbec08f780e4e49296f60d4c25ddd37c8eefebc1adbb556cfc91301eb5e84455"
+    },
+    "foregroundMask": {
+      "path": "inputs/87ecd832090012f94ac61f5ab53f7f764db73c5280f2761708546d244dbca760.png",
+      "sha256": "87ecd832090012f94ac61f5ab53f7f764db73c5280f2761708546d244dbca760"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b.png",
+      "sha256": "c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b"
+    },
+    "mask": {
+      "path": "inputs/c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b.png",
+      "sha256": "c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b"
+    },
+    "calibrationReference": {
+      "path": "inputs/c7f39a170650704f590c91d844f4ab9074f4c2e6a33af56d60bde6131b3eb417.png",
+      "sha256": "c7f39a170650704f590c91d844f4ab9074f4c2e6a33af56d60bde6131b3eb417"
+    },
+    "sourceAudit": {
+      "path": "inputs/843b4bf8bc0722d82fa939b9e81faaacdfbcc41efa98c17af45f2609b1c24678.json",
+      "sha256": "843b4bf8bc0722d82fa939b9e81faaacdfbcc41efa98c17af45f2609b1c24678"
+    },
+    "referenceApproval": {
+      "path": "inputs/acb6db903fad5345264235d82b29ea95b53b8cffe4fc33486e80906ec2260e4f.json",
+      "sha256": "acb6db903fad5345264235d82b29ea95b53b8cffe4fc33486e80906ec2260e4f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/df90a276a4b637c1bf63bb2fed26a9e64353b0fe611cb75e87397ffe12b49bab.png",
+      "sha256": "df90a276a4b637c1bf63bb2fed26a9e64353b0fe611cb75e87397ffe12b49bab"
+    }
+  },
+  "features": [
+    {
+      "name": "External grappling-hook launcher with internal winch",
+      "placementReviewed": true
+    },
+    {
+      "name": "Illustration: pistol-like grip, large round side housing and hook at front",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned reviewer compared exact exterior GrappleGun art on Core printed328/PDF330 and current source audit with actual original and final pair. Raked grip, round winch housing, front folded hook and cable/brace spaces retained; external gear representation, not implanted variant. Smooth clay fills fine ribs/vents/fasteners/machining channels while preserving major part boundaries and silhouette. Finish and unseen surfaces are declared interpretation. Six landmarks, actual overlay and unchanged topology/alignment gates pass. Reference-only approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1599,
+        839,
+        1734,
+        871
+      ],
+      "referenceAreaPixels": 1745,
+      "referenceMaskSha256": "c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1603,
+        928,
+        1730,
+        953
+      ],
+      "referenceAreaPixels": 1049,
+      "referenceMaskSha256": "c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1224,
+        995,
+        1521,
+        1158
+      ],
+      "referenceAreaPixels": 19069,
+      "referenceMaskSha256": "c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        461,
+        1064,
+        581,
+        1227
+      ],
+      "referenceAreaPixels": 3760,
+      "referenceMaskSha256": "c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "08c8028479073e24807a990e2de4b81fe644ad46ca65098115ece86e0dab71aa",
+      "imageSha256": "cbec08f780e4e49296f60d4c25ddd37c8eefebc1adbb556cfc91301eb5e84455",
+      "maskSha256": "87ecd832090012f94ac61f5ab53f7f764db73c5280f2761708546d244dbca760",
+      "notes": "Assigned sole final reviewer inspected Core printed328/PDF330 primary art, raw images, enlarged hook region, native masks/teal and final2048masks/teal/paired overlay. Independent manual outer/inner contours retain the round housing, grip/brace, cable loop, hook point and silver folding arms. All four structural voids clear: grip space, cable loop and upper/lower hook gaps. Observed body/grip background strips removed; subpixel hole-tip AA pinholes capped without removing a subject part. No broad halo, detached foreground, clipping or arm cut-through. RawRGB unchanged; no transfer, warp, threshold tuning or generation."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d6515a70487dd7642d9f75621dbfef14c59eccb1ecfdbc9762a51fb3f6e95912",
+      "imageSha256": "7966b39dc2a614f9a08951d7683ff28ed8db8db46ff7f359e7e7605efc771ba7",
+      "maskSha256": "c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b",
+      "notes": "Assigned sole final reviewer inspected Core printed328/PDF330 primary art, raw images, enlarged hook region, native masks/teal and final2048masks/teal/paired overlay. Independent manual outer/inner contours retain the round housing, grip/brace, cable loop, hook point and silver folding arms. All four structural voids clear: grip space, cable loop and upper/lower hook gaps. Observed body/grip background strips removed; subpixel hole-tip AA pinholes capped without removing a subject part. No broad halo, detached foreground, clipping or arm cut-through. RawRGB unchanged; no transfer, warp, threshold tuning or generation."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned reviewer compared exact exterior GrappleGun art on Core printed328/PDF330 and current source audit with actual original and final pair. Raked grip, round winch housing, front folded hook and cable/brace spaces retained; external gear representation, not implanted variant. Smooth clay fills fine ribs/vents/fasteners/machining channels while preserving major part boundaries and silhouette. Finish and unseen surfaces are declared interpretation. Six landmarks, actual overlay and unchanged topology/alignment gates pass. Reference-only approval.",
+      "landmarks": [
+        {
+          "name": "round-housing-top",
+          "detail": [
+            0.3794813930267703,
+            0.2985518443433544
+          ],
+          "geometry": [
+            0.3794813930267703,
+            0.2980332772943038
+          ]
+        },
+        {
+          "name": "barrel-top",
+          "detail": [
+            0.6075596169761083,
+            0.29699614319620254
+          ],
+          "geometry": [
+            0.6075596169761083,
+            0.29595900909810124
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.20842272506476683,
+            0.7019970085047469
+          ],
+          "geometry": [
+            0.20842272506476683,
+            0.7019970085047469
+          ]
+        },
+        {
+          "name": "cable-loop-bottom",
+          "detail": [
+            0.6334775969703512,
+            0.5822080201740507
+          ],
+          "geometry": [
+            0.6334775969703512,
+            0.5837637213212026
+          ]
+        },
+        {
+          "name": "rear-spine-top",
+          "detail": [
+            0.20064733106649396,
+            0.3830782733386076
+          ],
+          "geometry": [
+            0.20064733106649396,
+            0.3830782733386076
+          ]
+        },
+        {
+          "name": "hook-tip",
+          "detail": [
+            0.9496769529001151,
+            0.44063921578322784
+          ],
+          "geometry": [
+            0.9496769529001151,
+            0.44063921578322784
+          ]
+        }
+      ],
+      "referenceSha256": "08c8028479073e24807a990e2de4b81fe644ad46ca65098115ece86e0dab71aa",
+      "geometrySha256": "7966b39dc2a614f9a08951d7683ff28ed8db8db46ff7f359e7e7605efc771ba7",
+      "detailSha256": "cbec08f780e4e49296f60d4c25ddd37c8eefebc1adbb556cfc91301eb5e84455",
+      "foregroundMaskSha256": "87ecd832090012f94ac61f5ab53f7f764db73c5280f2761708546d244dbca760",
+      "geometryForegroundMaskSha256": "c8ea0ea0cb317f291d55d3f802ba08cfe3161b0302e1f4fb9f9906f6737a608b"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

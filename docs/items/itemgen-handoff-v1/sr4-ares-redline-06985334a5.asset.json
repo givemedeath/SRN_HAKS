@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-redline-06985334a5",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "trigger-front-space",
+      "pixel": [
+        604.2632815460402,
+        567.8615384615384
+      ]
+    },
+    {
+      "name": "trigger-rear-space",
+      "pixel": [
+        495.36524822695037,
+        585.1052009456265
+      ]
+    },
+    {
+      "name": "rear-sight-top",
+      "pixel": [
+        253.5,
+        39.00000000000001
+      ]
+    },
+    {
+      "name": "grip-base-bottom",
+      "pixel": [
+        275.52941176470586,
+        1159.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-redline-06985334a5.family.json",
+    "sha256": "29f3233befe3e54d082ccc1399ca6c5ca5bb474853d37b8faba9d88dc264633b"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/41153257fec6f8c3f5380032dea9fb7a22240fd74de67fb10019f8525297d9e2.png",
+      "sha256": "41153257fec6f8c3f5380032dea9fb7a22240fd74de67fb10019f8525297d9e2"
+    },
+    "clayReference": {
+      "path": "inputs/d6e34facd913b8cf2ffda49f383cd4bcd460820daa28a5d49e9686834acbc5c8.png",
+      "sha256": "d6e34facd913b8cf2ffda49f383cd4bcd460820daa28a5d49e9686834acbc5c8"
+    },
+    "geometry": {
+      "path": "inputs/0185fdf1767f8ca8896fd9e8d261dbdb2ddd1481efaf0cf73af7513e4570fe12.png",
+      "sha256": "0185fdf1767f8ca8896fd9e8d261dbdb2ddd1481efaf0cf73af7513e4570fe12"
+    },
+    "detail": {
+      "path": "inputs/01a7e38c7a7e7148db819a19c4e5bd039f59ed846bd177b23a1b5a27a6df5ff6.png",
+      "sha256": "01a7e38c7a7e7148db819a19c4e5bd039f59ed846bd177b23a1b5a27a6df5ff6"
+    },
+    "foregroundMask": {
+      "path": "inputs/19002403954ae05e96623fca50d68bd608f85bea992a33ef44d5c05865ac113d.png",
+      "sha256": "19002403954ae05e96623fca50d68bd608f85bea992a33ef44d5c05865ac113d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/37807de373929f204627b01914da062af1238d54ea3991d5e6b75486dcde754f.png",
+      "sha256": "37807de373929f204627b01914da062af1238d54ea3991d5e6b75486dcde754f"
+    },
+    "mask": {
+      "path": "inputs/37807de373929f204627b01914da062af1238d54ea3991d5e6b75486dcde754f.png",
+      "sha256": "37807de373929f204627b01914da062af1238d54ea3991d5e6b75486dcde754f"
+    },
+    "calibrationReference": {
+      "path": "inputs/5cb85add36366ae72d7d43e4d4e0608214995219b9790213a4a89fc9c6ea19f1.png",
+      "sha256": "5cb85add36366ae72d7d43e4d4e0608214995219b9790213a4a89fc9c6ea19f1"
+    },
+    "sourceAudit": {
+      "path": "inputs/eda7f4af9f500950f05ebdfaae0ff64505f158121f248a362790cbdb568042e2.json",
+      "sha256": "eda7f4af9f500950f05ebdfaae0ff64505f158121f248a362790cbdb568042e2"
+    },
+    "referenceApproval": {
+      "path": "inputs/bc3664eca8a39af747e4ea9c1593641b3e290f6fd57c3bdc45475d78f5b45ef0.json",
+      "sha256": "bc3664eca8a39af747e4ea9c1593641b3e290f6fd57c3bdc45475d78f5b45ef0"
+    },
+    "calibrationDetail": {
+      "path": "inputs/3fa3efa5d40bd84570ce4bb40adb735e934a5632d6189ef088ff10d30026e0fe.png",
+      "sha256": "3fa3efa5d40bd84570ce4bb40adb735e934a5632d6189ef088ff10d30026e0fe"
+    }
+  },
+  "features": [
+    {
+      "name": "Pistol-scale Ares Redline laser, not a cartridge-firing Redline or large MP Laser3",
+      "placementReviewed": true
+    },
+    {
+      "name": "Detachable power clip OR external supply, commonly satchel power pack; choose a source-supported variant",
+      "placementReviewed": true
+    },
+    {
+      "name": "External pack links by self-recoiling cable; clip/casing geometry and colors are not prescribed",
+      "placementReviewed": true
+    },
+    {
+      "name": "Laser section allows top/underbarrel accessories only; no compulsory scope, visible beam or muzzle brake",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared overlay inspected: matched framing, both trigger-clearance openings and emitter recess retained, no backdrop debris. Root inspected actual raw detailed/clay pair and both teal foregrounds. Matching silhouette, camera and framing; two trigger-clearance spaces and thin guard/trigger retained. Dark emitter recess and stock/sight recesses remain surfaces, not invented alpha holes. Shallow grooves/channels accepted under user waiver; microtexture/color/wear removed in clay. No background floor in these two foregrounds. Pistol-scale clip-powered laser, one inserted power clip/base, continuous upper housing, raised sights and dark emitter aperture. No external pack. Finish, aperture/grip/housing details and hidden depth are interpreted; primary text supplies no own drawing on reviewed description pages. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        895,
+        845,
+        1063,
+        1109
+      ],
+      "referenceAreaPixels": 31065,
+      "referenceMaskSha256": "37807de373929f204627b01914da062af1238d54ea3991d5e6b75486dcde754f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        791,
+        937,
+        844,
+        1048
+      ],
+      "referenceAreaPixels": 2147,
+      "referenceMaskSha256": "37807de373929f204627b01914da062af1238d54ea3991d5e6b75486dcde754f",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "41153257fec6f8c3f5380032dea9fb7a22240fd74de67fb10019f8525297d9e2",
+      "imageSha256": "01a7e38c7a7e7148db819a19c4e5bd039f59ed846bd177b23a1b5a27a6df5ff6",
+      "maskSha256": "19002403954ae05e96623fca50d68bd608f85bea992a33ef44d5c05865ac113d",
+      "notes": "Prepared overlay inspected: matched framing, both trigger-clearance openings and emitter recess retained, no backdrop debris. Root inspected actual raw detailed/clay pair and both teal foregrounds. Matching silhouette, camera and framing; two trigger-clearance spaces and thin guard/trigger retained. Dark emitter recess and stock/sight recesses remain surfaces, not invented alpha holes. Shallow grooves/channels accepted under user waiver; microtexture/color/wear removed in clay. No background floor in these two foregrounds. Pistol-scale clip-powered laser, one inserted power clip/base, continuous upper housing, raised sights and dark emitter aperture. No external pack. Finish, aperture/grip/housing details and hidden depth are interpreted; primary text supplies no own drawing on reviewed description pages. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d6e34facd913b8cf2ffda49f383cd4bcd460820daa28a5d49e9686834acbc5c8",
+      "imageSha256": "0185fdf1767f8ca8896fd9e8d261dbdb2ddd1481efaf0cf73af7513e4570fe12",
+      "maskSha256": "37807de373929f204627b01914da062af1238d54ea3991d5e6b75486dcde754f",
+      "notes": "Prepared overlay inspected: matched framing, both trigger-clearance openings and emitter recess retained, no backdrop debris. Root inspected actual raw detailed/clay pair and both teal foregrounds. Matching silhouette, camera and framing; two trigger-clearance spaces and thin guard/trigger retained. Dark emitter recess and stock/sight recesses remain surfaces, not invented alpha holes. Shallow grooves/channels accepted under user waiver; microtexture/color/wear removed in clay. No background floor in these two foregrounds. Pistol-scale clip-powered laser, one inserted power clip/base, continuous upper housing, raised sights and dark emitter aperture. No external pack. Finish, aperture/grip/housing details and hidden depth are interpreted; primary text supplies no own drawing on reviewed description pages. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "41153257fec6f8c3f5380032dea9fb7a22240fd74de67fb10019f8525297d9e2",
+      "detailSha256": "01a7e38c7a7e7148db819a19c4e5bd039f59ed846bd177b23a1b5a27a6df5ff6",
+      "geometrySha256": "0185fdf1767f8ca8896fd9e8d261dbdb2ddd1481efaf0cf73af7513e4570fe12",
+      "foregroundMaskSha256": "19002403954ae05e96623fca50d68bd608f85bea992a33ef44d5c05865ac113d",
+      "geometryForegroundMaskSha256": "37807de373929f204627b01914da062af1238d54ea3991d5e6b75486dcde754f",
+      "landmarks": [
+        {
+          "name": "trigger-front-space",
+          "detail": [
+            0.47740675699028223,
+            0.47574310281886184
+          ],
+          "geometry": [
+            0.47708026835483336,
+            0.4759420280203583
+          ]
+        },
+        {
+          "name": "trigger-rear-space",
+          "detail": [
+            0.39603682480650954,
+            0.4886269762074833
+          ],
+          "geometry": [
+            0.395661903941403,
+            0.48755188288377704
+          ]
+        },
+        {
+          "name": "rear-sight-top",
+          "detail": [
+            0.21531217582987552,
+            0.0805958939276199
+          ],
+          "geometry": [
+            0.21568578189834028,
+            0.07984872821380995
+          ]
+        },
+        {
+          "name": "grip-base-bottom",
+          "detail": [
+            0.23177281966988036,
+            0.9174214933947602
+          ],
+          "geometry": [
+            0.2298828125,
+            0.9189158248223801
+          ]
+        }
+      ],
+      "notes": "Prepared overlay inspected: matched framing, both trigger-clearance openings and emitter recess retained, no backdrop debris. Root inspected actual raw detailed/clay pair and both teal foregrounds. Matching silhouette, camera and framing; two trigger-clearance spaces and thin guard/trigger retained. Dark emitter recess and stock/sight recesses remain surfaces, not invented alpha holes. Shallow grooves/channels accepted under user waiver; microtexture/color/wear removed in clay. No background floor in these two foregrounds. Pistol-scale clip-powered laser, one inserted power clip/base, continuous upper housing, raised sights and dark emitter aperture. No external pack. Finish, aperture/grip/housing details and hidden depth are interpreted; primary text supplies no own drawing on reviewed description pages. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

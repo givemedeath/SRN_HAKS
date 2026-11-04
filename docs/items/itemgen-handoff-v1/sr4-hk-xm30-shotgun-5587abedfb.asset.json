@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-xm30-shotgun-5587abedfb",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-at-row575",
+      "pixel": [
+        10.999999999999998,
+        575.0
+      ]
+    },
+    {
+      "name": "solid-upper-unit-at-column760",
+      "pixel": [
+        760.0,
+        448.0
+      ]
+    },
+    {
+      "name": "rear-pad-at-row650",
+      "pixel": [
+        1233.0,
+        650.0
+      ]
+    },
+    {
+      "name": "rear-clip-bottom",
+      "pixel": [
+        1065.0000000000002,
+        890.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-xm30-shotgun-5587abedfb.family.json",
+    "sha256": "9cb921520e0d74526537d11036be2826df5cc2e97718d81e151af94d205d4cc4"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/eba15559add7658bc544288a96294e23c3e6daecccefb311ce3460c0d19c3829.png",
+      "sha256": "eba15559add7658bc544288a96294e23c3e6daecccefb311ce3460c0d19c3829"
+    },
+    "clayReference": {
+      "path": "inputs/f355758b7973f9e1aafd99737667aba9c8282f07a932e5e325ca9ce228345b36.png",
+      "sha256": "f355758b7973f9e1aafd99737667aba9c8282f07a932e5e325ca9ce228345b36"
+    },
+    "geometry": {
+      "path": "inputs/0699b473e55f51385f252b1b97cfb4a4365b3c40ff8e4915415c563f0c5b5b9a.png",
+      "sha256": "0699b473e55f51385f252b1b97cfb4a4365b3c40ff8e4915415c563f0c5b5b9a"
+    },
+    "detail": {
+      "path": "inputs/0f205f38c5ee64a6fec176882a0064479eec1cc8f9596517553203a19b39d90f.png",
+      "sha256": "0f205f38c5ee64a6fec176882a0064479eec1cc8f9596517553203a19b39d90f"
+    },
+    "foregroundMask": {
+      "path": "inputs/03c125124b7bd8c54cebe83090468d4cb7b35c5680dadf947171de0825a81843.png",
+      "sha256": "03c125124b7bd8c54cebe83090468d4cb7b35c5680dadf947171de0825a81843"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c4a3be762a13c19a174e3d3359febe9f270304b9f031296ed5686c134ef553f1.png",
+      "sha256": "c4a3be762a13c19a174e3d3359febe9f270304b9f031296ed5686c134ef553f1"
+    },
+    "mask": {
+      "path": "inputs/c4a3be762a13c19a174e3d3359febe9f270304b9f031296ed5686c134ef553f1.png",
+      "sha256": "c4a3be762a13c19a174e3d3359febe9f270304b9f031296ed5686c134ef553f1"
+    },
+    "calibrationReference": {
+      "path": "inputs/4597d7e76695deee65baf9509c384c0292ffd6eb53fd160164db662dfde44cfb.png",
+      "sha256": "4597d7e76695deee65baf9509c384c0292ffd6eb53fd160164db662dfde44cfb"
+    },
+    "sourceAudit": {
+      "path": "inputs/1c2e18fcae720ea80949658f24a6efeb863b6bc08e7d58b3b46616f31ae61a10.json",
+      "sha256": "1c2e18fcae720ea80949658f24a6efeb863b6bc08e7d58b3b46616f31ae61a10"
+    },
+    "referenceApproval": {
+      "path": "inputs/7c4ad85c9b64b27bca39a32e86516a2441ee8725be156d06b30dda7f3acb89db.json",
+      "sha256": "7c4ad85c9b64b27bca39a32e86516a2441ee8725be156d06b30dda7f3acb89db"
+    },
+    "calibrationDetail": {
+      "path": "inputs/b9c86bd1573ee682bdc54e0e9dae3a4bc354c66e2c8673b377e22e0eb47c5830.png",
+      "sha256": "b9c86bd1573ee682bdc54e0e9dae3a4bc354c66e2c8673b377e22e0eb47c5830"
+    }
+  },
+  "features": [
+    {
+      "name": "Retain the HK XM30 parent platform silhouette, grip/stock proportions and module interfaces; this is a parent-bound configuration, not a newly invented standalone model.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Underbarrel shotgun module expressly listed in core printed 308; retain host platform context rather than inventing an unrelated shotgun.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-correct343detail and346clay compared:continuous white/tapered composite host,integrated rear shockpadstock,ONE central grip and OPENtriggerguard,REARfeed,solid raised upper unit and SINGLE interpreted underbarrel shotgun assembly match. Own isolated XM30 family art constrains host,table specifies10-round shotgun module;module exterior,finish and unseen depth remain explicit interpretation,not independently labeled published art. No open carryhandle,extra grenade launcher,belt or bipod. Entire paired framing,thin members,magazine and structural opening reviewed. Minor shallow grooves/fine vent details nonblocking. Native1254originals preserved;2048conditioning resampled,not native2K. Single final visual reviewer;no geometry/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1212,
+        981,
+        1308,
+        1064
+      ],
+      "referenceAreaPixels": 5421,
+      "referenceMaskSha256": "c4a3be762a13c19a174e3d3359febe9f270304b9f031296ed5686c134ef553f1",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "eba15559add7658bc544288a96294e23c3e6daecccefb311ce3460c0d19c3829",
+      "imageSha256": "0f205f38c5ee64a6fec176882a0064479eec1cc8f9596517553203a19b39d90f",
+      "maskSha256": "03c125124b7bd8c54cebe83090468d4cb7b35c5680dadf947171de0825a81843",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-correct343detail and346clay compared:continuous white/tapered composite host,integrated rear shockpadstock,ONE central grip and OPENtriggerguard,REARfeed,solid raised upper unit and SINGLE interpreted underbarrel shotgun assembly match. Own isolated XM30 family art constrains host,table specifies10-round shotgun module;module exterior,finish and unseen depth remain explicit interpretation,not independently labeled published art. No open carryhandle,extra grenade launcher,belt or bipod. Entire paired framing,thin members,magazine and structural opening reviewed. Minor shallow grooves/fine vent details nonblocking. Native1254originals preserved;2048conditioning resampled,not native2K. Single final visual reviewer;no geometry/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f355758b7973f9e1aafd99737667aba9c8282f07a932e5e325ca9ce228345b36",
+      "imageSha256": "0699b473e55f51385f252b1b97cfb4a4365b3c40ff8e4915415c563f0c5b5b9a",
+      "maskSha256": "c4a3be762a13c19a174e3d3359febe9f270304b9f031296ed5686c134ef553f1",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-correct343detail and346clay compared:continuous white/tapered composite host,integrated rear shockpadstock,ONE central grip and OPENtriggerguard,REARfeed,solid raised upper unit and SINGLE interpreted underbarrel shotgun assembly match. Own isolated XM30 family art constrains host,table specifies10-round shotgun module;module exterior,finish and unseen depth remain explicit interpretation,not independently labeled published art. No open carryhandle,extra grenade launcher,belt or bipod. Entire paired framing,thin members,magazine and structural opening reviewed. Minor shallow grooves/fine vent details nonblocking. Native1254originals preserved;2048conditioning resampled,not native2K. Single final visual reviewer;no geometry/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "eba15559add7658bc544288a96294e23c3e6daecccefb311ce3460c0d19c3829",
+      "detailSha256": "0f205f38c5ee64a6fec176882a0064479eec1cc8f9596517553203a19b39d90f",
+      "geometrySha256": "0699b473e55f51385f252b1b97cfb4a4365b3c40ff8e4915415c563f0c5b5b9a",
+      "foregroundMaskSha256": "03c125124b7bd8c54cebe83090468d4cb7b35c5680dadf947171de0825a81843",
+      "geometryForegroundMaskSha256": "c4a3be762a13c19a174e3d3359febe9f270304b9f031296ed5686c134ef553f1",
+      "landmarks": [
+        {
+          "name": "muzzle-at-row575",
+          "detail": [
+            0.051261630258899675,
+            0.4316287157012195
+          ],
+          "geometry": [
+            0.051261630258899675,
+            0.4316287157012195
+          ]
+        },
+        {
+          "name": "solid-upper-unit-at-column760",
+          "detail": [
+            0.5968866934668284,
+            0.3390923815133038
+          ],
+          "geometry": [
+            0.5968866934668284,
+            0.33617785130266076
+          ]
+        },
+        {
+          "name": "rear-pad-at-row650",
+          "detail": [
+            0.9414536559466019,
+            0.48627615715077604
+          ],
+          "geometry": [
+            0.9421821273260518,
+            0.48627615715077604
+          ]
+        },
+        {
+          "name": "rear-clip-bottom",
+          "detail": [
+            0.8190704641990292,
+            0.661147969789357
+          ],
+          "geometry": [
+            0.8208916426476537,
+            0.6626052348946785
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-correct343detail and346clay compared:continuous white/tapered composite host,integrated rear shockpadstock,ONE central grip and OPENtriggerguard,REARfeed,solid raised upper unit and SINGLE interpreted underbarrel shotgun assembly match. Own isolated XM30 family art constrains host,table specifies10-round shotgun module;module exterior,finish and unseen depth remain explicit interpretation,not independently labeled published art. No open carryhandle,extra grenade launcher,belt or bipod. Entire paired framing,thin members,magazine and structural opening reviewed. Minor shallow grooves/fine vent details nonblocking. Native1254originals preserved;2048conditioning resampled,not native2K. Single final visual reviewer;no geometry/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

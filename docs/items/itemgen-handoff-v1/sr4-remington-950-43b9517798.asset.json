@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-remington-950-43b9517798",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-butt-lower",
+      "pixel": [
+        29.999999999999996,
+        873.0
+      ]
+    },
+    {
+      "name": "trigger-bow-lower",
+      "pixel": [
+        535.0,
+        701.0
+      ]
+    },
+    {
+      "name": "scope-objective-upper",
+      "pixel": [
+        815.0000000000001,
+        421.00000000000006
+      ]
+    },
+    {
+      "name": "muzzle-upper",
+      "pixel": [
+        1230.0,
+        473.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-remington-950-43b9517798.family.json",
+    "sha256": "9d435dfeac94c7670ebca11a6682cfe3a5f0ce09934c9872477938d6b5df360e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/962ce003d4ad6a96329e77d8d7ff305854e66ace8ef4c13b0adf0505bf68036c.png",
+      "sha256": "962ce003d4ad6a96329e77d8d7ff305854e66ace8ef4c13b0adf0505bf68036c"
+    },
+    "clayReference": {
+      "path": "inputs/d85209036b549bd2fbbd7bda7b08723ac52a56bf5451a447266afa74fe4519cc.png",
+      "sha256": "d85209036b549bd2fbbd7bda7b08723ac52a56bf5451a447266afa74fe4519cc"
+    },
+    "geometry": {
+      "path": "inputs/7cf62d4408ccf2155d0bcdedaf6e31a5a36598434e244ad6521c9a184ff8cba1.png",
+      "sha256": "7cf62d4408ccf2155d0bcdedaf6e31a5a36598434e244ad6521c9a184ff8cba1"
+    },
+    "detail": {
+      "path": "inputs/0c8bf2f6bbfd8272f30d9b06cb40f7ee5b23846b396c1b8624e87ebcafa6e63e.png",
+      "sha256": "0c8bf2f6bbfd8272f30d9b06cb40f7ee5b23846b396c1b8624e87ebcafa6e63e"
+    },
+    "foregroundMask": {
+      "path": "inputs/4ff4dba7b09c4a123cb10f4863516ee7a3b2d0e08cb23b270a16e2ed01c798ae.png",
+      "sha256": "4ff4dba7b09c4a123cb10f4863516ee7a3b2d0e08cb23b270a16e2ed01c798ae"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb.png",
+      "sha256": "69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb"
+    },
+    "mask": {
+      "path": "inputs/69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb.png",
+      "sha256": "69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb"
+    },
+    "calibrationReference": {
+      "path": "inputs/7573cf5deac45b1b5dff85863484ae22652e0af91a48a56e51bc54a81e22693b.png",
+      "sha256": "7573cf5deac45b1b5dff85863484ae22652e0af91a48a56e51bc54a81e22693b"
+    },
+    "sourceAudit": {
+      "path": "inputs/feb4626b023b615c8d815edbbdc253a871a8a3737eed336759be45e4d1fc3064.json",
+      "sha256": "feb4626b023b615c8d815edbbdc253a871a8a3737eed336759be45e4d1fc3064"
+    },
+    "referenceApproval": {
+      "path": "inputs/4b9f26e4badcc213dee371f4fbc94c70572ead6acce9f638def13578bd6b0ed4.json",
+      "sha256": "4b9f26e4badcc213dee371f4fbc94c70572ead6acce9f638def13578bd6b0ed4"
+    },
+    "calibrationDetail": {
+      "path": "inputs/d50fc761a14f078c154ffc334d17e09df9b9b4a63eef641a919d6bf0a5008e7c.png",
+      "sha256": "d50fc761a14f078c154ffc334d17e09df9b9b4a63eef641a919d6bf0a5008e7c"
+    }
+  },
+  "features": [
+    {
+      "name": "Grouped 750/950 description establishes bolt action and top-mounted imaging scope for both.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Unique950 external differences are not specified by the paragraph or statistics; do not invent a larger body/barrel from damage values.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual Remington950 detailed/clay pair against grouped Remington750/950 description Arsenal printed27/PDF29, compiled table176/PDF178 and the explicit family-reference source audit. Both are bolt-action sport rifles with top imaging scope; own illustration is labeled Remington750, not independently950. This is a declared family-based950 exterior interpretation, not a uniquely illustrated950 or damage-derived enlargement. Wood finish and hidden depth artistic. Conventional stock, slender full barrel, bolt handle/knob, integral trigger/guard, top scope with two mounts and clearance remain aligned. No underbarrel accessory or bipod. Full butt/muzzle and openings retained with real positive margins; shallow grooves nonblocking. Native1254square retained;2048 resampled, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        964,
+        806,
+        1099,
+        848
+      ],
+      "referenceAreaPixels": 3033,
+      "referenceMaskSha256": "69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        991,
+        855,
+        1056,
+        864
+      ],
+      "referenceAreaPixels": 172,
+      "referenceMaskSha256": "69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        854,
+        1030,
+        914,
+        1095
+      ],
+      "referenceAreaPixels": 3024,
+      "referenceMaskSha256": "69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "962ce003d4ad6a96329e77d8d7ff305854e66ace8ef4c13b0adf0505bf68036c",
+      "imageSha256": "0c8bf2f6bbfd8272f30d9b06cb40f7ee5b23846b396c1b8624e87ebcafa6e63e",
+      "maskSha256": "4ff4dba7b09c4a123cb10f4863516ee7a3b2d0e08cb23b270a16e2ed01c798ae",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual Remington950 detailed/clay pair against grouped Remington750/950 description Arsenal printed27/PDF29, compiled table176/PDF178 and the explicit family-reference source audit. Both are bolt-action sport rifles with top imaging scope; own illustration is labeled Remington750, not independently950. This is a declared family-based950 exterior interpretation, not a uniquely illustrated950 or damage-derived enlargement. Wood finish and hidden depth artistic. Conventional stock, slender full barrel, bolt handle/knob, integral trigger/guard, top scope with two mounts and clearance remain aligned. No underbarrel accessory or bipod. Full butt/muzzle and openings retained with real positive margins; shallow grooves nonblocking. Native1254square retained;2048 resampled, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d85209036b549bd2fbbd7bda7b08723ac52a56bf5451a447266afa74fe4519cc",
+      "imageSha256": "7cf62d4408ccf2155d0bcdedaf6e31a5a36598434e244ad6521c9a184ff8cba1",
+      "maskSha256": "69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual Remington950 detailed/clay pair against grouped Remington750/950 description Arsenal printed27/PDF29, compiled table176/PDF178 and the explicit family-reference source audit. Both are bolt-action sport rifles with top imaging scope; own illustration is labeled Remington750, not independently950. This is a declared family-based950 exterior interpretation, not a uniquely illustrated950 or damage-derived enlargement. Wood finish and hidden depth artistic. Conventional stock, slender full barrel, bolt handle/knob, integral trigger/guard, top scope with two mounts and clearance remain aligned. No underbarrel accessory or bipod. Full butt/muzzle and openings retained with real positive margins; shallow grooves nonblocking. Native1254square retained;2048 resampled, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "962ce003d4ad6a96329e77d8d7ff305854e66ace8ef4c13b0adf0505bf68036c",
+      "detailSha256": "0c8bf2f6bbfd8272f30d9b06cb40f7ee5b23846b396c1b8624e87ebcafa6e63e",
+      "geometrySha256": "7cf62d4408ccf2155d0bcdedaf6e31a5a36598434e244ad6521c9a184ff8cba1",
+      "foregroundMaskSha256": "4ff4dba7b09c4a123cb10f4863516ee7a3b2d0e08cb23b270a16e2ed01c798ae",
+      "geometryForegroundMaskSha256": "69b6cb93f360bed6a2a46597078140ee88bdd31f5b63935c7755d81e77cf25fb",
+      "landmarks": [
+        {
+          "name": "stock-butt-lower",
+          "detail": [
+            0.06576648745970991,
+            0.662876370166122
+          ],
+          "geometry": [
+            0.06576648745970991,
+            0.6643273845996732
+          ]
+        },
+        {
+          "name": "trigger-bow-lower",
+          "detail": [
+            0.4321623501712329,
+            0.5380891288807189
+          ],
+          "geometry": [
+            0.4321623501712329,
+            0.53954014331427
+          ]
+        },
+        {
+          "name": "scope-objective-upper",
+          "detail": [
+            0.6353125314766318,
+            0.3349471081835512
+          ],
+          "geometry": [
+            0.6353125314766318,
+            0.3349471081835512
+          ]
+        },
+        {
+          "name": "muzzle-upper",
+          "detail": [
+            0.936410121625705,
+            0.37267348345588236
+          ],
+          "geometry": [
+            0.936410121625705,
+            0.37122246902233114
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual Remington950 detailed/clay pair against grouped Remington750/950 description Arsenal printed27/PDF29, compiled table176/PDF178 and the explicit family-reference source audit. Both are bolt-action sport rifles with top imaging scope; own illustration is labeled Remington750, not independently950. This is a declared family-based950 exterior interpretation, not a uniquely illustrated950 or damage-derived enlargement. Wood finish and hidden depth artistic. Conventional stock, slender full barrel, bolt handle/knob, integral trigger/guard, top scope with two mounts and clearance remain aligned. No underbarrel accessory or bipod. Full butt/muzzle and openings retained with real positive margins; shallow grooves nonblocking. Native1254square retained;2048 resampled, not native2K."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

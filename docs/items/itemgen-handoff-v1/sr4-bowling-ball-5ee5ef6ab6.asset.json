@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-bowling-ball-5ee5ef6ab6",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "top",
+      "pixel": [
+        625.5,
+        100.0
+      ]
+    },
+    {
+      "name": "bottom",
+      "pixel": [
+        623.5,
+        1154.0
+      ]
+    },
+    {
+      "name": "left",
+      "pixel": [
+        97.00000000000001,
+        621.9999999999999
+      ]
+    },
+    {
+      "name": "right",
+      "pixel": [
+        1153.0,
+        619.0
+      ]
+    },
+    {
+      "name": "left-finger-cavity",
+      "pixel": [
+        513.0,
+        351.00000000000006
+      ]
+    },
+    {
+      "name": "right-finger-cavity",
+      "pixel": [
+        745.0,
+        350.00000000000006
+      ]
+    },
+    {
+      "name": "thumb-cavity",
+      "pixel": [
+        626.0,
+        629.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-bowling-ball-5ee5ef6ab6.family.json",
+    "sha256": "d5d4a3415ee3e798d86ce717592ad61e9908b976e658748e858c167fe9802a59"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/5b9bf82533549109164992482a243b5b525210ab5b2dba1553c95f79834d9ce1.png",
+      "sha256": "5b9bf82533549109164992482a243b5b525210ab5b2dba1553c95f79834d9ce1"
+    },
+    "clayReference": {
+      "path": "inputs/b7e66b38ef02ec78da8d59762ab17ffb4f13469b494c21e92c1d69c56293aed6.png",
+      "sha256": "b7e66b38ef02ec78da8d59762ab17ffb4f13469b494c21e92c1d69c56293aed6"
+    },
+    "geometry": {
+      "path": "inputs/ae3895424ae6d6141c56efea54812f63d8d4473248cdbc63b4ce9aee86411e43.png",
+      "sha256": "ae3895424ae6d6141c56efea54812f63d8d4473248cdbc63b4ce9aee86411e43"
+    },
+    "detail": {
+      "path": "inputs/e6df5291715d1b7d0cbaf6214c1937e1d5e34822d6487db96a70e3dd12460d5a.png",
+      "sha256": "e6df5291715d1b7d0cbaf6214c1937e1d5e34822d6487db96a70e3dd12460d5a"
+    },
+    "foregroundMask": {
+      "path": "inputs/526e7862cc851022b0fddb5e557c21c6035a2012117065ed17e59df7f6fca715.png",
+      "sha256": "526e7862cc851022b0fddb5e557c21c6035a2012117065ed17e59df7f6fca715"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/89ff76f4612b4949a757efeabeb29ae64273db19f6e4f234d240ba892f5df2dd.png",
+      "sha256": "89ff76f4612b4949a757efeabeb29ae64273db19f6e4f234d240ba892f5df2dd"
+    },
+    "mask": {
+      "path": "inputs/89ff76f4612b4949a757efeabeb29ae64273db19f6e4f234d240ba892f5df2dd.png",
+      "sha256": "89ff76f4612b4949a757efeabeb29ae64273db19f6e4f234d240ba892f5df2dd"
+    },
+    "calibrationReference": {
+      "path": "inputs/6a2230ad72c89139b29d2c362fd870eee1049fc8aa2b9af4797265945244e810.png",
+      "sha256": "6a2230ad72c89139b29d2c362fd870eee1049fc8aa2b9af4797265945244e810"
+    },
+    "sourceAudit": {
+      "path": "inputs/620c8cbb15307255fc041c505a3da7c1a2de690d3cb7ca6eba508b1171bb91bd.json",
+      "sha256": "620c8cbb15307255fc041c505a3da7c1a2de690d3cb7ca6eba508b1171bb91bd"
+    },
+    "referenceApproval": {
+      "path": "inputs/ffc58104a49928a447e1b05eb1de12655043efc7543a8d4d5099cb37fe929bd1.json",
+      "sha256": "ffc58104a49928a447e1b05eb1de12655043efc7543a8d4d5099cb37fe929bd1"
+    },
+    "calibrationDetail": {
+      "path": "inputs/42c5d6d9932a76c94ae27749f6ddb7636356076e3e0e06bff0995a450cfbc9af.png",
+      "sha256": "42c5d6d9932a76c94ae27749f6ddb7636356076e3e0e06bff0995a450cfbc9af"
+    }
+  },
+  "features": [
+    {
+      "name": "Recognizable bowling-ball object, without added weapon hardware. No exact size, material, brand, color or finger-hole arrangement is specified.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. Bowling ball with three structural blind finger cavities retained in both images, including their mouth rims and shaded interiors. The cavities remain opaque internal RGB geometry cues; they are not through-object alpha holes. Surface microtexture/swirl/marking absent from clay. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation. Source Arsenal printed20/PDF22 improvised-throwing table and compiled printed174/PDF176 establish ordinary object identity only. Printed19/PDF21 is introduction/cross-reference. No unique labeled art or named-model silhouette is asserted. Material/color/finish/layout/dimensions are declared artistic interpretation; reviewed mirror errata yields no relevant exterior change, with official byte identity unverified. Native1254square honestly resampled to2048square; reference-only approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "5b9bf82533549109164992482a243b5b525210ab5b2dba1553c95f79834d9ce1",
+      "imageSha256": "e6df5291715d1b7d0cbaf6214c1937e1d5e34822d6487db96a70e3dd12460d5a",
+      "maskSha256": "526e7862cc851022b0fddb5e557c21c6035a2012117065ed17e59df7f6fca715",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. Bowling ball with three structural blind finger cavities retained in both images, including their mouth rims and shaded interiors. The cavities remain opaque internal RGB geometry cues; they are not through-object alpha holes. Surface microtexture/swirl/marking absent from clay. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "b7e66b38ef02ec78da8d59762ab17ffb4f13469b494c21e92c1d69c56293aed6",
+      "imageSha256": "ae3895424ae6d6141c56efea54812f63d8d4473248cdbc63b4ce9aee86411e43",
+      "maskSha256": "89ff76f4612b4949a757efeabeb29ae64273db19f6e4f234d240ba892f5df2dd",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. Bowling ball with three structural blind finger cavities retained in both images, including their mouth rims and shaded interiors. The cavities remain opaque internal RGB geometry cues; they are not through-object alpha holes. Surface microtexture/swirl/marking absent from clay. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. Bowling ball with three structural blind finger cavities retained in both images, including their mouth rims and shaded interiors. The cavities remain opaque internal RGB geometry cues; they are not through-object alpha holes. Surface microtexture/swirl/marking absent from clay. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation. Source Arsenal printed20/PDF22 improvised-throwing table and compiled printed174/PDF176 establish ordinary object identity only. Printed19/PDF21 is introduction/cross-reference. No unique labeled art or named-model silhouette is asserted. Material/color/finish/layout/dimensions are declared artistic interpretation; reviewed mirror errata yields no relevant exterior change, with official byte identity unverified. Native1254square honestly resampled to2048square; reference-only approval.",
+      "landmarks": [
+        {
+          "name": "top",
+          "detail": [
+            0.499755859375,
+            0.05572831003289474
+          ],
+          "geometry": [
+            0.49679372717365694,
+            0.05065091929041352
+          ]
+        },
+        {
+          "name": "bottom",
+          "detail": [
+            0.49806321240280393,
+            0.9476566171287594
+          ],
+          "geometry": [
+            0.5014485063471961,
+            0.9485028489191729
+          ]
+        },
+        {
+          "name": "left",
+          "detail": [
+            0.05247389697219605,
+            0.49746130462875937
+          ],
+          "geometry": [
+            0.05162757348609802,
+            0.49576884104793234
+          ]
+        },
+        {
+          "name": "right",
+          "detail": [
+            0.9461914982917059,
+            0.4949226092575188
+          ],
+          "geometry": [
+            0.9470378217778039,
+            0.4932301456766917
+          ]
+        },
+        {
+          "name": "left-finger-cavity",
+          "detail": [
+            0.4045444671889727,
+            0.26813248942669177
+          ],
+          "geometry": [
+            0.40539079067507067,
+            0.2672862576362782
+          ]
+        },
+        {
+          "name": "right-finger-cavity",
+          "detail": [
+            0.6008915159637135,
+            0.2672862576362782
+          ],
+          "geometry": [
+            0.6008915159637135,
+            0.2672862576362782
+          ]
+        },
+        {
+          "name": "thumb-cavity",
+          "detail": [
+            0.500179021118049,
+            0.5042311589520676
+          ],
+          "geometry": [
+            0.501025344604147,
+            0.5042311589520676
+          ]
+        }
+      ],
+      "referenceSha256": "5b9bf82533549109164992482a243b5b525210ab5b2dba1553c95f79834d9ce1",
+      "geometrySha256": "ae3895424ae6d6141c56efea54812f63d8d4473248cdbc63b4ce9aee86411e43",
+      "detailSha256": "e6df5291715d1b7d0cbaf6214c1937e1d5e34822d6487db96a70e3dd12460d5a",
+      "foregroundMaskSha256": "526e7862cc851022b0fddb5e557c21c6035a2012117065ed17e59df7f6fca715",
+      "geometryForegroundMaskSha256": "89ff76f4612b4949a757efeabeb29ae64273db19f6e4f234d240ba892f5df2dd"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,295 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-great-dragon-atgm-launcher-3a7de9379e",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-upper",
+      "pixel": [
+        105.00000000000001,
+        286.0
+      ]
+    },
+    {
+      "name": "scope-front",
+      "pixel": [
+        320.0,
+        214.99999999999997
+      ]
+    },
+    {
+      "name": "rear-top",
+      "pixel": [
+        1155.0,
+        280.0
+      ]
+    },
+    {
+      "name": "right-foot",
+      "pixel": [
+        1080.0,
+        1056.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-great-dragon-atgm-launcher-3a7de9379e.family.json",
+    "sha256": "e012ba01c00acd9c4f250181a290b90af15001b0098609040573467c78566a10"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f558f0d138eaf6fa983b082f57e70fe26eb77df9ada8c5f97cf78930f49f61a4.png",
+      "sha256": "f558f0d138eaf6fa983b082f57e70fe26eb77df9ada8c5f97cf78930f49f61a4"
+    },
+    "clayReference": {
+      "path": "inputs/85bcd6ffb76b054b2e3111fa86c65cd142883cc2f316e960b2275eedf7eee603.png",
+      "sha256": "85bcd6ffb76b054b2e3111fa86c65cd142883cc2f316e960b2275eedf7eee603"
+    },
+    "geometry": {
+      "path": "inputs/3e80a164891f83881cb6c48b462e244bfcd95e1e29f7f807f3b05b440d8d6280.png",
+      "sha256": "3e80a164891f83881cb6c48b462e244bfcd95e1e29f7f807f3b05b440d8d6280"
+    },
+    "detail": {
+      "path": "inputs/a00e367e263c80eb7a3596e7204c5d795dd639fb3f06b54323ee17457aabc0ef.png",
+      "sha256": "a00e367e263c80eb7a3596e7204c5d795dd639fb3f06b54323ee17457aabc0ef"
+    },
+    "foregroundMask": {
+      "path": "inputs/aefc2b660760dc065e73c381a238d27ddfec9f10daf0aa7e659c5ef248ea7de6.png",
+      "sha256": "aefc2b660760dc065e73c381a238d27ddfec9f10daf0aa7e659c5ef248ea7de6"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0.png",
+      "sha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0"
+    },
+    "mask": {
+      "path": "inputs/c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0.png",
+      "sha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0"
+    },
+    "calibrationReference": {
+      "path": "inputs/05ec5b6f3f401e417ae42006dfbfb615fc3539cce0f2d595672c53f147c30070.png",
+      "sha256": "05ec5b6f3f401e417ae42006dfbfb615fc3539cce0f2d595672c53f147c30070"
+    },
+    "sourceAudit": {
+      "path": "inputs/7b7ae698eb0b7a5ab1d55755485778cc3120977363c29361d6e0207d6c1218c5.json",
+      "sha256": "7b7ae698eb0b7a5ab1d55755485778cc3120977363c29361d6e0207d6c1218c5"
+    },
+    "referenceApproval": {
+      "path": "inputs/53e19dfa3bbe4c6a9b7eb6bd1145f23b01606d094e41aad697f224a1a2ccd1a9.json",
+      "sha256": "53e19dfa3bbe4c6a9b7eb6bd1145f23b01606d094e41aad697f224a1a2ccd1a9"
+    },
+    "calibrationDetail": {
+      "path": "inputs/162ef5a2b39bfe6f5234463b0549a7312432c216a58c58f625045556893d1bd8.png",
+      "sha256": "162ef5a2b39bfe6f5234463b0549a7312432c216a58c58f625045556893d1bd8"
+    }
+  },
+  "features": [
+    {
+      "name": "Tripod-mounted reusable canister with integrated optical imaging scope. The tripod and canister are required parts of the representation, not a generic shoulder-fired tube.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own GREAT DRAGON ATGM LAUNCHER image printed32/PDF34: compact horizontal tube/canister, central scope/mount unit, three splayed support legs; retain mount and support gaps.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own GREAT DRAGON ATGM LAUNCHER labeled art Arsenal32/PDF34 and text:tripod-mounted reusable canister with integrated optical scope,central mount and exactly3splayed legs. Actual detail/clay and teal masks retain all3legs,thin brace rods,handles,feet and major support gaps. Tiny foot/control recess differences are nonblocking. Lens/end cavity remains opaque shaded exterior,not an invented transparent bore. Original raw references retained byte-for-byte;foreground RGB unchanged. Exact colors/unseen depth remain disclosed artistic interpretation. Native1254x1254,2048conditioning resampled. Single final pair review;no geometry/native/client/production acceptance.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        341,
+        504,
+        351,
+        510
+      ],
+      "referenceAreaPixels": 52,
+      "referenceMaskSha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1413,
+        546,
+        1443,
+        566
+      ],
+      "referenceAreaPixels": 514,
+      "referenceMaskSha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        208,
+        856,
+        220,
+        868
+      ],
+      "referenceAreaPixels": 73,
+      "referenceMaskSha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        922,
+        1117,
+        1273,
+        1369
+      ],
+      "referenceAreaPixels": 15794,
+      "referenceMaskSha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        581,
+        1156,
+        837,
+        1352
+      ],
+      "referenceAreaPixels": 4355,
+      "referenceMaskSha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1707,
+        1655,
+        1722,
+        1665
+      ],
+      "referenceAreaPixels": 79,
+      "referenceMaskSha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f558f0d138eaf6fa983b082f57e70fe26eb77df9ada8c5f97cf78930f49f61a4",
+      "imageSha256": "a00e367e263c80eb7a3596e7204c5d795dd639fb3f06b54323ee17457aabc0ef",
+      "maskSha256": "aefc2b660760dc065e73c381a238d27ddfec9f10daf0aa7e659c5ef248ea7de6",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own GREAT DRAGON ATGM LAUNCHER labeled art Arsenal32/PDF34 and text:tripod-mounted reusable canister with integrated optical scope,central mount and exactly3splayed legs. Actual detail/clay and teal masks retain all3legs,thin brace rods,handles,feet and major support gaps. Tiny foot/control recess differences are nonblocking. Lens/end cavity remains opaque shaded exterior,not an invented transparent bore. Original raw references retained byte-for-byte;foreground RGB unchanged. Exact colors/unseen depth remain disclosed artistic interpretation. Native1254x1254,2048conditioning resampled. Single final pair review;no geometry/native/client/production acceptance."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "85bcd6ffb76b054b2e3111fa86c65cd142883cc2f316e960b2275eedf7eee603",
+      "imageSha256": "3e80a164891f83881cb6c48b462e244bfcd95e1e29f7f807f3b05b440d8d6280",
+      "maskSha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own GREAT DRAGON ATGM LAUNCHER labeled art Arsenal32/PDF34 and text:tripod-mounted reusable canister with integrated optical scope,central mount and exactly3splayed legs. Actual detail/clay and teal masks retain all3legs,thin brace rods,handles,feet and major support gaps. Tiny foot/control recess differences are nonblocking. Lens/end cavity remains opaque shaded exterior,not an invented transparent bore. Original raw references retained byte-for-byte;foreground RGB unchanged. Exact colors/unseen depth remain disclosed artistic interpretation. Native1254x1254,2048conditioning resampled. Single final pair review;no geometry/native/client/production acceptance."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "f558f0d138eaf6fa983b082f57e70fe26eb77df9ada8c5f97cf78930f49f61a4",
+      "detailSha256": "a00e367e263c80eb7a3596e7204c5d795dd639fb3f06b54323ee17457aabc0ef",
+      "geometrySha256": "3e80a164891f83881cb6c48b462e244bfcd95e1e29f7f807f3b05b440d8d6280",
+      "foregroundMaskSha256": "aefc2b660760dc065e73c381a238d27ddfec9f10daf0aa7e659c5ef248ea7de6",
+      "geometryForegroundMaskSha256": "c8f2b062a459b83559af799de6da9c708d7b0161635bbf7edf792dd5d2d142a0",
+      "landmarks": [
+        {
+          "name": "front-upper",
+          "detail": [
+            0.1076551559925865,
+            0.2534699135638298
+          ],
+          "geometry": [
+            0.1076551559925865,
+            0.25198702582586785
+          ]
+        },
+        {
+          "name": "scope-front",
+          "detail": [
+            0.26711478068369027,
+            0.2008273988661814
+          ],
+          "geometry": [
+            0.26711478068369027,
+            0.20008595499720044
+          ]
+        },
+        {
+          "name": "rear-top",
+          "detail": [
+            0.8864114626235585,
+            0.249021250349944
+          ],
+          "geometry": [
+            0.8864114626235585,
+            0.24827980648096304
+          ]
+        },
+        {
+          "name": "right-foot",
+          "detail": [
+            0.8307860121499177,
+            0.8243816926791714
+          ],
+          "geometry": [
+            0.8307860121499177,
+            0.8243816926791714
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own GREAT DRAGON ATGM LAUNCHER labeled art Arsenal32/PDF34 and text:tripod-mounted reusable canister with integrated optical scope,central mount and exactly3splayed legs. Actual detail/clay and teal masks retain all3legs,thin brace rods,handles,feet and major support gaps. Tiny foot/control recess differences are nonblocking. Lens/end cavity remains opaque shaded exterior,not an invented transparent bore. Original raw references retained byte-for-byte;foreground RGB unchanged. Exact colors/unseen depth remain disclosed artistic interpretation. Native1254x1254,2048conditioning resampled. Single final pair review;no geometry/native/client/production acceptance."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

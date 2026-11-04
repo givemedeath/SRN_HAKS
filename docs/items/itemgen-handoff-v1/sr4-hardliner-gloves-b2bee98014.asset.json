@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hardliner-gloves-b2bee98014",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-middle-tip",
+      "pixel": [
+        364.0,
+        154.0
+      ]
+    },
+    {
+      "name": "left-little-tip",
+      "pixel": [
+        112.0,
+        274.0
+      ]
+    },
+    {
+      "name": "left-thumb-tip",
+      "pixel": [
+        621.0,
+        461.00000000000006
+      ]
+    },
+    {
+      "name": "left-cuff-bottom",
+      "pixel": [
+        230.0,
+        1077.0
+      ]
+    },
+    {
+      "name": "right-middle-tip",
+      "pixel": [
+        906.0000000000001,
+        154.0
+      ]
+    },
+    {
+      "name": "right-thumb-tip",
+      "pixel": [
+        1211.0,
+        419.00000000000006
+      ]
+    },
+    {
+      "name": "right-cuff-bottom",
+      "pixel": [
+        965.0,
+        1079.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hardliner-gloves-b2bee98014.family.json",
+    "sha256": "fe4d1e6e7b25fc93857c4c9a08aaf44fcfd6e7fc7770af973327ba2fe55f7530"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/1f89d8c09973d6f0fc7d4798fb55a1f870973e6f597252f27439afa951a5272f.png",
+      "sha256": "1f89d8c09973d6f0fc7d4798fb55a1f870973e6f597252f27439afa951a5272f"
+    },
+    "clayReference": {
+      "path": "inputs/38ecdeabc25a2351d5c46f702e264ae7c64d161fe8099a7f66aee7432434bd79.png",
+      "sha256": "38ecdeabc25a2351d5c46f702e264ae7c64d161fe8099a7f66aee7432434bd79"
+    },
+    "geometry": {
+      "path": "inputs/386bf214ccf1a4f46ec2ef5a1a0094a31db086c232d6dccdbee715519500e141.png",
+      "sha256": "386bf214ccf1a4f46ec2ef5a1a0094a31db086c232d6dccdbee715519500e141"
+    },
+    "detail": {
+      "path": "inputs/3cca93932fa4c33327f9c3b12ef8c70921e8a47714bd3e992f9625fa4ce3d628.png",
+      "sha256": "3cca93932fa4c33327f9c3b12ef8c70921e8a47714bd3e992f9625fa4ce3d628"
+    },
+    "foregroundMask": {
+      "path": "inputs/eaceca5164832f1aec953c59d2a33e945c2ab4a851a2b07990b1062bd2e68c33.png",
+      "sha256": "eaceca5164832f1aec953c59d2a33e945c2ab4a851a2b07990b1062bd2e68c33"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/43be44676c0270d5ce6b855a6fda860849dfee604ebe6ab672c53dc4bb8c75c2.png",
+      "sha256": "43be44676c0270d5ce6b855a6fda860849dfee604ebe6ab672c53dc4bb8c75c2"
+    },
+    "mask": {
+      "path": "inputs/43be44676c0270d5ce6b855a6fda860849dfee604ebe6ab672c53dc4bb8c75c2.png",
+      "sha256": "43be44676c0270d5ce6b855a6fda860849dfee604ebe6ab672c53dc4bb8c75c2"
+    },
+    "calibrationReference": {
+      "path": "inputs/d8fbf510b1fdb278537b8d0ff896d1c73636bfc91711b37268d3b1f771ce49ca.png",
+      "sha256": "d8fbf510b1fdb278537b8d0ff896d1c73636bfc91711b37268d3b1f771ce49ca"
+    },
+    "sourceAudit": {
+      "path": "inputs/f806c74ae2f7b10d88cefca5a93b764cfeb059e58aa0527bd3102500aa726f87.json",
+      "sha256": "f806c74ae2f7b10d88cefca5a93b764cfeb059e58aa0527bd3102500aa726f87"
+    },
+    "referenceApproval": {
+      "path": "inputs/20c9da99b18eaf304931f72674812912cc2d565a3228d083b11e2d470bce21a2.json",
+      "sha256": "20c9da99b18eaf304931f72674812912cc2d565a3228d083b11e2d470bce21a2"
+    },
+    "calibrationDetail": {
+      "path": "inputs/5b9271f1e72e9f2934c3c14f71ede37fee7c63a455afd105c6d54185e5e1e17c.png",
+      "sha256": "5b9271f1e72e9f2934c3c14f71ede37fee7c63a455afd105c6d54185e5e1e17c"
+    }
+  },
+  "features": [
+    {
+      "name": "Leather gloves.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Thin densiplast reinforcement is contained at knuckles and hand ridges; do not invent exposed mechanism or large spikes.",
+      "placementReviewed": true
+    },
+    {
+      "name": "The actual two empty leather gloves fit the primary printed39/PDF41 description: covered, restrained knuckle/back-of-hand reinforcement, no exposed brass knuckles, spikes or body parts. One dorsal and one palm view are an explicit inventory-pair presentation, not wearability or anatomical hand-fit approval. Charcoal leather, visible stitch layout, finger pads and cuff treatment are artistic. Both full glove silhouettes, separated fingers, thumbs and cuff mouths are present. No individually labeled model art exists on this reviewed page; neighboring drawings were not copied. Actual matching clay has smooth surfaces with fine stitches, grain, cuts, panel recesses, fasteners and texture removed; major glove pad/cuff boundaries or garrote handle/strand construction retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. Both glove objects/cuff mouths or complete fine garrote strand/four openings retained. No clipped tip, missing member, detached artifact, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1f89d8c09973d6f0fc7d4798fb55a1f870973e6f597252f27439afa951a5272f",
+      "imageSha256": "3cca93932fa4c33327f9c3b12ef8c70921e8a47714bd3e992f9625fa4ce3d628",
+      "maskSha256": "eaceca5164832f1aec953c59d2a33e945c2ab4a851a2b07990b1062bd2e68c33",
+      "notes": "The actual two empty leather gloves fit the primary printed39/PDF41 description: covered, restrained knuckle/back-of-hand reinforcement, no exposed brass knuckles, spikes or body parts. One dorsal and one palm view are an explicit inventory-pair presentation, not wearability or anatomical hand-fit approval. Charcoal leather, visible stitch layout, finger pads and cuff treatment are artistic. Both full glove silhouettes, separated fingers, thumbs and cuff mouths are present. No individually labeled model art exists on this reviewed page; neighboring drawings were not copied. Actual matching clay has smooth surfaces with fine stitches, grain, cuts, panel recesses, fasteners and texture removed; major glove pad/cuff boundaries or garrote handle/strand construction retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. Both glove objects/cuff mouths or complete fine garrote strand/four openings retained. No clipped tip, missing member, detached artifact, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "38ecdeabc25a2351d5c46f702e264ae7c64d161fe8099a7f66aee7432434bd79",
+      "imageSha256": "386bf214ccf1a4f46ec2ef5a1a0094a31db086c232d6dccdbee715519500e141",
+      "maskSha256": "43be44676c0270d5ce6b855a6fda860849dfee604ebe6ab672c53dc4bb8c75c2",
+      "notes": "The actual two empty leather gloves fit the primary printed39/PDF41 description: covered, restrained knuckle/back-of-hand reinforcement, no exposed brass knuckles, spikes or body parts. One dorsal and one palm view are an explicit inventory-pair presentation, not wearability or anatomical hand-fit approval. Charcoal leather, visible stitch layout, finger pads and cuff treatment are artistic. Both full glove silhouettes, separated fingers, thumbs and cuff mouths are present. No individually labeled model art exists on this reviewed page; neighboring drawings were not copied. Actual matching clay has smooth surfaces with fine stitches, grain, cuts, panel recesses, fasteners and texture removed; major glove pad/cuff boundaries or garrote handle/strand construction retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. Both glove objects/cuff mouths or complete fine garrote strand/four openings retained. No clipped tip, missing member, detached artifact, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "The actual two empty leather gloves fit the primary printed39/PDF41 description: covered, restrained knuckle/back-of-hand reinforcement, no exposed brass knuckles, spikes or body parts. One dorsal and one palm view are an explicit inventory-pair presentation, not wearability or anatomical hand-fit approval. Charcoal leather, visible stitch layout, finger pads and cuff treatment are artistic. Both full glove silhouettes, separated fingers, thumbs and cuff mouths are present. No individually labeled model art exists on this reviewed page; neighboring drawings were not copied. Actual matching clay has smooth surfaces with fine stitches, grain, cuts, panel recesses, fasteners and texture removed; major glove pad/cuff boundaries or garrote handle/strand construction retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. Both glove objects/cuff mouths or complete fine garrote strand/four openings retained. No clipped tip, missing member, detached artifact, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "left-middle-tip",
+          "detail": [
+            0.29903999766209477,
+            0.15237567406886388
+          ],
+          "geometry": [
+            0.29903999766209477,
+            0.15237567406886388
+          ]
+        },
+        {
+          "name": "left-little-tip",
+          "detail": [
+            0.11042949267456359,
+            0.2421817432006967
+          ],
+          "geometry": [
+            0.11042949267456359,
+            0.2421817432006967
+          ]
+        },
+        {
+          "name": "left-thumb-tip",
+          "detail": [
+            0.4913927745739817,
+            0.3821295342644695
+          ],
+          "geometry": [
+            0.4913927745739817,
+            0.3821295342644695
+          ]
+        },
+        {
+          "name": "left-cuff-bottom",
+          "detail": [
+            0.19874711008935994,
+            0.8431340224745445
+          ],
+          "geometry": [
+            0.19874711008935994,
+            0.8431340224745445
+          ]
+        },
+        {
+          "name": "right-middle-tip",
+          "detail": [
+            0.7047022742622611,
+            0.15237567406886388
+          ],
+          "geometry": [
+            0.7047022742622611,
+            0.15237567406886388
+          ]
+        },
+        {
+          "name": "right-thumb-tip",
+          "detail": [
+            0.9329808616479635,
+            0.350697410068328
+          ],
+          "geometry": [
+            0.9329808616479635,
+            0.350697410068328
+          ]
+        },
+        {
+          "name": "right-cuff-bottom",
+          "detail": [
+            0.7488610829696591,
+            0.8446307902934084
+          ],
+          "geometry": [
+            0.7488610829696591,
+            0.8446307902934084
+          ]
+        }
+      ],
+      "referenceSha256": "1f89d8c09973d6f0fc7d4798fb55a1f870973e6f597252f27439afa951a5272f",
+      "geometrySha256": "386bf214ccf1a4f46ec2ef5a1a0094a31db086c232d6dccdbee715519500e141",
+      "detailSha256": "3cca93932fa4c33327f9c3b12ef8c70921e8a47714bd3e992f9625fa4ce3d628",
+      "foregroundMaskSha256": "eaceca5164832f1aec953c59d2a33e945c2ab4a851a2b07990b1062bd2e68c33",
+      "geometryForegroundMaskSha256": "43be44676c0270d5ce6b855a6fda860849dfee604ebe6ab672c53dc4bb8c75c2"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

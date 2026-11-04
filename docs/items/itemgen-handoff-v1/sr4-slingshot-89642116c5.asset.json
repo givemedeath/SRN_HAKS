@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-slingshot-89642116c5",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "top-band",
+      "pixel": [
+        570.0,
+        43.99999999999999
+      ]
+    },
+    {
+      "name": "left-upper",
+      "pixel": [
+        60.0,
+        133.0
+      ]
+    },
+    {
+      "name": "pouch-right",
+      "pixel": [
+        1328.0,
+        370.00000000000006
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        320.0,
+        1045.0
+      ]
+    },
+    {
+      "name": "brace-base",
+      "pixel": [
+        1215.0,
+        1033.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-slingshot-89642116c5.family.json",
+    "sha256": "bc876a3f1c02af67af2da9a1504850fd2dbac6191771ccca621434324925c958"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/37b8c0e204f972c32e46515e0a84143d0e6245d2c278339cc66437e7c6a07df8.png",
+      "sha256": "37b8c0e204f972c32e46515e0a84143d0e6245d2c278339cc66437e7c6a07df8"
+    },
+    "clayReference": {
+      "path": "inputs/e49c8ea3e9d7e1e6333757e50934d556a7579d94f5eda6b6db1ca57a10506b82.png",
+      "sha256": "e49c8ea3e9d7e1e6333757e50934d556a7579d94f5eda6b6db1ca57a10506b82"
+    },
+    "geometry": {
+      "path": "inputs/0ce9bd54808ec5a8037a58bf4fee34cad63eeb3f36eb735047bc6b0f209df550.png",
+      "sha256": "0ce9bd54808ec5a8037a58bf4fee34cad63eeb3f36eb735047bc6b0f209df550"
+    },
+    "detail": {
+      "path": "inputs/86cae4f523a61e8b02d961d48c30c0f05e84732529f69d20ea524ddf7530055f.png",
+      "sha256": "86cae4f523a61e8b02d961d48c30c0f05e84732529f69d20ea524ddf7530055f"
+    },
+    "foregroundMask": {
+      "path": "inputs/344dc41f86d7e92d76b69fa2fe38146cb9651d4866a7c7565569d906fe3ad1dd.png",
+      "sha256": "344dc41f86d7e92d76b69fa2fe38146cb9651d4866a7c7565569d906fe3ad1dd"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/640fde3caa2d3af61daccfef6a101219505f0388e943124fca27cbbcfb7cc58f.png",
+      "sha256": "640fde3caa2d3af61daccfef6a101219505f0388e943124fca27cbbcfb7cc58f"
+    },
+    "mask": {
+      "path": "inputs/640fde3caa2d3af61daccfef6a101219505f0388e943124fca27cbbcfb7cc58f.png",
+      "sha256": "640fde3caa2d3af61daccfef6a101219505f0388e943124fca27cbbcfb7cc58f"
+    },
+    "calibrationReference": {
+      "path": "inputs/6a1cfbf4966f5a856a7c6fe638b7cb11c440a2c23100acbedf5ade4e16a7d230.png",
+      "sha256": "6a1cfbf4966f5a856a7c6fe638b7cb11c440a2c23100acbedf5ade4e16a7d230"
+    },
+    "sourceAudit": {
+      "path": "inputs/c96385412f51ff0535fcdb9aabc4182605e104c39a88a158bab770b7e682f6e4.json",
+      "sha256": "c96385412f51ff0535fcdb9aabc4182605e104c39a88a158bab770b7e682f6e4"
+    },
+    "referenceApproval": {
+      "path": "inputs/02adc32658564a567158b4c6e6a566b614884965b7d5a2bd06de57244620472d.json",
+      "sha256": "02adc32658564a567158b4c6e6a566b614884965b7d5a2bd06de57244620472d"
+    },
+    "calibrationDetail": {
+      "path": "inputs/19ab6cceb5d6d3ca1c12ab125bdb1d3970ff6c52dffc35e874bd320eb94e8f56.png",
+      "sha256": "19ab6cceb5d6d3ca1c12ab125bdb1d3970ff6c52dffc35e874bd320eb94e8f56"
+    }
+  },
+  "features": [
+    {
+      "name": "Modern slingshot with wrist brace supporting its frame/handle",
+      "placementReviewed": true
+    },
+    {
+      "name": "Elastic projectile-launching members and source-shown framework/large voids retained",
+      "placementReviewed": true
+    },
+    {
+      "name": "Hard balls, soft capsules and RFID chips are source-supported ammunition choices; no single ammunition type is mandatory exterior geometry",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact assigned pair approval reused. Viewed original and teal foreground previews: both bands, frame, pouch, grip and brace retained; enclosed band gap remains open and no visible structure is lost. Native 1426x1103 resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        242,
+        344,
+        1761,
+        742
+      ],
+      "referenceAreaPixels": 37989,
+      "referenceMaskSha256": "640fde3caa2d3af61daccfef6a101219505f0388e943124fca27cbbcfb7cc58f",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "37b8c0e204f972c32e46515e0a84143d0e6245d2c278339cc66437e7c6a07df8",
+      "imageSha256": "86cae4f523a61e8b02d961d48c30c0f05e84732529f69d20ea524ddf7530055f",
+      "maskSha256": "344dc41f86d7e92d76b69fa2fe38146cb9651d4866a7c7565569d906fe3ad1dd",
+      "notes": "Exact assigned pair approval reused. Viewed original and teal foreground previews: both bands, frame, pouch, grip and brace retained; enclosed band gap remains open and no visible structure is lost. Native 1426x1103 resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e49c8ea3e9d7e1e6333757e50934d556a7579d94f5eda6b6db1ca57a10506b82",
+      "imageSha256": "0ce9bd54808ec5a8037a58bf4fee34cad63eeb3f36eb735047bc6b0f209df550",
+      "maskSha256": "640fde3caa2d3af61daccfef6a101219505f0388e943124fca27cbbcfb7cc58f",
+      "notes": "Exact assigned pair approval reused. Viewed original and teal foreground previews: both bands, frame, pouch, grip and brace retained; enclosed band gap remains open and no visible structure is lost. Native 1426x1103 resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact assigned pair approval reused. Viewed original and teal foreground previews: both bands, frame, pouch, grip and brace retained; enclosed band gap remains open and no visible structure is lost. Native 1426x1103 resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "top-band",
+          "detail": [
+            0.4116571207810047,
+            0.1430153630424063
+          ],
+          "geometry": [
+            0.4116571207810047,
+            0.1430153630424063
+          ]
+        },
+        {
+          "name": "left-upper",
+          "detail": [
+            0.051218173567503925,
+            0.20592948717948717
+          ],
+          "geometry": [
+            0.051218173567503925,
+            0.20592948717948717
+          ]
+        },
+        {
+          "name": "pouch-right",
+          "detail": [
+            0.9473683403649922,
+            0.37346485145463515
+          ],
+          "geometry": [
+            0.9473683403649922,
+            0.37346485145463515
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.23497136234301413,
+            0.8506225345167653
+          ],
+          "geometry": [
+            0.23497136234301413,
+            0.8506225345167653
+          ]
+        },
+        {
+          "name": "brace-base",
+          "detail": [
+            0.8675063775510204,
+            0.8421397312623274
+          ],
+          "geometry": [
+            0.8675063775510204,
+            0.8421397312623274
+          ]
+        }
+      ],
+      "referenceSha256": "37b8c0e204f972c32e46515e0a84143d0e6245d2c278339cc66437e7c6a07df8",
+      "geometrySha256": "0ce9bd54808ec5a8037a58bf4fee34cad63eeb3f36eb735047bc6b0f209df550",
+      "detailSha256": "86cae4f523a61e8b02d961d48c30c0f05e84732529f69d20ea524ddf7530055f",
+      "foregroundMaskSha256": "344dc41f86d7e92d76b69fa2fe38146cb9651d4866a7c7565569d906fe3ad1dd",
+      "geometryForegroundMaskSha256": "640fde3caa2d3af61daccfef6a101219505f0388e943124fca27cbbcfb7cc58f"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

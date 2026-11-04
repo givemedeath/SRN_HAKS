@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-morrissey-elan-924f0b7c19",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-upper",
+      "pixel": [
+        144.0,
+        264.0
+      ]
+    },
+    {
+      "name": "rear-sight-upper",
+      "pixel": [
+        915.0,
+        277.0
+      ]
+    },
+    {
+      "name": "forward-frame-bottom",
+      "pixel": [
+        207.0,
+        746.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        448.99999999999994,
+        681.0000000000001
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        884.0000000000002,
+        1020.0
+      ]
+    },
+    {
+      "name": "grip-rear",
+      "pixel": [
+        1186.0,
+        899.9999999999999
+      ]
+    },
+    {
+      "name": "trigger-tip",
+      "pixel": [
+        493.0,
+        646.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-morrissey-elan-924f0b7c19.family.json",
+    "sha256": "50c72f1fe2d27e07a11ea50b3e50aa720c16cd3710be24af96c49af42a9ac29a"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/303a959f151ab65b73d4635ada552657271fd9f85b34ded9fd37e687fdda8f82.png",
+      "sha256": "303a959f151ab65b73d4635ada552657271fd9f85b34ded9fd37e687fdda8f82"
+    },
+    "clayReference": {
+      "path": "inputs/d386301a277c0488427d7487833873de223f39b9ea6a1f42a5feaf5f8ff18808.png",
+      "sha256": "d386301a277c0488427d7487833873de223f39b9ea6a1f42a5feaf5f8ff18808"
+    },
+    "geometry": {
+      "path": "inputs/e05fcff54e5ed96f92cec13aad601567c11c91205dc4ac6b8bc987b58daefeb4.png",
+      "sha256": "e05fcff54e5ed96f92cec13aad601567c11c91205dc4ac6b8bc987b58daefeb4"
+    },
+    "detail": {
+      "path": "inputs/db37bebcfbee46d09231206bca385e3b47e008d2d012ed65ac58e8b04d32428e.png",
+      "sha256": "db37bebcfbee46d09231206bca385e3b47e008d2d012ed65ac58e8b04d32428e"
+    },
+    "foregroundMask": {
+      "path": "inputs/cca3f7dea981ce01d5ccdca086501323b7481fc3077eb247689796161f21d3b0.png",
+      "sha256": "cca3f7dea981ce01d5ccdca086501323b7481fc3077eb247689796161f21d3b0"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/f73fa80be9505e45eb5dc62b3c357ad8fe5fdf0f20488e81ad3f964f6e49f305.png",
+      "sha256": "f73fa80be9505e45eb5dc62b3c357ad8fe5fdf0f20488e81ad3f964f6e49f305"
+    },
+    "mask": {
+      "path": "inputs/f73fa80be9505e45eb5dc62b3c357ad8fe5fdf0f20488e81ad3f964f6e49f305.png",
+      "sha256": "f73fa80be9505e45eb5dc62b3c357ad8fe5fdf0f20488e81ad3f964f6e49f305"
+    },
+    "calibrationReference": {
+      "path": "inputs/d20bc62822ec38c5d4d7e93b75d9e9abe151a854677ecc6a5f1ea59eb62fdb8a.png",
+      "sha256": "d20bc62822ec38c5d4d7e93b75d9e9abe151a854677ecc6a5f1ea59eb62fdb8a"
+    },
+    "sourceAudit": {
+      "path": "inputs/79ce3342baa4ae6b26d6851be1067f405f5f8f3eae09de25ad5e7b6c09e8f056.json",
+      "sha256": "79ce3342baa4ae6b26d6851be1067f405f5f8f3eae09de25ad5e7b6c09e8f056"
+    },
+    "referenceApproval": {
+      "path": "inputs/08924b3b40e8a8b35e711937faeacb1ab5dac36afd3690a4388019f5f2daaa7c.json",
+      "sha256": "08924b3b40e8a8b35e711937faeacb1ab5dac36afd3690a4388019f5f2daaa7c"
+    },
+    "calibrationDetail": {
+      "path": "inputs/b1fa4274bc70c3c337680241a27f21bfa9668d0308c3b0995586429cca2b9830.png",
+      "sha256": "b1fa4274bc70c3c337680241a27f21bfa9668d0308c3b0995586429cca2b9830"
+    }
+  },
+  "features": [
+    {
+      "name": "Entirely polyresin, styled as an extension of the user’s hand; cannot fire flechette ammunition.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own ELAN illustration printed20/PDF22: short compact upper, curved/raked rear grip and trigger opening; preserve the distinctive contour.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own ELAN compact block upper, sloping forward/lower frame, raked rear grip and rounded guard/trigger opening are retained. Entire matte charcoal exterior reads as the declared polyresin interpretation, without chrome or added accessories. Fine grain, small screw-style marks and color are appearance choices, not new canon. Whole object remains visible. Actual matching clay has smooth polyresin grip and housing with stippling, shallow slide cuts, small screw slots/dimples and fine marks filled. Broad upper/lower housing seam, front frame recess, grip-panel boundary and two raised controls are major structural forms retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Both genuine guard/trigger background regions and complete curved trigger preserved. Front frame structural recess remains opaque foreground. No clipped outline, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        579,
+        802,
+        874,
+        1039
+      ],
+      "referenceAreaPixels": 58650,
+      "referenceMaskSha256": "f73fa80be9505e45eb5dc62b3c357ad8fe5fdf0f20488e81ad3f964f6e49f305",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        919,
+        886,
+        992,
+        1021
+      ],
+      "referenceAreaPixels": 2043,
+      "referenceMaskSha256": "f73fa80be9505e45eb5dc62b3c357ad8fe5fdf0f20488e81ad3f964f6e49f305",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "303a959f151ab65b73d4635ada552657271fd9f85b34ded9fd37e687fdda8f82",
+      "imageSha256": "db37bebcfbee46d09231206bca385e3b47e008d2d012ed65ac58e8b04d32428e",
+      "maskSha256": "cca3f7dea981ce01d5ccdca086501323b7481fc3077eb247689796161f21d3b0",
+      "notes": "Own ELAN compact block upper, sloping forward/lower frame, raked rear grip and rounded guard/trigger opening are retained. Entire matte charcoal exterior reads as the declared polyresin interpretation, without chrome or added accessories. Fine grain, small screw-style marks and color are appearance choices, not new canon. Whole object remains visible. Actual matching clay has smooth polyresin grip and housing with stippling, shallow slide cuts, small screw slots/dimples and fine marks filled. Broad upper/lower housing seam, front frame recess, grip-panel boundary and two raised controls are major structural forms retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Both genuine guard/trigger background regions and complete curved trigger preserved. Front frame structural recess remains opaque foreground. No clipped outline, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d386301a277c0488427d7487833873de223f39b9ea6a1f42a5feaf5f8ff18808",
+      "imageSha256": "e05fcff54e5ed96f92cec13aad601567c11c91205dc4ac6b8bc987b58daefeb4",
+      "maskSha256": "f73fa80be9505e45eb5dc62b3c357ad8fe5fdf0f20488e81ad3f964f6e49f305",
+      "notes": "Own ELAN compact block upper, sloping forward/lower frame, raked rear grip and rounded guard/trigger opening are retained. Entire matte charcoal exterior reads as the declared polyresin interpretation, without chrome or added accessories. Fine grain, small screw-style marks and color are appearance choices, not new canon. Whole object remains visible. Actual matching clay has smooth polyresin grip and housing with stippling, shallow slide cuts, small screw slots/dimples and fine marks filled. Broad upper/lower housing seam, front frame recess, grip-panel boundary and two raised controls are major structural forms retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Both genuine guard/trigger background regions and complete curved trigger preserved. Front frame structural recess remains opaque foreground. No clipped outline, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Own ELAN compact block upper, sloping forward/lower frame, raked rear grip and rounded guard/trigger opening are retained. Entire matte charcoal exterior reads as the declared polyresin interpretation, without chrome or added accessories. Fine grain, small screw-style marks and color are appearance choices, not new canon. Whole object remains visible. Actual matching clay has smooth polyresin grip and housing with stippling, shallow slide cuts, small screw slots/dimples and fine marks filled. Broad upper/lower housing seam, front frame recess, grip-panel boundary and two raised controls are major structural forms retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Both genuine guard/trigger background regions and complete curved trigger preserved. Front frame structural recess remains opaque foreground. No clipped outline, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "front-upper",
+          "detail": [
+            0.1218676135114336,
+            0.19915364583333334
+          ],
+          "geometry": [
+            0.1218676135114336,
+            0.19915364583333334
+          ]
+        },
+        {
+          "name": "rear-sight-upper",
+          "detail": [
+            0.7324227338940194,
+            0.20945095486111112
+          ],
+          "geometry": [
+            0.7324227338940194,
+            0.20945095486111112
+          ]
+        },
+        {
+          "name": "forward-frame-bottom",
+          "detail": [
+            0.17175733151934916,
+            0.5809461805555556
+          ],
+          "geometry": [
+            0.17175733151934916,
+            0.5809461805555556
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.3633972006926121,
+            0.5294596354166667
+          ],
+          "geometry": [
+            0.3633972006926121,
+            0.5294596354166667
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.7078738250329817,
+            0.7979817708333333
+          ],
+          "geometry": [
+            0.7078738250329817,
+            0.7979817708333333
+          ]
+        },
+        {
+          "name": "grip-rear",
+          "detail": [
+            0.9470277113566403,
+            0.7029296875
+          ],
+          "geometry": [
+            0.9470277113566403,
+            0.7029296875
+          ]
+        },
+        {
+          "name": "trigger-tip",
+          "detail": [
+            0.39824081326956906,
+            0.5017361111111112
+          ],
+          "geometry": [
+            0.39824081326956906,
+            0.5017361111111112
+          ]
+        }
+      ],
+      "referenceSha256": "303a959f151ab65b73d4635ada552657271fd9f85b34ded9fd37e687fdda8f82",
+      "geometrySha256": "e05fcff54e5ed96f92cec13aad601567c11c91205dc4ac6b8bc987b58daefeb4",
+      "detailSha256": "db37bebcfbee46d09231206bca385e3b47e008d2d012ed65ac58e8b04d32428e",
+      "foregroundMaskSha256": "cca3f7dea981ce01d5ccdca086501323b7481fc3077eb247689796161f21d3b0",
+      "geometryForegroundMaskSha256": "f73fa80be9505e45eb5dc62b3c357ad8fe5fdf0f20488e81ad3f964f6e49f305"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

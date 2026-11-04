@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-cavalier-deputy-738a980837",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-sight",
+      "pixel": [
+        70.0,
+        313.00000000000006
+      ]
+    },
+    {
+      "name": "grip-heel",
+      "pixel": [
+        1130.0,
+        918.0
+      ]
+    },
+    {
+      "name": "muzzle-face",
+      "pixel": [
+        12.000000000000002,
+        400.0
+      ]
+    },
+    {
+      "name": "hammer-top",
+      "pixel": [
+        980.0,
+        308.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-cavalier-deputy-738a980837.family.json",
+    "sha256": "9e1a1efc8499f3bc4a0632bba203e4aceea078006324b79effe0c3cc573ffe0d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/65846976d12e88e98bb200bd98743a7c19a4c58a51b7af77e2f18c2ec07022ae.png",
+      "sha256": "65846976d12e88e98bb200bd98743a7c19a4c58a51b7af77e2f18c2ec07022ae"
+    },
+    "clayReference": {
+      "path": "inputs/f3c230d19bc624175c95aa0f5014c7d4a6170e918f58389d49f12e8d09b8c549.png",
+      "sha256": "f3c230d19bc624175c95aa0f5014c7d4a6170e918f58389d49f12e8d09b8c549"
+    },
+    "geometry": {
+      "path": "inputs/0e5551d8c2a55a687c3727c9865b61dc493e974f9032645a7481f2460659acef.png",
+      "sha256": "0e5551d8c2a55a687c3727c9865b61dc493e974f9032645a7481f2460659acef"
+    },
+    "detail": {
+      "path": "inputs/a650895c4b5300112a50c6b6780960c1676a4782e549729b29a728f7955f6fcb.png",
+      "sha256": "a650895c4b5300112a50c6b6780960c1676a4782e549729b29a728f7955f6fcb"
+    },
+    "foregroundMask": {
+      "path": "inputs/c7f43dd5e2678012fc4da895f000251536fa9d17be1f9d26c2c7c74c3e5f5b99.png",
+      "sha256": "c7f43dd5e2678012fc4da895f000251536fa9d17be1f9d26c2c7c74c3e5f5b99"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c3050df23de9917ed5b12e0c0d449e62ee97e4d3566ec957418e42ccb96a9844.png",
+      "sha256": "c3050df23de9917ed5b12e0c0d449e62ee97e4d3566ec957418e42ccb96a9844"
+    },
+    "mask": {
+      "path": "inputs/c3050df23de9917ed5b12e0c0d449e62ee97e4d3566ec957418e42ccb96a9844.png",
+      "sha256": "c3050df23de9917ed5b12e0c0d449e62ee97e4d3566ec957418e42ccb96a9844"
+    },
+    "calibrationReference": {
+      "path": "inputs/f23cb17d67ddac75c89ee27e5cad96e7fdb2a56cab403ccfa9fbc7c524cff6f3.png",
+      "sha256": "f23cb17d67ddac75c89ee27e5cad96e7fdb2a56cab403ccfa9fbc7c524cff6f3"
+    },
+    "sourceAudit": {
+      "path": "inputs/eadd9416fb3660441e2728c4696374d9c8d321682e2fad66989ebba8ec43834a.json",
+      "sha256": "eadd9416fb3660441e2728c4696374d9c8d321682e2fad66989ebba8ec43834a"
+    },
+    "referenceApproval": {
+      "path": "inputs/81c9049c9696861b22261fcb4d9c23efdf2dbabe34b7c305397a3c6295847107.json",
+      "sha256": "81c9049c9696861b22261fcb4d9c23efdf2dbabe34b7c305397a3c6295847107"
+    },
+    "calibrationDetail": {
+      "path": "inputs/03883fcd4027e04f7a6bd8eba33221e9fed7d01ba7b196f67d05e583363c6327.png",
+      "sha256": "03883fcd4027e04f7a6bd8eba33221e9fed7d01ba7b196f67d05e583363c6327"
+    }
+  },
+  "features": [
+    {
+      "name": "Revolver with WildWest styling.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Follow labeled DEPUTY barrel/cylinder, rear hammer spur, grip and open trigger-guard outline rather than a modern autopistol.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reference reviewer inspected original detail/new clay, native mattes, final2048 detail and clay teal previews, clay mask and paired overlay using retained accepted primary-source facts. Deputy long barrel/thin under-barrel member, sights, rear hammer, gross revolver cylinder/flutes, frame boundaries, curved grip, raised side control and complete trigger/guard clearance retained. Tiny screw-face slots, small cylinder notches and rod-end checkering filled in bounded interior masks; large cylinder flutes are major modeled recesses and remain. Derived working clay is explicitly bound; raw generated clay preserved; outside-patch changed pixels0 and alpha unchanged. Independent alpha masks retain true thin members and one connected guard opening; only explicitly identified one-pixel guard-edge AA fringe labels discarded, no subject parts. No mask transfer/shape warp. Common uniform crop and resampling, native1254square RGB opaque→2048 honestly declared. Reference-only approval; no geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1212,
+        1012,
+        1445,
+        1176
+      ],
+      "referenceAreaPixels": 26244,
+      "referenceMaskSha256": "c3050df23de9917ed5b12e0c0d449e62ee97e4d3566ec957418e42ccb96a9844",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "65846976d12e88e98bb200bd98743a7c19a4c58a51b7af77e2f18c2ec07022ae",
+      "imageSha256": "a650895c4b5300112a50c6b6780960c1676a4782e549729b29a728f7955f6fcb",
+      "maskSha256": "c7f43dd5e2678012fc4da895f000251536fa9d17be1f9d26c2c7c74c3e5f5b99",
+      "notes": "Assigned sole final reference reviewer inspected original detail/new clay, native mattes, final2048 detail and clay teal previews, clay mask and paired overlay using retained accepted primary-source facts. Deputy long barrel/thin under-barrel member, sights, rear hammer, gross revolver cylinder/flutes, frame boundaries, curved grip, raised side control and complete trigger/guard clearance retained. Tiny screw-face slots, small cylinder notches and rod-end checkering filled in bounded interior masks; large cylinder flutes are major modeled recesses and remain. Derived working clay is explicitly bound; raw generated clay preserved; outside-patch changed pixels0 and alpha unchanged. Independent alpha masks retain true thin members and one connected guard opening; only explicitly identified one-pixel guard-edge AA fringe labels discarded, no subject parts. No mask transfer/shape warp. Common uniform crop and resampling, native1254square RGB opaque→2048 honestly declared. Reference-only approval; no geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f3c230d19bc624175c95aa0f5014c7d4a6170e918f58389d49f12e8d09b8c549",
+      "imageSha256": "0e5551d8c2a55a687c3727c9865b61dc493e974f9032645a7481f2460659acef",
+      "maskSha256": "c3050df23de9917ed5b12e0c0d449e62ee97e4d3566ec957418e42ccb96a9844",
+      "notes": "Assigned sole final reference reviewer inspected original detail/new clay, native mattes, final2048 detail and clay teal previews, clay mask and paired overlay using retained accepted primary-source facts. Deputy long barrel/thin under-barrel member, sights, rear hammer, gross revolver cylinder/flutes, frame boundaries, curved grip, raised side control and complete trigger/guard clearance retained. Tiny screw-face slots, small cylinder notches and rod-end checkering filled in bounded interior masks; large cylinder flutes are major modeled recesses and remain. Derived working clay is explicitly bound; raw generated clay preserved; outside-patch changed pixels0 and alpha unchanged. Independent alpha masks retain true thin members and one connected guard opening; only explicitly identified one-pixel guard-edge AA fringe labels discarded, no subject parts. No mask transfer/shape warp. Common uniform crop and resampling, native1254square RGB opaque→2048 honestly declared. Reference-only approval; no geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reference reviewer inspected original detail/new clay, native mattes, final2048 detail and clay teal previews, clay mask and paired overlay using retained accepted primary-source facts. Deputy long barrel/thin under-barrel member, sights, rear hammer, gross revolver cylinder/flutes, frame boundaries, curved grip, raised side control and complete trigger/guard clearance retained. Tiny screw-face slots, small cylinder notches and rod-end checkering filled in bounded interior masks; large cylinder flutes are major modeled recesses and remain. Derived working clay is explicitly bound; raw generated clay preserved; outside-patch changed pixels0 and alpha unchanged. Independent alpha masks retain true thin members and one connected guard opening; only explicitly identified one-pixel guard-edge AA fringe labels discarded, no subject parts. No mask transfer/shape warp. Common uniform crop and resampling, native1254square RGB opaque→2048 honestly declared. Reference-only approval; no geometry/native/client/production approval.",
+      "landmarks": [
+        {
+          "name": "front-sight",
+          "detail": [
+            0.09285415822528363,
+            0.2838825067392173
+          ],
+          "geometry": [
+            0.09285415822528363,
+            0.28315320487220447
+          ]
+        },
+        {
+          "name": "grip-heel",
+          "detail": [
+            0.8662853271880064,
+            0.7251101362819489
+          ],
+          "geometry": [
+            0.8662853271880064,
+            0.7251101362819489
+          ]
+        },
+        {
+          "name": "muzzle-face",
+          "detail": [
+            0.05053433954619125,
+            0.34733176916932906
+          ],
+          "geometry": [
+            0.05053433954619125,
+            0.34733176916932906
+          ]
+        },
+        {
+          "name": "hammer-top",
+          "detail": [
+            0.7568375202593193,
+            0.28023599740415334
+          ],
+          "geometry": [
+            0.7568375202593193,
+            0.2795066955371406
+          ]
+        }
+      ],
+      "referenceSha256": "65846976d12e88e98bb200bd98743a7c19a4c58a51b7af77e2f18c2ec07022ae",
+      "geometrySha256": "0e5551d8c2a55a687c3727c9865b61dc493e974f9032645a7481f2460659acef",
+      "detailSha256": "a650895c4b5300112a50c6b6780960c1676a4782e549729b29a728f7955f6fcb",
+      "foregroundMaskSha256": "c7f43dd5e2678012fc4da895f000251536fa9d17be1f9d26c2c7c74c3e5f5b99",
+      "geometryForegroundMaskSha256": "c3050df23de9917ed5b12e0c0d449e62ee97e4d3566ec957418e42ccb96a9844"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

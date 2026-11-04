@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-vibro-blades-sword-421b34c61a",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        39.00000000000001,
+        173.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        2131.0,
+        173.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        39.00000000000001,
+        552.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        2131.0,
+        552.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-vibro-blades-sword-421b34c61a.family.json",
+    "sha256": "4fd94fe7f5d59ab31414fe327666f7863ab11c03dee8dcbfcb85a1a7f97d67f0"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/d717e60240865331fbb072ec73b6b031bccc43e3ff66d68ff4e71676dc0f159d.png",
+      "sha256": "d717e60240865331fbb072ec73b6b031bccc43e3ff66d68ff4e71676dc0f159d"
+    },
+    "clayReference": {
+      "path": "inputs/a99b131cc0515cbab9b105209d50f4a266ddc753b79c1936a4cc743a156fde59.png",
+      "sha256": "a99b131cc0515cbab9b105209d50f4a266ddc753b79c1936a4cc743a156fde59"
+    },
+    "geometry": {
+      "path": "inputs/ee7407902b1fda06574e0405fd9efea7ac1084c79da44f7fe13a9d3e33399b2d.png",
+      "sha256": "ee7407902b1fda06574e0405fd9efea7ac1084c79da44f7fe13a9d3e33399b2d"
+    },
+    "detail": {
+      "path": "inputs/8050d1184093d35c08dde350ea7d8341a2cde102956257b63b4154e56f84476e.png",
+      "sha256": "8050d1184093d35c08dde350ea7d8341a2cde102956257b63b4154e56f84476e"
+    },
+    "foregroundMask": {
+      "path": "inputs/82409a70adb98e0ae3739d2332490c8190031d352c2457e6c820b67f50ec961e.png",
+      "sha256": "82409a70adb98e0ae3739d2332490c8190031d352c2457e6c820b67f50ec961e"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/48eabe25e5e38aceb4c8ad1cc51a17e4ff0b73799c36255546f92cb130e33a22.png",
+      "sha256": "48eabe25e5e38aceb4c8ad1cc51a17e4ff0b73799c36255546f92cb130e33a22"
+    },
+    "mask": {
+      "path": "inputs/48eabe25e5e38aceb4c8ad1cc51a17e4ff0b73799c36255546f92cb130e33a22.png",
+      "sha256": "48eabe25e5e38aceb4c8ad1cc51a17e4ff0b73799c36255546f92cb130e33a22"
+    },
+    "calibrationReference": {
+      "path": "inputs/6d50159c02f7bfd5ab886d0cb28c4568f6b5728d8eda70a48c6d430eae11caaf.png",
+      "sha256": "6d50159c02f7bfd5ab886d0cb28c4568f6b5728d8eda70a48c6d430eae11caaf"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/a605f8454eb468b3de6948928a5895897b5ae6d55fc5f6703579ae0b087e7385.json",
+      "sha256": "a605f8454eb468b3de6948928a5895897b5ae6d55fc5f6703579ae0b087e7385"
+    },
+    "referenceApproval": {
+      "path": "inputs/3fe109b0aa96758604a5e690f7616a073fa6631e22ee09809845300a53dd42af.json",
+      "sha256": "3fe109b0aa96758604a5e690f7616a073fa6631e22ee09809845300a53dd42af"
+    },
+    "calibrationDetail": {
+      "path": "inputs/19e7accc6bc052167413252e5ebc2c8ed51264aeeac4a8ba07ffee77ccbe3102.png",
+      "sha256": "19e7accc6bc052167413252e5ebc2c8ed51264aeeac4a8ba07ffee77ccbe3102"
+    }
+  },
+  "features": [
+    {
+      "name": "Sword-sized variant of the powered vibrating serrated-blade family.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Retain serrations in the detailed appearance reference; tiny serration cuts are smoothed from clay under the current authoring rule.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Battery-powered mechanism with removable/rechargeable battery; source does not specify battery-port or control placement.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Activation can be manual or triggered by gripping the handle; audible operation does not require a visible glow.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual native foregrounds and conditioned overlay reviewed: aligned silhouette, guard and grip; preserved thin members and intentional openings. Shallow grooves accepted. Arsenal printed16/PDF18: powered serrated sword, rechargeable mechanism in grip. Exact outline, controls, colors and finishes are artistic interpretation; no own labeled artwork found.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d717e60240865331fbb072ec73b6b031bccc43e3ff66d68ff4e71676dc0f159d",
+      "imageSha256": "8050d1184093d35c08dde350ea7d8341a2cde102956257b63b4154e56f84476e",
+      "maskSha256": "82409a70adb98e0ae3739d2332490c8190031d352c2457e6c820b67f50ec961e",
+      "notes": "Actual native foregrounds and conditioned overlay reviewed: aligned silhouette, guard and grip; preserved thin members and intentional openings. Shallow grooves accepted. Arsenal printed16/PDF18: powered serrated sword, rechargeable mechanism in grip. Exact outline, controls, colors and finishes are artistic interpretation; no own labeled artwork found."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "a99b131cc0515cbab9b105209d50f4a266ddc753b79c1936a4cc743a156fde59",
+      "imageSha256": "ee7407902b1fda06574e0405fd9efea7ac1084c79da44f7fe13a9d3e33399b2d",
+      "maskSha256": "48eabe25e5e38aceb4c8ad1cc51a17e4ff0b73799c36255546f92cb130e33a22",
+      "notes": "Actual native foregrounds and conditioned overlay reviewed: aligned silhouette, guard and grip; preserved thin members and intentional openings. Shallow grooves accepted. Arsenal printed16/PDF18: powered serrated sword, rechargeable mechanism in grip. Exact outline, controls, colors and finishes are artistic interpretation; no own labeled artwork found."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual native foregrounds and conditioned overlay reviewed: aligned silhouette, guard and grip; preserved thin members and intentional openings. Shallow grooves accepted. Arsenal printed16/PDF18: powered serrated sword, rechargeable mechanism in grip. Exact outline, controls, colors and finishes are artistic interpretation; no own labeled artwork found.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.050234878911849024,
+            0.41845703125
+          ],
+          "geometry": [
+            0.0498046875,
+            0.41845703125
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9501953125,
+            0.41845703125
+          ],
+          "geometry": [
+            0.9501953125,
+            0.41845703125
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.050234878911849024,
+            0.58154296875
+          ],
+          "geometry": [
+            0.0498046875,
+            0.581112662846306
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9501953125,
+            0.58154296875
+          ],
+          "geometry": [
+            0.9501953125,
+            0.581112662846306
+          ]
+        }
+      ],
+      "referenceSha256": "d717e60240865331fbb072ec73b6b031bccc43e3ff66d68ff4e71676dc0f159d",
+      "geometrySha256": "ee7407902b1fda06574e0405fd9efea7ac1084c79da44f7fe13a9d3e33399b2d",
+      "detailSha256": "8050d1184093d35c08dde350ea7d8341a2cde102956257b63b4154e56f84476e",
+      "geometryForegroundMaskSha256": "48eabe25e5e38aceb4c8ad1cc51a17e4ff0b73799c36255546f92cb130e33a22",
+      "foregroundMaskSha256": "82409a70adb98e0ae3739d2332490c8190031d352c2457e6c820b67f50ec961e"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

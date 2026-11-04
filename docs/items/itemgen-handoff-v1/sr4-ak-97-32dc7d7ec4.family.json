@@ -1,0 +1,50 @@
+{
+  "allowedAssemblies": [
+    {
+      "b": "hidden-placeholder",
+      "m": "hidden-placeholder",
+      "t": "sr4-ak-97-32dc7d7ec4"
+    }
+  ],
+  "bakeSize": 4096,
+  "budgets": {
+    "parts": {
+      "b": {
+        "visible": 4,
+        "shadow": 0
+      },
+      "m": {
+        "visible": 4,
+        "shadow": 0
+      },
+      "t": {
+        "visible": 9992,
+        "shadow": 500
+      }
+    },
+    "shadow": 500,
+    "visible": 10000
+  },
+  "family": "firearm-sling",
+  "firearm": {
+    "subtype": "rifle"
+  },
+  "kind": "item-family",
+  "materialRoute": "diffuse",
+  "nativePackaging": "pending-contract",
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr32dc7d7e",
+    "blueprint": "sr32dc7d7e",
+    "hak": "sr32dc7d7eh",
+    "module": "sr32dc7d7em",
+    "displayName": "AK-97"
+  },
+  "runtimeTextureSize": 1024,
+  "schemaVersion": 1,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "signMode": "udf",
+    "targetFaceCount": 200000
+  }
+}

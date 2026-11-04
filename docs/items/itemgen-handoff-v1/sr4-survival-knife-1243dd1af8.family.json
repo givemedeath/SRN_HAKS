@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "dagger",
+  "nativePackaging": "pending-contract",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "targetFaceCount": 200000,
+    "signMode": "udf"
+  },
+  "budgets": {
+    "visible": 5000,
+    "shadow": 500,
+    "parts": {
+      "b": {
+        "meaning": "pommel",
+        "visible": 750,
+        "shadow": 100
+      },
+      "m": {
+        "meaning": "grip",
+        "visible": 1125,
+        "shadow": 100
+      },
+      "t": {
+        "meaning": "blade and guard",
+        "visible": 3125,
+        "shadow": 300
+      }
+    }
+  },
+  "allowedAssemblies": [
+    {
+      "b": "sr4-survival-knife-1243dd1af8",
+      "m": "sr4-survival-knife-1243dd1af8",
+      "t": "sr4-survival-knife-1243dd1af8"
+    }
+  ],
+  "native": {
+    "reviewed": false
+  },
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr1243dd1a",
+    "blueprint": "sr1243dd1a",
+    "hak": "sr1243dd1ah",
+    "module": "sr1243dd1am",
+    "displayName": "Survival Knife"
+  }
+}

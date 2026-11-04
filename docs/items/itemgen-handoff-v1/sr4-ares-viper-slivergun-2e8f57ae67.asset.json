@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-viper-slivergun-2e8f57ae67",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-upper",
+      "pixel": [
+        1179.9999999999998,
+        410.0
+      ]
+    },
+    {
+      "name": "rear-sight",
+      "pixel": [
+        190.0,
+        340.0
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        180.00000000000003,
+        949.9999999999999
+      ]
+    },
+    {
+      "name": "trigger-opening",
+      "pixel": [
+        500.0,
+        610.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-viper-slivergun-2e8f57ae67.family.json",
+    "sha256": "bf86b607b5a00b7173697c2078b4698c1fc509b87ac4ec247115c5ee2410c7eb"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f806f3f9c58a842fab89bc1e91403854c8fdf492b2c1855ba71fa90dae11be5e.png",
+      "sha256": "f806f3f9c58a842fab89bc1e91403854c8fdf492b2c1855ba71fa90dae11be5e"
+    },
+    "clayReference": {
+      "path": "inputs/15cc5adbda620ee8e203f8a1d5433f72de0a206a31ff921acb1d0a2f9c88e014.png",
+      "sha256": "15cc5adbda620ee8e203f8a1d5433f72de0a206a31ff921acb1d0a2f9c88e014"
+    },
+    "geometry": {
+      "path": "inputs/82b5f0b3f2d1aa4d9c55447a454817b54b71ad22049245c35e8626b5ef81d407.png",
+      "sha256": "82b5f0b3f2d1aa4d9c55447a454817b54b71ad22049245c35e8626b5ef81d407"
+    },
+    "detail": {
+      "path": "inputs/f8477c76675e2253b466fbbf1aa2379cb04bc8e212997498a326e2067d756bf5.png",
+      "sha256": "f8477c76675e2253b466fbbf1aa2379cb04bc8e212997498a326e2067d756bf5"
+    },
+    "foregroundMask": {
+      "path": "inputs/b937f67f1acb10d13eca904d17661eb8ed13f9bba8ce9cf142301864fcccaf48.png",
+      "sha256": "b937f67f1acb10d13eca904d17661eb8ed13f9bba8ce9cf142301864fcccaf48"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/97f67dd59dcbaf7f27204f7a328bdfb5a56148369813f0d2cc978a6c97e427a2.png",
+      "sha256": "97f67dd59dcbaf7f27204f7a328bdfb5a56148369813f0d2cc978a6c97e427a2"
+    },
+    "mask": {
+      "path": "inputs/97f67dd59dcbaf7f27204f7a328bdfb5a56148369813f0d2cc978a6c97e427a2.png",
+      "sha256": "97f67dd59dcbaf7f27204f7a328bdfb5a56148369813f0d2cc978a6c97e427a2"
+    },
+    "calibrationReference": {
+      "path": "inputs/052215ada668b565a88e1431cca4aa1bd8f8e941ec63ccb7086d296ccc57d05c.png",
+      "sha256": "052215ada668b565a88e1431cca4aa1bd8f8e941ec63ccb7086d296ccc57d05c"
+    },
+    "sourceAudit": {
+      "path": "inputs/83ea5ba46204cf0857c4b30d372b43af85dc8fa4e07e833f662bc2113f1ef656.json",
+      "sha256": "83ea5ba46204cf0857c4b30d372b43af85dc8fa4e07e833f662bc2113f1ef656"
+    },
+    "referenceApproval": {
+      "path": "inputs/f25b12fdb15f5a40e0cbb2e8ecf6bd7f24675eef47512aafbfe4431758b5d52d.json",
+      "sha256": "f25b12fdb15f5a40e0cbb2e8ecf6bd7f24675eef47512aafbfe4431758b5d52d"
+    },
+    "calibrationDetail": {
+      "path": "inputs/6cb743cf19bcf59d5d61839076e974e2c5b079ee09eea4e3e3d9c2ada609dce2.png",
+      "sha256": "6cb743cf19bcf59d5d61839076e974e2c5b079ee09eea4e3e3d9c2ada609dce2"
+    }
+  },
+  "features": [
+    {
+      "name": "Sleek heavy pistol with built-in sound suppression and flechette metal-sliver ammunition (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the elongated, enclosed rectangular upper body and swept pistol grip visible in the adjacent drawing; suppression is integral, not an invented screw-on cylinder.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: matched framing, clear margins and full trigger/guard, broad slide, grip and major boundaries retained. Independently reviewed detail/clay alpha topology unchanged by conditioning: {\"detail\": {\"components\": 1, \"holes\": 2}, \"clay\": {\"components\": 1, \"holes\": 1}}. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        658,
+        873,
+        929,
+        1047
+      ],
+      "referenceAreaPixels": 31153,
+      "referenceMaskSha256": "97f67dd59dcbaf7f27204f7a328bdfb5a56148369813f0d2cc978a6c97e427a2",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f806f3f9c58a842fab89bc1e91403854c8fdf492b2c1855ba71fa90dae11be5e",
+      "imageSha256": "f8477c76675e2253b466fbbf1aa2379cb04bc8e212997498a326e2067d756bf5",
+      "maskSha256": "b937f67f1acb10d13eca904d17661eb8ed13f9bba8ce9cf142301864fcccaf48",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: matched framing, clear margins and full trigger/guard, broad slide, grip and major boundaries retained. Independently reviewed detail/clay alpha topology unchanged by conditioning: {\"detail\": {\"components\": 1, \"holes\": 2}, \"clay\": {\"components\": 1, \"holes\": 1}}. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "15cc5adbda620ee8e203f8a1d5433f72de0a206a31ff921acb1d0a2f9c88e014",
+      "imageSha256": "82b5f0b3f2d1aa4d9c55447a454817b54b71ad22049245c35e8626b5ef81d407",
+      "maskSha256": "97f67dd59dcbaf7f27204f7a328bdfb5a56148369813f0d2cc978a6c97e427a2",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: matched framing, clear margins and full trigger/guard, broad slide, grip and major boundaries retained. Independently reviewed detail/clay alpha topology unchanged by conditioning: {\"detail\": {\"components\": 1, \"holes\": 2}, \"clay\": {\"components\": 1, \"holes\": 1}}. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: matched framing, clear margins and full trigger/guard, broad slide, grip and major boundaries retained. Independently reviewed detail/clay alpha topology unchanged by conditioning: {\"detail\": {\"components\": 1, \"holes\": 2}, \"clay\": {\"components\": 1, \"holes\": 1}}. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "front-upper",
+          "detail": [
+            0.9195437167553191,
+            0.31804899467054265
+          ],
+          "geometry": [
+            0.9195437167553191,
+            0.31804899467054265
+          ]
+        },
+        {
+          "name": "rear-sight",
+          "detail": [
+            0.16091672207446808,
+            0.26442132994186046
+          ],
+          "geometry": [
+            0.16091672207446808,
+            0.26442132994186046
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.15325382313829788,
+            0.7317481225775193
+          ],
+          "geometry": [
+            0.15325382313829788,
+            0.7317481225775193
+          ]
+        },
+        {
+          "name": "trigger-opening",
+          "detail": [
+            0.39846658909574467,
+            0.4712708938953488
+          ],
+          "geometry": [
+            0.39846658909574467,
+            0.4712708938953488
+          ]
+        }
+      ],
+      "referenceSha256": "f806f3f9c58a842fab89bc1e91403854c8fdf492b2c1855ba71fa90dae11be5e",
+      "geometrySha256": "82b5f0b3f2d1aa4d9c55447a454817b54b71ad22049245c35e8626b5ef81d407",
+      "detailSha256": "f8477c76675e2253b466fbbf1aa2379cb04bc8e212997498a326e2067d756bf5",
+      "geometryForegroundMaskSha256": "97f67dd59dcbaf7f27204f7a328bdfb5a56148369813f0d2cc978a6c97e427a2",
+      "foregroundMaskSha256": "b937f67f1acb10d13eca904d17661eb8ed13f9bba8ce9cf142301864fcccaf48"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

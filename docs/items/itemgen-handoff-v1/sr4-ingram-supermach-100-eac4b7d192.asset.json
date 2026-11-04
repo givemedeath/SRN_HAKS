@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ingram-supermach-100-eac4b7d192",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-or-prong-left",
+      "pixel": [
+        87.0,
+        545.0
+      ]
+    },
+    {
+      "name": "upper-structural-tip",
+      "pixel": [
+        665.0,
+        346.0
+      ]
+    },
+    {
+      "name": "rear-or-bipod-right",
+      "pixel": [
+        1285.0,
+        622.0
+      ]
+    },
+    {
+      "name": "grip-bottom-at-shared-column",
+      "pixel": [
+        800.0,
+        807.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ingram-supermach-100-eac4b7d192.family.json",
+    "sha256": "167c2954af8df58ef1eafd5d7c678001806b191da3e13ea2ddf2f418589b90c3"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8706165992e954cb1253e57086c3bebede64d5291d206a4f2ca862cf130f0674.png",
+      "sha256": "8706165992e954cb1253e57086c3bebede64d5291d206a4f2ca862cf130f0674"
+    },
+    "clayReference": {
+      "path": "inputs/a1d71e3ab935fe5e1d5834893146a100c9dd203926bc7df984bd1fda83141042.png",
+      "sha256": "a1d71e3ab935fe5e1d5834893146a100c9dd203926bc7df984bd1fda83141042"
+    },
+    "geometry": {
+      "path": "inputs/028e101ab1b7db987afcb96334bf22f012f690f3bd7567a59ebb1cf63b9ab66e.png",
+      "sha256": "028e101ab1b7db987afcb96334bf22f012f690f3bd7567a59ebb1cf63b9ab66e"
+    },
+    "detail": {
+      "path": "inputs/021e044d4512576a78832a3eb7816e25a24c7729cfb1c107626dbee2c01f90b5.png",
+      "sha256": "021e044d4512576a78832a3eb7816e25a24c7729cfb1c107626dbee2c01f90b5"
+    },
+    "foregroundMask": {
+      "path": "inputs/07576c963896f8aed12beb25310563ad3fe9e6b46e8acba14f44beee7164f3ba.png",
+      "sha256": "07576c963896f8aed12beb25310563ad3fe9e6b46e8acba14f44beee7164f3ba"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566.png",
+      "sha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566"
+    },
+    "mask": {
+      "path": "inputs/b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566.png",
+      "sha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566"
+    },
+    "calibrationReference": {
+      "path": "inputs/bcb32a4d1569325e169d874c4f1580f43440c70c5cb5abebfcdb67b70fafa8de.png",
+      "sha256": "bcb32a4d1569325e169d874c4f1580f43440c70c5cb5abebfcdb67b70fafa8de"
+    },
+    "sourceAudit": {
+      "path": "inputs/dad591eca814fc511cfe6b35647c176f9c176fa9517277bc336e30c117f87cd7.json",
+      "sha256": "dad591eca814fc511cfe6b35647c176f9c176fa9517277bc336e30c117f87cd7"
+    },
+    "referenceApproval": {
+      "path": "inputs/ad7886164e147842b7d0e973673ce0f288e42266a6d749c34dc02b69924cf38c.json",
+      "sha256": "ad7886164e147842b7d0e973673ce0f288e42266a6d749c34dc02b69924cf38c"
+    },
+    "calibrationDetail": {
+      "path": "inputs/a435de15e9b20ae1fca38881021e88e694de3290d002221267c536653829de85.png",
+      "sha256": "a435de15e9b20ae1fca38881021e88e694de3290d002221267c536653829de85"
+    }
+  },
+  "features": [
+    {
+      "name": "High-velocity SMG with special recoil-reduction design and folding stock.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own SUPERMACH100 drawing printed25/PDF27 lower-middle: longitudinal upper cylindrical module, projecting front, broad lower body with separate trigger and larger rear open space. Preserve the unusual source form and all major openings; do not infer the module internal function from a generic weapon template.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own SUPERMACH100 Arsenal25/PDF27. Actual318 detail removed the unsupported downward box magazine and retains the source continuous shallow lower contour,both hand/trigger openings,long upper cylindrical member and folding-stock/rear plate. Source-form correction accepted for matching clay;finish/unseen depth artistic. Actual raw and prepared pair inspected once:matching major silhouette,source features,openings and thin members retained. Microgrooves nonblocking. Background/alpha below16 removed only by conditioning;native dimensions retained,2048 is resampled. SuperMach translation only recorded in derivation;no independent scale. No geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1011,
+        726,
+        1744,
+        743
+      ],
+      "referenceAreaPixels": 9419,
+      "referenceMaskSha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        386,
+        735,
+        405,
+        758
+      ],
+      "referenceAreaPixels": 331,
+      "referenceMaskSha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        368,
+        773,
+        396,
+        806
+      ],
+      "referenceAreaPixels": 711,
+      "referenceMaskSha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1022,
+        1045,
+        1258,
+        1317
+      ],
+      "referenceAreaPixels": 35895,
+      "referenceMaskSha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        635,
+        1048,
+        794,
+        1203
+      ],
+      "referenceAreaPixels": 21402,
+      "referenceMaskSha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8706165992e954cb1253e57086c3bebede64d5291d206a4f2ca862cf130f0674",
+      "imageSha256": "021e044d4512576a78832a3eb7816e25a24c7729cfb1c107626dbee2c01f90b5",
+      "maskSha256": "07576c963896f8aed12beb25310563ad3fe9e6b46e8acba14f44beee7164f3ba",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own SUPERMACH100 Arsenal25/PDF27. Actual318 detail removed the unsupported downward box magazine and retains the source continuous shallow lower contour,both hand/trigger openings,long upper cylindrical member and folding-stock/rear plate. Source-form correction accepted for matching clay;finish/unseen depth artistic. Actual raw and prepared pair inspected once:matching major silhouette,source features,openings and thin members retained. Microgrooves nonblocking. Background/alpha below16 removed only by conditioning;native dimensions retained,2048 is resampled. SuperMach translation only recorded in derivation;no independent scale. No geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "a1d71e3ab935fe5e1d5834893146a100c9dd203926bc7df984bd1fda83141042",
+      "imageSha256": "028e101ab1b7db987afcb96334bf22f012f690f3bd7567a59ebb1cf63b9ab66e",
+      "maskSha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own SUPERMACH100 Arsenal25/PDF27. Actual318 detail removed the unsupported downward box magazine and retains the source continuous shallow lower contour,both hand/trigger openings,long upper cylindrical member and folding-stock/rear plate. Source-form correction accepted for matching clay;finish/unseen depth artistic. Actual raw and prepared pair inspected once:matching major silhouette,source features,openings and thin members retained. Microgrooves nonblocking. Background/alpha below16 removed only by conditioning;native dimensions retained,2048 is resampled. SuperMach translation only recorded in derivation;no independent scale. No geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "8706165992e954cb1253e57086c3bebede64d5291d206a4f2ca862cf130f0674",
+      "detailSha256": "021e044d4512576a78832a3eb7816e25a24c7729cfb1c107626dbee2c01f90b5",
+      "geometrySha256": "028e101ab1b7db987afcb96334bf22f012f690f3bd7567a59ebb1cf63b9ab66e",
+      "foregroundMaskSha256": "07576c963896f8aed12beb25310563ad3fe9e6b46e8acba14f44beee7164f3ba",
+      "geometryForegroundMaskSha256": "b0d3b11e84d2525eb7e7fa1567938c43ec7defbc538c1565a3310cedb8f20566",
+      "landmarks": [
+        {
+          "name": "front-or-prong-left",
+          "detail": [
+            0.05204632391078838,
+            0.47659603004291845
+          ],
+          "geometry": [
+            0.05055189963692946,
+            0.47510184750536477
+          ]
+        },
+        {
+          "name": "upper-structural-tip",
+          "detail": [
+            0.4839349390560166,
+            0.3279248675563305
+          ],
+          "geometry": [
+            0.48244051478215766,
+            0.3264306850187768
+          ]
+        },
+        {
+          "name": "rear-or-bipod-right",
+          "detail": [
+            0.9472064639522821,
+            0.5341220577387339
+          ],
+          "geometry": [
+            0.9487008882261411,
+            0.5333749664699571
+          ]
+        },
+        {
+          "name": "grip-bottom-at-shared-column",
+          "detail": [
+            0.5848085775414937,
+            0.6723339424624464
+          ],
+          "geometry": [
+            0.5848085775414937,
+            0.6723339424624464
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own SUPERMACH100 Arsenal25/PDF27. Actual318 detail removed the unsupported downward box magazine and retains the source continuous shallow lower contour,both hand/trigger openings,long upper cylindrical member and folding-stock/rear plate. Source-form correction accepted for matching clay;finish/unseen depth artistic. Actual raw and prepared pair inspected once:matching major silhouette,source features,openings and thin members retained. Microgrooves nonblocking. Background/alpha below16 removed only by conditioning;native dimensions retained,2048 is resampled. SuperMach translation only recorded in derivation;no independent scale. No geometry/native/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

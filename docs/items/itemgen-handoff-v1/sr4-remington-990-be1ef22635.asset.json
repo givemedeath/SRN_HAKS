@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-remington-990-be1ef22635",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "scope-top",
+      "pixel": [
+        930.0,
+        87.00000000000006
+      ]
+    },
+    {
+      "name": "fore-end-bottom",
+      "pixel": [
+        1500.0,
+        323.99999999999994
+      ]
+    },
+    {
+      "name": "stock-bottom",
+      "pixel": [
+        80.0,
+        561.0
+      ]
+    },
+    {
+      "name": "barrel-top",
+      "pixel": [
+        1800.0,
+        179.00000000000006
+      ]
+    },
+    {
+      "name": "front-sight-top",
+      "pixel": [
+        2090.0,
+        160.99999999999994
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        820.0,
+        360.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-remington-990-be1ef22635.family.json",
+    "sha256": "58503d29a86e79840d0f8d9227487bb663b7e5e7175596a1c5e606e6a8ba07bb"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/25a805233d91d434dbc0881f5236009a26f9e82b012782501474536c12615e03.png",
+      "sha256": "25a805233d91d434dbc0881f5236009a26f9e82b012782501474536c12615e03"
+    },
+    "clayReference": {
+      "path": "inputs/d5269e01890e1fefc44afc210459500c1dc995ae3fbd2277a9940b84be0990a9.png",
+      "sha256": "d5269e01890e1fefc44afc210459500c1dc995ae3fbd2277a9940b84be0990a9"
+    },
+    "geometry": {
+      "path": "inputs/cf68779c400dafa36d53d0adfa0f88bb82b452a22a2a27f4e6ba0a41af18b77b.png",
+      "sha256": "cf68779c400dafa36d53d0adfa0f88bb82b452a22a2a27f4e6ba0a41af18b77b"
+    },
+    "detail": {
+      "path": "inputs/8a351f4bbef7750641b1ce9ce67d7ca18d4fbf3fd85ca80423d5947ab221d7ca.png",
+      "sha256": "8a351f4bbef7750641b1ce9ce67d7ca18d4fbf3fd85ca80423d5947ab221d7ca"
+    },
+    "foregroundMask": {
+      "path": "inputs/2e6c938e803ab47feeeff96831c190a7a7d1e3c6018f5ca90e8054146e0357eb.png",
+      "sha256": "2e6c938e803ab47feeeff96831c190a7a7d1e3c6018f5ca90e8054146e0357eb"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42.png",
+      "sha256": "8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42"
+    },
+    "mask": {
+      "path": "inputs/8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42.png",
+      "sha256": "8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42"
+    },
+    "calibrationReference": {
+      "path": "inputs/f903d3c1f06f424a22583c873824ffbf66fec6028a17e272715bbd4f55cd8c20.png",
+      "sha256": "f903d3c1f06f424a22583c873824ffbf66fec6028a17e272715bbd4f55cd8c20"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/202a34c4e7dd53cc99028167822e1415ad2985f278e0af0fed5d2bf109724118.json",
+      "sha256": "202a34c4e7dd53cc99028167822e1415ad2985f278e0af0fed5d2bf109724118"
+    },
+    "referenceApproval": {
+      "path": "inputs/430b3a62439d954f8f07de4e9cc762806c866a166438bd375e38784af4542f72.json",
+      "sha256": "430b3a62439d954f8f07de4e9cc762806c866a166438bd375e38784af4542f72"
+    },
+    "calibrationDetail": {
+      "path": "inputs/483051e167a56388b6cd2925787641238d9c8d08dda3bdcff697f7ebfd4a4bfb.png",
+      "sha256": "483051e167a56388b6cd2925787641238d9c8d08dda3bdcff697f7ebfd4a4bfb"
+    }
+  },
+  "features": [
+    {
+      "name": "Imaging scope and rigid stock with shock pad",
+      "placementReviewed": true
+    },
+    {
+      "name": "Illustration: conventional shoulder-stock shotgun silhouette, elongated fore-end and barrel",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned reviewer actually reviewed Core printed309/PDF311, original detail, latest run11clay and enlarged collar/tube regions. Required imaging scope and rigid shockpad stock retained with source-compatible conventional silhouette. Fore-end collar rings are broad stepped coupling boundaries with diameter changes, scope rings are mounts/end assemblies; these major boundaries remain. Fine grip ribs/checkering/woodgrain/fasteners are filled. Faint upper-tube joins are smooth tonal/segment boundaries, not the previous recessed machining cuts. Colors/hidden surfaces/coupling implementation are artistic interpretation. Six paired landmarks and actual final overlay pass. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        862,
+        872,
+        937,
+        886
+      ],
+      "referenceAreaPixels": 764,
+      "referenceMaskSha256": "8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1651,
+        941,
+        1830,
+        954
+      ],
+      "referenceAreaPixels": 2227,
+      "referenceMaskSha256": "8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        752,
+        1006,
+        807,
+        1046
+      ],
+      "referenceAreaPixels": 1859,
+      "referenceMaskSha256": "8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        734,
+        1013,
+        754,
+        1045
+      ],
+      "referenceAreaPixels": 272,
+      "referenceMaskSha256": "8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "25a805233d91d434dbc0881f5236009a26f9e82b012782501474536c12615e03",
+      "imageSha256": "8a351f4bbef7750641b1ce9ce67d7ca18d4fbf3fd85ca80423d5947ab221d7ca",
+      "maskSha256": "2e6c938e803ab47feeeff96831c190a7a7d1e3c6018f5ca90e8054146e0357eb",
+      "notes": "Assigned reviewer inspected actual originals, native/2048masks and teal previews, plus paired overlay. Trigger, scope supports, long tubes/front clamp and stock endpoints intact. Scope mount/forward tube/guard openings clear. Three discarded detail islands total5pixels were enlarged and classified as antialias fringe at scope-mount/guard edges, no actual part removed; clay discarded0. Independent native mattes; explicit1transparent right column on detail only, no warp/rescale before common conditioning. No broad halo, clipping or detached foreground."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d5269e01890e1fefc44afc210459500c1dc995ae3fbd2277a9940b84be0990a9",
+      "imageSha256": "cf68779c400dafa36d53d0adfa0f88bb82b452a22a2a27f4e6ba0a41af18b77b",
+      "maskSha256": "8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42",
+      "notes": "Assigned reviewer inspected actual originals, native/2048masks and teal previews, plus paired overlay. Trigger, scope supports, long tubes/front clamp and stock endpoints intact. Scope mount/forward tube/guard openings clear. Three discarded detail islands total5pixels were enlarged and classified as antialias fringe at scope-mount/guard edges, no actual part removed; clay discarded0. Independent native mattes; explicit1transparent right column on detail only, no warp/rescale before common conditioning. No broad halo, clipping or detached foreground."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned reviewer actually reviewed Core printed309/PDF311, original detail, latest run11clay and enlarged collar/tube regions. Required imaging scope and rigid shockpad stock retained with source-compatible conventional silhouette. Fore-end collar rings are broad stepped coupling boundaries with diameter changes, scope rings are mounts/end assemblies; these major boundaries remain. Fine grip ribs/checkering/woodgrain/fasteners are filled. Faint upper-tube joins are smooth tonal/segment boundaries, not the previous recessed machining cuts. Colors/hidden surfaces/coupling implementation are artistic interpretation. Six paired landmarks and actual final overlay pass. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "scope-top",
+          "detail": [
+            0.4339084097950429,
+            0.39691377826143454
+          ],
+          "geometry": [
+            0.4339084097950429,
+            0.39691377826143454
+          ]
+        },
+        {
+          "name": "fore-end-bottom",
+          "detail": [
+            0.6785331267874166,
+            0.4986823512214137
+          ],
+          "geometry": [
+            0.6785331267874166,
+            0.49997056100571724
+          ]
+        },
+        {
+          "name": "stock-bottom",
+          "detail": [
+            0.06911716515729266,
+            0.6004509241813929
+          ],
+          "geometry": [
+            0.06911716515729266,
+            0.6008803274428274
+          ]
+        },
+        {
+          "name": "barrel-top",
+          "detail": [
+            0.8072829778360343,
+            0.4364188783134096
+          ],
+          "geometry": [
+            0.8072829778360343,
+            0.4372776848362786
+          ]
+        },
+        {
+          "name": "front-sight-top",
+          "detail": [
+            0.9317411671830315,
+            0.42868961960758833
+          ],
+          "geometry": [
+            0.9317411671830315,
+            0.4278308130847193
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.3867001310772164,
+            0.5141408686330562
+          ],
+          "geometry": [
+            0.3867001310772164,
+            0.5141408686330562
+          ]
+        }
+      ],
+      "referenceSha256": "25a805233d91d434dbc0881f5236009a26f9e82b012782501474536c12615e03",
+      "geometrySha256": "cf68779c400dafa36d53d0adfa0f88bb82b452a22a2a27f4e6ba0a41af18b77b",
+      "detailSha256": "8a351f4bbef7750641b1ce9ce67d7ca18d4fbf3fd85ca80423d5947ab221d7ca",
+      "foregroundMaskSha256": "2e6c938e803ab47feeeff96831c190a7a7d1e3c6018f5ca90e8054146e0357eb",
+      "geometryForegroundMaskSha256": "8e11b80b625dede31fc05afc31f9e8f3dbadd315be4bedba704e40083bceef42"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

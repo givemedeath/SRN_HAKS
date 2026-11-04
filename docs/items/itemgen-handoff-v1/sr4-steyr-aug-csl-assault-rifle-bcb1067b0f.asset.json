@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-steyr-aug-csl-assault-rifle-bcb1067b0f",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-edge-at-row620",
+      "pixel": [
+        85.0,
+        620.0
+      ]
+    },
+    {
+      "name": "laser-top-at-column780",
+      "pixel": [
+        780.0,
+        501.0
+      ]
+    },
+    {
+      "name": "muzzle-edge-at-row635",
+      "pixel": [
+        1296.0,
+        635.0
+      ]
+    },
+    {
+      "name": "grip-base-at-column600",
+      "pixel": [
+        600.0,
+        881.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-steyr-aug-csl-assault-rifle-bcb1067b0f.family.json",
+    "sha256": "a64614911f20b1266c54e85ee4cda8f27b072d5d895e04d752642f4c629a229c"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/7bca0bcfe631562c71e635158b125e8c309472ad1a9fef81dcf0c3940b80936e.png",
+      "sha256": "7bca0bcfe631562c71e635158b125e8c309472ad1a9fef81dcf0c3940b80936e"
+    },
+    "clayReference": {
+      "path": "inputs/f17c62d46e18f122fb56915371c4d378524b57a685e1bf8ea305413d910baef5.png",
+      "sha256": "f17c62d46e18f122fb56915371c4d378524b57a685e1bf8ea305413d910baef5"
+    },
+    "geometry": {
+      "path": "inputs/c1a027944ed0fd9d7085ee5104777d98d3940177baa58f5c0b5f33f00c604685.png",
+      "sha256": "c1a027944ed0fd9d7085ee5104777d98d3940177baa58f5c0b5f33f00c604685"
+    },
+    "detail": {
+      "path": "inputs/b2c165dcf46152ffebf50baaf690e25d93b98f7e2b7ba8379d00c0b8856892bf.png",
+      "sha256": "b2c165dcf46152ffebf50baaf690e25d93b98f7e2b7ba8379d00c0b8856892bf"
+    },
+    "foregroundMask": {
+      "path": "inputs/9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb.png",
+      "sha256": "9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb.png",
+      "sha256": "9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb"
+    },
+    "mask": {
+      "path": "inputs/9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb.png",
+      "sha256": "9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb"
+    },
+    "calibrationReference": {
+      "path": "inputs/24a9f3ffc686808273b435d2573f840860d35fa719d17559bcb6dd43516282de.png",
+      "sha256": "24a9f3ffc686808273b435d2573f840860d35fa719d17559bcb6dd43516282de"
+    },
+    "sourceAudit": {
+      "path": "inputs/a407167e905463dc70585bca94ec4816d5b629f2db9eea6abc0ea61a4ffbc3aa.json",
+      "sha256": "a407167e905463dc70585bca94ec4816d5b629f2db9eea6abc0ea61a4ffbc3aa"
+    },
+    "referenceApproval": {
+      "path": "inputs/bbea87515735cbf9f3b9ac0947261e4ef301aebf8b487748310a961c42ae3eb7.json",
+      "sha256": "bbea87515735cbf9f3b9ac0947261e4ef301aebf8b487748310a961c42ae3eb7"
+    },
+    "calibrationDetail": {
+      "path": "inputs/940630ee9174e808ae08bffaacd2956c4d28736ede86b5eb5f95523c0abe0cf2.png",
+      "sha256": "940630ee9174e808ae08bffaacd2956c4d28736ede86b5eb5f95523c0abe0cf2"
+    }
+  },
+  "features": [
+    {
+      "name": "One modular AUG-CSL family, supplied in a large component briefcase; basic weapon is assault rifle and components support AR/SMG/rifle/LMG configurations.",
+      "placementReviewed": true
+    },
+    {
+      "name": "ALL configurations retain integral top laser, barrel-mounted gas-vent1 system and RIGID stock. They share assault-rifle ammunition but use different feed clips/configurations.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own AUGCSL family picture printed27/PDF29 supplies the broad body, rear stock opening, forward grip/support and upper laser unit; it does not individually label all four configurations.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Own labeled AUG-CSL family art Arsenal27/PDF29 and table176/PDF178. Actual329detail now source-correct low continuous receiver/rigidstock,ONE central grip/trigger opening,narrow front grip,slender barrel and small solid elevated laser;rear40-round clip. No neighboring Nitama open carryhandle or bulky ribbed front. Sourceform accepted;finish/unseen depth artistic. New source-correct detail replaces obsolete neighboring-model clay input;carry the original clay budget and its one prior call. Actual detailed/clay pair inspected:low continuous source body,rigidstock,narrow front grip,small solid elevated laser,single main grip/OPENtrigger and rearclip retained. LMG50-round large box vsAR40-round clip explicitly different;exact clip shape/hidden depth artistic. No false Nitama carryhandle or bulky front launcher. Native1254 originals retained;2048 resampled. Minor grooves/screws nonblocking. Single final pair review;no geometry/client/production approval. Own labeled AUG-CSL family art Arsenal27/PDF29 and table176/PDF178. Actual329detail now source-correct low continuous receiver/rigidstock,ONE central grip/trigger opening,narrow front grip,slender barrel and small solid elevated laser;rear40-round clip. No neighboring Nitama open carryhandle or bulky ribbed front. Sourceform accepted;finish/unseen depth artistic. New source-correct detail replaces obsolete neighboring-model clay input;carry the original clay budget and its one prior call. Actual detailed/clay pair inspected:low continuous source body,rigidstock,narrow front grip,small solid elevated laser,single main grip/OPENtrigger and rearclip retained. LMG50-round large box vsAR40-round clip explicitly different;exact clip shape/hidden depth artistic. No false Nitama carryhandle or bulky front launcher. Native1254 originals retained;2048 resampled. Minor grooves/screws nonblocking. Single final pair review;no geometry/client/production approval. Largest-component extrema measured only,no component/pixel removed. Exact existing registration route:all4 structural edges differ<=1pixel;four homologous contour intersections measured at shared rows/columns differ<=1pixel. Clay has one UNINTENTIONAL single-pixel alpha puncture at registered[853,688],separate from genuine trigger aperture. Use maintained registered-detail alpha transfer to remove invalid alpha only;source RGB/raw originals preserved and actual trigger opening retained. Do not regenerate for this pixel.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1065,
+        1021,
+        1146,
+        1094
+      ],
+      "referenceAreaPixels": 5006,
+      "referenceMaskSha256": "9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7bca0bcfe631562c71e635158b125e8c309472ad1a9fef81dcf0c3940b80936e",
+      "imageSha256": "b2c165dcf46152ffebf50baaf690e25d93b98f7e2b7ba8379d00c0b8856892bf",
+      "maskSha256": "9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Own labeled AUG-CSL family art Arsenal27/PDF29 and table176/PDF178. Actual329detail now source-correct low continuous receiver/rigidstock,ONE central grip/trigger opening,narrow front grip,slender barrel and small solid elevated laser;rear40-round clip. No neighboring Nitama open carryhandle or bulky ribbed front. Sourceform accepted;finish/unseen depth artistic. New source-correct detail replaces obsolete neighboring-model clay input;carry the original clay budget and its one prior call. Actual detailed/clay pair inspected:low continuous source body,rigidstock,narrow front grip,small solid elevated laser,single main grip/OPENtrigger and rearclip retained. LMG50-round large box vsAR40-round clip explicitly different;exact clip shape/hidden depth artistic. No false Nitama carryhandle or bulky front launcher. Native1254 originals retained;2048 resampled. Minor grooves/screws nonblocking. Single final pair review;no geometry/client/production approval. Own labeled AUG-CSL family art Arsenal27/PDF29 and table176/PDF178. Actual329detail now source-correct low continuous receiver/rigidstock,ONE central grip/trigger opening,narrow front grip,slender barrel and small solid elevated laser;rear40-round clip. No neighboring Nitama open carryhandle or bulky ribbed front. Sourceform accepted;finish/unseen depth artistic. New source-correct detail replaces obsolete neighboring-model clay input;carry the original clay budget and its one prior call. Actual detailed/clay pair inspected:low continuous source body,rigidstock,narrow front grip,small solid elevated laser,single main grip/OPENtrigger and rearclip retained. LMG50-round large box vsAR40-round clip explicitly different;exact clip shape/hidden depth artistic. No false Nitama carryhandle or bulky front launcher. Native1254 originals retained;2048 resampled. Minor grooves/screws nonblocking. Single final pair review;no geometry/client/production approval. Largest-component extrema measured only,no component/pixel removed. Exact existing registration route:all4 structural edges differ<=1pixel;four homologous contour intersections measured at shared rows/columns differ<=1pixel. Clay has one UNINTENTIONAL single-pixel alpha puncture at registered[853,688],separate from genuine trigger aperture. Use maintained registered-detail alpha transfer to remove invalid alpha only;source RGB/raw originals preserved and actual trigger opening retained. Do not regenerate for this pixel."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f17c62d46e18f122fb56915371c4d378524b57a685e1bf8ea305413d910baef5",
+      "imageSha256": "c1a027944ed0fd9d7085ee5104777d98d3940177baa58f5c0b5f33f00c604685",
+      "maskSha256": "9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Own labeled AUG-CSL family art Arsenal27/PDF29 and table176/PDF178. Actual329detail now source-correct low continuous receiver/rigidstock,ONE central grip/trigger opening,narrow front grip,slender barrel and small solid elevated laser;rear40-round clip. No neighboring Nitama open carryhandle or bulky ribbed front. Sourceform accepted;finish/unseen depth artistic. New source-correct detail replaces obsolete neighboring-model clay input;carry the original clay budget and its one prior call. Actual detailed/clay pair inspected:low continuous source body,rigidstock,narrow front grip,small solid elevated laser,single main grip/OPENtrigger and rearclip retained. LMG50-round large box vsAR40-round clip explicitly different;exact clip shape/hidden depth artistic. No false Nitama carryhandle or bulky front launcher. Native1254 originals retained;2048 resampled. Minor grooves/screws nonblocking. Single final pair review;no geometry/client/production approval. Own labeled AUG-CSL family art Arsenal27/PDF29 and table176/PDF178. Actual329detail now source-correct low continuous receiver/rigidstock,ONE central grip/trigger opening,narrow front grip,slender barrel and small solid elevated laser;rear40-round clip. No neighboring Nitama open carryhandle or bulky ribbed front. Sourceform accepted;finish/unseen depth artistic. New source-correct detail replaces obsolete neighboring-model clay input;carry the original clay budget and its one prior call. Actual detailed/clay pair inspected:low continuous source body,rigidstock,narrow front grip,small solid elevated laser,single main grip/OPENtrigger and rearclip retained. LMG50-round large box vsAR40-round clip explicitly different;exact clip shape/hidden depth artistic. No false Nitama carryhandle or bulky front launcher. Native1254 originals retained;2048 resampled. Minor grooves/screws nonblocking. Single final pair review;no geometry/client/production approval. Largest-component extrema measured only,no component/pixel removed. Exact existing registration route:all4 structural edges differ<=1pixel;four homologous contour intersections measured at shared rows/columns differ<=1pixel. Clay has one UNINTENTIONAL single-pixel alpha puncture at registered[853,688],separate from genuine trigger aperture. Use maintained registered-detail alpha transfer to remove invalid alpha only;source RGB/raw originals preserved and actual trigger opening retained. Do not regenerate for this pixel."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "7bca0bcfe631562c71e635158b125e8c309472ad1a9fef81dcf0c3940b80936e",
+      "detailSha256": "b2c165dcf46152ffebf50baaf690e25d93b98f7e2b7ba8379d00c0b8856892bf",
+      "geometrySha256": "c1a027944ed0fd9d7085ee5104777d98d3940177baa58f5c0b5f33f00c604685",
+      "foregroundMaskSha256": "9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb",
+      "geometryForegroundMaskSha256": "9056b8a5d4953faca7a4fcb18324a9269e7f94f0b967aa52d1bc77901c38bdbb",
+      "landmarks": [
+        {
+          "name": "stock-edge-at-row620",
+          "detail": [
+            0.05054636017298188,
+            0.446380615234375
+          ],
+          "geometry": [
+            0.05054636017298188,
+            0.446380615234375
+          ]
+        },
+        {
+          "name": "laser-top-at-column780",
+          "detail": [
+            0.5660088678953872,
+            0.35816319783528644
+          ],
+          "geometry": [
+            0.5660088678953872,
+            0.357421875
+          ]
+        },
+        {
+          "name": "muzzle-edge-at-row635",
+          "detail": [
+            0.9487119671540363,
+            0.4575004577636719
+          ],
+          "geometry": [
+            0.9487119671540363,
+            0.4575004577636719
+          ]
+        },
+        {
+          "name": "grip-base-at-column600",
+          "detail": [
+            0.4325077867586491,
+            0.640607198079427
+          ],
+          "geometry": [
+            0.4325077867586491,
+            0.640607198079427
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Own labeled AUG-CSL family art Arsenal27/PDF29 and table176/PDF178. Actual329detail now source-correct low continuous receiver/rigidstock,ONE central grip/trigger opening,narrow front grip,slender barrel and small solid elevated laser;rear40-round clip. No neighboring Nitama open carryhandle or bulky ribbed front. Sourceform accepted;finish/unseen depth artistic. New source-correct detail replaces obsolete neighboring-model clay input;carry the original clay budget and its one prior call. Actual detailed/clay pair inspected:low continuous source body,rigidstock,narrow front grip,small solid elevated laser,single main grip/OPENtrigger and rearclip retained. LMG50-round large box vsAR40-round clip explicitly different;exact clip shape/hidden depth artistic. No false Nitama carryhandle or bulky front launcher. Native1254 originals retained;2048 resampled. Minor grooves/screws nonblocking. Single final pair review;no geometry/client/production approval. Own labeled AUG-CSL family art Arsenal27/PDF29 and table176/PDF178. Actual329detail now source-correct low continuous receiver/rigidstock,ONE central grip/trigger opening,narrow front grip,slender barrel and small solid elevated laser;rear40-round clip. No neighboring Nitama open carryhandle or bulky ribbed front. Sourceform accepted;finish/unseen depth artistic. New source-correct detail replaces obsolete neighboring-model clay input;carry the original clay budget and its one prior call. Actual detailed/clay pair inspected:low continuous source body,rigidstock,narrow front grip,small solid elevated laser,single main grip/OPENtrigger and rearclip retained. LMG50-round large box vsAR40-round clip explicitly different;exact clip shape/hidden depth artistic. No false Nitama carryhandle or bulky front launcher. Native1254 originals retained;2048 resampled. Minor grooves/screws nonblocking. Single final pair review;no geometry/client/production approval. Largest-component extrema measured only,no component/pixel removed. Exact existing registration route:all4 structural edges differ<=1pixel;four homologous contour intersections measured at shared rows/columns differ<=1pixel. Clay has one UNINTENTIONAL single-pixel alpha puncture at registered[853,688],separate from genuine trigger aperture. Use maintained registered-detail alpha transfer to remove invalid alpha only;source RGB/raw originals preserved and actual trigger opening retained. Do not regenerate for this pixel."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

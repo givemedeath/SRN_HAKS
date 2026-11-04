@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-walther-secura-kompakt-92ab92f205",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        41.0,
+        272.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1199.0,
+        272.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        41.0,
+        989.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1199.0,
+        989.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-walther-secura-kompakt-92ab92f205.family.json",
+    "sha256": "d821c57bf46a30a50cd7e4ff62d8ce9e2b473417348e12cb003c55f55c2944c7"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/063058325618be977cb206ff11dc478b8f5267daa3a250873ffb8cb638fb7f95.png",
+      "sha256": "063058325618be977cb206ff11dc478b8f5267daa3a250873ffb8cb638fb7f95"
+    },
+    "clayReference": {
+      "path": "inputs/95c30cbbfc3611da406df9b0daff22eecd0c46dbd5bf1b0a06b83893b5e9bc44.png",
+      "sha256": "95c30cbbfc3611da406df9b0daff22eecd0c46dbd5bf1b0a06b83893b5e9bc44"
+    },
+    "geometry": {
+      "path": "inputs/616769f2079f55204774753851ba08323a18192e14f3b30753a79e7b0b5fe35e.png",
+      "sha256": "616769f2079f55204774753851ba08323a18192e14f3b30753a79e7b0b5fe35e"
+    },
+    "detail": {
+      "path": "inputs/a922469047bc2fb16cf2b669dbeabbf6beebea82ce2e8da641e8d84bb4c8591d.png",
+      "sha256": "a922469047bc2fb16cf2b669dbeabbf6beebea82ce2e8da641e8d84bb4c8591d"
+    },
+    "foregroundMask": {
+      "path": "inputs/69ca25666bc58be614aebf3064dd87ed59068b1be0b3ab72dbdec0c51b6e018a.png",
+      "sha256": "69ca25666bc58be614aebf3064dd87ed59068b1be0b3ab72dbdec0c51b6e018a"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c6610543b0b2a072951ec5ce50c9618375cb8f964f65070891e7e4eb0c955744.png",
+      "sha256": "c6610543b0b2a072951ec5ce50c9618375cb8f964f65070891e7e4eb0c955744"
+    },
+    "mask": {
+      "path": "inputs/c6610543b0b2a072951ec5ce50c9618375cb8f964f65070891e7e4eb0c955744.png",
+      "sha256": "c6610543b0b2a072951ec5ce50c9618375cb8f964f65070891e7e4eb0c955744"
+    },
+    "calibrationReference": {
+      "path": "inputs/54993301cb7ecacb554bfafb01011ac02a8127b22841fb20e4865e0b268738a7.png",
+      "sha256": "54993301cb7ecacb554bfafb01011ac02a8127b22841fb20e4865e0b268738a7"
+    },
+    "sourceAudit": {
+      "path": "inputs/80394086b6d692b9b08fc4462d49e43b1482ede69e5069c315848d4d3bb4acc4.json",
+      "sha256": "80394086b6d692b9b08fc4462d49e43b1482ede69e5069c315848d4d3bb4acc4"
+    },
+    "referenceApproval": {
+      "path": "inputs/23fdec76830cfe36b871ac25c32b1aa37865062146cf5373720b4dfc3592e333.json",
+      "sha256": "23fdec76830cfe36b871ac25c32b1aa37865062146cf5373720b4dfc3592e333"
+    },
+    "calibrationDetail": {
+      "path": "inputs/cf8edf13168e874dcf1e65bfceb0851208c63c32d485cd5f719cbc3e1dd96090.png",
+      "sha256": "cf8edf13168e874dcf1e65bfceb0851208c63c32d485cd5f719cbc3e1dd96090"
+    }
+  },
+  "features": [
+    {
+      "name": "Compact Secura model with reduced size; basic or optional smartlinked version.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Use the smaller distinct compact Secura example, not blindly scaled standard Secura. Preserve compact upper/grip/guard relationships.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Arsenal compact-caption artwork and original pair reviewed; conditioned overlay retains guard and rear loop. Caption Kompacta differs from source prose Kompakt. Native 1254 images resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        767,
+        887,
+        1195,
+        1145
+      ],
+      "referenceAreaPixels": 77400,
+      "referenceMaskSha256": "c6610543b0b2a072951ec5ce50c9618375cb8f964f65070891e7e4eb0c955744",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1889,
+        1475,
+        1905,
+        1516
+      ],
+      "referenceAreaPixels": 323,
+      "referenceMaskSha256": "c6610543b0b2a072951ec5ce50c9618375cb8f964f65070891e7e4eb0c955744",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "063058325618be977cb206ff11dc478b8f5267daa3a250873ffb8cb638fb7f95",
+      "imageSha256": "a922469047bc2fb16cf2b669dbeabbf6beebea82ce2e8da641e8d84bb4c8591d",
+      "maskSha256": "69ca25666bc58be614aebf3064dd87ed59068b1be0b3ab72dbdec0c51b6e018a",
+      "notes": "Arsenal compact-caption artwork and original pair reviewed; conditioned overlay retains guard and rear loop. Caption Kompacta differs from source prose Kompakt. Native 1254 images resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "95c30cbbfc3611da406df9b0daff22eecd0c46dbd5bf1b0a06b83893b5e9bc44",
+      "imageSha256": "616769f2079f55204774753851ba08323a18192e14f3b30753a79e7b0b5fe35e",
+      "maskSha256": "c6610543b0b2a072951ec5ce50c9618375cb8f964f65070891e7e4eb0c955744",
+      "notes": "Arsenal compact-caption artwork and original pair reviewed; conditioned overlay retains guard and rear loop. Caption Kompacta differs from source prose Kompakt. Native 1254 images resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Arsenal compact-caption artwork and original pair reviewed; conditioned overlay retains guard and rear loop. Caption Kompacta differs from source prose Kompakt. Native 1254 images resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.050581556028904226,
+            0.22119140625
+          ],
+          "geometry": [
+            0.049027818971095774,
+            0.22041437848675036
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9501953125,
+            0.22119140625
+          ],
+          "geometry": [
+            0.9509721810289042,
+            0.22041437848675036
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.050581556028904226,
+            0.7783203125
+          ],
+          "geometry": [
+            0.049027818971095774,
+            0.7790973402632496
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9501953125,
+            0.7783203125
+          ],
+          "geometry": [
+            0.9509721810289042,
+            0.7790973402632496
+          ]
+        }
+      ],
+      "referenceSha256": "063058325618be977cb206ff11dc478b8f5267daa3a250873ffb8cb638fb7f95",
+      "geometrySha256": "616769f2079f55204774753851ba08323a18192e14f3b30753a79e7b0b5fe35e",
+      "detailSha256": "a922469047bc2fb16cf2b669dbeabbf6beebea82ce2e8da641e8d84bb4c8591d",
+      "geometryForegroundMaskSha256": "c6610543b0b2a072951ec5ce50c9618375cb8f964f65070891e7e4eb0c955744",
+      "foregroundMaskSha256": "69ca25666bc58be614aebf3064dd87ed59068b1be0b3ab72dbdec0c51b6e018a"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

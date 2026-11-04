@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-xm30-sniper-0e120cfd41",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-top",
+      "pixel": [
+        30.000000000000004,
+        546.0
+      ]
+    },
+    {
+      "name": "scope-turret-top",
+      "pixel": [
+        840.0000000000001,
+        367.00000000000006
+      ]
+    },
+    {
+      "name": "butt-top",
+      "pixel": [
+        1230.0,
+        508.0
+      ]
+    },
+    {
+      "name": "front-bipod-foot-bottom",
+      "pixel": [
+        275.0,
+        886.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-xm30-sniper-0e120cfd41.family.json",
+    "sha256": "89cb739066b1a80f78a50e0fb56d30d4d39ff78c88686e2940e4d67d460bdbf8"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/15636bdbbf16a3301fe509e76de06575bef01cbb5e113373a2763fd44ec9d931.png",
+      "sha256": "15636bdbbf16a3301fe509e76de06575bef01cbb5e113373a2763fd44ec9d931"
+    },
+    "clayReference": {
+      "path": "inputs/145cf2eba3d0484d40dc59f20af5800be9f388412e04d44a3263bd1731526f04.png",
+      "sha256": "145cf2eba3d0484d40dc59f20af5800be9f388412e04d44a3263bd1731526f04"
+    },
+    "geometry": {
+      "path": "inputs/5346208c4a8dd6376a9c42adb05a75202476e98c66b1f47b4d118f4ca2102d95.png",
+      "sha256": "5346208c4a8dd6376a9c42adb05a75202476e98c66b1f47b4d118f4ca2102d95"
+    },
+    "detail": {
+      "path": "inputs/e15419c8f160102cce333e7886d3a20e216753f120026cc89e5b321a0e96195e.png",
+      "sha256": "e15419c8f160102cce333e7886d3a20e216753f120026cc89e5b321a0e96195e"
+    },
+    "foregroundMask": {
+      "path": "inputs/993921c2152e60c2b1aaa7b1f95d23d1daafaafae51802affda642550a72d485.png",
+      "sha256": "993921c2152e60c2b1aaa7b1f95d23d1daafaafae51802affda642550a72d485"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c.png",
+      "sha256": "7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c"
+    },
+    "mask": {
+      "path": "inputs/7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c.png",
+      "sha256": "7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c"
+    },
+    "calibrationReference": {
+      "path": "inputs/cd2d5c701ea4c9358088e038d9e027134ae9d5f87d0a3a138b9d9b73e056155f.png",
+      "sha256": "cd2d5c701ea4c9358088e038d9e027134ae9d5f87d0a3a138b9d9b73e056155f"
+    },
+    "sourceAudit": {
+      "path": "inputs/12a095c81ade7b60e0dca72abfc49aa0927809ab9ed918dc05c4b8161e9d3f39.json",
+      "sha256": "12a095c81ade7b60e0dca72abfc49aa0927809ab9ed918dc05c4b8161e9d3f39"
+    },
+    "referenceApproval": {
+      "path": "inputs/9e07acf035922e92ca3e103248ce2f181053110573731b63827eabc81fc0115f.json",
+      "sha256": "9e07acf035922e92ca3e103248ce2f181053110573731b63827eabc81fc0115f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/03e592e55cc6233ca8e9a31d912928f24383f7dffa4d31a68102ce2f6e3edb23.png",
+      "sha256": "03e592e55cc6233ca8e9a31d912928f24383f7dffa4d31a68102ce2f6e3edb23"
+    }
+  },
+  "features": [
+    {
+      "name": "Retain the HK XM30 parent platform silhouette, grip/stock proportions and module interfaces; this is a parent-bound configuration, not a newly invented standalone model.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sniper configuration expressly requires imaging scope in core printed 308; preserve XM30 platform and rifle configuration.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared2048 overlay inspected against the single accepted source/actual-alpha pair. Scope, trigger/thumb openings, thin barrel and bipod legs/feet remain intact; camera and major silhouette match. Per-role source and output topology both1component/3holes. Padding102 passed the bounded exact-alpha precheck on the first probe and unchanged full conditioner. Fine channels/seams are nonblocking. Native1254 preserved;2048 is resampled, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1268,
+        779,
+        1313,
+        789
+      ],
+      "referenceAreaPixels": 340,
+      "referenceMaskSha256": "7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1377,
+        787,
+        1393,
+        791
+      ],
+      "referenceAreaPixels": 53,
+      "referenceMaskSha256": "7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1276,
+        1017,
+        1344,
+        1093
+      ],
+      "referenceAreaPixels": 3195,
+      "referenceMaskSha256": "7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "15636bdbbf16a3301fe509e76de06575bef01cbb5e113373a2763fd44ec9d931",
+      "imageSha256": "e15419c8f160102cce333e7886d3a20e216753f120026cc89e5b321a0e96195e",
+      "maskSha256": "993921c2152e60c2b1aaa7b1f95d23d1daafaafae51802affda642550a72d485",
+      "notes": "Prepared2048 overlay inspected against the single accepted source/actual-alpha pair. Scope, trigger/thumb openings, thin barrel and bipod legs/feet remain intact; camera and major silhouette match. Per-role source and output topology both1component/3holes. Padding102 passed the bounded exact-alpha precheck on the first probe and unchanged full conditioner. Fine channels/seams are nonblocking. Native1254 preserved;2048 is resampled, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "145cf2eba3d0484d40dc59f20af5800be9f388412e04d44a3263bd1731526f04",
+      "imageSha256": "5346208c4a8dd6376a9c42adb05a75202476e98c66b1f47b4d118f4ca2102d95",
+      "maskSha256": "7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c",
+      "notes": "Prepared2048 overlay inspected against the single accepted source/actual-alpha pair. Scope, trigger/thumb openings, thin barrel and bipod legs/feet remain intact; camera and major silhouette match. Per-role source and output topology both1component/3holes. Padding102 passed the bounded exact-alpha precheck on the first probe and unchanged full conditioner. Fine channels/seams are nonblocking. Native1254 preserved;2048 is resampled, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "15636bdbbf16a3301fe509e76de06575bef01cbb5e113373a2763fd44ec9d931",
+      "detailSha256": "e15419c8f160102cce333e7886d3a20e216753f120026cc89e5b321a0e96195e",
+      "geometrySha256": "5346208c4a8dd6376a9c42adb05a75202476e98c66b1f47b4d118f4ca2102d95",
+      "foregroundMaskSha256": "993921c2152e60c2b1aaa7b1f95d23d1daafaafae51802affda642550a72d485",
+      "geometryForegroundMaskSha256": "7e3abbd0362c2bb4d5e250deff2e0f758b1613fc9bc13148857569096d27621c",
+      "landmarks": [
+        {
+          "name": "muzzle-top",
+          "detail": [
+            0.06646517372284795,
+            0.440949470766129
+          ],
+          "geometry": [
+            0.06646517372284795,
+            0.43950037802419356
+          ]
+        },
+        {
+          "name": "scope-turret-top",
+          "detail": [
+            0.6532040363535802,
+            0.31125567036290325
+          ],
+          "geometry": [
+            0.6532040363535802,
+            0.30980657762096775
+          ]
+        },
+        {
+          "name": "butt-top",
+          "detail": [
+            0.9357079331757844,
+            0.41341670866935487
+          ],
+          "geometry": [
+            0.9357079331757844,
+            0.41341670866935487
+          ]
+        },
+        {
+          "name": "front-bipod-foot-bottom",
+          "detail": [
+            0.24393557044448913,
+            0.688019783266129
+          ],
+          "geometry": [
+            0.24393557044448913,
+            0.6894688760080646
+          ]
+        }
+      ],
+      "notes": "Prepared2048 overlay inspected against the single accepted source/actual-alpha pair. Scope, trigger/thumb openings, thin barrel and bipod legs/feet remain intact; camera and major silhouette match. Per-role source and output topology both1component/3holes. Padding102 passed the bounded exact-alpha precheck on the first probe and unchanged full conditioner. Fine channels/seams are nonblocking. Native1254 preserved;2048 is resampled, not native2K."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

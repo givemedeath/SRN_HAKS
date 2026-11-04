@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-riot-shield-800e3413e3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        222.0,
+        13.000000000000005
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        880.0000000000002,
+        13.000000000000005
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        222.0,
+        1378.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        880.0000000000002,
+        1378.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-riot-shield-800e3413e3.family.json",
+    "sha256": "49b6c4f9d8992986eec81f752d2eef61bcc023c458769199ff7615f67218a63e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/cc5d46113485a8ae9b90eff313a9747ae0c847234e6d7684b74ce215c726982e.png",
+      "sha256": "cc5d46113485a8ae9b90eff313a9747ae0c847234e6d7684b74ce215c726982e"
+    },
+    "clayReference": {
+      "path": "inputs/187fe9c5d158c2ea5f9d434a88a86bc040aff51187e164e730796de7d6491215.png",
+      "sha256": "187fe9c5d158c2ea5f9d434a88a86bc040aff51187e164e730796de7d6491215"
+    },
+    "geometry": {
+      "path": "inputs/58cb3fc4764b2b9a0f795e89472460dc4b2ed112d9facdee20e4915885a8b979.png",
+      "sha256": "58cb3fc4764b2b9a0f795e89472460dc4b2ed112d9facdee20e4915885a8b979"
+    },
+    "detail": {
+      "path": "inputs/5528bf8bbf328614901000d1ce7ca6240e8dd0534567f0ef6f5dd68ac9c057fd.png",
+      "sha256": "5528bf8bbf328614901000d1ce7ca6240e8dd0534567f0ef6f5dd68ac9c057fd"
+    },
+    "foregroundMask": {
+      "path": "inputs/ff7f2d825b77fcdf1105d163e555078f508d8d57ad350662f20cabc56e893808.png",
+      "sha256": "ff7f2d825b77fcdf1105d163e555078f508d8d57ad350662f20cabc56e893808"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/a5649699857bc8976fb66197a23103464114b9ef21b1524f63793b82a6d85897.png",
+      "sha256": "a5649699857bc8976fb66197a23103464114b9ef21b1524f63793b82a6d85897"
+    },
+    "mask": {
+      "path": "inputs/a5649699857bc8976fb66197a23103464114b9ef21b1524f63793b82a6d85897.png",
+      "sha256": "a5649699857bc8976fb66197a23103464114b9ef21b1524f63793b82a6d85897"
+    },
+    "calibrationReference": {
+      "path": "inputs/0e403d1d63b05872fd2a04f0495b99cad86d5442f30f605ee0c0f1aef7c6e861.png",
+      "sha256": "0e403d1d63b05872fd2a04f0495b99cad86d5442f30f605ee0c0f1aef7c6e861"
+    },
+    "sourceAudit": {
+      "path": "inputs/3b8c87167d4e396f82c3420171837dd118ccf9d26fc0557ee442a20afd0d42de.json",
+      "sha256": "3b8c87167d4e396f82c3420171837dd118ccf9d26fc0557ee442a20afd0d42de"
+    },
+    "referenceApproval": {
+      "path": "inputs/8bab428ab2c0a2b7250dad980625100c0558bfde15dd0742dda46db9721907e9.json",
+      "sha256": "8bab428ab2c0a2b7250dad980625100c0558bfde15dd0742dda46db9721907e9"
+    },
+    "calibrationDetail": {
+      "path": "inputs/5b82b3760fe78e7c12c7a7c1cb859b7756888d345c97d0a6a4de2045aea43e88.png",
+      "sha256": "5b82b3760fe78e7c12c7a7c1cb859b7756888d345c97d0a6a4de2045aea43e88"
+    }
+  },
+  "features": [
+    {
+      "name": "Handheld riot-control shield made from clear plasteel",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source distinguishes this from opaque Ballistic Shield, whose window/ladder-frame features are not mandatory Riot Shield construction",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve a complete clear protective panel and handling structure in a declared depiction; exact outline/dimensions and grip placement unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Core printed 317 describes clear plasteel; outline and fittings are interpretation. Both masks retain the clear panel as foreground; matched overlay reviewed. Native 1103 by 1426 images resampled onto a 2048 canvas.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "cc5d46113485a8ae9b90eff313a9747ae0c847234e6d7684b74ce215c726982e",
+      "imageSha256": "5528bf8bbf328614901000d1ce7ca6240e8dd0534567f0ef6f5dd68ac9c057fd",
+      "maskSha256": "ff7f2d825b77fcdf1105d163e555078f508d8d57ad350662f20cabc56e893808",
+      "notes": "Core printed 317 describes clear plasteel; outline and fittings are interpretation. Both masks retain the clear panel as foreground; matched overlay reviewed. Native 1103 by 1426 images resampled onto a 2048 canvas."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "187fe9c5d158c2ea5f9d434a88a86bc040aff51187e164e730796de7d6491215",
+      "imageSha256": "58cb3fc4764b2b9a0f795e89472460dc4b2ed112d9facdee20e4915885a8b979",
+      "maskSha256": "a5649699857bc8976fb66197a23103464114b9ef21b1524f63793b82a6d85897",
+      "notes": "Core printed 317 describes clear plasteel; outline and fittings are interpretation. Both masks retain the clear panel as foreground; matched overlay reviewed. Native 1103 by 1426 images resampled onto a 2048 canvas."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Core printed 317 describes clear plasteel; outline and fittings are interpretation. Both masks retain the clear panel as foreground; matched overlay reviewed. Native 1103 by 1426 images resampled onto a 2048 canvas.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.283540429392911,
+            0.05177634580291971
+          ],
+          "geometry": [
+            0.2828834959464555,
+            0.05046190693430657
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.7158026371606336,
+            0.05177634580291971
+          ],
+          "geometry": [
+            0.716459570607089,
+            0.05046190693430657
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.283540429392911,
+            0.9488808736313868
+          ],
+          "geometry": [
+            0.2828834959464555,
+            0.9488808736313868
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.7158026371606336,
+            0.9488808736313868
+          ],
+          "geometry": [
+            0.716459570607089,
+            0.9488808736313868
+          ]
+        }
+      ],
+      "referenceSha256": "cc5d46113485a8ae9b90eff313a9747ae0c847234e6d7684b74ce215c726982e",
+      "geometrySha256": "58cb3fc4764b2b9a0f795e89472460dc4b2ed112d9facdee20e4915885a8b979",
+      "detailSha256": "5528bf8bbf328614901000d1ce7ca6240e8dd0534567f0ef6f5dd68ac9c057fd",
+      "geometryForegroundMaskSha256": "a5649699857bc8976fb66197a23103464114b9ef21b1524f63793b82a6d85897",
+      "foregroundMaskSha256": "ff7f2d825b77fcdf1105d163e555078f508d8d57ad350662f20cabc56e893808"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

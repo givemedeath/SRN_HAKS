@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-spear-2febc2a88a",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "framing-upper-left",
+      "pixel": [
+        15.0,
+        553.0
+      ]
+    },
+    {
+      "name": "framing-upper-right",
+      "pixel": [
+        1240.0,
+        553.0
+      ]
+    },
+    {
+      "name": "framing-lower-left",
+      "pixel": [
+        15.0,
+        689.0
+      ]
+    },
+    {
+      "name": "framing-lower-right",
+      "pixel": [
+        1240.0,
+        689.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-spear-2febc2a88a.family.json",
+    "sha256": "4103098ce02b3b135eaeafd51be9074d126b805c76a32077d307ee4af28941b7"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/cccfad9239038db8806ea37543465d01bc72abdcc510ac5547008c059c271468.png",
+      "sha256": "cccfad9239038db8806ea37543465d01bc72abdcc510ac5547008c059c271468"
+    },
+    "clayReference": {
+      "path": "inputs/1242271978c4e8dd0a5d8b55a3c64485042ac87ae3d5018ccdbe042208ead331.png",
+      "sha256": "1242271978c4e8dd0a5d8b55a3c64485042ac87ae3d5018ccdbe042208ead331"
+    },
+    "geometry": {
+      "path": "inputs/3f2f6d1993a53d53a491303323b357974f859dc7833e2b18b729d9b94deb4841.png",
+      "sha256": "3f2f6d1993a53d53a491303323b357974f859dc7833e2b18b729d9b94deb4841"
+    },
+    "detail": {
+      "path": "inputs/0b7609c40b6be952a1126605eb441486c167c26f592463142c27cb892387e878.png",
+      "sha256": "0b7609c40b6be952a1126605eb441486c167c26f592463142c27cb892387e878"
+    },
+    "foregroundMask": {
+      "path": "inputs/1c08ea785df24bdf46b79c3b7a3a466bc2419affdea7f3be1be3094b2ff69da0.png",
+      "sha256": "1c08ea785df24bdf46b79c3b7a3a466bc2419affdea7f3be1be3094b2ff69da0"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/fdb2806781cefd09b4b5ba5aa519e770cbb855f213ffc79bc4f4a755d4751bf2.png",
+      "sha256": "fdb2806781cefd09b4b5ba5aa519e770cbb855f213ffc79bc4f4a755d4751bf2"
+    },
+    "mask": {
+      "path": "inputs/fdb2806781cefd09b4b5ba5aa519e770cbb855f213ffc79bc4f4a755d4751bf2.png",
+      "sha256": "fdb2806781cefd09b4b5ba5aa519e770cbb855f213ffc79bc4f4a755d4751bf2"
+    },
+    "calibrationReference": {
+      "path": "inputs/80ac1a25e7117bb16c8259ab5c130ab1f4bc9ec98126305b35f2c03caac93eb7.png",
+      "sha256": "80ac1a25e7117bb16c8259ab5c130ab1f4bc9ec98126305b35f2c03caac93eb7"
+    },
+    "sourceAudit": {
+      "path": "inputs/d523473603aa27f98071c92ca3f53c992c8aaf51d810100e61981b736d523695.json",
+      "sha256": "d523473603aa27f98071c92ca3f53c992c8aaf51d810100e61981b736d523695"
+    },
+    "referenceApproval": {
+      "path": "inputs/11e2ef053599103f1675c8c1f56d8fc1b63d24a23ac599f4274e1a559ba60c0b.json",
+      "sha256": "11e2ef053599103f1675c8c1f56d8fc1b63d24a23ac599f4274e1a559ba60c0b"
+    },
+    "calibrationDetail": {
+      "path": "inputs/aedd78b28bc4010b803e29b2213ddd6f5df3454dc9e18dd1c04594a35b40a7ee.png",
+      "sha256": "aedd78b28bc4010b803e29b2213ddd6f5df3454dc9e18dd1c04594a35b40a7ee"
+    }
+  },
+  "features": [
+    {
+      "name": "Long shaft with a spearhead.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Traditional versions permit wood shafts and stone, bone, metal or hardened wood heads; modern versions permit composite or metal shafts and optional telescoping.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Choose and declare the depicted construction rather than treating all permitted materials as simultaneously required.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source-matched original pair and masks reviewed; shaft, head and guard retained. User accepts shallow channels. Originals resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "cccfad9239038db8806ea37543465d01bc72abdcc510ac5547008c059c271468",
+      "imageSha256": "0b7609c40b6be952a1126605eb441486c167c26f592463142c27cb892387e878",
+      "maskSha256": "1c08ea785df24bdf46b79c3b7a3a466bc2419affdea7f3be1be3094b2ff69da0",
+      "notes": "Source-matched original pair and masks reviewed; shaft, head and guard retained. User accepts shallow channels. Originals resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1242271978c4e8dd0a5d8b55a3c64485042ac87ae3d5018ccdbe042208ead331",
+      "imageSha256": "3f2f6d1993a53d53a491303323b357974f859dc7833e2b18b729d9b94deb4841",
+      "maskSha256": "fdb2806781cefd09b4b5ba5aa519e770cbb855f213ffc79bc4f4a755d4751bf2",
+      "notes": "Source-matched original pair and masks reviewed; shaft, head and guard retained. User accepts shallow channels. Originals resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Source-matched original pair and masks reviewed; shaft, head and guard retained. User accepts shallow channels. Originals resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "framing-upper-left",
+          "detail": [
+            0.0498046875,
+            0.44994752798507465
+          ],
+          "geometry": [
+            0.049069674744897956,
+            0.44994752798507465
+          ]
+        },
+        {
+          "name": "framing-upper-right",
+          "detail": [
+            0.9501953125,
+            0.44994752798507465
+          ],
+          "geometry": [
+            0.950930325255102,
+            0.44994752798507465
+          ]
+        },
+        {
+          "name": "framing-lower-left",
+          "detail": [
+            0.0498046875,
+            0.5500524720149254
+          ],
+          "geometry": [
+            0.049069674744897956,
+            0.5500524720149254
+          ]
+        },
+        {
+          "name": "framing-lower-right",
+          "detail": [
+            0.9501953125,
+            0.5500524720149254
+          ],
+          "geometry": [
+            0.950930325255102,
+            0.5500524720149254
+          ]
+        }
+      ],
+      "referenceSha256": "cccfad9239038db8806ea37543465d01bc72abdcc510ac5547008c059c271468",
+      "geometrySha256": "3f2f6d1993a53d53a491303323b357974f859dc7833e2b18b729d9b94deb4841",
+      "detailSha256": "0b7609c40b6be952a1126605eb441486c167c26f592463142c27cb892387e878",
+      "geometryForegroundMaskSha256": "fdb2806781cefd09b4b5ba5aa519e770cbb855f213ffc79bc4f4a755d4751bf2",
+      "foregroundMaskSha256": "1c08ea785df24bdf46b79c3b7a3a466bc2419affdea7f3be1be3094b2ff69da0"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

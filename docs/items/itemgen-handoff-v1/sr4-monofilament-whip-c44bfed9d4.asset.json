@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-monofilament-whip-c44bfed9d4",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "haft-outlet",
+      "pixel": [
+        380.00000000000006,
+        260.0
+      ]
+    },
+    {
+      "name": "haft-base",
+      "pixel": [
+        79.99999999999999,
+        1000.0
+      ]
+    },
+    {
+      "name": "weighted-tip",
+      "pixel": [
+        1140.0,
+        1060.0
+      ]
+    },
+    {
+      "name": "filament-apex",
+      "pixel": [
+        800.0,
+        55.00000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-monofilament-whip-c44bfed9d4.family.json",
+    "sha256": "f0df9e94d948f0efd52b0e6749978aaf5f1858a5dcd776de41422ad5bd1b812b"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/177d856f3b3bb8d0e6b69850616eeb9db4b2dbd1b860f4e76bc708ac1af67add.png",
+      "sha256": "177d856f3b3bb8d0e6b69850616eeb9db4b2dbd1b860f4e76bc708ac1af67add"
+    },
+    "clayReference": {
+      "path": "inputs/f44a23af774328e618a0428aeb893dded819eab11b1e4e893f04074ce43cbf4e.png",
+      "sha256": "f44a23af774328e618a0428aeb893dded819eab11b1e4e893f04074ce43cbf4e"
+    },
+    "geometry": {
+      "path": "inputs/32c12afba21e29ea8ce491cea2a37e30e3d417c49af952c4acddf24115660f23.png",
+      "sha256": "32c12afba21e29ea8ce491cea2a37e30e3d417c49af952c4acddf24115660f23"
+    },
+    "detail": {
+      "path": "inputs/e785491f65fa4ef2792546bb571698f3d7160db142521046356b3f9ea2d57f52.png",
+      "sha256": "e785491f65fa4ef2792546bb571698f3d7160db142521046356b3f9ea2d57f52"
+    },
+    "foregroundMask": {
+      "path": "inputs/f0b27b35cc5612b52191e493fe70cbff08ec352eaab2aa9693156380449c5cc3.png",
+      "sha256": "f0b27b35cc5612b52191e493fe70cbff08ec352eaab2aa9693156380449c5cc3"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/0f74b1493ad1add66abd9768c14a31aa3cf814ed0bd62934e0698fbf9c791119.png",
+      "sha256": "0f74b1493ad1add66abd9768c14a31aa3cf814ed0bd62934e0698fbf9c791119"
+    },
+    "mask": {
+      "path": "inputs/0f74b1493ad1add66abd9768c14a31aa3cf814ed0bd62934e0698fbf9c791119.png",
+      "sha256": "0f74b1493ad1add66abd9768c14a31aa3cf814ed0bd62934e0698fbf9c791119"
+    },
+    "calibrationReference": {
+      "path": "inputs/732f8605f2e63e0ce5fd4942578e7de9cc95ed875f0da1f7e2e52238542d58f3.png",
+      "sha256": "732f8605f2e63e0ce5fd4942578e7de9cc95ed875f0da1f7e2e52238542d58f3"
+    },
+    "sourceAudit": {
+      "path": "inputs/2d5d61526652a324e5bde78d047315b1059d3b4c260d69806ba3cdf509298274.json",
+      "sha256": "2d5d61526652a324e5bde78d047315b1059d3b4c260d69806ba3cdf509298274"
+    },
+    "referenceApproval": {
+      "path": "inputs/722cc97185e4852b03c09cb82ee9641464cd1b021cdd707fe39231cfbbf936ea.json",
+      "sha256": "722cc97185e4852b03c09cb82ee9641464cd1b021cdd707fe39231cfbbf936ea"
+    },
+    "calibrationDetail": {
+      "path": "inputs/20ad1dad76ce4619a78b9d145eeb7a30425ab0e1d0c3907a07041c1006c403d1.png",
+      "sha256": "20ad1dad76ce4619a78b9d145eeb7a30425ab0e1d0c3907a07041c1006c403d1"
+    }
+  },
+  "features": [
+    {
+      "name": "Retractable thin line extending up to two meters",
+      "placementReviewed": true
+    },
+    {
+      "name": "Weighted tip",
+      "placementReviewed": true
+    },
+    {
+      "name": "Separate haft",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sole assigned source/pair approval reused. Actual conditioned overlay and clay inspected once: entire thinfilament continuous from haftoutlet to weightedtip, bothendpoints/buttloop/framing retained, finegripgrain gone and coarsewrap/collarboundaries structural. Masktopology preserved. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        137,
+        1684,
+        221,
+        1754
+      ],
+      "referenceAreaPixels": 3488,
+      "referenceMaskSha256": "0f74b1493ad1add66abd9768c14a31aa3cf814ed0bd62934e0698fbf9c791119",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "177d856f3b3bb8d0e6b69850616eeb9db4b2dbd1b860f4e76bc708ac1af67add",
+      "imageSha256": "e785491f65fa4ef2792546bb571698f3d7160db142521046356b3f9ea2d57f52",
+      "maskSha256": "f0b27b35cc5612b52191e493fe70cbff08ec352eaab2aa9693156380449c5cc3",
+      "notes": "Sole assigned source/pair approval reused. Actual conditioned overlay and clay inspected once: entire thinfilament continuous from haftoutlet to weightedtip, bothendpoints/buttloop/framing retained, finegripgrain gone and coarsewrap/collarboundaries structural. Masktopology preserved. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f44a23af774328e618a0428aeb893dded819eab11b1e4e893f04074ce43cbf4e",
+      "imageSha256": "32c12afba21e29ea8ce491cea2a37e30e3d417c49af952c4acddf24115660f23",
+      "maskSha256": "0f74b1493ad1add66abd9768c14a31aa3cf814ed0bd62934e0698fbf9c791119",
+      "notes": "Sole assigned source/pair approval reused. Actual conditioned overlay and clay inspected once: entire thinfilament continuous from haftoutlet to weightedtip, bothendpoints/buttloop/framing retained, finegripgrain gone and coarsewrap/collarboundaries structural. Masktopology preserved. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Sole assigned source/pair approval reused. Actual conditioned overlay and clay inspected once: entire thinfilament continuous from haftoutlet to weightedtip, bothendpoints/buttloop/framing retained, finegripgrain gone and coarsewrap/collarboundaries structural. Masktopology preserved. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "haft-outlet",
+          "detail": [
+            0.31276395789748956,
+            0.2649303895793499
+          ],
+          "geometry": [
+            0.31276395789748956,
+            0.2649303895793499
+          ]
+        },
+        {
+          "name": "haft-base",
+          "detail": [
+            0.08672447044979079,
+            0.8224672860898662
+          ],
+          "geometry": [
+            0.08672447044979079,
+            0.8224672860898662
+          ]
+        },
+        {
+          "name": "weighted-tip",
+          "detail": [
+            0.8853973260983263,
+            0.8676729804015296
+          ],
+          "geometry": [
+            0.8853973260983263,
+            0.8676729804015296
+          ]
+        },
+        {
+          "name": "filament-apex",
+          "detail": [
+            0.6292192403242678,
+            0.11047760068116635
+          ],
+          "geometry": [
+            0.6292192403242678,
+            0.11047760068116635
+          ]
+        }
+      ],
+      "referenceSha256": "177d856f3b3bb8d0e6b69850616eeb9db4b2dbd1b860f4e76bc708ac1af67add",
+      "geometrySha256": "32c12afba21e29ea8ce491cea2a37e30e3d417c49af952c4acddf24115660f23",
+      "detailSha256": "e785491f65fa4ef2792546bb571698f3d7160db142521046356b3f9ea2d57f52",
+      "geometryForegroundMaskSha256": "0f74b1493ad1add66abd9768c14a31aa3cf814ed0bd62934e0698fbf9c791119",
+      "foregroundMaskSha256": "f0b27b35cc5612b52191e493fe70cbff08ec352eaab2aa9693156380449c5cc3"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

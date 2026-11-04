@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-screech-sonic-rifle-f497ccc140",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-opening",
+      "pixel": [
+        330.0,
+        465.0
+      ]
+    },
+    {
+      "name": "front-emitter",
+      "pixel": [
+        1200.0,
+        500.0
+      ]
+    },
+    {
+      "name": "power-clip",
+      "pixel": [
+        265.0,
+        730.0
+      ]
+    },
+    {
+      "name": "trigger-opening",
+      "pixel": [
+        660.0,
+        650.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-screech-sonic-rifle-f497ccc140.family.json",
+    "sha256": "aeb11529d7dc608b78512f10ea08e1b358b10bb7b39d4432364b548191ef086a"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/73350b70c864ef6ea67fbf6e0c1135fec7f6654acc4a1c6297d3366da17d8afb.png",
+      "sha256": "73350b70c864ef6ea67fbf6e0c1135fec7f6654acc4a1c6297d3366da17d8afb"
+    },
+    "clayReference": {
+      "path": "inputs/74d3977ea8193d97204952b96503d3d587d2f66bfb9520d22c4f977560e477c1.png",
+      "sha256": "74d3977ea8193d97204952b96503d3d587d2f66bfb9520d22c4f977560e477c1"
+    },
+    "geometry": {
+      "path": "inputs/7197b0a1b7c3070ab683818c9aff0d00b918905584a576c5b736f347a461721c.png",
+      "sha256": "7197b0a1b7c3070ab683818c9aff0d00b918905584a576c5b736f347a461721c"
+    },
+    "detail": {
+      "path": "inputs/632434f381aaeaed142aa74ec4827844c1b53a3c0c7336155195c425a50471ba.png",
+      "sha256": "632434f381aaeaed142aa74ec4827844c1b53a3c0c7336155195c425a50471ba"
+    },
+    "foregroundMask": {
+      "path": "inputs/ead231bca1d197f5b1a5a1885fa229810883db4293d23f89fa612bb332636570.png",
+      "sha256": "ead231bca1d197f5b1a5a1885fa229810883db4293d23f89fa612bb332636570"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c0a4f7c17ff34fcb198266aa55cb43aabe1b213625e74fa350fed6e2e76013f2.png",
+      "sha256": "c0a4f7c17ff34fcb198266aa55cb43aabe1b213625e74fa350fed6e2e76013f2"
+    },
+    "mask": {
+      "path": "inputs/c0a4f7c17ff34fcb198266aa55cb43aabe1b213625e74fa350fed6e2e76013f2.png",
+      "sha256": "c0a4f7c17ff34fcb198266aa55cb43aabe1b213625e74fa350fed6e2e76013f2"
+    },
+    "calibrationReference": {
+      "path": "inputs/36e8b05d27fffa8f1f5e3aaddfb8be6d46582c7a7fab6696cc65e78c3ccbe144.png",
+      "sha256": "36e8b05d27fffa8f1f5e3aaddfb8be6d46582c7a7fab6696cc65e78c3ccbe144"
+    },
+    "sourceAudit": {
+      "path": "inputs/84899a9221fe9e82ac571a324e3b27928f04bf6301a5bd12f59cd30c76926823.json",
+      "sha256": "84899a9221fe9e82ac571a324e3b27928f04bf6301a5bd12f59cd30c76926823"
+    },
+    "referenceApproval": {
+      "path": "inputs/9bd2c89dab52c160925743b235bd303581b5808d21cb587414fdf1ffc7425885.json",
+      "sha256": "9bd2c89dab52c160925743b235bd303581b5808d21cb587414fdf1ffc7425885"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4bea72764bb75bd84a1fdfd86c653e862f918fd96618cfe4a8096747b4b8ae30.png",
+      "sha256": "4bea72764bb75bd84a1fdfd86c653e862f918fd96618cfe4a8096747b4b8ae30"
+    }
+  },
+  "features": [
+    {
+      "name": "Rifle-class device projecting high-frequency sonic energy for riot control; exterior must remain an explicitly declared description-based interpretation",
+      "placementReviewed": true
+    },
+    {
+      "name": "Peak-discharge power supply; table permits a power clip or external source",
+      "placementReviewed": true
+    },
+    {
+      "name": "If an external satchel/backpack supply is chosen, retain its cable connection per printed36/PDF38; a clip-based base reference avoids inventing a mandatory backpack",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair/manual approval reused. Actual newly conditioned overlay and clay inspected once: aligned silhouette/framing, smooth clipface and shallow upper surface, preserved emitter/vents/stock/trigger openings. Both native and2048 masks retain1component/2holes. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        369,
+        739,
+        781,
+        802
+      ],
+      "referenceAreaPixels": 23759,
+      "referenceMaskSha256": "c0a4f7c17ff34fcb198266aa55cb43aabe1b213625e74fa350fed6e2e76013f2",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        930,
+        957,
+        1166,
+        1240
+      ],
+      "referenceAreaPixels": 29409,
+      "referenceMaskSha256": "c0a4f7c17ff34fcb198266aa55cb43aabe1b213625e74fa350fed6e2e76013f2",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "73350b70c864ef6ea67fbf6e0c1135fec7f6654acc4a1c6297d3366da17d8afb",
+      "imageSha256": "632434f381aaeaed142aa74ec4827844c1b53a3c0c7336155195c425a50471ba",
+      "maskSha256": "ead231bca1d197f5b1a5a1885fa229810883db4293d23f89fa612bb332636570",
+      "notes": "Assigned source/pair/manual approval reused. Actual newly conditioned overlay and clay inspected once: aligned silhouette/framing, smooth clipface and shallow upper surface, preserved emitter/vents/stock/trigger openings. Both native and2048 masks retain1component/2holes. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "74d3977ea8193d97204952b96503d3d587d2f66bfb9520d22c4f977560e477c1",
+      "imageSha256": "7197b0a1b7c3070ab683818c9aff0d00b918905584a576c5b736f347a461721c",
+      "maskSha256": "c0a4f7c17ff34fcb198266aa55cb43aabe1b213625e74fa350fed6e2e76013f2",
+      "notes": "Assigned source/pair/manual approval reused. Actual newly conditioned overlay and clay inspected once: aligned silhouette/framing, smooth clipface and shallow upper surface, preserved emitter/vents/stock/trigger openings. Both native and2048 masks retain1component/2holes. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair/manual approval reused. Actual newly conditioned overlay and clay inspected once: aligned silhouette/framing, smooth clipface and shallow upper surface, preserved emitter/vents/stock/trigger openings. Both native and2048 masks retain1component/2holes. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "stock-opening",
+          "detail": [
+            0.28258860518292683,
+            0.375244140625
+          ],
+          "geometry": [
+            0.28258860518292683,
+            0.375244140625
+          ]
+        },
+        {
+          "name": "front-emitter",
+          "detail": [
+            0.9194502667682927,
+            0.40087890625
+          ],
+          "geometry": [
+            0.9194502667682927,
+            0.40087890625
+          ]
+        },
+        {
+          "name": "power-clip",
+          "detail": [
+            0.2350069867886179,
+            0.5693359375
+          ],
+          "geometry": [
+            0.2350069867886179,
+            0.5693359375
+          ]
+        },
+        {
+          "name": "trigger-opening",
+          "detail": [
+            0.5241568216463415,
+            0.5107421875
+          ],
+          "geometry": [
+            0.5241568216463415,
+            0.5107421875
+          ]
+        }
+      ],
+      "referenceSha256": "73350b70c864ef6ea67fbf6e0c1135fec7f6654acc4a1c6297d3366da17d8afb",
+      "geometrySha256": "7197b0a1b7c3070ab683818c9aff0d00b918905584a576c5b736f347a461721c",
+      "detailSha256": "632434f381aaeaed142aa74ec4827844c1b53a3c0c7336155195c425a50471ba",
+      "geometryForegroundMaskSha256": "c0a4f7c17ff34fcb198266aa55cb43aabe1b213625e74fa350fed6e2e76013f2",
+      "foregroundMaskSha256": "ead231bca1d197f5b1a5a1885fa229810883db4293d23f89fa612bb332636570"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

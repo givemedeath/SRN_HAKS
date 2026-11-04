@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-shock-hand-5049df5f36",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "middle-fingertip-upper",
+      "pixel": [
+        570.0,
+        31.0
+      ]
+    },
+    {
+      "name": "ring-fingertip-upper",
+      "pixel": [
+        380.0,
+        96.00000000000001
+      ]
+    },
+    {
+      "name": "little-finger-upper",
+      "pixel": [
+        190.0,
+        459.0
+      ]
+    },
+    {
+      "name": "wrist-end-lower",
+      "pixel": [
+        800.0,
+        1204.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-shock-hand-5049df5f36.family.json",
+    "sha256": "2c4b275f64603f17f49b756dab40d9c072b0a64aa35abc18ff619d814185c393"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f6bd57365c1348f161618a23c62884e98098a28bf03572ae704d5d358f5e7571.png",
+      "sha256": "f6bd57365c1348f161618a23c62884e98098a28bf03572ae704d5d358f5e7571"
+    },
+    "clayReference": {
+      "path": "inputs/6e1231b1262a5645881a0de40da028f403cc7ba8de73531efd71a21fbc03a040.png",
+      "sha256": "6e1231b1262a5645881a0de40da028f403cc7ba8de73531efd71a21fbc03a040"
+    },
+    "geometry": {
+      "path": "inputs/26c0e6b3ced3fa8b64cc6a5f898fac44aa2d21d238d9bab40561d709e34191df.png",
+      "sha256": "26c0e6b3ced3fa8b64cc6a5f898fac44aa2d21d238d9bab40561d709e34191df"
+    },
+    "detail": {
+      "path": "inputs/f483041bca963848c39c29038be6a0715a156a52a2c91a228e952a5e9b6964fd.png",
+      "sha256": "f483041bca963848c39c29038be6a0715a156a52a2c91a228e952a5e9b6964fd"
+    },
+    "foregroundMask": {
+      "path": "inputs/304b3b280e25cd5618cbc2f6077a989618a93c21f83be17feef4392e823806c1.png",
+      "sha256": "304b3b280e25cd5618cbc2f6077a989618a93c21f83be17feef4392e823806c1"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c8d751b5f01cbcec98ffee623c3d2094bc851820cf47dd241102fc0d84b5a2f0.png",
+      "sha256": "c8d751b5f01cbcec98ffee623c3d2094bc851820cf47dd241102fc0d84b5a2f0"
+    },
+    "mask": {
+      "path": "inputs/c8d751b5f01cbcec98ffee623c3d2094bc851820cf47dd241102fc0d84b5a2f0.png",
+      "sha256": "c8d751b5f01cbcec98ffee623c3d2094bc851820cf47dd241102fc0d84b5a2f0"
+    },
+    "calibrationReference": {
+      "path": "inputs/0aad1956870d86df9354c88086b538b45c0e3cb668b0f9093950a1c572064e0c.png",
+      "sha256": "0aad1956870d86df9354c88086b538b45c0e3cb668b0f9093950a1c572064e0c"
+    },
+    "sourceAudit": {
+      "path": "inputs/ec0ca3f7f5b4582fd7c8dbd7515d945f44a0a43cfa6e8a05986cafd43dfce18b.json",
+      "sha256": "ec0ca3f7f5b4582fd7c8dbd7515d945f44a0a43cfa6e8a05986cafd43dfce18b"
+    },
+    "referenceApproval": {
+      "path": "inputs/eb0a6de291033342ba5ac9e28bfbb522a16d44150f817970e815bcec3ec10456.json",
+      "sha256": "eb0a6de291033342ba5ac9e28bfbb522a16d44150f817970e815bcec3ec10456"
+    },
+    "calibrationDetail": {
+      "path": "inputs/d3bd770aa1f109f1116c635d7f859c86564db962c5cb71f463b068f2f1f52c2a.png",
+      "sha256": "d3bd770aa1f109f1116c635d7f859c86564db962c5cb71f463b068f2f1f52c2a"
+    }
+  },
+  "features": [
+    {
+      "name": "Shock pads built into knuckles OR palm; chosen placement must be declared",
+      "placementReviewed": true
+    },
+    {
+      "name": "Cyberlimb upgrade or implant in a natural hand, not a detachable glove",
+      "placementReviewed": true
+    },
+    {
+      "name": "Electrical contact identity, not blades despite mixed combat-table heading",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core337/PDF339 Shock Hand prose. Chosen PALM pad variant retains four integrated broad contact pads, all five coherent synthetic digits, joints, finger gaps and rounded closed wrist end. Pad count/shape and exact housing/finish are artistic; no uniquely labeled model art. No blades, glove, held weapon or visible electrical action. Each alpha is one component/no enclosed holes and has positive frame margins. Shallow panel channels nonblocking; no visible background or cast shadow. Whole contextual hand is not native rig/client approval. Native1254 retained;2048 resampled.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f6bd57365c1348f161618a23c62884e98098a28bf03572ae704d5d358f5e7571",
+      "imageSha256": "f483041bca963848c39c29038be6a0715a156a52a2c91a228e952a5e9b6964fd",
+      "maskSha256": "304b3b280e25cd5618cbc2f6077a989618a93c21f83be17feef4392e823806c1",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core337/PDF339 Shock Hand prose. Chosen PALM pad variant retains four integrated broad contact pads, all five coherent synthetic digits, joints, finger gaps and rounded closed wrist end. Pad count/shape and exact housing/finish are artistic; no uniquely labeled model art. No blades, glove, held weapon or visible electrical action. Each alpha is one component/no enclosed holes and has positive frame margins. Shallow panel channels nonblocking; no visible background or cast shadow. Whole contextual hand is not native rig/client approval. Native1254 retained;2048 resampled."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6e1231b1262a5645881a0de40da028f403cc7ba8de73531efd71a21fbc03a040",
+      "imageSha256": "26c0e6b3ced3fa8b64cc6a5f898fac44aa2d21d238d9bab40561d709e34191df",
+      "maskSha256": "c8d751b5f01cbcec98ffee623c3d2094bc851820cf47dd241102fc0d84b5a2f0",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core337/PDF339 Shock Hand prose. Chosen PALM pad variant retains four integrated broad contact pads, all five coherent synthetic digits, joints, finger gaps and rounded closed wrist end. Pad count/shape and exact housing/finish are artistic; no uniquely labeled model art. No blades, glove, held weapon or visible electrical action. Each alpha is one component/no enclosed holes and has positive frame margins. Shallow panel channels nonblocking; no visible background or cast shadow. Whole contextual hand is not native rig/client approval. Native1254 retained;2048 resampled."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "f6bd57365c1348f161618a23c62884e98098a28bf03572ae704d5d358f5e7571",
+      "detailSha256": "f483041bca963848c39c29038be6a0715a156a52a2c91a228e952a5e9b6964fd",
+      "geometrySha256": "26c0e6b3ced3fa8b64cc6a5f898fac44aa2d21d238d9bab40561d709e34191df",
+      "foregroundMaskSha256": "304b3b280e25cd5618cbc2f6077a989618a93c21f83be17feef4392e823806c1",
+      "geometryForegroundMaskSha256": "c8d751b5f01cbcec98ffee623c3d2094bc851820cf47dd241102fc0d84b5a2f0",
+      "landmarks": [
+        {
+          "name": "middle-fingertip-upper",
+          "detail": [
+            0.453057011471519,
+            0.0513192217724979
+          ],
+          "geometry": [
+            0.453057011471519,
+            0.05056195463624895
+          ]
+        },
+        {
+          "name": "ring-fingertip-upper",
+          "detail": [
+            0.30919946598101267,
+            0.10054158562867957
+          ],
+          "geometry": [
+            0.30919946598101267,
+            0.10129885276492853
+          ]
+        },
+        {
+          "name": "little-finger-upper",
+          "detail": [
+            0.16534192049050633,
+            0.3754295560870479
+          ],
+          "geometry": [
+            0.16534192049050633,
+            0.3754295560870479
+          ]
+        },
+        {
+          "name": "wrist-end-lower",
+          "detail": [
+            0.6272003560126582,
+            0.9395935725925147
+          ],
+          "geometry": [
+            0.6272003560126582,
+            0.9403508397287637
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core337/PDF339 Shock Hand prose. Chosen PALM pad variant retains four integrated broad contact pads, all five coherent synthetic digits, joints, finger gaps and rounded closed wrist end. Pad count/shape and exact housing/finish are artistic; no uniquely labeled model art. No blades, glove, held weapon or visible electrical action. Each alpha is one component/no enclosed holes and has positive frame margins. Shallow panel channels nonblocking; no visible background or cast shadow. Whole contextual hand is not native rig/client approval. Native1254 retained;2048 resampled."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

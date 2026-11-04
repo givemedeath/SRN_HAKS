@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hand-razors-2430c48cec",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "middle-nail-tip-upper",
+      "pixel": [
+        650.0,
+        31.999999999999996
+      ]
+    },
+    {
+      "name": "index-nail-tip-upper",
+      "pixel": [
+        850.0,
+        105.0
+      ]
+    },
+    {
+      "name": "thumb-nail-tip-upper",
+      "pixel": [
+        1120.0,
+        581.0000000000001
+      ]
+    },
+    {
+      "name": "wrist-end-lower",
+      "pixel": [
+        650.0,
+        1224.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hand-razors-2430c48cec.family.json",
+    "sha256": "7a3a72dcd2d20d4feb52cbcca333274431a1bffe703f9ba5b683ef2b06da6465"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/7da6c4724a8cbfdc009e77629754f2a3bb80d642a3f25657abe9d24a7a643eda.png",
+      "sha256": "7da6c4724a8cbfdc009e77629754f2a3bb80d642a3f25657abe9d24a7a643eda"
+    },
+    "clayReference": {
+      "path": "inputs/5b463442f6fb07fcd98166a1e4fa4b195b2cec5476f77fed09fd51c06a96a389.png",
+      "sha256": "5b463442f6fb07fcd98166a1e4fa4b195b2cec5476f77fed09fd51c06a96a389"
+    },
+    "geometry": {
+      "path": "inputs/5944637b2bc3272f9ca510141ba8fbe0ff01c185423f18f9486375a40ae2dc73.png",
+      "sha256": "5944637b2bc3272f9ca510141ba8fbe0ff01c185423f18f9486375a40ae2dc73"
+    },
+    "detail": {
+      "path": "inputs/8f0b1913bea9d7df36ad361c89e115c5815f0e788f61a6c6cdc7297d8d15fb62.png",
+      "sha256": "8f0b1913bea9d7df36ad361c89e115c5815f0e788f61a6c6cdc7297d8d15fb62"
+    },
+    "foregroundMask": {
+      "path": "inputs/13beebfd7e6a461be60bb4acde3fdcf68eea017a9013e0ae3fafe436eb029679.png",
+      "sha256": "13beebfd7e6a461be60bb4acde3fdcf68eea017a9013e0ae3fafe436eb029679"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/92219de3de4c097b0467ee4df1b6cd6cf6f03b2e9add1553c834e21639896fbd.png",
+      "sha256": "92219de3de4c097b0467ee4df1b6cd6cf6f03b2e9add1553c834e21639896fbd"
+    },
+    "mask": {
+      "path": "inputs/92219de3de4c097b0467ee4df1b6cd6cf6f03b2e9add1553c834e21639896fbd.png",
+      "sha256": "92219de3de4c097b0467ee4df1b6cd6cf6f03b2e9add1553c834e21639896fbd"
+    },
+    "calibrationReference": {
+      "path": "inputs/71a1b20c47615c067e56518d59eb88f48aef42e6b619ee88eca55a520fd1db87.png",
+      "sha256": "71a1b20c47615c067e56518d59eb88f48aef42e6b619ee88eca55a520fd1db87"
+    },
+    "sourceAudit": {
+      "path": "inputs/59541ebb0e0c4b5ab4d1a16fbb5abab7aaed8ee271bf1f32ef91253164e52b63.json",
+      "sha256": "59541ebb0e0c4b5ab4d1a16fbb5abab7aaed8ee271bf1f32ef91253164e52b63"
+    },
+    "referenceApproval": {
+      "path": "inputs/5e310c8252268ad02f8ddd5e3d7219611fb6414295a9199ed6e7f020aa020536.json",
+      "sha256": "5e310c8252268ad02f8ddd5e3d7219611fb6414295a9199ed6e7f020aa020536"
+    },
+    "calibrationDetail": {
+      "path": "inputs/7030ab3b93900562a667b74f79c5c5e1b8e48214c3d85c61823f37c1411859ce.png",
+      "sha256": "7030ab3b93900562a667b74f79c5c5e1b8e48214c3d85c61823f37c1411859ce"
+    }
+  },
+  "features": [
+    {
+      "name": "Short2.5-centimeter blades of chromed steel or carbon fiber replace fingernails or slide from beneath synthetic nail replacements",
+      "placementReviewed": true
+    },
+    {
+      "name": "Retain actual nail/fingertip integration; not a separate claw glove or held blade",
+      "placementReviewed": true
+    },
+    {
+      "name": "Choose material/configuration explicitly; exact blade count/profile not uniquely prescribed",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core336-337/PDF338-339 and errata5. Whole five-digit synthetic hand BACK view preserves all FIVE SHORT chromed-steel nail-replacement blades including thumb, with source-consistent distal-joint-scale lengths; five is the declared artistic count choice, not a prescribed source count. No long knuckle/forearm spurs, glove or held blade. Closed wrist and finger gaps remain; exact shell/finish/depth artistic, not unique labeled model art. Tiny seams/shallow channels nonblocking; positive margins/no clipping, background or cast shadow. Native1254 retained;2048 resampled; no native rig approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7da6c4724a8cbfdc009e77629754f2a3bb80d642a3f25657abe9d24a7a643eda",
+      "imageSha256": "8f0b1913bea9d7df36ad361c89e115c5815f0e788f61a6c6cdc7297d8d15fb62",
+      "maskSha256": "13beebfd7e6a461be60bb4acde3fdcf68eea017a9013e0ae3fafe436eb029679",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core336-337/PDF338-339 and errata5. Whole five-digit synthetic hand BACK view preserves all FIVE SHORT chromed-steel nail-replacement blades including thumb, with source-consistent distal-joint-scale lengths; five is the declared artistic count choice, not a prescribed source count. No long knuckle/forearm spurs, glove or held blade. Closed wrist and finger gaps remain; exact shell/finish/depth artistic, not unique labeled model art. Tiny seams/shallow channels nonblocking; positive margins/no clipping, background or cast shadow. Native1254 retained;2048 resampled; no native rig approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "5b463442f6fb07fcd98166a1e4fa4b195b2cec5476f77fed09fd51c06a96a389",
+      "imageSha256": "5944637b2bc3272f9ca510141ba8fbe0ff01c185423f18f9486375a40ae2dc73",
+      "maskSha256": "92219de3de4c097b0467ee4df1b6cd6cf6f03b2e9add1553c834e21639896fbd",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core336-337/PDF338-339 and errata5. Whole five-digit synthetic hand BACK view preserves all FIVE SHORT chromed-steel nail-replacement blades including thumb, with source-consistent distal-joint-scale lengths; five is the declared artistic count choice, not a prescribed source count. No long knuckle/forearm spurs, glove or held blade. Closed wrist and finger gaps remain; exact shell/finish/depth artistic, not unique labeled model art. Tiny seams/shallow channels nonblocking; positive margins/no clipping, background or cast shadow. Native1254 retained;2048 resampled; no native rig approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "7da6c4724a8cbfdc009e77629754f2a3bb80d642a3f25657abe9d24a7a643eda",
+      "detailSha256": "8f0b1913bea9d7df36ad361c89e115c5815f0e788f61a6c6cdc7297d8d15fb62",
+      "geometrySha256": "5944637b2bc3272f9ca510141ba8fbe0ff01c185423f18f9486375a40ae2dc73",
+      "foregroundMaskSha256": "13beebfd7e6a461be60bb4acde3fdcf68eea017a9013e0ae3fafe436eb029679",
+      "geometryForegroundMaskSha256": "92219de3de4c097b0467ee4df1b6cd6cf6f03b2e9add1553c834e21639896fbd",
+      "landmarks": [
+        {
+          "name": "middle-nail-tip-upper",
+          "detail": [
+            0.47632221017350157,
+            0.05130784380217028
+          ],
+          "geometry": [
+            0.47632221017350157,
+            0.05055626565108514
+          ]
+        },
+        {
+          "name": "index-nail-tip-upper",
+          "detail": [
+            0.6266573836750788,
+            0.10617304883138565
+          ],
+          "geometry": [
+            0.6266573836750788,
+            0.10767620513355593
+          ]
+        },
+        {
+          "name": "thumb-nail-tip-upper",
+          "detail": [
+            0.8296098679022083,
+            0.4639242487479132
+          ],
+          "geometry": [
+            0.8296098679022083,
+            0.46993687395659434
+          ]
+        },
+        {
+          "name": "wrist-end-lower",
+          "detail": [
+            0.47632221017350157,
+            0.9471889998956594
+          ],
+          "geometry": [
+            0.47632221017350157,
+            0.9471889998956594
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core336-337/PDF338-339 and errata5. Whole five-digit synthetic hand BACK view preserves all FIVE SHORT chromed-steel nail-replacement blades including thumb, with source-consistent distal-joint-scale lengths; five is the declared artistic count choice, not a prescribed source count. No long knuckle/forearm spurs, glove or held blade. Closed wrist and finger gaps remain; exact shell/finish/depth artistic, not unique labeled model art. Tiny seams/shallow channels nonblocking; positive margins/no clipping, background or cast shadow. Native1254 retained;2048 resampled; no native rig approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-barrett-model-121-36238b6743",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        31.0,
+        210.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1746.0,
+        210.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        31.0,
+        728.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1746.0,
+        728.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-barrett-model-121-36238b6743.family.json",
+    "sha256": "7467b5a0bb2a834ff8c35ae50bf2676014328a5d1b4ee5a4732007a468dce2f3"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/3e2bf32b4b140c3cac299f2058bb4acbfab1b9146ad7a353743eacdc13597652.png",
+      "sha256": "3e2bf32b4b140c3cac299f2058bb4acbfab1b9146ad7a353743eacdc13597652"
+    },
+    "clayReference": {
+      "path": "inputs/f11854e5067204cb36368eeb0cbdc00612c064300c482e117c180b7a1d3e1f1f.png",
+      "sha256": "f11854e5067204cb36368eeb0cbdc00612c064300c482e117c180b7a1d3e1f1f"
+    },
+    "geometry": {
+      "path": "inputs/642bf3c7ec67c5b3b024370b31819a6c6c8a9f4b78ddcdc8a34dcd9678a1c4b5.png",
+      "sha256": "642bf3c7ec67c5b3b024370b31819a6c6c8a9f4b78ddcdc8a34dcd9678a1c4b5"
+    },
+    "detail": {
+      "path": "inputs/d4064e33c287e28a0cce35a706bc9b3c1effbbab65881a07f79aa803f0f31eba.png",
+      "sha256": "d4064e33c287e28a0cce35a706bc9b3c1effbbab65881a07f79aa803f0f31eba"
+    },
+    "foregroundMask": {
+      "path": "inputs/808e9346a2fa7621151cb11474ca21d7bd6b45402f55efeec0c50fade39dda42.png",
+      "sha256": "808e9346a2fa7621151cb11474ca21d7bd6b45402f55efeec0c50fade39dda42"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1.png",
+      "sha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1"
+    },
+    "mask": {
+      "path": "inputs/c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1.png",
+      "sha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1"
+    },
+    "calibrationReference": {
+      "path": "inputs/f05b96d3c1bea71474f43cde46c19940e46498120beeefcd13e449f92b1b7532.png",
+      "sha256": "f05b96d3c1bea71474f43cde46c19940e46498120beeefcd13e449f92b1b7532"
+    },
+    "sourceAudit": {
+      "path": "inputs/d60a7bf6ed6e6355436f0cda22b0074d3206cf51a6e85d7c4e2e78426c0d31c9.json",
+      "sha256": "d60a7bf6ed6e6355436f0cda22b0074d3206cf51a6e85d7c4e2e78426c0d31c9"
+    },
+    "referenceApproval": {
+      "path": "inputs/a1d74ea3328e58d209a91fb9d58cc7fbbc58a5cd30059af517f584765f215953.json",
+      "sha256": "a1d74ea3328e58d209a91fb9d58cc7fbbc58a5cd30059af517f584765f215953"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0204184d1f59d92c6566f36fbdfa085700faf453ce69a81aa8b1622a14035dfc.png",
+      "sha256": "0204184d1f59d92c6566f36fbdfa085700faf453ce69a81aa8b1622a14035dfc"
+    }
+  },
+  "features": [
+    {
+      "name": "Integral barrel-mounted silencer, smartgun system and folding bipod.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Follow labeled Model121 artwork, including its long integral muzzle cylinder, optic and open structural stock/bipod spaces.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed28/PDF30 own labeled MODEL121 art/prose constrain long slender receiver, integral barrel silencer, top optic/smartgun, open skeletal stock and folding bipod. Both deployed legs, four stock gaps and trigger retained. Exact colors, hidden faces, depth and deployed bipod pose are interpreted.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        274,
+        976,
+        388,
+        1001
+      ],
+      "referenceAreaPixels": 1737,
+      "referenceMaskSha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        182,
+        989,
+        242,
+        1082
+      ],
+      "referenceAreaPixels": 4510,
+      "referenceMaskSha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        279,
+        1030,
+        393,
+        1117
+      ],
+      "referenceAreaPixels": 6433,
+      "referenceMaskSha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        565,
+        1040,
+        617,
+        1089
+      ],
+      "referenceAreaPixels": 1655,
+      "referenceMaskSha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        188,
+        1080,
+        246,
+        1130
+      ],
+      "referenceAreaPixels": 1394,
+      "referenceMaskSha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "d4064e33c287e28a0cce35a706bc9b3c1effbbab65881a07f79aa803f0f31eba",
+      "maskSha256": "808e9346a2fa7621151cb11474ca21d7bd6b45402f55efeec0c50fade39dda42",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed28/PDF30 own labeled MODEL121 art/prose constrain long slender receiver, integral barrel silencer, top optic/smartgun, open skeletal stock and folding bipod. Both deployed legs, four stock gaps and trigger retained. Exact colors, hidden faces, depth and deployed bipod pose are interpreted.",
+      "referenceSha256": "3e2bf32b4b140c3cac299f2058bb4acbfab1b9146ad7a353743eacdc13597652",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "642bf3c7ec67c5b3b024370b31819a6c6c8a9f4b78ddcdc8a34dcd9678a1c4b5",
+      "maskSha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed28/PDF30 own labeled MODEL121 art/prose constrain long slender receiver, integral barrel silencer, top optic/smartgun, open skeletal stock and folding bipod. Both deployed legs, four stock gaps and trigger retained. Exact colors, hidden faces, depth and deployed bipod pose are interpreted.",
+      "referenceSha256": "f11854e5067204cb36368eeb0cbdc00612c064300c482e117c180b7a1d3e1f1f",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "d4064e33c287e28a0cce35a706bc9b3c1effbbab65881a07f79aa803f0f31eba",
+      "foregroundMaskSha256": "808e9346a2fa7621151cb11474ca21d7bd6b45402f55efeec0c50fade39dda42",
+      "geometryForegroundMaskSha256": "c162e36097c8012aec557c62c80715f3a879b48b931dfdfca7dd47f1df0328c1",
+      "geometrySha256": "642bf3c7ec67c5b3b024370b31819a6c6c8a9f4b78ddcdc8a34dcd9678a1c4b5",
+      "landmarks": [
+        {
+          "detail": [
+            0.0498046875,
+            0.36376953125
+          ],
+          "geometry": [
+            0.0498046875,
+            0.36376953125
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.36376953125
+          ],
+          "geometry": [
+            0.9501953125,
+            0.36376953125
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.0498046875,
+            0.6357421875
+          ],
+          "geometry": [
+            0.0498046875,
+            0.6357421875
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.6357421875
+          ],
+          "geometry": [
+            0.9501953125,
+            0.6357421875
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed28/PDF30 own labeled MODEL121 art/prose constrain long slender receiver, integral barrel silencer, top optic/smartgun, open skeletal stock and folding bipod. Both deployed legs, four stock gaps and trigger retained. Exact colors, hidden faces, depth and deployed bipod pose are interpreted.",
+      "referenceSha256": "3e2bf32b4b140c3cac299f2058bb4acbfab1b9146ad7a353743eacdc13597652"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

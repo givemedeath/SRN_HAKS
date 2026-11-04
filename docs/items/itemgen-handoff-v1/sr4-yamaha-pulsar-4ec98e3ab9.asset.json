@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-yamaha-pulsar-4ec98e3ab9",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-top",
+      "pixel": [
+        376.0,
+        73.00000000000001
+      ]
+    },
+    {
+      "name": "upper-casing-start",
+      "pixel": [
+        709.0,
+        73.99999999999999
+      ]
+    },
+    {
+      "name": "front-upper-contact",
+      "pixel": [
+        1460.0,
+        149.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        838.0000000000001,
+        589.0
+      ]
+    },
+    {
+      "name": "trigger-tip",
+      "pixel": [
+        705.0,
+        523.0000000000001
+      ]
+    },
+    {
+      "name": "grip-bottom",
+      "pixel": [
+        423.00000000000006,
+        966.0
+      ]
+    },
+    {
+      "name": "left-grip-outline-local-difference",
+      "pixel": [
+        190.0,
+        597.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-yamaha-pulsar-4ec98e3ab9.family.json",
+    "sha256": "c5bf23e4d256b7ff2f820a8ff1a1344f17ff02776fb34fba31a2f614424392fe"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/1cff7b0027067487c34d110092d231f11d1fd71bcf3e38b4d2901f02481b7851.png",
+      "sha256": "1cff7b0027067487c34d110092d231f11d1fd71bcf3e38b4d2901f02481b7851"
+    },
+    "clayReference": {
+      "path": "inputs/a88ce84d7e79eedbcb6c1ee66d65cae91826c09d6003a5dab31b65ebc1eb8b49.png",
+      "sha256": "a88ce84d7e79eedbcb6c1ee66d65cae91826c09d6003a5dab31b65ebc1eb8b49"
+    },
+    "geometry": {
+      "path": "inputs/752da0056518faf847debb05776190cb25c4a20c1c5d53abc52bf7bb85496eb2.png",
+      "sha256": "752da0056518faf847debb05776190cb25c4a20c1c5d53abc52bf7bb85496eb2"
+    },
+    "detail": {
+      "path": "inputs/385dd31a8f6e43c6e826ede89ef67078df2ea67bb1fc5db5a07d62a0a807840a.png",
+      "sha256": "385dd31a8f6e43c6e826ede89ef67078df2ea67bb1fc5db5a07d62a0a807840a"
+    },
+    "foregroundMask": {
+      "path": "inputs/9a0ea72a5d7a49ac3eee214cf1dc5d970850be00aaad96d6ebd43d6dafe9379a.png",
+      "sha256": "9a0ea72a5d7a49ac3eee214cf1dc5d970850be00aaad96d6ebd43d6dafe9379a"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/b2d2c15693b77ce0af22be07613055ce012f246153da3edd7a27bdea63ca9d9e.png",
+      "sha256": "b2d2c15693b77ce0af22be07613055ce012f246153da3edd7a27bdea63ca9d9e"
+    },
+    "mask": {
+      "path": "inputs/b2d2c15693b77ce0af22be07613055ce012f246153da3edd7a27bdea63ca9d9e.png",
+      "sha256": "b2d2c15693b77ce0af22be07613055ce012f246153da3edd7a27bdea63ca9d9e"
+    },
+    "calibrationReference": {
+      "path": "inputs/b80773bcc0e780ebc3fa0a06ac29a8934bc5988f4e8a187cb283347d7513265e.png",
+      "sha256": "b80773bcc0e780ebc3fa0a06ac29a8934bc5988f4e8a187cb283347d7513265e"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/e2a9557ac3331ea76a442a576af37924236b02c3dbbeaa5428498648f8b65ab2.json",
+      "sha256": "e2a9557ac3331ea76a442a576af37924236b02c3dbbeaa5428498648f8b65ab2"
+    },
+    "referenceApproval": {
+      "path": "inputs/78fdc6f9169fb3cbd9d717e7427b3c148d4495e0acd46a35af3c3248d80a3eb5.json",
+      "sha256": "78fdc6f9169fb3cbd9d717e7427b3c148d4495e0acd46a35af3c3248d80a3eb5"
+    },
+    "calibrationDetail": {
+      "path": "inputs/40be0fc75a40ee30205854481b6b734760f041571bf0653c2813260ea255d5f6.png",
+      "sha256": "40be0fc75a40ee30205854481b6b734760f041571bf0653c2813260ea255d5f6"
+    }
+  },
+  "features": [
+    {
+      "name": "Cordless capacitor-dart taser; no trailing wires",
+      "placementReviewed": true
+    },
+    {
+      "name": "Core printed306/PDF308 description permits explicit cordless capacitor-dart taser exterior interpretation, no wires. Small unlabeled art is excluded as model silhouette authority. Exact casing/electrode layout and palette are artistic. Smooth clay fills tiny channels,ribs,grip texture and display; retains raised side controls,structural front recess,trigger/guard. Independent manual masks preserve each actual silhouette, including wider clay grip. Seven paired points including local grip-width difference remain within2%. Shared transform only, no warp/forced silhouette alignment. Reference-only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        836,
+        830,
+        1166,
+        1072
+      ],
+      "referenceAreaPixels": 46101,
+      "referenceMaskSha256": "b2d2c15693b77ce0af22be07613055ce012f246153da3edd7a27bdea63ca9d9e",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1cff7b0027067487c34d110092d231f11d1fd71bcf3e38b4d2901f02481b7851",
+      "imageSha256": "385dd31a8f6e43c6e826ede89ef67078df2ea67bb1fc5db5a07d62a0a807840a",
+      "maskSha256": "9a0ea72a5d7a49ac3eee214cf1dc5d970850be00aaad96d6ebd43d6dafe9379a",
+      "notes": "Assigned sole final reviewer actually viewed raw pair, enlarged guard/front/rear/lower grip grids, independent final native masks/teal, final2048masks/teal and overlay. Complete upper casing, contacts, trigger,connected guard opening,lower profile and wider clay left grip retained. No broad fringe,cast shadow,clipping,stray islands or invented cut. Fine edge antialias retained. Native RGB bytes unchanged. No parent duplicate review claimed."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "a88ce84d7e79eedbcb6c1ee66d65cae91826c09d6003a5dab31b65ebc1eb8b49",
+      "imageSha256": "752da0056518faf847debb05776190cb25c4a20c1c5d53abc52bf7bb85496eb2",
+      "maskSha256": "b2d2c15693b77ce0af22be07613055ce012f246153da3edd7a27bdea63ca9d9e",
+      "notes": "Assigned sole final reviewer actually viewed raw pair, enlarged guard/front/rear/lower grip grids, independent final native masks/teal, final2048masks/teal and overlay. Complete upper casing, contacts, trigger,connected guard opening,lower profile and wider clay left grip retained. No broad fringe,cast shadow,clipping,stray islands or invented cut. Fine edge antialias retained. Native RGB bytes unchanged. No parent duplicate review claimed."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Core printed306/PDF308 description permits explicit cordless capacitor-dart taser exterior interpretation, no wires. Small unlabeled art is excluded as model silhouette authority. Exact casing/electrode layout and palette are artistic. Smooth clay fills tiny channels,ribs,grip texture and display; retains raised side controls,structural front recess,trigger/guard. Independent manual masks preserve each actual silhouette, including wider clay grip. Seven paired points including local grip-width difference remain within2%. Shared transform only, no warp/forced silhouette alignment. Reference-only.",
+      "landmarks": [
+        {
+          "name": "rear-top",
+          "detail": [
+            0.24162703804347826,
+            0.2086603090083799
+          ],
+          "geometry": [
+            0.2409745810688406,
+            0.2080078125
+          ]
+        },
+        {
+          "name": "upper-casing-start",
+          "detail": [
+            0.45889521059782606,
+            0.20931280551675976
+          ],
+          "geometry": [
+            0.45889521059782606,
+            0.2086603090083799
+          ]
+        },
+        {
+          "name": "front-upper-contact",
+          "detail": [
+            0.9488903985507247,
+            0.2582500436452514
+          ],
+          "geometry": [
+            0.9495428555253623,
+            0.2575975471368715
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.543062160326087,
+            0.5453485073324023
+          ],
+          "geometry": [
+            0.543062160326087,
+            0.5453485073324023
+          ]
+        },
+        {
+          "name": "trigger-tip",
+          "detail": [
+            0.4562853826992754,
+            0.5022837377793297
+          ],
+          "geometry": [
+            0.4562853826992754,
+            0.5016312412709497
+          ]
+        },
+        {
+          "name": "grip-bottom",
+          "detail": [
+            0.2722925158514493,
+            0.7913396909916202
+          ],
+          "geometry": [
+            0.2722925158514493,
+            0.7913396909916202
+          ]
+        },
+        {
+          "name": "left-grip-outline-local-difference",
+          "detail": [
+            0.12027004076086957,
+            0.5505684793994414
+          ],
+          "geometry": [
+            0.10395861639492754,
+            0.552525968924581
+          ]
+        }
+      ],
+      "referenceSha256": "1cff7b0027067487c34d110092d231f11d1fd71bcf3e38b4d2901f02481b7851",
+      "geometrySha256": "752da0056518faf847debb05776190cb25c4a20c1c5d53abc52bf7bb85496eb2",
+      "detailSha256": "385dd31a8f6e43c6e826ede89ef67078df2ea67bb1fc5db5a07d62a0a807840a",
+      "foregroundMaskSha256": "9a0ea72a5d7a49ac3eee214cf1dc5d970850be00aaad96d6ebd43d6dafe9379a",
+      "geometryForegroundMaskSha256": "b2d2c15693b77ce0af22be07613055ce012f246153da3edd7a27bdea63ca9d9e"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

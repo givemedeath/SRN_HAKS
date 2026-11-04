@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-rapier-c89da3d7df",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "blade-tip",
+      "pixel": [
+        1216.0,
+        1210.0
+      ]
+    },
+    {
+      "name": "pommel-top",
+      "pixel": [
+        61.999999999999986,
+        36.0
+      ]
+    },
+    {
+      "name": "guard-loop-top",
+      "pixel": [
+        266.0,
+        106.0
+      ]
+    },
+    {
+      "name": "quillon-right",
+      "pixel": [
+        386.0,
+        132.0
+      ]
+    },
+    {
+      "name": "quillon-left",
+      "pixel": [
+        67.0,
+        333.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        246.0,
+        353.99999999999994
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-rapier-c89da3d7df.family.json",
+    "sha256": "d9a011459034ee71cdea390c38f9162aa59699db65e8fd225c956d076303d6d8"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/6615ad69a8cdfccf6c562ab05290ae18212122dd7f88f168354d5b875e9d9991.png",
+      "sha256": "6615ad69a8cdfccf6c562ab05290ae18212122dd7f88f168354d5b875e9d9991"
+    },
+    "clayReference": {
+      "path": "inputs/0c5c0a0942cb8cfa7bdbdca8eeee1e38e0e5eb75a17b8fe3d48afa025ca4b46f.png",
+      "sha256": "0c5c0a0942cb8cfa7bdbdca8eeee1e38e0e5eb75a17b8fe3d48afa025ca4b46f"
+    },
+    "geometry": {
+      "path": "inputs/e71d058afa70a9bf1dfe117aad914e136bb0fed70f07fb8d720b08c6174b1edc.png",
+      "sha256": "e71d058afa70a9bf1dfe117aad914e136bb0fed70f07fb8d720b08c6174b1edc"
+    },
+    "detail": {
+      "path": "inputs/99e3c75c2b79dbe205f008efed1ee0fe209be92f5ac24afe7de786efed83127a.png",
+      "sha256": "99e3c75c2b79dbe205f008efed1ee0fe209be92f5ac24afe7de786efed83127a"
+    },
+    "foregroundMask": {
+      "path": "inputs/0572cef68d109904fbf64ca227bf2568521a6115049a576369ab38aba5981d4a.png",
+      "sha256": "0572cef68d109904fbf64ca227bf2568521a6115049a576369ab38aba5981d4a"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1.png",
+      "sha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1"
+    },
+    "mask": {
+      "path": "inputs/6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1.png",
+      "sha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1"
+    },
+    "calibrationReference": {
+      "path": "inputs/6d4860cc5020ca78398db2eb9197e7cbcbba65258e5c50e7cc8b6e549e04ab30.png",
+      "sha256": "6d4860cc5020ca78398db2eb9197e7cbcbba65258e5c50e7cc8b6e549e04ab30"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/e46aeeb430cdcce8940dd7f75b6afbdfc3f67a3895675d95879e4483c44601f1.json",
+      "sha256": "e46aeeb430cdcce8940dd7f75b6afbdfc3f67a3895675d95879e4483c44601f1"
+    },
+    "referenceApproval": {
+      "path": "inputs/e837eb03fc8214d9e055a80b5641a70b285a12ccf0fb3b2d11784e42cc6ae5a0.json",
+      "sha256": "e837eb03fc8214d9e055a80b5641a70b285a12ccf0fb3b2d11784e42cc6ae5a0"
+    },
+    "calibrationDetail": {
+      "path": "inputs/48a5f37f1eeb4c600bc5627873e0e6bb07f23ddddf1cafb69d2225bdb1ff310d.png",
+      "sha256": "48a5f37f1eeb4c600bc5627873e0e6bb07f23ddddf1cafb69d2225bdb1ff310d"
+    }
+  },
+  "features": [
+    {
+      "name": "Slender sharply pointed fencing blade.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Elaborate hilt and handguard are described as common; reviewed drawing supplies the selected published example.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual Arsenal printed14/PDF16 labeled RAPIER and generated detail compared. Long straight sharply pointed slender fencing blade, short one-hand grip, pommel and complex swept open guard agree. Every visible guard member and genuine open space remains distinct; no solid cup substitution or broad-sword thickening. Slight oblique depth and neutral metal/charcoal finish are artistic interpretation. Full tip/pommel fit the1254 square; RGB white background requires later independent foreground conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        327,
+        229,
+        485,
+        335
+      ],
+      "referenceAreaPixels": 11133,
+      "referenceMaskSha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        419,
+        351,
+        445,
+        366
+      ],
+      "referenceAreaPixels": 236,
+      "referenceMaskSha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        469,
+        362,
+        579,
+        480
+      ],
+      "referenceAreaPixels": 7495,
+      "referenceMaskSha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        256,
+        394,
+        371,
+        436
+      ],
+      "referenceAreaPixels": 1556,
+      "referenceMaskSha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        408,
+        466,
+        495,
+        570
+      ],
+      "referenceAreaPixels": 5574,
+      "referenceMaskSha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        320,
+        467,
+        389,
+        578
+      ],
+      "referenceAreaPixels": 3798,
+      "referenceMaskSha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6615ad69a8cdfccf6c562ab05290ae18212122dd7f88f168354d5b875e9d9991",
+      "imageSha256": "99e3c75c2b79dbe205f008efed1ee0fe209be92f5ac24afe7de786efed83127a",
+      "maskSha256": "0572cef68d109904fbf64ca227bf2568521a6115049a576369ab38aba5981d4a",
+      "notes": "Actual Arsenal printed14/PDF16 labeled RAPIER and generated detail compared. Long straight sharply pointed slender fencing blade, short one-hand grip, pommel and complex swept open guard agree. Every visible guard member and genuine open space remains distinct; no solid cup substitution or broad-sword thickening. Slight oblique depth and neutral metal/charcoal finish are artistic interpretation. Full tip/pommel fit the1254 square; RGB white background requires later independent foreground conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0c5c0a0942cb8cfa7bdbdca8eeee1e38e0e5eb75a17b8fe3d48afa025ca4b46f",
+      "imageSha256": "e71d058afa70a9bf1dfe117aad914e136bb0fed70f07fb8d720b08c6174b1edc",
+      "maskSha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1",
+      "notes": "Actual Arsenal printed14/PDF16 labeled RAPIER and generated detail compared. Long straight sharply pointed slender fencing blade, short one-hand grip, pommel and complex swept open guard agree. Every visible guard member and genuine open space remains distinct; no solid cup substitution or broad-sword thickening. Slight oblique depth and neutral metal/charcoal finish are artistic interpretation. Full tip/pommel fit the1254 square; RGB white background requires later independent foreground conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual Arsenal printed14/PDF16 labeled RAPIER and generated detail compared. Long straight sharply pointed slender fencing blade, short one-hand grip, pommel and complex swept open guard agree. Every visible guard member and genuine open space remains distinct; no solid cup substitution or broad-sword thickening. Slight oblique depth and neutral metal/charcoal finish are artistic interpretation. Full tip/pommel fit the1254 square; RGB white background requires later independent foreground conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "blade-tip",
+          "detail": [
+            0.9432530824829932,
+            0.9426034859822934
+          ],
+          "geometry": [
+            0.9409760974702381,
+            0.9471585818929174
+          ]
+        },
+        {
+          "name": "pommel-top",
+          "detail": [
+            0.0673728475765306,
+            0.05132305280354132
+          ],
+          "geometry": [
+            0.0673728475765306,
+            0.05132305280354132
+          ]
+        },
+        {
+          "name": "guard-loop-top",
+          "detail": [
+            0.22220782844387754,
+            0.10446583842748736
+          ],
+          "geometry": [
+            0.22220782844387754,
+            0.10446583842748736
+          ]
+        },
+        {
+          "name": "quillon-right",
+          "detail": [
+            0.3132872289540816,
+            0.12420458737352445
+          ],
+          "geometry": [
+            0.3132872289540816,
+            0.12420458737352445
+          ]
+        },
+        {
+          "name": "quillon-left",
+          "detail": [
+            0.07116782259778912,
+            0.27680030037942666
+          ],
+          "geometry": [
+            0.07116782259778912,
+            0.27680030037942666
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.20702792835884354,
+            0.2927431360666104
+          ],
+          "geometry": [
+            0.20702792835884354,
+            0.2927431360666104
+          ]
+        }
+      ],
+      "referenceSha256": "6615ad69a8cdfccf6c562ab05290ae18212122dd7f88f168354d5b875e9d9991",
+      "geometrySha256": "e71d058afa70a9bf1dfe117aad914e136bb0fed70f07fb8d720b08c6174b1edc",
+      "detailSha256": "99e3c75c2b79dbe205f008efed1ee0fe209be92f5ac24afe7de786efed83127a",
+      "foregroundMaskSha256": "0572cef68d109904fbf64ca227bf2568521a6115049a576369ab38aba5981d4a",
+      "geometryForegroundMaskSha256": "6b850b73648255cfb0015c80c814ba9930e043083262ff227b955dab93168bc1"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

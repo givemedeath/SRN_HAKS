@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-mp-lmg-bf31390eeb",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        18.0,
+        270.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1759.0,
+        270.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        18.0,
+        593.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1759.0,
+        593.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-mp-lmg-bf31390eeb.family.json",
+    "sha256": "35c78d5267235935bc5c8a407b4a15269915bb6ab486909355fab7b14fc819d1"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/54734488e108e8a24eaa0561dc55a7e0e29950f4e33c33d00b0bcecf03d0fd13.png",
+      "sha256": "54734488e108e8a24eaa0561dc55a7e0e29950f4e33c33d00b0bcecf03d0fd13"
+    },
+    "clayReference": {
+      "path": "inputs/d48cfe19ee6afc5c4f801566eab84b10917a97053847b667fbfec46ddf2fa17e.png",
+      "sha256": "d48cfe19ee6afc5c4f801566eab84b10917a97053847b667fbfec46ddf2fa17e"
+    },
+    "geometry": {
+      "path": "inputs/0873fcf768e3e131c9ba8f402e4c9932c9aa266c2ab498787c54652d0113fb4d.png",
+      "sha256": "0873fcf768e3e131c9ba8f402e4c9932c9aa266c2ab498787c54652d0113fb4d"
+    },
+    "detail": {
+      "path": "inputs/4fb662b925009efbfd2ed1332b3a5cce94c4452f6bd23de425a6aaa01b99cc87.png",
+      "sha256": "4fb662b925009efbfd2ed1332b3a5cce94c4452f6bd23de425a6aaa01b99cc87"
+    },
+    "foregroundMask": {
+      "path": "inputs/f81d09c18c012d440b7357b80041ed691cc3058577e95ae650eca876119dd0ac.png",
+      "sha256": "f81d09c18c012d440b7357b80041ed691cc3058577e95ae650eca876119dd0ac"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679.png",
+      "sha256": "95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679"
+    },
+    "mask": {
+      "path": "inputs/95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679.png",
+      "sha256": "95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679"
+    },
+    "calibrationReference": {
+      "path": "inputs/5c965d82e61dba7d6178ea7979515d3e9a8695b69831f26ab032d65412a28485.png",
+      "sha256": "5c965d82e61dba7d6178ea7979515d3e9a8695b69831f26ab032d65412a28485"
+    },
+    "sourceAudit": {
+      "path": "inputs/9a5912b31b40b018f51b39b0ef662bf2fec75eaea8b86aa192f22d1c1226a0f1.json",
+      "sha256": "9a5912b31b40b018f51b39b0ef662bf2fec75eaea8b86aa192f22d1c1226a0f1"
+    },
+    "referenceApproval": {
+      "path": "inputs/66d9c5ac3cfaa14bb83df79bff61dc8912665443336a67ec3c4f7243b5bf8457.json",
+      "sha256": "66d9c5ac3cfaa14bb83df79bff61dc8912665443336a67ec3c4f7243b5bf8457"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0ed2b7ae3b3139e5c22ecc0e51a177735a02750fcccb185caffb23705109a15f.png",
+      "sha256": "0ed2b7ae3b3139e5c22ecc0e51a177735a02750fcccb185caffb23705109a15f"
+    }
+  },
+  "features": [
+    {
+      "name": "Underbarrel built-in laser sight, integral barrel gas-vent system and hip-pad bracing system.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Follow labeled MP-LMG artwork, including its long forward barrel and distinct rear bracing/stock assembly.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed29/PDF31 own labeled MP-LMG art and prose constrain long forward barrel, underbarrel laser, gas-vent housing and angular hip-pad brace. Receiver, magazine, grip and stock gaps retained. Exact color, texture, hidden surfaces and depth are interpreted.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1688,
+        923,
+        1715,
+        938
+      ],
+      "referenceAreaPixels": 264,
+      "referenceMaskSha256": "95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1769,
+        946,
+        1806,
+        967
+      ],
+      "referenceAreaPixels": 389,
+      "referenceMaskSha256": "95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1442,
+        1009,
+        1469,
+        1057
+      ],
+      "referenceAreaPixels": 935,
+      "referenceMaskSha256": "95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "4fb662b925009efbfd2ed1332b3a5cce94c4452f6bd23de425a6aaa01b99cc87",
+      "maskSha256": "f81d09c18c012d440b7357b80041ed691cc3058577e95ae650eca876119dd0ac",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed29/PDF31 own labeled MP-LMG art and prose constrain long forward barrel, underbarrel laser, gas-vent housing and angular hip-pad brace. Receiver, magazine, grip and stock gaps retained. Exact color, texture, hidden surfaces and depth are interpreted.",
+      "referenceSha256": "54734488e108e8a24eaa0561dc55a7e0e29950f4e33c33d00b0bcecf03d0fd13",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "0873fcf768e3e131c9ba8f402e4c9932c9aa266c2ab498787c54652d0113fb4d",
+      "maskSha256": "95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed29/PDF31 own labeled MP-LMG art and prose constrain long forward barrel, underbarrel laser, gas-vent housing and angular hip-pad brace. Receiver, magazine, grip and stock gaps retained. Exact color, texture, hidden surfaces and depth are interpreted.",
+      "referenceSha256": "d48cfe19ee6afc5c4f801566eab84b10917a97053847b667fbfec46ddf2fa17e",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "4fb662b925009efbfd2ed1332b3a5cce94c4452f6bd23de425a6aaa01b99cc87",
+      "foregroundMaskSha256": "f81d09c18c012d440b7357b80041ed691cc3058577e95ae650eca876119dd0ac",
+      "geometryForegroundMaskSha256": "95d07dedf802a886ae023bb2998ff4adfd9a46eb6538c63415f01956104de679",
+      "geometrySha256": "0873fcf768e3e131c9ba8f402e4c9932c9aa266c2ab498787c54652d0113fb4d",
+      "landmarks": [
+        {
+          "detail": [
+            0.05032155927095293,
+            0.41650390625
+          ],
+          "geometry": [
+            0.0498046875,
+            0.41650390625
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.41650390625
+          ],
+          "geometry": [
+            0.9501953125,
+            0.41650390625
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.05032155927095293,
+            0.58349609375
+          ],
+          "geometry": [
+            0.0498046875,
+            0.58349609375
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.58349609375
+          ],
+          "geometry": [
+            0.9501953125,
+            0.58349609375
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed29/PDF31 own labeled MP-LMG art and prose constrain long forward barrel, underbarrel laser, gas-vent housing and angular hip-pad brace. Receiver, magazine, grip and stock gaps retained. Exact color, texture, hidden surfaces and depth are interpreted.",
+      "referenceSha256": "54734488e108e8a24eaa0561dc55a7e0e29950f4e33c33d00b0bcecf03d0fd13"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

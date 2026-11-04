@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-antioch-2-a23076be6c",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-rearcap-left-tangent",
+      "pixel": [
+        12.000000000000002,
+        585.0
+      ]
+    },
+    {
+      "name": "front-sight-top-within-native-x80-180",
+      "pixel": [
+        139.0,
+        404.0
+      ]
+    },
+    {
+      "name": "stock-right-edge-native-row600",
+      "pixel": [
+        1240.0,
+        600.0
+      ]
+    },
+    {
+      "name": "magazine-grip-bottom-tangent",
+      "pixel": [
+        689.0,
+        898.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-antioch-2-a23076be6c.family.json",
+    "sha256": "abb201cd8d27759de88a7657717a712285d5f243ace0a004db3f61b73a67ec2f"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f55e91d4be0512c85299c938c91579eed0650a9ae48f704dd5220d1bfdacb572.png",
+      "sha256": "f55e91d4be0512c85299c938c91579eed0650a9ae48f704dd5220d1bfdacb572"
+    },
+    "clayReference": {
+      "path": "inputs/aede9dda727bb27ce2284fe20b0b10c4fe43dd1f773d9701297724a1efddb0e1.png",
+      "sha256": "aede9dda727bb27ce2284fe20b0b10c4fe43dd1f773d9701297724a1efddb0e1"
+    },
+    "geometry": {
+      "path": "inputs/a17b58bde22ddb4349508106ecdd69af76fb28a1857a504391c906de59737f7e.png",
+      "sha256": "a17b58bde22ddb4349508106ecdd69af76fb28a1857a504391c906de59737f7e"
+    },
+    "detail": {
+      "path": "inputs/4ddbb8ef243a5ab54eb8af5e97a4efc6f06395f145c199b478c75fc2b1105116.png",
+      "sha256": "4ddbb8ef243a5ab54eb8af5e97a4efc6f06395f145c199b478c75fc2b1105116"
+    },
+    "foregroundMask": {
+      "path": "inputs/07b7992164bc4172a9a7f1ee9f7c66528ed89580290976672062ec0fcf9ea873.png",
+      "sha256": "07b7992164bc4172a9a7f1ee9f7c66528ed89580290976672062ec0fcf9ea873"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/739da3963bb5453d9ecdebd23777d20aa1351f8c1a73e04d75d61bbab7f46b80.png",
+      "sha256": "739da3963bb5453d9ecdebd23777d20aa1351f8c1a73e04d75d61bbab7f46b80"
+    },
+    "mask": {
+      "path": "inputs/739da3963bb5453d9ecdebd23777d20aa1351f8c1a73e04d75d61bbab7f46b80.png",
+      "sha256": "739da3963bb5453d9ecdebd23777d20aa1351f8c1a73e04d75d61bbab7f46b80"
+    },
+    "calibrationReference": {
+      "path": "inputs/f6014a0bd5a3eff75d7e80394e9e5a4b987749be593c2c3ab2f9fa68280fd30a.png",
+      "sha256": "f6014a0bd5a3eff75d7e80394e9e5a4b987749be593c2c3ab2f9fa68280fd30a"
+    },
+    "sourceAudit": {
+      "path": "inputs/f898c37395c8f8d07182a05594ab5d3cec56857ec5c6ba51e77e6ff577d0965b.json",
+      "sha256": "f898c37395c8f8d07182a05594ab5d3cec56857ec5c6ba51e77e6ff577d0965b"
+    },
+    "referenceApproval": {
+      "path": "inputs/82deb399d3fa8d1b23349d730d1c6cebcef52262bf60064092abd754e2a5bfc9.json",
+      "sha256": "82deb399d3fa8d1b23349d730d1c6cebcef52262bf60064092abd754e2a5bfc9"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f0f6ac0074d0eb582e56d5c303f433326654f387474b61119217f9c7239b7097.png",
+      "sha256": "f0f6ac0074d0eb582e56d5c303f433326654f387474b61119217f9c7239b7097"
+    }
+  },
+  "features": [
+    {
+      "name": "Classic grenade-launcher design combined with a smartgun system (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Single-shot operating mode with eight-round magazine feed per table; no labeled artwork fixes receiver or stock geometry.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete source-constrained construction, matched framing and structural openings preserved. Magazine, stock, integrated smartgun and grip/trigger clearance retained. Native1254 originals retained; 2048 resampling disclosed. Shallow grooves and cosmetic recess differences nonblocking. Existing pair approval reused at integration with fresh byte checks.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1164,
+        1042,
+        1270,
+        1134
+      ],
+      "referenceAreaPixels": 6252,
+      "referenceMaskSha256": "739da3963bb5453d9ecdebd23777d20aa1351f8c1a73e04d75d61bbab7f46b80",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f55e91d4be0512c85299c938c91579eed0650a9ae48f704dd5220d1bfdacb572",
+      "imageSha256": "4ddbb8ef243a5ab54eb8af5e97a4efc6f06395f145c199b478c75fc2b1105116",
+      "maskSha256": "07b7992164bc4172a9a7f1ee9f7c66528ed89580290976672062ec0fcf9ea873",
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete source-constrained construction, matched framing and structural openings preserved. Magazine, stock, integrated smartgun and grip/trigger clearance retained. Native1254 originals retained; 2048 resampling disclosed. Shallow grooves and cosmetic recess differences nonblocking. Existing pair approval reused at integration with fresh byte checks."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "aede9dda727bb27ce2284fe20b0b10c4fe43dd1f773d9701297724a1efddb0e1",
+      "imageSha256": "a17b58bde22ddb4349508106ecdd69af76fb28a1857a504391c906de59737f7e",
+      "maskSha256": "739da3963bb5453d9ecdebd23777d20aa1351f8c1a73e04d75d61bbab7f46b80",
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete source-constrained construction, matched framing and structural openings preserved. Magazine, stock, integrated smartgun and grip/trigger clearance retained. Native1254 originals retained; 2048 resampling disclosed. Shallow grooves and cosmetic recess differences nonblocking. Existing pair approval reused at integration with fresh byte checks."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "f55e91d4be0512c85299c938c91579eed0650a9ae48f704dd5220d1bfdacb572",
+      "detailSha256": "4ddbb8ef243a5ab54eb8af5e97a4efc6f06395f145c199b478c75fc2b1105116",
+      "geometrySha256": "a17b58bde22ddb4349508106ecdd69af76fb28a1857a504391c906de59737f7e",
+      "foregroundMaskSha256": "07b7992164bc4172a9a7f1ee9f7c66528ed89580290976672062ec0fcf9ea873",
+      "geometryForegroundMaskSha256": "739da3963bb5453d9ecdebd23777d20aa1351f8c1a73e04d75d61bbab7f46b80",
+      "landmarks": [
+        {
+          "name": "muzzle-rearcap-left-tangent",
+          "detail": [
+            0.05053611773964257,
+            0.4517248682228916
+          ],
+          "geometry": [
+            0.0498046875,
+            0.4528220303087349
+          ]
+        },
+        {
+          "name": "front-sight-top-within-native-x80-180",
+          "detail": [
+            0.14342775817424858,
+            0.3193339765311245
+          ],
+          "geometry": [
+            0.14342775817424858,
+            0.3186025351405622
+          ]
+        },
+        {
+          "name": "stock-right-edge-native-row600",
+          "detail": [
+            0.9487324520207149,
+            0.4626964890813253
+          ],
+          "geometry": [
+            0.9487324520207149,
+            0.4626964890813253
+          ]
+        },
+        {
+          "name": "magazine-grip-bottom-tangent",
+          "detail": [
+            0.5457143899776604,
+            0.6806660234688755
+          ],
+          "geometry": [
+            0.5471772504569457,
+            0.6813974648594376
+          ]
+        }
+      ],
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete source-constrained construction, matched framing and structural openings preserved. Magazine, stock, integrated smartgun and grip/trigger clearance retained. Native1254 originals retained; 2048 resampling disclosed. Shallow grooves and cosmetic recess differences nonblocking. Existing pair approval reused at integration with fresh byte checks."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

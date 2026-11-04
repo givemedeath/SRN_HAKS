@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-street-sweeper-e6d92b73e3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-top",
+      "pixel": [
+        100.00000000000001,
+        574.0
+      ]
+    },
+    {
+      "name": "stock-bottom",
+      "pixel": [
+        100.00000000000001,
+        807.0
+      ]
+    },
+    {
+      "name": "muzzle-top",
+      "pixel": [
+        1180.0,
+        444.0
+      ]
+    },
+    {
+      "name": "trigger-bottom",
+      "pixel": [
+        500.0,
+        682.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-street-sweeper-e6d92b73e3.family.json",
+    "sha256": "1db97ba2989a12b27d80b642bdc6ca5a771e83fabce5cd94475ca56dd805f98a"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/040d420b4baa4d50fdd37afc293625dc337c4739a9048bb785c93034e00e0d53.png",
+      "sha256": "040d420b4baa4d50fdd37afc293625dc337c4739a9048bb785c93034e00e0d53"
+    },
+    "clayReference": {
+      "path": "inputs/8e04d2b3a2ad932864830aba3e186333271ec9a9c001a72d8c29a5de3a4543ad.png",
+      "sha256": "8e04d2b3a2ad932864830aba3e186333271ec9a9c001a72d8c29a5de3a4543ad"
+    },
+    "geometry": {
+      "path": "inputs/4366a509b928a98e87618e3259f695ba82025f8a7a6e3c76b1ef11b1924d96bf.png",
+      "sha256": "4366a509b928a98e87618e3259f695ba82025f8a7a6e3c76b1ef11b1924d96bf"
+    },
+    "detail": {
+      "path": "inputs/bc991fba5d05749d5ded17e2467a62cab7edc30569f46c9f84544b26261a4fac.png",
+      "sha256": "bc991fba5d05749d5ded17e2467a62cab7edc30569f46c9f84544b26261a4fac"
+    },
+    "foregroundMask": {
+      "path": "inputs/5de316367af77c91c9fde90212bed4bd24e616ea781aa2760fb40c49c58b5d26.png",
+      "sha256": "5de316367af77c91c9fde90212bed4bd24e616ea781aa2760fb40c49c58b5d26"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7.png",
+      "sha256": "de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7"
+    },
+    "mask": {
+      "path": "inputs/de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7.png",
+      "sha256": "de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7"
+    },
+    "calibrationReference": {
+      "path": "inputs/f12d349cb93f088b02c9ab4ff7335be7c2711bb2dbe9c81bfba21a9bcf48ebeb.png",
+      "sha256": "f12d349cb93f088b02c9ab4ff7335be7c2711bb2dbe9c81bfba21a9bcf48ebeb"
+    },
+    "sourceAudit": {
+      "path": "inputs/bd8c4804e40bcee3a2a39242ff1bca63fa27c44686ea7573fd7efbeb3a90ee16.json",
+      "sha256": "bd8c4804e40bcee3a2a39242ff1bca63fa27c44686ea7573fd7efbeb3a90ee16"
+    },
+    "referenceApproval": {
+      "path": "inputs/1fb1b924d75144cd997045f88153c057358e85d93807eca2f34bbb7dcc73fa13.json",
+      "sha256": "1fb1b924d75144cd997045f88153c057358e85d93807eca2f34bbb7dcc73fa13"
+    },
+    "calibrationDetail": {
+      "path": "inputs/ac4da419c1b51ed2e682b5cf8d8caa80353ed94e0826910e426487dfd413d855.png",
+      "sha256": "ac4da419c1b51ed2e682b5cf8d8caa80353ed94e0826910e426487dfd413d855"
+    }
+  },
+  "features": [
+    {
+      "name": "Jury-rigged, musket-like sprawl shotgun, not a commercially distributed firearm design.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own STREETSWEEPER art printed29/PDF31 shows a short thick forward body/barrel and rough traditional stock/grip contour; preserve that particular example rather than a modern drum-fed namesake.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected using the existing single pair review; source shape, framing, thin members and intentional openings preserved. Each role topology matches its source: {\"detail\": {\"components\": 1, \"holes\": 3}, \"clay\": {\"components\": 1, \"holes\": 3}}. Native1254 retained,2048resampled. Shallow channels nonblocking. Plain white detail extraction preserves all RGB bytes, specular highlights and reviewed openings; no model transform.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        877,
+        997,
+        894,
+        1011
+      ],
+      "referenceAreaPixels": 147,
+      "referenceMaskSha256": "de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        754,
+        998,
+        864,
+        1092
+      ],
+      "referenceAreaPixels": 6450,
+      "referenceMaskSha256": "de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        526,
+        1130,
+        545,
+        1157
+      ],
+      "referenceAreaPixels": 372,
+      "referenceMaskSha256": "de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "040d420b4baa4d50fdd37afc293625dc337c4739a9048bb785c93034e00e0d53",
+      "imageSha256": "bc991fba5d05749d5ded17e2467a62cab7edc30569f46c9f84544b26261a4fac",
+      "maskSha256": "5de316367af77c91c9fde90212bed4bd24e616ea781aa2760fb40c49c58b5d26",
+      "notes": "Final prepared overlay inspected using the existing single pair review; source shape, framing, thin members and intentional openings preserved. Each role topology matches its source: {\"detail\": {\"components\": 1, \"holes\": 3}, \"clay\": {\"components\": 1, \"holes\": 3}}. Native1254 retained,2048resampled. Shallow channels nonblocking. Plain white detail extraction preserves all RGB bytes, specular highlights and reviewed openings; no model transform."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8e04d2b3a2ad932864830aba3e186333271ec9a9c001a72d8c29a5de3a4543ad",
+      "imageSha256": "4366a509b928a98e87618e3259f695ba82025f8a7a6e3c76b1ef11b1924d96bf",
+      "maskSha256": "de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7",
+      "notes": "Final prepared overlay inspected using the existing single pair review; source shape, framing, thin members and intentional openings preserved. Each role topology matches its source: {\"detail\": {\"components\": 1, \"holes\": 3}, \"clay\": {\"components\": 1, \"holes\": 3}}. Native1254 retained,2048resampled. Shallow channels nonblocking. Plain white detail extraction preserves all RGB bytes, specular highlights and reviewed openings; no model transform."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "040d420b4baa4d50fdd37afc293625dc337c4739a9048bb785c93034e00e0d53",
+      "detailSha256": "bc991fba5d05749d5ded17e2467a62cab7edc30569f46c9f84544b26261a4fac",
+      "geometrySha256": "4366a509b928a98e87618e3259f695ba82025f8a7a6e3c76b1ef11b1924d96bf",
+      "foregroundMaskSha256": "5de316367af77c91c9fde90212bed4bd24e616ea781aa2760fb40c49c58b5d26",
+      "geometryForegroundMaskSha256": "de1328240747cd79c87075443d70a608c3ce05ed204a3a7b1aa58db99ce9fbb7",
+      "landmarks": [
+        {
+          "name": "stock-top",
+          "detail": [
+            0.10170690397869675,
+            0.45788770053475936
+          ],
+          "geometry": [
+            0.10170690397869675,
+            0.45939171122994654
+          ]
+        },
+        {
+          "name": "stock-bottom",
+          "detail": [
+            0.10170690397869675,
+            0.6331049465240641
+          ],
+          "geometry": [
+            0.10170690397869675,
+            0.6323529411764706
+          ]
+        },
+        {
+          "name": "muzzle-top",
+          "detail": [
+            0.9140894227756893,
+            0.36012700534759357
+          ],
+          "geometry": [
+            0.9140894227756893,
+            0.3608790106951872
+          ]
+        },
+        {
+          "name": "trigger-bottom",
+          "detail": [
+            0.4025893183479532,
+            0.5391042780748663
+          ],
+          "geometry": [
+            0.4025893183479532,
+            0.53985628342246
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected using the existing single pair review; source shape, framing, thin members and intentional openings preserved. Each role topology matches its source: {\"detail\": {\"components\": 1, \"holes\": 3}, \"clay\": {\"components\": 1, \"holes\": 3}}. Native1254 retained,2048resampled. Shallow channels nonblocking. Plain white detail extraction preserves all RGB bytes, specular highlights and reviewed openings; no model transform."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}
