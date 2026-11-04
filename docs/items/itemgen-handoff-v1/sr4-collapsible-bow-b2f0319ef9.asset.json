@@ -1,0 +1,494 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-collapsible-bow-b2f0319ef9",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-cam-outer",
+      "pixel": [
+        22.0,
+        869.0
+      ]
+    },
+    {
+      "name": "right-cam-outer",
+      "pixel": [
+        1268.0,
+        874.5
+      ]
+    },
+    {
+      "name": "upper-riser",
+      "pixel": [
+        1035.0,
+        382.00000000000006
+      ]
+    },
+    {
+      "name": "lower-left-cam",
+      "pixel": [
+        149.49999999999997,
+        958.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-collapsible-bow-b2f0319ef9.family.json",
+    "sha256": "6ae37bc260e2d4484a8cfe9ebd1b7c41eff655fe395484a5a5b67be92e4a09f4"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/9c3d34fd5b32a05ba8b551aa2fa8fb732fe061066e93a8fced91131c6091a5ab.png",
+      "sha256": "9c3d34fd5b32a05ba8b551aa2fa8fb732fe061066e93a8fced91131c6091a5ab"
+    },
+    "clayReference": {
+      "path": "inputs/ed6a33ac083837905f85840d1fee7869b42f8934740ab19f0c0ac2e58421f628.png",
+      "sha256": "ed6a33ac083837905f85840d1fee7869b42f8934740ab19f0c0ac2e58421f628"
+    },
+    "geometry": {
+      "path": "inputs/ffa730c7a0623a5868a52be395c2e9ff7aaef20446059b72c2bd7601b0d625a1.png",
+      "sha256": "ffa730c7a0623a5868a52be395c2e9ff7aaef20446059b72c2bd7601b0d625a1"
+    },
+    "detail": {
+      "path": "inputs/4a9739bc6410791575eb6af75cdf49717d2e5a1e97fd57bdee13d03b599251af.png",
+      "sha256": "4a9739bc6410791575eb6af75cdf49717d2e5a1e97fd57bdee13d03b599251af"
+    },
+    "foregroundMask": {
+      "path": "inputs/60069956cdd0d96fc429538b2ab21caee78249bd03bfaa9b123e8b1d5bf98758.png",
+      "sha256": "60069956cdd0d96fc429538b2ab21caee78249bd03bfaa9b123e8b1d5bf98758"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52.png",
+      "sha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52"
+    },
+    "mask": {
+      "path": "inputs/57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52.png",
+      "sha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52"
+    },
+    "calibrationReference": {
+      "path": "inputs/6de690c505bc45486ad3c2d79f3667b6f3138bc1a68eb4f3a3d36490301de92d.png",
+      "sha256": "6de690c505bc45486ad3c2d79f3667b6f3138bc1a68eb4f3a3d36490301de92d"
+    },
+    "sourceAudit": {
+      "path": "inputs/3a389d7158783588190a653b903f1428a3d6461f1da1d8433f05c2286d439a2f.json",
+      "sha256": "3a389d7158783588190a653b903f1428a3d6461f1da1d8433f05c2286d439a2f"
+    },
+    "referenceApproval": {
+      "path": "inputs/9bd55babf4557fd0014b52a514d6a7dbf468712ea02efdaef165afd3607f2675.json",
+      "sha256": "9bd55babf4557fd0014b52a514d6a7dbf468712ea02efdaef165afd3607f2675"
+    },
+    "calibrationDetail": {
+      "path": "inputs/1583ec861b788df741e634ac99c522079c5c9044cd5f75e5ea70bfa423e6c8f6.png",
+      "sha256": "1583ec861b788df741e634ac99c522079c5c9044cd5f75e5ea70bfa423e6c8f6"
+    }
+  },
+  "features": [
+    {
+      "name": "Can be completely disassembled to fit a standard-size suitcase; do not portray an inseparable rigid bow.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Use labeled assembled compound-bow depiction: two end cam/pulley groups, limbs, shaped central grip/riser, cables/string and major structural cutouts.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Keep assembled state coherent; the adjacent exploded parts are an alternative breakdown view, not extra installed pieces.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own assembled COLLAPSIBLE BOW art:exactly2cam groups,split shaped riser,limbs,all thin cables/string and structural openings retained;no loose breakdown parts. The detailed source has only35/255max-alpha edge fringe and zero opaque edge pixels. Both images received identical16px transparent borders,with all original RGBA pixels bit-identical inside and no silhouette reconstruction. This avoids an unnecessary regeneration for harmless antialiasing. Actual raw pair and source art visually reviewed;one final pair approval reused. Native original1254square references retained;2048conditioning is resampled. Shallow grooves and harmless pixel variations nonblocking. No geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        612,
+        699,
+        950,
+        986
+      ],
+      "referenceAreaPixels": 75811,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1543,
+        727,
+        1605,
+        820
+      ],
+      "referenceAreaPixels": 3415,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        502,
+        751,
+        583,
+        866
+      ],
+      "referenceAreaPixels": 4696,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1109,
+        851,
+        1821,
+        1272
+      ],
+      "referenceAreaPixels": 184352,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        265,
+        855,
+        1140,
+        1253
+      ],
+      "referenceAreaPixels": 196285,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1468,
+        864,
+        1583,
+        960
+      ],
+      "referenceAreaPixels": 5592,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        493,
+        887,
+        573,
+        955
+      ],
+      "referenceAreaPixels": 2739,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        297,
+        1232,
+        1132,
+        1318
+      ],
+      "referenceAreaPixels": 40759,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-9",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        162,
+        1234,
+        212,
+        1272
+      ],
+      "referenceAreaPixels": 1367,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-10",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1779,
+        1243,
+        1826,
+        1285
+      ],
+      "referenceAreaPixels": 1105,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-11",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1325,
+        1246,
+        1775,
+        1299
+      ],
+      "referenceAreaPixels": 13685,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-12",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        273,
+        1258,
+        324,
+        1312
+      ],
+      "referenceAreaPixels": 1477,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-13",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1884,
+        1261,
+        1922,
+        1338
+      ],
+      "referenceAreaPixels": 1701,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-14",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1169,
+        1268,
+        1210,
+        1278
+      ],
+      "referenceAreaPixels": 235,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-15",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        285,
+        1284,
+        1762,
+        1416
+      ],
+      "referenceAreaPixels": 145045,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-16",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1498,
+        1308,
+        1735,
+        1346
+      ],
+      "referenceAreaPixels": 4497,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-17",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        135,
+        1319,
+        172,
+        1371
+      ],
+      "referenceAreaPixels": 1226,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-18",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1753,
+        1319,
+        1788,
+        1354
+      ],
+      "referenceAreaPixels": 916,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-19",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1754,
+        1361,
+        1797,
+        1407
+      ],
+      "referenceAreaPixels": 1072,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-20",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        228,
+        1383,
+        273,
+        1425
+      ],
+      "referenceAreaPixels": 1431,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-21",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1832,
+        1387,
+        1853,
+        1416
+      ],
+      "referenceAreaPixels": 426,
+      "referenceMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "9c3d34fd5b32a05ba8b551aa2fa8fb732fe061066e93a8fced91131c6091a5ab",
+      "imageSha256": "4a9739bc6410791575eb6af75cdf49717d2e5a1e97fd57bdee13d03b599251af",
+      "maskSha256": "60069956cdd0d96fc429538b2ab21caee78249bd03bfaa9b123e8b1d5bf98758",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own assembled COLLAPSIBLE BOW art:exactly2cam groups,split shaped riser,limbs,all thin cables/string and structural openings retained;no loose breakdown parts. The detailed source has only35/255max-alpha edge fringe and zero opaque edge pixels. Both images received identical16px transparent borders,with all original RGBA pixels bit-identical inside and no silhouette reconstruction. This avoids an unnecessary regeneration for harmless antialiasing. Actual raw pair and source art visually reviewed;one final pair approval reused. Native original1254square references retained;2048conditioning is resampled. Shallow grooves and harmless pixel variations nonblocking. No geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ed6a33ac083837905f85840d1fee7869b42f8934740ab19f0c0ac2e58421f628",
+      "imageSha256": "ffa730c7a0623a5868a52be395c2e9ff7aaef20446059b72c2bd7601b0d625a1",
+      "maskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own assembled COLLAPSIBLE BOW art:exactly2cam groups,split shaped riser,limbs,all thin cables/string and structural openings retained;no loose breakdown parts. The detailed source has only35/255max-alpha edge fringe and zero opaque edge pixels. Both images received identical16px transparent borders,with all original RGBA pixels bit-identical inside and no silhouette reconstruction. This avoids an unnecessary regeneration for harmless antialiasing. Actual raw pair and source art visually reviewed;one final pair approval reused. Native original1254square references retained;2048conditioning is resampled. Shallow grooves and harmless pixel variations nonblocking. No geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "9c3d34fd5b32a05ba8b551aa2fa8fb732fe061066e93a8fced91131c6091a5ab",
+      "detailSha256": "4a9739bc6410791575eb6af75cdf49717d2e5a1e97fd57bdee13d03b599251af",
+      "geometrySha256": "ffa730c7a0623a5868a52be395c2e9ff7aaef20446059b72c2bd7601b0d625a1",
+      "foregroundMaskSha256": "60069956cdd0d96fc429538b2ab21caee78249bd03bfaa9b123e8b1d5bf98758",
+      "geometryForegroundMaskSha256": "57fba5b4a595105777c1291a2306cfc70f1b68467cce39b91c1f6b708105de52",
+      "landmarks": [
+        {
+          "name": "left-cam-outer",
+          "detail": [
+            0.05196389763189448,
+            0.6422750538793103
+          ],
+          "geometry": [
+            0.0505244242106315,
+            0.6426349508351293
+          ]
+        },
+        {
+          "name": "right-cam-outer",
+          "detail": [
+            0.9487558390787371,
+            0.646233920393319
+          ],
+          "geometry": [
+            0.9487558390787371,
+            0.6483933021282329
+          ]
+        },
+        {
+          "name": "upper-riser",
+          "detail": [
+            0.7810571855015987,
+            0.29173541891163796
+          ],
+          "geometry": [
+            0.7796177120803357,
+            0.29245521282327586
+          ]
+        },
+        {
+          "name": "lower-left-cam",
+          "detail": [
+            0.14373032823741005,
+            0.7063367120150862
+          ],
+          "geometry": [
+            0.14193098646083135,
+            0.7077762998383621
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own assembled COLLAPSIBLE BOW art:exactly2cam groups,split shaped riser,limbs,all thin cables/string and structural openings retained;no loose breakdown parts. The detailed source has only35/255max-alpha edge fringe and zero opaque edge pixels. Both images received identical16px transparent borders,with all original RGBA pixels bit-identical inside and no silhouette reconstruction. This avoids an unnecessary regeneration for harmless antialiasing. Actual raw pair and source art visually reviewed;one final pair approval reused. Native original1254square references retained;2048conditioning is resampled. Shallow grooves and harmless pixel variations nonblocking. No geometry/native/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

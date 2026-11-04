@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-kris-8c429f7ba5",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "tip",
+      "pixel": [
+        1230.0,
+        588.0
+      ]
+    },
+    {
+      "name": "guard-top",
+      "pixel": [
+        372.0,
+        470.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        338.0,
+        732.0000000000002
+      ]
+    },
+    {
+      "name": "pommel",
+      "pixel": [
+        33.0,
+        642.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-kris-8c429f7ba5.family.json",
+    "sha256": "91dba53a8276ac41c563847f39d96f15ffdce829aff468e024838fb0e2447e2e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c56e384d937d0905ae8659b63f4cccedd37f5eaba0760e83373879a7c57ab53b.png",
+      "sha256": "c56e384d937d0905ae8659b63f4cccedd37f5eaba0760e83373879a7c57ab53b"
+    },
+    "clayReference": {
+      "path": "inputs/1f428e3d45a147ddd3bd872a8c9296d1ee21e80acf32fe9214cd611a8685b0ac.png",
+      "sha256": "1f428e3d45a147ddd3bd872a8c9296d1ee21e80acf32fe9214cd611a8685b0ac"
+    },
+    "geometry": {
+      "path": "inputs/a1a66261b8e9baeef703718535ff48d282534bc0932ed912e48fe440a2033dc7.png",
+      "sha256": "a1a66261b8e9baeef703718535ff48d282534bc0932ed912e48fe440a2033dc7"
+    },
+    "detail": {
+      "path": "inputs/9c601e487d1ef7d2e625c61c0946665ffe6ee79522d304e409a048b3f893475b.png",
+      "sha256": "9c601e487d1ef7d2e625c61c0946665ffe6ee79522d304e409a048b3f893475b"
+    },
+    "foregroundMask": {
+      "path": "inputs/c2b5b8d6161c36d9f1eea9bd6420b268d25459002455e456a953243b8fe800ca.png",
+      "sha256": "c2b5b8d6161c36d9f1eea9bd6420b268d25459002455e456a953243b8fe800ca"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/6d4ae7d7a60a5133816614e58cd7f2e329c801c75c2d44950153073cdcdbbe90.png",
+      "sha256": "6d4ae7d7a60a5133816614e58cd7f2e329c801c75c2d44950153073cdcdbbe90"
+    },
+    "mask": {
+      "path": "inputs/6d4ae7d7a60a5133816614e58cd7f2e329c801c75c2d44950153073cdcdbbe90.png",
+      "sha256": "6d4ae7d7a60a5133816614e58cd7f2e329c801c75c2d44950153073cdcdbbe90"
+    },
+    "calibrationReference": {
+      "path": "inputs/c14f8caa94ec223fb3b00bc5dfd33d7f36f1a97ab0c132b1dfa2a1d2aaa5b286.png",
+      "sha256": "c14f8caa94ec223fb3b00bc5dfd33d7f36f1a97ab0c132b1dfa2a1d2aaa5b286"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/97ca3f9adca1e633279e2653082c5d9c14ae4d5b1f8dbae3e7529971ba9df919.json",
+      "sha256": "97ca3f9adca1e633279e2653082c5d9c14ae4d5b1f8dbae3e7529971ba9df919"
+    },
+    "referenceApproval": {
+      "path": "inputs/1081c3d657761c5dcb5d565094036af85979b56ba5b9d685b7d75cd1d823b681.json",
+      "sha256": "1081c3d657761c5dcb5d565094036af85979b56ba5b9d685b7d75cd1d823b681"
+    },
+    "calibrationDetail": {
+      "path": "inputs/a43ac914c64b6b1c882381c520feee2ab0dfd0ce0f9ded51dfc8b7db7e268df3.png",
+      "sha256": "a43ac914c64b6b1c882381c520feee2ab0dfd0ce0f9ded51dfc8b7db7e268df3"
+    }
+  },
+  "features": [
+    {
+      "name": "Wavy-bladed Indonesian knife; waves are a defining silhouette feature.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Spiritual/focus use does not prescribe visible glow or added magical effects.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sole assigned source/pair approval reused. Actual new conditioned overlay/clay viewed once: defining bladeWAVES and thin tip/edges preserved, bothguardopenings intact, alignedgrip/guard/framing, smoothappearance. Masktopology unchanged. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        666,
+        918,
+        702,
+        963
+      ],
+      "referenceAreaPixels": 878,
+      "referenceMaskSha256": "6d4ae7d7a60a5133816614e58cd7f2e329c801c75c2d44950153073cdcdbbe90",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        642,
+        1101,
+        684,
+        1148
+      ],
+      "referenceAreaPixels": 882,
+      "referenceMaskSha256": "6d4ae7d7a60a5133816614e58cd7f2e329c801c75c2d44950153073cdcdbbe90",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c56e384d937d0905ae8659b63f4cccedd37f5eaba0760e83373879a7c57ab53b",
+      "imageSha256": "9c601e487d1ef7d2e625c61c0946665ffe6ee79522d304e409a048b3f893475b",
+      "maskSha256": "c2b5b8d6161c36d9f1eea9bd6420b268d25459002455e456a953243b8fe800ca",
+      "notes": "Sole assigned source/pair approval reused. Actual new conditioned overlay/clay viewed once: defining bladeWAVES and thin tip/edges preserved, bothguardopenings intact, alignedgrip/guard/framing, smoothappearance. Masktopology unchanged. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1f428e3d45a147ddd3bd872a8c9296d1ee21e80acf32fe9214cd611a8685b0ac",
+      "imageSha256": "a1a66261b8e9baeef703718535ff48d282534bc0932ed912e48fe440a2033dc7",
+      "maskSha256": "6d4ae7d7a60a5133816614e58cd7f2e329c801c75c2d44950153073cdcdbbe90",
+      "notes": "Sole assigned source/pair approval reused. Actual new conditioned overlay/clay viewed once: defining bladeWAVES and thin tip/edges preserved, bothguardopenings intact, alignedgrip/guard/framing, smoothappearance. Masktopology unchanged. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Sole assigned source/pair approval reused. Actual new conditioned overlay/clay viewed once: defining bladeWAVES and thin tip/edges preserved, bothguardopenings intact, alignedgrip/guard/framing, smoothappearance. Masktopology unchanged. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "tip",
+          "detail": [
+            0.9486984037302577,
+            0.48891367331642066
+          ],
+          "geometry": [
+            0.9486984037302577,
+            0.48891367331642066
+          ]
+        },
+        {
+          "name": "guard-top",
+          "detail": [
+            0.3065245415108063,
+            0.4006807109086716
+          ],
+          "geometry": [
+            0.3065245415108063,
+            0.4006807109086716
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.281077092425187,
+            0.596587796932657
+          ],
+          "geometry": [
+            0.281077092425187,
+            0.596587796932657
+          ]
+        },
+        {
+          "name": "pommel",
+          "detail": [
+            0.05279850503948462,
+            0.5292914696725093
+          ],
+          "geometry": [
+            0.05279850503948462,
+            0.5292914696725093
+          ]
+        }
+      ],
+      "referenceSha256": "c56e384d937d0905ae8659b63f4cccedd37f5eaba0760e83373879a7c57ab53b",
+      "geometrySha256": "a1a66261b8e9baeef703718535ff48d282534bc0932ed912e48fe440a2033dc7",
+      "detailSha256": "9c601e487d1ef7d2e625c61c0946665ffe6ee79522d304e409a048b3f893475b",
+      "geometryForegroundMaskSha256": "6d4ae7d7a60a5133816614e58cd7f2e329c801c75c2d44950153073cdcdbbe90",
+      "foregroundMaskSha256": "c2b5b8d6161c36d9f1eea9bd6420b268d25459002455e456a953243b8fe800ca"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

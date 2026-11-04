@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-beretta-model-70-1031823f17",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        14.999999999999995,
+        31.000000000000014
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1757.0,
+        31.000000000000014
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        14.999999999999995,
+        855.9999999999999
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1757.0,
+        855.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-beretta-model-70-1031823f17.family.json",
+    "sha256": "b7638e4fba9abd79c2ac2d778bd390aac132a0fd96021677f73eebde79d4a150"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/417344f9614f66bcd95fcff493e05fedfb481736aefabd8ef8bd5b961ba46ffc.png",
+      "sha256": "417344f9614f66bcd95fcff493e05fedfb481736aefabd8ef8bd5b961ba46ffc"
+    },
+    "clayReference": {
+      "path": "inputs/843b87a52d25ac932e9f86bdad0d983086f1dae2a2145581b4b0c038ca4cd534.png",
+      "sha256": "843b87a52d25ac932e9f86bdad0d983086f1dae2a2145581b4b0c038ca4cd534"
+    },
+    "geometry": {
+      "path": "inputs/45b9685557f51915ac0e31b05e2c3823504681f97b231e201adac81b6bdb1561.png",
+      "sha256": "45b9685557f51915ac0e31b05e2c3823504681f97b231e201adac81b6bdb1561"
+    },
+    "detail": {
+      "path": "inputs/6d4fca86122f3afa35dab731941ce50241a67de5574a1e3c1034831052e57816.png",
+      "sha256": "6d4fca86122f3afa35dab731941ce50241a67de5574a1e3c1034831052e57816"
+    },
+    "foregroundMask": {
+      "path": "inputs/e6c0fa80dbe9eba5b689485fc15083b9f26b5398e72bc338e4254db0de887cce.png",
+      "sha256": "e6c0fa80dbe9eba5b689485fc15083b9f26b5398e72bc338e4254db0de887cce"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026.png",
+      "sha256": "e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026"
+    },
+    "mask": {
+      "path": "inputs/e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026.png",
+      "sha256": "e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026"
+    },
+    "calibrationReference": {
+      "path": "inputs/ba2c052a9628afae52d2549e29171b577ede050130f33fd57ad6c9ab2d722a31.png",
+      "sha256": "ba2c052a9628afae52d2549e29171b577ede050130f33fd57ad6c9ab2d722a31"
+    },
+    "sourceAudit": {
+      "path": "inputs/914fb19ab5d04efb8328525a87fa9e0d4978308d4b3b1495e115c127f094d522.json",
+      "sha256": "914fb19ab5d04efb8328525a87fa9e0d4978308d4b3b1495e115c127f094d522"
+    },
+    "referenceApproval": {
+      "path": "inputs/48b31e6b397098a682d2259c797cf7111b0ed08c9f08b073f0e7e2c73b269415.json",
+      "sha256": "48b31e6b397098a682d2259c797cf7111b0ed08c9f08b073f0e7e2c73b269415"
+    },
+    "calibrationDetail": {
+      "path": "inputs/2815676cd069d384af863f72f56853871858a32fc54169906a450034dfaf7750.png",
+      "sha256": "2815676cd069d384af863f72f56853871858a32fc54169906a450034dfaf7750"
+    }
+  },
+  "features": [
+    {
+      "name": "Submachine-gun form/category with source-described high ammunition capacity.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Built-in top-mounted laser sight.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Barrel-mounted sound suppressor.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and corrected teal masks viewed. Receiver, top laser, barrel suppressor, magazine, rear grip and folding stock match framing and proportions. Trigger, stock, small stock-end and laser-cable gaps preserved. Main grip microtexture removed; shallow channels and minor collar texture are nonblocking under current direction. Arsenal printed24/PDF26 description: SMG with high capacity, built-in top-mounted laser and barrel-mounted suppressor. All present in actual retained detail. No own labeled outline located on reviewed24/25 pages; exact receiver, extended magazine, folding stock and finish are artistic interpretation, not claimed canonical measurements.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1002,
+        653,
+        1072,
+        682
+      ],
+      "referenceAreaPixels": 928,
+      "referenceMaskSha256": "e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1578,
+        787,
+        1835,
+        933
+      ],
+      "referenceAreaPixels": 22289,
+      "referenceMaskSha256": "e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1120,
+        876,
+        1216,
+        957
+      ],
+      "referenceAreaPixels": 5086,
+      "referenceMaskSha256": "e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1859,
+        952,
+        1866,
+        968
+      ],
+      "referenceAreaPixels": 78,
+      "referenceMaskSha256": "e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "6d4fca86122f3afa35dab731941ce50241a67de5574a1e3c1034831052e57816",
+      "maskSha256": "e6c0fa80dbe9eba5b689485fc15083b9f26b5398e72bc338e4254db0de887cce",
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and corrected teal masks viewed. Receiver, top laser, barrel suppressor, magazine, rear grip and folding stock match framing and proportions. Trigger, stock, small stock-end and laser-cable gaps preserved. Main grip microtexture removed; shallow channels and minor collar texture are nonblocking under current direction. Arsenal printed24/PDF26 description: SMG with high capacity, built-in top-mounted laser and barrel-mounted suppressor. All present in actual retained detail. No own labeled outline located on reviewed24/25 pages; exact receiver, extended magazine, folding stock and finish are artistic interpretation, not claimed canonical measurements.",
+      "referenceSha256": "417344f9614f66bcd95fcff493e05fedfb481736aefabd8ef8bd5b961ba46ffc",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "45b9685557f51915ac0e31b05e2c3823504681f97b231e201adac81b6bdb1561",
+      "maskSha256": "e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026",
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and corrected teal masks viewed. Receiver, top laser, barrel suppressor, magazine, rear grip and folding stock match framing and proportions. Trigger, stock, small stock-end and laser-cable gaps preserved. Main grip microtexture removed; shallow channels and minor collar texture are nonblocking under current direction. Arsenal printed24/PDF26 description: SMG with high capacity, built-in top-mounted laser and barrel-mounted suppressor. All present in actual retained detail. No own labeled outline located on reviewed24/25 pages; exact receiver, extended magazine, folding stock and finish are artistic interpretation, not claimed canonical measurements.",
+      "referenceSha256": "843b87a52d25ac932e9f86bdad0d983086f1dae2a2145581b4b0c038ca4cd534",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "6d4fca86122f3afa35dab731941ce50241a67de5574a1e3c1034831052e57816",
+      "foregroundMaskSha256": "e6c0fa80dbe9eba5b689485fc15083b9f26b5398e72bc338e4254db0de887cce",
+      "geometryForegroundMaskSha256": "e926345e68a31bc9da7e1ea1bfc207cef6758e1f696f3348528d98f4661ab026",
+      "geometrySha256": "45b9685557f51915ac0e31b05e2c3823504681f97b231e201adac81b6bdb1561",
+      "landmarks": [
+        {
+          "detail": [
+            0.05083724555619266,
+            0.2877106080572289
+          ],
+          "geometry": [
+            0.0498046875,
+            0.28564453125
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.2877106080572289
+          ],
+          "geometry": [
+            0.9501953125,
+            0.28564453125
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.05083724555619266,
+            0.7138389495481927
+          ],
+          "geometry": [
+            0.0498046875,
+            0.71435546875
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.7138389495481927
+          ],
+          "geometry": [
+            0.9501953125,
+            0.71435546875
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and corrected teal masks viewed. Receiver, top laser, barrel suppressor, magazine, rear grip and folding stock match framing and proportions. Trigger, stock, small stock-end and laser-cable gaps preserved. Main grip microtexture removed; shallow channels and minor collar texture are nonblocking under current direction. Arsenal printed24/PDF26 description: SMG with high capacity, built-in top-mounted laser and barrel-mounted suppressor. All present in actual retained detail. No own labeled outline located on reviewed24/25 pages; exact receiver, extended magazine, folding stock and finish are artistic interpretation, not claimed canonical measurements.",
+      "referenceSha256": "417344f9614f66bcd95fcff493e05fedfb481736aefabd8ef8bd5b961ba46ffc"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

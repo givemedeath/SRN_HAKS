@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-lone-star-flashflood-water-cannon-e32b03176e",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-silhouette-tangent",
+      "pixel": [
+        8.000000000000004,
+        733.5
+      ]
+    },
+    {
+      "name": "top-silhouette-tangent",
+      "pixel": [
+        1149.0,
+        142.0
+      ]
+    },
+    {
+      "name": "front-silhouette-tangent",
+      "pixel": [
+        1246.0,
+        377.0
+      ]
+    },
+    {
+      "name": "mount-bottom-tangent",
+      "pixel": [
+        670.5,
+        1149.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-lone-star-flashflood-water-cannon-e32b03176e.family.json",
+    "sha256": "6950d8eaa258a779a0a259231c2ec7fbd0bfc5a401f2aed42cd4fc5676a0dc51"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/330fccfe610eb88e069975bd495824168f64396f2724b6bfe3b28faa563e8e1d.png",
+      "sha256": "330fccfe610eb88e069975bd495824168f64396f2724b6bfe3b28faa563e8e1d"
+    },
+    "clayReference": {
+      "path": "inputs/f115242deae80e1586446d63e2ca30c7b9ecd366f5b8491ac2f228e8123da4d2.png",
+      "sha256": "f115242deae80e1586446d63e2ca30c7b9ecd366f5b8491ac2f228e8123da4d2"
+    },
+    "geometry": {
+      "path": "inputs/6627b268cdff83d77e68825c9ffeff94c037994f1d03723190dabe32f99694b3.png",
+      "sha256": "6627b268cdff83d77e68825c9ffeff94c037994f1d03723190dabe32f99694b3"
+    },
+    "detail": {
+      "path": "inputs/e1010f3a872b697880b330fce6c999a93af12fa696e954484d634d3248ea416e.png",
+      "sha256": "e1010f3a872b697880b330fce6c999a93af12fa696e954484d634d3248ea416e"
+    },
+    "foregroundMask": {
+      "path": "inputs/dd90313aa277836316143033eb3d4991c003d8e4a1b4254019e361cd89e4d5ba.png",
+      "sha256": "dd90313aa277836316143033eb3d4991c003d8e4a1b4254019e361cd89e4d5ba"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77.png",
+      "sha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77"
+    },
+    "mask": {
+      "path": "inputs/da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77.png",
+      "sha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77"
+    },
+    "calibrationReference": {
+      "path": "inputs/f6f05b533a74d95479ea758c6b18220020e4dd734c0dba54d9d57c46170688cd.png",
+      "sha256": "f6f05b533a74d95479ea758c6b18220020e4dd734c0dba54d9d57c46170688cd"
+    },
+    "sourceAudit": {
+      "path": "inputs/d106cb8ce0cd866ad2ae1f2631fe024b500ac96b86a72ed4e70a55da9f7fee5d.json",
+      "sha256": "d106cb8ce0cd866ad2ae1f2631fe024b500ac96b86a72ed4e70a55da9f7fee5d"
+    },
+    "referenceApproval": {
+      "path": "inputs/c3dd59d3f00e9e9f9ca365db05ec1fe385afdd328a3a7d7bab8cbcdd43037da5.json",
+      "sha256": "c3dd59d3f00e9e9f9ca365db05ec1fe385afdd328a3a7d7bab8cbcdd43037da5"
+    },
+    "calibrationDetail": {
+      "path": "inputs/3e528e019940bfba19a03879165a0953ffe9a9826aa5c9f731b4d29e9d8babbe.png",
+      "sha256": "3e528e019940bfba19a03879165a0953ffe9a9826aa5c9f731b4d29e9d8babbe"
+    }
+  },
+  "features": [
+    {
+      "name": "Vehicle-mounted water cannon, requiring the vehicle to carry a large water tank.",
+      "placementReviewed": true
+    },
+    {
+      "name": "A water-delivery nozzle/module and vehicle connection context are appropriate; nozzle design, hoses, pump casing and tank shape/placement are not illustrated or specified.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected: matched framing, source-required major structure/recesses and support clearances retained, no background debris. Root inspected actual raw pair and actual-alpha teal diagnostic. Matched assembly silhouette, framing, proportions and major recesses/support clearances are retained; no backdrop debris. Source-unprescribed exterior details are interpreted. Large nozzle/launcher/barrel faces remain recessed surfaces, not invented transparent holes. Genuine independent alphas retained. Shallow clay grooves are nonblocking under the user waiver.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1252,
+        472,
+        1395,
+        537
+      ],
+      "referenceAreaPixels": 3966,
+      "referenceMaskSha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        851,
+        504,
+        1108,
+        569
+      ],
+      "referenceAreaPixels": 8255,
+      "referenceMaskSha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1303,
+        800,
+        1473,
+        855
+      ],
+      "referenceAreaPixels": 4581,
+      "referenceMaskSha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1076,
+        990,
+        1101,
+        1031
+      ],
+      "referenceAreaPixels": 558,
+      "referenceMaskSha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1128,
+        996,
+        1186,
+        1094
+      ],
+      "referenceAreaPixels": 3453,
+      "referenceMaskSha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "330fccfe610eb88e069975bd495824168f64396f2724b6bfe3b28faa563e8e1d",
+      "imageSha256": "e1010f3a872b697880b330fce6c999a93af12fa696e954484d634d3248ea416e",
+      "maskSha256": "dd90313aa277836316143033eb3d4991c003d8e4a1b4254019e361cd89e4d5ba",
+      "notes": "Final prepared overlay inspected: matched framing, source-required major structure/recesses and support clearances retained, no background debris. Root inspected actual raw pair and actual-alpha teal diagnostic. Matched assembly silhouette, framing, proportions and major recesses/support clearances are retained; no backdrop debris. Source-unprescribed exterior details are interpreted. Large nozzle/launcher/barrel faces remain recessed surfaces, not invented transparent holes. Genuine independent alphas retained. Shallow clay grooves are nonblocking under the user waiver."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f115242deae80e1586446d63e2ca30c7b9ecd366f5b8491ac2f228e8123da4d2",
+      "imageSha256": "6627b268cdff83d77e68825c9ffeff94c037994f1d03723190dabe32f99694b3",
+      "maskSha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77",
+      "notes": "Final prepared overlay inspected: matched framing, source-required major structure/recesses and support clearances retained, no background debris. Root inspected actual raw pair and actual-alpha teal diagnostic. Matched assembly silhouette, framing, proportions and major recesses/support clearances are retained; no backdrop debris. Source-unprescribed exterior details are interpreted. Large nozzle/launcher/barrel faces remain recessed surfaces, not invented transparent holes. Genuine independent alphas retained. Shallow clay grooves are nonblocking under the user waiver."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "330fccfe610eb88e069975bd495824168f64396f2724b6bfe3b28faa563e8e1d",
+      "detailSha256": "e1010f3a872b697880b330fce6c999a93af12fa696e954484d634d3248ea416e",
+      "geometrySha256": "6627b268cdff83d77e68825c9ffeff94c037994f1d03723190dabe32f99694b3",
+      "foregroundMaskSha256": "dd90313aa277836316143033eb3d4991c003d8e4a1b4254019e361cd89e4d5ba",
+      "geometryForegroundMaskSha256": "da145f2e1b0bd14a09e81850cdda36384182c7c2e42b3392a01e74358278ef77",
+      "landmarks": [
+        {
+          "name": "rear-silhouette-tangent",
+          "detail": [
+            0.03200543916196616,
+            0.565117622602104
+          ],
+          "geometry": [
+            0.03125,
+            0.5639841816212872
+          ]
+        },
+        {
+          "name": "top-silhouette-tangent",
+          "detail": [
+            0.8939615229653505,
+            0.1181640625
+          ],
+          "geometry": [
+            0.896605560032232,
+            0.1181640625
+          ]
+        },
+        {
+          "name": "front-silhouette-tangent",
+          "detail": [
+            0.9672391216760677,
+            0.29573648282797027
+          ],
+          "geometry": [
+            0.9679945608380338,
+            0.30178150139232673
+          ]
+        },
+        {
+          "name": "mount-bottom-tangent",
+          "detail": [
+            0.5324838839645447,
+            0.8790807742883663
+          ],
+          "geometry": [
+            0.5366387993553586,
+            0.8805920289294554
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected: matched framing, source-required major structure/recesses and support clearances retained, no background debris. Root inspected actual raw pair and actual-alpha teal diagnostic. Matched assembly silhouette, framing, proportions and major recesses/support clearances are retained; no backdrop debris. Source-unprescribed exterior details are interpreted. Large nozzle/launcher/barrel faces remain recessed surfaces, not invented transparent holes. Genuine independent alphas retained. Shallow clay grooves are nonblocking under the user waiver."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

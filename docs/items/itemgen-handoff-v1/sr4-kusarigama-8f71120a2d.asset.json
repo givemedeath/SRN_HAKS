@@ -1,0 +1,399 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-kusarigama-8f71120a2d",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "sickle-tip",
+      "pixel": [
+        1132.0,
+        840.0000000000001
+      ]
+    },
+    {
+      "name": "upperleft-haft",
+      "pixel": [
+        103.00000000000001,
+        131.0
+      ]
+    },
+    {
+      "name": "weight-bottom",
+      "pixel": [
+        922.0,
+        1187.0
+      ]
+    },
+    {
+      "name": "frame-right",
+      "pixel": [
+        716.0,
+        280.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-kusarigama-8f71120a2d.family.json",
+    "sha256": "78785b1e17bd2ff49df4625d8724c1987e5f4ae0660ff3088d43e1d25ce4d87a"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/cedecfc592aa581afec3e50466a3277fab6c12400fdefb53c6c43998eb3e9515.png",
+      "sha256": "cedecfc592aa581afec3e50466a3277fab6c12400fdefb53c6c43998eb3e9515"
+    },
+    "clayReference": {
+      "path": "inputs/28827ca03b0172ba7b3628a737db6ee474af9633ff43bbe0945226551e129d14.png",
+      "sha256": "28827ca03b0172ba7b3628a737db6ee474af9633ff43bbe0945226551e129d14"
+    },
+    "geometry": {
+      "path": "inputs/40b8deef52ddf29c57408eb1d7f5ba0a1a52c173e623850880db41dcdc460809.png",
+      "sha256": "40b8deef52ddf29c57408eb1d7f5ba0a1a52c173e623850880db41dcdc460809"
+    },
+    "detail": {
+      "path": "inputs/81a0d0c02db6168182211c209a2fcb202293a74c61b24c37bc8bcd4bf6d6ad1b.png",
+      "sha256": "81a0d0c02db6168182211c209a2fcb202293a74c61b24c37bc8bcd4bf6d6ad1b"
+    },
+    "foregroundMask": {
+      "path": "inputs/ea27275ecca5e5ebe366887b2ca12d79a03a7ef6e4ea8acdeda97aa35f152426.png",
+      "sha256": "ea27275ecca5e5ebe366887b2ca12d79a03a7ef6e4ea8acdeda97aa35f152426"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831.png",
+      "sha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831"
+    },
+    "mask": {
+      "path": "inputs/0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831.png",
+      "sha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831"
+    },
+    "calibrationReference": {
+      "path": "inputs/c3e1d36ad6b7b6a36a89f63dd0e583cccc96373d2d6a0eae6bb8f7ab6ee8a6d2.png",
+      "sha256": "c3e1d36ad6b7b6a36a89f63dd0e583cccc96373d2d6a0eae6bb8f7ab6ee8a6d2"
+    },
+    "sourceAudit": {
+      "path": "inputs/97f953ab7d8e23a96e09169473e61fce72cca2771235d60bbbc49983ca4b2523.json",
+      "sha256": "97f953ab7d8e23a96e09169473e61fce72cca2771235d60bbbc49983ca4b2523"
+    },
+    "referenceApproval": {
+      "path": "inputs/99f966abd03b96dc1909f28a1ee1893f5c4c041379b52e52d665357fff3d85e1.json",
+      "sha256": "99f966abd03b96dc1909f28a1ee1893f5c4c041379b52e52d665357fff3d85e1"
+    },
+    "calibrationDetail": {
+      "path": "inputs/926ac24886e35dbfb7b2303239418adac3753608d5410ab3a0a5eb1e930dbf65.png",
+      "sha256": "926ac24886e35dbfb7b2303239418adac3753608d5410ab3a0a5eb1e930dbf65"
+    }
+  },
+  "features": [
+    {
+      "name": "Sickle/kama, metal chain attached to the sickle grip end, and heavy iron terminal weight.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Retain source labeled example broad hooked/curved blade, long housing/grip opening, chain connection and terminal weight.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sole selected-primary source/pair approvals reused. Actual new conditioned overlay and clay viewed once: complete sickle/frame, continuous chain/thin links and terminal weight preserved with matched framing, clear padding and intentional openings. Excluded raw extra coil remains transparently outside selected primary. Native1254 resampled2048, not native2K. No manual edit.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        149,
+        294,
+        176,
+        322
+      ],
+      "referenceAreaPixels": 304,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        325,
+        338,
+        1120,
+        475
+      ],
+      "referenceAreaPixels": 107644,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        130,
+        358,
+        143,
+        378
+      ],
+      "referenceAreaPixels": 230,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        131,
+        426,
+        149,
+        453
+      ],
+      "referenceAreaPixels": 326,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        146,
+        491,
+        183,
+        529
+      ],
+      "referenceAreaPixels": 706,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        222,
+        606,
+        264,
+        648
+      ],
+      "referenceAreaPixels": 692,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        317,
+        700,
+        363,
+        744
+      ],
+      "referenceAreaPixels": 833,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        411,
+        796,
+        455,
+        842
+      ],
+      "referenceAreaPixels": 748,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-9",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        492,
+        899,
+        538,
+        947
+      ],
+      "referenceAreaPixels": 889,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-10",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        566,
+        1010,
+        613,
+        1058
+      ],
+      "referenceAreaPixels": 868,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-11",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        644,
+        1123,
+        696,
+        1174
+      ],
+      "referenceAreaPixels": 978,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-12",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        742,
+        1228,
+        794,
+        1276
+      ],
+      "referenceAreaPixels": 988,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-13",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        866,
+        1310,
+        914,
+        1352
+      ],
+      "referenceAreaPixels": 861,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-14",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1006,
+        1378,
+        1057,
+        1427
+      ],
+      "referenceAreaPixels": 950,
+      "referenceMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "cedecfc592aa581afec3e50466a3277fab6c12400fdefb53c6c43998eb3e9515",
+      "imageSha256": "81a0d0c02db6168182211c209a2fcb202293a74c61b24c37bc8bcd4bf6d6ad1b",
+      "maskSha256": "ea27275ecca5e5ebe366887b2ca12d79a03a7ef6e4ea8acdeda97aa35f152426",
+      "notes": "Sole selected-primary source/pair approvals reused. Actual new conditioned overlay and clay viewed once: complete sickle/frame, continuous chain/thin links and terminal weight preserved with matched framing, clear padding and intentional openings. Excluded raw extra coil remains transparently outside selected primary. Native1254 resampled2048, not native2K. No manual edit."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "28827ca03b0172ba7b3628a737db6ee474af9633ff43bbe0945226551e129d14",
+      "imageSha256": "40b8deef52ddf29c57408eb1d7f5ba0a1a52c173e623850880db41dcdc460809",
+      "maskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831",
+      "notes": "Sole selected-primary source/pair approvals reused. Actual new conditioned overlay and clay viewed once: complete sickle/frame, continuous chain/thin links and terminal weight preserved with matched framing, clear padding and intentional openings. Excluded raw extra coil remains transparently outside selected primary. Native1254 resampled2048, not native2K. No manual edit."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Sole selected-primary source/pair approvals reused. Actual new conditioned overlay and clay viewed once: complete sickle/frame, continuous chain/thin links and terminal weight preserved with matched framing, clear padding and intentional openings. Excluded raw extra coil remains transparently outside selected primary. Native1254 resampled2048, not native2K. No manual edit.",
+      "landmarks": [
+        {
+          "name": "sickle-tip",
+          "detail": [
+            0.8784629473547718,
+            0.6393446785051069
+          ],
+          "geometry": [
+            0.8784629473547718,
+            0.6393446785051069
+          ]
+        },
+        {
+          "name": "upperleft-haft",
+          "detail": [
+            0.10958165845435686,
+            0.10961075324976788
+          ],
+          "geometry": [
+            0.10958165845435686,
+            0.10961075324976788
+          ]
+        },
+        {
+          "name": "weight-bottom",
+          "detail": [
+            0.7215483985995851,
+            0.8986079677344475
+          ],
+          "geometry": [
+            0.7215483985995851,
+            0.8986079677344475
+          ]
+        },
+        {
+          "name": "frame-right",
+          "detail": [
+            0.5676226983921162,
+            0.22093706476323122
+          ],
+          "geometry": [
+            0.5676226983921162,
+            0.22093706476323122
+          ]
+        }
+      ],
+      "referenceSha256": "cedecfc592aa581afec3e50466a3277fab6c12400fdefb53c6c43998eb3e9515",
+      "geometrySha256": "40b8deef52ddf29c57408eb1d7f5ba0a1a52c173e623850880db41dcdc460809",
+      "detailSha256": "81a0d0c02db6168182211c209a2fcb202293a74c61b24c37bc8bcd4bf6d6ad1b",
+      "foregroundMaskSha256": "ea27275ecca5e5ebe366887b2ca12d79a03a7ef6e4ea8acdeda97aa35f152426",
+      "geometryForegroundMaskSha256": "0d657b2b7bf1f6181d5bb5c542aa2db83281e84a6c4325434875e9f6e470b831"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

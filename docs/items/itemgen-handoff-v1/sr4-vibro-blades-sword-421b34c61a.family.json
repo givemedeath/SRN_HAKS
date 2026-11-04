@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "longsword",
+  "nativePackaging": "pending-contract",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "targetFaceCount": 200000,
+    "signMode": "udf"
+  },
+  "budgets": {
+    "visible": 10000,
+    "shadow": 500,
+    "parts": {
+      "b": {
+        "visible": 6000,
+        "shadow": 300
+      },
+      "m": {
+        "visible": 2500,
+        "shadow": 100
+      },
+      "t": {
+        "visible": 1500,
+        "shadow": 100
+      }
+    }
+  },
+  "allowedAssemblies": [
+    {
+      "b": "sr4-vibro-blades-sword-421b34c61a",
+      "m": "sr4-vibro-blades-sword-421b34c61a",
+      "t": "sr4-vibro-blades-sword-421b34c61a"
+    }
+  ],
+  "native": {
+    "reviewed": false
+  },
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr421b34c6",
+    "blueprint": "sr421b34c6",
+    "hak": "sr421b34c6h",
+    "module": "sr421b34c6m",
+    "displayName": "Vibro Blades \u2014 Sword"
+  }
+}

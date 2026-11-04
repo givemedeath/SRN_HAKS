@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-micro-flare-launcher-1a17824381",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        71.0,
+        184.99999999999997
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1469.0,
+        184.99999999999997
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        71.0,
+        750.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1469.0,
+        750.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-micro-flare-launcher-1a17824381.family.json",
+    "sha256": "ecdde5f8a722bbc965f00dda8bec29cfcf52abf97cf09eb9b811cbc28a765aae"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/74a0ba2427c1eabfeea9a57c311a7f4dd8438f1a3f4af7441d30c7172a1830dc.png",
+      "sha256": "74a0ba2427c1eabfeea9a57c311a7f4dd8438f1a3f4af7441d30c7172a1830dc"
+    },
+    "clayReference": {
+      "path": "inputs/d65825c0c20960deba29f4bca30300b0db9896e5ceb4b754280722f3ca7b6d8d.png",
+      "sha256": "d65825c0c20960deba29f4bca30300b0db9896e5ceb4b754280722f3ca7b6d8d"
+    },
+    "geometry": {
+      "path": "inputs/5177a2da639f2ccbcde77a285bc65f4493af8b917e936fc5719f3bdc5ca99774.png",
+      "sha256": "5177a2da639f2ccbcde77a285bc65f4493af8b917e936fc5719f3bdc5ca99774"
+    },
+    "detail": {
+      "path": "inputs/28c47104a19842bc4427a010b2985ce60cf2b3b4e9bde3d85503749f1fe5d737.png",
+      "sha256": "28c47104a19842bc4427a010b2985ce60cf2b3b4e9bde3d85503749f1fe5d737"
+    },
+    "foregroundMask": {
+      "path": "inputs/ec8031868c7130e414a73633be025babd0e372cc845685f4b21518406eb811ac.png",
+      "sha256": "ec8031868c7130e414a73633be025babd0e372cc845685f4b21518406eb811ac"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/b33f5dbd27f0c90a87edd1803e2ee5c27204885b97accc1107073f35c1723311.png",
+      "sha256": "b33f5dbd27f0c90a87edd1803e2ee5c27204885b97accc1107073f35c1723311"
+    },
+    "mask": {
+      "path": "inputs/b33f5dbd27f0c90a87edd1803e2ee5c27204885b97accc1107073f35c1723311.png",
+      "sha256": "b33f5dbd27f0c90a87edd1803e2ee5c27204885b97accc1107073f35c1723311"
+    },
+    "calibrationReference": {
+      "path": "inputs/57693a4087765097e93adcb2ad81deef4fe5b076c4103a0a12f32f63f3a78abc.png",
+      "sha256": "57693a4087765097e93adcb2ad81deef4fe5b076c4103a0a12f32f63f3a78abc"
+    },
+    "sourceAudit": {
+      "path": "inputs/4d453dc579f350fa56fe70847ef1cc6d3b81dbdba38299b1b004f359906930c1.json",
+      "sha256": "4d453dc579f350fa56fe70847ef1cc6d3b81dbdba38299b1b004f359906930c1"
+    },
+    "referenceApproval": {
+      "path": "inputs/46cc00cd61fa91d808027a5bd525ea6b8ae1e74c8231aa406f7a3d0f2ae1de8f.json",
+      "sha256": "46cc00cd61fa91d808027a5bd525ea6b8ae1e74c8231aa406f7a3d0f2ae1de8f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/8b65aa309f44667a73968279003c47c119a8ac38fe679c228d07ee0436d9ea08.png",
+      "sha256": "8b65aa309f44667a73968279003c47c119a8ac38fe679c228d07ee0436d9ea08"
+    }
+  },
+  "features": [
+    {
+      "name": "Launches colored illuminating flares; a survival/signaling tool also usable as an exotic ranged weapon",
+      "placementReviewed": true
+    },
+    {
+      "name": "Combat table specifies single-shot one muzzle-loaded flare; no box/drum magazine requirement",
+      "placementReviewed": true
+    },
+    {
+      "name": "No exact pen/pistol shape, dimensions, material or standardized external housing is established by inspected prose/table",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay and original pair reviewed: matched framing/proportions; front cavity, rear cap and operating lever retained. Shallow grooves accepted. Core printed328/PDF330 Micro Flare Launcher, and Arsenal printed174/PDF176: one-flare muzzle-loaded signaling device. The orange tubular shape, operating lever, colors, surface channels and finish are artistic interpretation; no own labeled exterior illustration establishes exact dimensions.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "74a0ba2427c1eabfeea9a57c311a7f4dd8438f1a3f4af7441d30c7172a1830dc",
+      "imageSha256": "28c47104a19842bc4427a010b2985ce60cf2b3b4e9bde3d85503749f1fe5d737",
+      "maskSha256": "ec8031868c7130e414a73633be025babd0e372cc845685f4b21518406eb811ac",
+      "notes": "Actual conditioned overlay and original pair reviewed: matched framing/proportions; front cavity, rear cap and operating lever retained. Shallow grooves accepted. Core printed328/PDF330 Micro Flare Launcher, and Arsenal printed174/PDF176: one-flare muzzle-loaded signaling device. The orange tubular shape, operating lever, colors, surface channels and finish are artistic interpretation; no own labeled exterior illustration establishes exact dimensions."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d65825c0c20960deba29f4bca30300b0db9896e5ceb4b754280722f3ca7b6d8d",
+      "imageSha256": "5177a2da639f2ccbcde77a285bc65f4493af8b917e936fc5719f3bdc5ca99774",
+      "maskSha256": "b33f5dbd27f0c90a87edd1803e2ee5c27204885b97accc1107073f35c1723311",
+      "notes": "Actual conditioned overlay and original pair reviewed: matched framing/proportions; front cavity, rear cap and operating lever retained. Shallow grooves accepted. Core printed328/PDF330 Micro Flare Launcher, and Arsenal printed174/PDF176: one-flare muzzle-loaded signaling device. The orange tubular shape, operating lever, colors, surface channels and finish are artistic interpretation; no own labeled exterior illustration establishes exact dimensions."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual conditioned overlay and original pair reviewed: matched framing/proportions; front cavity, rear cap and operating lever retained. Shallow grooves accepted. Core printed328/PDF330 Micro Flare Launcher, and Arsenal printed174/PDF176: one-flare muzzle-loaded signaling device. The orange tubular shape, operating lever, colors, surface channels and finish are artistic interpretation; no own labeled exterior illustration establishes exact dimensions.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.0498046875,
+            0.3180272402274735
+          ],
+          "geometry": [
+            0.0498046875,
+            0.3173828125
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9501953125,
+            0.3180272402274735
+          ],
+          "geometry": [
+            0.9501953125,
+            0.3173828125
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.0498046875,
+            0.68212890625
+          ],
+          "geometry": [
+            0.0498046875,
+            0.68212890625
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9501953125,
+            0.68212890625
+          ],
+          "geometry": [
+            0.9501953125,
+            0.68212890625
+          ]
+        }
+      ],
+      "referenceSha256": "74a0ba2427c1eabfeea9a57c311a7f4dd8438f1a3f4af7441d30c7172a1830dc",
+      "geometrySha256": "5177a2da639f2ccbcde77a285bc65f4493af8b917e936fc5719f3bdc5ca99774",
+      "detailSha256": "28c47104a19842bc4427a010b2985ce60cf2b3b4e9bde3d85503749f1fe5d737",
+      "geometryForegroundMaskSha256": "b33f5dbd27f0c90a87edd1803e2ee5c27204885b97accc1107073f35c1723311",
+      "foregroundMaskSha256": "ec8031868c7130e414a73633be025babd0e372cc845685f4b21518406eb811ac"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

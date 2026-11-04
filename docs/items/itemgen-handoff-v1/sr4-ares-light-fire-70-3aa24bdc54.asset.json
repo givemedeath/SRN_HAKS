@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-light-fire-70-3aa24bdc54",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-top",
+      "pixel": [
+        409.99999999999994,
+        42.00000000000002
+      ]
+    },
+    {
+      "name": "muzzle-end",
+      "pixel": [
+        1445.0,
+        210.00000000000003
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        487.0,
+        988.0
+      ]
+    },
+    {
+      "name": "guard-front",
+      "pixel": [
+        1050.0,
+        510.0
+      ]
+    },
+    {
+      "name": "trigger-tip",
+      "pixel": [
+        838.0,
+        534.9999999999999
+      ]
+    },
+    {
+      "name": "rear-end",
+      "pixel": [
+        96.0,
+        190.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-light-fire-70-3aa24bdc54.family.json",
+    "sha256": "2826d2ac0483327f1566602b6b8b07ec3145b1ee0344adeb606b154128bca949"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/74917eb21d459041318c539415bde22f6fd9ac35af48155eb80600d0e68c8f78.png",
+      "sha256": "74917eb21d459041318c539415bde22f6fd9ac35af48155eb80600d0e68c8f78"
+    },
+    "clayReference": {
+      "path": "inputs/df18940aa72e9a553824820953f68b80d00ba20dd86e08546f84f31e523342c9.png",
+      "sha256": "df18940aa72e9a553824820953f68b80d00ba20dd86e08546f84f31e523342c9"
+    },
+    "geometry": {
+      "path": "inputs/786ba25f6b5cc316cde54c4ff3001150bd0fe5a6472ad2e52196756ad9480fc9.png",
+      "sha256": "786ba25f6b5cc316cde54c4ff3001150bd0fe5a6472ad2e52196756ad9480fc9"
+    },
+    "detail": {
+      "path": "inputs/76a5b2f7d52f4bb835910f4635c6a1aa6a4e9b84147a714807e37267588cd896.png",
+      "sha256": "76a5b2f7d52f4bb835910f4635c6a1aa6a4e9b84147a714807e37267588cd896"
+    },
+    "foregroundMask": {
+      "path": "inputs/88d742421691007f8caa814a2c2c4158489da86ce5f0b41f219480f656f4150a.png",
+      "sha256": "88d742421691007f8caa814a2c2c4158489da86ce5f0b41f219480f656f4150a"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/75268475460b18df5f2ea2f02a4933dbec966bc185d515d0601175bbf06d25a1.png",
+      "sha256": "75268475460b18df5f2ea2f02a4933dbec966bc185d515d0601175bbf06d25a1"
+    },
+    "mask": {
+      "path": "inputs/75268475460b18df5f2ea2f02a4933dbec966bc185d515d0601175bbf06d25a1.png",
+      "sha256": "75268475460b18df5f2ea2f02a4933dbec966bc185d515d0601175bbf06d25a1"
+    },
+    "calibrationReference": {
+      "path": "inputs/128c0d4b6f7a10d1e78d8a5193f6eed447bc6423f49f903058901290de31e336.png",
+      "sha256": "128c0d4b6f7a10d1e78d8a5193f6eed447bc6423f49f903058901290de31e336"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/750a96c22fa46f853ecfab48cb38c23b25e666b514ee618a153b2281722ce6a9.json",
+      "sha256": "750a96c22fa46f853ecfab48cb38c23b25e666b514ee618a153b2281722ce6a9"
+    },
+    "referenceApproval": {
+      "path": "inputs/7204c5442dc24ff4a0bbffa0f4b5e73cf930f1705c021851b6d1018d7261fe8e.json",
+      "sha256": "7204c5442dc24ff4a0bbffa0f4b5e73cf930f1705c021851b6d1018d7261fe8e"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4051ca061844db27fd6ea9f735183e9412beb833a190828c5462fb9602b275b5.png",
+      "sha256": "4051ca061844db27fd6ea9f735183e9412beb833a190828c5462fb9602b275b5"
+    }
+  },
+  "features": [
+    {
+      "name": "Compact dark rectangular upper with curved trigger guard and raked grip as labeled illustration",
+      "placementReviewed": true
+    },
+    {
+      "name": "Special model-specific silencer is optional, not baseline equipment",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reviewer inspected actual raw detailed and manually smoothed clay references, native foreground/masks, both2048 masks, detailed/clay teal previews and paired overlay. Source form follows labeled Arsenal LightFire70 primary art as recorded in detail eligibility. Major silhouette/proportions, low top assemblies, upper/frame/base boundaries, large side-panel boundaries, raised major controls, thin trigger/guard and both actual guard clearances retained. Serrations, grip/guard ribs, stippling, microtexture and small fastener recesses are filled; three authorized annuli removed with bounded conventional raster fills. Host surfaces are visibly continuous at normal reference size; no separate circular recesses remain. Outside patch pixels unchanged0; original RGB mode unchanged, no source alpha altered, and original-clay foreground classification identical before/after edits. Core detailed alpha reused unchanged. One isolated clay AA pixel at(776,539) excluded beside the lower trigger junction; not a separate part. Thin natural edge transitions follow the silhouette, no broad halo/clipping/detached parts. No independent warp or forced mask transfer. Dark detailed finish/fine appearance are artistic interpretations of monochrome source. Reference-only approval, no geometry/fitting/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1103,
+        831,
+        1373,
+        1064
+      ],
+      "referenceAreaPixels": 53617,
+      "referenceMaskSha256": "75268475460b18df5f2ea2f02a4933dbec966bc185d515d0601175bbf06d25a1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        970,
+        992,
+        1039,
+        1064
+      ],
+      "referenceAreaPixels": 1568,
+      "referenceMaskSha256": "75268475460b18df5f2ea2f02a4933dbec966bc185d515d0601175bbf06d25a1",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "74917eb21d459041318c539415bde22f6fd9ac35af48155eb80600d0e68c8f78",
+      "imageSha256": "76a5b2f7d52f4bb835910f4635c6a1aa6a4e9b84147a714807e37267588cd896",
+      "maskSha256": "88d742421691007f8caa814a2c2c4158489da86ce5f0b41f219480f656f4150a",
+      "notes": "Assigned sole final reviewer inspected actual raw detailed and manually smoothed clay references, native foreground/masks, both2048 masks, detailed/clay teal previews and paired overlay. Source form follows labeled Arsenal LightFire70 primary art as recorded in detail eligibility. Major silhouette/proportions, low top assemblies, upper/frame/base boundaries, large side-panel boundaries, raised major controls, thin trigger/guard and both actual guard clearances retained. Serrations, grip/guard ribs, stippling, microtexture and small fastener recesses are filled; three authorized annuli removed with bounded conventional raster fills. Host surfaces are visibly continuous at normal reference size; no separate circular recesses remain. Outside patch pixels unchanged0; original RGB mode unchanged, no source alpha altered, and original-clay foreground classification identical before/after edits. Core detailed alpha reused unchanged. One isolated clay AA pixel at(776,539) excluded beside the lower trigger junction; not a separate part. Thin natural edge transitions follow the silhouette, no broad halo/clipping/detached parts. No independent warp or forced mask transfer. Dark detailed finish/fine appearance are artistic interpretations of monochrome source. Reference-only approval, no geometry/fitting/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "df18940aa72e9a553824820953f68b80d00ba20dd86e08546f84f31e523342c9",
+      "imageSha256": "786ba25f6b5cc316cde54c4ff3001150bd0fe5a6472ad2e52196756ad9480fc9",
+      "maskSha256": "75268475460b18df5f2ea2f02a4933dbec966bc185d515d0601175bbf06d25a1",
+      "notes": "Assigned sole final reviewer inspected actual raw detailed and manually smoothed clay references, native foreground/masks, both2048 masks, detailed/clay teal previews and paired overlay. Source form follows labeled Arsenal LightFire70 primary art as recorded in detail eligibility. Major silhouette/proportions, low top assemblies, upper/frame/base boundaries, large side-panel boundaries, raised major controls, thin trigger/guard and both actual guard clearances retained. Serrations, grip/guard ribs, stippling, microtexture and small fastener recesses are filled; three authorized annuli removed with bounded conventional raster fills. Host surfaces are visibly continuous at normal reference size; no separate circular recesses remain. Outside patch pixels unchanged0; original RGB mode unchanged, no source alpha altered, and original-clay foreground classification identical before/after edits. Core detailed alpha reused unchanged. One isolated clay AA pixel at(776,539) excluded beside the lower trigger junction; not a separate part. Thin natural edge transitions follow the silhouette, no broad halo/clipping/detached parts. No independent warp or forced mask transfer. Dark detailed finish/fine appearance are artistic interpretations of monochrome source. Reference-only approval, no geometry/fitting/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reviewer inspected actual raw detailed and manually smoothed clay references, native foreground/masks, both2048 masks, detailed/clay teal previews and paired overlay. Source form follows labeled Arsenal LightFire70 primary art as recorded in detail eligibility. Major silhouette/proportions, low top assemblies, upper/frame/base boundaries, large side-panel boundaries, raised major controls, thin trigger/guard and both actual guard clearances retained. Serrations, grip/guard ribs, stippling, microtexture and small fastener recesses are filled; three authorized annuli removed with bounded conventional raster fills. Host surfaces are visibly continuous at normal reference size; no separate circular recesses remain. Outside patch pixels unchanged0; original RGB mode unchanged, no source alpha altered, and original-clay foreground classification identical before/after edits. Core detailed alpha reused unchanged. One isolated clay AA pixel at(776,539) excluded beside the lower trigger junction; not a separate part. Thin natural edge transitions follow the silhouette, no broad halo/clipping/detached parts. No independent warp or forced mask transfer. Dark detailed finish/fine appearance are artistic interpretations of monochrome source. Reference-only approval, no geometry/fitting/client/production approval.",
+      "landmarks": [
+        {
+          "name": "rear-top",
+          "detail": [
+            0.25927518002215655,
+            0.18678392226725943
+          ],
+          "geometry": [
+            0.25927518002215655,
+            0.18678392226725943
+          ]
+        },
+        {
+          "name": "muzzle-end",
+          "detail": [
+            0.9475353697378139,
+            0.29850430668148537
+          ],
+          "geometry": [
+            0.9475353697378139,
+            0.29850430668148537
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.3104790781942393,
+            0.8158760868854602
+          ],
+          "geometry": [
+            0.3104790781942393,
+            0.8158760868854602
+          ]
+        },
+        {
+          "name": "guard-front",
+          "detail": [
+            0.684866021971935,
+            0.49800499313546026
+          ],
+          "geometry": [
+            0.684866021971935,
+            0.49800499313546026
+          ]
+        },
+        {
+          "name": "trigger-tip",
+          "detail": [
+            0.5438890555760709,
+            0.5146300503399581
+          ],
+          "geometry": [
+            0.5438890555760709,
+            0.5146300503399581
+          ]
+        },
+        {
+          "name": "rear-end",
+          "detail": [
+            0.05046967319054653,
+            0.28520426091788703
+          ],
+          "geometry": [
+            0.05046967319054653,
+            0.28520426091788703
+          ]
+        }
+      ],
+      "referenceSha256": "74917eb21d459041318c539415bde22f6fd9ac35af48155eb80600d0e68c8f78",
+      "geometrySha256": "786ba25f6b5cc316cde54c4ff3001150bd0fe5a6472ad2e52196756ad9480fc9",
+      "detailSha256": "76a5b2f7d52f4bb835910f4635c6a1aa6a4e9b84147a714807e37267588cd896",
+      "foregroundMaskSha256": "88d742421691007f8caa814a2c2c4158489da86ce5f0b41f219480f656f4150a",
+      "geometryForegroundMaskSha256": "75268475460b18df5f2ea2f02a4933dbec966bc185d515d0601175bbf06d25a1"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

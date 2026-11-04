@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-az-150-stun-baton-6814da7647",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-pommel-edge",
+      "pixel": [
+        31.999999999999996,
+        419.5
+      ]
+    },
+    {
+      "name": "right-contact-head-edge",
+      "pixel": [
+        1740.0,
+        412.0
+      ]
+    },
+    {
+      "name": "upper-housing-extreme",
+      "pixel": [
+        613.0,
+        321.0
+      ]
+    },
+    {
+      "name": "lower-housing-extreme",
+      "pixel": [
+        90.5,
+        512.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-az-150-stun-baton-6814da7647.family.json",
+    "sha256": "b18a8ca029b8f6f938c1c2300becd2a2659d929996f98f91e652831daa278413"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8d957f0708e36e06123c6fc8fad307733b9655e294fb7bab5341de079cc4cbcc.png",
+      "sha256": "8d957f0708e36e06123c6fc8fad307733b9655e294fb7bab5341de079cc4cbcc"
+    },
+    "clayReference": {
+      "path": "inputs/547ca5f06de4a607093360971e0f08cf10d98d3a5dbf0215e4d7e10b3c2d7a73.png",
+      "sha256": "547ca5f06de4a607093360971e0f08cf10d98d3a5dbf0215e4d7e10b3c2d7a73"
+    },
+    "geometry": {
+      "path": "inputs/706f7e32a7e46c0eba27d0ab4efa7b7f5dea2c9be2855b421a9503ed1de5e3a2.png",
+      "sha256": "706f7e32a7e46c0eba27d0ab4efa7b7f5dea2c9be2855b421a9503ed1de5e3a2"
+    },
+    "detail": {
+      "path": "inputs/388b3bd2a71f69b0b1e888e2a898ebf82c9d92d9de7f4057716036c3ea958eed.png",
+      "sha256": "388b3bd2a71f69b0b1e888e2a898ebf82c9d92d9de7f4057716036c3ea958eed"
+    },
+    "foregroundMask": {
+      "path": "inputs/5578add35038506ce8867eda9899bcdab0d63205581fb060901f29f58c6ab836.png",
+      "sha256": "5578add35038506ce8867eda9899bcdab0d63205581fb060901f29f58c6ab836"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/cc4b21d0f5eec78546dd0803c14df5de11882f55741c67c4bb5b571aeb268518.png",
+      "sha256": "cc4b21d0f5eec78546dd0803c14df5de11882f55741c67c4bb5b571aeb268518"
+    },
+    "mask": {
+      "path": "inputs/cc4b21d0f5eec78546dd0803c14df5de11882f55741c67c4bb5b571aeb268518.png",
+      "sha256": "cc4b21d0f5eec78546dd0803c14df5de11882f55741c67c4bb5b571aeb268518"
+    },
+    "calibrationReference": {
+      "path": "inputs/c220b33872bd3590502cce1d8512517c375c8ff08c022c6c230a057e0d85dcc3.png",
+      "sha256": "c220b33872bd3590502cce1d8512517c375c8ff08c022c6c230a057e0d85dcc3"
+    },
+    "sourceAudit": {
+      "path": "inputs/8d3c246c225fc86ee1c5732adb45a68d73b4b8d3673f8211acfae62f049e3985.json",
+      "sha256": "8d3c246c225fc86ee1c5732adb45a68d73b4b8d3673f8211acfae62f049e3985"
+    },
+    "referenceApproval": {
+      "path": "inputs/88f3e6104fa8a515b794131c6a95c7b0d461ce9016c52ed794e04ecfcc76cd5a.json",
+      "sha256": "88f3e6104fa8a515b794131c6a95c7b0d461ce9016c52ed794e04ecfcc76cd5a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/6aac66ed41a02d45f8454186edccaa53ffaac477b2d592aac874d2ee3d573105.png",
+      "sha256": "6aac66ed41a02d45f8454186edccaa53ffaac477b2d592aac874d2ee3d573105"
+    }
+  },
+  "features": [
+    {
+      "name": "Recognizable stun-baton class, with an electrical contact/striking region and hand grip.",
+      "placementReviewed": true
+    },
+    {
+      "name": "No individually labeled AZ-150 exterior is specified by the reviewed paragraph; do not infer a built-in ranged taser from the neighboring Jupiter Taser Club.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay inspected: common framing, complete silhouette and intentional open spaces preserved; no visible background debris. Matched overall length, grip, central housing, narrow shaft and contact head; grip microtexture and blue appearance removed. Shallow grip spirals/panel forms accepted under latest user waiver. Recesses contain object surfaces rather than background holes; no invented alpha openings or cast-shadow remnant. Arsenal printed16/PDF18 AZ-150 description: one-handed high-energy stun baton. No own labeled exterior is supplied on reviewed pages. Grip proportions, housing/contacts, light accents and finish are artistic interpretation, not published AZ-150 artwork or an indicated charge count; do not substitute the two-handed Stun Staff.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8d957f0708e36e06123c6fc8fad307733b9655e294fb7bab5341de079cc4cbcc",
+      "imageSha256": "388b3bd2a71f69b0b1e888e2a898ebf82c9d92d9de7f4057716036c3ea958eed",
+      "maskSha256": "5578add35038506ce8867eda9899bcdab0d63205581fb060901f29f58c6ab836",
+      "notes": "Actual conditioned overlay inspected: common framing, complete silhouette and intentional open spaces preserved; no visible background debris. Matched overall length, grip, central housing, narrow shaft and contact head; grip microtexture and blue appearance removed. Shallow grip spirals/panel forms accepted under latest user waiver. Recesses contain object surfaces rather than background holes; no invented alpha openings or cast-shadow remnant. Arsenal printed16/PDF18 AZ-150 description: one-handed high-energy stun baton. No own labeled exterior is supplied on reviewed pages. Grip proportions, housing/contacts, light accents and finish are artistic interpretation, not published AZ-150 artwork or an indicated charge count; do not substitute the two-handed Stun Staff."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "547ca5f06de4a607093360971e0f08cf10d98d3a5dbf0215e4d7e10b3c2d7a73",
+      "imageSha256": "706f7e32a7e46c0eba27d0ab4efa7b7f5dea2c9be2855b421a9503ed1de5e3a2",
+      "maskSha256": "cc4b21d0f5eec78546dd0803c14df5de11882f55741c67c4bb5b571aeb268518",
+      "notes": "Actual conditioned overlay inspected: common framing, complete silhouette and intentional open spaces preserved; no visible background debris. Matched overall length, grip, central housing, narrow shaft and contact head; grip microtexture and blue appearance removed. Shallow grip spirals/panel forms accepted under latest user waiver. Recesses contain object surfaces rather than background holes; no invented alpha openings or cast-shadow remnant. Arsenal printed16/PDF18 AZ-150 description: one-handed high-energy stun baton. No own labeled exterior is supplied on reviewed pages. Grip proportions, housing/contacts, light accents and finish are artistic interpretation, not published AZ-150 artwork or an indicated charge count; do not substitute the two-handed Stun Staff."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "8d957f0708e36e06123c6fc8fad307733b9655e294fb7bab5341de079cc4cbcc",
+      "detailSha256": "388b3bd2a71f69b0b1e888e2a898ebf82c9d92d9de7f4057716036c3ea958eed",
+      "geometrySha256": "706f7e32a7e46c0eba27d0ab4efa7b7f5dea2c9be2855b421a9503ed1de5e3a2",
+      "foregroundMaskSha256": "5578add35038506ce8867eda9899bcdab0d63205581fb060901f29f58c6ab836",
+      "geometryForegroundMaskSha256": "cc4b21d0f5eec78546dd0803c14df5de11882f55741c67c4bb5b571aeb268518",
+      "landmarks": [
+        {
+          "name": "left-pommel-edge",
+          "detail": [
+            0.0503312317251462,
+            0.5010719299316406
+          ],
+          "geometry": [
+            0.0498046875,
+            0.4942283630371094
+          ]
+        },
+        {
+          "name": "right-contact-head-edge",
+          "detail": [
+            0.9496687682748538,
+            0.49712371826171875
+          ],
+          "geometry": [
+            0.9496687682748538,
+            0.4944915771484375
+          ]
+        },
+        {
+          "name": "upper-housing-extreme",
+          "detail": [
+            0.35625342653508774,
+            0.44921875
+          ],
+          "geometry": [
+            0.3620454130116959,
+            0.44921875
+          ]
+        },
+        {
+          "name": "lower-housing-extreme",
+          "detail": [
+            0.08113406889619883,
+            0.5497665405273438
+          ],
+          "geometry": [
+            0.08087079678362573,
+            0.5492401123046875
+          ]
+        }
+      ],
+      "notes": "Actual conditioned overlay inspected: common framing, complete silhouette and intentional open spaces preserved; no visible background debris. Matched overall length, grip, central housing, narrow shaft and contact head; grip microtexture and blue appearance removed. Shallow grip spirals/panel forms accepted under latest user waiver. Recesses contain object surfaces rather than background holes; no invented alpha openings or cast-shadow remnant. Arsenal printed16/PDF18 AZ-150 description: one-handed high-energy stun baton. No own labeled exterior is supplied on reviewed pages. Grip proportions, housing/contacts, light accents and finish are artistic interpretation, not published AZ-150 artwork or an indicated charge count; do not substitute the two-handed Stun Staff."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

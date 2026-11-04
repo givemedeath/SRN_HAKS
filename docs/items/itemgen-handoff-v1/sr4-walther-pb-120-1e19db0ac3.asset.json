@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-walther-pb-120-1e19db0ac3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle",
+      "pixel": [
+        45.00000000000001,
+        320.99999999999994
+      ]
+    },
+    {
+      "name": "front-sight",
+      "pixel": [
+        100.0,
+        238.99999999999997
+      ]
+    },
+    {
+      "name": "rear-control",
+      "pixel": [
+        1055.0,
+        356.00000000000006
+      ]
+    },
+    {
+      "name": "guard-base",
+      "pixel": [
+        593.0,
+        644.0
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        1114.0,
+        964.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-walther-pb-120-1e19db0ac3.family.json",
+    "sha256": "4d23efda20f5a690854104546c8772073f85913827d1f2971dc1e0e48a5456ae"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/e46e80c0738c004d2889e05c19b1feccc1bffe5139c7e6b25e5c44c0d6c016d3.png",
+      "sha256": "e46e80c0738c004d2889e05c19b1feccc1bffe5139c7e6b25e5c44c0d6c016d3"
+    },
+    "clayReference": {
+      "path": "inputs/782e91bc609f749efb03a6a50b3039471d78d205168883e3f6259b83f49eabcd.png",
+      "sha256": "782e91bc609f749efb03a6a50b3039471d78d205168883e3f6259b83f49eabcd"
+    },
+    "geometry": {
+      "path": "inputs/fbf7897e97ed1b13c3ab752fd9196e543f8dbabf969eb3662e634865fa1fac50.png",
+      "sha256": "fbf7897e97ed1b13c3ab752fd9196e543f8dbabf969eb3662e634865fa1fac50"
+    },
+    "detail": {
+      "path": "inputs/8044ef1b7366627fe138d52c155bfa51d51a458db1f13fccea9758933d458ac6.png",
+      "sha256": "8044ef1b7366627fe138d52c155bfa51d51a458db1f13fccea9758933d458ac6"
+    },
+    "foregroundMask": {
+      "path": "inputs/5c6c84b4131394b27b432634aa2fc971e97c60e60adbe6d7a0156b84cdf47a47.png",
+      "sha256": "5c6c84b4131394b27b432634aa2fc971e97c60e60adbe6d7a0156b84cdf47a47"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/42a6c057e0784311db82c7029a97a1b56263ac34be7612a598e8f166fb929207.png",
+      "sha256": "42a6c057e0784311db82c7029a97a1b56263ac34be7612a598e8f166fb929207"
+    },
+    "mask": {
+      "path": "inputs/42a6c057e0784311db82c7029a97a1b56263ac34be7612a598e8f166fb929207.png",
+      "sha256": "42a6c057e0784311db82c7029a97a1b56263ac34be7612a598e8f166fb929207"
+    },
+    "calibrationReference": {
+      "path": "inputs/674fcb9af196b87ea44dca8855c5abd64055316572d62cc7eb4d51d25df6e886.png",
+      "sha256": "674fcb9af196b87ea44dca8855c5abd64055316572d62cc7eb4d51d25df6e886"
+    },
+    "sourceAudit": {
+      "path": "inputs/f0cdcc3820cd00572ca13a8fff9e4a6672b63531a0df4d443fbca6a56492ce8c.json",
+      "sha256": "f0cdcc3820cd00572ca13a8fff9e4a6672b63531a0df4d443fbca6a56492ce8c"
+    },
+    "referenceApproval": {
+      "path": "inputs/ce6ed38f1717a1e0661422aa9d986a6c719476a9c6f534216cc3c6a411211239.json",
+      "sha256": "ce6ed38f1717a1e0661422aa9d986a6c719476a9c6f534216cc3c6a411211239"
+    },
+    "calibrationDetail": {
+      "path": "inputs/e9c32086ee4a0d68682ee627dbe0026135312a70a2c0548dc0f8405eabbbff16.png",
+      "sha256": "e9c32086ee4a0d68682ee627dbe0026135312a70a2c0548dc0f8405eabbbff16"
+    }
+  },
+  "features": [
+    {
+      "name": "Small rugged light pistol; own PB120 drawing supplies compact squared upper, rear raked grip and trigger opening.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Standard10-round clip versus optional extended15-round clip must be selected explicitly; no unique overall shape inferred from capacity alone.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned exact final pair review and safe-boundary actual foreground approval reused. Trigger opening and thin guard intact. No further cosmetic edits. Native1254-square resampled2048, not native2K. Additive safe-boundary corrects inherited irrelevant matte prose.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        794,
+        793,
+        1217,
+        1035
+      ],
+      "referenceAreaPixels": 69065,
+      "referenceMaskSha256": "42a6c057e0784311db82c7029a97a1b56263ac34be7612a598e8f166fb929207",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e46e80c0738c004d2889e05c19b1feccc1bffe5139c7e6b25e5c44c0d6c016d3",
+      "imageSha256": "8044ef1b7366627fe138d52c155bfa51d51a458db1f13fccea9758933d458ac6",
+      "maskSha256": "5c6c84b4131394b27b432634aa2fc971e97c60e60adbe6d7a0156b84cdf47a47",
+      "notes": "Assigned exact final pair review and safe-boundary actual foreground approval reused. Trigger opening and thin guard intact. No further cosmetic edits. Native1254-square resampled2048, not native2K. Additive safe-boundary corrects inherited irrelevant matte prose."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "782e91bc609f749efb03a6a50b3039471d78d205168883e3f6259b83f49eabcd",
+      "imageSha256": "fbf7897e97ed1b13c3ab752fd9196e543f8dbabf969eb3662e634865fa1fac50",
+      "maskSha256": "42a6c057e0784311db82c7029a97a1b56263ac34be7612a598e8f166fb929207",
+      "notes": "Assigned exact final pair review and safe-boundary actual foreground approval reused. Trigger opening and thin guard intact. No further cosmetic edits. Native1254-square resampled2048, not native2K. Additive safe-boundary corrects inherited irrelevant matte prose."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned exact final pair review and safe-boundary actual foreground approval reused. Trigger opening and thin guard intact. No further cosmetic edits. Native1254-square resampled2048, not native2K. Additive safe-boundary corrects inherited irrelevant matte prose.",
+      "landmarks": [
+        {
+          "name": "muzzle",
+          "detail": [
+            0.06260288200250837,
+            0.271927148929471
+          ],
+          "geometry": [
+            0.06260288200250837,
+            0.271927148929471
+          ]
+        },
+        {
+          "name": "front-sight",
+          "detail": [
+            0.10400880539297659,
+            0.21020446316120905
+          ],
+          "geometry": [
+            0.10400880539297659,
+            0.21020446316120905
+          ]
+        },
+        {
+          "name": "rear-control",
+          "detail": [
+            0.8229662024456522,
+            0.2982721977329975
+          ],
+          "geometry": [
+            0.8229662024456522,
+            0.2982721977329975
+          ]
+        },
+        {
+          "name": "guard-base",
+          "detail": [
+            0.47515644596571904,
+            0.5150543136020151
+          ],
+          "geometry": [
+            0.47515644596571904,
+            0.5150543136020151
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.8673834657190636,
+            0.7566760469143576
+          ],
+          "geometry": [
+            0.8673834657190636,
+            0.7566760469143576
+          ]
+        }
+      ],
+      "referenceSha256": "e46e80c0738c004d2889e05c19b1feccc1bffe5139c7e6b25e5c44c0d6c016d3",
+      "geometrySha256": "fbf7897e97ed1b13c3ab752fd9196e543f8dbabf969eb3662e634865fa1fac50",
+      "detailSha256": "8044ef1b7366627fe138d52c155bfa51d51a458db1f13fccea9758933d458ac6",
+      "foregroundMaskSha256": "5c6c84b4131394b27b432634aa2fc971e97c60e60adbe6d7a0156b84cdf47a47",
+      "geometryForegroundMaskSha256": "42a6c057e0784311db82c7029a97a1b56263ac34be7612a598e8f166fb929207"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-fn-p93-praetor-ddf9a66bde",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-hand-space",
+      "pixel": [
+        592.626708727655,
+        595.101711117484
+      ]
+    },
+    {
+      "name": "trigger-space",
+      "pixel": [
+        843.8435963013968,
+        582.2494589809168
+      ]
+    },
+    {
+      "name": "forward-hand-space",
+      "pixel": [
+        974.8900597119776,
+        585.3631893220934
+      ]
+    },
+    {
+      "name": "lower-triangular-space",
+      "pixel": [
+        950.2716262975778,
+        658.795847750865
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-fn-p93-praetor-ddf9a66bde.family.json",
+    "sha256": "38fe602b8803ab74f99385d0a3aaee0faed1023debc00f6344e183694a9be79c"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/0beebedcf46d81cc17633e0561fd61c555f49475502b26954444d03056f514ca.png",
+      "sha256": "0beebedcf46d81cc17633e0561fd61c555f49475502b26954444d03056f514ca"
+    },
+    "clayReference": {
+      "path": "inputs/46bbe2772506056b4239b5bba12245aca65fa49400e1f96cc9213ca04cac79fd.png",
+      "sha256": "46bbe2772506056b4239b5bba12245aca65fa49400e1f96cc9213ca04cac79fd"
+    },
+    "geometry": {
+      "path": "inputs/3fde1b8eb023eca4978b86337fdbdaee1b7762768fb61f22af72efe15d54a010.png",
+      "sha256": "3fde1b8eb023eca4978b86337fdbdaee1b7762768fb61f22af72efe15d54a010"
+    },
+    "detail": {
+      "path": "inputs/05bb7afe5880af11735e25d7e74d175a40cbae938c41df5d7b45ca5eaa1f3460.png",
+      "sha256": "05bb7afe5880af11735e25d7e74d175a40cbae938c41df5d7b45ca5eaa1f3460"
+    },
+    "foregroundMask": {
+      "path": "inputs/a48d3a0691911170c34ca487e53d7929dc428e76fd6e4dd6dff96e336dd9bd7f.png",
+      "sha256": "a48d3a0691911170c34ca487e53d7929dc428e76fd6e4dd6dff96e336dd9bd7f"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5.png",
+      "sha256": "4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5"
+    },
+    "mask": {
+      "path": "inputs/4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5.png",
+      "sha256": "4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5"
+    },
+    "calibrationReference": {
+      "path": "inputs/a8038bfd2dbb786707fa36818e0c199cba807e23668be3fcc64443bd9acd9060.png",
+      "sha256": "a8038bfd2dbb786707fa36818e0c199cba807e23668be3fcc64443bd9acd9060"
+    },
+    "sourceAudit": {
+      "path": "inputs/f24f6bc4b8d7910746257daab8b1e76993407b768931d0c54bd51bcce38a4d0d.json",
+      "sha256": "f24f6bc4b8d7910746257daab8b1e76993407b768931d0c54bd51bcce38a4d0d"
+    },
+    "referenceApproval": {
+      "path": "inputs/c81f53062817b84fbed98232469356adf312975be5bc2fdc640152b8b51aa168.json",
+      "sha256": "c81f53062817b84fbed98232469356adf312975be5bc2fdc640152b8b51aa168"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4b61f60b27d910343b210de17ea0facee07da79e10d1c54f0bfee0d9a4eaa919.png",
+      "sha256": "4b61f60b27d910343b210de17ea0facee07da79e10d1c54f0bfee0d9a4eaa919"
+    }
+  },
+  "features": [
+    {
+      "name": "Bullpup layout with integrated stock and flashlight",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own art: broad angular shell, rearward feed region, large forward hand/body openings and short exposed barrel; preserve major apertures",
+      "placementReviewed": true
+    },
+    {
+      "name": "Special chamber design gives one point recoil compensation; no separately named external device",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual prepared overlay inspected: framing and all four through-openings retained; no backdrop remnant. Matched stock, magazine, barrel, integrated light, all four through-openings and their thin members. Clay removes stippling, tiny fasteners, scratches and finish; shallow panel recesses accepted. Actual raw pair and both foregrounds reviewed: common camera/framing; no backdrop debris. Arsenal printed25/PDF27 own P93 PRAETOR art and prose: broad angular shell, integrated rear stock, rearward feed/magazine, short right-facing barrel, multiple large hand/body apertures and integrated front flashlight. Major source construction retained; panels, controls, rails, finish and hidden depth are artistic interpretation. No external optic or underbarrel attachment.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1267,
+        886,
+        1408,
+        987
+      ],
+      "referenceAreaPixels": 11497,
+      "referenceMaskSha256": "4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1464,
+        886,
+        1613,
+        1001
+      ],
+      "referenceAreaPixels": 12890,
+      "referenceMaskSha256": "4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        839,
+        891,
+        1067,
+        1025
+      ],
+      "referenceAreaPixels": 23876,
+      "referenceMaskSha256": "4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1479,
+        1033,
+        1516,
+        1079
+      ],
+      "referenceAreaPixels": 1270,
+      "referenceMaskSha256": "4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0beebedcf46d81cc17633e0561fd61c555f49475502b26954444d03056f514ca",
+      "imageSha256": "05bb7afe5880af11735e25d7e74d175a40cbae938c41df5d7b45ca5eaa1f3460",
+      "maskSha256": "a48d3a0691911170c34ca487e53d7929dc428e76fd6e4dd6dff96e336dd9bd7f",
+      "notes": "Actual prepared overlay inspected: framing and all four through-openings retained; no backdrop remnant. Matched stock, magazine, barrel, integrated light, all four through-openings and their thin members. Clay removes stippling, tiny fasteners, scratches and finish; shallow panel recesses accepted. Actual raw pair and both foregrounds reviewed: common camera/framing; no backdrop debris. Arsenal printed25/PDF27 own P93 PRAETOR art and prose: broad angular shell, integrated rear stock, rearward feed/magazine, short right-facing barrel, multiple large hand/body apertures and integrated front flashlight. Major source construction retained; panels, controls, rails, finish and hidden depth are artistic interpretation. No external optic or underbarrel attachment."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "46bbe2772506056b4239b5bba12245aca65fa49400e1f96cc9213ca04cac79fd",
+      "imageSha256": "3fde1b8eb023eca4978b86337fdbdaee1b7762768fb61f22af72efe15d54a010",
+      "maskSha256": "4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5",
+      "notes": "Actual prepared overlay inspected: framing and all four through-openings retained; no backdrop remnant. Matched stock, magazine, barrel, integrated light, all four through-openings and their thin members. Clay removes stippling, tiny fasteners, scratches and finish; shallow panel recesses accepted. Actual raw pair and both foregrounds reviewed: common camera/framing; no backdrop debris. Arsenal printed25/PDF27 own P93 PRAETOR art and prose: broad angular shell, integrated rear stock, rearward feed/magazine, short right-facing barrel, multiple large hand/body apertures and integrated front flashlight. Major source construction retained; panels, controls, rails, finish and hidden depth are artistic interpretation. No external optic or underbarrel attachment."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "0beebedcf46d81cc17633e0561fd61c555f49475502b26954444d03056f514ca",
+      "detailSha256": "05bb7afe5880af11735e25d7e74d175a40cbae938c41df5d7b45ca5eaa1f3460",
+      "geometrySha256": "3fde1b8eb023eca4978b86337fdbdaee1b7762768fb61f22af72efe15d54a010",
+      "foregroundMaskSha256": "a48d3a0691911170c34ca487e53d7929dc428e76fd6e4dd6dff96e336dd9bd7f",
+      "geometryForegroundMaskSha256": "4b6140d889fd9b2aaf106094c66283e720bfd76e8341643007e3fe193dd291c5",
+      "landmarks": [
+        {
+          "name": "rear-hand-space",
+          "detail": [
+            0.4684360510837991,
+            0.46670076350092915
+          ],
+          "geometry": [
+            0.4682565003747276,
+            0.46704578042255807
+          ]
+        },
+        {
+          "name": "trigger-space",
+          "detail": [
+            0.6533856262375817,
+            0.45723865621030146
+          ],
+          "geometry": [
+            0.6534722273296579,
+            0.45732400038054166
+          ]
+        },
+        {
+          "name": "forward-hand-space",
+          "detail": [
+            0.7498639640088756,
+            0.4595310521459888
+          ],
+          "geometry": [
+            0.7498682335528922,
+            0.4598231927893969
+          ]
+        },
+        {
+          "name": "lower-triangular-space",
+          "detail": [
+            0.7317395104941476,
+            0.5135937709057716
+          ],
+          "geometry": [
+            0.7317457797649078,
+            0.5141121830921693
+          ]
+        }
+      ],
+      "notes": "Actual prepared overlay inspected: framing and all four through-openings retained; no backdrop remnant. Matched stock, magazine, barrel, integrated light, all four through-openings and their thin members. Clay removes stippling, tiny fasteners, scratches and finish; shallow panel recesses accepted. Actual raw pair and both foregrounds reviewed: common camera/framing; no backdrop debris. Arsenal printed25/PDF27 own P93 PRAETOR art and prose: broad angular shell, integrated rear stock, rearward feed/magazine, short right-facing barrel, multiple large hand/body apertures and integrated front flashlight. Major source construction retained; panels, controls, rails, finish and hidden depth are artistic interpretation. No external optic or underbarrel attachment."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

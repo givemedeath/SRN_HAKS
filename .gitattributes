@@ -2,6 +2,8 @@
 *.cmd text eol=crlf
 *.ps1 text eol=lf
 *.json text eol=lf
+# Preserve the exact archived family/input contract bytes referenced by handoff pins.
+docs/items/itemgen-handoff-v1/*.json -text whitespace=cr-at-eol
 *.md text eol=lf
 *.2da text eol=lf whitespace=-trailing-space
 *.set text eol=lf whitespace=-trailing-space

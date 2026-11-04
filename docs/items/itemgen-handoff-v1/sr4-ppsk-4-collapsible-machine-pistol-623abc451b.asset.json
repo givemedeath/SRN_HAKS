@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ppsk-4-collapsible-machine-pistol-623abc451b",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-muzzle-left-native-row380",
+      "pixel": [
+        8.000000000000002,
+        380.0
+      ]
+    },
+    {
+      "name": "stock-butt-right-native-row600",
+      "pixel": [
+        1236.0,
+        600.0
+      ]
+    },
+    {
+      "name": "front-sight-top-native-x80-180",
+      "pixel": [
+        139.5,
+        260.0
+      ]
+    },
+    {
+      "name": "magazine-bottom-native-x500-750",
+      "pixel": [
+        615.0,
+        1007.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ppsk-4-collapsible-machine-pistol-623abc451b.family.json",
+    "sha256": "212032710330f68e424aaa967639fefcf6c8c3d1fb8540b92dc27801f2f9a411"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/e477be44457725b8fb0449d3d6e7588bcb44ef15ddcd2db8f0c27bd085b4ebdf.png",
+      "sha256": "e477be44457725b8fb0449d3d6e7588bcb44ef15ddcd2db8f0c27bd085b4ebdf"
+    },
+    "clayReference": {
+      "path": "inputs/85a8d543879e97fe0248fecfb7d1eafcb53a2dad0f8b9cf99139c2e7f85d7a10.png",
+      "sha256": "85a8d543879e97fe0248fecfb7d1eafcb53a2dad0f8b9cf99139c2e7f85d7a10"
+    },
+    "geometry": {
+      "path": "inputs/8c48df46ff31a9743a0604b0bcb01dca29e92aa94ea672615bb86d4ef2b62a02.png",
+      "sha256": "8c48df46ff31a9743a0604b0bcb01dca29e92aa94ea672615bb86d4ef2b62a02"
+    },
+    "detail": {
+      "path": "inputs/521f7f1d85c450de7da30b3ae0d61d0c35d5ddfa4d38d74a4e4681bd799239e9.png",
+      "sha256": "521f7f1d85c450de7da30b3ae0d61d0c35d5ddfa4d38d74a4e4681bd799239e9"
+    },
+    "foregroundMask": {
+      "path": "inputs/894d6234e467edc2f3e3e8dc7504ff0b24510e65165c27d7f0f36875e5f6846c.png",
+      "sha256": "894d6234e467edc2f3e3e8dc7504ff0b24510e65165c27d7f0f36875e5f6846c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/85e785ae11a2a704942807e60852ebe71bf66cc019666c36a389c5d6ffd57d6a.png",
+      "sha256": "85e785ae11a2a704942807e60852ebe71bf66cc019666c36a389c5d6ffd57d6a"
+    },
+    "mask": {
+      "path": "inputs/85e785ae11a2a704942807e60852ebe71bf66cc019666c36a389c5d6ffd57d6a.png",
+      "sha256": "85e785ae11a2a704942807e60852ebe71bf66cc019666c36a389c5d6ffd57d6a"
+    },
+    "calibrationReference": {
+      "path": "inputs/fc7d557e948c85ff0ef0b4261b2edd33e4b344215ae9bd01a6cae276867f32d2.png",
+      "sha256": "fc7d557e948c85ff0ef0b4261b2edd33e4b344215ae9bd01a6cae276867f32d2"
+    },
+    "sourceAudit": {
+      "path": "inputs/bf7abedcbe6dae77021668af1e0f4afc2eba5d78daebe0d7bf6a82c35e65b5ba.json",
+      "sha256": "bf7abedcbe6dae77021668af1e0f4afc2eba5d78daebe0d7bf6a82c35e65b5ba"
+    },
+    "referenceApproval": {
+      "path": "inputs/c88ffbb696637b47bbe6166e25565b2188541b5d8bc99fce02e5e720712777f8.json",
+      "sha256": "c88ffbb696637b47bbe6166e25565b2188541b5d8bc99fce02e5e720712777f8"
+    },
+    "calibrationDetail": {
+      "path": "inputs/851a1d1d4d32f3f6bd1ae705da7191c85fbe01367cdfd4b139b10ad7b796f331.png",
+      "sha256": "851a1d1d4d32f3f6bd1ae705da7191c85fbe01367cdfd4b139b10ad7b796f331"
+    }
+  },
+  "features": [
+    {
+      "name": "Uses PSK3 mechanical principles/materials and has a folding stock plus laser sight.",
+      "placementReviewed": true
+    },
+    {
+      "name": "State selection must distinguish deployed machine pistol from collapsed block; stock must remain accounted for. No internal mechanical diagram required.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected with the one raw-pair/actual-alpha review: deployed folding stock, hinge, laser housing, main stock space, trigger opening, grip and magazine preserved in common framing. Fine stock-slot/shallow surface differences are nonblocking unprescribed detail. Each role topology preserved independently: detail1component/1hole, clay1component/2holes. No discarded components or conditioning-filled holes. Native1254 originals retained; resampled2048 disclosed.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1572,
+        704,
+        1705,
+        736
+      ],
+      "referenceAreaPixels": 1147,
+      "referenceMaskSha256": "85e785ae11a2a704942807e60852ebe71bf66cc019666c36a389c5d6ffd57d6a",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        595,
+        786,
+        775,
+        926
+      ],
+      "referenceAreaPixels": 16001,
+      "referenceMaskSha256": "85e785ae11a2a704942807e60852ebe71bf66cc019666c36a389c5d6ffd57d6a",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e477be44457725b8fb0449d3d6e7588bcb44ef15ddcd2db8f0c27bd085b4ebdf",
+      "imageSha256": "521f7f1d85c450de7da30b3ae0d61d0c35d5ddfa4d38d74a4e4681bd799239e9",
+      "maskSha256": "894d6234e467edc2f3e3e8dc7504ff0b24510e65165c27d7f0f36875e5f6846c",
+      "notes": "Final prepared overlay inspected with the one raw-pair/actual-alpha review: deployed folding stock, hinge, laser housing, main stock space, trigger opening, grip and magazine preserved in common framing. Fine stock-slot/shallow surface differences are nonblocking unprescribed detail. Each role topology preserved independently: detail1component/1hole, clay1component/2holes. No discarded components or conditioning-filled holes. Native1254 originals retained; resampled2048 disclosed."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "85a8d543879e97fe0248fecfb7d1eafcb53a2dad0f8b9cf99139c2e7f85d7a10",
+      "imageSha256": "8c48df46ff31a9743a0604b0bcb01dca29e92aa94ea672615bb86d4ef2b62a02",
+      "maskSha256": "85e785ae11a2a704942807e60852ebe71bf66cc019666c36a389c5d6ffd57d6a",
+      "notes": "Final prepared overlay inspected with the one raw-pair/actual-alpha review: deployed folding stock, hinge, laser housing, main stock space, trigger opening, grip and magazine preserved in common framing. Fine stock-slot/shallow surface differences are nonblocking unprescribed detail. Each role topology preserved independently: detail1component/1hole, clay1component/2holes. No discarded components or conditioning-filled holes. Native1254 originals retained; resampled2048 disclosed."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "e477be44457725b8fb0449d3d6e7588bcb44ef15ddcd2db8f0c27bd085b4ebdf",
+      "detailSha256": "521f7f1d85c450de7da30b3ae0d61d0c35d5ddfa4d38d74a4e4681bd799239e9",
+      "geometrySha256": "8c48df46ff31a9743a0604b0bcb01dca29e92aa94ea672615bb86d4ef2b62a02",
+      "foregroundMaskSha256": "894d6234e467edc2f3e3e8dc7504ff0b24510e65165c27d7f0f36875e5f6846c",
+      "geometryForegroundMaskSha256": "85e785ae11a2a704942807e60852ebe71bf66cc019666c36a389c5d6ffd57d6a",
+      "landmarks": [
+        {
+          "name": "front-muzzle-left-native-row380",
+          "detail": [
+            0.05053493131589619,
+            0.3144583057029178
+          ],
+          "geometry": [
+            0.05053493131589619,
+            0.3144583057029178
+          ]
+        },
+        {
+          "name": "stock-butt-right-native-row600",
+          "detail": [
+            0.9472743372364153,
+            0.4751637102122016
+          ],
+          "geometry": [
+            0.9480045810523114,
+            0.4751637102122016
+          ]
+        },
+        {
+          "name": "front-sight-top-native-x80-180",
+          "detail": [
+            0.14656199310624493,
+            0.2268008123342175
+          ],
+          "geometry": [
+            0.14656199310624493,
+            0.22533985411140584
+          ]
+        },
+        {
+          "name": "magazine-bottom-native-x500-750",
+          "detail": [
+            0.4937929275648824,
+            0.7731991876657824
+          ],
+          "geometry": [
+            0.49233243993309,
+            0.7739296667771883
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected with the one raw-pair/actual-alpha review: deployed folding stock, hinge, laser housing, main stock space, trigger opening, grip and magazine preserved in common framing. Fine stock-slot/shallow surface differences are nonblocking unprescribed detail. Each role topology preserved independently: detail1component/1hole, clay1component/2holes. No discarded components or conditioning-filled holes. Native1254 originals retained; resampled2048 disclosed."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

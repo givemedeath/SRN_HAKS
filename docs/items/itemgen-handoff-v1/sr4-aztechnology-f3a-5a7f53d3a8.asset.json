@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-aztechnology-f3a-5a7f53d3a8",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "frame-handle-top",
+      "pixel": [
+        500.0,
+        46.0
+      ]
+    },
+    {
+      "name": "hose-left-bottom",
+      "pixel": [
+        150.0,
+        1100.0
+      ]
+    },
+    {
+      "name": "nozzle-top",
+      "pixel": [
+        1180.0,
+        874.0000000000001
+      ]
+    },
+    {
+      "name": "nozzle-grip-bottom",
+      "pixel": [
+        750.0,
+        1200.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-aztechnology-f3a-5a7f53d3a8.family.json",
+    "sha256": "3c28f4eca0fcc58c748419d7faa01a3cc52d06d30c98b4db23ee184e85ce7da9"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/43d25a1654a8162fb856f831ff133ab430facf1304b6ea43460ff36194864e21.png",
+      "sha256": "43d25a1654a8162fb856f831ff133ab430facf1304b6ea43460ff36194864e21"
+    },
+    "clayReference": {
+      "path": "inputs/fc402d0b4f50432a213832459d9ebfdc5fdaaa093605b933c1f5bfe131718085.png",
+      "sha256": "fc402d0b4f50432a213832459d9ebfdc5fdaaa093605b933c1f5bfe131718085"
+    },
+    "geometry": {
+      "path": "inputs/5f60b0292c05b01c0dc8ab4869ac0dc6cceffaf784fb1b05afbbf24ae6aec013.png",
+      "sha256": "5f60b0292c05b01c0dc8ab4869ac0dc6cceffaf784fb1b05afbbf24ae6aec013"
+    },
+    "detail": {
+      "path": "inputs/e431e7e3b2e75376806efd18fa77f93558349972aded4e06e1c4826c75c15030.png",
+      "sha256": "e431e7e3b2e75376806efd18fa77f93558349972aded4e06e1c4826c75c15030"
+    },
+    "foregroundMask": {
+      "path": "inputs/a57ff284fdb77ba2e0efc9731c72983fb840cca0204e33637c82b7fc773522dc.png",
+      "sha256": "a57ff284fdb77ba2e0efc9731c72983fb840cca0204e33637c82b7fc773522dc"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd.png",
+      "sha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd"
+    },
+    "mask": {
+      "path": "inputs/492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd.png",
+      "sha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd"
+    },
+    "calibrationReference": {
+      "path": "inputs/55c16aeb065087518834310b520b7d0a76020846c89554cdc9246826584137ab.png",
+      "sha256": "55c16aeb065087518834310b520b7d0a76020846c89554cdc9246826584137ab"
+    },
+    "sourceAudit": {
+      "path": "inputs/6633ec9191e0e47a80c5f189890771692a9290bd6106abbcc83c1d935bcafcf6.json",
+      "sha256": "6633ec9191e0e47a80c5f189890771692a9290bd6106abbcc83c1d935bcafcf6"
+    },
+    "referenceApproval": {
+      "path": "inputs/3e34e6e695ebc7124b60e2e431f44446db7161dca0cf97df46fe08261ba4d13f.json",
+      "sha256": "3e34e6e695ebc7124b60e2e431f44446db7161dca0cf97df46fe08261ba4d13f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/1855fe6f2bedc11405f7cf52a74509280938c2af82f7071eceb8c8f4c295188f.png",
+      "sha256": "1855fe6f2bedc11405f7cf52a74509280938c2af82f7071eceb8c8f4c295188f"
+    }
+  },
+  "features": [
+    {
+      "name": "Classic one-person backpack flamethrower configuration",
+      "placementReviewed": true
+    },
+    {
+      "name": "Backpack fuel-tank assembly connected by hose to a pistol-grip nozzle under the class description",
+      "placementReviewed": true
+    },
+    {
+      "name": "Nozzle ignition feature is described generically; precise shape/location is interpretation, not an engineering diagram",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected using single accepted actual pair/alpha review. Main structure, framing, thin members and intentional openings intact. Per-role topology preserved: {\"detail\": {\"components\": 1, \"holes\": 12}, \"clay\": {\"components\": 1, \"holes\": 14}}. Small seam/hardware/texture differences nonblocking. Native1254 retained,2048resampled; source interpretation limits retained in caption.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        705,
+        174,
+        1000,
+        256
+      ],
+      "referenceAreaPixels": 15960,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        597,
+        314,
+        618,
+        324
+      ],
+      "referenceAreaPixels": 86,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        286,
+        344,
+        453,
+        1000
+      ],
+      "referenceAreaPixels": 60682,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1233,
+        677,
+        1327,
+        1008
+      ],
+      "referenceAreaPixels": 20120,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1369,
+        807,
+        1406,
+        817
+      ],
+      "referenceAreaPixels": 120,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1350,
+        818,
+        1365,
+        822
+      ],
+      "referenceAreaPixels": 29,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        210,
+        827,
+        277,
+        839
+      ],
+      "referenceAreaPixels": 171,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1323,
+        958,
+        1370,
+        1089
+      ],
+      "referenceAreaPixels": 3691,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-9",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        240,
+        969,
+        294,
+        1164
+      ],
+      "referenceAreaPixels": 3452,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-10",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        198,
+        1156,
+        241,
+        1225
+      ],
+      "referenceAreaPixels": 1442,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-11",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        306,
+        1226,
+        364,
+        1272
+      ],
+      "referenceAreaPixels": 1612,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-12",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1227,
+        1231,
+        1304,
+        1278
+      ],
+      "referenceAreaPixels": 1987,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-13",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1403,
+        1648,
+        1447,
+        1812
+      ],
+      "referenceAreaPixels": 4686,
+      "referenceMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "43d25a1654a8162fb856f831ff133ab430facf1304b6ea43460ff36194864e21",
+      "imageSha256": "e431e7e3b2e75376806efd18fa77f93558349972aded4e06e1c4826c75c15030",
+      "maskSha256": "a57ff284fdb77ba2e0efc9731c72983fb840cca0204e33637c82b7fc773522dc",
+      "notes": "Final prepared overlay inspected using single accepted actual pair/alpha review. Main structure, framing, thin members and intentional openings intact. Per-role topology preserved: {\"detail\": {\"components\": 1, \"holes\": 12}, \"clay\": {\"components\": 1, \"holes\": 14}}. Small seam/hardware/texture differences nonblocking. Native1254 retained,2048resampled; source interpretation limits retained in caption."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "fc402d0b4f50432a213832459d9ebfdc5fdaaa093605b933c1f5bfe131718085",
+      "imageSha256": "5f60b0292c05b01c0dc8ab4869ac0dc6cceffaf784fb1b05afbbf24ae6aec013",
+      "maskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "notes": "Final prepared overlay inspected using single accepted actual pair/alpha review. Main structure, framing, thin members and intentional openings intact. Per-role topology preserved: {\"detail\": {\"components\": 1, \"holes\": 12}, \"clay\": {\"components\": 1, \"holes\": 14}}. Small seam/hardware/texture differences nonblocking. Native1254 retained,2048resampled; source interpretation limits retained in caption."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "43d25a1654a8162fb856f831ff133ab430facf1304b6ea43460ff36194864e21",
+      "detailSha256": "e431e7e3b2e75376806efd18fa77f93558349972aded4e06e1c4826c75c15030",
+      "geometrySha256": "5f60b0292c05b01c0dc8ab4869ac0dc6cceffaf784fb1b05afbbf24ae6aec013",
+      "foregroundMaskSha256": "a57ff284fdb77ba2e0efc9731c72983fb840cca0204e33637c82b7fc773522dc",
+      "geometryForegroundMaskSha256": "492f2a04a86e11427766e1bf04ba31d9f3f5d4859b01f7a0428f14c02016a1dd",
+      "landmarks": [
+        {
+          "name": "frame-handle-top",
+          "detail": [
+            0.4055981424916458,
+            0.06475709372312984
+          ],
+          "geometry": [
+            0.4055981424916458,
+            0.06475709372312984
+          ]
+        },
+        {
+          "name": "hose-left-bottom",
+          "detail": [
+            0.14232602991854637,
+            0.8577493551160791
+          ],
+          "geometry": [
+            0.14232602991854637,
+            0.8585017196904557
+          ]
+        },
+        {
+          "name": "nozzle-top",
+          "detail": [
+            0.9170982469193818,
+            0.6877149613069649
+          ],
+          "geometry": [
+            0.9170982469193818,
+            0.6877149613069649
+          ]
+        },
+        {
+          "name": "nozzle-grip-bottom",
+          "detail": [
+            0.5936496514724311,
+            0.9329858125537404
+          ],
+          "geometry": [
+            0.5936496514724311,
+            0.9337381771281169
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected using single accepted actual pair/alpha review. Main structure, framing, thin members and intentional openings intact. Per-role topology preserved: {\"detail\": {\"components\": 1, \"holes\": 12}, \"clay\": {\"components\": 1, \"holes\": 14}}. Small seam/hardware/texture differences nonblocking. Native1254 retained,2048resampled; source interpretation limits retained in caption."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

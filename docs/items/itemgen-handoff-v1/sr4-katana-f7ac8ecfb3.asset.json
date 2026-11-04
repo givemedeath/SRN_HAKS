@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-katana-f7ac8ecfb3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "grip-terminal-center",
+      "pixel": [
+        20.0,
+        410.0
+      ]
+    },
+    {
+      "name": "guard-top",
+      "pixel": [
+        592.0,
+        357.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        591.0,
+        490.0
+      ]
+    },
+    {
+      "name": "collar-base",
+      "pixel": [
+        638.0,
+        424.99999999999994
+      ]
+    },
+    {
+      "name": "blade-lowest-mid-edge",
+      "pixel": [
+        1040.0,
+        461.9999999999999
+      ]
+    },
+    {
+      "name": "tip",
+      "pixel": [
+        1759.0,
+        360.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-katana-f7ac8ecfb3.family.json",
+    "sha256": "cbb236f8d02c08e816f0660f7f58eb89af0e4fef175680462ca2c85b459892ba"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/4038617c90fda05f1e0b54b1566c71b65e933f77284fec47c99714fd073c1bf3.png",
+      "sha256": "4038617c90fda05f1e0b54b1566c71b65e933f77284fec47c99714fd073c1bf3"
+    },
+    "clayReference": {
+      "path": "inputs/07ac08470b8b977fec262da687ff48e9b22db075bdbd783d013895ea7e8fbe80.png",
+      "sha256": "07ac08470b8b977fec262da687ff48e9b22db075bdbd783d013895ea7e8fbe80"
+    },
+    "geometry": {
+      "path": "inputs/a470184550d32deae28cca123d8cb3e3abf01d4dc129d4a4b4b6de3eaeaa6e71.png",
+      "sha256": "a470184550d32deae28cca123d8cb3e3abf01d4dc129d4a4b4b6de3eaeaa6e71"
+    },
+    "detail": {
+      "path": "inputs/7abc87462efe7fae96cc81099fea940c41ce717644ea7919d230595f501debb5.png",
+      "sha256": "7abc87462efe7fae96cc81099fea940c41ce717644ea7919d230595f501debb5"
+    },
+    "foregroundMask": {
+      "path": "inputs/5cdfd2b6eef5df25ce354c22c5cf2f3b8fea87cd07e997b12f1ead22cf222290.png",
+      "sha256": "5cdfd2b6eef5df25ce354c22c5cf2f3b8fea87cd07e997b12f1ead22cf222290"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/109aa8f59730573695c5c6b771a8048ec21b209f7394f2ed571821af808bc2dd.png",
+      "sha256": "109aa8f59730573695c5c6b771a8048ec21b209f7394f2ed571821af808bc2dd"
+    },
+    "mask": {
+      "path": "inputs/109aa8f59730573695c5c6b771a8048ec21b209f7394f2ed571821af808bc2dd.png",
+      "sha256": "109aa8f59730573695c5c6b771a8048ec21b209f7394f2ed571821af808bc2dd"
+    },
+    "calibrationReference": {
+      "path": "inputs/519a02e27df838cf2510c0d3ffd695021734341115d4fae4df8076a5ad7d7e75.png",
+      "sha256": "519a02e27df838cf2510c0d3ffd695021734341115d4fae4df8076a5ad7d7e75"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/16e20d3661b30242602ac58a76965557de3bf95377b8cc6b9909f2a9185bd897.json",
+      "sha256": "16e20d3661b30242602ac58a76965557de3bf95377b8cc6b9909f2a9185bd897"
+    },
+    "referenceApproval": {
+      "path": "inputs/21f3b6f1b65fc369ebb5628f3398d25096a37d6eacd88f26a4ed8be8482bd950.json",
+      "sha256": "21f3b6f1b65fc369ebb5628f3398d25096a37d6eacd88f26a4ed8be8482bd950"
+    },
+    "calibrationDetail": {
+      "path": "inputs/402559e6f286d2359aa7481f07bf33021b496a8d8c454ebf51fda704133177f3.png",
+      "sha256": "402559e6f286d2359aa7481f07bf33021b496a8d8c454ebf51fda704133177f3"
+    }
+  },
+  "features": [
+    {
+      "name": "Two-handed samurai sword identity; preserve a usable two-handed grip",
+      "placementReviewed": true
+    },
+    {
+      "name": "Core printed305/PDF307 describes a two-handed samurai sword. No uniquely labeled Katana artwork on the audited page. Moderate blade curvature, silver blade, plain circular dark guard and wrapped two-hand grip are declared artistic interpretations of that class, not a named canonical model. Selected second clay removes small terminal grip rings retained by the first edit. Grip wrap, tiny grooves, scratches and surface material variations removed. Major blade bevel, guard and main grip/guard/collar boundaries preserved. Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. ",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4038617c90fda05f1e0b54b1566c71b65e933f77284fec47c99714fd073c1bf3",
+      "imageSha256": "7abc87462efe7fae96cc81099fea940c41ce717644ea7919d230595f501debb5",
+      "maskSha256": "5cdfd2b6eef5df25ce354c22c5cf2f3b8fea87cd07e997b12f1ead22cf222290",
+      "notes": "Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. "
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "07ac08470b8b977fec262da687ff48e9b22db075bdbd783d013895ea7e8fbe80",
+      "imageSha256": "a470184550d32deae28cca123d8cb3e3abf01d4dc129d4a4b4b6de3eaeaa6e71",
+      "maskSha256": "109aa8f59730573695c5c6b771a8048ec21b209f7394f2ed571821af808bc2dd",
+      "notes": "Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. "
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Core printed305/PDF307 describes a two-handed samurai sword. No uniquely labeled Katana artwork on the audited page. Moderate blade curvature, silver blade, plain circular dark guard and wrapped two-hand grip are declared artistic interpretations of that class, not a named canonical model. Selected second clay removes small terminal grip rings retained by the first edit. Grip wrap, tiny grooves, scratches and surface material variations removed. Major blade bevel, guard and main grip/guard/collar boundaries preserved. Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. ",
+      "landmarks": [
+        {
+          "name": "grip-terminal-center",
+          "detail": [
+            0.051866257334001145,
+            0.4932896205357143
+          ],
+          "geometry": [
+            0.05083547241700057,
+            0.4932896205357143
+          ]
+        },
+        {
+          "name": "guard-top",
+          "detail": [
+            0.34667074359616484,
+            0.46593191964285713
+          ],
+          "geometry": [
+            0.34667074359616484,
+            0.4648995535714286
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.34615535113766455,
+            0.5345842633928571
+          ],
+          "geometry": [
+            0.34615535113766455,
+            0.5345842633928571
+          ]
+        },
+        {
+          "name": "collar-base",
+          "detail": [
+            0.37037879668717805,
+            0.5010323660714285
+          ],
+          "geometry": [
+            0.37037879668717805,
+            0.5005161830357143
+          ]
+        },
+        {
+          "name": "blade-lowest-mid-edge",
+          "detail": [
+            0.577566565004293,
+            0.5201311383928571
+          ],
+          "geometry": [
+            0.577566565004293,
+            0.5190987723214285
+          ]
+        },
+        {
+          "name": "tip",
+          "detail": [
+            0.9481337426659988,
+            0.46748046875
+          ],
+          "geometry": [
+            0.9486491351244991,
+            0.4669642857142857
+          ]
+        }
+      ],
+      "referenceSha256": "4038617c90fda05f1e0b54b1566c71b65e933f77284fec47c99714fd073c1bf3",
+      "geometrySha256": "a470184550d32deae28cca123d8cb3e3abf01d4dc129d4a4b4b6de3eaeaa6e71",
+      "detailSha256": "7abc87462efe7fae96cc81099fea940c41ce717644ea7919d230595f501debb5",
+      "foregroundMaskSha256": "5cdfd2b6eef5df25ce354c22c5cf2f3b8fea87cd07e997b12f1ead22cf222290",
+      "geometryForegroundMaskSha256": "109aa8f59730573695c5c6b771a8048ec21b209f7394f2ed571821af808bc2dd"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

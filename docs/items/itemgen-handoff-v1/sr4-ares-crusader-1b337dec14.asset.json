@@ -1,0 +1,351 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-crusader-1b337dec14",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-profile-y350-left",
+      "pixel": [
+        24.999999999999996,
+        350.0
+      ]
+    },
+    {
+      "name": "outer-profile-y350-right",
+      "pixel": [
+        1160.0,
+        350.0
+      ]
+    },
+    {
+      "name": "outer-profile-y430-left",
+      "pixel": [
+        194.00000000000003,
+        429.99999999999994
+      ]
+    },
+    {
+      "name": "outer-profile-y430-right",
+      "pixel": [
+        1226.0,
+        429.99999999999994
+      ]
+    },
+    {
+      "name": "outer-profile-y570-left",
+      "pixel": [
+        261.0,
+        570.0
+      ]
+    },
+    {
+      "name": "outer-profile-y570-right",
+      "pixel": [
+        1082.0,
+        570.0
+      ]
+    },
+    {
+      "name": "outer-profile-y800-left",
+      "pixel": [
+        884.0000000000001,
+        799.9999999999999
+      ]
+    },
+    {
+      "name": "outer-profile-y800-right",
+      "pixel": [
+        1164.0,
+        799.9999999999999
+      ]
+    },
+    {
+      "name": "outer-profile-y950-left",
+      "pixel": [
+        902.0,
+        949.9999999999999
+      ]
+    },
+    {
+      "name": "outer-profile-y950-right",
+      "pixel": [
+        1144.0,
+        949.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-crusader-1b337dec14.family.json",
+    "sha256": "28390325faca0143a667157f0b5c6c031f28ec530b31a8f5bdbb565f47a0eda9"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/6b2acd878675bfcf84f7ebb27b517b2e4c15869e927cd98ab66921150fedc34d.png",
+      "sha256": "6b2acd878675bfcf84f7ebb27b517b2e4c15869e927cd98ab66921150fedc34d"
+    },
+    "clayReference": {
+      "path": "inputs/f77f22f8aba0a1e4ce84ead174c0adf150be875a8da539545f237c35cd2cdda9.png",
+      "sha256": "f77f22f8aba0a1e4ce84ead174c0adf150be875a8da539545f237c35cd2cdda9"
+    },
+    "geometry": {
+      "path": "inputs/853ecb655811716a3c986092a6e939c1c62d0312dc720c895cfe14eccb16bd39.png",
+      "sha256": "853ecb655811716a3c986092a6e939c1c62d0312dc720c895cfe14eccb16bd39"
+    },
+    "detail": {
+      "path": "inputs/5532203e05bde3c35971ed0daf1ead88fae33451ddad6fe624bb93f72493edd8.png",
+      "sha256": "5532203e05bde3c35971ed0daf1ead88fae33451ddad6fe624bb93f72493edd8"
+    },
+    "foregroundMask": {
+      "path": "inputs/93e53aeb5f826f7878dd0704e9b0df916079ccc38ecee0d16f2570f1b66af3d4.png",
+      "sha256": "93e53aeb5f826f7878dd0704e9b0df916079ccc38ecee0d16f2570f1b66af3d4"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e17618d75f33f03aea5190985bd0c0d66b5c4740d7a6ed2e332b58e9477ef897.png",
+      "sha256": "e17618d75f33f03aea5190985bd0c0d66b5c4740d7a6ed2e332b58e9477ef897"
+    },
+    "mask": {
+      "path": "inputs/e17618d75f33f03aea5190985bd0c0d66b5c4740d7a6ed2e332b58e9477ef897.png",
+      "sha256": "e17618d75f33f03aea5190985bd0c0d66b5c4740d7a6ed2e332b58e9477ef897"
+    },
+    "calibrationReference": {
+      "path": "inputs/2b2e2a408c87aad4d3a4b2082c2567bea7d733cdab1d3c825896374c06138d51.png",
+      "sha256": "2b2e2a408c87aad4d3a4b2082c2567bea7d733cdab1d3c825896374c06138d51"
+    },
+    "sourceAudit": {
+      "path": "inputs/1c4eb18537d94f8da04d624ee6dc80de6ed9abd6fe385d3b10cf4992bcbb4563.json",
+      "sha256": "1c4eb18537d94f8da04d624ee6dc80de6ed9abd6fe385d3b10cf4992bcbb4563"
+    },
+    "referenceApproval": {
+      "path": "inputs/b6b3f81c2a305bd14ea619620862d9ba1b252b211ad69ab615a73081406e612b.json",
+      "sha256": "b6b3f81c2a305bd14ea619620862d9ba1b252b211ad69ab615a73081406e612b"
+    },
+    "calibrationDetail": {
+      "path": "inputs/ad1e5943b6084150c6fa51e365ffc761ad8498ee0e673e2b4e045ebd869affe2.png",
+      "sha256": "ad1e5943b6084150c6fa51e365ffc761ad8498ee0e673e2b4e045ebd869affe2"
+    }
+  },
+  "features": [
+    {
+      "name": "Extended magazine and integral barrel-mounted gas-vent recoil system.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Follow the separately labeled Crusader machine-pistol artwork and compact receiver/grip/front-housing silhouette.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sole final reviewer inspected own labeled Arsenal22/PDF24 artwork, raw detailed/clay, native masks/foregrounds, bounded corrected clay and final2048 pair/masks/teal/overlay. Source-specific compact Crusader silhouette, integral muzzle assembly and extended magazine remain. Broad part boundaries/raised controls and underside silhouette ribs remain. Four faint circular traces and rear-sight tiny slot are appearance-only and boundedly filled. Preserve real front and rear trigger clearances and thin trigger/guard; other shaded receiver/muzzle wells remain solid. No invented holes. No clipped part, detached subject, broad fringe or cast shadow. Common crop/scale/offset only. Native1254 square honestly resampled2048, not native2K. Five small interior fills have outsidePatch0 and alpha unchanged; detail RGB is unchanged.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1091,
+        861,
+        1265,
+        1000
+      ],
+      "referenceAreaPixels": 21213,
+      "referenceMaskSha256": "e17618d75f33f03aea5190985bd0c0d66b5c4740d7a6ed2e332b58e9477ef897",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1265,
+        888,
+        1368,
+        1000
+      ],
+      "referenceAreaPixels": 3220,
+      "referenceMaskSha256": "e17618d75f33f03aea5190985bd0c0d66b5c4740d7a6ed2e332b58e9477ef897",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6b2acd878675bfcf84f7ebb27b517b2e4c15869e927cd98ab66921150fedc34d",
+      "imageSha256": "5532203e05bde3c35971ed0daf1ead88fae33451ddad6fe624bb93f72493edd8",
+      "maskSha256": "93e53aeb5f826f7878dd0704e9b0df916079ccc38ecee0d16f2570f1b66af3d4",
+      "notes": "Sole final reviewer inspected own labeled Arsenal22/PDF24 artwork, raw detailed/clay, native masks/foregrounds, bounded corrected clay and final2048 pair/masks/teal/overlay. Source-specific compact Crusader silhouette, integral muzzle assembly and extended magazine remain. Broad part boundaries/raised controls and underside silhouette ribs remain. Four faint circular traces and rear-sight tiny slot are appearance-only and boundedly filled. Preserve real front and rear trigger clearances and thin trigger/guard; other shaded receiver/muzzle wells remain solid. No invented holes. No clipped part, detached subject, broad fringe or cast shadow. Common crop/scale/offset only. Native1254 square honestly resampled2048, not native2K. Five small interior fills have outsidePatch0 and alpha unchanged; detail RGB is unchanged."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f77f22f8aba0a1e4ce84ead174c0adf150be875a8da539545f237c35cd2cdda9",
+      "imageSha256": "853ecb655811716a3c986092a6e939c1c62d0312dc720c895cfe14eccb16bd39",
+      "maskSha256": "e17618d75f33f03aea5190985bd0c0d66b5c4740d7a6ed2e332b58e9477ef897",
+      "notes": "Sole final reviewer inspected own labeled Arsenal22/PDF24 artwork, raw detailed/clay, native masks/foregrounds, bounded corrected clay and final2048 pair/masks/teal/overlay. Source-specific compact Crusader silhouette, integral muzzle assembly and extended magazine remain. Broad part boundaries/raised controls and underside silhouette ribs remain. Four faint circular traces and rear-sight tiny slot are appearance-only and boundedly filled. Preserve real front and rear trigger clearances and thin trigger/guard; other shaded receiver/muzzle wells remain solid. No invented holes. No clipped part, detached subject, broad fringe or cast shadow. Common crop/scale/offset only. Native1254 square honestly resampled2048, not native2K. Five small interior fills have outsidePatch0 and alpha unchanged; detail RGB is unchanged."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Sole final reviewer inspected own labeled Arsenal22/PDF24 artwork, raw detailed/clay, native masks/foregrounds, bounded corrected clay and final2048 pair/masks/teal/overlay. Source-specific compact Crusader silhouette, integral muzzle assembly and extended magazine remain. Broad part boundaries/raised controls and underside silhouette ribs remain. Four faint circular traces and rear-sight tiny slot are appearance-only and boundedly filled. Preserve real front and rear trigger clearances and thin trigger/guard; other shaded receiver/muzzle wells remain solid. No invented holes. No clipped part, detached subject, broad fringe or cast shadow. Common crop/scale/offset only. Native1254 square honestly resampled2048, not native2K. Five small interior fills have outsidePatch0 and alpha unchanged; detail RGB is unchanged.",
+      "landmarks": [
+        {
+          "name": "outer-profile-y350-left",
+          "detail": [
+            0.05055189963692946,
+            0.2871976185993976
+          ],
+          "geometry": [
+            0.05055189963692946,
+            0.2871976185993976
+          ]
+        },
+        {
+          "name": "outer-profile-y350-right",
+          "detail": [
+            0.8986376750518672,
+            0.2871976185993976
+          ],
+          "geometry": [
+            0.8986376750518672,
+            0.2871976185993976
+          ]
+        },
+        {
+          "name": "outer-profile-y430-left",
+          "detail": [
+            0.17683075077800833,
+            0.34696794992469876
+          ],
+          "geometry": [
+            0.17757796291493777,
+            0.34696794992469876
+          ]
+        },
+        {
+          "name": "outer-profile-y430-right",
+          "detail": [
+            0.9479536760892117,
+            0.34696794992469876
+          ],
+          "geometry": [
+            0.9487008882261411,
+            0.34696794992469876
+          ]
+        },
+        {
+          "name": "outer-profile-y570-left",
+          "detail": [
+            0.22689396395228215,
+            0.4515660297439759
+          ],
+          "geometry": [
+            0.22539953967842324,
+            0.4515660297439759
+          ]
+        },
+        {
+          "name": "outer-profile-y570-right",
+          "detail": [
+            0.8403551283713693,
+            0.4515660297439759
+          ],
+          "geometry": [
+            0.8411023405082988,
+            0.4515660297439759
+          ]
+        },
+        {
+          "name": "outer-profile-y800-left",
+          "detail": [
+            0.6924071252593362,
+            0.6234057323042168
+          ],
+          "geometry": [
+            0.6916599131224066,
+            0.6234057323042168
+          ]
+        },
+        {
+          "name": "outer-profile-y800-right",
+          "detail": [
+            0.9016265235995851,
+            0.6234057323042168
+          ],
+          "geometry": [
+            0.9023737357365145,
+            0.6234057323042168
+          ]
+        },
+        {
+          "name": "outer-profile-y950-left",
+          "detail": [
+            0.7058569437240664,
+            0.7354751035391566
+          ],
+          "geometry": [
+            0.7066041558609959,
+            0.7354751035391566
+          ]
+        },
+        {
+          "name": "outer-profile-y950-right",
+          "detail": [
+            0.8866822808609959,
+            0.7354751035391566
+          ],
+          "geometry": [
+            0.8881767051348548,
+            0.7354751035391566
+          ]
+        }
+      ],
+      "referenceSha256": "6b2acd878675bfcf84f7ebb27b517b2e4c15869e927cd98ab66921150fedc34d",
+      "detailSha256": "5532203e05bde3c35971ed0daf1ead88fae33451ddad6fe624bb93f72493edd8",
+      "geometrySha256": "853ecb655811716a3c986092a6e939c1c62d0312dc720c895cfe14eccb16bd39",
+      "foregroundMaskSha256": "93e53aeb5f826f7878dd0704e9b0df916079ccc38ecee0d16f2570f1b66af3d4",
+      "geometryForegroundMaskSha256": "e17618d75f33f03aea5190985bd0c0d66b5c4740d7a6ed2e332b58e9477ef897"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

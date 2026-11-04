@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-nitama-optimum-ii-5e624aad81",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        10.999999999999998,
+        373.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1237.0,
+        373.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        10.999999999999998,
+        840.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1237.0,
+        840.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-nitama-optimum-ii-5e624aad81.family.json",
+    "sha256": "9fa874563d6fd24c7c111a7c49b583d9cdc88d2532e22edda7d44e66909c620d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/74ec14d6130ff1a3dd2b9e0a2513e4cf84e64525a534f7228ff81d5fa8ee7469.png",
+      "sha256": "74ec14d6130ff1a3dd2b9e0a2513e4cf84e64525a534f7228ff81d5fa8ee7469"
+    },
+    "clayReference": {
+      "path": "inputs/d780ed3ae895c192588dcee7c9539b10a402039750b0d1bdb42dec730d44a83d.png",
+      "sha256": "d780ed3ae895c192588dcee7c9539b10a402039750b0d1bdb42dec730d44a83d"
+    },
+    "geometry": {
+      "path": "inputs/076be1c5b8b47c5d1659a0d247ea778ddec413b03e7f02261be8fce3f7e86b00.png",
+      "sha256": "076be1c5b8b47c5d1659a0d247ea778ddec413b03e7f02261be8fce3f7e86b00"
+    },
+    "detail": {
+      "path": "inputs/4c8e4282c12dad62386406d899e9d34320c3024fcb37a87c59c4f6e7d072cec5.png",
+      "sha256": "4c8e4282c12dad62386406d899e9d34320c3024fcb37a87c59c4f6e7d072cec5"
+    },
+    "foregroundMask": {
+      "path": "inputs/0b87a362104f1eeb25ef9961bf66e637d694d9682c9ee0d6295504dee758c30b.png",
+      "sha256": "0b87a362104f1eeb25ef9961bf66e637d694d9682c9ee0d6295504dee758c30b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/be877795edfa66e4a90e87a478cf16794f852db5d18423569a0648d81c982ed8.png",
+      "sha256": "be877795edfa66e4a90e87a478cf16794f852db5d18423569a0648d81c982ed8"
+    },
+    "mask": {
+      "path": "inputs/be877795edfa66e4a90e87a478cf16794f852db5d18423569a0648d81c982ed8.png",
+      "sha256": "be877795edfa66e4a90e87a478cf16794f852db5d18423569a0648d81c982ed8"
+    },
+    "calibrationReference": {
+      "path": "inputs/c94788d1d6324701531ebca64ad19e7d47327f0bf6d709ab44ac12c748438f04.png",
+      "sha256": "c94788d1d6324701531ebca64ad19e7d47327f0bf6d709ab44ac12c748438f04"
+    },
+    "sourceAudit": {
+      "path": "inputs/79d901a18c9907b43bd85bb9bed5775ebf52184d3ebc84cc9bf664be1bc841f6.json",
+      "sha256": "79d901a18c9907b43bd85bb9bed5775ebf52184d3ebc84cc9bf664be1bc841f6"
+    },
+    "referenceApproval": {
+      "path": "inputs/02359a6e3705e2e4c9254654924e75bf0c4245c58ce298602ab8109b19c0bb19.json",
+      "sha256": "02359a6e3705e2e4c9254654924e75bf0c4245c58ce298602ab8109b19c0bb19"
+    },
+    "calibrationDetail": {
+      "path": "inputs/faf100579aa5f6c53bbed43cd98223a19b821d874efce660dbb1c0317b981b1d.png",
+      "sha256": "faf100579aa5f6c53bbed43cd98223a19b821d874efce660dbb1c0317b981b1d"
+    }
+  },
+  "features": [
+    {
+      "name": "Prose explicitly identifies a bullpup assault rifle with integrated underbarrel shotgun, internal smartgun and rigid-stock shock pad.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own OPTIMUMII drawing printed27/PDF29: broad body with large open carry-handle structure, integrated rear stock, rearward feed region behind forward grip and distinct ribbed lower/front shotgun assembly. Preserve major negative spaces.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source drawing and original pair reviewed; conditioned overlay retains bullpup form, carry handle, guard and underbarrel component. Native 1254 images resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        810,
+        722,
+        1473,
+        826
+      ],
+      "referenceAreaPixels": 54076,
+      "referenceMaskSha256": "be877795edfa66e4a90e87a478cf16794f852db5d18423569a0648d81c982ed8",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        848,
+        1022,
+        919,
+        1090
+      ],
+      "referenceAreaPixels": 2877,
+      "referenceMaskSha256": "be877795edfa66e4a90e87a478cf16794f852db5d18423569a0648d81c982ed8",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "74ec14d6130ff1a3dd2b9e0a2513e4cf84e64525a534f7228ff81d5fa8ee7469",
+      "imageSha256": "4c8e4282c12dad62386406d899e9d34320c3024fcb37a87c59c4f6e7d072cec5",
+      "maskSha256": "0b87a362104f1eeb25ef9961bf66e637d694d9682c9ee0d6295504dee758c30b",
+      "notes": "Source drawing and original pair reviewed; conditioned overlay retains bullpup form, carry handle, guard and underbarrel component. Native 1254 images resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d780ed3ae895c192588dcee7c9539b10a402039750b0d1bdb42dec730d44a83d",
+      "imageSha256": "076be1c5b8b47c5d1659a0d247ea778ddec413b03e7f02261be8fce3f7e86b00",
+      "maskSha256": "be877795edfa66e4a90e87a478cf16794f852db5d18423569a0648d81c982ed8",
+      "notes": "Source drawing and original pair reviewed; conditioned overlay retains bullpup form, carry handle, guard and underbarrel component. Native 1254 images resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Source drawing and original pair reviewed; conditioned overlay retains bullpup form, carry handle, guard and underbarrel component. Native 1254 images resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.049069074244281044,
+            0.328125
+          ],
+          "geometry": [
+            0.049069074244281044,
+            0.32738891862955033
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9509309257557189,
+            0.328125
+          ],
+          "geometry": [
+            0.9509309257557189,
+            0.32738891862955033
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.049069074244281044,
+            0.671875
+          ],
+          "geometry": [
+            0.049069074244281044,
+            0.6726110813704497
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9509309257557189,
+            0.671875
+          ],
+          "geometry": [
+            0.9509309257557189,
+            0.6726110813704497
+          ]
+        }
+      ],
+      "referenceSha256": "74ec14d6130ff1a3dd2b9e0a2513e4cf84e64525a534f7228ff81d5fa8ee7469",
+      "geometrySha256": "076be1c5b8b47c5d1659a0d247ea778ddec413b03e7f02261be8fce3f7e86b00",
+      "detailSha256": "4c8e4282c12dad62386406d899e9d34320c3024fcb37a87c59c4f6e7d072cec5",
+      "geometryForegroundMaskSha256": "be877795edfa66e4a90e87a478cf16794f852db5d18423569a0648d81c982ed8",
+      "foregroundMaskSha256": "0b87a362104f1eeb25ef9961bf66e637d694d9682c9ee0d6295504dee758c30b"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-underbarrel-flamethrower-4454ae9c27",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-rear-top",
+      "pixel": [
+        170.7948094079481,
+        642.2922297297297
+      ]
+    },
+    {
+      "name": "rear-sight-top",
+      "pixel": [
+        754.0551500405516,
+        598.9391891891892
+      ]
+    },
+    {
+      "name": "front-sight-top",
+      "pixel": [
+        1576.6017842660178,
+        820.1891891891893
+      ]
+    },
+    {
+      "name": "magazine-bottom",
+      "pixel": [
+        978.3860502838605,
+        1448.0608108108108
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-underbarrel-flamethrower-4454ae9c27.family.json",
+    "sha256": "f812c377cfac6c711ec249122c8dda5ea6f5006fbbe08d14c67e675a25f55979"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c0b28b343c45c7486a99fc361d148b5be0c4223bdec26216b6d9f585501570d0.png",
+      "sha256": "c0b28b343c45c7486a99fc361d148b5be0c4223bdec26216b6d9f585501570d0"
+    },
+    "clayReference": {
+      "path": "inputs/e791ecfcf5733916a3a772e9b8cb4d9438061e52ad99c8f383196bd2db450dce.png",
+      "sha256": "e791ecfcf5733916a3a772e9b8cb4d9438061e52ad99c8f383196bd2db450dce"
+    },
+    "geometry": {
+      "path": "inputs/a879544f05fa6ab5a02867156d5dbcddd7353613c02e8a4057d77d127e18ef49.png",
+      "sha256": "a879544f05fa6ab5a02867156d5dbcddd7353613c02e8a4057d77d127e18ef49"
+    },
+    "detail": {
+      "path": "inputs/1d2b45115ece1078cb721d7b856a7bb72717fb96dd9ecdfcecbd78cfb8fb9d84.png",
+      "sha256": "1d2b45115ece1078cb721d7b856a7bb72717fb96dd9ecdfcecbd78cfb8fb9d84"
+    },
+    "foregroundMask": {
+      "path": "inputs/2760094e513f38a3e239925b0bbbb229bba5a458d0d33358af23920e65121d39.png",
+      "sha256": "2760094e513f38a3e239925b0bbbb229bba5a458d0d33358af23920e65121d39"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/55844b69a733f2334f1a009fe1664b5137fa12cb46892da1f027b14450a07a13.png",
+      "sha256": "55844b69a733f2334f1a009fe1664b5137fa12cb46892da1f027b14450a07a13"
+    },
+    "mask": {
+      "path": "inputs/55844b69a733f2334f1a009fe1664b5137fa12cb46892da1f027b14450a07a13.png",
+      "sha256": "55844b69a733f2334f1a009fe1664b5137fa12cb46892da1f027b14450a07a13"
+    },
+    "calibrationReference": {
+      "path": "inputs/986f8ec18ae033393e0954635028d4f79191b38ec1da83dbb058caea3af72908.png",
+      "sha256": "986f8ec18ae033393e0954635028d4f79191b38ec1da83dbb058caea3af72908"
+    },
+    "sourceAudit": {
+      "path": "inputs/ab73a40b539965189a8764930c21f4631d0061cf4c10368374c0569f851b8012.json",
+      "sha256": "ab73a40b539965189a8764930c21f4631d0061cf4c10368374c0569f851b8012"
+    },
+    "referenceApproval": {
+      "path": "inputs/75e840a155ea137284f8a5aba6b44fc1fddea4cc6d50d2275b1f2ef5e1d3579d.json",
+      "sha256": "75e840a155ea137284f8a5aba6b44fc1fddea4cc6d50d2275b1f2ef5e1d3579d"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4717a8ac5978405bc2479675d398c6d73d4de0d85ff2d7f6433ceefa866d3975.png",
+      "sha256": "4717a8ac5978405bc2479675d398c6d73d4de0d85ff2d7f6433ceefa866d3975"
+    }
+  },
+  "features": [
+    {
+      "name": "Underbarrel-mounted flamethrower option for a RIFLE-SIZED OR LARGER firearm. Source does not establish a unique detached complete-weapon silhouette.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Reference intent must identify a compatible host and the mounted accessory; fuel reservoir placement and unseen attachment construction are not prescribed.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual returned Underbarrel Flamethrower context against Arsenal33/PDF35 and40/PDF42. Complete generic rifle-sized host with stock, grip, magazine, barrel and trigger opening; one separate inactive covered underbarrel accessory/nozzle below front barrel. Not a detached standalone substitute or named Blazer/F3a. Exact generic host, housing/mounts, covered reservoir placement/finish artistic,not source-prescribed engineering/real/native compatibility. No action, flame, pilot light, cutaway, internals, background or cast shadow; complete margins. Single root final pair review: actual detailed/clay pair and alpha16 viewed together. Major shapes, placement, framing, thin members and intentional openings retained. No visible background or cast shadow. Fine grooves and subpixel alpha-hole differences nonblocking; each role retains its own source mask independently. No second cosmetic integration review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        738,
+        977,
+        753,
+        1043
+      ],
+      "referenceAreaPixels": 440,
+      "referenceMaskSha256": "55844b69a733f2334f1a009fe1664b5137fa12cb46892da1f027b14450a07a13",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        756,
+        988,
+        812,
+        1074
+      ],
+      "referenceAreaPixels": 3042,
+      "referenceMaskSha256": "55844b69a733f2334f1a009fe1664b5137fa12cb46892da1f027b14450a07a13",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c0b28b343c45c7486a99fc361d148b5be0c4223bdec26216b6d9f585501570d0",
+      "imageSha256": "1d2b45115ece1078cb721d7b856a7bb72717fb96dd9ecdfcecbd78cfb8fb9d84",
+      "maskSha256": "2760094e513f38a3e239925b0bbbb229bba5a458d0d33358af23920e65121d39",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual returned Underbarrel Flamethrower context against Arsenal33/PDF35 and40/PDF42. Complete generic rifle-sized host with stock, grip, magazine, barrel and trigger opening; one separate inactive covered underbarrel accessory/nozzle below front barrel. Not a detached standalone substitute or named Blazer/F3a. Exact generic host, housing/mounts, covered reservoir placement/finish artistic,not source-prescribed engineering/real/native compatibility. No action, flame, pilot light, cutaway, internals, background or cast shadow; complete margins. Single root final pair review: actual detailed/clay pair and alpha16 viewed together. Major shapes, placement, framing, thin members and intentional openings retained. No visible background or cast shadow. Fine grooves and subpixel alpha-hole differences nonblocking; each role retains its own source mask independently. No second cosmetic integration review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e791ecfcf5733916a3a772e9b8cb4d9438061e52ad99c8f383196bd2db450dce",
+      "imageSha256": "a879544f05fa6ab5a02867156d5dbcddd7353613c02e8a4057d77d127e18ef49",
+      "maskSha256": "55844b69a733f2334f1a009fe1664b5137fa12cb46892da1f027b14450a07a13",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual returned Underbarrel Flamethrower context against Arsenal33/PDF35 and40/PDF42. Complete generic rifle-sized host with stock, grip, magazine, barrel and trigger opening; one separate inactive covered underbarrel accessory/nozzle below front barrel. Not a detached standalone substitute or named Blazer/F3a. Exact generic host, housing/mounts, covered reservoir placement/finish artistic,not source-prescribed engineering/real/native compatibility. No action, flame, pilot light, cutaway, internals, background or cast shadow; complete margins. Single root final pair review: actual detailed/clay pair and alpha16 viewed together. Major shapes, placement, framing, thin members and intentional openings retained. No visible background or cast shadow. Fine grooves and subpixel alpha-hole differences nonblocking; each role retains its own source mask independently. No second cosmetic integration review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "c0b28b343c45c7486a99fc361d148b5be0c4223bdec26216b6d9f585501570d0",
+      "detailSha256": "1d2b45115ece1078cb721d7b856a7bb72717fb96dd9ecdfcecbd78cfb8fb9d84",
+      "geometrySha256": "a879544f05fa6ab5a02867156d5dbcddd7353613c02e8a4057d77d127e18ef49",
+      "foregroundMaskSha256": "2760094e513f38a3e239925b0bbbb229bba5a458d0d33358af23920e65121d39",
+      "geometryForegroundMaskSha256": "55844b69a733f2334f1a009fe1664b5137fa12cb46892da1f027b14450a07a13",
+      "landmarks": [
+        {
+          "name": "stock-rear-top",
+          "detail": [
+            0.08339590303122466,
+            0.31361925279771957
+          ],
+          "geometry": [
+            0.08339590303122466,
+            0.31142941036739863
+          ]
+        },
+        {
+          "name": "rear-sight-top",
+          "detail": [
+            0.36819099123073806,
+            0.29245077597128377
+          ],
+          "geometry": [
+            0.36819099123073806,
+            0.2888010385874155
+          ]
+        },
+        {
+          "name": "front-sight-top",
+          "detail": [
+            0.7698250899736415,
+            0.4004830025337838
+          ],
+          "geometry": [
+            0.7698250899736415,
+            0.3975632126266892
+          ]
+        },
+        {
+          "name": "magazine-bottom",
+          "detail": [
+            0.4777275636151663,
+            0.7070609427787162
+          ],
+          "geometry": [
+            0.4777275636151663,
+            0.7070609427787162
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual returned Underbarrel Flamethrower context against Arsenal33/PDF35 and40/PDF42. Complete generic rifle-sized host with stock, grip, magazine, barrel and trigger opening; one separate inactive covered underbarrel accessory/nozzle below front barrel. Not a detached standalone substitute or named Blazer/F3a. Exact generic host, housing/mounts, covered reservoir placement/finish artistic,not source-prescribed engineering/real/native compatibility. No action, flame, pilot light, cutaway, internals, background or cast shadow; complete margins. Single root final pair review: actual detailed/clay pair and alpha16 viewed together. Major shapes, placement, framing, thin members and intentional openings retained. No visible background or cast shadow. Fine grooves and subpixel alpha-hole differences nonblocking; each role retains its own source mask independently. No second cosmetic integration review."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

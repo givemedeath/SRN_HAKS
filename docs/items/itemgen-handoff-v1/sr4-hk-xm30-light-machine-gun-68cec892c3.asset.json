@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-xm30-light-machine-gun-68cec892c3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-left",
+      "pixel": [
+        82.0,
+        541.5
+      ]
+    },
+    {
+      "name": "receiver-top-at-shared-column",
+      "pixel": [
+        850.0,
+        433.0
+      ]
+    },
+    {
+      "name": "stock-right",
+      "pixel": [
+        1301.0,
+        506.0
+      ]
+    },
+    {
+      "name": "bipod-foot-bottom",
+      "pixel": [
+        376.50000000000006,
+        1034.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-xm30-light-machine-gun-68cec892c3.family.json",
+    "sha256": "cdb71a4fd223ac5cf13b0964ea7d4817c6bf4c28e8e5214732de6d18fb38383f"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/11c90998e0ed8e5d834e192711dbffa90c8be865fda29d9ddbbb6d77229dbff1.png",
+      "sha256": "11c90998e0ed8e5d834e192711dbffa90c8be865fda29d9ddbbb6d77229dbff1"
+    },
+    "clayReference": {
+      "path": "inputs/c94aa8bda0eac60b6c8329edb1b9ef48833fcac6bd14e82853087fe72858ac61.png",
+      "sha256": "c94aa8bda0eac60b6c8329edb1b9ef48833fcac6bd14e82853087fe72858ac61"
+    },
+    "geometry": {
+      "path": "inputs/57b474b536c316baec41ef00a98e3f19e5b024bd9794d85bd81ef9940d09d80d.png",
+      "sha256": "57b474b536c316baec41ef00a98e3f19e5b024bd9794d85bd81ef9940d09d80d"
+    },
+    "detail": {
+      "path": "inputs/eb934bee0aa4eb9f54645600ce31e15836fee927d0854af19d77661e377aa002.png",
+      "sha256": "eb934bee0aa4eb9f54645600ce31e15836fee927d0854af19d77661e377aa002"
+    },
+    "foregroundMask": {
+      "path": "inputs/e30b9738e676445aaf40fd3e6ca5f6c679c941e5eafffa3817358120e10267ff.png",
+      "sha256": "e30b9738e676445aaf40fd3e6ca5f6c679c941e5eafffa3817358120e10267ff"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/d4480083a11c367b0f946caa3077e9ea99460565e1e9eaa89ea05fc2302791de.png",
+      "sha256": "d4480083a11c367b0f946caa3077e9ea99460565e1e9eaa89ea05fc2302791de"
+    },
+    "mask": {
+      "path": "inputs/d4480083a11c367b0f946caa3077e9ea99460565e1e9eaa89ea05fc2302791de.png",
+      "sha256": "d4480083a11c367b0f946caa3077e9ea99460565e1e9eaa89ea05fc2302791de"
+    },
+    "calibrationReference": {
+      "path": "inputs/dea9e916b0a41c8c0435b9366a7e6a865cc43c9f08e757e68d9ca89adab4dcf6.png",
+      "sha256": "dea9e916b0a41c8c0435b9366a7e6a865cc43c9f08e757e68d9ca89adab4dcf6"
+    },
+    "sourceAudit": {
+      "path": "inputs/369472127ba2f3c0b8c8bbefe7e20713d1b64c5d01523e16aa803dec2ee845e9.json",
+      "sha256": "369472127ba2f3c0b8c8bbefe7e20713d1b64c5d01523e16aa803dec2ee845e9"
+    },
+    "referenceApproval": {
+      "path": "inputs/904f226d9203ca00122cb4acdf0a8d78d0664b3b420632d03c7849ebb6d6bfcf.json",
+      "sha256": "904f226d9203ca00122cb4acdf0a8d78d0664b3b420632d03c7849ebb6d6bfcf"
+    },
+    "calibrationDetail": {
+      "path": "inputs/b82db9f5166d53d27961201bc0c31affc8b4035d87870651fdef18323b7b53ab.png",
+      "sha256": "b82db9f5166d53d27961201bc0c31affc8b4035d87870651fdef18323b7b53ab"
+    }
+  },
+  "features": [
+    {
+      "name": "Retain the HK XM30 parent platform silhouette, grip/stock proportions and module interfaces; this is a parent-bound configuration, not a newly invented standalone model.",
+      "placementReviewed": true
+    },
+    {
+      "name": "LMG configuration expressly requires bipod in core printed 308; nested printed 309/Arsenal176 table specifies belt feed.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Core308-309/PDF310-311 XM30 original platform set and configuration table. Bottom long family drawing has bipod and short hanging belt;no individually labeled own LMG drawing. Actual324 detail retains tapered composite family body,rigidstock,muzzleleft,central grip,REARbelt and twolegbipod,no scope or drum. Source form accepted;finish,minor housing contours and hidden depth artistic interpretation. Requires whole uncut assembly. Actual detailed/clay pair matches source family and LMG configuration:two bipod legs,short rear hanging belt,rigidstock,tapered upperbody,single grip/trigger opening,no imaging scope/drum. Thin supports and intentional openings intact. Exact fittings/unseen depth/color artistic. Native1254 originals retained,2048resampled. Shallow grooves harmless. Single final pair review reused at integration;no geometry/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1180,
+        885,
+        1281,
+        982
+      ],
+      "referenceAreaPixels": 6135,
+      "referenceMaskSha256": "d4480083a11c367b0f946caa3077e9ea99460565e1e9eaa89ea05fc2302791de",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "11c90998e0ed8e5d834e192711dbffa90c8be865fda29d9ddbbb6d77229dbff1",
+      "imageSha256": "eb934bee0aa4eb9f54645600ce31e15836fee927d0854af19d77661e377aa002",
+      "maskSha256": "e30b9738e676445aaf40fd3e6ca5f6c679c941e5eafffa3817358120e10267ff",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Core308-309/PDF310-311 XM30 original platform set and configuration table. Bottom long family drawing has bipod and short hanging belt;no individually labeled own LMG drawing. Actual324 detail retains tapered composite family body,rigidstock,muzzleleft,central grip,REARbelt and twolegbipod,no scope or drum. Source form accepted;finish,minor housing contours and hidden depth artistic interpretation. Requires whole uncut assembly. Actual detailed/clay pair matches source family and LMG configuration:two bipod legs,short rear hanging belt,rigidstock,tapered upperbody,single grip/trigger opening,no imaging scope/drum. Thin supports and intentional openings intact. Exact fittings/unseen depth/color artistic. Native1254 originals retained,2048resampled. Shallow grooves harmless. Single final pair review reused at integration;no geometry/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c94aa8bda0eac60b6c8329edb1b9ef48833fcac6bd14e82853087fe72858ac61",
+      "imageSha256": "57b474b536c316baec41ef00a98e3f19e5b024bd9794d85bd81ef9940d09d80d",
+      "maskSha256": "d4480083a11c367b0f946caa3077e9ea99460565e1e9eaa89ea05fc2302791de",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Core308-309/PDF310-311 XM30 original platform set and configuration table. Bottom long family drawing has bipod and short hanging belt;no individually labeled own LMG drawing. Actual324 detail retains tapered composite family body,rigidstock,muzzleleft,central grip,REARbelt and twolegbipod,no scope or drum. Source form accepted;finish,minor housing contours and hidden depth artistic interpretation. Requires whole uncut assembly. Actual detailed/clay pair matches source family and LMG configuration:two bipod legs,short rear hanging belt,rigidstock,tapered upperbody,single grip/trigger opening,no imaging scope/drum. Thin supports and intentional openings intact. Exact fittings/unseen depth/color artistic. Native1254 originals retained,2048resampled. Shallow grooves harmless. Single final pair review reused at integration;no geometry/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "11c90998e0ed8e5d834e192711dbffa90c8be865fda29d9ddbbb6d77229dbff1",
+      "detailSha256": "eb934bee0aa4eb9f54645600ce31e15836fee927d0854af19d77661e377aa002",
+      "geometrySha256": "57b474b536c316baec41ef00a98e3f19e5b024bd9794d85bd81ef9940d09d80d",
+      "foregroundMaskSha256": "e30b9738e676445aaf40fd3e6ca5f6c679c941e5eafffa3817358120e10267ff",
+      "geometryForegroundMaskSha256": "d4480083a11c367b0f946caa3077e9ea99460565e1e9eaa89ea05fc2302791de",
+      "landmarks": [
+        {
+          "name": "muzzle-left",
+          "detail": [
+            0.05127832191080196,
+            0.35725523296155426
+          ],
+          "geometry": [
+            0.05054150470540098,
+            0.3587281076531661
+          ]
+        },
+        {
+          "name": "receiver-top-at-shared-column",
+          "detail": [
+            0.6171539356587561,
+            0.27735178094161184
+          ],
+          "geometry": [
+            0.6171539356587561,
+            0.27808821828741775
+          ]
+        },
+        {
+          "name": "stock-right",
+          "detail": [
+            0.949458495294599,
+            0.3311117071854441
+          ],
+          "geometry": [
+            0.949458495294599,
+            0.33332101922286184
+          ]
+        },
+        {
+          "name": "bipod-foot-bottom",
+          "detail": [
+            0.2682709889013912,
+            0.7199506257709705
+          ],
+          "geometry": [
+            0.26127122545008175,
+            0.7221599378083882
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Core308-309/PDF310-311 XM30 original platform set and configuration table. Bottom long family drawing has bipod and short hanging belt;no individually labeled own LMG drawing. Actual324 detail retains tapered composite family body,rigidstock,muzzleleft,central grip,REARbelt and twolegbipod,no scope or drum. Source form accepted;finish,minor housing contours and hidden depth artistic interpretation. Requires whole uncut assembly. Actual detailed/clay pair matches source family and LMG configuration:two bipod legs,short rear hanging belt,rigidstock,tapered upperbody,single grip/trigger opening,no imaging scope/drum. Thin supports and intentional openings intact. Exact fittings/unseen depth/color artistic. Native1254 originals retained,2048resampled. Shallow grooves harmless. Single final pair review reused at integration;no geometry/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

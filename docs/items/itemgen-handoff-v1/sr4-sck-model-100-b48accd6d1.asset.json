@@ -1,0 +1,328 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-sck-model-100-b48accd6d1",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-profile-y430-left",
+      "pixel": [
+        32.0,
+        429.99999999999994
+      ]
+    },
+    {
+      "name": "outer-profile-y430-right",
+      "pixel": [
+        1221.0,
+        429.99999999999994
+      ]
+    },
+    {
+      "name": "outer-profile-y500-left",
+      "pixel": [
+        35.0,
+        500.0
+      ]
+    },
+    {
+      "name": "outer-profile-y500-right",
+      "pixel": [
+        1142.0,
+        500.0
+      ]
+    },
+    {
+      "name": "outer-profile-y550-left",
+      "pixel": [
+        36.0,
+        550.0
+      ]
+    },
+    {
+      "name": "outer-profile-y550-right",
+      "pixel": [
+        1126.0,
+        550.0
+      ]
+    },
+    {
+      "name": "outer-profile-y700-left",
+      "pixel": [
+        434.0,
+        700.0
+      ]
+    },
+    {
+      "name": "outer-profile-y700-right",
+      "pixel": [
+        735.0,
+        700.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-sck-model-100-b48accd6d1.family.json",
+    "sha256": "98fc4d907ba7576e4abc3166c4f7e161db2d37b172aa67f3affcbde789526844"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/2dbd154f277812f85927a00ed910d57a5a05c5a8cbf5c94269cfe75404f962eb.png",
+      "sha256": "2dbd154f277812f85927a00ed910d57a5a05c5a8cbf5c94269cfe75404f962eb"
+    },
+    "clayReference": {
+      "path": "inputs/7ecc18f899482458ca9a5ebef16320ab7caaf504fbac3bd1d1be297df2ca1a66.png",
+      "sha256": "7ecc18f899482458ca9a5ebef16320ab7caaf504fbac3bd1d1be297df2ca1a66"
+    },
+    "geometry": {
+      "path": "inputs/e107c36bc6c6d637b70814f349c86138313acf91e6fa7312e0fa1d734e35a034.png",
+      "sha256": "e107c36bc6c6d637b70814f349c86138313acf91e6fa7312e0fa1d734e35a034"
+    },
+    "detail": {
+      "path": "inputs/1f3d00c69bec040915fef311d382edaa86fa633ec923852ad1519cdf334127cc.png",
+      "sha256": "1f3d00c69bec040915fef311d382edaa86fa633ec923852ad1519cdf334127cc"
+    },
+    "foregroundMask": {
+      "path": "inputs/dd8cf42c6ed4befdeb2fae90c81a08f8208b3764e5a37c74dad3daa8aa805816.png",
+      "sha256": "dd8cf42c6ed4befdeb2fae90c81a08f8208b3764e5a37c74dad3daa8aa805816"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7.png",
+      "sha256": "e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7"
+    },
+    "mask": {
+      "path": "inputs/e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7.png",
+      "sha256": "e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7"
+    },
+    "calibrationReference": {
+      "path": "inputs/4953de21c08138e900ba7a6b291ee89e088c1021ffa2af9b4ff73fded43bff75.png",
+      "sha256": "4953de21c08138e900ba7a6b291ee89e088c1021ffa2af9b4ff73fded43bff75"
+    },
+    "sourceAudit": {
+      "path": "inputs/d32785cead464677c2df11e8561b9f3a6db48873f4aeb299354780ecb551ff62.json",
+      "sha256": "d32785cead464677c2df11e8561b9f3a6db48873f4aeb299354780ecb551ff62"
+    },
+    "referenceApproval": {
+      "path": "inputs/ad4ee5b850e0c4284b8df7108ec06e4af7ac25af52fee6e5d6a598449487f815.json",
+      "sha256": "ad4ee5b850e0c4284b8df7108ec06e4af7ac25af52fee6e5d6a598449487f815"
+    },
+    "calibrationDetail": {
+      "path": "inputs/53f117a914f731e5ee56d7bb570b413d89ad8d3652672b3f211484b91c9a1ef2.png",
+      "sha256": "53f117a914f731e5ee56d7bb570b413d89ad8d3652672b3f211484b91c9a1ef2"
+    }
+  },
+  "features": [
+    {
+      "name": "Internal smartlink and folding stock.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own MODEL100 labeled drawing: compact upper/front, long rear stock members, pistol grip, lower clip and genuine trigger/stock openings; preserve source proportions.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Exact source-form-reviewed extended-stock SCK layout preserved. Fine receiver channels, grip texture, vents and magazine flutes are gone; remaining broad panel/magazine edges, stock hardware and large parts remain. No RGB edit needed. Preserve both thin extended stock rails, their open space, butt structural loop and full trigger/guard clearance. No alpha cut into backed body recesses. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Native RGB is unchanged from both original images.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        365,
+        809,
+        664,
+        835
+      ],
+      "referenceAreaPixels": 6192,
+      "referenceMaskSha256": "e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1196,
+        900,
+        1370,
+        1011
+      ],
+      "referenceAreaPixels": 13544,
+      "referenceMaskSha256": "e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        181,
+        967,
+        210,
+        1059
+      ],
+      "referenceAreaPixels": 1871,
+      "referenceMaskSha256": "e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2dbd154f277812f85927a00ed910d57a5a05c5a8cbf5c94269cfe75404f962eb",
+      "imageSha256": "1f3d00c69bec040915fef311d382edaa86fa633ec923852ad1519cdf334127cc",
+      "maskSha256": "dd8cf42c6ed4befdeb2fae90c81a08f8208b3764e5a37c74dad3daa8aa805816",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Exact source-form-reviewed extended-stock SCK layout preserved. Fine receiver channels, grip texture, vents and magazine flutes are gone; remaining broad panel/magazine edges, stock hardware and large parts remain. No RGB edit needed. Preserve both thin extended stock rails, their open space, butt structural loop and full trigger/guard clearance. No alpha cut into backed body recesses. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Native RGB is unchanged from both original images."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7ecc18f899482458ca9a5ebef16320ab7caaf504fbac3bd1d1be297df2ca1a66",
+      "imageSha256": "e107c36bc6c6d637b70814f349c86138313acf91e6fa7312e0fa1d734e35a034",
+      "maskSha256": "e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Exact source-form-reviewed extended-stock SCK layout preserved. Fine receiver channels, grip texture, vents and magazine flutes are gone; remaining broad panel/magazine edges, stock hardware and large parts remain. No RGB edit needed. Preserve both thin extended stock rails, their open space, butt structural loop and full trigger/guard clearance. No alpha cut into backed body recesses. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Native RGB is unchanged from both original images."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Exact source-form-reviewed extended-stock SCK layout preserved. Fine receiver channels, grip texture, vents and magazine flutes are gone; remaining broad panel/magazine edges, stock hardware and large parts remain. No RGB edit needed. Preserve both thin extended stock rails, their open space, butt structural loop and full trigger/guard clearance. No alpha cut into backed body recesses. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Native RGB is unchanged from both original images.",
+      "landmarks": [
+        {
+          "name": "outer-profile-y430-left",
+          "detail": [
+            0.05131161741631799,
+            0.37309791820759364
+          ],
+          "geometry": [
+            0.05055815245815899,
+            0.37309791820759364
+          ]
+        },
+        {
+          "name": "outer-profile-y430-right",
+          "detail": [
+            0.947181452667364,
+            0.37309791820759364
+          ],
+          "geometry": [
+            0.947181452667364,
+            0.37309791820759364
+          ]
+        },
+        {
+          "name": "outer-profile-y500-left",
+          "detail": [
+            0.05357201229079498,
+            0.4258168839373767
+          ],
+          "geometry": [
+            0.05357201229079498,
+            0.4258168839373767
+          ]
+        },
+        {
+          "name": "outer-profile-y500-right",
+          "detail": [
+            0.8876577209728034,
+            0.4258168839373767
+          ],
+          "geometry": [
+            0.8884111859309624,
+            0.4258168839373767
+          ]
+        },
+        {
+          "name": "outer-profile-y550-left",
+          "detail": [
+            0.05432547724895397,
+            0.4634732880300789
+          ],
+          "geometry": [
+            0.05432547724895397,
+            0.4634732880300789
+          ]
+        },
+        {
+          "name": "outer-profile-y550-right",
+          "detail": [
+            0.8756022816422594,
+            0.4634732880300789
+          ],
+          "geometry": [
+            0.8763557466004184,
+            0.4634732880300789
+          ]
+        },
+        {
+          "name": "outer-profile-y700-left",
+          "detail": [
+            0.3542045305962343,
+            0.5764425003081854
+          ],
+          "geometry": [
+            0.3542045305962343,
+            0.5764425003081854
+          ]
+        },
+        {
+          "name": "outer-profile-y700-right",
+          "detail": [
+            0.5809974830020921,
+            0.5764425003081854
+          ],
+          "geometry": [
+            0.5809974830020921,
+            0.5764425003081854
+          ]
+        }
+      ],
+      "referenceSha256": "2dbd154f277812f85927a00ed910d57a5a05c5a8cbf5c94269cfe75404f962eb",
+      "detailSha256": "1f3d00c69bec040915fef311d382edaa86fa633ec923852ad1519cdf334127cc",
+      "geometrySha256": "e107c36bc6c6d637b70814f349c86138313acf91e6fa7312e0fa1d734e35a034",
+      "foregroundMaskSha256": "dd8cf42c6ed4befdeb2fae90c81a08f8208b3764e5a37c74dad3daa8aa805816",
+      "geometryForegroundMaskSha256": "e160b84508cecc19998cd5675f04c74d55a33532121dff41a9cbcb4218de8ba7"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

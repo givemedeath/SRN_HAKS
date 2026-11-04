@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-eichiro-hatamoto-ii-daa7551c51",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-plate-top-at-column40",
+      "pixel": [
+        40.0,
+        393.00000000000006
+      ]
+    },
+    {
+      "name": "rear-plate-bottom-at-column40",
+      "pixel": [
+        40.0,
+        674.0
+      ]
+    },
+    {
+      "name": "muzzle-end-at-row500",
+      "pixel": [
+        1232.0,
+        500.0
+      ]
+    },
+    {
+      "name": "grip-heel-at-column440",
+      "pixel": [
+        440.0,
+        804.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-eichiro-hatamoto-ii-daa7551c51.family.json",
+    "sha256": "3086107ef7917e71233e99c691b4d2ed3cd5ed13ee3954aad9edf445127f8a6f"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/16a1fdbb0ec0ce8065e1fbf1361901a5b2f2a5f8cda6d4eac891d68892d57c59.png",
+      "sha256": "16a1fdbb0ec0ce8065e1fbf1361901a5b2f2a5f8cda6d4eac891d68892d57c59"
+    },
+    "clayReference": {
+      "path": "inputs/99f24d0181b8cfdbbb1c140be61b884ab0a29cea0845dcce58933a3ac5db0ab1.png",
+      "sha256": "99f24d0181b8cfdbbb1c140be61b884ab0a29cea0845dcce58933a3ac5db0ab1"
+    },
+    "geometry": {
+      "path": "inputs/3509000e6b94ef0e91de8eb0edb5d03cff5846972e7a899739f842d832b5f9a4.png",
+      "sha256": "3509000e6b94ef0e91de8eb0edb5d03cff5846972e7a899739f842d832b5f9a4"
+    },
+    "detail": {
+      "path": "inputs/30bb6dc6f4f849ac868d7b8add6e9a56276be9838377a7fb60e122b2dbd79eb4.png",
+      "sha256": "30bb6dc6f4f849ac868d7b8add6e9a56276be9838377a7fb60e122b2dbd79eb4"
+    },
+    "foregroundMask": {
+      "path": "inputs/f73f8bc362eaa0432caefc7bacf87b0a8e93b2c0760b682364b37bf1b003df47.png",
+      "sha256": "f73f8bc362eaa0432caefc7bacf87b0a8e93b2c0760b682364b37bf1b003df47"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e.png",
+      "sha256": "629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e"
+    },
+    "mask": {
+      "path": "inputs/629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e.png",
+      "sha256": "629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e"
+    },
+    "calibrationReference": {
+      "path": "inputs/287ed8129cca03d2b4f76919f36f66ce58dfe6840d8c7be0c5c1182a3f59b574.png",
+      "sha256": "287ed8129cca03d2b4f76919f36f66ce58dfe6840d8c7be0c5c1182a3f59b574"
+    },
+    "sourceAudit": {
+      "path": "inputs/7a073f9fae9721791d637c0a5d2058a114edab73b2e95381d1bf5294ae3718c7.json",
+      "sha256": "7a073f9fae9721791d637c0a5d2058a114edab73b2e95381d1bf5294ae3718c7"
+    },
+    "referenceApproval": {
+      "path": "inputs/06e42c425fd1459844799182ff7498b0121b0b633b4cea5cba8ec94ffcd8be18.json",
+      "sha256": "06e42c425fd1459844799182ff7498b0121b0b633b4cea5cba8ec94ffcd8be18"
+    },
+    "calibrationDetail": {
+      "path": "inputs/3510711236f61abc89f431c024a5446ddb0b81ece5f5e3f35ac018bd0909e704.png",
+      "sha256": "3510711236f61abc89f431c024a5446ddb0b81ece5f5e3f35ac018bd0909e704"
+    }
+  },
+  "features": [
+    {
+      "name": "Single-shot defensive firearm firing a large-bore shotgun round, retained in the Heavy Pistols category",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own art has substantial forward barrel/body, curved lower grip/body opening and a thin rearward member terminating in a transverse plate; preserve the thin member and open spaces",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reference reviewer inspected the actual raw pair, independent native foreground/masks, final2048 detail/clay teal images and overlay against the retained own EICHIROHATAMOTOII source-form authority. Substantial forward barrel/body, curved lower grip/thumb opening, actual trigger/guard opening, long thin rearward member and complete terminal transverse plate retain matching proportions and framing. Main muzzle geometry and upper structural recess remain. Tiny fastener-face/annular recesses, grip texture, side grooves, small panel channels, plate dimples and marks are filled into continuous smooth clay; major volumes and raised boundaries stay. Both large openings and the small rendered right-guard clearances remain open independently; native source/output topology unchanged per role. Whole object and clear margins, no cropped thin parts, no broad halo. Discarded native tiny foreground labels were guard-edge AA fringe, not separate subject parts; no false zero-matte counter claim. Common uniform crop/scale only, no warp or manual RGB retouch. Native1254square RGB originals were opaque; honestly resampled2048 references. Actual identity is the source-defined single-shot shotgun-round heavy pistol; generic weapon/taser boilerplate in the old clay prompt does not reclassify it as a taser. Reference-only approval, no geometry/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        833,
+        1057,
+        1022,
+        1203
+      ],
+      "referenceAreaPixels": 14423,
+      "referenceMaskSha256": "629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1112,
+        1057,
+        1258,
+        1221
+      ],
+      "referenceAreaPixels": 15442,
+      "referenceMaskSha256": "629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1291,
+        1089,
+        1294,
+        1105
+      ],
+      "referenceAreaPixels": 29,
+      "referenceMaskSha256": "629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "16a1fdbb0ec0ce8065e1fbf1361901a5b2f2a5f8cda6d4eac891d68892d57c59",
+      "imageSha256": "30bb6dc6f4f849ac868d7b8add6e9a56276be9838377a7fb60e122b2dbd79eb4",
+      "maskSha256": "f73f8bc362eaa0432caefc7bacf87b0a8e93b2c0760b682364b37bf1b003df47",
+      "notes": "Assigned sole final reference reviewer inspected the actual raw pair, independent native foreground/masks, final2048 detail/clay teal images and overlay against the retained own EICHIROHATAMOTOII source-form authority. Substantial forward barrel/body, curved lower grip/thumb opening, actual trigger/guard opening, long thin rearward member and complete terminal transverse plate retain matching proportions and framing. Main muzzle geometry and upper structural recess remain. Tiny fastener-face/annular recesses, grip texture, side grooves, small panel channels, plate dimples and marks are filled into continuous smooth clay; major volumes and raised boundaries stay. Both large openings and the small rendered right-guard clearances remain open independently; native source/output topology unchanged per role. Whole object and clear margins, no cropped thin parts, no broad halo. Discarded native tiny foreground labels were guard-edge AA fringe, not separate subject parts; no false zero-matte counter claim. Common uniform crop/scale only, no warp or manual RGB retouch. Native1254square RGB originals were opaque; honestly resampled2048 references. Actual identity is the source-defined single-shot shotgun-round heavy pistol; generic weapon/taser boilerplate in the old clay prompt does not reclassify it as a taser. Reference-only approval, no geometry/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "99f24d0181b8cfdbbb1c140be61b884ab0a29cea0845dcce58933a3ac5db0ab1",
+      "imageSha256": "3509000e6b94ef0e91de8eb0edb5d03cff5846972e7a899739f842d832b5f9a4",
+      "maskSha256": "629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e",
+      "notes": "Assigned sole final reference reviewer inspected the actual raw pair, independent native foreground/masks, final2048 detail/clay teal images and overlay against the retained own EICHIROHATAMOTOII source-form authority. Substantial forward barrel/body, curved lower grip/thumb opening, actual trigger/guard opening, long thin rearward member and complete terminal transverse plate retain matching proportions and framing. Main muzzle geometry and upper structural recess remain. Tiny fastener-face/annular recesses, grip texture, side grooves, small panel channels, plate dimples and marks are filled into continuous smooth clay; major volumes and raised boundaries stay. Both large openings and the small rendered right-guard clearances remain open independently; native source/output topology unchanged per role. Whole object and clear margins, no cropped thin parts, no broad halo. Discarded native tiny foreground labels were guard-edge AA fringe, not separate subject parts; no false zero-matte counter claim. Common uniform crop/scale only, no warp or manual RGB retouch. Native1254square RGB originals were opaque; honestly resampled2048 references. Actual identity is the source-defined single-shot shotgun-round heavy pistol; generic weapon/taser boilerplate in the old clay prompt does not reclassify it as a taser. Reference-only approval, no geometry/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reference reviewer inspected the actual raw pair, independent native foreground/masks, final2048 detail/clay teal images and overlay against the retained own EICHIROHATAMOTOII source-form authority. Substantial forward barrel/body, curved lower grip/thumb opening, actual trigger/guard opening, long thin rearward member and complete terminal transverse plate retain matching proportions and framing. Main muzzle geometry and upper structural recess remain. Tiny fastener-face/annular recesses, grip texture, side grooves, small panel channels, plate dimples and marks are filled into continuous smooth clay; major volumes and raised boundaries stay. Both large openings and the small rendered right-guard clearances remain open independently; native source/output topology unchanged per role. Whole object and clear margins, no cropped thin parts, no broad halo. Discarded native tiny foreground labels were guard-edge AA fringe, not separate subject parts; no false zero-matte counter claim. Common uniform crop/scale only, no warp or manual RGB retouch. Native1254square RGB originals were opaque; honestly resampled2048 references. Actual identity is the source-defined single-shot shotgun-round heavy pistol; generic weapon/taser boilerplate in the old clay prompt does not reclassify it as a taser. Reference-only approval, no geometry/client/production approval.",
+      "landmarks": [
+        {
+          "name": "rear-plate-top-at-column40",
+          "detail": [
+            0.06463814095963756,
+            0.3449800037202381
+          ],
+          "geometry": [
+            0.06463814095963756,
+            0.3449800037202381
+          ]
+        },
+        {
+          "name": "rear-plate-bottom-at-column40",
+          "detail": [
+            0.06463814095963756,
+            0.5534040178571429
+          ],
+          "geometry": [
+            0.06463814095963756,
+            0.5526622953869047
+          ]
+        },
+        {
+          "name": "muzzle-end-at-row500",
+          "detail": [
+            0.9487119671540363,
+            0.42434430803571427
+          ],
+          "geometry": [
+            0.9487119671540363,
+            0.42434430803571427
+          ]
+        },
+        {
+          "name": "grip-heel-at-column440",
+          "detail": [
+            0.3613072101523888,
+            0.6498279389880952
+          ],
+          "geometry": [
+            0.3613072101523888,
+            0.6498279389880952
+          ]
+        }
+      ],
+      "referenceSha256": "16a1fdbb0ec0ce8065e1fbf1361901a5b2f2a5f8cda6d4eac891d68892d57c59",
+      "geometrySha256": "3509000e6b94ef0e91de8eb0edb5d03cff5846972e7a899739f842d832b5f9a4",
+      "detailSha256": "30bb6dc6f4f849ac868d7b8add6e9a56276be9838377a7fb60e122b2dbd79eb4",
+      "foregroundMaskSha256": "f73f8bc362eaa0432caefc7bacf87b0a8e93b2c0760b682364b37bf1b003df47",
+      "geometryForegroundMaskSha256": "629d500a2f46b72974bb4431496f94aeb2903ccb680b81e4901c70287df4727e"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-cybergun-cyber-hold-out-c9b490c1f4",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "elbow-upper",
+      "pixel": [
+        1110.0,
+        61.99999999999999
+      ]
+    },
+    {
+      "name": "thumb-upper",
+      "pixel": [
+        180.0,
+        694.0
+      ]
+    },
+    {
+      "name": "middle-finger-lower",
+      "pixel": [
+        360.0,
+        1164.0
+      ]
+    },
+    {
+      "name": "little-finger-lower",
+      "pixel": [
+        520.0,
+        1115.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-cybergun-cyber-hold-out-c9b490c1f4.family.json",
+    "sha256": "d828749d12a7a10c5293bb4d24f8c90415130ab964af2602f88bee0fc2b56a4e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/39a98b54669874e977d3343759c5ce2bc7d7c028adff3e27919173dccfe20e14.png",
+      "sha256": "39a98b54669874e977d3343759c5ce2bc7d7c028adff3e27919173dccfe20e14"
+    },
+    "clayReference": {
+      "path": "inputs/d7b3e15d1ce25e5d0c60bc7aee0c6a35cdc4510026966a4b2413b0f2813a07d9.png",
+      "sha256": "d7b3e15d1ce25e5d0c60bc7aee0c6a35cdc4510026966a4b2413b0f2813a07d9"
+    },
+    "geometry": {
+      "path": "inputs/225fc088f644aefc0e89852040f6dd17ebd7593a3807732414609746ae4b08af.png",
+      "sha256": "225fc088f644aefc0e89852040f6dd17ebd7593a3807732414609746ae4b08af"
+    },
+    "detail": {
+      "path": "inputs/ded62d2882126a7d5d8fe571599f4712284bc203fb7ca9aad79e507da58cf92b.png",
+      "sha256": "ded62d2882126a7d5d8fe571599f4712284bc203fb7ca9aad79e507da58cf92b"
+    },
+    "foregroundMask": {
+      "path": "inputs/ac4adacda52692c464c25ffb202e1a11bdadfdd24af768f0a7ce4a521a0965fb.png",
+      "sha256": "ac4adacda52692c464c25ffb202e1a11bdadfdd24af768f0a7ce4a521a0965fb"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/7c5468fa2d7ee0702c83d9c8668dac1aaf7f7ac1931c0825a01a38e2631502e1.png",
+      "sha256": "7c5468fa2d7ee0702c83d9c8668dac1aaf7f7ac1931c0825a01a38e2631502e1"
+    },
+    "mask": {
+      "path": "inputs/7c5468fa2d7ee0702c83d9c8668dac1aaf7f7ac1931c0825a01a38e2631502e1.png",
+      "sha256": "7c5468fa2d7ee0702c83d9c8668dac1aaf7f7ac1931c0825a01a38e2631502e1"
+    },
+    "calibrationReference": {
+      "path": "inputs/23278dd5de8e0659b84cbe650c8ee2b57a2cb86b2cb93e9d0854bfe8c544e0c4.png",
+      "sha256": "23278dd5de8e0659b84cbe650c8ee2b57a2cb86b2cb93e9d0854bfe8c544e0c4"
+    },
+    "sourceAudit": {
+      "path": "inputs/4c46c95bf1bbe068c9be7b28544aa81cb87f0a87a86f29b6e7f0a38d22257745.json",
+      "sha256": "4c46c95bf1bbe068c9be7b28544aa81cb87f0a87a86f29b6e7f0a38d22257745"
+    },
+    "referenceApproval": {
+      "path": "inputs/302f567527d0916e1138be41913547eea3daef3728df24c451b9822237476b69.json",
+      "sha256": "302f567527d0916e1138be41913547eea3daef3728df24c451b9822237476b69"
+    },
+    "calibrationDetail": {
+      "path": "inputs/e64e11606931df51b684446370f1209b3334bbd47e75e56d0afe2ab25db2eaa0.png",
+      "sha256": "e64e11606931df51b684446370f1209b3334bbd47e75e56d0afe2ab25db2eaa0"
+    }
+  },
+  "features": [
+    {
+      "name": "Weapon integrated in a limb, usually cyberarm, rather than a separate held firearm",
+      "placementReviewed": true
+    },
+    {
+      "name": "Concealed palm firing port or hand-folded-back wrist configuration; one cybergun per limb",
+      "placementReviewed": true
+    },
+    {
+      "name": "Internal magazine and built-in smartgun identity; external clip port and permitted accessories are optional, not mandatory silhouette features",
+      "placementReviewed": true
+    },
+    {
+      "name": "Most components nonmetallic with remaining metal incorporated into the limb structure; exact exterior panel/port geometry unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core336-337/PDF338-339 Cyberguns prose, Cyber Hold-Out row and official errata5. Whole synthetic composite forearm/five-digit hand retains one selected integrated PALM aperture/cover, finger joints/gaps and closed elbow end. No held gun, protruding barrel or optional external accessories. Exact housing, port, finish and internal packaging are artistic, not uniquely labeled subtype art, functional mechanism or native rig approval. Major port recess and hand construction remain in clay; shallow channels nonblocking. Positive margins/no clipping or visible background/cast shadow. Each original alpha one component/no holes retained independently. Native1254 retained;2048 resampled.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "39a98b54669874e977d3343759c5ce2bc7d7c028adff3e27919173dccfe20e14",
+      "imageSha256": "ded62d2882126a7d5d8fe571599f4712284bc203fb7ca9aad79e507da58cf92b",
+      "maskSha256": "ac4adacda52692c464c25ffb202e1a11bdadfdd24af768f0a7ce4a521a0965fb",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core336-337/PDF338-339 Cyberguns prose, Cyber Hold-Out row and official errata5. Whole synthetic composite forearm/five-digit hand retains one selected integrated PALM aperture/cover, finger joints/gaps and closed elbow end. No held gun, protruding barrel or optional external accessories. Exact housing, port, finish and internal packaging are artistic, not uniquely labeled subtype art, functional mechanism or native rig approval. Major port recess and hand construction remain in clay; shallow channels nonblocking. Positive margins/no clipping or visible background/cast shadow. Each original alpha one component/no holes retained independently. Native1254 retained;2048 resampled."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d7b3e15d1ce25e5d0c60bc7aee0c6a35cdc4510026966a4b2413b0f2813a07d9",
+      "imageSha256": "225fc088f644aefc0e89852040f6dd17ebd7593a3807732414609746ae4b08af",
+      "maskSha256": "7c5468fa2d7ee0702c83d9c8668dac1aaf7f7ac1931c0825a01a38e2631502e1",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core336-337/PDF338-339 Cyberguns prose, Cyber Hold-Out row and official errata5. Whole synthetic composite forearm/five-digit hand retains one selected integrated PALM aperture/cover, finger joints/gaps and closed elbow end. No held gun, protruding barrel or optional external accessories. Exact housing, port, finish and internal packaging are artistic, not uniquely labeled subtype art, functional mechanism or native rig approval. Major port recess and hand construction remain in clay; shallow channels nonblocking. Positive margins/no clipping or visible background/cast shadow. Each original alpha one component/no holes retained independently. Native1254 retained;2048 resampled."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "39a98b54669874e977d3343759c5ce2bc7d7c028adff3e27919173dccfe20e14",
+      "detailSha256": "ded62d2882126a7d5d8fe571599f4712284bc203fb7ca9aad79e507da58cf92b",
+      "geometrySha256": "225fc088f644aefc0e89852040f6dd17ebd7593a3807732414609746ae4b08af",
+      "foregroundMaskSha256": "ac4adacda52692c464c25ffb202e1a11bdadfdd24af768f0a7ce4a521a0965fb",
+      "geometryForegroundMaskSha256": "7c5468fa2d7ee0702c83d9c8668dac1aaf7f7ac1931c0825a01a38e2631502e1",
+      "landmarks": [
+        {
+          "name": "elbow-upper",
+          "detail": [
+            0.849000967920354,
+            0.05987863101287262
+          ],
+          "geometry": [
+            0.849000967920354,
+            0.05987863101287262
+          ]
+        },
+        {
+          "name": "thumb-upper",
+          "detail": [
+            0.10797151548672566,
+            0.563329681148374
+          ],
+          "geometry": [
+            0.10797151548672566,
+            0.563329681148374
+          ]
+        },
+        {
+          "name": "middle-finger-lower",
+          "detail": [
+            0.25139657079646016,
+            0.9377315696985095
+          ],
+          "geometry": [
+            0.25139657079646016,
+            0.9393247692242548
+          ]
+        },
+        {
+          "name": "little-finger-lower",
+          "detail": [
+            0.3788855088495575,
+            0.8986981813177507
+          ],
+          "geometry": [
+            0.3788855088495575,
+            0.8986981813177507
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core336-337/PDF338-339 Cyberguns prose, Cyber Hold-Out row and official errata5. Whole synthetic composite forearm/five-digit hand retains one selected integrated PALM aperture/cover, finger joints/gaps and closed elbow end. No held gun, protruding barrel or optional external accessories. Exact housing, port, finish and internal packaging are artistic, not uniquely labeled subtype art, functional mechanism or native rig approval. Major port recess and hand construction remain in clay; shallow channels nonblocking. Positive margins/no clipping or visible background/cast shadow. Each original alpha one component/no holes retained independently. Native1254 retained;2048 resampled."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

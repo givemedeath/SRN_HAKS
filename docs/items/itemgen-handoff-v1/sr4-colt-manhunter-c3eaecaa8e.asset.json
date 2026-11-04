@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-colt-manhunter-c3eaecaa8e",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-front-at-row450",
+      "pixel": [
+        18.000000000000004,
+        450.0
+      ]
+    },
+    {
+      "name": "slide-top-at-column400",
+      "pixel": [
+        400.0,
+        378.00000000000006
+      ]
+    },
+    {
+      "name": "grip-rear-at-row800",
+      "pixel": [
+        1207.0,
+        800.0
+      ]
+    },
+    {
+      "name": "grip-base-at-column1050",
+      "pixel": [
+        1050.0,
+        957.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-colt-manhunter-c3eaecaa8e.family.json",
+    "sha256": "f4adc6e38c8c2ca018ee8aba1e5ca232c5793f7d301c9c578de9c1767910ad6b"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/2d03c523f0667f28d70dae25094a33c639ad9e73538a766359b56958403215c1.png",
+      "sha256": "2d03c523f0667f28d70dae25094a33c639ad9e73538a766359b56958403215c1"
+    },
+    "clayReference": {
+      "path": "inputs/df35dc84c2563789b2d2e1d22fe717791b6984195f4f1aabf798d081700c7ac7.png",
+      "sha256": "df35dc84c2563789b2d2e1d22fe717791b6984195f4f1aabf798d081700c7ac7"
+    },
+    "geometry": {
+      "path": "inputs/804783fc36a04314ad31ed67e02b58d30f62b2b83231e51d0d73b8104810539f.png",
+      "sha256": "804783fc36a04314ad31ed67e02b58d30f62b2b83231e51d0d73b8104810539f"
+    },
+    "detail": {
+      "path": "inputs/352c45c38f78b41a865455f05c8b0c4f86ff86a8f5fa2ea654f22cb8e8bcc86a.png",
+      "sha256": "352c45c38f78b41a865455f05c8b0c4f86ff86a8f5fa2ea654f22cb8e8bcc86a"
+    },
+    "foregroundMask": {
+      "path": "inputs/f4b96f0565372edbe1255af266d6c4de3abce7d2b0fad6e8f5d1afe3b979d03e.png",
+      "sha256": "f4b96f0565372edbe1255af266d6c4de3abce7d2b0fad6e8f5d1afe3b979d03e"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/b92d7caf376c149064709bf90ae0dc74bfc5259498bbd399a9d92e454e758ea6.png",
+      "sha256": "b92d7caf376c149064709bf90ae0dc74bfc5259498bbd399a9d92e454e758ea6"
+    },
+    "mask": {
+      "path": "inputs/b92d7caf376c149064709bf90ae0dc74bfc5259498bbd399a9d92e454e758ea6.png",
+      "sha256": "b92d7caf376c149064709bf90ae0dc74bfc5259498bbd399a9d92e454e758ea6"
+    },
+    "calibrationReference": {
+      "path": "inputs/8b3b14b7725913c00efb41a9aa06cc19220046dcdab4c6d0468f447c77daa14c.png",
+      "sha256": "8b3b14b7725913c00efb41a9aa06cc19220046dcdab4c6d0468f447c77daa14c"
+    },
+    "sourceAudit": {
+      "path": "inputs/5c69aa5f5cf1849d43aa9c74ac9934c9fd5c9b8099d7adecdf3f8a926a8e6b58.json",
+      "sha256": "5c69aa5f5cf1849d43aa9c74ac9934c9fd5c9b8099d7adecdf3f8a926a8e6b58"
+    },
+    "referenceApproval": {
+      "path": "inputs/65830587cd8f7b2bc8d27ed80468c69d4f8c9f228bf80fe251985667cae27b9a.json",
+      "sha256": "65830587cd8f7b2bc8d27ed80468c69d4f8c9f228bf80fe251985667cae27b9a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/cfa536a1a8a92f1124fe08efa9101fa506e257e59792e3f4044141204f3a329e.png",
+      "sha256": "cfa536a1a8a92f1124fe08efa9101fa506e257e59792e3f4044141204f3a329e"
+    }
+  },
+  "features": [
+    {
+      "name": "Built-in laser sight (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the side drawing: long rectangular upper body, sloped grip, trigger-guard opening and integrated forward assembly.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-reviewed Manhunter detail and new clay inspected together. Long rectangular semiautomatic slide/frame, integrated forward laser, angled rear grip, trigger and rounded open guard match. No revolver cylinder or added accessory. Smooth matte-gray clay removes colored laser, stippling, wear, screws and material texture; shallow channels/serrations are nonblocking under latest user instruction. Paired framing, muzzle, main silhouette and guard opening retained. Native1254RGBA originals retained;2K outputs are resampled. Single final pair review;no geometry/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1090,
+        901,
+        1379,
+        1087
+      ],
+      "referenceAreaPixels": 35783,
+      "referenceMaskSha256": "b92d7caf376c149064709bf90ae0dc74bfc5259498bbd399a9d92e454e758ea6",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2d03c523f0667f28d70dae25094a33c639ad9e73538a766359b56958403215c1",
+      "imageSha256": "352c45c38f78b41a865455f05c8b0c4f86ff86a8f5fa2ea654f22cb8e8bcc86a",
+      "maskSha256": "f4b96f0565372edbe1255af266d6c4de3abce7d2b0fad6e8f5d1afe3b979d03e",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-reviewed Manhunter detail and new clay inspected together. Long rectangular semiautomatic slide/frame, integrated forward laser, angled rear grip, trigger and rounded open guard match. No revolver cylinder or added accessory. Smooth matte-gray clay removes colored laser, stippling, wear, screws and material texture; shallow channels/serrations are nonblocking under latest user instruction. Paired framing, muzzle, main silhouette and guard opening retained. Native1254RGBA originals retained;2K outputs are resampled. Single final pair review;no geometry/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "df35dc84c2563789b2d2e1d22fe717791b6984195f4f1aabf798d081700c7ac7",
+      "imageSha256": "804783fc36a04314ad31ed67e02b58d30f62b2b83231e51d0d73b8104810539f",
+      "maskSha256": "b92d7caf376c149064709bf90ae0dc74bfc5259498bbd399a9d92e454e758ea6",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-reviewed Manhunter detail and new clay inspected together. Long rectangular semiautomatic slide/frame, integrated forward laser, angled rear grip, trigger and rounded open guard match. No revolver cylinder or added accessory. Smooth matte-gray clay removes colored laser, stippling, wear, screws and material texture; shallow channels/serrations are nonblocking under latest user instruction. Paired framing, muzzle, main silhouette and guard opening retained. Native1254RGBA originals retained;2K outputs are resampled. Single final pair review;no geometry/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "2d03c523f0667f28d70dae25094a33c639ad9e73538a766359b56958403215c1",
+      "detailSha256": "352c45c38f78b41a865455f05c8b0c4f86ff86a8f5fa2ea654f22cb8e8bcc86a",
+      "geometrySha256": "804783fc36a04314ad31ed67e02b58d30f62b2b83231e51d0d73b8104810539f",
+      "foregroundMaskSha256": "f4b96f0565372edbe1255af266d6c4de3abce7d2b0fad6e8f5d1afe3b979d03e",
+      "geometryForegroundMaskSha256": "b92d7caf376c149064709bf90ae0dc74bfc5259498bbd399a9d92e454e758ea6",
+      "landmarks": [
+        {
+          "name": "muzzle-front-at-row450",
+          "detail": [
+            0.05127591401143791,
+            0.3485183838282504
+          ],
+          "geometry": [
+            0.0498046875,
+            0.3485183838282504
+          ]
+        },
+        {
+          "name": "slide-top-at-column400",
+          "detail": [
+            0.3322801776960784,
+            0.2955300712279294
+          ],
+          "geometry": [
+            0.3322801776960784,
+            0.29332222486958265
+          ]
+        },
+        {
+          "name": "grip-rear-at-row800",
+          "detail": [
+            0.9259200750612745,
+            0.6061004589686998
+          ],
+          "geometry": [
+            0.9273913015727124,
+            0.6061004589686998
+          ]
+        },
+        {
+          "name": "grip-base-at-column1050",
+          "detail": [
+            0.8104287939133987,
+            0.7223803671749598
+          ],
+          "geometry": [
+            0.8104287939133987,
+            0.7223803671749598
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-reviewed Manhunter detail and new clay inspected together. Long rectangular semiautomatic slide/frame, integrated forward laser, angled rear grip, trigger and rounded open guard match. No revolver cylinder or added accessory. Smooth matte-gray clay removes colored laser, stippling, wear, screws and material texture; shallow channels/serrations are nonblocking under latest user instruction. Paired framing, muzzle, main silhouette and guard opening retained. Native1254RGBA originals retained;2K outputs are resampled. Single final pair review;no geometry/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

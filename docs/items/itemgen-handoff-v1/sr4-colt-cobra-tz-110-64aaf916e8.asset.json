@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-colt-cobra-tz-110-64aaf916e8",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-rear-top",
+      "pixel": [
+        60.00000000000001,
+        307.0
+      ]
+    },
+    {
+      "name": "receiver-front-top",
+      "pixel": [
+        1160.0,
+        268.0
+      ]
+    },
+    {
+      "name": "magazine-bottom",
+      "pixel": [
+        400.0,
+        926.0
+      ]
+    },
+    {
+      "name": "grip-bottom",
+      "pixel": [
+        600.0,
+        844.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-colt-cobra-tz-110-64aaf916e8.family.json",
+    "sha256": "c2ac54c2d6e6a1d633621930635b21af723273deaac3f64785e7d9319564c974"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/6b580f4fa7d172221a19c0730e64492b111b116195c9f2f83152a64a3e746c94.png",
+      "sha256": "6b580f4fa7d172221a19c0730e64492b111b116195c9f2f83152a64a3e746c94"
+    },
+    "clayReference": {
+      "path": "inputs/55772fb95ffce63142a05fae2b0425a65a00b81cea32c5678cc36755a9d61d77.png",
+      "sha256": "55772fb95ffce63142a05fae2b0425a65a00b81cea32c5678cc36755a9d61d77"
+    },
+    "geometry": {
+      "path": "inputs/bacb11c5db53aba8d522983f55803f5b9320e4f4bc7f71164215f72157fbfd8a.png",
+      "sha256": "bacb11c5db53aba8d522983f55803f5b9320e4f4bc7f71164215f72157fbfd8a"
+    },
+    "detail": {
+      "path": "inputs/60e71cb4c46fea5d00f93e0937b48b0066f5cd2c07e53468531aaa8bfe2afbe3.png",
+      "sha256": "60e71cb4c46fea5d00f93e0937b48b0066f5cd2c07e53468531aaa8bfe2afbe3"
+    },
+    "foregroundMask": {
+      "path": "inputs/9ba42174e722529950afb2c35d3bc5292f9614fc92eb8121cf2fd55c8ce8e052.png",
+      "sha256": "9ba42174e722529950afb2c35d3bc5292f9614fc92eb8121cf2fd55c8ce8e052"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/3719b1ee76e9e2173990cbba031e86f125b66303ead0ecc1ca923efbf38d73b8.png",
+      "sha256": "3719b1ee76e9e2173990cbba031e86f125b66303ead0ecc1ca923efbf38d73b8"
+    },
+    "mask": {
+      "path": "inputs/3719b1ee76e9e2173990cbba031e86f125b66303ead0ecc1ca923efbf38d73b8.png",
+      "sha256": "3719b1ee76e9e2173990cbba031e86f125b66303ead0ecc1ca923efbf38d73b8"
+    },
+    "calibrationReference": {
+      "path": "inputs/11bd162a86b00cf023ad79fcb0b419d46f841075742bf1b1ac2dd5772231e39c.png",
+      "sha256": "11bd162a86b00cf023ad79fcb0b419d46f841075742bf1b1ac2dd5772231e39c"
+    },
+    "sourceAudit": {
+      "path": "inputs/7a5ac781fdc8db054edfe6dbc3bc0ee52ccb823bdae7465d04c69ec62013e03b.json",
+      "sha256": "7a5ac781fdc8db054edfe6dbc3bc0ee52ccb823bdae7465d04c69ec62013e03b"
+    },
+    "referenceApproval": {
+      "path": "inputs/b635f44075ad97a75329a34f1f120da0ba4d20fd9081c68793ac19098a5d3a83.json",
+      "sha256": "b635f44075ad97a75329a34f1f120da0ba4d20fd9081c68793ac19098a5d3a83"
+    },
+    "calibrationDetail": {
+      "path": "inputs/92fce7f651493aa2004c34eb1160fdad5cb40e47d97bb4aca1e2b5ca376844c3.png",
+      "sha256": "92fce7f651493aa2004c34eb1160fdad5cb40e47d97bb4aca1e2b5ca376844c3"
+    }
+  },
+  "features": [
+    {
+      "name": "Use the own Colt Cobra family silhouette printed25/PDF27: compact boxlike receiver, short front muzzle at right, curved magazine BEHIND the pistol grip/trigger toward the rear stock (bullpup ordering), forward pistol grip and rounded rectangular trigger opening. Preserve the source-shown compact rear stock element.",
+      "placementReviewed": true
+    },
+    {
+      "name": "All three variants retain the folding stock; the family illustration does not label a TZ subtype or establish a unique stock deployment for each variant.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Barrel-mounted gas-vent2 system is standard on TZ-110. Preserve the major muzzle/vent housing, not tiny vent cuts in clay.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual CobraTZ110 detail/clay images against own ColtCobra family illustration Arsenal printed25/PDF27 and the source-audit-v2 requirements. Correct bullpup ordering: folding-stock element at left, curved magazine behind the one main grip, forward trigger opening and compact receiver/muzzle at right. No invented second front grip; standard gas-vent housing retained, no replacement laser or scope. Silver/dark finish and unshown depth artistic; family artwork does not establish a subtype-specific stock deployment. Matching clay preserves overall silhouette, boundaries and opening; shallow vents, grooves, tiny fittings and residual grip ribs are nonblocking under latest user direction. Genuine transparent backgrounds and clean margins, no cast shadow or clipped object. Single actual pair review, with floor16 alpha diagnostics; no additional cosmetic review rounds. Native1254square originals retained;2048conditioning is resampled.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1170,
+        894,
+        1384,
+        1042
+      ],
+      "referenceAreaPixels": 22385,
+      "referenceMaskSha256": "3719b1ee76e9e2173990cbba031e86f125b66303ead0ecc1ca923efbf38d73b8",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6b580f4fa7d172221a19c0730e64492b111b116195c9f2f83152a64a3e746c94",
+      "imageSha256": "60e71cb4c46fea5d00f93e0937b48b0066f5cd2c07e53468531aaa8bfe2afbe3",
+      "maskSha256": "9ba42174e722529950afb2c35d3bc5292f9614fc92eb8121cf2fd55c8ce8e052",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual CobraTZ110 detail/clay images against own ColtCobra family illustration Arsenal printed25/PDF27 and the source-audit-v2 requirements. Correct bullpup ordering: folding-stock element at left, curved magazine behind the one main grip, forward trigger opening and compact receiver/muzzle at right. No invented second front grip; standard gas-vent housing retained, no replacement laser or scope. Silver/dark finish and unshown depth artistic; family artwork does not establish a subtype-specific stock deployment. Matching clay preserves overall silhouette, boundaries and opening; shallow vents, grooves, tiny fittings and residual grip ribs are nonblocking under latest user direction. Genuine transparent backgrounds and clean margins, no cast shadow or clipped object. Single actual pair review, with floor16 alpha diagnostics; no additional cosmetic review rounds. Native1254square originals retained;2048conditioning is resampled."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "55772fb95ffce63142a05fae2b0425a65a00b81cea32c5678cc36755a9d61d77",
+      "imageSha256": "bacb11c5db53aba8d522983f55803f5b9320e4f4bc7f71164215f72157fbfd8a",
+      "maskSha256": "3719b1ee76e9e2173990cbba031e86f125b66303ead0ecc1ca923efbf38d73b8",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual CobraTZ110 detail/clay images against own ColtCobra family illustration Arsenal printed25/PDF27 and the source-audit-v2 requirements. Correct bullpup ordering: folding-stock element at left, curved magazine behind the one main grip, forward trigger opening and compact receiver/muzzle at right. No invented second front grip; standard gas-vent housing retained, no replacement laser or scope. Silver/dark finish and unshown depth artistic; family artwork does not establish a subtype-specific stock deployment. Matching clay preserves overall silhouette, boundaries and opening; shallow vents, grooves, tiny fittings and residual grip ribs are nonblocking under latest user direction. Genuine transparent backgrounds and clean margins, no cast shadow or clipped object. Single actual pair review, with floor16 alpha diagnostics; no additional cosmetic review rounds. Native1254square originals retained;2048conditioning is resampled."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "6b580f4fa7d172221a19c0730e64492b111b116195c9f2f83152a64a3e746c94",
+      "detailSha256": "60e71cb4c46fea5d00f93e0937b48b0066f5cd2c07e53468531aaa8bfe2afbe3",
+      "geometrySha256": "bacb11c5db53aba8d522983f55803f5b9320e4f4bc7f71164215f72157fbfd8a",
+      "foregroundMaskSha256": "9ba42174e722529950afb2c35d3bc5292f9614fc92eb8121cf2fd55c8ce8e052",
+      "geometryForegroundMaskSha256": "3719b1ee76e9e2173990cbba031e86f125b66303ead0ecc1ca923efbf38d73b8",
+      "landmarks": [
+        {
+          "name": "stock-rear-top",
+          "detail": [
+            0.0642291578836425,
+            0.2760281435459941
+          ],
+          "geometry": [
+            0.0642291578836425,
+            0.2752689169139466
+          ]
+        },
+        {
+          "name": "receiver-front-top",
+          "detail": [
+            0.899330074831366,
+            0.24641830489614244
+          ],
+          "geometry": [
+            0.899330074831366,
+            0.24489985163204747
+          ]
+        },
+        {
+          "name": "magazine-bottom",
+          "detail": [
+            0.3223512594856661,
+            0.7459894287833828
+          ],
+          "geometry": [
+            0.3223512594856661,
+            0.7482671086795252
+          ]
+        },
+        {
+          "name": "grip-bottom",
+          "detail": [
+            0.47418778983979765,
+            0.6837328449554896
+          ],
+          "geometry": [
+            0.47418778983979765,
+            0.686010524851632
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual CobraTZ110 detail/clay images against own ColtCobra family illustration Arsenal printed25/PDF27 and the source-audit-v2 requirements. Correct bullpup ordering: folding-stock element at left, curved magazine behind the one main grip, forward trigger opening and compact receiver/muzzle at right. No invented second front grip; standard gas-vent housing retained, no replacement laser or scope. Silver/dark finish and unshown depth artistic; family artwork does not establish a subtype-specific stock deployment. Matching clay preserves overall silhouette, boundaries and opening; shallow vents, grooves, tiny fittings and residual grip ribs are nonblocking under latest user direction. Genuine transparent backgrounds and clean margins, no cast shadow or clipped object. Single actual pair review, with floor16 alpha diagnostics; no additional cosmetic review rounds. Native1254square originals retained;2048conditioning is resampled."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

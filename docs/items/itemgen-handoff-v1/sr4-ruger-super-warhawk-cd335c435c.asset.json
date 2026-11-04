@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ruger-super-warhawk-cd335c435c",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-top",
+      "pixel": [
+        1223.0,
+        377.0
+      ]
+    },
+    {
+      "name": "rear-sight",
+      "pixel": [
+        312.0,
+        334.0
+      ]
+    },
+    {
+      "name": "hammer-tip",
+      "pixel": [
+        180.0,
+        389.0
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        108.0,
+        930.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ruger-super-warhawk-cd335c435c.family.json",
+    "sha256": "659ac11aef049d440d8708fa413645aa0037de9346b51a890b65f7c31541ae2d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/5b045ebfe4d6e197092686f44e940a506129a62aaa118782c2ebbeb64f2a7c10.png",
+      "sha256": "5b045ebfe4d6e197092686f44e940a506129a62aaa118782c2ebbeb64f2a7c10"
+    },
+    "clayReference": {
+      "path": "inputs/5fdd58f58fe75b149d1d05327a04606b299aaf22f25219208c9507d490f055f2.png",
+      "sha256": "5fdd58f58fe75b149d1d05327a04606b299aaf22f25219208c9507d490f055f2"
+    },
+    "geometry": {
+      "path": "inputs/7c07cd81239ad5d00b66a90ca7e3ebd1a21480093b3f89eca919225df609744a.png",
+      "sha256": "7c07cd81239ad5d00b66a90ca7e3ebd1a21480093b3f89eca919225df609744a"
+    },
+    "detail": {
+      "path": "inputs/502fb314e490664759aca522081ea3a6d622ac6472c52815e3581424352f969a.png",
+      "sha256": "502fb314e490664759aca522081ea3a6d622ac6472c52815e3581424352f969a"
+    },
+    "foregroundMask": {
+      "path": "inputs/85d6e67ee88482bb1cfaed1858a18180ae759605ab4a6035ee23eaf42112b466.png",
+      "sha256": "85d6e67ee88482bb1cfaed1858a18180ae759605ab4a6035ee23eaf42112b466"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/838d944cde41b94304c431a316c41c2024b95fefd8c0488415c3dc60c9dcc1a0.png",
+      "sha256": "838d944cde41b94304c431a316c41c2024b95fefd8c0488415c3dc60c9dcc1a0"
+    },
+    "mask": {
+      "path": "inputs/838d944cde41b94304c431a316c41c2024b95fefd8c0488415c3dc60c9dcc1a0.png",
+      "sha256": "838d944cde41b94304c431a316c41c2024b95fefd8c0488415c3dc60c9dcc1a0"
+    },
+    "calibrationReference": {
+      "path": "inputs/503ad30b93bc09d30d302b022360064365485c540ff294d82d51d9bac7d94790.png",
+      "sha256": "503ad30b93bc09d30d302b022360064365485c540ff294d82d51d9bac7d94790"
+    },
+    "sourceAudit": {
+      "path": "inputs/6fb39fb1a08430683e9fefb1703d39be93ef994c662362775c9ab6f448de00ba.json",
+      "sha256": "6fb39fb1a08430683e9fefb1703d39be93ef994c662362775c9ab6f448de00ba"
+    },
+    "referenceApproval": {
+      "path": "inputs/82b269cac848d29fffe5585955df4b603bc9d434e4ed93f7fbbae014f7df6eb6.json",
+      "sha256": "82b269cac848d29fffe5585955df4b603bc9d434e4ed93f7fbbae014f7df6eb6"
+    },
+    "calibrationDetail": {
+      "path": "inputs/a1b1051d9085f339549f122ce455d60ec99279cde8de7edc39a40c65123499a6.png",
+      "sha256": "a1b1051d9085f339549f122ce455d60ec99279cde8de7edc39a40c65123499a6"
+    }
+  },
+  "features": [
+    {
+      "name": "Heavy revolver; cannot be equipped with a silencer (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the exposed revolver cylinder, long upper barrel assembly and curved grip visible in the side drawing.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sole assigned source/pair approval reused. Actual conditionedoverlay/clay inspectedonce: complete true revolver cylinder/longbarrel/grip/triggeropening aligned and intact, fineappearance removed; large cylinderflutes/barrelrecess remain approved structuralforms. Masktopology unchanged; native1254 resampled2048, notnative2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        525,
+        991,
+        761,
+        1172
+      ],
+      "referenceAreaPixels": 26177,
+      "referenceMaskSha256": "838d944cde41b94304c431a316c41c2024b95fefd8c0488415c3dc60c9dcc1a0",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "5b045ebfe4d6e197092686f44e940a506129a62aaa118782c2ebbeb64f2a7c10",
+      "imageSha256": "502fb314e490664759aca522081ea3a6d622ac6472c52815e3581424352f969a",
+      "maskSha256": "85d6e67ee88482bb1cfaed1858a18180ae759605ab4a6035ee23eaf42112b466",
+      "notes": "Sole assigned source/pair approval reused. Actual conditionedoverlay/clay inspectedonce: complete true revolver cylinder/longbarrel/grip/triggeropening aligned and intact, fineappearance removed; large cylinderflutes/barrelrecess remain approved structuralforms. Masktopology unchanged; native1254 resampled2048, notnative2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "5fdd58f58fe75b149d1d05327a04606b299aaf22f25219208c9507d490f055f2",
+      "imageSha256": "7c07cd81239ad5d00b66a90ca7e3ebd1a21480093b3f89eca919225df609744a",
+      "maskSha256": "838d944cde41b94304c431a316c41c2024b95fefd8c0488415c3dc60c9dcc1a0",
+      "notes": "Sole assigned source/pair approval reused. Actual conditionedoverlay/clay inspectedonce: complete true revolver cylinder/longbarrel/grip/triggeropening aligned and intact, fineappearance removed; large cylinderflutes/barrelrecess remain approved structuralforms. Masktopology unchanged; native1254 resampled2048, notnative2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Sole assigned source/pair approval reused. Actual conditionedoverlay/clay inspectedonce: complete true revolver cylinder/longbarrel/grip/triggeropening aligned and intact, fineappearance removed; large cylinderflutes/barrelrecess remain approved structuralforms. Masktopology unchanged; native1254 resampled2048, notnative2K.",
+      "landmarks": [
+        {
+          "name": "muzzle-top",
+          "detail": [
+            0.944232460678808,
+            0.3105097403418285
+          ],
+          "geometry": [
+            0.944232460678808,
+            0.3105097403418285
+          ]
+        },
+        {
+          "name": "rear-sight",
+          "detail": [
+            0.2652127095405629,
+            0.2784720115291262
+          ],
+          "geometry": [
+            0.2652127095405629,
+            0.2784720115291262
+          ]
+        },
+        {
+          "name": "hammer-tip",
+          "detail": [
+            0.16682565449089404,
+            0.3194505018709547
+          ],
+          "geometry": [
+            0.16682565449089404,
+            0.3194505018709547
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.11315998810016556,
+            0.7225298341423948
+          ],
+          "geometry": [
+            0.11315998810016556,
+            0.7225298341423948
+          ]
+        }
+      ],
+      "referenceSha256": "5b045ebfe4d6e197092686f44e940a506129a62aaa118782c2ebbeb64f2a7c10",
+      "geometrySha256": "7c07cd81239ad5d00b66a90ca7e3ebd1a21480093b3f89eca919225df609744a",
+      "detailSha256": "502fb314e490664759aca522081ea3a6d622ac6472c52815e3581424352f969a",
+      "geometryForegroundMaskSha256": "838d944cde41b94304c431a316c41c2024b95fefd8c0488415c3dc60c9dcc1a0",
+      "foregroundMaskSha256": "85d6e67ee88482bb1cfaed1858a18180ae759605ab4a6035ee23eaf42112b466"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

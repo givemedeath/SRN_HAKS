@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-psk-3-collapsible-pistol-b460853e2b",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-sight-top",
+      "pixel": [
+        120.0,
+        209.0
+      ]
+    },
+    {
+      "name": "grip-heel",
+      "pixel": [
+        1040.0,
+        1047.0
+      ]
+    },
+    {
+      "name": "muzzle-face",
+      "pixel": [
+        42.0,
+        320.0
+      ]
+    },
+    {
+      "name": "rear-body",
+      "pixel": [
+        1158.0,
+        420.00000000000006
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-psk-3-collapsible-pistol-b460853e2b.family.json",
+    "sha256": "7e07386255ada95ebd35c05e9e44fd51ee1b35f5a80550159f7c8b9bf3670e74"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f378eb95c770b83ea31edf6a92fdf01280d988e810109db14a371f1078b523ef.png",
+      "sha256": "f378eb95c770b83ea31edf6a92fdf01280d988e810109db14a371f1078b523ef"
+    },
+    "clayReference": {
+      "path": "inputs/762347b7425d2ff8dbb8b2b338850fa0387c8e2d40f284c3e20d29ff32d8d064.png",
+      "sha256": "762347b7425d2ff8dbb8b2b338850fa0387c8e2d40f284c3e20d29ff32d8d064"
+    },
+    "geometry": {
+      "path": "inputs/81d51739f894688627af89d34168c71f884de9327a5e6a8f95ca1be8c3c87b1d.png",
+      "sha256": "81d51739f894688627af89d34168c71f884de9327a5e6a8f95ca1be8c3c87b1d"
+    },
+    "detail": {
+      "path": "inputs/4a59b2057862671d8a6704f713175738cdab4d7125243adf9862b74b468d65dd.png",
+      "sha256": "4a59b2057862671d8a6704f713175738cdab4d7125243adf9862b74b468d65dd"
+    },
+    "foregroundMask": {
+      "path": "inputs/117e44cf6743eb659fe82e79c87086fc34e9613be26bcdb1c8e613384856d39d.png",
+      "sha256": "117e44cf6743eb659fe82e79c87086fc34e9613be26bcdb1c8e613384856d39d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/97ea17db3988790eca9acfc6b10931f4df5979c4a00d13c4bbb10b198f2bb120.png",
+      "sha256": "97ea17db3988790eca9acfc6b10931f4df5979c4a00d13c4bbb10b198f2bb120"
+    },
+    "mask": {
+      "path": "inputs/97ea17db3988790eca9acfc6b10931f4df5979c4a00d13c4bbb10b198f2bb120.png",
+      "sha256": "97ea17db3988790eca9acfc6b10931f4df5979c4a00d13c4bbb10b198f2bb120"
+    },
+    "calibrationReference": {
+      "path": "inputs/f36655dac8e63e1df5eb0810faa8f6d1040f6c25d4829c7d6688660864b5d9d0.png",
+      "sha256": "f36655dac8e63e1df5eb0810faa8f6d1040f6c25d4829c7d6688660864b5d9d0"
+    },
+    "sourceAudit": {
+      "path": "inputs/b3933fdb6875e9d4a1f4a52aee0408464c22d8d5479cc422980c41ddbdca5d88.json",
+      "sha256": "b3933fdb6875e9d4a1f4a52aee0408464c22d8d5479cc422980c41ddbdca5d88"
+    },
+    "referenceApproval": {
+      "path": "inputs/7c508ac35b932f1c40bc3110a48610a2d9b739f532d86dbea1ebae2ec0be3e14.json",
+      "sha256": "7c508ac35b932f1c40bc3110a48610a2d9b739f532d86dbea1ebae2ec0be3e14"
+    },
+    "calibrationDetail": {
+      "path": "inputs/eaa951b19c5d14a9f95c4029b86cec2d5f74d13662fe02139677b24ebacb6151.png",
+      "sha256": "eaa951b19c5d14a9f95c4029b86cec2d5f74d13662fe02139677b24ebacb6151"
+    }
+  },
+  "features": [
+    {
+      "name": "Can collapse into a solid metal block; choose deployed or collapsed depiction explicitly.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own PSK3 graphic supplies the deployed angular pistol example and rectangular collapsed-state example. Retain selected state’s major form and guard/grip opening; no invented exposed mechanisms.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reference reviewer inspected actual native detail/clay, bounded before/after fills, independent guard masks, final2048 detail/clay teal views, final mask and overlay. Deployed PSK3 stepped body/front housing/raked grip and raised trigger-side control remain; fine fastener annuli filled, large part interfaces retained. No silhouette/major boundary edit or mask transfer/warp. Small1–4px excluded guard-edge AA/background-fringe labels are not actual parts; actual thin trigger/guard and one connected opening retained. Retouch preserves every original pixel outside the explicit interior patches and original alpha exactly. Both original generator images are1254square RGB opaque; common2048 resampling honestly declared, no native2K claim. Reference-only acceptance.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        965,
+        803,
+        1320,
+        1001
+      ],
+      "referenceAreaPixels": 52717,
+      "referenceMaskSha256": "97ea17db3988790eca9acfc6b10931f4df5979c4a00d13c4bbb10b198f2bb120",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f378eb95c770b83ea31edf6a92fdf01280d988e810109db14a371f1078b523ef",
+      "imageSha256": "4a59b2057862671d8a6704f713175738cdab4d7125243adf9862b74b468d65dd",
+      "maskSha256": "117e44cf6743eb659fe82e79c87086fc34e9613be26bcdb1c8e613384856d39d",
+      "notes": "Assigned sole final reference reviewer inspected actual native detail/clay, bounded before/after fills, independent guard masks, final2048 detail/clay teal views, final mask and overlay. Deployed PSK3 stepped body/front housing/raked grip and raised trigger-side control remain; fine fastener annuli filled, large part interfaces retained. No silhouette/major boundary edit or mask transfer/warp. Small1–4px excluded guard-edge AA/background-fringe labels are not actual parts; actual thin trigger/guard and one connected opening retained. Retouch preserves every original pixel outside the explicit interior patches and original alpha exactly. Both original generator images are1254square RGB opaque; common2048 resampling honestly declared, no native2K claim. Reference-only acceptance."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "762347b7425d2ff8dbb8b2b338850fa0387c8e2d40f284c3e20d29ff32d8d064",
+      "imageSha256": "81d51739f894688627af89d34168c71f884de9327a5e6a8f95ca1be8c3c87b1d",
+      "maskSha256": "97ea17db3988790eca9acfc6b10931f4df5979c4a00d13c4bbb10b198f2bb120",
+      "notes": "Assigned sole final reference reviewer inspected actual native detail/clay, bounded before/after fills, independent guard masks, final2048 detail/clay teal views, final mask and overlay. Deployed PSK3 stepped body/front housing/raked grip and raised trigger-side control remain; fine fastener annuli filled, large part interfaces retained. No silhouette/major boundary edit or mask transfer/warp. Small1–4px excluded guard-edge AA/background-fringe labels are not actual parts; actual thin trigger/guard and one connected opening retained. Retouch preserves every original pixel outside the explicit interior patches and original alpha exactly. Both original generator images are1254square RGB opaque; common2048 resampling honestly declared, no native2K claim. Reference-only acceptance."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reference reviewer inspected actual native detail/clay, bounded before/after fills, independent guard masks, final2048 detail/clay teal views, final mask and overlay. Deployed PSK3 stepped body/front housing/raked grip and raised trigger-side control remain; fine fastener annuli filled, large part interfaces retained. No silhouette/major boundary edit or mask transfer/warp. Small1–4px excluded guard-edge AA/background-fringe labels are not actual parts; actual thin trigger/guard and one connected opening retained. Retouch preserves every original pixel outside the explicit interior patches and original alpha exactly. Both original generator images are1254square RGB opaque; common2048 resampling honestly declared, no native2K claim. Reference-only acceptance.",
+      "landmarks": [
+        {
+          "name": "front-sight-top",
+          "detail": [
+            0.11074483132402707,
+            0.17876916230076742
+          ],
+          "geometry": [
+            0.11074483132402707,
+            0.1780076280253837
+          ]
+        },
+        {
+          "name": "grip-heel",
+          "detail": [
+            0.8115564853003384,
+            0.816934885072314
+          ],
+          "geometry": [
+            0.8115564853003384,
+            0.816934885072314
+          ]
+        },
+        {
+          "name": "muzzle-face",
+          "detail": [
+            0.051328191095600675,
+            0.2632994668683589
+          ],
+          "geometry": [
+            0.05056643929780034,
+            0.2632994668683589
+          ]
+        },
+        {
+          "name": "rear-body",
+          "detail": [
+            0.9014431974407784,
+            0.33945289440672965
+          ],
+          "geometry": [
+            0.9022049492385786,
+            0.33945289440672965
+          ]
+        }
+      ],
+      "referenceSha256": "f378eb95c770b83ea31edf6a92fdf01280d988e810109db14a371f1078b523ef",
+      "geometrySha256": "81d51739f894688627af89d34168c71f884de9327a5e6a8f95ca1be8c3c87b1d",
+      "detailSha256": "4a59b2057862671d8a6704f713175738cdab4d7125243adf9862b74b468d65dd",
+      "foregroundMaskSha256": "117e44cf6743eb659fe82e79c87086fc34e9613be26bcdb1c8e613384856d39d",
+      "geometryForegroundMaskSha256": "97ea17db3988790eca9acfc6b10931f4df5979c4a00d13c4bbb10b198f2bb120"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

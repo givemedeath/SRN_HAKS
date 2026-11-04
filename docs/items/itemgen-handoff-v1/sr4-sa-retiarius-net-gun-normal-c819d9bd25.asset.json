@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-sa-retiarius-net-gun-normal-c819d9bd25",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-silhouette-tangent",
+      "pixel": [
+        46.99999999999999,
+        453.5
+      ]
+    },
+    {
+      "name": "top-silhouette-tangent",
+      "pixel": [
+        248.5,
+        284.0
+      ]
+    },
+    {
+      "name": "front-silhouette-tangent",
+      "pixel": [
+        1219.0,
+        549.0
+      ]
+    },
+    {
+      "name": "grip-bottom-tangent",
+      "pixel": [
+        210.99999999999997,
+        1025.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-sa-retiarius-net-gun-normal-c819d9bd25.family.json",
+    "sha256": "8547299119d6e946fe88502a0198cf6fa6088342ae0446ce77f9c542c30ca529"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/4db9630eb2cd9e30a19a16991548efa5785d843b3a904b470e16fd3738129e6f.png",
+      "sha256": "4db9630eb2cd9e30a19a16991548efa5785d843b3a904b470e16fd3738129e6f"
+    },
+    "clayReference": {
+      "path": "inputs/80aa8bcc0541deae116c16e186a42f089a200bfde3167e8b34e631f5d9cd17fb.png",
+      "sha256": "80aa8bcc0541deae116c16e186a42f089a200bfde3167e8b34e631f5d9cd17fb"
+    },
+    "geometry": {
+      "path": "inputs/68aaddf0bfc91676d51e0807b32a56883bf1daed86446ef3b12496c22528119f.png",
+      "sha256": "68aaddf0bfc91676d51e0807b32a56883bf1daed86446ef3b12496c22528119f"
+    },
+    "detail": {
+      "path": "inputs/0acb232f2568940203f0385c023d379f8d666892802cedfa7a67408e39e443c1.png",
+      "sha256": "0acb232f2568940203f0385c023d379f8d666892802cedfa7a67408e39e443c1"
+    },
+    "foregroundMask": {
+      "path": "inputs/8791277514b8decc55940420c8465e8e7604c49f0d4199c59cf96f303c888ab2.png",
+      "sha256": "8791277514b8decc55940420c8465e8e7604c49f0d4199c59cf96f303c888ab2"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/0319d6d5d69d7076754f0d16fee635f3c11a08292efba413a8ec3a582b09cc98.png",
+      "sha256": "0319d6d5d69d7076754f0d16fee635f3c11a08292efba413a8ec3a582b09cc98"
+    },
+    "mask": {
+      "path": "inputs/0319d6d5d69d7076754f0d16fee635f3c11a08292efba413a8ec3a582b09cc98.png",
+      "sha256": "0319d6d5d69d7076754f0d16fee635f3c11a08292efba413a8ec3a582b09cc98"
+    },
+    "calibrationReference": {
+      "path": "inputs/b8cafec922e8db5e3ae3938cbb58e7997a5051bf1dd026dfbf61ba9c44cd5b50.png",
+      "sha256": "b8cafec922e8db5e3ae3938cbb58e7997a5051bf1dd026dfbf61ba9c44cd5b50"
+    },
+    "sourceAudit": {
+      "path": "inputs/7508737f66493e12bc793e448c2b4fabce0776c596bae5a5d20131f606680da6.json",
+      "sha256": "7508737f66493e12bc793e448c2b4fabce0776c596bae5a5d20131f606680da6"
+    },
+    "referenceApproval": {
+      "path": "inputs/dd43f285e44d900b467e74f36f3bdb7a9ff7b9e861dfc56d81a0a8da6498f596.json",
+      "sha256": "dd43f285e44d900b467e74f36f3bdb7a9ff7b9e861dfc56d81a0a8da6498f596"
+    },
+    "calibrationDetail": {
+      "path": "inputs/af4e4b0f6a5d682b5a74274b88a6369f330953f4270d300ebaf2e98a78b3f7af.png",
+      "sha256": "af4e4b0f6a5d682b5a74274b88a6369f330953f4270d300ebaf2e98a78b3f7af"
+    }
+  },
+  "features": [
+    {
+      "name": "Normal physical version of Retiarius family, intended for ordinary metahuman-sized targets, with expanding fiber net.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Compiled Normal child row has4(b) capacity and belongs under SA Retiarius Net Gun.",
+      "placementReviewed": true
+    },
+    {
+      "name": "No exact exterior, absolute dimensions or numeric size ratio is supplied.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected final prepared overlay: matching outline, camera/framing and major recesses, trigger/support openings and thin members; no background debris. Root inspected actual detailed/clay pair and teal actual-alpha contact sheet. Exact major outline, framing, grip, trigger/support openings and thin members preserved; wide mouth retains solid recessed back, not invented through-hole. No background debris or attached accessory. Smooth clay removes material/color/wear; shallow residual channels are nonblocking. Size-variant exteriors are explicit source-constrained artistic interpretations, not printed model outlines or a claimed numeric size ratio.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        708,
+        1013,
+        889,
+        1218
+      ],
+      "referenceAreaPixels": 27097,
+      "referenceMaskSha256": "0319d6d5d69d7076754f0d16fee635f3c11a08292efba413a8ec3a582b09cc98",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4db9630eb2cd9e30a19a16991548efa5785d843b3a904b470e16fd3738129e6f",
+      "imageSha256": "0acb232f2568940203f0385c023d379f8d666892802cedfa7a67408e39e443c1",
+      "maskSha256": "8791277514b8decc55940420c8465e8e7604c49f0d4199c59cf96f303c888ab2",
+      "notes": "Root inspected final prepared overlay: matching outline, camera/framing and major recesses, trigger/support openings and thin members; no background debris. Root inspected actual detailed/clay pair and teal actual-alpha contact sheet. Exact major outline, framing, grip, trigger/support openings and thin members preserved; wide mouth retains solid recessed back, not invented through-hole. No background debris or attached accessory. Smooth clay removes material/color/wear; shallow residual channels are nonblocking. Size-variant exteriors are explicit source-constrained artistic interpretations, not printed model outlines or a claimed numeric size ratio."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "80aa8bcc0541deae116c16e186a42f089a200bfde3167e8b34e631f5d9cd17fb",
+      "imageSha256": "68aaddf0bfc91676d51e0807b32a56883bf1daed86446ef3b12496c22528119f",
+      "maskSha256": "0319d6d5d69d7076754f0d16fee635f3c11a08292efba413a8ec3a582b09cc98",
+      "notes": "Root inspected final prepared overlay: matching outline, camera/framing and major recesses, trigger/support openings and thin members; no background debris. Root inspected actual detailed/clay pair and teal actual-alpha contact sheet. Exact major outline, framing, grip, trigger/support openings and thin members preserved; wide mouth retains solid recessed back, not invented through-hole. No background debris or attached accessory. Smooth clay removes material/color/wear; shallow residual channels are nonblocking. Size-variant exteriors are explicit source-constrained artistic interpretations, not printed model outlines or a claimed numeric size ratio."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "4db9630eb2cd9e30a19a16991548efa5785d843b3a904b470e16fd3738129e6f",
+      "detailSha256": "0acb232f2568940203f0385c023d379f8d666892802cedfa7a67408e39e443c1",
+      "geometrySha256": "68aaddf0bfc91676d51e0807b32a56883bf1daed86446ef3b12496c22528119f",
+      "foregroundMaskSha256": "8791277514b8decc55940420c8465e8e7604c49f0d4199c59cf96f303c888ab2",
+      "geometryForegroundMaskSha256": "0319d6d5d69d7076754f0d16fee635f3c11a08292efba413a8ec3a582b09cc98",
+      "landmarks": [
+        {
+          "name": "rear-silhouette-tangent",
+          "detail": [
+            0.04980468749999999,
+            0.34527587890625
+          ],
+          "geometry": [
+            0.050572283940750216,
+            0.34642767137096775
+          ]
+        },
+        {
+          "name": "top-silhouette-tangent",
+          "detail": [
+            0.20447537031116794,
+            0.21512333039314516
+          ],
+          "geometry": [
+            0.20601056319266836,
+            0.21435546875
+          ]
+        },
+        {
+          "name": "front-silhouette-tangent",
+          "detail": [
+            0.9494277160592498,
+            0.4186066658266129
+          ],
+          "geometry": [
+            0.9494277160592498,
+            0.4182227350050403
+          ]
+        },
+        {
+          "name": "grip-bottom-tangent",
+          "detail": [
+            0.17569050378303494,
+            0.7841088079637096
+          ],
+          "geometry": [
+            0.17760949488491048,
+            0.7848766696068549
+          ]
+        }
+      ],
+      "notes": "Root inspected final prepared overlay: matching outline, camera/framing and major recesses, trigger/support openings and thin members; no background debris. Root inspected actual detailed/clay pair and teal actual-alpha contact sheet. Exact major outline, framing, grip, trigger/support openings and thin members preserved; wide mouth retains solid recessed back, not invented through-hole. No background debris or attached accessory. Smooth clay removes material/color/wear; shallow residual channels are nonblocking. Size-variant exteriors are explicit source-constrained artistic interpretations, not printed model outlines or a claimed numeric size ratio."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

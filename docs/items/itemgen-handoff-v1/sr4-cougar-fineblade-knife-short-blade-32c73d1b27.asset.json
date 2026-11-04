@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-cougar-fineblade-knife-short-blade-32c73d1b27",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "pommel-upper",
+      "pixel": [
+        60.0,
+        563.0
+      ]
+    },
+    {
+      "name": "guard-upper",
+      "pixel": [
+        530.0,
+        502.0
+      ]
+    },
+    {
+      "name": "blade-upper",
+      "pixel": [
+        900.0,
+        569.0
+      ]
+    },
+    {
+      "name": "tip-upper",
+      "pixel": [
+        1200.0,
+        616.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-cougar-fineblade-knife-short-blade-32c73d1b27.family.json",
+    "sha256": "ab3041f7fcb2e2a7e51a29fa4c39479acaf0cf27958a097cedf1447f49dbc135"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/350c25ef3557087eb4112cd1984fd3f91c02a48b0eea0e52a17464360d764c26.png",
+      "sha256": "350c25ef3557087eb4112cd1984fd3f91c02a48b0eea0e52a17464360d764c26"
+    },
+    "clayReference": {
+      "path": "inputs/dac1a3b4b2f27273e49eb14591ab027f67ae12cdfee36d35d6f669dc90c86026.png",
+      "sha256": "dac1a3b4b2f27273e49eb14591ab027f67ae12cdfee36d35d6f669dc90c86026"
+    },
+    "geometry": {
+      "path": "inputs/ca3c468ea76e506ad59f9a9eabf7da7917934aa9e228a5656781bc104988d9c4.png",
+      "sha256": "ca3c468ea76e506ad59f9a9eabf7da7917934aa9e228a5656781bc104988d9c4"
+    },
+    "detail": {
+      "path": "inputs/95570c6694a9997e55a913d3edb3261a223cfa59772cbfbd4d2ef5e77ab84795.png",
+      "sha256": "95570c6694a9997e55a913d3edb3261a223cfa59772cbfbd4d2ef5e77ab84795"
+    },
+    "foregroundMask": {
+      "path": "inputs/8214f0ee98d85143fdccb558cac098bd595fb5cf1a7d75e107313b74727f19e8.png",
+      "sha256": "8214f0ee98d85143fdccb558cac098bd595fb5cf1a7d75e107313b74727f19e8"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/18fedc32a7b4a788aad69ff18d9131e5d847580dab929b6082273f72c17b23ae.png",
+      "sha256": "18fedc32a7b4a788aad69ff18d9131e5d847580dab929b6082273f72c17b23ae"
+    },
+    "mask": {
+      "path": "inputs/18fedc32a7b4a788aad69ff18d9131e5d847580dab929b6082273f72c17b23ae.png",
+      "sha256": "18fedc32a7b4a788aad69ff18d9131e5d847580dab929b6082273f72c17b23ae"
+    },
+    "calibrationReference": {
+      "path": "inputs/c45be0777538c81119b52b4fdd7fac2148f6341f1f75d7f6216969c35676d2b1.png",
+      "sha256": "c45be0777538c81119b52b4fdd7fac2148f6341f1f75d7f6216969c35676d2b1"
+    },
+    "sourceAudit": {
+      "path": "inputs/7fb760dad79915a580c5501d4bf89d6625c7a324ad6040e1e685b78db10393eb.json",
+      "sha256": "7fb760dad79915a580c5501d4bf89d6625c7a324ad6040e1e685b78db10393eb"
+    },
+    "referenceApproval": {
+      "path": "inputs/3086fb571bd054aed07a984ba8901cf20160dca77bf5525337ce5c3f11c60832.json",
+      "sha256": "3086fb571bd054aed07a984ba8901cf20160dca77bf5525337ce5c3f11c60832"
+    },
+    "calibrationDetail": {
+      "path": "inputs/fbe5c9d404403a29abc972a5fcb0f1ff483ba635791b9ffbc38ee793d1a69a69.png",
+      "sha256": "fbe5c9d404403a29abc972a5fcb0f1ff483ba635791b9ffbc38ee793d1a69a69"
+    }
+  },
+  "features": [
+    {
+      "name": "Short-bladed version is approximately the size of an ordinary knife; distinguish from forearm-length long version.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Double-edged combat blade with advanced edge/bonding technology.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Follow the own published family outline: closed simple dark grip/pommel, small near-perpendicular metal guard and straight double-edged metal blade tapering to an angular spear point. No sculpted oversized guard or open pommel loop from the separately approved local custom design.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Long/Short exterior proportions are explicit text-constrained interpretations of a shared family illustration, not independent variant artwork.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual detailed/clay images and floor16 alpha comparisons against the reviewed Arsenal14/PDF16 own Fineblade family art and text, with172/PDF174 table. This is the ordinary-knife short variant interpretation: straight double-edged spearpoint blade, closed dark grip/pommel and small transverse guard. Shared source artwork is not individually variant-labeled; proportions, finish, hardware and unseen depth are artistic. This catalog study does not replace or modify the approved custom native Cougar. Clay retains silhouette, bevels, guard and grip transitions. Shallow channels and tiny fittings are nonblocking. No opaque background, clipping or cast shadow.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "350c25ef3557087eb4112cd1984fd3f91c02a48b0eea0e52a17464360d764c26",
+      "imageSha256": "95570c6694a9997e55a913d3edb3261a223cfa59772cbfbd4d2ef5e77ab84795",
+      "maskSha256": "8214f0ee98d85143fdccb558cac098bd595fb5cf1a7d75e107313b74727f19e8",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual detailed/clay images and floor16 alpha comparisons against the reviewed Arsenal14/PDF16 own Fineblade family art and text, with172/PDF174 table. This is the ordinary-knife short variant interpretation: straight double-edged spearpoint blade, closed dark grip/pommel and small transverse guard. Shared source artwork is not individually variant-labeled; proportions, finish, hardware and unseen depth are artistic. This catalog study does not replace or modify the approved custom native Cougar. Clay retains silhouette, bevels, guard and grip transitions. Shallow channels and tiny fittings are nonblocking. No opaque background, clipping or cast shadow."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "dac1a3b4b2f27273e49eb14591ab027f67ae12cdfee36d35d6f669dc90c86026",
+      "imageSha256": "ca3c468ea76e506ad59f9a9eabf7da7917934aa9e228a5656781bc104988d9c4",
+      "maskSha256": "18fedc32a7b4a788aad69ff18d9131e5d847580dab929b6082273f72c17b23ae",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual detailed/clay images and floor16 alpha comparisons against the reviewed Arsenal14/PDF16 own Fineblade family art and text, with172/PDF174 table. This is the ordinary-knife short variant interpretation: straight double-edged spearpoint blade, closed dark grip/pommel and small transverse guard. Shared source artwork is not individually variant-labeled; proportions, finish, hardware and unseen depth are artistic. This catalog study does not replace or modify the approved custom native Cougar. Clay retains silhouette, bevels, guard and grip transitions. Shallow channels and tiny fittings are nonblocking. No opaque background, clipping or cast shadow."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "350c25ef3557087eb4112cd1984fd3f91c02a48b0eea0e52a17464360d764c26",
+      "detailSha256": "95570c6694a9997e55a913d3edb3261a223cfa59772cbfbd4d2ef5e77ab84795",
+      "geometrySha256": "ca3c468ea76e506ad59f9a9eabf7da7917934aa9e228a5656781bc104988d9c4",
+      "foregroundMaskSha256": "8214f0ee98d85143fdccb558cac098bd595fb5cf1a7d75e107313b74727f19e8",
+      "geometryForegroundMaskSha256": "18fedc32a7b4a788aad69ff18d9131e5d847580dab929b6082273f72c17b23ae",
+      "landmarks": [
+        {
+          "name": "pommel-upper",
+          "detail": [
+            0.0695268073399326,
+            0.456500244140625
+          ],
+          "geometry": [
+            0.0695268073399326,
+            0.456500244140625
+          ]
+        },
+        {
+          "name": "guard-upper",
+          "detail": [
+            0.42604205060025274,
+            0.4102091471354167
+          ],
+          "geometry": [
+            0.42604205060025274,
+            0.4094502766927083
+          ]
+        },
+        {
+          "name": "blade-upper",
+          "detail": [
+            0.706702986783909,
+            0.461053466796875
+          ],
+          "geometry": [
+            0.706702986783909,
+            0.4602945963541667
+          ]
+        },
+        {
+          "name": "tip-upper",
+          "detail": [
+            0.9342659080139006,
+            0.49672037760416665
+          ],
+          "geometry": [
+            0.9342659080139006,
+            0.49672037760416665
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual detailed/clay images and floor16 alpha comparisons against the reviewed Arsenal14/PDF16 own Fineblade family art and text, with172/PDF174 table. This is the ordinary-knife short variant interpretation: straight double-edged spearpoint blade, closed dark grip/pommel and small transverse guard. Shared source artwork is not individually variant-labeled; proportions, finish, hardware and unseen depth are artistic. This catalog study does not replace or modify the approved custom native Cougar. Clay retains silhouette, bevels, guard and grip transitions. Shallow channels and tiny fittings are nonblocking. No opaque background, clipping or cast shadow."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-sword-47885d5d1a",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "pommel-left",
+      "pixel": [
+        33.0,
+        428.0
+      ]
+    },
+    {
+      "name": "guard-center",
+      "pixel": [
+        318.0,
+        428.0
+      ]
+    },
+    {
+      "name": "guard-top",
+      "pixel": [
+        318.0,
+        268.00000000000006
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        318.0,
+        588.0000000000001
+      ]
+    },
+    {
+      "name": "blade-tip",
+      "pixel": [
+        1734.0,
+        429.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-sword-47885d5d1a.family.json",
+    "sha256": "07ce61e5025a4e2c99356085873297fd36c42e18dfaeabf9c1ee6bbc9b250705"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/2e6834f327c5ec213f539a09a5fe15331f4dde733b0b1dfc3dce0e2f4b6c3e2c.png",
+      "sha256": "2e6834f327c5ec213f539a09a5fe15331f4dde733b0b1dfc3dce0e2f4b6c3e2c"
+    },
+    "clayReference": {
+      "path": "inputs/aa4131887cf7679f89cbbf7eed8aab8e912a16add2598e8fad684be8c734df27.png",
+      "sha256": "aa4131887cf7679f89cbbf7eed8aab8e912a16add2598e8fad684be8c734df27"
+    },
+    "geometry": {
+      "path": "inputs/8f2119cb402befeacd368081438669d4343b79e6857a433b0988a287c07ca3aa.png",
+      "sha256": "8f2119cb402befeacd368081438669d4343b79e6857a433b0988a287c07ca3aa"
+    },
+    "detail": {
+      "path": "inputs/dbabe811b4055b0dbb83a62797b7fef17da8ff67d96dacc9b56cd6f1b0cb40ea.png",
+      "sha256": "dbabe811b4055b0dbb83a62797b7fef17da8ff67d96dacc9b56cd6f1b0cb40ea"
+    },
+    "foregroundMask": {
+      "path": "inputs/8510fde12795b63ba0089b98dd6596b8a3ad44feedffff0c08c8c001371df360.png",
+      "sha256": "8510fde12795b63ba0089b98dd6596b8a3ad44feedffff0c08c8c001371df360"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c520f2e7d1ce07d78b1716af3748951fd7d5a7e2405a3ddd5f45519775940c6b.png",
+      "sha256": "c520f2e7d1ce07d78b1716af3748951fd7d5a7e2405a3ddd5f45519775940c6b"
+    },
+    "mask": {
+      "path": "inputs/c520f2e7d1ce07d78b1716af3748951fd7d5a7e2405a3ddd5f45519775940c6b.png",
+      "sha256": "c520f2e7d1ce07d78b1716af3748951fd7d5a7e2405a3ddd5f45519775940c6b"
+    },
+    "calibrationReference": {
+      "path": "inputs/346150e824bbb6c31e297673d3dbf17686e1cf07883c7b6eb8c5e743bc6bd0bf.png",
+      "sha256": "346150e824bbb6c31e297673d3dbf17686e1cf07883c7b6eb8c5e743bc6bd0bf"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/af5fd94463d29b22f8ad73ef4925235176d208380e42494bf749caf6290f5ee0.json",
+      "sha256": "af5fd94463d29b22f8ad73ef4925235176d208380e42494bf749caf6290f5ee0"
+    },
+    "referenceApproval": {
+      "path": "inputs/cd6d05bc678e0042c98e13f0495e930574ba1000237593acbe3f04d9eb75d7b9.json",
+      "sha256": "cd6d05bc678e0042c98e13f0495e930574ba1000237593acbe3f04d9eb75d7b9"
+    },
+    "calibrationDetail": {
+      "path": "inputs/70a876ea0af86e1ea65b77f67cfb7e18d56b710f18ea66b389673851b1cb04ff.png",
+      "sha256": "70a876ea0af86e1ea65b77f67cfb7e18d56b710f18ea66b389673851b1cb04ff"
+    }
+  },
+  "features": [
+    {
+      "name": "One-handed blade; the class permits scimitar, machete or longsword forms",
+      "placementReviewed": true
+    },
+    {
+      "name": "Parent viewed actual detail/clay teal previews and matched overlay against the Core printed305/PDF307 generic one-handed sword description. Complete point and blade ridge/bevel, both thin crossguard arms, grip and faceted pommel retained. Clay removes fine wrapping and marks while preserving main boundaries. Independent masks retain one solid component, no intentional holes, no detached background or cast shadow. Profile, leather and steel styling are artistic interpretation.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2e6834f327c5ec213f539a09a5fe15331f4dde733b0b1dfc3dce0e2f4b6c3e2c",
+      "imageSha256": "dbabe811b4055b0dbb83a62797b7fef17da8ff67d96dacc9b56cd6f1b0cb40ea",
+      "maskSha256": "8510fde12795b63ba0089b98dd6596b8a3ad44feedffff0c08c8c001371df360",
+      "notes": "Parent viewed actual detail/clay teal previews and matched overlay against the Core printed305/PDF307 generic one-handed sword description. Complete point and blade ridge/bevel, both thin crossguard arms, grip and faceted pommel retained. Clay removes fine wrapping and marks while preserving main boundaries. Independent masks retain one solid component, no intentional holes, no detached background or cast shadow. Profile, leather and steel styling are artistic interpretation."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "aa4131887cf7679f89cbbf7eed8aab8e912a16add2598e8fad684be8c734df27",
+      "imageSha256": "8f2119cb402befeacd368081438669d4343b79e6857a433b0988a287c07ca3aa",
+      "maskSha256": "c520f2e7d1ce07d78b1716af3748951fd7d5a7e2405a3ddd5f45519775940c6b",
+      "notes": "Parent viewed actual detail/clay teal previews and matched overlay against the Core printed305/PDF307 generic one-handed sword description. Complete point and blade ridge/bevel, both thin crossguard arms, grip and faceted pommel retained. Clay removes fine wrapping and marks while preserving main boundaries. Independent masks retain one solid component, no intentional holes, no detached background or cast shadow. Profile, leather and steel styling are artistic interpretation."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Parent viewed actual detail/clay teal previews and matched overlay against the Core printed305/PDF307 generic one-handed sword description. Complete point and blade ridge/bevel, both thin crossguard arms, grip and faceted pommel retained. Clay removes fine wrapping and marks while preserving main boundaries. Independent masks retain one solid component, no intentional holes, no detached background or cast shadow. Profile, leather and steel styling are artistic interpretation.",
+      "landmarks": [
+        {
+          "name": "pommel-left",
+          "detail": [
+            0.0503327758431085,
+            0.4994920665634675
+          ],
+          "geometry": [
+            0.0503327758431085,
+            0.4994920665634675
+          ]
+        },
+        {
+          "name": "guard-center",
+          "detail": [
+            0.20083795362903226,
+            0.4994920665634675
+          ],
+          "geometry": [
+            0.20083795362903226,
+            0.4994920665634675
+          ]
+        },
+        {
+          "name": "guard-top",
+          "detail": [
+            0.20083795362903226,
+            0.41507836687306504
+          ],
+          "geometry": [
+            0.20083795362903226,
+            0.41507836687306504
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.20083795362903226,
+            0.58390576625387
+          ],
+          "geometry": [
+            0.20083795362903226,
+            0.58390576625387
+          ]
+        },
+        {
+          "name": "blade-tip",
+          "detail": [
+            0.9486110474706745,
+            0.5000196521865325
+          ],
+          "geometry": [
+            0.949139135813783,
+            0.5000196521865325
+          ]
+        }
+      ],
+      "referenceSha256": "2e6834f327c5ec213f539a09a5fe15331f4dde733b0b1dfc3dce0e2f4b6c3e2c",
+      "geometrySha256": "8f2119cb402befeacd368081438669d4343b79e6857a433b0988a287c07ca3aa",
+      "detailSha256": "dbabe811b4055b0dbb83a62797b7fef17da8ff67d96dacc9b56cd6f1b0cb40ea",
+      "foregroundMaskSha256": "8510fde12795b63ba0089b98dd6596b8a3ad44feedffff0c08c8c001371df360",
+      "geometryForegroundMaskSha256": "c520f2e7d1ce07d78b1716af3748951fd7d5a7e2405a3ddd5f45519775940c6b"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

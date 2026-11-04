@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-victorinox-memory-blade-92083024bb",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        29.000000000000007,
+        200.00000000000003
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1995.0,
+        200.00000000000003
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        29.000000000000007,
+        543.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1995.0,
+        543.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-victorinox-memory-blade-92083024bb.family.json",
+    "sha256": "ed03ce011e4fbbd4cb6f1b28c290911e1ff917880384548fafb1abcaaaafc1af"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/78d1bdf6f587684c1194cac69848a5f487279603683f609669e8d6dcc0b14e75.png",
+      "sha256": "78d1bdf6f587684c1194cac69848a5f487279603683f609669e8d6dcc0b14e75"
+    },
+    "clayReference": {
+      "path": "inputs/7ed61264da33bda7ff06f1fd1d9080e9d7f845a8e6d13c84da6492f265782325.png",
+      "sha256": "7ed61264da33bda7ff06f1fd1d9080e9d7f845a8e6d13c84da6492f265782325"
+    },
+    "geometry": {
+      "path": "inputs/e8befd5b07b3e0191624a662aa38ffe03f5246bd78fcb15fe5d0bc285bf54c43.png",
+      "sha256": "e8befd5b07b3e0191624a662aa38ffe03f5246bd78fcb15fe5d0bc285bf54c43"
+    },
+    "detail": {
+      "path": "inputs/a195bbfb07c92ac146dc95486e42f2678003598f4fd677f452d49ebb42968327.png",
+      "sha256": "a195bbfb07c92ac146dc95486e42f2678003598f4fd677f452d49ebb42968327"
+    },
+    "foregroundMask": {
+      "path": "inputs/ec51a1e6f908f6ff16d4b39b26afba8477299b8e2e020df51f8f7ad06495e0d3.png",
+      "sha256": "ec51a1e6f908f6ff16d4b39b26afba8477299b8e2e020df51f8f7ad06495e0d3"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/2053176db26f107f07329648b59ab2c831133adb938a8a6716df0e4b0ad7925e.png",
+      "sha256": "2053176db26f107f07329648b59ab2c831133adb938a8a6716df0e4b0ad7925e"
+    },
+    "mask": {
+      "path": "inputs/2053176db26f107f07329648b59ab2c831133adb938a8a6716df0e4b0ad7925e.png",
+      "sha256": "2053176db26f107f07329648b59ab2c831133adb938a8a6716df0e4b0ad7925e"
+    },
+    "calibrationReference": {
+      "path": "inputs/6c27e7e57db05ad45efe7503e708123b668050bc9d2e13b0812c7f9b7f84ef25.png",
+      "sha256": "6c27e7e57db05ad45efe7503e708123b668050bc9d2e13b0812c7f9b7f84ef25"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/cfa9b24553ecd0508176101f63751533fdb99ebcdbb62ba756947a28ad40357a.json",
+      "sha256": "cfa9b24553ecd0508176101f63751533fdb99ebcdbb62ba756947a28ad40357a"
+    },
+    "referenceApproval": {
+      "path": "inputs/6d62f378dbeb3d8e67175f2a18025ef8063ec8e4f94fae5554f2135e486dc698.json",
+      "sha256": "6d62f378dbeb3d8e67175f2a18025ef8063ec8e4f94fae5554f2135e486dc698"
+    },
+    "calibrationDetail": {
+      "path": "inputs/e39117f2dcec69d1746cdedf2e0b462847c084f1d232076a36185cf677665a4b.png",
+      "sha256": "e39117f2dcec69d1746cdedf2e0b462847c084f1d232076a36185cf677665a4b"
+    }
+  },
+  "features": [
+    {
+      "name": "Weapon consists of form-memory steel alloy; completely drawn weapon stiffens into a double-edged combat blade.",
+      "placementReviewed": true
+    },
+    {
+      "name": "It remains flexible while partly covered by its special sheath.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sheath may be integrated into a belt or sewn into clothing; a standard Swiss-army folding knife would be the wrong representation.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Use the fully drawn rigid state for a standalone weapon reference and identify sheath/belt separately if depicted.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and teal masks viewed. Fully drawn double-edged blade, guard, grip and pommel match silhouette/perspective. Clay removes stippling; shallow diagonal grip channels accepted. Detailed foreground received one transparent column at right only, matching 2025x777 clay canvas; every original pixel unchanged. Raw dimensions2024x777 and2025x777 retained honestly. Arsenal printed16/PDF18 description: fully drawn rigid double-edged combat blade made entirely of form-memory steel; no folding mechanism, belt or sheath in this reference. Actual retained detail matches drawn state. Exact guard, grip texture, darkened alloy finish and dimensions are artistic interpretations, not published outline or a claim of fabric/rubber construction.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "a195bbfb07c92ac146dc95486e42f2678003598f4fd677f452d49ebb42968327",
+      "maskSha256": "ec51a1e6f908f6ff16d4b39b26afba8477299b8e2e020df51f8f7ad06495e0d3",
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and teal masks viewed. Fully drawn double-edged blade, guard, grip and pommel match silhouette/perspective. Clay removes stippling; shallow diagonal grip channels accepted. Detailed foreground received one transparent column at right only, matching 2025x777 clay canvas; every original pixel unchanged. Raw dimensions2024x777 and2025x777 retained honestly. Arsenal printed16/PDF18 description: fully drawn rigid double-edged combat blade made entirely of form-memory steel; no folding mechanism, belt or sheath in this reference. Actual retained detail matches drawn state. Exact guard, grip texture, darkened alloy finish and dimensions are artistic interpretations, not published outline or a claim of fabric/rubber construction.",
+      "referenceSha256": "78d1bdf6f587684c1194cac69848a5f487279603683f609669e8d6dcc0b14e75",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "e8befd5b07b3e0191624a662aa38ffe03f5246bd78fcb15fe5d0bc285bf54c43",
+      "maskSha256": "2053176db26f107f07329648b59ab2c831133adb938a8a6716df0e4b0ad7925e",
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and teal masks viewed. Fully drawn double-edged blade, guard, grip and pommel match silhouette/perspective. Clay removes stippling; shallow diagonal grip channels accepted. Detailed foreground received one transparent column at right only, matching 2025x777 clay canvas; every original pixel unchanged. Raw dimensions2024x777 and2025x777 retained honestly. Arsenal printed16/PDF18 description: fully drawn rigid double-edged combat blade made entirely of form-memory steel; no folding mechanism, belt or sheath in this reference. Actual retained detail matches drawn state. Exact guard, grip texture, darkened alloy finish and dimensions are artistic interpretations, not published outline or a claim of fabric/rubber construction.",
+      "referenceSha256": "7ed61264da33bda7ff06f1fd1d9080e9d7f845a8e6d13c84da6492f265782325",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "a195bbfb07c92ac146dc95486e42f2678003598f4fd677f452d49ebb42968327",
+      "foregroundMaskSha256": "ec51a1e6f908f6ff16d4b39b26afba8477299b8e2e020df51f8f7ad06495e0d3",
+      "geometryForegroundMaskSha256": "2053176db26f107f07329648b59ab2c831133adb938a8a6716df0e4b0ad7925e",
+      "geometrySha256": "e8befd5b07b3e0191624a662aa38ffe03f5246bd78fcb15fe5d0bc285bf54c43",
+      "landmarks": [
+        {
+          "detail": [
+            0.05071878965736041,
+            0.42227014089595377
+          ],
+          "geometry": [
+            0.0498046875,
+            0.4208984375
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.9492812103426396,
+            0.42227014089595377
+          ],
+          "geometry": [
+            0.9501953125,
+            0.4208984375
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.05071878965736041,
+            0.5791015625
+          ],
+          "geometry": [
+            0.0498046875,
+            0.5791015625
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.9492812103426396,
+            0.5791015625
+          ],
+          "geometry": [
+            0.9501953125,
+            0.5791015625
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Final conditioned overlay viewed and approved: paired framing, silhouette and structural openings retained; no background remnants. Actual detailed/clay pair and teal masks viewed. Fully drawn double-edged blade, guard, grip and pommel match silhouette/perspective. Clay removes stippling; shallow diagonal grip channels accepted. Detailed foreground received one transparent column at right only, matching 2025x777 clay canvas; every original pixel unchanged. Raw dimensions2024x777 and2025x777 retained honestly. Arsenal printed16/PDF18 description: fully drawn rigid double-edged combat blade made entirely of form-memory steel; no folding mechanism, belt or sheath in this reference. Actual retained detail matches drawn state. Exact guard, grip texture, darkened alloy finish and dimensions are artistic interpretations, not published outline or a claim of fabric/rubber construction.",
+      "referenceSha256": "78d1bdf6f587684c1194cac69848a5f487279603683f609669e8d6dcc0b14e75"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

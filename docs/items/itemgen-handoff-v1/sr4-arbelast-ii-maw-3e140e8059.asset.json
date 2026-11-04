@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-arbelast-ii-maw-3e140e8059",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-canister-upper",
+      "pixel": [
+        60.0,
+        486.00000000000006
+      ]
+    },
+    {
+      "name": "imaging-scope-upper",
+      "pixel": [
+        550.0000000000001,
+        439.99999999999994
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        550.0000000000001,
+        751.9999999999998
+      ]
+    },
+    {
+      "name": "rear-canister-upper",
+      "pixel": [
+        1210.0,
+        483.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-arbelast-ii-maw-3e140e8059.family.json",
+    "sha256": "07ddb422b5bd26c896dd46c757a96f9d8ec660e14ee3dd92bd0dad4d55a51f47"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/766d7f27df24051e53ff1871535e7d5254fe635dcb8aa41d01bf2927682ecdf4.png",
+      "sha256": "766d7f27df24051e53ff1871535e7d5254fe635dcb8aa41d01bf2927682ecdf4"
+    },
+    "clayReference": {
+      "path": "inputs/66739b62e68273cc43e68417efde5ba08f08b1f1bc565a0722289180e0adf03e.png",
+      "sha256": "66739b62e68273cc43e68417efde5ba08f08b1f1bc565a0722289180e0adf03e"
+    },
+    "geometry": {
+      "path": "inputs/a0bffacccb80314c0b131c2297c1e5b1b4945bda330c93641e78160ab1745498.png",
+      "sha256": "a0bffacccb80314c0b131c2297c1e5b1b4945bda330c93641e78160ab1745498"
+    },
+    "detail": {
+      "path": "inputs/94cd304f71cc28916cca9e6f0df1af8e5cdceb186e546d22859e1cbf69dedf85.png",
+      "sha256": "94cd304f71cc28916cca9e6f0df1af8e5cdceb186e546d22859e1cbf69dedf85"
+    },
+    "foregroundMask": {
+      "path": "inputs/ab84b197365b13f9aeb7ed5df27afe9db8d72c3faee7d9b96e2f2b57ee133b34.png",
+      "sha256": "ab84b197365b13f9aeb7ed5df27afe9db8d72c3faee7d9b96e2f2b57ee133b34"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/acbbb460ddb2a1146994f4be978675d129eb7a2cdbf4db0af336f6f4335bf1b5.png",
+      "sha256": "acbbb460ddb2a1146994f4be978675d129eb7a2cdbf4db0af336f6f4335bf1b5"
+    },
+    "mask": {
+      "path": "inputs/acbbb460ddb2a1146994f4be978675d129eb7a2cdbf4db0af336f6f4335bf1b5.png",
+      "sha256": "acbbb460ddb2a1146994f4be978675d129eb7a2cdbf4db0af336f6f4335bf1b5"
+    },
+    "calibrationReference": {
+      "path": "inputs/5fe21c2365bc48fba8f47471893bee8d309ec000b81b9d920b1f7c6d399eba58.png",
+      "sha256": "5fe21c2365bc48fba8f47471893bee8d309ec000b81b9d920b1f7c6d399eba58"
+    },
+    "sourceAudit": {
+      "path": "inputs/5bd83017f6990869b9cd6ca1831d97a459f4f85618bb8a55a2ef52631335beb2.json",
+      "sha256": "5bd83017f6990869b9cd6ca1831d97a459f4f85618bb8a55a2ef52631335beb2"
+    },
+    "referenceApproval": {
+      "path": "inputs/dff9165b657bc042fbcb936692c19c65a45ae5d4c7c440a78ac53a5ff8e83109.json",
+      "sha256": "dff9165b657bc042fbcb936692c19c65a45ae5d4c7c440a78ac53a5ff8e83109"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f24b8f48e5d553f7fcf6db4e29b7d6fef4a452bf40cd99d4f32af8b642738959.png",
+      "sha256": "f24b8f48e5d553f7fcf6db4e29b7d6fef4a452bf40cd99d4f32af8b642738959"
+    }
+  },
+  "features": [
+    {
+      "name": "Single-shot medium anti-armor launcher for unguided rockets, not guided missiles",
+      "placementReviewed": true
+    },
+    {
+      "name": "Separate firing unit plus removable rigid rocket canister; attached ready configuration is the appropriate complete exterior reference",
+      "placementReviewed": true
+    },
+    {
+      "name": "Imaging scope is included on the firing unit",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Root viewed detailed/clay and actual foreground mattes against Arsenal31/PDF33 MAW illustration/description,32/PDF34 continuation and177/PDF179 table. This is the ATTACHED READY exterior assembly of firing unit and rigid removable canister,with imaging scope and underbody grip/trigger. Not the firing unit alone,not a guided-missile or tripod substitution. Workbook Arbelast spelling is retained with audited Arbalest source alias. Exact finish,minor fittings and hidden depth artistic. Existing reviewed-opening matte derives alpha only,raw RGB unchanged;trigger clearance and complete silhouette inspected. Native1254square retained. Shallow grooves,small recesses and tiny edge differences are nonblocking. Actual alpha/positive margins and intentional openings reviewed;no floor/cast shadow or clipped structure. 2048conditioning is resampled. One final pair reviewer,not geometry/client/production acceptance.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        754,
+        1079,
+        832,
+        1145
+      ],
+      "referenceAreaPixels": 3265,
+      "referenceMaskSha256": "acbbb460ddb2a1146994f4be978675d129eb7a2cdbf4db0af336f6f4335bf1b5",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "766d7f27df24051e53ff1871535e7d5254fe635dcb8aa41d01bf2927682ecdf4",
+      "imageSha256": "94cd304f71cc28916cca9e6f0df1af8e5cdceb186e546d22859e1cbf69dedf85",
+      "maskSha256": "ab84b197365b13f9aeb7ed5df27afe9db8d72c3faee7d9b96e2f2b57ee133b34",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Root viewed detailed/clay and actual foreground mattes against Arsenal31/PDF33 MAW illustration/description,32/PDF34 continuation and177/PDF179 table. This is the ATTACHED READY exterior assembly of firing unit and rigid removable canister,with imaging scope and underbody grip/trigger. Not the firing unit alone,not a guided-missile or tripod substitution. Workbook Arbelast spelling is retained with audited Arbalest source alias. Exact finish,minor fittings and hidden depth artistic. Existing reviewed-opening matte derives alpha only,raw RGB unchanged;trigger clearance and complete silhouette inspected. Native1254square retained. Shallow grooves,small recesses and tiny edge differences are nonblocking. Actual alpha/positive margins and intentional openings reviewed;no floor/cast shadow or clipped structure. 2048conditioning is resampled. One final pair reviewer,not geometry/client/production acceptance."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "66739b62e68273cc43e68417efde5ba08f08b1f1bc565a0722289180e0adf03e",
+      "imageSha256": "a0bffacccb80314c0b131c2297c1e5b1b4945bda330c93641e78160ab1745498",
+      "maskSha256": "acbbb460ddb2a1146994f4be978675d129eb7a2cdbf4db0af336f6f4335bf1b5",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Root viewed detailed/clay and actual foreground mattes against Arsenal31/PDF33 MAW illustration/description,32/PDF34 continuation and177/PDF179 table. This is the ATTACHED READY exterior assembly of firing unit and rigid removable canister,with imaging scope and underbody grip/trigger. Not the firing unit alone,not a guided-missile or tripod substitution. Workbook Arbelast spelling is retained with audited Arbalest source alias. Exact finish,minor fittings and hidden depth artistic. Existing reviewed-opening matte derives alpha only,raw RGB unchanged;trigger clearance and complete silhouette inspected. Native1254square retained. Shallow grooves,small recesses and tiny edge differences are nonblocking. Actual alpha/positive margins and intentional openings reviewed;no floor/cast shadow or clipped structure. 2048conditioning is resampled. One final pair reviewer,not geometry/client/production acceptance."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "766d7f27df24051e53ff1871535e7d5254fe635dcb8aa41d01bf2927682ecdf4",
+      "detailSha256": "94cd304f71cc28916cca9e6f0df1af8e5cdceb186e546d22859e1cbf69dedf85",
+      "geometrySha256": "a0bffacccb80314c0b131c2297c1e5b1b4945bda330c93641e78160ab1745498",
+      "foregroundMaskSha256": "ab84b197365b13f9aeb7ed5df27afe9db8d72c3faee7d9b96e2f2b57ee133b34",
+      "geometryForegroundMaskSha256": "acbbb460ddb2a1146994f4be978675d129eb7a2cdbf4db0af336f6f4335bf1b5",
+      "landmarks": [
+        {
+          "name": "front-canister-upper",
+          "detail": [
+            0.08361527423469388,
+            0.41881681743421056
+          ],
+          "geometry": [
+            0.08361527423469388,
+            0.4173474385642415
+          ]
+        },
+        {
+          "name": "imaging-scope-upper",
+          "detail": [
+            0.4437715242346939,
+            0.3850211034249226
+          ],
+          "geometry": [
+            0.4437715242346939,
+            0.38355172455495357
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.4437715242346939,
+            0.6142442071400928
+          ],
+          "geometry": [
+            0.4437715242346939,
+            0.6142442071400928
+          ]
+        },
+        {
+          "name": "rear-canister-upper",
+          "detail": [
+            0.9288799426020408,
+            0.41661274912925694
+          ],
+          "geometry": [
+            0.9288799426020408,
+            0.41587805969427244
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Root viewed detailed/clay and actual foreground mattes against Arsenal31/PDF33 MAW illustration/description,32/PDF34 continuation and177/PDF179 table. This is the ATTACHED READY exterior assembly of firing unit and rigid removable canister,with imaging scope and underbody grip/trigger. Not the firing unit alone,not a guided-missile or tripod substitution. Workbook Arbelast spelling is retained with audited Arbalest source alias. Exact finish,minor fittings and hidden depth artistic. Existing reviewed-opening matte derives alpha only,raw RGB unchanged;trigger clearance and complete silhouette inspected. Native1254square retained. Shallow grooves,small recesses and tiny edge differences are nonblocking. Actual alpha/positive margins and intentional openings reviewed;no floor/cast shadow or clipped structure. 2048conditioning is resampled. One final pair reviewer,not geometry/client/production acceptance."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

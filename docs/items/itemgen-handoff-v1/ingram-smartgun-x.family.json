@@ -1,0 +1,50 @@
+{
+  "allowedAssemblies": [
+    {
+      "b": "hidden-placeholder",
+      "m": "ingram-smartgun-x",
+      "t": "hidden-placeholder"
+    }
+  ],
+  "bakeSize": 4096,
+  "budgets": {
+    "parts": {
+      "b": {
+        "visible": 4,
+        "shadow": 0
+      },
+      "m": {
+        "visible": 9992,
+        "shadow": 500
+      },
+      "t": {
+        "visible": 4,
+        "shadow": 0
+      }
+    },
+    "shadow": 500,
+    "visible": 10000
+  },
+  "family": "firearm-sling",
+  "firearm": {
+    "subtype": "smg"
+  },
+  "kind": "item-family",
+  "materialRoute": "diffuse",
+  "nativePackaging": "pending-contract",
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sre9a211be",
+    "blueprint": "sre9a211be",
+    "hak": "sre9a211beh",
+    "module": "sre9a211bem",
+    "displayName": "Ingram Smartgun X"
+  },
+  "runtimeTextureSize": 1024,
+  "schemaVersion": 1,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "signMode": "udf",
+    "targetFaceCount": 200000
+  }
+}

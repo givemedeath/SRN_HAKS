@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-barbed-head-9aa2237fb7",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "point",
+      "pixel": [
+        35.0,
+        585.0
+      ]
+    },
+    {
+      "name": "rear-upper-barb",
+      "pixel": [
+        999.9999999999999,
+        490.0
+      ]
+    },
+    {
+      "name": "neck",
+      "pixel": [
+        1200.0,
+        610.0
+      ]
+    },
+    {
+      "name": "lower-opening",
+      "pixel": [
+        737.0000000000002,
+        751.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-barbed-head-9aa2237fb7.family.json",
+    "sha256": "c1230a2ed65de68bf613b96192abb78c6f557695057e814264dd212def54179c"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/42d5b86022653990594ee75284107449cc8e8f2e30d51c2b97e5ba3497fef806.png",
+      "sha256": "42d5b86022653990594ee75284107449cc8e8f2e30d51c2b97e5ba3497fef806"
+    },
+    "clayReference": {
+      "path": "inputs/b66d6ff10086a9a7bc36ec21f39700049a87d14a8ffac376a95b2c34e68d9ecb.png",
+      "sha256": "b66d6ff10086a9a7bc36ec21f39700049a87d14a8ffac376a95b2c34e68d9ecb"
+    },
+    "geometry": {
+      "path": "inputs/19d24a375c72e4092b9ad0161792494423474946361fb26f23eebe7f62f04a21.png",
+      "sha256": "19d24a375c72e4092b9ad0161792494423474946361fb26f23eebe7f62f04a21"
+    },
+    "detail": {
+      "path": "inputs/6c0b303b93c32552d177df5605dba2b239affbe9145816b9dc7f49f58e876a7b.png",
+      "sha256": "6c0b303b93c32552d177df5605dba2b239affbe9145816b9dc7f49f58e876a7b"
+    },
+    "foregroundMask": {
+      "path": "inputs/94d037a951b1413db771a429d7116d299db0128ffcf6fd5fa824f2cf2cfdb0ba.png",
+      "sha256": "94d037a951b1413db771a429d7116d299db0128ffcf6fd5fa824f2cf2cfdb0ba"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e.png",
+      "sha256": "a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e"
+    },
+    "mask": {
+      "path": "inputs/a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e.png",
+      "sha256": "a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e"
+    },
+    "calibrationReference": {
+      "path": "inputs/0c422d3e34060688c27342e1fc77e9c6a7cd923276493655f9c5ed494008a578.png",
+      "sha256": "0c422d3e34060688c27342e1fc77e9c6a7cd923276493655f9c5ed494008a578"
+    },
+    "sourceAudit": {
+      "path": "inputs/9f44d377b496d3af761d29869890618ce61a9de66eecba5016c458ca7769cb01.json",
+      "sha256": "9f44d377b496d3af761d29869890618ce61a9de66eecba5016c458ca7769cb01"
+    },
+    "referenceApproval": {
+      "path": "inputs/a0369702c335d8aa735e08acd591e982089761248924263c81b4c1c817f6c916.json",
+      "sha256": "a0369702c335d8aa735e08acd591e982089761248924263c81b4c1c817f6c916"
+    },
+    "calibrationDetail": {
+      "path": "inputs/72db5a058927ed8fc6164a043f5844cc4dcd7632c2b36095cfd7e4c09bd16208.png",
+      "sha256": "72db5a058927ed8fc6164a043f5844cc4dcd7632c2b36095cfd7e4c09bd16208"
+    }
+  },
+  "features": [
+    {
+      "name": "Arrowhead/ammunition identity, not a standalone handheld weapon",
+      "placementReviewed": true
+    },
+    {
+      "name": "Additional rear-facing barbs, following the individually labeled BARBED drawing when art-based depiction is selected",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the illustrated broadhead outline and any large open-frame cutouts/thin members; exact unseen faces and material finish remain interpretation",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: framing, triangular head, rear-facing barbs, all three openings and thin bridging members retained. Source/output topology unchanged. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        868,
+        689,
+        1443,
+        878
+      ],
+      "referenceAreaPixels": 55482,
+      "referenceMaskSha256": "a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        667,
+        858,
+        972,
+        1101
+      ],
+      "referenceAreaPixels": 36043,
+      "referenceMaskSha256": "a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        862,
+        1110,
+        1430,
+        1334
+      ],
+      "referenceAreaPixels": 63073,
+      "referenceMaskSha256": "a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "42d5b86022653990594ee75284107449cc8e8f2e30d51c2b97e5ba3497fef806",
+      "imageSha256": "6c0b303b93c32552d177df5605dba2b239affbe9145816b9dc7f49f58e876a7b",
+      "maskSha256": "94d037a951b1413db771a429d7116d299db0128ffcf6fd5fa824f2cf2cfdb0ba",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: framing, triangular head, rear-facing barbs, all three openings and thin bridging members retained. Source/output topology unchanged. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "b66d6ff10086a9a7bc36ec21f39700049a87d14a8ffac376a95b2c34e68d9ecb",
+      "imageSha256": "19d24a375c72e4092b9ad0161792494423474946361fb26f23eebe7f62f04a21",
+      "maskSha256": "a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: framing, triangular head, rear-facing barbs, all three openings and thin bridging members retained. Source/output topology unchanged. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: framing, triangular head, rear-facing barbs, all three openings and thin bridging members retained. Source/output topology unchanged. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "point",
+          "detail": [
+            0.05358466493492863,
+            0.46030483033585057
+          ],
+          "geometry": [
+            0.05358466493492863,
+            0.46030483033585057
+          ]
+        },
+        {
+          "name": "rear-upper-barb",
+          "detail": [
+            0.7831203098761544,
+            0.3884754757054849
+          ],
+          "geometry": [
+            0.7831203098761544,
+            0.3884754757054849
+          ]
+        },
+        {
+          "name": "neck",
+          "detail": [
+            0.9343194072732998,
+            0.47920729208068363
+          ],
+          "geometry": [
+            0.9343194072732998,
+            0.47920729208068363
+          ]
+        },
+        {
+          "name": "lower-opening",
+          "detail": [
+            0.5842934967989086,
+            0.5865732747913354
+          ],
+          "geometry": [
+            0.5842934967989086,
+            0.5865732747913354
+          ]
+        }
+      ],
+      "referenceSha256": "42d5b86022653990594ee75284107449cc8e8f2e30d51c2b97e5ba3497fef806",
+      "geometrySha256": "19d24a375c72e4092b9ad0161792494423474946361fb26f23eebe7f62f04a21",
+      "detailSha256": "6c0b303b93c32552d177df5605dba2b239affbe9145816b9dc7f49f58e876a7b",
+      "geometryForegroundMaskSha256": "a249166d3ce5cc7be89c2d24707693e276677f688d8aa7ec48d371f6d4fcf38e",
+      "foregroundMaskSha256": "94d037a951b1413db771a429d7116d299db0128ffcf6fd5fa824f2cf2cfdb0ba"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

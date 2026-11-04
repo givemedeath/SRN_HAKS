@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-fogger-glop-cannon-b3d5cff265",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "top-handle-space",
+      "pixel": [
+        640.8846761453397,
+        269.37914691943126
+      ]
+    },
+    {
+      "name": "feed-body-clearance",
+      "pixel": [
+        843.6207529843894,
+        639.3419038873585
+      ]
+    },
+    {
+      "name": "under-body-support-space",
+      "pixel": [
+        601.0878143133463,
+        700.9141199226306
+      ]
+    },
+    {
+      "name": "front-nozzle-tangent",
+      "pixel": [
+        15.999999999999998,
+        570.5
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-fogger-glop-cannon-b3d5cff265.family.json",
+    "sha256": "9b42d29a8f61b29214c4cf46afb30248c66b8f9af99afa1773bcafc1e8e45b9e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/48bc604dd7c6ec4dfe06f57738d71b3f9092e795f5c8974faee4c4188fa25e12.png",
+      "sha256": "48bc604dd7c6ec4dfe06f57738d71b3f9092e795f5c8974faee4c4188fa25e12"
+    },
+    "clayReference": {
+      "path": "inputs/9f41512f846b662eca311771b9e2017cb45d957abb56596060948a3b5d81a0e2.png",
+      "sha256": "9f41512f846b662eca311771b9e2017cb45d957abb56596060948a3b5d81a0e2"
+    },
+    "geometry": {
+      "path": "inputs/f232dac4347ef9287ef3cbfb55a5da48dcc67be101df7e4fdbf0d5e62a239ab0.png",
+      "sha256": "f232dac4347ef9287ef3cbfb55a5da48dcc67be101df7e4fdbf0d5e62a239ab0"
+    },
+    "detail": {
+      "path": "inputs/75cae680e34119208d15513c6acd1f12b1dcdabbe236033520091d2cf03f1d6b.png",
+      "sha256": "75cae680e34119208d15513c6acd1f12b1dcdabbe236033520091d2cf03f1d6b"
+    },
+    "foregroundMask": {
+      "path": "inputs/d144730f932452c83b31ecc60317a09d132984b1cfbc38f90f05a7fc6abbea90.png",
+      "sha256": "d144730f932452c83b31ecc60317a09d132984b1cfbc38f90f05a7fc6abbea90"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7.png",
+      "sha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7"
+    },
+    "mask": {
+      "path": "inputs/30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7.png",
+      "sha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7"
+    },
+    "calibrationReference": {
+      "path": "inputs/5b1b29ca1f0ad458d810a7a93769cc20cef6be4c74469fa243150865bba93849.png",
+      "sha256": "5b1b29ca1f0ad458d810a7a93769cc20cef6be4c74469fa243150865bba93849"
+    },
+    "sourceAudit": {
+      "path": "inputs/8685d3a3c9061437f7f9814995018baeecb572d41e65de0bc1e4a513d877b31f.json",
+      "sha256": "8685d3a3c9061437f7f9814995018baeecb572d41e65de0bc1e4a513d877b31f"
+    },
+    "referenceApproval": {
+      "path": "inputs/8400873e158dfea126f0e71f0126c5c20ff43d8976225190e3eaa9e960016390.json",
+      "sha256": "8400873e158dfea126f0e71f0126c5c20ff43d8976225190e3eaa9e960016390"
+    },
+    "calibrationDetail": {
+      "path": "inputs/bb4ff58c42b30d366dce3cf0eebd189cb96980742a2aa12862d88b0175ab7ba5.png",
+      "sha256": "bb4ff58c42b30d366dce3cf0eebd189cb96980742a2aa12862d88b0175ab7ba5"
+    }
+  },
+  "features": [
+    {
+      "name": "Vehicle-installed main-gun assembly for projecting globs of freeze foam",
+      "placementReviewed": true
+    },
+    {
+      "name": "Freeze foam payload identity; not a water cannon, flamethrower, handheld glue gun or Ares Super Squirt",
+      "placementReviewed": true
+    },
+    {
+      "name": "Table specifies50(belt), but neither exact belt geometry nor exterior reservoir dimensions are described",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the final prepared overlay: framing and major source-required structure/openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1009,
+        371,
+        1127,
+        412
+      ],
+      "referenceAreaPixels": 1370,
+      "referenceMaskSha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1288,
+        860,
+        1432,
+        1014
+      ],
+      "referenceAreaPixels": 8409,
+      "referenceMaskSha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        938,
+        979,
+        1031,
+        1103
+      ],
+      "referenceAreaPixels": 6316,
+      "referenceMaskSha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        750,
+        1449,
+        794,
+        1479
+      ],
+      "referenceAreaPixels": 595,
+      "referenceMaskSha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        797,
+        1522,
+        848,
+        1567
+      ],
+      "referenceAreaPixels": 1130,
+      "referenceMaskSha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "48bc604dd7c6ec4dfe06f57738d71b3f9092e795f5c8974faee4c4188fa25e12",
+      "imageSha256": "75cae680e34119208d15513c6acd1f12b1dcdabbe236033520091d2cf03f1d6b",
+      "maskSha256": "d144730f932452c83b31ecc60317a09d132984b1cfbc38f90f05a7fc6abbea90",
+      "notes": "Root inspected the final prepared overlay: framing and major source-required structure/openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "9f41512f846b662eca311771b9e2017cb45d957abb56596060948a3b5d81a0e2",
+      "imageSha256": "f232dac4347ef9287ef3cbfb55a5da48dcc67be101df7e4fdbf0d5e62a239ab0",
+      "maskSha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7",
+      "notes": "Root inspected the final prepared overlay: framing and major source-required structure/openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "48bc604dd7c6ec4dfe06f57738d71b3f9092e795f5c8974faee4c4188fa25e12",
+      "detailSha256": "75cae680e34119208d15513c6acd1f12b1dcdabbe236033520091d2cf03f1d6b",
+      "geometrySha256": "f232dac4347ef9287ef3cbfb55a5da48dcc67be101df7e4fdbf0d5e62a239ab0",
+      "foregroundMaskSha256": "d144730f932452c83b31ecc60317a09d132984b1cfbc38f90f05a7fc6abbea90",
+      "geometryForegroundMaskSha256": "30f17f2db3764859832e97ceee8b2930f578274b674f90cfd944147478a958f7",
+      "landmarks": [
+        {
+          "name": "top-handle-space",
+          "detail": [
+            0.5120823986854423,
+            0.1898968427344279
+          ],
+          "geometry": [
+            0.5165870568763533,
+            0.18860405612612222
+          ]
+        },
+        {
+          "name": "feed-body-clearance",
+          "detail": [
+            0.6615841701311097,
+            0.46265226645198243
+          ],
+          "geometry": [
+            0.6622924604736128,
+            0.4623092431197369
+          ]
+        },
+        {
+          "name": "under-body-support-space",
+          "detail": [
+            0.48273537059539545,
+            0.5080464461569016
+          ],
+          "geometry": [
+            0.48298030991681856,
+            0.5079375411926979
+          ]
+        },
+        {
+          "name": "front-nozzle-tangent",
+          "detail": [
+            0.05127952881859132,
+            0.4118985018887362
+          ],
+          "geometry": [
+            0.05054210815929566,
+            0.409318123282967
+          ]
+        }
+      ],
+      "notes": "Root inspected the final prepared overlay: framing and major source-required structure/openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,295 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-vigorous-assault-cannon-cfa81d30f9",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "framing-upper-left",
+      "pixel": [
+        10.0,
+        464.00000000000006
+      ]
+    },
+    {
+      "name": "framing-upper-right",
+      "pixel": [
+        1247.0,
+        464.00000000000006
+      ]
+    },
+    {
+      "name": "framing-lower-left",
+      "pixel": [
+        10.0,
+        774.0
+      ]
+    },
+    {
+      "name": "framing-lower-right",
+      "pixel": [
+        1247.0,
+        774.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-vigorous-assault-cannon-cfa81d30f9.family.json",
+    "sha256": "41367edfc6d72611f728581799ded20d3a2fafe0d4cd9e0a8e14230bc7a335bc"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/85e8a2666fcb9b18f81c86e545e8cf887e4832da5395fbf1bf11da62d180ada4.png",
+      "sha256": "85e8a2666fcb9b18f81c86e545e8cf887e4832da5395fbf1bf11da62d180ada4"
+    },
+    "clayReference": {
+      "path": "inputs/fe70313841f1a7616f457ff938db95fa68a7cfe864232a3045fa500819b8a25f.png",
+      "sha256": "fe70313841f1a7616f457ff938db95fa68a7cfe864232a3045fa500819b8a25f"
+    },
+    "geometry": {
+      "path": "inputs/563548a47730a8fabe3453bee54021d243b7e04d1b44ee1256e4f4869e79d7cd.png",
+      "sha256": "563548a47730a8fabe3453bee54021d243b7e04d1b44ee1256e4f4869e79d7cd"
+    },
+    "detail": {
+      "path": "inputs/9f4021de4d0e73ab2e03c2d42731c2bde7ddb859bc2f653bb823f0c2e054e070.png",
+      "sha256": "9f4021de4d0e73ab2e03c2d42731c2bde7ddb859bc2f653bb823f0c2e054e070"
+    },
+    "foregroundMask": {
+      "path": "inputs/b7d541b69a471b0a71d03781c62cd89003519e41072cc0a14922b081e6828172.png",
+      "sha256": "b7d541b69a471b0a71d03781c62cd89003519e41072cc0a14922b081e6828172"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e.png",
+      "sha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e"
+    },
+    "mask": {
+      "path": "inputs/459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e.png",
+      "sha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e"
+    },
+    "calibrationReference": {
+      "path": "inputs/54d8c88336fe2a16e71a687141fd7e72b2a8780391319770413d54a1a955a823.png",
+      "sha256": "54d8c88336fe2a16e71a687141fd7e72b2a8780391319770413d54a1a955a823"
+    },
+    "sourceAudit": {
+      "path": "inputs/73a7c06465cfed49b18c5a649b4bbe7ffec95faf18c5f932b3b2864f611c4e11.json",
+      "sha256": "73a7c06465cfed49b18c5a649b4bbe7ffec95faf18c5f932b3b2864f611c4e11"
+    },
+    "referenceApproval": {
+      "path": "inputs/bb4a73102287a2dfaf83ffbe474190cad8f18a6b4f093fdfb9ab45fc1c93984c.json",
+      "sha256": "bb4a73102287a2dfaf83ffbe474190cad8f18a6b4f093fdfb9ab45fc1c93984c"
+    },
+    "calibrationDetail": {
+      "path": "inputs/8c63b1871219b9a1e38bee73ae2d2d6a6361bbc721e11ee5458e33fe2586135f.png",
+      "sha256": "8c63b1871219b9a1e38bee73ae2d2d6a6361bbc721e11ee5458e33fe2586135f"
+    }
+  },
+  "features": [
+    {
+      "name": "Durable basic assault cannon whose description emphasizes absence of included accessories",
+      "placementReviewed": true
+    },
+    {
+      "name": "Use the labeled published base outline and its substantial muzzle mass; do not infer a specific accessory/recoil system from that drawn mass",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source-matched pair and masks reviewed; silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        202,
+        965,
+        351,
+        1024
+      ],
+      "referenceAreaPixels": 6792,
+      "referenceMaskSha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        634,
+        997,
+        692,
+        1056
+      ],
+      "referenceAreaPixels": 2316,
+      "referenceMaskSha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        316,
+        1033,
+        327,
+        1047
+      ],
+      "referenceAreaPixels": 121,
+      "referenceMaskSha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        283,
+        1040,
+        293,
+        1051
+      ],
+      "referenceAreaPixels": 93,
+      "referenceMaskSha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        248,
+        1047,
+        259,
+        1060
+      ],
+      "referenceAreaPixels": 109,
+      "referenceMaskSha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        210,
+        1054,
+        221,
+        1067
+      ],
+      "referenceAreaPixels": 113,
+      "referenceMaskSha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "85e8a2666fcb9b18f81c86e545e8cf887e4832da5395fbf1bf11da62d180ada4",
+      "imageSha256": "9f4021de4d0e73ab2e03c2d42731c2bde7ddb859bc2f653bb823f0c2e054e070",
+      "maskSha256": "b7d541b69a471b0a71d03781c62cd89003519e41072cc0a14922b081e6828172",
+      "notes": "Source-matched pair and masks reviewed; silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "fe70313841f1a7616f457ff938db95fa68a7cfe864232a3045fa500819b8a25f",
+      "imageSha256": "563548a47730a8fabe3453bee54021d243b7e04d1b44ee1256e4f4869e79d7cd",
+      "maskSha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e",
+      "notes": "Source-matched pair and masks reviewed; silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Source-matched pair and masks reviewed; silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "framing-upper-left",
+          "detail": [
+            0.049075626265182186,
+            0.3864785598705502
+          ],
+          "geometry": [
+            0.049075626265182186,
+            0.3864785598705502
+          ]
+        },
+        {
+          "name": "framing-upper-right",
+          "detail": [
+            0.9509243737348179,
+            0.3864785598705502
+          ],
+          "geometry": [
+            0.9509243737348179,
+            0.3864785598705502
+          ]
+        },
+        {
+          "name": "framing-lower-left",
+          "detail": [
+            0.049075626265182186,
+            0.6123046875
+          ],
+          "geometry": [
+            0.049075626265182186,
+            0.6130331588794499
+          ]
+        },
+        {
+          "name": "framing-lower-right",
+          "detail": [
+            0.9509243737348179,
+            0.6123046875
+          ],
+          "geometry": [
+            0.9509243737348179,
+            0.6130331588794499
+          ]
+        }
+      ],
+      "referenceSha256": "85e8a2666fcb9b18f81c86e545e8cf887e4832da5395fbf1bf11da62d180ada4",
+      "geometrySha256": "563548a47730a8fabe3453bee54021d243b7e04d1b44ee1256e4f4869e79d7cd",
+      "detailSha256": "9f4021de4d0e73ab2e03c2d42731c2bde7ddb859bc2f653bb823f0c2e054e070",
+      "geometryForegroundMaskSha256": "459800e266f6ee2be94e45fe16255c8c730f044894f417d59f0ec75fef4ee83e",
+      "foregroundMaskSha256": "b7d541b69a471b0a71d03781c62cd89003519e41072cc0a14922b081e6828172"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

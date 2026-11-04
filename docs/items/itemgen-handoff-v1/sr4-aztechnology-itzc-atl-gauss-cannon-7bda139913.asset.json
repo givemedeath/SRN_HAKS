@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-aztechnology-itzc-atl-gauss-cannon-7bda139913",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "belt-feed-loop-space",
+      "pixel": [
+        236.4610127368748,
+        734.1881536709122
+      ]
+    },
+    {
+      "name": "front-aperture-shroud-top",
+      "pixel": [
+        1147.0,
+        234.0
+      ]
+    },
+    {
+      "name": "mount-flange-bottom",
+      "pixel": [
+        806.5000000000001,
+        1145.0
+      ]
+    },
+    {
+      "name": "rear-feed-housing-edge",
+      "pixel": [
+        56.0,
+        586.5
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-aztechnology-itzc-atl-gauss-cannon-7bda139913.family.json",
+    "sha256": "943d3b6f33a06a709caba3bad1963cc9a62b822cfbbf24802dba14e8d745ae60"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/ed1597f6a56f8185fd64ae81a8c8cc68c0d54c397c272259fecb89009e2cf2b4.png",
+      "sha256": "ed1597f6a56f8185fd64ae81a8c8cc68c0d54c397c272259fecb89009e2cf2b4"
+    },
+    "clayReference": {
+      "path": "inputs/d756f186973ce57e7cdbedce65a9fa0ac876137b5a53d408ceee583e121cb2fd.png",
+      "sha256": "d756f186973ce57e7cdbedce65a9fa0ac876137b5a53d408ceee583e121cb2fd"
+    },
+    "geometry": {
+      "path": "inputs/ea7dd20bde41cf3cd6e7790fab9d07b8b21e1b287df380dd1ac52213d75ec1ae.png",
+      "sha256": "ea7dd20bde41cf3cd6e7790fab9d07b8b21e1b287df380dd1ac52213d75ec1ae"
+    },
+    "detail": {
+      "path": "inputs/441f57fe1a8bf9de2e565fdfe9a0830a58da0a3d6d9806cf5c3314cdfb8784ee.png",
+      "sha256": "441f57fe1a8bf9de2e565fdfe9a0830a58da0a3d6d9806cf5c3314cdfb8784ee"
+    },
+    "foregroundMask": {
+      "path": "inputs/18055d21d2ff04b0c4aecbd220314e5cb1340c9494c7b8ca4c3d25c8b560d14f.png",
+      "sha256": "18055d21d2ff04b0c4aecbd220314e5cb1340c9494c7b8ca4c3d25c8b560d14f"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e2f48a4d21aaaf9e5ddda85bf9b12114d742b367277b17884f9537e22a0d548a.png",
+      "sha256": "e2f48a4d21aaaf9e5ddda85bf9b12114d742b367277b17884f9537e22a0d548a"
+    },
+    "mask": {
+      "path": "inputs/e2f48a4d21aaaf9e5ddda85bf9b12114d742b367277b17884f9537e22a0d548a.png",
+      "sha256": "e2f48a4d21aaaf9e5ddda85bf9b12114d742b367277b17884f9537e22a0d548a"
+    },
+    "calibrationReference": {
+      "path": "inputs/31477b7c24a913e2daaf58f373bd42d2d81adbe5a4536b0b92f589045f9bec1f.png",
+      "sha256": "31477b7c24a913e2daaf58f373bd42d2d81adbe5a4536b0b92f589045f9bec1f"
+    },
+    "sourceAudit": {
+      "path": "inputs/ee4bb41b4f43fe3ed7dadf5c9264ef7cdef6731621d29f2bed47dd0b1a10016f.json",
+      "sha256": "ee4bb41b4f43fe3ed7dadf5c9264ef7cdef6731621d29f2bed47dd0b1a10016f"
+    },
+    "referenceApproval": {
+      "path": "inputs/efeb30b2b4f231e8843bc5b793b89d898c474bc8e238485af879a88b41bbc726.json",
+      "sha256": "efeb30b2b4f231e8843bc5b793b89d898c474bc8e238485af879a88b41bbc726"
+    },
+    "calibrationDetail": {
+      "path": "inputs/62eb4308bee03ccb0c261d1f6f4b810007cc275e32a40eabb4ffb70832c2819f.png",
+      "sha256": "62eb4308bee03ccb0c261d1f6f4b810007cc275e32a40eabb4ffb70832c2819f"
+    }
+  },
+  "features": [
+    {
+      "name": "Large gauss cannon used almost exclusively aboard ships; vehicle installation, not a metahuman handheld rifle",
+      "placementReviewed": true
+    },
+    {
+      "name": "Substantial ship power requirement and vehicle mount interface",
+      "placementReviewed": true
+    },
+    {
+      "name": "The adjustable fins described belong to its projectile, not mandatory fins on the cannon casing",
+      "placementReviewed": true
+    },
+    {
+      "name": "No own cannon shape, precise dimensions, barrel arrangement, color or exposed electronics specified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Source-supported ship-installed gauss main-gun assembly: substantial mount/flange, exterior power couplings and belt-feed entry/loop retained. No handheld conversion or projectile fins on casing. Unprescribed housing and colors interpreted; source Itzcóatl spelling and workbook rendering refer to same unchanged canonical ID. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        314,
+        995,
+        569,
+        1155
+      ],
+      "referenceAreaPixels": 21102,
+      "referenceMaskSha256": "e2f48a4d21aaaf9e5ddda85bf9b12114d742b367277b17884f9537e22a0d548a",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ed1597f6a56f8185fd64ae81a8c8cc68c0d54c397c272259fecb89009e2cf2b4",
+      "imageSha256": "441f57fe1a8bf9de2e565fdfe9a0830a58da0a3d6d9806cf5c3314cdfb8784ee",
+      "maskSha256": "18055d21d2ff04b0c4aecbd220314e5cb1340c9494c7b8ca4c3d25c8b560d14f",
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Source-supported ship-installed gauss main-gun assembly: substantial mount/flange, exterior power couplings and belt-feed entry/loop retained. No handheld conversion or projectile fins on casing. Unprescribed housing and colors interpreted; source Itzcóatl spelling and workbook rendering refer to same unchanged canonical ID. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d756f186973ce57e7cdbedce65a9fa0ac876137b5a53d408ceee583e121cb2fd",
+      "imageSha256": "ea7dd20bde41cf3cd6e7790fab9d07b8b21e1b287df380dd1ac52213d75ec1ae",
+      "maskSha256": "e2f48a4d21aaaf9e5ddda85bf9b12114d742b367277b17884f9537e22a0d548a",
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Source-supported ship-installed gauss main-gun assembly: substantial mount/flange, exterior power couplings and belt-feed entry/loop retained. No handheld conversion or projectile fins on casing. Unprescribed housing and colors interpreted; source Itzcóatl spelling and workbook rendering refer to same unchanged canonical ID. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "ed1597f6a56f8185fd64ae81a8c8cc68c0d54c397c272259fecb89009e2cf2b4",
+      "detailSha256": "441f57fe1a8bf9de2e565fdfe9a0830a58da0a3d6d9806cf5c3314cdfb8784ee",
+      "geometrySha256": "ea7dd20bde41cf3cd6e7790fab9d07b8b21e1b287df380dd1ac52213d75ec1ae",
+      "foregroundMaskSha256": "18055d21d2ff04b0c4aecbd220314e5cb1340c9494c7b8ca4c3d25c8b560d14f",
+      "geometryForegroundMaskSha256": "e2f48a4d21aaaf9e5ddda85bf9b12114d742b367277b17884f9537e22a0d548a",
+      "landmarks": [
+        {
+          "name": "belt-feed-loop-space",
+          "detail": [
+            0.20800230644990883,
+            0.5313187424747228
+          ],
+          "geometry": [
+            0.20996427774999216,
+            0.5323215575623897
+          ]
+        },
+        {
+          "name": "front-aperture-shroud-top",
+          "detail": [
+            0.8734574751420454,
+            0.16576988520060043
+          ],
+          "geometry": [
+            0.875284566507711,
+            0.16576988520060043
+          ]
+        },
+        {
+          "name": "mount-flange-bottom",
+          "detail": [
+            0.6246076311383929,
+            0.8315493654475983
+          ],
+          "geometry": [
+            0.624973049411526,
+            0.8330110108487991
+          ]
+        },
+        {
+          "name": "rear-feed-housing-edge",
+          "detail": [
+            0.07611480316558442,
+            0.42338488716225436
+          ],
+          "geometry": [
+            0.07538396661931818,
+            0.43105852551855894
+          ]
+        }
+      ],
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Source-supported ship-installed gauss main-gun assembly: substantial mount/flange, exterior power couplings and belt-feed entry/loop retained. No handheld conversion or projectile fins on casing. Unprescribed housing and colors interpreted; source Itzcóatl spelling and workbook rendering refer to same unchanged canonical ID. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}
