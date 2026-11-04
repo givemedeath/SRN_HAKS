@@ -239,8 +239,8 @@ class TrialModuleTests(unittest.TestCase):
         enter,chat=scripts['sr_h_enter'],scripts['sr_h_chat']
         self.assertIn('const int HEAD_ROWS=2;',enter);self.assertIn(f'const float SWEEP={SWEEP_SECONDS:.1f};',enter)
         # A show or a look spawns one actor, and a newer command replaces a pending spawn.
-        self.assertIn('DelayCommand(0.5,HeadSpawnActor(row,col));',enter)
-        self.assertIn('"HEAD_COLUMN")==col) HeadSpawn(HeadActor(row,col),row);',enter)
+        self.assertIn('DelayCommand(0.5,HeadSpawnActor(row,col,request));',enter)
+        self.assertIn('"HEAD_REQUEST")==request) HeadSpawn(HeadActor(row,col),row);',enter)
         self.assertEqual(enter.count('HeadSpawn('),2)  # its definition and the one call
         self.assertIn('HeadPut(((row%HEAD_ROWS)+HEAD_ROWS)%HEAD_ROWS,0);',enter)
         self.assertIn('if(HeadActor(row,n-1)!="") HeadPut(row,n-1);',chat)

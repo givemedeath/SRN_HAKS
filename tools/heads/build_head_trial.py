@@ -324,7 +324,8 @@ void HeadAnimate(int row){
     o=GetNextObjectInArea(area);}}
 '''
 ROW_SHOW='''void HeadPut(int row,int col){
-  HeadClear();SetLocalInt(GetModule(),"HEAD_ROW_SHOWN",row);SetLocalInt(GetModule(),"HEAD_COLUMN",col);DelayCommand(0.5,HeadSpawnActor(row,col));
+  int request=GetLocalInt(GetModule(),"HEAD_REQUEST")+1;SetLocalInt(GetModule(),"HEAD_REQUEST",request);
+  HeadClear();SetLocalInt(GetModule(),"HEAD_ROW_SHOWN",row);SetLocalInt(GetModule(),"HEAD_COLUMN",col);DelayCommand(0.5,HeadSpawnActor(row,col,request));
   WriteTimestampedLogEntry("HEAD_FIXTURE_ROW shown="+IntToString(row)+" head="+HeadName(row)+" look="+IntToString(col+1));
   object p=GetFirstPC();
   while(GetIsObjectValid(p)){
@@ -374,8 +375,8 @@ def row_scripts(spec,actors,sweep=SWEEP_SECONDS):
     cycles and look N swaps in that head's Nth actor. Actors spawn from per-actor blueprints (resref = tag)."""
     rows=len(spec['heads']);require(rows>=1 and 1<=sweep<=60,'Row sweep needs heads and 1-60 s per head')
     for index,head in enumerate(spec['heads']):require(any(a['row']==index for a in actors),head['id']+': no actors in its row')
-    # A newer show or look replaces this delayed spawn, so two quick commands still leave one NPC.
-    spawn=['void HeadSpawnActor(int row,int col){','  if(GetLocalInt(GetModule(),"HEAD_ROW_SHOWN")==row && GetLocalInt(GetModule(),"HEAD_COLUMN")==col) HeadSpawn(HeadActor(row,col),row);}']
+    # Only the newest show or look spawns, so quick commands (even the same look twice) still leave one NPC.
+    spawn=['void HeadSpawnActor(int row,int col,int request){','  if(GetLocalInt(GetModule(),"HEAD_REQUEST")==request) HeadSpawn(HeadActor(row,col),row);}']
     names=['string HeadName(int row){']+[f'  if(row=={i}) return "{_nss(h["id"])} ({_nss(h["model"])})";' for i,h in enumerate(spec['heads'])]+['  return "";}']
     inspect=spec.get('inspect',{});heights=inspect.get('height',{})
     columns=['string HeadActor(int row,int col){']+[f'  if(row=={i} && col=={c}) return "{_nss(actor["tag"])}";'
