@@ -127,6 +127,12 @@
       "tools/headkit/preview.py",
       "tools/headkit/uv.py"
     ],
+    "tools/headbatch/review/ownsheet.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/preview.py"
+    ],
     "tools/headbatch/review/rowramps.py": [
       "tools/headbatch/head_files.py"
     ],

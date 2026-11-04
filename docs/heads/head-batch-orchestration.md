@@ -53,7 +53,7 @@ run_headbatch.py env SCRIPT ARG...                       a probe with headkit an
 | Geometry | `clay` (uncut/final pair; `--two-sided` tells inverted precluster normals from a real shell), `chinprofile`, `backcount`, `hot`, `boundary`, `jaw` |
 | Neck cut, before a repair | `slopescan` (seconds), `cutdry`, `cutreplay`, `skirtzone`, `fitcheck` |
 | Shells | `shells`, `cutshells` |
-| Texture and rows | `bakeviews` (textured views and iso-line grid), `grid`, `own_draft` (draft ownership rules, no launch), `rowramps` |
+| Texture and rows | `bakeviews` (textured views and iso-line grid), `grid`, `own_draft` (draft ownership rules, no launch), `ownsheet` (a finished attempt's saved atlas), `rowramps` |
 | Face marks | `design_landmarks OUT_DIR HEAD...` writes the `landmarks.json` the jaw guard reads |
 
 Quality-gate prototypes that headkit adopted are not here; nor are one-off audits from past batches.
@@ -98,7 +98,7 @@ Each finished stage gets its evidence before it reaches the review list:
 | Neck cut left several shells | Queues `cutshells` from the uncut master |
 | Unwrap failed on coverage | Attention, with the floor `presets --uv-only` proposes |
 | Bake ran | Queues `bakeviews` |
-| Ownership ran | Queues the manifest's rules through `own_draft` |
+| Ownership ran | Queues `ownsheet`: the saved atlas on the mesh it consumed |
 | Palette ran | Draws `rowramps`, then checks the pins |
 
 Queued sheets wait for a CPU slot in their own process, so a review line can arrive before its sheet. Each writes a log in `spool/sheets`, and one that exits nonzero goes to attention. A reused stage keeps the sheet it has, except `bakeviews`, which always redraws. The spooler changes `overrides.json` only through `presets`, and never lowers a UV floor: that records a review, so a person runs `presets HEAD --uv-only --apply`. Any other neck cut is a reviewer's edit.

@@ -9,8 +9,8 @@
 Numeric gates: unwrap to bake, palette to export when rows equal the reviewed pins, export to native, native to render.
 A launch whose own record never arrives goes to attention, never silently past (RUNBOOK 117).
 
-Each finished stage gets its review evidence: repair the clay pair and skirt zone, bake the textured views and grid, ownership the
-rule sheet, palette the row ramps, and a refused shell selection the shell sheet. A queued repair gets the repair presets first."""
+Each finished stage gets its review evidence: repair the clay pair and skirt zone, bake the textured views and grid, ownership its
+saved atlas, palette the row ramps, and a refused shell selection the shell sheet. A queued repair gets the repair presets first."""
 from datetime import datetime
 import json
 from pathlib import Path
@@ -166,11 +166,9 @@ class Spool:
             self.later('bakeviews', head, attempt)  # named, because the head can move on while the sheet waits for a slot
             self.review(head, stage, f'{attempt}: bakeviews queued: {head}/review-evidence/bake-tex.png, bake-grid.png')
         elif stage == 'ownership':
-            rules = self.sheets/f'{head}-ownership-{attempt}.json'
-            sheet = rules.with_suffix('.png')
-            rules.write_text(json.dumps(manifest['ownership'], indent=1), encoding='utf-8')
-            self.draw(sheet, 'own_draft', head, rules, sheet)
-            self.review(head, stage, f'{attempt}: rules sheet queued: {sheet}')
+            sheet = self.sheets/f'{head}-ownership-{attempt}.png'
+            self.draw(sheet, 'ownsheet', head, attempt, sheet)  # the saved atlas: a rules preview would miss the face-mask channels
+            self.review(head, stage, f'{attempt}: ownership sheet queued: {sheet}')
         elif stage == 'unwrap':
             passed, text = guards.unwrap_gates(result)
             if passed:

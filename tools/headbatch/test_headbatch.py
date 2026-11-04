@@ -786,8 +786,7 @@ class SpoolTests(Base):
         self.assertEqual(self.queued, [('bakeviews', 'elf-male-a', 'attempt-01')])
         self.receipt(head, 'ownership', 1, {'result': {}})
         self.finish(stage='ownership')
-        self.assertEqual(self.queued[-1][:2], ('own_draft', 'elf-male-a'))
-        self.assertEqual(json.loads(self.queued[-1][2].read_text())['mode'], 'rules')
+        self.assertEqual(self.queued[-1][:3], ('ownsheet', 'elf-male-a', 'attempt-01'))
 
     def test_palette_draws_the_row_ramps(self):
         head = self.head()
