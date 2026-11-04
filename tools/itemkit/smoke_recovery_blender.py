@@ -53,6 +53,26 @@ def main():
     after=before.copy();after[...,:3]=values
     require(successful_pixel_hash(after,misses)==before_hash,'Successful retained texels changed')
     verify(recovery_cfg['inputs'])
+    # Each recovered triangle must sample its own material, including a second
+    # image, while the untouched retained pixels remain byte-exact.
+    bpy.ops.wm.open_mainfile(filepath=str(source));donor=bpy.data.objects['donor'];low=worker.joined_target(cfg)
+    second=bpy.data.images.new('second-colour',width=8,height=8);second.generated_color=(.7,.1,.2,1)
+    second.filepath_raw=str(out/'second.png');second.file_format='PNG';second.save()
+    mat=worker.flat_material('second-material',(.7,.1,.2));tex=mat.node_tree.nodes.new('ShaderNodeTexImage')
+    tex.image=bpy.data.images.load(str(out/'second.png'));mat.node_tree.links.new(tex.outputs['Color'],mat.node_tree.nodes.get('Principled BSDF').inputs['Base Color'])
+    donor.data.materials.append(mat)
+    for poly in donor.data.polygons:poly.material_index=poly.index%2
+    donor.data.calc_loop_triangles()
+    material_ids=np.array([t.material_index for t in donor.data.loop_triangles])
+    pixels=np.full((64,64,4),.25,np.float32);misses=np.zeros_like(owners,bool);samples=[]
+    for index in (0,1):
+        candidates=np.argwhere((owners>=0)&np.isin(owners,np.flatnonzero(material_ids==index)))
+        yy,xx=candidates[len(candidates)//2];samples.append((yy,xx));pixels[yy,xx]=[1,0,1,1];misses[yy,xx]=True
+    before_hash=successful_pixel_hash(pixels,misses);multi=out/'multi-material';multi.mkdir()
+    worker.correct_projection_misses(cfg,multi,donor,low,pixels,owners,misses)
+    for (yy,xx),colour in zip(samples,([.2,.4,.6],[.7,.1,.2])):
+        require(np.max(np.abs(pixels[yy,xx,:3]-linear_rgb(np.array(colour))))<.01,'Recovery mixed donor materials')
+    require(successful_pixel_hash(pixels,misses)==before_hash,'Multi-material recovery changed successful pixels')
     # Distance/facing failure must be found without a bake or overwrite.
     bpy.ops.wm.open_mainfile(filepath=str(source));donor=bpy.data.objects['donor'];donor.location.x=1
     low=worker.joined_target(cfg);failed=out/'failed-preflight';failed.mkdir()
@@ -67,6 +87,7 @@ def main():
     else:raise AssertionError('Stale UV lineage accepted')
     write(out/'result.json',{'passed':True,'realBakeSize':64,'reusedBake':True,'correctedTexels':1,
           'successfulPixelsUnchanged':True,'linearColourVerified':True,'displacedDonorBlockedBeforeBake':True,'staleUvLineageRejected':True,
+          'multiMaterialColourVerified':True,'multiMaterialSuccessfulPixelsUnchanged':True,
           'threads':4,'gpuUsed':False},fresh=True)
 
 

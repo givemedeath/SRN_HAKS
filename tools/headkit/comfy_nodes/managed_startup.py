@@ -33,11 +33,11 @@ def _bootstrap_snapshot():
 
 
 if __package__:
-    from .source_snapshot import capture_inventory,load_inventory,same_inventory,_sha256,require
+    from .source_snapshot import capture_inventory,load_inventory,same_inventory,_sha256,_inventory_files,require
 else:
     snapshot=_bootstrap_snapshot()
-    capture_inventory,load_inventory,same_inventory,_sha256,require=(
-        getattr(snapshot,name) for name in ('capture_inventory','load_inventory','same_inventory','_sha256','require'))
+    capture_inventory,load_inventory,same_inventory,_sha256,_inventory_files,require=(
+        getattr(snapshot,name) for name in ('capture_inventory','load_inventory','same_inventory','_sha256','_inventory_files','require'))
 
 SESSION_MODULE='_srn_headkit_session'
 _STARTED=[]
@@ -53,19 +53,30 @@ def digest(value):
 
 
 def runtime_inventory(roots):
-    def fail_walk(error):raise error
     paths=set();resolved=[Path(root).resolve(strict=True) for root in roots]
     require(resolved and len(set(resolved))==len(resolved),'Unique runtime roots required')
+    def visit(directory):
+        # scandir carries Windows reparse attributes. Resolving every ancestor
+        # for every leaf made this otherwise streaming census take minutes.
+        # Canonical roots plus rejected reparse entries keep descendants canonical.
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                if entry.name in ('__pycache__','.git') and entry.is_dir(follow_symlinks=False):continue
+                path=directory/entry.name
+                # A venv does not import the base installation's site-packages.
+                # Active site roots must be explicit, matching runtime_identity.
+                if entry.name in ('site-packages','dist-packages') and entry.is_dir(follow_symlinks=False) and path not in resolved:continue
+                require(not entry.is_symlink() and not
+                        (getattr(entry.stat(follow_symlinks=False),'st_file_attributes',0)&0x400),
+                        'Linked runtime files are unsupported')
+                if entry.is_dir(follow_symlinks=False):visit(path)
+                else:
+                    require(entry.is_file(follow_symlinks=False),'Regular runtime files required')
+                    paths.add(path)
     for root in resolved:
         require(root.is_dir(),'Runtime root must be a directory')
-        for current,dirs,files in os.walk(root,followlinks=False,onerror=fail_walk):
-            current=Path(current);dirs[:]=[name for name in dirs if name not in ('__pycache__','.git')]
-            for name in dirs+files:
-                path=current/name
-                require(not path.is_symlink() and not getattr(os.path,'isjunction',lambda value:False)(path)
-                        and path.resolve(strict=True)==path.absolute(),'Linked runtime files are unsupported')
-            paths.update((current/name).resolve(strict=True) for name in files)
-    return [pin(path) for path in sorted(paths,key=lambda value:str(value).casefold())]
+        if not any(root!=other and root.is_relative_to(other) for other in resolved):visit(root)
+    return _inventory_files(sorted(paths,key=lambda value:str(value).casefold()))
 
 
 def launch_arguments(config):
@@ -93,6 +104,15 @@ def launch_arguments(config):
     require(isinstance(env,dict) and all(isinstance(key,str) and isinstance(value,str) for key,value in env.items())
             and not any(key.upper().startswith('PYTHON') for key in env),
             'Explicit clean startup environment required; Python path injection is unsupported')
+    prefixes=launch.get('importPathPrefixes',[])
+    require(isinstance(prefixes,list) and all(isinstance(p,str) for p in prefixes)
+            and len(prefixes)==len(set(prefixes)), 'Unique declared import PATH prefixes required')
+    if prefixes:
+        require('PATH' in env,'Import PATH prefixes require a declared PATH')
+        parents={str(Path(p['path']).parent) for p in config['runtime']['files']}
+        require(all(Path(p).is_absolute() and str(Path(p).resolve(strict=True))==p
+                    and p in parents for p in prefixes),
+                'Import PATH prefixes must be exact inventoried runtime directories')
     return [str(Path(config['inventory']['core'])/'main.py'),'--listen','127.0.0.1','--port',str(url.port),*args]
 
 
@@ -128,8 +148,11 @@ def session_context(expected_core):
             'Startup configuration changed; restart and prepare again')
     require(Path(config['inventory']['core']).resolve()==Path(expected_core).resolve(),'Wrong controlled Comfy root')
     require(sys.argv==launch_arguments(config),'Startup arguments changed')
-    require(all(os.environ.get(key)==value for key,value in config['launch']['environment'].items()),
-            'Declared startup environment changed; restart and prepare again')
+    expected=dict(config['launch']['environment'])
+    prefixes=config['launch'].get('importPathPrefixes',[])
+    if prefixes:expected['PATH']=os.pathsep.join([*prefixes,expected['PATH']])
+    changed=[key for key,value in expected.items() if os.environ.get(key)!=value]
+    require(not changed,'Declared startup environment changed ('+', '.join(changed)+'); restart and prepare again')
     require(pin(sys.executable)==config['runtime']['python'],'Executing Python differs from controlled startup')
     return dict(session),config
 

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import shutil
 import uuid
-from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,digest,stage_code_pins,stage_source_version
+from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,digest,stage_code_pins,stage_source_version,verification_pass
 from . import comfy
 
 
@@ -17,6 +17,11 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime=None, 
 
 def startup_config(local,output):
     """Prepare an offline deployment manifest; never start or contact ComfyUI."""
+    with verification_pass('startup-config'):
+        return _startup_config(local,output)
+
+
+def _startup_config(local,output):
     from .source_inventory import freeze_sources
     from .comfy_nodes.managed_startup import runtime_inventory,launch_arguments
     inventory=freeze_sources(local);python=local['comfyPython'];verify([python])
@@ -291,7 +296,7 @@ def main():
     elif a.command=='startup-config':result=startup_config(bindings(a.bindings),a.output)
     elif a.command=='request':
         local=bindings(a.bindings)
-        server_runtime=comfy.Client(local['comfyUrl']).request('/headkit/runtime-identity')
+        server_runtime=comfy.preparation_runtime(comfy.Client(local['comfyUrl']),local)
         result=request_stage(a.manifest,a.bindings,a.stage,a.output,runtime=runtime,comfy_runtime=server_runtime)
     elif a.command=='ledger-init':comfy.initialize_ledger(a.ledger,a.prior_count,a.evidence);result={'ledger':str(a.ledger)}
     elif a.command=='replay':

@@ -1,6 +1,6 @@
 """Measured native grip calibration and UV-preserving corner transforms."""
 import numpy as np
-from tools.headkit.common import require
+from tools.headkit.common import require,digest
 
 
 def section_dimensions(vertices, faces, y):
@@ -44,3 +44,37 @@ def affine_corners(positions,normals,uv,matrix):
     transformed=p@m[:3,:3].T+m[:3,3]
     normals=n@np.linalg.inv(m[:3,:3]);normals/=np.linalg.norm(normals,axis=-1)[...,None]
     return transformed,normals,np.asarray(uv).copy()
+
+
+def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard):
+    """Measure a length departure while retaining the two-hand reference proportions.
+
+    The approved Cougar depth remains the sizing authority. Neither the original
+    one-hand length nor its transverse correction is applied to a two-hand hilt.
+    The resulting departure still needs the downstream both-body visual review.
+    """
+    require(standard.get('id')=='cougar-approved-grip-v1'
+            and standard.get('approval',{}).get('gripSizingApproved') is True,'Approved melee grip reference required')
+    m=np.asarray(matrix,float);ends=np.asarray(endpoints,float);origin=np.asarray(origin,float)
+    require(m.shape==(4,4) and np.isfinite(m).all() and np.allclose(m[3],[0,0,0,1]),'Finite grip transform required')
+    gram=m[:3,:3].T@m[:3,:3]
+    require(np.linalg.det(m[:3,:3])>0 and np.allclose(gram,np.eye(3)*gram[0,0],atol=1e-12,rtol=1e-7),
+            'Two-hand fitting must preserve proportions uniformly')
+    require(ends.shape==(2,3) and origin.shape==(3,) and np.isfinite(ends).all() and np.isfinite(origin).all(),'Measured usable landmarks required')
+    final=np.asarray(vertices)@m[:3,:3].T+m[:3,3];e=ends@m[:3,:3].T+m[:3,3];length=np.linalg.norm(e[1]-e[0])
+    require(length>0 and np.linalg.norm(e.mean(0)-origin)<.002
+            and np.allclose((e[1]-e[0])/length,[0,1,0],atol=1e-6),'Two-hand grip must follow native+Y at its measured origin')
+    sections=[]
+    for row in standard['referenceSections']:
+        fraction=row['fractionFromPommel'];depth,width=section_dimensions(final,faces,origin[1]+(fraction-.5)*length)
+        sections.append({'fractionFromPommel':fraction,'depth':float(depth),'visibleFaceWidth':float(width)})
+    mid=next(r for r in sections if r['fractionFromPommel']==.5);target=standard['targetMidpointSection']
+    require(abs(mid['depth']/target['depth']-1)<.01,'Two-hand grip must match approved midpoint thickness')
+    report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':m.tolist(),
+            'sizingAuthority':'midpoint-depth-two-hand','usableLength':float(length),'nativeGripOrigin':origin.tolist(),
+            'measuredFittedSections':sections,'midpointRelativeDifferences':{
+                'depth':mid['depth']/target['depth']-1,'visibleFaceWidth':mid['visibleFaceWidth']/target['visibleFaceWidth']-1,
+                'usableLength':float(length)/standard['usableLength']-1},
+            'proportionsAndAnglesPreserved':True,'bothBodyVisualReviewRequired':True}
+    report['measurementDigest']=digest(report)
+    return m,report

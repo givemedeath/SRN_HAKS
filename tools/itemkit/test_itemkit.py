@@ -48,6 +48,30 @@ class Fixture(unittest.TestCase):
         self.save_profile(); return contracts.native_contract(self.profile_path, self.profile)
 
 
+class AppearanceDependencyScopeTests(unittest.TestCase):
+    def test_changed_review_or_repaired_mesh_rejects_in_a_fresh_pass(self):
+        from tools.headkit.common import verification_pass
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            profile = root/'family.json'; write(profile, {'nativePackaging':'blocked'})
+            data = {'familyProfile':{'path':profile.name,'sha256':pin(profile)['sha256']}, 'inputs':{}}
+            for role in ('geometryReview','workingMesh'):
+                target = root/role; target.write_bytes(b'approved bytes')
+                data['inputs'][role] = {'path':target.name,'sha256':pin(target)['sha256']}
+            manifest = root/'manifest.json'; write(manifest,data)
+            roles = contracts.stage_roles('appearance')
+            with patch.object(contracts,'manifest',return_value=data):
+                with verification_pass('appearance-dependencies'):
+                    rows = contracts.all_pins(manifest,roles=roles,native=False)
+                    self.assertTrue({pin(root/r)['sha256'] for r in data['inputs']} <= {r['sha256'] for r in rows})
+                for role in data['inputs']:
+                    target=root/role; stamp=target.stat(); target.write_bytes(b'modified bytes')
+                    os.utime(target,ns=(stamp.st_atime_ns,stamp.st_mtime_ns))
+                    with verification_pass('fresh-'+role), self.assertRaises(ValueError):
+                        contracts.all_pins(manifest,roles=roles,native=False)
+                    target.write_bytes(b'approved bytes')
+
+
 class ContractTests(Fixture):
     def test_consumed_pins_preserve_scope_without_repinning_dependencies(self):
         dependency=self.root/'dependency';dependency.write_bytes(b'bound bytes');expected=pin(dependency)
@@ -181,6 +205,16 @@ class ContractTests(Fixture):
         self.assertEqual(len(contracts.family(self.profile_path)['allowedAssemblies']), 1)
         self.profile['allowedAssemblies'] *= 2; self.save_profile()
         with self.assertRaisesRegex(ValueError, 'Duplicate'): contracts.family(self.profile_path)
+    def test_crossbow_manifest_requires_hidden_inactive_parts(self):
+        self.native()
+        self.profile['family'] = 'crossbow'
+        self.profile['allowedAssemblies'] = [{'b':'hidden-placeholder', 'm':'hidden-placeholder', 't':self.data['id']}]
+        # Isolate manifest assembly validation from donor/motion qualification.
+        with patch.object(contracts, 'family', return_value=self.profile):
+            self.assertEqual(contracts.manifest(self.path)['id'], self.data['id'])
+            self.profile['allowedAssemblies'][0]['m'] = self.data['id']
+            with self.assertRaisesRegex(ValueError, 'matching assembly'):
+                contracts.manifest(self.path)
     def test_part_limits_cannot_exceed_whole_budget(self):
         self.profile['budgets']['parts']['b']['visible'] += 1; self.save_profile()
         with self.assertRaisesRegex(ValueError, 'assembly budget'): contracts.family(self.profile_path)
@@ -249,6 +283,22 @@ class GeometryTests(unittest.TestCase):
     def test_hidden_caps_require_all_corners_on_the_measured_join_plane(self):
         vertices=np.array([[0,0,0],[1,0,0],[0,0,1],[0,.01,1]])
         np.testing.assert_array_equal(hidden_cap_faces(vertices,np.array([[0,1,2],[0,1,3]]),[0,2]),[True,False])
+    def test_bounded_cap_planes_support_other_axes_without_face_ids(self):
+        first=np.array([[1+2e-6,0,0],[1-1e-6,1,0],[1,0,1]])
+        vertices=np.vstack([first,first+[0,10,0],first+[.01,0,0]])
+        faces=np.arange(9).reshape(-1,3)
+        plane={'name':'measured support closure','normal':[1,0,0],'offset':1.,'tolerance':3e-6,
+               'bounds':[[.9999,-.01,-.01],[1.0001,1.01,1.01]]}
+        np.testing.assert_array_equal(hidden_cap_faces(vertices,faces,[],planes=[plane]),[True,False,False])
+        angle=.41;rotation=np.array([[np.cos(angle),0,np.sin(angle)],[0,1,0],[-np.sin(angle),0,np.cos(angle)]])
+        rotated=vertices@rotation.T;local=rotated[:3]
+        oblique={**plane,'normal':(rotation@plane['normal']).tolist(),
+                 'bounds':[(local.min(0)-1e-4).tolist(),(local.max(0)+1e-4).tolist()]}
+        np.testing.assert_array_equal(hidden_cap_faces(rotated,faces,[],planes=[oblique]),[True,False,False])
+        for bad in ({**plane,'normal':[2,0,0]},{**plane,'offset':float('nan')},
+                    {**plane,'tolerance':.01},{**plane,'bounds':[[0,0,0],[0,0,0]]}):
+            with self.subTest(plane=bad),self.assertRaisesRegex(ValueError,'Finite unit cap plane'):
+                hidden_cap_faces(vertices,faces,[],planes=[bad])
     def test_cap_fan_preserves_collinear_rim_and_area(self):
         from .geometry import cap_fan_center
         rim=np.array([[0,0,0],[1,0,0],[2,0,0],[2,0,1],[0,0,1]],float)

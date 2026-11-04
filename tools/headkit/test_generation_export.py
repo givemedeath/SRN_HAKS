@@ -1,9 +1,31 @@
 import copy
 import unittest
-from .generation import apply_export_settings
+from .generation import apply_export_settings,appearance_donor_graph
 
 
 class ExportSettingsTests(unittest.TestCase):
+    def test_combined_appearance_retains_outputs_and_exact_donor_recipe(self):
+        from . import comfy
+        from .common import pin
+        g=comfy.compile_graph('appearance','pixal-single-v1',{'detail':'detail.png'},
+                              'itemkit/test',fov=54,shape=pin(__file__))
+        original=copy.deepcopy(g)
+        settings={'remeshResolution':768,'targetFaceCount':200000,'signMode':'udf'}
+        combined=appearance_donor_graph(g,settings,'itemkit/test')
+        self.assertEqual(g,original)
+        self.assertEqual({k:combined[k] for k in g},original)
+        export=comfy.compile_graph('export','pixal-single-v1',{},'itemkit/test',source=pin(__file__))
+        apply_export_settings(export,settings);export['241']['inputs']['mesh']=['92',0]
+        self.assertEqual({k:combined[k] for k in ('241','186','187','188','922')},
+                         {k:export[k] for k in ('241','186','187','188','922')})
+        for node in combined.values():
+            for value in node['inputs'].values():
+                if isinstance(value,list) and len(value)==2 and isinstance(value[0],str):
+                    self.assertIn(value[0],combined)
+        for bad in (settings | {'targetFaceCount':20000},settings | {'signMode':'solid'}):
+            with self.assertRaisesRegex(ValueError,'qualified'):appearance_donor_graph(g,bad,'itemkit/test')
+        with self.assertRaisesRegex(ValueError,'saved-shape'):appearance_donor_graph({},settings,'itemkit/test')
+
     def graph(self):
         return {'r': {'class_type':'RemeshMesh', 'inputs':{'resolution':512,
                 'sign_mode':'udf','sign_mode.qef':False,'sign_mode.drop_inverted_components':False,
@@ -37,11 +59,24 @@ class ExportSettingsTests(unittest.TestCase):
         self.assertEqual({k:v for k,v in remesh.items() if k.startswith('sign_mode.')},
                          {'sign_mode.qef':False,'sign_mode.manifold':True})
 
+    def test_solid_working_export_removes_incompatible_combo_fields(self):
+        graph=self.graph()
+        apply_export_settings(graph,{'remeshResolution':768,'targetFaceCount':200000,
+                                     'signMode':'solid','fill':40.0})
+        remesh=graph['r']['inputs']
+        self.assertEqual(remesh['sign_mode'],'solid')
+        self.assertEqual({k:v for k,v in remesh.items() if k.startswith('sign_mode.')},
+                         {'sign_mode.qef':False,'sign_mode.fill':40.0})
+        self.assertEqual(remesh['project_back'],0.0)
+
     def test_invalid_settings_cannot_partly_mutate_graph(self):
         base={'remeshResolution':768,'targetFaceCount':200000}
         for extra in ({'manifold':True},{'signMode':'udf','manifold':True},
                       {'signMode':'sdf','manifold':1},{'signMode':'invalid'},
-                      {'targetFaceCount':200001},{'remeshResolution':True},{'sampler':'x'}):
+                      {'targetFaceCount':200001},{'remeshResolution':True},{'sampler':'x'},
+                      {'signMode':'solid','manifold':True},{'signMode':'udf','fill':20},
+                      {'signMode':'solid','fill':True},{'signMode':'solid','fill':-1},
+                      {'signMode':'solid','fill':float('nan')},{'signMode':'solid','fill':float('inf')}):
             graph=self.graph(); before=copy.deepcopy(graph)
             with self.assertRaises(ValueError): apply_export_settings(graph,base | extra)
             self.assertEqual(graph,before)

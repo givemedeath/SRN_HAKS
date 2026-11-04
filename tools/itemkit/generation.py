@@ -9,7 +9,8 @@ from .conditioning import require_conditioning_review
 
 def calibration_background_decision(manifest_path,data=None):
     data=manifest(manifest_path) if data is None else data
-    return analyze_reference(asset(manifest_path,data['inputs'].get('geometry',data['inputs']['reference']))['path'])
+    source = data['inputs'].get('calibrationReference', data['inputs'].get('geometry', data['inputs']['reference']))
+    return analyze_reference(asset(manifest_path,source)['path'])
 
 
 def generation_manifest(path, *, roles=None):
@@ -20,10 +21,35 @@ def generation_manifest(path, *, roles=None):
     data['inputs'].setdefault('geometry', reference)
     data['inputs'].setdefault('detail', reference)
     data['inputs'].setdefault('mask', reference)
+    if roles is not None and 'calibrationReference' in roles and 'calibrationReference' in data['inputs']:
+        require('calibrationDetail' in data['inputs'], 'Bind both unassociated calibration images')
+        # Calibration composites its mask once. Generation keeps the separately
+        # approved black-background inputs and their existing pair review.
+        data['inputs']['geometry'] = data['inputs']['calibrationReference']
+        data['inputs']['detail'] = data['inputs']['calibrationDetail']
+        # LoadImage's MASK socket reads inverse alpha, not grayscale RGB.
+        # Keep the reviewed grayscale mask for conditioning checks; calibration
+        # needs the matching RGBA source in its dedicated mask loader.
+        data['inputs']['mask'] = data['inputs']['calibrationReference']
     return data
 
 
-def request_stage(manifest_path, bindings_path, stage, output, *, runtime, comfy_runtime):
+def export_settings(profile, stage, working_shell=False):
+    require(type(working_shell) is bool, 'Explicit working-shell flag required')
+    require(not working_shell or stage == 'export', 'Working-shell option is export-only')
+    if stage != 'export':
+        return None
+    # The independent engineering shell must not replace the qualified UDF
+    # colour-donor contract or require a duplicate family/asset manifest.
+    return ({'remeshResolution':768, 'targetFaceCount':200000, 'signMode':'solid', 'fill':40.0}
+            if working_shell else dict(profile['sourceExport']))
+
+
+def request_stage(manifest_path, bindings_path, stage, output, *, runtime, comfy_runtime, working_shell=False, appearance_donor=False):
+    require(type(working_shell) is bool and (not working_shell or stage == 'export'),
+            'Working-shell option is export-only')
+    require(type(appearance_donor) is bool and (not appearance_donor or stage=='appearance'),
+            'Combined donor option is appearance-only')
     roles=stage_roles(stage) if stage!='export' else {'exportSource'}
     data = manifest(manifest_path,input_roles=roles,validate_native=False)
     local = bindings(bindings_path)
@@ -37,7 +63,8 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime, comfy
     return prepare_request(manifest_path, bindings_path, stage, output, runtime=runtime,
                            comfy_runtime=comfy_runtime, manifest_reader=lambda p:generation_manifest(p,roles=roles),
                            extra_pins=all_pins(manifest_path,roles=roles,native=False)+code_pins(), namespace='itemkit',
-                           version=source_version(), export_settings=profile['sourceExport'] if stage == 'export' else None,
+                           version=source_version(), export_settings=export_settings(profile,stage,working_shell),
+                           appearance_export_settings=dict(profile['sourceExport']) if appearance_donor else None,
                            generation_subject={'id': data['id'], 'referenceSha256': asset(manifest_path, data['inputs']['reference'])['sha256']},
                            geometry_seed_offset=data.get('geometrySeedOffset', 0),
                            model_verification='server-owned-v1',

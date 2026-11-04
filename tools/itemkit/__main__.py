@@ -186,6 +186,10 @@ def main():
     c = commands.add_parser('request')
     for key in ('manifest', 'bindings', 'output'): c.add_argument('--'+key, type=Path, required=True)
     c.add_argument('--stage', choices=['calibrate', 'geometry', 'appearance', 'export'], required=True)
+    c.add_argument('--working-shell', action='store_true',
+                   help='Export a separate solid engineering shell; preserve the family UDF colour-donor settings')
+    c.add_argument('--appearance-donor', action='store_true',
+                   help='Retain raw appearance outputs and export its 200K/768 UDF donor in the same job')
     for name in ('submit', 'collect', 'reconcile', 'release'):
         c = commands.add_parser(name); c.add_argument('--bindings', type=Path, required=True); c.add_argument('--ledger', type=Path)
         if name in ('submit', 'collect'): c.add_argument('--output', type=Path, required=True)
@@ -193,6 +197,8 @@ def main():
         if name in ('collect', 'reconcile'): c.add_argument('--token', required=True)
         if name == 'collect': c.add_argument('--wait', action='store_true')
     a = p.parse_args()
+    if a.command == 'request':
+        require(not a.working_shell or a.stage == 'export', 'Working-shell option is export-only')
     with verification_pass('item-cli-startup'):
         runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'status', 'preflight') else launched(a.bindings)
         if runtime is not None: python_package_pins(bindings(a.bindings), require_imports=True)
@@ -250,8 +256,9 @@ def main():
                 runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, evidence=getattr(a, 'evidence', None))
                 result = runner.review(a.stage, a.decision, a.notes) if a.command == 'review' else runner.execute('prepare' if a.command == 'prepare' else a.stage)
     elif a.command == 'request':
-        local = bindings(a.bindings); identity = comfy.Client(local['comfyUrl']).request('/headkit/runtime-identity')
-        result = request_stage(a.manifest, a.bindings, a.stage, a.output, runtime=runtime, comfy_runtime=identity)
+        local = bindings(a.bindings); identity = comfy.preparation_runtime(comfy.Client(local['comfyUrl']),local)
+        result = request_stage(a.manifest, a.bindings, a.stage, a.output, runtime=runtime, comfy_runtime=identity,
+                               working_shell=a.working_shell,appearance_donor=a.appearance_donor)
     else:
         local = bindings(a.bindings); ledger = shared_ledger(local, a.ledger); client = comfy.Client(local['comfyUrl'])
         if a.command == 'submit':
