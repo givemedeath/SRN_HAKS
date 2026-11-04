@@ -19,8 +19,6 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from shared_tools import resolve_tool
 
-MDLCOMP = REPO / "tools/vendor/nwnmdlcomp/nwnmdlcomp.exe"
-
 PARTS = [
     "bicepl", "bicepr", "chest", "footl", "footr", "forel", "forer",
     "handl", "handr", "head", "neck", "legl", "legr", "pelvis",
@@ -37,25 +35,6 @@ def resolve_game_root(explicit: Path | None = None) -> Path:
     env_root = os.environ.get("NWN_ROOT") or os.environ.get("NWN_GAME_ROOT")
     if env_root and Path(env_root).exists():
         return Path(env_root).resolve()
-    for bindings_path in [
-        REPO / ".tools/runtime_bindings.json",
-        REPO / ".tools/runtime-bindings.json",
-        REPO / "runtime_bindings.json",
-    ]:
-        if bindings_path.exists():
-            try:
-                bindings = json.loads(bindings_path.read_text(encoding="utf-8"))
-                candidate = bindings.get("game_root") or bindings.get("nwn_root") or bindings.get("NWN_ROOT")
-                if candidate and Path(candidate).exists():
-                    return Path(candidate).resolve()
-            except Exception:
-                pass
-    for default_path in [
-        Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition"),
-        Path(r"C:\Program Files (x86)\Steam\steamapps\common\Neverwinter Nights"),
-    ]:
-        if default_path.exists():
-            return default_path
     raise FileNotFoundError("NWN game root not found. Please provide --game-root or set NWN_ROOT.")
 
 
@@ -68,16 +47,19 @@ def resolve_client(explicit: Path | None = None, game_root: Path | None = None) 
     env_client = os.environ.get("NWN_CLIENT")
     if env_client and Path(env_client).exists():
         return Path(env_client).resolve()
-    if game_root is not None:
+    env_root = os.environ.get("NWN_ROOT") or os.environ.get("NWN_GAME_ROOT")
+    for root in (game_root, Path(env_root) if env_root else None):
+        if root is None:
+            continue
         for candidate in [
-            game_root / "bin/win32/nwmain.exe",
-            game_root / "bin/linux-x86/nwmain",
-            game_root / "nwmain.exe",
-            game_root / "bin/win32/nwserver.exe",
+            root / "bin/win32/nwmain.exe",
+            root / "bin/linux-x86/nwmain",
+            root / "nwmain.exe",
+            root / "bin/win32/nwserver.exe",
         ]:
             if candidate.exists():
                 return candidate.resolve()
-    raise FileNotFoundError("NWN client binary not found. Please provide --client or ensure nwmain exists in game root.")
+    raise FileNotFoundError("NWN client binary not found. Please provide --client, set NWN_CLIENT, or ensure nwmain exists in the game root.")
 
 
 def digest(path: Path) -> str:
@@ -97,7 +79,7 @@ def decompile_model(bin_path: Path, ascii_path: Path):
         # Already ASCII
         ascii_path.write_bytes(data)
     else:
-        subprocess.run([str(MDLCOMP), "-d", "-e", str(bin_path), str(ascii_path)], check=True, capture_output=True)
+        subprocess.run([resolve_tool("mdlcomp", REPO)["path"], "-d", "-e", str(bin_path), str(ascii_path)], check=True, capture_output=True)
 
 
 CONTROL_SOURCES = {
@@ -177,6 +159,7 @@ def stage_stock_control(stage_dir: Path, game_root: Path, client: Path, race: st
         # Build alias mapping for each bitmap:
         # Alias source-family bitmaps to pmz0; preserve shared palette names
         bitmap_aliases = {}
+        plt_origins = {}
         for bmp in distinct_bitmaps:
             if bmp.lower().startswith(source_prefix):
                 aliased_bmp = f"pmz0{bmp[4:]}"
@@ -187,13 +170,15 @@ def stage_stock_control(stage_dir: Path, game_root: Path, client: Path, race: st
             # Extract source PLT and write to resources_dir as {aliased_bmp}.plt
             try:
                 raw_plt = extract_stock_resource(f"{bmp}.plt", temp_userdir, game_root)
-            except Exception:
+            except subprocess.CalledProcessError:
+                # A bitmap the game lacks; the receipt names any non-stock texture this comparator then carries.
                 if (REPO / f"srn_body/{bmp}.plt").exists():
-                    raw_plt = (REPO / f"srn_body/{bmp}.plt").read_bytes()
+                    raw_plt = (REPO / f"srn_body/{bmp}.plt").read_bytes(); plt_origins[bmp] = f"srn_body/{bmp}.plt"
                 elif (REPO / f"srn_body/{aliased_bmp}.plt").exists():
-                    raw_plt = (REPO / f"srn_body/{aliased_bmp}.plt").read_bytes()
+                    raw_plt = (REPO / f"srn_body/{aliased_bmp}.plt").read_bytes(); plt_origins[bmp] = f"srn_body/{aliased_bmp}.plt"
                 else:
                     raw_plt = extract_stock_resource(f"{source_name}.plt", temp_userdir, game_root)
+                    plt_origins[bmp] = f"stock:{source_name}.plt"
             (resources_dir / f"{aliased_bmp}.plt").write_bytes(raw_plt)
 
         # Ensure primary part alias PLT exists if referenced
@@ -224,7 +209,8 @@ def stage_stock_control(stage_dir: Path, game_root: Path, client: Path, race: st
             "bitmaps": {
                 bmp: {
                     "alias": alias_bmp,
-                    "pltSha256": digest(resources_dir / f"{alias_bmp}.plt")
+                    "pltSha256": digest(resources_dir / f"{alias_bmp}.plt"),
+                    "pltOrigin": plt_origins.get(bmp, f"stock:{bmp}.plt")
                 }
                 for bmp, alias_bmp in bitmap_aliases.items()
             }

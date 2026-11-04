@@ -14,26 +14,9 @@ Import-Module (Join-Path $PSScriptRoot 'SrnHaks.Common.psm1') -Force
 
 $repoRoot = Get-SrnRepositoryRoot
 $quarantineRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot '.quarantine'))
-if ([string]::IsNullOrWhiteSpace($OutputRelativePath) -or [IO.Path]::IsPathRooted($OutputRelativePath)) {
-    throw 'OutputRelativePath must be a non-empty relative path beneath .quarantine.'
-}
-$workspace = [IO.Path]::GetFullPath((Join-Path $quarantineRoot $OutputRelativePath))
-$prefix = $quarantineRoot.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) +
-    [IO.Path]::DirectorySeparatorChar
+$workspace = Resolve-SrnQuarantinePath $OutputRelativePath
+foreach ($child in 'raw', 'analysis') { [void](Resolve-SrnQuarantinePath (Join-Path $OutputRelativePath $child)) }
 $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
-if (-not $workspace.StartsWith($prefix, $comparison)) {
-    throw "OutputRelativePath escapes .quarantine: $OutputRelativePath"
-}
-foreach ($path in @($workspace, (Join-Path $workspace 'raw'), (Join-Path $workspace 'analysis'))) {
-    $current = $path
-    while ($current -and $current.Length -ge $quarantineRoot.Length) {
-        if ((Test-Path -LiteralPath $current) -and
-            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
-            throw "Reparse point not allowed: $current"
-        }
-        $current = Split-Path $current -Parent
-    }
-}
 
 $publishedRawRoot = Join-Path $workspace 'raw'
 $publishedAnalysisRoot = Join-Path $workspace 'analysis'

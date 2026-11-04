@@ -12,7 +12,7 @@ from PIL import Image
 from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
 from .contracts import all_pins, code_pins, source_version, manifest, family, evidence_pins, stage_roles
 from .geometry import corner_hash
-from .routes import GRIP_BOUND_FAMILIES, PACKAGED_FIREARMS, ROUTES
+from .routes import PACKAGED_FIREARMS, ROUTES, needs_grip_standard
 from .verification import VerificationPass
 
 DEPENDENCIES = {'prepare': (), 'inspect': (), 'donor': (), 'fit': (), 'reduce': ('fit',), 'unwrap': ('reduce',),
@@ -224,7 +224,7 @@ class Runner:
             return build(sampling,uv['uvMesh']['path'],field,self.data['processing'].get('sourceFieldPolicy'),folder/'donor')
         if stage == 'fit':
             require(self.family['nativePackaging'] == 'enabled', 'Fitting requires a measured native contract')
-            if self.family['family'] in GRIP_BOUND_FAMILIES:
+            if needs_grip_standard(self.family['family'], self.data.get('fit', {})):
                 require('gripStandard' in self.data['inputs'], 'Bind the approved grip standard before fitting this weapon')
             donor = self.input('texturedDonor'); review = self.data.get('approval', {}).get('texturedDonor', {})
             require(review.get('decision') == 'approved' and review.get('sha256') == pin(donor)['sha256']

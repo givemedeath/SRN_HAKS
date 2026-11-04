@@ -169,18 +169,24 @@ def _plan(converted, tools, resource_dirs, cache):
         if not (cache/RECEIPT).is_file():
             raise ValueError(f'Compile cache has no {RECEIPT}: {cache}')
         previous = json.loads((cache/RECEIPT).read_text(encoding='utf-8'))
-    reusable = previous.get('compilerSha256') == tools['sha256'] and previous.get('lookupHashes') == lookup
+    # Resources resolve first match in folder order, and the first two folders are this folder's own.
+    reusable = (previous.get('compilerSha256') == tools['sha256'] and previous.get('lookupHashes') == lookup
+                and previous.get('lookupFolders', [])[2:] == [str(f) for f in folders[2:]])
     cached_rows = {r['name']: r for r in previous.get('models', [])} if reusable else {}
     plan = {'converted': converted, 'sources': sources, 'resources': resources, 'folders': folders, 'pins': pins,
             'lookup': lookup, 'snapshot': snapshot, 'previous': previous, 'rows': {}, 'jobs': [], 'staged': [],
             'staging': Path(tempfile.mkdtemp(prefix='.nvb-compile-', dir=converted))}
-    for path in sources:
-        cached = cached_rows.get(path.name); kept = cache/'resources'/path.name if cache else None
-        if cached and cached['sourceSha256'] == snapshot[path.name] and kept.is_file():
-            data = kept.read_bytes()
-            if digest(data) == cached['binarySha256']:
-                (plan['staging']/path.name).write_bytes(data); plan['staged'].append(path.name); plan['rows'][path.name] = cached; continue
-        plan['jobs'].append({'op': 'compile', 'input': path, 'output': plan['staging']/path.name, 'dirs': folders})
+    try:
+        for path in sources:
+            cached = cached_rows.get(path.name); kept = cache/'resources'/path.name if cache else None
+            if cached and cached['sourceSha256'] == snapshot[path.name] and kept.is_file():
+                data = kept.read_bytes()
+                if digest(data) == cached['binarySha256']:
+                    (plan['staging']/path.name).write_bytes(data); plan['staged'].append(path.name); plan['rows'][path.name] = cached; continue
+            plan['jobs'].append({'op': 'compile', 'input': path, 'output': plan['staging']/path.name, 'dirs': folders})
+    except BaseException:  # the caller only cleans up plans that were returned
+        shutil.rmtree(plan['staging'], ignore_errors=True)
+        raise
     return plan
 
 

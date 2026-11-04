@@ -16,29 +16,6 @@ Import-Module (Join-Path $PSScriptRoot 'SrnHaks.Common.psm1') -Force
 $repoRoot = Get-SrnRepositoryRoot
 $quarantineRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot '.quarantine'))
 
-function Resolve-QuarantinePath {
-    param([Parameter(Mandatory)][string]$RelativePath)
-    if ([string]::IsNullOrWhiteSpace($RelativePath) -or [IO.Path]::IsPathRooted($RelativePath)) {
-        throw 'Quarantine paths must be non-empty relative paths.'
-    }
-    $resolved = [IO.Path]::GetFullPath((Join-Path $quarantineRoot $RelativePath))
-    $prefix = $quarantineRoot.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) +
-        [IO.Path]::DirectorySeparatorChar
-    $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
-    if (-not $resolved.StartsWith($prefix, $comparison)) {
-        throw "Relative path escapes .quarantine: $RelativePath"
-    }
-    $current = $resolved
-    while ($current -and $current.Length -ge $quarantineRoot.Length) {
-        if ((Test-Path -LiteralPath $current) -and
-            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
-            throw "Reparse point not allowed: $current"
-        }
-        $current = Split-Path $current -Parent
-    }
-    $resolved
-}
-
 function Get-GffValue {
     param($Object, [Parameter(Mandatory)][string]$Name, $Default = $null)
     if ($null -eq $Object -or $Object.PSObject.Properties.Name -notcontains $Name) { return $Default }
@@ -106,8 +83,8 @@ if ($ExpectedSha256) {
     if ($expectedHash -notmatch '^[0-9A-F]{64}$') { throw 'ExpectedSha256 must contain exactly 64 hexadecimal characters.' }
     if ($sourceHash -cne $expectedHash) { throw "ERF SHA-256 mismatch. Expected $expectedHash; found $sourceHash." }
 }
-$workspace = Resolve-QuarantinePath $OutputRelativePath
-$itemWorkspace = Resolve-QuarantinePath $ItemHakOutputRelativePath
+$workspace = Resolve-SrnQuarantinePath $OutputRelativePath
+$itemWorkspace = Resolve-SrnQuarantinePath $ItemHakOutputRelativePath
 $rawRoot = Join-Path $workspace 'raw'
 $analysisRoot = Join-Path $workspace 'analysis'
 $decodedRoot = Join-Path $analysisRoot 'uti-json'
@@ -125,7 +102,7 @@ foreach ($protectedPath in @((Join-Path $itemWorkspace 'raw'), (Join-Path $itemW
 
 # Validate both deletion targets and the item inputs before touching either output directory.
 foreach ($path in @($rawRoot, $analysisRoot, (Join-Path $itemWorkspace 'raw'), (Join-Path $itemWorkspace 'analysis'))) {
-    [void](Resolve-QuarantinePath ([IO.Path]::GetRelativePath($quarantineRoot, $path)))
+    [void](Resolve-SrnQuarantinePath ([IO.Path]::GetRelativePath($quarantineRoot, $path)))
 }
 foreach ($path in @($rawRoot, $analysisRoot)) {
     if ($source.StartsWith($path.TrimEnd($separator) + $separator, $comparison)) {
@@ -159,7 +136,7 @@ $publishedRawRoot = $rawRoot
 $publishedAnalysisRoot = $analysisRoot
 $parent = Split-Path $workspace -Parent
 New-Item -ItemType Directory -Path $parent -Force | Out-Null
-$buildRoot = Resolve-QuarantinePath ([IO.Path]::GetRelativePath($quarantineRoot, (Join-Path $parent ('.blueprint-build-' + [Guid]::NewGuid().ToString('N')))))
+$buildRoot = Resolve-SrnQuarantinePath ([IO.Path]::GetRelativePath($quarantineRoot, (Join-Path $parent ('.blueprint-build-' + [Guid]::NewGuid().ToString('N')))))
 $rawRoot = Join-Path $buildRoot 'raw'
 $analysisRoot = Join-Path $buildRoot 'analysis'
 $decodedRoot = Join-Path $analysisRoot 'uti-json'

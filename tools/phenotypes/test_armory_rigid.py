@@ -3,9 +3,30 @@ from pathlib import Path
 import tempfile
 import unittest
 import numpy as np
-from armory_rigid import correct_rigid, profile_affine, rigid_frames
+from armory_rigid import armory_applied, correct_rigid, fit_residuals, profile_affine, rigid_frames
 from audit_geometry import arrays
 from inventory_target_equipment import select_models, inspect_model
+
+
+class ArmoryFitOutputTests(unittest.TestCase):
+    def test_near_identity_transforms_model_what_armory_skips(self):
+        applied = armory_applied({'scale': [1.00005]*3, 'translate': [9.999e-5, 0, 0]})
+        self.assertEqual((applied['scale'], applied['translate']), ([1., 1., 1.], [0., 0., 0.]))
+        kept = armory_applied({'scale': [1.0002]*3, 'translate': [1e-4, 0, 0]})
+        self.assertEqual((kept['scale'], kept['translate']), ([1.0002]*3, [1e-4, 0, 0]))
+        for scale in (1.0001, 0.9999):  # applied by real v1.3.4: Armory compares as float32
+            self.assertEqual(armory_applied({'scale': [scale]*3, 'translate': [0, 0, 0]})['scale'], [scale]*3)
+
+    def test_fit_needs_a_finite_vertex_line(self):
+        good = 'scale=(1, 1, 1)\n; verts fit: n=4 max_residual=0.00000 mean_residual=0.00000\n; tverts fit: max_residual=0.5\n'
+        self.assertEqual(fit_residuals(good), [0.0, 0.5])
+        with self.assertRaisesRegex(RuntimeError, 'no vertex fit'):
+            fit_residuals('Warning: vertex data is degenerate\n; tverts fit: max_residual=0.00000\n')
+        with self.assertRaisesRegex(RuntimeError, 'no fit residual'):
+            fit_residuals('scale=(1, 1, 1)\n; verts fit: n=0\n')
+        for bad in ('; verts fit: n=4 max_residual=0.00000 mean_residual=NaN\n', 'scale=(inf, inf, inf)\n; verts fit: max_residual=0\n'):
+            with self.subTest(output=bad), self.assertRaisesRegex(RuntimeError, 'not finite'):
+                fit_residuals(bad)
 
 
 SOURCE = '''newmodel pmh0_chest002
@@ -112,6 +133,10 @@ class ArmoryRigidTests(unittest.TestCase):
         text, _ = self.run_conversion(raw=raw, transform={'scale': [1, 1, 1], 'translate': [0, 0, 0]})
         _, blocks, _ = rigid_frames(text)
         np.testing.assert_allclose(arrays(blocks['torso_g'][3], 'verts'), [[0, .4, -.3], [-1, .4, .7], [0, 1.4, .7], [0, .4, .7]], atol=1e-9)
+
+    def test_skipped_scale_leaves_raw_normals_and_tangents_unscaled(self):
+        raw = SOURCE.replace('pmh0_chest002', 'pmg0_chest002').replace('bitmap pmg0_chest002', 'bitmap pmh0_chest002')
+        self.run_conversion(raw=raw, transform={'scale': [1.00005, 1, 1], 'translate': [0, 0, 0]})
 
     def test_rejects_wrong_raw_output_or_changed_uv_binding(self):
         for old, new in [('.5 1.4 .7', '.5 1.5 .7'), ('1 1 0', '.9 1 0'),

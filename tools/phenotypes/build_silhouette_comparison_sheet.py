@@ -20,7 +20,7 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REFERENCE_ROOT = Path(__file__).resolve().parent / "references" / "concepts"
-DEFAULT_ARTIFACT_DIR = Path(os.environ.get("ANTIGRAVITY_ARTIFACT_DIR", "C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211"))
+DEFAULT_ARTIFACT_DIR = Path(os.environ.get("ANTIGRAVITY_ARTIFACT_DIR", "output/phenotypes/review-sheets"))
 
 
 # Color Palette

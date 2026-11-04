@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import shutil
 import uuid
-from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,digest,stage_code_pins,stage_source_version,verification_pass
+from .common import read,write,pin,verify,require,manifest,bindings,asset,source_version,launched,code_pins,python_package_pins,stage_code_pins,verification_pass
 from . import comfy
 
 
@@ -96,7 +96,8 @@ def chain(runner, stages):
             except (ValueError,OSError) as exc:blocked=(dependency,str(exc));break
         if blocked:
             dependency,reason=blocked;folder,_=attempt(dependency)
-            kind='blocked-on-review' if 'review' in reason.lower() else 'blocked-on-dependency'
+            # Only the runner's review gates; a pin message can name a path that contains the word.
+            kind='blocked-on-review' if reason.startswith(('Visual review','Stale visual review')) else 'blocked-on-dependency'
             rows.append({'stage':stage,'status':kind,'dependency':dependency,'reason':reason,'evidence':folder,
                 'next':(f'Inspect {folder} then record `review --stage {dependency}`' if kind=='blocked-on-review'
                         else f'Run or rerun {dependency} before {stage}')})
@@ -155,13 +156,16 @@ def launch_inputs(manifest_path, bindings_path, run=None, stages=None):
         from .runner import Runner;scoped=Runner(manifest_path,bindings_path,run)
         for stage,row in state['stages'].items():
             if closure is not None and stage not in closure:continue
-            receipt=read(row['path'])
-            # A receipt from other code, another manifest or other bindings (a repinned runtime) is rerun, as the runner
-            # does, not consumed; its old pins are not inputs.
-            if (receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage)
-                    or receipt.get('bindingsHash')!=digest(scoped.bindings)):stale.append(stage);continue
-            pins.append(row);pins+=receipt['inputs']+receipt['outputs']
-            if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
+            # What the runner would rerun is not consumed, so its old pins are not inputs. KeyError: an older receipt.
+            try:
+                scoped.result(stage,require_review=False)
+                receipt=read(row['path']);rows=[row,*receipt['inputs'],*receipt['outputs']]
+            except (KeyError,OSError,ValueError):stale.append(stage);continue
+            pins+=rows
+            # The runner reuses a stage without its review, so a changed review drops only that pin.
+            if stage in state.get('reviews',{}):
+                try:verify([state['reviews'][stage]]);pins.append(state['reviews'][stage])
+                except (OSError,ValueError):pass
     verify(pins);return pins,(stale if run and (run/'state.json').exists() else None)
 
 

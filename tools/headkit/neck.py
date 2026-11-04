@@ -6,7 +6,7 @@ import time
 import numpy as np
 from .common import require, positive, library, pin, read, write
 from .gltf import mesh, write_mesh
-from .mesh import BASIS, audit, checked_fit, enclosed, physical, section, select_shells, topology, transform
+from .mesh import BASIS, ShellReview, audit, checked_fit, enclosed, physical, section, select_shells, topology, transform
 
 def taper_scale(local, taper, bottom):
     """Radial neck scale: 1 above a start height that follows the jaw (front under the chin, back higher), then a
@@ -508,7 +508,7 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
         record['taper'].update(untapered=pin(untapered), elapsedSeconds=time.perf_counter()-begun)
     if neck is not None and neck['cut'] is not None:
         uncut = work_dir/'master-uncut.glb'; write_mesh(uncut, vertices, faces); begun = time.perf_counter(); reference = body_neck(body)
-        selection = policy.get('components'); tried = []
+        selection = policy.get('components'); tried = []; shell_table = None
         # The declared slope, then the reviewed fallbacks (cut.slopes) in order; each is checked like the master audit
         # before the next is tried, so a cut that crosses hanging hair costs seconds instead of a repair attempt.
         for slope in [neck['cut']['slope']]+list(neck['cut'].get('slopes', [])):
@@ -521,13 +521,15 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
                 problem = cut_problem(cut_vertices, cut_faces)
             except ValueError as error:
                 problem = str(error)
+                if isinstance(error, ShellReview): shell_table = error.attempts['shells']
             tried.append({'slope': slope, 'problem': problem})
             if problem is None: break
         if problem is not None:
             candidates = cut_candidates(vertices, faces, neck, reference); write(work_dir/'cut-candidates.json', {'tried': tried, 'candidates': candidates}, fresh=True)
             failures = '; '.join(f"slope {row['slope']}: {row['problem']}" for row in tried); passing = [c['cut'] for c in candidates if c['result'] == 'pass']
-            raise ValueError(f'Neck cut failed ({failures}). Cut variants that pass the master-audit checks on this uncut master: '
-                             f'{passing or "none"} (cut-candidates.json; review, then set mesh.neck.cut)')
+            message = (f'Neck cut failed ({failures}). Cut variants that pass the master-audit checks on this uncut master: '
+                       f'{passing or "none"} (cut-candidates.json; review, then set mesh.neck.cut)')
+            raise ShellReview(message, shell_table) if shell_table else ValueError(message)
         vertices, faces, record['cut'] = cut_vertices, cut_faces, cut_record
         record['cut'].update(slopesTried=tried, uncut=pin(uncut), bodyNeck=pin(body), elapsedSeconds=time.perf_counter()-begun)
     master = work_dir / 'master.glb'; write_mesh(master, vertices, faces)

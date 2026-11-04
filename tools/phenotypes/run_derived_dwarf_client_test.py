@@ -5,7 +5,6 @@ from ctypes import wintypes
 from datetime import datetime, timezone
 import hashlib
 import json
-import os
 from pathlib import Path
 import re
 import subprocess
@@ -16,70 +15,10 @@ import uuid
 REPO = Path(__file__).resolve().parents[2]
 STAGE = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage"
 REVIEW = REPO / "output/phenotypes/derived-dwarf-male-v1/review"
-DEFAULT_CLIENT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe")
-CLIENT = DEFAULT_CLIENT
 
 sys.path.insert(0, str(Path(__file__).parent))
 from preflight_derived_dwarf_client import run_preflight, sha256_file
-
-
-def resolve_client(explicit: Path | None = None, game_root: Path | None = None) -> Path:
-    if explicit is not None:
-        p = Path(explicit).resolve()
-        if p.exists():
-            return p
-        raise FileNotFoundError(f"Specified client binary does not exist: {explicit}")
-
-    env_client = os.environ.get("NWN_CLIENT")
-    if env_client and Path(env_client).exists():
-        return Path(env_client).resolve()
-
-    # Check local runtime bindings if present
-    for bindings_path in [
-        REPO / ".tools/runtime_bindings.json",
-        REPO / ".tools/runtime-bindings.json",
-        REPO / "runtime_bindings.json",
-    ]:
-        if bindings_path.exists():
-            try:
-                bindings = json.loads(bindings_path.read_text(encoding="utf-8"))
-                candidate = bindings.get("client") or bindings.get("nwmain") or bindings.get("NWN_CLIENT")
-                if candidate and Path(candidate).exists():
-                    return Path(candidate).resolve()
-            except Exception:
-                pass
-
-    if game_root is not None:
-        for candidate in [
-            game_root / "bin/win32/nwmain.exe",
-            game_root / "bin/linux-x86/nwmain",
-            game_root / "nwmain.exe",
-            game_root / "bin/win32/nwserver.exe",
-        ]:
-            if candidate.exists():
-                return candidate.resolve()
-
-    env_root = os.environ.get("NWN_ROOT") or os.environ.get("NWN_GAME_ROOT")
-    if env_root:
-        for candidate in [
-            Path(env_root) / "bin/win32/nwmain.exe",
-            Path(env_root) / "bin/linux-x86/nwmain",
-            Path(env_root) / "nwmain.exe",
-            Path(env_root) / "bin/win32/nwserver.exe",
-        ]:
-            if candidate.exists():
-                return candidate.resolve()
-
-    for candidate in [
-        DEFAULT_CLIENT,
-        Path(r"C:\Program Files (x86)\Steam\steamapps\common\Neverwinter Nights\bin\win32\nwmain.exe"),
-    ]:
-        if candidate.exists():
-            return candidate.resolve()
-
-    raise FileNotFoundError(
-        "NWN client binary not found. Please provide --client, set NWN_CLIENT, or configure local runtime bindings."
-    )
+from stock_dwarf_control import resolve_client
 
 
 class PROCESS_MEMORY_COUNTERS(ctypes.Structure):

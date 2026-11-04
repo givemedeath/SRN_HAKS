@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "phenotypes"))
-from finalize_shared_tool_migration import verify_launch
+from finalize_shared_tool_migration import LAUNCH_HELPERS, verify_blender_bootstrap, verify_launch
 from shared_toolchain import load
 from head_workflow import pin, read, require, sha, verify_pins, write_fresh
 
@@ -33,22 +33,10 @@ def finalize(config, directory, output):
             "Real stock import smoke required")
     require(blender["frozenInputs"].get(str(Path(imported["source"]).resolve())) == imported["sourceSha256"]
             == sha(imported["source"]), "Stock source missing from frozen import declaration")
-    bootstrap = read(root / "blender-smoke/loaded-addons.json")
-    require(bootstrap["factoryStartup"] is True and bootstrap["savedPreferencesChanged"] is False
-            and bootstrap["preferencesChanged"] is False and bootstrap["migrationReceipt"] is None,
-            "Isolated factory addon import required")
-    addon = Path(tools["addons"]["root"]).resolve()
-    require(imported["actuallyLoadedAddon"] == str(addon / "neverblender/__init__.py")
-            and imported["loadedAddonSha256"] == sha(imported["actuallyLoadedAddon"]), "Import addon differs")
-    require(bootstrap["loadedModules"], "Actually loaded addon inventory required")
-    for row in bootstrap["loadedModules"]:
-        path = Path(row["path"]).resolve()
-        require(path.is_relative_to(addon) and tools["addons"]["files"].get(path.relative_to(addon).as_posix())
-                == row["sha256"] == sha(path), "Loaded addon escaped pinned bank")
-    helper_names = {"launch_shared_tool.py", "shared_toolchain.py", "bootstrap_shared_blender_addons.py"}
+    verify_blender_bootstrap(read(root / "blender-smoke/loaded-addons.json"), imported, blender, config, tools)
     helpers = {name: {"sha256": digest} for report in (python, blender)
-               for name, digest in report["frozenInputs"].items() if Path(name).name in helper_names}
-    require({Path(path).name for path in helpers} == helper_names, "All launch helpers must be frozen")
+               for name, digest in report["frozenInputs"].items() if Path(name).name in LAUNCH_HELPERS}
+    require({Path(path).name for path in helpers} == LAUNCH_HELPERS, "All launch helpers must be frozen")
     frozen = [pin(path) for path in sorted(root.rglob("*")) if path.is_file()]
     verify_pins(frozen)
     receipt = {"schemaVersion": 1, "kind": "phenotype-shared-tool-migration", "scope": "head-tools",

@@ -91,7 +91,8 @@ function Publish-SrnDirectorySet {
     $backupRoot = New-Item -ItemType Directory -Path $backupPath
     $backedUp = [Collections.Generic.List[object]]::new()
     $installed = [Collections.Generic.List[object]]::new()
-    $preserveBackup = $false
+    # Kept until the outcome is known: a pipeline stop skips catch, and only this copy would remain.
+    $preserveBackup = $true
     try {
         foreach ($target in $targets) {
             New-Item -ItemType Directory -Path (Split-Path $target.destination -Parent) -Force | Out-Null
@@ -104,15 +105,16 @@ function Publish-SrnDirectorySet {
             [IO.Directory]::Move($target.source, $target.destination)
             $installed.Add($target)
         }
+        $preserveBackup = $false
     }
     catch {
         $publishFailure = $_
         try {
             foreach ($target in $installed) { Remove-Item -LiteralPath $target.destination -Recurse -Force }
             foreach ($target in $backedUp) { [IO.Directory]::Move((Join-Path $backupRoot.FullName $target.name), $target.destination) }
+            $preserveBackup = $false
         }
         catch {
-            $preserveBackup = $true
             throw "Could not restore previous analysis; backups preserved at $($backupRoot.FullName): $($_.Exception.Message)"
         }
         throw $publishFailure

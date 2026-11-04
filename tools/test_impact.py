@@ -56,11 +56,14 @@ def pack_needs(data,test):
 
 def catalog(repo=REPO):
     all_files=sorted(p for p in (repo/'tools').rglob('*') if p.is_file()
-                     and not set(p.parts)&EXCLUDED
-                     and not any(part.endswith('.egg-info') for part in p.parts))
+                     and not set(p.relative_to(repo).parts)&EXCLUDED
+                     and not any(part.endswith('.egg-info') for part in p.relative_to(repo).parts))
     files=[p for p in all_files if p.suffix=='.py'];file_set=set(files)
     qualified={p:import_root(p)[1] for p in files}
     in_package={p:(p.parent/'__init__.py').is_file() for p in files}
+    by_leaf={}
+    for p in files:by_leaf.setdefault(p.parent.name if p.name=='__init__.py' else p.stem,[]).append(p)
+    absolute={}
     literal_index={}
     for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files)]:literal_index.setdefault(p.name,[]).append(p)
     pack_names=set(packs(repo))
@@ -86,11 +89,13 @@ def catalog(repo=REPO):
                 if local:matches=local
                 elif level:matches=[]
                 else:
-                    module_suffix='/'.join(name.split('.'))
-                    # A module inside a package is only importable by its package-qualified name.
-                    matches=[p for p in files if (p.as_posix().endswith('/'+module_suffix+'.py') or p.as_posix().endswith('/'+module_suffix+'/__init__.py'))
-                             and (not in_package[p] or qualified[p]==name or p.relative_to(repo).as_posix()
-                                  in (module_suffix+'.py',module_suffix+'/__init__.py'))]
+                    if name not in absolute:
+                        module_suffix='/'.join(name.split('.'))
+                        # A module inside a package is only importable by its package-qualified name.
+                        absolute[name]=[p for p in by_leaf.get(name.split('.')[-1],[]) if (p.as_posix().endswith('/'+module_suffix+'.py') or p.as_posix().endswith('/'+module_suffix+'/__init__.py'))
+                                        and (not in_package[p] or qualified[p]==name or p.relative_to(repo).as_posix()
+                                             in (module_suffix+'.py',module_suffix+'/__init__.py'))]
+                    matches=absolute[name]
                 if len(matches)>1:unresolved.append(rel)
                 edges.update(p.relative_to(repo).as_posix() for p in matches)
             if isinstance(node,ast.Constant) and isinstance(node.value,str):

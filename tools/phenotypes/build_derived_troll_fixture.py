@@ -16,7 +16,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from shared_tools import resolve_tool
 from stock_dwarf_control import resolve_game_root
 
-DEFAULT_GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
 PYTHON = Path(sys.executable)
 
 CANDIDATE_CONVERTED = REPO / "output/phenotypes/derived-troll-male-v1/candidate/converted"
@@ -161,7 +160,7 @@ def stage_fixture_resources(stage_dir: Path, temp_userdir: Path, appearance_path
     if not staged_base:
         durable_copies = [
             (REPO / "tools/phenotypes/references/fixtures/appearance.2da", None),
-            (REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage/fixture-resources/appearance.2da", None),
+            (REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage/fixture-resources/appearance.2da", "f059c15e5907886f60980fdd87763ea8351d248c1a6de040d2fc0db06538898a"),
         ]
         for candidate_path, expected_hash in durable_copies:
             if candidate_path.is_file():

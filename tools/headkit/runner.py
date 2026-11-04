@@ -43,7 +43,7 @@ MESH_AFTER_REPAIR='uv','reuseReviewedUvs','maximumSubtexelFraction','allowDecode
 STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':set(),'fit':{'fit'},
     'repair':{'mesh!'+','.join(MESH_AFTER_REPAIR),'fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
-    'tone':{'tone','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval'},
+    'tone':{'tone','profile','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval'},
     'native':{'fit'},'render':{'render','approval'},'masks':{'faceMasks'},'quality':{'quality','palette.inputs'}}
 
 
@@ -168,7 +168,9 @@ class Runner:
         if require_review:
             review_pin=self.state.get('reviews',{}).get(stage)
             require(review_pin is not None,'Visual review pending: '+stage)
-            self._verify([review_pin]);review=read(review_pin['path'])
+            # A changed or missing review is a review gate, not a stage to rerun.
+            try:self._verify([review_pin]);review=read(review_pin['path'])
+            except (OSError,ValueError) as exc:raise ValueError('Stale visual review: '+stage+'; '+str(exc)) from exc
             require(review.get('stageReceipt')==row,'Stale visual review: '+stage)
             require(review.get('decision')=='approved','Visual review rejected: '+stage)
             _checked['results'][stage]=receipt['result']
@@ -595,7 +597,7 @@ class Runner:
             # runner its folder; the reused binary still passes this head's own decode audit.
             previous=self.result('export');prepared=Path(previous['ascii']['path']).parents[1]
             cache=getattr(self,'precompiled',{}).get(str(prepared.resolve())) if mdl else None
-            return compile_and_package(prepared,b['client'],folder/'native',mdl,cache=cache)
+            return compile_and_package(prepared,b.get('client'),folder/'native',mdl,cache=cache)
         if stage=='render':
             require('render' in m,'Stage not configured: the manifest has no render section')
             import subprocess,sys

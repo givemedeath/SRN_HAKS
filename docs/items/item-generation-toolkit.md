@@ -234,7 +234,10 @@ Use the same `--output` job directory for `submit` and `collect`: collection rea
 that directory's immutable `submission-intent.json`. A new collection directory
 cannot recover the submission contract. A lost connection during completion is not a verdict: the job stays `submitted`
 and a repeat `collect` resumes from the retained history, even after a Comfy
-restart. Preserve a failed-validation receipt and
+restart. A restart may change only the session id and pid: the retained history must
+name this job, and any other runtime difference stays a terminal failed-validation.
+A folder that holds no intent for the token is refused without touching the job.
+Preserve a failed-validation receipt and
 its terminal ledger state; never reset history to retry a collection.
 Include immutable request or job-intent files with `inputs --extra` before dispatch
 or collection. Mutable ledger/state files are operational outputs, not frozen assets.

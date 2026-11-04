@@ -15,7 +15,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from shared_tools import resolve_tool
 from stock_dwarf_control import resolve_game_root
 
-DEFAULT_GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
 PYTHON = Path(sys.executable)
 
 CANDIDATE_CONVERTED = REPO / "output/phenotypes/derived-dwarf-male-v1/candidate/converted"

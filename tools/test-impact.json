@@ -668,9 +668,7 @@
     ],
     "tools/heads/finalize_head_migration.py": [
       "tools/heads/head_workflow.py",
-      "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
-      "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py"
     ],
     "tools/heads/fit_head.py": [
@@ -1307,6 +1305,7 @@
     ],
     "tools/phenomorpher/finalize_runtime.py": [
       "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py"
     ],
@@ -1437,8 +1436,7 @@
       "tools/phenomorpher/phenomorpher/engine/proportion_targets.py",
       "tools/phenomorpher/phenomorpher/engine/silhouette_model.py",
       "tools/phenomorpher/phenomorpher/engine/silhouette_reference.py",
-      "tools/phenomorpher/phenomorpher/engine/target_contract.py",
-      "tools/phenotypes/calculate_silhouette_difference.py"
+      "tools/phenomorpher/phenomorpher/engine/target_contract.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/morph_anatomy_v15c.py": [
       "tools/phenomorpher/phenomorpher/engine/check_terminal_connectivity_v13.py",
@@ -1703,6 +1701,7 @@
       "tools/phenomorpher/phenomorpher/api.py",
       "tools/phenomorpher/phenomorpher/cli.py",
       "tools/phenomorpher/phenomorpher/engine/convert_model.py",
+      "tools/phenomorpher/phenomorpher/engine/measurement_workflow.py",
       "tools/phenomorpher/phenomorpher/engine/morph_preview_pose_v13.py",
       "tools/phenomorpher/phenomorpher/source-lineage.json"
     ],
@@ -1814,7 +1813,8 @@
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py",
       "tools/phenotypes/target_part_pipeline.py",
-      "tools/phenotypes/target_part_stage.py"
+      "tools/phenotypes/target_part_stage.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/audit_target_native_caps.py": [
       "tools/phenotypes/audit_geometry.py",
@@ -2136,6 +2136,7 @@
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
       "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/equipment_frames.py",
+      "tools/phenotypes/stock_dwarf_control.py",
       "tools/phenotypes/target_contract.py",
       "tools/shared_tools.py"
     ],
@@ -2162,7 +2163,8 @@
       "tools/phenotypes/round_generated_waist_cap.py"
     ],
     "tools/phenotypes/diagnose_equipment_gff_sources.py": [
-      "tools/phenotypes/pipeline.py"
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/diagnose_native_cap_normal.py": [
       "tools/headkit/templates/geometry.json",
@@ -2269,6 +2271,7 @@
     ],
     "tools/phenotypes/finalize_shared_tool_migration.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared-tools.lock.json",
@@ -2322,7 +2325,8 @@
     "tools/phenotypes/inventory_target_equipment.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/pipeline.py",
-      "tools/phenotypes/retarget.py"
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/investigate_target_sheet.py": [
       "tools/phenotypes/conservative_face_selection.py",
@@ -2429,7 +2433,8 @@
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/inventory_target_equipment.py",
       "tools/phenotypes/pipeline.py",
-      "tools/phenotypes/target_contract.py"
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/measure_stock_head_fit.py": [
       "tools/phenotypes/audit_geometry.py",
@@ -2513,6 +2518,7 @@
       "tools/phenotypes/target_contract.py",
       "tools/phenotypes/target_fixture.py",
       "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/tool_runtime.py",
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/pelvis_routed_material_bridge.py": [
@@ -2622,7 +2628,6 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/preflight_derived_dwarf_client.py": [
-      "tools/phenotypes/run_derived_dwarf_client_test.py",
       "tools/phenotypes/stock_dwarf_control.py"
     ],
     "tools/phenotypes/preflight_target_body_client.py": [
@@ -2903,7 +2908,8 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/run_derived_dwarf_client_test.py": [
-      "tools/phenotypes/preflight_derived_dwarf_client.py"
+      "tools/phenotypes/preflight_derived_dwarf_client.py",
+      "tools/phenotypes/stock_dwarf_control.py"
     ],
     "tools/phenotypes/run_mesh_refinement_trial.py": [
       "tools/phenotypes/pipeline.py",
@@ -3073,9 +3079,12 @@
     ],
     "tools/phenotypes/target_fixture.py": [
       "tools/phenotypes/build_test_module.py",
-      "tools/phenotypes/target_contract.py"
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
-    "tools/phenotypes/target_fixture_dye.py": [],
+    "tools/phenotypes/target_fixture_dye.py": [
+      "tools/phenotypes/tool_runtime.py"
+    ],
     "tools/phenotypes/target_garment_face_ownership.py": [
       "tools/phenotypes/phenotype_material_execution_adoption.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
@@ -3438,8 +3447,11 @@
     ],
     "tools/phenotypes/test_finalize_shared_tool_migration.py": [
       "tools/headbatch/launcher.py",
+      "tools/heads/finalize_head_migration.py",
+      "tools/phenomorpher/finalize_runtime.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
-      "tools/phenotypes/shared_toolchain.py"
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/robes/finalize_robe_migration.py"
     ],
     "tools/phenotypes/test_fixed_material_dependencies.py": [
       "tools/phenotypes/build_test_module.py",
@@ -4101,9 +4113,7 @@
       "tools/robes/robe_common.py"
     ],
     "tools/robes/finalize_robe_migration.py": [
-      "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
-      "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/robes/robe_common.py"
     ],
@@ -4183,6 +4193,7 @@
     "tools/robes/run_robe_migration.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/phenotypes/smoke_shared_blender_import.py",

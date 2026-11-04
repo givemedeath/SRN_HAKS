@@ -13,25 +13,6 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'SrnHaks.Common.psm1') -Force
 $repoRoot = Get-SrnRepositoryRoot
-$quarantineRoot = Join-Path $repoRoot '.quarantine'
-
-function Resolve-QuarantinePath {
-    param([string]$RelativePath)
-    if ([string]::IsNullOrWhiteSpace($RelativePath) -or [IO.Path]::IsPathRooted($RelativePath)) {
-        throw 'OutputRelativePath must be a non-empty relative path beneath .quarantine.'
-    }
-    $root = [IO.Path]::GetFullPath($quarantineRoot)
-    $resolved = [IO.Path]::GetFullPath((Join-Path $root $RelativePath))
-    $prefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-    $pathComparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
-        [StringComparison]::OrdinalIgnoreCase
-    }
-    else { [StringComparison]::Ordinal }
-    if (-not $resolved.StartsWith($prefix, $pathComparison)) {
-        throw "OutputRelativePath escapes .quarantine: $RelativePath"
-    }
-    return $resolved
-}
 
 function Add-Relation {
     param([hashtable]$Map, [string]$Resource, [string]$Value)
@@ -311,7 +292,7 @@ function Get-Canonical2daMergeBase {
     if ($LASTEXITCODE -ne 0 -or -not $baselineLines.Count) { throw "Unable to read EE baseline $Resource." }
     $canonicalPath = Join-Path (Join-Path $RepositoryRoot $OutputPack) $Resource
     $lines = if (Test-Path -LiteralPath $canonicalPath -PathType Leaf) {
-        @(Get-Content -LiteralPath $canonicalPath -Encoding Default)
+        @([IO.File]::ReadAllLines($canonicalPath, [Text.Encoding]::GetEncoding(1252)))
     }
     else { @($baselineLines) }
     $baselineHeader = @(Get-2daHeaderLine $baselineLines)
@@ -334,6 +315,7 @@ function Get-Canonical2daMergeBase {
 
 function Convert-2daStringRefsInLine {
     param([Parameter(Mandatory)][string]$Line, $Remaps)
+    if (-not $Remaps) { return $Line }
     $mapped = $Line
     foreach ($remap in @($Remaps)) {
         $pattern = '(?<!\S)' + [regex]::Escape([string]$remap.sourceGameStrRef) + '(?!\S)'
@@ -354,15 +336,16 @@ function Update-GffNode {
     if ($Node -is [Management.Automation.PSCustomObject]) {
         foreach ($property in @($Node.PSObject.Properties)) {
             $value = $property.Value
-            if ($property.Name -ceq 'STRREF' -and $value -is [Management.Automation.PSCustomObject] -and
-                [string]$value.type -ceq 'dword') {
+            # A localized string's or struct's inner value object has no type of its own.
+            $typed = $value -is [Management.Automation.PSCustomObject] -and $null -ne $value.PSObject.Properties['type']
+            if ($property.Name -ceq 'STRREF' -and $typed -and [string]$value.type -ceq 'dword') {
                 $key = [string][int64]$value.value
                 if ($RemapByValue.ContainsKey($key)) {
                     $value.value = [int64]$RemapByValue[$key].targetGameStrRef
                     $RemapCounts[$key] = [int]$RemapCounts[$key] + 1
                 }
             }
-            elseif ($value -is [Management.Automation.PSCustomObject] -and [string]$value.type -ceq 'list') {
+            elseif ($typed -and [string]$value.type -ceq 'list') {
                 $kept = [Collections.Generic.List[object]]::new()
                 foreach ($item in @($value.value)) {
                     $remove = $false
@@ -426,7 +409,8 @@ function Write-2daLines {
     [IO.File]::WriteAllLines($Path, $normalized, [Text.Encoding]::GetEncoding(1252))
 }
 
-$workspace = Resolve-QuarantinePath $OutputRelativePath
+$workspace = Resolve-SrnQuarantinePath $OutputRelativePath
+foreach ($child in 'raw', 'analysis') { [void](Resolve-SrnQuarantinePath (Join-Path $OutputRelativePath $child)) }
 $rawRoot = Join-Path $workspace 'raw'
 $analysisRoot = Join-Path $workspace 'analysis'
 $manifestPath = Join-Path $analysisRoot 'manifest.json'
@@ -551,7 +535,7 @@ if ($Mode -eq 'Analyze') {
         foreach ($edge in @($profile.promotedEdges)) { $landing[$edge] = 'srn_2da' }
         if (@($profile.customDoorRows).Count) {
             if (-not $fileByName.ContainsKey('doortypes.2da')) { throw 'Profile declares custom door rows but the HAK has no doortypes.2da.' }
-            $doorTable = @(Get-Content -LiteralPath $fileByName['doortypes.2da'].FullName -Encoding Default)
+            $doorTable = @([IO.File]::ReadAllLines($fileByName['doortypes.2da'].FullName, [Text.Encoding]::GetEncoding(1252)))
             foreach ($doorRow in @($profile.customDoorRows)) {
                 $line = @($doorTable | Where-Object { $_ -match "^\s*$($doorRow.sourceRow)\s+" }); if ($line.Count -ne 1) { throw "Missing doortypes row $($doorRow.sourceRow)." }
                 $model = @($line[0].Trim() -split '\s+')[2].ToLowerInvariant()
@@ -591,7 +575,7 @@ if ($Mode -eq 'Analyze') {
             $doorTableName = [string]$profile.genericDoorMerge.resource
             if (-not $fileByName.ContainsKey($doorTableName)) { throw "Missing generic-door table: $doorTableName" }
             $landing[$doorTableName] = [string]$profile.genericDoorMerge.outputPack
-            foreach ($line in Get-Content -LiteralPath $fileByName[$doorTableName].FullName -Encoding Default) {
+            foreach ($line in [IO.File]::ReadAllLines($fileByName[$doorTableName].FullName, [Text.Encoding]::GetEncoding(1252))) {
                 if ($line -notmatch '^\s*\d+\s+\S+\s+\S+\s+(\S+)\s+') { continue }
                 $model = $matches[1].ToLowerInvariant()
                 if ($model -eq '****' -or -not $fileByName.ContainsKey("$model.mdl")) { continue }
@@ -740,7 +724,7 @@ if ($Mode -eq 'Repair') {
                 $doorRowMap | Add-Member -NotePropertyName ([string]$row.sourceRow) -NotePropertyValue ([int]$row.targetRow)
             }
         }
-        if (@($analysis.repairs).Count -eq 0 -and $doorRowMap.PSObject.Properties.Count -eq 0) { continue }
+        if (@($analysis.repairs).Count -eq 0 -and @($doorRowMap.PSObject.Properties).Count -eq 0) { continue }
         if (@($analysis.nonContiguous).Count) {
             throw "Refusing to guess non-contiguous sections in $code.set."
         }
@@ -787,7 +771,7 @@ if ($Mode -eq 'Repair') {
                 for ($index = 0; $index -lt $lines.Count; $index++) {
                     $pattern = "(?<![A-Za-z0-9_])$([regex]::Escape([string]$mapping.source))(?![A-Za-z0-9_])"
                     if ($lines[$index] -match $pattern) {
-                        $lines[$index] = [regex]::Replace($lines[$index], $pattern, [string]$mapping.target)
+                        $lines[$index] = [regex]::Replace($lines[$index], $pattern, [string]$mapping.target, 'IgnoreCase')
                         $changes.Add([pscustomobject]@{
                             line = $index + 1; source = [string]$mapping.source
                             target = [string]$mapping.target
@@ -808,7 +792,7 @@ if ($Mode -eq 'Repair') {
                     for ($index = 0; $index -lt $lines.Count; $index++) {
                         $pattern = "(?<![A-Za-z0-9_])$([regex]::Escape([string]$mapping.source))(?![A-Za-z0-9_])"
                         if ($lines[$index] -match $pattern) {
-                            $lines[$index] = [regex]::Replace($lines[$index], $pattern, [string]$mapping.target)
+                            $lines[$index] = [regex]::Replace($lines[$index], $pattern, [string]$mapping.target, 'IgnoreCase')
                             $changes.Add([pscustomobject]@{
                                 line = $index + 1; source = [string]$mapping.source
                                 target = [string]$mapping.target
@@ -1205,7 +1189,7 @@ if ($profile.PSObject.Properties.Name -contains 'gffTransforms') {
         $document = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -Depth 100
         $remapByValue = @{}
         $remapCounts = @{}
-        foreach ($remap in @($resolvedStringRefRemaps[$resource])) {
+        foreach ($remap in @(if ($resolvedStringRefRemaps.ContainsKey($resource)) { $resolvedStringRefRemaps[$resource] })) {
             $key = [string][int64]$remap.sourceGameStrRef
             if ($remapByValue.ContainsKey($key)) { throw "$resource has duplicate GFF string-ref remap $key." }
             $remapByValue[$key] = $remap
@@ -1355,7 +1339,7 @@ if (@($profile.customDoorRows).Count) {
     $eeBaselineLines = @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr doortypes.2da)
     $canonicalDoorPath = Join-Path $repoRoot 'srn_2da/doortypes.2da'
     $baseLines = if (Test-Path -LiteralPath $canonicalDoorPath -PathType Leaf) {
-        @(Get-Content -LiteralPath $canonicalDoorPath -Encoding Default)
+        @([IO.File]::ReadAllLines($canonicalDoorPath, [Text.Encoding]::GetEncoding(1252)))
     }
     else { @($eeBaselineLines) }
     $baselineHeader = @($eeBaselineLines | Where-Object { $_ -match '^\s*[A-Za-z]' } | Select-Object -First 1)
@@ -1370,7 +1354,7 @@ if (@($profile.customDoorRows).Count) {
             throw "Existing canonical doortypes.2da is missing EE row $rowNumber."
         }
     }
-    $sourceLines = @(Get-Content (Join-Path $rawRoot 'doortypes.2da') -Encoding Default)
+    $sourceLines = @([IO.File]::ReadAllLines((Join-Path $rawRoot 'doortypes.2da'), [Text.Encoding]::GetEncoding(1252)))
     foreach ($row in @($profile.customDoorRows)) {
         $sourceLine = @($sourceLines | Where-Object { $_ -match "^\s*$($row.sourceRow)\s+" })
         $target = -1

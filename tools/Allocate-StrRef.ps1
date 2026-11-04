@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][ValidateSet('shared', 'SR_NWN', 'SRN_NWN')][string]$Owner,
-    [Parameter(Mandatory)][ValidatePattern('^[a-z0-9]+(?:[._-][a-z0-9]+)*$')][string]$Key,
+    [Parameter(Mandatory)][ValidatePattern('(?-i)^[a-z0-9]+(?:[._-][a-z0-9]+)*$')][string]$Key,
     [Parameter(Mandatory)][AllowEmptyString()][string]$Text
 )
 
