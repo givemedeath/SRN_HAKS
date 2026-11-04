@@ -46,10 +46,95 @@
       "tools/phenomorpher/phenomorpher/__main__.py",
       "tools/phenotypes/launch_shared_tool.py"
     ],
+    "tools/headbatch/presets.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_setup.py",
+      "tools/headbatch/review/slopescan.py",
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/review/__init__.py": [],
+    "tools/headbatch/review/backcount.py": [
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/bakeviews.py": [
+      "tools/headbatch/review/clay.py",
+      "tools/headbatch/review/grid.py"
+    ],
+    "tools/headbatch/review/boundary.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py"
+    ],
+    "tools/headbatch/review/chinprofile.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/clay.py": [
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/cutdry.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/cutreplay.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/intersections.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/cutshells.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/design_landmarks.py": [
+      "tools/headkit/fit.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/palette.py"
+    ],
+    "tools/headbatch/review/fitcheck.py": [
+      "tools/headkit/fit.py",
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/grid.py": [
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/hot.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/jaw.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/own_draft.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/preview.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headbatch/review/rowramps.py": [],
+    "tools/headbatch/review/shells.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/common.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/skirtzone.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/slopescan.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py"
+    ],
     "tools/headbatch/run_headbatch.py": [
       "tools/headbatch/guards.py",
       "tools/headbatch/head_setup.py",
       "tools/headbatch/launcher.py",
+      "tools/headbatch/presets.py",
       "tools/headbatch/spool.py",
       "tools/headbatch/trials.py",
       "tools/headbatch/workspace.py"
@@ -64,6 +149,8 @@
       "tools/headbatch/guards.py",
       "tools/headbatch/head_setup.py",
       "tools/headbatch/launcher.py",
+      "tools/headbatch/presets.py",
+      "tools/headbatch/review/rowramps.py",
       "tools/headbatch/run_headbatch.py",
       "tools/headbatch/spool.py",
       "tools/headbatch/trials.py",

@@ -13,6 +13,7 @@ sys.path.insert(0, str(HERE))
 import guards  # noqa: E402
 import head_setup  # noqa: E402
 import launcher  # noqa: E402
+import presets  # noqa: E402
 import run_headbatch  # noqa: E402
 import spool  # noqa: E402
 import trials  # noqa: E402
@@ -54,7 +55,7 @@ class Base(unittest.TestCase):
 
 class Portable(unittest.TestCase):
     def test_no_machine_paths_in_the_package(self):
-        for path in HERE.iterdir():
+        for path in HERE.rglob('*'):
             if path.suffix in ('.py', '.json') and path.name != 'test_headbatch.py':
                 with self.subTest(path.name):
                     self.assertIsNone(DRIVE_PATH.search(path.read_text(encoding='utf-8')))
@@ -309,11 +310,126 @@ class Trials(Base):
             trials.write_spec(self.workspace, 'elf', '1')
 
 
+class Presets(Base):
+    def overrides(self, head, cut):
+        write(head/'overrides.json', {'mesh': {'neck': {'cut': cut}}})
+
+    def marks(self, head):
+        data = json.loads((self.root/'workspace.json').read_text())
+        data['landmarks'] = 'marks.json'
+        write(self.root/'workspace.json', data)
+        write(self.root/'marks.json', {head.name: {'source': {'eyeLeft': [0, 0, .1], 'eyeRight': [0, 0, .1], 'lips': [0, 0, .06]}}})
+        return Workspace.load(self.root)
+
+    @staticmethod
+    def scan(results):
+        def fake(_workspace, _head, _slope, reach):
+            return results[reach]
+        return fake
+
+    def test_uv_floor_drops_to_the_reviewed_margin(self):
+        head = self.head()
+        self.overrides(head, {})
+        self.receipt(head, 'unwrap', 1, {'result': RECEIPT_RESULT})
+        overrides, notes, hold = presets.plan(self.workspace, head.name, uv_only=True)
+        self.assertEqual(overrides['mesh']['uv']['minimumCoverage'], .29)
+        self.assertEqual(hold, [])
+        self.assertIn('uv floor', notes[0])
+
+    def test_uv_floor_holds_under_the_minimum(self):
+        head = self.head()
+        self.overrides(head, {})
+        self.receipt(head, 'unwrap', 1, {'error': 'Insufficient useful UV coverage (0.19 at 2K)'})
+        self.assertIn('needs fewer charts', presets.plan(self.workspace, head.name, uv_only=True)[2][0])
+        self.assertEqual(presets.plan(self.workspace, head.name)[2], [])
+
+    def test_fine_relief_comes_from_the_workspace(self):
+        head = self.head()
+        self.overrides(head, {})
+        self.assertNotIn('fineRelief', presets.plan(self.workspace, head.name)[0]['mesh'])
+        data = json.loads((self.root/'workspace.json').read_text())
+        data['repairDefaults'] = {'fineRelief': {'maximumError': .02}, 'skipRaces': ['human']}
+        write(self.root/'workspace.json', data)
+        self.assertEqual(presets.plan(Workspace.load(self.root), head.name)[0]['mesh']['fineRelief'], {'maximumError': .02})
+
+    def test_jaw_picks_the_largest_reach_that_finds_the_chin(self):
+        head = self.head()
+        workspace = self.marks(head)
+        self.overrides(head, {'slope': -.2, 'reach': .08})
+        results = {.08: {'jaw': .05, 'band': 0, 'top': 1, 'ok': True}, .06: {'jaw': .05, 'band': 0, 'top': 1, 'ok': True}, .04: {'jaw': .03, 'band': 0, 'top': 1, 'ok': True}, .03: {'jaw': .02, 'band': 0, 'top': 1, 'ok': True}}
+        overrides, _, hold = presets.plan(workspace, head.name, scan=self.scan(results))
+        self.assertEqual(overrides['mesh']['neck']['cut']['reach'], .04)
+        self.assertEqual(hold, [])
+
+    def test_jaw_band_above_the_body_neck_holds(self):
+        head = self.head()
+        workspace = self.marks(head)
+        self.overrides(head, {'slope': -.2, 'reach': .08})
+        results = {.08: {'jaw': .03, 'band': .1, 'top': .05, 'ok': False}}
+        self.assertIn('RUNBOOK 76', presets.plan(workspace, head.name, scan=self.scan(results))[2][0])
+
+    def test_report_only_plans_change_nothing(self):
+        head = self.head()
+        workspace = self.marks(head)
+        self.overrides(head, {'slope': -.2, 'reach': .08})
+        before = (head/'overrides.json').read_bytes()
+        results = {.08: {'jaw': .03, 'band': 0, 'top': 1, 'ok': True}}
+        line, held = presets.apply(workspace, head.name, scan=self.scan(results))
+        self.assertFalse(held)
+        self.assertIn('jaw OK', line)
+        self.assertEqual((head/'overrides.json').read_bytes(), before)
+
+
+class Review(Base):
+    def test_every_tool_documents_itself_and_needs_no_batch_names(self):
+        tools = [path for path in (HERE/'review').glob('*.py') if path.stem != '__init__']
+        self.assertGreaterEqual(len(tools), 18)
+        for path in tools:
+            with self.subTest(path.name):
+                text = path.read_text(encoding='utf-8')
+                self.assertTrue(text.startswith('"""'))
+                self.assertNotIn('race-heads-v1', text)
+                self.assertNotIn('attempt-01/', text)
+
+    def test_review_runs_in_the_heads_folder(self):
+        self.workspace.heads.mkdir()
+        with unittest.mock.patch.object(run_headbatch.subprocess, 'run') as run:
+            run.return_value.returncode = 0
+            self.assertEqual(run_headbatch.review(self.workspace, 'rowramps', ['elf-male-a'], False), 0)
+        self.assertEqual(run.call_args.kwargs['cwd'], self.workspace.heads)
+        self.assertTrue(run.call_args.args[0][2].endswith('rowramps.py'))
+
+    def test_unknown_tool_is_refused(self):
+        with self.assertRaises(SystemExit):
+            run_headbatch.parser().parse_args(['review', 'no-such-tool'])
+
+    def test_status_names_a_head_waiting_on_review(self):
+        head = self.head()
+        self.receipt(head, 'bake', 1, {'result': {}})
+        self.assertEqual(launcher.status(self.workspace), ['elf-male-a | bake attempt-01 ran | WAITING ON REVIEW'])
+        write(self.workspace.launches/'active-x.json', {'heads': ['elf-male-a']})
+        self.assertIn('launch queued or running', launcher.status(self.workspace)[0])
+        (self.workspace.launches/'active-x.json').unlink()
+        self.receipt(head, 'render', 1, {'result': {}})
+        os.utime(head/'run/render/attempt-01/receipt.json', (2**31, 2**31))
+        self.assertIn('| finished', launcher.status(self.workspace)[0])
+
+
 class SpoolTests(Base):
     def setUp(self):
         super().setUp()
         self.started = []
-        self.spool = spool.Spool(self.workspace, self.start)
+        self.tools = []
+        self.queued = []
+        self.tool_result = (0, ['done'])
+        self.spool = self.make(self.workspace)
+
+    def make(self, workspace):
+        return spool.Spool(workspace, self.start, self.tool, lambda *args: self.queued.append(args))
+
+    def tool(self, *arguments):
+        self.tools.append(arguments)
+        return self.tool_result
 
     def start(self, name, stages, head, approve, notes):
         self.started.append((stages, head, approve))
@@ -405,11 +521,63 @@ class SpoolTests(Base):
         write(self.root/'workspace.json', data)
         write(self.root/'marks.json', {head.name: {'source': {'eyeLeft': [0, 0, .1], 'eyeRight': [0, 0, .1], 'lips': [0, 0, .06]}}})
         write(head/'run/repair/attempt-01/reduction-audit.json', {'neck': {'cut': {'jawLine': {'point': [0, 0, .05]}}}})
-        self.spool = spool.Spool(Workspace.load(self.root), self.start)
+        self.spool = self.make(Workspace.load(self.root))
         write(self.workspace.spool/'approve/a.json', {'heads': [head.name], 'approve': 'repair', 'next': 'unwrap', 'notes': 'ok'})
         self.spool.scan_requests()
         self.assertEqual(self.started, [])
         self.assertIn('RUNBOOK 103', self.spool.state['attention']['elf-male-a/repair']['text'])
+
+    def test_repair_gets_a_clay_sheet_and_the_skirt_zone(self):
+        head = self.head(manifest={'mesh': {'neck': {'cut': {'skirt': {'gap': .02}}}}, 'fit': {'matrix': [[1, 0, 0, 0]]}, 'palette': {}})
+        self.receipt(head, 'repair', 1, {'result': {}})
+        self.finish(stage='repair')
+        self.assertEqual([call[1] for call in self.tools], ['clay', 'skirtzone'])
+        self.assertEqual(self.tools[1][-2:], (.02, .03))
+        self.assertEqual(json.loads(self.tools[0][self.tools[0].index('--matrix')+1].read_text()), [[1, 0, 0, 0]])
+        self.assertIn('skirt zone', self.spool.state['review']['elf-male-a/repair']['text'])
+
+    def test_bake_queues_views_and_ownership_draws_its_rules(self):
+        head = self.head()
+        self.receipt(head, 'bake', 1, {'result': {}})
+        self.finish(stage='bake')
+        self.assertEqual(self.queued, [('bakeviews', 'elf-male-a')])
+        self.receipt(head, 'ownership', 1, {'result': {}})
+        self.finish(stage='ownership')
+        self.assertEqual(self.tools[-1][:3], ('review', 'own_draft', 'elf-male-a'))
+        self.assertEqual(json.loads(self.tools[-1][3].read_text())['mode'], 'rules')
+
+    def test_palette_draws_the_row_ramps(self):
+        head = self.head()
+        self.receipt(head, 'palette', 1, {'result': {'rows': {'0': 7}}})
+        self.finish(stage='palette')
+        self.assertEqual(self.tools, [('review', 'rowramps', 'elf-male-a')])
+
+    def test_coverage_failure_applies_the_floor_and_relaunches(self):
+        head = self.head()
+        self.receipt(head, 'unwrap', 1, {'error': 'Insufficient useful UV coverage (0.281 at 2K)'})
+        self.finish('failed')
+        self.assertEqual(self.tools, [('presets', 'elf-male-a', '--uv-only', '--apply')])
+        self.assertEqual(self.started, [('unwrap', 'elf-male-a', None)])
+        self.tool_result = (1, ['HOLD: needs fewer charts'])
+        self.finish('failed')
+        self.assertEqual(self.started, [])
+        self.assertIn('fewer charts', self.spool.state['attention']['elf-male-a/unwrap']['text'])
+
+    def test_shell_failure_queues_the_shell_sheet(self):
+        head = self.head()
+        self.receipt(head, 'repair', 1, {'error': 'Deleted shells cover too much'})
+        write(head/'run/repair/attempt-01/master-uncut.glb')
+        self.finish('failed', 'repair')
+        self.assertEqual(self.queued[0][:2], ('cutshells', 'elf-male-a'))
+        self.assertIn('cutshells queued', self.spool.state['attention']['elf-male-a/repair']['text'])
+
+    def test_queued_repair_runs_the_presets_and_a_hold_stops_it(self):
+        self.head()
+        write(self.workspace.spool/'queue/a.json', {'heads': ['elf-male-a'], 'stages': 'repair'})
+        self.tool_result = (1, ['HOLD: no reach finds the chin'])
+        self.spool.scan_requests()
+        self.assertEqual(self.started, [])
+        self.assertIn('elf-male-a/repair', self.spool.state['attention'])
 
     def test_stop_file_ends_the_loop(self):
         write(self.workspace.spool/'STOP')

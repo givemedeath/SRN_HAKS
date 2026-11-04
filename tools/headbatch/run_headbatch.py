@@ -10,9 +10,38 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import guards  # noqa: E402
 import head_setup  # noqa: E402
 import launcher  # noqa: E402
+import presets  # noqa: E402
 import spool  # noqa: E402
 import trials  # noqa: E402
 from workspace import PYTHON, Workspace, WorkspaceError  # noqa: E402
+
+
+REVIEW = Path(__file__).resolve().with_name('review')
+
+
+def review(workspace, tool, arguments, slot):
+    command = [PYTHON, '-B', str(REVIEW/f'{tool}.py'), *arguments]
+    environment = workspace.python_environment(packages=True, tools=True)
+
+    def run():
+        return subprocess.run(command, env=environment, cwd=workspace.heads).returncode
+    if not slot:
+        return run()
+    with launcher.cpu_slot(workspace, f'{os.getpid()} review {tool}'):
+        return run()
+
+
+def show_presets(workspace, args):
+    held = False
+    for head in args.heads:
+        if args.apply:
+            line, hold = presets.apply(workspace, head, args.uv_only)
+        else:
+            _, notes, reasons = presets.plan(workspace, head, args.uv_only)
+            line, hold = presets.summary(head, notes, reasons), bool(reasons)
+        print(line)
+        held = held or hold
+    return 1 if held else 0
 
 
 def parser():
@@ -49,6 +78,15 @@ def parser():
     p.add_argument('--version', default='1')
     p = commands.add_parser('spool', help='auto-advance queued heads')
     p.add_argument('--once', action='store_true')
+    p = commands.add_parser('presets', help='plan or apply the up-front repair policies')
+    p.add_argument('heads', nargs='+')
+    p.add_argument('--uv-only', action='store_true')
+    p.add_argument('--apply', action='store_true')
+    commands.add_parser('status', help='one line per head: newest stage and what it waits for')
+    p = commands.add_parser('review', help='a review sheet or diagnostic from tools/headbatch/review, run in the heads folder')
+    p.add_argument('--slot', action='store_true', help='wait for a CPU slot first')
+    p.add_argument('tool', choices=sorted(path.stem for path in REVIEW.glob('*.py') if path.stem != '__init__'))
+    p.add_argument('arguments', nargs=argparse.REMAINDER)
     p = commands.add_parser('env', help='run a script with headkit and the bound packages on the path')
     p.add_argument('script')
     p.add_argument('arguments', nargs=argparse.REMAINDER)
@@ -100,6 +138,13 @@ def main(argv=None):
             print(trials.build(workspace, args.name, args.version))
         elif args.command == 'spool':
             spool.Spool(workspace).loop(args.once)
+        elif args.command == 'presets':
+            return show_presets(workspace, args)
+        elif args.command == 'status':
+            for line in launcher.status(workspace):
+                print(line)
+        elif args.command == 'review':
+            return review(workspace, args.tool, args.arguments, args.slot)
         elif args.command == 'env':
             return subprocess.run([PYTHON, '-B', args.script, *args.arguments], env=workspace.python_environment(packages=True, tools=True)).returncode
     except (WorkspaceError, guards.Refused, launcher.LaunchFailed) as error:

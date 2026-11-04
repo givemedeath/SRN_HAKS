@@ -14,6 +14,7 @@ from workspace import PYTHON, TOOLS
 HEADKIT = TOOLS/'headkit'
 RUN_HEADKIT = HEADKIT/'run_headkit.py'
 GPU_JOB = Path(__file__).with_name('gpu_job.py')
+FINISHED_STAGES = ('native', 'render')
 SLOT_POLL_SECONDS = 15
 GPU_POLL_SECONDS = 20
 # Only what each job imports: a toolkit edit elsewhere must not invalidate a GPU or design launch in flight (RUNBOOK 40).
@@ -149,6 +150,25 @@ def results(stdout):
     rows = parsed.get('heads', parsed) if isinstance(parsed, dict) else parsed
     return [{'id': row.get('id'), 'error': row.get('error', ''), 'stages': [{'stage': s['stage'], 'status': s['status']} for s in row.get('stages', [])]}
             for row in rows if isinstance(row, dict)]
+
+
+def status(workspace):
+    """One line per head. A head whose newest stage finished with no launch queued is waiting on review, which is easy to miss (RUNBOOK 63)."""
+    lines = []
+    if not workspace.heads.is_dir():
+        return lines
+    for head in sorted(path for path in workspace.heads.iterdir() if (path/'run').is_dir()):
+        receipts = sorted(head.glob('run/*/attempt-*/receipt.json'), key=lambda path: path.stat().st_mtime)
+        if not receipts:
+            lines.append(f'{head.name} | no stage yet')
+            continue
+        newest = receipts[-1]
+        receipt = guards.read(newest)
+        state = 'failed' if receipt.get('error') else 'ran'
+        stage = newest.parts[-3]
+        note = 'launch queued or running' if guards.head_busy(workspace, head.name) else 'finished' if stage in FINISHED_STAGES and state == 'ran' else 'WAITING ON REVIEW'
+        lines.append(f'{head.name} | {stage} {newest.parts[-2]} {state} | {note}')
+    return lines
 
 
 def run_gpu(workspace, name, arguments):

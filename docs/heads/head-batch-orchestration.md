@@ -22,6 +22,7 @@ Pass `--workspace DIR` or set `SRN_HEAD_WORKSPACE`.
 | `game`, `trialBase`, `clientSettings` | Client trials: install paths, base HAKs and module, and an optional `settings.tml` |
 | `slots` | Slot numbers this batch fills, from `docs/heads/slot-catalog.json`: `"elf-male": [20, 21]` gives `elf-male-a`, `elf-male-b` |
 | `headsDirectory`, `hashCache`, `cpuSlots`, `loopBudget` | Optional. A `cpu-slots` file in the workspace changes the limit while launches wait |
+| `repairDefaults` | Optional fine relief for `presets` |
 
 Race constants that do not depend on the machine are in `tools/headbatch/races.json`.
 
@@ -37,8 +38,35 @@ run_headbatch.py run NAME STAGES HEAD... [--approve STAGE --notes TEXT]
 run_headbatch.py spool [--once]                          auto-advance queued heads
 run_headbatch.py trial-spec RACE [--version N]           specs/trial-RACE-vN.json
 run_headbatch.py trial NAME [--version N]                build trials/NAME-vN
+run_headbatch.py presets HEAD... [--uv-only] [--apply]   plan or apply the repair policies; exit 1 on HOLD
+run_headbatch.py status                                  one line per head; flags WAITING ON REVIEW
+run_headbatch.py review [--slot] TOOL ARG...             a sheet or diagnostic, run in the heads folder
 run_headbatch.py env SCRIPT ARG...                       a probe with headkit and the bound packages on the path
 ```
+
+## Review tools
+
+`tools/headbatch/review` holds the sheets and read-only diagnostics. Each states its arguments in its docstring, and takes `HEAD` as a name in the heads folder. `--slot` waits for a CPU slot, for the heavy ones. None of them writes into `run`, and a sheet approves nothing.
+
+| Check | Tools |
+|---|---|
+| Geometry | `clay` (uncut/final pair; `--two-sided` tells inverted precluster normals from a real shell), `chinprofile`, `backcount`, `hot`, `boundary`, `jaw` |
+| Neck cut, before a repair | `slopescan` (seconds), `cutdry`, `cutreplay`, `skirtzone`, `fitcheck` |
+| Shells | `shells`, `cutshells` |
+| Texture and rows | `bakeviews` (textured views and iso-line grid), `grid`, `own_draft` (draft ownership rules, no launch), `rowramps` |
+| Face marks | `design_landmarks OUT_DIR HEAD...` writes the `landmarks.json` the jaw guard reads |
+
+Quality-gate prototypes that headkit adopted are not here; nor are one-off audits from past batches.
+
+## Presets
+
+`presets` covers failures already known before a repair runs. It writes `overrides.json` with notes and regenerates the manifest, only with `--apply` and only when a policy changed something:
+
+- **UV floor:** when the newest unwrap cleared its floor by under .01, the floor becomes coverage minus .011 rounded down to .01. Below .20 it reports HOLD: the head needs fewer charts.
+- **Neck reach:** when `landmarks` is set, `slopescan` finds the jaw. If it sits above the chin limit, the largest reach of .06, .04 and .03 that passes is used, otherwise HOLD. `HEAD/jaw-reviewed` skips this.
+- **Fine relief:** the optional workspace `repairDefaults`, `{"fineRelief": {...}, "skipRaces": [...]}`, applies to heads that declare none.
+
+`--uv-only` is for a head whose repair is already approved: fine relief and the cut are repair keys, and changing them stales the repair (RUNBOOK 106).
 
 ## Guards
 
@@ -59,7 +87,19 @@ Drop JSON requests into the workspace's `spool` folder and run `spool`. The modu
 
 It launches each head separately and advances by itself only on numeric gates: unwrap to bake, palette to export when rows equal the pins in `spool/reviewed-rows.json`, export to native, native to render. Everything else lands in `spool/review.md` or `spool/attention.md`. A launch with no result goes to attention rather than passing silently.
 
-It does not draw review sheets or change manifests. Reviewers make their own sheets with `env`, and set a UV floor or a neck cut in `overrides.json`.
+Each finished stage gets its evidence before it reaches the review list:
+
+| Event | What the spooler does |
+|---|---|
+| Repair queued | `presets --apply`; a HOLD goes to attention and no launch starts |
+| Repair ran | Jaw result, clay pair in `spool/sheets`, skirt zone at its gap and at 3 cm when the head has a skirt |
+| Repair failed on deleted shells | Queues `cutshells` |
+| Unwrap failed on coverage | `presets --uv-only --apply` and a relaunch, or attention on HOLD |
+| Bake ran | Queues `bakeviews` |
+| Ownership ran | Draws the manifest's rules with `own_draft` |
+| Palette ran | Draws `rowramps`, then checks the pins |
+
+Queued sheets wait for a CPU slot in their own process, so a review line can arrive before its sheet. The spooler changes `overrides.json` only through `presets`; any other UV floor or neck cut is a reviewer's edit.
 
 ## Before publishing
 
@@ -77,4 +117,8 @@ Every confirmed mistake gets a guard and a row in `docs/heads/race-heads-v1-runb
 | `trial_spec.py`, `trial.sh` | `trial-spec`, `trial` |
 | `autospool.py` | `spool` |
 | `hk_env.sh` | `env` |
+| `preset_policy.py` | `presets` |
+| `status.sh` | `status` |
+| `bakeviews.sh` | `review bakeviews` |
+| `review-kit/*.py`, `own_draft.py` | `review TOOL` |
 | `jaw_guard.sh`, `jawcheck.py`, `uv_margin.py`, `unwrapcheck.py`, `pkg_extra.py`, `clean_pyc.py` | `guards.py` |
