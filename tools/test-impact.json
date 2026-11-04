@@ -204,6 +204,7 @@
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
       "tools/headkit/predicates.py",
+      "tools/headkit/rays.py",
       "tools/headkit/uv.py"
     ],
     "tools/headkit/palette.py": [
@@ -235,6 +236,7 @@
       "tools/headkit/face_masks.py",
       "tools/headkit/gltf.py",
       "tools/headkit/quality-thresholds.json",
+      "tools/headkit/rays.py",
       "tools/headkit/textures.py",
       "tools/headkit/uv.py"
     ],
@@ -275,6 +277,7 @@
       "tools/headkit/palette.py",
       "tools/headkit/projection.py",
       "tools/headkit/quality.py",
+      "tools/headkit/rays.py",
       "tools/headkit/review_images.py",
       "tools/headkit/textures.py",
       "tools/headkit/uv.py",
@@ -344,6 +347,7 @@
       "tools/headkit/palette.py",
       "tools/headkit/preview.py",
       "tools/headkit/projection.py",
+      "tools/headkit/rays.py",
       "tools/headkit/relief.py",
       "tools/headkit/replay.py",
       "tools/headkit/review_images.py",

@@ -132,6 +132,8 @@ def manifest(path):
     require(all(face) or (not any(face) and 'featureChannels' not in (data.get('ownership') or {})
                           and 'faceTreatment' not in (data.get('tone') or {}) and 'faceMasks' not in data and 'quality' not in data),
             'faceMasks, ownership.featureChannels: true, tone.faceTreatment and quality go together')
+    require(all(face) or not any(isinstance(rule, dict) and rule.get('overFaceMasks') is True for rule in (data.get('ownership') or {}).get('rules') or []),
+            'Ownership rules mark overFaceMasks only with the face masks (ownership.featureChannels)')
     # The quality gate's shadeSpan check (and the calibrated prototypes) assume every channel uses its full shade range.
     require(not all(face) or (data.get('palette') or {}).get('fullShadeRange') is True,
             'Face masks need palette.fullShadeRange: true (the quality gate measures each channel\'s shade span)')
