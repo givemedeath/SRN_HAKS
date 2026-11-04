@@ -37,6 +37,17 @@ def active_parts(profile):
     return (SLOTS[subtype],)
 
 
+def active_icon_dimensions(profile):
+    dimensions=profile['native'].get('iconDimensions')
+    active=active_parts(profile)
+    require(isinstance(dimensions,dict), 'Measure active-part inventory icon dimensions')
+    if profile['family'] in RIGGED_NATIVE_FAMILIES:
+        require(set(dimensions)=={'b','m','t'}, 'Measure all rigged donor inventory icon dimensions')
+        dimensions={part:dimensions[part] for part in active}
+    require(set(dimensions)==set(active), 'Measure active-part inventory icon dimensions')
+    return dimensions
+
+
 def assembly_budget(profile, counts, kind):
     active = active_parts(profile)
     require(set(counts) == set(active), 'Count every active processing part exactly once')

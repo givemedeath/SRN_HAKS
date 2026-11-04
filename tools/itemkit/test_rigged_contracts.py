@@ -3,7 +3,7 @@ from PIL import Image
 from tools.headkit.common import write,pin
 from .test_itemkit import Fixture
 from . import contracts
-from .parts import active_parts,assembly_budget,WHOLE_NATIVE_FAMILIES
+from .parts import active_parts,active_icon_dimensions,assembly_budget,WHOLE_NATIVE_FAMILIES
 from .runner import Runner
 
 
@@ -39,6 +39,10 @@ class RiggedContractTests(Fixture):
                 with patch.object(contracts,'rigged_motion_inputs'):
                     data=contracts.family(self.profile_path);contracts.manifest(self.path)
                 self.assertEqual(active_parts(data),('m',));self.assertNotIn(family,WHOLE_NATIVE_FAMILIES)
+                self.assertEqual(active_icon_dimensions(data),{'m':data['native']['iconDimensions']['m']})
+                self.assertEqual(set(data['native']['iconDimensions']),{'b','m','t'})
+                incomplete={**data,'native':{**data['native'],'iconDimensions':{'b':[64,64],'t':[64,64]}}}
+                with self.assertRaises(ValueError):active_icon_dimensions(incomplete)
                 self.assertEqual(assembly_budget(data,{'m':9988},'visible')['assembly'],9996)
                 with self.assertRaises(ValueError):assembly_budget(data,{'m':9995},'visible')
                 self.profile['native']['baseItem']=22

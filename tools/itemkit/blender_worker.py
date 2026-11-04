@@ -19,7 +19,7 @@ from tools.headkit.gltf import load as load_glb
 from tools.headkit.uv import raster_audit, gutter_audit
 from tools.itemkit.geometry import similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
 from tools.itemkit.transfer import finished_colour,validate_texture_patch
-from tools.itemkit.parts import active_parts, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
+from tools.itemkit.parts import active_parts, active_icon_dimensions, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
 
 def arrays(obj):
     mesh = obj.data; mesh.calc_loop_triangles()
@@ -832,8 +832,7 @@ def render(cfg, out, source=False, *, _clay_review=None):
     require(len(frames) == ((8 if firearm else 7) if source else 24), 'Incomplete inspection views')
     icons = {}
     if not source:
-        dimensions = cfg['family']['native'].get('iconDimensions')
-        require(isinstance(dimensions, dict) and set(dimensions) == set(active_parts(cfg['family'])), 'Measure active-part inventory icon dimensions')
+        dimensions = active_icon_dimensions(cfg['family'])
         scene.render.film_transparent = True; scene.render.image_settings.color_mode = 'RGBA'
         for part in active_parts(cfg['family']):
             obj = bpy.data.objects['item_'+part]
