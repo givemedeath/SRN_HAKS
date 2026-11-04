@@ -283,7 +283,7 @@ class Spool:
                     self.attention(log.stem, 'sheet', f'exit {code}: see {log}')
 
     def retire(self, path):
-        path.rename(self.folder/'done'/f'{datetime.now():%H%M%S%f}-{path.name}')
+        path.rename(self.folder/'done'/f'{datetime.now():%H%M%S%f}-{path.parent.name}-{path.name}')  # approve/a.json and queue/a.json can retire in one clock tick
 
     def launch_reviewed(self, head, stages, label, approve, notes):
         if self.rows_unreviewed(head, stages):
