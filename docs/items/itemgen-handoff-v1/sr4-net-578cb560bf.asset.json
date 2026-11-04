@@ -1,0 +1,2093 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-net-578cb560bf",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "reviewed-feature-1",
+      "pixel": [
+        300.0,
+        170.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-2",
+      "pixel": [
+        1175.0,
+        190.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-3",
+      "pixel": [
+        49.99999999999999,
+        940.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-4",
+      "pixel": [
+        1190.0,
+        1060.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-net-578cb560bf.family.json",
+    "sha256": "7530553479867292732d416a6775346eb183cfc3864551de138fa6610aca8d53"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/022154bf3a381a5b008e7b62a8b9ae36f3a75be560a3352b911d4ca5fb7b89bd.png",
+      "sha256": "022154bf3a381a5b008e7b62a8b9ae36f3a75be560a3352b911d4ca5fb7b89bd"
+    },
+    "clayReference": {
+      "path": "inputs/fcae69e0c6c2332c8653153fa8cfd1d61bac7d2e853e6f7562c7b67734d3c030.png",
+      "sha256": "fcae69e0c6c2332c8653153fa8cfd1d61bac7d2e853e6f7562c7b67734d3c030"
+    },
+    "geometry": {
+      "path": "inputs/d01b678053c660ae04a8d44530ef51a53574e2689e7312dfaf2caf3245047c72.png",
+      "sha256": "d01b678053c660ae04a8d44530ef51a53574e2689e7312dfaf2caf3245047c72"
+    },
+    "detail": {
+      "path": "inputs/d9b65a4b9c7e8b4ed0c9c9adcd44bea239ad949cef366108408f3dac7de450b8.png",
+      "sha256": "d9b65a4b9c7e8b4ed0c9c9adcd44bea239ad949cef366108408f3dac7de450b8"
+    },
+    "foregroundMask": {
+      "path": "inputs/1e59443397e52a29fe4955b5a2903c6de330d0dac87565b94463c2d343e7e337.png",
+      "sha256": "1e59443397e52a29fe4955b5a2903c6de330d0dac87565b94463c2d343e7e337"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032.png",
+      "sha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032"
+    },
+    "mask": {
+      "path": "inputs/7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032.png",
+      "sha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032"
+    },
+    "calibrationReference": {
+      "path": "inputs/6b36d5ce1cb78e40386e7a2c79f62facceb5c41bf0e747c3c038baad30784f90.png",
+      "sha256": "6b36d5ce1cb78e40386e7a2c79f62facceb5c41bf0e747c3c038baad30784f90"
+    },
+    "sourceAudit": {
+      "path": "inputs/36a7610cf926b9e4c80f832e153ea7dc261683b233c35ae87b425a39d333b6a2.json",
+      "sha256": "36a7610cf926b9e4c80f832e153ea7dc261683b233c35ae87b425a39d333b6a2"
+    },
+    "referenceApproval": {
+      "path": "inputs/6b0af6fe7a0d045f932ca7b07ed0ad206bfa0b322bfe4f57940be0391171ad99.json",
+      "sha256": "6b0af6fe7a0d045f932ca7b07ed0ad206bfa0b322bfe4f57940be0391171ad99"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4099e0eef87ad0e3ecedd074d0dd79cd232ef18c823523766f07b875bf343d81.png",
+      "sha256": "4099e0eef87ad0e3ecedd074d0dd79cd232ef18c823523766f07b875bf343d81"
+    }
+  },
+  "features": [
+    {
+      "name": "Durable lightweight hard-to-cut hybrid mesh/weave weighted around its edges",
+      "placementReviewed": true
+    },
+    {
+      "name": "Thrown restraint, not Net Gun ammunition or monofilament weapon",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve mesh openings, thin strands and perimeter weights; footprint, mesh count and color unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. All144structural cells, thin strands, knots and perimeter weights retained; source and output topology both1component/144holes. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        609,
+        392,
+        698,
+        448
+      ],
+      "referenceAreaPixels": 2518,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        560,
+        405,
+        620,
+        481
+      ],
+      "referenceAreaPixels": 2970,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1650,
+        426,
+        1745,
+        483
+      ],
+      "referenceAreaPixels": 2858,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        737,
+        429,
+        830,
+        475
+      ],
+      "referenceAreaPixels": 2572,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1725,
+        443,
+        1785,
+        525
+      ],
+      "referenceAreaPixels": 3246,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        875,
+        446,
+        987,
+        501
+      ],
+      "referenceAreaPixels": 3529,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        657,
+        448,
+        762,
+        516
+      ],
+      "referenceAreaPixels": 4460,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1504,
+        455,
+        1608,
+        507
+      ],
+      "referenceAreaPixels": 3409,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-9",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1346,
+        460,
+        1452,
+        517
+      ],
+      "referenceAreaPixels": 3779,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-10",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1029,
+        467,
+        1144,
+        513
+      ],
+      "referenceAreaPixels": 3249,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-11",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1191,
+        471,
+        1302,
+        519
+      ],
+      "referenceAreaPixels": 3302,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-12",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        570,
+        473,
+        677,
+        561
+      ],
+      "referenceAreaPixels": 6089,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-13",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        801,
+        473,
+        908,
+        545
+      ],
+      "referenceAreaPixels": 4635,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-14",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1579,
+        477,
+        1689,
+        551
+      ],
+      "referenceAreaPixels": 5249,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-15",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1427,
+        491,
+        1538,
+        570
+      ],
+      "referenceAreaPixels": 5766,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-16",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        948,
+        492,
+        1066,
+        562
+      ],
+      "referenceAreaPixels": 5044,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-17",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1265,
+        496,
+        1386,
+        576
+      ],
+      "referenceAreaPixels": 6211,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-18",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        713,
+        504,
+        825,
+        590
+      ],
+      "referenceAreaPixels": 6251,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-19",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1107,
+        506,
+        1223,
+        574
+      ],
+      "referenceAreaPixels": 5025,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-20",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        519,
+        518,
+        582,
+        596
+      ],
+      "referenceAreaPixels": 2928,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-21",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1658,
+        519,
+        1754,
+        603
+      ],
+      "referenceAreaPixels": 5185,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-22",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        863,
+        533,
+        980,
+        615
+      ],
+      "referenceAreaPixels": 6153,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-23",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1506,
+        542,
+        1617,
+        621
+      ],
+      "referenceAreaPixels": 5650,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-24",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1019,
+        544,
+        1140,
+        628
+      ],
+      "referenceAreaPixels": 6498,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-25",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        618,
+        549,
+        735,
+        632
+      ],
+      "referenceAreaPixels": 6124,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-26",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1180,
+        554,
+        1303,
+        635
+      ],
+      "referenceAreaPixels": 6401,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-27",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1343,
+        554,
+        1464,
+        633
+      ],
+      "referenceAreaPixels": 6164,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-28",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1734,
+        563,
+        1794,
+        652
+      ],
+      "referenceAreaPixels": 3199,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-29",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        770,
+        578,
+        890,
+        666
+      ],
+      "referenceAreaPixels": 6658,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-30",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1584,
+        587,
+        1695,
+        673
+      ],
+      "referenceAreaPixels": 6369,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-31",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        530,
+        591,
+        643,
+        681
+      ],
+      "referenceAreaPixels": 6690,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-32",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        927,
+        597,
+        1052,
+        684
+      ],
+      "referenceAreaPixels": 6851,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-33",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1428,
+        608,
+        1544,
+        686
+      ],
+      "referenceAreaPixels": 5964,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-34",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1091,
+        611,
+        1217,
+        693
+      ],
+      "referenceAreaPixels": 6722,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-35",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1259,
+        614,
+        1386,
+        695
+      ],
+      "referenceAreaPixels": 6816,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-36",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        681,
+        623,
+        795,
+        710
+      ],
+      "referenceAreaPixels": 6349,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-37",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1662,
+        642,
+        1758,
+        734
+      ],
+      "referenceAreaPixels": 5635,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-38",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        833,
+        650,
+        959,
+        740
+      ],
+      "referenceAreaPixels": 7247,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-39",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        494,
+        651,
+        554,
+        735
+      ],
+      "referenceAreaPixels": 3309,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-40",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1509,
+        659,
+        1621,
+        743
+      ],
+      "referenceAreaPixels": 6162,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-41",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        590,
+        665,
+        707,
+        760
+      ],
+      "referenceAreaPixels": 7010,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-42",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        998,
+        665,
+        1128,
+        752
+      ],
+      "referenceAreaPixels": 7165,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-43",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1341,
+        671,
+        1467,
+        755
+      ],
+      "referenceAreaPixels": 6910,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-44",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1169,
+        673,
+        1299,
+        758
+      ],
+      "referenceAreaPixels": 7104,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-45",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1733,
+        695,
+        1797,
+        798
+      ],
+      "referenceAreaPixels": 4124,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-46",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        744,
+        701,
+        864,
+        790
+      ],
+      "referenceAreaPixels": 6647,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-47",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1586,
+        711,
+        1695,
+        809
+      ],
+      "referenceAreaPixels": 7099,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-48",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        512,
+        718,
+        615,
+        816
+      ],
+      "referenceAreaPixels": 6475,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-49",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        903,
+        720,
+        1037,
+        810
+      ],
+      "referenceAreaPixels": 7561,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-50",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1429,
+        723,
+        1545,
+        815
+      ],
+      "referenceAreaPixels": 6978,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-51",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1077,
+        730,
+        1209,
+        819
+      ],
+      "referenceAreaPixels": 7607,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-52",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1251,
+        734,
+        1388,
+        824
+      ],
+      "referenceAreaPixels": 7991,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-53",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        651,
+        743,
+        775,
+        845
+      ],
+      "referenceAreaPixels": 8051,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-54",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        459,
+        774,
+        524,
+        867
+      ],
+      "referenceAreaPixels": 3810,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-55",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        813,
+        776,
+        941,
+        867
+      ],
+      "referenceAreaPixels": 7180,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-56",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1657,
+        776,
+        1752,
+        881
+      ],
+      "referenceAreaPixels": 6417,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-57",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1505,
+        785,
+        1617,
+        885
+      ],
+      "referenceAreaPixels": 7412,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-58",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        982,
+        791,
+        1116,
+        881
+      ],
+      "referenceAreaPixels": 7632,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-59",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        558,
+        795,
+        679,
+        903
+      ],
+      "referenceAreaPixels": 8236,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-60",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1335,
+        795,
+        1464,
+        888
+      ],
+      "referenceAreaPixels": 7720,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-61",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1158,
+        797,
+        1293,
+        890
+      ],
+      "referenceAreaPixels": 7954,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-62",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        716,
+        826,
+        845,
+        924
+      ],
+      "referenceAreaPixels": 8079,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-63",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1731,
+        842,
+        1787,
+        948
+      ],
+      "referenceAreaPixels": 3591,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-64",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        884,
+        848,
+        1022,
+        943
+      ],
+      "referenceAreaPixels": 8276,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-65",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1579,
+        852,
+        1691,
+        962
+      ],
+      "referenceAreaPixels": 8283,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-66",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        472,
+        855,
+        579,
+        960
+      ],
+      "referenceAreaPixels": 7131,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-67",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1419,
+        857,
+        1539,
+        959
+      ],
+      "referenceAreaPixels": 8048,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-68",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1062,
+        858,
+        1200,
+        956
+      ],
+      "referenceAreaPixels": 8529,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-69",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1242,
+        864,
+        1377,
+        959
+      ],
+      "referenceAreaPixels": 8344,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-70",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        616,
+        882,
+        744,
+        989
+      ],
+      "referenceAreaPixels": 8499,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-71",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        783,
+        905,
+        920,
+        1004
+      ],
+      "referenceAreaPixels": 8434,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-72",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        417,
+        911,
+        482,
+        1013
+      ],
+      "referenceAreaPixels": 4074,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-73",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        962,
+        920,
+        1101,
+        1020
+      ],
+      "referenceAreaPixels": 8675,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-74",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1657,
+        928,
+        1751,
+        1038
+      ],
+      "referenceAreaPixels": 6779,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-75",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1498,
+        930,
+        1616,
+        1039
+      ],
+      "referenceAreaPixels": 8224,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-76",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1145,
+        931,
+        1283,
+        1029
+      ],
+      "referenceAreaPixels": 8507,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-77",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1326,
+        931,
+        1457,
+        1032
+      ],
+      "referenceAreaPixels": 8405,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-78",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        515,
+        939,
+        640,
+        1053
+      ],
+      "referenceAreaPixels": 9145,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-79",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        677,
+        963,
+        818,
+        1073
+      ],
+      "referenceAreaPixels": 9582,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-80",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        857,
+        980,
+        1001,
+        1088
+      ],
+      "referenceAreaPixels": 9718,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-81",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1041,
+        995,
+        1184,
+        1100
+      ],
+      "referenceAreaPixels": 9545,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-82",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1735,
+        997,
+        1793,
+        1110
+      ],
+      "referenceAreaPixels": 4236,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-83",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        427,
+        998,
+        533,
+        1113
+      ],
+      "referenceAreaPixels": 7863,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-84",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1227,
+        999,
+        1368,
+        1107
+      ],
+      "referenceAreaPixels": 9781,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-85",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1409,
+        1001,
+        1537,
+        1114
+      ],
+      "referenceAreaPixels": 9397,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-86",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1579,
+        1007,
+        1695,
+        1119
+      ],
+      "referenceAreaPixels": 8784,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-87",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        569,
+        1028,
+        707,
+        1145
+      ],
+      "referenceAreaPixels": 10077,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-88",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        747,
+        1043,
+        891,
+        1152
+      ],
+      "referenceAreaPixels": 9752,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-89",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        369,
+        1051,
+        432,
+        1162
+      ],
+      "referenceAreaPixels": 4375,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-90",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        933,
+        1060,
+        1080,
+        1168
+      ],
+      "referenceAreaPixels": 9872,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-91",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1121,
+        1070,
+        1266,
+        1176
+      ],
+      "referenceAreaPixels": 9686,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-92",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1310,
+        1076,
+        1449,
+        1185
+      ],
+      "referenceAreaPixels": 9781,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-93",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1492,
+        1085,
+        1619,
+        1197
+      ],
+      "referenceAreaPixels": 9203,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-94",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1661,
+        1085,
+        1758,
+        1197
+      ],
+      "referenceAreaPixels": 7169,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-95",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        464,
+        1093,
+        597,
+        1211
+      ],
+      "referenceAreaPixels": 9952,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-96",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        636,
+        1115,
+        781,
+        1227
+      ],
+      "referenceAreaPixels": 10230,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-97",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        821,
+        1127,
+        971,
+        1237
+      ],
+      "referenceAreaPixels": 10373,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-98",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1013,
+        1142,
+        1161,
+        1248
+      ],
+      "referenceAreaPixels": 10009,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-99",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1205,
+        1149,
+        1353,
+        1256
+      ],
+      "referenceAreaPixels": 10089,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-100",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        369,
+        1154,
+        484,
+        1272
+      ],
+      "referenceAreaPixels": 8753,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-101",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1396,
+        1158,
+        1533,
+        1270
+      ],
+      "referenceAreaPixels": 9796,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-102",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1742,
+        1158,
+        1800,
+        1266
+      ],
+      "referenceAreaPixels": 3705,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-103",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1577,
+        1166,
+        1701,
+        1281
+      ],
+      "referenceAreaPixels": 9591,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-104",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        524,
+        1187,
+        667,
+        1298
+      ],
+      "referenceAreaPixels": 9894,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-105",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        708,
+        1196,
+        855,
+        1307
+      ],
+      "referenceAreaPixels": 10207,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-106",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        302,
+        1206,
+        376,
+        1331
+      ],
+      "referenceAreaPixels": 5487,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-107",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        897,
+        1209,
+        1052,
+        1320
+      ],
+      "referenceAreaPixels": 10604,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-108",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1094,
+        1219,
+        1246,
+        1329
+      ],
+      "referenceAreaPixels": 10338,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-109",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1291,
+        1229,
+        1439,
+        1340
+      ],
+      "referenceAreaPixels": 10379,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-110",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1483,
+        1243,
+        1618,
+        1361
+      ],
+      "referenceAreaPixels": 10074,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-111",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1662,
+        1247,
+        1763,
+        1365
+      ],
+      "referenceAreaPixels": 7805,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-112",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        410,
+        1249,
+        550,
+        1362
+      ],
+      "referenceAreaPixels": 9976,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-113",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        590,
+        1269,
+        740,
+        1383
+      ],
+      "referenceAreaPixels": 10512,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-114",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        781,
+        1278,
+        936,
+        1395
+      ],
+      "referenceAreaPixels": 11493,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-115",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        978,
+        1290,
+        1137,
+        1407
+      ],
+      "referenceAreaPixels": 11527,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-116",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1181,
+        1298,
+        1338,
+        1415
+      ],
+      "referenceAreaPixels": 11679,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-117",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1382,
+        1313,
+        1527,
+        1433
+      ],
+      "referenceAreaPixels": 11060,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-118",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        313,
+        1314,
+        430,
+        1413
+      ],
+      "referenceAreaPixels": 7401,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-119",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1744,
+        1323,
+        1805,
+        1449
+      ],
+      "referenceAreaPixels": 5191,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-120",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1571,
+        1328,
+        1701,
+        1453
+      ],
+      "referenceAreaPixels": 10935,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-121",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        470,
+        1338,
+        618,
+        1449
+      ],
+      "referenceAreaPixels": 10466,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-122",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        660,
+        1349,
+        819,
+        1467
+      ],
+      "referenceAreaPixels": 11577,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-123",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        863,
+        1364,
+        1020,
+        1479
+      ],
+      "referenceAreaPixels": 11243,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-124",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1066,
+        1372,
+        1228,
+        1488
+      ],
+      "referenceAreaPixels": 11742,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-125",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        245,
+        1373,
+        318,
+        1450
+      ],
+      "referenceAreaPixels": 3425,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-126",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1274,
+        1383,
+        1430,
+        1505
+      ],
+      "referenceAreaPixels": 11883,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-127",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        357,
+        1400,
+        493,
+        1491
+      ],
+      "referenceAreaPixels": 8072,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-128",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1477,
+        1406,
+        1617,
+        1524
+      ],
+      "referenceAreaPixels": 10223,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-129",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1662,
+        1419,
+        1772,
+        1539
+      ],
+      "referenceAreaPixels": 8641,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-130",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        538,
+        1425,
+        696,
+        1524
+      ],
+      "referenceAreaPixels": 9820,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-131",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        741,
+        1437,
+        901,
+        1539
+      ],
+      "referenceAreaPixels": 10184,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-132",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        270,
+        1450,
+        371,
+        1502
+      ],
+      "referenceAreaPixels": 3207,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-133",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        947,
+        1451,
+        1112,
+        1551
+      ],
+      "referenceAreaPixels": 10476,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-134",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1160,
+        1459,
+        1322,
+        1567
+      ],
+      "referenceAreaPixels": 10965,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-135",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1368,
+        1476,
+        1525,
+        1582
+      ],
+      "referenceAreaPixels": 10599,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-136",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        419,
+        1487,
+        559,
+        1545
+      ],
+      "referenceAreaPixels": 4516,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-137",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1574,
+        1498,
+        1710,
+        1601
+      ],
+      "referenceAreaPixels": 9217,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-138",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1756,
+        1501,
+        1824,
+        1601
+      ],
+      "referenceAreaPixels": 4293,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-139",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        628,
+        1510,
+        780,
+        1568
+      ],
+      "referenceAreaPixels": 5609,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-140",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        831,
+        1520,
+        979,
+        1582
+      ],
+      "referenceAreaPixels": 5044,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-141",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1049,
+        1531,
+        1205,
+        1595
+      ],
+      "referenceAreaPixels": 6306,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-142",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1257,
+        1547,
+        1411,
+        1615
+      ],
+      "referenceAreaPixels": 5655,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-143",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1483,
+        1567,
+        1621,
+        1629
+      ],
+      "referenceAreaPixels": 5292,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-144",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1675,
+        1587,
+        1785,
+        1639
+      ],
+      "referenceAreaPixels": 3462,
+      "referenceMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "022154bf3a381a5b008e7b62a8b9ae36f3a75be560a3352b911d4ca5fb7b89bd",
+      "imageSha256": "d9b65a4b9c7e8b4ed0c9c9adcd44bea239ad949cef366108408f3dac7de450b8",
+      "maskSha256": "1e59443397e52a29fe4955b5a2903c6de330d0dac87565b94463c2d343e7e337",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. All144structural cells, thin strands, knots and perimeter weights retained; source and output topology both1component/144holes. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "fcae69e0c6c2332c8653153fa8cfd1d61bac7d2e853e6f7562c7b67734d3c030",
+      "imageSha256": "d01b678053c660ae04a8d44530ef51a53574e2689e7312dfaf2caf3245047c72",
+      "maskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. All144structural cells, thin strands, knots and perimeter weights retained; source and output topology both1component/144holes. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. All144structural cells, thin strands, knots and perimeter weights retained; source and output topology both1component/144holes. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "reviewed-feature-1",
+          "detail": [
+            0.2607993986472742,
+            0.17139437206112854
+          ],
+          "geometry": [
+            0.2607993986472742,
+            0.17139437206112854
+          ]
+        },
+        {
+          "name": "reviewed-feature-2",
+          "detail": [
+            0.901842357862083,
+            0.18604791176854754
+          ],
+          "geometry": [
+            0.901842357862083,
+            0.18604791176854754
+          ]
+        },
+        {
+          "name": "reviewed-feature-3",
+          "detail": [
+            0.07764426744304312,
+            0.7355556507967607
+          ],
+          "geometry": [
+            0.07764426744304312,
+            0.7355556507967607
+          ]
+        },
+        {
+          "name": "reviewed-feature-4",
+          "detail": [
+            0.9128316657343368,
+            0.8234768890412748
+          ],
+          "geometry": [
+            0.9128316657343368,
+            0.8234768890412748
+          ]
+        }
+      ],
+      "referenceSha256": "022154bf3a381a5b008e7b62a8b9ae36f3a75be560a3352b911d4ca5fb7b89bd",
+      "geometrySha256": "d01b678053c660ae04a8d44530ef51a53574e2689e7312dfaf2caf3245047c72",
+      "detailSha256": "d9b65a4b9c7e8b4ed0c9c9adcd44bea239ad949cef366108408f3dac7de450b8",
+      "geometryForegroundMaskSha256": "7aff9e268ac423fd9d63dcf695fdfe2bb4cfe91e41806cb70fd3d4d000c59032",
+      "foregroundMaskSha256": "1e59443397e52a29fe4955b5a2903c6de330d0dac87565b94463c2d343e7e337"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

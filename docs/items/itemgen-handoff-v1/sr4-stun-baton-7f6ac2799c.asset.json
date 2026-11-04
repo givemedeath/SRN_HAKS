@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-stun-baton-7f6ac2799c",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "head-left",
+      "pixel": [
+        39.99999999999999,
+        428.0
+      ]
+    },
+    {
+      "name": "head-shaft-top",
+      "pixel": [
+        372.0,
+        365.0
+      ]
+    },
+    {
+      "name": "guard-top",
+      "pixel": [
+        1076.0,
+        332.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        1075.0,
+        527.0
+      ]
+    },
+    {
+      "name": "pommel-right",
+      "pixel": [
+        1733.0,
+        430.99999999999994
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-stun-baton-7f6ac2799c.family.json",
+    "sha256": "ec9db349de3dffd018f9908c69b9b23dc2b02453031e170b3048d849cf482c03"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd.png",
+      "sha256": "b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd"
+    },
+    "clayReference": {
+      "path": "inputs/b2e9b3fd9445a2c5a558c14e664cfc893bca8d903e56e3cc57732926d0942156.png",
+      "sha256": "b2e9b3fd9445a2c5a558c14e664cfc893bca8d903e56e3cc57732926d0942156"
+    },
+    "geometry": {
+      "path": "inputs/c1a068759897c8e7c144c8aefff5e06cbaa2b9f32bfc63aafc58d96d7e0ba242.png",
+      "sha256": "c1a068759897c8e7c144c8aefff5e06cbaa2b9f32bfc63aafc58d96d7e0ba242"
+    },
+    "detail": {
+      "path": "inputs/03d8eb0169fedf83bdd63dc0d57a556a6fae64aacf327bb926e22745fe4edf87.png",
+      "sha256": "03d8eb0169fedf83bdd63dc0d57a556a6fae64aacf327bb926e22745fe4edf87"
+    },
+    "foregroundMask": {
+      "path": "inputs/e9b0a139783053135081f2b5948fd2d0d8590df4e11fcd030d943086a4e7ebec.png",
+      "sha256": "e9b0a139783053135081f2b5948fd2d0d8590df4e11fcd030d943086a4e7ebec"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/159e5cba5c9c7511786ed0e8a206250c62776b1899f42772d6069252f05c63f8.png",
+      "sha256": "159e5cba5c9c7511786ed0e8a206250c62776b1899f42772d6069252f05c63f8"
+    },
+    "mask": {
+      "path": "inputs/159e5cba5c9c7511786ed0e8a206250c62776b1899f42772d6069252f05c63f8.png",
+      "sha256": "159e5cba5c9c7511786ed0e8a206250c62776b1899f42772d6069252f05c63f8"
+    },
+    "calibrationReference": {
+      "path": "inputs/2a9204ff5c73e393680a7dc144bdb61e2a289da57ace256411106c018a9f38b0.png",
+      "sha256": "2a9204ff5c73e393680a7dc144bdb61e2a289da57ace256411106c018a9f38b0"
+    },
+    "sourceAudit": {
+      "path": "inputs/277856db00cbfe7764b58081bdb578420c6af370bfd668063e0ae35b05b12159.json",
+      "sha256": "277856db00cbfe7764b58081bdb578420c6af370bfd668063e0ae35b05b12159"
+    },
+    "referenceApproval": {
+      "path": "inputs/efd2a1aa806dbb53f394529090ab6b91d8e5db35217a47d26a51464dfd90894a.json",
+      "sha256": "efd2a1aa806dbb53f394529090ab6b91d8e5db35217a47d26a51464dfd90894a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/727871bd3fdb83b14a511897eae91b1d3f249aa2cee6972f26fd07373cb62162.png",
+      "sha256": "727871bd3fdb83b14a511897eae91b1d3f249aa2cee6972f26fd07373cb62162"
+    }
+  },
+  "features": [
+    {
+      "name": "Weighted baton with electrical contact appearance; specific exterior layout not established",
+      "placementReviewed": true
+    },
+    {
+      "name": "Core printed305/PDF307 weighted electrical baton class interpretation; contact layout and palette not canonical. Detailed appearance retained; smooth clay removes tiny grooves/seams/grip pattern, retains major weighted head/shaft/grip guard/pommel transitions. Independent manually traced masks preserve native canvases/RGB; shared2048transform, five paired landmarks pass2%. Reference-only approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd",
+      "imageSha256": "03d8eb0169fedf83bdd63dc0d57a556a6fae64aacf327bb926e22745fe4edf87",
+      "maskSha256": "e9b0a139783053135081f2b5948fd2d0d8590df4e11fcd030d943086a4e7ebec",
+      "notes": "Assigned sole final reviewer actually viewed exact raw pair, enlarged raw head/guard/pommel contours, independent native masks/teal previews, final2048masks/teal previews and overlay. Full lower silhouette now retained; one connected solid object,no openings,no isolated flecks,clipping,cast shadow or broad fringe. Antialiased manual contour edges follow the source. No parent duplicate visual review claimed."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "b2e9b3fd9445a2c5a558c14e664cfc893bca8d903e56e3cc57732926d0942156",
+      "imageSha256": "c1a068759897c8e7c144c8aefff5e06cbaa2b9f32bfc63aafc58d96d7e0ba242",
+      "maskSha256": "159e5cba5c9c7511786ed0e8a206250c62776b1899f42772d6069252f05c63f8",
+      "notes": "Assigned sole final reviewer actually viewed exact raw pair, enlarged raw head/guard/pommel contours, independent native masks/teal previews, final2048masks/teal previews and overlay. Full lower silhouette now retained; one connected solid object,no openings,no isolated flecks,clipping,cast shadow or broad fringe. Antialiased manual contour edges follow the source. No parent duplicate visual review claimed."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Core printed305/PDF307 weighted electrical baton class interpretation; contact layout and palette not canonical. Detailed appearance retained; smooth clay removes tiny grooves/seams/grip pattern, retains major weighted head/shaft/grip guard/pommel transitions. Independent manually traced masks preserve native canvases/RGB; shared2048transform, five paired landmarks pass2%. Reference-only approval.",
+      "landmarks": [
+        {
+          "name": "head-left",
+          "detail": [
+            0.051395483657243814,
+            0.499755859375
+          ],
+          "geometry": [
+            0.050334952885747936,
+            0.499755859375
+          ]
+        },
+        {
+          "name": "head-shaft-top",
+          "detail": [
+            0.22744359172555947,
+            0.46640528310643564
+          ],
+          "geometry": [
+            0.22850412249705537,
+            0.4637584119740099
+          ]
+        },
+        {
+          "name": "guard-top",
+          "detail": [
+            0.6007504232921084,
+            0.44893593363242573
+          ],
+          "geometry": [
+            0.6002201579063604,
+            0.44734781095297027
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.6002201579063604,
+            0.5521639077970297
+          ],
+          "geometry": [
+            0.6028714848351001,
+            0.5526932820235149
+          ]
+        },
+        {
+          "name": "pommel-right",
+          "detail": [
+            0.9491347817285041,
+            0.5013439820544554
+          ],
+          "geometry": [
+            0.949665047114252,
+            0.5029321047339109
+          ]
+        }
+      ],
+      "referenceSha256": "b5813e2c4c210b0da93bd0f2e76341c512773d0b69362c88e63557fe21d6bcbd",
+      "geometrySha256": "c1a068759897c8e7c144c8aefff5e06cbaa2b9f32bfc63aafc58d96d7e0ba242",
+      "detailSha256": "03d8eb0169fedf83bdd63dc0d57a556a6fae64aacf327bb926e22745fe4edf87",
+      "foregroundMaskSha256": "e9b0a139783053135081f2b5948fd2d0d8590df4e11fcd030d943086a4e7ebec",
+      "geometryForegroundMaskSha256": "159e5cba5c9c7511786ed0e8a206250c62776b1899f42772d6069252f05c63f8"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ultimax-mmg-598665e838",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-butt-left-edge-at-native-row300",
+      "pixel": [
+        27.999999999999996,
+        300.0
+      ]
+    },
+    {
+      "name": "handle-top-tangent",
+      "pixel": [
+        542.0,
+        163.0
+      ]
+    },
+    {
+      "name": "muzzle-right-tangent",
+      "pixel": [
+        1244.0,
+        380.5
+      ]
+    },
+    {
+      "name": "tripod-foot-bottom-tangent",
+      "pixel": [
+        116.00000000000001,
+        1138.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ultimax-mmg-598665e838.family.json",
+    "sha256": "e15ac3b2328a0cd6d2bc51eeb95a2af18c86294b52be180b782bf337463d49d3"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/9f330b7919968266910fa27fa72889565e6143a456ab9fd4e355257690a8b9ef.png",
+      "sha256": "9f330b7919968266910fa27fa72889565e6143a456ab9fd4e355257690a8b9ef"
+    },
+    "clayReference": {
+      "path": "inputs/07dd8a103f7d68edcc637452170ea61989d760b76218f63c1117b12c98e189b9.png",
+      "sha256": "07dd8a103f7d68edcc637452170ea61989d760b76218f63c1117b12c98e189b9"
+    },
+    "geometry": {
+      "path": "inputs/80ddf2a23bfc451559540964448f80bc985712b3cd40d69e25224d816e870330.png",
+      "sha256": "80ddf2a23bfc451559540964448f80bc985712b3cd40d69e25224d816e870330"
+    },
+    "detail": {
+      "path": "inputs/7b1baebc2d33e5badf6193308ebb4de39720692e354f454c88048350ab10d3d1.png",
+      "sha256": "7b1baebc2d33e5badf6193308ebb4de39720692e354f454c88048350ab10d3d1"
+    },
+    "foregroundMask": {
+      "path": "inputs/ad5c674f56f05b6e7b13b850e6e0a6979689d7f1e3ba5742c91c2b7417ff9df4.png",
+      "sha256": "ad5c674f56f05b6e7b13b850e6e0a6979689d7f1e3ba5742c91c2b7417ff9df4"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7.png",
+      "sha256": "2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7"
+    },
+    "mask": {
+      "path": "inputs/2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7.png",
+      "sha256": "2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7"
+    },
+    "calibrationReference": {
+      "path": "inputs/0fe394ffb738c332e68ab47ffb6d433ba3486f609e0ad5f96d668e0aa0f3da6f.png",
+      "sha256": "0fe394ffb738c332e68ab47ffb6d433ba3486f609e0ad5f96d668e0aa0f3da6f"
+    },
+    "sourceAudit": {
+      "path": "inputs/9d7bddad44239cb09ecc4faba97bc0fa470ebfa745d12b384765fe3b79971457.json",
+      "sha256": "9d7bddad44239cb09ecc4faba97bc0fa470ebfa745d12b384765fe3b79971457"
+    },
+    "referenceApproval": {
+      "path": "inputs/f2554d87432b33e0f39e9ed97cd34052b57a6e95308f80735f9ccdf09a0ad050.json",
+      "sha256": "f2554d87432b33e0f39e9ed97cd34052b57a6e95308f80735f9ccdf09a0ad050"
+    },
+    "calibrationDetail": {
+      "path": "inputs/03ade693a7e9b6a7a046ae011c00b54823a154383292872f9f2016c1e580292a.png",
+      "sha256": "03ade693a7e9b6a7a046ae011c00b54823a154383292872f9f2016c1e580292a"
+    }
+  },
+  "features": [
+    {
+      "name": "Saltwater/humid-heat resistant medium machine gun with detachable TRIPOD.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Description/table identify UltimaxMMG. Nearby white machine-gun drawing has a near-name caption conflict, so its exact model attribution must be disclosed.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected: full coherent MMG/tripod assembly, three distinct legs and feet, grip and handle openings, barrel and camera/framing preserved. No actual alpha debris. One final pair review reused; raw1254 originals preserved and 2048 resampling disclosed. Shallow surface lines nonblocking.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        845,
+        339,
+        1109,
+        457
+      ],
+      "referenceAreaPixels": 19941,
+      "referenceMaskSha256": "2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1621,
+        421,
+        1624,
+        438
+      ],
+      "referenceAreaPixels": 42,
+      "referenceMaskSha256": "2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1560,
+        608,
+        1590,
+        618
+      ],
+      "referenceAreaPixels": 179,
+      "referenceMaskSha256": "2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        707,
+        623,
+        747,
+        676
+      ],
+      "referenceAreaPixels": 1768,
+      "referenceMaskSha256": "2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "9f330b7919968266910fa27fa72889565e6143a456ab9fd4e355257690a8b9ef",
+      "imageSha256": "7b1baebc2d33e5badf6193308ebb4de39720692e354f454c88048350ab10d3d1",
+      "maskSha256": "ad5c674f56f05b6e7b13b850e6e0a6979689d7f1e3ba5742c91c2b7417ff9df4",
+      "notes": "Final prepared overlay inspected: full coherent MMG/tripod assembly, three distinct legs and feet, grip and handle openings, barrel and camera/framing preserved. No actual alpha debris. One final pair review reused; raw1254 originals preserved and 2048 resampling disclosed. Shallow surface lines nonblocking."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "07dd8a103f7d68edcc637452170ea61989d760b76218f63c1117b12c98e189b9",
+      "imageSha256": "80ddf2a23bfc451559540964448f80bc985712b3cd40d69e25224d816e870330",
+      "maskSha256": "2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7",
+      "notes": "Final prepared overlay inspected: full coherent MMG/tripod assembly, three distinct legs and feet, grip and handle openings, barrel and camera/framing preserved. No actual alpha debris. One final pair review reused; raw1254 originals preserved and 2048 resampling disclosed. Shallow surface lines nonblocking."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "9f330b7919968266910fa27fa72889565e6143a456ab9fd4e355257690a8b9ef",
+      "detailSha256": "7b1baebc2d33e5badf6193308ebb4de39720692e354f454c88048350ab10d3d1",
+      "geometrySha256": "80ddf2a23bfc451559540964448f80bc985712b3cd40d69e25224d816e870330",
+      "foregroundMaskSha256": "ad5c674f56f05b6e7b13b850e6e0a6979689d7f1e3ba5742c91c2b7417ff9df4",
+      "geometryForegroundMaskSha256": "2e23616b99290c14007642b44c4f04605e22e80fd3b13d7c0a5f0a88d2708bf7",
+      "landmarks": [
+        {
+          "name": "stock-butt-left-edge-at-native-row300",
+          "detail": [
+            0.050543318037325674,
+            0.2400829081632653
+          ],
+          "geometry": [
+            0.050543318037325674,
+            0.2400829081632653
+          ]
+        },
+        {
+          "name": "handle-top-tangent",
+          "detail": [
+            0.43019941422272356,
+            0.13892199457908164
+          ],
+          "geometry": [
+            0.43056872949138636,
+            0.13818359375
+          ]
+        },
+        {
+          "name": "muzzle-right-tangent",
+          "detail": [
+            0.9487180514253486,
+            0.29952417490433675
+          ],
+          "geometry": [
+            0.9494566819626743,
+            0.2998933753188775
+          ]
+        },
+        {
+          "name": "tripod-foot-bottom-tangent",
+          "detail": [
+            0.11554280532198524,
+            0.8588628029336735
+          ],
+          "geometry": [
+            0.11554280532198524,
+            0.8610780054209184
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected: full coherent MMG/tripod assembly, three distinct legs and feet, grip and handle openings, barrel and camera/framing preserved. No actual alpha debris. One final pair review reused; raw1254 originals preserved and 2048 resampling disclosed. Shallow surface lines nonblocking."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

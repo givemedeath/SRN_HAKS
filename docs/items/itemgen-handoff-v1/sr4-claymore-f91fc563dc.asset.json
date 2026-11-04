@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-claymore-f91fc563dc",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "reviewed-feature-1",
+      "pixel": [
+        1200.0,
+        1200.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-2",
+      "pixel": [
+        58.00000000000001,
+        52.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-3",
+      "pixel": [
+        245.0,
+        435.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-4",
+      "pixel": [
+        205.0,
+        240.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-claymore-f91fc563dc.family.json",
+    "sha256": "0e4b302aedf10bdfe570626eb672e413ae33298d2b9ba9cfdb2b4c27dccc30a1"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/33be332e05830d4696d0c2636508ad0ead027c7cb592f6305d65bba4dfc5b3f1.png",
+      "sha256": "33be332e05830d4696d0c2636508ad0ead027c7cb592f6305d65bba4dfc5b3f1"
+    },
+    "clayReference": {
+      "path": "inputs/f3e928cb037b38616ca3df6832b0095b1638204b7406f1a55f26b10c41d2e565.png",
+      "sha256": "f3e928cb037b38616ca3df6832b0095b1638204b7406f1a55f26b10c41d2e565"
+    },
+    "geometry": {
+      "path": "inputs/c66f0b2c35d0b7db190ac79957e1f610dc60feb07b30a6ab969e345171a017a6.png",
+      "sha256": "c66f0b2c35d0b7db190ac79957e1f610dc60feb07b30a6ab969e345171a017a6"
+    },
+    "detail": {
+      "path": "inputs/c879b20e2ce83f14334b23309f49b1869b7890313d7f9d603077ad8707faacbe.png",
+      "sha256": "c879b20e2ce83f14334b23309f49b1869b7890313d7f9d603077ad8707faacbe"
+    },
+    "foregroundMask": {
+      "path": "inputs/2d74bba0f4f893d70d691ca9843e24a97d45001b4d29478642d4d1d103890b75.png",
+      "sha256": "2d74bba0f4f893d70d691ca9843e24a97d45001b4d29478642d4d1d103890b75"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/fe0f460f029684b93324bafb2b9b5e78fb4087d5fa45a5e5a62fc86be8d92ecb.png",
+      "sha256": "fe0f460f029684b93324bafb2b9b5e78fb4087d5fa45a5e5a62fc86be8d92ecb"
+    },
+    "mask": {
+      "path": "inputs/fe0f460f029684b93324bafb2b9b5e78fb4087d5fa45a5e5a62fc86be8d92ecb.png",
+      "sha256": "fe0f460f029684b93324bafb2b9b5e78fb4087d5fa45a5e5a62fc86be8d92ecb"
+    },
+    "calibrationReference": {
+      "path": "inputs/8d4ad0431e4a95f61b43733a828df76c6f3d3107a1115a397fc1097c4cf629bf.png",
+      "sha256": "8d4ad0431e4a95f61b43733a828df76c6f3d3107a1115a397fc1097c4cf629bf"
+    },
+    "sourceAudit": {
+      "path": "inputs/2813dbd47995b08a638200178bddd1eaaed47f0cd65e5477c192c4da1f1508c3.json",
+      "sha256": "2813dbd47995b08a638200178bddd1eaaed47f0cd65e5477c192c4da1f1508c3"
+    },
+    "referenceApproval": {
+      "path": "inputs/69a92dbf07db25979753c7429232ecb55dfe4d24e03dc86696799c0763a475bb.json",
+      "sha256": "69a92dbf07db25979753c7429232ecb55dfe4d24e03dc86696799c0763a475bb"
+    },
+    "calibrationDetail": {
+      "path": "inputs/07091ee60586a8eaf677b5eed35691cd3e70d726927e0ec9181ea1c1973d0771.png",
+      "sha256": "07091ee60586a8eaf677b5eed35691cd3e70d726927e0ec9181ea1c1973d0771"
+    }
+  },
+  "features": [
+    {
+      "name": "Scottish two-handed sword, approximately 1.5 metres overall.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve a grip suitable for two hands and the long straight sword silhouette.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full two-hand grip, angled guard, pommel, bevels and point retained; independent masks preserve the already-reviewed small endpoint offset. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "33be332e05830d4696d0c2636508ad0ead027c7cb592f6305d65bba4dfc5b3f1",
+      "imageSha256": "c879b20e2ce83f14334b23309f49b1869b7890313d7f9d603077ad8707faacbe",
+      "maskSha256": "2d74bba0f4f893d70d691ca9843e24a97d45001b4d29478642d4d1d103890b75",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full two-hand grip, angled guard, pommel, bevels and point retained; independent masks preserve the already-reviewed small endpoint offset. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f3e928cb037b38616ca3df6832b0095b1638204b7406f1a55f26b10c41d2e565",
+      "imageSha256": "c66f0b2c35d0b7db190ac79957e1f610dc60feb07b30a6ab969e345171a017a6",
+      "maskSha256": "fe0f460f029684b93324bafb2b9b5e78fb4087d5fa45a5e5a62fc86be8d92ecb",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full two-hand grip, angled guard, pommel, bevels and point retained; independent masks preserve the already-reviewed small endpoint offset. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full two-hand grip, angled guard, pommel, bevels and point retained; independent masks preserve the already-reviewed small endpoint offset. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "reviewed-feature-1",
+          "detail": [
+            0.932725421127204,
+            0.9256797261757426
+          ],
+          "geometry": [
+            0.932725421127204,
+            0.9256797261757426
+          ]
+        },
+        {
+          "name": "reviewed-feature-2",
+          "detail": [
+            0.08436073284005038,
+            0.07283448071369637
+          ],
+          "geometry": [
+            0.08436073284005038,
+            0.07283448071369637
+          ]
+        },
+        {
+          "name": "reviewed-feature-3",
+          "detail": [
+            0.22327859335642317,
+            0.3573638613861386
+          ],
+          "geometry": [
+            0.22327859335642317,
+            0.3573638613861386
+          ]
+        },
+        {
+          "name": "reviewed-feature-4",
+          "detail": [
+            0.1935635429785894,
+            0.21249903310643564
+          ],
+          "geometry": [
+            0.1935635429785894,
+            0.21249903310643564
+          ]
+        }
+      ],
+      "referenceSha256": "33be332e05830d4696d0c2636508ad0ead027c7cb592f6305d65bba4dfc5b3f1",
+      "geometrySha256": "c66f0b2c35d0b7db190ac79957e1f610dc60feb07b30a6ab969e345171a017a6",
+      "detailSha256": "c879b20e2ce83f14334b23309f49b1869b7890313d7f9d603077ad8707faacbe",
+      "geometryForegroundMaskSha256": "fe0f460f029684b93324bafb2b9b5e78fb4087d5fa45a5e5a62fc86be8d92ecb",
+      "foregroundMaskSha256": "2d74bba0f4f893d70d691ca9843e24a97d45001b4d29478642d4d1d103890b75"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

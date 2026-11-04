@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-colt-cobra-tz-115-67b64d72bc",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-upper",
+      "pixel": [
+        59.99999999999999,
+        365.0
+      ]
+    },
+    {
+      "name": "laser-housing-upper",
+      "pixel": [
+        1000.0,
+        316.00000000000006
+      ]
+    },
+    {
+      "name": "magazine-base",
+      "pixel": [
+        450.0,
+        922.0
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        610.0,
+        902.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-colt-cobra-tz-115-67b64d72bc.family.json",
+    "sha256": "bf81c62f6e1363f53f9ddcf1565da6eec999e136fda6ddfe59b6c33f3616d200"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/81fd5868b2f692e0cde7f7a512688045c40df860871ddb05dcb2ab2f59f50af5.png",
+      "sha256": "81fd5868b2f692e0cde7f7a512688045c40df860871ddb05dcb2ab2f59f50af5"
+    },
+    "clayReference": {
+      "path": "inputs/7a0857c96e676d90a0f65bd584918f3b3b1935778c2471ad52762d42baae4db2.png",
+      "sha256": "7a0857c96e676d90a0f65bd584918f3b3b1935778c2471ad52762d42baae4db2"
+    },
+    "geometry": {
+      "path": "inputs/1939fbceee07fb5d19bafae378feb1450a81731d09e92f893643f7f06835edad.png",
+      "sha256": "1939fbceee07fb5d19bafae378feb1450a81731d09e92f893643f7f06835edad"
+    },
+    "detail": {
+      "path": "inputs/e1852dbf98960e1687d85c689c50d3244e21feaaf9f5eb0f4cccbd215f0632e4.png",
+      "sha256": "e1852dbf98960e1687d85c689c50d3244e21feaaf9f5eb0f4cccbd215f0632e4"
+    },
+    "foregroundMask": {
+      "path": "inputs/0ca19e74ab28b9b8bf0081c2dba25bfdc239f59b39a13b4bcf60e33c1f1206b9.png",
+      "sha256": "0ca19e74ab28b9b8bf0081c2dba25bfdc239f59b39a13b4bcf60e33c1f1206b9"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0.png",
+      "sha256": "1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0"
+    },
+    "mask": {
+      "path": "inputs/1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0.png",
+      "sha256": "1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0"
+    },
+    "calibrationReference": {
+      "path": "inputs/9eaef9287e4e7581318ec24d33a3a651a9c82c20e24ae00d8ef21e225765c4a5.png",
+      "sha256": "9eaef9287e4e7581318ec24d33a3a651a9c82c20e24ae00d8ef21e225765c4a5"
+    },
+    "sourceAudit": {
+      "path": "inputs/87df5e1363c67fb1c1fa172f1bbe7eba7a1eecfe488ec630c744eaac3d99edbd.json",
+      "sha256": "87df5e1363c67fb1c1fa172f1bbe7eba7a1eecfe488ec630c744eaac3d99edbd"
+    },
+    "referenceApproval": {
+      "path": "inputs/0235b3f08014fb8c2fa986969525b43fd102c85222a88529f485251d2607b63a.json",
+      "sha256": "0235b3f08014fb8c2fa986969525b43fd102c85222a88529f485251d2607b63a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/1d4ac03e997c51c500ef13e0e122f617a7f614ff5d56c96d5dcd29f91ee70719.png",
+      "sha256": "1d4ac03e997c51c500ef13e0e122f617a7f614ff5d56c96d5dcd29f91ee70719"
+    }
+  },
+  "features": [
+    {
+      "name": "Use the own Colt Cobra family silhouette printed25/PDF27: compact boxlike receiver, short front muzzle at right, curved magazine BEHIND the pistol grip/trigger toward the rear stock (bullpup ordering), forward pistol grip and rounded rectangular trigger opening. Preserve the source-shown compact rear stock element.",
+      "placementReviewed": true
+    },
+    {
+      "name": "All three variants retain the folding stock; the family illustration does not label a TZ subtype or establish a unique stock deployment for each variant.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Top-mounted laser sight replaces the basic gas-vent system; folding stock retained. Do not include both standard gas vent and replacement laser as the stock package.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual CobraTZ115 detail/clay against own ColtCobra family artwork Arsenal printed25/PDF27 and source-audit-v2. Rear folding-stock element,curved magazine behind the single main grip,forward trigger opening and continuous receiver underside follow source;invented second front handgrip is removed. TZ115 retains top-mounted laser and plain short muzzle replacing standard gas-vent attachment; no added barrel gas vent. Family art does not independently label subtype-specific stock deployment;exact finish,laser housing detail and hidden depth artistic. Clay preserves major boundaries,raised controls and intentional openings;shallow channels,fine vents and tiny fasteners are nonblocking under latest user instruction. Genuine alpha,full positive margins,no floor/cast shadow. Alpha diagnostics distinguish sub-floor bright edge pixels from actual structure;no corrective cosmetic calls required. Native1254square originals retained,2048 resampled,not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1193,
+        924,
+        1267,
+        1049
+      ],
+      "referenceAreaPixels": 4002,
+      "referenceMaskSha256": "1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1272,
+        925,
+        1415,
+        1052
+      ],
+      "referenceAreaPixels": 15839,
+      "referenceMaskSha256": "1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        708,
+        963,
+        904,
+        1245
+      ],
+      "referenceAreaPixels": 30548,
+      "referenceMaskSha256": "1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "81fd5868b2f692e0cde7f7a512688045c40df860871ddb05dcb2ab2f59f50af5",
+      "imageSha256": "e1852dbf98960e1687d85c689c50d3244e21feaaf9f5eb0f4cccbd215f0632e4",
+      "maskSha256": "0ca19e74ab28b9b8bf0081c2dba25bfdc239f59b39a13b4bcf60e33c1f1206b9",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual CobraTZ115 detail/clay against own ColtCobra family artwork Arsenal printed25/PDF27 and source-audit-v2. Rear folding-stock element,curved magazine behind the single main grip,forward trigger opening and continuous receiver underside follow source;invented second front handgrip is removed. TZ115 retains top-mounted laser and plain short muzzle replacing standard gas-vent attachment; no added barrel gas vent. Family art does not independently label subtype-specific stock deployment;exact finish,laser housing detail and hidden depth artistic. Clay preserves major boundaries,raised controls and intentional openings;shallow channels,fine vents and tiny fasteners are nonblocking under latest user instruction. Genuine alpha,full positive margins,no floor/cast shadow. Alpha diagnostics distinguish sub-floor bright edge pixels from actual structure;no corrective cosmetic calls required. Native1254square originals retained,2048 resampled,not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7a0857c96e676d90a0f65bd584918f3b3b1935778c2471ad52762d42baae4db2",
+      "imageSha256": "1939fbceee07fb5d19bafae378feb1450a81731d09e92f893643f7f06835edad",
+      "maskSha256": "1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual CobraTZ115 detail/clay against own ColtCobra family artwork Arsenal printed25/PDF27 and source-audit-v2. Rear folding-stock element,curved magazine behind the single main grip,forward trigger opening and continuous receiver underside follow source;invented second front handgrip is removed. TZ115 retains top-mounted laser and plain short muzzle replacing standard gas-vent attachment; no added barrel gas vent. Family art does not independently label subtype-specific stock deployment;exact finish,laser housing detail and hidden depth artistic. Clay preserves major boundaries,raised controls and intentional openings;shallow channels,fine vents and tiny fasteners are nonblocking under latest user instruction. Genuine alpha,full positive margins,no floor/cast shadow. Alpha diagnostics distinguish sub-floor bright edge pixels from actual structure;no corrective cosmetic calls required. Native1254square originals retained,2048 resampled,not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "81fd5868b2f692e0cde7f7a512688045c40df860871ddb05dcb2ab2f59f50af5",
+      "detailSha256": "e1852dbf98960e1687d85c689c50d3244e21feaaf9f5eb0f4cccbd215f0632e4",
+      "geometrySha256": "1939fbceee07fb5d19bafae378feb1450a81731d09e92f893643f7f06835edad",
+      "foregroundMaskSha256": "0ca19e74ab28b9b8bf0081c2dba25bfdc239f59b39a13b4bcf60e33c1f1206b9",
+      "geometryForegroundMaskSha256": "1f354be174e510b7d11c0ab3c9b259cb6bd0a5240db8807d8e1f84a41bbae5d0",
+      "landmarks": [
+        {
+          "name": "stock-upper",
+          "detail": [
+            0.07635183123464373,
+            0.30885416666666665
+          ],
+          "geometry": [
+            0.07635183123464373,
+            0.3081170944940476
+          ]
+        },
+        {
+          "name": "laser-housing-upper",
+          "detail": [
+            0.7695272509725635,
+            0.27273763020833336
+          ],
+          "geometry": [
+            0.7695272509725635,
+            0.27273763020833336
+          ]
+        },
+        {
+          "name": "magazine-base",
+          "detail": [
+            0.36394588835995084,
+            0.7194033668154762
+          ],
+          "geometry": [
+            0.36394588835995084,
+            0.7201404389880953
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.48193319384725636,
+            0.7046619233630953
+          ],
+          "geometry": [
+            0.48193319384725636,
+            0.7053989955357143
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual CobraTZ115 detail/clay against own ColtCobra family artwork Arsenal printed25/PDF27 and source-audit-v2. Rear folding-stock element,curved magazine behind the single main grip,forward trigger opening and continuous receiver underside follow source;invented second front handgrip is removed. TZ115 retains top-mounted laser and plain short muzzle replacing standard gas-vent attachment; no added barrel gas vent. Family art does not independently label subtype-specific stock deployment;exact finish,laser housing detail and hidden depth artistic. Clay preserves major boundaries,raised controls and intentional openings;shallow channels,fine vents and tiny fasteners are nonblocking under latest user instruction. Genuine alpha,full positive margins,no floor/cast shadow. Alpha diagnostics distinguish sub-floor bright edge pixels from actual structure;no corrective cosmetic calls required. Native1254square originals retained,2048 resampled,not native2K."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

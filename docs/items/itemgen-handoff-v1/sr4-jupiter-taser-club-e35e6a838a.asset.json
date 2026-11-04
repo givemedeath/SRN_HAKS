@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-jupiter-taser-club-e35e6a838a",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "pommel-opening",
+      "pixel": [
+        82.0,
+        1145.0
+      ]
+    },
+    {
+      "name": "control",
+      "pixel": [
+        439.0,
+        712.9999999999999
+      ]
+    },
+    {
+      "name": "grip-shoulder",
+      "pixel": [
+        487.99999999999994,
+        756.9999999999999
+      ]
+    },
+    {
+      "name": "head-collar",
+      "pixel": [
+        1080.0,
+        176.0
+      ]
+    },
+    {
+      "name": "head-fork",
+      "pixel": [
+        1184.0,
+        58.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-jupiter-taser-club-e35e6a838a.family.json",
+    "sha256": "040043af879649dc44bb618adf82a3ac3f170b1bc77c308dfd1bfb651c96f889"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/0b6f90a4d2f92c585fa96bf9c25d6ce7bd9a56835adb15215ba0765daaae73b5.png",
+      "sha256": "0b6f90a4d2f92c585fa96bf9c25d6ce7bd9a56835adb15215ba0765daaae73b5"
+    },
+    "clayReference": {
+      "path": "inputs/aa92e3466d40d7f2c8e3a0701e5d97d3ea5916d8b94abb2b36584212b699cedc.png",
+      "sha256": "aa92e3466d40d7f2c8e3a0701e5d97d3ea5916d8b94abb2b36584212b699cedc"
+    },
+    "geometry": {
+      "path": "inputs/ba723f7f2bfa08aae9177215bbdc51a4e2d61930d20f261658f6fa4788b8c346.png",
+      "sha256": "ba723f7f2bfa08aae9177215bbdc51a4e2d61930d20f261658f6fa4788b8c346"
+    },
+    "detail": {
+      "path": "inputs/b65451b015b1bf7561e854abbed18df3aba2d7932c483b0d11cc1e84808f7ff4.png",
+      "sha256": "b65451b015b1bf7561e854abbed18df3aba2d7932c483b0d11cc1e84808f7ff4"
+    },
+    "foregroundMask": {
+      "path": "inputs/4d84428151c85e415243d7f6cd0072b444c0231b13bf12be31a130c02db3525b.png",
+      "sha256": "4d84428151c85e415243d7f6cd0072b444c0231b13bf12be31a130c02db3525b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/04afb796fb9f47ecd06aec9651ac4ad0f71d5078426c493edaff770cf59b1ab6.png",
+      "sha256": "04afb796fb9f47ecd06aec9651ac4ad0f71d5078426c493edaff770cf59b1ab6"
+    },
+    "mask": {
+      "path": "inputs/04afb796fb9f47ecd06aec9651ac4ad0f71d5078426c493edaff770cf59b1ab6.png",
+      "sha256": "04afb796fb9f47ecd06aec9651ac4ad0f71d5078426c493edaff770cf59b1ab6"
+    },
+    "calibrationReference": {
+      "path": "inputs/4d6579c295c5d5dd626ff9b6e1992183fb9f342bccbc91bfe90eb62ca3bb7ea4.png",
+      "sha256": "4d6579c295c5d5dd626ff9b6e1992183fb9f342bccbc91bfe90eb62ca3bb7ea4"
+    },
+    "sourceAudit": {
+      "path": "inputs/e6cf007abf20476d4a18a20b2f702e8b42acfb5e123ebe9bd7ecf2bda973270b.json",
+      "sha256": "e6cf007abf20476d4a18a20b2f702e8b42acfb5e123ebe9bd7ecf2bda973270b"
+    },
+    "referenceApproval": {
+      "path": "inputs/6f7fb658ab03d1158a71cfb22ee2d8148a915a9a6c97a1411430c9b29063c1c3.json",
+      "sha256": "6f7fb658ab03d1158a71cfb22ee2d8148a915a9a6c97a1411430c9b29063c1c3"
+    },
+    "calibrationDetail": {
+      "path": "inputs/1233f5f754fcb86b98409e88ff4123273e9032da77877d62d493482974aded6d.png",
+      "sha256": "1233f5f754fcb86b98409e88ff4123273e9032da77877d62d493482974aded6d"
+    }
+  },
+  "features": [
+    {
+      "name": "Riot-control baton/club with a built-in one-shot taser.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve baton class; ranged taser table is single-shot with one-round capacity, not a separate handgun design.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned final source/pair approval reused exactly. Actual native masks inspected: major structures and framing retained. Mace head recesses stay solid; Jupiter pommel loop remains open and fork intact. Native source is resampled to2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        155,
+        1831,
+        211,
+        1881
+      ],
+      "referenceAreaPixels": 815,
+      "referenceMaskSha256": "04afb796fb9f47ecd06aec9651ac4ad0f71d5078426c493edaff770cf59b1ab6",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0b6f90a4d2f92c585fa96bf9c25d6ce7bd9a56835adb15215ba0765daaae73b5",
+      "imageSha256": "b65451b015b1bf7561e854abbed18df3aba2d7932c483b0d11cc1e84808f7ff4",
+      "maskSha256": "4d84428151c85e415243d7f6cd0072b444c0231b13bf12be31a130c02db3525b",
+      "notes": "Assigned final source/pair approval reused exactly. Actual native masks inspected: major structures and framing retained. Mace head recesses stay solid; Jupiter pommel loop remains open and fork intact. Native source is resampled to2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "aa92e3466d40d7f2c8e3a0701e5d97d3ea5916d8b94abb2b36584212b699cedc",
+      "imageSha256": "ba723f7f2bfa08aae9177215bbdc51a4e2d61930d20f261658f6fa4788b8c346",
+      "maskSha256": "04afb796fb9f47ecd06aec9651ac4ad0f71d5078426c493edaff770cf59b1ab6",
+      "notes": "Assigned final source/pair approval reused exactly. Actual native masks inspected: major structures and framing retained. Mace head recesses stay solid; Jupiter pommel loop remains open and fork intact. Native source is resampled to2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned final source/pair approval reused exactly. Actual native masks inspected: major structures and framing retained. Mace head recesses stay solid; Jupiter pommel loop remains open and fork intact. Native source is resampled to2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "pommel-opening",
+          "detail": [
+            0.08852300274030354,
+            0.9044708409530982
+          ],
+          "geometry": [
+            0.08852300274030354,
+            0.9044708409530982
+          ]
+        },
+        {
+          "name": "control",
+          "detail": [
+            0.35955120942242835,
+            0.576446690780981
+          ],
+          "geometry": [
+            0.35955120942242835,
+            0.576446690780981
+          ]
+        },
+        {
+          "name": "grip-shoulder",
+          "detail": [
+            0.39675115935919053,
+            0.6098565579281411
+          ],
+          "geometry": [
+            0.39675115935919053,
+            0.6098565579281411
+          ]
+        },
+        {
+          "name": "head-collar",
+          "detail": [
+            0.8461872892074199,
+            0.16869444855314114
+          ],
+          "geometry": [
+            0.8461872892074199,
+            0.16869444855314114
+          ]
+        },
+        {
+          "name": "head-fork",
+          "detail": [
+            0.9251422849915683,
+            0.07909525938575732
+          ],
+          "geometry": [
+            0.9251422849915683,
+            0.07909525938575732
+          ]
+        }
+      ],
+      "referenceSha256": "0b6f90a4d2f92c585fa96bf9c25d6ce7bd9a56835adb15215ba0765daaae73b5",
+      "geometrySha256": "ba723f7f2bfa08aae9177215bbdc51a4e2d61930d20f261658f6fa4788b8c346",
+      "detailSha256": "b65451b015b1bf7561e854abbed18df3aba2d7932c483b0d11cc1e84808f7ff4",
+      "foregroundMaskSha256": "4d84428151c85e415243d7f6cd0072b444c0231b13bf12be31a130c02db3525b",
+      "geometryForegroundMaskSha256": "04afb796fb9f47ecd06aec9651ac4ad0f71d5078426c493edaff770cf59b1ab6"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

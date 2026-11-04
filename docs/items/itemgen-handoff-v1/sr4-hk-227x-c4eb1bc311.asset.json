@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-227x-c4eb1bc311",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle left",
+      "pixel": [
+        61.00000000000001,
+        359.99999999999994
+      ]
+    },
+    {
+      "name": "scope front upper",
+      "pixel": [
+        1048.0,
+        134.00000000000003
+      ]
+    },
+    {
+      "name": "fore-end lower",
+      "pixel": [
+        475.99999999999994,
+        401.99999999999994
+      ]
+    },
+    {
+      "name": "magazine base",
+      "pixel": [
+        1180.0,
+        658.9999999999999
+      ]
+    },
+    {
+      "name": "stock heel",
+      "pixel": [
+        1850.0,
+        526.0
+      ]
+    },
+    {
+      "name": "grip heel",
+      "pixel": [
+        1390.0,
+        590.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-227x-c4eb1bc311.family.json",
+    "sha256": "bdaae7c3341886b5f6a8ad625b84235247e28bee50cfafa3bd7c91d4e71b23c5"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/6ea96a496431cc653fb929f41285f28dbc9e088b59144a0b2bc3678b8cbe3fc8.png",
+      "sha256": "6ea96a496431cc653fb929f41285f28dbc9e088b59144a0b2bc3678b8cbe3fc8"
+    },
+    "clayReference": {
+      "path": "inputs/857f3a7587b728f280e5f6262cdfbaaf6a027e9fbb839dda5caa700d83610254.png",
+      "sha256": "857f3a7587b728f280e5f6262cdfbaaf6a027e9fbb839dda5caa700d83610254"
+    },
+    "geometry": {
+      "path": "inputs/9b25d0749e2cd8e2a5ee4a62093cdba6b7bc18a1096e05f3cce22b36ade5914d.png",
+      "sha256": "9b25d0749e2cd8e2a5ee4a62093cdba6b7bc18a1096e05f3cce22b36ade5914d"
+    },
+    "detail": {
+      "path": "inputs/c3c53010fd68d3caad1d116eb6af1df1116d1075421700a4f0e9261a69a3a744.png",
+      "sha256": "c3c53010fd68d3caad1d116eb6af1df1116d1075421700a4f0e9261a69a3a744"
+    },
+    "foregroundMask": {
+      "path": "inputs/00f709c9d6300c5eb5b6c72a13728341b73083045f993d70689888927fbf0a4b.png",
+      "sha256": "00f709c9d6300c5eb5b6c72a13728341b73083045f993d70689888927fbf0a4b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/d79cc188588a8010782e9ab0ac9a980711b12d00e9a559d4c582794d5f6285eb.png",
+      "sha256": "d79cc188588a8010782e9ab0ac9a980711b12d00e9a559d4c582794d5f6285eb"
+    },
+    "mask": {
+      "path": "inputs/d79cc188588a8010782e9ab0ac9a980711b12d00e9a559d4c582794d5f6285eb.png",
+      "sha256": "d79cc188588a8010782e9ab0ac9a980711b12d00e9a559d4c582794d5f6285eb"
+    },
+    "calibrationReference": {
+      "path": "inputs/764bc2e58b320d2c82ed3465045d1de1144548c22f812842817508b0c967b453.png",
+      "sha256": "764bc2e58b320d2c82ed3465045d1de1144548c22f812842817508b0c967b453"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/c25407e7fb65f8b6ccca26b816cbae2d9d5cb937a4e8b26a3b5688fce68c8521.json",
+      "sha256": "c25407e7fb65f8b6ccca26b816cbae2d9d5cb937a4e8b26a3b5688fce68c8521"
+    },
+    "referenceApproval": {
+      "path": "inputs/a04a363ffe5fd8aed1093f6aa2dc3a8bbf8c8fa609a868c867fb11a33db020cf.json",
+      "sha256": "a04a363ffe5fd8aed1093f6aa2dc3a8bbf8c8fa609a868c867fb11a33db020cf"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4d65222f95a93f8ca64e24eb0e6ea09c2de2ad609032be40879008308d797bd9.png",
+      "sha256": "4d65222f95a93f8ca64e24eb0e6ea09c2de2ad609032be40879008308d797bd9"
+    }
+  },
+  "features": [
+    {
+      "name": "Retractable stock, smartgun system and integral sound suppressor",
+      "placementReviewed": true
+    },
+    {
+      "name": "Illustration: long forward assembly, straight magazine ahead of grip, stock behind receiver",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reviewer inspected actual detailed and smooth-clay originals, primary Core printed308/PDF310 labeled HK227X art and description, native teal composites, both2048 masks, conditioned teal composites and paired overlay. Exact HK227X long forward integral suppressor, straight forward magazine, pistol grip, extended retractable stock and large top optic/mount retained. Narrow suppressor end rings and optic collars are stepped cap/housing interfaces shown in primary art and detailed model; their line width does not make them decorative grooves. Clay fills fore-end slots, receiver microchannels/fasteners, optic pivot recess, grip/magazine ribs and microtexture. Rear receiver port, broad stock face and butt slot are functional structural recesses retained as solid surfaces, no unsupported through-hole invented. Trigger guard is actually open, trigger/thin barrel and optic mount retained. Independent manual contours preserve source RGB; clay has only2 transparent right columns added to match1944 canvas, no image warp or forced registration. Detail optic/mount exterior gap traced clear. No broad pale halo, detached islands or clipped silhouette observed. Monochrome primary does not establish finish/wear; detailed black/silver finish is artistic. Source/form and conditioned-reference approval only; not geometry, fitting, client or production.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1323,
+        1052,
+        1388,
+        1102
+      ],
+      "referenceAreaPixels": 2358,
+      "referenceMaskSha256": "d79cc188588a8010782e9ab0ac9a980711b12d00e9a559d4c582794d5f6285eb",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6ea96a496431cc653fb929f41285f28dbc9e088b59144a0b2bc3678b8cbe3fc8",
+      "imageSha256": "c3c53010fd68d3caad1d116eb6af1df1116d1075421700a4f0e9261a69a3a744",
+      "maskSha256": "00f709c9d6300c5eb5b6c72a13728341b73083045f993d70689888927fbf0a4b",
+      "notes": "Assigned sole final reviewer inspected actual detailed and smooth-clay originals, primary Core printed308/PDF310 labeled HK227X art and description, native teal composites, both2048 masks, conditioned teal composites and paired overlay. Exact HK227X long forward integral suppressor, straight forward magazine, pistol grip, extended retractable stock and large top optic/mount retained. Narrow suppressor end rings and optic collars are stepped cap/housing interfaces shown in primary art and detailed model; their line width does not make them decorative grooves. Clay fills fore-end slots, receiver microchannels/fasteners, optic pivot recess, grip/magazine ribs and microtexture. Rear receiver port, broad stock face and butt slot are functional structural recesses retained as solid surfaces, no unsupported through-hole invented. Trigger guard is actually open, trigger/thin barrel and optic mount retained. Independent manual contours preserve source RGB; clay has only2 transparent right columns added to match1944 canvas, no image warp or forced registration. Detail optic/mount exterior gap traced clear. No broad pale halo, detached islands or clipped silhouette observed. Monochrome primary does not establish finish/wear; detailed black/silver finish is artistic. Source/form and conditioned-reference approval only; not geometry, fitting, client or production."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "857f3a7587b728f280e5f6262cdfbaaf6a027e9fbb839dda5caa700d83610254",
+      "imageSha256": "9b25d0749e2cd8e2a5ee4a62093cdba6b7bc18a1096e05f3cce22b36ade5914d",
+      "maskSha256": "d79cc188588a8010782e9ab0ac9a980711b12d00e9a559d4c582794d5f6285eb",
+      "notes": "Assigned sole final reviewer inspected actual detailed and smooth-clay originals, primary Core printed308/PDF310 labeled HK227X art and description, native teal composites, both2048 masks, conditioned teal composites and paired overlay. Exact HK227X long forward integral suppressor, straight forward magazine, pistol grip, extended retractable stock and large top optic/mount retained. Narrow suppressor end rings and optic collars are stepped cap/housing interfaces shown in primary art and detailed model; their line width does not make them decorative grooves. Clay fills fore-end slots, receiver microchannels/fasteners, optic pivot recess, grip/magazine ribs and microtexture. Rear receiver port, broad stock face and butt slot are functional structural recesses retained as solid surfaces, no unsupported through-hole invented. Trigger guard is actually open, trigger/thin barrel and optic mount retained. Independent manual contours preserve source RGB; clay has only2 transparent right columns added to match1944 canvas, no image warp or forced registration. Detail optic/mount exterior gap traced clear. No broad pale halo, detached islands or clipped silhouette observed. Monochrome primary does not establish finish/wear; detailed black/silver finish is artistic. Source/form and conditioned-reference approval only; not geometry, fitting, client or production."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reviewer inspected actual detailed and smooth-clay originals, primary Core printed308/PDF310 labeled HK227X art and description, native teal composites, both2048 masks, conditioned teal composites and paired overlay. Exact HK227X long forward integral suppressor, straight forward magazine, pistol grip, extended retractable stock and large top optic/mount retained. Narrow suppressor end rings and optic collars are stepped cap/housing interfaces shown in primary art and detailed model; their line width does not make them decorative grooves. Clay fills fore-end slots, receiver microchannels/fasteners, optic pivot recess, grip/magazine ribs and microtexture. Rear receiver port, broad stock face and butt slot are functional structural recesses retained as solid surfaces, no unsupported through-hole invented. Trigger guard is actually open, trigger/thin barrel and optic mount retained. Independent manual contours preserve source RGB; clay has only2 transparent right columns added to match1944 canvas, no image warp or forced registration. Detail optic/mount exterior gap traced clear. No broad pale halo, detached islands or clipped silhouette observed. Monochrome primary does not establish finish/wear; detailed black/silver finish is artistic. Source/form and conditioned-reference approval only; not geometry, fitting, client or production.",
+      "landmarks": [
+        {
+          "name": "muzzle left",
+          "detail": [
+            0.05029913594865459,
+            0.4859045882251381
+          ],
+          "geometry": [
+            0.05029913594865459,
+            0.4859045882251381
+          ]
+        },
+        {
+          "name": "scope front upper",
+          "detail": [
+            0.5383197547707304,
+            0.3741304457297422
+          ],
+          "geometry": [
+            0.5373308578734213,
+            0.37363586987799263
+          ]
+        },
+        {
+          "name": "fore-end lower",
+          "detail": [
+            0.2554952421403075,
+            0.5066767739986188
+          ],
+          "geometry": [
+            0.2554952421403075,
+            0.5066767739986188
+          ]
+        },
+        {
+          "name": "magazine base",
+          "detail": [
+            0.6035869499931357,
+            0.6337827678982504
+          ],
+          "geometry": [
+            0.6035869499931357,
+            0.6337827678982504
+          ]
+        },
+        {
+          "name": "stock heel",
+          "detail": [
+            0.9348674105917079,
+            0.5680041796155617
+          ],
+          "geometry": [
+            0.9348674105917079,
+            0.5680041796155617
+          ]
+        },
+        {
+          "name": "grip heel",
+          "detail": [
+            0.7074211242105986,
+            0.5996570341275322
+          ],
+          "geometry": [
+            0.7074211242105986,
+            0.5996570341275322
+          ]
+        }
+      ],
+      "referenceSha256": "6ea96a496431cc653fb929f41285f28dbc9e088b59144a0b2bc3678b8cbe3fc8",
+      "geometrySha256": "9b25d0749e2cd8e2a5ee4a62093cdba6b7bc18a1096e05f3cce22b36ade5914d",
+      "detailSha256": "c3c53010fd68d3caad1d116eb6af1df1116d1075421700a4f0e9261a69a3a744",
+      "foregroundMaskSha256": "00f709c9d6300c5eb5b6c72a13728341b73083045f993d70689888927fbf0a4b",
+      "geometryForegroundMaskSha256": "d79cc188588a8010782e9ab0ac9a980711b12d00e9a559d4c582794d5f6285eb"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

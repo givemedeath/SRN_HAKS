@@ -1,0 +1,50 @@
+{
+  "allowedAssemblies": [
+    {
+      "b": "sr4-defiance-ex-shocker-8ba6673d51",
+      "m": "hidden-placeholder",
+      "t": "hidden-placeholder"
+    }
+  ],
+  "bakeSize": 4096,
+  "budgets": {
+    "parts": {
+      "b": {
+        "visible": 9992,
+        "shadow": 500
+      },
+      "m": {
+        "visible": 4,
+        "shadow": 0
+      },
+      "t": {
+        "visible": 4,
+        "shadow": 0
+      }
+    },
+    "shadow": 500,
+    "visible": 10000
+  },
+  "family": "firearm-sling",
+  "firearm": {
+    "subtype": "pistol"
+  },
+  "kind": "item-family",
+  "materialRoute": "diffuse",
+  "nativePackaging": "pending-contract",
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr8ba6673d",
+    "blueprint": "sr8ba6673d",
+    "hak": "sr8ba6673dh",
+    "module": "sr8ba6673dm",
+    "displayName": "Defiance EX Shocker"
+  },
+  "runtimeTextureSize": 1024,
+  "schemaVersion": 1,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "signMode": "udf",
+    "targetFaceCount": 200000
+  }
+}

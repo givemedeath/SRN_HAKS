@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-colt-asp-7ec96e514a",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-sight",
+      "pixel": [
+        535.0,
+        198.99999999999997
+      ]
+    },
+    {
+      "name": "grip-heel",
+      "pixel": [
+        170.0,
+        1063.0
+      ]
+    },
+    {
+      "name": "muzzle-face",
+      "pixel": [
+        1204.0,
+        300.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        700.0,
+        756.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-colt-asp-7ec96e514a.family.json",
+    "sha256": "30be120e967fecb204258320964f05732c0a59c043270e63a0d7350e65a2c3c8"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/62a36c9ed945818588561b7e7c7aa589898d0d40041084791f737209ba3c58f6.png",
+      "sha256": "62a36c9ed945818588561b7e7c7aa589898d0d40041084791f737209ba3c58f6"
+    },
+    "clayReference": {
+      "path": "inputs/11796683d5b3f0b6f9f3e71e97e07e789781120a5f313f87763099b3b79aa192.png",
+      "sha256": "11796683d5b3f0b6f9f3e71e97e07e789781120a5f313f87763099b3b79aa192"
+    },
+    "geometry": {
+      "path": "inputs/65fbdb832c2f811b98e7ecbfdd2a75680f13c4098acb9cf76ebe39a482e3a9b2.png",
+      "sha256": "65fbdb832c2f811b98e7ecbfdd2a75680f13c4098acb9cf76ebe39a482e3a9b2"
+    },
+    "detail": {
+      "path": "inputs/0502724ee76598b68cd13f1e0ed177fb1029cb86edc78a3195e773f28b7556af.png",
+      "sha256": "0502724ee76598b68cd13f1e0ed177fb1029cb86edc78a3195e773f28b7556af"
+    },
+    "foregroundMask": {
+      "path": "inputs/d3e93085b7c91b9046432564c4eaeac2d155af96813c098a61dd2011ee594f18.png",
+      "sha256": "d3e93085b7c91b9046432564c4eaeac2d155af96813c098a61dd2011ee594f18"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/9e4fd2e2c1ed5b230c54e39ef1e1f294390f3028f41bd06bb9d139f91b71119c.png",
+      "sha256": "9e4fd2e2c1ed5b230c54e39ef1e1f294390f3028f41bd06bb9d139f91b71119c"
+    },
+    "mask": {
+      "path": "inputs/9e4fd2e2c1ed5b230c54e39ef1e1f294390f3028f41bd06bb9d139f91b71119c.png",
+      "sha256": "9e4fd2e2c1ed5b230c54e39ef1e1f294390f3028f41bd06bb9d139f91b71119c"
+    },
+    "calibrationReference": {
+      "path": "inputs/1fc1cf92b1993b83e1b8897e57df7866af366dcf41352189132c032ab7eeb9a8.png",
+      "sha256": "1fc1cf92b1993b83e1b8897e57df7866af366dcf41352189132c032ab7eeb9a8"
+    },
+    "sourceAudit": {
+      "path": "inputs/c6c5fec08e9149a20e0302d0a41ebc6bbebc1de5ab474262677a4cca2f482bf9.json",
+      "sha256": "c6c5fec08e9149a20e0302d0a41ebc6bbebc1de5ab474262677a4cca2f482bf9"
+    },
+    "referenceApproval": {
+      "path": "inputs/57d4f6f89912be6805a3dd0db9db6eff0b30b6786d8e275ab0edb01ee233420b.json",
+      "sha256": "57d4f6f89912be6805a3dd0db9db6eff0b30b6786d8e275ab0edb01ee233420b"
+    },
+    "calibrationDetail": {
+      "path": "inputs/5ed70b65316710b47fa8376edbf02aa042946998c50e57b3395400081f53aa42.png",
+      "sha256": "5ed70b65316710b47fa8376edbf02aa042946998c50e57b3395400081f53aa42"
+    }
+  },
+  "features": [
+    {
+      "name": "Compact revolver using relatively light ammunition and limited capacity.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Use own ASP rounded compact barrel/cylinder housing, short curved grip and trigger-guard outline; do not substitute neighboring VZ/120 semi-automatic body.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reference reviewer inspected original detail/new clay, native mattes, final2048 detail and clay teal previews, clay mask and paired overlay using retained accepted primary-source facts. Colt Asp compact rounded upper, sloping lower-front frame, muzzle cavity, gross cylinder/flutes and backed junctions, rear hammer contour, grip/finger profile, raised smooth controls and complete trigger/guard clearance retained. Broad cylinder/frame recesses and the front backed control pocket are major construction; fine screw slots, texture and shallow microchannels are filled. Clay RGB unchanged from actual generator output. Independent alpha masks retain true thin members and one connected guard opening; only explicitly identified one-pixel guard-edge AA fringe labels discarded, no subject parts. No mask transfer/shape warp. Common uniform crop and resampling, native1254square RGB opaque→2048 honestly declared. Reference-only approval; no geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        888,
+        901,
+        1277,
+        1182
+      ],
+      "referenceAreaPixels": 63100,
+      "referenceMaskSha256": "9e4fd2e2c1ed5b230c54e39ef1e1f294390f3028f41bd06bb9d139f91b71119c",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "62a36c9ed945818588561b7e7c7aa589898d0d40041084791f737209ba3c58f6",
+      "imageSha256": "0502724ee76598b68cd13f1e0ed177fb1029cb86edc78a3195e773f28b7556af",
+      "maskSha256": "d3e93085b7c91b9046432564c4eaeac2d155af96813c098a61dd2011ee594f18",
+      "notes": "Assigned sole final reference reviewer inspected original detail/new clay, native mattes, final2048 detail and clay teal previews, clay mask and paired overlay using retained accepted primary-source facts. Colt Asp compact rounded upper, sloping lower-front frame, muzzle cavity, gross cylinder/flutes and backed junctions, rear hammer contour, grip/finger profile, raised smooth controls and complete trigger/guard clearance retained. Broad cylinder/frame recesses and the front backed control pocket are major construction; fine screw slots, texture and shallow microchannels are filled. Clay RGB unchanged from actual generator output. Independent alpha masks retain true thin members and one connected guard opening; only explicitly identified one-pixel guard-edge AA fringe labels discarded, no subject parts. No mask transfer/shape warp. Common uniform crop and resampling, native1254square RGB opaque→2048 honestly declared. Reference-only approval; no geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "11796683d5b3f0b6f9f3e71e97e07e789781120a5f313f87763099b3b79aa192",
+      "imageSha256": "65fbdb832c2f811b98e7ecbfdd2a75680f13c4098acb9cf76ebe39a482e3a9b2",
+      "maskSha256": "9e4fd2e2c1ed5b230c54e39ef1e1f294390f3028f41bd06bb9d139f91b71119c",
+      "notes": "Assigned sole final reference reviewer inspected original detail/new clay, native mattes, final2048 detail and clay teal previews, clay mask and paired overlay using retained accepted primary-source facts. Colt Asp compact rounded upper, sloping lower-front frame, muzzle cavity, gross cylinder/flutes and backed junctions, rear hammer contour, grip/finger profile, raised smooth controls and complete trigger/guard clearance retained. Broad cylinder/frame recesses and the front backed control pocket are major construction; fine screw slots, texture and shallow microchannels are filled. Clay RGB unchanged from actual generator output. Independent alpha masks retain true thin members and one connected guard opening; only explicitly identified one-pixel guard-edge AA fringe labels discarded, no subject parts. No mask transfer/shape warp. Common uniform crop and resampling, native1254square RGB opaque→2048 honestly declared. Reference-only approval; no geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reference reviewer inspected original detail/new clay, native mattes, final2048 detail and clay teal previews, clay mask and paired overlay using retained accepted primary-source facts. Colt Asp compact rounded upper, sloping lower-front frame, muzzle cavity, gross cylinder/flutes and backed junctions, rear hammer contour, grip/finger profile, raised smooth controls and complete trigger/guard clearance retained. Broad cylinder/frame recesses and the front backed control pocket are major construction; fine screw slots, texture and shallow microchannels are filled. Clay RGB unchanged from actual generator output. Independent alpha masks retain true thin members and one connected guard opening; only explicitly identified one-pixel guard-edge AA fringe labels discarded, no subject parts. No mask transfer/shape warp. Common uniform crop and resampling, native1254square RGB opaque→2048 honestly declared. Reference-only approval; no geometry/native/client/production approval.",
+      "landmarks": [
+        {
+          "name": "rear-sight",
+          "detail": [
+            0.4303821681701031,
+            0.1592618953036723
+          ],
+          "geometry": [
+            0.4303821681701031,
+            0.1592618953036723
+          ]
+        },
+        {
+          "name": "grip-heel",
+          "detail": [
+            0.14804318352663232,
+            0.827588166490113
+          ],
+          "geometry": [
+            0.14804318352663232,
+            0.827588166490113
+          ]
+        },
+        {
+          "name": "muzzle-face",
+          "detail": [
+            0.9478747181056701,
+            0.2373879987641243
+          ],
+          "geometry": [
+            0.9486482495704467,
+            0.2373879987641243
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.5580148598582474,
+            0.5908892787782485
+          ],
+          "geometry": [
+            0.5580148598582474,
+            0.5916628045550847
+          ]
+        }
+      ],
+      "referenceSha256": "62a36c9ed945818588561b7e7c7aa589898d0d40041084791f737209ba3c58f6",
+      "geometrySha256": "65fbdb832c2f811b98e7ecbfdd2a75680f13c4098acb9cf76ebe39a482e3a9b2",
+      "detailSha256": "0502724ee76598b68cd13f1e0ed177fb1029cb86edc78a3195e773f28b7556af",
+      "foregroundMaskSha256": "d3e93085b7c91b9046432564c4eaeac2d155af96813c098a61dd2011ee594f18",
+      "geometryForegroundMaskSha256": "9e4fd2e2c1ed5b230c54e39ef1e1f294390f3028f41bd06bb9d139f91b71119c"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

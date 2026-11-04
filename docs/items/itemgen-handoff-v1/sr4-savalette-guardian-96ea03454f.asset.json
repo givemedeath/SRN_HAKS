@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-savalette-guardian-96ea03454f",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-profile-y350-left",
+      "pixel": [
+        16.999999999999996,
+        350.0
+      ]
+    },
+    {
+      "name": "outer-profile-y350-right",
+      "pixel": [
+        1194.0,
+        350.0
+      ]
+    },
+    {
+      "name": "outer-profile-y430-left",
+      "pixel": [
+        44.0,
+        429.99999999999994
+      ]
+    },
+    {
+      "name": "outer-profile-y430-right",
+      "pixel": [
+        1197.0,
+        429.99999999999994
+      ]
+    },
+    {
+      "name": "outer-profile-y550-left",
+      "pixel": [
+        76.0,
+        550.0
+      ]
+    },
+    {
+      "name": "outer-profile-y550-right",
+      "pixel": [
+        1117.0,
+        550.0
+      ]
+    },
+    {
+      "name": "outer-profile-y800-left",
+      "pixel": [
+        935.0,
+        799.9999999999999
+      ]
+    },
+    {
+      "name": "outer-profile-y800-right",
+      "pixel": [
+        1213.0,
+        799.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-savalette-guardian-96ea03454f.family.json",
+    "sha256": "c0dde742b9f0e30d04ddf0c1c16e2326d97ff55e429645031e397135057e4843"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8579e0a65a3ed8fe4031d24f1d51071ba0dc03abfed99861342558b8f98b67ee.png",
+      "sha256": "8579e0a65a3ed8fe4031d24f1d51071ba0dc03abfed99861342558b8f98b67ee"
+    },
+    "clayReference": {
+      "path": "inputs/78f37905406f89f09d04b63bce11e332628cefd74732aad063d98935d755cfe6.png",
+      "sha256": "78f37905406f89f09d04b63bce11e332628cefd74732aad063d98935d755cfe6"
+    },
+    "geometry": {
+      "path": "inputs/4f38c4f231fb59211ac516e350bc9a1b73e2485ae54bf11179cf34719d092c0a.png",
+      "sha256": "4f38c4f231fb59211ac516e350bc9a1b73e2485ae54bf11179cf34719d092c0a"
+    },
+    "detail": {
+      "path": "inputs/1142769b384fce98c746146943981f6d270335f3f64b0229c155cbec8f1c728c.png",
+      "sha256": "1142769b384fce98c746146943981f6d270335f3f64b0229c155cbec8f1c728c"
+    },
+    "foregroundMask": {
+      "path": "inputs/70c41ef15eff4edef3e546e2c12f3034295b0581ecb1203df5a495a4949adbaa.png",
+      "sha256": "70c41ef15eff4edef3e546e2c12f3034295b0581ecb1203df5a495a4949adbaa"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/f97eae000fdbe79bc78df55b30b894e83b3cace1f614c02c85f28e062466519e.png",
+      "sha256": "f97eae000fdbe79bc78df55b30b894e83b3cace1f614c02c85f28e062466519e"
+    },
+    "mask": {
+      "path": "inputs/f97eae000fdbe79bc78df55b30b894e83b3cace1f614c02c85f28e062466519e.png",
+      "sha256": "f97eae000fdbe79bc78df55b30b894e83b3cace1f614c02c85f28e062466519e"
+    },
+    "calibrationReference": {
+      "path": "inputs/d4b6222e9ee8505e64e2da47c73b4305609e6f10d4b8b0038b93c8d9a5e6f7f4.png",
+      "sha256": "d4b6222e9ee8505e64e2da47c73b4305609e6f10d4b8b0038b93c8d9a5e6f7f4"
+    },
+    "sourceAudit": {
+      "path": "inputs/e176639e949ec6baeb983021e09110429ab12861d519ef1ba3b477d4ad2b893c.json",
+      "sha256": "e176639e949ec6baeb983021e09110429ab12861d519ef1ba3b477d4ad2b893c"
+    },
+    "referenceApproval": {
+      "path": "inputs/372cbf07a4e552554fcc52d46a1606b6cbf3fb3394b6e2cc5e9e0960bc30dc94.json",
+      "sha256": "372cbf07a4e552554fcc52d46a1606b6cbf3fb3394b6e2cc5e9e0960bc30dc94"
+    },
+    "calibrationDetail": {
+      "path": "inputs/868cde5317569495ad4412d647a17fdf02d947aa20ee8a3569a99afb664f7d7c.png",
+      "sha256": "868cde5317569495ad4412d647a17fdf02d947aa20ee8a3569a99afb664f7d7c"
+    }
+  },
+  "features": [
+    {
+      "name": "CHROME-STEEL finish is explicitly source-specified.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Built-in smartgun system and recoil-reducing design; internal systems do not require exposed machinery or extra optic.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own GUARDIAN illustration supplies long rectangular light upper/front, dark rear raked grip with major base, trigger opening and source proportions.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Source-approved chrome-steel Guardian layout and major housing/grip-base boundaries, raised controls and rear structural loop retained; only one small oval shallow appearance recess requires local smoothing. Preserve the full trigger/guard clearance, thin trigger tip and actual small through-opening of the rear structural loop; keep its shaded interior walls opaque. Muzzle/end-face recess remains a backed solid surface. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Original clay is retained; bounded manual interior fill passed outsidePatch0 and originalAlphaUnchanged. Prepared clay RGB matches the pinned derived working clay.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1825,
+        599,
+        1840,
+        624
+      ],
+      "referenceAreaPixels": 281,
+      "referenceMaskSha256": "f97eae000fdbe79bc78df55b30b894e83b3cace1f614c02c85f28e062466519e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1052,
+        825,
+        1353,
+        1018
+      ],
+      "referenceAreaPixels": 40239,
+      "referenceMaskSha256": "f97eae000fdbe79bc78df55b30b894e83b3cace1f614c02c85f28e062466519e",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8579e0a65a3ed8fe4031d24f1d51071ba0dc03abfed99861342558b8f98b67ee",
+      "imageSha256": "1142769b384fce98c746146943981f6d270335f3f64b0229c155cbec8f1c728c",
+      "maskSha256": "70c41ef15eff4edef3e546e2c12f3034295b0581ecb1203df5a495a4949adbaa",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Source-approved chrome-steel Guardian layout and major housing/grip-base boundaries, raised controls and rear structural loop retained; only one small oval shallow appearance recess requires local smoothing. Preserve the full trigger/guard clearance, thin trigger tip and actual small through-opening of the rear structural loop; keep its shaded interior walls opaque. Muzzle/end-face recess remains a backed solid surface. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Original clay is retained; bounded manual interior fill passed outsidePatch0 and originalAlphaUnchanged. Prepared clay RGB matches the pinned derived working clay."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "78f37905406f89f09d04b63bce11e332628cefd74732aad063d98935d755cfe6",
+      "imageSha256": "4f38c4f231fb59211ac516e350bc9a1b73e2485ae54bf11179cf34719d092c0a",
+      "maskSha256": "f97eae000fdbe79bc78df55b30b894e83b3cace1f614c02c85f28e062466519e",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Source-approved chrome-steel Guardian layout and major housing/grip-base boundaries, raised controls and rear structural loop retained; only one small oval shallow appearance recess requires local smoothing. Preserve the full trigger/guard clearance, thin trigger tip and actual small through-opening of the rear structural loop; keep its shaded interior walls opaque. Muzzle/end-face recess remains a backed solid surface. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Original clay is retained; bounded manual interior fill passed outsidePatch0 and originalAlphaUnchanged. Prepared clay RGB matches the pinned derived working clay."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Source-approved chrome-steel Guardian layout and major housing/grip-base boundaries, raised controls and rear structural loop retained; only one small oval shallow appearance recess requires local smoothing. Preserve the full trigger/guard clearance, thin trigger tip and actual small through-opening of the rear structural loop; keep its shaded interior walls opaque. Muzzle/end-face recess remains a backed solid surface. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Original clay is retained; bounded manual interior fill passed outsidePatch0 and originalAlphaUnchanged. Prepared clay RGB matches the pinned derived working clay.",
+      "landmarks": [
+        {
+          "name": "outer-profile-y350-left",
+          "detail": [
+            0.051277116976696645,
+            0.30712139423076923
+          ],
+          "geometry": [
+            0.051277116976696645,
+            0.30712139423076923
+          ]
+        },
+        {
+          "name": "outer-profile-y350-right",
+          "detail": [
+            0.9178018640126737,
+            0.30712139423076923
+          ],
+          "geometry": [
+            0.9185380787510221,
+            0.30712139423076923
+          ]
+        },
+        {
+          "name": "outer-profile-y430-left",
+          "detail": [
+            0.0711549149121014,
+            0.36601562499999996
+          ],
+          "geometry": [
+            0.0711549149121014,
+            0.36601562499999996
+          ]
+        },
+        {
+          "name": "outer-profile-y430-right",
+          "detail": [
+            0.9200105082277187,
+            0.36601562499999996
+          ],
+          "geometry": [
+            0.9192742934893704,
+            0.36601562499999996
+          ]
+        },
+        {
+          "name": "outer-profile-y550-left",
+          "detail": [
+            0.09471378653924775,
+            0.45435697115384616
+          ],
+          "geometry": [
+            0.0932413570625511,
+            0.45435697115384616
+          ]
+        },
+        {
+          "name": "outer-profile-y550-right",
+          "detail": [
+            0.8611133291598528,
+            0.45435697115384616
+          ],
+          "geometry": [
+            0.8611133291598528,
+            0.45435697115384616
+          ]
+        },
+        {
+          "name": "outer-profile-y800-left",
+          "detail": [
+            0.7271222467804579,
+            0.6384014423076922
+          ],
+          "geometry": [
+            0.7263860320421096,
+            0.6384014423076922
+          ]
+        },
+        {
+          "name": "outer-profile-y800-right",
+          "detail": [
+            0.9317899440412919,
+            0.6384014423076922
+          ],
+          "geometry": [
+            0.9310537293029436,
+            0.6384014423076922
+          ]
+        }
+      ],
+      "referenceSha256": "8579e0a65a3ed8fe4031d24f1d51071ba0dc03abfed99861342558b8f98b67ee",
+      "detailSha256": "1142769b384fce98c746146943981f6d270335f3f64b0229c155cbec8f1c728c",
+      "geometrySha256": "4f38c4f231fb59211ac516e350bc9a1b73e2485ae54bf11179cf34719d092c0a",
+      "foregroundMaskSha256": "70c41ef15eff4edef3e546e2c12f3034295b0581ecb1203df5a495a4949adbaa",
+      "geometryForegroundMaskSha256": "f97eae000fdbe79bc78df55b30b894e83b3cace1f614c02c85f28e062466519e"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

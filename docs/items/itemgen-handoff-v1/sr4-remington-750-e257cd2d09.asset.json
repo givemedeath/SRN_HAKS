@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-remington-750-e257cd2d09",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "plain-muzzle-at-row565",
+      "pixel": [
+        14.999999999999996,
+        565.0
+      ]
+    },
+    {
+      "name": "scope-knob-at-column780",
+      "pixel": [
+        780.0,
+        477.0
+      ]
+    },
+    {
+      "name": "stock-right-at-row680",
+      "pixel": [
+        1239.0,
+        680.0
+      ]
+    },
+    {
+      "name": "stock-bottom",
+      "pixel": [
+        1233.0,
+        782.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-remington-750-e257cd2d09.family.json",
+    "sha256": "21bf6c3ce029462827385382f3d4c3a2faf5d6e40d300211c8e496f532580385"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/7426e20c3cc52293845c4df02f4d56b99df8998d580644e13ed3e299f4a7643e.png",
+      "sha256": "7426e20c3cc52293845c4df02f4d56b99df8998d580644e13ed3e299f4a7643e"
+    },
+    "clayReference": {
+      "path": "inputs/2ac6cb2ccc031f270a2db7376b25dc9ac993d815b6ea635238a4a42f15b8f67c.png",
+      "sha256": "2ac6cb2ccc031f270a2db7376b25dc9ac993d815b6ea635238a4a42f15b8f67c"
+    },
+    "geometry": {
+      "path": "inputs/71d850be17d4bc93029ff7f094c74213dd5035d6e35b720fcfd87dbda699a073.png",
+      "sha256": "71d850be17d4bc93029ff7f094c74213dd5035d6e35b720fcfd87dbda699a073"
+    },
+    "detail": {
+      "path": "inputs/225078e1836a09150b72e34baa8002afc6f0d98941e8814541b8cb7bc37db40e.png",
+      "sha256": "225078e1836a09150b72e34baa8002afc6f0d98941e8814541b8cb7bc37db40e"
+    },
+    "foregroundMask": {
+      "path": "inputs/e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5.png",
+      "sha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5.png",
+      "sha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5"
+    },
+    "mask": {
+      "path": "inputs/e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5.png",
+      "sha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5"
+    },
+    "calibrationReference": {
+      "path": "inputs/77902fdb7618b3c44ad59ef365f4a7d608a97f46982d40c51068fe2695778838.png",
+      "sha256": "77902fdb7618b3c44ad59ef365f4a7d608a97f46982d40c51068fe2695778838"
+    },
+    "sourceAudit": {
+      "path": "inputs/4eb84c74fc8072ac38cef7001f66f2f9083ebf0a6d341e1c6d3910858d886546.json",
+      "sha256": "4eb84c74fc8072ac38cef7001f66f2f9083ebf0a6d341e1c6d3910858d886546"
+    },
+    "referenceApproval": {
+      "path": "inputs/0c1229d3a79ffab34a6b3b217404d068236ed61f414f28d81248e3fd24506c71.json",
+      "sha256": "0c1229d3a79ffab34a6b3b217404d068236ed61f414f28d81248e3fd24506c71"
+    },
+    "calibrationDetail": {
+      "path": "inputs/9b0a04bbbc2d74889f99ec9c731667d4d325ec6c4c8af3553b7f8f29624283cd.png",
+      "sha256": "9b0a04bbbc2d74889f99ec9c731667d4d325ec6c4c8af3553b7f8f29624283cd"
+    }
+  },
+  "features": [
+    {
+      "name": "Bolt-action rifle with top-mounted imaging scope.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own REMINGTON750 art printed27/PDF29: long slender barrel, scope, compact receiver and traditional buttstock/grip contour. Preserve its own hunting-rifle outline.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Own labeled Remington750 art reviewed against actual343corrected detail and346matched clay:short fore-end,long plain exposed barrel,compact imaging scope,traditional stock/grip and open guard retained;no unsupported muzzle brake. Wood/finish/unseen depth artistic. Source RGB is byte-exact. Raw opaque white background extracted using registered matching-clay alpha;maximum dark-source boundary mismatch3.163nativepixels,edge-pixel exclusions measured honestly in derivation-v3,not claimed zero. No pose warp or texture repaint;raw originals retained. Minor shallow grooves nonblocking. Single final pair/mask reviewer;prepared overlay still requires final native-shape check before completion. Native1254,2Kresampled,no geometry/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1197,
+        879,
+        1307,
+        895
+      ],
+      "referenceAreaPixels": 1252,
+      "referenceMaskSha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        795,
+        1000,
+        801,
+        1005
+      ],
+      "referenceAreaPixels": 23,
+      "referenceMaskSha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1291,
+        1031,
+        1386,
+        1094
+      ],
+      "referenceAreaPixels": 4241,
+      "referenceMaskSha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1855,
+        1228,
+        1859,
+        1233
+      ],
+      "referenceAreaPixels": 17,
+      "referenceMaskSha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7426e20c3cc52293845c4df02f4d56b99df8998d580644e13ed3e299f4a7643e",
+      "imageSha256": "225078e1836a09150b72e34baa8002afc6f0d98941e8814541b8cb7bc37db40e",
+      "maskSha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Own labeled Remington750 art reviewed against actual343corrected detail and346matched clay:short fore-end,long plain exposed barrel,compact imaging scope,traditional stock/grip and open guard retained;no unsupported muzzle brake. Wood/finish/unseen depth artistic. Source RGB is byte-exact. Raw opaque white background extracted using registered matching-clay alpha;maximum dark-source boundary mismatch3.163nativepixels,edge-pixel exclusions measured honestly in derivation-v3,not claimed zero. No pose warp or texture repaint;raw originals retained. Minor shallow grooves nonblocking. Single final pair/mask reviewer;prepared overlay still requires final native-shape check before completion. Native1254,2Kresampled,no geometry/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2ac6cb2ccc031f270a2db7376b25dc9ac993d815b6ea635238a4a42f15b8f67c",
+      "imageSha256": "71d850be17d4bc93029ff7f094c74213dd5035d6e35b720fcfd87dbda699a073",
+      "maskSha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Own labeled Remington750 art reviewed against actual343corrected detail and346matched clay:short fore-end,long plain exposed barrel,compact imaging scope,traditional stock/grip and open guard retained;no unsupported muzzle brake. Wood/finish/unseen depth artistic. Source RGB is byte-exact. Raw opaque white background extracted using registered matching-clay alpha;maximum dark-source boundary mismatch3.163nativepixels,edge-pixel exclusions measured honestly in derivation-v3,not claimed zero. No pose warp or texture repaint;raw originals retained. Minor shallow grooves nonblocking. Single final pair/mask reviewer;prepared overlay still requires final native-shape check before completion. Native1254,2Kresampled,no geometry/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "7426e20c3cc52293845c4df02f4d56b99df8998d580644e13ed3e299f4a7643e",
+      "detailSha256": "225078e1836a09150b72e34baa8002afc6f0d98941e8814541b8cb7bc37db40e",
+      "geometrySha256": "71d850be17d4bc93029ff7f094c74213dd5035d6e35b720fcfd87dbda699a073",
+      "foregroundMaskSha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5",
+      "geometryForegroundMaskSha256": "e420f9ede14552e8befdb458c27714459d438b5c895c830fb3953b5e6ad6f5c5",
+      "landmarks": [
+        {
+          "name": "plain-muzzle-at-row565",
+          "detail": [
+            0.05053730802481692,
+            0.452392578125
+          ],
+          "geometry": [
+            0.05053730802481692,
+            0.452392578125
+          ]
+        },
+        {
+          "name": "scope-knob-at-column780",
+          "detail": [
+            0.6109920095097641,
+            0.387939453125
+          ],
+          "geometry": [
+            0.6109920095097641,
+            0.387939453125
+          ]
+        },
+        {
+          "name": "stock-right-at-row680",
+          "detail": [
+            0.9472648304007323,
+            0.53662109375
+          ],
+          "geometry": [
+            0.9472648304007323,
+            0.53662109375
+          ]
+        },
+        {
+          "name": "stock-bottom",
+          "detail": [
+            0.9428691072518307,
+            0.611328125
+          ],
+          "geometry": [
+            0.9428691072518307,
+            0.611328125
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Own labeled Remington750 art reviewed against actual343corrected detail and346matched clay:short fore-end,long plain exposed barrel,compact imaging scope,traditional stock/grip and open guard retained;no unsupported muzzle brake. Wood/finish/unseen depth artistic. Source RGB is byte-exact. Raw opaque white background extracted using registered matching-clay alpha;maximum dark-source boundary mismatch3.163nativepixels,edge-pixel exclusions measured honestly in derivation-v3,not claimed zero. No pose warp or texture repaint;raw originals retained. Minor shallow grooves nonblocking. Single final pair/mask reviewer;prepared overlay still requires final native-shape check before completion. Native1254,2Kresampled,no geometry/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

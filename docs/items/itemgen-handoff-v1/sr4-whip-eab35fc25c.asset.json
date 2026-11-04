@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-whip-eab35fc25c",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "handle",
+      "pixel": [
+        329.99999999999994,
+        120.0
+      ]
+    },
+    {
+      "name": "upper-turn",
+      "pixel": [
+        1195.0,
+        379.99999999999994
+      ]
+    },
+    {
+      "name": "lower-turn",
+      "pixel": [
+        173.99999999999997,
+        840.9999999999999
+      ]
+    },
+    {
+      "name": "thin-tip",
+      "pixel": [
+        450.0,
+        1225.0
+      ]
+    },
+    {
+      "name": "wrist-loop",
+      "pixel": [
+        91.99999999999999,
+        320.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-whip-eab35fc25c.family.json",
+    "sha256": "a0c7bd51ab3e28db282ce99862c9d7c429e3379bdc36b59295b95916ef8f9aaf"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db.png",
+      "sha256": "da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db"
+    },
+    "clayReference": {
+      "path": "inputs/69bd1794fd3a3c30253362fb4986e84faa08b238735bfd644e1a6d55cc279c01.png",
+      "sha256": "69bd1794fd3a3c30253362fb4986e84faa08b238735bfd644e1a6d55cc279c01"
+    },
+    "geometry": {
+      "path": "inputs/2b9056fdfc524aace2ff003c8c1ac5eba25cf4c115fc35e62f02ea5803994c29.png",
+      "sha256": "2b9056fdfc524aace2ff003c8c1ac5eba25cf4c115fc35e62f02ea5803994c29"
+    },
+    "detail": {
+      "path": "inputs/f72a5af3d391292a8d6914f8869009f47d24dff71b601663b781b0d746d9eab0.png",
+      "sha256": "f72a5af3d391292a8d6914f8869009f47d24dff71b601663b781b0d746d9eab0"
+    },
+    "foregroundMask": {
+      "path": "inputs/46152aa81c3d5e58682da495ef40b8799b0df11246e7952597f042d7f6cd46da.png",
+      "sha256": "46152aa81c3d5e58682da495ef40b8799b0df11246e7952597f042d7f6cd46da"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/4899710a5dce75e7811e9bcb3697f6c73901035841bf0a828b83a2f2d33cf154.png",
+      "sha256": "4899710a5dce75e7811e9bcb3697f6c73901035841bf0a828b83a2f2d33cf154"
+    },
+    "mask": {
+      "path": "inputs/4899710a5dce75e7811e9bcb3697f6c73901035841bf0a828b83a2f2d33cf154.png",
+      "sha256": "4899710a5dce75e7811e9bcb3697f6c73901035841bf0a828b83a2f2d33cf154"
+    },
+    "calibrationReference": {
+      "path": "inputs/e36c4c033dd0ca9ebe2ff1d16ac26bb6f423e0811bb7ce5cc34cb4b73e68211a.png",
+      "sha256": "e36c4c033dd0ca9ebe2ff1d16ac26bb6f423e0811bb7ce5cc34cb4b73e68211a"
+    },
+    "sourceAudit": {
+      "path": "inputs/1ed95793f607f4964ebac0dd23b16df4b0e39eaf50d8e5de9039a371116c601d.json",
+      "sha256": "1ed95793f607f4964ebac0dd23b16df4b0e39eaf50d8e5de9039a371116c601d"
+    },
+    "referenceApproval": {
+      "path": "inputs/00924479fab492e4d20128a2ab0c6f5f955714cde3726c4130ac2189c2fa2fc7.json",
+      "sha256": "00924479fab492e4d20128a2ab0c6f5f955714cde3726c4130ac2189c2fa2fc7"
+    },
+    "calibrationDetail": {
+      "path": "inputs/9e10bca1f4d0e6432c1a2d879353b45653c2041c7c00e327a5ef5d3f4f7ab9e8.png",
+      "sha256": "9e10bca1f4d0e6432c1a2d879353b45653c2041c7c00e327a5ef5d3f4f7ab9e8"
+    }
+  },
+  "features": [
+    {
+      "name": "Classic bullwhip made of leather OR synthetic fiber, about2meters long",
+      "placementReviewed": true
+    },
+    {
+      "name": "Ordinary flexible whip identity; not monowire, retracting haft or weighted-tip Monofilament Whip",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve handle, continuous flexible length/taper and any selected looped pose/open spaces; exact handle design/color/braid details unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Entire tapered lash, thin fringed tip and wristloop retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        166,
+        461,
+        290,
+        728
+      ],
+      "referenceAreaPixels": 13032,
+      "referenceMaskSha256": "4899710a5dce75e7811e9bcb3697f6c73901035841bf0a828b83a2f2d33cf154",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db",
+      "imageSha256": "f72a5af3d391292a8d6914f8869009f47d24dff71b601663b781b0d746d9eab0",
+      "maskSha256": "46152aa81c3d5e58682da495ef40b8799b0df11246e7952597f042d7f6cd46da",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Entire tapered lash, thin fringed tip and wristloop retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "69bd1794fd3a3c30253362fb4986e84faa08b238735bfd644e1a6d55cc279c01",
+      "imageSha256": "2b9056fdfc524aace2ff003c8c1ac5eba25cf4c115fc35e62f02ea5803994c29",
+      "maskSha256": "4899710a5dce75e7811e9bcb3697f6c73901035841bf0a828b83a2f2d33cf154",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Entire tapered lash, thin fringed tip and wristloop retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Entire tapered lash, thin fringed tip and wristloop retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "handle",
+          "detail": [
+            0.28167892316298915,
+            0.12752570236156352
+          ],
+          "geometry": [
+            0.28167892316298915,
+            0.12752570236156352
+          ]
+        },
+        {
+          "name": "upper-turn",
+          "detail": [
+            0.9157513595441299,
+            0.31816215390879476
+          ],
+          "geometry": [
+            0.9157513595441299,
+            0.31816215390879476
+          ]
+        },
+        {
+          "name": "lower-turn",
+          "detail": [
+            0.16732597509887592,
+            0.6561752468444625
+          ],
+          "geometry": [
+            0.16732597509887592,
+            0.6561752468444625
+          ]
+        },
+        {
+          "name": "thin-tip",
+          "detail": [
+            0.3696427293661532,
+            0.9377306214372965
+          ],
+          "geometry": [
+            0.3696427293661532,
+            0.9377306214372965
+          ]
+        },
+        {
+          "name": "wrist-loop",
+          "detail": [
+            0.10721737419338051,
+            0.2741691266286645
+          ],
+          "geometry": [
+            0.10721737419338051,
+            0.2741691266286645
+          ]
+        }
+      ],
+      "referenceSha256": "da2340bdd0083006d37443a6241ba382b5f65f70ebbc7a412b2e641b65fe16db",
+      "geometrySha256": "2b9056fdfc524aace2ff003c8c1ac5eba25cf4c115fc35e62f02ea5803994c29",
+      "detailSha256": "f72a5af3d391292a8d6914f8869009f47d24dff71b601663b781b0d746d9eab0",
+      "geometryForegroundMaskSha256": "4899710a5dce75e7811e9bcb3697f6c73901035841bf0a828b83a2f2d33cf154",
+      "foregroundMaskSha256": "46152aa81c3d5e58682da495ef40b8799b0df11246e7952597f042d7f6cd46da"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

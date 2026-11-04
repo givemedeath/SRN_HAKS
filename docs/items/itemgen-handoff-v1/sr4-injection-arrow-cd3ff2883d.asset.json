@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-injection-arrow-cd3ff2883d",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        22.0,
+        550.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1231.0,
+        550.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        22.0,
+        663.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1231.0,
+        663.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-injection-arrow-cd3ff2883d.family.json",
+    "sha256": "8d7afb0600aad7701a9275f3d630ca832ee68caa2c0f2b1a28f1f924e9d53cdd"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8439cb752d9e3faa15d19b8c433eb2886f6f93e8b6fc583f53eadc6762f3c072.png",
+      "sha256": "8439cb752d9e3faa15d19b8c433eb2886f6f93e8b6fc583f53eadc6762f3c072"
+    },
+    "clayReference": {
+      "path": "inputs/aa5871de6e4176898a3ac08cd9e1100241c2d85e11aab49d2e59764997fa1321.png",
+      "sha256": "aa5871de6e4176898a3ac08cd9e1100241c2d85e11aab49d2e59764997fa1321"
+    },
+    "geometry": {
+      "path": "inputs/e6f1ab1565d616dce1c312d1df38edb3ef7312415479b86efc58451331b30130.png",
+      "sha256": "e6f1ab1565d616dce1c312d1df38edb3ef7312415479b86efc58451331b30130"
+    },
+    "detail": {
+      "path": "inputs/e7c3c48ae6ce213076f9f0878b421abab8794b934a1867d0beaff886483cab62.png",
+      "sha256": "e7c3c48ae6ce213076f9f0878b421abab8794b934a1867d0beaff886483cab62"
+    },
+    "foregroundMask": {
+      "path": "inputs/6a3f0a9d072b6dd06e65261670836fa1d25c78d9aec0a91a0740e679cdf8bca4.png",
+      "sha256": "6a3f0a9d072b6dd06e65261670836fa1d25c78d9aec0a91a0740e679cdf8bca4"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/2a6e8916d126fa55732be2a8c5406206840025d274359653c43ffef056a38abb.png",
+      "sha256": "2a6e8916d126fa55732be2a8c5406206840025d274359653c43ffef056a38abb"
+    },
+    "mask": {
+      "path": "inputs/2a6e8916d126fa55732be2a8c5406206840025d274359653c43ffef056a38abb.png",
+      "sha256": "2a6e8916d126fa55732be2a8c5406206840025d274359653c43ffef056a38abb"
+    },
+    "calibrationReference": {
+      "path": "inputs/be35a4f0e918e85833fc555b79382cb1e924dd57eaebc6ec780f35326c76d76a.png",
+      "sha256": "be35a4f0e918e85833fc555b79382cb1e924dd57eaebc6ec780f35326c76d76a"
+    },
+    "sourceAudit": {
+      "path": "inputs/d22968b7fe272852547474044edbce261f55c3a36d14750222f4339e49f7a8e9.json",
+      "sha256": "d22968b7fe272852547474044edbce261f55c3a36d14750222f4339e49f7a8e9"
+    },
+    "referenceApproval": {
+      "path": "inputs/4ea1bc8eb9ffeb30eaba796f1406add5ccdb469f82114fe87ebf9b0e978dcbc0.json",
+      "sha256": "4ea1bc8eb9ffeb30eaba796f1406add5ccdb469f82114fe87ebf9b0e978dcbc0"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f3b9662bc86dd6bf3be83362bf028e3c2a526c84c212d8ee61c1b7ed670ba488.png",
+      "sha256": "f3b9662bc86dd6bf3be83362bf028e3c2a526c84c212d8ee61c1b7ed670ba488"
+    }
+  },
+  "features": [
+    {
+      "name": "Injection arrow identity distinct from ordinary arrow and injection bolt",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source identifies injection arrow but no specific exterior; this is artistic interpretation. Conditioned overlay retains shaft, point, fins and nock. Native 1254 images resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8439cb752d9e3faa15d19b8c433eb2886f6f93e8b6fc583f53eadc6762f3c072",
+      "imageSha256": "e7c3c48ae6ce213076f9f0878b421abab8794b934a1867d0beaff886483cab62",
+      "maskSha256": "6a3f0a9d072b6dd06e65261670836fa1d25c78d9aec0a91a0740e679cdf8bca4",
+      "notes": "Source identifies injection arrow but no specific exterior; this is artistic interpretation. Conditioned overlay retains shaft, point, fins and nock. Native 1254 images resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "aa5871de6e4176898a3ac08cd9e1100241c2d85e11aab49d2e59764997fa1321",
+      "imageSha256": "e6f1ab1565d616dce1c312d1df38edb3ef7312415479b86efc58451331b30130",
+      "maskSha256": "2a6e8916d126fa55732be2a8c5406206840025d274359653c43ffef056a38abb",
+      "notes": "Source identifies injection arrow but no specific exterior; this is artistic interpretation. Conditioned overlay retains shaft, point, fins and nock. Native 1254 images resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Source identifies injection arrow but no specific exterior; this is artistic interpretation. Conditioned overlay retains shaft, point, fins and nock. Native 1254 images resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.0490587134942005,
+            0.45751953125
+          ],
+          "geometry": [
+            0.0490587134942005,
+            0.456771985619469
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9509412865057995,
+            0.45751953125
+          ],
+          "geometry": [
+            0.9509412865057995,
+            0.456771985619469
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.0490587134942005,
+            0.5419921875
+          ],
+          "geometry": [
+            0.0490587134942005,
+            0.5427397331305309
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9509412865057995,
+            0.5419921875
+          ],
+          "geometry": [
+            0.9509412865057995,
+            0.5427397331305309
+          ]
+        }
+      ],
+      "referenceSha256": "8439cb752d9e3faa15d19b8c433eb2886f6f93e8b6fc583f53eadc6762f3c072",
+      "geometrySha256": "e6f1ab1565d616dce1c312d1df38edb3ef7312415479b86efc58451331b30130",
+      "detailSha256": "e7c3c48ae6ce213076f9f0878b421abab8794b934a1867d0beaff886483cab62",
+      "geometryForegroundMaskSha256": "2a6e8916d126fa55732be2a8c5406206840025d274359653c43ffef056a38abb",
+      "foregroundMaskSha256": "6a3f0a9d072b6dd06e65261670836fa1d25c78d9aec0a91a0740e679cdf8bca4"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

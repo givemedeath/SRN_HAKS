@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-psg-enforcer-55ca5d4c7d",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-clip-bottom",
+      "pixel": [
+        200.0,
+        779.0
+      ]
+    },
+    {
+      "name": "front-clip-bottom",
+      "pixel": [
+        500.0,
+        765.0
+      ]
+    },
+    {
+      "name": "optic-top",
+      "pixel": [
+        470.0,
+        489.0
+      ]
+    },
+    {
+      "name": "barrel-top",
+      "pixel": [
+        1200.0,
+        612.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-psg-enforcer-55ca5d4c7d.family.json",
+    "sha256": "9d58ce101a846483d9529474ef03a84da9e918f40da811671ad32583e816cc12"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/ee31b78121806f058d8afd9d06f40ebc0f6b46d4f9b38324afb5ba6c832382c7.png",
+      "sha256": "ee31b78121806f058d8afd9d06f40ebc0f6b46d4f9b38324afb5ba6c832382c7"
+    },
+    "clayReference": {
+      "path": "inputs/0fa1f53cc3c631091f6a0250aea3e993525fd78c47686f3f00cf65050c66c1fa.png",
+      "sha256": "0fa1f53cc3c631091f6a0250aea3e993525fd78c47686f3f00cf65050c66c1fa"
+    },
+    "geometry": {
+      "path": "inputs/d20636ac4e0fb17d2107be052a3866bad3f75151722b0a332b99e6df982d66a5.png",
+      "sha256": "d20636ac4e0fb17d2107be052a3866bad3f75151722b0a332b99e6df982d66a5"
+    },
+    "detail": {
+      "path": "inputs/3c16351db4b178463c1280309e9645e711eb2109efda6e7092625d1e34361f43.png",
+      "sha256": "3c16351db4b178463c1280309e9645e711eb2109efda6e7092625d1e34361f43"
+    },
+    "foregroundMask": {
+      "path": "inputs/56c9db09114d4aff616960b556c8466a39358e56b31a18a1cb8327646f2fc961.png",
+      "sha256": "56c9db09114d4aff616960b556c8466a39358e56b31a18a1cb8327646f2fc961"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/80c57cdf3e0b9b0e180f47e1cfa117e7687cc5450750441c600ce843c9c6f839.png",
+      "sha256": "80c57cdf3e0b9b0e180f47e1cfa117e7687cc5450750441c600ce843c9c6f839"
+    },
+    "mask": {
+      "path": "inputs/80c57cdf3e0b9b0e180f47e1cfa117e7687cc5450750441c600ce843c9c6f839.png",
+      "sha256": "80c57cdf3e0b9b0e180f47e1cfa117e7687cc5450750441c600ce843c9c6f839"
+    },
+    "calibrationReference": {
+      "path": "inputs/beb9246e69f6582aea0654f9320308d20a94fcebfb7b705caf6ee49d759eef71.png",
+      "sha256": "beb9246e69f6582aea0654f9320308d20a94fcebfb7b705caf6ee49d759eef71"
+    },
+    "sourceAudit": {
+      "path": "inputs/816528a28ac12db6c3a78ea67b4aca5c8ea35f9b5381ba210fec2bef6efe0217.json",
+      "sha256": "816528a28ac12db6c3a78ea67b4aca5c8ea35f9b5381ba210fec2bef6efe0217"
+    },
+    "referenceApproval": {
+      "path": "inputs/413a4fa814aace3ed5ba4585ef1dba21f98a463a4c466f060a559aa006908edb.json",
+      "sha256": "413a4fa814aace3ed5ba4585ef1dba21f98a463a4c466f060a559aa006908edb"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f46ca6feb7d78cb42b7d40f02e687e6bb3c7099d26f207029af3ad13b2665a65.png",
+      "sha256": "f46ca6feb7d78cb42b7d40f02e687e6bb3c7099d26f207029af3ad13b2665a65"
+    }
+  },
+  "features": [
+    {
+      "name": "Dual-clip system is the distinguishing model feature: represent two actual clip/feed housings, not a single enlarged magazine.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Folding bipod and imaging scope are standard. Preserve source body/stock, forward barrel, grip, scope and clip-system layout.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected with existing raw-pair/alpha/structural review. Both clips, folded bipod legs and narrow between-leg opening preserved; two shallow stock/receiver seam gaps omitted in smooth clay are nonblocking. Per-role source topology preserved: {\"detail\": {\"components\": 1, \"holes\": 4}, \"clay\": {\"components\": 1, \"holes\": 2}}. Existing bounded padding recovery96 selected after3 probes; source/helper unchanged. Native1254 retained,2048resampled.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        690,
+        1083,
+        780,
+        1133
+      ],
+      "referenceAreaPixels": 3387,
+      "referenceMaskSha256": "80c57cdf3e0b9b0e180f47e1cfa117e7687cc5450750441c600ce843c9c6f839",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1368,
+        1121,
+        1517,
+        1128
+      ],
+      "referenceAreaPixels": 524,
+      "referenceMaskSha256": "80c57cdf3e0b9b0e180f47e1cfa117e7687cc5450750441c600ce843c9c6f839",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ee31b78121806f058d8afd9d06f40ebc0f6b46d4f9b38324afb5ba6c832382c7",
+      "imageSha256": "3c16351db4b178463c1280309e9645e711eb2109efda6e7092625d1e34361f43",
+      "maskSha256": "56c9db09114d4aff616960b556c8466a39358e56b31a18a1cb8327646f2fc961",
+      "notes": "Final prepared overlay inspected with existing raw-pair/alpha/structural review. Both clips, folded bipod legs and narrow between-leg opening preserved; two shallow stock/receiver seam gaps omitted in smooth clay are nonblocking. Per-role source topology preserved: {\"detail\": {\"components\": 1, \"holes\": 4}, \"clay\": {\"components\": 1, \"holes\": 2}}. Existing bounded padding recovery96 selected after3 probes; source/helper unchanged. Native1254 retained,2048resampled."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0fa1f53cc3c631091f6a0250aea3e993525fd78c47686f3f00cf65050c66c1fa",
+      "imageSha256": "d20636ac4e0fb17d2107be052a3866bad3f75151722b0a332b99e6df982d66a5",
+      "maskSha256": "80c57cdf3e0b9b0e180f47e1cfa117e7687cc5450750441c600ce843c9c6f839",
+      "notes": "Final prepared overlay inspected with existing raw-pair/alpha/structural review. Both clips, folded bipod legs and narrow between-leg opening preserved; two shallow stock/receiver seam gaps omitted in smooth clay are nonblocking. Per-role source topology preserved: {\"detail\": {\"components\": 1, \"holes\": 4}, \"clay\": {\"components\": 1, \"holes\": 2}}. Existing bounded padding recovery96 selected after3 probes; source/helper unchanged. Native1254 retained,2048resampled."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "ee31b78121806f058d8afd9d06f40ebc0f6b46d4f9b38324afb5ba6c832382c7",
+      "detailSha256": "3c16351db4b178463c1280309e9645e711eb2109efda6e7092625d1e34361f43",
+      "geometrySha256": "d20636ac4e0fb17d2107be052a3866bad3f75151722b0a332b99e6df982d66a5",
+      "foregroundMaskSha256": "56c9db09114d4aff616960b556c8466a39358e56b31a18a1cb8327646f2fc961",
+      "geometryForegroundMaskSha256": "80c57cdf3e0b9b0e180f47e1cfa117e7687cc5450750441c600ce843c9c6f839",
+      "landmarks": [
+        {
+          "name": "rear-clip-bottom",
+          "detail": [
+            0.18102384868421054,
+            0.6000615454180065
+          ],
+          "geometry": [
+            0.18102384868421054,
+            0.6015530797829582
+          ]
+        },
+        {
+          "name": "front-clip-bottom",
+          "detail": [
+            0.40460526315789475,
+            0.589620804863344
+          ],
+          "geometry": [
+            0.40460526315789475,
+            0.5911123392282958
+          ]
+        },
+        {
+          "name": "optic-top",
+          "detail": [
+            0.3822471217105263,
+            0.3837890625
+          ],
+          "geometry": [
+            0.3822471217105263,
+            0.3837890625
+          ]
+        },
+        {
+          "name": "barrel-top",
+          "detail": [
+            0.9262952302631579,
+            0.47551842594453375
+          ],
+          "geometry": [
+            0.9262952302631579,
+            0.47551842594453375
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected with existing raw-pair/alpha/structural review. Both clips, folded bipod legs and narrow between-leg opening preserved; two shallow stock/receiver seam gaps omitted in smooth clay are nonblocking. Per-role source topology preserved: {\"detail\": {\"components\": 1, \"holes\": 4}, \"clay\": {\"components\": 1, \"holes\": 2}}. Existing bounded padding recovery96 selected after3 probes; source/helper unchanged. Native1254 retained,2048resampled."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

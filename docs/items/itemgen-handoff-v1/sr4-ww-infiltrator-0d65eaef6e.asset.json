@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ww-infiltrator-0d65eaef6e",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        61.0,
+        29.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1463.0,
+        29.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        61.0,
+        984.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1463.0,
+        984.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ww-infiltrator-0d65eaef6e.family.json",
+    "sha256": "ec37b8d1669756524c07714b7c800c352ea0976f21c0d04478e382d5bbe9699d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/1700caf382c19d76e4aa685a0c913b542a00e34df4f3a9a2a10085abf4ec08c3.png",
+      "sha256": "1700caf382c19d76e4aa685a0c913b542a00e34df4f3a9a2a10085abf4ec08c3"
+    },
+    "clayReference": {
+      "path": "inputs/9d566e6b1ca697477ba47e532c4dfa33858da87fc0a928bc551219fef7e4aa0a.png",
+      "sha256": "9d566e6b1ca697477ba47e532c4dfa33858da87fc0a928bc551219fef7e4aa0a"
+    },
+    "geometry": {
+      "path": "inputs/006e1d0e6614b5d9106de644897922ca72b6821366b2319280fe2ed34120d670.png",
+      "sha256": "006e1d0e6614b5d9106de644897922ca72b6821366b2319280fe2ed34120d670"
+    },
+    "detail": {
+      "path": "inputs/f6384b810e17503ccf32d16cf509b35249059ed5e10b064c409af984b3f11da7.png",
+      "sha256": "f6384b810e17503ccf32d16cf509b35249059ed5e10b064c409af984b3f11da7"
+    },
+    "foregroundMask": {
+      "path": "inputs/d6a47b761e20f5920ea0cde17340b46b9aa217d065b67ce6a38b4750b4c07435.png",
+      "sha256": "d6a47b761e20f5920ea0cde17340b46b9aa217d065b67ce6a38b4750b4c07435"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/051cb039b8a205ea2327168a5e0c4288f251e839c388c3396a954c9917295137.png",
+      "sha256": "051cb039b8a205ea2327168a5e0c4288f251e839c388c3396a954c9917295137"
+    },
+    "mask": {
+      "path": "inputs/051cb039b8a205ea2327168a5e0c4288f251e839c388c3396a954c9917295137.png",
+      "sha256": "051cb039b8a205ea2327168a5e0c4288f251e839c388c3396a954c9917295137"
+    },
+    "calibrationReference": {
+      "path": "inputs/72909a49ea2676f27386bfc4d5fcdd57b75adb7ad4b14728e462780d07ef83e7.png",
+      "sha256": "72909a49ea2676f27386bfc4d5fcdd57b75adb7ad4b14728e462780d07ef83e7"
+    },
+    "sourceAudit": {
+      "path": "inputs/559d7295375cba04ba356d8a4f0f2912d725603063941b168058b785072c21d7.json",
+      "sha256": "559d7295375cba04ba356d8a4f0f2912d725603063941b168058b785072c21d7"
+    },
+    "referenceApproval": {
+      "path": "inputs/8a1eaecb55fd275035dfbbb421d469d6d4132036627c8d68ef8daafbaf7d6318.json",
+      "sha256": "8a1eaecb55fd275035dfbbb421d469d6d4132036627c8d68ef8daafbaf7d6318"
+    },
+    "calibrationDetail": {
+      "path": "inputs/bcd0aec31f3f2398ee4dacb134d80ae2ce8f36bae2a774c28e9208be0b8eec7b.png",
+      "sha256": "bcd0aec31f3f2398ee4dacb134d80ae2ce8f36bae2a774c28e9208be0b8eec7b"
+    }
+  },
+  "features": [
+    {
+      "name": "Heavier variant related to SA Puzzler, distributed by WeaponsWorld; entirely polyresin and disassembles into parts resembling toiletries/travel luggage.",
+      "placementReviewed": true
+    },
+    {
+      "name": "This is not PSK3-style automatic collapse into a metal block. Choose assembled weapon or disguised inventory-parts depiction explicitly.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay reviewed: matched framing/proportions, structural forms and openings retained. Shallow grooves accepted. Arsenal printed21/PDF23 Puzzler context and printed24/PDF26 WW description establish an assembled heavier all-polyresin relative. Resin-look exterior, no metal finish or accessories, and two trigger clearances retained. No own labeled silhouette: exact external shape, black color, component layout and dimensions are artistic interpretation. This assembled reference does not depict disguised inventory parts.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        904,
+        890,
+        1079,
+        1114
+      ],
+      "referenceAreaPixels": 31443,
+      "referenceMaskSha256": "051cb039b8a205ea2327168a5e0c4288f251e839c388c3396a954c9917295137",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1155,
+        954,
+        1220,
+        1089
+      ],
+      "referenceAreaPixels": 2970,
+      "referenceMaskSha256": "051cb039b8a205ea2327168a5e0c4288f251e839c388c3396a954c9917295137",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "f6384b810e17503ccf32d16cf509b35249059ed5e10b064c409af984b3f11da7",
+      "maskSha256": "d6a47b761e20f5920ea0cde17340b46b9aa217d065b67ce6a38b4750b4c07435",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural forms and openings retained. Shallow grooves accepted. Arsenal printed21/PDF23 Puzzler context and printed24/PDF26 WW description establish an assembled heavier all-polyresin relative. Resin-look exterior, no metal finish or accessories, and two trigger clearances retained. No own labeled silhouette: exact external shape, black color, component layout and dimensions are artistic interpretation. This assembled reference does not depict disguised inventory parts.",
+      "referenceSha256": "1700caf382c19d76e4aa685a0c913b542a00e34df4f3a9a2a10085abf4ec08c3",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "006e1d0e6614b5d9106de644897922ca72b6821366b2319280fe2ed34120d670",
+      "maskSha256": "051cb039b8a205ea2327168a5e0c4288f251e839c388c3396a954c9917295137",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural forms and openings retained. Shallow grooves accepted. Arsenal printed21/PDF23 Puzzler context and printed24/PDF26 WW description establish an assembled heavier all-polyresin relative. Resin-look exterior, no metal finish or accessories, and two trigger clearances retained. No own labeled silhouette: exact external shape, black color, component layout and dimensions are artistic interpretation. This assembled reference does not depict disguised inventory parts.",
+      "referenceSha256": "9d566e6b1ca697477ba47e532c4dfa33858da87fc0a928bc551219fef7e4aa0a",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "f6384b810e17503ccf32d16cf509b35249059ed5e10b064c409af984b3f11da7",
+      "foregroundMaskSha256": "d6a47b761e20f5920ea0cde17340b46b9aa217d065b67ce6a38b4750b4c07435",
+      "geometryForegroundMaskSha256": "051cb039b8a205ea2327168a5e0c4288f251e839c388c3396a954c9917295137",
+      "geometrySha256": "006e1d0e6614b5d9106de644897922ca72b6821366b2319280fe2ed34120d670",
+      "landmarks": [
+        {
+          "detail": [
+            0.0498046875,
+            0.193359375
+          ],
+          "geometry": [
+            0.0498046875,
+            0.193359375
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.193359375
+          ],
+          "geometry": [
+            0.9501953125,
+            0.193359375
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.0498046875,
+            0.806640625
+          ],
+          "geometry": [
+            0.0498046875,
+            0.806640625
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.806640625
+          ],
+          "geometry": [
+            0.9501953125,
+            0.806640625
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural forms and openings retained. Shallow grooves accepted. Arsenal printed21/PDF23 Puzzler context and printed24/PDF26 WW description establish an assembled heavier all-polyresin relative. Resin-look exterior, no metal finish or accessories, and two trigger clearances retained. No own labeled silhouette: exact external shape, black color, component layout and dimensions are artistic interpretation. This assembled reference does not depict disguised inventory parts.",
+      "referenceSha256": "1700caf382c19d76e4aa685a0c913b542a00e34df4f3a9a2a10085abf4ec08c3"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

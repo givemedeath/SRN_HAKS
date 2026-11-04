@@ -1,0 +1,9 @@
+{
+  "relocatedManifestValidated": true,
+  "sameLengthSameMtimeStaleSourceRejected": true,
+  "restoredSourceValidated": true,
+  "allBundlesValidated": 246,
+  "currentMainToolingUnchanged": true,
+  "fullLocalRegressionRun": false,
+  "nativeApprovalGranted": false
+}

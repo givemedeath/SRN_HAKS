@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-g12a3z-2f18f55ad3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "laser-front",
+      "pixel": [
+        365.0,
+        417.0
+      ]
+    },
+    {
+      "name": "carryhandle",
+      "pixel": [
+        616.0,
+        459.0
+      ]
+    },
+    {
+      "name": "trigger",
+      "pixel": [
+        626.0,
+        643.0
+      ]
+    },
+    {
+      "name": "stock-slot",
+      "pixel": [
+        1148.0,
+        679.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-g12a3z-2f18f55ad3.family.json",
+    "sha256": "665497829fa079512620688e8a205e481d84c202246c4633df1e5441c1d32f93"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/dd3656ba9f2c60945a1b0d9798a02aa4c2f1d098e0d82af51b33cb963c262f52.png",
+      "sha256": "dd3656ba9f2c60945a1b0d9798a02aa4c2f1d098e0d82af51b33cb963c262f52"
+    },
+    "clayReference": {
+      "path": "inputs/cc5eac2532cc8a538b63e4718ea79bcba33929684866ec65b829e13469e35fcf.png",
+      "sha256": "cc5eac2532cc8a538b63e4718ea79bcba33929684866ec65b829e13469e35fcf"
+    },
+    "geometry": {
+      "path": "inputs/b68b6355a77ca4da154de40fe13dd03273ef9aa7976546b1b38e116f6801f495.png",
+      "sha256": "b68b6355a77ca4da154de40fe13dd03273ef9aa7976546b1b38e116f6801f495"
+    },
+    "detail": {
+      "path": "inputs/040fefdfc337735345422909db08a85219a0301522e47e64025edcd509bf5223.png",
+      "sha256": "040fefdfc337735345422909db08a85219a0301522e47e64025edcd509bf5223"
+    },
+    "foregroundMask": {
+      "path": "inputs/4522644572adb648c97a5d6bfbd51f7719f0aab0e12ae21457b76b9a0e7b3416.png",
+      "sha256": "4522644572adb648c97a5d6bfbd51f7719f0aab0e12ae21457b76b9a0e7b3416"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd.png",
+      "sha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd"
+    },
+    "mask": {
+      "path": "inputs/28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd.png",
+      "sha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd"
+    },
+    "calibrationReference": {
+      "path": "inputs/64a1ae9ebcf078df44f5d64f4020332a28c64d0c4c1613410ee75bc36dd2148f.png",
+      "sha256": "64a1ae9ebcf078df44f5d64f4020332a28c64d0c4c1613410ee75bc36dd2148f"
+    },
+    "sourceAudit": {
+      "path": "inputs/933e1354473aa5d05518e1ffcf21c1ede1fe15bf22b48386140e0ed0ece9ddd3.json",
+      "sha256": "933e1354473aa5d05518e1ffcf21c1ede1fe15bf22b48386140e0ed0ece9ddd3"
+    },
+    "referenceApproval": {
+      "path": "inputs/db531ff3be89d7edf58e35318d3849a86a641c8ff0dce6b5ec7f553bc30ac1d7.json",
+      "sha256": "db531ff3be89d7edf58e35318d3849a86a641c8ff0dce6b5ec7f553bc30ac1d7"
+    },
+    "calibrationDetail": {
+      "path": "inputs/65a168b8694cb8df36bcced7813077a3b46b108e9984f45c404ea3f07747f90c.png",
+      "sha256": "65a168b8694cb8df36bcced7813077a3b46b108e9984f45c404ea3f07747f90c"
+    }
+  },
+  "features": [
+    {
+      "name": "Compact rifle with integral top-mounted laser sight, barrel-mounted gas-vent2 system and telescoping shoulder stock.",
+      "placementReviewed": true
+    },
+    {
+      "name": "HK is the catalog abbreviation of Heckler & Koch G12A3z in the description; this does not authorize substituting a real-world G11/G12 or later-edition outline.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: full top-mounted laser, major gas-vent apertures, extended stock, body and five openings preserved. Source/output topology unchanged. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        835,
+        758,
+        1169,
+        825
+      ],
+      "referenceAreaPixels": 19405,
+      "referenceMaskSha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        426,
+        921,
+        441,
+        926
+      ],
+      "referenceAreaPixels": 67,
+      "referenceMaskSha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        140,
+        933,
+        181,
+        938
+      ],
+      "referenceAreaPixels": 198,
+      "referenceMaskSha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        985,
+        1029,
+        1079,
+        1106
+      ],
+      "referenceAreaPixels": 4783,
+      "referenceMaskSha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1795,
+        1089,
+        1819,
+        1161
+      ],
+      "referenceAreaPixels": 368,
+      "referenceMaskSha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "dd3656ba9f2c60945a1b0d9798a02aa4c2f1d098e0d82af51b33cb963c262f52",
+      "imageSha256": "040fefdfc337735345422909db08a85219a0301522e47e64025edcd509bf5223",
+      "maskSha256": "4522644572adb648c97a5d6bfbd51f7719f0aab0e12ae21457b76b9a0e7b3416",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: full top-mounted laser, major gas-vent apertures, extended stock, body and five openings preserved. Source/output topology unchanged. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "cc5eac2532cc8a538b63e4718ea79bcba33929684866ec65b829e13469e35fcf",
+      "imageSha256": "b68b6355a77ca4da154de40fe13dd03273ef9aa7976546b1b38e116f6801f495",
+      "maskSha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: full top-mounted laser, major gas-vent apertures, extended stock, body and five openings preserved. Source/output topology unchanged. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: full top-mounted laser, major gas-vent apertures, extended stock, body and five openings preserved. Source/output topology unchanged. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "laser-front",
+          "detail": [
+            0.3082094766260163,
+            0.3561818288276231
+          ],
+          "geometry": [
+            0.3082094766260163,
+            0.3561818288276231
+          ]
+        },
+        {
+          "name": "carryhandle",
+          "detail": [
+            0.4919477261178862,
+            0.38692159060492504
+          ],
+          "geometry": [
+            0.4919477261178862,
+            0.38692159060492504
+          ]
+        },
+        {
+          "name": "trigger",
+          "detail": [
+            0.499267975101626,
+            0.5215910231531049
+          ],
+          "geometry": [
+            0.499267975101626,
+            0.5215910231531049
+          ]
+        },
+        {
+          "name": "stock-slot",
+          "detail": [
+            0.8813849720528455,
+            0.5479393903907923
+          ],
+          "geometry": [
+            0.8813849720528455,
+            0.5479393903907923
+          ]
+        }
+      ],
+      "referenceSha256": "dd3656ba9f2c60945a1b0d9798a02aa4c2f1d098e0d82af51b33cb963c262f52",
+      "geometrySha256": "b68b6355a77ca4da154de40fe13dd03273ef9aa7976546b1b38e116f6801f495",
+      "detailSha256": "040fefdfc337735345422909db08a85219a0301522e47e64025edcd509bf5223",
+      "geometryForegroundMaskSha256": "28ca20b3bdff764f180b85b14df8c61918be097ced8a34a195712272946461bd",
+      "foregroundMaskSha256": "4522644572adb648c97a5d6bfbd51f7719f0aab0e12ae21457b76b9a0e7b3416"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

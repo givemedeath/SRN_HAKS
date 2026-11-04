@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-baseball-billiard-ball-18e7e27681",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "top",
+      "pixel": [
+        631.5,
+        117.0
+      ]
+    },
+    {
+      "name": "bottom",
+      "pixel": [
+        617.0,
+        1137.0
+      ]
+    },
+    {
+      "name": "left",
+      "pixel": [
+        120.0,
+        626.0
+      ]
+    },
+    {
+      "name": "right",
+      "pixel": [
+        1135.0,
+        638.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-baseball-billiard-ball-18e7e27681.family.json",
+    "sha256": "b105c7b5700ad9988b57ee28df1a577f4b5c7d6cb700e27dd073b826e1cae728"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/e904009e7ab6f59e0db2b0a3af6aae535d266038961d337883f22fefc43ea9b1.png",
+      "sha256": "e904009e7ab6f59e0db2b0a3af6aae535d266038961d337883f22fefc43ea9b1"
+    },
+    "clayReference": {
+      "path": "inputs/bcb2502221a80f4bb2d0d6294179e5d901e16eb47f5ebcc7b1f5ef877dfbf9b8.png",
+      "sha256": "bcb2502221a80f4bb2d0d6294179e5d901e16eb47f5ebcc7b1f5ef877dfbf9b8"
+    },
+    "geometry": {
+      "path": "inputs/d16208d03fbe0bd3b1ea1f602d8b89d9ee6385cdc77fda24c2979588b4393a21.png",
+      "sha256": "d16208d03fbe0bd3b1ea1f602d8b89d9ee6385cdc77fda24c2979588b4393a21"
+    },
+    "detail": {
+      "path": "inputs/b525cc72b17da1eb42d24a31ed033c89129012255eea850a75e07d6529cc9fbe.png",
+      "sha256": "b525cc72b17da1eb42d24a31ed033c89129012255eea850a75e07d6529cc9fbe"
+    },
+    "foregroundMask": {
+      "path": "inputs/76d25e94bc2218940d3fb2cbc97cf47fe47787b984ed36707e7ffb620708fc8c.png",
+      "sha256": "76d25e94bc2218940d3fb2cbc97cf47fe47787b984ed36707e7ffb620708fc8c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/a83f4d8dfff2e3f0c8bdda3b2c9f8e5b28889641a5da6dcaadfb6d7478669812.png",
+      "sha256": "a83f4d8dfff2e3f0c8bdda3b2c9f8e5b28889641a5da6dcaadfb6d7478669812"
+    },
+    "mask": {
+      "path": "inputs/a83f4d8dfff2e3f0c8bdda3b2c9f8e5b28889641a5da6dcaadfb6d7478669812.png",
+      "sha256": "a83f4d8dfff2e3f0c8bdda3b2c9f8e5b28889641a5da6dcaadfb6d7478669812"
+    },
+    "calibrationReference": {
+      "path": "inputs/ddd80d5d23f7965cbc8a2923ea59858f9484c645ea12a74dd80024b8665e2f83.png",
+      "sha256": "ddd80d5d23f7965cbc8a2923ea59858f9484c645ea12a74dd80024b8665e2f83"
+    },
+    "sourceAudit": {
+      "path": "inputs/e7859442f5465d4131991422960766d4e6a0de98ca2d55df2e07ec4f605c17ee.json",
+      "sha256": "e7859442f5465d4131991422960766d4e6a0de98ca2d55df2e07ec4f605c17ee"
+    },
+    "referenceApproval": {
+      "path": "inputs/ee35419d6331970ec36e3b649dded21c5c28ed7acf5bb6f967560627d28b827d.json",
+      "sha256": "ee35419d6331970ec36e3b649dded21c5c28ed7acf5bb6f967560627d28b827d"
+    },
+    "calibrationDetail": {
+      "path": "inputs/372979f57efd3c32b28a1541c4c3d049ba9b5306f1ef5dfc54db2a2df4a4e904.png",
+      "sha256": "372979f57efd3c32b28a1541c4c3d049ba9b5306f1ef5dfc54db2a2df4a4e904"
+    }
+  },
+  "features": [
+    {
+      "name": "Recognizable ordinary ball from one of the two expressly named alternatives; source gives no unique material, color, markings or dimensions.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. BASEBALL explicitly selected for the combined Baseball/Billiard Ball row. Full ball silhouette and slight stitch-edge relief retained in detailed reference; stitches/seams/pores removed entirely from clay. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation. Source Arsenal printed20/PDF22 improvised-throwing table and compiled printed174/PDF176 establish ordinary object identity only. Printed19/PDF21 is introduction/cross-reference. No unique labeled art or named-model silhouette is asserted. Material/color/finish/layout/dimensions are declared artistic interpretation; reviewed mirror errata yields no relevant exterior change, with official byte identity unverified. Native1254square honestly resampled to2048square; reference-only approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e904009e7ab6f59e0db2b0a3af6aae535d266038961d337883f22fefc43ea9b1",
+      "imageSha256": "b525cc72b17da1eb42d24a31ed033c89129012255eea850a75e07d6529cc9fbe",
+      "maskSha256": "76d25e94bc2218940d3fb2cbc97cf47fe47787b984ed36707e7ffb620708fc8c",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. BASEBALL explicitly selected for the combined Baseball/Billiard Ball row. Full ball silhouette and slight stitch-edge relief retained in detailed reference; stitches/seams/pores removed entirely from clay. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "bcb2502221a80f4bb2d0d6294179e5d901e16eb47f5ebcc7b1f5ef877dfbf9b8",
+      "imageSha256": "d16208d03fbe0bd3b1ea1f602d8b89d9ee6385cdc77fda24c2979588b4393a21",
+      "maskSha256": "a83f4d8dfff2e3f0c8bdda3b2c9f8e5b28889641a5da6dcaadfb6d7478669812",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. BASEBALL explicitly selected for the combined Baseball/Billiard Ball row. Full ball silhouette and slight stitch-edge relief retained in detailed reference; stitches/seams/pores removed entirely from clay. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. BASEBALL explicitly selected for the combined Baseball/Billiard Ball row. Full ball silhouette and slight stitch-edge relief retained in detailed reference; stitches/seams/pores removed entirely from clay. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation. Source Arsenal printed20/PDF22 improvised-throwing table and compiled printed174/PDF176 establish ordinary object identity only. Printed19/PDF21 is introduction/cross-reference. No unique labeled art or named-model silhouette is asserted. Material/color/finish/layout/dimensions are declared artistic interpretation; reviewed mirror errata yields no relevant exterior change, with official byte identity unverified. Native1254square honestly resampled to2048square; reference-only approval.",
+      "landmarks": [
+        {
+          "name": "top",
+          "detail": [
+            0.5035037414131501,
+            0.05330815296692607
+          ],
+          "geometry": [
+            0.5017518707065749,
+            0.050680553866731516
+          ]
+        },
+        {
+          "name": "bottom",
+          "detail": [
+            0.49080267879048084,
+            0.946691847033074
+          ],
+          "geometry": [
+            0.49912406464671244,
+            0.9484435797665369
+          ]
+        },
+        {
+          "name": "left",
+          "detail": [
+            0.05546280820657507,
+            0.49912413363326846
+          ],
+          "geometry": [
+            0.05458687285328754,
+            0.4969344677164397
+          ]
+        },
+        {
+          "name": "right",
+          "detail": [
+            0.9445371917934249,
+            0.5096345300340467
+          ],
+          "geometry": [
+            0.9445371917934249,
+            0.5
+          ]
+        }
+      ],
+      "referenceSha256": "e904009e7ab6f59e0db2b0a3af6aae535d266038961d337883f22fefc43ea9b1",
+      "geometrySha256": "d16208d03fbe0bd3b1ea1f602d8b89d9ee6385cdc77fda24c2979588b4393a21",
+      "detailSha256": "b525cc72b17da1eb42d24a31ed033c89129012255eea850a75e07d6529cc9fbe",
+      "foregroundMaskSha256": "76d25e94bc2218940d3fb2cbc97cf47fe47787b984ed36707e7ffb620708fc8c",
+      "geometryForegroundMaskSha256": "a83f4d8dfff2e3f0c8bdda3b2c9f8e5b28889641a5da6dcaadfb6d7478669812"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

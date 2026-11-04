@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-throwing-knife-2273b8c3cf",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "blade-tip",
+      "pixel": [
+        23.999999999999996,
+        710.0
+      ]
+    },
+    {
+      "name": "blade-base",
+      "pixel": [
+        720.0,
+        700.0
+      ]
+    },
+    {
+      "name": "handle-end",
+      "pixel": [
+        1227.0,
+        574.0
+      ]
+    },
+    {
+      "name": "handle-slot",
+      "pixel": [
+        984.0,
+        591.0
+      ]
+    },
+    {
+      "name": "round-hole",
+      "pixel": [
+        1178.0,
+        570.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-throwing-knife-2273b8c3cf.family.json",
+    "sha256": "1c4df6b9975d790fe9da681011adee9e3e41eec5839f331a919007661e5f4243"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/43fc090f4ec760413c0897115feeec9299261b018fa3b650ec55b0c9a8ca097a.png",
+      "sha256": "43fc090f4ec760413c0897115feeec9299261b018fa3b650ec55b0c9a8ca097a"
+    },
+    "clayReference": {
+      "path": "inputs/7184e6b371bee1e9fc9de889ec4ed11367d11ce6ed28e26b521b69edff66503d.png",
+      "sha256": "7184e6b371bee1e9fc9de889ec4ed11367d11ce6ed28e26b521b69edff66503d"
+    },
+    "geometry": {
+      "path": "inputs/29ec258b14f4b28fabeb2a3bb066a2c5046923f0fbfd8ab21999ab59e33029e1.png",
+      "sha256": "29ec258b14f4b28fabeb2a3bb066a2c5046923f0fbfd8ab21999ab59e33029e1"
+    },
+    "detail": {
+      "path": "inputs/a1cbfa00b65e8d0ea6701cc5baf0bc9e9a6eb98b8227d633949fcb4823cdf9f1.png",
+      "sha256": "a1cbfa00b65e8d0ea6701cc5baf0bc9e9a6eb98b8227d633949fcb4823cdf9f1"
+    },
+    "foregroundMask": {
+      "path": "inputs/631e3060576db583a6bc7a2c8af181867c1d629ee5295df23b0f55712510b621.png",
+      "sha256": "631e3060576db583a6bc7a2c8af181867c1d629ee5295df23b0f55712510b621"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/391a7c416c17058bac6ef8782b4cd5c58b207dc34927a649ca0319caf404e7d2.png",
+      "sha256": "391a7c416c17058bac6ef8782b4cd5c58b207dc34927a649ca0319caf404e7d2"
+    },
+    "mask": {
+      "path": "inputs/391a7c416c17058bac6ef8782b4cd5c58b207dc34927a649ca0319caf404e7d2.png",
+      "sha256": "391a7c416c17058bac6ef8782b4cd5c58b207dc34927a649ca0319caf404e7d2"
+    },
+    "calibrationReference": {
+      "path": "inputs/9c716882af2d47052b7b86ed3ade12ad4e0d95a85f1ac226e2c948f7a54bebe7.png",
+      "sha256": "9c716882af2d47052b7b86ed3ade12ad4e0d95a85f1ac226e2c948f7a54bebe7"
+    },
+    "sourceAudit": {
+      "path": "inputs/620164c83b5a792fe846ee9208da363be04e1b395fbf6fe952c788a8a888f36d.json",
+      "sha256": "620164c83b5a792fe846ee9208da363be04e1b395fbf6fe952c788a8a888f36d"
+    },
+    "referenceApproval": {
+      "path": "inputs/a1f44b42665373158710ec79e6019b9e111f90268a8d1f171823c94d77196459.json",
+      "sha256": "a1f44b42665373158710ec79e6019b9e111f90268a8d1f171823c94d77196459"
+    },
+    "calibrationDetail": {
+      "path": "inputs/a00a7a6eac19304934adcf15906d13ce0b02264984c8c0c6f809fab35dbb4051.png",
+      "sha256": "a00a7a6eac19304934adcf15906d13ce0b02264984c8c0c6f809fab35dbb4051"
+    }
+  },
+  "features": [
+    {
+      "name": "Slim knife or spike form",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Full point, thin edges, handle slot and round opening retained, paired silhouette aligned with clear padding. Native [1254, 1254] resampled2048; no extra image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1825,
+        912,
+        1885,
+        983
+      ],
+      "referenceAreaPixels": 3419,
+      "referenceMaskSha256": "391a7c416c17058bac6ef8782b4cd5c58b207dc34927a649ca0319caf404e7d2",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1360,
+        933,
+        1764,
+        1035
+      ],
+      "referenceAreaPixels": 24146,
+      "referenceMaskSha256": "391a7c416c17058bac6ef8782b4cd5c58b207dc34927a649ca0319caf404e7d2",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "43fc090f4ec760413c0897115feeec9299261b018fa3b650ec55b0c9a8ca097a",
+      "imageSha256": "a1cbfa00b65e8d0ea6701cc5baf0bc9e9a6eb98b8227d633949fcb4823cdf9f1",
+      "maskSha256": "631e3060576db583a6bc7a2c8af181867c1d629ee5295df23b0f55712510b621",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Full point, thin edges, handle slot and round opening retained, paired silhouette aligned with clear padding. Native [1254, 1254] resampled2048; no extra image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7184e6b371bee1e9fc9de889ec4ed11367d11ce6ed28e26b521b69edff66503d",
+      "imageSha256": "29ec258b14f4b28fabeb2a3bb066a2c5046923f0fbfd8ab21999ab59e33029e1",
+      "maskSha256": "391a7c416c17058bac6ef8782b4cd5c58b207dc34927a649ca0319caf404e7d2",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Full point, thin edges, handle slot and round opening retained, paired silhouette aligned with clear padding. Native [1254, 1254] resampled2048; no extra image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact assigned source/pair and foreground approvals reused; root inspected actual conditioned overlay. Full point, thin edges, handle slot and round opening retained, paired silhouette aligned with clear padding. Native [1254, 1254] resampled2048; no extra image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "blade-tip",
+          "detail": [
+            0.05276893647119341,
+            0.565886466733871
+          ],
+          "geometry": [
+            0.05276893647119341,
+            0.565886466733871
+          ]
+        },
+        {
+          "name": "blade-base",
+          "detail": [
+            0.5685482574588477,
+            0.5584834929435484
+          ],
+          "geometry": [
+            0.5685482574588477,
+            0.5584834929435484
+          ]
+        },
+        {
+          "name": "handle-end",
+          "detail": [
+            0.9442668145576132,
+            0.4652060231854839
+          ],
+          "geometry": [
+            0.9442668145576132,
+            0.4652060231854839
+          ]
+        },
+        {
+          "name": "handle-slot",
+          "detail": [
+            0.7641886895576132,
+            0.47779107862903225
+          ],
+          "geometry": [
+            0.7641886895576132,
+            0.47779107862903225
+          ]
+        },
+        {
+          "name": "round-hole",
+          "detail": [
+            0.9079547646604939,
+            0.4622448336693548
+          ],
+          "geometry": [
+            0.9079547646604939,
+            0.4622448336693548
+          ]
+        }
+      ],
+      "referenceSha256": "43fc090f4ec760413c0897115feeec9299261b018fa3b650ec55b0c9a8ca097a",
+      "geometrySha256": "29ec258b14f4b28fabeb2a3bb066a2c5046923f0fbfd8ab21999ab59e33029e1",
+      "detailSha256": "a1cbfa00b65e8d0ea6701cc5baf0bc9e9a6eb98b8227d633949fcb4823cdf9f1",
+      "geometryForegroundMaskSha256": "391a7c416c17058bac6ef8782b4cd5c58b207dc34927a649ca0319caf404e7d2",
+      "foregroundMaskSha256": "631e3060576db583a6bc7a2c8af181867c1d629ee5295df23b0f55712510b621"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

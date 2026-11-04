@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ingram-warrior-10-dd781915a9",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-profile-y350-left",
+      "pixel": [
+        216.0,
+        350.00000000000006
+      ]
+    },
+    {
+      "name": "outer-profile-y350-right",
+      "pixel": [
+        1202.0,
+        350.00000000000006
+      ]
+    },
+    {
+      "name": "outer-profile-y430-left",
+      "pixel": [
+        44.0,
+        429.99999999999994
+      ]
+    },
+    {
+      "name": "outer-profile-y430-right",
+      "pixel": [
+        1203.0,
+        429.99999999999994
+      ]
+    },
+    {
+      "name": "outer-profile-y550-left",
+      "pixel": [
+        210.00000000000003,
+        550.0
+      ]
+    },
+    {
+      "name": "outer-profile-y550-right",
+      "pixel": [
+        1188.0,
+        550.0
+      ]
+    },
+    {
+      "name": "outer-profile-y650-left",
+      "pixel": [
+        557.0,
+        649.9999999999999
+      ]
+    },
+    {
+      "name": "outer-profile-y650-right",
+      "pixel": [
+        986.0000000000001,
+        649.9999999999999
+      ]
+    },
+    {
+      "name": "outer-profile-y800-left",
+      "pixel": [
+        802.0,
+        799.9999999999999
+      ]
+    },
+    {
+      "name": "outer-profile-y800-right",
+      "pixel": [
+        1083.9999999999998,
+        799.9999999999999
+      ]
+    },
+    {
+      "name": "outer-profile-y950-left",
+      "pixel": [
+        868.0,
+        950.0000000000001
+      ]
+    },
+    {
+      "name": "outer-profile-y950-right",
+      "pixel": [
+        1112.0,
+        950.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ingram-warrior-10-dd781915a9.family.json",
+    "sha256": "1d10bc2669012697ee5d32c416811069e947bd5fb6f80ec82b125f9b6e424781"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/463409609f05a389004031e728501a0029c74c1e6a4d9ccf71ce714857368116.png",
+      "sha256": "463409609f05a389004031e728501a0029c74c1e6a4d9ccf71ce714857368116"
+    },
+    "clayReference": {
+      "path": "inputs/b6bfd24cecb2d3ce6bed36344a97646b8fe01c0bd74c1c3474078f204940504d.png",
+      "sha256": "b6bfd24cecb2d3ce6bed36344a97646b8fe01c0bd74c1c3474078f204940504d"
+    },
+    "geometry": {
+      "path": "inputs/dd71b050fd748e7892f0daa3259f3e20a335606af375b67107c092154d21f845.png",
+      "sha256": "dd71b050fd748e7892f0daa3259f3e20a335606af375b67107c092154d21f845"
+    },
+    "detail": {
+      "path": "inputs/2bda887c16b3f4aa3c45ac37c46ac9486cec1071349c5d8ef47f69620d93f8db.png",
+      "sha256": "2bda887c16b3f4aa3c45ac37c46ac9486cec1071349c5d8ef47f69620d93f8db"
+    },
+    "foregroundMask": {
+      "path": "inputs/666929ce15cf541862bfe41c59b32a83d2376b94337ebe9cb99855e15989bd1f.png",
+      "sha256": "666929ce15cf541862bfe41c59b32a83d2376b94337ebe9cb99855e15989bd1f"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e1857825a6979704eb0dc7a971462b400ec03e2c341f155389dd37cfcd961745.png",
+      "sha256": "e1857825a6979704eb0dc7a971462b400ec03e2c341f155389dd37cfcd961745"
+    },
+    "mask": {
+      "path": "inputs/e1857825a6979704eb0dc7a971462b400ec03e2c341f155389dd37cfcd961745.png",
+      "sha256": "e1857825a6979704eb0dc7a971462b400ec03e2c341f155389dd37cfcd961745"
+    },
+    "calibrationReference": {
+      "path": "inputs/1c9f88b48bec98cb3497ebcd8953df07509d11520fd5ef5868750483afd0cdf9.png",
+      "sha256": "1c9f88b48bec98cb3497ebcd8953df07509d11520fd5ef5868750483afd0cdf9"
+    },
+    "sourceAudit": {
+      "path": "inputs/66c1453b6b78d55ff3c88bc9886b44fd42aa96b11d92b232bfd0a63d3eb39297.json",
+      "sha256": "66c1453b6b78d55ff3c88bc9886b44fd42aa96b11d92b232bfd0a63d3eb39297"
+    },
+    "referenceApproval": {
+      "path": "inputs/610e007ddffa0cb700c63216d0232d9fdcb5bbce250f7979747407838966ace7.json",
+      "sha256": "610e007ddffa0cb700c63216d0232d9fdcb5bbce250f7979747407838966ace7"
+    },
+    "calibrationDetail": {
+      "path": "inputs/175aceefc105b12c2cb16fe2960d8ee3bc27807714cc2f727333b2c9723610d5.png",
+      "sha256": "175aceefc105b12c2cb16fe2960d8ee3bc27807714cc2f727333b2c9723610d5"
+    }
+  },
+  "features": [
+    {
+      "name": "Own compact handgun-like SMG outline: short projecting front, rectangular upper with broad side features, rear raked grip and distinct trigger opening. Do not enlarge it into a conventional stocked carbine.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source describes basic model lacking accessories and full-auto mode. This does not require visible operational labels/effects.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Actual detailed/clay compared once to own WARRIOR10 art Arsenal25/PDF27 and exact source constraints. Compact receiver, short projecting cylinder, rear raked grip, side disc/lever, top structural members and major part boundaries match. Clay has no fine receiver channels, barrel-side cuts, grip checkering or fastener dimples. Disc rim is the bevel of a large raised assembly, not an ornamental channel. Neutral colors/unshown depth remain artistic interpretation. No manual RGB edits required. Preserve both actual white trigger clearances and the thin trigger/guard. Muzzle is a dark solid end-face recess rather than a through-alpha opening. No invented hole. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Native RGB is unchanged from both original images.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        982,
+        957,
+        1246,
+        1159
+      ],
+      "referenceAreaPixels": 35870,
+      "referenceMaskSha256": "e1857825a6979704eb0dc7a971462b400ec03e2c341f155389dd37cfcd961745",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "463409609f05a389004031e728501a0029c74c1e6a4d9ccf71ce714857368116",
+      "imageSha256": "2bda887c16b3f4aa3c45ac37c46ac9486cec1071349c5d8ef47f69620d93f8db",
+      "maskSha256": "666929ce15cf541862bfe41c59b32a83d2376b94337ebe9cb99855e15989bd1f",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Actual detailed/clay compared once to own WARRIOR10 art Arsenal25/PDF27 and exact source constraints. Compact receiver, short projecting cylinder, rear raked grip, side disc/lever, top structural members and major part boundaries match. Clay has no fine receiver channels, barrel-side cuts, grip checkering or fastener dimples. Disc rim is the bevel of a large raised assembly, not an ornamental channel. Neutral colors/unshown depth remain artistic interpretation. No manual RGB edits required. Preserve both actual white trigger clearances and the thin trigger/guard. Muzzle is a dark solid end-face recess rather than a through-alpha opening. No invented hole. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Native RGB is unchanged from both original images."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "b6bfd24cecb2d3ce6bed36344a97646b8fe01c0bd74c1c3474078f204940504d",
+      "imageSha256": "dd71b050fd748e7892f0daa3259f3e20a335606af375b67107c092154d21f845",
+      "maskSha256": "e1857825a6979704eb0dc7a971462b400ec03e2c341f155389dd37cfcd961745",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Actual detailed/clay compared once to own WARRIOR10 art Arsenal25/PDF27 and exact source constraints. Compact receiver, short projecting cylinder, rear raked grip, side disc/lever, top structural members and major part boundaries match. Clay has no fine receiver channels, barrel-side cuts, grip checkering or fastener dimples. Disc rim is the bevel of a large raised assembly, not an ornamental channel. Neutral colors/unshown depth remain artistic interpretation. No manual RGB edits required. Preserve both actual white trigger clearances and the thin trigger/guard. Muzzle is a dark solid end-face recess rather than a through-alpha opening. No invented hole. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Native RGB is unchanged from both original images."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Actual detailed/clay compared once to own WARRIOR10 art Arsenal25/PDF27 and exact source constraints. Compact receiver, short projecting cylinder, rear raked grip, side disc/lever, top structural members and major part boundaries match. Clay has no fine receiver channels, barrel-side cuts, grip checkering or fastener dimples. Disc rim is the bevel of a large raised assembly, not an ornamental channel. Neutral colors/unshown depth remain artistic interpretation. No manual RGB edits required. Preserve both actual white trigger clearances and the thin trigger/guard. Muzzle is a dark solid end-face recess rather than a through-alpha opening. No invented hole. Major source form/framing and thin trigger structure retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1254 square resampled2048 square, not native2K. Native RGB is unchanged from both original images.",
+      "landmarks": [
+        {
+          "name": "outer-profile-y350-left",
+          "detail": [
+            0.18582936561158797,
+            0.27863539209905663
+          ],
+          "geometry": [
+            0.18505649812231756,
+            0.27863539209905663
+          ]
+        },
+        {
+          "name": "outer-profile-y350-right",
+          "detail": [
+            0.9478767100321889,
+            0.27863539209905663
+          ],
+          "geometry": [
+            0.9486495775214592,
+            0.27863539209905663
+          ]
+        },
+        {
+          "name": "outer-profile-y430-left",
+          "detail": [
+            0.052896157457081545,
+            0.34044749901729554
+          ],
+          "geometry": [
+            0.052896157457081545,
+            0.34044749901729554
+          ]
+        },
+        {
+          "name": "outer-profile-y430-right",
+          "detail": [
+            0.9486495775214592,
+            0.34044749901729554
+          ],
+          "geometry": [
+            0.9486495775214592,
+            0.34044749901729554
+          ]
+        },
+        {
+          "name": "outer-profile-y550-left",
+          "detail": [
+            0.1811921606759657,
+            0.4331656593946541
+          ],
+          "geometry": [
+            0.1811921606759657,
+            0.4331656593946541
+          ]
+        },
+        {
+          "name": "outer-profile-y550-right",
+          "detail": [
+            0.9370565651824034,
+            0.4331656593946541
+          ],
+          "geometry": [
+            0.9378294326716738,
+            0.4331656593946541
+          ]
+        },
+        {
+          "name": "outer-profile-y650-left",
+          "detail": [
+            0.4493771794527897,
+            0.5104307930424528
+          ],
+          "geometry": [
+            0.4486043119635193,
+            0.5104307930424528
+          ]
+        },
+        {
+          "name": "outer-profile-y650-right",
+          "detail": [
+            0.7809373323497855,
+            0.5104307930424528
+          ],
+          "geometry": [
+            0.7809373323497855,
+            0.5104307930424528
+          ]
+        },
+        {
+          "name": "outer-profile-y800-left",
+          "detail": [
+            0.6387297143240344,
+            0.6263284935141509
+          ],
+          "geometry": [
+            0.6371839793454935,
+            0.6263284935141509
+          ]
+        },
+        {
+          "name": "outer-profile-y800-right",
+          "detail": [
+            0.8566783462982832,
+            0.6263284935141509
+          ],
+          "geometry": [
+            0.8566783462982832,
+            0.6263284935141509
+          ]
+        },
+        {
+          "name": "outer-profile-y950-left",
+          "detail": [
+            0.6897389686158798,
+            0.7422261939858491
+          ],
+          "geometry": [
+            0.6889661011266094,
+            0.7422261939858491
+          ]
+        },
+        {
+          "name": "outer-profile-y950-right",
+          "detail": [
+            0.8783186359978541,
+            0.7422261939858491
+          ],
+          "geometry": [
+            0.8806372384656652,
+            0.7422261939858491
+          ]
+        }
+      ],
+      "referenceSha256": "463409609f05a389004031e728501a0029c74c1e6a4d9ccf71ce714857368116",
+      "detailSha256": "2bda887c16b3f4aa3c45ac37c46ac9486cec1071349c5d8ef47f69620d93f8db",
+      "geometrySha256": "dd71b050fd748e7892f0daa3259f3e20a335606af375b67107c092154d21f845",
+      "foregroundMaskSha256": "666929ce15cf541862bfe41c59b32a83d2376b94337ebe9cb99855e15989bd1f",
+      "geometryForegroundMaskSha256": "e1857825a6979704eb0dc7a971462b400ec03e2c341f155389dd37cfcd961745"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

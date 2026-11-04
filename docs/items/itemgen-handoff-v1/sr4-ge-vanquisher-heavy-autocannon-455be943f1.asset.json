@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ge-vanquisher-heavy-autocannon-455be943f1",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-top",
+      "pixel": [
+        100.0,
+        348.0
+      ]
+    },
+    {
+      "name": "barrel-root-top",
+      "pixel": [
+        500.0,
+        351.0
+      ]
+    },
+    {
+      "name": "muzzle-top",
+      "pixel": [
+        1200.0,
+        597.0
+      ]
+    },
+    {
+      "name": "mount-bottom",
+      "pixel": [
+        400.0,
+        1016.0000000000002
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ge-vanquisher-heavy-autocannon-455be943f1.family.json",
+    "sha256": "7580ca9a650fd0a924076eca34a04d7458e0e7f09ca40529c23a0f9e1b2097ec"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/eb5731cd624513bbe64d6015ee3c610de2fedee9d5fb940e7a771e00e7c7ffba.png",
+      "sha256": "eb5731cd624513bbe64d6015ee3c610de2fedee9d5fb940e7a771e00e7c7ffba"
+    },
+    "clayReference": {
+      "path": "inputs/c0d3cb4f7d94287c76c1a1d73a9723f5f546524a87a48418b825cccdcc1a70dc.png",
+      "sha256": "c0d3cb4f7d94287c76c1a1d73a9723f5f546524a87a48418b825cccdcc1a70dc"
+    },
+    "geometry": {
+      "path": "inputs/c6fa1409c557912881adafe6b6315275ea1a349c83cec4ee281129988ae27716.png",
+      "sha256": "c6fa1409c557912881adafe6b6315275ea1a349c83cec4ee281129988ae27716"
+    },
+    "detail": {
+      "path": "inputs/1fe02684025bb9aa2edf90f7dc5997a0cafcc44bba6c6ae8af6cabb46a387ece.png",
+      "sha256": "1fe02684025bb9aa2edf90f7dc5997a0cafcc44bba6c6ae8af6cabb46a387ece"
+    },
+    "foregroundMask": {
+      "path": "inputs/74f8f7cc1741c104039ad4485357e0a562f927473f8babfb4969ad6b6bba1cc5.png",
+      "sha256": "74f8f7cc1741c104039ad4485357e0a562f927473f8babfb4969ad6b6bba1cc5"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/acd0497abded373fb0f27f711c0cbe7c125eba3132e6047256416178b59a4884.png",
+      "sha256": "acd0497abded373fb0f27f711c0cbe7c125eba3132e6047256416178b59a4884"
+    },
+    "mask": {
+      "path": "inputs/acd0497abded373fb0f27f711c0cbe7c125eba3132e6047256416178b59a4884.png",
+      "sha256": "acd0497abded373fb0f27f711c0cbe7c125eba3132e6047256416178b59a4884"
+    },
+    "calibrationReference": {
+      "path": "inputs/c695494a671a1234d1c3f3d6f405966bff29ea6cb826ff062c1f7ec517c77bd5.png",
+      "sha256": "c695494a671a1234d1c3f3d6f405966bff29ea6cb826ff062c1f7ec517c77bd5"
+    },
+    "sourceAudit": {
+      "path": "inputs/ade8361259759b2e3d7d17e85dc169c347ce42479d8cc2ed3763cbf3183bbe86.json",
+      "sha256": "ade8361259759b2e3d7d17e85dc169c347ce42479d8cc2ed3763cbf3183bbe86"
+    },
+    "referenceApproval": {
+      "path": "inputs/bd301d589dbc7635ebb7f1a0a61895560917d02e1082066ad10ab17c20c0f074.json",
+      "sha256": "bd301d589dbc7635ebb7f1a0a61895560917d02e1082066ad10ab17c20c0f074"
+    },
+    "calibrationDetail": {
+      "path": "inputs/c9c626f67aeafdae4bc05dc689e29e9ca3f75c28e126dcd6ea3148aa17e524f9.png",
+      "sha256": "c9c626f67aeafdae4bc05dc689e29e9ca3f75c28e126dcd6ea3148aa17e524f9"
+    }
+  },
+  "features": [
+    {
+      "name": "Large heavy autocannon built from advanced ceramics to withstand heat; not an ordinary metal-only handheld firearm. Exact ceramic color, sheen and visible joining pattern are unspecified.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Primarily a secondary ship weapon or main tankbuster weapon. Minigun rules/class profile support a rotating multi-barrel assembly and external power; barrel count and model-specific layout are not specified.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detailed Vanquisher return against reviewed Arsenal123-124/PDF125-126 and minigun class30/PDF32 plus compiled195/PDF197. Whole vehicle/ship-mounted module,advanced pale ceramic construction,THREE continuous barrel paths to THREE matching triangular front openings,closed rear and mounting base. No handheld grip/stock or whole ship/tank,action,ammunition or internals. Three count,exterior,finish and mount are explicit artistic choices;no exact labeled model artwork,real mechanism or native approval. Whole frame positive margins,no background/cast shadow. Single root final pair review: actual detailed/clay and alpha16 pairs viewed together. Matching complete shape,frame,mounts,barrel continuity and major openings;surface grooves nonblocking. No background/floor/cast shadow or structural redesign. Each role retains its own source alpha topology;small pixel-count differences between roles do not establish a malformed shape.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "eb5731cd624513bbe64d6015ee3c610de2fedee9d5fb940e7a771e00e7c7ffba",
+      "imageSha256": "1fe02684025bb9aa2edf90f7dc5997a0cafcc44bba6c6ae8af6cabb46a387ece",
+      "maskSha256": "74f8f7cc1741c104039ad4485357e0a562f927473f8babfb4969ad6b6bba1cc5",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detailed Vanquisher return against reviewed Arsenal123-124/PDF125-126 and minigun class30/PDF32 plus compiled195/PDF197. Whole vehicle/ship-mounted module,advanced pale ceramic construction,THREE continuous barrel paths to THREE matching triangular front openings,closed rear and mounting base. No handheld grip/stock or whole ship/tank,action,ammunition or internals. Three count,exterior,finish and mount are explicit artistic choices;no exact labeled model artwork,real mechanism or native approval. Whole frame positive margins,no background/cast shadow. Single root final pair review: actual detailed/clay and alpha16 pairs viewed together. Matching complete shape,frame,mounts,barrel continuity and major openings;surface grooves nonblocking. No background/floor/cast shadow or structural redesign. Each role retains its own source alpha topology;small pixel-count differences between roles do not establish a malformed shape."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c0d3cb4f7d94287c76c1a1d73a9723f5f546524a87a48418b825cccdcc1a70dc",
+      "imageSha256": "c6fa1409c557912881adafe6b6315275ea1a349c83cec4ee281129988ae27716",
+      "maskSha256": "acd0497abded373fb0f27f711c0cbe7c125eba3132e6047256416178b59a4884",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detailed Vanquisher return against reviewed Arsenal123-124/PDF125-126 and minigun class30/PDF32 plus compiled195/PDF197. Whole vehicle/ship-mounted module,advanced pale ceramic construction,THREE continuous barrel paths to THREE matching triangular front openings,closed rear and mounting base. No handheld grip/stock or whole ship/tank,action,ammunition or internals. Three count,exterior,finish and mount are explicit artistic choices;no exact labeled model artwork,real mechanism or native approval. Whole frame positive margins,no background/cast shadow. Single root final pair review: actual detailed/clay and alpha16 pairs viewed together. Matching complete shape,frame,mounts,barrel continuity and major openings;surface grooves nonblocking. No background/floor/cast shadow or structural redesign. Each role retains its own source alpha topology;small pixel-count differences between roles do not establish a malformed shape."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "eb5731cd624513bbe64d6015ee3c610de2fedee9d5fb940e7a771e00e7c7ffba",
+      "detailSha256": "1fe02684025bb9aa2edf90f7dc5997a0cafcc44bba6c6ae8af6cabb46a387ece",
+      "geometrySha256": "c6fa1409c557912881adafe6b6315275ea1a349c83cec4ee281129988ae27716",
+      "foregroundMaskSha256": "74f8f7cc1741c104039ad4485357e0a562f927473f8babfb4969ad6b6bba1cc5",
+      "geometryForegroundMaskSha256": "acd0497abded373fb0f27f711c0cbe7c125eba3132e6047256416178b59a4884",
+      "landmarks": [
+        {
+          "name": "rear-top",
+          "detail": [
+            0.10978136564555921,
+            0.2859476461038961
+          ],
+          "geometry": [
+            0.10978136564555921,
+            0.2844663149350649
+          ]
+        },
+        {
+          "name": "barrel-root-top",
+          "detail": [
+            0.4059624922902961,
+            0.28816964285714286
+          ],
+          "geometry": [
+            0.4059624922902961,
+            0.28742897727272726
+          ]
+        },
+        {
+          "name": "muzzle-top",
+          "detail": [
+            0.9242794639185855,
+            0.47037337662337664
+          ],
+          "geometry": [
+            0.9242794639185855,
+            0.47407670454545453
+          ]
+        },
+        {
+          "name": "mount-bottom",
+          "detail": [
+            0.33191721062911184,
+            0.7807122564935066
+          ],
+          "geometry": [
+            0.33191721062911184,
+            0.7821935876623377
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detailed Vanquisher return against reviewed Arsenal123-124/PDF125-126 and minigun class30/PDF32 plus compiled195/PDF197. Whole vehicle/ship-mounted module,advanced pale ceramic construction,THREE continuous barrel paths to THREE matching triangular front openings,closed rear and mounting base. No handheld grip/stock or whole ship/tank,action,ammunition or internals. Three count,exterior,finish and mount are explicit artistic choices;no exact labeled model artwork,real mechanism or native approval. Whole frame positive margins,no background/cast shadow. Single root final pair review: actual detailed/clay and alpha16 pairs viewed together. Matching complete shape,frame,mounts,barrel continuity and major openings;surface grooves nonblocking. No background/floor/cast shadow or structural redesign. Each role retains its own source alpha topology;small pixel-count differences between roles do not establish a malformed shape."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

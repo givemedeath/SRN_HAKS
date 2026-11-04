@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-mace-cc01910405",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "pommel",
+      "pixel": [
+        93.99999999999999,
+        420.0
+      ]
+    },
+    {
+      "name": "grip-collar",
+      "pixel": [
+        196.99999999999997,
+        420.0
+      ]
+    },
+    {
+      "name": "shaft-collar",
+      "pixel": [
+        919.0,
+        420.0
+      ]
+    },
+    {
+      "name": "head-collar",
+      "pixel": [
+        1154.0,
+        420.0
+      ]
+    },
+    {
+      "name": "head-tip",
+      "pixel": [
+        1745.0,
+        420.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-mace-cc01910405.family.json",
+    "sha256": "88eee8a37e8adf79cb4f1545778b905e985cc7f3c52bbe73a48b0a59d29d5bad"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c3bfe246334c9626a82794a5abbdce179ea6f450047643865edb6397e60f5443.png",
+      "sha256": "c3bfe246334c9626a82794a5abbdce179ea6f450047643865edb6397e60f5443"
+    },
+    "clayReference": {
+      "path": "inputs/98518ab0a3fb3d4a172cee049ebede922ce7d4fff47a6bdcbab18a46fc7c0d41.png",
+      "sha256": "98518ab0a3fb3d4a172cee049ebede922ce7d4fff47a6bdcbab18a46fc7c0d41"
+    },
+    "geometry": {
+      "path": "inputs/2dd177f10bff6744994c7f78f55a702d58848642fe3f07175a81078b811fc197.png",
+      "sha256": "2dd177f10bff6744994c7f78f55a702d58848642fe3f07175a81078b811fc197"
+    },
+    "detail": {
+      "path": "inputs/dec29a3dd4dc98429a3b7aace5b1e00aac5443df02484cfe4fd8441d4b742be6.png",
+      "sha256": "dec29a3dd4dc98429a3b7aace5b1e00aac5443df02484cfe4fd8441d4b742be6"
+    },
+    "foregroundMask": {
+      "path": "inputs/eb276354e87c2e28e95cd1ef9f8118d3b66a51f42736566421e1e8bfab8b300b.png",
+      "sha256": "eb276354e87c2e28e95cd1ef9f8118d3b66a51f42736566421e1e8bfab8b300b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/6b8f50aadf457c2472eee68418759d9367f367148963a78c43bcd4cb2d14c5af.png",
+      "sha256": "6b8f50aadf457c2472eee68418759d9367f367148963a78c43bcd4cb2d14c5af"
+    },
+    "mask": {
+      "path": "inputs/6b8f50aadf457c2472eee68418759d9367f367148963a78c43bcd4cb2d14c5af.png",
+      "sha256": "6b8f50aadf457c2472eee68418759d9367f367148963a78c43bcd4cb2d14c5af"
+    },
+    "calibrationReference": {
+      "path": "inputs/a1b7cd213df0937d2630c4d99332476d97eeaf496044919b279392c7932a79ab.png",
+      "sha256": "a1b7cd213df0937d2630c4d99332476d97eeaf496044919b279392c7932a79ab"
+    },
+    "sourceAudit": {
+      "path": "inputs/91a0ae4d5bb2302d2d2fe494db19833eb8953726dead1e15c3bcf951ca73cd7c.json",
+      "sha256": "91a0ae4d5bb2302d2d2fe494db19833eb8953726dead1e15c3bcf951ca73cd7c"
+    },
+    "referenceApproval": {
+      "path": "inputs/4bedb6e61b1509b3210cd509900c922146b5e5a0de30ec97f9a201355440f475.json",
+      "sha256": "4bedb6e61b1509b3210cd509900c922146b5e5a0de30ec97f9a201355440f475"
+    },
+    "calibrationDetail": {
+      "path": "inputs/125206bb8634faf8ce7043ac2a15d24b3f1afd4982c52cb26fb6f1575aff0433.png",
+      "sha256": "125206bb8634faf8ce7043ac2a15d24b3f1afd4982c52cb26fb6f1575aff0433"
+    }
+  },
+  "features": [
+    {
+      "name": "Reinforced shaft carrying a large weighted head; studded/spiked metal is an allowed common treatment.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned final source/pair approval reused exactly. Actual native masks inspected: major structures and framing retained. Mace head recesses stay solid; Jupiter pommel loop remains open and fork intact. Native source is resampled to2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c3bfe246334c9626a82794a5abbdce179ea6f450047643865edb6397e60f5443",
+      "imageSha256": "dec29a3dd4dc98429a3b7aace5b1e00aac5443df02484cfe4fd8441d4b742be6",
+      "maskSha256": "eb276354e87c2e28e95cd1ef9f8118d3b66a51f42736566421e1e8bfab8b300b",
+      "notes": "Assigned final source/pair approval reused exactly. Actual native masks inspected: major structures and framing retained. Mace head recesses stay solid; Jupiter pommel loop remains open and fork intact. Native source is resampled to2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "98518ab0a3fb3d4a172cee049ebede922ce7d4fff47a6bdcbab18a46fc7c0d41",
+      "imageSha256": "2dd177f10bff6744994c7f78f55a702d58848642fe3f07175a81078b811fc197",
+      "maskSha256": "6b8f50aadf457c2472eee68418759d9367f367148963a78c43bcd4cb2d14c5af",
+      "notes": "Assigned final source/pair approval reused exactly. Actual native masks inspected: major structures and framing retained. Mace head recesses stay solid; Jupiter pommel loop remains open and fork intact. Native source is resampled to2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned final source/pair approval reused exactly. Actual native masks inspected: major structures and framing retained. Mace head recesses stay solid; Jupiter pommel loop remains open and fork intact. Native source is resampled to2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "pommel",
+          "detail": [
+            0.08437465914048865,
+            0.4997379954268293
+          ],
+          "geometry": [
+            0.08437465914048865,
+            0.4997379954268293
+          ]
+        },
+        {
+          "name": "grip-collar",
+          "detail": [
+            0.13832476639761487,
+            0.4997379954268293
+          ],
+          "geometry": [
+            0.13832476639761487,
+            0.4997379954268293
+          ]
+        },
+        {
+          "name": "shaft-collar",
+          "detail": [
+            0.5164993046465969,
+            0.4997379954268293
+          ],
+          "geometry": [
+            0.5164993046465969,
+            0.4997379954268293
+          ]
+        },
+        {
+          "name": "head-collar",
+          "detail": [
+            0.6395893551847004,
+            0.4997379954268293
+          ],
+          "geometry": [
+            0.6395893551847004,
+            0.4997379954268293
+          ]
+        },
+        {
+          "name": "head-tip",
+          "detail": [
+            0.9491477376018034,
+            0.4997379954268293
+          ],
+          "geometry": [
+            0.9491477376018034,
+            0.4997379954268293
+          ]
+        }
+      ],
+      "referenceSha256": "c3bfe246334c9626a82794a5abbdce179ea6f450047643865edb6397e60f5443",
+      "geometrySha256": "2dd177f10bff6744994c7f78f55a702d58848642fe3f07175a81078b811fc197",
+      "detailSha256": "dec29a3dd4dc98429a3b7aace5b1e00aac5443df02484cfe4fd8441d4b742be6",
+      "foregroundMaskSha256": "eb276354e87c2e28e95cd1ef9f8118d3b66a51f42736566421e1e8bfab8b300b",
+      "geometryForegroundMaskSha256": "6b8f50aadf457c2472eee68418759d9367f367148963a78c43bcd4cb2d14c5af"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

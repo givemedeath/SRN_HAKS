@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-morrissey-elite-46d63acc83",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-or-prong-left",
+      "pixel": [
+        241.00000000000003,
+        289.0
+      ]
+    },
+    {
+      "name": "upper-structural-tip",
+      "pixel": [
+        1200.0,
+        102.99999999999999
+      ]
+    },
+    {
+      "name": "rear-or-bipod-right",
+      "pixel": [
+        1427.0,
+        868.5
+      ]
+    },
+    {
+      "name": "grip-or-foot-bottom",
+      "pixel": [
+        1165.0,
+        1032.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-morrissey-elite-46d63acc83.family.json",
+    "sha256": "aa9b557dfa3706d69769e9f0a66fbdbc1efeca4bea04f9ed73568ea23626edaf"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/09bfc4eb85a04b72622d5688cf7db65fb2c8cb445528307793245211ffc256fa.png",
+      "sha256": "09bfc4eb85a04b72622d5688cf7db65fb2c8cb445528307793245211ffc256fa"
+    },
+    "clayReference": {
+      "path": "inputs/811ec4148e55252d3bacbcb9afdc3509d906d9d75db61e46973eda4adec37934.png",
+      "sha256": "811ec4148e55252d3bacbcb9afdc3509d906d9d75db61e46973eda4adec37934"
+    },
+    "geometry": {
+      "path": "inputs/22dd39acfd89a7b840a971a29b7091a54b36d3d46c12c8cfbff0ea9167de51a2.png",
+      "sha256": "22dd39acfd89a7b840a971a29b7091a54b36d3d46c12c8cfbff0ea9167de51a2"
+    },
+    "detail": {
+      "path": "inputs/e46ef2e3a43052de3c31e1459f50b391ec58319cbdbab8eeee5d6ca8b4f273c4.png",
+      "sha256": "e46ef2e3a43052de3c31e1459f50b391ec58319cbdbab8eeee5d6ca8b4f273c4"
+    },
+    "foregroundMask": {
+      "path": "inputs/86831bbcaa7c8d8b97244bb9d8e379b38b747782a37043edb9883a93335be117.png",
+      "sha256": "86831bbcaa7c8d8b97244bb9d8e379b38b747782a37043edb9883a93335be117"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/6d9962815ca8176ab962af0c56bb948b4c949b7fcd8d904cdac85e55f9bc9e30.png",
+      "sha256": "6d9962815ca8176ab962af0c56bb948b4c949b7fcd8d904cdac85e55f9bc9e30"
+    },
+    "mask": {
+      "path": "inputs/6d9962815ca8176ab962af0c56bb948b4c949b7fcd8d904cdac85e55f9bc9e30.png",
+      "sha256": "6d9962815ca8176ab962af0c56bb948b4c949b7fcd8d904cdac85e55f9bc9e30"
+    },
+    "calibrationReference": {
+      "path": "inputs/863f24e5e06307efd95e9e428086f45ad9608f28edaae8d94a09e2d36a86f41a.png",
+      "sha256": "863f24e5e06307efd95e9e428086f45ad9608f28edaae8d94a09e2d36a86f41a"
+    },
+    "sourceAudit": {
+      "path": "inputs/eb62d5be72a2d407cf9be4cc7be9c790c5fc5f974d17a85e6f319bca4e2be677.json",
+      "sha256": "eb62d5be72a2d407cf9be4cc7be9c790c5fc5f974d17a85e6f319bca4e2be677"
+    },
+    "referenceApproval": {
+      "path": "inputs/ba112d32c01e52b6f438bf5f2186626ae315c30de6705563ec028adf4d9d3737.json",
+      "sha256": "ba112d32c01e52b6f438bf5f2186626ae315c30de6705563ec028adf4d9d3737"
+    },
+    "calibrationDetail": {
+      "path": "inputs/9d05800b62f07e76c953783482a7c20ad9d22d149d4db252e0a90e78afb25e20.png",
+      "sha256": "9d05800b62f07e76c953783482a7c20ad9d22d149d4db252e0a90e78afb25e20"
+    }
+  },
+  "features": [
+    {
+      "name": "Explicitly a smaller version of Morrissey Alta; retain compact elegant pistol class.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Description does not independently define a new unique silhouette or state every Alta accessory is inherited.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Arsenal23/PDF25 Elite described as smaller elegant Alta. No own labeled Elite art/exact dimensions;Alta family context only. Actual320detail elegant compact conventional semiauto,rounded trigger opening,no scope/laser/suppressor/stock. Proportions/color/unseen depth disclosed artistic interpretation. Source-form accepted. Actual raw and prepared pair inspected once:matching major silhouette,source features,openings and thin members retained. Microgrooves nonblocking. Background/alpha below16 removed only by conditioning;native dimensions retained,2048 is resampled. SuperMach translation only recorded in derivation;no independent scale. No geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        912,
+        873,
+        1221,
+        1102
+      ],
+      "referenceAreaPixels": 38268,
+      "referenceMaskSha256": "6d9962815ca8176ab962af0c56bb948b4c949b7fcd8d904cdac85e55f9bc9e30",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "09bfc4eb85a04b72622d5688cf7db65fb2c8cb445528307793245211ffc256fa",
+      "imageSha256": "e46ef2e3a43052de3c31e1459f50b391ec58319cbdbab8eeee5d6ca8b4f273c4",
+      "maskSha256": "86831bbcaa7c8d8b97244bb9d8e379b38b747782a37043edb9883a93335be117",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Arsenal23/PDF25 Elite described as smaller elegant Alta. No own labeled Elite art/exact dimensions;Alta family context only. Actual320detail elegant compact conventional semiauto,rounded trigger opening,no scope/laser/suppressor/stock. Proportions/color/unseen depth disclosed artistic interpretation. Source-form accepted. Actual raw and prepared pair inspected once:matching major silhouette,source features,openings and thin members retained. Microgrooves nonblocking. Background/alpha below16 removed only by conditioning;native dimensions retained,2048 is resampled. SuperMach translation only recorded in derivation;no independent scale. No geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "811ec4148e55252d3bacbcb9afdc3509d906d9d75db61e46973eda4adec37934",
+      "imageSha256": "22dd39acfd89a7b840a971a29b7091a54b36d3d46c12c8cfbff0ea9167de51a2",
+      "maskSha256": "6d9962815ca8176ab962af0c56bb948b4c949b7fcd8d904cdac85e55f9bc9e30",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Arsenal23/PDF25 Elite described as smaller elegant Alta. No own labeled Elite art/exact dimensions;Alta family context only. Actual320detail elegant compact conventional semiauto,rounded trigger opening,no scope/laser/suppressor/stock. Proportions/color/unseen depth disclosed artistic interpretation. Source-form accepted. Actual raw and prepared pair inspected once:matching major silhouette,source features,openings and thin members retained. Microgrooves nonblocking. Background/alpha below16 removed only by conditioning;native dimensions retained,2048 is resampled. SuperMach translation only recorded in derivation;no independent scale. No geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "09bfc4eb85a04b72622d5688cf7db65fb2c8cb445528307793245211ffc256fa",
+      "detailSha256": "e46ef2e3a43052de3c31e1459f50b391ec58319cbdbab8eeee5d6ca8b4f273c4",
+      "geometrySha256": "22dd39acfd89a7b840a971a29b7091a54b36d3d46c12c8cfbff0ea9167de51a2",
+      "foregroundMaskSha256": "86831bbcaa7c8d8b97244bb9d8e379b38b747782a37043edb9883a93335be117",
+      "geometryForegroundMaskSha256": "6d9962815ca8176ab962af0c56bb948b4c949b7fcd8d904cdac85e55f9bc9e30",
+      "landmarks": [
+        {
+          "name": "front-or-prong-left",
+          "detail": [
+            0.050561318277310946,
+            0.28924305415996787
+          ],
+          "geometry": [
+            0.050561318277310946,
+            0.2896214328778135
+          ]
+        },
+        {
+          "name": "upper-structural-tip",
+          "detail": [
+            0.7761702337184874,
+            0.14848617112138263
+          ],
+          "geometry": [
+            0.7776834952731092,
+            0.1477294136856913
+          ]
+        },
+        {
+          "name": "rear-or-bipod-right",
+          "detail": [
+            0.9479254201680672,
+            0.7277839881430869
+          ],
+          "geometry": [
+            0.9494386817226891,
+            0.7277839881430869
+          ]
+        },
+        {
+          "name": "grip-or-foot-bottom",
+          "detail": [
+            0.749688156512605,
+            0.8515138288786174
+          ],
+          "geometry": [
+            0.749688156512605,
+            0.8522705863143086
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Arsenal23/PDF25 Elite described as smaller elegant Alta. No own labeled Elite art/exact dimensions;Alta family context only. Actual320detail elegant compact conventional semiauto,rounded trigger opening,no scope/laser/suppressor/stock. Proportions/color/unseen depth disclosed artistic interpretation. Source-form accepted. Actual raw and prepared pair inspected once:matching major silhouette,source features,openings and thin members retained. Microgrooves nonblocking. Background/alpha below16 removed only by conditioning;native dimensions retained,2048 is resampled. SuperMach translation only recorded in derivation;no independent scale. No geometry/native/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

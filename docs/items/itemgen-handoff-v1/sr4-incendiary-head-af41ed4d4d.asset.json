@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-incendiary-head-af41ed4d4d",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "nose",
+      "pixel": [
+        64.0,
+        444.0
+      ]
+    },
+    {
+      "name": "first-band",
+      "pixel": [
+        720.0,
+        192.99999999999997
+      ]
+    },
+    {
+      "name": "second-band",
+      "pixel": [
+        964.9999999999999,
+        207.99999999999994
+      ]
+    },
+    {
+      "name": "stem-end",
+      "pixel": [
+        1707.0,
+        441.99999999999994
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-incendiary-head-af41ed4d4d.family.json",
+    "sha256": "173d774a510c315aac39fff34f2d0dd7a7db8f7fbf4fd4fa3205e3d96f84f506"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/87290181f6b9167cd6045b04f76bf0acf1307c06b15a9d4b91a169c29db60221.png",
+      "sha256": "87290181f6b9167cd6045b04f76bf0acf1307c06b15a9d4b91a169c29db60221"
+    },
+    "clayReference": {
+      "path": "inputs/e11cb1ee556e9e30470307e335335ce6d8e6cb932ac84818648de33f01347150.png",
+      "sha256": "e11cb1ee556e9e30470307e335335ce6d8e6cb932ac84818648de33f01347150"
+    },
+    "geometry": {
+      "path": "inputs/af3ddd477dd19f27bbadddd1ffa2c3cc45ae5bf18d629c518c7b7e52b341b5d5.png",
+      "sha256": "af3ddd477dd19f27bbadddd1ffa2c3cc45ae5bf18d629c518c7b7e52b341b5d5"
+    },
+    "detail": {
+      "path": "inputs/1fb49fa3aee23c2d3c5e78f30e22f86553ca3524d1487945a6d069c4a22ecfe3.png",
+      "sha256": "1fb49fa3aee23c2d3c5e78f30e22f86553ca3524d1487945a6d069c4a22ecfe3"
+    },
+    "foregroundMask": {
+      "path": "inputs/4e0cb07722a647371a93ccfb4df5167c7ee5b095821259627e207c2553e118e1.png",
+      "sha256": "4e0cb07722a647371a93ccfb4df5167c7ee5b095821259627e207c2553e118e1"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c008a50ddf08dddaab6e3bed514dfe26f85de4e23e4d1afc46e4ec3b93249abc.png",
+      "sha256": "c008a50ddf08dddaab6e3bed514dfe26f85de4e23e4d1afc46e4ec3b93249abc"
+    },
+    "mask": {
+      "path": "inputs/c008a50ddf08dddaab6e3bed514dfe26f85de4e23e4d1afc46e4ec3b93249abc.png",
+      "sha256": "c008a50ddf08dddaab6e3bed514dfe26f85de4e23e4d1afc46e4ec3b93249abc"
+    },
+    "calibrationReference": {
+      "path": "inputs/8c72e23079a96bc9380008cace93ffe0d6830d64a7564f59f3b432ff36e4a7da.png",
+      "sha256": "8c72e23079a96bc9380008cace93ffe0d6830d64a7564f59f3b432ff36e4a7da"
+    },
+    "sourceAudit": {
+      "path": "inputs/04e96d9dab7ab016ad4d40f966d1e1c3eb0a74feacd3c2bbf53943a852bae5bb.json",
+      "sha256": "04e96d9dab7ab016ad4d40f966d1e1c3eb0a74feacd3c2bbf53943a852bae5bb"
+    },
+    "referenceApproval": {
+      "path": "inputs/cbd22c02676f2f3f68a01a089d175df2d044730530806d52c114992869fdf9cc.json",
+      "sha256": "cbd22c02676f2f3f68a01a089d175df2d044730530806d52c114992869fdf9cc"
+    },
+    "calibrationDetail": {
+      "path": "inputs/ae19267e8cfe625103f24cdfe13e1ef89cecb7ebd0b97a4c7f27f12d589f4b98.png",
+      "sha256": "ae19267e8cfe625103f24cdfe13e1ef89cecb7ebd0b97a4c7f27f12d589f4b98"
+    }
+  },
+  "features": [
+    {
+      "name": "Impact-ignited incendiary arrow/crossbow-bolt head, not separate launcher",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own INCENDIARY art: elongated rounded capsule, broad band/clamp forms and rear attachment neck",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve major exterior capsule/band boundaries; no exposed substance, active flames or internals are required",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own INCENDIARY labeled arrowhead Arsenal19/PDF21:elongated rounded capsule,2broad band/clamp forms and short rear neck. This is a component/arrowhead depiction,not an invented standalone launcher. Actual color/clay preserve exterior forms;no active effects or internals. Fine bolt recesses/stem grooves are nonblocking. No intentional through-openings in this solid exterior representation. Original raw references retained byte-for-byte;foreground RGB unchanged. Exact colors/unseen depth remain disclosed artistic interpretation. Native1774x887,2048conditioning resampled. Single final pair review;no geometry/native/client/production acceptance.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "87290181f6b9167cd6045b04f76bf0acf1307c06b15a9d4b91a169c29db60221",
+      "imageSha256": "1fb49fa3aee23c2d3c5e78f30e22f86553ca3524d1487945a6d069c4a22ecfe3",
+      "maskSha256": "4e0cb07722a647371a93ccfb4df5167c7ee5b095821259627e207c2553e118e1",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own INCENDIARY labeled arrowhead Arsenal19/PDF21:elongated rounded capsule,2broad band/clamp forms and short rear neck. This is a component/arrowhead depiction,not an invented standalone launcher. Actual color/clay preserve exterior forms;no active effects or internals. Fine bolt recesses/stem grooves are nonblocking. No intentional through-openings in this solid exterior representation. Original raw references retained byte-for-byte;foreground RGB unchanged. Exact colors/unseen depth remain disclosed artistic interpretation. Native1774x887,2048conditioning resampled. Single final pair review;no geometry/native/client/production acceptance."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e11cb1ee556e9e30470307e335335ce6d8e6cb932ac84818648de33f01347150",
+      "imageSha256": "af3ddd477dd19f27bbadddd1ffa2c3cc45ae5bf18d629c518c7b7e52b341b5d5",
+      "maskSha256": "c008a50ddf08dddaab6e3bed514dfe26f85de4e23e4d1afc46e4ec3b93249abc",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own INCENDIARY labeled arrowhead Arsenal19/PDF21:elongated rounded capsule,2broad band/clamp forms and short rear neck. This is a component/arrowhead depiction,not an invented standalone launcher. Actual color/clay preserve exterior forms;no active effects or internals. Fine bolt recesses/stem grooves are nonblocking. No intentional through-openings in this solid exterior representation. Original raw references retained byte-for-byte;foreground RGB unchanged. Exact colors/unseen depth remain disclosed artistic interpretation. Native1774x887,2048conditioning resampled. Single final pair review;no geometry/native/client/production acceptance."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "87290181f6b9167cd6045b04f76bf0acf1307c06b15a9d4b91a169c29db60221",
+      "detailSha256": "1fb49fa3aee23c2d3c5e78f30e22f86553ca3524d1487945a6d069c4a22ecfe3",
+      "geometrySha256": "af3ddd477dd19f27bbadddd1ffa2c3cc45ae5bf18d629c518c7b7e52b341b5d5",
+      "foregroundMaskSha256": "4e0cb07722a647371a93ccfb4df5167c7ee5b095821259627e207c2553e118e1",
+      "geometryForegroundMaskSha256": "c008a50ddf08dddaab6e3bed514dfe26f85de4e23e4d1afc46e4ec3b93249abc",
+      "landmarks": [
+        {
+          "name": "nose",
+          "detail": [
+            0.050896070075757575,
+            0.5013915050642292
+          ],
+          "geometry": [
+            0.050896070075757575,
+            0.5013915050642292
+          ]
+        },
+        {
+          "name": "first-band",
+          "detail": [
+            0.40886955492424243,
+            0.3645424823987154
+          ],
+          "geometry": [
+            0.40886955492424243,
+            0.3645424823987154
+          ]
+        },
+        {
+          "name": "second-band",
+          "detail": [
+            0.5425639204545454,
+            0.37272071084486164
+          ],
+          "geometry": [
+            0.5425639204545454,
+            0.3721754956151186
+          ]
+        },
+        {
+          "name": "stem-end",
+          "detail": [
+            0.9474668560606061,
+            0.500301074604743
+          ],
+          "geometry": [
+            0.9480125473484848,
+            0.500301074604743
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Own INCENDIARY labeled arrowhead Arsenal19/PDF21:elongated rounded capsule,2broad band/clamp forms and short rear neck. This is a component/arrowhead depiction,not an invented standalone launcher. Actual color/clay preserve exterior forms;no active effects or internals. Fine bolt recesses/stem grooves are nonblocking. No intentional through-openings in this solid exterior representation. Original raw references retained byte-for-byte;foreground RGB unchanged. Exact colors/unseen depth remain disclosed artistic interpretation. Native1774x887,2048conditioning resampled. Single final pair review;no geometry/native/client/production acceptance."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

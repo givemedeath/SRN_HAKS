@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-seco-ld-120-bd40833e54",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-left",
+      "pixel": [
+        40.0,
+        367.0
+      ]
+    },
+    {
+      "name": "top-laser-upper-front",
+      "pixel": [
+        977.0000000000001,
+        250.0
+      ]
+    },
+    {
+      "name": "top-laser-rear",
+      "pixel": [
+        1140.0,
+        252.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        576.0000000000001,
+        668.9999999999998
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        888.0,
+        1017.0
+      ]
+    },
+    {
+      "name": "grip-rear",
+      "pixel": [
+        1206.0,
+        890.0
+      ]
+    },
+    {
+      "name": "trigger-tip",
+      "pixel": [
+        585.0,
+        638.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-seco-ld-120-bd40833e54.family.json",
+    "sha256": "2b0211274cf378d03f62cd4736bca592f0169aef7216943147422c31da25f65c"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/75f5f447519a3173a65adafabfdaa44eb363bbcd8a348e58a4e502981a15901a.png",
+      "sha256": "75f5f447519a3173a65adafabfdaa44eb363bbcd8a348e58a4e502981a15901a"
+    },
+    "clayReference": {
+      "path": "inputs/f1bacaf7219f5118fa69225fc41435bf7b3961423493dd238464a6c5e2313ebf.png",
+      "sha256": "f1bacaf7219f5118fa69225fc41435bf7b3961423493dd238464a6c5e2313ebf"
+    },
+    "geometry": {
+      "path": "inputs/2c54c6ef910e4033e7b35e4915bd38f107afbb1597d60228a21bafa75b4c2a8d.png",
+      "sha256": "2c54c6ef910e4033e7b35e4915bd38f107afbb1597d60228a21bafa75b4c2a8d"
+    },
+    "detail": {
+      "path": "inputs/af7ce576c5eb5f5130ec0b743424be3af963e9a86bdfb9c47d9d8a1b52775a02.png",
+      "sha256": "af7ce576c5eb5f5130ec0b743424be3af963e9a86bdfb9c47d9d8a1b52775a02"
+    },
+    "foregroundMask": {
+      "path": "inputs/828662571026b3416a9b95ba4d34dd90ef7e6194b94b59126ccbeb34e77135c7.png",
+      "sha256": "828662571026b3416a9b95ba4d34dd90ef7e6194b94b59126ccbeb34e77135c7"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/1e045de2e3a0490ceebae5af5b69f1e5f7d6c049f26f4555d3ca7949393a8664.png",
+      "sha256": "1e045de2e3a0490ceebae5af5b69f1e5f7d6c049f26f4555d3ca7949393a8664"
+    },
+    "mask": {
+      "path": "inputs/1e045de2e3a0490ceebae5af5b69f1e5f7d6c049f26f4555d3ca7949393a8664.png",
+      "sha256": "1e045de2e3a0490ceebae5af5b69f1e5f7d6c049f26f4555d3ca7949393a8664"
+    },
+    "calibrationReference": {
+      "path": "inputs/2b1aebd0b2e9e2b0128805b40e98d8d1547962364784f4786ce111035842641a.png",
+      "sha256": "2b1aebd0b2e9e2b0128805b40e98d8d1547962364784f4786ce111035842641a"
+    },
+    "sourceAudit": {
+      "path": "inputs/4ea67cd6999dd51d8137a848abbbc34988c61c49a01c2afaaef04ff90a540d29.json",
+      "sha256": "4ea67cd6999dd51d8137a848abbbc34988c61c49a01c2afaaef04ff90a540d29"
+    },
+    "referenceApproval": {
+      "path": "inputs/2d138a776e0076e4a07a8f0e66cf3abae0f369c0c55b745d06161e1a11e7994b.json",
+      "sha256": "2d138a776e0076e4a07a8f0e66cf3abae0f369c0c55b745d06161e1a11e7994b"
+    },
+    "calibrationDetail": {
+      "path": "inputs/37f99e8c8b416866cbe66796aee9dbe45b7c10307afc4f6a3a1f1362f1a50bdb.png",
+      "sha256": "37f99e8c8b416866cbe66796aee9dbe45b7c10307afc4f6a3a1f1362f1a50bdb"
+    }
+  },
+  "features": [
+    {
+      "name": "Integral TOP-mounted laser sight.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own LD-120 illustration supplies compact angular/wedge upper with sloping lower front, short rear grip, large trigger opening and unobtrusive top feature.",
+      "placementReviewed": true
+    },
+    {
+      "name": "PASS: own LD120 compact wedge/angled lower-front silhouette, short rear grip, large trigger opening and integral top-mounted laser feature retained. This is not neighboring Multi6/PB120 or a real-world LD100 substitution. Satin-gray finish, laser-lens color and unseen depth are artistic; no separate scope/suppressor. Actual matching clay has smooth grip and housing with stippling, receiver micro-vent cuts, trigger ribbing, fine dimples and screw recesses filled. Major upper/lower housing split, grip-panel boundary, broad raised control and integral top laser emitter casing are structural part boundaries. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Both genuine guard/trigger background regions and complete curved trigger preserved. Muzzle and laser cavities remain foreground, as do bright metallic specular reflections. No clipped outline, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        838,
+        811,
+        1017,
+        1031
+      ],
+      "referenceAreaPixels": 30467,
+      "referenceMaskSha256": "1e045de2e3a0490ceebae5af5b69f1e5f7d6c049f26f4555d3ca7949393a8664",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1040,
+        844,
+        1173,
+        1040
+      ],
+      "referenceAreaPixels": 10967,
+      "referenceMaskSha256": "1e045de2e3a0490ceebae5af5b69f1e5f7d6c049f26f4555d3ca7949393a8664",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "75f5f447519a3173a65adafabfdaa44eb363bbcd8a348e58a4e502981a15901a",
+      "imageSha256": "af7ce576c5eb5f5130ec0b743424be3af963e9a86bdfb9c47d9d8a1b52775a02",
+      "maskSha256": "828662571026b3416a9b95ba4d34dd90ef7e6194b94b59126ccbeb34e77135c7",
+      "notes": "PASS: own LD120 compact wedge/angled lower-front silhouette, short rear grip, large trigger opening and integral top-mounted laser feature retained. This is not neighboring Multi6/PB120 or a real-world LD100 substitution. Satin-gray finish, laser-lens color and unseen depth are artistic; no separate scope/suppressor. Actual matching clay has smooth grip and housing with stippling, receiver micro-vent cuts, trigger ribbing, fine dimples and screw recesses filled. Major upper/lower housing split, grip-panel boundary, broad raised control and integral top laser emitter casing are structural part boundaries. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Both genuine guard/trigger background regions and complete curved trigger preserved. Muzzle and laser cavities remain foreground, as do bright metallic specular reflections. No clipped outline, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f1bacaf7219f5118fa69225fc41435bf7b3961423493dd238464a6c5e2313ebf",
+      "imageSha256": "2c54c6ef910e4033e7b35e4915bd38f107afbb1597d60228a21bafa75b4c2a8d",
+      "maskSha256": "1e045de2e3a0490ceebae5af5b69f1e5f7d6c049f26f4555d3ca7949393a8664",
+      "notes": "PASS: own LD120 compact wedge/angled lower-front silhouette, short rear grip, large trigger opening and integral top-mounted laser feature retained. This is not neighboring Multi6/PB120 or a real-world LD100 substitution. Satin-gray finish, laser-lens color and unseen depth are artistic; no separate scope/suppressor. Actual matching clay has smooth grip and housing with stippling, receiver micro-vent cuts, trigger ribbing, fine dimples and screw recesses filled. Major upper/lower housing split, grip-panel boundary, broad raised control and integral top laser emitter casing are structural part boundaries. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Both genuine guard/trigger background regions and complete curved trigger preserved. Muzzle and laser cavities remain foreground, as do bright metallic specular reflections. No clipped outline, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "PASS: own LD120 compact wedge/angled lower-front silhouette, short rear grip, large trigger opening and integral top-mounted laser feature retained. This is not neighboring Multi6/PB120 or a real-world LD100 substitution. Satin-gray finish, laser-lens color and unseen depth are artistic; no separate scope/suppressor. Actual matching clay has smooth grip and housing with stippling, receiver micro-vent cuts, trigger ribbing, fine dimples and screw recesses filled. Major upper/lower housing split, grip-panel boundary, broad raised control and integral top laser emitter casing are structural part boundaries. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Both genuine guard/trigger background regions and complete curved trigger preserved. Muzzle and laser cavities remain foreground, as do bright metallic specular reflections. No clipped outline, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "muzzle-left",
+          "detail": [
+            0.053610226912510564,
+            0.2964087701612903
+          ],
+          "geometry": [
+            0.052849119030008454,
+            0.2964087701612903
+          ]
+        },
+        {
+          "name": "top-laser-upper-front",
+          "detail": [
+            0.7667683128169908,
+            0.20736139112903226
+          ],
+          "geometry": [
+            0.7667683128169908,
+            0.20736139112903226
+          ]
+        },
+        {
+          "name": "top-laser-rear",
+          "detail": [
+            0.8908288976648352,
+            0.2088835685483871
+          ],
+          "geometry": [
+            0.8908288976648352,
+            0.2088835685483871
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.4615640519336433,
+            0.5262575604838708
+          ],
+          "geometry": [
+            0.4615640519336433,
+            0.5262575604838708
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.6990297112743026,
+            0.7911164314516129
+          ],
+          "geometry": [
+            0.6990297112743026,
+            0.7911164314516129
+          ]
+        },
+        {
+          "name": "grip-rear",
+          "detail": [
+            0.9410620179099747,
+            0.6944581653225806
+          ],
+          "geometry": [
+            0.9410620179099747,
+            0.6944581653225806
+          ]
+        },
+        {
+          "name": "trigger-tip",
+          "detail": [
+            0.4684140228761623,
+            0.502663810483871
+          ],
+          "geometry": [
+            0.4684140228761623,
+            0.502663810483871
+          ]
+        }
+      ],
+      "referenceSha256": "75f5f447519a3173a65adafabfdaa44eb363bbcd8a348e58a4e502981a15901a",
+      "geometrySha256": "2c54c6ef910e4033e7b35e4915bd38f107afbb1597d60228a21bafa75b4c2a8d",
+      "detailSha256": "af7ce576c5eb5f5130ec0b743424be3af963e9a86bdfb9c47d9d8a1b52775a02",
+      "foregroundMaskSha256": "828662571026b3416a9b95ba4d34dd90ef7e6194b94b59126ccbeb34e77135c7",
+      "geometryForegroundMaskSha256": "1e045de2e3a0490ceebae5af5b69f1e5f7d6c049f26f4555d3ca7949393a8664"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

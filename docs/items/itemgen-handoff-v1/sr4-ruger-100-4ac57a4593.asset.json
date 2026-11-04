@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ruger-100-4ac57a4593",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        16.0,
+        495.99999999999994
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1238.0,
+        495.99999999999994
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        16.0,
+        735.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1238.0,
+        735.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ruger-100-4ac57a4593.family.json",
+    "sha256": "a5da5a6f5c04de09b09eb846be53c8165c15d5750decc32c570791ea435797ba"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/18a393c71381c8185f38c4e97c99ab28cb9c73582a0637614f709d62458411d8.png",
+      "sha256": "18a393c71381c8185f38c4e97c99ab28cb9c73582a0637614f709d62458411d8"
+    },
+    "clayReference": {
+      "path": "inputs/ad2818b05b400ca5fd96a6704b70c1d9955da83fd555797eeac466eea9eb9f8a.png",
+      "sha256": "ad2818b05b400ca5fd96a6704b70c1d9955da83fd555797eeac466eea9eb9f8a"
+    },
+    "geometry": {
+      "path": "inputs/2a38ddf51e436a87ab168a77b0e45ebfcfdb4b3149d1c4cc46844862776482d4.png",
+      "sha256": "2a38ddf51e436a87ab168a77b0e45ebfcfdb4b3149d1c4cc46844862776482d4"
+    },
+    "detail": {
+      "path": "inputs/236fbe7496a81e936ee4f57e819b3140ebbf0be1829ab64e22fbfc68201c50fe.png",
+      "sha256": "236fbe7496a81e936ee4f57e819b3140ebbf0be1829ab64e22fbfc68201c50fe"
+    },
+    "foregroundMask": {
+      "path": "inputs/221ac9614e855e58f9304ce9e04153f7ff7bd3c84e7330963f7f6cefc96a743c.png",
+      "sha256": "221ac9614e855e58f9304ce9e04153f7ff7bd3c84e7330963f7f6cefc96a743c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f.png",
+      "sha256": "d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f"
+    },
+    "mask": {
+      "path": "inputs/d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f.png",
+      "sha256": "d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f"
+    },
+    "calibrationReference": {
+      "path": "inputs/b1de9ba893c6ec45786ad273fab995829d5644546785439fbaf0b6659698369a.png",
+      "sha256": "b1de9ba893c6ec45786ad273fab995829d5644546785439fbaf0b6659698369a"
+    },
+    "sourceAudit": {
+      "path": "inputs/58e3d33ca7ff50ddaafce02ea372ef0aa1035eaced6836c9bac8c5db40b83db0.json",
+      "sha256": "58e3d33ca7ff50ddaafce02ea372ef0aa1035eaced6836c9bac8c5db40b83db0"
+    },
+    "referenceApproval": {
+      "path": "inputs/abdbc5411623ead5faad118c2a1a025098591c8b108460b6703e29c92ac229de.json",
+      "sha256": "abdbc5411623ead5faad118c2a1a025098591c8b108460b6703e29c92ac229de"
+    },
+    "calibrationDetail": {
+      "path": "inputs/b407348a023dc8b609582407fe35e450b2baa21b8fabc4c50f53754e15cf31bc.png",
+      "sha256": "b407348a023dc8b609582407fe35e450b2baa21b8fabc4c50f53754e15cf31bc"
+    }
+  },
+  "features": [
+    {
+      "name": "Built-in imaging scope and rigid stock with shock pad (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the sporting rifle drawing: long narrow barrel, sculpted open/undercut stock-grip profile, upper imaging sight and distinct fore-end.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final conditioned overlay reviewed: matching framing and silhouette, structural openings retained, no background debris. Actual detailed/clay pair and teal foregrounds reviewed. Matching silhouette, perspective and framing; upper integrated sight, long barrel, stock/thumbhole, sling loop, both sides of trigger space and thin guard retained. Grip microtexture removed in clay. Shallow surface channels accepted. Specular highlights and dark recess interior surfaces remain foreground; no invented cutouts. Core printed308/PDF310 description and own Ruger100 drawing; core table309/PDF311. Actual retained v116 detail shows sporting rifle with integrated upper imaging sight, rigid shock-pad stock, sculpted thumbhole/grip, long narrow barrel and distinct fore-end. Reference faces left versus source right; whole-object orientation is mirrored, construction unchanged. Finish, hidden depth and exact dimensions interpreted. No extra suppressor or downward magazine.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1339,
+        1008,
+        1505,
+        1103
+      ],
+      "referenceAreaPixels": 10061,
+      "referenceMaskSha256": "d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        479,
+        1009,
+        494,
+        1021
+      ],
+      "referenceAreaPixels": 170,
+      "referenceMaskSha256": "d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1184,
+        1041,
+        1244,
+        1094
+      ],
+      "referenceAreaPixels": 2668,
+      "referenceMaskSha256": "d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1243,
+        1059,
+        1270,
+        1094
+      ],
+      "referenceAreaPixels": 330,
+      "referenceMaskSha256": "d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "236fbe7496a81e936ee4f57e819b3140ebbf0be1829ab64e22fbfc68201c50fe",
+      "maskSha256": "221ac9614e855e58f9304ce9e04153f7ff7bd3c84e7330963f7f6cefc96a743c",
+      "notes": "Final conditioned overlay reviewed: matching framing and silhouette, structural openings retained, no background debris. Actual detailed/clay pair and teal foregrounds reviewed. Matching silhouette, perspective and framing; upper integrated sight, long barrel, stock/thumbhole, sling loop, both sides of trigger space and thin guard retained. Grip microtexture removed in clay. Shallow surface channels accepted. Specular highlights and dark recess interior surfaces remain foreground; no invented cutouts. Core printed308/PDF310 description and own Ruger100 drawing; core table309/PDF311. Actual retained v116 detail shows sporting rifle with integrated upper imaging sight, rigid shock-pad stock, sculpted thumbhole/grip, long narrow barrel and distinct fore-end. Reference faces left versus source right; whole-object orientation is mirrored, construction unchanged. Finish, hidden depth and exact dimensions interpreted. No extra suppressor or downward magazine.",
+      "referenceSha256": "18a393c71381c8185f38c4e97c99ab28cb9c73582a0637614f709d62458411d8",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "2a38ddf51e436a87ab168a77b0e45ebfcfdb4b3149d1c4cc46844862776482d4",
+      "maskSha256": "d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f",
+      "notes": "Final conditioned overlay reviewed: matching framing and silhouette, structural openings retained, no background debris. Actual detailed/clay pair and teal foregrounds reviewed. Matching silhouette, perspective and framing; upper integrated sight, long barrel, stock/thumbhole, sling loop, both sides of trigger space and thin guard retained. Grip microtexture removed in clay. Shallow surface channels accepted. Specular highlights and dark recess interior surfaces remain foreground; no invented cutouts. Core printed308/PDF310 description and own Ruger100 drawing; core table309/PDF311. Actual retained v116 detail shows sporting rifle with integrated upper imaging sight, rigid shock-pad stock, sculpted thumbhole/grip, long narrow barrel and distinct fore-end. Reference faces left versus source right; whole-object orientation is mirrored, construction unchanged. Finish, hidden depth and exact dimensions interpreted. No extra suppressor or downward magazine.",
+      "referenceSha256": "ad2818b05b400ca5fd96a6704b70c1d9955da83fd555797eeac466eea9eb9f8a",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "236fbe7496a81e936ee4f57e819b3140ebbf0be1829ab64e22fbfc68201c50fe",
+      "foregroundMaskSha256": "221ac9614e855e58f9304ce9e04153f7ff7bd3c84e7330963f7f6cefc96a743c",
+      "geometryForegroundMaskSha256": "d8abe2b7295d3d6f6453a9bd80bc66a3971d9be93468d5211d2a52489fea978f",
+      "geometrySha256": "2a38ddf51e436a87ab168a77b0e45ebfcfdb4b3149d1c4cc46844862776482d4",
+      "landmarks": [
+        {
+          "detail": [
+            0.0498046875,
+            0.41162109374999994
+          ],
+          "geometry": [
+            0.0498046875,
+            0.41162109374999994
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.41162109374999994
+          ],
+          "geometry": [
+            0.9501953125,
+            0.41162109374999994
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.0498046875,
+            0.587890625
+          ],
+          "geometry": [
+            0.0498046875,
+            0.587890625
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.9501953125,
+            0.587890625
+          ],
+          "geometry": [
+            0.9501953125,
+            0.587890625
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Final conditioned overlay reviewed: matching framing and silhouette, structural openings retained, no background debris. Actual detailed/clay pair and teal foregrounds reviewed. Matching silhouette, perspective and framing; upper integrated sight, long barrel, stock/thumbhole, sling loop, both sides of trigger space and thin guard retained. Grip microtexture removed in clay. Shallow surface channels accepted. Specular highlights and dark recess interior surfaces remain foreground; no invented cutouts. Core printed308/PDF310 description and own Ruger100 drawing; core table309/PDF311. Actual retained v116 detail shows sporting rifle with integrated upper imaging sight, rigid shock-pad stock, sculpted thumbhole/grip, long narrow barrel and distinct fore-end. Reference faces left versus source right; whole-object orientation is mirrored, construction unchanged. Finish, hidden depth and exact dimensions interpreted. No extra suppressor or downward magazine.",
+      "referenceSha256": "18a393c71381c8185f38c4e97c99ab28cb9c73582a0637614f709d62458411d8"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

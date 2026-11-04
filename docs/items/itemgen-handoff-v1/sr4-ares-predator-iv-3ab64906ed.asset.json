@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-predator-iv-3ab64906ed",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-upper-top",
+      "pixel": [
+        300.0,
+        42.99999999999999
+      ]
+    },
+    {
+      "name": "front-sight-top",
+      "pixel": [
+        1600.0,
+        74.00000000000003
+      ]
+    },
+    {
+      "name": "magazine-base-bottom",
+      "pixel": [
+        300.0,
+        857.9999999999999
+      ]
+    },
+    {
+      "name": "rear-beavertail-top",
+      "pixel": [
+        100.0,
+        290.00000000000006
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        620.0,
+        523.9999999999999
+      ]
+    },
+    {
+      "name": "front-upper-end",
+      "pixel": [
+        1690.0,
+        136.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-predator-iv-3ab64906ed.family.json",
+    "sha256": "f0e069dd330ffe91851b436773fd697a431f0f3e6b8af5ee33a4cc3789a466ee"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/e9a5d289ebf3d067161b3b78ef0030b340ad67e1f998def8528f506730969e0c.png",
+      "sha256": "e9a5d289ebf3d067161b3b78ef0030b340ad67e1f998def8528f506730969e0c"
+    },
+    "clayReference": {
+      "path": "inputs/4aa2500c70f28297f449e39ad2cb808af42c8002f96aa191791980197995065c.png",
+      "sha256": "4aa2500c70f28297f449e39ad2cb808af42c8002f96aa191791980197995065c"
+    },
+    "geometry": {
+      "path": "inputs/1bac3ded1083ff42991d5d2f3307a81197b639ccc650bf1bc7e1ea44e31bd6e6.png",
+      "sha256": "1bac3ded1083ff42991d5d2f3307a81197b639ccc650bf1bc7e1ea44e31bd6e6"
+    },
+    "detail": {
+      "path": "inputs/bb0cc2fce24ae46d4f866c8e92ee8e2f86715395cd8bb5789948b09009cdfac8.png",
+      "sha256": "bb0cc2fce24ae46d4f866c8e92ee8e2f86715395cd8bb5789948b09009cdfac8"
+    },
+    "foregroundMask": {
+      "path": "inputs/13df2e464461c295ee6331704d6bee675f24a87a9756d0d64195890e2b12bf0b.png",
+      "sha256": "13df2e464461c295ee6331704d6bee675f24a87a9756d0d64195890e2b12bf0b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/27c41b45dc6154d38f72e34bc7dbb01fe179d90db419ff01cf4c2b26e51fdf64.png",
+      "sha256": "27c41b45dc6154d38f72e34bc7dbb01fe179d90db419ff01cf4c2b26e51fdf64"
+    },
+    "mask": {
+      "path": "inputs/27c41b45dc6154d38f72e34bc7dbb01fe179d90db419ff01cf4c2b26e51fdf64.png",
+      "sha256": "27c41b45dc6154d38f72e34bc7dbb01fe179d90db419ff01cf4c2b26e51fdf64"
+    },
+    "calibrationReference": {
+      "path": "inputs/1d7f4b9209b30f3cdbd81cbfd608186824e7f00314824faf1ed3ebe6abcbf369.png",
+      "sha256": "1d7f4b9209b30f3cdbd81cbfd608186824e7f00314824faf1ed3ebe6abcbf369"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/f6679dbbffe5aa311993681ddecf2a7bca0c62ce57c3f8f7c4307f5e80e4fa29.json",
+      "sha256": "f6679dbbffe5aa311993681ddecf2a7bca0c62ce57c3f8f7c4307f5e80e4fa29"
+    },
+    "referenceApproval": {
+      "path": "inputs/5e7d27db69c07f109569dc9717128a9a832c7d8a7d9d11b7aa7ad8fc926366a4.json",
+      "sha256": "5e7d27db69c07f109569dc9717128a9a832c7d8a7d9d11b7aa7ad8fc926366a4"
+    },
+    "calibrationDetail": {
+      "path": "inputs/ca523e70af596e8f6f61c3c24d0294078b137b6ec62a5c8219d411129b9119cb.png",
+      "sha256": "ca523e70af596e8f6f61c3c24d0294078b137b6ec62a5c8219d411129b9119cb"
+    }
+  },
+  "features": [
+    {
+      "name": "Preserve the complete source-approved exterior, structural members and intentional openings.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned reviewer compared exact Ares PredatorIV drawing on Core printed307/PDF309 and current source audit with originals and final pair. Long angular upper, slanted rear mass, compact curved grip, open guard/trigger and stepped lower forward housing retained. Clay fills fine grooves/vents/ribs/lettering/fastener recesses; major component boundaries and silhouette remain. Metallic palette and hidden-side treatment are artistic choices. Six landmarks and actual paired views pass unchanged alignment gates. Reference-only approval; approved geometry assets untouched.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        641,
+        941,
+        814,
+        1070
+      ],
+      "referenceAreaPixels": 18987,
+      "referenceMaskSha256": "27c41b45dc6154d38f72e34bc7dbb01fe179d90db419ff01cf4c2b26e51fdf64",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        573,
+        967,
+        646,
+        1068
+      ],
+      "referenceAreaPixels": 2836,
+      "referenceMaskSha256": "27c41b45dc6154d38f72e34bc7dbb01fe179d90db419ff01cf4c2b26e51fdf64",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e9a5d289ebf3d067161b3b78ef0030b340ad67e1f998def8528f506730969e0c",
+      "imageSha256": "bb0cc2fce24ae46d4f866c8e92ee8e2f86715395cd8bb5789948b09009cdfac8",
+      "maskSha256": "13df2e464461c295ee6331704d6bee675f24a87a9756d0d64195890e2b12bf0b",
+      "notes": "Assigned sole final reviewer inspected exact primary artwork, originals, native and2048masks/teal previews and paired overlay. Valid original detailed alpha retained; clay uses independently reviewed manual contour and two actual trigger voids. Full upper mass, front cap, sights/hammer, beavertail, guard/trigger, grip and layered magazine base remain intact. Prior background-threshold cut-through channels are absent. No broad halo, detached foreground or clipping. RGB unchanged; no transfer, warp, threshold tuning, shape generation or padding."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4aa2500c70f28297f449e39ad2cb808af42c8002f96aa191791980197995065c",
+      "imageSha256": "1bac3ded1083ff42991d5d2f3307a81197b639ccc650bf1bc7e1ea44e31bd6e6",
+      "maskSha256": "27c41b45dc6154d38f72e34bc7dbb01fe179d90db419ff01cf4c2b26e51fdf64",
+      "notes": "Assigned sole final reviewer inspected exact primary artwork, originals, native and2048masks/teal previews and paired overlay. Valid original detailed alpha retained; clay uses independently reviewed manual contour and two actual trigger voids. Full upper mass, front cap, sights/hammer, beavertail, guard/trigger, grip and layered magazine base remain intact. Prior background-threshold cut-through channels are absent. No broad halo, detached foreground or clipping. RGB unchanged; no transfer, warp, threshold tuning, shape generation or padding."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned reviewer compared exact Ares PredatorIV drawing on Core printed307/PDF309 and current source audit with originals and final pair. Long angular upper, slanted rear mass, compact curved grip, open guard/trigger and stepped lower forward housing retained. Clay fills fine grooves/vents/ribs/lettering/fastener recesses; major component boundaries and silhouette remain. Metallic palette and hidden-side treatment are artistic choices. Six landmarks and actual paired views pass unchanged alignment gates. Reference-only approval; approved geometry assets untouched.",
+      "landmarks": [
+        {
+          "name": "rear-upper-top",
+          "detail": [
+            0.17600203286867763,
+            0.2757546271863691
+          ],
+          "geometry": [
+            0.17600203286867763,
+            0.2730098857810615
+          ]
+        },
+        {
+          "name": "front-sight-top",
+          "detail": [
+            0.8892913762568556,
+            0.29277202389927626
+          ],
+          "geometry": [
+            0.8892913762568556,
+            0.29057623077503014
+          ]
+        },
+        {
+          "name": "magazine-base-bottom",
+          "detail": [
+            0.17600203286867763,
+            0.7231474762515078
+          ],
+          "geometry": [
+            0.17600203286867763,
+            0.7231474762515078
+          ]
+        },
+        {
+          "name": "rear-beavertail-top",
+          "detail": [
+            0.06626521080895795,
+            0.41134485260856457
+          ],
+          "geometry": [
+            0.06626521080895795,
+            0.41299169745174913
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.35158094816422913,
+            0.5397987503769601
+          ],
+          "geometry": [
+            0.35158094816422913,
+            0.5387008538148372
+          ]
+        },
+        {
+          "name": "front-upper-end",
+          "detail": [
+            0.9386729461837294,
+            0.3268068173250905
+          ],
+          "geometry": [
+            0.9386729461837294,
+            0.32076838623341375
+          ]
+        }
+      ],
+      "referenceSha256": "e9a5d289ebf3d067161b3b78ef0030b340ad67e1f998def8528f506730969e0c",
+      "geometrySha256": "1bac3ded1083ff42991d5d2f3307a81197b639ccc650bf1bc7e1ea44e31bd6e6",
+      "detailSha256": "bb0cc2fce24ae46d4f866c8e92ee8e2f86715395cd8bb5789948b09009cdfac8",
+      "foregroundMaskSha256": "13df2e464461c295ee6331704d6bee675f24a87a9756d0d64195890e2b12bf0b",
+      "geometryForegroundMaskSha256": "27c41b45dc6154d38f72e34bc7dbb01fe179d90db419ff01cf4c2b26e51fdf64"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

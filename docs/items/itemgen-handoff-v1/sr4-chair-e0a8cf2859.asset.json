@@ -1,0 +1,402 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-chair-e0a8cf2859",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-profile-y180-left",
+      "pixel": [
+        490.0,
+        180.00000000000003
+      ]
+    },
+    {
+      "name": "outer-profile-y180-right",
+      "pixel": [
+        947.9999999999999,
+        180.00000000000003
+      ]
+    },
+    {
+      "name": "outer-profile-y400-left",
+      "pixel": [
+        484.0,
+        400.00000000000006
+      ]
+    },
+    {
+      "name": "outer-profile-y400-right",
+      "pixel": [
+        939.0000000000001,
+        400.00000000000006
+      ]
+    },
+    {
+      "name": "outer-profile-y750-left",
+      "pixel": [
+        303.0,
+        750.0
+      ]
+    },
+    {
+      "name": "outer-profile-y750-right",
+      "pixel": [
+        939.0000000000001,
+        750.0
+      ]
+    },
+    {
+      "name": "outer-profile-y1000-left",
+      "pixel": [
+        302.0,
+        1000.0
+      ]
+    },
+    {
+      "name": "outer-profile-y1000-right",
+      "pixel": [
+        949.0,
+        1000.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-chair-e0a8cf2859.family.json",
+    "sha256": "501fcc02e9aab5fc783ef20f594d7af6763bcb08a1d39b37d9d156a00936b8e6"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/a19c8db36ab2e80d829bf641ee575543d341741bc9c8e95332e9c54c266e5a93.png",
+      "sha256": "a19c8db36ab2e80d829bf641ee575543d341741bc9c8e95332e9c54c266e5a93"
+    },
+    "clayReference": {
+      "path": "inputs/f1b88782149e5a108b6944adad5817ed466372a1af7c79c64242b32750fedc6c.png",
+      "sha256": "f1b88782149e5a108b6944adad5817ed466372a1af7c79c64242b32750fedc6c"
+    },
+    "geometry": {
+      "path": "inputs/76b04f49aec3e31f21151bb3735620a6b01409404caa5e5e90b7d6d957d1ebed.png",
+      "sha256": "76b04f49aec3e31f21151bb3735620a6b01409404caa5e5e90b7d6d957d1ebed"
+    },
+    "detail": {
+      "path": "inputs/e5967996a6914e9e9ee859a2146f568e063d2d6a8e50da2c742da3b3e002b0b6.png",
+      "sha256": "e5967996a6914e9e9ee859a2146f568e063d2d6a8e50da2c742da3b3e002b0b6"
+    },
+    "foregroundMask": {
+      "path": "inputs/b25a141537f1b17c2a0c0f468d4e42c0285df4e38b8ff08688ec5a959b6bff05.png",
+      "sha256": "b25a141537f1b17c2a0c0f468d4e42c0285df4e38b8ff08688ec5a959b6bff05"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182.png",
+      "sha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182"
+    },
+    "mask": {
+      "path": "inputs/33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182.png",
+      "sha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182"
+    },
+    "calibrationReference": {
+      "path": "inputs/6b85d44c4e88ff4ac4dd8c170332462173c638926370f930890ed8229321ccc0.png",
+      "sha256": "6b85d44c4e88ff4ac4dd8c170332462173c638926370f930890ed8229321ccc0"
+    },
+    "sourceAudit": {
+      "path": "inputs/cea9e40edf9553ce2fff94fe2a27847e2a045f75f1ef9c5260c3f395c80391b1.json",
+      "sha256": "cea9e40edf9553ce2fff94fe2a27847e2a045f75f1ef9c5260c3f395c80391b1"
+    },
+    "referenceApproval": {
+      "path": "inputs/80be6d6d789465b194db6abdebbea1f960529855e3a2c262c8a69f7ce3d63058.json",
+      "sha256": "80be6d6d789465b194db6abdebbea1f960529855e3a2c262c8a69f7ce3d63058"
+    },
+    "calibrationDetail": {
+      "path": "inputs/e8b9860a7e3efb290aac805d1764842b72c10594d1b89b2a42cd6f44a780ea42.png",
+      "sha256": "e8b9860a7e3efb290aac805d1764842b72c10594d1b89b2a42cd6f44a780ea42"
+    }
+  },
+  "features": [
+    {
+      "name": "Recognizable chair silhouette with ordinary seating/support structure. No specific design, material, leg count, folding mechanism or manufacturer is prescribed.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Three back slats, four legs, seat and load-bearing rails match the ordinary chair class. Clay preserves major joints while removing woodgrain and tiny texture. All nine enclosed background regions are reviewed real gaps between slats, rails and legs; preserve them, including the small rail-intersection triangle. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        900,
+        256,
+        980,
+        740
+      ],
+      "referenceAreaPixels": 30213,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1067,
+        264,
+        1136,
+        754
+      ],
+      "referenceAreaPixels": 22477,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1224,
+        273,
+        1293,
+        771
+      ],
+      "referenceAreaPixels": 22041,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1377,
+        284,
+        1447,
+        791
+      ],
+      "referenceAreaPixels": 24787,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        898,
+        807,
+        1424,
+        939
+      ],
+      "referenceAreaPixels": 38446,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1294,
+        1139,
+        1434,
+        1409
+      ],
+      "referenceAreaPixels": 24736,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        627,
+        1182,
+        823,
+        1365
+      ],
+      "referenceAreaPixels": 19941,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        911,
+        1230,
+        1194,
+        1383
+      ],
+      "referenceAreaPixels": 29215,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-9",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        817,
+        1307,
+        828,
+        1316
+      ],
+      "referenceAreaPixels": 58,
+      "referenceMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "a19c8db36ab2e80d829bf641ee575543d341741bc9c8e95332e9c54c266e5a93",
+      "imageSha256": "e5967996a6914e9e9ee859a2146f568e063d2d6a8e50da2c742da3b3e002b0b6",
+      "maskSha256": "b25a141537f1b17c2a0c0f468d4e42c0285df4e38b8ff08688ec5a959b6bff05",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Three back slats, four legs, seat and load-bearing rails match the ordinary chair class. Clay preserves major joints while removing woodgrain and tiny texture. All nine enclosed background regions are reviewed real gaps between slats, rails and legs; preserve them, including the small rail-intersection triangle. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f1b88782149e5a108b6944adad5817ed466372a1af7c79c64242b32750fedc6c",
+      "imageSha256": "76b04f49aec3e31f21151bb3735620a6b01409404caa5e5e90b7d6d957d1ebed",
+      "maskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Three back slats, four legs, seat and load-bearing rails match the ordinary chair class. Clay preserves major joints while removing woodgrain and tiny texture. All nine enclosed background regions are reviewed real gaps between slats, rails and legs; preserve them, including the small rail-intersection triangle. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Three back slats, four legs, seat and load-bearing rails match the ordinary chair class. Clay preserves major joints while removing woodgrain and tiny texture. All nine enclosed background regions are reviewed real gaps between slats, rails and legs; preserve them, including the small rail-intersection triangle. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K.",
+      "landmarks": [
+        {
+          "name": "outer-profile-y180-left",
+          "detail": [
+            0.40026563084767963,
+            0.16377818433544306
+          ],
+          "geometry": [
+            0.40026563084767963,
+            0.16377818433544306
+          ]
+        },
+        {
+          "name": "outer-profile-y180-right",
+          "detail": [
+            0.7481016969966316,
+            0.16377818433544306
+          ],
+          "geometry": [
+            0.7488611643899701,
+            0.16377818433544306
+          ]
+        },
+        {
+          "name": "outer-profile-y400-left",
+          "detail": [
+            0.3957088264876497,
+            0.3309393130274262
+          ],
+          "geometry": [
+            0.3957088264876497,
+            0.3309393130274262
+          ]
+        },
+        {
+          "name": "outer-profile-y400-right",
+          "detail": [
+            0.7412664904565869,
+            0.3309393130274262
+          ],
+          "geometry": [
+            0.7427854252432635,
+            0.3309393130274262
+          ]
+        },
+        {
+          "name": "outer-profile-y750-left",
+          "detail": [
+            0.2582452282934132,
+            0.5968774723101266
+          ],
+          "geometry": [
+            0.2590046956867515,
+            0.5968774723101266
+          ]
+        },
+        {
+          "name": "outer-profile-y750-right",
+          "detail": [
+            0.7412664904565869,
+            0.5968774723101266
+          ],
+          "geometry": [
+            0.7420259578499251,
+            0.5968774723101266
+          ]
+        },
+        {
+          "name": "outer-profile-y1000-left",
+          "detail": [
+            0.25748576090007486,
+            0.7868333003691983
+          ],
+          "geometry": [
+            0.2582452282934132,
+            0.7868333003691983
+          ]
+        },
+        {
+          "name": "outer-profile-y1000-right",
+          "detail": [
+            0.7488611643899701,
+            0.7868333003691983
+          ],
+          "geometry": [
+            0.7503800991766467,
+            0.7868333003691983
+          ]
+        }
+      ],
+      "referenceSha256": "a19c8db36ab2e80d829bf641ee575543d341741bc9c8e95332e9c54c266e5a93",
+      "geometrySha256": "76b04f49aec3e31f21151bb3735620a6b01409404caa5e5e90b7d6d957d1ebed",
+      "detailSha256": "e5967996a6914e9e9ee859a2146f568e063d2d6a8e50da2c742da3b3e002b0b6",
+      "foregroundMaskSha256": "b25a141537f1b17c2a0c0f468d4e42c0285df4e38b8ff08688ec5a959b6bff05",
+      "geometryForegroundMaskSha256": "33963982bb6d1e87b0cf6263b9497b66aa88c28e651aa133dda043afa0b80182"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

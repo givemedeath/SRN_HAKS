@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-shock-frills-ae177f8fd6",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "neck-upper",
+      "pixel": [
+        1060.925925925926,
+        111.55440414507773
+      ]
+    },
+    {
+      "name": "chest-plate-left-round-joint",
+      "pixel": [
+        1128.448,
+        1038.336
+      ]
+    },
+    {
+      "name": "chest-plate-right-round-joint",
+      "pixel": [
+        1331.2,
+        1038.336
+      ]
+    },
+    {
+      "name": "torso-base-lower",
+      "pixel": [
+        1060.925925925926,
+        1941.2227979274612
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-shock-frills-ae177f8fd6.family.json",
+    "sha256": "86c6fa0f884fa8395efc6642cbaafcf8f5405f27519678f1fe541c7814314cf2"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f0f14af2a67a096624f698bf846e5b294623b2fe34dfef277f763bcbc1b5efab.png",
+      "sha256": "f0f14af2a67a096624f698bf846e5b294623b2fe34dfef277f763bcbc1b5efab"
+    },
+    "clayReference": {
+      "path": "inputs/fc9ad2cb35e470199cf401fc49d4411bab97bf2da5dd226628e539f6680a0a85.png",
+      "sha256": "fc9ad2cb35e470199cf401fc49d4411bab97bf2da5dd226628e539f6680a0a85"
+    },
+    "geometry": {
+      "path": "inputs/c7966ed188e655181abfa68abfe0c2b0f20fcf6350edd531b639f4cd081b9ac2.png",
+      "sha256": "c7966ed188e655181abfa68abfe0c2b0f20fcf6350edd531b639f4cd081b9ac2"
+    },
+    "detail": {
+      "path": "inputs/f33d38450690d75f042be2520aa04f54c859bcbe5f66da19cc0613ae0afaa5f1.png",
+      "sha256": "f33d38450690d75f042be2520aa04f54c859bcbe5f66da19cc0613ae0afaa5f1"
+    },
+    "foregroundMask": {
+      "path": "inputs/cf7e2a0992d495dd07363b37e012af5679de3d208bd8409a60f9b122d0291143.png",
+      "sha256": "cf7e2a0992d495dd07363b37e012af5679de3d208bd8409a60f9b122d0291143"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/924914b8d5d5faba277782efbfa8823c15473ded680672ec3ae9c5da83c15e58.png",
+      "sha256": "924914b8d5d5faba277782efbfa8823c15473ded680672ec3ae9c5da83c15e58"
+    },
+    "mask": {
+      "path": "inputs/924914b8d5d5faba277782efbfa8823c15473ded680672ec3ae9c5da83c15e58.png",
+      "sha256": "924914b8d5d5faba277782efbfa8823c15473ded680672ec3ae9c5da83c15e58"
+    },
+    "calibrationReference": {
+      "path": "inputs/441861d051245266441087ad9463bf67754e306b925b26953e489fa61f4faaca.png",
+      "sha256": "441861d051245266441087ad9463bf67754e306b925b26953e489fa61f4faaca"
+    },
+    "sourceAudit": {
+      "path": "inputs/5bf76cca9d90e836c27f3377f6f63ca3f25e32a580b0bbea5ccd20c90b3c7b54.json",
+      "sha256": "5bf76cca9d90e836c27f3377f6f63ca3f25e32a580b0bbea5ccd20c90b3c7b54"
+    },
+    "referenceApproval": {
+      "path": "inputs/41613a2abc2e32d94aab664e52673f15d2f6f26c8ce5c4168e4e327dc84f3e70.json",
+      "sha256": "41613a2abc2e32d94aab664e52673f15d2f6f26c8ce5c4168e4e327dc84f3e70"
+    },
+    "calibrationDetail": {
+      "path": "inputs/9f916048cb08830a6c7621c2003cb203794778523bfb68dfc32d9b8ef02203de.png",
+      "sha256": "9f916048cb08830a6c7621c2003cb203794778523bfb68dfc32d9b8ef02203de"
+    }
+  },
+  "features": [
+    {
+      "name": "Fur-like strips attached to armor, standing on end when activated",
+      "placementReviewed": true
+    },
+    {
+      "name": "Nonconductivity armor modification is required with the frills",
+      "placementReviewed": true
+    },
+    {
+      "name": "Electrical contact behavior does not require visible arcs, a hand weapon or a fixed armor model",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core316-317/PDF318-319 Shock Frills prose/table. Whole generic vest/mannequin has attached fur-like strips in chosen upright state and insulating lining; exact strip placement/armor exterior artistic, not nearby illustration canon. Clay correctly retains broad tuft-strip masses while simplifying fine individual hairs. Collar, shoulders, torso and base proportions match. Tiny hair fringe/alpha specks and shallow channels are nonblocking; no visible detached background or cast shadow. Positive margins/no clipping. Alpha topology metrics retain each role independently; small source hair holes/components do not imply major lost structure. Native1254 retained;2048 resampled; no native armor/body approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f0f14af2a67a096624f698bf846e5b294623b2fe34dfef277f763bcbc1b5efab",
+      "imageSha256": "f33d38450690d75f042be2520aa04f54c859bcbe5f66da19cc0613ae0afaa5f1",
+      "maskSha256": "cf7e2a0992d495dd07363b37e012af5679de3d208bd8409a60f9b122d0291143",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core316-317/PDF318-319 Shock Frills prose/table. Whole generic vest/mannequin has attached fur-like strips in chosen upright state and insulating lining; exact strip placement/armor exterior artistic, not nearby illustration canon. Clay correctly retains broad tuft-strip masses while simplifying fine individual hairs. Collar, shoulders, torso and base proportions match. Tiny hair fringe/alpha specks and shallow channels are nonblocking; no visible detached background or cast shadow. Positive margins/no clipping. Alpha topology metrics retain each role independently; small source hair holes/components do not imply major lost structure. Native1254 retained;2048 resampled; no native armor/body approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "fc9ad2cb35e470199cf401fc49d4411bab97bf2da5dd226628e539f6680a0a85",
+      "imageSha256": "c7966ed188e655181abfa68abfe0c2b0f20fcf6350edd531b639f4cd081b9ac2",
+      "maskSha256": "924914b8d5d5faba277782efbfa8823c15473ded680672ec3ae9c5da83c15e58",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core316-317/PDF318-319 Shock Frills prose/table. Whole generic vest/mannequin has attached fur-like strips in chosen upright state and insulating lining; exact strip placement/armor exterior artistic, not nearby illustration canon. Clay correctly retains broad tuft-strip masses while simplifying fine individual hairs. Collar, shoulders, torso and base proportions match. Tiny hair fringe/alpha specks and shallow channels are nonblocking; no visible detached background or cast shadow. Positive margins/no clipping. Alpha topology metrics retain each role independently; small source hair holes/components do not imply major lost structure. Native1254 retained;2048 resampled; no native armor/body approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "f0f14af2a67a096624f698bf846e5b294623b2fe34dfef277f763bcbc1b5efab",
+      "detailSha256": "f33d38450690d75f042be2520aa04f54c859bcbe5f66da19cc0613ae0afaa5f1",
+      "geometrySha256": "c7966ed188e655181abfa68abfe0c2b0f20fcf6350edd531b639f4cd081b9ac2",
+      "foregroundMaskSha256": "cf7e2a0992d495dd07363b37e012af5679de3d208bd8409a60f9b122d0291143",
+      "geometryForegroundMaskSha256": "924914b8d5d5faba277782efbfa8823c15473ded680672ec3ae9c5da83c15e58",
+      "landmarks": [
+        {
+          "name": "neck-upper",
+          "detail": [
+            0.5180302372685186,
+            0.05446992389896373
+          ],
+          "geometry": [
+            0.5180302372685186,
+            0.05213730569948186
+          ]
+        },
+        {
+          "name": "chest-plate-left-round-joint",
+          "detail": [
+            0.551,
+            0.507
+          ],
+          "geometry": [
+            0.551,
+            0.51
+          ]
+        },
+        {
+          "name": "chest-plate-right-round-joint",
+          "detail": [
+            0.65,
+            0.507
+          ],
+          "geometry": [
+            0.65,
+            0.51
+          ]
+        },
+        {
+          "name": "torso-base-lower",
+          "detail": [
+            0.5180302372685186,
+            0.9478626943005182
+          ],
+          "geometry": [
+            0.5180302372685186,
+            0.9486402337003454
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core316-317/PDF318-319 Shock Frills prose/table. Whole generic vest/mannequin has attached fur-like strips in chosen upright state and insulating lining; exact strip placement/armor exterior artistic, not nearby illustration canon. Clay correctly retains broad tuft-strip masses while simplifying fine individual hairs. Collar, shoulders, torso and base proportions match. Tiny hair fringe/alpha specks and shallow channels are nonblocking; no visible detached background or cast shadow. Positive margins/no clipping. Alpha topology metrics retain each role independently; small source hair holes/components do not imply major lost structure. Native1254 retained;2048 resampled; no native armor/body approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

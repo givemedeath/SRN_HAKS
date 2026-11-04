@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-beretta-200st-ffe5110de5",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle",
+      "pixel": [
+        1210.0,
+        470.0
+      ]
+    },
+    {
+      "name": "stock-opening",
+      "pixel": [
+        300.0,
+        540.0
+      ]
+    },
+    {
+      "name": "stock-base",
+      "pixel": [
+        99.99999999999999,
+        735.0
+      ]
+    },
+    {
+      "name": "trigger",
+      "pixel": [
+        935.0,
+        590.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-beretta-200st-ffe5110de5.family.json",
+    "sha256": "11afe056bd582457a0b2a0aa418c7fcef613d6f9fdd208052ed5c402ef688b6e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/fa465b387580f108f6792f33ec184026ec31a5b1fedb5e10294532f81e83909b.png",
+      "sha256": "fa465b387580f108f6792f33ec184026ec31a5b1fedb5e10294532f81e83909b"
+    },
+    "clayReference": {
+      "path": "inputs/c2ea4e3fbb5087031d5da3060e1436b6856cbb9a77d2d3d9a91ab7df584a88c5.png",
+      "sha256": "c2ea4e3fbb5087031d5da3060e1436b6856cbb9a77d2d3d9a91ab7df584a88c5"
+    },
+    "geometry": {
+      "path": "inputs/6aea7e68697eaaa6fc1160245a6137bfad0d1821362b8d8a70c683a99b39e782.png",
+      "sha256": "6aea7e68697eaaa6fc1160245a6137bfad0d1821362b8d8a70c683a99b39e782"
+    },
+    "detail": {
+      "path": "inputs/740c26e2812b37ecbdc9b9992aa268b399264d4ed8a8d79aa6ce1aeabbc5cf4e.png",
+      "sha256": "740c26e2812b37ecbdc9b9992aa268b399264d4ed8a8d79aa6ce1aeabbc5cf4e"
+    },
+    "foregroundMask": {
+      "path": "inputs/8b0ba58f5f9b42fc27334af22dba7221cb527db7e22cffc80ba85c74673f11e1.png",
+      "sha256": "8b0ba58f5f9b42fc27334af22dba7221cb527db7e22cffc80ba85c74673f11e1"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1.png",
+      "sha256": "c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1"
+    },
+    "mask": {
+      "path": "inputs/c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1.png",
+      "sha256": "c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1"
+    },
+    "calibrationReference": {
+      "path": "inputs/d483bbfd4e01b306905e2514dad6736210213b217b2ccfa06cf0f54b1c7095df.png",
+      "sha256": "d483bbfd4e01b306905e2514dad6736210213b217b2ccfa06cf0f54b1c7095df"
+    },
+    "sourceAudit": {
+      "path": "inputs/314a58760934d50bd5e26b8803c60fa1b80c068254458a767336cf638040a593.json",
+      "sha256": "314a58760934d50bd5e26b8803c60fa1b80c068254458a767336cf638040a593"
+    },
+    "referenceApproval": {
+      "path": "inputs/9253f7e3c59bcd696cb3f733ef51ca9ac332099481ae5ce925eb11314ecc42d2.json",
+      "sha256": "9253f7e3c59bcd696cb3f733ef51ca9ac332099481ae5ce925eb11314ecc42d2"
+    },
+    "calibrationDetail": {
+      "path": "inputs/eada3de29f8afe85e44111f39e4f0bf3e1d9b412ba55e0f1546ef73b176ca4d0.png",
+      "sha256": "eada3de29f8afe85e44111f39e4f0bf3e1d9b412ba55e0f1546ef73b176ca4d0"
+    }
+  },
+  "features": [
+    {
+      "name": "Light pistol class with a detachable shoulder stock included.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: complete attached stock, three openings, receiver, grip and raised controls preserved. Source/output topology unchanged. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        395,
+        830,
+        710,
+        945
+      ],
+      "referenceAreaPixels": 21360,
+      "referenceMaskSha256": "c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1431,
+        905,
+        1556,
+        1021
+      ],
+      "referenceAreaPixels": 12080,
+      "referenceMaskSha256": "c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        282,
+        958,
+        331,
+        1100
+      ],
+      "referenceAreaPixels": 3064,
+      "referenceMaskSha256": "c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "fa465b387580f108f6792f33ec184026ec31a5b1fedb5e10294532f81e83909b",
+      "imageSha256": "740c26e2812b37ecbdc9b9992aa268b399264d4ed8a8d79aa6ce1aeabbc5cf4e",
+      "maskSha256": "8b0ba58f5f9b42fc27334af22dba7221cb527db7e22cffc80ba85c74673f11e1",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: complete attached stock, three openings, receiver, grip and raised controls preserved. Source/output topology unchanged. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c2ea4e3fbb5087031d5da3060e1436b6856cbb9a77d2d3d9a91ab7df584a88c5",
+      "imageSha256": "6aea7e68697eaaa6fc1160245a6137bfad0d1821362b8d8a70c683a99b39e782",
+      "maskSha256": "c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: complete attached stock, three openings, receiver, grip and raised controls preserved. Source/output topology unchanged. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: complete attached stock, three openings, receiver, grip and raised controls preserved. Source/output topology unchanged. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "muzzle",
+          "detail": [
+            0.9345298583782105,
+            0.3806141774891775
+          ],
+          "geometry": [
+            0.9345298583782105,
+            0.3806141774891775
+          ]
+        },
+        {
+          "name": "stock-opening",
+          "detail": [
+            0.2556935131006628,
+            0.43284547483766234
+          ],
+          "geometry": [
+            0.2556935131006628,
+            0.43284547483766234
+          ]
+        },
+        {
+          "name": "stock-base",
+          "detail": [
+            0.10649871194076221,
+            0.5783469460227273
+          ],
+          "geometry": [
+            0.10649871194076221,
+            0.5783469460227273
+          ]
+        },
+        {
+          "name": "trigger",
+          "detail": [
+            0.7293870067833471,
+            0.4701535443722944
+          ],
+          "geometry": [
+            0.7293870067833471,
+            0.4701535443722944
+          ]
+        }
+      ],
+      "referenceSha256": "fa465b387580f108f6792f33ec184026ec31a5b1fedb5e10294532f81e83909b",
+      "geometrySha256": "6aea7e68697eaaa6fc1160245a6137bfad0d1821362b8d8a70c683a99b39e782",
+      "detailSha256": "740c26e2812b37ecbdc9b9992aa268b399264d4ed8a8d79aa6ce1aeabbc5cf4e",
+      "geometryForegroundMaskSha256": "c58e194b12a8a02847a2521981d97b4f305c355aedec7efc5a66f8c8a22748c1",
+      "foregroundMaskSha256": "8b0ba58f5f9b42fc27334af22dba7221cb527db7e22cffc80ba85c74673f11e1"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

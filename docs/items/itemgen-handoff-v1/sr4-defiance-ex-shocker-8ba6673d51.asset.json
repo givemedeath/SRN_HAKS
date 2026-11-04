@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-defiance-ex-shocker-8ba6673d51",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-sight-top",
+      "pixel": [
+        490.0,
+        111.99999999999999
+      ]
+    },
+    {
+      "name": "front-sight-top",
+      "pixel": [
+        1300.0,
+        125.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        780.0,
+        593.0
+      ]
+    },
+    {
+      "name": "grip-bottom",
+      "pixel": [
+        300.0,
+        908.0
+      ]
+    },
+    {
+      "name": "front-contact-top",
+      "pixel": [
+        1440.0,
+        157.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-defiance-ex-shocker-8ba6673d51.family.json",
+    "sha256": "c6338a61a387c52476e5964e888a6501953990657f70ecd9efda71e937060050"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/577a922ffe63f2f03409311206d908d70fe3fc1f93dbeea25c805127d0229b11.png",
+      "sha256": "577a922ffe63f2f03409311206d908d70fe3fc1f93dbeea25c805127d0229b11"
+    },
+    "clayReference": {
+      "path": "inputs/4f40d822b6f479043afef1cb9e498ce6144f002e36a0c4f51ec24eadd3758c32.png",
+      "sha256": "4f40d822b6f479043afef1cb9e498ce6144f002e36a0c4f51ec24eadd3758c32"
+    },
+    "geometry": {
+      "path": "inputs/7793f91616cdc18a70ee9fd3e8da611e3a25e032d7daa322ea3bbab4acb29c80.png",
+      "sha256": "7793f91616cdc18a70ee9fd3e8da611e3a25e032d7daa322ea3bbab4acb29c80"
+    },
+    "detail": {
+      "path": "inputs/752a805e18cea24b2955bf82c68736a90dfa64c60e9a259f1b13f9040e4101f7.png",
+      "sha256": "752a805e18cea24b2955bf82c68736a90dfa64c60e9a259f1b13f9040e4101f7"
+    },
+    "foregroundMask": {
+      "path": "inputs/4c9eccafdc66137ac74d81cb0c9546c78a7541d41fd2983ca054042c13ce8527.png",
+      "sha256": "4c9eccafdc66137ac74d81cb0c9546c78a7541d41fd2983ca054042c13ce8527"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/67f18fd790a4a9ba6d6cc468cf750b95b839af32ac7f890b73e40db7600147d1.png",
+      "sha256": "67f18fd790a4a9ba6d6cc468cf750b95b839af32ac7f890b73e40db7600147d1"
+    },
+    "mask": {
+      "path": "inputs/67f18fd790a4a9ba6d6cc468cf750b95b839af32ac7f890b73e40db7600147d1.png",
+      "sha256": "67f18fd790a4a9ba6d6cc468cf750b95b839af32ac7f890b73e40db7600147d1"
+    },
+    "calibrationReference": {
+      "path": "inputs/7711250c59a08c662498964603ebbb0caa7ce74e05cfccd10b943e35c5729af2.png",
+      "sha256": "7711250c59a08c662498964603ebbb0caa7ce74e05cfccd10b943e35c5729af2"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/fab5a2a310e4238d06891cd20d8d10200d7fbb35f8e790b7d8652c4f66c8ecbb.json",
+      "sha256": "fab5a2a310e4238d06891cd20d8d10200d7fbb35f8e790b7d8652c4f66c8ecbb"
+    },
+    "referenceApproval": {
+      "path": "inputs/8eeda4a3926cc3e58d2cd3f23a72e0e5d21b4b86825edd4b4a13e11377adf00d.json",
+      "sha256": "8eeda4a3926cc3e58d2cd3f23a72e0e5d21b4b86825edd4b4a13e11377adf00d"
+    },
+    "calibrationDetail": {
+      "path": "inputs/3b49ad09d9923493c8b260cb33fe6b32c0ae89b09e75d335c6fe4b803332ce65.png",
+      "sha256": "3b49ad09d9923493c8b260cb33fe6b32c0ae89b09e75d335c6fe4b803332ce65"
+    }
+  },
+  "features": [
+    {
+      "name": "Wired-dart taser with contacts for close contact; source does not specify their corner placement.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned reviewer: source-description-based Defiance wired-dart/contact taser interpretation retained, without attributing unlabeled nearby art. Smooth clay fills tiny cuts/stipple/ribs. Major forms and two guard voids retained. Uniform common crop/scale with five landmarks; maximum normalized offset0.00390625. Reference-only approval, no geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        887,
+        841,
+        1125,
+        1071
+      ],
+      "referenceAreaPixels": 42528,
+      "referenceMaskSha256": "67f18fd790a4a9ba6d6cc468cf750b95b839af32ac7f890b73e40db7600147d1",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        732,
+        880,
+        869,
+        1045
+      ],
+      "referenceAreaPixels": 8845,
+      "referenceMaskSha256": "67f18fd790a4a9ba6d6cc468cf750b95b839af32ac7f890b73e40db7600147d1",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "577a922ffe63f2f03409311206d908d70fe3fc1f93dbeea25c805127d0229b11",
+      "imageSha256": "752a805e18cea24b2955bf82c68736a90dfa64c60e9a259f1b13f9040e4101f7",
+      "maskSha256": "4c9eccafdc66137ac74d81cb0c9546c78a7541d41fd2983ca054042c13ce8527",
+      "notes": "Assigned final reference reviewer inspected actual source page, original pair, native and2048masks/teal previews and paired overlay. Both intentional trigger spaces are transparent; trigger, guard, contacts and silhouette retained. One clay antialias boundary pixel at808,391 was explicitly classified as fringe, not a subject part; matte count remains1, not falsely zero. No broad halo, clipping or detached foreground; feathered boundary retained. Independent masks, no transfer or warp."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4f40d822b6f479043afef1cb9e498ce6144f002e36a0c4f51ec24eadd3758c32",
+      "imageSha256": "7793f91616cdc18a70ee9fd3e8da611e3a25e032d7daa322ea3bbab4acb29c80",
+      "maskSha256": "67f18fd790a4a9ba6d6cc468cf750b95b839af32ac7f890b73e40db7600147d1",
+      "notes": "Assigned final reference reviewer inspected actual source page, original pair, native and2048masks/teal previews and paired overlay. Both intentional trigger spaces are transparent; trigger, guard, contacts and silhouette retained. One clay antialias boundary pixel at808,391 was explicitly classified as fringe, not a subject part; matte count remains1, not falsely zero. No broad halo, clipping or detached foreground; feathered boundary retained. Independent masks, no transfer or warp."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned reviewer: source-description-based Defiance wired-dart/contact taser interpretation retained, without attributing unlabeled nearby art. Smooth clay fills tiny cuts/stipple/ribs. Major forms and two guard voids retained. Uniform common crop/scale with five landmarks; maximum normalized offset0.00390625. Reference-only approval, no geometry/native/client/production approval.",
+      "landmarks": [
+        {
+          "name": "rear-sight-top",
+          "detail": [
+            0.31497037807525324,
+            0.23551591082317072
+          ],
+          "geometry": [
+            0.31497037807525324,
+            0.23356159489329267
+          ]
+        },
+        {
+          "name": "front-sight-top",
+          "detail": [
+            0.8426957082127352,
+            0.2439846131859756
+          ],
+          "geometry": [
+            0.8426957082127352,
+            0.2413788586128049
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.5039090765195369,
+            0.5488578982469512
+          ],
+          "geometry": [
+            0.5039090765195369,
+            0.5482064596036585
+          ]
+        },
+        {
+          "name": "grip-bottom",
+          "detail": [
+            0.19118295495658466,
+            0.7540610708841463
+          ],
+          "geometry": [
+            0.19118295495658466,
+            0.7534096322408537
+          ]
+        },
+        {
+          "name": "front-contact-top",
+          "detail": [
+            0.9339074936685963,
+            0.26483064977134146
+          ],
+          "geometry": [
+            0.9339074936685963,
+            0.2635277724847561
+          ]
+        }
+      ],
+      "referenceSha256": "577a922ffe63f2f03409311206d908d70fe3fc1f93dbeea25c805127d0229b11",
+      "geometrySha256": "7793f91616cdc18a70ee9fd3e8da611e3a25e032d7daa322ea3bbab4acb29c80",
+      "detailSha256": "752a805e18cea24b2955bf82c68736a90dfa64c60e9a259f1b13f9040e4101f7",
+      "foregroundMaskSha256": "4c9eccafdc66137ac74d81cb0c9546c78a7541d41fd2983ca054042c13ce8527",
+      "geometryForegroundMaskSha256": "67f18fd790a4a9ba6d6cc468cf750b95b839af32ac7f890b73e40db7600147d1"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

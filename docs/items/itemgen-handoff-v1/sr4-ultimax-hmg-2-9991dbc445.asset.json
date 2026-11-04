@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ultimax-hmg-2-9991dbc445",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "pad-stock-left-boundary-native-row400",
+      "pixel": [
+        22.0,
+        400.0
+      ]
+    },
+    {
+      "name": "top-silhouette-tangent",
+      "pixel": [
+        1082.5,
+        132.0
+      ]
+    },
+    {
+      "name": "muzzle-right-tangent",
+      "pixel": [
+        1238.0,
+        195.0
+      ]
+    },
+    {
+      "name": "pad-foot-bottom-tangent",
+      "pixel": [
+        174.50000000000003,
+        1161.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ultimax-hmg-2-9991dbc445.family.json",
+    "sha256": "53e0e08752b978a28bf2af696108e6d12d0e700fb322ed799ca0508ba3086516"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/4420a595a7e69c7c80fc0cf5e3f43c7547c7e0c691080de5790c389f79c218b0.png",
+      "sha256": "4420a595a7e69c7c80fc0cf5e3f43c7547c7e0c691080de5790c389f79c218b0"
+    },
+    "clayReference": {
+      "path": "inputs/eea9851a35b3c1d2ec0a0df5b916aabb38f095885127cd14b023c2222192844a.png",
+      "sha256": "eea9851a35b3c1d2ec0a0df5b916aabb38f095885127cd14b023c2222192844a"
+    },
+    "geometry": {
+      "path": "inputs/7645e883be82fdcd5c3828b89a8015b40fe9daff518f50043b0c408a2b214e9f.png",
+      "sha256": "7645e883be82fdcd5c3828b89a8015b40fe9daff518f50043b0c408a2b214e9f"
+    },
+    "detail": {
+      "path": "inputs/c386adba75084714f08f1c0e1d7484723d1060e99c8595a99560b0dc05977467.png",
+      "sha256": "c386adba75084714f08f1c0e1d7484723d1060e99c8595a99560b0dc05977467"
+    },
+    "foregroundMask": {
+      "path": "inputs/f926dd200082efced8099141d1d00b2f9d8873caca4ba1b185cbc90a00cdd640.png",
+      "sha256": "f926dd200082efced8099141d1d00b2f9d8873caca4ba1b185cbc90a00cdd640"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/5058ebf3ebe3aff4a868cf934bf42db268841e02bba6a848093bee5a1ba55859.png",
+      "sha256": "5058ebf3ebe3aff4a868cf934bf42db268841e02bba6a848093bee5a1ba55859"
+    },
+    "mask": {
+      "path": "inputs/5058ebf3ebe3aff4a868cf934bf42db268841e02bba6a848093bee5a1ba55859.png",
+      "sha256": "5058ebf3ebe3aff4a868cf934bf42db268841e02bba6a848093bee5a1ba55859"
+    },
+    "calibrationReference": {
+      "path": "inputs/d4175f055be67106e9fc4b179a2bd852be1fb68211ef630760dd8fe46eed5bec.png",
+      "sha256": "d4175f055be67106e9fc4b179a2bd852be1fb68211ef630760dd8fe46eed5bec"
+    },
+    "sourceAudit": {
+      "path": "inputs/935246337f721aecabf0049471fae6cb889efb1b42c53efb245abb8d38cd3a8e.json",
+      "sha256": "935246337f721aecabf0049471fae6cb889efb1b42c53efb245abb8d38cd3a8e"
+    },
+    "referenceApproval": {
+      "path": "inputs/23b37384c7f9e1696107bc42060cc8b04253a30913845ca382771e72faa0a7c7.json",
+      "sha256": "23b37384c7f9e1696107bc42060cc8b04253a30913845ca382771e72faa0a7c7"
+    },
+    "calibrationDetail": {
+      "path": "inputs/30b8c94978246ee1db57272ad49d13f869de403a8a816d082940281c6cfdcbee.png",
+      "sha256": "30b8c94978246ee1db57272ad49d13f869de403a8a816d082940281c6cfdcbee"
+    }
+  },
+  "features": [
+    {
+      "name": "Detachable tripod, rigid stock with shock pad, gas-vent 3 system (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Table permits clip or belt feed; exact receiver/stock proportions remain unspecified by art in the reviewed pages.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete coherent source form, matched framing, structural openings and thin supports preserved. Three distinct tripod legs/feet and padded rigid stock retained. Native1254 originals preserved, 2048 resampling disclosed; no new image call or source edits for conditioning. Shallow cosmetic differences nonblocking.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        954,
+        322,
+        1130,
+        403
+      ],
+      "referenceAreaPixels": 10518,
+      "referenceMaskSha256": "5058ebf3ebe3aff4a868cf934bf42db268841e02bba6a848093bee5a1ba55859",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        765,
+        644,
+        805,
+        711
+      ],
+      "referenceAreaPixels": 2217,
+      "referenceMaskSha256": "5058ebf3ebe3aff4a868cf934bf42db268841e02bba6a848093bee5a1ba55859",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4420a595a7e69c7c80fc0cf5e3f43c7547c7e0c691080de5790c389f79c218b0",
+      "imageSha256": "c386adba75084714f08f1c0e1d7484723d1060e99c8595a99560b0dc05977467",
+      "maskSha256": "f926dd200082efced8099141d1d00b2f9d8873caca4ba1b185cbc90a00cdd640",
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete coherent source form, matched framing, structural openings and thin supports preserved. Three distinct tripod legs/feet and padded rigid stock retained. Native1254 originals preserved, 2048 resampling disclosed; no new image call or source edits for conditioning. Shallow cosmetic differences nonblocking."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "eea9851a35b3c1d2ec0a0df5b916aabb38f095885127cd14b023c2222192844a",
+      "imageSha256": "7645e883be82fdcd5c3828b89a8015b40fe9daff518f50043b0c408a2b214e9f",
+      "maskSha256": "5058ebf3ebe3aff4a868cf934bf42db268841e02bba6a848093bee5a1ba55859",
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete coherent source form, matched framing, structural openings and thin supports preserved. Three distinct tripod legs/feet and padded rigid stock retained. Native1254 originals preserved, 2048 resampling disclosed; no new image call or source edits for conditioning. Shallow cosmetic differences nonblocking."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "4420a595a7e69c7c80fc0cf5e3f43c7547c7e0c691080de5790c389f79c218b0",
+      "detailSha256": "c386adba75084714f08f1c0e1d7484723d1060e99c8595a99560b0dc05977467",
+      "geometrySha256": "7645e883be82fdcd5c3828b89a8015b40fe9daff518f50043b0c408a2b214e9f",
+      "foregroundMaskSha256": "f926dd200082efced8099141d1d00b2f9d8873caca4ba1b185cbc90a00cdd640",
+      "geometryForegroundMaskSha256": "5058ebf3ebe3aff4a868cf934bf42db268841e02bba6a848093bee5a1ba55859",
+      "landmarks": [
+        {
+          "name": "pad-stock-left-boundary-native-row400",
+          "detail": [
+            0.05201876280737705,
+            0.3173828125
+          ],
+          "geometry": [
+            0.051280737704918034,
+            0.3173828125
+          ]
+        },
+        {
+          "name": "top-silhouette-tangent",
+          "detail": [
+            0.8346943839651639,
+            0.11963975694444444
+          ],
+          "geometry": [
+            0.8328493212090164,
+            0.1181640625
+          ]
+        },
+        {
+          "name": "muzzle-right-tangent",
+          "detail": [
+            0.949457287397541,
+            0.16612413194444445
+          ],
+          "geometry": [
+            0.948719262295082,
+            0.16612413194444445
+          ]
+        },
+        {
+          "name": "pad-foot-bottom-tangent",
+          "detail": [
+            0.16456759093237708,
+            0.8788845486111111
+          ],
+          "geometry": [
+            0.16456759093237708,
+            0.8810980902777777
+          ]
+        }
+      ],
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete coherent source form, matched framing, structural openings and thin supports preserved. Three distinct tripod legs/feet and padded rigid stock retained. Native1254 originals preserved, 2048 resampling disclosed; no new image call or source edits for conditioning. Shallow cosmetic differences nonblocking."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

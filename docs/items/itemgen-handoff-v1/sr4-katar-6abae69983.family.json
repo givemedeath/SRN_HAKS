@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "dagger",
+  "nativePackaging": "pending-contract",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "targetFaceCount": 200000,
+    "signMode": "udf"
+  },
+  "budgets": {
+    "visible": 5000,
+    "shadow": 500,
+    "parts": {
+      "b": {
+        "meaning": "pommel",
+        "visible": 750,
+        "shadow": 100
+      },
+      "m": {
+        "meaning": "grip",
+        "visible": 1125,
+        "shadow": 100
+      },
+      "t": {
+        "meaning": "blade and guard",
+        "visible": 3125,
+        "shadow": 300
+      }
+    }
+  },
+  "allowedAssemblies": [
+    {
+      "b": "sr4-katar-6abae69983",
+      "m": "sr4-katar-6abae69983",
+      "t": "sr4-katar-6abae69983"
+    }
+  ],
+  "native": {
+    "reviewed": false
+  },
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr6abae699",
+    "blueprint": "sr6abae699",
+    "hak": "sr6abae699h",
+    "module": "sr6abae699m",
+    "displayName": "Katar"
+  }
+}

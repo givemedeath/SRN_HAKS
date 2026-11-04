@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-knife-4951b06237",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "tip",
+      "pixel": [
+        81.9588,
+        413.9629
+      ]
+    },
+    {
+      "name": "guard-top",
+      "pixel": [
+        897.644,
+        315.772
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        979.248,
+        572.115
+      ]
+    },
+    {
+      "name": "finger-choil",
+      "pixel": [
+        1073.27,
+        496.72
+      ]
+    },
+    {
+      "name": "grip-top",
+      "pixel": [
+        1248.896,
+        327.303
+      ]
+    },
+    {
+      "name": "pommel-end",
+      "pixel": [
+        1699.492,
+        460.353
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-knife-4951b06237.family.json",
+    "sha256": "219804bab3ccb4a2dae97b8c4f20b3068d0880b55eaca3606799bd45a1e34f09"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/6854f33bbfeaf8c64068332baa02c10d6a33b43d99fe1289c1f9bd50661785f5.png",
+      "sha256": "6854f33bbfeaf8c64068332baa02c10d6a33b43d99fe1289c1f9bd50661785f5"
+    },
+    "clayReference": {
+      "path": "inputs/ffac79f36ae666048f65c04cc2d0108e0220f2f1be9da0864db6350d7e008dcd.png",
+      "sha256": "ffac79f36ae666048f65c04cc2d0108e0220f2f1be9da0864db6350d7e008dcd"
+    },
+    "geometry": {
+      "path": "inputs/d65bb9f944de9b94c0fd34158ddd14bdac9e432e712f39670028f52c2834ec95.png",
+      "sha256": "d65bb9f944de9b94c0fd34158ddd14bdac9e432e712f39670028f52c2834ec95"
+    },
+    "detail": {
+      "path": "inputs/27dd74f623dc3d15e84479e9fd032a6c38baff3c9516877614ed48416e4e60e4.png",
+      "sha256": "27dd74f623dc3d15e84479e9fd032a6c38baff3c9516877614ed48416e4e60e4"
+    },
+    "foregroundMask": {
+      "path": "inputs/bf9988366bf5b39d49a86526ed98f9ca61bab1ff85ca0a46874bab3ac7b408d5.png",
+      "sha256": "bf9988366bf5b39d49a86526ed98f9ca61bab1ff85ca0a46874bab3ac7b408d5"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/44904c780695101d2956b7d54c7a9c2d4d6d7f5f0a4d791f3be1e9937a056784.png",
+      "sha256": "44904c780695101d2956b7d54c7a9c2d4d6d7f5f0a4d791f3be1e9937a056784"
+    },
+    "mask": {
+      "path": "inputs/44904c780695101d2956b7d54c7a9c2d4d6d7f5f0a4d791f3be1e9937a056784.png",
+      "sha256": "44904c780695101d2956b7d54c7a9c2d4d6d7f5f0a4d791f3be1e9937a056784"
+    },
+    "calibrationReference": {
+      "path": "inputs/1efa39f13b737c430bc850c4c7b0d74d3babf097d25d034029f83140be824a7f.png",
+      "sha256": "1efa39f13b737c430bc850c4c7b0d74d3babf097d25d034029f83140be824a7f"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/64eb0183b0f6b9705d1ed665b9488d0adf23c8a0c592973d8ef40af4204ce2f1.json",
+      "sha256": "64eb0183b0f6b9705d1ed665b9488d0adf23c8a0c592973d8ef40af4204ce2f1"
+    },
+    "referenceApproval": {
+      "path": "inputs/c3f44f98823447161bf8bfe7ac875dce3d56de5292c17905739e85c4a32c9142.json",
+      "sha256": "c3f44f98823447161bf8bfe7ac875dce3d56de5292c17905739e85c4a32c9142"
+    },
+    "calibrationDetail": {
+      "path": "inputs/c740189961039d620165f2c499b7a8d81a9455ad76ab309c9869dd0c0ce50eaf.png",
+      "sha256": "c740189961039d620165f2c499b7a8d81a9455ad76ab309c9869dd0c0ce50eaf"
+    }
+  },
+  "features": [
+    {
+      "name": "Preserve the complete source-approved exterior, structural members and intentional openings.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Parent inspected actual detail/clay teal previews and overlay against Core printed305/PDF307 generic all-purpose cutting-tool description. Point, thin blade outline, major bevel, solid guard, exterior-open choil, grip and pommel remain complete. Clay removes grip microtexture and tiny marks. No cast shadow, detached foreground or filled intentional opening. Exact knife styling is artistic interpretation. Common crop/scale retains paired proportions; numerical success was followed by actual visual review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6854f33bbfeaf8c64068332baa02c10d6a33b43d99fe1289c1f9bd50661785f5",
+      "imageSha256": "27dd74f623dc3d15e84479e9fd032a6c38baff3c9516877614ed48416e4e60e4",
+      "maskSha256": "bf9988366bf5b39d49a86526ed98f9ca61bab1ff85ca0a46874bab3ac7b408d5",
+      "notes": "Parent inspected actual detail/clay teal previews and overlay against Core printed305/PDF307 generic all-purpose cutting-tool description. Point, thin blade outline, major bevel, solid guard, exterior-open choil, grip and pommel remain complete. Clay removes grip microtexture and tiny marks. No cast shadow, detached foreground or filled intentional opening. Exact knife styling is artistic interpretation. Common crop/scale retains paired proportions; numerical success was followed by actual visual review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ffac79f36ae666048f65c04cc2d0108e0220f2f1be9da0864db6350d7e008dcd",
+      "imageSha256": "d65bb9f944de9b94c0fd34158ddd14bdac9e432e712f39670028f52c2834ec95",
+      "maskSha256": "44904c780695101d2956b7d54c7a9c2d4d6d7f5f0a4d791f3be1e9937a056784",
+      "notes": "Parent inspected actual detail/clay teal previews and overlay against Core printed305/PDF307 generic all-purpose cutting-tool description. Point, thin blade outline, major bevel, solid guard, exterior-open choil, grip and pommel remain complete. Clay removes grip microtexture and tiny marks. No cast shadow, detached foreground or filled intentional opening. Exact knife styling is artistic interpretation. Common crop/scale retains paired proportions; numerical success was followed by actual visual review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Parent inspected actual detail/clay teal previews and overlay against Core printed305/PDF307 generic all-purpose cutting-tool description. Point, thin blade outline, major bevel, solid guard, exterior-open choil, grip and pommel remain complete. Clay removes grip microtexture and tiny marks. No cast shadow, detached foreground or filled intentional opening. Exact knife styling is artistic interpretation. Common crop/scale retains paired proportions; numerical success was followed by actual visual review.",
+      "landmarks": [
+        {
+          "name": "tip",
+          "detail": [
+            0.05089271042180753,
+            0.48331819574487117
+          ],
+          "geometry": [
+            0.05040002289289019,
+            0.4822344402284113
+          ]
+        },
+        {
+          "name": "guard-top",
+          "detail": [
+            0.5039681620141888,
+            0.4287855886211832
+          ],
+          "geometry": [
+            0.5039681620141888,
+            0.42780035633349234
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.5492954146745836,
+            0.5711516541925096
+          ],
+          "geometry": [
+            0.5492954146745836,
+            0.5711516541925096
+          ]
+        },
+        {
+          "name": "finger-choil",
+          "detail": [
+            0.6015202927398211,
+            0.5292792819656489
+          ],
+          "geometry": [
+            0.6015202927398211,
+            0.5292792819656489
+          ]
+        },
+        {
+          "name": "grip-top",
+          "detail": [
+            0.6990724234654534,
+            0.43518959849117367
+          ],
+          "geometry": [
+            0.6990724234654534,
+            0.4342043662034828
+          ]
+        },
+        {
+          "name": "pommel-end",
+          "detail": [
+            0.9493576881554596,
+            0.5090820200679866
+          ],
+          "geometry": [
+            0.9493576881554596,
+            0.5090820200679866
+          ]
+        }
+      ],
+      "referenceSha256": "6854f33bbfeaf8c64068332baa02c10d6a33b43d99fe1289c1f9bd50661785f5",
+      "geometrySha256": "d65bb9f944de9b94c0fd34158ddd14bdac9e432e712f39670028f52c2834ec95",
+      "detailSha256": "27dd74f623dc3d15e84479e9fd032a6c38baff3c9516877614ed48416e4e60e4",
+      "foregroundMaskSha256": "bf9988366bf5b39d49a86526ed98f9ca61bab1ff85ca0a46874bab3ac7b408d5",
+      "geometryForegroundMaskSha256": "44904c780695101d2956b7d54c7a9c2d4d6d7f5f0a4d791f3be1e9937a056784"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

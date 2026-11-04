@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-sernopal-vz-88v-0507d28557",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-sight-top",
+      "pixel": [
+        146.0,
+        239.0
+      ]
+    },
+    {
+      "name": "optic-front-top",
+      "pixel": [
+        871.0,
+        167.00000000000003
+      ]
+    },
+    {
+      "name": "stock-upper-end",
+      "pixel": [
+        1736.0,
+        327.0
+      ]
+    },
+    {
+      "name": "magazine-bottom",
+      "pixel": [
+        1260.0,
+        678.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-sernopal-vz-88v-0507d28557.family.json",
+    "sha256": "6859b1aacb1c7dbded9a6cfb8b8907a167ce005847c48a5c54cea436e3c9843d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/1303066c60630f3bcf0ccef54736e29ca0e90bdd22538f826cb58f372ff9e94b.png",
+      "sha256": "1303066c60630f3bcf0ccef54736e29ca0e90bdd22538f826cb58f372ff9e94b"
+    },
+    "clayReference": {
+      "path": "inputs/fca3769e4ce96f748e40fce4520eb39cb805ce79a6099e5822570e2471700cf6.png",
+      "sha256": "fca3769e4ce96f748e40fce4520eb39cb805ce79a6099e5822570e2471700cf6"
+    },
+    "geometry": {
+      "path": "inputs/23f7dcaa19e3e24a9f1880a51ed844a2a1f00a2aa8c8ae3d53ab59a62b563fed.png",
+      "sha256": "23f7dcaa19e3e24a9f1880a51ed844a2a1f00a2aa8c8ae3d53ab59a62b563fed"
+    },
+    "detail": {
+      "path": "inputs/62d3f2918361f45c5e23406858d70df84ed0789d4d7ad8732df38189b9a9a53d.png",
+      "sha256": "62d3f2918361f45c5e23406858d70df84ed0789d4d7ad8732df38189b9a9a53d"
+    },
+    "foregroundMask": {
+      "path": "inputs/f3f8f6819fdc0232cb132608d065cf4f13514f6933ff6d76f909cf73676c2287.png",
+      "sha256": "f3f8f6819fdc0232cb132608d065cf4f13514f6933ff6d76f909cf73676c2287"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f.png",
+      "sha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f"
+    },
+    "mask": {
+      "path": "inputs/368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f.png",
+      "sha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f"
+    },
+    "calibrationReference": {
+      "path": "inputs/d7f806a7e6135546e4da292b092cd575fdb3c2d400ed0a2d35ba2e73655acd26.png",
+      "sha256": "d7f806a7e6135546e4da292b092cd575fdb3c2d400ed0a2d35ba2e73655acd26"
+    },
+    "sourceAudit": {
+      "path": "inputs/1703289bfbf33ed78b4eb886ed4319ddf37d717a0f22f50556c798d72da2356d.json",
+      "sha256": "1703289bfbf33ed78b4eb886ed4319ddf37d717a0f22f50556c798d72da2356d"
+    },
+    "referenceApproval": {
+      "path": "inputs/46ba653d3ccacfc9274245a47aaf1c16282e8783a8c6ca769c5a6cac05130d19.json",
+      "sha256": "46ba653d3ccacfc9274245a47aaf1c16282e8783a8c6ca769c5a6cac05130d19"
+    },
+    "calibrationDetail": {
+      "path": "inputs/7a468b209347ef066b8aa9820fc9d610538381c2d17dab1e9f289740cb919500.png",
+      "sha256": "7a468b209347ef066b8aa9820fc9d610538381c2d17dab1e9f289740cb919500"
+    }
+  },
+  "features": [
+    {
+      "name": "UNDERBARREL laser sight, TOP-mounted imaging scope, barrel-mounted gas-vent2, folding stock.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own VZ/88V drawing supplies barrel/front at left, top optic, lower magazine/grip and skeletonized rear stock at right. Preserve all major members/open spaces.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1774x887 images retained;2048 is resampled, not native2K. Root inspected raw313 detailed/315clay and the reviewed-opening detail matte against own VZ/88V Arsenal27/PDF29 source. Correct rear magazine behind forward/main grip,underbarrel laser,top optic,gas-vent form and folding skeleton stock retained. All three stock openings and trigger guard clear in both;thin members and silhouette preserved. Muzzle-slot bright thin lines are reflective shading,not extra backdrop holes;failed speculative v2matte is not selected. Existing v315detail matte removes white backdrop and only four reviewed structural openings,RGB unchanged. Native1774x887 originals,2048resampled. Shallow residual grooves and tiny edge differences nonblocking. Single final pair review,not native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        903,
+        853,
+        911,
+        862
+      ],
+      "referenceAreaPixels": 63,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        501,
+        894,
+        559,
+        900
+      ],
+      "referenceAreaPixels": 200,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        129,
+        917,
+        195,
+        920
+      ],
+      "referenceAreaPixels": 177,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        128,
+        941,
+        196,
+        947
+      ],
+      "referenceAreaPixels": 401,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1643,
+        947,
+        1857,
+        982
+      ],
+      "referenceAreaPixels": 7257,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        460,
+        955,
+        561,
+        968
+      ],
+      "referenceAreaPixels": 1001,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1723,
+        1000,
+        1845,
+        1010
+      ],
+      "referenceAreaPixels": 1091,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1717,
+        1035,
+        1855,
+        1118
+      ],
+      "referenceAreaPixels": 8726,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-9",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        853,
+        1074,
+        975,
+        1156
+      ],
+      "referenceAreaPixels": 7134,
+      "referenceMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1303066c60630f3bcf0ccef54736e29ca0e90bdd22538f826cb58f372ff9e94b",
+      "imageSha256": "62d3f2918361f45c5e23406858d70df84ed0789d4d7ad8732df38189b9a9a53d",
+      "maskSha256": "f3f8f6819fdc0232cb132608d065cf4f13514f6933ff6d76f909cf73676c2287",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1774x887 images retained;2048 is resampled, not native2K. Root inspected raw313 detailed/315clay and the reviewed-opening detail matte against own VZ/88V Arsenal27/PDF29 source. Correct rear magazine behind forward/main grip,underbarrel laser,top optic,gas-vent form and folding skeleton stock retained. All three stock openings and trigger guard clear in both;thin members and silhouette preserved. Muzzle-slot bright thin lines are reflective shading,not extra backdrop holes;failed speculative v2matte is not selected. Existing v315detail matte removes white backdrop and only four reviewed structural openings,RGB unchanged. Native1774x887 originals,2048resampled. Shallow residual grooves and tiny edge differences nonblocking. Single final pair review,not native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "fca3769e4ce96f748e40fce4520eb39cb805ce79a6099e5822570e2471700cf6",
+      "imageSha256": "23f7dcaa19e3e24a9f1880a51ed844a2a1f00a2aa8c8ae3d53ab59a62b563fed",
+      "maskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1774x887 images retained;2048 is resampled, not native2K. Root inspected raw313 detailed/315clay and the reviewed-opening detail matte against own VZ/88V Arsenal27/PDF29 source. Correct rear magazine behind forward/main grip,underbarrel laser,top optic,gas-vent form and folding skeleton stock retained. All three stock openings and trigger guard clear in both;thin members and silhouette preserved. Muzzle-slot bright thin lines are reflective shading,not extra backdrop holes;failed speculative v2matte is not selected. Existing v315detail matte removes white backdrop and only four reviewed structural openings,RGB unchanged. Native1774x887 originals,2048resampled. Shallow residual grooves and tiny edge differences nonblocking. Single final pair review,not native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "1303066c60630f3bcf0ccef54736e29ca0e90bdd22538f826cb58f372ff9e94b",
+      "detailSha256": "62d3f2918361f45c5e23406858d70df84ed0789d4d7ad8732df38189b9a9a53d",
+      "geometrySha256": "23f7dcaa19e3e24a9f1880a51ed844a2a1f00a2aa8c8ae3d53ab59a62b563fed",
+      "foregroundMaskSha256": "f3f8f6819fdc0232cb132608d065cf4f13514f6933ff6d76f909cf73676c2287",
+      "geometryForegroundMaskSha256": "368da32a0e02fb6a7e93e50ca58bedbed0d5b2ee5a95d5319ddda80a6977c27f",
+      "landmarks": [
+        {
+          "name": "front-sight-top",
+          "detail": [
+            0.11262263808139535,
+            0.3926590835492228
+          ],
+          "geometry": [
+            0.11262263808139535,
+            0.39161168231865284
+          ]
+        },
+        {
+          "name": "optic-front-top",
+          "detail": [
+            0.4921477561773256,
+            0.3549526392487047
+          ],
+          "geometry": [
+            0.48848337572674416,
+            0.3518104355569948
+          ]
+        },
+        {
+          "name": "stock-upper-end",
+          "detail": [
+            0.9449604832848837,
+            0.4387447376943005
+          ],
+          "geometry": [
+            0.9465309320494186,
+            0.43612623461787564
+          ]
+        },
+        {
+          "name": "magazine-bottom",
+          "detail": [
+            0.6957826126453488,
+            0.6225636536593264
+          ],
+          "geometry": [
+            0.6989235101744186,
+            0.6267532585816062
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1774x887 images retained;2048 is resampled, not native2K. Root inspected raw313 detailed/315clay and the reviewed-opening detail matte against own VZ/88V Arsenal27/PDF29 source. Correct rear magazine behind forward/main grip,underbarrel laser,top optic,gas-vent form and folding skeleton stock retained. All three stock openings and trigger guard clear in both;thin members and silhouette preserved. Muzzle-slot bright thin lines are reflective shading,not extra backdrop holes;failed speculative v2matte is not selected. Existing v315detail matte removes white backdrop and only four reviewed structural openings,RGB unchanged. Native1774x887 originals,2048resampled. Shallow residual grooves and tiny edge differences nonblocking. Single final pair review,not native/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

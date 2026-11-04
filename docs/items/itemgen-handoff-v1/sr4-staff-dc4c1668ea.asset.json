@@ -1,0 +1,396 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-staff-dc4c1668ea",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "section-0-top",
+      "pixel": [
+        119.00000000000001,
+        389.00000000000006
+      ]
+    },
+    {
+      "name": "section-0-bottom",
+      "pixel": [
+        119.00000000000001,
+        460.0000000000001
+      ]
+    },
+    {
+      "name": "section-1-top",
+      "pixel": [
+        289.99999999999994,
+        393.0
+      ]
+    },
+    {
+      "name": "section-1-bottom",
+      "pixel": [
+        289.99999999999994,
+        457.00000000000006
+      ]
+    },
+    {
+      "name": "section-2-top",
+      "pixel": [
+        545.9999999999999,
+        397.0
+      ]
+    },
+    {
+      "name": "section-2-bottom",
+      "pixel": [
+        545.9999999999999,
+        455.0
+      ]
+    },
+    {
+      "name": "section-3-top",
+      "pixel": [
+        886.0,
+        401.00000000000006
+      ]
+    },
+    {
+      "name": "section-3-bottom",
+      "pixel": [
+        886.0,
+        452.9999999999999
+      ]
+    },
+    {
+      "name": "section-4-top",
+      "pixel": [
+        1228.0,
+        403.99999999999994
+      ]
+    },
+    {
+      "name": "section-4-bottom",
+      "pixel": [
+        1228.0,
+        452.9999999999999
+      ]
+    },
+    {
+      "name": "section-5-top",
+      "pixel": [
+        1483.0,
+        405.0
+      ]
+    },
+    {
+      "name": "section-5-bottom",
+      "pixel": [
+        1483.0,
+        451.0
+      ]
+    },
+    {
+      "name": "section-6-top",
+      "pixel": [
+        1654.0,
+        405.0
+      ]
+    },
+    {
+      "name": "section-6-bottom",
+      "pixel": [
+        1654.0,
+        450.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-staff-dc4c1668ea.family.json",
+    "sha256": "935445177861cbc2096020e8ff056cbf5045109687e29c06e1729c54c703359f"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8a39a8bf6c72446908bfffc4d0858145f60f789a2a5b4f0a2bbfda212bc92819.png",
+      "sha256": "8a39a8bf6c72446908bfffc4d0858145f60f789a2a5b4f0a2bbfda212bc92819"
+    },
+    "clayReference": {
+      "path": "inputs/e363c9a6c669fe8498b6304d17439a2451d48216efcf76ff47047da8f869a42f.png",
+      "sha256": "e363c9a6c669fe8498b6304d17439a2451d48216efcf76ff47047da8f869a42f"
+    },
+    "geometry": {
+      "path": "inputs/cd876dee77576c9223513e21fe2d1c6139430050d33d6cc3d8c626c4f6e035a3.png",
+      "sha256": "cd876dee77576c9223513e21fe2d1c6139430050d33d6cc3d8c626c4f6e035a3"
+    },
+    "detail": {
+      "path": "inputs/e024d2aac2786156afd4979f3704241139b476522fc86860b6921f7c9e2ec322.png",
+      "sha256": "e024d2aac2786156afd4979f3704241139b476522fc86860b6921f7c9e2ec322"
+    },
+    "foregroundMask": {
+      "path": "inputs/20d0db8813ac135664d2e077f8cd975c8b9fe682477ca7c959c1fb896613ca0f.png",
+      "sha256": "20d0db8813ac135664d2e077f8cd975c8b9fe682477ca7c959c1fb896613ca0f"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e6bf1210b3cfb2c2ca900be25db60ee39d2c1da72a8ab1740721a0ff6b0496fd.png",
+      "sha256": "e6bf1210b3cfb2c2ca900be25db60ee39d2c1da72a8ab1740721a0ff6b0496fd"
+    },
+    "mask": {
+      "path": "inputs/e6bf1210b3cfb2c2ca900be25db60ee39d2c1da72a8ab1740721a0ff6b0496fd.png",
+      "sha256": "e6bf1210b3cfb2c2ca900be25db60ee39d2c1da72a8ab1740721a0ff6b0496fd"
+    },
+    "calibrationReference": {
+      "path": "inputs/612853fa56a0d17a62085d88352ecb2e611a5224587cdab74caaa3308146b040.png",
+      "sha256": "612853fa56a0d17a62085d88352ecb2e611a5224587cdab74caaa3308146b040"
+    },
+    "sourceAudit": {
+      "path": "inputs/b2245d305dcb8d53f5a0895c528b0227a4ce61c21b15459d95f664a1edff0b56.json",
+      "sha256": "b2245d305dcb8d53f5a0895c528b0227a4ce61c21b15459d95f664a1edff0b56"
+    },
+    "referenceApproval": {
+      "path": "inputs/f5cdbb5678929bec0826496762ebc4c913f3ef0790c5f79880cb1b74af9352d4.json",
+      "sha256": "f5cdbb5678929bec0826496762ebc4c913f3ef0790c5f79880cb1b74af9352d4"
+    },
+    "calibrationDetail": {
+      "path": "inputs/9049916f6cae922ca681870c5db7ae766171031802b56fb2ca530f6b6df86bd7.png",
+      "sha256": "9049916f6cae922ca681870c5db7ae766171031802b56fb2ca530f6b6df86bd7"
+    }
+  },
+  "features": [
+    {
+      "name": "Large heavy stick",
+      "placementReviewed": true
+    },
+    {
+      "name": "Traditional plain staff identity",
+      "placementReviewed": true
+    },
+    {
+      "name": "Plain heavy traditional stick matches generic Staff constraints; wood and taper are artistic choices, not a uniquely illustrated canonical model. Uniform neutral gray, smooth continuous taper and rounded ends. Wood grain, knots, shallow cuts and recesses removed; no tiny grooves or added panels visible. Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. ",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8a39a8bf6c72446908bfffc4d0858145f60f789a2a5b4f0a2bbfda212bc92819",
+      "imageSha256": "e024d2aac2786156afd4979f3704241139b476522fc86860b6921f7c9e2ec322",
+      "maskSha256": "20d0db8813ac135664d2e077f8cd975c8b9fe682477ca7c959c1fb896613ca0f",
+      "notes": "Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. "
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e363c9a6c669fe8498b6304d17439a2451d48216efcf76ff47047da8f869a42f",
+      "imageSha256": "cd876dee77576c9223513e21fe2d1c6139430050d33d6cc3d8c626c4f6e035a3",
+      "maskSha256": "e6bf1210b3cfb2c2ca900be25db60ee39d2c1da72a8ab1740721a0ff6b0496fd",
+      "notes": "Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. "
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Plain heavy traditional stick matches generic Staff constraints; wood and taper are artistic choices, not a uniquely illustrated canonical model. Uniform neutral gray, smooth continuous taper and rounded ends. Wood grain, knots, shallow cuts and recesses removed; no tiny grooves or added panels visible. Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. ",
+      "landmarks": [
+        {
+          "name": "section-0-top",
+          "detail": [
+            0.09564083985517847,
+            0.4816596798780488
+          ],
+          "geometry": [
+            0.09564083985517847,
+            0.4795636432926829
+          ]
+        },
+        {
+          "name": "section-0-bottom",
+          "detail": [
+            0.09564083985517847,
+            0.5188643292682927
+          ],
+          "geometry": [
+            0.09564083985517847,
+            0.5193883384146342
+          ]
+        },
+        {
+          "name": "section-1-top",
+          "detail": [
+            0.18573258758777061,
+            0.48375571646341464
+          ],
+          "geometry": [
+            0.18573258758777061,
+            0.48218368902439024
+          ]
+        },
+        {
+          "name": "section-1-bottom",
+          "detail": [
+            0.18573258758777061,
+            0.5172923018292683
+          ],
+          "geometry": [
+            0.18573258758777061,
+            0.5178163109756098
+          ]
+        },
+        {
+          "name": "section-2-top",
+          "detail": [
+            0.32060678302369805,
+            0.4858517530487805
+          ],
+          "geometry": [
+            0.32060678302369805,
+            0.4842797256097561
+          ]
+        },
+        {
+          "name": "section-2-bottom",
+          "detail": [
+            0.32060678302369805,
+            0.5162442835365854
+          ],
+          "geometry": [
+            0.32060678302369805,
+            0.5167682926829268
+          ]
+        },
+        {
+          "name": "section-3-top",
+          "detail": [
+            0.4997365738370392,
+            0.48794778963414637
+          ],
+          "geometry": [
+            0.4997365738370392,
+            0.48637576219512196
+          ]
+        },
+        {
+          "name": "section-3-bottom",
+          "detail": [
+            0.4997365738370392,
+            0.5151962652439024
+          ],
+          "geometry": [
+            0.4997365738370392,
+            0.5151962652439024
+          ]
+        },
+        {
+          "name": "section-4-top",
+          "detail": [
+            0.6799200693022235,
+            0.4895198170731707
+          ],
+          "geometry": [
+            0.6799200693022235,
+            0.4884717987804878
+          ]
+        },
+        {
+          "name": "section-4-bottom",
+          "detail": [
+            0.6799200693022235,
+            0.5151962652439024
+          ],
+          "geometry": [
+            0.6799200693022235,
+            0.5141482469512195
+          ]
+        },
+        {
+          "name": "section-5-top",
+          "detail": [
+            0.8142674124122293,
+            0.4900438262195122
+          ],
+          "geometry": [
+            0.8142674124122293,
+            0.4889958079268293
+          ]
+        },
+        {
+          "name": "section-5-bottom",
+          "detail": [
+            0.8142674124122293,
+            0.5141482469512195
+          ],
+          "geometry": [
+            0.8142674124122293,
+            0.5136242378048781
+          ]
+        },
+        {
+          "name": "section-6-top",
+          "detail": [
+            0.9043591601448215,
+            0.4900438262195122
+          ],
+          "geometry": [
+            0.9043591601448215,
+            0.4884717987804878
+          ]
+        },
+        {
+          "name": "section-6-bottom",
+          "detail": [
+            0.9043591601448215,
+            0.5136242378048781
+          ],
+          "geometry": [
+            0.9043591601448215,
+            0.5136242378048781
+          ]
+        }
+      ],
+      "referenceSha256": "8a39a8bf6c72446908bfffc4d0858145f60f789a2a5b4f0a2bbfda212bc92819",
+      "geometrySha256": "cd876dee77576c9223513e21fe2d1c6139430050d33d6cc3d8c626c4f6e035a3",
+      "detailSha256": "e024d2aac2786156afd4979f3704241139b476522fc86860b6921f7c9e2ec322",
+      "foregroundMaskSha256": "20d0db8813ac135664d2e077f8cd975c8b9fe682477ca7c959c1fb896613ca0f",
+      "geometryForegroundMaskSha256": "e6bf1210b3cfb2c2ca900be25db60ee39d2c1da72a8ab1740721a0ff6b0496fd"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

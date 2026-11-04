@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-hvar-e16b79bb77",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-top",
+      "pixel": [
+        100.0,
+        424.0
+      ]
+    },
+    {
+      "name": "front-bottom",
+      "pixel": [
+        100.0,
+        528.0
+      ]
+    },
+    {
+      "name": "receiver-top",
+      "pixel": [
+        1099.9999999999998,
+        280.0
+      ]
+    },
+    {
+      "name": "grip-bottom",
+      "pixel": [
+        1200.0,
+        686.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-hvar-e16b79bb77.family.json",
+    "sha256": "2fb588fba777174dc91e7f21b8a0484e04a4bab0e7c008e967ae87e96bb41646"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/4f5a2092d2236f8a2fb906646f35d95294c299dc2cefdc9ecb55b8850cf41e13.png",
+      "sha256": "4f5a2092d2236f8a2fb906646f35d95294c299dc2cefdc9ecb55b8850cf41e13"
+    },
+    "clayReference": {
+      "path": "inputs/89336a7ab7c2cdf3336e13b8115c275184c0d557b64658d1fff46f0be4068978.png",
+      "sha256": "89336a7ab7c2cdf3336e13b8115c275184c0d557b64658d1fff46f0be4068978"
+    },
+    "geometry": {
+      "path": "inputs/769d978e4a1c3aeaae2119c6911178204ce4939dcbb2eddfce92a764102567a6.png",
+      "sha256": "769d978e4a1c3aeaae2119c6911178204ce4939dcbb2eddfce92a764102567a6"
+    },
+    "detail": {
+      "path": "inputs/6f93cf2b5dc283bc6df1da414f54fc527748e26e4e0f0530863db3bea85aa394.png",
+      "sha256": "6f93cf2b5dc283bc6df1da414f54fc527748e26e4e0f0530863db3bea85aa394"
+    },
+    "foregroundMask": {
+      "path": "inputs/462f3a810b52d3effabded95101ba516a57c8cfe69962925cd1567907afd9c74.png",
+      "sha256": "462f3a810b52d3effabded95101ba516a57c8cfe69962925cd1567907afd9c74"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/b9d7911c315e486dc51d7410205bf07eb5bfb3772480a8b16dc3fb2f38b20c52.png",
+      "sha256": "b9d7911c315e486dc51d7410205bf07eb5bfb3772480a8b16dc3fb2f38b20c52"
+    },
+    "mask": {
+      "path": "inputs/b9d7911c315e486dc51d7410205bf07eb5bfb3772480a8b16dc3fb2f38b20c52.png",
+      "sha256": "b9d7911c315e486dc51d7410205bf07eb5bfb3772480a8b16dc3fb2f38b20c52"
+    },
+    "calibrationReference": {
+      "path": "inputs/43cfd7291b47320ee3d1b5ca9d9735f646c42907fc2ad2cd32895501f10bc966.png",
+      "sha256": "43cfd7291b47320ee3d1b5ca9d9735f646c42907fc2ad2cd32895501f10bc966"
+    },
+    "sourceAudit": {
+      "path": "inputs/d0f54b9a33ea5f0dbce867750b07b3d9c084af91d24d31c39da1168507f57e1b.json",
+      "sha256": "d0f54b9a33ea5f0dbce867750b07b3d9c084af91d24d31c39da1168507f57e1b"
+    },
+    "referenceApproval": {
+      "path": "inputs/b970cf0fbce576a09e850186f79f7f8dfb4e358ce12a6828ea2cf4c6a2021fc8.json",
+      "sha256": "b970cf0fbce576a09e850186f79f7f8dfb4e358ce12a6828ea2cf4c6a2021fc8"
+    },
+    "calibrationDetail": {
+      "path": "inputs/d32fe34478332cd34ae650a124ea81b06e1ce5e508a7075bbd5d6c8e95ae67da.png",
+      "sha256": "d32fe34478332cd34ae650a124ea81b06e1ce5e508a7075bbd5d6c8e95ae67da"
+    }
+  },
+  "features": [
+    {
+      "name": "Integral special recoil-reduction design, internal smartgun system and rigid stock with shock pad.",
+      "placementReviewed": true
+    },
+    {
+      "name": "No added barrel or underbarrel accessories; follow labeled HVAR artwork and its distinct fixed-stock/forward-housing silhouette.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected using the single raw-pair/alpha review. Source forms, framing, thin members and intentional openings preserved. Each role topology matches source: {\"detail\": {\"components\": 1, \"holes\": 2}, \"clay\": {\"components\": 1, \"holes\": 2}}. Native1774x887 retained,2048resampled. Shallow channels nonblocking.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1129,
+        1056,
+        1191,
+        1130
+      ],
+      "referenceAreaPixels": 3809,
+      "referenceMaskSha256": "b9d7911c315e486dc51d7410205bf07eb5bfb3772480a8b16dc3fb2f38b20c52",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1199,
+        1062,
+        1236,
+        1127
+      ],
+      "referenceAreaPixels": 837,
+      "referenceMaskSha256": "b9d7911c315e486dc51d7410205bf07eb5bfb3772480a8b16dc3fb2f38b20c52",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4f5a2092d2236f8a2fb906646f35d95294c299dc2cefdc9ecb55b8850cf41e13",
+      "imageSha256": "6f93cf2b5dc283bc6df1da414f54fc527748e26e4e0f0530863db3bea85aa394",
+      "maskSha256": "462f3a810b52d3effabded95101ba516a57c8cfe69962925cd1567907afd9c74",
+      "notes": "Final prepared overlay inspected using the single raw-pair/alpha review. Source forms, framing, thin members and intentional openings preserved. Each role topology matches source: {\"detail\": {\"components\": 1, \"holes\": 2}, \"clay\": {\"components\": 1, \"holes\": 2}}. Native1774x887 retained,2048resampled. Shallow channels nonblocking."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "89336a7ab7c2cdf3336e13b8115c275184c0d557b64658d1fff46f0be4068978",
+      "imageSha256": "769d978e4a1c3aeaae2119c6911178204ce4939dcbb2eddfce92a764102567a6",
+      "maskSha256": "b9d7911c315e486dc51d7410205bf07eb5bfb3772480a8b16dc3fb2f38b20c52",
+      "notes": "Final prepared overlay inspected using the single raw-pair/alpha review. Source forms, framing, thin members and intentional openings preserved. Each role topology matches source: {\"detail\": {\"components\": 1, \"holes\": 2}, \"clay\": {\"components\": 1, \"holes\": 2}}. Native1774x887 retained,2048resampled. Shallow channels nonblocking."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "4f5a2092d2236f8a2fb906646f35d95294c299dc2cefdc9ecb55b8850cf41e13",
+      "detailSha256": "6f93cf2b5dc283bc6df1da414f54fc527748e26e4e0f0530863db3bea85aa394",
+      "geometrySha256": "769d978e4a1c3aeaae2119c6911178204ce4939dcbb2eddfce92a764102567a6",
+      "foregroundMaskSha256": "462f3a810b52d3effabded95101ba516a57c8cfe69962925cd1567907afd9c74",
+      "geometryForegroundMaskSha256": "b9d7911c315e486dc51d7410205bf07eb5bfb3772480a8b16dc3fb2f38b20c52",
+      "landmarks": [
+        {
+          "name": "front-top",
+          "detail": [
+            0.07248999418866227,
+            0.4756997318591102
+          ],
+          "geometry": [
+            0.07248999418866227,
+            0.4762397378177966
+          ]
+        },
+        {
+          "name": "front-bottom",
+          "detail": [
+            0.07248999418866227,
+            0.5318603515625
+          ],
+          "geometry": [
+            0.07248999418866227,
+            0.5324003575211864
+          ]
+        },
+        {
+          "name": "receiver-top",
+          "detail": [
+            0.6126163439187162,
+            0.3979388738082627
+          ],
+          "geometry": [
+            0.6126163439187162,
+            0.3968588618908898
+          ]
+        },
+        {
+          "name": "grip-bottom",
+          "detail": [
+            0.6666289788917217,
+            0.6171812930349576
+          ],
+          "geometry": [
+            0.6666289788917217,
+            0.618801310911017
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected using the single raw-pair/alpha review. Source forms, framing, thin members and intentional openings preserved. Each role topology matches source: {\"detail\": {\"components\": 1, \"holes\": 2}, \"clay\": {\"components\": 1, \"holes\": 2}}. Native1774x887 retained,2048resampled. Shallow channels nonblocking."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

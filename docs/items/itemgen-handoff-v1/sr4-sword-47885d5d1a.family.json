@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "longsword",
+  "nativePackaging": "pending-contract",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "targetFaceCount": 200000,
+    "signMode": "udf"
+  },
+  "budgets": {
+    "visible": 10000,
+    "shadow": 500,
+    "parts": {
+      "b": {
+        "visible": 6000,
+        "shadow": 300
+      },
+      "m": {
+        "visible": 2500,
+        "shadow": 100
+      },
+      "t": {
+        "visible": 1500,
+        "shadow": 100
+      }
+    }
+  },
+  "allowedAssemblies": [
+    {
+      "b": "sr4-sword-47885d5d1a",
+      "m": "sr4-sword-47885d5d1a",
+      "t": "sr4-sword-47885d5d1a"
+    }
+  ],
+  "native": {
+    "reviewed": false
+  },
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr47885d5d",
+    "blueprint": "sr47885d5d",
+    "hak": "sr47885d5dh",
+    "module": "sr47885d5dm",
+    "displayName": "Sword"
+  }
+}

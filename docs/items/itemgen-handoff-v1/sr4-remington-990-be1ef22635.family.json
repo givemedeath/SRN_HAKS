@@ -1,0 +1,50 @@
+{
+  "allowedAssemblies": [
+    {
+      "b": "hidden-placeholder",
+      "m": "hidden-placeholder",
+      "t": "sr4-remington-990-be1ef22635"
+    }
+  ],
+  "bakeSize": 4096,
+  "budgets": {
+    "parts": {
+      "b": {
+        "visible": 4,
+        "shadow": 0
+      },
+      "m": {
+        "visible": 4,
+        "shadow": 0
+      },
+      "t": {
+        "visible": 9992,
+        "shadow": 500
+      }
+    },
+    "shadow": 500,
+    "visible": 10000
+  },
+  "family": "firearm-sling",
+  "firearm": {
+    "subtype": "rifle"
+  },
+  "kind": "item-family",
+  "materialRoute": "diffuse",
+  "nativePackaging": "pending-contract",
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "srbe1ef226",
+    "blueprint": "srbe1ef226",
+    "hak": "srbe1ef226h",
+    "module": "srbe1ef226m",
+    "displayName": "Remington 990"
+  },
+  "runtimeTextureSize": 1024,
+  "schemaVersion": 1,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "signMode": "udf",
+    "targetFaceCount": 200000
+  }
+}

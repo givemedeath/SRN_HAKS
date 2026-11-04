@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-mp-laser-3-947b7c6660",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "trigger-front-space",
+      "pixel": [
+        458.37313432835816,
+        633.2512437810946
+      ]
+    },
+    {
+      "name": "trigger-rear-space",
+      "pixel": [
+        415.7818181818181,
+        642.1727272727271
+      ]
+    },
+    {
+      "name": "top-optic-top",
+      "pixel": [
+        561.0000000000001,
+        311.0
+      ]
+    },
+    {
+      "name": "front-emitter-right-edge",
+      "pixel": [
+        1242.0,
+        561.5
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-mp-laser-3-947b7c6660.family.json",
+    "sha256": "dcfa6685070f99d78d3ed923ee7bf1d6175449ab39ea0364a43e71016934c6a0"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/53b808676b52e66c1dffab3dab6165bbd3cfbd7147d693b247e4f79cf5b67e6e.png",
+      "sha256": "53b808676b52e66c1dffab3dab6165bbd3cfbd7147d693b247e4f79cf5b67e6e"
+    },
+    "clayReference": {
+      "path": "inputs/d33ddf06bad9b278fddc41a58b023918a9acb8dcf0405cf05b154bc5813cdfe8.png",
+      "sha256": "d33ddf06bad9b278fddc41a58b023918a9acb8dcf0405cf05b154bc5813cdfe8"
+    },
+    "geometry": {
+      "path": "inputs/b57f6d918d2d1a306e5893beb106da1aad7ce7e09f857542835c0d93ca0e5f86.png",
+      "sha256": "b57f6d918d2d1a306e5893beb106da1aad7ce7e09f857542835c0d93ca0e5f86"
+    },
+    "detail": {
+      "path": "inputs/d16f08b9d5e5f284eb51803c3be79a802abcc09e242d797d9a815c77c3f72ded.png",
+      "sha256": "d16f08b9d5e5f284eb51803c3be79a802abcc09e242d797d9a815c77c3f72ded"
+    },
+    "foregroundMask": {
+      "path": "inputs/35f836c839998666ee63ac0f26a3f5ca14b70a4e58ca9521b0b468f3d4115743.png",
+      "sha256": "35f836c839998666ee63ac0f26a3f5ca14b70a4e58ca9521b0b468f3d4115743"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/3fe39168bd3fb8ca755f9140ac8b5eed83e71f785859ad8776d8cbf61471e9f4.png",
+      "sha256": "3fe39168bd3fb8ca755f9140ac8b5eed83e71f785859ad8776d8cbf61471e9f4"
+    },
+    "mask": {
+      "path": "inputs/3fe39168bd3fb8ca755f9140ac8b5eed83e71f785859ad8776d8cbf61471e9f4.png",
+      "sha256": "3fe39168bd3fb8ca755f9140ac8b5eed83e71f785859ad8776d8cbf61471e9f4"
+    },
+    "calibrationReference": {
+      "path": "inputs/c64751753d0985f2fcf5f684a4abbf7e1a8af98632b3859ded893513d98e97f5.png",
+      "sha256": "c64751753d0985f2fcf5f684a4abbf7e1a8af98632b3859ded893513d98e97f5"
+    },
+    "sourceAudit": {
+      "path": "inputs/bd721b504fbd2dd8aef8c0aaaae04d59bae4682a4e23269321b0f521d9f2a3c5.json",
+      "sha256": "bd721b504fbd2dd8aef8c0aaaae04d59bae4682a4e23269321b0f521d9f2a3c5"
+    },
+    "referenceApproval": {
+      "path": "inputs/37c905844a32f0d9e0b1194ad19e65dba8f241b8d915020364b0fc27a9e12ccf.json",
+      "sha256": "37c905844a32f0d9e0b1194ad19e65dba8f241b8d915020364b0fc27a9e12ccf"
+    },
+    "calibrationDetail": {
+      "path": "inputs/22e3f956875be474d3ca253a417190baa076983f145ea13f99832dcad6e8802e.png",
+      "sha256": "22e3f956875be474d3ca253a417190baa076983f145ea13f99832dcad6e8802e"
+    }
+  },
+  "features": [
+    {
+      "name": "Self-contained man-portable laser system about the size of a large assault rifle",
+      "placementReviewed": true
+    },
+    {
+      "name": "Twin power clips OR external satchel/backpack power; choose a configuration, not a conventional bullet magazine substitution",
+      "placementReviewed": true
+    },
+    {
+      "name": "Power-clip size comparable to an ammo clip; external packs connect with a self-recoiling cable",
+      "placementReviewed": true
+    },
+    {
+      "name": "No exact stock, grip, aperture, sight or color prescribed; only top/underbarrel accessories permitted if chosen",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared overlay inspected: matched framing, both trigger-clearance openings and emitter recess retained, no backdrop debris. Root inspected actual raw detailed/clay pair and both teal foregrounds. Matching silhouette, camera and framing; two trigger-clearance spaces and thin guard/trigger retained. Dark emitter recess and stock/sight recesses remain surfaces, not invented alpha holes. Shallow grooves/channels accepted under user waiver; microtexture/color/wear removed in clay. No background floor in these two foregrounds. Large rifle-scale self-contained laser, two separately visible inserted power clips, stock/grip/trigger clearance and emitter; no bullet magazine or external power pack. Exact casing, sight and clip placement are interpreted. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        740,
+        1003,
+        804,
+        1108
+      ],
+      "referenceAreaPixels": 5392,
+      "referenceMaskSha256": "3fe39168bd3fb8ca755f9140ac8b5eed83e71f785859ad8776d8cbf61471e9f4",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        703,
+        1040,
+        721,
+        1087
+      ],
+      "referenceAreaPixels": 300,
+      "referenceMaskSha256": "3fe39168bd3fb8ca755f9140ac8b5eed83e71f785859ad8776d8cbf61471e9f4",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "53b808676b52e66c1dffab3dab6165bbd3cfbd7147d693b247e4f79cf5b67e6e",
+      "imageSha256": "d16f08b9d5e5f284eb51803c3be79a802abcc09e242d797d9a815c77c3f72ded",
+      "maskSha256": "35f836c839998666ee63ac0f26a3f5ca14b70a4e58ca9521b0b468f3d4115743",
+      "notes": "Prepared overlay inspected: matched framing, both trigger-clearance openings and emitter recess retained, no backdrop debris. Root inspected actual raw detailed/clay pair and both teal foregrounds. Matching silhouette, camera and framing; two trigger-clearance spaces and thin guard/trigger retained. Dark emitter recess and stock/sight recesses remain surfaces, not invented alpha holes. Shallow grooves/channels accepted under user waiver; microtexture/color/wear removed in clay. No background floor in these two foregrounds. Large rifle-scale self-contained laser, two separately visible inserted power clips, stock/grip/trigger clearance and emitter; no bullet magazine or external power pack. Exact casing, sight and clip placement are interpreted. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d33ddf06bad9b278fddc41a58b023918a9acb8dcf0405cf05b154bc5813cdfe8",
+      "imageSha256": "b57f6d918d2d1a306e5893beb106da1aad7ce7e09f857542835c0d93ca0e5f86",
+      "maskSha256": "3fe39168bd3fb8ca755f9140ac8b5eed83e71f785859ad8776d8cbf61471e9f4",
+      "notes": "Prepared overlay inspected: matched framing, both trigger-clearance openings and emitter recess retained, no backdrop debris. Root inspected actual raw detailed/clay pair and both teal foregrounds. Matching silhouette, camera and framing; two trigger-clearance spaces and thin guard/trigger retained. Dark emitter recess and stock/sight recesses remain surfaces, not invented alpha holes. Shallow grooves/channels accepted under user waiver; microtexture/color/wear removed in clay. No background floor in these two foregrounds. Large rifle-scale self-contained laser, two separately visible inserted power clips, stock/grip/trigger clearance and emitter; no bullet magazine or external power pack. Exact casing, sight and clip placement are interpreted. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "53b808676b52e66c1dffab3dab6165bbd3cfbd7147d693b247e4f79cf5b67e6e",
+      "detailSha256": "d16f08b9d5e5f284eb51803c3be79a802abcc09e242d797d9a815c77c3f72ded",
+      "geometrySha256": "b57f6d918d2d1a306e5893beb106da1aad7ce7e09f857542835c0d93ca0e5f86",
+      "foregroundMaskSha256": "35f836c839998666ee63ac0f26a3f5ca14b70a4e58ca9521b0b468f3d4115743",
+      "geometryForegroundMaskSha256": "3fe39168bd3fb8ca755f9140ac8b5eed83e71f785859ad8776d8cbf61471e9f4",
+      "landmarks": [
+        {
+          "name": "trigger-front-space",
+          "detail": [
+            0.3769610624198698,
+            0.5148960999516166
+          ],
+          "geometry": [
+            0.3770938318462286,
+            0.5150762390582792
+          ]
+        },
+        {
+          "name": "trigger-rear-space",
+          "detail": [
+            0.34588422144356856,
+            0.5214052715361501
+          ],
+          "geometry": [
+            0.3458900855772731,
+            0.5207452613064221
+          ]
+        },
+        {
+          "name": "top-optic-top",
+          "detail": [
+            0.45184296495137766,
+            0.2797795253294893
+          ],
+          "geometry": [
+            0.44418161846636955,
+            0.2790499189147446
+          ]
+        },
+        {
+          "name": "front-emitter-right-edge",
+          "detail": [
+            0.9487360084076175,
+            0.4625459322230231
+          ],
+          "geometry": [
+            0.9480063563614263,
+            0.46692357071149093
+          ]
+        }
+      ],
+      "notes": "Prepared overlay inspected: matched framing, both trigger-clearance openings and emitter recess retained, no backdrop debris. Root inspected actual raw detailed/clay pair and both teal foregrounds. Matching silhouette, camera and framing; two trigger-clearance spaces and thin guard/trigger retained. Dark emitter recess and stock/sight recesses remain surfaces, not invented alpha holes. Shallow grooves/channels accepted under user waiver; microtexture/color/wear removed in clay. No background floor in these two foregrounds. Large rifle-scale self-contained laser, two separately visible inserted power clips, stock/grip/trigger clearance and emitter; no bullet magazine or external power pack. Exact casing, sight and clip placement are interpreted. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

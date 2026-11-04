@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-mannlicher-wildh-ter-686ddebcb7",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-tip",
+      "pixel": [
+        1237.0,
+        573.0
+      ]
+    },
+    {
+      "name": "butt-top-rear",
+      "pixel": [
+        16.999999999999996,
+        604.0
+      ]
+    },
+    {
+      "name": "scope-turret-top",
+      "pixel": [
+        555.0,
+        475.0
+      ]
+    },
+    {
+      "name": "scope-front-upper",
+      "pixel": [
+        781.9999999999999,
+        484.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        451.9999999999999,
+        677.0
+      ]
+    },
+    {
+      "name": "fore-end-tip",
+      "pixel": [
+        915.0,
+        586.0
+      ]
+    },
+    {
+      "name": "front-eyelet",
+      "pixel": [
+        854.9999999999999,
+        624.0
+      ]
+    },
+    {
+      "name": "rear-eyelet",
+      "pixel": [
+        105.00000000000001,
+        747.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-mannlicher-wildh-ter-686ddebcb7.family.json",
+    "sha256": "d33cb8d5229d55f13fd8b28568a2bba98d6c5e22c750c8c7b439b05c6a76c241"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/aacd2690b33691f86628c54bacc3abd489d8032983da392cb5bc42e98a1a081b.png",
+      "sha256": "aacd2690b33691f86628c54bacc3abd489d8032983da392cb5bc42e98a1a081b"
+    },
+    "clayReference": {
+      "path": "inputs/e7c748ddb1e5b67ec2fc1bcbe9bcd85b5673e3d76f41eaac8ba743c3dfc36cd2.png",
+      "sha256": "e7c748ddb1e5b67ec2fc1bcbe9bcd85b5673e3d76f41eaac8ba743c3dfc36cd2"
+    },
+    "geometry": {
+      "path": "inputs/a34227b0684093354af45d9ed8e48872eee2205905f01844c34a16771d05e8c6.png",
+      "sha256": "a34227b0684093354af45d9ed8e48872eee2205905f01844c34a16771d05e8c6"
+    },
+    "detail": {
+      "path": "inputs/3186e415fc9acd7f806082de0a3a19215331914b57f9ea30bb728dab4f0e0200.png",
+      "sha256": "3186e415fc9acd7f806082de0a3a19215331914b57f9ea30bb728dab4f0e0200"
+    },
+    "foregroundMask": {
+      "path": "inputs/1149213e284373c16ef0233bfde7cc703b042a15465e8ef694840fae3e924a83.png",
+      "sha256": "1149213e284373c16ef0233bfde7cc703b042a15465e8ef694840fae3e924a83"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3.png",
+      "sha256": "defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3"
+    },
+    "mask": {
+      "path": "inputs/defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3.png",
+      "sha256": "defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3"
+    },
+    "calibrationReference": {
+      "path": "inputs/20043e8f359f885b8c96dd20e64021aef99967ec2fbed1a97f75895812a8d1ce.png",
+      "sha256": "20043e8f359f885b8c96dd20e64021aef99967ec2fbed1a97f75895812a8d1ce"
+    },
+    "sourceAudit": {
+      "path": "inputs/6c2b2e2a3f1aecac726ac69bed5a8436d1ac090460b371c4d71c7d89c08d9ef2.json",
+      "sha256": "6c2b2e2a3f1aecac726ac69bed5a8436d1ac090460b371c4d71c7d89c08d9ef2"
+    },
+    "referenceApproval": {
+      "path": "inputs/fe245884434574db679fd775d16a21e322851d8a424348023c80a3116cc357f7.json",
+      "sha256": "fe245884434574db679fd775d16a21e322851d8a424348023c80a3116cc357f7"
+    },
+    "calibrationDetail": {
+      "path": "inputs/53ca785624565a012275bf0bbca6059f5b81baecbf10f37377d7c3d1a5790b55.png",
+      "sha256": "53ca785624565a012275bf0bbca6059f5b81baecbf10f37377d7c3d1a5790b55"
+    }
+  },
+  "features": [
+    {
+      "name": "Top-mounted imaging scope and shock pad inconspicuously integrated into WALNUT WOOD stock. Material is source-specified, not an arbitrary all-metal conversion.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own WILDHUTER image printed27/PDF29: long slender barrel, top scope, traditional wood stock/body with rear grip contour. Preserve hunting-rifle proportions.",
+      "placementReviewed": true
+    },
+    {
+      "name": "PASS: Actual bolt-action hunting rifle retains long slender barrel, top imaging scope, traditional WALNUT WOOD body/stock with curved rear grip and modest integrated butt shock pad. Wood is source-constrained; shade/woodgrain and unseen depth are artistic. The rendered left-to-right display reverses the page orientation but preserves the own WILDHUTER silhouette/class rather than substituting adjacent Remington750. No added laser, bipod or suppressor. Sling eyelets, bolt lever and scope gaps remain structural; tiny pad vents/checkering/grain are appearance only. Actual matching clay has smooth stock/grip, pad and fittings with grain, checkering, pad vent slots, scope knurling, fine cuts and screw recesses filled. Broad scope mount bands, bolt/receiver fittings, stock-to-shockpad boundary and end cap are major part boundaries, not tiny ornamental cuts. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine trigger guard, scope gap and two sling-eyelet holes, thin barrel and bolt lever preserved; metallic white barrel/receiver highlights remain foreground, not transparent holes. No clipped muzzle, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        832,
+        896,
+        994,
+        925
+      ],
+      "referenceAreaPixels": 3890,
+      "referenceMaskSha256": "defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1366,
+        1029,
+        1373,
+        1035
+      ],
+      "referenceAreaPixels": 33,
+      "referenceMaskSha256": "defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        726,
+        1053,
+        802,
+        1107
+      ],
+      "referenceAreaPixels": 2976,
+      "referenceMaskSha256": "defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        239,
+        1212,
+        244,
+        1218
+      ],
+      "referenceAreaPixels": 27,
+      "referenceMaskSha256": "defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "aacd2690b33691f86628c54bacc3abd489d8032983da392cb5bc42e98a1a081b",
+      "imageSha256": "3186e415fc9acd7f806082de0a3a19215331914b57f9ea30bb728dab4f0e0200",
+      "maskSha256": "1149213e284373c16ef0233bfde7cc703b042a15465e8ef694840fae3e924a83",
+      "notes": "PASS: Actual bolt-action hunting rifle retains long slender barrel, top imaging scope, traditional WALNUT WOOD body/stock with curved rear grip and modest integrated butt shock pad. Wood is source-constrained; shade/woodgrain and unseen depth are artistic. The rendered left-to-right display reverses the page orientation but preserves the own WILDHUTER silhouette/class rather than substituting adjacent Remington750. No added laser, bipod or suppressor. Sling eyelets, bolt lever and scope gaps remain structural; tiny pad vents/checkering/grain are appearance only. Actual matching clay has smooth stock/grip, pad and fittings with grain, checkering, pad vent slots, scope knurling, fine cuts and screw recesses filled. Broad scope mount bands, bolt/receiver fittings, stock-to-shockpad boundary and end cap are major part boundaries, not tiny ornamental cuts. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine trigger guard, scope gap and two sling-eyelet holes, thin barrel and bolt lever preserved; metallic white barrel/receiver highlights remain foreground, not transparent holes. No clipped muzzle, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e7c748ddb1e5b67ec2fc1bcbe9bcd85b5673e3d76f41eaac8ba743c3dfc36cd2",
+      "imageSha256": "a34227b0684093354af45d9ed8e48872eee2205905f01844c34a16771d05e8c6",
+      "maskSha256": "defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3",
+      "notes": "PASS: Actual bolt-action hunting rifle retains long slender barrel, top imaging scope, traditional WALNUT WOOD body/stock with curved rear grip and modest integrated butt shock pad. Wood is source-constrained; shade/woodgrain and unseen depth are artistic. The rendered left-to-right display reverses the page orientation but preserves the own WILDHUTER silhouette/class rather than substituting adjacent Remington750. No added laser, bipod or suppressor. Sling eyelets, bolt lever and scope gaps remain structural; tiny pad vents/checkering/grain are appearance only. Actual matching clay has smooth stock/grip, pad and fittings with grain, checkering, pad vent slots, scope knurling, fine cuts and screw recesses filled. Broad scope mount bands, bolt/receiver fittings, stock-to-shockpad boundary and end cap are major part boundaries, not tiny ornamental cuts. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine trigger guard, scope gap and two sling-eyelet holes, thin barrel and bolt lever preserved; metallic white barrel/receiver highlights remain foreground, not transparent holes. No clipped muzzle, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "PASS: Actual bolt-action hunting rifle retains long slender barrel, top imaging scope, traditional WALNUT WOOD body/stock with curved rear grip and modest integrated butt shock pad. Wood is source-constrained; shade/woodgrain and unseen depth are artistic. The rendered left-to-right display reverses the page orientation but preserves the own WILDHUTER silhouette/class rather than substituting adjacent Remington750. No added laser, bipod or suppressor. Sling eyelets, bolt lever and scope gaps remain structural; tiny pad vents/checkering/grain are appearance only. Actual matching clay has smooth stock/grip, pad and fittings with grain, checkering, pad vent slots, scope knurling, fine cuts and screw recesses filled. Broad scope mount bands, bolt/receiver fittings, stock-to-shockpad boundary and end cap are major part boundaries, not tiny ornamental cuts. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine trigger guard, scope gap and two sling-eyelet holes, thin barrel and bolt lever preserved; metallic white barrel/receiver highlights remain foreground, not transparent holes. No clipped muzzle, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "muzzle-tip",
+          "detail": [
+            0.9479938684290954,
+            0.4662321960034014
+          ],
+          "geometry": [
+            0.9479938684290954,
+            0.4662321960034014
+          ]
+        },
+        {
+          "name": "butt-top-rear",
+          "detail": [
+            0.05273994626120619,
+            0.48898875956632654
+          ],
+          "geometry": [
+            0.05273994626120619,
+            0.48898875956632654
+          ]
+        },
+        {
+          "name": "scope-turret-top",
+          "detail": [
+            0.4475322496434393,
+            0.3942920918367347
+          ],
+          "geometry": [
+            0.4475322496434393,
+            0.3942920918367347
+          ]
+        },
+        {
+          "name": "scope-front-upper",
+          "detail": [
+            0.6141081843418907,
+            0.40089883609693877
+          ],
+          "geometry": [
+            0.6141081843418907,
+            0.40089883609693877
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.3719493365423797,
+            0.5425767963435374
+          ],
+          "geometry": [
+            0.3719493365423797,
+            0.5425767963435374
+          ]
+        },
+        {
+          "name": "fore-end-tip",
+          "detail": [
+            0.7117055381519968,
+            0.4757752710459184
+          ],
+          "geometry": [
+            0.7117055381519968,
+            0.4757752710459184
+          ]
+        },
+        {
+          "name": "front-eyelet",
+          "detail": [
+            0.6676766567339038,
+            0.5036704134778911
+          ],
+          "geometry": [
+            0.6676766567339038,
+            0.5036704134778911
+          ]
+        },
+        {
+          "name": "rear-eyelet",
+          "detail": [
+            0.11731563900774247,
+            0.5939625850340137
+          ],
+          "geometry": [
+            0.11731563900774247,
+            0.5932285023384354
+          ]
+        }
+      ],
+      "referenceSha256": "aacd2690b33691f86628c54bacc3abd489d8032983da392cb5bc42e98a1a081b",
+      "geometrySha256": "a34227b0684093354af45d9ed8e48872eee2205905f01844c34a16771d05e8c6",
+      "detailSha256": "3186e415fc9acd7f806082de0a3a19215331914b57f9ea30bb728dab4f0e0200",
+      "foregroundMaskSha256": "1149213e284373c16ef0233bfde7cc703b042a15465e8ef694840fae3e924a83",
+      "geometryForegroundMaskSha256": "defcb55a32cf65a568d356c6be173df6b713662d57325364c22c1752d7407ae3"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-fichetti-executive-action-493692114e",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        41.0,
+        190.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1215.0,
+        190.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        41.0,
+        1034.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1215.0,
+        1034.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-fichetti-executive-action-493692114e.family.json",
+    "sha256": "64f004e23c59afa4c87719e51aef402a8c3e5c15898788c7cd538df4c2a560da"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/ebdffb46ea38ac4a33488eccf8de6543dc54169ada02a94b099d616e480d52d0.png",
+      "sha256": "ebdffb46ea38ac4a33488eccf8de6543dc54169ada02a94b099d616e480d52d0"
+    },
+    "clayReference": {
+      "path": "inputs/866b64de4c6777c3a4f256506134ee275f54537aa9106cf1c08d3e389c10480e.png",
+      "sha256": "866b64de4c6777c3a4f256506134ee275f54537aa9106cf1c08d3e389c10480e"
+    },
+    "geometry": {
+      "path": "inputs/47111ac737e0871b57f8d9bfeac609acc66df225a918c9b620ec209ebe1fe274.png",
+      "sha256": "47111ac737e0871b57f8d9bfeac609acc66df225a918c9b620ec209ebe1fe274"
+    },
+    "detail": {
+      "path": "inputs/ab1f3c5ed226db7b09f7d162cd3fefa0993464965b6d44b9572b880f958c6569.png",
+      "sha256": "ab1f3c5ed226db7b09f7d162cd3fefa0993464965b6d44b9572b880f958c6569"
+    },
+    "foregroundMask": {
+      "path": "inputs/4282f0749f60a1c69c9794354de71c1b45b2ccc5d23f642c9c2f915efe2b809c.png",
+      "sha256": "4282f0749f60a1c69c9794354de71c1b45b2ccc5d23f642c9c2f915efe2b809c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/4140eb462983e47bb286759d11554444c34fa9a673447a4a5520ae5c19c24e53.png",
+      "sha256": "4140eb462983e47bb286759d11554444c34fa9a673447a4a5520ae5c19c24e53"
+    },
+    "mask": {
+      "path": "inputs/4140eb462983e47bb286759d11554444c34fa9a673447a4a5520ae5c19c24e53.png",
+      "sha256": "4140eb462983e47bb286759d11554444c34fa9a673447a4a5520ae5c19c24e53"
+    },
+    "calibrationReference": {
+      "path": "inputs/5d038953411dd2215cbee5a79330b8c38c27fdfa9afcb682b7525dcc1a820cba.png",
+      "sha256": "5d038953411dd2215cbee5a79330b8c38c27fdfa9afcb682b7525dcc1a820cba"
+    },
+    "sourceAudit": {
+      "path": "inputs/fbcfaec314a3cf107b15e1c54baf92cfc7fa0ef0bd5078b1417319b2d5012b62.json",
+      "sha256": "fbcfaec314a3cf107b15e1c54baf92cfc7fa0ef0bd5078b1417319b2d5012b62"
+    },
+    "referenceApproval": {
+      "path": "inputs/87c2fea7039fefb14dd44783cd7978578006ca56103c851476b2c671060d79bc.json",
+      "sha256": "87c2fea7039fefb14dd44783cd7978578006ca56103c851476b2c671060d79bc"
+    },
+    "calibrationDetail": {
+      "path": "inputs/ca832d7e44392e6d588b2e400426acf2a3950a8acf07a9f961ecfb575d11133a.png",
+      "sha256": "ca832d7e44392e6d588b2e400426acf2a3950a8acf07a9f961ecfb575d11133a"
+    }
+  },
+  "features": [
+    {
+      "name": "Burst-capable light pistol with explicitly no recoil reduction despite its advertising",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own EXECUTIVE ACTION art: rectangular upper, short raked grip and trigger opening; preserve the labeled proportions",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual prepared overlay inspected: common framing, thin members, complete outline and intentional openings preserved; no background debris. Matched upper body, grip rake, sights, trigger and open trigger guard; stippling and fine slide cuts simplified. Shallow grooves allowed; single muzzle recess retains interior surfaces. Actual raw pair and both foreground previews viewed; no background debris; intended opening preserved. Arsenal printed21/PDF23 own EXECUTIVE ACTION labeled art: rectangular upper body, raked rear grip and distinct trigger space. Major construction matches; fine controls, recess treatment, finish and hidden depth are interpreted. No added optic, stock or suppressor.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        938,
+        787,
+        1219,
+        1049
+      ],
+      "referenceAreaPixels": 61771,
+      "referenceMaskSha256": "4140eb462983e47bb286759d11554444c34fa9a673447a4a5520ae5c19c24e53",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ebdffb46ea38ac4a33488eccf8de6543dc54169ada02a94b099d616e480d52d0",
+      "imageSha256": "ab1f3c5ed226db7b09f7d162cd3fefa0993464965b6d44b9572b880f958c6569",
+      "maskSha256": "4282f0749f60a1c69c9794354de71c1b45b2ccc5d23f642c9c2f915efe2b809c",
+      "notes": "Actual prepared overlay inspected: common framing, thin members, complete outline and intentional openings preserved; no background debris. Matched upper body, grip rake, sights, trigger and open trigger guard; stippling and fine slide cuts simplified. Shallow grooves allowed; single muzzle recess retains interior surfaces. Actual raw pair and both foreground previews viewed; no background debris; intended opening preserved. Arsenal printed21/PDF23 own EXECUTIVE ACTION labeled art: rectangular upper body, raked rear grip and distinct trigger space. Major construction matches; fine controls, recess treatment, finish and hidden depth are interpreted. No added optic, stock or suppressor."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "866b64de4c6777c3a4f256506134ee275f54537aa9106cf1c08d3e389c10480e",
+      "imageSha256": "47111ac737e0871b57f8d9bfeac609acc66df225a918c9b620ec209ebe1fe274",
+      "maskSha256": "4140eb462983e47bb286759d11554444c34fa9a673447a4a5520ae5c19c24e53",
+      "notes": "Actual prepared overlay inspected: common framing, thin members, complete outline and intentional openings preserved; no background debris. Matched upper body, grip rake, sights, trigger and open trigger guard; stippling and fine slide cuts simplified. Shallow grooves allowed; single muzzle recess retains interior surfaces. Actual raw pair and both foreground previews viewed; no background debris; intended opening preserved. Arsenal printed21/PDF23 own EXECUTIVE ACTION labeled art: rectangular upper body, raked rear grip and distinct trigger space. Major construction matches; fine controls, recess treatment, finish and hidden depth are interpreted. No added optic, stock or suppressor."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "ebdffb46ea38ac4a33488eccf8de6543dc54169ada02a94b099d616e480d52d0",
+      "detailSha256": "ab1f3c5ed226db7b09f7d162cd3fefa0993464965b6d44b9572b880f958c6569",
+      "geometrySha256": "47111ac737e0871b57f8d9bfeac609acc66df225a918c9b620ec209ebe1fe274",
+      "foregroundMaskSha256": "4282f0749f60a1c69c9794354de71c1b45b2ccc5d23f642c9c2f915efe2b809c",
+      "geometryForegroundMaskSha256": "4140eb462983e47bb286759d11554444c34fa9a673447a4a5520ae5c19c24e53",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.050570977393617024,
+            0.17578125
+          ],
+          "geometry": [
+            0.0498046875,
+            0.17578125
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9501953125,
+            0.17578125
+          ],
+          "geometry": [
+            0.9501953125,
+            0.17578125
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.050570977393617024,
+            0.8226858008274232
+          ],
+          "geometry": [
+            0.0498046875,
+            0.82421875
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9501953125,
+            0.8226858008274232
+          ],
+          "geometry": [
+            0.9501953125,
+            0.82421875
+          ]
+        }
+      ],
+      "notes": "Actual prepared overlay inspected: common framing, thin members, complete outline and intentional openings preserved; no background debris. Matched upper body, grip rake, sights, trigger and open trigger guard; stippling and fine slide cuts simplified. Shallow grooves allowed; single muzzle recess retains interior surfaces. Actual raw pair and both foreground previews viewed; no background debris; intended opening preserved. Arsenal printed21/PDF23 own EXECUTIVE ACTION labeled art: rectangular upper body, raked rear grip and distinct trigger space. Major construction matches; fine controls, recess treatment, finish and hidden depth are interpreted. No added optic, stock or suppressor."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

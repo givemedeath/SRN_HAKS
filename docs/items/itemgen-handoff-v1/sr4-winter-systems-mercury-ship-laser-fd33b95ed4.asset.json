@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-winter-systems-mercury-ship-laser-fd33b95ed4",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-upper-power-loop",
+      "pixel": [
+        1207.1081742535487,
+        597.28046989721
+      ]
+    },
+    {
+      "name": "rear-lower-power-loop",
+      "pixel": [
+        1133.7797241893402,
+        697.9325382035036
+      ]
+    },
+    {
+      "name": "forward-support-space",
+      "pixel": [
+        613.1969012265978,
+        720.8741123305359
+      ]
+    },
+    {
+      "name": "rear-brace-space",
+      "pixel": [
+        746.6615712762176,
+        757.7564877355137
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-winter-systems-mercury-ship-laser-fd33b95ed4.family.json",
+    "sha256": "49184d45eedff16d12ec9d78cda056b59e6563245a96965299ba4703da445149"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/05d6ce3d8b0149cefd0436cea2d6164cc8acd4081c07f92c5c83a0274ded92dc.png",
+      "sha256": "05d6ce3d8b0149cefd0436cea2d6164cc8acd4081c07f92c5c83a0274ded92dc"
+    },
+    "clayReference": {
+      "path": "inputs/3d2eb856b4854ce2c3042d499a7aed74d8561e398259f1070c2f92fcffe1a84d.png",
+      "sha256": "3d2eb856b4854ce2c3042d499a7aed74d8561e398259f1070c2f92fcffe1a84d"
+    },
+    "geometry": {
+      "path": "inputs/e645646e3a75d133095b446b961f7cd838c84e6ccdf880e0f4a9c788d3d9c414.png",
+      "sha256": "e645646e3a75d133095b446b961f7cd838c84e6ccdf880e0f4a9c788d3d9c414"
+    },
+    "detail": {
+      "path": "inputs/a1460a4fea181f3d44e0ad77846dabd084692ab37476c43f6914ef5ddb837da5.png",
+      "sha256": "a1460a4fea181f3d44e0ad77846dabd084692ab37476c43f6914ef5ddb837da5"
+    },
+    "foregroundMask": {
+      "path": "inputs/e41bf2f43ee7878fb374a182e8b08c397ec785eea010a9fab93740abd2e262fb.png",
+      "sha256": "e41bf2f43ee7878fb374a182e8b08c397ec785eea010a9fab93740abd2e262fb"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f.png",
+      "sha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f"
+    },
+    "mask": {
+      "path": "inputs/6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f.png",
+      "sha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f"
+    },
+    "calibrationReference": {
+      "path": "inputs/85f329a5e698997312fd7b07d3c551209b24037f59ed253d5df49b3bba15b103.png",
+      "sha256": "85f329a5e698997312fd7b07d3c551209b24037f59ed253d5df49b3bba15b103"
+    },
+    "sourceAudit": {
+      "path": "inputs/209a8abaaf2012500c183051b2dd8a92b71db522d094be44cda747ef6598a9c1.json",
+      "sha256": "209a8abaaf2012500c183051b2dd8a92b71db522d094be44cda747ef6598a9c1"
+    },
+    "referenceApproval": {
+      "path": "inputs/0b1a830c699f1ebf6f1c82c70d11ab7338a4152f0b577257f9d73417800f2b57.json",
+      "sha256": "0b1a830c699f1ebf6f1c82c70d11ab7338a4152f0b577257f9d73417800f2b57"
+    },
+    "calibrationDetail": {
+      "path": "inputs/55e2810ed02893af1c2684bcce69acd875f82523011b19656f78dce5aeda19e1.png",
+      "sha256": "55e2810ed02893af1c2684bcce69acd875f82523011b19656f78dce5aeda19e1"
+    }
+  },
+  "features": [
+    {
+      "name": "Ship-borne laser with substantial electrical power demand; ship-mount scale/context must remain clear.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Laser designation establishes an emitter system, not a conventional cannon projectile barrel. No own art or exact lens/aperture/turret/cooling enclosure is specified.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected final prepared overlay: framing, source-required structure and major openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1879,
+        821,
+        1907,
+        1021
+      ],
+      "referenceAreaPixels": 3561,
+      "referenceMaskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1734,
+        1043,
+        1829,
+        1123
+      ],
+      "referenceAreaPixels": 5702,
+      "referenceMaskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        959,
+        1068,
+        1040,
+        1173
+      ],
+      "referenceAreaPixels": 3251,
+      "referenceMaskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1585,
+        1088,
+        1648,
+        1123
+      ],
+      "referenceAreaPixels": 1524,
+      "referenceMaskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        861,
+        1131,
+        893,
+        1180
+      ],
+      "referenceAreaPixels": 525,
+      "referenceMaskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1150,
+        1135,
+        1273,
+        1216
+      ],
+      "referenceAreaPixels": 6031,
+      "referenceMaskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1717,
+        1168,
+        1781,
+        1183
+      ],
+      "referenceAreaPixels": 576,
+      "referenceMaskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "05d6ce3d8b0149cefd0436cea2d6164cc8acd4081c07f92c5c83a0274ded92dc",
+      "imageSha256": "a1460a4fea181f3d44e0ad77846dabd084692ab37476c43f6914ef5ddb837da5",
+      "maskSha256": "e41bf2f43ee7878fb374a182e8b08c397ec785eea010a9fab93740abd2e262fb",
+      "notes": "Root inspected final prepared overlay: framing, source-required structure and major openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "3d2eb856b4854ce2c3042d499a7aed74d8561e398259f1070c2f92fcffe1a84d",
+      "imageSha256": "e645646e3a75d133095b446b961f7cd838c84e6ccdf880e0f4a9c788d3d9c414",
+      "maskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "notes": "Root inspected final prepared overlay: framing, source-required structure and major openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "05d6ce3d8b0149cefd0436cea2d6164cc8acd4081c07f92c5c83a0274ded92dc",
+      "detailSha256": "a1460a4fea181f3d44e0ad77846dabd084692ab37476c43f6914ef5ddb837da5",
+      "geometrySha256": "e645646e3a75d133095b446b961f7cd838c84e6ccdf880e0f4a9c788d3d9c414",
+      "foregroundMaskSha256": "e41bf2f43ee7878fb374a182e8b08c397ec785eea010a9fab93740abd2e262fb",
+      "geometryForegroundMaskSha256": "6a75d6d35fdd689283ea3965ebc6d79035e490330e9512323de4f82de46f943f",
+      "landmarks": [
+        {
+          "name": "rear-upper-power-loop",
+          "detail": [
+            0.9218784428595487,
+            0.4536929046813601
+          ],
+          "geometry": [
+            0.9234938380494376,
+            0.44681052942920624
+          ]
+        },
+        {
+          "name": "rear-lower-power-loop",
+          "detail": [
+            0.8684589027705704,
+            0.5270299202313908
+          ],
+          "geometry": [
+            0.8689359001423493,
+            0.5274856988990198
+          ]
+        },
+        {
+          "name": "forward-support-space",
+          "detail": [
+            0.4892159901419648,
+            0.5437455884417693
+          ],
+          "geometry": [
+            0.4893772919308649,
+            0.5447203212071172
+          ]
+        },
+        {
+          "name": "rear-brace-space",
+          "detail": [
+            0.5864445731262639,
+            0.5706187901962115
+          ],
+          "geometry": [
+            0.586911565894553,
+            0.5720011284996318
+          ]
+        }
+      ],
+      "notes": "Root inspected final prepared overlay: framing, source-required structure and major openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

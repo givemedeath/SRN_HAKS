@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-nunchaku-ad74a361ab",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-top",
+      "pixel": [
+        310.0,
+        76.0
+      ]
+    },
+    {
+      "name": "right-top",
+      "pixel": [
+        792.0,
+        76.0
+      ]
+    },
+    {
+      "name": "left-bottom",
+      "pixel": [
+        156.0,
+        1348.0
+      ]
+    },
+    {
+      "name": "right-bottom",
+      "pixel": [
+        939.0,
+        1348.0
+      ]
+    },
+    {
+      "name": "chain-middle",
+      "pixel": [
+        550.0,
+        176.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-nunchaku-ad74a361ab.family.json",
+    "sha256": "ef9d673fbd1d66305731f366849d387e53fdaeb304b608f9d636307c1ef3495a"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f5624b86bda963039d3883a439b5ffa71f31fe98a28f1d1af0257370b44d02e3.png",
+      "sha256": "f5624b86bda963039d3883a439b5ffa71f31fe98a28f1d1af0257370b44d02e3"
+    },
+    "clayReference": {
+      "path": "inputs/9e5571670f80840eebd81bf3eb83669eecb41d74c24f6fe03d758d5cbfcede59.png",
+      "sha256": "9e5571670f80840eebd81bf3eb83669eecb41d74c24f6fe03d758d5cbfcede59"
+    },
+    "geometry": {
+      "path": "inputs/ae5c741acdd7700ae0fd8a628152935ada5b21a8bd1bfeaecc17d29d6f7b2a92.png",
+      "sha256": "ae5c741acdd7700ae0fd8a628152935ada5b21a8bd1bfeaecc17d29d6f7b2a92"
+    },
+    "detail": {
+      "path": "inputs/7acaadc9b90d96fec26bccf39f0b52cf145304f0f5e177032b3c7764562f5fac.png",
+      "sha256": "7acaadc9b90d96fec26bccf39f0b52cf145304f0f5e177032b3c7764562f5fac"
+    },
+    "foregroundMask": {
+      "path": "inputs/7e05682ea5c8ca7d1d299028adba7c57fd10605e03d88e95a5f492d013786461.png",
+      "sha256": "7e05682ea5c8ca7d1d299028adba7c57fd10605e03d88e95a5f492d013786461"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca.png",
+      "sha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca"
+    },
+    "mask": {
+      "path": "inputs/5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca.png",
+      "sha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca"
+    },
+    "calibrationReference": {
+      "path": "inputs/36b6935115dd6160c040c61f09cebaae38d71a47c5d6b0129bad39b9df3faf64.png",
+      "sha256": "36b6935115dd6160c040c61f09cebaae38d71a47c5d6b0129bad39b9df3faf64"
+    },
+    "sourceAudit": {
+      "path": "inputs/85a3d1ac64aa505fe84ea3fdc5b271cc67fcccd21ea1ae74529963603c2a0055.json",
+      "sha256": "85a3d1ac64aa505fe84ea3fdc5b271cc67fcccd21ea1ae74529963603c2a0055"
+    },
+    "referenceApproval": {
+      "path": "inputs/baba2379059cbe8a27f9904b15e53ee3edb6410f340a56a00e0ebfdecce37d96.json",
+      "sha256": "baba2379059cbe8a27f9904b15e53ee3edb6410f340a56a00e0ebfdecce37d96"
+    },
+    "calibrationDetail": {
+      "path": "inputs/734ee0a5def6679286eae9c15efb084a6699d8ea3b01878dfb2b8bd5d2cbf9a8.png",
+      "sha256": "734ee0a5def6679286eae9c15efb084a6699d8ea3b01878dfb2b8bd5d2cbf9a8"
+    }
+  },
+  "features": [
+    {
+      "name": "Two short sticks joined by a flexible cord or chain.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Stick materials may be wood, metal or plastic; preserve two separate members and their joining connection.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact pair approval reused. Actual teal foreground masks inspected: handles, caps and all five chain openings retained. Native detail1101x1429 clay1100x1429 resampled2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1351,
+        171,
+        1375,
+        199
+      ],
+      "referenceAreaPixels": 473,
+      "referenceMaskSha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        663,
+        175,
+        686,
+        202
+      ],
+      "referenceAreaPixels": 415,
+      "referenceMaskSha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1186,
+        175,
+        1240,
+        216
+      ],
+      "referenceAreaPixels": 1261,
+      "referenceMaskSha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        796,
+        181,
+        849,
+        220
+      ],
+      "referenceAreaPixels": 1290,
+      "referenceMaskSha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        981,
+        200,
+        1053,
+        233
+      ],
+      "referenceAreaPixels": 1923,
+      "referenceMaskSha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f5624b86bda963039d3883a439b5ffa71f31fe98a28f1d1af0257370b44d02e3",
+      "imageSha256": "7acaadc9b90d96fec26bccf39f0b52cf145304f0f5e177032b3c7764562f5fac",
+      "maskSha256": "7e05682ea5c8ca7d1d299028adba7c57fd10605e03d88e95a5f492d013786461",
+      "notes": "Exact pair approval reused. Actual teal foreground masks inspected: handles, caps and all five chain openings retained. Native detail1101x1429 clay1100x1429 resampled2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "9e5571670f80840eebd81bf3eb83669eecb41d74c24f6fe03d758d5cbfcede59",
+      "imageSha256": "ae5c741acdd7700ae0fd8a628152935ada5b21a8bd1bfeaecc17d29d6f7b2a92",
+      "maskSha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca",
+      "notes": "Exact pair approval reused. Actual teal foreground masks inspected: handles, caps and all five chain openings retained. Native detail1101x1429 clay1100x1429 resampled2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact pair approval reused. Actual teal foreground masks inspected: handles, caps and all five chain openings retained. Native detail1101x1429 clay1100x1429 resampled2048.",
+      "landmarks": [
+        {
+          "name": "left-top",
+          "detail": [
+            0.3321548273533951,
+            0.052614018623244926
+          ],
+          "geometry": [
+            0.329345703125,
+            0.052614018623244926
+          ]
+        },
+        {
+          "name": "right-top",
+          "detail": [
+            0.670654296875,
+            0.052614018623244926
+          ],
+          "geometry": [
+            0.6664406105324074,
+            0.052614018623244926
+          ]
+        },
+        {
+          "name": "left-bottom",
+          "detail": [
+            0.22400354456018517,
+            0.9459813158151326
+          ],
+          "geometry": [
+            0.22330126350308643,
+            0.9459813158151326
+          ]
+        },
+        {
+          "name": "right-bottom",
+          "detail": [
+            0.7738896122685185,
+            0.9459813158151326
+          ],
+          "geometry": [
+            0.7703782069830247,
+            0.9459813158151326
+          ]
+        },
+        {
+          "name": "chain-middle",
+          "detail": [
+            0.5007022810570987,
+            0.12284729670436817
+          ],
+          "geometry": [
+            0.4964885947145062,
+            0.12284729670436817
+          ]
+        }
+      ],
+      "referenceSha256": "f5624b86bda963039d3883a439b5ffa71f31fe98a28f1d1af0257370b44d02e3",
+      "geometrySha256": "ae5c741acdd7700ae0fd8a628152935ada5b21a8bd1bfeaecc17d29d6f7b2a92",
+      "detailSha256": "7acaadc9b90d96fec26bccf39f0b52cf145304f0f5e177032b3c7764562f5fac",
+      "foregroundMaskSha256": "7e05682ea5c8ca7d1d299028adba7c57fd10605e03d88e95a5f492d013786461",
+      "geometryForegroundMaskSha256": "5da2e639454e168fc3b675234fddbd8e4f536da7615c072943162f7df5b847ca"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

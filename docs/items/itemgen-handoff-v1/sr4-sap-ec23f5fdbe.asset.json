@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-sap-ec23f5fdbe",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "handle-left",
+      "pixel": [
+        39.99999999999999,
+        441.99999999999994
+      ]
+    },
+    {
+      "name": "neck",
+      "pixel": [
+        760.0,
+        445.0
+      ]
+    },
+    {
+      "name": "head-top",
+      "pixel": [
+        1470.0,
+        243.0
+      ]
+    },
+    {
+      "name": "head-right",
+      "pixel": [
+        1734.0,
+        441.0
+      ]
+    },
+    {
+      "name": "head-bottom",
+      "pixel": [
+        1450.0,
+        634.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-sap-ec23f5fdbe.family.json",
+    "sha256": "af78634118f21ae42eaeba809ebb04f814c479397cbeb3104879119116dbf4a8"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/aad33b087f5d2889e51bf82f2d786e551bbb9822ee1ed60e172371a1e6a2e8de.png",
+      "sha256": "aad33b087f5d2889e51bf82f2d786e551bbb9822ee1ed60e172371a1e6a2e8de"
+    },
+    "clayReference": {
+      "path": "inputs/48fa617b2ea68ef54715f8461fdb9d509481918bbd7cdecd1566b6d72386fd9a.png",
+      "sha256": "48fa617b2ea68ef54715f8461fdb9d509481918bbd7cdecd1566b6d72386fd9a"
+    },
+    "geometry": {
+      "path": "inputs/cc8c8c364882915679c4816758ea9a9dfeb9d9027a9e7035606398013094633a.png",
+      "sha256": "cc8c8c364882915679c4816758ea9a9dfeb9d9027a9e7035606398013094633a"
+    },
+    "detail": {
+      "path": "inputs/40051a3bf20df3e5e912b74684c0336a7aec2a743a8d144b65475a5109c8640b.png",
+      "sha256": "40051a3bf20df3e5e912b74684c0336a7aec2a743a8d144b65475a5109c8640b"
+    },
+    "foregroundMask": {
+      "path": "inputs/d88f3a24c26d9d830e6d7087f43a6cf2dc4febe016da756f5d9274b6cb6838fd.png",
+      "sha256": "d88f3a24c26d9d830e6d7087f43a6cf2dc4febe016da756f5d9274b6cb6838fd"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/c49f147ca830b52a2c423907f4753549cb2e204f9cd6086fa755bc12f9798d67.png",
+      "sha256": "c49f147ca830b52a2c423907f4753549cb2e204f9cd6086fa755bc12f9798d67"
+    },
+    "mask": {
+      "path": "inputs/c49f147ca830b52a2c423907f4753549cb2e204f9cd6086fa755bc12f9798d67.png",
+      "sha256": "c49f147ca830b52a2c423907f4753549cb2e204f9cd6086fa755bc12f9798d67"
+    },
+    "calibrationReference": {
+      "path": "inputs/8043dfafa2e7edd9ec922430f36e1a5ea801e7e20c078a9c908f324ee1f0fa9c.png",
+      "sha256": "8043dfafa2e7edd9ec922430f36e1a5ea801e7e20c078a9c908f324ee1f0fa9c"
+    },
+    "sourceAudit": {
+      "path": "inputs/0f828f58b19a198aa7e9141b6ecca85f783fb9ccf94b9b137ccf31b1ed100a1d.json",
+      "sha256": "0f828f58b19a198aa7e9141b6ecca85f783fb9ccf94b9b137ccf31b1ed100a1d"
+    },
+    "referenceApproval": {
+      "path": "inputs/f70b47a53f3f25ffadab383f20f10473056bad4dfa6c282bc9fcc468ecd40c57.json",
+      "sha256": "f70b47a53f3f25ffadab383f20f10473056bad4dfa6c282bc9fcc468ecd40c57"
+    },
+    "calibrationDetail": {
+      "path": "inputs/9d76263fa58c27221a171c0ad7617a65eace03d26d1d3653c4226211cf77efde.png",
+      "sha256": "9d76263fa58c27221a171c0ad7617a65eace03d26d1d3653c4226211cf77efde"
+    }
+  },
+  "features": [
+    {
+      "name": "Small springy club",
+      "placementReviewed": true
+    },
+    {
+      "name": "Compact concealable proportions",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sap is the source small springy concealable club; compact flattened closed leather interpretation, not a long rigid baton. No intentional holes. Independent manual outer contours remove prior backdrop fringe while preserving ends, neck and head; leather/stitching only in detail, smooth clay retained. Assigned sole final reviewer inspected cited primary page/current raw forms, actual native foregrounds and final2048 masks/teal/paired overlay. Full silhouettes, tips/ends and genuine openings preserved. All raw RGB retained byte-identically in native foreground copies. Common crop/scale/offset only, no warp or independent crop. No broad fringe, clipped subject, detached foreground or background specks. Output2048 is resampled, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "aad33b087f5d2889e51bf82f2d786e551bbb9822ee1ed60e172371a1e6a2e8de",
+      "imageSha256": "40051a3bf20df3e5e912b74684c0336a7aec2a743a8d144b65475a5109c8640b",
+      "maskSha256": "d88f3a24c26d9d830e6d7087f43a6cf2dc4febe016da756f5d9274b6cb6838fd",
+      "notes": "Sap is the source small springy concealable club; compact flattened closed leather interpretation, not a long rigid baton. No intentional holes. Independent manual outer contours remove prior backdrop fringe while preserving ends, neck and head; leather/stitching only in detail, smooth clay retained. Assigned sole final reviewer inspected cited primary page/current raw forms, actual native foregrounds and final2048 masks/teal/paired overlay. Full silhouettes, tips/ends and genuine openings preserved. All raw RGB retained byte-identically in native foreground copies. Common crop/scale/offset only, no warp or independent crop. No broad fringe, clipped subject, detached foreground or background specks. Output2048 is resampled, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "48fa617b2ea68ef54715f8461fdb9d509481918bbd7cdecd1566b6d72386fd9a",
+      "imageSha256": "cc8c8c364882915679c4816758ea9a9dfeb9d9027a9e7035606398013094633a",
+      "maskSha256": "c49f147ca830b52a2c423907f4753549cb2e204f9cd6086fa755bc12f9798d67",
+      "notes": "Sap is the source small springy concealable club; compact flattened closed leather interpretation, not a long rigid baton. No intentional holes. Independent manual outer contours remove prior backdrop fringe while preserving ends, neck and head; leather/stitching only in detail, smooth clay retained. Assigned sole final reviewer inspected cited primary page/current raw forms, actual native foregrounds and final2048 masks/teal/paired overlay. Full silhouettes, tips/ends and genuine openings preserved. All raw RGB retained byte-identically in native foreground copies. Common crop/scale/offset only, no warp or independent crop. No broad fringe, clipped subject, detached foreground or background specks. Output2048 is resampled, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Sap is the source small springy concealable club; compact flattened closed leather interpretation, not a long rigid baton. No intentional holes. Independent manual outer contours remove prior backdrop fringe while preserving ends, neck and head; leather/stitching only in detail, smooth clay retained. Assigned sole final reviewer inspected cited primary page/current raw forms, actual native foregrounds and final2048 masks/teal/paired overlay. Full silhouettes, tips/ends and genuine openings preserved. All raw RGB retained byte-identically in native foreground copies. Common crop/scale/offset only, no warp or independent crop. No broad fringe, clipped subject, detached foreground or background specks. Output2048 is resampled, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "handle-left",
+          "detail": [
+            0.050865843215969354,
+            0.5016112051322418
+          ],
+          "geometry": [
+            0.0498046875,
+            0.5010811063444585
+          ]
+        },
+        {
+          "name": "neck",
+          "detail": [
+            0.4328819009649381,
+            0.503201501495592
+          ],
+          "geometry": [
+            0.4328819009649381,
+            0.5021413039200252
+          ]
+        },
+        {
+          "name": "head-top",
+          "detail": [
+            0.8095921801340601,
+            0.3961215463633501
+          ],
+          "geometry": [
+            0.8095921801340601,
+            0.3950613487877834
+          ]
+        },
+        {
+          "name": "head-right",
+          "detail": [
+            0.9496647346420153,
+            0.5010811063444585
+          ],
+          "geometry": [
+            0.9501953125,
+            0.5010811063444585
+          ]
+        },
+        {
+          "name": "head-bottom",
+          "detail": [
+            0.7989806229743666,
+            0.6033901723866499
+          ],
+          "geometry": [
+            0.7989806229743666,
+            0.60498046875
+          ]
+        }
+      ],
+      "referenceSha256": "aad33b087f5d2889e51bf82f2d786e551bbb9822ee1ed60e172371a1e6a2e8de",
+      "geometrySha256": "cc8c8c364882915679c4816758ea9a9dfeb9d9027a9e7035606398013094633a",
+      "detailSha256": "40051a3bf20df3e5e912b74684c0336a7aec2a743a8d144b65475a5109c8640b",
+      "foregroundMaskSha256": "d88f3a24c26d9d830e6d7087f43a6cf2dc4febe016da756f5d9274b6cb6838fd",
+      "geometryForegroundMaskSha256": "c49f147ca830b52a2c423907f4753549cb2e204f9cd6086fa755bc12f9798d67"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

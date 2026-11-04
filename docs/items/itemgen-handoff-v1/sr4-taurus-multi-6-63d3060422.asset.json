@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-taurus-multi-6-63d3060422",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        35.99999999999999,
+        203.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1227.0,
+        203.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        35.99999999999999,
+        1075.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1227.0,
+        1075.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-taurus-multi-6-63d3060422.family.json",
+    "sha256": "7fe901d3cc4bc59d068aaac17de1ea8befc2ccc4d6c5d0c112801a99bc4a440f"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/bb8a1e128b5cce06d11660ec7cb743630eba7aa50361703dd4df9d927b98d560.png",
+      "sha256": "bb8a1e128b5cce06d11660ec7cb743630eba7aa50361703dd4df9d927b98d560"
+    },
+    "clayReference": {
+      "path": "inputs/bed12b30f77d476d892d5a08978a6a3c95b40c22a48c7a77cdaa720504ec8319.png",
+      "sha256": "bed12b30f77d476d892d5a08978a6a3c95b40c22a48c7a77cdaa720504ec8319"
+    },
+    "geometry": {
+      "path": "inputs/87b241f0a67701d7dade6228a10527eaeddf30a5f6f59abb43a4aa957e9d6ee0.png",
+      "sha256": "87b241f0a67701d7dade6228a10527eaeddf30a5f6f59abb43a4aa957e9d6ee0"
+    },
+    "detail": {
+      "path": "inputs/4a4dc5912b92b82ff4162b17d6b6e9e06addc0800829ca52c741b230038334f7.png",
+      "sha256": "4a4dc5912b92b82ff4162b17d6b6e9e06addc0800829ca52c741b230038334f7"
+    },
+    "foregroundMask": {
+      "path": "inputs/e1e4c62ac41e34a94f913a47fdb86c0a2a92af06ee924930323295125f1fee4d.png",
+      "sha256": "e1e4c62ac41e34a94f913a47fdb86c0a2a92af06ee924930323295125f1fee4d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/a21f31321a4dfdb182946a7c0448abbb707755629d35dee5a09440e108204ba1.png",
+      "sha256": "a21f31321a4dfdb182946a7c0448abbb707755629d35dee5a09440e108204ba1"
+    },
+    "mask": {
+      "path": "inputs/a21f31321a4dfdb182946a7c0448abbb707755629d35dee5a09440e108204ba1.png",
+      "sha256": "a21f31321a4dfdb182946a7c0448abbb707755629d35dee5a09440e108204ba1"
+    },
+    "calibrationReference": {
+      "path": "inputs/00db80ad4e4cb1fde11603c4df980eeada0da6cdd0c9827da1ab31575ee3c2a0.png",
+      "sha256": "00db80ad4e4cb1fde11603c4df980eeada0da6cdd0c9827da1ab31575ee3c2a0"
+    },
+    "sourceAudit": {
+      "path": "inputs/90be43a7b28a31bc4932af00e814008feb4b6db321993722da3af9eb5ccc0db4.json",
+      "sha256": "90be43a7b28a31bc4932af00e814008feb4b6db321993722da3af9eb5ccc0db4"
+    },
+    "referenceApproval": {
+      "path": "inputs/4a513900529a2fea03a00a93ebcb899c69818c0e692678844a2b968f9a3369ea.json",
+      "sha256": "4a513900529a2fea03a00a93ebcb899c69818c0e692678844a2b968f9a3369ea"
+    },
+    "calibrationDetail": {
+      "path": "inputs/862a1c682a79c9638c6e21d5bf392518fce170a499ec1f2c04568a2d56795087.png",
+      "sha256": "862a1c682a79c9638c6e21d5bf392518fce170a499ec1f2c04568a2d56795087"
+    }
+  },
+  "features": [
+    {
+      "name": "Revolver capable of the described light/heavy pistol ammunition alternatives; ONE physical gun, not two distinct exterior models.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own MULTI6 drawing printed22/PDF24: revolver cylinder/body, short upper/front and raked grip with distinct trigger space. Do not infer six barrels from its name.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final conditioned overlay reviewed; matched framing, trigger opening, cylinder and hammer retained. Smooth clay grip; shallow grooves accepted. Arsenal printed22/PDF24 own MULTI6 illustration/text: one revolver with cylinder, short upper/front, raked grip and distinct trigger space. The ammunition alternatives do not define two exteriors or six barrels. Retained detailed reference follows these major forms; exact finish, hidden faces and depth are interpreted. No silencer or additional accessory.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        818,
+        929,
+        1206,
+        1195
+      ],
+      "referenceAreaPixels": 67350,
+      "referenceMaskSha256": "a21f31321a4dfdb182946a7c0448abbb707755629d35dee5a09440e108204ba1",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "4a4dc5912b92b82ff4162b17d6b6e9e06addc0800829ca52c741b230038334f7",
+      "maskSha256": "e1e4c62ac41e34a94f913a47fdb86c0a2a92af06ee924930323295125f1fee4d",
+      "notes": "Final conditioned overlay reviewed; matched framing, trigger opening, cylinder and hammer retained. Smooth clay grip; shallow grooves accepted. Arsenal printed22/PDF24 own MULTI6 illustration/text: one revolver with cylinder, short upper/front, raked grip and distinct trigger space. The ammunition alternatives do not define two exteriors or six barrels. Retained detailed reference follows these major forms; exact finish, hidden faces and depth are interpreted. No silencer or additional accessory.",
+      "referenceSha256": "bb8a1e128b5cce06d11660ec7cb743630eba7aa50361703dd4df9d927b98d560",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "87b241f0a67701d7dade6228a10527eaeddf30a5f6f59abb43a4aa957e9d6ee0",
+      "maskSha256": "a21f31321a4dfdb182946a7c0448abbb707755629d35dee5a09440e108204ba1",
+      "notes": "Final conditioned overlay reviewed; matched framing, trigger opening, cylinder and hammer retained. Smooth clay grip; shallow grooves accepted. Arsenal printed22/PDF24 own MULTI6 illustration/text: one revolver with cylinder, short upper/front, raked grip and distinct trigger space. The ammunition alternatives do not define two exteriors or six barrels. Retained detailed reference follows these major forms; exact finish, hidden faces and depth are interpreted. No silencer or additional accessory.",
+      "referenceSha256": "bed12b30f77d476d892d5a08978a6a3c95b40c22a48c7a77cdaa720504ec8319",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "4a4dc5912b92b82ff4162b17d6b6e9e06addc0800829ca52c741b230038334f7",
+      "foregroundMaskSha256": "e1e4c62ac41e34a94f913a47fdb86c0a2a92af06ee924930323295125f1fee4d",
+      "geometryForegroundMaskSha256": "a21f31321a4dfdb182946a7c0448abbb707755629d35dee5a09440e108204ba1",
+      "geometrySha256": "87b241f0a67701d7dade6228a10527eaeddf30a5f6f59abb43a4aa957e9d6ee0",
+      "landmarks": [
+        {
+          "detail": [
+            0.050559415601424976,
+            0.169921875
+          ],
+          "geometry": [
+            0.0498046875,
+            0.169921875
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.949440584398575,
+            0.169921875
+          ],
+          "geometry": [
+            0.9501953125,
+            0.169921875
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.050559415601424976,
+            0.8280803060640732
+          ],
+          "geometry": [
+            0.0498046875,
+            0.82958984375
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.949440584398575,
+            0.8280803060640732
+          ],
+          "geometry": [
+            0.9501953125,
+            0.82958984375
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Final conditioned overlay reviewed; matched framing, trigger opening, cylinder and hammer retained. Smooth clay grip; shallow grooves accepted. Arsenal printed22/PDF24 own MULTI6 illustration/text: one revolver with cylinder, short upper/front, raked grip and distinct trigger space. The ammunition alternatives do not define two exteriors or six barrels. Retained detailed reference follows these major forms; exact finish, hidden faces and depth are interpreted. No silencer or additional accessory.",
+      "referenceSha256": "bb8a1e128b5cce06d11660ec7cb743630eba7aa50361703dd4df9d927b98d560"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

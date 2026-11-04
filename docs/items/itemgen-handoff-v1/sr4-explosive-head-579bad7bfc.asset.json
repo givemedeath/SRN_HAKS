@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-explosive-head-579bad7bfc",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "nose",
+      "pixel": [
+        35.0,
+        610.0
+      ]
+    },
+    {
+      "name": "capsule-center",
+      "pixel": [
+        720.0,
+        600.0
+      ]
+    },
+    {
+      "name": "rear-neck",
+      "pixel": [
+        1200.0,
+        610.0
+      ]
+    },
+    {
+      "name": "front-band",
+      "pixel": [
+        545.0,
+        490.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-explosive-head-579bad7bfc.family.json",
+    "sha256": "7a9dd26c7537e47e73f1ebc08ce357a2da672c02de045eae2e5e208f99400a7f"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/0e37449115fffce3999312d3585c93706314e6c7e5d5343e847adb3efaddc3e2.png",
+      "sha256": "0e37449115fffce3999312d3585c93706314e6c7e5d5343e847adb3efaddc3e2"
+    },
+    "clayReference": {
+      "path": "inputs/e95ef5ade723872331cfc97da276d05bde0296ecd173035612ce5590aad9edc2.png",
+      "sha256": "e95ef5ade723872331cfc97da276d05bde0296ecd173035612ce5590aad9edc2"
+    },
+    "geometry": {
+      "path": "inputs/4f950eb4e6c3baf6601212ce6ecd84c72179d5b281c060e561fb988992530115.png",
+      "sha256": "4f950eb4e6c3baf6601212ce6ecd84c72179d5b281c060e561fb988992530115"
+    },
+    "detail": {
+      "path": "inputs/3857f9e23b88d8529d2d69182e2f9df509f9634caf5f41f39a976c1d32d5b040.png",
+      "sha256": "3857f9e23b88d8529d2d69182e2f9df509f9634caf5f41f39a976c1d32d5b040"
+    },
+    "foregroundMask": {
+      "path": "inputs/310c9fc20c22d4e5f8d1b21c0d03270bd025b3d33eefe9f95d5d4a17a0abc30c.png",
+      "sha256": "310c9fc20c22d4e5f8d1b21c0d03270bd025b3d33eefe9f95d5d4a17a0abc30c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/1a8efccf6da18d002b33d2f0f7cb61bce3f7c5ffae0f8e3c1424b193fec39816.png",
+      "sha256": "1a8efccf6da18d002b33d2f0f7cb61bce3f7c5ffae0f8e3c1424b193fec39816"
+    },
+    "mask": {
+      "path": "inputs/1a8efccf6da18d002b33d2f0f7cb61bce3f7c5ffae0f8e3c1424b193fec39816.png",
+      "sha256": "1a8efccf6da18d002b33d2f0f7cb61bce3f7c5ffae0f8e3c1424b193fec39816"
+    },
+    "calibrationReference": {
+      "path": "inputs/cb6dab311da109005685dc3540b64eccd245be641ed6717ecbb08e221c8e1c4e.png",
+      "sha256": "cb6dab311da109005685dc3540b64eccd245be641ed6717ecbb08e221c8e1c4e"
+    },
+    "sourceAudit": {
+      "path": "inputs/6832403e0072a9ab1e2bcbb504f72a60b188cb5f259edc8f62331705a179c4e3.json",
+      "sha256": "6832403e0072a9ab1e2bcbb504f72a60b188cb5f259edc8f62331705a179c4e3"
+    },
+    "referenceApproval": {
+      "path": "inputs/254c8676776b1df44c34d61d04b77626b01400dcab7e70106373edeb783297be.json",
+      "sha256": "254c8676776b1df44c34d61d04b77626b01400dcab7e70106373edeb783297be"
+    },
+    "calibrationDetail": {
+      "path": "inputs/a2a50029f4c4adba3526e2e269595ee28e138e2845ed109eecf9afd1dbf20460.png",
+      "sha256": "a2a50029f4c4adba3526e2e269595ee28e138e2845ed109eecf9afd1dbf20460"
+    }
+  },
+  "features": [
+    {
+      "name": "Arrow or crossbow-bolt head, not standalone weapon",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own EXPLOSIVE art: pointed nose, short substantial capsule/canister body, major bands and rear attachment neck",
+      "placementReviewed": true
+    },
+    {
+      "name": "Internal payload/cutaway, active explosion and exact finish are not required exterior features",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: matched framing, clear margins and pointed nose, short capsule body, major bands and rear attachment neck retained. Independently reviewed detail/clay alpha topology unchanged by conditioning: {\"detail\": {\"components\": 1, \"holes\": 0}, \"clay\": {\"components\": 1, \"holes\": 0}}. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0e37449115fffce3999312d3585c93706314e6c7e5d5343e847adb3efaddc3e2",
+      "imageSha256": "3857f9e23b88d8529d2d69182e2f9df509f9634caf5f41f39a976c1d32d5b040",
+      "maskSha256": "310c9fc20c22d4e5f8d1b21c0d03270bd025b3d33eefe9f95d5d4a17a0abc30c",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: matched framing, clear margins and pointed nose, short capsule body, major bands and rear attachment neck retained. Independently reviewed detail/clay alpha topology unchanged by conditioning: {\"detail\": {\"components\": 1, \"holes\": 0}, \"clay\": {\"components\": 1, \"holes\": 0}}. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e95ef5ade723872331cfc97da276d05bde0296ecd173035612ce5590aad9edc2",
+      "imageSha256": "4f950eb4e6c3baf6601212ce6ecd84c72179d5b281c060e561fb988992530115",
+      "maskSha256": "1a8efccf6da18d002b33d2f0f7cb61bce3f7c5ffae0f8e3c1424b193fec39816",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: matched framing, clear margins and pointed nose, short capsule body, major bands and rear attachment neck retained. Independently reviewed detail/clay alpha topology unchanged by conditioning: {\"detail\": {\"components\": 1, \"holes\": 0}, \"clay\": {\"components\": 1, \"holes\": 0}}. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: matched framing, clear margins and pointed nose, short capsule body, major bands and rear attachment neck retained. Independently reviewed detail/clay alpha topology unchanged by conditioning: {\"detail\": {\"components\": 1, \"holes\": 0}, \"clay\": {\"components\": 1, \"holes\": 0}}. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "nose",
+          "detail": [
+            0.05282866944794291,
+            0.4937077766455314
+          ],
+          "geometry": [
+            0.05282866944794291,
+            0.4937077766455314
+          ]
+        },
+        {
+          "name": "capsule-center",
+          "detail": [
+            0.5706855780331654,
+            0.4861476732336957
+          ],
+          "geometry": [
+            0.5706855780331654,
+            0.4861476732336957
+          ]
+        },
+        {
+          "name": "rear-neck",
+          "detail": [
+            0.933563411786314,
+            0.4937077766455314
+          ],
+          "geometry": [
+            0.933563411786314,
+            0.4937077766455314
+          ]
+        },
+        {
+          "name": "front-band",
+          "detail": [
+            0.4383863678106633,
+            0.4029865357035024
+          ],
+          "geometry": [
+            0.4383863678106633,
+            0.4029865357035024
+          ]
+        }
+      ],
+      "referenceSha256": "0e37449115fffce3999312d3585c93706314e6c7e5d5343e847adb3efaddc3e2",
+      "geometrySha256": "4f950eb4e6c3baf6601212ce6ecd84c72179d5b281c060e561fb988992530115",
+      "detailSha256": "3857f9e23b88d8529d2d69182e2f9df509f9634caf5f41f39a976c1d32d5b040",
+      "geometryForegroundMaskSha256": "1a8efccf6da18d002b33d2f0f7cb61bce3f7c5ffae0f8e3c1424b193fec39816",
+      "foregroundMaskSha256": "310c9fc20c22d4e5f8d1b21c0d03270bd025b3d33eefe9f95d5d4a17a0abc30c"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-combat-axe-3870814348",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "head-top",
+      "pixel": [
+        178.0,
+        165.00000000000003
+      ]
+    },
+    {
+      "name": "blade-front",
+      "pixel": [
+        18.0,
+        459.99999999999994
+      ]
+    },
+    {
+      "name": "blade-bottom-tip",
+      "pixel": [
+        329.0,
+        621.9999999999999
+      ]
+    },
+    {
+      "name": "socket-upper",
+      "pixel": [
+        375.0,
+        303.0
+      ]
+    },
+    {
+      "name": "upper-grip-start",
+      "pixel": [
+        477.0,
+        337.0
+      ]
+    },
+    {
+      "name": "upper-grip-end",
+      "pixel": [
+        711.0,
+        399.0
+      ]
+    },
+    {
+      "name": "butt-cap-right",
+      "pixel": [
+        1759.0,
+        731.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-combat-axe-3870814348.family.json",
+    "sha256": "7b93cd7f1092b6524c6d56c58dc33b5a67c3b8d047c3f20c61910d366223cb6c"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/666095e10523743ea45435b8f1440aa862b8c0cb65e080daa4e388e9816fdb5a.png",
+      "sha256": "666095e10523743ea45435b8f1440aa862b8c0cb65e080daa4e388e9816fdb5a"
+    },
+    "clayReference": {
+      "path": "inputs/14125c3f231615535be3c847dab30b4b037c533a3bb915f087cc4906c1dc210b.png",
+      "sha256": "14125c3f231615535be3c847dab30b4b037c533a3bb915f087cc4906c1dc210b"
+    },
+    "geometry": {
+      "path": "inputs/08a4b85106b167a8529a003a50837a7c7601026f335505d2e00d78c574ac4f3b.png",
+      "sha256": "08a4b85106b167a8529a003a50837a7c7601026f335505d2e00d78c574ac4f3b"
+    },
+    "detail": {
+      "path": "inputs/8fad69de598f0bbd8ca4a3b52a5ac6db5fe8a4a1dc0cb10a204a78c3e20ae6ec.png",
+      "sha256": "8fad69de598f0bbd8ca4a3b52a5ac6db5fe8a4a1dc0cb10a204a78c3e20ae6ec"
+    },
+    "foregroundMask": {
+      "path": "inputs/dd34aee01283653ca2cd0bb4b74431686a0c17586430deab61f63450e4d3eb2f.png",
+      "sha256": "dd34aee01283653ca2cd0bb4b74431686a0c17586430deab61f63450e4d3eb2f"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/8219846579bbf01059aa3df876b5882be2d87c0084e6866b5e8e672c3e9e2fbc.png",
+      "sha256": "8219846579bbf01059aa3df876b5882be2d87c0084e6866b5e8e672c3e9e2fbc"
+    },
+    "mask": {
+      "path": "inputs/8219846579bbf01059aa3df876b5882be2d87c0084e6866b5e8e672c3e9e2fbc.png",
+      "sha256": "8219846579bbf01059aa3df876b5882be2d87c0084e6866b5e8e672c3e9e2fbc"
+    },
+    "calibrationReference": {
+      "path": "inputs/ff23d03fa86794629cb666e13f858e098005769b10db48f272f4b92b956d6050.png",
+      "sha256": "ff23d03fa86794629cb666e13f858e098005769b10db48f272f4b92b956d6050"
+    },
+    "sourceAudit": {
+      "path": "inputs/a45358ae647eacea89cab1648cb55cf8ece9083ee7e0c139a53d87c71366b571.json",
+      "sha256": "a45358ae647eacea89cab1648cb55cf8ece9083ee7e0c139a53d87c71366b571"
+    },
+    "referenceApproval": {
+      "path": "inputs/0c05858a46cdf2e790c6f2d671566cf70ab37e96423f72a0f496077b7991910f.json",
+      "sha256": "0c05858a46cdf2e790c6f2d671566cf70ab37e96423f72a0f496077b7991910f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/27a19d29c15db7cbec86eb6003aed21451e74fab925db9aa805f3917446a15a5.png",
+      "sha256": "27a19d29c15db7cbec86eb6003aed21451e74fab925db9aa805f3917446a15a5"
+    }
+  },
+  "features": [
+    {
+      "name": "Two-handed axe",
+      "placementReviewed": true
+    },
+    {
+      "name": "Tungsten-alloy identity",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source describes a typically concealed point in the handle",
+      "placementReviewed": true
+    },
+    {
+      "name": "Two-handed long haft and broad alloy axe head with stowed handle end match generic primary description. Head shape, two grip regions and charcoal finish are explicit art choices; exact official shape not asserted. Actual matching clay is smooth of grip stippling/checkering, alloy grain, scratches, fine cuts and recesses. The large head reinforcement/socket, bevel, grip collars and end cap are major structural boundaries, not tiny ornamental cuts. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Full concave blade underside and both pointed blade ends, thin long haft and cap retained; no enclosed holes. Apparent white native-preview fragments are alpha1, invisible in actual teal and removed by the unchanged alpha-floor16 normalization; not opaque debris. No clipped point, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1774x887, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "666095e10523743ea45435b8f1440aa862b8c0cb65e080daa4e388e9816fdb5a",
+      "imageSha256": "8fad69de598f0bbd8ca4a3b52a5ac6db5fe8a4a1dc0cb10a204a78c3e20ae6ec",
+      "maskSha256": "dd34aee01283653ca2cd0bb4b74431686a0c17586430deab61f63450e4d3eb2f",
+      "notes": "Two-handed long haft and broad alloy axe head with stowed handle end match generic primary description. Head shape, two grip regions and charcoal finish are explicit art choices; exact official shape not asserted. Actual matching clay is smooth of grip stippling/checkering, alloy grain, scratches, fine cuts and recesses. The large head reinforcement/socket, bevel, grip collars and end cap are major structural boundaries, not tiny ornamental cuts. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Full concave blade underside and both pointed blade ends, thin long haft and cap retained; no enclosed holes. Apparent white native-preview fragments are alpha1, invisible in actual teal and removed by the unchanged alpha-floor16 normalization; not opaque debris. No clipped point, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1774x887, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "14125c3f231615535be3c847dab30b4b037c533a3bb915f087cc4906c1dc210b",
+      "imageSha256": "08a4b85106b167a8529a003a50837a7c7601026f335505d2e00d78c574ac4f3b",
+      "maskSha256": "8219846579bbf01059aa3df876b5882be2d87c0084e6866b5e8e672c3e9e2fbc",
+      "notes": "Two-handed long haft and broad alloy axe head with stowed handle end match generic primary description. Head shape, two grip regions and charcoal finish are explicit art choices; exact official shape not asserted. Actual matching clay is smooth of grip stippling/checkering, alloy grain, scratches, fine cuts and recesses. The large head reinforcement/socket, bevel, grip collars and end cap are major structural boundaries, not tiny ornamental cuts. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Full concave blade underside and both pointed blade ends, thin long haft and cap retained; no enclosed holes. Apparent white native-preview fragments are alpha1, invisible in actual teal and removed by the unchanged alpha-floor16 normalization; not opaque debris. No clipped point, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1774x887, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Two-handed long haft and broad alloy axe head with stowed handle end match generic primary description. Head shape, two grip regions and charcoal finish are explicit art choices; exact official shape not asserted. Actual matching clay is smooth of grip stippling/checkering, alloy grain, scratches, fine cuts and recesses. The large head reinforcement/socket, bevel, grip collars and end cap are major structural boundaries, not tiny ornamental cuts. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Full concave blade underside and both pointed blade ends, thin long haft and cap retained; no enclosed holes. Apparent white native-preview fragments are alpha1, invisible in actual teal and removed by the unchanged alpha-floor16 normalization; not opaque debris. No clipped point, missing member, detached foreground, broad fringe or cast shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1774x887, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "head-top",
+          "detail": [
+            0.13329826577704637,
+            0.3423924361369144
+          ],
+          "geometry": [
+            0.1322674808600458,
+            0.3408471324717286
+          ]
+        },
+        {
+          "name": "blade-front",
+          "detail": [
+            0.05083547241700057,
+            0.4943472965468497
+          ],
+          "geometry": [
+            0.05083547241700057,
+            0.4948623977685783
+          ]
+        },
+        {
+          "name": "blade-bottom-tip",
+          "detail": [
+            0.2111225270105896,
+            0.577793694466882
+          ],
+          "geometry": [
+            0.21318409684459072,
+            0.5793389981320678
+          ]
+        },
+        {
+          "name": "socket-upper",
+          "detail": [
+            0.23483058010160274,
+            0.41347640473546043
+          ],
+          "geometry": [
+            0.23483058010160274,
+            0.41193110107027464
+          ]
+        },
+        {
+          "name": "upper-grip-start",
+          "detail": [
+            0.28740061086863194,
+            0.43098984627423265
+          ],
+          "geometry": [
+            0.28740061086863194,
+            0.42944454260904685
+          ]
+        },
+        {
+          "name": "upper-grip-end",
+          "detail": [
+            0.40800244615769893,
+            0.4629261220214055
+          ],
+          "geometry": [
+            0.40800244615769893,
+            0.4618959195779483
+          ]
+        },
+        {
+          "name": "butt-cap-right",
+          "detail": [
+            0.9481337426659988,
+            0.6339397276352989
+          ],
+          "geometry": [
+            0.9496799200414997,
+            0.6360001325222133
+          ]
+        }
+      ],
+      "referenceSha256": "666095e10523743ea45435b8f1440aa862b8c0cb65e080daa4e388e9816fdb5a",
+      "geometrySha256": "08a4b85106b167a8529a003a50837a7c7601026f335505d2e00d78c574ac4f3b",
+      "detailSha256": "8fad69de598f0bbd8ca4a3b52a5ac6db5fe8a4a1dc0cb10a204a78c3e20ae6ec",
+      "foregroundMaskSha256": "dd34aee01283653ca2cd0bb4b74431686a0c17586430deab61f63450e4d3eb2f",
+      "geometryForegroundMaskSha256": "8219846579bbf01059aa3df876b5882be2d87c0084e6866b5e8e672c3e9e2fbc"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-fichetti-security-600-186f9abc33",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-top",
+      "pixel": [
+        470.0,
+        79.99999999999999
+      ]
+    },
+    {
+      "name": "front-sight",
+      "pixel": [
+        1315.0,
+        79.99999999999999
+      ]
+    },
+    {
+      "name": "front-muzzle",
+      "pixel": [
+        1481.0,
+        260.0
+      ]
+    },
+    {
+      "name": "grip-butt",
+      "pixel": [
+        402.0,
+        962.9999999999999
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        827.0,
+        597.0
+      ]
+    },
+    {
+      "name": "fold-stock-rear",
+      "pixel": [
+        142.0,
+        234.99999999999994
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-fichetti-security-600-186f9abc33.family.json",
+    "sha256": "8c8a870c68843de41fba83ca068aa3e2d481b00ac07860a9660ad3f9ca38f5d2"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f0081126a56838a42c1ea8d98e4f4b1f590f266bba3724bd82e41e049645bd6f.png",
+      "sha256": "f0081126a56838a42c1ea8d98e4f4b1f590f266bba3724bd82e41e049645bd6f"
+    },
+    "clayReference": {
+      "path": "inputs/eada6770caee35584a07a2e13848a8e1a54a7f20f527a353a8c57ad9bd6caf4c.png",
+      "sha256": "eada6770caee35584a07a2e13848a8e1a54a7f20f527a353a8c57ad9bd6caf4c"
+    },
+    "geometry": {
+      "path": "inputs/e6d5b7fa2153cbf40900a378c73785300cb98c909c10b83683bac68fe82d8d74.png",
+      "sha256": "e6d5b7fa2153cbf40900a378c73785300cb98c909c10b83683bac68fe82d8d74"
+    },
+    "detail": {
+      "path": "inputs/d77e6d0d7de26cf21399c10cce8045dcba441854b65105c940d56c8b34d61e64.png",
+      "sha256": "d77e6d0d7de26cf21399c10cce8045dcba441854b65105c940d56c8b34d61e64"
+    },
+    "foregroundMask": {
+      "path": "inputs/3130b0240e5f9b453c3d0dcfdf2f4e7a11048f74615bf2a26a80aa78747d3e59.png",
+      "sha256": "3130b0240e5f9b453c3d0dcfdf2f4e7a11048f74615bf2a26a80aa78747d3e59"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/a5bb64d838cdfea35a7e9f2dae89c228ec36502964e352f7917da3dce668895e.png",
+      "sha256": "a5bb64d838cdfea35a7e9f2dae89c228ec36502964e352f7917da3dce668895e"
+    },
+    "mask": {
+      "path": "inputs/a5bb64d838cdfea35a7e9f2dae89c228ec36502964e352f7917da3dce668895e.png",
+      "sha256": "a5bb64d838cdfea35a7e9f2dae89c228ec36502964e352f7917da3dce668895e"
+    },
+    "calibrationReference": {
+      "path": "inputs/176f54a2686bc2171a5187b8e9d873e154f9d4520b7fa939fb3704753afe8500.png",
+      "sha256": "176f54a2686bc2171a5187b8e9d873e154f9d4520b7fa939fb3704753afe8500"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/a5e5949691ab89292e5de802cb6fceb567d0298252da65d937301d03df8a4602.json",
+      "sha256": "a5e5949691ab89292e5de802cb6fceb567d0298252da65d937301d03df8a4602"
+    },
+    "referenceApproval": {
+      "path": "inputs/3cf1ed2c46879eb1bf0c52ebb627dbde0b5b5f8cd3ed8699e4df8bf6bf0c0f68.json",
+      "sha256": "3cf1ed2c46879eb1bf0c52ebb627dbde0b5b5f8cd3ed8699e4df8bf6bf0c0f68"
+    },
+    "calibrationDetail": {
+      "path": "inputs/13c3cb24591244b3c0f27e4d6094fed414d8c4b40773005c149dec7502e370d1.png",
+      "sha256": "13c3cb24591244b3c0f27e4d6094fed414d8c4b40773005c149dec7502e370d1"
+    }
+  },
+  "features": [
+    {
+      "name": "Preserve the complete source-approved exterior, structural members and intentional openings.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned reviewer compared exact Core printed307/PDF309 Fichetti art and current source audit against original detail and smooth clay. Compact rectangular upper, raked grip, guard contour, folded side stock and laser retained. Clay fills fine ribs/serrations/fastener dimples and rejected receiver recess; broad raised controls/component seams remain. Palette, folded-stock/accessory implementation and unseen surfaces are declared interpretations. Actual final pair and six landmarks pass unchanged framing gates; reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        922,
+        921,
+        1151,
+        1088
+      ],
+      "referenceAreaPixels": 33981,
+      "referenceMaskSha256": "a5bb64d838cdfea35a7e9f2dae89c228ec36502964e352f7917da3dce668895e",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        829,
+        1033,
+        911,
+        1087
+      ],
+      "referenceAreaPixels": 2161,
+      "referenceMaskSha256": "a5bb64d838cdfea35a7e9f2dae89c228ec36502964e352f7917da3dce668895e",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f0081126a56838a42c1ea8d98e4f4b1f590f266bba3724bd82e41e049645bd6f",
+      "imageSha256": "d77e6d0d7de26cf21399c10cce8045dcba441854b65105c940d56c8b34d61e64",
+      "maskSha256": "3130b0240e5f9b453c3d0dcfdf2f4e7a11048f74615bf2a26a80aa78747d3e59",
+      "notes": "Assigned sole final reviewer inspected actual originals, enlarged trigger regions, native masks/teal, final2048masks/teal and paired overlay. Independently traced manual alpha follows each actual silhouette; original RGB values unchanged. Both actual trigger-background voids are clear; trigger, guard, folded-stock member, top sights, front ends and laser retained. Prior broad halo and opaque trigger opening removed. No detached foreground, clipping or broad fringe. Same native canvases; no transfer, warp, padding or threshold tuning."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "eada6770caee35584a07a2e13848a8e1a54a7f20f527a353a8c57ad9bd6caf4c",
+      "imageSha256": "e6d5b7fa2153cbf40900a378c73785300cb98c909c10b83683bac68fe82d8d74",
+      "maskSha256": "a5bb64d838cdfea35a7e9f2dae89c228ec36502964e352f7917da3dce668895e",
+      "notes": "Assigned sole final reviewer inspected actual originals, enlarged trigger regions, native masks/teal, final2048masks/teal and paired overlay. Independently traced manual alpha follows each actual silhouette; original RGB values unchanged. Both actual trigger-background voids are clear; trigger, guard, folded-stock member, top sights, front ends and laser retained. Prior broad halo and opaque trigger opening removed. No detached foreground, clipping or broad fringe. Same native canvases; no transfer, warp, padding or threshold tuning."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned reviewer compared exact Core printed307/PDF309 Fichetti art and current source audit against original detail and smooth clay. Compact rectangular upper, raked grip, guard contour, folded side stock and laser retained. Clay fills fine ribs/serrations/fastener dimples and rejected receiver recess; broad raised controls/component seams remain. Palette, folded-stock/accessory implementation and unseen surfaces are declared interpretations. Actual final pair and six landmarks pass unchanged framing gates; reference approval only.",
+      "landmarks": [
+        {
+          "name": "rear-top",
+          "detail": [
+            0.2949541464619253,
+            0.21451381532485875
+          ],
+          "geometry": [
+            0.29624781115301724,
+            0.21451381532485875
+          ]
+        },
+        {
+          "name": "front-sight",
+          "detail": [
+            0.8415274784482759,
+            0.21451381532485875
+          ],
+          "geometry": [
+            0.8421743107938219,
+            0.21451381532485875
+          ]
+        },
+        {
+          "name": "front-muzzle",
+          "detail": [
+            0.9489016478089081,
+            0.33090682379943503
+          ],
+          "geometry": [
+            0.949548480154454,
+            0.33090682379943503
+          ]
+        },
+        {
+          "name": "grip-butt",
+          "detail": [
+            0.25096954696479884,
+            0.7854861846751412
+          ],
+          "geometry": [
+            0.25161637931034486,
+            0.7854861846751412
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.5258732938218391,
+            0.5488204007768361
+          ],
+          "geometry": [
+            0.527166958512931,
+            0.5494670286016949
+          ]
+        },
+        {
+          "name": "fold-stock-rear",
+          "detail": [
+            0.08279313712284483,
+            0.31474112817796607
+          ],
+          "geometry": [
+            0.08279313712284483,
+            0.3140945003531074
+          ]
+        }
+      ],
+      "referenceSha256": "f0081126a56838a42c1ea8d98e4f4b1f590f266bba3724bd82e41e049645bd6f",
+      "geometrySha256": "e6d5b7fa2153cbf40900a378c73785300cb98c909c10b83683bac68fe82d8d74",
+      "detailSha256": "d77e6d0d7de26cf21399c10cce8045dcba441854b65105c940d56c8b34d61e64",
+      "foregroundMaskSha256": "3130b0240e5f9b453c3d0dcfdf2f4e7a11048f74615bf2a26a80aa78747d3e59",
+      "geometryForegroundMaskSha256": "a5bb64d838cdfea35a7e9f2dae89c228ec36502964e352f7917da3dce668895e"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

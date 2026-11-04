@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-aztechnology-striker-8b2058e3f9",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-rearcap-left-tangent",
+      "pixel": [
+        18.0,
+        514.5
+      ]
+    },
+    {
+      "name": "sight-top-tangent",
+      "pixel": [
+        327.49999999999994,
+        253.0
+      ]
+    },
+    {
+      "name": "muzzle-right-tangent",
+      "pixel": [
+        1238.0,
+        727.0000000000001
+      ]
+    },
+    {
+      "name": "magazine-grip-bottom-tangent",
+      "pixel": [
+        453.0,
+        1006.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-aztechnology-striker-8b2058e3f9.family.json",
+    "sha256": "d6f080c9c57a3334d3936bc7b1230dc49d16039055bd3e1c7ba343b2baa9c47d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c14b20582226b162771500c21c9b07f0a6c0fc55cb213628f2e9814d81b84f01.png",
+      "sha256": "c14b20582226b162771500c21c9b07f0a6c0fc55cb213628f2e9814d81b84f01"
+    },
+    "clayReference": {
+      "path": "inputs/474090949e94011991a60547205e1f8ecfc434e5425425b78eb7df62cf70c6f6.png",
+      "sha256": "474090949e94011991a60547205e1f8ecfc434e5425425b78eb7df62cf70c6f6"
+    },
+    "geometry": {
+      "path": "inputs/06d6a0f3ac04be067be04ee9f1f06cc5dd309bcde29a9866375e3b145f82e381.png",
+      "sha256": "06d6a0f3ac04be067be04ee9f1f06cc5dd309bcde29a9866375e3b145f82e381"
+    },
+    "detail": {
+      "path": "inputs/237df20c4957628d7142f1a8e7d944143d872140bfe536cf1718004ba9580f99.png",
+      "sha256": "237df20c4957628d7142f1a8e7d944143d872140bfe536cf1718004ba9580f99"
+    },
+    "foregroundMask": {
+      "path": "inputs/6c701d551f476b4ce8fa07a6728a863f3a6f12eff3d284c8c2015cb3c3b2f138.png",
+      "sha256": "6c701d551f476b4ce8fa07a6728a863f3a6f12eff3d284c8c2015cb3c3b2f138"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/06fb9bc601f797553b26841faed38e03173213c727a89b3553a1ec2a103fdce3.png",
+      "sha256": "06fb9bc601f797553b26841faed38e03173213c727a89b3553a1ec2a103fdce3"
+    },
+    "mask": {
+      "path": "inputs/06fb9bc601f797553b26841faed38e03173213c727a89b3553a1ec2a103fdce3.png",
+      "sha256": "06fb9bc601f797553b26841faed38e03173213c727a89b3553a1ec2a103fdce3"
+    },
+    "calibrationReference": {
+      "path": "inputs/7357e709ae4b704a1f387dc3bd3acd6d5beea6fed2eff19aeab0738383b51ca6.png",
+      "sha256": "7357e709ae4b704a1f387dc3bd3acd6d5beea6fed2eff19aeab0738383b51ca6"
+    },
+    "sourceAudit": {
+      "path": "inputs/1c811f5a20d20c5386256c92ac0d4dd363ab3879ceb5c4b17b65fba7781312ac.json",
+      "sha256": "1c811f5a20d20c5386256c92ac0d4dd363ab3879ceb5c4b17b65fba7781312ac"
+    },
+    "referenceApproval": {
+      "path": "inputs/37ab0e1077c706b56bc824438f95cf0ddf34926eb376337e05ffccaf33d9243f.json",
+      "sha256": "37ab0e1077c706b56bc824438f95cf0ddf34926eb376337e05ffccaf33d9243f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/c4897c45e014ab53d9091d33aab86f64a0289752c512a85c243a7890a8256b80.png",
+      "sha256": "c4897c45e014ab53d9091d33aab86f64a0289752c512a85c243a7890a8256b80"
+    }
+  },
+  "features": [
+    {
+      "name": "Extremely light disposable single-missile launcher (description/table).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact tube, sight, grip and support geometry are not established by labeled artwork in the reviewed pages; do not borrow another launcher model.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete source-constrained construction, matched framing and structural openings preserved. Single tube, end recesses, grip/trigger clearance and compact sight supports retained. Native1254 originals retained; 2048 resampling disclosed. Shallow grooves and cosmetic recess differences nonblocking. Existing pair approval reused at integration with fresh byte checks.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        906,
+        1253,
+        995,
+        1374
+      ],
+      "referenceAreaPixels": 7306,
+      "referenceMaskSha256": "06fb9bc601f797553b26841faed38e03173213c727a89b3553a1ec2a103fdce3",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c14b20582226b162771500c21c9b07f0a6c0fc55cb213628f2e9814d81b84f01",
+      "imageSha256": "237df20c4957628d7142f1a8e7d944143d872140bfe536cf1718004ba9580f99",
+      "maskSha256": "6c701d551f476b4ce8fa07a6728a863f3a6f12eff3d284c8c2015cb3c3b2f138",
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete source-constrained construction, matched framing and structural openings preserved. Single tube, end recesses, grip/trigger clearance and compact sight supports retained. Native1254 originals retained; 2048 resampling disclosed. Shallow grooves and cosmetic recess differences nonblocking. Existing pair approval reused at integration with fresh byte checks."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "474090949e94011991a60547205e1f8ecfc434e5425425b78eb7df62cf70c6f6",
+      "imageSha256": "06d6a0f3ac04be067be04ee9f1f06cc5dd309bcde29a9866375e3b145f82e381",
+      "maskSha256": "06fb9bc601f797553b26841faed38e03173213c727a89b3553a1ec2a103fdce3",
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete source-constrained construction, matched framing and structural openings preserved. Single tube, end recesses, grip/trigger clearance and compact sight supports retained. Native1254 originals retained; 2048 resampling disclosed. Shallow grooves and cosmetic recess differences nonblocking. Existing pair approval reused at integration with fresh byte checks."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "c14b20582226b162771500c21c9b07f0a6c0fc55cb213628f2e9814d81b84f01",
+      "detailSha256": "237df20c4957628d7142f1a8e7d944143d872140bfe536cf1718004ba9580f99",
+      "geometrySha256": "06d6a0f3ac04be067be04ee9f1f06cc5dd309bcde29a9866375e3b145f82e381",
+      "foregroundMaskSha256": "6c701d551f476b4ce8fa07a6728a863f3a6f12eff3d284c8c2015cb3c3b2f138",
+      "geometryForegroundMaskSha256": "06fb9bc601f797553b26841faed38e03173213c727a89b3553a1ec2a103fdce3",
+      "landmarks": [
+        {
+          "name": "muzzle-rearcap-left-tangent",
+          "detail": [
+            0.0498046875,
+            0.41488446157651715
+          ],
+          "geometry": [
+            0.0498046875,
+            0.41451599604221634
+          ]
+        },
+        {
+          "name": "sight-top-tangent",
+          "detail": [
+            0.2778496125716039,
+            0.22217698713720316
+          ],
+          "geometry": [
+            0.2704814405175941,
+            0.220703125
+          ]
+        },
+        {
+          "name": "muzzle-right-tangent",
+          "detail": [
+            0.948721678089198,
+            0.5714823136543536
+          ],
+          "geometry": [
+            0.949458495294599,
+            0.570745382585752
+          ]
+        },
+        {
+          "name": "magazine-grip-bottom-tangent",
+          "detail": [
+            0.37032017184942717,
+            0.7778230128627968
+          ],
+          "geometry": [
+            0.36958335464402614,
+            0.7785599439313984
+          ]
+        }
+      ],
+      "notes": "Root inspected final prepared overlay after raw pair/actual-alpha review. Complete source-constrained construction, matched framing and structural openings preserved. Single tube, end recesses, grip/trigger clearance and compact sight supports retained. Native1254 originals retained; 2048 resampling disclosed. Shallow grooves and cosmetic recess differences nonblocking. Existing pair approval reused at integration with fresh byte checks."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

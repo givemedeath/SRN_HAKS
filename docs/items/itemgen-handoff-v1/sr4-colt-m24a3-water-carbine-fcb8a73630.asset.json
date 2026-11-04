@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-colt-m24a3-water-carbine-fcb8a73630",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        20.999999999999996,
+        393.00000000000006
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1247.0,
+        393.00000000000006
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        20.999999999999996,
+        820.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1247.0,
+        820.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-colt-m24a3-water-carbine-fcb8a73630.family.json",
+    "sha256": "46ab21e698ed71d8e5250c57b72bcdf4d501bdb0c51e74f886ce33bc9fb6125f"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/abb0cfaed67aa9afeb14c166518dde87e5ac6cbaef1707b51a5c2d2e6a7da32f.png",
+      "sha256": "abb0cfaed67aa9afeb14c166518dde87e5ac6cbaef1707b51a5c2d2e6a7da32f"
+    },
+    "clayReference": {
+      "path": "inputs/399794afaf7a9919d0c57579041cd443478d714cdee59102dd064187c6be833a.png",
+      "sha256": "399794afaf7a9919d0c57579041cd443478d714cdee59102dd064187c6be833a"
+    },
+    "geometry": {
+      "path": "inputs/7f9713cba9a5b0fae47695b4b2935882c04defc71e487db206888dc2d1ae9687.png",
+      "sha256": "7f9713cba9a5b0fae47695b4b2935882c04defc71e487db206888dc2d1ae9687"
+    },
+    "detail": {
+      "path": "inputs/890434c4106550f433b5c5094da10d3971dde5d07df70dc66d191558955f0e78.png",
+      "sha256": "890434c4106550f433b5c5094da10d3971dde5d07df70dc66d191558955f0e78"
+    },
+    "foregroundMask": {
+      "path": "inputs/245e7d3ef138b99530a3ced2cc9758831d0310709678b10f8843b28b2553b55c.png",
+      "sha256": "245e7d3ef138b99530a3ced2cc9758831d0310709678b10f8843b28b2553b55c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a.png",
+      "sha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a"
+    },
+    "mask": {
+      "path": "inputs/71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a.png",
+      "sha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a"
+    },
+    "calibrationReference": {
+      "path": "inputs/234c548d6c7d09cb45d1734a04dbf115fe93a94fe7e4a6b9b536570c0e63574d.png",
+      "sha256": "234c548d6c7d09cb45d1734a04dbf115fe93a94fe7e4a6b9b536570c0e63574d"
+    },
+    "sourceAudit": {
+      "path": "inputs/21b9ebee39dfb07150b38123f1e10a6ef3816ae7bf2e1156e82c9fe55a459d8a.json",
+      "sha256": "21b9ebee39dfb07150b38123f1e10a6ef3816ae7bf2e1156e82c9fe55a459d8a"
+    },
+    "referenceApproval": {
+      "path": "inputs/2cb0e3343e89ebe16262cb2b0fceb243ecb4ac1aed20baabbc309447deaf3996.json",
+      "sha256": "2cb0e3343e89ebe16262cb2b0fceb243ecb4ac1aed20baabbc309447deaf3996"
+    },
+    "calibrationDetail": {
+      "path": "inputs/ac16086490f5a349a7f7d14e3857dad52dff982138fa6fedd4d4f6908b1fa1e6.png",
+      "sha256": "ac16086490f5a349a7f7d14e3857dad52dff982138fa6fedd4d4f6908b1fa1e6"
+    }
+  },
+  "features": [
+    {
+      "name": "Use corrected top-center carbine illustration on printed25/PDF27: slender barrel/front-sight tower, ribbed fore-end, raised carry-handle/open upper structure, box magazine, pistol grip and thin rear stock supports/butt element.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Printed24/PDF26 identifies a sealed firing chamber, butt air-inlet valve and purge valve. These are source constraints, not permission to invent visible internal chambers or pipework. Keep any artistic exterior valve detail modest and at its specified location.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Air supply is an optional connected context for underwater use, not a mandatory tank/hose accessory on every inventory depiction. The carbine remains a normal weapon without an air supply.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Corrected Arsenal illustration and original pair reviewed; conditioned overlay retains stock, handle, sight, trigger opening and silhouette. Native 1254 images resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        688,
+        752,
+        1132,
+        794
+      ],
+      "referenceAreaPixels": 18256,
+      "referenceMaskSha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1509,
+        762,
+        1576,
+        820
+      ],
+      "referenceAreaPixels": 2490,
+      "referenceMaskSha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1506,
+        840,
+        1569,
+        853
+      ],
+      "referenceAreaPixels": 706,
+      "referenceMaskSha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        251,
+        864,
+        507,
+        882
+      ],
+      "referenceAreaPixels": 4204,
+      "referenceMaskSha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        683,
+        1004,
+        790,
+        1066
+      ],
+      "referenceAreaPixels": 5124,
+      "referenceMaskSha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "abb0cfaed67aa9afeb14c166518dde87e5ac6cbaef1707b51a5c2d2e6a7da32f",
+      "imageSha256": "890434c4106550f433b5c5094da10d3971dde5d07df70dc66d191558955f0e78",
+      "maskSha256": "245e7d3ef138b99530a3ced2cc9758831d0310709678b10f8843b28b2553b55c",
+      "notes": "Corrected Arsenal illustration and original pair reviewed; conditioned overlay retains stock, handle, sight, trigger opening and silhouette. Native 1254 images resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "399794afaf7a9919d0c57579041cd443478d714cdee59102dd064187c6be833a",
+      "imageSha256": "7f9713cba9a5b0fae47695b4b2935882c04defc71e487db206888dc2d1ae9687",
+      "maskSha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a",
+      "notes": "Corrected Arsenal illustration and original pair reviewed; conditioned overlay retains stock, handle, sight, trigger opening and silhouette. Native 1254 images resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Corrected Arsenal illustration and original pair reviewed; conditioned overlay retains stock, handle, sight, trigger opening and silhouette. Native 1254 images resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.049069074244281044,
+            0.34228515625000006
+          ],
+          "geometry": [
+            0.049069074244281044,
+            0.34154931184287385
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9509309257557189,
+            0.34228515625000006
+          ],
+          "geometry": [
+            0.9509309257557189,
+            0.34154931184287385
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.049069074244281044,
+            0.6564907180928738
+          ],
+          "geometry": [
+            0.049069074244281044,
+            0.6579624069071262
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9509309257557189,
+            0.6564907180928738
+          ],
+          "geometry": [
+            0.9509309257557189,
+            0.6579624069071262
+          ]
+        }
+      ],
+      "referenceSha256": "abb0cfaed67aa9afeb14c166518dde87e5ac6cbaef1707b51a5c2d2e6a7da32f",
+      "geometrySha256": "7f9713cba9a5b0fae47695b4b2935882c04defc71e487db206888dc2d1ae9687",
+      "detailSha256": "890434c4106550f433b5c5094da10d3971dde5d07df70dc66d191558955f0e78",
+      "geometryForegroundMaskSha256": "71db750f9825b9a1a78ecf64b5c2bbd25d8c51a81acf97ae4bb15f208c3ba58a",
+      "foregroundMaskSha256": "245e7d3ef138b99530a3ced2cc9758831d0310709678b10f8843b28b2553b55c"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

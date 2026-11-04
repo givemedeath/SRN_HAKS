@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-boomerang-00d9c20be1",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-curve-y250-left",
+      "pixel": [
+        537.0,
+        249.99999999999994
+      ]
+    },
+    {
+      "name": "outer-curve-y250-right",
+      "pixel": [
+        1098.9999999999998,
+        249.99999999999994
+      ]
+    },
+    {
+      "name": "outer-curve-y400-left",
+      "pixel": [
+        377.0,
+        400.0
+      ]
+    },
+    {
+      "name": "outer-curve-y400-right",
+      "pixel": [
+        1262.0,
+        400.0
+      ]
+    },
+    {
+      "name": "outer-curve-y600-left",
+      "pixel": [
+        199.99999999999997,
+        600.0
+      ]
+    },
+    {
+      "name": "outer-curve-y600-right",
+      "pixel": [
+        1428.0,
+        600.0
+      ]
+    },
+    {
+      "name": "outer-curve-y750-left",
+      "pixel": [
+        71.0,
+        750.0
+      ]
+    },
+    {
+      "name": "outer-curve-y750-right",
+      "pixel": [
+        1490.0,
+        750.0
+      ]
+    },
+    {
+      "name": "outer-curve-y850-left",
+      "pixel": [
+        41.0,
+        849.9999999999999
+      ]
+    },
+    {
+      "name": "outer-curve-y850-right",
+      "pixel": [
+        234.99999999999997,
+        849.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-boomerang-00d9c20be1.family.json",
+    "sha256": "b44f8e8b38fcb95d498fbdece45a9724130f00d2bfee32fa9d393808d2096a32"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c3a2f8e5f3fc029286d18c1b1ab5df1f189330a2800aa4e3fda7df8a1eeff425.png",
+      "sha256": "c3a2f8e5f3fc029286d18c1b1ab5df1f189330a2800aa4e3fda7df8a1eeff425"
+    },
+    "clayReference": {
+      "path": "inputs/55a6886f36e6d63202cae712493380d6051c879488662852cd382595ff6808c8.png",
+      "sha256": "55a6886f36e6d63202cae712493380d6051c879488662852cd382595ff6808c8"
+    },
+    "geometry": {
+      "path": "inputs/6b57f10c18ea01c3c467875e3a8cbc04572f71aa821352e5b06481688f379f50.png",
+      "sha256": "6b57f10c18ea01c3c467875e3a8cbc04572f71aa821352e5b06481688f379f50"
+    },
+    "detail": {
+      "path": "inputs/1e52f9a7838f7087428d18cd886f5aa2ed9b98634f49d7305eee414efdc305d0.png",
+      "sha256": "1e52f9a7838f7087428d18cd886f5aa2ed9b98634f49d7305eee414efdc305d0"
+    },
+    "foregroundMask": {
+      "path": "inputs/7a00d3dc30390992c236909a53f3201581c9ea3aed57d7dd596dd0afc57339cc.png",
+      "sha256": "7a00d3dc30390992c236909a53f3201581c9ea3aed57d7dd596dd0afc57339cc"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/615b8a9d1460aeb9233de7c0f4723538e361526c7b041342819a5118b7b614f7.png",
+      "sha256": "615b8a9d1460aeb9233de7c0f4723538e361526c7b041342819a5118b7b614f7"
+    },
+    "mask": {
+      "path": "inputs/615b8a9d1460aeb9233de7c0f4723538e361526c7b041342819a5118b7b614f7.png",
+      "sha256": "615b8a9d1460aeb9233de7c0f4723538e361526c7b041342819a5118b7b614f7"
+    },
+    "calibrationReference": {
+      "path": "inputs/773cbb4f24499aed18c669f60e94e34504d80bd54c75c41ffd171c9eecd530f3.png",
+      "sha256": "773cbb4f24499aed18c669f60e94e34504d80bd54c75c41ffd171c9eecd530f3"
+    },
+    "sourceAudit": {
+      "path": "inputs/ddd566cc72bdd39e18a0d9d2899166fd03d6a51a4d714417105e167f42ab22fc.json",
+      "sha256": "ddd566cc72bdd39e18a0d9d2899166fd03d6a51a4d714417105e167f42ab22fc"
+    },
+    "referenceApproval": {
+      "path": "inputs/e408066533903515445336db86b4e260331d0af66aa9d491fd8652813d535933.json",
+      "sha256": "e408066533903515445336db86b4e260331d0af66aa9d491fd8652813d535933"
+    },
+    "calibrationDetail": {
+      "path": "inputs/a16ff5ad97bc4232e44f628faa60b2dc41e7da579af9faf1d23f8570e9d568eb.png",
+      "sha256": "a16ff5ad97bc4232e44f628faa60b2dc41e7da579af9faf1d23f8570e9d568eb"
+    }
+  },
+  "features": [
+    {
+      "name": "Traditional hunting interpretation is a curved wooden throwing stick.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Record hunting/nonreturning versus sport/returning selection; traditional hunting forms are not designed to return.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Source-approved traditional non-returning curved hunting-stick interpretation. Actual gray clay removes wood grain/cracks/scratches and all tiny surface recesses; smooth broad curvature remains. No manual RGB edit, no invented flight behavior, no new component. Near-transparent glow seen in raw RGB preview lies outside actual visible alpha; alpha16/128 bounds agree within1..2pixels. Native1536x1024 for both roles. The large open concave curve remains exterior background, never a closed filled loop. Both solid wooden arms/tips and asymmetry remain; no extra hole or thinning. Existing independently reviewed alpha retained; only sub16/255 near-transparent background alpha is cleared by the unchanged standard route. Major source form/framing and solid arms, tips and open concave curve retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1536x1024 resampled2048 square, not native2K. Native RGB is unchanged from both original images.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c3a2f8e5f3fc029286d18c1b1ab5df1f189330a2800aa4e3fda7df8a1eeff425",
+      "imageSha256": "1e52f9a7838f7087428d18cd886f5aa2ed9b98634f49d7305eee414efdc305d0",
+      "maskSha256": "7a00d3dc30390992c236909a53f3201581c9ea3aed57d7dd596dd0afc57339cc",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Source-approved traditional non-returning curved hunting-stick interpretation. Actual gray clay removes wood grain/cracks/scratches and all tiny surface recesses; smooth broad curvature remains. No manual RGB edit, no invented flight behavior, no new component. Near-transparent glow seen in raw RGB preview lies outside actual visible alpha; alpha16/128 bounds agree within1..2pixels. Native1536x1024 for both roles. The large open concave curve remains exterior background, never a closed filled loop. Both solid wooden arms/tips and asymmetry remain; no extra hole or thinning. Existing independently reviewed alpha retained; only sub16/255 near-transparent background alpha is cleared by the unchanged standard route. Major source form/framing and solid arms, tips and open concave curve retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1536x1024 resampled2048 square, not native2K. Native RGB is unchanged from both original images."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "55a6886f36e6d63202cae712493380d6051c879488662852cd382595ff6808c8",
+      "imageSha256": "6b57f10c18ea01c3c467875e3a8cbc04572f71aa821352e5b06481688f379f50",
+      "maskSha256": "615b8a9d1460aeb9233de7c0f4723538e361526c7b041342819a5118b7b614f7",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Source-approved traditional non-returning curved hunting-stick interpretation. Actual gray clay removes wood grain/cracks/scratches and all tiny surface recesses; smooth broad curvature remains. No manual RGB edit, no invented flight behavior, no new component. Near-transparent glow seen in raw RGB preview lies outside actual visible alpha; alpha16/128 bounds agree within1..2pixels. Native1536x1024 for both roles. The large open concave curve remains exterior background, never a closed filled loop. Both solid wooden arms/tips and asymmetry remain; no extra hole or thinning. Existing independently reviewed alpha retained; only sub16/255 near-transparent background alpha is cleared by the unchanged standard route. Major source form/framing and solid arms, tips and open concave curve retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1536x1024 resampled2048 square, not native2K. Native RGB is unchanged from both original images."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reviewer inspected source-form-approved detail, actual clay, native foreground/openings, final2048 masks/teal views and paired overlay. Source-approved traditional non-returning curved hunting-stick interpretation. Actual gray clay removes wood grain/cracks/scratches and all tiny surface recesses; smooth broad curvature remains. No manual RGB edit, no invented flight behavior, no new component. Near-transparent glow seen in raw RGB preview lies outside actual visible alpha; alpha16/128 bounds agree within1..2pixels. Native1536x1024 for both roles. The large open concave curve remains exterior background, never a closed filled loop. Both solid wooden arms/tips and asymmetry remain; no extra hole or thinning. Existing independently reviewed alpha retained; only sub16/255 near-transparent background alpha is cleared by the unchanged standard route. Major source form/framing and solid arms, tips and open concave curve retained. No clipped part, detached subject, broad fringe or cast shadow. One common crop/scale/offset; original1536x1024 resampled2048 square, not native2K. Native RGB is unchanged from both original images.",
+      "landmarks": [
+        {
+          "name": "outer-curve-y250-left",
+          "detail": [
+            0.35752533855946683,
+            0.3295261548913043
+          ],
+          "geometry": [
+            0.3636797515806562,
+            0.3295261548913043
+          ]
+        },
+        {
+          "name": "outer-curve-y250-right",
+          "detail": [
+            0.7034033503503075,
+            0.3295261548913043
+          ],
+          "geometry": [
+            0.7015570264439508,
+            0.3295261548913043
+          ]
+        },
+        {
+          "name": "outer-curve-y400-left",
+          "detail": [
+            0.25905473022043746,
+            0.421875
+          ],
+          "geometry": [
+            0.2652091432416268,
+            0.421875
+          ]
+        },
+        {
+          "name": "outer-curve-y400-right",
+          "detail": [
+            0.8037202825956937,
+            0.421875
+          ],
+          "geometry": [
+            0.801873958689337,
+            0.421875
+          ]
+        },
+        {
+          "name": "outer-curve-y600-left",
+          "detail": [
+            0.15012161974538618,
+            0.5450067934782609
+          ],
+          "geometry": [
+            0.1538142675580998,
+            0.5450067934782609
+          ]
+        },
+        {
+          "name": "outer-curve-y600-right",
+          "detail": [
+            0.9058835387474368,
+            0.5450067934782609
+          ],
+          "geometry": [
+            0.9052680974453179,
+            0.5450067934782609
+          ]
+        },
+        {
+          "name": "outer-curve-y750-left",
+          "detail": [
+            0.07072969177204375,
+            0.6373556385869565
+          ],
+          "geometry": [
+            0.07565322218899521,
+            0.6373556385869565
+          ]
+        },
+        {
+          "name": "outer-curve-y750-right",
+          "detail": [
+            0.9440408994788106,
+            0.6373556385869565
+          ],
+          "geometry": [
+            0.9465026646872864,
+            0.6373556385869565
+          ]
+        },
+        {
+          "name": "outer-curve-y850-left",
+          "detail": [
+            0.052266452708475734,
+            0.6989215353260869
+          ],
+          "geometry": [
+            0.05472821791695147,
+            0.6989215353260869
+          ]
+        },
+        {
+          "name": "outer-curve-y850-right",
+          "detail": [
+            0.17166206531954886,
+            0.6989215353260869
+          ],
+          "geometry": [
+            0.1741238305280246,
+            0.6989215353260869
+          ]
+        }
+      ],
+      "referenceSha256": "c3a2f8e5f3fc029286d18c1b1ab5df1f189330a2800aa4e3fda7df8a1eeff425",
+      "detailSha256": "1e52f9a7838f7087428d18cd886f5aa2ed9b98634f49d7305eee414efdc305d0",
+      "geometrySha256": "6b57f10c18ea01c3c467875e3a8cbc04572f71aa821352e5b06481688f379f50",
+      "foregroundMaskSha256": "7a00d3dc30390992c236909a53f3201581c9ea3aed57d7dd596dd0afc57339cc",
+      "geometryForegroundMaskSha256": "615b8a9d1460aeb9233de7c0f4723538e361526c7b041342819a5118b7b614f7"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

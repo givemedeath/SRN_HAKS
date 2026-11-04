@@ -1,0 +1,50 @@
+{
+  "allowedAssemblies": [
+    {
+      "b": "sr4-ares-light-fire-70-3aa24bdc54",
+      "m": "hidden-placeholder",
+      "t": "hidden-placeholder"
+    }
+  ],
+  "bakeSize": 4096,
+  "budgets": {
+    "parts": {
+      "b": {
+        "visible": 9992,
+        "shadow": 500
+      },
+      "m": {
+        "visible": 4,
+        "shadow": 0
+      },
+      "t": {
+        "visible": 4,
+        "shadow": 0
+      }
+    },
+    "shadow": 500,
+    "visible": 10000
+  },
+  "family": "firearm-sling",
+  "firearm": {
+    "subtype": "pistol"
+  },
+  "kind": "item-family",
+  "materialRoute": "diffuse",
+  "nativePackaging": "pending-contract",
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr3aa24bdc",
+    "blueprint": "sr3aa24bdc",
+    "hak": "sr3aa24bdch",
+    "module": "sr3aa24bdcm",
+    "displayName": "Ares Light Fire 70"
+  },
+  "runtimeTextureSize": 1024,
+  "schemaVersion": 1,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "signMode": "udf",
+    "targetFaceCount": 200000
+  }
+}

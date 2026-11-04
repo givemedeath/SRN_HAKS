@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-mortimer-trafalgar-gun-cane-0ff039d1d8",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "hook-left",
+      "pixel": [
+        49.99999999999999,
+        173.00000000000003
+      ]
+    },
+    {
+      "name": "hook-top",
+      "pixel": [
+        231.00000000000003,
+        41.0
+      ]
+    },
+    {
+      "name": "mid-shaft-center",
+      "pixel": [
+        676.5,
+        650.0
+      ]
+    },
+    {
+      "name": "tip-bottom",
+      "pixel": [
+        1108.5,
+        1220.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-mortimer-trafalgar-gun-cane-0ff039d1d8.family.json",
+    "sha256": "536de34115a91f18b935e2417e71aa2dbc9e5fe5d17f1fb73ce3b4d61ee3f3ab"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/47833cbb628eb1cc6ef334725c7759e8a7d0aed1c506e7c311b51ab21204c762.png",
+      "sha256": "47833cbb628eb1cc6ef334725c7759e8a7d0aed1c506e7c311b51ab21204c762"
+    },
+    "clayReference": {
+      "path": "inputs/0a16fb50768ec0424490de6bf9a6a2938fa68f0d774346eab037139bf3a47804.png",
+      "sha256": "0a16fb50768ec0424490de6bf9a6a2938fa68f0d774346eab037139bf3a47804"
+    },
+    "geometry": {
+      "path": "inputs/d2a1d06cb0db5cf6d7bdc3e2fde832ee70007eea80c8fb0c13c7a9fddb438ec3.png",
+      "sha256": "d2a1d06cb0db5cf6d7bdc3e2fde832ee70007eea80c8fb0c13c7a9fddb438ec3"
+    },
+    "detail": {
+      "path": "inputs/95ac7a06cf2b763ceb43b3901436aadd7c8346ec229a1d2723cb5f14c22b4c09.png",
+      "sha256": "95ac7a06cf2b763ceb43b3901436aadd7c8346ec229a1d2723cb5f14c22b4c09"
+    },
+    "foregroundMask": {
+      "path": "inputs/c0da81ec318a08341489555e7b2cc4e52148c92dab54a65e6356eb7ced423d8d.png",
+      "sha256": "c0da81ec318a08341489555e7b2cc4e52148c92dab54a65e6356eb7ced423d8d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/d1a6b76377a609dfc991c04c5000af3fb4b57f0ae31a18ab33f53badf4b3e47b.png",
+      "sha256": "d1a6b76377a609dfc991c04c5000af3fb4b57f0ae31a18ab33f53badf4b3e47b"
+    },
+    "mask": {
+      "path": "inputs/d1a6b76377a609dfc991c04c5000af3fb4b57f0ae31a18ab33f53badf4b3e47b.png",
+      "sha256": "d1a6b76377a609dfc991c04c5000af3fb4b57f0ae31a18ab33f53badf4b3e47b"
+    },
+    "calibrationReference": {
+      "path": "inputs/b03cf7cd89413215392dcc605499810b1f349b31d7e5cb8936e5c83ef1872b2a.png",
+      "sha256": "b03cf7cd89413215392dcc605499810b1f349b31d7e5cb8936e5c83ef1872b2a"
+    },
+    "sourceAudit": {
+      "path": "inputs/d5f32fb2162eacf315c4afaba639dd1e04817d681bcadf5d645cbd4d2c8573f4.json",
+      "sha256": "d5f32fb2162eacf315c4afaba639dd1e04817d681bcadf5d645cbd4d2c8573f4"
+    },
+    "referenceApproval": {
+      "path": "inputs/fcd3d112bd04f19b33711117729c74c538c4980a1caf02e601b480c3433b3481.json",
+      "sha256": "fcd3d112bd04f19b33711117729c74c538c4980a1caf02e601b480c3433b3481"
+    },
+    "calibrationDetail": {
+      "path": "inputs/6b61b1d68d3b66391bd549e7895e5e5c9ba9c8b298c4e1761287f1429140bdc3.png",
+      "sha256": "6b61b1d68d3b66391bd549e7895e5e5c9ba9c8b298c4e1761287f1429140bdc3"
+    }
+  },
+  "features": [
+    {
+      "name": "Finely crafted but ordinarily appearing walking stick/cane, with concealed handle trigger and tip exit. Do not turn it into an exposed pistol/launcher.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Use an intact cane inventory depiction; hidden internals are not visibly specified and do not require a cutaway.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Mortimer Trafalgar source prose Arsenal40/PDF42:finely crafted but ordinary-looking intact walking cane,concealed features remain concealed. Own labeled art is not established;dark polished wood/brass and exact curved-handle form are disclosed source-constrained artistic interpretation. Actual detail/clay match the curved handle,long slim shaft,bands and subtle tip,with no exposed firearm,extra accessory or internal view. Single final pair review. Native original1254square references retained;2048conditioning is resampled. Shallow grooves and harmless pixel variations nonblocking. No geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "47833cbb628eb1cc6ef334725c7759e8a7d0aed1c506e7c311b51ab21204c762",
+      "imageSha256": "95ac7a06cf2b763ceb43b3901436aadd7c8346ec229a1d2723cb5f14c22b4c09",
+      "maskSha256": "c0da81ec318a08341489555e7b2cc4e52148c92dab54a65e6356eb7ced423d8d",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Mortimer Trafalgar source prose Arsenal40/PDF42:finely crafted but ordinary-looking intact walking cane,concealed features remain concealed. Own labeled art is not established;dark polished wood/brass and exact curved-handle form are disclosed source-constrained artistic interpretation. Actual detail/clay match the curved handle,long slim shaft,bands and subtle tip,with no exposed firearm,extra accessory or internal view. Single final pair review. Native original1254square references retained;2048conditioning is resampled. Shallow grooves and harmless pixel variations nonblocking. No geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0a16fb50768ec0424490de6bf9a6a2938fa68f0d774346eab037139bf3a47804",
+      "imageSha256": "d2a1d06cb0db5cf6d7bdc3e2fde832ee70007eea80c8fb0c13c7a9fddb438ec3",
+      "maskSha256": "d1a6b76377a609dfc991c04c5000af3fb4b57f0ae31a18ab33f53badf4b3e47b",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Mortimer Trafalgar source prose Arsenal40/PDF42:finely crafted but ordinary-looking intact walking cane,concealed features remain concealed. Own labeled art is not established;dark polished wood/brass and exact curved-handle form are disclosed source-constrained artistic interpretation. Actual detail/clay match the curved handle,long slim shaft,bands and subtle tip,with no exposed firearm,extra accessory or internal view. Single final pair review. Native original1254square references retained;2048conditioning is resampled. Shallow grooves and harmless pixel variations nonblocking. No geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "47833cbb628eb1cc6ef334725c7759e8a7d0aed1c506e7c311b51ab21204c762",
+      "detailSha256": "95ac7a06cf2b763ceb43b3901436aadd7c8346ec229a1d2723cb5f14c22b4c09",
+      "geometrySha256": "d2a1d06cb0db5cf6d7bdc3e2fde832ee70007eea80c8fb0c13c7a9fddb438ec3",
+      "foregroundMaskSha256": "c0da81ec318a08341489555e7b2cc4e52148c92dab54a65e6356eb7ced423d8d",
+      "geometryForegroundMaskSha256": "d1a6b76377a609dfc991c04c5000af3fb4b57f0ae31a18ab33f53badf4b3e47b",
+      "landmarks": [
+        {
+          "name": "hook-left",
+          "detail": [
+            0.08523047231409671,
+            0.15060599484427611
+          ],
+          "geometry": [
+            0.08523047231409671,
+            0.1494691379945286
+          ]
+        },
+        {
+          "name": "hook-top",
+          "detail": [
+            0.2223951799156022,
+            0.05056259206649832
+          ],
+          "geometry": [
+            0.22694207630018245,
+            0.05056259206649832
+          ]
+        },
+        {
+          "name": "mid-shaft-center",
+          "detail": [
+            0.5600022364706889,
+            0.5121264730639731
+          ],
+          "geometry": [
+            0.556970972214302,
+            0.5121264730639731
+          ]
+        },
+        {
+          "name": "tip-bottom",
+          "detail": [
+            0.8873787761604699,
+            0.9441320759680135
+          ],
+          "geometry": [
+            0.8798006155195027,
+            0.9494374079335017
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Mortimer Trafalgar source prose Arsenal40/PDF42:finely crafted but ordinary-looking intact walking cane,concealed features remain concealed. Own labeled art is not established;dark polished wood/brass and exact curved-handle form are disclosed source-constrained artistic interpretation. Actual detail/clay match the curved handle,long slim shaft,bands and subtle tip,with no exposed firearm,extra accessory or internal view. Single final pair review. Native original1254square references retained;2048conditioning is resampled. Shallow grooves and harmless pixel variations nonblocking. No geometry/native/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

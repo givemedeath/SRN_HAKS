@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-firelance-vehicle-laser-45298bbebf",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "emitter-front-tangent",
+      "pixel": [
+        10.999999999999998,
+        548.5
+      ]
+    },
+    {
+      "name": "rear-housing-top",
+      "pixel": [
+        1002.5,
+        256.0
+      ]
+    },
+    {
+      "name": "forward-base-flange-bottom",
+      "pixel": [
+        838.5,
+        1011.0
+      ]
+    },
+    {
+      "name": "rear-housing-right-edge",
+      "pixel": [
+        1240.0,
+        427.75
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-firelance-vehicle-laser-45298bbebf.family.json",
+    "sha256": "050a504a9b05db5dd0fee1c1aa0271905cd6aea7ff98328be60a6e3b52be4e70"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/3c2c75d9d61525cb68bc1a0b345fca196135b5b9b23cea4023f3aee00e6fc0e0.png",
+      "sha256": "3c2c75d9d61525cb68bc1a0b345fca196135b5b9b23cea4023f3aee00e6fc0e0"
+    },
+    "clayReference": {
+      "path": "inputs/6a92b301361207d7e9bb46f85a7d24539fc33c0be26f854d2dc3c700e206f11d.png",
+      "sha256": "6a92b301361207d7e9bb46f85a7d24539fc33c0be26f854d2dc3c700e206f11d"
+    },
+    "geometry": {
+      "path": "inputs/d1f7534cda5256b906e1f20e90d472a1932c37f24e060fc9b1286671824c73ef.png",
+      "sha256": "d1f7534cda5256b906e1f20e90d472a1932c37f24e060fc9b1286671824c73ef"
+    },
+    "detail": {
+      "path": "inputs/45449d2febf18c5c33dd74deac6291dd12bd06b29d900d98e16f6421a1121ded.png",
+      "sha256": "45449d2febf18c5c33dd74deac6291dd12bd06b29d900d98e16f6421a1121ded"
+    },
+    "foregroundMask": {
+      "path": "inputs/2903665510c24b577597820f2859c212efcb05951a050ce0c7a25669d608eb2a.png",
+      "sha256": "2903665510c24b577597820f2859c212efcb05951a050ce0c7a25669d608eb2a"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/9845ae6a782fe58517bb8cde4ba50c351e09f59a5a01ab95d1e80f051b032b6e.png",
+      "sha256": "9845ae6a782fe58517bb8cde4ba50c351e09f59a5a01ab95d1e80f051b032b6e"
+    },
+    "mask": {
+      "path": "inputs/9845ae6a782fe58517bb8cde4ba50c351e09f59a5a01ab95d1e80f051b032b6e.png",
+      "sha256": "9845ae6a782fe58517bb8cde4ba50c351e09f59a5a01ab95d1e80f051b032b6e"
+    },
+    "calibrationReference": {
+      "path": "inputs/edad92811d39f0fe532557f6f7f7c4edc337ac97d2eda96abe4b99c3e7ff7de3.png",
+      "sha256": "edad92811d39f0fe532557f6f7f7c4edc337ac97d2eda96abe4b99c3e7ff7de3"
+    },
+    "sourceAudit": {
+      "path": "inputs/2256158364edca795fed116239b938030690b293c06abe552fbc99c260cb3b62.json",
+      "sha256": "2256158364edca795fed116239b938030690b293c06abe552fbc99c260cb3b62"
+    },
+    "referenceApproval": {
+      "path": "inputs/e3ea3943aece27e509599543d79e6e0edc1c3a4b08cf714f606db23d05a8381f.json",
+      "sha256": "e3ea3943aece27e509599543d79e6e0edc1c3a4b08cf714f606db23d05a8381f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/2184448419711285ce4c6bc5564702f9b948461a2eda75635e277140eb8c679a.png",
+      "sha256": "2184448419711285ce4c6bc5564702f9b948461a2eda75635e277140eb8c679a"
+    }
+  },
+  "features": [
+    {
+      "name": "Vehicle-installed main gun; not usable as a metahuman handheld weapon",
+      "placementReviewed": true
+    },
+    {
+      "name": "Vehicle power supply or finite reserve; the table100* denotes power points, not a100-round physical magazine",
+      "placementReviewed": true
+    },
+    {
+      "name": "Cosmetic laser emitter/main-gun assembly with mounting interface; exact casing, aperture arrangement and colors unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source describes invisible-spectrum use with no firing flash; a visible glowing beam is not required reference geometry",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Source-supported vehicle laser main-gun assembly on fixed mount: full flange/base, optical emitter and exterior power coupling. No handheld grip/stock, backpack, beam or flash. Exact exterior outline and finish are disclosed interpretations, not borrowed drone art or official vehicle silhouette. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "3c2c75d9d61525cb68bc1a0b345fca196135b5b9b23cea4023f3aee00e6fc0e0",
+      "imageSha256": "45449d2febf18c5c33dd74deac6291dd12bd06b29d900d98e16f6421a1121ded",
+      "maskSha256": "2903665510c24b577597820f2859c212efcb05951a050ce0c7a25669d608eb2a",
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Source-supported vehicle laser main-gun assembly on fixed mount: full flange/base, optical emitter and exterior power coupling. No handheld grip/stock, backpack, beam or flash. Exact exterior outline and finish are disclosed interpretations, not borrowed drone art or official vehicle silhouette. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6a92b301361207d7e9bb46f85a7d24539fc33c0be26f854d2dc3c700e206f11d",
+      "imageSha256": "d1f7534cda5256b906e1f20e90d472a1932c37f24e060fc9b1286671824c73ef",
+      "maskSha256": "9845ae6a782fe58517bb8cde4ba50c351e09f59a5a01ab95d1e80f051b032b6e",
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Source-supported vehicle laser main-gun assembly on fixed mount: full flange/base, optical emitter and exterior power coupling. No handheld grip/stock, backpack, beam or flash. Exact exterior outline and finish are disclosed interpretations, not borrowed drone art or official vehicle silhouette. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "3c2c75d9d61525cb68bc1a0b345fca196135b5b9b23cea4023f3aee00e6fc0e0",
+      "detailSha256": "45449d2febf18c5c33dd74deac6291dd12bd06b29d900d98e16f6421a1121ded",
+      "geometrySha256": "d1f7534cda5256b906e1f20e90d472a1932c37f24e060fc9b1286671824c73ef",
+      "foregroundMaskSha256": "2903665510c24b577597820f2859c212efcb05951a050ce0c7a25669d608eb2a",
+      "geometryForegroundMaskSha256": "9845ae6a782fe58517bb8cde4ba50c351e09f59a5a01ab95d1e80f051b032b6e",
+      "landmarks": [
+        {
+          "name": "emitter-front-tangent",
+          "detail": [
+            0.05053552404626623,
+            0.4382189298930921
+          ],
+          "geometry": [
+            0.05053552404626623,
+            0.43858449835526314
+          ]
+        },
+        {
+          "name": "rear-housing-top",
+          "detail": [
+            0.775159959669237,
+            0.22436137952302632
+          ],
+          "geometry": [
+            0.7747945413961038,
+            0.22216796875
+          ]
+        },
+        {
+          "name": "forward-base-flange-bottom",
+          "detail": [
+            0.6553027660815747,
+            0.7763697574013158
+          ],
+          "geometry": [
+            0.6560336026278409,
+            0.7771008943256579
+          ]
+        },
+        {
+          "name": "rear-housing-right-edge",
+          "detail": [
+            0.9487336394074676,
+            0.3499341462787829
+          ],
+          "geometry": [
+            0.9487336394074676,
+            0.3369283452207743
+          ]
+        }
+      ],
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Source-supported vehicle laser main-gun assembly on fixed mount: full flange/base, optical emitter and exterior power coupling. No handheld grip/stock, backpack, beam or flash. Exact exterior outline and finish are disclosed interpretations, not borrowed drone art or official vehicle silhouette. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}
