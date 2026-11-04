@@ -60,6 +60,13 @@ def fitting_parts(profile, joins):
     return active
 
 
+def grip_render_part(profile):
+    active=active_parts(profile)
+    part=profile['native'].get('gripPart',active[0] if len(active)==1 else 'm')
+    require(part in active, 'Grip close-up must use an active part')
+    return part
+
+
 def assembly_budget(profile, counts, kind):
     active = active_parts(profile)
     require(set(counts) == set(active), 'Count every active processing part exactly once')

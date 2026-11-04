@@ -7,11 +7,19 @@ import numpy as np
 from PIL import Image
 from tools.headkit.common import pin,write
 from tools.itemkit import contracts,shield_native
-from tools.itemkit.parts import active_parts,assembly_budget
+from tools.itemkit.parts import active_parts,assembly_budget,grip_render_part
 from tools.itemkit.firearm_native import placeholder_geometry
 
 
 class ShieldTests(unittest.TestCase):
+    def test_grip_closeup_defaults_to_the_active_native_part(self):
+        profile={'family':'shield','nativePackaging':'enabled','native':{'kind':'shield-whole-v1'}}
+        self.assertEqual(grip_render_part(profile),'whole')
+        profile['native']['gripPart']='m'
+        with self.assertRaisesRegex(ValueError,'active part'):grip_render_part(profile)
+        self.assertEqual(grip_render_part({'family':'shortsword','native':{}}),'m')
+        self.assertEqual(grip_render_part({'family':'bow','native':{}}),'m')
+
     def geometry(self):
         one=placeholder_geometry();two=placeholder_geometry(center=(.01,0,0))
         return {k:np.concatenate([one[k],two[k]]) for k in one} | {

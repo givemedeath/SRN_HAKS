@@ -19,7 +19,7 @@ from tools.headkit.gltf import load as load_glb
 from tools.headkit.uv import raster_audit, gutter_audit
 from tools.itemkit.geometry import similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
 from tools.itemkit.transfer import finished_colour,validate_texture_patch
-from tools.itemkit.parts import active_parts, active_icon_dimensions, fitting_parts, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
+from tools.itemkit.parts import active_parts, active_icon_dimensions, fitting_parts, grip_render_part, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
 
 def arrays(obj):
     mesh = obj.data; mesh.calc_loop_triangles()
@@ -819,8 +819,7 @@ def render(cfg, out, source=False, *, _clay_review=None):
             frames.append(pin(scene.render.filepath))
             record(mode,name)
         if not source and not firearm:
-            grip_part=cfg['family']['native'].get('gripPart','m')
-            require(grip_part in active_parts(cfg['family']),'Grip close-up must use an active part')
+            grip_part=grip_render_part(cfg['family'])
             grip_min, grip_max = world_bounds([bpy.data.objects['item_'+grip_part]]); target = (grip_max+grip_min)/2
             camera.data.ortho_scale = np.linalg.norm(grip_max-grip_min)*1.8
             camera.location = Vector(target)+Vector((1, 0, 0))*extent*2
