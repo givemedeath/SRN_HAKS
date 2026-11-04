@@ -4,9 +4,8 @@ import numpy as np
 from scipy.spatial import Delaunay, cKDTree
 from PIL import Image, ImageDraw
 from tools.headkit.common import require
-from .geometry import topology, protected_checks
+from .geometry import corner_hash, topology, protected_checks
 from pathlib import Path
-import hashlib
 from tools.headkit.common import pin,verify,write,digest
 
 
@@ -28,7 +27,7 @@ def build_candidates(source, profile, processing, output):
             if thickness:protected['thicknessProbes']=thickness
             v,t,checks=silhouette_proxy(p,f,protected,budget,policy,diagnostics=root/(part+'-attempts'))
             target=root/(part+'.npz');np.savez_compressed(target,positions=v,faces=t)
-            candidates[part]={'arrays':pin(target),'sourceCornerHash':hashlib.sha256(np.asarray(p[f],dtype='<f8').tobytes()).hexdigest(),
+            candidates[part]={'arrays':pin(target),'sourceCornerHash':corner_hash(p[f]),
                               'policyHash':digest({'settings':policy,**protected,'budget':budget}),
                               'checks':checks,'visualReviewRequired':True}
     verify([bound], fresh=True);write(root/'result.json',{'source':bound,'candidates':candidates},fresh=True)

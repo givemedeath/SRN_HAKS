@@ -7,7 +7,6 @@ import argparse
 import copy
 import hashlib
 import json
-import re
 from pathlib import Path
 
 import numpy as np
@@ -17,34 +16,6 @@ from tools.phenomorpher.phenomorpher.engine.anim_library import (
     PARENT_FIELD, library_text, load_model, rename,
 )
 from tools.phenomorpher.phenomorpher.engine.native_motion import sample, value
-
-
-def alias_weapon_clips(text, aliases):
-    """Give attached weapon clips the names used by replaced body animations.
-
-    Preserve the original clips for ordinary carriers. Geometry, controllers,
-    transition times and events are copied verbatim; only clip labels change.
-    """
-    pattern = r'(?ms)^newanim (\w+) (\w+)\s*\n.*?^doneanim \1 \2[ \t]*\r?$'
-    blocks = {}
-    for match in re.finditer(pattern, text):
-        name = match[1]
-        if name in blocks:
-            raise ValueError('Duplicate weapon animation: ' + name)
-        blocks[name] = match
-    additions = []
-    for source, target in aliases.items():
-        if not re.fullmatch(r'[a-z0-9_]{1,16}', target) or target in blocks:
-            raise ValueError('Invalid or existing weapon animation alias: ' + target)
-        if source not in blocks:
-            raise ValueError('Missing weapon animation: ' + source)
-        match = blocks[source]
-        additions.append(re.sub(r'(?m)^(newanim|doneanim) '+re.escape(source)+r' ',
-                                lambda m: m[1]+' '+target+' ', match[0]))
-    ending = re.search(r'(?m)^donemodel \w+[ \t]*\r?$', text)
-    if ending is None:
-        raise ValueError('Missing model terminator')
-    return text[:ending.start()]+'\n'.join(additions)+'\n'+text[ending.start():]
 
 
 def rotation_between(a, b):

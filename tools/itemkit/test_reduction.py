@@ -20,3 +20,5 @@ class ContourValidationTests(unittest.TestCase):
     def test_candidate_leaving_the_source_surface_is_rejected(self):
         changed=self.p.copy();changed[3,0]+=.01
         with self.assertRaisesRegex(ValueError,'source surface'):validate(self.p,self.f,changed,self.f,4,[-.1,.2])
+        with self.assertRaisesRegex(ValueError,'source surface'):
+            validate(self.p,self.f,self.p,self.f,4,[-.1,.1],lambda points:np.full(len(points),.004))

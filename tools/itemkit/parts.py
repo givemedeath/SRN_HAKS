@@ -6,6 +6,7 @@ from .geometry import check_budgets
 FIREARM_VIEWS = ('left','right','muzzle','rear','top','underside','grip','oblique')
 WHOLE_NATIVE_FAMILIES = ('firearm-sling', 'firearm-crossbow', 'crossbow')
 RIGGED_NATIVE_FAMILIES = ('bow', 'whip')
+GRIP_BOUND_FAMILIES = ('shortsword', 'dagger', 'longsword', 'greatsword', *WHOLE_NATIVE_FAMILIES)
 
 
 def firearm_views(settings):

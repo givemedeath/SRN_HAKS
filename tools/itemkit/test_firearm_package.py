@@ -46,7 +46,7 @@ class FirearmPackageTests(unittest.TestCase):
         compiler={'blender':pin(executable),'neverblender':{'path':str(addon)},
                   'files':{'__init__.py':pin(module)['sha256']},'sha256':'a'*64}
         with patch.object(firearm_package,'compile_offline',side_effect=ValueError('frozen compiler rejected')) as offline, \
-             patch.object(firearm_package.subprocess,'run') as process:
+             patch('tools.itemkit.native.subprocess.run') as process:
             with self.assertRaisesRegex(ValueError,'frozen compiler rejected'):
                 firearm_package.compile_package(self.output,None,self.root/'native',compiler=compiler)
             offline.assert_called_once();process.assert_not_called()
@@ -56,7 +56,7 @@ class FirearmPackageTests(unittest.TestCase):
         self.prepare()
         prepared=read(self.output/'prepared.json')
         with patch.object(firearm_package,'read',return_value={**prepared,'skin':{'rig':'rig'}}), \
-             patch.object(firearm_package.subprocess,'run') as process:
+             patch('tools.itemkit.native.subprocess.run') as process:
             with self.assertRaisesRegex(ValueError,'qualified offline compiler'):
                 firearm_package.compile_package(self.output,pin(self.table),self.root/'native')
             process.assert_not_called()

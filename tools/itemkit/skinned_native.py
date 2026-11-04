@@ -53,12 +53,9 @@ def decode_meshes(raw):
 
 
 def audit(binary,name,texture,expected,decompiled,bone_names):
-    from tools.phenomorpher.phenomorpher.engine.stock_armor import sanitize_binary,string_fields,leaked_text
     from tools.itemkit.geometry import topology
-    raw=Path(binary).read_bytes();clean=sanitize_binary(raw);allowed=np.zeros(len(raw),bool)
-    for offset,count in string_fields(raw):allowed[offset:offset+count]=True
-    changed=np.frombuffer(raw,np.uint8)!=np.frombuffer(clean,np.uint8)
-    require(not changed[~allowed].any() and clean==sanitize_binary(clean) and not leaked_text(clean),'Skin sanitizer changed non-string bytes or retained leaked tails')
+    from tools.itemkit.native import sanitize_proof
+    raw=Path(binary).read_bytes();clean,changed=sanitize_proof(raw)
     before,after=decode_meshes(raw),decode_meshes(clean);require(set(after)=={name+'v',name+'s'},'Unexpected skin nodes')
     text=Path(decompiled).read_text(encoding='cp1252');bones=list(bone_names)
     for label,visible in [(name+'v',True),(name+'s',False)]:

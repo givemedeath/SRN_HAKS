@@ -2,12 +2,10 @@
 from pathlib import Path
 import copy
 import re
-import json
 import shutil
 import struct
 import subprocess
-import sys
-from tools.headkit.common import ROOT, asset, pin, read, require, verify, write
+from tools.headkit.common import asset, pin, read, require, verify, write
 
 CHECKS = ('front-rear-sides', 'idle', 'walk', 'run', 'equip-unequip', 'attacks', 'shadows',
           'gloves-armor', 'shield-offhand')
@@ -72,8 +70,6 @@ def field(kind, value):
 def blueprint(base_item, allocation, identity=None):
     identity = identity or {}
     item = {'__data_type': 'UTI ', '__struct_id': -1, 'BaseItem': field('int', base_item),
-            'TemplateResRef': field('resref', 'sr_cougar'), 'Tag': field('cexostring', 'sr_cougar'),
-            'LocalizedName': field('cexolocstring', {'0': 'Cougar Fineblade Longblade'}),
             'Identified': field('byte', 1), 'StackSize': field('word', 1), 'Charges': field('byte', 0),
             'Plot': field('byte', 0), 'Stolen': field('byte', 0), 'Cost': field('dword', 0),
             'AddCost': field('dword', 0), 'PropertiesList': field('list', []),
@@ -122,7 +118,7 @@ def entry_script(item_name, comparison=False, previous='', *, equipment_slot='ri
     from .contracts import resref
     resref(item_name)
     require(equipment_slot in ('right', 'left'), 'Unsupported fixture equipment slot')
-    comparisons = ('sr_cougar',) if comparison is True else tuple(comparison or ())
+    comparisons = tuple(comparison or ())
     require(len(set(comparisons)) == len(comparisons) and item_name not in comparisons, 'Comparison blueprint collision')
     for name in comparisons: resref(name)
     if previous: resref(previous)

@@ -772,6 +772,7 @@
       "tools/itemkit/firearms.py",
       "tools/itemkit/fixture.py",
       "tools/itemkit/geometry.py",
+      "tools/itemkit/native.py",
       "tools/phenomorpher/phenomorpher/engine/stock_armor.py"
     ],
     "tools/itemkit/firearm_package.py": [
@@ -780,11 +781,9 @@
       "tools/itemkit/firearm_native.py",
       "tools/itemkit/firearms.py",
       "tools/itemkit/native.py",
-      "tools/itemkit/native_stack.py",
       "tools/itemkit/skinned_native.py",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
-      "tools/phenotypes/native_compile.py",
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/firearms.py": [
@@ -811,7 +810,7 @@
     ],
     "tools/itemkit/grip.py": [
       "tools/headkit/common.py",
-      "tools/itemkit/firearm_grip.py"
+      "tools/itemkit/geometry.py"
     ],
     "tools/itemkit/native.py": [
       "tools/headkit/common.py",
@@ -871,6 +870,7 @@
       "tools/itemkit/contracts.py",
       "tools/itemkit/donor.py",
       "tools/itemkit/fixture.py",
+      "tools/itemkit/geometry.py",
       "tools/itemkit/native.py",
       "tools/itemkit/parts.py",
       "tools/itemkit/reduction.py",
@@ -887,8 +887,6 @@
     "tools/itemkit/shield_native.py": [
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py",
-      "tools/itemkit/firearm_native.py",
-      "tools/itemkit/firearm_package.py",
       "tools/itemkit/fixture.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/native.py",
@@ -1113,7 +1111,8 @@
       "tools/headkit/textures.py"
     ],
     "tools/itemkit/transfer.py": [
-      "tools/headkit/common.py"
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py"
     ],
     "tools/itemkit/verification.py": [
       "tools/headkit/common.py"

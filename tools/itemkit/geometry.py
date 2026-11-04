@@ -1,4 +1,5 @@
 """Pure geometry checks used by the Blender worker and synthetic regressions."""
+import hashlib
 import numpy as np
 from tools.headkit.common import require
 
@@ -17,6 +18,10 @@ def similarity_matrix(config, source_sha):
 
 def transform(vertices, matrix):
     return np.asarray(vertices) @ matrix[:3, :3].T + matrix[:3, 3]
+
+
+def corner_hash(corners):
+    return hashlib.sha256(np.asarray(corners, dtype='<f8').tobytes()).hexdigest()
 
 
 def cap_fan_center(vertices):
@@ -54,16 +59,16 @@ def topology(vertices, faces):
     unique, ids = np.unique(vertices, axis=0, return_inverse=True)
     f = ids[faces]; p = unique[f]
     area = np.linalg.norm(np.cross(p[:, 1]-p[:, 0], p[:, 2]-p[:, 0]), axis=1)
-    edges = {}; links = [[] for _ in unique]
-    for face in f:
-        a,b,c=map(int,face)
+    links = [[] for _ in unique]
+    for a, b, c in f.tolist():
         links[a].append((b,c)); links[b].append((c,a)); links[c].append((a,b))
-        for a, b in zip(face, np.roll(face, -1)):
-            key = tuple(sorted((int(a), int(b))))
-            edges.setdefault(key, []).append(1 if a < b else -1)
-    boundary = sum(len(rows) == 1 for rows in edges.values())
-    nonmanifold = sum(len(rows) > 2 for rows in edges.values())
-    winding = sum(len(rows) == 2 and sum(rows) != 0 for rows in edges.values())
+    directed = np.concatenate((f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]])).astype(np.int64)
+    keys = directed.min(1)*len(unique)+directed.max(1)
+    _, edge_ids, uses = np.unique(keys, return_inverse=True, return_counts=True)
+    turning = np.bincount(edge_ids, np.where(directed[:, 0] < directed[:, 1], 1, -1))
+    boundary = int(np.count_nonzero(uses == 1))
+    nonmanifold = int(np.count_nonzero(uses > 2))
+    winding = int(np.count_nonzero((uses == 2) & (turning != 0)))
     invalid_links=0
     for rows in links:
         if not rows: continue
@@ -88,7 +93,7 @@ def topology(vertices, faces):
     for face, volume in zip(f, per_face_volume):
         key = root(int(face[0])); components[key] = components.get(key, 0.)+float(volume)
     volumes = float(per_face_volume.sum())
-    euler=int(np.count_nonzero(np.bincount(f.ravel(),minlength=len(unique))))-len(edges)+len(f)
+    euler=int(np.count_nonzero(np.bincount(f.ravel(),minlength=len(unique))))-len(uses)+len(f)
     valid_closed=boundary == nonmanifold == winding == invalid_links == 0 and bool(np.all(area > 1e-12)) and all(volume > 0 for volume in components.values())
     return {'triangles': len(f), 'degenerate': int(np.count_nonzero(area <= 1e-12)),
             'eulerCharacteristic':euler,'totalGenus':(2*len(components)-euler)//2 if valid_closed else None,

@@ -69,7 +69,7 @@ class PlacementTests(unittest.TestCase):
             place_review_actors(self.git, self.area, self.ifo, self.actors)
 
     def test_dagger_and_legacy_entry_identity_are_isolated(self):
-        knife = entry_script('sr_cfk', True)
+        knife = entry_script('sr_cfk', ('sr_cougar',))
         sword = entry_script('sr_cougar')
         self.assertIn('CreateItemOnObject("sr_cfk",actor)', knife)
         self.assertIn('CreateItemOnObject("sr_cougar",pc)', knife)

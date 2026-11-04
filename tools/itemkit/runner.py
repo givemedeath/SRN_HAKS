@@ -1,6 +1,5 @@
 """Immutable item stage attempts, dependency reviews, and bounded resumption."""
 from pathlib import Path
-import hashlib
 import os
 import shutil
 import subprocess
@@ -12,6 +11,7 @@ import numpy as np
 from PIL import Image
 from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
 from .contracts import all_pins, code_pins, source_version, manifest, family, evidence_pins, stage_roles
+from .geometry import corner_hash
 from .verification import VerificationPass
 
 DEPENDENCIES = {'prepare': (), 'inspect': (), 'donor': (), 'fit': (), 'reduce': ('fit',), 'unwrap': ('reduce',),
@@ -37,9 +37,6 @@ def attempt_snapshot(receipt):
                   | {'inputs': sorted({(str(row['path']), row['sha256']) for row in receipt.get('inputs', [])})})
 
 
-GRIP_BOUND_FAMILIES = ('shortsword', 'dagger', 'longsword', 'greatsword')
-
-
 def run_logged(command, log, timeout, **options):
     """Run a launcher, retain its output, and stop its whole process tree on timeout."""
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **options)
@@ -58,12 +55,12 @@ def run_logged(command, log, timeout, **options):
 
 
 class Runner:
-    def __init__(self, manifest_path, bindings_path, run, *, runtime=None, evidence=None):
+    def __init__(self, manifest_path, bindings_path, run, *, runtime=None, evidence=None, package_pins=None):
         self.manifest_path = Path(manifest_path).resolve(); self.bindings_path = Path(bindings_path).resolve()
         self.data = manifest(self.manifest_path,input_roles=set(),validate_native=False); self.local = bindings(self.bindings_path)
         self.profile_path = Path(asset(self.manifest_path, self.data['familyProfile'])['path'])
         self.family = family(self.profile_path,validate_native=False); self.run = Path(run).resolve(); self.runtime = runtime
-        self.evidence = Path(evidence).resolve() if evidence else None
+        self.evidence = Path(evidence).resolve() if evidence else None; self.package_pins = package_pins
         self.state_path = self.run/'state.json'
         self.state = read(self.state_path) if self.state_path.exists() else {'schemaVersion': 1, 'id': self.data['id'], 'stages': {}, 'reviews': {}}
         require(self.state['id'] == self.data['id'], 'Run belongs to another item')
@@ -106,7 +103,7 @@ class Runner:
             try: return {'reused': True, 'result': self.result(stage, review=False)}
             except (ValueError, OSError): pass
         # Launched CLI startup already proved these imports for this one-stage process.
-        package_pins = python_package_pins(self.local)
+        package_pins = self.package_pins or python_package_pins(self.local)
         inputs = all_pins(self.manifest_path,roles=stage_roles(stage),native=stage in ('fit','export'))+code_pins()+[pin(self.bindings_path)]+package_pins
         for library in self.local.get('libraries',{}).values():inputs += library['files']
         inputs += [self.runtime[key] for key in ('toolchain', 'migrationReceipt', 'python')]
@@ -186,16 +183,17 @@ class Runner:
         from .parts import active_parts
         from .reduction import policy, reduce
         extracted = self.worker('uv-arrays', folder/'extract', scene=scene)
-        meshlab = library(self.local, 'pymeshlab'); joins = self.data['processing'].get('joinY', [])
+        meshlab = library(self.local, 'pymeshlab'); igl = library(self.local, 'igl'); joins = self.data['processing'].get('joinY', [])
         root = folder/'constrained'; root.mkdir(); candidates = {}
         with np.load(extracted['arrays']['path'], allow_pickle=False) as data:
             for part in active_parts(self.family):
                 p, f = data[part+'_positions'], data[part+'_faces']
                 budget = self.family['budgets']['parts'][part]['visible']
-                v, t, _ = reduce(p, f, budget, joins, meshlab)
+                v, t, _ = reduce(p, f, budget, joins, meshlab,
+                                 lambda points: np.sqrt(igl.point_mesh_squared_distance(points, p, f)[0]))
                 target = root/(part+'.npz'); np.savez_compressed(target, positions=v, faces=t)
                 candidates[part] = {'arrays': pin(target), 'policyHash': policy(budget, joins),
-                                    'sourceCornerHash': hashlib.sha256(np.asarray(p[f], dtype='<f8').tobytes()).hexdigest()}
+                                    'sourceCornerHash': corner_hash(p[f])}
         return candidates
 
     def _execute(self, stage, folder, *, parent_results):
@@ -225,7 +223,8 @@ class Runner:
             return build(sampling,uv['uvMesh']['path'],field,self.data['processing'].get('sourceFieldPolicy'),folder/'donor')
         if stage == 'fit':
             require(self.family['nativePackaging'] == 'enabled', 'Fitting requires a measured native contract')
-            if self.family['family'] in GRIP_BOUND_FAMILIES or self.data.get('fit', {}).get('sizingAuthority') == 'midpoint-depth-two-hand':
+            from .parts import GRIP_BOUND_FAMILIES
+            if self.family['family'] in GRIP_BOUND_FAMILIES:
                 require('gripStandard' in self.data['inputs'], 'Bind the approved grip standard before fitting this weapon')
             donor = self.input('texturedDonor'); review = self.data.get('approval', {}).get('texturedDonor', {})
             require(review.get('decision') == 'approved' and review.get('sha256') == pin(donor)['sha256']

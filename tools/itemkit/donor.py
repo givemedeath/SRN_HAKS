@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 from tools.headkit.common import require,pin,write,verify,read,verification_pass
 from tools.headkit.gltf import load,arrays,encode,require_textured_uvs
+from .geometry import corner_hash,transform
 
 
 def geometry_frame(source,uv_mesh):
@@ -131,7 +132,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
     New sampling triangles do not modify the visible target or its UVs. Colour
     comes from the original textured donor within3mm, not a transformed field.
     """
-    import hashlib,time
+    import time
     from PIL import Image
     from tools.headkit.common import library
     from tools.headkit.gltf import write_mesh
@@ -169,7 +170,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
         require(matrix.shape==(4,4) and np.isfinite(matrix).all() and np.allclose(matrix[3],[0,0,0,1])
                 and np.linalg.det(matrix[:3,:3])>0 and np.allclose(matrix[:3,:3].T@matrix[:3,:3],
                     np.eye(3)*np.sum(matrix[:3,0]**2),atol=1e-10,rtol=1e-7),'Positive uniform donor fit required')
-        fitted=v@matrix[:3,:3].T+matrix[:3,3];points=corners[ids].reshape(-1,3)
+        fitted=transform(v,matrix);points=corners[ids].reshape(-1,3)
         igl=library(local,'igl');distance,nearest,closest=igl.point_mesh_squared_distance(points,fitted,df)
         maximum=float(np.sqrt(distance.max()));require(maximum<=.003,'Repair-cap RGB source exceeds3mm')
         tri=fitted[df[nearest]];a=tri[:,1]-tri[:,0];b=tri[:,2]-tri[:,0];q=closest-tri[:,0]
@@ -208,7 +209,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
                 and np.array_equal(attributes['NORMAL'][ff[:len(df)]],normals),'Original donor attributes changed')
         donor=embed_diffuse(mesh,colour_path,out/'textured-donor.glb');verify(rows,fresh=True)
         result={'donor':donor,'source':source,'originalTexture':texture,'target':target,'fit':fit,'diagnostic':diagnostic,
-            'texture':pin(colour_path),'targetCornerHash':hashlib.sha256(np.asarray(corners,dtype='<f8').tobytes()).hexdigest(),
+            'texture':pin(colour_path),'targetCornerHash':corner_hash(corners),
             'explicitRepairCapFaces':ids.tolist(),'capSurfaceFraction':fraction,'maximumLocalColourSampleDistance':maximum,
             'capColourMethod':'linear interpolation of nearby original baked donor RGB',
             'originalMappedTexelsExact':True,'originalGeometryAndUVMappingsExact':True,'targetGeometryAndUVsUnchanged':True,

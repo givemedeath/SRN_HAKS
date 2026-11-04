@@ -9,6 +9,8 @@ from .contracts import all_pins, code_pins, family, manifest, source_version, ev
 from .generation import request_stage, shared_ledger, initialize_trial, set_trial_limit
 
 
+GENERATION_STAGES = ('calibrate', 'geometry', 'appearance', 'export')
+PROCESSING_STAGES = ('prepare', 'inspect', 'donor', 'fit', 'reduce', 'unwrap', 'finish', 'bake', 'shadow', 'render', 'native', 'fixture', 'client')
 COUGAR_INTAKE_IDS = ('cougar-fineblade-longblade', 'cougar-fineblade-longsword', 'cougar-fineblade-knife')
 
 
@@ -53,6 +55,16 @@ def intake(reference, output, design_id='cougar-fineblade-longblade', family_nam
     return {'manifest': pin(output/'asset.json'), 'reference': pin(target), 'clayReferenceRequired': False}
 
 
+def launcher_pins(bindings_path, local):
+    """What every explicit-spec route consumes besides its own inputs."""
+    return code_pins()+[pin(bindings_path), pin(local['toolchain']), pin(local['migrationReceipt'])]+python_package_pins(local)+[local['python']]
+
+
+def write_input_paths(output, pins):
+    paths = sorted({row['path'] for row in pins}); write(output, paths, fresh=True)
+    return {'inputs': str(output), 'count': len(paths)}
+
+
 def consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None):
     with verification_pass('item-consumed-inputs'):
         return _consumed_inputs(manifest_path, bindings_path, run, extra, stage)
@@ -72,7 +84,7 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         if key in local: pins.append(pin(local[key]))
     for key in ('python', 'blender', 'client', 'embree'):
         if key in local: pins.append(local[key])
-    cpu=run is not None or stage in {'prepare','inspect','donor','fit','reduce','unwrap','finish','bake','shadow','render','native','fixture','client'}
+    cpu=run is not None or stage in PROCESSING_STAGES
     models={} if cpu else local.get('models', {})
     # New GPU requests bind model paths/hashes in the configuration, but only
     # Comfy consumes those bytes. Its fresh preparation/dispatch/completion
@@ -202,12 +214,11 @@ def main():
     c.add_argument('--scope', choices=['generation', 'processing'], default='processing')
     c = commands.add_parser('inputs'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--run', type=Path)
-    c.add_argument('--stage',choices=['calibrate','geometry','appearance','export','prepare','inspect','donor',
-                                    'fit','reduce','unwrap','finish','bake','shadow','render','native','fixture','client'])
+    c.add_argument('--stage',choices=GENERATION_STAGES+PROCESSING_STAGES)
     c.add_argument('--extra', type=Path, action='append', default=[]); c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('request')
     for key in ('manifest', 'bindings', 'output'): c.add_argument('--'+key, type=Path, required=True)
-    c.add_argument('--stage', choices=['calibrate', 'geometry', 'appearance', 'export'], required=True)
+    c.add_argument('--stage', choices=GENERATION_STAGES, required=True)
     c.add_argument('--working-shell', action='store_true',
                    help='Export a separate solid engineering shell; preserve the family UDF colour-donor settings')
     c.add_argument('--appearance-donor', action='store_true',
@@ -223,7 +234,7 @@ def main():
         require(not a.working_shell or a.stage == 'export', 'Working-shell option is export-only')
     with verification_pass('item-cli-startup'):
         runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'shield-inputs', 'status', 'preflight') else launched(a.bindings)
-        if runtime is not None: python_package_pins(bindings(a.bindings), require_imports=True)
+        package_pins = python_package_pins(bindings(a.bindings), require_imports=True) if runtime is not None else None
     if a.command == 'intake': result = intake(a.reference, a.output, a.id, a.family)
     elif a.command == 'firearm-inputs':
         from .firearm_package import specification_inputs, prepared_inputs, native_inputs
@@ -236,26 +247,22 @@ def main():
             else:
                 require(a.manifest is None, '--manifest is only used with --native')
                 pins = specification_inputs(a.spec) if a.spec else prepared_inputs(a.prepared)
-            pins += code_pins()+[pin(a.bindings), pin(local['toolchain']), pin(local['migrationReceipt'])]
-            pins += python_package_pins(local)+[local['python']]
+            pins += launcher_pins(a.bindings, local)
             require(a.compiler is None or a.prepared, '--compiler is only used with --prepared')
             if a.prepared:
                 from .native import offline_compiler_inputs
                 pins += offline_compiler_inputs(read(a.compiler))+[pin(a.compiler)] if a.compiler else [local['client']]
             verify(pins)
-        write(a.output, sorted({p['path'] for p in pins}), fresh=True)
-        result = {'inputs': str(a.output), 'count': len({p['path'] for p in pins})}
+        result = write_input_paths(a.output, pins)
     elif a.command == 'shield-inputs':
         from .shield_native import specification_inputs, prepared_inputs
         with verification_pass('shield-consumed-inputs'):
             local = bindings(a.bindings)
             require(bool(a.compiler) == bool(a.prepared), '--compiler is required with --prepared and only with it')
             pins = specification_inputs(a.spec) if a.spec else prepared_inputs(a.prepared, read(a.compiler))+[pin(a.compiler)]
-            pins += code_pins()+[pin(a.bindings), pin(local['toolchain']), pin(local['migrationReceipt'])]
-            pins += python_package_pins(local)+[local['python']]
+            pins += launcher_pins(a.bindings, local)
             verify(pins)
-        write(a.output, sorted({p['path'] for p in pins}), fresh=True)
-        result = {'inputs': str(a.output), 'count': len({p['path'] for p in pins})}
+        result = write_input_paths(a.output, pins)
     elif a.command == 'shield-prepare':
         from .shield_native import prepare_specification
         result = prepare_specification(a.spec, a.output)
@@ -296,7 +303,7 @@ def main():
         if a.command == 'status': result = Runner(a.manifest, a.bindings, a.run).status()
         else:
             with comfy.locked(a.run/'runner'):
-                runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, evidence=getattr(a, 'evidence', None))
+                runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, evidence=getattr(a, 'evidence', None), package_pins=package_pins)
                 result = runner.review(a.stage, a.decision, a.notes) if a.command == 'review' else runner.execute('prepare' if a.command == 'prepare' else a.stage)
     elif a.command == 'request':
         local = bindings(a.bindings); identity = comfy.preparation_runtime(comfy.Client(local['comfyUrl']),local)

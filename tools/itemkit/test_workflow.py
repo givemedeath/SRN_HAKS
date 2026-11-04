@@ -47,8 +47,9 @@ class VerificationTests(unittest.TestCase):
             arrays=root/'source.npz';np.savez(arrays,whole_positions=p,whole_faces=f)
             r=Runner.__new__(Runner);r.local={};r.data={'processing':{'joinY':[-1.,2.]}}
             r.family={'family':'catalog-object','budgets':{'parts':{'whole':{'visible':4}}}}
-            with patch('tools.itemkit.parts.active_parts',return_value=('whole',)), patch('tools.itemkit.runner.library'), \
+            with patch('tools.itemkit.parts.active_parts',return_value=('whole',)), patch('tools.itemkit.runner.library') as library, \
                  patch.object(r,'worker',return_value={'arrays':pin(arrays)}):
+                library.return_value.point_mesh_squared_distance.return_value=(np.zeros(4),None,None)
                 candidate=r.constrained_candidates('scene',root)['whole']
             self.assertEqual(candidate['policyHash'],digest({'budget':4,'joinY':[-1.,2.],'maximumSourceDistance':.003}))
             with np.load(candidate['arrays']['path']) as data:np.testing.assert_array_equal(data['faces'],f)

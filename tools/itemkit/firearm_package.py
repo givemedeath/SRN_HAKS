@@ -6,33 +6,17 @@ an interactive game session. All placeholder and Color resources are audited.
 """
 from pathlib import Path
 import shutil
-import subprocess
-import sys
 import time
 
 import numpy as np
 from PIL import Image
 
-from tools.headkit.common import ROOT, asset, pin, read, require, verify, write, verification_pass
-from .contracts import native_contract, resref, source_version, code_pins
+from tools.headkit.common import pin, read, require, verify, write, verification_pass
+from .contracts import native_contract, resref, source_version, code_pins, stack_inputs
 from .firearms import plan, longarm_plan, longarm_row, private_override, sling_row, validate_assembly
-from .firearm_native import placeholder_geometry, placeholder_ascii, audit_placeholder, variant_blueprint, mesh_flags, audit_blueprint_roundtrip
-from .native import ascii_model, sanitize_and_audit, archive_helpers,offline_compiler_inputs,compile_offline
-
-
-def stack_inputs(profile_path):
-    """Enumerate only the effective namespace and selected resource evidence."""
-    from .native_stack import namespace
-    profile = read(profile_path)
-    stack = asset(profile_path, profile['native']['stack'])
-    result = [pin(profile_path), stack]
-    for layer in read(stack['path'])['layers']:
-        result += namespace(stack['path'], layer)[2]
-        result += [asset(stack['path'], row['file']) for row in layer['resources']]
-    if profile.get('family') == 'crossbow':
-        from .contracts import crossbow_motion_inputs
-        result += crossbow_motion_inputs(profile_path, profile)[0]
-    return result
+from .firearm_native import placeholder_geometry, placeholder_ascii, audit_placeholder, variant_blueprint
+from .native import (EXTRA_RESOURCE_TYPES, ascii_model, archive_helpers, blueprint_roundtrip, compile_offline, compile_with_client,
+                     offline_compiler_inputs, sanitize_and_audit, write_verified_hak)
 
 
 def specification_inputs(spec_path):
@@ -76,7 +60,7 @@ def prepare(spec_path, output):
         require(icon_size == ((64,128) if longarm else (32,64)), 'Review changed carrier inventory dimensions')
         archive = archive_helpers()
         occupied = set(resources)
-        type_extensions = {value: key for key, value in {**archive.TYPES, '2da': 2017, 'uti': 2025}.items()}
+        type_extensions = {value: key for key, value in {**archive.TYPES, **EXTRA_RESOURCE_TYPES}.items()}
         for hak in spec.get('comparisonHaks', []):
             for name, kind in archive.payload(hak['path']):
                 require(kind in type_extensions, 'Unsupported comparison HAK resource type')
@@ -192,12 +176,7 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
     if compiler is not None:
         compile_offline(converted,compiler,out)
     else:
-        command = [sys.executable, '-B', str(ROOT/'tools/phenotypes/native_compile.py'), '--client', client['path'],
-                   '--user-directory', str(out/'compiler-userdir'), '--converted', str(converted), '--timeout', '120']
-        result = subprocess.run(command, capture_output=True, text=True, timeout=450,
-                                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-        (out/'compiler.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
-        require(result.returncode == 0, 'Native compilation failed; retain log and reconcile before retry')
+        compile_with_client(converted, client, out)
     res = converted/'resources'; allocation = prepared['allocation']; audits = {}
     with np.load(prepared['placeholder']['path'], allow_pickle=False) as data:
         expected_placeholder = {k: data[k] for k in data.files}
@@ -217,24 +196,15 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
                 clean,audit=audit_skin(target,name,variant['texture'],{k:data[k] for k in data.files},decoded,prepared['skin']['boneNames'])
         else:
             clean, audit = sanitize_and_audit(target, name, variant['texture'], prepared['expected'][name])
-            require(mesh_flags(clean, name) == {name+'v': {'render': 1, 'shadow': 0},
-                                               name+'s': {'render': 0, 'shadow': 1}}, 'Incorrect native visibility flags')
         target.write_bytes(clean); audits[name] = audit
         source = prepared['blueprints'][variant['blueprint']]; target = res/(variant['blueprint']+'.uti')
         readback = out/(variant['blueprint']+'-readback.json')
-        for args in (['-i', source['path'], '-o', str(target)], ['-i', str(target), '-o', str(readback)]):
-            done = subprocess.run([str(gff), *args], capture_output=True, text=True, timeout=120,
-                                  creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-            require(done.returncode == 0, 'Blueprint conversion failed: '+done.stderr[-1000:])
-        audit = audit_blueprint_roundtrip(target, read(readback), read(source['path']))
+        audit = blueprint_roundtrip(gff, source['path'], target, readback)
         blueprints.append({'file': pin(target), 'colour': variant['colour'], 'utiParts': variant['utiParts'], 'audit': audit})
     expected_names = set(allocation['resources']) | ({'baseitems.2da'} if prepared['intentionalOverride']['intentionalOverride'] else set())
     require({p.name for p in res.iterdir()} == expected_names, 'Missing or unexpected firearm payload resource')
-    archive = archive_helpers(); types = {**archive.TYPES, '2da': 2017, 'uti': 2025}
     files = sorted(res.iterdir()); hak = out/(prepared['identity']['hak']+'.hak')
-    archive.write_hak(hak, [(p.stem, types[p.suffix[1:]], p.read_bytes()) for p in files])
-    require(archive.payload(hak) == {(p.stem, types[p.suffix[1:]]): pin(p)['sha256'] for p in files},
-            'Exact firearm HAK payload differs')
+    write_verified_hak(hak, files)
     verify(inputs, fresh=True)
     result = {'schemaVersion': 1, 'kind': 'firearm-native-package', 'codeVersion': prepared['codeVersion'], 'hak': pin(hak),
               'baseItem': allocation['baseItem'], 'allocation': allocation,

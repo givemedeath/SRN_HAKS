@@ -20,7 +20,7 @@ def repair_uv(vertices,faces,initial,size=4096,diagnostic_path=None):
     isolated=set();iterations=[]
     for iteration in range(4):
         uv=uv.astype(np.float32).astype(float);audit,owners=raster_audit(uv,size)
-        charts=chart_ids(uv);mapped=np.unique(owners[owners>=0])
+        charts=original_regions if iteration==0 else chart_ids(uv);mapped=np.unique(owners[owners>=0])
         missing_charts=np.setdiff1d(np.unique(charts),np.unique(charts[mapped]))
         bad=set(audit['overlapFaces']+audit['degenerateUvFaces'])
         # The source bake requires every face to own a 4K sample, including

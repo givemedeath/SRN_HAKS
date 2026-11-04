@@ -2,13 +2,7 @@
 import numpy as np
 from tools.headkit.common import digest, require
 from .geometry import similarity_matrix, transform
-from .grip import section_dimensions
-
-
-class GripDeparture(ValueError):
-    def __init__(self, report):
-        super().__init__('Grip width/depth departs from standard; review the retained measurement instead of distorting the pistol')
-        self.report = report
+from .grip import GripDeparture, bind_departure, reference_sections
 
 
 # The Colt reference supersedes Cougar for firearms. Pre-Colt fits (the Colt L36
@@ -49,11 +43,7 @@ def measured_fit(vertices, faces, config, donor_sha, working_sha, standard, nati
             'Unique measured grip surface faces required')
     fitted = transform(vertices,matrix)
     local = (fitted-center)@basis
-    sections = []
-    for row in standard['referenceSections']:
-        fraction=row['fractionFromPommel']
-        depth_value,width_value=section_dimensions(local,np.asarray(faces)[selected],(fraction-.5)*length)
-        sections.append({'fractionFromPommel':fraction,'depth':float(depth_value),'visibleFaceWidth':float(width_value)})
+    sections = reference_sections(local,np.asarray(faces)[selected],standard,0,length)
     middle=next(row for row in sections if row['fractionFromPommel']==.5)
     target=standard['targetMidpointSection']
     differences={name:middle[name]/target[name]-1 for name in ('depth','visibleFaceWidth')}
@@ -69,10 +59,5 @@ def measured_fit(vertices, faces, config, donor_sha, working_sha, standard, nati
     if authority == 'midpoint-depth':
         report['sizingAuthority'] = authority
     report['measurementDigest']=digest(report)
-    if any(abs(v)>.05 for v in differences.values()):
-        review=config.get('gripDeparture',{})
-        if not (review.get('decision')=='approved' and review.get('measurementDigest')==report['measurementDigest']
-                and isinstance(review.get('notes'),str) and review['notes'].strip()):
-            raise GripDeparture(report)
-        report['departureReview']=review
+    if any(abs(v)>.05 for v in differences.values()):bind_departure(report,config.get('gripDeparture'))
     return matrix,report
