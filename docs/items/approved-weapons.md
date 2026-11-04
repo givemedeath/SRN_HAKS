@@ -20,6 +20,11 @@ components of its tested multipart contract. They remain in the pack and budget.
 All five runtime diffuse maps are 1024 square. Only each design's matching
 assembly is supported; arbitrary part interchange is not qualified.
 
+The SR_NWN Phase 2A combat-slice inventory of these resources, their table/TLK
+closure, collisions and open gaps is in
+[combat-2a-release-manifest.md](combat-2a-release-manifest.md). It is generated
+by `tools/combat_release_manifest.py` and grants no approval.
+
 ## Sling display-table change requiring review
 
 The pistol fixture uses `ModelType=2` for BaseItem 61, `ItemClass=WBwSl`, and

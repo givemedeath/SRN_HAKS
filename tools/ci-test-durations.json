@@ -218,6 +218,7 @@
   "tools/test_ci_result.py": 1.06,
   "tools/test_ci_scope.py": 16.93,
   "tools/test_clean_checkout.py": 3.26,
+  "tools/test_combat_release_manifest.py": 0.67,
   "tools/test_shared_tools.py": 37.9,
   "tools/test_test_impact.py": 1.65
  }
