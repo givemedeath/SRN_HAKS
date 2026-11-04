@@ -22,8 +22,6 @@ from target_contract import require
 sys.path.insert(0, str(REPO / "tools"))
 from shared_tools import resolve_tool
 
-GAME_ROOT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition")
-
 
 def get_resman_grep() -> Path:
     return Path(resolve_tool("resman_grep", repo=REPO)["path"])
@@ -140,8 +138,10 @@ def audit_stock_armor_compatibility(
 
     inventory_root = game_root or (
         Path(os.environ["NWN_ROOT"]) if "NWN_ROOT" in os.environ and Path(os.environ["NWN_ROOT"]).exists()
-        else GAME_ROOT
+        else None
     )
+    if inventory_root is None:
+        raise FileNotFoundError("NWN game root not found. Please provide it or set NWN_ROOT.")
     inventory_result = inventory_installed_styles(
         inventory_root,
         REPO / f"output/phenotypes/derived-{race}-male-v1/compiler-userdir",

@@ -13,25 +13,6 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'SrnHaks.Common.psm1') -Force
 $repoRoot = Get-SrnRepositoryRoot
-$quarantineRoot = Join-Path $repoRoot '.quarantine'
-
-function Resolve-QuarantinePath {
-    param([string]$RelativePath)
-    if ([string]::IsNullOrWhiteSpace($RelativePath) -or [IO.Path]::IsPathRooted($RelativePath)) {
-        throw 'OutputRelativePath must be a non-empty relative path beneath .quarantine.'
-    }
-    $root = [IO.Path]::GetFullPath($quarantineRoot)
-    $resolved = [IO.Path]::GetFullPath((Join-Path $root $RelativePath))
-    $prefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-    $pathComparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
-        [StringComparison]::OrdinalIgnoreCase
-    }
-    else { [StringComparison]::Ordinal }
-    if (-not $resolved.StartsWith($prefix, $pathComparison)) {
-        throw "OutputRelativePath escapes .quarantine: $RelativePath"
-    }
-    return $resolved
-}
 
 function Add-Relation {
     param([hashtable]$Map, [string]$Resource, [string]$Value)
@@ -355,15 +336,16 @@ function Update-GffNode {
     if ($Node -is [Management.Automation.PSCustomObject]) {
         foreach ($property in @($Node.PSObject.Properties)) {
             $value = $property.Value
-            if ($property.Name -ceq 'STRREF' -and $value -is [Management.Automation.PSCustomObject] -and
-                [string]$value.type -ceq 'dword') {
+            # A localized string's or struct's inner value object has no type of its own.
+            $typed = $value -is [Management.Automation.PSCustomObject] -and $value.PSObject.Properties.Name -contains 'type'
+            if ($property.Name -ceq 'STRREF' -and $typed -and [string]$value.type -ceq 'dword') {
                 $key = [string][int64]$value.value
                 if ($RemapByValue.ContainsKey($key)) {
                     $value.value = [int64]$RemapByValue[$key].targetGameStrRef
                     $RemapCounts[$key] = [int]$RemapCounts[$key] + 1
                 }
             }
-            elseif ($value -is [Management.Automation.PSCustomObject] -and [string]$value.type -ceq 'list') {
+            elseif ($typed -and [string]$value.type -ceq 'list') {
                 $kept = [Collections.Generic.List[object]]::new()
                 foreach ($item in @($value.value)) {
                     $remove = $false
@@ -427,7 +409,8 @@ function Write-2daLines {
     [IO.File]::WriteAllLines($Path, $normalized, [Text.Encoding]::GetEncoding(1252))
 }
 
-$workspace = Resolve-QuarantinePath $OutputRelativePath
+$workspace = Resolve-SrnQuarantinePath $OutputRelativePath
+foreach ($child in 'raw', 'analysis') { [void](Resolve-SrnQuarantinePath (Join-Path $OutputRelativePath $child)) }
 $rawRoot = Join-Path $workspace 'raw'
 $analysisRoot = Join-Path $workspace 'analysis'
 $manifestPath = Join-Path $analysisRoot 'manifest.json'
@@ -788,7 +771,7 @@ if ($Mode -eq 'Repair') {
                 for ($index = 0; $index -lt $lines.Count; $index++) {
                     $pattern = "(?<![A-Za-z0-9_])$([regex]::Escape([string]$mapping.source))(?![A-Za-z0-9_])"
                     if ($lines[$index] -match $pattern) {
-                        $lines[$index] = [regex]::Replace($lines[$index], $pattern, [string]$mapping.target)
+                        $lines[$index] = [regex]::Replace($lines[$index], $pattern, [string]$mapping.target, 'IgnoreCase')
                         $changes.Add([pscustomobject]@{
                             line = $index + 1; source = [string]$mapping.source
                             target = [string]$mapping.target
@@ -809,7 +792,7 @@ if ($Mode -eq 'Repair') {
                     for ($index = 0; $index -lt $lines.Count; $index++) {
                         $pattern = "(?<![A-Za-z0-9_])$([regex]::Escape([string]$mapping.source))(?![A-Za-z0-9_])"
                         if ($lines[$index] -match $pattern) {
-                            $lines[$index] = [regex]::Replace($lines[$index], $pattern, [string]$mapping.target)
+                            $lines[$index] = [regex]::Replace($lines[$index], $pattern, [string]$mapping.target, 'IgnoreCase')
                             $changes.Add([pscustomobject]@{
                                 line = $index + 1; source = [string]$mapping.source
                                 target = [string]$mapping.target

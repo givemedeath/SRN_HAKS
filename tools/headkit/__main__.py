@@ -96,7 +96,8 @@ def chain(runner, stages):
             except (ValueError,OSError) as exc:blocked=(dependency,str(exc));break
         if blocked:
             dependency,reason=blocked;folder,_=attempt(dependency)
-            kind='blocked-on-review' if 'review' in reason.lower() else 'blocked-on-dependency'
+            # Only the runner's review gates; a pin message can name a path that contains the word.
+            kind='blocked-on-review' if reason.startswith(('Visual review','Stale visual review')) else 'blocked-on-dependency'
             rows.append({'stage':stage,'status':kind,'dependency':dependency,'reason':reason,'evidence':folder,
                 'next':(f'Inspect {folder} then record `review --stage {dependency}`' if kind=='blocked-on-review'
                         else f'Run or rerun {dependency} before {stage}')})

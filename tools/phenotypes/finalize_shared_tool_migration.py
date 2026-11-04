@@ -66,6 +66,30 @@ def verify_launch(folder, tool, config, toolchain):
     return report
 
 
+LAUNCH_HELPERS = {'shared_toolchain.py', 'launch_shared_tool.py', 'launch_hash_cache.py', 'bootstrap_shared_blender_addons.py'}
+
+
+def verify_blender_bootstrap(bootstrap, imported, launch, config, toolchain):
+    """Blender started isolated from factory settings and loaded only this toolchain's pinned addon bank."""
+    require(bootstrap.get('kind') == 'shared-blender-addon-bootstrap'
+            and bootstrap['factoryStartup'] is True and bootstrap['preferencesChanged'] is False
+            and bootstrap['savedPreferencesChanged'] is False and bootstrap['migrationReceipt'] is None,
+            'Factory shared addon bootstrap required')
+    require(Path(bootstrap['toolchain']).resolve() == config and bootstrap['toolchainSha256'] == sha(config),
+            'Bootstrap belongs to another toolchain')
+    addon_root = Path(toolchain['addons']['root']).resolve()
+    modules = bootstrap['loadedModules']
+    require(modules and len({row['module'] for row in modules}) == len(modules), 'Unique actually loaded addon modules required')
+    for row in modules:
+        path = Path(row['path']).resolve()
+        require(path.is_relative_to(addon_root), 'Loaded addon escaped pinned shared bank')
+        relative = path.relative_to(addon_root).as_posix()
+        require(toolchain['addons']['files'].get(relative) == row['sha256'] == sha(path), 'Loaded addon bytes differ')
+    require(imported['actuallyLoadedAddon'] == str(addon_root / 'neverblender/__init__.py')
+            and imported['loadedAddonSha256'] == sha(imported['actuallyLoadedAddon']), 'Import addon origin differs')
+    require('--factory-startup' in launch['command'] and '-b' in launch['command'], 'Isolated Blender startup command required')
+
+
 def finalize(config, verification_dir, output):
     config, root, output = Path(config).resolve(), Path(verification_dir).resolve(), Path(output).resolve()
     require(not output.exists(), 'Fresh immutable migration receipt required')
@@ -105,25 +129,8 @@ def finalize(config, verification_dir, output):
             and imported['sourceSha256'] == inputs['stockAscii']['sha256'], 'Declared stock import source differs')
     require(imported['importedMeshes'] and all(row['vertices'] > 0 and row['faces'] > 0
             for row in imported['importedMeshes']), 'No usable imported stock mesh')
-    bootstrap = read(root / 'blender-import-smoke/loaded-addons.json')
-    require(bootstrap.get('kind') == 'shared-blender-addon-bootstrap'
-            and bootstrap['factoryStartup'] is True and bootstrap['preferencesChanged'] is False
-            and bootstrap['savedPreferencesChanged'] is False and bootstrap['migrationReceipt'] is None,
-            'Factory shared addon bootstrap required')
-    require(Path(bootstrap['toolchain']).resolve() == config and bootstrap['toolchainSha256'] == sha(config),
-            'Bootstrap belongs to another toolchain')
-    addon_root = Path(toolchain['addons']['root']).resolve()
-    modules = bootstrap['loadedModules']
-    require(modules and len({row['module'] for row in modules}) == len(modules), 'Unique actually loaded addon modules required')
-    for row in modules:
-        path = Path(row['path']).resolve()
-        require(path.is_relative_to(addon_root), 'Loaded addon escaped pinned shared bank')
-        relative = path.relative_to(addon_root).as_posix()
-        require(toolchain['addons']['files'].get(relative) == row['sha256'] == sha(path), 'Loaded addon bytes differ')
-    require(imported['actuallyLoadedAddon'] == str(addon_root / 'neverblender/__init__.py')
-            and imported['loadedAddonSha256'] == sha(imported['actuallyLoadedAddon']), 'Import addon origin differs')
-    command = reports['blenderImportLaunch']['command']
-    require('--factory-startup' in command and '-b' in command, 'Isolated Blender startup command required')
+    verify_blender_bootstrap(read(root / 'blender-import-smoke/loaded-addons.json'), imported,
+                             reports['blenderImportLaunch'], config, toolchain)
     equipment = read(root / 'equipment-smoke/proof.json')
     inventory = read(inputs['equipmentInventory']['path'])
     fixture_declaration(inputs,equipment,inventory)
@@ -153,8 +160,8 @@ def finalize(config, verification_dir, output):
                     for path in (root / folder).rglob('*') if path.is_file()}
     frozen_files.update({str(path): sha(path) for path in (root / 'equipment-smoke').rglob('*') if path.is_file()})
     frozen_files[str(root / 'blender-import.json')] = sha(root / 'blender-import.json')
-    core = {'shared_toolchain.py', 'launch_shared_tool.py', 'bootstrap_shared_blender_addons.py'}
-    helpers = {name: value for name, value in inputs['launchHelpers'].items() if Path(name).name in core}
+    helpers = {name: value for name, value in inputs['launchHelpers'].items() if Path(name).name in LAUNCH_HELPERS}
+    require({Path(name).name for name in helpers} == LAUNCH_HELPERS, 'All launch helpers must be frozen')
     active = Path(inputs['activeWorktree']).resolve()
     require(all(Path(name).resolve().is_relative_to(active) for name in helpers), 'Active launcher helpers must belong to this worktree')
     linked=[Path(row['path']) for row in worktrees(active)[1:] if Path(row['path'])!=active]

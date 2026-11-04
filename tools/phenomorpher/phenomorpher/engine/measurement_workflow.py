@@ -396,7 +396,7 @@ def review_index(output, references, models, proposals, audits):
 def historical_findings(config, output, references, models, audits, evidence):
     from .build_silhouette_comparison_sheet import extract_concept_mask
     helpers = [Path(__file__).with_name(name) for name in
-               ('build_silhouette_comparison_sheet.py', 'calculate_silhouette_difference.py', 'audit_geometry.py')]
+               ('build_silhouette_comparison_sheet.py', 'audit_geometry.py')]
     evidence.extend(verified(p, sha(p)) for p in helpers)
     slug = 'troll_male_fit'
     image = Image.open(references[slug]['source']['path']).convert('RGB')

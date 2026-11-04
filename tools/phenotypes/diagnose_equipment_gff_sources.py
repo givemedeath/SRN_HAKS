@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 from pipeline import digest, save_json
+from tool_runtime import tool as resolved_tool
 
 
 def equipment_claims(document):
@@ -36,7 +37,7 @@ def freeze(args):
     raw,js=output/'raw',output/'json';raw.mkdir();js.mkdir()
     view=args.resource_view.read_text();locations={line.split()[0]:line for line in view.splitlines() if line.strip()}
     names=sorted(name for name in locations if Path(name).suffix in ('.uti','.utc'))
-    tools=(args.tool_directory/'nwn_resman_cat.exe',args.tool_directory/'nwn_gff.exe')
+    tools=(resolved_tool('nwn_resman_cat',args.tool_directory),resolved_tool('nwn_gff',args.tool_directory))
     pins={str(path.resolve()):digest(path) for path in tools}
     base=['--root',inventory['gameRoot'],'--userdirectory',inventory['userDirectory'],'--no-ovr']
     def fetch(name):

@@ -8,6 +8,7 @@ import os
 import time
 from pathlib import Path
 import re
+import stat
 import sys
 import tempfile
 
@@ -42,7 +43,7 @@ def sha(path, *, fresh=False):
     if session is not None and not fresh:return session.hash(path)
     path = Path(path)
     before = path.stat()
-    key = (str(path.resolve()), before.st_ino, before.st_size, before.st_mtime_ns)
+    key = (str(path), before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
     if not fresh and key in _HASHES:
         return _HASHES[key]
     result = hashlib.sha256()
@@ -50,7 +51,7 @@ def sha(path, *, fresh=False):
         for block in iter(lambda: stream.read(1024 * 1024), b''):
             result.update(block)
     after = path.stat()
-    if (after.st_ino, after.st_size, after.st_mtime_ns) == key[1:] and time.time_ns() - after.st_mtime_ns > 2_000_000_000:
+    if (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns) == key[1:] and time.time_ns() - after.st_mtime_ns > 2_000_000_000:
         _HASHES[key] = result.hexdigest()
     return result.hexdigest()
 
@@ -237,30 +238,28 @@ def python_package_pins(data, *, require_imports=False):
 
     pins = row['files']
     verify(pins)
-    pinned = []
-    for item in pins:
-        configured_path = Path(item['path'])
-        resolved = configured_path.resolve(strict=True)
-        require(configured_path.is_absolute() and not has_link_component(configured_path),
-                'Python package file pins must use canonical non-link paths')
-        pinned.append(resolved)
+    require(all(Path(item['path']).is_absolute() for item in pins),'Python package file pins must use canonical non-link paths')
+    root = os.path.normcase(str(directory)) + os.sep
+    pinned = [os.path.normcase(item['path']) for item in pins]
     pinned_set = set(pinned)
-    require(len(pinned) == len(pinned_set) and all(path.is_file() and path.is_relative_to(directory)
-            for path in pinned_set), 'Python package file pins must be unique files under the installation root')
+    require(len(pinned) == len(pinned_set) and all(path.startswith(root) for path in pinned_set),
+            'Python package file pins must be unique files under the installation root')
 
     def inventory():
-        files = set()
-        for path in directory.rglob('*'):
-            require(not path.is_symlink() and not is_junction(path),
-                    'Python package installation cannot contain unpinned links')
-            if path.is_file():
-                resolved = path.resolve(strict=True)
-                require(resolved.is_relative_to(directory), 'Python package file escapes its installation root')
-                files.add(resolved)
+        """One walk that never follows a link or other reparse point, so equal path strings prove a canonical pin."""
+        files = set(); pending = [str(directory)]
+        while pending:
+            with os.scandir(pending.pop()) as entries:
+                for entry in entries:
+                    info = entry.stat(follow_symlinks=False)
+                    require(not stat.S_ISLNK(info.st_mode)
+                            and not getattr(info, 'st_file_attributes', 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT,
+                            'Python package installation cannot contain unpinned links')
+                    if entry.is_dir(follow_symlinks=False):pending.append(entry.path)
+                    elif entry.is_file(follow_symlinks=False):files.add(os.path.normcase(entry.path))
         return files
 
-    files = inventory()
-    require(pinned_set == files,
+    require(pinned_set == inventory(),
             'Python package file pins must enumerate the complete installation membership')
 
     if require_imports:
@@ -269,7 +268,7 @@ def python_package_pins(data, *, require_imports=False):
             for name in ('numpy', 'PIL', 'scipy'):
                 module = importlib.import_module(name)
                 origin = Path(module.__file__).resolve(strict=True)
-                require(origin.is_relative_to(directory) and origin in pinned_set,
+                require(origin.is_relative_to(directory) and os.path.normcase(str(origin)) in pinned_set,
                         'Required Python package resolves outside its byte-bound installation: ' + name)
                 locations = list(getattr(module, '__path__', ()))
                 require(locations and all(Path(location).resolve(strict=True).is_relative_to(directory)
@@ -311,10 +310,7 @@ def launched(bindings_path=None):
     return identity
 
 
-def code_pins():
-    directory=Path(__file__).parent
-    files=[p for p in sorted(directory.rglob('*')) if p.is_file() and p.suffix in ('.py','.json') and '__pycache__' not in p.parts]
-    files += [ROOT/path for path in ('tools/heads/head_export.py','tools/heads/head_workflow.py',
+HELPER_PINS=('tools/heads/head_export.py','tools/heads/head_workflow.py',
         'tools/heads/verify_head_hak.py','tools/phenomorpher/phenomorpher/__init__.py',
         'tools/phenomorpher/phenomorpher/engine/__init__.py','tools/phenomorpher/phenomorpher/engine/stock_armor.py',
         'tools/phenomorpher/phenomorpher/engine/silhouette_model.py','tools/phenomorpher/phenomorpher/engine/anim_library.py',
@@ -326,7 +322,13 @@ def code_pins():
         'tools/phenotypes/native_compile.py','tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py',
         'tools/phenomorpher/phenomorpher/engine/neverblender_worker.py','tools/phenomorpher/phenomorpher/engine/rig_native.py',
         'tools/phenotypes/launch_shared_tool.py',
-        'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')]
+        'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')
+
+
+def code_pins():
+    directory=Path(__file__).parent
+    files=[p for p in sorted(directory.rglob('*')) if p.is_file() and p.suffix in ('.py','.json') and '__pycache__' not in p.parts]
+    files += [ROOT/path for path in HELPER_PINS]
     return [pin(p) for p in files]
 
 
@@ -340,15 +342,7 @@ def source_version():
 # whose closure reaches native.py.
 SHARED_TOOLING=('tools/shared-tools.lock.json','tools/phenotypes/bootstrap_shared_blender_addons.py','tools/phenotypes/launch_shared_tool.py',
     'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')
-NATIVE_HELPERS=('tools/heads/head_export.py','tools/heads/head_workflow.py','tools/heads/verify_head_hak.py',
-    'tools/phenomorpher/phenomorpher/__init__.py','tools/phenomorpher/phenomorpher/engine/__init__.py',
-    'tools/phenomorpher/phenomorpher/engine/stock_armor.py','tools/phenomorpher/phenomorpher/engine/silhouette_model.py',
-    'tools/phenomorpher/phenomorpher/engine/anim_library.py','tools/phenomorpher/phenomorpher/engine/audit_geometry.py',
-    'tools/phenomorpher/phenomorpher/engine/retarget.py','tools/phenomorpher/phenomorpher/engine/target_contract.py',
-    'tools/phenomorpher/phenomorpher/engine/measurement_common.py','tools/phenomorpher/phenomorpher/engine/native_motion.py',
-    'tools/phenotypes/pipeline.py','tools/phenotypes/height_targets.json','tools/phenotypes/native_compile.py',
-    'tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py','tools/phenomorpher/phenomorpher/engine/neverblender_worker.py',
-    'tools/phenomorpher/phenomorpher/engine/rig_native.py')
+NATIVE_HELPERS=tuple(path for path in HELPER_PINS if path not in SHARED_TOOLING)
 STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not imported
 STAGE_DATA={'palette':('stock-shades.json',),'quality':('quality-thresholds.json',)}  # committed measured references the stage reads
 
@@ -406,7 +400,7 @@ def runner_slice(path, stage):
 
 
 def runner_slice_sha(path, stage, *, fresh=False):
-    path=Path(path);before=path.stat();key=(str(path.resolve()),before.st_ino,before.st_size,before.st_mtime_ns,stage)
+    path=Path(path);before=path.stat();key=(str(path),before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns,stage)
     if not fresh and key in _SLICES:return _SLICES[key]
     value=hashlib.sha256(runner_slice(path,stage).encode('utf-8')).hexdigest()
     if path.stat().st_mtime_ns==before.st_mtime_ns and time.time()-before.st_mtime_ns/1e9>2:_SLICES[key]=value

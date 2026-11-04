@@ -14,7 +14,7 @@ import numpy as np
 
 import target_contract as contract
 import shared_toolchain
-from armory_rigid import correct_rigid, profile_affine, rigid_frames, directions
+from armory_rigid import correct_rigid, fit_residuals, profile_affine, rigid_frames, directions
 from audit_geometry import arrays
 from audit_stock_equipment_palettes import read_stock_plt
 from measure_held_equipment import table_rows
@@ -233,8 +233,8 @@ def prepare(job_path,target_path,output,*,artifact_root=None):
         version=run(['--version'],'version');require(version.stdout.strip()=='nwnarmory 1.3.4','Pinned Armory version differs')
         for index,record in enumerate(profile_cache.values()):
             result=run(['--values',record['source'],record['fitted']],f'calibration-{index}')
-            residuals=[float(v) for v in re.findall(r'max_residual\s*[=:]\s*([\d.eE+\-]+)',result.stdout)]
-            require(residuals and all(np.isfinite(v) and v<=1e-5 for v in residuals),'Actual same-source calibration residual failed')
+            residuals=fit_residuals(result.stdout)
+            require(all(v<=1e-5 for v in residuals),'Actual same-source calibration residual failed')
             record['actualFitResiduals']=residuals
         for row in selected:shutil.copyfile(row['source'],source_dir/row['source'].name)
         ini=work/'working.ini';ini.write_text(armory_ini([(r['source'].stem,r['profile']['data']['transform']) for r in selected]),encoding='ascii')

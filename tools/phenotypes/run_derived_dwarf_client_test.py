@@ -16,8 +16,6 @@ import uuid
 REPO = Path(__file__).resolve().parents[2]
 STAGE = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage"
 REVIEW = REPO / "output/phenotypes/derived-dwarf-male-v1/review"
-DEFAULT_CLIENT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe")
-CLIENT = DEFAULT_CLIENT
 
 sys.path.insert(0, str(Path(__file__).parent))
 from preflight_derived_dwarf_client import run_preflight, sha256_file
@@ -33,21 +31,6 @@ def resolve_client(explicit: Path | None = None, game_root: Path | None = None) 
     env_client = os.environ.get("NWN_CLIENT")
     if env_client and Path(env_client).exists():
         return Path(env_client).resolve()
-
-    # Check local runtime bindings if present
-    for bindings_path in [
-        REPO / ".tools/runtime_bindings.json",
-        REPO / ".tools/runtime-bindings.json",
-        REPO / "runtime_bindings.json",
-    ]:
-        if bindings_path.exists():
-            try:
-                bindings = json.loads(bindings_path.read_text(encoding="utf-8"))
-                candidate = bindings.get("client") or bindings.get("nwmain") or bindings.get("NWN_CLIENT")
-                if candidate and Path(candidate).exists():
-                    return Path(candidate).resolve()
-            except Exception:
-                pass
 
     if game_root is not None:
         for candidate in [
@@ -70,15 +53,8 @@ def resolve_client(explicit: Path | None = None, game_root: Path | None = None) 
             if candidate.exists():
                 return candidate.resolve()
 
-    for candidate in [
-        DEFAULT_CLIENT,
-        Path(r"C:\Program Files (x86)\Steam\steamapps\common\Neverwinter Nights\bin\win32\nwmain.exe"),
-    ]:
-        if candidate.exists():
-            return candidate.resolve()
-
     raise FileNotFoundError(
-        "NWN client binary not found. Please provide --client, set NWN_CLIENT, or configure local runtime bindings."
+        "NWN client binary not found. Please provide --client or set NWN_CLIENT."
     )
 
 

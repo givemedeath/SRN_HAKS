@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-from armory_rigid import correct_rigid, replace_field
+from armory_rigid import correct_rigid, fit_residuals, replace_field
 from audit_geometry import arrays
 from pipeline import digest, save_json
 from retarget import NODE
@@ -74,7 +74,7 @@ def verify(args):
         src=Path(row['fixturePath']);dst=corrected/src.name;shutil.copyfile(raw/src.name,dst)
         fit=run(['--values',src,raw/src.name],'fit-'+src.stem)
         if fit.returncode:raise RuntimeError('Same-source Armory fit failed: '+src.name)
-        residuals=[float(value) for value in re.findall(r'max_residual\s*[=:]\s*([\d.eE+\-]+)',fit.stdout)]
+        residuals=fit_residuals(fit.stdout)
         if any(value>1e-5 for value in residuals):raise RuntimeError('Same-source Armory fit residual is too high: '+src.name)
         proofs.append({**row,'rawSha256':digest(raw/src.name),'correctedPath':str(dst),
                        'correction':correct_rigid(src,dst,PROFILE),'fitExitCode':fit.returncode,'fitResiduals':residuals})

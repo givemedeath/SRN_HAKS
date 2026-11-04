@@ -16,6 +16,7 @@ import uuid
 
 from build_test_module import field, structure, torso_inspection_script
 import target_contract as contract
+from tool_runtime import tool as resolved_tool
 
 POSES = ('pause1','pause2','crouch','kneel','conjure1','conjure2','dead-front','dead-back')
 ANIMATIONS = ('ANIMATION_LOOPING_PAUSE','ANIMATION_LOOPING_PAUSE2','ANIMATION_LOOPING_GET_LOW',
@@ -285,14 +286,14 @@ def prepare(target_path, baseline, tools, game_root, source_userdir, output, pal
     contract.require(0 <= palette <= 255 and 0 <= alternate_palette <= 255 and palette != alternate_palette,
                      'Two explicit differing palette indices required')
     contract.require((source_userdir/'override').is_dir() and not any((source_userdir/'override').iterdir()),'Template extraction requires empty override')
-    pins = {str(tools/(name+'.exe')):contract.sha(tools/(name+'.exe'))
-            for name in ('nwn_resman_cat','nwn_gff','nwn_script_comp','nwn_erf')}
+    pins = {str(path):contract.sha(path) for path in (resolved_tool(name,tools)
+            for name in ('nwn_resman_cat','nwn_gff','nwn_script_comp','nwn_erf'))}
     (output/'inputs').mkdir(parents=True)
     base = ['--root',str(game_root),'--userdirectory',str(source_userdir),'--no-ovr']
     template_path = output/'inputs/nw_humanmerc001.utc'
-    template_path.write_bytes(subprocess.run([str(tools/'nwn_resman_cat.exe'),*base,'nw_humanmerc001.utc'],check=True,capture_output=True).stdout)
+    template_path.write_bytes(subprocess.run([str(resolved_tool('nwn_resman_cat',tools)),*base,'nw_humanmerc001.utc'],check=True,capture_output=True).stdout)
     template_json = template_path.with_suffix('.utc.json')
-    subprocess.run([str(tools/'nwn_gff.exe'),'-i',str(template_path),'-o',str(template_json),'-p'],check=True,capture_output=True)
+    subprocess.run([str(resolved_tool('nwn_gff',tools)),'-i',str(template_path),'-o',str(template_json),'-p'],check=True,capture_output=True)
     template = json.loads(template_json.read_text(encoding='utf-8'))
     contract.require(template['Gender']['value'] == 0 and template['Race']['value'] == 6
                      and template['Phenotype']['value'] == 0, 'Installed source template must be male normal Human')
@@ -300,7 +301,7 @@ def prepare(target_path, baseline, tools, game_root, source_userdir, output, pal
     text = set_source.read_text(encoding='cp1252'); text = re.sub(r'(?m)^Name=TTR01$','Name=SR_TM',text)
     text = re.sub(r'(?m)^Density=[^\n]+','Density=0.000',text); set_target.write_text(text,encoding='cp1252')
     edge = output/'inputs/sr_tm_edge.2da'
-    edge.write_bytes(subprocess.run([str(tools/'nwn_resman_cat.exe'),*base,'ttr01_edge.2da'],check=True,capture_output=True).stdout)
+    edge.write_bytes(subprocess.run([str(resolved_tool('nwn_resman_cat',tools)),*base,'ttr01_edge.2da'],check=True,capture_output=True).stdout)
     table_pins = {}
     for name in ('appearance.2da','racialtypes.2da','phenotype.2da'):
         source = baseline/'raw'/name; destination = output/'inputs'/name
@@ -316,10 +317,10 @@ def prepare(target_path, baseline, tools, game_root, source_userdir, output, pal
         docs = documents(template,target,profile,palette,alternate_palette)
         for name,data in docs.items():
             path = json_dir/(name+'.json'); save(path,data)
-            subprocess.run([str(tools/'nwn_gff.exe'),'-i',str(path),'-o',str(binary/name)],check=True,capture_output=True)
+            subprocess.run([str(resolved_tool('nwn_gff',tools)),'-i',str(path),'-o',str(binary/name)],check=True,capture_output=True)
         for name,text in scripts(profile,target).items():
             path = binary/(name+'.nss'); path.write_text(text,encoding='ascii')
-            result = subprocess.run([str(tools/'nwn_script_comp.exe'),'--root',str(game_root),'--userdirectory',str(userdir),'--no-ovr',str(path)],capture_output=True)
+            result = subprocess.run([str(resolved_tool('nwn_script_comp',tools)),'--root',str(game_root),'--userdirectory',str(userdir),'--no-ovr',str(path)],capture_output=True)
             if result.returncode:
                 save(root/'test-module/script-compile-failure.json',{'script':str(path),'scriptSha256':contract.sha(path),
                      'returncode':result.returncode,'stdout':result.stdout.decode(errors='replace'),
@@ -327,9 +328,9 @@ def prepare(target_path, baseline, tools, game_root, source_userdir, output, pal
                 raise RuntimeError('Native fixture script compilation failed: '+result.stderr.decode(errors='replace'))
             contract.require(path.with_suffix('.ncs').is_file(),'Native script compiler output missing: '+name)
         module = userdir/'modules'/(module_name(target)+'.mod')
-        subprocess.run([str(tools/'nwn_erf.exe'),'-c','-f',str(module),'-e','MOD',str(binary)],check=True,capture_output=True)
+        subprocess.run([str(resolved_tool('nwn_erf',tools)),'-c','-f',str(module),'-e','MOD',str(binary)],check=True,capture_output=True)
         actual = root/'test-module/decoded-actors.json'
-        subprocess.run([str(tools/'nwn_gff.exe'),'-i',str(binary/'sr_tm_floor.git'),'-o',str(actual),'-p'],check=True,capture_output=True)
+        subprocess.run([str(resolved_tool('nwn_gff',tools)),'-i',str(binary/'sr_tm_floor.git'),'-o',str(actual),'-p'],check=True,capture_output=True)
         decoded = json.loads(actual.read_text(encoding='utf-8'))['Creature List']['value']
         intended = docs['sr_tm_floor.git']['Creature List']['value']
         contract.require(decoded == intended,'Native GIT serialization changed intended actors')

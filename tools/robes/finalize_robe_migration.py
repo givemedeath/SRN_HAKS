@@ -9,10 +9,8 @@ import json
 from pathlib import Path
 
 from robe_common import pin, read, require, sha, utc, verify_pins, write_fresh
-from finalize_shared_tool_migration import verify_launch
+from finalize_shared_tool_migration import LAUNCH_HELPERS, verify_blender_bootstrap, verify_launch
 from shared_toolchain import load
-
-CORE = {"launch_shared_tool.py", "shared_toolchain.py", "bootstrap_shared_blender_addons.py"}
 
 
 def finalize(config, directory, output):
@@ -50,21 +48,10 @@ def finalize(config, directory, output):
     require(Path(imported["source"]).resolve() == stock and imported["sourceSha256"] == inputs["stockAscii"]["sha256"]
             and blender["frozenInputs"].get(str(stock)) == imported["sourceSha256"],
             "Stock robe missing from frozen import declaration")
-    bootstrap = read(root / "blender-smoke/loaded-addons.json")
-    require(bootstrap["factoryStartup"] is True and bootstrap["savedPreferencesChanged"] is False
-            and bootstrap["preferencesChanged"] is False and bootstrap["migrationReceipt"] is None,
-            "Isolated factory addon import required")
-    addon = Path(tools["addons"]["root"]).resolve()
-    require(imported["actuallyLoadedAddon"] == str(addon / "neverblender/__init__.py")
-            and imported["loadedAddonSha256"] == sha(imported["actuallyLoadedAddon"]), "Import addon differs")
-    require(bootstrap["loadedModules"], "Actually loaded addon inventory required")
-    for row in bootstrap["loadedModules"]:
-        path = Path(row["path"]).resolve()
-        require(path.is_relative_to(addon) and tools["addons"]["files"].get(path.relative_to(addon).as_posix())
-                == row["sha256"] == sha(path), "Loaded addon escaped pinned bank")
+    verify_blender_bootstrap(read(root / "blender-smoke/loaded-addons.json"), imported, blender, config, tools)
     helpers = {name: {"sha256": value["sha256"]} for name, value in inputs["launchHelpers"].items()
-               if Path(name).name in CORE}
-    require({Path(name).name for name in helpers} == CORE, "All launch helpers must be frozen")
+               if Path(name).name in LAUNCH_HELPERS}
+    require({Path(name).name for name in helpers} == LAUNCH_HELPERS, "All launch helpers must be frozen")
     active = Path(inputs["activeWorktree"]).resolve()
     require(all(Path(name).resolve().is_relative_to(active) for name in helpers),
             "Launch helpers must belong to this worktree")

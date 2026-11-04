@@ -114,7 +114,7 @@ foreach ($name in $registeredNames) {
         elseif ($file.Length -gt $softLimit -and -not $sizeExceptions.ContainsKey($relativeFile)) {
             Add-ValidationError "Resource '$relativeFile' exceeds 15 MiB without a PROVENANCE.md exception."
         }
-        if (Test-GitLfsPointer -Path $file.FullName) {
+        if ($file.Length -lt 1024 -and (Test-GitLfsPointer -Path $file.FullName)) {
             Add-ValidationError "Git LFS pointer detected at '$relativeFile'; this repository does not use LFS."
         }
         if ($file.Extension -ieq '.set') {

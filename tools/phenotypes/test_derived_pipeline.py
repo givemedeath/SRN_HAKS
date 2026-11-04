@@ -650,7 +650,7 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
             out_receipt = tmp_dir / "receipt.json"
             # Missing connector-audit.json must raise ValueError
             with self.assertRaises(ValueError) as ctx:
-                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
+                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt, game_root=tmp_dir)
             self.assertIn("requires a present connector audit receipt", str(ctx.exception))
 
     @patch("derived_equipment.inventory_installed_styles")
@@ -678,7 +678,7 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
             }), encoding="utf-8")
 
             with self.assertRaises(ValueError) as ctx:
-                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
+                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt, game_root=tmp_dir)
             self.assertIn("target mismatch", str(ctx.exception))
 
     @patch("derived_equipment.inventory_installed_styles")
@@ -712,7 +712,7 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
                 }
             }), encoding="utf-8")
 
-            res = audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
+            res = audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt, game_root=tmp_dir)
             self.assertFalse(res["complete"])
             self.assertTrue(res["prerequisiteChecksPassed"])
             self.assertFalse(res["stockArmorGeometryVerified"])
@@ -751,7 +751,7 @@ class EquipmentConnectorRequirementTests(unittest.TestCase):
             }), encoding="utf-8")
 
             with self.assertRaises(ValueError) as ctx:
-                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt)
+                audit_stock_armor_compatibility(target_config, tmp_dir, out_receipt, game_root=tmp_dir)
             self.assertIn("hash mismatch", str(ctx.exception))
 
 

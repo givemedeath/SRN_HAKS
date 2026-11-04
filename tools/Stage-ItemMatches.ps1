@@ -9,21 +9,9 @@ $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'SrnHaks.Common.psm1') -Force
 $root = Get-SrnRepositoryRoot
 $quarantine = [IO.Path]::GetFullPath((Join-Path $root '.quarantine'))
-function Resolve-LocalPath([string]$Relative) {
-    if ([string]::IsNullOrWhiteSpace($Relative) -or [IO.Path]::IsPathRooted($Relative)) { throw 'Expected a quarantine-relative path.' }
-    $path = [IO.Path]::GetFullPath((Join-Path $quarantine $Relative))
-    $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
-    if (-not $path.StartsWith($quarantine + [IO.Path]::DirectorySeparatorChar, $comparison)) { throw 'Path escapes quarantine.' }
-    $current = $path
-    while ($current -and $current.Length -ge $quarantine.Length) {
-        if ((Test-Path -LiteralPath $current) -and ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Reparse point not allowed: $current" }
-        $current = Split-Path $current -Parent
-    }
-    $path
-}
-$output = Resolve-LocalPath $OutputRelativePath
-$items = Resolve-LocalPath $ItemSourceRelativePath
-$blueprints = Resolve-LocalPath $BlueprintSourceRelativePath
+$output = Resolve-SrnQuarantinePath $OutputRelativePath
+$items = Resolve-SrnQuarantinePath $ItemSourceRelativePath
+$blueprints = Resolve-SrnQuarantinePath $BlueprintSourceRelativePath
 $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
 foreach ($source in @($items, $blueprints)) {
     if ($output.Equals($source, $comparison) -or
@@ -108,7 +96,7 @@ foreach ($name in $assets.Keys) { if ((Get-FileHash -LiteralPath (Join-Path $ite
 $destination = $output
 $parent = Split-Path $destination -Parent
 New-Item -ItemType Directory -Path $parent -Force | Out-Null
-$output = Resolve-LocalPath ([IO.Path]::GetRelativePath($quarantine, (Join-Path $parent ('.item-staging-' + [Guid]::NewGuid().ToString('N')))))
+$output = Resolve-SrnQuarantinePath ([IO.Path]::GetRelativePath($quarantine, (Join-Path $parent ('.item-staging-' + [Guid]::NewGuid().ToString('N')))))
 try {
 $utiOut = New-Item -ItemType Directory -Path (Join-Path $output 'blueprints') -Force
 $assetOut = New-Item -ItemType Directory -Path (Join-Path $output 'srn_item-candidate') -Force

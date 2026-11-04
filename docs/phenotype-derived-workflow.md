@@ -166,7 +166,7 @@ python tools/phenotypes/derived_equipment.py --config tools/phenotypes/configura
 ### Staging & Native Compilation
 ```powershell
 python tools/phenotypes/stage_derived_dwarf.py
-python tools/phenotypes/native_compile.py --converted output/phenotypes/derived-dwarf-male-v1/candidate/converted --user-directory output/phenotypes/derived-dwarf-male-v1/compiler-userdir --client "C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe" --with-material-resources
+python tools/phenotypes/native_compile.py --converted output/phenotypes/derived-dwarf-male-v1/candidate/converted --user-directory output/phenotypes/derived-dwarf-male-v1/compiler-userdir --client $env:NWN_CLIENT --with-material-resources
 python tools/phenotypes/audit_derived_dwarf_native.py
 ```
 

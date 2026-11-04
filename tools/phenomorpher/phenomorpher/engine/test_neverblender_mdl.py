@@ -81,6 +81,35 @@ class CompileFolderTests(unittest.TestCase):
             with patch.object(nvb, 'run', side_effect=run):
                 self.assertEqual(nvb.compile_folder(blender, addon, converted)['compiled'], 1)
 
+    def test_resource_folder_order_is_part_of_the_cache_key(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); blender, addon = toolchain(root); folders = [root/'x', root/'y']
+            for index, folder in enumerate(folders):
+                folder.mkdir(); (folder/'a_ba.mdl').write_text(f'supermodel {index}\n')
+            first, second = root/'c', root/'d'
+            for folder in (first, second):
+                (folder/'ascii').mkdir(parents=True); (folder/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN)
+            run, calls = fake_run(native('m', 'null', [('m', '', {})]))
+            with patch.object(nvb, 'run', side_effect=run):
+                nvb.compile_folder(blender, addon, first, folders)
+                same = nvb.compile_folder(blender, addon, second, folders, cache=first)
+                flipped = nvb.compile_folder(blender, addon, second, folders[::-1], cache=first)
+            self.assertEqual((same['reused'], flipped['compiled']), (1, 1))
+
+    def test_a_failed_cache_copy_leaves_no_staging_folder(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); blender, addon = toolchain(root); first, second = root/'c', root/'d'
+            for folder in (first, second):
+                (folder/'ascii').mkdir(parents=True); (folder/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN)
+            run, _ = fake_run(native('m', 'null', [('m', '', {})]))
+            with patch.object(nvb, 'run', side_effect=run):
+                nvb.compile_folder(blender, addon, first)
+                receipt = json.loads((first/'native-compile.json').read_text()); del receipt['models'][0]['binarySha256']
+                (first/'native-compile.json').write_text(json.dumps(receipt))
+                with self.assertRaises(KeyError):
+                    nvb.compile_folder(blender, addon, second, cache=first)
+            self.assertEqual(list(second.glob('.nvb-compile-*')), [])
+
     def test_several_folders_compile_in_one_worker_run_with_their_own_receipts(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); blender, addon = toolchain(root); folders = []

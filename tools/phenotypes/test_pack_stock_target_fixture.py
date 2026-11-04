@@ -66,7 +66,7 @@ class AnimationOverlayPackageTests(unittest.TestCase):
             return SimpleNamespace(returncode=0)
         with patch('pack_stock_target_fixture.contract.load',return_value=target),patch('pack_stock_target_fixture.__file__',str(helper)), \
              patch('pack_stock_target_fixture.archive',return_value=[]),patch('pack_stock_target_fixture.compare_archive'), \
-             patch('pack_stock_target_fixture.subprocess.run',side_effect=erf):
+             patch('pack_stock_target_fixture.subprocess.run',side_effect=erf),              patch('pack_stock_target_fixture.resolved_tool',lambda name,directory:Path(directory)/(name+'.exe')):
             return pack(target_path,prepared,contract.sha(prepared),tools,root,output,body=body,animation_overlay=overlay,posture_roster=posture_roster,posture_stock_binding=posture_stock_binding)
 
     def test_verified_overlay_is_separate_exact_copy_and_plain_stock_has_no_overlay(self):

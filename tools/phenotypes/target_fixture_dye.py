@@ -18,6 +18,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+from tool_runtime import tool as resolved_tool
 
 DYES = {'tm_0': {'Cloth1Color': 88, 'Cloth2Color': 88, 'Leather1Color': 30, 'Leather2Color': 58, 'Metal1Color': 2, 'Metal2Color': 2},
         'tm_1': {'Cloth1Color': 26, 'Cloth2Color': 26, 'Leather1Color': 58, 'Leather2Color': 30, 'Metal1Color': 2, 'Metal2Color': 2}}
@@ -100,23 +101,23 @@ def derive(prepared, tools, game_root, source_userdir, output):
     (module/'json').mkdir()
     base = ['--root', str(game_root), '--userdirectory', str(Path(source_userdir).resolve()), '--no-ovr']
     uti = module/'json/nw_cloth001.uti'
-    uti.write_bytes(subprocess.run([str(tools/'nwn_resman_cat.exe'), *base, 'nw_cloth001.uti'], check=True, capture_output=True).stdout)
-    subprocess.run([str(tools/'nwn_gff.exe'), '-i', str(uti), '-o', str(uti)+'.json', '-p'], check=True, capture_output=True)
+    uti.write_bytes(subprocess.run([str(resolved_tool('nwn_resman_cat',tools)), *base, 'nw_cloth001.uti'], check=True, capture_output=True).stdout)
+    subprocess.run([str(resolved_tool('nwn_gff',tools)), '-i', str(uti), '-o', str(uti)+'.json', '-p'], check=True, capture_output=True)
     template = json.loads(Path(str(uti)+'.json').read_text(encoding='utf-8'))
     original = module/'json/sr_tm_floor.orig.git.json'
-    subprocess.run([str(tools/'nwn_gff.exe'), '-i', str(parent/'module-resources/sr_tm_floor.git'), '-o', str(original), '-p'], check=True, capture_output=True)
+    subprocess.run([str(resolved_tool('nwn_gff',tools)), '-i', str(parent/'module-resources/sr_tm_floor.git'), '-o', str(original), '-p'], check=True, capture_output=True)
     git, dressed = dress_actors(json.loads(original.read_text(encoding='utf-8')), template)
     validate_dressed_actors(git['Creature List']['value'])
     edited = module/'json/sr_tm_floor.git.json'; edited.write_text(json.dumps(git, indent=1), encoding='utf-8')
-    subprocess.run([str(tools/'nwn_gff.exe'), '-i', str(edited), '-o', str(module/'module-resources/sr_tm_floor.git')], check=True, capture_output=True)
+    subprocess.run([str(resolved_tool('nwn_gff',tools)), '-i', str(edited), '-o', str(module/'module-resources/sr_tm_floor.git')], check=True, capture_output=True)
     decoded = module/'json/decoded-git.json'
-    subprocess.run([str(tools/'nwn_gff.exe'), '-i', str(module/'module-resources/sr_tm_floor.git'), '-o', str(decoded), '-p'], check=True, capture_output=True)
+    subprocess.run([str(resolved_tool('nwn_gff',tools)), '-i', str(module/'module-resources/sr_tm_floor.git'), '-o', str(decoded), '-p'], check=True, capture_output=True)
     require(json.loads(decoded.read_text(encoding='utf-8'))['Creature List'] == git['Creature List'], 'GIT round trip differs')
     user = output/'userdir'
     for name in ('hak', 'modules', 'override', 'logs', 'currentgame', 'modelcompiler', 'localvault', 'saves'):
         (user/name).mkdir(parents=True)
     packed = user/'modules'/Path(source['module']).name
-    subprocess.run([str(tools/'nwn_erf.exe'), '-c', '-f', str(packed), '-e', 'MOD', str(module/'module-resources')], check=True, capture_output=True)
+    subprocess.run([str(resolved_tool('nwn_erf',tools)), '-c', '-f', str(packed), '-e', 'MOD', str(module/'module-resources')], check=True, capture_output=True)
     record = dict(source)
     record.update(module=str(packed), moduleSha256=sha(packed), userDirectory=str(user),
                   moduleResourceHashes={p.name: sha(p) for p in sorted((module/'module-resources').iterdir())},

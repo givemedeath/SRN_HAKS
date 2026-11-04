@@ -6,6 +6,10 @@ param(
   [switch]$NoLaunch
 )
 $ErrorActionPreference='Stop'
+Import-Module (Join-Path (Split-Path $PSScriptRoot -Parent) 'SrnTools.psm1') -Force
+$taskPython=Resolve-SrnRuntime -Name python -Path $WorkspacePython
+$taskClient=Resolve-SrnRuntime -Name nwn -Path $Client
+$WorkspacePython=$taskPython.path; $Client=$taskClient.path
 $env:PYTHONUTF8='1'; $env:PYTHONIOENCODING='utf-8'; $env:PYTHONDONTWRITEBYTECODE='1'
 $taskStage=(Resolve-Path -LiteralPath $Fixture).Path
 $taskPreflight=Join-Path $taskStage ('client-preflight-'+[guid]::NewGuid().ToString('N')+'.json')
@@ -31,6 +35,9 @@ if ($prefixMap.ContainsKey($race)) { $prefix=$prefixMap[$race] }
   --race $race `
   --prefix $prefix `
   --output-receipt $taskPreflight
+if ($LASTEXITCODE -ne 0) { throw 'Derived phenotype client preflight failed' }
+$null=Resolve-SrnRuntime -Name python -Path $WorkspacePython -ExpectedSha256 $taskPython.sha256
+$null=Resolve-SrnRuntime -Name nwn -Path $Client -ExpectedSha256 $taskClient.sha256
 
 if ($LASTEXITCODE -ne 0) { throw 'Derived-phenotype client preflight failed' }
 

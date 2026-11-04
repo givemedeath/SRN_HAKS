@@ -459,8 +459,10 @@ def build(spec_path,output):
     for item in base_haks:
         destination=user/'hak'/Path(item['path']).name;shutil.copyfile(item['path'],destination)
         require(sha(destination)==item['sha256'],'Base HAK copy differs: '+destination.name)
+    binaries={}  # each resolve hashes and registers the tool, so once per build
     def run(name,arguments):
-        result=subprocess.run([str(tool(name)),*map(str,arguments)],capture_output=True)
+        if name not in binaries:binaries[name]=str(tool(name))
+        result=subprocess.run([binaries[name],*map(str,arguments)],capture_output=True)
         if result.returncode:
             raise ValueError(name+' failed: '+result.stderr.decode('utf-8',errors='replace')+' '+result.stdout.decode('utf-8',errors='replace'))
     def gff(name,document):

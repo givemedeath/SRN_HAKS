@@ -1047,6 +1047,27 @@ class MeshTests(Temporary):
         self.assertTrue(result['passed']);self.assertAlmostEqual(result['neck']['shorten']['rimHeight'],-.08,places=6)
         self.assertAlmostEqual(result['neck']['taper']['rimHeight'],-.08,places=6)
         master=transform(neck['frame'],mesh(self.root/'master.glb')['positions']);self.assertAlmostEqual(master[:,2].min(),-.08,places=5)
+    def test_cut_refusal_after_a_rewrap_keeps_the_shell_table(self):
+        import headkit.neck as neck_module
+        from headkit.mesh import ShellReview
+        p,f,body=self.necked_head();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)
+        reference=self.root/'body-neck.json';write(reference,{'kind':'srn-head-body-neck','vertices':body[0].tolist(),'faces':body[1].tolist()},fresh=True)
+        policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'cut':{'height':'measured','slope':-.2}}}
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        real_select=neck_module.select_shells;real_cut=neck_module.neck_cut;calls=[]
+        def select(vertices,faces,selection,inside=None):
+            calls.append(1)
+            if len(calls)==1:return real_select(vertices,faces,selection,inside)
+            raise ShellReview('Master has 3 separate shells',{'count':3,'extra':['table']})
+        def cut(vertices,faces,trial,body_neck,rewrap=None):
+            a,b,record=real_cut(vertices,faces,trial,body_neck,rewrap=rewrap);return a,b,dict(record,closure='rewrap')
+        with patch.object(neck_module,'library',lambda *_:igl),patch.object(neck_module,'select_shells',select), \
+             patch.object(neck_module,'neck_cut',cut),patch.object(neck_module,'cut_candidates',lambda *_:[]):
+            with self.assertRaisesRegex(ShellReview,'Neck cut failed') as caught:
+                neck_module.repair(source,self.root/'final.glb',{},policy,{'sourceSha256':pin(source)['sha256'],'visualReviewed':True},
+                                   fit={'matrix':np.eye(4).tolist(),'reviewed':True},body=reference)
+        self.assertEqual(caught.exception.attempts,{'shells':{'count':3,'extra':['table']}})
+
     def necked_head(self,segments=48,rows=80):
         """Closed head-local revolved head (face +y, up +z): skull above z 0, a chin standing 4 cm forward of the neck
         down to z -0.04 in front, and a 5.5 cm neck down to a closed bottom at -0.16; plus an octagonal body neck prism
@@ -1306,6 +1327,8 @@ class MeshTests(Temporary):
         self.assertEqual(root(['x','status','--bindings',str(bindings_path)]),'D:/pkgs')
         self.assertIsNone(root(['x','status']));self.assertIsNone(root(['x','--bindings']))
         bindings_path.write_text('{}');self.assertIsNone(root(['x','--bindings',str(bindings_path)]))
+        bindings_path.write_text('\ufeff'+json.dumps({'pythonPackages':{'directory':'D:/pkgs','files':[]}}),encoding='utf-8')
+        self.assertEqual(root(['x','status','--bindings',str(bindings_path)]),'D:/pkgs')  # common.read accepts a BOM too
         # batch --heads: every head's bindings share one package directory (race-heads-v1: batch native failed on all heads
         # with "resolves outside its byte-bound installation: numpy" because only --bindings was read)
         bindings_path.write_text(json.dumps({'pythonPackages':{'directory':'D:/pkgs','files':[]}}))
@@ -1519,6 +1542,11 @@ class InputInventoryTests(Temporary):
         paths={row['path'] for row in pins}
         self.assertEqual(sorted(stale),['bake','repair']);self.assertIn(str(kept.resolve()),paths)
         self.assertNotIn(str(changed.resolve()),paths);self.assertNotIn(str(review.resolve()),paths)
+
+    def test_helper_pins_split_into_shared_tooling_and_native_helpers(self):
+        from headkit.common import HELPER_PINS,NATIVE_HELPERS,SHARED_TOOLING
+        self.assertEqual(set(HELPER_PINS),set(NATIVE_HELPERS)|set(SHARED_TOOLING))
+        self.assertFalse(set(NATIVE_HELPERS)&set(SHARED_TOOLING))
 
     def test_inputs_requires_the_declared_installed_snapshot(self):
         adapter,local=self.installed_adapter()
@@ -3236,6 +3264,11 @@ class ChainTests(Temporary):
             return self.completed(stage,folder)
         with patch.object(runner,'_execute',side_effect=work):result=chain(runner,stages)
         return result,order,{row['stage']:row for row in result['stages']}
+    def test_a_stale_pin_under_a_review_folder_is_not_a_review_gate(self):
+        runner=self.fixture()
+        with patch.object(runner,'result',side_effect=ValueError('Stale file pin: D:/code-review/run/out.glb')):
+            result,_,rows=self.chain(runner,['unwrap'])
+        self.assertEqual((result['stopped'],rows['unwrap']['status']),('blocked-on-dependency','blocked-on-dependency'))
     def test_runs_in_order_and_stops_at_review_gate_without_approving(self):
         runner=self.fixture();result,order,rows=self.chain(runner,['repair','unwrap','bake'])
         self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
