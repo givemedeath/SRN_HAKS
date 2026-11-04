@@ -977,6 +977,7 @@
     ],
     "tools/itemkit/test_firearm_package.py": [
       "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
       "tools/itemkit/__main__.py",
       "tools/itemkit/contracts.py",
       "tools/itemkit/firearm_native.py",

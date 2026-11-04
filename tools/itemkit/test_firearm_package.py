@@ -52,6 +52,16 @@ class FirearmPackageTests(unittest.TestCase):
             offline.assert_called_once();process.assert_not_called()
         self.assertFalse((self.root/'native/compiler-userdir').exists())
 
+    def test_melee_package_can_use_the_offline_compiler(self):
+        from tools.itemkit import native
+        prepared=self.root/'melee';(prepared/'resources').mkdir(parents=True)
+        write(prepared/'prepared.json',{'inputs':[],'outputs':[],'expected':{},'allocation':{'models':{}},'baseItem':63})
+        with patch.object(native,'offline_compiler_inputs',return_value=[]), patch.object(native,'compile_offline') as offline, \
+             patch('tools.itemkit.native.subprocess.run') as process:
+            result=native.compile_package(prepared,None,self.root/'melee-native',compiler={'sha256':'frozen'})
+        offline.assert_called_once();process.assert_not_called()
+        self.assertEqual(result['compilationBackend'],'neverblender-cleanmodels')
+
     def test_skinned_package_without_compiler_stops_before_output(self):
         self.prepare()
         prepared=read(self.output/'prepared.json')

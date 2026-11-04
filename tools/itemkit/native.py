@@ -191,12 +191,13 @@ def sanitize_and_audit(binary, name, texture, expected):
     return clean, {'zeroedTailBytes': changed, 'attributesPreserved': True, 'nativeRoundtrip': True}
 
 
-def compile_package(prepared_dir, client, output):
-    tool_inputs=[client]
+def compile_package(prepared_dir, client, output, *, compiler=None):
+    tool_inputs=offline_compiler_inputs(compiler) if compiler is not None else [client]
     verify(tool_inputs); prepared_dir = Path(prepared_dir); output = Path(output); output.mkdir()
     preparation = read(prepared_dir/'prepared.json'); verify(preparation['inputs']+preparation['outputs']+list(preparation['expected'].values()))
     converted = output/'converted'; shutil.copytree(prepared_dir, converted)
-    compile_with_client(converted, client, output)
+    if compiler is not None: compile_offline(converted, compiler, output)
+    else: compile_with_client(converted, client, output)
     audits = {}
     for part, name in preparation['allocation']['models'].items():
         binary = converted/'resources'/f'{name}.mdl'
@@ -210,5 +211,6 @@ def compile_package(prepared_dir, client, output):
               'allocation': preparation['allocation'], 'baseItem': preparation['baseItem'],
               'clientValidated': False, 'productionAccepted': False}
     if preparation.get('identity'): result['identity'] = preparation['identity']
+    if compiler is not None: result['compilationBackend'] = 'neverblender-cleanmodels'
     write(output/'native.json', result, fresh=True)
     return result
