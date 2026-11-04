@@ -574,6 +574,17 @@ class Launches(Base):
         write(self.root/'design/design-cap-override-elf-male-a', '')
         self.assertEqual(self.designs([{'exitCode': 0, 'elapsedSeconds': 1}]*3)[1].call_count, 3)
 
+    def test_the_cap_is_counted_under_the_gpu_lock(self):
+        def queued_then_another_ran(workspace):
+            (self.root/'design/launches/launch-x-elf-male-a-s9').mkdir(parents=True, exist_ok=True)
+            for number in range(3):
+                (self.root/f'design/launches/launch-{number}-elf-male-a-s{number}').mkdir(parents=True, exist_ok=True)
+            return unittest.mock.MagicMock()
+        with unittest.mock.patch.object(launcher, 'gpu_lock', queued_then_another_ran):
+            rows, launch, _ = self.designs([{'exitCode': 0, 'elapsedSeconds': 1}]*2)
+        self.assertEqual(launch.call_count, 2)
+        self.assertIn('stop and ask', rows[0]['error'])
+
     def test_two_labels_in_one_second_differ(self):
         self.assertGreaterEqual(len(launcher.stamp()), len('20261104-120000')+6)
 
@@ -945,6 +956,7 @@ class Review(Base):
         job = self.views_of().replace('\\', '/')
         self.assertIn('run/unwrap/attempt-01/uv.glb', job)
         self.assertIn('run/bake/attempt-01/maps/basecolor-2048.png', job)
+        self.assertIn('review-evidence/bake-grid-attempt-01.png', job)
 
     def test_bakeviews_takes_the_named_attempt(self):
         self.assertIn('run/bake/attempt-02/maps', self.views_of('attempt-02').replace('\\', '/'))
@@ -1260,7 +1272,7 @@ class SpoolTests(Base):
         head = self.head()
         self.receipt(head, 'palette', 1, {'result': {'rows': {'0': 7}}})
         self.finish(stage='palette')
-        self.assertEqual(self.tools, [('review', 'rowramps', 'elf-male-a')])
+        self.assertEqual(self.tools, [('review', 'rowramps', 'elf-male-a', 'attempt-01')])
         self.tool_result = (1, ['no such attempt'])
         self.finish(stage='palette')
         self.assertIn('ROWRAMPS FAILED: no such attempt', self.spool.state['review']['elf-male-a/palette']['text'])

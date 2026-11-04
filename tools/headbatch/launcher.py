@@ -237,7 +237,6 @@ def run_design(workspace, race, requests):
         for request in requests:
             head, seed, *rest = request.split(':')
             try:
-                guards.design_cap(folder, head)
                 finished.append(run_one_design(workspace, race, folder, bindings, head, seed, rest[0] if rest else '2'))
             except (guards.Refused, LaunchFailed) as error:
                 finished.append({'head': head, 'seed': seed, 'exitCode': 1, 'elapsedSeconds': 0, 'error': str(error)})
@@ -265,6 +264,7 @@ def run_one_design(workspace, race, folder, bindings, head, seed, batch):
     input_list = folder/'launches'/f'inputs-{label}.json'
     write_json(input_list, files)
     with gpu_lock(workspace):
+        guards.design_cap(folder, head)  # here: two commands queued for the lock must not both spend the last design
         started = time.time()
         data = launch(workspace, folder/'launches'/f'launch-{label}', input_list,
                       [RUN_HEADKIT, 'design', '--bindings', bindings, '--spec', spec, '--head', head, '--seed', seed, '--batch', batch, *extra, '--output', folder/'raw'])

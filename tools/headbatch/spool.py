@@ -162,7 +162,7 @@ class Spool:
             self.review(head, stage, f'{attempt}: {self.repair_evidence(head, attempt, manifest)}')
         elif stage == 'bake':
             self.later('bakeviews', head, attempt)  # named, because the head can move on while the sheet waits for a slot
-            self.review(head, stage, f'{attempt}: bakeviews queued: {head}/review-evidence/bake-tex.png, bake-grid.png')
+            self.review(head, stage, f'{attempt}: bakeviews queued: {head}/review-evidence/bake-tex-{attempt}.png, bake-grid-{attempt}.png')
         elif stage == 'ownership':
             sheet = self.sheets/f'{head}-ownership-{attempt}.png'
             self.draw(sheet, 'ownsheet', head, attempt, sheet)  # the saved atlas: a rules preview would miss the face-mask channels
@@ -175,8 +175,8 @@ class Spool:
                 self.attention(head, stage, f'{attempt}: {text}')
         elif stage == 'palette':
             rows = {key: value for key, value in result.get('rows', {}).items() if key in manifest['palette'].get('rows', {})}
-            code, text = self.tool('review', 'rowramps', head)
-            sheet = f'ROWRAMPS FAILED: {text[0]}' if code else f'sheet {head}/review-evidence/rowramps.png'
+            code, text = self.tool('review', 'rowramps', head, attempt)
+            sheet = f'ROWRAMPS FAILED: {text[0]}' if code else f'sheet {head}/review-evidence/rowramps-{attempt}.png'
             if code:
                 self.attention(head, stage, sheet)
             if rows == manifest['palette'].get('rows', {}) and guards.rows_reviewed(self.workspace, head):
@@ -208,7 +208,7 @@ class Spool:
         except guards.Refused as refusal:
             jaw = f'JAW FAIL - {refusal}'
         sheet = self.sheets/f'{head}-repair-{attempt}.png'
-        matrix = self.sheets/f'{head}-fit-matrix.json'
+        matrix = self.sheets/f'{head}-fit-matrix-{attempt}.json'
         matrix.write_text(json.dumps(guards.fit_matrix(self.workspace.head(head))), encoding='utf-8')
         self.draw(sheet, 'clay', sheet, f"uncut={folder/'master-uncut.glb'}", f"final={folder/'final.glb'}", '--matrix', matrix, '--views', 'back,left,bottom', '--size', '360')  # without the matrix "back" shows the face
         text = f'{jaw} | sheet queued: {sheet}'
