@@ -267,6 +267,16 @@ class TrialModuleTests(unittest.TestCase):
         self.assertEqual((ifo['Mod_OnPlrChat']['value'],ifo['Mod_OnClientEntr']['value']),('sr_h_chat','sr_h_enter'))
         with self.assertRaisesRegex(ValueError,'Mod_On'):module_documents([target],['a'],'ambient',events={'OnChat':'x'})
 
+    def test_from_base_head_needs_its_model_in_a_base_hak(self):
+        from build_head_trial import plan_hak,head_resources,TYPES
+        head={'id':'h','model':'pmg0_head031','fromBase':True}
+        self.assertEqual(head_resources(head),([],None,[]))
+        full={'srn_head':{('pmg0_head031',TYPES['mdl']):'a',('pmg0_head031',TYPES['plt']):'b'}}
+        self.assertEqual(plan_hak([(head,[],None)],[],full)[0],[])
+        with self.assertRaisesRegex(ValueError,'no base HAK holds'):plan_hak([(head,[],None)],[],{'srn_head':{('pmg0_head031',TYPES['mdl']):'a'}})
+        for extra in ({'native':'x'},{'resources':['x.mdl']},{'fromBase':False}):
+            with self.subTest(extra=extra),self.assertRaisesRegex(ValueError,'exactly one'):validate_spec(spec(heads=[{**spec()['heads'][0],'fromBase':True,**extra}]))
+
     def test_inspection_camera_targets_each_heads_actors(self):
         from build_head_trial import row_scripts,readme,INSPECT_HEIGHT
         value=validate_spec(spec(inspect={'height':{'pmg0':2.62},'distance':1.2}));actors=plan_actors(value)
@@ -275,6 +285,7 @@ class TrialModuleTests(unittest.TestCase):
         self.assertEqual(chat.count('&& col=='),len(actors))
         self.assertIn('if(row==0) return 2.620;',chat);self.assertIn('const float INSPECT_DISTANCE=1.20;',chat)
         for command in ('HeadView(m)>=0.0','"look "','"dist "','"height "','"anim"','"free"'):self.assertIn(command,chat)
+        for view,facing in (('three','225.0'),('threeleft','315.0'),('backright','135.0'),('backleft','45.0')):self.assertIn(f'if(v=="{view}") return {facing};',chat)
         # cutscene ghost on both sides: the player (with its invisibility) and every spawned actor, or the jump lands beside the actor
         self.assertIn('SupernaturalEffect(EffectCutsceneGhost()),o);',chat);self.assertIn('DelayCommand(wait,HeadJump(p,a));',chat)
         # the client drops the first placement after a fresh hide: it is placed again 1 s later
