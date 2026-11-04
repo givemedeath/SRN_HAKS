@@ -405,14 +405,15 @@ class Runner:
             from .paint import paint
             seal=None
             if self._sealed():seal=self.result('repair')['neck']['seal']['shellTriangles']
-            return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps',seal_start=seal)
+            return paint(self.source('uvMesh','unwrap','mesh'),self._color4k(painted=False),m['paint'],folder/'maps',seal_start=seal,
+                         embree=b['embree']['path'] if 'embree' in b else None)
         if stage=='masks':
             from .face_masks import face_masks
             require(isinstance(m.get('faceMasks'),dict),'Stage not configured: the manifest has no faceMasks section')
             return face_masks(self.source('uvMesh','unwrap','mesh'),self._color4k(),b,folder/'masks')
         if stage=='ownership':
             from .projection import project_ownership
-            source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={}
+            source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={};protected=None
             # Rules are bbox-relative data, not a mesh-bound annotation; the stage review binds their exact output.
             require(config.get('reviewed') is True and (config.get('mode')=='rules' or config.get('sourceSha256')==pin(source)['sha256']),
                     'Ownership review must bind the exact UV mesh')
@@ -420,7 +421,7 @@ class Runner:
                 from .paint import rule_ownership,PREVIEW
                 masks={name:row['path'] for name,row in self.result('paint')['masks'].items()} if 'paint' in m else {}
                 metallic=self.input('metallic4k') if 'metallic4k' in m['inputs'] else None if 'basecolor4k' in m['inputs'] else self.result('bake')['maps']['metallic-4096.png']['path']
-                labels,report=rule_ownership(source,self._color4k(),config,metallic=metallic,masks=masks)
+                labels,report,protected=rule_ownership(source,self._color4k(),config,metallic=metallic,masks=masks,protected=True)
                 require(labels.shape==(4096,4096),'4K discrete ownership atlas required');image=Image.fromarray(labels)
                 Image.fromarray(PREVIEW[labels]).resize((1024,1024),Image.Resampling.NEAREST).save(folder/'ownership-preview-1024.png')
             elif config['mode']=='atlas':
@@ -438,9 +439,11 @@ class Runner:
                 from .gltf import mesh
                 from .textures import surface
                 require(image.size==(4096,4096),'Feature channels need the 4K ownership atlas')
-                _,owners,_=surface(mesh(source),4096,enforce=False)
+                positions,owners,_=surface(mesh(source),4096,enforce=False)
                 with Image.open(self._color4k()) as colour:colour=np.asarray(colour.convert('RGB'))
-                labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0,colour)
+                # protected is None without an overFaceMasks rule: unchanged moves, and the 4K positions are not kept
+                labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0,colour,
+                                                                protected=protected,positions=positions if protected is not None else None)
                 image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
             image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
@@ -483,8 +486,12 @@ class Runner:
                 require(ownership_role=='ownership' and m['ownership'].get('featureChannels') is True,'Face treatment needs feature-channel ownership')
                 with Image.open(output) as image:rgb=np.asarray(image.convert('RGB'),np.float32)
                 with Image.open(ownership) as image:labels=np.asarray(image)
-                treated,result['faceTreatment']=treat(rgb,labels,masks_at(self.result('masks')['files'],TREATMENT_MASKS),
-                                                      mesh(self.source('uvMesh','unwrap','mesh')),face_treatment)
+                value=mesh(self.source('uvMesh','unwrap','mesh'));outer=None
+                if face_treatment.get('scalpDelight'):
+                    from .rays import outer_faces
+                    require('embree' in b,'scalpDelight needs the bound Embree runtime')
+                    positions=value['positions'].astype(float);outer=outer_faces(b['embree']['path'],positions,value['faces'],float(np.ptp(positions[:,1])))[0]
+                treated,result['faceTreatment']=treat(rgb,labels,masks_at(self.result('masks')['files'],TREATMENT_MASKS),value,face_treatment,outer=outer)
                 Image.fromarray(np.rint(treated).clip(0,255).astype(np.uint8)).save(output);result['output']=pin(output)
             result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
                           ownershipForTone=pin(ownership),ownershipUpsampling=upsampling)
@@ -544,7 +551,8 @@ class Runner:
             from .quality import quality
             require(isinstance(m.get('quality'),dict),'Stage not configured: the manifest has no quality section')
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
-            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality',settings=m['quality'])
+            return quality(self.source('uvMesh','unwrap','mesh'),self.result('masks'),self.result('palette'),palettes,folder/'quality',settings=m['quality'],
+                           embree=b['embree']['path'] if 'embree' in b else None)
         if stage=='export':
             from .native import prepare
             source=self.source('uvMesh','unwrap','mesh')

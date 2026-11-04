@@ -1477,17 +1477,19 @@ class InputInventoryTests(Temporary):
 
     def test_inputs_skips_receipts_from_other_code_instead_of_failing(self):
         from headkit.__main__ import main
-        from headkit.common import stage_source_version,digest,manifest
+        from headkit.common import stage_source_version,digest,manifest,bindings
         source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
         write(manifest_path,{'schemaVersion':1,'id':'stale-run','inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
         bindings_path=self.root/'bindings.json';write(bindings_path,self.bindings_data())
         run=self.root/'run';run.mkdir();changed=self.file('changed.py','old helper')
         old_pin=pin(changed);changed.write_text('helper edited since that receipt')
         current=self.file('current.json','current output')
-        rows={}
-        for stage,code,inputs in (('repair','old-code',[old_pin]),('unwrap',stage_source_version('unwrap'),[pin(current)])):
+        rows={};now=digest(bindings(bindings_path))
+        # bake ran under other bindings (a repinned runtime, RUNBOOK 168): rerun like the runner does, not a stale pin of them.
+        for stage,code,inputs,bound in (('repair','old-code',[old_pin],now),('unwrap',stage_source_version('unwrap'),[pin(current)],now),
+                                        ('bake',stage_source_version('bake'),[old_pin],'other-bindings')):
             scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
-            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
+            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'bindingsHash':bound,'inputs':inputs,'outputs':[]});rows[stage]=pin(path)
         write(run/'state.json',{'schemaVersion':1,'id':'stale-run','stages':rows})
         output=self.root/'inputs.json'
         with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),'--bindings',str(bindings_path),
@@ -1495,7 +1497,7 @@ class InputInventoryTests(Temporary):
             main()
         paths=read(output);self.assertIn(str(current.resolve()),paths);self.assertNotIn(str(changed.resolve()),paths)
         self.assertNotIn(str((run/'state.json').resolve()),paths)
-        self.assertIn('"staleStagesSkipped": [\n    "repair"\n  ]',shown.call_args.args[0])
+        self.assertIn('"staleStagesSkipped": [\n    "bake",\n    "repair"\n  ]',shown.call_args.args[0])
 
     def test_inputs_requires_the_declared_installed_snapshot(self):
         adapter,local=self.installed_adapter()
@@ -3877,6 +3879,23 @@ class TextureStageTests(Temporary):
         n=len(triangles);side=int(np.ceil(np.sqrt(n)));k=np.arange(n);u0,v0=(k%side)/side,(k//side)/side;s=1/side
         uv=np.stack([np.c_[u0+.1*s,v0+.1*s],np.c_[u0+.9*s,v0+.1*s],np.c_[u0+.1*s,v0+.9*s]],1)
         return {'positions':triangles.reshape(-1,3),'faces':np.arange(3*n).reshape(n,3),'uv':uv},side*cell
+    class Rays:
+        """Brute-force stand-in for rays.EmbreeScene: nearest hit distance and face per ray (-1 on a miss); like Embree's
+        wrapper it refuses rays that are not finite unit vectors."""
+        def __init__(self,dll,points,faces):self.t=np.asarray(points,float)[np.asarray(faces)]
+        def query(self,origins,directions):
+            o=np.asarray(origins,float);d=np.broadcast_to(np.asarray(directions,float),o.shape);a,b,c=self.t[:,0],self.t[:,1],self.t[:,2]
+            if not (np.isfinite(o).all() and np.isfinite(d).all() and np.allclose(np.linalg.norm(d,axis=1),1,atol=1e-5,rtol=0)):
+                raise ValueError('Require finite unit rays')
+            e1,e2=b-a,c-a;best=np.full(len(o),np.inf);ids=np.full(len(o),-1)
+            for s in range(0,len(o),1024):
+                oo,dd=o[s:s+1024,None],d[s:s+1024,None];p=np.cross(dd,e2);det=(e1*p).sum(-1)
+                with np.errstate(divide='ignore',invalid='ignore'):
+                    inv=1/det;tv=oo-a;u=(tv*p).sum(-1)*inv;q=np.cross(tv,e1);v=(dd*q).sum(-1)*inv;t=(e2*q).sum(-1)*inv
+                    t=np.where((np.abs(det)>1e-12)&(u>=0)&(v>=0)&(u+v<=1)&(t>1e-9),t,np.inf);k=t.argmin(1)
+                best[s:s+1024]=t[np.arange(len(k)),k];ids[s:s+1024]=np.where(np.isfinite(best[s:s+1024]),k,-1)
+            return best,ids,None
+        def close(self):pass
     def head(self):
         """Lateral cylinder skull (x across, y up, z front), a raised midline fin and a raised side ridge at x=0.6."""
         def ring(x,radii,degrees):
@@ -3915,6 +3934,55 @@ class TextureStageTests(Temporary):
         painted=masks['crest-stripe'].copy();painted[:,:8]=False;outside=~masks['crest'];outside[:,:8]=False
         self.assertTrue(painted.any() and (rgb[painted]==(120,14,22)).all() and (rgb[outside]==180).all())
         self.assertEqual(report['paintedTexels']['crest-stripe'],int(painted.sum()))
+    def test_protrusion_selects_the_seeded_horn_not_the_skull_or_an_unseeded_ear(self):
+        # RUNBOOK 163: a sphere skull with a horn cylinder out along +x and an ear cylinder along -x; Embree replaced by a
+        # brute-force ray caster. The ball-opened solid keeps the sphere and drops both cylinders; only the seeded one is horn.
+        from headkit import paint,rays
+        lat,lon=np.meshgrid(np.radians(np.linspace(-90,90,13)),np.radians(np.linspace(0,360,25)),indexing='ij')
+        sphere=self.quads(np.stack([np.cos(lat)*np.cos(lon),np.sin(lat),np.cos(lat)*np.sin(lon)],-1))
+        def tube(x0,x1):
+            x,t=np.meshgrid(np.linspace(x0,x1,5),np.radians(np.linspace(0,360,9)),indexing='ij')
+            side=self.quads(np.stack([x,.2*np.cos(t),.2*np.sin(t)],-1));rim=np.stack([np.full(9,x1),.2*np.cos(t[0]),.2*np.sin(t[0])],-1)
+            return np.r_[side,np.stack([np.broadcast_to([x1,0,0],(8,3)),rim[:-1],rim[1:]],1)]
+        def outward(tris,inside):
+            """Wind each triangle so its normal points away from the given inside point (repaired meshes face outward)."""
+            n=np.cross(tris[:,1]-tris[:,0],tris[:,2]-tris[:,0]);flip=(n*(tris.mean(1)-inside)).sum(1)<0
+            tris=tris.copy();tris[flip]=tris[flip][:,[0,2,1]];return tris
+        axis=lambda tris,x0,x1:np.c_[np.clip(tris.mean(1)[:,0],min(x0,x1)+.05,max(x0,x1)-.05),np.zeros((len(tris),2))]
+        horn,ear=tube(.85,2.2),tube(-.85,-1.6);sphere=outward(sphere,np.zeros(3))
+        horn,ear=outward(horn,axis(horn,.85,2.2)),outward(ear,axis(ear,-.85,-1.6));value,size=self.soup(np.r_[sphere,horn,ear])
+        kind=np.repeat([0,1,2],[len(sphere),len(horn),len(ear)]);centre=value['positions'][value['faces']].mean(1)
+        # Clearance just over one voxel step (3.8 wide / 48 voxels = 0.0396 head heights): the skull's surface voxels stay in.
+        op={'op':'protrusion','name':'horns','seeds':[{'of':'x','gt':.8}],'ball':.15,'clearance':.045,'voxels':48}
+        with patch.object(paint,'EmbreeScene',self.Rays),patch.object(rays,'EmbreeScene',self.Rays):
+            selected,report=paint.protrusion_faces(value,np.full((size,size,3),128,np.uint8),op,{},'embree.dll')
+            self.assertFalse(selected[kind==0].any());self.assertFalse(selected[kind==2].any())
+            self.assertLessEqual(report['standingOut'],len(horn)+len(ear),report)   # no skull face stands out
+            with self.assertRaisesRegex(ValueError,'voxel step'):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),dict(op,clearance=.03),{},'embree.dll')
+            self.assertTrue(selected[(kind==1)&(centre[:,0]>1.2)].all(),report)
+            for bad in (dict(op,ball=.5),dict(op,grow=1.5),dict(op,seeds=[]),dict(op,extra=1)):
+                with self.subTest(op=bad),self.assertRaises(ValueError):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),bad,{},'embree.dll')
+            with self.assertRaisesRegex(ValueError,'Embree'):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),op,{},None)
+    def test_outer_faces_drop_the_inner_wall_of_a_double_shell(self):
+        # RUNBOOK 164: a repaired head is double-walled (Alpha Wrap). Outer wall faces outward, a hidden inner wall 0.005 head
+        # heights behind it faces the cavity; the seam check and the horn detector must see only the outer wall.
+        from headkit import rays
+        lat,lon=np.meshgrid(np.radians(np.linspace(-90,90,13)),np.radians(np.linspace(0,360,25)),indexing='ij')
+        unit=np.stack([np.cos(lat)*np.cos(lon),np.sin(lat),np.cos(lat)*np.sin(lon)],-1)
+        def wound(tris,out):
+            n=np.cross(tris[:,1]-tris[:,0],tris[:,2]-tris[:,0]);tris=tris[np.linalg.norm(n,axis=1)>1e-9]   # drop the poles' slivers
+            flip=((np.cross(tris[:,1]-tris[:,0],tris[:,2]-tris[:,0])*tris.mean(1)).sum(1)<0)==out
+            tris=tris.copy();tris[flip]=tris[flip][:,[0,2,1]];return tris
+        shell=np.r_[wound(self.quads(unit),True),wound(self.quads(.99*unit),False)];half=len(shell)//2
+        # A zero-area face last: Embree refuses its ray, so it is simply not outer.
+        value,_=self.soup(np.r_[shell,np.zeros((1,3,3))]);positions=value['positions'].astype(float)
+        with patch.object(rays,'EmbreeScene',self.Rays):
+            outer,normal=rays.outer_faces('embree.dll',positions,value['faces'],2.)
+            np.testing.assert_array_equal(outer,np.arange(len(shell)+1)<half)
+            self.assertTrue(((normal*positions[value['faces']].mean(1)).sum(1)[:half]>0).all());self.assertFalse(normal[-1].any())
+            # A single solid wall: every face is outer.
+            solid,_=self.soup(shell[:half]);p=solid['positions'].astype(float)
+            self.assertTrue(rays.outer_faces('embree.dll',p,solid['faces'],2.)[0].all())
     def two_faces(self, size=64):
         p=np.array([[0,0,0],[1,0,0],[0,1,1],[1,0,0],[1,1,1],[0,1,1]],np.float32)
         uv=np.array([[[.02,.02],[.9,.02],[.02,.9]],[[.98,.1],[.98,.98],[.1,.98]]])
@@ -3973,6 +4041,14 @@ class TextureStageTests(Temporary):
         for bad in ({'of':'metallic','gt':1},{'region':'missing'},{'of':'lum'},{'channel':1}):
             with self.subTest(condition=bad),self.assertRaises(ValueError):
                 rule_ownership(source,self.root/'color.png',{'rules':[{'name':'x','channel':1,'when':bad}]})
+        # overFaceMasks (RUNBOOK 161): the marked hair rule's texels, padded like the labels; only on hair rules, only booleans.
+        marked=[dict(rules[0],channel=1,overFaceMasks=True),rules[1]]
+        labels,_,keep=rule_ownership(source,self.root/'color.png',{'rules':marked},protected=True)
+        self.assertTrue((keep==(mapped&red)).all());self.assertEqual(len(rule_ownership(source,self.root/'color.png',{'rules':marked})),2)
+        self.assertIsNone(rule_ownership(source,self.root/'color.png',{'rules':rules},protected=True)[2])   # nothing marked
+        for bad in (dict(rules[0],overFaceMasks=True),dict(rules[1],overFaceMasks=1)):
+            with self.subTest(rule=bad),self.assertRaisesRegex(ValueError,'overFaceMasks'):
+                rule_ownership(source,self.root/'color.png',{'rules':[bad]})
     def test_worked_texture_example_conditions_evaluate(self):
         from headkit.paint import rule_ownership,adjust
         example=read(Path(__file__).parent/'examples'/'texture-rules.json');source,rgb=self.two_faces()
