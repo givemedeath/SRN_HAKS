@@ -205,6 +205,16 @@ class ContractTests(Fixture):
         self.assertEqual(len(contracts.family(self.profile_path)['allowedAssemblies']), 1)
         self.profile['allowedAssemblies'] *= 2; self.save_profile()
         with self.assertRaisesRegex(ValueError, 'Duplicate'): contracts.family(self.profile_path)
+    def test_crossbow_manifest_requires_hidden_inactive_parts(self):
+        self.native()
+        self.profile['family'] = 'crossbow'
+        self.profile['allowedAssemblies'] = [{'b':'hidden-placeholder', 'm':'hidden-placeholder', 't':self.data['id']}]
+        # Isolate manifest assembly validation from donor/motion qualification.
+        with patch.object(contracts, 'family', return_value=self.profile):
+            self.assertEqual(contracts.manifest(self.path)['id'], self.data['id'])
+            self.profile['allowedAssemblies'][0]['m'] = self.data['id']
+            with self.assertRaisesRegex(ValueError, 'matching assembly'):
+                contracts.manifest(self.path)
     def test_part_limits_cannot_exceed_whole_budget(self):
         self.profile['budgets']['parts']['b']['visible'] += 1; self.save_profile()
         with self.assertRaisesRegex(ValueError, 'assembly budget'): contracts.family(self.profile_path)

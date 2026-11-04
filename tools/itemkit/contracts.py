@@ -355,7 +355,7 @@ def manifest(path, *, input_roles=None, validate_native=True):
     if profile_data['nativePackaging'] == 'enabled':
         expected = dict.fromkeys(PARTS, data['id'])
         if whole_shield(profile_data): expected={'whole':data['id']}
-        if profile_data['family'] in ('firearm-sling','firearm-crossbow','bow','whip'):
+        if profile_data['family'] in ('firearm-sling','firearm-crossbow','crossbow','bow','whip'):
             from .parts import active_parts
             expected = {part:data['id'] if part in active_parts(profile_data) else 'hidden-placeholder' for part in PARTS}
         require(profile_data['allowedAssemblies'] == [expected],
