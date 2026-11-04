@@ -7,6 +7,7 @@ import sys, json
 import numpy as np
 from PIL import Image, ImageDraw
 from headkit.gltf import mesh
+from _frame import VIEWS
 
 args = sys.argv[1:]; out = args.pop(0)
 views = ['front', 'left', 'back', 'right']; frame = None; size = 420; matrix = None; zlines = []; tex = None; lit = .35; items = []; two_sided = False
@@ -20,12 +21,8 @@ while i < len(args):
     if a == '--tex': tex = np.asarray(Image.open(args[i+1]).convert('RGB'), float); i += 2; continue
     if a == '--two-sided': two_sided = True; i += 1; continue
     if a == '--lit': lit = float(args[i+1]); i += 2; continue
-    if a == '--frame': fv = [float(v) for v in args[i+1].split(',')]; frame = (np.array(fv[:3]), fv[3]); i += 2; continue
     label, path = a.split('=', 1); items.append((label, path)); i += 1
 
-ROT = {'front': [[-1, 0, 0], [0, 0, 1], [0, 1, 0]], 'back': [[1, 0, 0], [0, 0, 1], [0, -1, 0]],
-       'left': [[0, 1, 0], [0, 0, 1], [-1, 0, 0]], 'right': [[0, -1, 0], [0, 0, 1], [1, 0, 0]],
-       'top': [[-1, 0, 0], [0, -1, 0], [0, 0, 1]], 'bottom': [[-1, 0, 0], [0, 1, 0], [0, 0, -1]]}
 light = np.array([-.35, .45, .82]); light /= np.linalg.norm(light)
 rows = []
 for label, path in items:
@@ -49,7 +46,7 @@ for label, path in items:
         col = tex[np.clip((T[:, 1]*H).astype(int), 0, H-1), np.clip((T[:, 0]*Wd).astype(int), 0, Wd-1)]
     tiles = []
     for v in views:
-        R = np.array(ROT[v], float); S = (P-ctr) @ R.T; Nn = N @ R.T
+        R = np.array(VIEWS[v], float); S = (P-ctr) @ R.T; Nn = N @ R.T
         if two_sided: Nn = Nn*np.sign(Nn[:, 2:3]+1e-9)
         shade = np.clip(Nn @ light, 0, 1)*.8+.15 if two_sided else np.where(Nn[:, 2] < 0, .12, np.clip(Nn @ light, 0, 1)*.8+.15)
         px = ((S[:, 0]/ext+.5)*size).astype(int); py = ((.5-S[:, 1]/ext)*size).astype(int)

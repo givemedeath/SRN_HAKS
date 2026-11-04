@@ -6,10 +6,12 @@ from PIL import Image, ImageDraw
 import headkit.neck as N
 from headkit.common import library
 from headkit.gltf import mesh
+from headbatch.head_files import fit_matrix
+from _frame import VIEWS
 from headkit.mesh import physical, shells
 head, uncut, oj, op = sys.argv[1:5]
-man = json.load(open(head+'/manifest.json')); b = json.load(open(head+'/bindings.json')); st = json.load(open(head+'/run/state.json'))['stages']
-fit = man['fit']['matrix'] if 'matrix' in man['fit'] else json.load(open(st['fit']['path']))['result']['matrix']; pol = man['mesh']  # explicit refit matrix first
+man = json.load(open(head+'/manifest.json')); b = json.load(open(head+'/bindings.json'))
+fit = fit_matrix(head); pol = man['mesh']
 src = mesh(sorted(glob.glob(head+'/run/precluster/attempt-*/oriented.glb'))[-1]); sv, _ = physical(src['positions'], src['faces']); diag = float(np.linalg.norm(np.ptp(sv, axis=0)))
 ml = library(b, 'pymeshlab'); alpha = pol.get('alphaRelative', .005); offset = pol.get('offsetRelative', .00025)
 def wrap(v, f):
@@ -28,8 +30,7 @@ for k in np.argsort(-tot):
                 'min': vs.min(0).round(4).tolist(), 'max': vs.max(0).round(4).tolist(), 'centre': vs.mean(0).round(4).tolist()})
     print(out[-1])
 json.dump({'cut': {k: v for k, v in rec.items() if isinstance(v, (int, float, str))}, 'shells': out}, open(oj, 'w'), indent=1, default=str)
-ROT = {'front': [[-1, 0, 0], [0, 0, 1], [0, 1, 0]], 'back': [[1, 0, 0], [0, 0, 1], [0, -1, 0]], 'left': [[0, 1, 0], [0, 0, 1], [-1, 0, 0]],
-       'right': [[0, -1, 0], [0, 0, 1], [1, 0, 0]], 'bottom': [[-1, 0, 0], [0, 1, 0], [0, 0, -1]]}
+ROT = {v: VIEWS[v] for v in ('front', 'back', 'left', 'right', 'bottom')}
 S = 500; lo, hi = L.min(0), L.max(0); ctr = (lo+hi)/2; ext = (hi-lo).max()*1.1; rng = np.random.default_rng(0)
 cc = L[F2]; fa = area/area.sum(); pick = rng.choice(len(F2), 1500000, p=fa); u = rng.random((len(pick), 2)); fl = u.sum(1) > 1; u[fl] = 1-u[fl]
 P = cc[pick, 0]+u[:, :1]*(cc[pick, 1]-cc[pick, 0])+u[:, 1:]*(cc[pick, 2]-cc[pick, 0]); red = lab[pick] != keep

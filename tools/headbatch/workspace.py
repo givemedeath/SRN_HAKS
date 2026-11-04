@@ -115,6 +115,10 @@ class Workspace:
     def body_neck(self, race, sex):
         return self.require('bodyNecks')/f'{prefix(race, sex)}-neck001-ref.json'
 
+    def landmarks(self):
+        path = self.setting('landmarks')
+        return json.loads(path.read_text(encoding='utf-8-sig')) if path else None
+
     def design_reference(self, race, sex):
         reference = self.data.get('designReferences', {}).get(race, {}).get(sex)
         return self.path(reference) if reference else None

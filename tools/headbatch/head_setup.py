@@ -1,5 +1,4 @@
 """Create a head folder from a picked design and write its manifest from the design receipt, GPU outputs and overrides.json."""
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -7,25 +6,13 @@ import re
 import shutil
 import subprocess
 
+from gpu_job import FIELD_NODE, GEOMETRY_NODE, file_from
 import guards
+from head_files import sha, write_json
 from workspace import PYTHON, RACE_DATA
 
 FEATURE = re.compile(r'^(Face|Ears|Brows|Horns|Tusks|Beard|Hair|Cyberware|Piercings|Tattoo|Scars): (.*)$', re.M)
 PALETTE_ROLES = (('paletteSkin', 'pal-skin01.tga'), ('paletteHair', 'pal-hair01.tga'), ('paletteArmor', 'pal-armor01.tga'), ('paletteTattoo', 'pal-tattoo01.tga'))
-RAW_NODE = '961:'
-FIELD_NODE = '962:'
-
-
-def sha(path):
-    digest = hashlib.sha256()
-    with open(path, 'rb') as stream:
-        for block in iter(lambda: stream.read(1 << 22), b''):
-            digest.update(block)
-    return digest.hexdigest()
-
-
-def write_json(path, data):
-    Path(path).write_text(json.dumps(data, indent=1)+'\n', encoding='utf-8', newline='\n')
 
 
 def tone_reference(race, sex):
@@ -137,9 +124,9 @@ def write_manifest(workspace, name, check=validate):
     if gpu.exists():
         stages = guards.read(gpu)['stages']
         if 'geometry' in stages:
-            inputs['raw'] = link(head, next(v for k, v in stages['geometry']['files'].items() if k.startswith(RAW_NODE))['path'], 'raw.glb')
+            inputs['raw'] = link(head, file_from(stages['geometry']['files'], GEOMETRY_NODE)['path'], 'raw.glb')
         if 'appearance' in stages:
-            inputs['field'] = link(head, next(v for k, v in stages['appearance']['files'].items() if k.startswith(FIELD_NODE))['path'], 'field.npz')
+            inputs['field'] = link(head, file_from(stages['appearance']['files'], FIELD_NODE)['path'], 'field.npz')
     reference = workspace.fit_reference(race, sex)
     inputs['fitReference'] = link(head, reference, 'fit-reference-'+reference.name)
     data = defaults(name, receipt, inputs, reference)

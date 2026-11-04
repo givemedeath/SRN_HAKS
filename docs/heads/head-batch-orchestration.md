@@ -92,14 +92,14 @@ Each finished stage gets its evidence before it reaches the review list:
 | Event | What the spooler does |
 |---|---|
 | Repair queued | `presets --apply`; a HOLD goes to attention and no launch starts |
-| Repair ran | Jaw result, clay pair in `spool/sheets`, skirt zone at its gap and at 3 cm when the head has a skirt |
-| Repair failed on deleted shells | Queues `cutshells` |
+| Repair ran | Jaw result; queues the clay pair in `spool/sheets`, and the skirt zone at its gap and at 3 cm when the head has a skirt |
+| Repair refused on its shells | Queues `cutshells` |
 | Unwrap failed on coverage | `presets --uv-only --apply` and a relaunch, or attention on HOLD |
 | Bake ran | Queues `bakeviews` |
-| Ownership ran | Draws the manifest's rules with `own_draft` |
+| Ownership ran | Queues the manifest's rules through `own_draft` |
 | Palette ran | Draws `rowramps`, then checks the pins |
 
-Queued sheets wait for a CPU slot in their own process, so a review line can arrive before its sheet. The spooler changes `overrides.json` only through `presets`; any other UV floor or neck cut is a reviewer's edit.
+Queued sheets wait for a CPU slot in their own process, so a review line can arrive before its sheet. A reused stage keeps the sheet it has. The spooler changes `overrides.json` only through `presets`; any other UV floor or neck cut is a reviewer's edit.
 
 ## Before publishing
 

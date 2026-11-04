@@ -2,17 +2,15 @@
 import json, sys, glob
 import numpy as np
 import headkit.neck as N
-from headkit.gltf import mesh
+from _frame import head_neck, local_positions
 head = sys.argv[1]
-man = json.load(open(head+'/manifest.json')); st = json.load(open(head+'/run/state.json'))['stages']
-fit = man['fit']['matrix'] if 'matrix' in man['fit'] else json.load(open(st['fit']['path']))['result']['matrix']
-neck = N.neck_policy(man['mesh']['neck'], {'matrix': fit, 'reviewed': True}); bv, bf = N.body_neck(head+'/'+man['inputs']['bodyNeck']['path'])
+man, neck, bv, bf = head_neck(head)
 uncut = sorted(glob.glob(head+'/run/repair/attempt-*/master-uncut.glb'))[-1]
-m = mesh(uncut); V, F = N.physical(m['positions'], m['faces']); L = N.transform(neck['frame'], V)
+L = local_positions(neck, uncut)
 cut = neck['cut']; print('local min', L.min(0).round(4), 'max', L.max(0).round(4), 'body z', bv[:, 2].min().round(4), bv[:, 2].max().round(4))
 if len(sys.argv) > 2: h = float(sys.argv[2]); jaw = None
 else:
-    jaw = N.jaw_line(L, bv, bf, cut['reach'], cut['slope'], cut['searchBottom']); h = jaw['height']-cut['clearance']; print('jaw', jaw)
+    jaw = N.measured_jaw(L, bv, bf, cut); h = jaw['height']-cut['clearance']; print('jaw', jaw)
 plane = lambda p: h+cut['slope']*p[:, 1]; above = L[:, 2]-plane(L); moving = above < cut['band']; p = L[moving]
 ha = np.maximum(p[:, 2], plane(p)); print('height', round(h, 4), 'height_at range', ha.min().round(4), ha.max().round(4))
 # plane rim z where the plane crosses the surface

@@ -20,18 +20,24 @@
     "tools/headbatch/__init__.py": [],
     "tools/headbatch/gpu_job.py": [
       "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
       "tools/headkit/occiput.py"
     ],
     "tools/headbatch/guards.py": [
+      "tools/headbatch/head_files.py",
       "tools/headbatch/workspace.py"
     ],
+    "tools/headbatch/head_files.py": [],
     "tools/headbatch/head_setup.py": [
+      "tools/headbatch/gpu_job.py",
       "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
       "tools/headbatch/workspace.py"
     ],
     "tools/headbatch/launcher.py": [
       "tools/headbatch/gpu_job.py",
       "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
       "tools/headbatch/workspace.py",
       "tools/headkit/__main__.py",
       "tools/headkit/comfy.py",
@@ -48,15 +54,22 @@
     ],
     "tools/headbatch/presets.py": [
       "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
       "tools/headbatch/head_setup.py",
       "tools/headbatch/review/slopescan.py",
       "tools/headbatch/workspace.py"
     ],
     "tools/headbatch/review/__init__.py": [],
+    "tools/headbatch/review/_frame.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py"
+    ],
     "tools/headbatch/review/backcount.py": [
       "tools/headkit/gltf.py"
     ],
     "tools/headbatch/review/bakeviews.py": [
+      "tools/headbatch/head_files.py",
       "tools/headbatch/review/clay.py",
       "tools/headbatch/review/grid.py"
     ],
@@ -65,22 +78,25 @@
       "tools/headkit/mesh.py"
     ],
     "tools/headbatch/review/chinprofile.py": [
-      "tools/headkit/gltf.py",
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/review/clay.py": [
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/gltf.py"
     ],
     "tools/headbatch/review/cutdry.py": [
-      "tools/headkit/gltf.py",
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/review/cutreplay.py": [
+      "tools/headbatch/head_files.py",
       "tools/headkit/gltf.py",
-      "tools/headkit/intersections.py",
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/review/cutshells.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
       "tools/headkit/mesh.py",
@@ -96,16 +112,18 @@
       "tools/headkit/gltf.py"
     ],
     "tools/headbatch/review/grid.py": [
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/gltf.py"
     ],
     "tools/headbatch/review/hot.py": [
+      "tools/headbatch/head_files.py",
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
       "tools/headkit/mesh.py",
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/review/jaw.py": [
-      "tools/headkit/gltf.py",
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/review/own_draft.py": [
@@ -117,21 +135,24 @@
     ],
     "tools/headbatch/review/rowramps.py": [],
     "tools/headbatch/review/shells.py": [
+      "tools/headbatch/head_files.py",
       "tools/headkit/__init__.py",
       "tools/headkit/common.py",
       "tools/headkit/mesh.py",
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/review/skirtzone.py": [
-      "tools/headkit/gltf.py",
+      "tools/headbatch/review/_frame.py",
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/review/slopescan.py": [
+      "tools/headbatch/head_files.py",
       "tools/headkit/gltf.py",
       "tools/headkit/neck.py"
     ],
     "tools/headbatch/run_headbatch.py": [
       "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
       "tools/headbatch/head_setup.py",
       "tools/headbatch/launcher.py",
       "tools/headbatch/presets.py",
@@ -158,6 +179,7 @@
     ],
     "tools/headbatch/trials.py": [
       "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
       "tools/headbatch/launcher.py",
       "tools/headbatch/workspace.py",
       "tools/heads/build_head_trial.py"

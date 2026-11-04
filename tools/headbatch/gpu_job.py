@@ -1,7 +1,6 @@
 """Calibrate, geometry and appearance for one head on a local ComfyUI, with graphs from headkit.comfy.compile_graph (pixal-single-v1).
 Launched by `run_headbatch.py gpu`. HEAD/run/prepare must hold the reviewed matte (images/design-rgba.png)."""
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -12,8 +11,10 @@ import urllib.request
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from headkit.comfy import compile_graph  # noqa: E402
+from headkit.common import sha  # noqa: E402
 
 GEOMETRY_NODE = '961:'
+FIELD_NODE = '962:'
 SHAPE_NODE = '963:'
 POLL_SECONDS = 3
 OOM_RESEED = 1000
@@ -76,14 +77,6 @@ def link_or_copy(source, target):
         os.link(source, target)
     except OSError:
         shutil.copy2(source, target)  # ComfyUI output on another drive
-
-
-def sha(path):
-    digest = hashlib.sha256()
-    with open(path, 'rb') as stream:
-        for block in iter(lambda: stream.read(1 << 22), b''):
-            digest.update(block)
-    return digest.hexdigest()
 
 
 def shift_seeds(graph, offset):
@@ -151,10 +144,9 @@ def main():
     parser.add_argument('--comfy-root', required=True, type=Path)
     parser.add_argument('--stages', default='calibrate,geometry,appearance')
     parser.add_argument('--seed-offset', type=int, default=0)
-    parser.add_argument('--gpu-dir', default='gpu')
     args = parser.parse_args()
     head = args.head.resolve()
-    gpu = head/args.gpu_dir
+    gpu = head/'gpu'
     comfy = Comfy(args.comfy_url, args.comfy_root)
     ledger_path = gpu/'gpu.json'
     ledger = json.loads(ledger_path.read_text()) if ledger_path.exists() else {'head': head.name, 'stages': {}}

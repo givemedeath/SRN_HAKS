@@ -9,14 +9,14 @@ import time
 import urllib.request
 
 import guards
+from head_files import write_json
 from workspace import PYTHON, TOOLS
 
 HEADKIT = TOOLS/'headkit'
 RUN_HEADKIT = HEADKIT/'run_headkit.py'
 GPU_JOB = Path(__file__).with_name('gpu_job.py')
 FINISHED_STAGES = ('native', 'render')
-SLOT_POLL_SECONDS = 15
-GPU_POLL_SECONDS = 20
+LOCK_POLL_SECONDS = 2
 # Only what each job imports: a toolkit edit elsewhere must not invalidate a GPU or design launch in flight (RUNBOOK 40).
 GPU_MODULES = ('__init__.py', 'comfy.py', 'common.py', 'gltf.py', 'occiput.py', 'source_inventory.py')
 DESIGN_MODULES = ('run_headkit.py', '__init__.py', '__main__.py', 'common.py', 'comfy.py', 'design.py', 'source_inventory.py')
@@ -35,36 +35,12 @@ def timing(workspace, text, started):
         log.write(f"{datetime.now():%H:%M} {text} {int(time.time()-started)} s\n")
 
 
-def write_json(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=1)+'\n', encoding='utf-8', newline='\n')
-
-
 @contextmanager
-def lock(path, owner, poll, sleep=time.sleep):
-    """mkdir is atomic, so a lock folder needs no lock server and works on every drive the workspace can use."""
-    path.parent.mkdir(parents=True, exist_ok=True)
+def lock(paths, owner, sleep=time.sleep):
+    """Take the first free folder of paths(), asked again on each pass. mkdir is atomic, so a lock needs no server and works on every drive the workspace can use."""
     while True:
-        try:
-            path.mkdir()
-            break
-        except FileExistsError:
-            sleep(poll)
-    try:
-        (path/'owner').write_text(owner, encoding='utf-8')
-        yield path
-    finally:
-        (path/'owner').unlink(missing_ok=True)
-        path.rmdir()
-
-
-@contextmanager
-def cpu_slot(workspace, owner, sleep=time.sleep):
-    """Take the first free slot of the current limit, which can change while this waits."""
-    workspace.locks.mkdir(parents=True, exist_ok=True)
-    while True:
-        for index in range(workspace.cpu_slots()):
-            path = workspace.locks/f'cpu-{index+1}'
+        for path in paths():
+            path.parent.mkdir(parents=True, exist_ok=True)
             try:
                 path.mkdir()
             except FileExistsError:
@@ -76,12 +52,17 @@ def cpu_slot(workspace, owner, sleep=time.sleep):
                 (path/'owner').unlink(missing_ok=True)
                 path.rmdir()
             return
-        sleep(SLOT_POLL_SECONDS)
+        sleep(LOCK_POLL_SECONDS)
+
+
+def cpu_slot(workspace, owner):
+    """The first free slot of the current limit, which can change while this waits."""
+    return lock(lambda: [workspace.locks/f'cpu-{index+1}' for index in range(workspace.cpu_slots())], owner)
 
 
 def gpu_lock(workspace):
     """One GPU job at a time: designs behind Pixal jobs time out or run out of memory."""
-    return lock(workspace.locks/'gpu', f'{os.getpid()} {stamp()}', GPU_POLL_SECONDS)
+    return lock(lambda: [workspace.locks/'gpu'], f'{os.getpid()} {stamp()}')
 
 
 def launch(workspace, output, inputs, arguments, environment=None):
@@ -106,7 +87,7 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None):
     stage_list = stages.split(',')
     dirs = [workspace.head(head) for head in heads]
     bindings = workspace.path(workspace.data['headBindings'])
-    landmarks = guards.read(workspace.setting('landmarks')) if workspace.setting('landmarks') else None
+    landmarks = workspace.landmarks()
     guards.crlf_in_pinned_code()
     guards.clean_stray_bytecode(bindings)
     for head in dirs:

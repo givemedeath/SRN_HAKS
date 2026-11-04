@@ -1,25 +1,27 @@
 """Checks that refuse a launch before it spends CPU. Each one answers a confirmed batch mistake (docs/heads/race-heads-v1-runbook.md)."""
-import json
 from pathlib import Path
+import re
 
+from head_files import attempts, fit_matrix, read  # noqa: F401
 from workspace import TOOLS
 
 UV_MARGIN = 0.01
 UV_DEFAULT_FLOOR = 0.30
 LOOP_BUDGET = {'repair': 3, 'ownership': 2, 'tone': 4, 'palette': 3, 'render': 3}
 GEOMETRY_CAP = 5
+COVERAGE = re.compile(r'Insufficient useful UV coverage(?: after face priority)? \(([.\d]+) at 2K')
 
 
 class Refused(Exception):
     pass
 
 
-def read(path):
-    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
-
-
-def attempts(head, stage):
-    return sorted((head/'run'/stage).glob('attempt-*'))
+def coverage(receipt):
+    """2K UV coverage from an unwrap receipt, passed or refused for coverage; None for any other failure."""
+    if receipt.get('result'):
+        return receipt['result']['pixelAudits']['2048']['coverageFraction']
+    found = COVERAGE.search(str(receipt.get('error', '')))
+    return float(found[1]) if found else None
 
 
 def crlf_in_pinned_code():
@@ -55,11 +57,11 @@ def uv_margin(head):
     """A repair moves coverage by up to 0.01, and a floor set afterwards stales it, so it must clear the floor first (RUNBOOK 87)."""
     floor = read(head/'manifest.json')['mesh'].get('uv', {}).get('minimumCoverage', UV_DEFAULT_FLOOR)
     for attempt in reversed(attempts(head, 'unwrap')):
-        result = read(attempt/'receipt.json').get('result') if (attempt/'receipt.json').exists() else None
-        if result:
-            coverage = result['pixelAudits']['2048']['coverageFraction']
-            if coverage < floor+UV_MARGIN:
-                raise Refused(f'{head.name}: {attempt.name} coverage {coverage:.3f} is too close to floor {floor}: set a reviewed mesh.uv floor before rerunning repair (RUNBOOK 87)')
+        receipt = read(attempt/'receipt.json') if (attempt/'receipt.json').exists() else {}
+        if receipt.get('result'):
+            covered = coverage(receipt)
+            if covered < floor+UV_MARGIN:
+                raise Refused(f'{head.name}: {attempt.name} coverage {covered:.3f} is too close to floor {floor}: set a reviewed mesh.uv floor before rerunning repair (RUNBOOK 87)')
             return
 
 
@@ -80,15 +82,6 @@ def geometry_cap(head):
         raise Refused(f'{head.name}: {count} geometry submissions reached the cap of {GEOMETRY_CAP}: stop and ask the user')
 
 
-def fit_matrix(head):
-    fit = read(head/'manifest.json')['fit']
-    if 'matrix' in fit:
-        return fit['matrix']
-    state = head/'run'/'state.json'
-    stages = read(state)['stages'] if state.exists() else {}
-    return read(stages['fit']['path'])['result']['matrix'] if 'fit' in stages else None
-
-
 def jaw_limit(head, landmarks):
     """Highest allowed jaw height: half the eye-to-lip distance below the lip seam (a chin is 0.6-0.9 of it below). None without marks."""
     marks = landmarks.get(head.name, {}).get('source') if landmarks else None
@@ -105,14 +98,14 @@ def jaw(head, landmarks):
     limit = jaw_limit(head, landmarks)
     if limit is None or (head/'jaw-reviewed').exists():
         return
-    cuts = []
-    for attempt in attempts(head, 'repair'):
+    for attempt in reversed(attempts(head, 'repair')):
         audit = attempt/'reduction-audit.json'
         cut = read(audit)['neck'].get('cut') if audit.exists() else None
         if cut and 'jawLine' in cut:
-            cuts.append((attempt.name, cut['jawLine']['point'][2]))
-    if cuts and cuts[-1][1] > limit:
-        raise Refused(f'{head.name}: {cuts[-1][0]} jaw {cuts[-1][1]*100:.1f} cm is above the chin limit {limit*100:.1f} cm: review, then add jaw-reviewed (RUNBOOK 103)')
+            height = cut['jawLine']['point'][2]
+            if height > limit:
+                raise Refused(f'{head.name}: {attempt.name} jaw {height*100:.1f} cm is above the chin limit {limit*100:.1f} cm: review, then add jaw-reviewed (RUNBOOK 103)')
+            return
 
 
 def unwrap_gates(receipt):

@@ -10,11 +10,10 @@ Numeric gates: unwrap to bake, palette to export when rows equal the reviewed pi
 A launch whose own record never arrives goes to attention, never silently past (RUNBOOK 117).
 
 Each finished stage gets its review evidence: repair the clay pair and skirt zone, bake the textured views and grid, ownership the
-rule sheet, palette the row ramps, and a failed shell selection the shell sheet. A queued repair gets the repair presets first."""
+rule sheet, palette the row ramps, and a refused shell selection the shell sheet. A queued repair gets the repair presets first."""
 from datetime import datetime
 import json
 from pathlib import Path
-import re
 import subprocess
 import time
 
@@ -22,11 +21,8 @@ import guards
 from workspace import PYTHON
 
 RUNNER = Path(__file__).with_name('run_headbatch.py')
-COVERAGE = re.compile(r'Insufficient useful UV coverage \(([.\d]+) at 2K')
 PACKAGE_PINS = 'Python package file pins'
-DELETED_SHELLS = 'Deleted shells cover'
-SKIRT_GAP = .015
-WIDE_SKIRT_GAP = .03
+SKIRT_GAP = .03  # the default of headkit neck_policy
 READ_BACK_LIMIT = 1e-6
 POLL_SECONDS = 20
 STAGE_GATED_ON_ROWS = {'export', 'native', 'render'}
@@ -40,7 +36,8 @@ class Spool:
     def __init__(self, workspace, starter=None, tool=None, later=None):
         self.workspace = workspace
         self.folder = workspace.spool
-        for name in ('queue', 'approve', 'done', 'results'):
+        self.sheets = self.folder/'sheets'
+        for name in ('queue', 'approve', 'done', 'results', 'sheets'):
             (self.folder/name).mkdir(parents=True, exist_ok=True)
         path = self.folder/'state.json'
         self.state = json.loads(path.read_text()) if path.exists() else {'launches': {}, 'review': {}, 'attention': {}, 'retries': {}}
@@ -64,7 +61,7 @@ class Spool:
         self.log(f'ATTENTION {head} {stage}: {text}')
 
     def start_process(self, name, stages, head, approve, notes):
-        command = [PYTHON, '-B', str(RUNNER), '--workspace', str(self.workspace.root), 'run', name, stages, head, '--result', str(self.folder/'results'/f'{name}.json')]
+        command = self.command(['run', name, stages, head, '--result', self.folder/'results'/f'{name}.json'])
         if approve:
             command += ['--approve', approve, '--notes', notes or '']
         with open(self.folder/'results'/f'{name}.out', 'w', encoding='utf-8') as out:
@@ -81,16 +78,16 @@ class Spool:
         """Heavy sheets wait for a CPU slot in their own process, so the spooler keeps moving."""
         subprocess.Popen(self.command(['review', '--slot', *arguments]), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    def sheets(self):
-        folder = self.folder/'sheets'
-        folder.mkdir(exist_ok=True)
-        return folder
+    def draw(self, sheet, *arguments):
+        """A reused stage keeps the sheet it already has."""
+        if not sheet.exists():
+            self.later(*arguments)
 
     def launch(self, stages, head, approve=None, notes=None):
         name = f"sp-{stages.split(',')[0]}-{head}-{datetime.now():%H%M%S%f}"
         self.log(f"launch {name}: {stages}{f' --approve {approve}' if approve else ''} {head}")
         self.running[name] = self.starter(name, stages, head, approve, notes)
-        self.state['launches'][name] = {'done': False, 'started': clock(), 'head': head}
+        self.state['launches'][name] = {'started': clock(), 'head': head}
         return name
 
     def receipt(self, head, stage):
@@ -110,7 +107,7 @@ class Spool:
         pins = guards.read(self.workspace.head(head)/'manifest.json')['palette'].get('rows', {})
         return path.exists() and guards.read(path).get(head) == pins
 
-    def on_failure(self, head, stage, status):
+    def on_failure(self, head, stage):
         attempt, receipt = self.receipt(head, stage)
         error = str(receipt.get('error', ''))[:500]
         retries = self.state['retries']
@@ -119,7 +116,7 @@ class Spool:
             self.log(f'{head} {stage}: package pin failure, relaunching once')
             self.launch(stage, head)
             return
-        if stage == 'unwrap' and COVERAGE.search(error):
+        if stage == 'unwrap' and guards.COVERAGE.search(error):
             code, text = self.tool('presets', head, '--uv-only', '--apply')
             if code == 0:
                 self.log(f'{head} unwrap: {text[0]}')
@@ -127,14 +124,14 @@ class Spool:
             else:
                 self.attention(head, stage, f'{attempt}: {text[0]}')
             return
-        if stage == 'repair' and DELETED_SHELLS in error:
+        if stage == 'repair' and 'shells' in receipt.get('attempts', {}):  # a ShellReview refusal carries the shell table
             uncut = self.workspace.head(head)/'run'/'repair'/attempt/'master-uncut.glb'
             evidence = self.workspace.head(head)/'review-evidence'
             evidence.mkdir(exist_ok=True)
             if uncut.exists():
                 self.later('cutshells', head, uncut, evidence/f'cutshells-{attempt}.json', evidence/f'cutshells-{attempt}.png')
                 error += f' | cutshells queued: {evidence.name}/cutshells-{attempt}.png'
-        self.attention(head, stage, f'{status} {attempt}: {error or "no receipt error"}')
+        self.attention(head, stage, f'failed {attempt}: {error or "no receipt error"}')
 
     def on_success(self, head, stage):
         attempt, receipt = self.receipt(head, stage)
@@ -147,11 +144,11 @@ class Spool:
             self.later('bakeviews', head)
             self.review(head, stage, f'{attempt}: bakeviews queued: {head}/review-evidence/bake-tex.png, bake-grid.png')
         elif stage == 'ownership':
-            rules = self.sheets()/f'{head}-ownership.json'
-            sheet = self.sheets()/f'{head}-ownership-{attempt}.png'
+            rules = self.sheets/f'{head}-ownership-{attempt}.json'
+            sheet = rules.with_suffix('.png')
             rules.write_text(json.dumps(manifest['ownership'], indent=1), encoding='utf-8')
-            _, text = self.tool('review', 'own_draft', head, rules, sheet)
-            self.review(head, stage, f'{attempt}: {text[0]} | sheet {sheet}')
+            self.draw(sheet, 'own_draft', head, rules, sheet)
+            self.review(head, stage, f'{attempt}: rules sheet queued: {sheet}')
         elif stage == 'unwrap':
             passed, text = guards.unwrap_gates(result)
             if passed:
@@ -185,22 +182,20 @@ class Spool:
 
     def repair_evidence(self, head, attempt, manifest):
         folder = self.workspace.head(head)/'run'/'repair'/attempt
-        landmarks = guards.read(self.workspace.setting('landmarks')) if self.workspace.setting('landmarks') else None
         try:
-            guards.jaw(self.workspace.head(head), landmarks)
+            guards.jaw(self.workspace.head(head), self.workspace.landmarks())
             jaw = 'jaw OK'
         except guards.Refused as refusal:
             jaw = f'JAW FAIL - {refusal}'
-        sheet = self.sheets()/f'{head}-repair-{attempt}.png'
-        matrix = self.sheets()/f'{head}-fit-matrix.json'
+        sheet = self.sheets/f'{head}-repair-{attempt}.png'
+        matrix = self.sheets/f'{head}-fit-matrix.json'
         matrix.write_text(json.dumps(guards.fit_matrix(self.workspace.head(head))), encoding='utf-8')
-        self.tool('review', 'clay', sheet, f"uncut={folder/'master-uncut.glb'}", f"final={folder/'final.glb'}", '--matrix', matrix, '--views', 'back,left,bottom', '--size', '360')  # without the matrix "back" shows the face
-        text = f'{jaw} | sheet {sheet}'
+        self.draw(sheet, 'clay', sheet, f"uncut={folder/'master-uncut.glb'}", f"final={folder/'final.glb'}", '--matrix', matrix, '--views', 'back,left,bottom', '--size', '360')  # without the matrix "back" shows the face
+        text = f'{jaw} | sheet queued: {sheet}'
         skirt = manifest['mesh'].get('neck', {}).get('cut', {}).get('skirt')
         if skirt is not None:  # the skirt's hair zone at its gap beside 3 cm, so a kept generated neck shows (RUNBOOK 113)
-            zone = self.sheets()/f'{head}-skirtzone-{attempt}.png'
-            gap = skirt.get('gap', SKIRT_GAP)
-            self.tool('review', 'skirtzone', head, attempt, zone, gap, *([] if gap == WIDE_SKIRT_GAP else [WIDE_SKIRT_GAP]))
+            zone = self.sheets/f'{head}-skirtzone-{attempt}.png'
+            self.draw(zone, 'skirtzone', head, attempt, zone, *sorted({skirt.get('gap', SKIRT_GAP), SKIRT_GAP}))
             text += f' | skirt zone {zone}'
         return text
 
@@ -219,33 +214,41 @@ class Spool:
                     self.on_success(row['id'], stage)
                     ran = True
                 elif status == 'failed':
-                    self.on_failure(row['id'], stage, status)
+                    self.on_failure(row['id'], stage)
                     ran = False
                 elif status.startswith('blocked') and not ran:
                     self.attention(row['id'], stage, f'{status} in {name}')
 
     def scan_launches(self):
-        for name, info in list(self.state['launches'].items()):
-            if info['done']:
-                continue
+        for name in list(self.state['launches']):
             path = self.folder/'results'/f'{name}.json'
             process = self.running.get(name)
-            if path.exists():
-                info['done'] = True
+            if path.exists() or process is None or process.poll() is not None:
+                del self.state['launches'][name]
                 self.running.pop(name, None)
-                self.handle(name, json.loads(path.read_text(encoding='utf-8')))
-            elif process is None or process.poll() is not None:
-                info['done'] = True
-                self.running.pop(name, None)
-                self.attention(name, 'launch', 'the launch ended without a result: see its .out file (RUNBOOK 117)')
+                if path.exists():
+                    self.handle(name, json.loads(path.read_text(encoding='utf-8')))
+                else:
+                    self.attention(name, 'launch', 'the launch ended without a result: see its .out file (RUNBOOK 117)')
 
     def retire(self, path):
         path.rename(self.folder/'done'/f'{datetime.now():%H%M%S%f}-{path.name}')
 
+    def launch_reviewed(self, head, stages, label, approve, notes):
+        if self.rows_unreviewed(head, stages):
+            self.attention(head, label, 'REFUSED: palette rows are not in reviewed-rows.json (RUNBOOK 112)')
+            return False
+        self.launch(stages, head, approve, notes)
+        return True
+
     def scan_requests(self):
+        self.scan_approvals()
+        self.scan_queue()
+
+    def scan_approvals(self):
+        landmarks = self.workspace.landmarks()
         for path in sorted((self.folder/'approve').glob('*.json')):
             request = guards.read(path)
-            landmarks = guards.read(self.workspace.setting('landmarks')) if self.workspace.setting('landmarks') else None
             for head in request['heads']:
                 try:
                     if request['approve'] == 'repair':
@@ -253,13 +256,12 @@ class Spool:
                 except guards.Refused as refusal:
                     self.attention(head, 'repair', str(refusal))
                     continue
-                if self.rows_unreviewed(head, request['next']):
-                    self.attention(head, request['next'], 'REFUSED: palette rows are not in reviewed-rows.json (RUNBOOK 112)')
-                    continue
-                self.launch(request['next'], head, request['approve'], request.get('notes'))
-                self.state['review'].pop(f"{head}/{request['approve']}", None)
-                self.state['attention'].pop(f"{head}/{request['approve']}", None)
+                if self.launch_reviewed(head, request['next'], request['next'], request['approve'], request.get('notes')):
+                    self.state['review'].pop(f"{head}/{request['approve']}", None)
+                    self.state['attention'].pop(f"{head}/{request['approve']}", None)
             self.retire(path)
+
+    def scan_queue(self):
         for path in sorted((self.folder/'queue').glob('*.json')):
             raw = path.read_text(encoding='utf-8')
             request = json.loads(raw)
@@ -273,10 +275,7 @@ class Spool:
                     if code:
                         self.attention(head, 'repair', f'presets: {text[0]}')
                         continue
-                if self.rows_unreviewed(head, request['stages']):
-                    self.attention(head, request['stages'].split(',')[0], 'REFUSED: palette rows are not in reviewed-rows.json (RUNBOOK 112)')
-                    continue
-                self.launch(request['stages'], head, request.get('approve'), request.get('notes'))
+                self.launch_reviewed(head, request['stages'], request['stages'].split(',')[0], request.get('approve'), request.get('notes'))
             if path.exists():
                 self.retire(path)
 
@@ -292,11 +291,18 @@ class Spool:
         self.scan_requests()
         self.report()
 
+    def wait(self):
+        """Up to POLL_SECONDS, ending when a launch finishes, so a numeric gate advances without idling a slot."""
+        for _ in range(POLL_SECONDS):
+            time.sleep(1)
+            if any(process.poll() is not None for process in self.running.values()):
+                return
+
     def loop(self, once=False):
         self.log('spool start')
         while not (self.folder/'STOP').exists():
             self.step()
             if once:
                 break
-            time.sleep(POLL_SECONDS)
+            self.wait()
         self.log('spool stop')

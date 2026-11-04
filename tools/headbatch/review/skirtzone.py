@@ -1,18 +1,15 @@
 """skirtzone.py HEAD_DIR ATTEMPT OUT.png GAP...: the neck cut skirt's hair zone (neck.neck_cut: below the plane down to depth,
 more than GAP outside the body neck, outside the front cone) on the repair's uncut master, for each GAP: front and left
 views, kept skirt hair red, the rest of the below-plane surface grey (removed), above the plane light. Read-only."""
-import json, sys
+import sys
 import numpy as np
 from PIL import Image, ImageDraw
 import headkit.neck as N
-from headkit.gltf import mesh
+from _frame import head_neck, local_positions
 head, attempt, out = sys.argv[1:4]; gaps = [float(g) for g in sys.argv[4:]]
-man = json.load(open(head+'/manifest.json')); st = json.load(open(head+'/run/state.json'))['stages']
-fit = man['fit']['matrix'] if 'matrix' in man['fit'] else json.load(open(st['fit']['path']))['result']['matrix']
-pol = N.neck_policy(man['mesh']['neck'], {'matrix': fit, 'reviewed': True}); cut = pol['cut']; skirt = cut['skirt']
-bv, bf = N.body_neck(head+'/'+man['inputs']['bodyNeck']['path'])
-m = mesh(f'{head}/run/repair/{attempt}/master-uncut.glb'); V, F = N.physical(m['positions'], m['faces']); L = N.transform(pol['frame'], V)
-if cut['height'] == 'measured': cut['height'] = N.jaw_line(L, bv, bf, cut['reach'], cut['slope'], cut['searchBottom'], cut.get('cone'))['height']-cut['clearance']
+man, pol, bv, bf = head_neck(head); cut = pol['cut']; skirt = cut['skirt']
+L = local_positions(pol, f'{head}/run/repair/{attempt}/master-uncut.glb')
+if cut['height'] == 'measured': cut['height'] = N.measured_jaw(L, bv, bf, cut)['height']-cut['clearance']
 above = L[:, 2]-(cut['height']+cut['slope']*L[:, 1]); region = np.flatnonzero((above >= -skirt['depth']) & (above < cut['band']))
 low = max(float(bv[:, 2].min())+1e-4, float(L[:, 2].min())); high = float(bv[:, 2].max())-1e-4
 _, surface, offset = N.body_profile(bv, bf, low, high)(L[region], L[region, 2]); dist = np.linalg.norm(offset, axis=1)-surface; ang = N.face_angle(offset)

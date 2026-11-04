@@ -8,6 +8,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import guards  # noqa: E402
+from head_files import write_json  # noqa: E402
 import head_setup  # noqa: E402
 import launcher  # noqa: E402
 import presets  # noqa: E402
@@ -37,7 +38,7 @@ def show_presets(workspace, args):
         if args.apply:
             line, hold = presets.apply(workspace, head, args.uv_only)
         else:
-            _, notes, reasons = presets.plan(workspace, head, args.uv_only)
+            _, notes, reasons, _ = presets.plan(workspace, head, args.uv_only)
             line, hold = presets.summary(head, notes, reasons), bool(reasons)
         print(line)
         held = held or hold
@@ -85,7 +86,7 @@ def parser():
     commands.add_parser('status', help='one line per head: newest stage and what it waits for')
     p = commands.add_parser('review', help='a review sheet or diagnostic from tools/headbatch/review, run in the heads folder')
     p.add_argument('--slot', action='store_true', help='wait for a CPU slot first')
-    p.add_argument('tool', choices=sorted(path.stem for path in REVIEW.glob('*.py') if path.stem != '__init__'))
+    p.add_argument('tool', choices=sorted(path.stem for path in REVIEW.glob('*.py') if not path.stem.startswith('_')))
     p.add_argument('arguments', nargs=argparse.REMAINDER)
     p = commands.add_parser('env', help='run a script with headkit and the bound packages on the path')
     p.add_argument('script')
@@ -102,7 +103,7 @@ def run_stages(workspace, args):
     except (launcher.LaunchFailed, subprocess.CalledProcessError) as error:
         outcome['error'] = str(error)
     if args.result:
-        args.result.write_text(json.dumps(outcome, indent=1)+'\n', encoding='utf-8', newline='\n')
+        write_json(args.result, outcome)
     for row in outcome.get('heads', []):
         print(row['id'], row['error'], ' '.join(f"{item['stage']}:{item['status']}" for item in row['stages']))
     if 'refused' in outcome or 'error' in outcome:

@@ -6,9 +6,10 @@ from pathlib import Path
 head = Path(next(a for a in sys.argv[1:] if not a.startswith('--')))
 from headkit import neck, mesh as meshmod
 from headkit.common import read
+from headbatch.head_files import fit_matrix
 man = json.load(open(head/'manifest.json')); st = read(head/'run/state.json')['stages']; b = read(head/'bindings.json')
 source = read(st['precluster']['path'])['result']['output']
-fit = dict(man['fit'], reviewed=True) if 'matrix' in man['fit'] else dict(man['fit'], matrix=read(st['fit']['path'])['result']['matrix'], reviewed=True); fit.pop('matrixFrom', None)  # explicit refit matrix first
+fit = dict(man['fit'], matrix=fit_matrix(head), reviewed=True); fit.pop('matrixFrom', None)
 policy = dict(man['mesh']); policy.pop('components', None)  # force the refusal so the full table is reported
 inspection = dict(policy.get('shellInspection', {}), sourceSha256=source['sha256'])
 body = head/man['inputs']['bodyNeck']['path'] if (policy.get('neck') or {}).get('cut') else None
@@ -67,7 +68,7 @@ if body is not None and captured:
     import numpy as np
     V = np.asarray(captured['vertices'], float); cut_policy = neck.neck_policy(man['mesh']['neck'], {'matrix': fit['matrix'], 'reviewed': True})
     bv, bf = neck.body_neck(str(body)); L = neck.transform(cut_policy['frame'], V); cut = cut_policy['cut']
-    jaw = neck.jaw_line(L, bv, bf, cut['reach'], cut['slope']); h = jaw['height']-cut['clearance']
+    jaw = neck.measured_jaw(L, bv, bf, cut); h = jaw['height']-cut['clearance']
     plane = h+cut['slope']*L[:, 1]; band = L[(L[:, 2]-plane) < cut['band']]; top = np.maximum(band[:, 2], h+cut['slope']*band[:, 1]).max()
     low, high = bv[:, 2].min(), bv[:, 2].max()
     print('neck cut: slope', cut['slope'], 'band top %.4f' % top, 'body neck top %.4f' % high, 'OK' if top < high else 'FAIL: lower the slope magnitude (the band at the nape is above the body neck)')

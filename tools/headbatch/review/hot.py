@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 from headkit.common import library
 from headkit.gltf import mesh
+from headbatch.head_files import fit_matrix
 from headkit.mesh import physical
 from headkit.neck import BASIS, transform
 head, att, out = sys.argv[1:4]
@@ -17,7 +18,7 @@ d2 = np.sqrt(igl.point_mesh_squared_distance(c.astype(float), a.astype(float), a
 print('diag', round(diag, 4), 'master->final max %.4f%% p99 %.4f%% p99.9 %.4f%%' % (d1.max()*100, np.percentile(d1, 99)*100, np.percentile(d1, 99.9)*100),
       'final->master max %.4f%%' % (d2.max()*100), 'master verts', len(a))
 for t in (.003, .004, .006, .008, .01): print(f' >{t*100:.1f}%: {(d1 > t).sum()}')
-man = json.load(open(head+'/manifest.json')); st = json.load(open(head+'/run/state.json'))['stages']; M = np.array(man['fit']['matrix'] if 'matrix' in man['fit'] else json.load(open(st['fit']['path']))['result']['matrix']); L = transform(M @ BASIS, a)
+M = np.array(fit_matrix(head)); L = transform(M @ BASIS, a)
 hot = np.flatnonzero(d1 > .004)
 # cluster hot by 1 cm grid connectivity (simple greedy)
 left = list(hot[np.argsort(-d1[hot])]); used = set(); cl = []

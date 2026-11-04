@@ -1,18 +1,15 @@
 """jaw.py HEAD_DIR [UNCUT]: dry-run the measured jaw line / cut band of the current toolkit neck cut (read-only)."""
 import glob, json, sys
-from pathlib import Path
 import numpy as np
 import headkit.neck as N
-from headkit.gltf import mesh
+from _frame import head_neck, local_positions
 head = sys.argv[1]
 uncut = sys.argv[2] if len(sys.argv) > 2 else sorted(glob.glob(head+'/run/repair/attempt-*/master-uncut.glb'))[-1]
-man = json.load(open(head+'/manifest.json')); st = json.load(open(head+'/run/state.json'))['stages']
-fit = man['fit']['matrix'] if 'matrix' in man['fit'] else json.load(open(st['fit']['path']))['result']['matrix']
-neck = N.neck_policy(man['mesh']['neck'], {'matrix': fit, 'reviewed': True}); bv, bf = N.body_neck(head+'/'+man['inputs']['bodyNeck']['path'])
-m = mesh(uncut); V, F = N.physical(m['positions'], m['faces']); L = N.transform(neck['frame'], V)
+man, neck, bv, bf = head_neck(head)
+L = local_positions(neck, uncut)
 cut = dict(neck['cut']); print('cut', {k: v for k, v in cut.items() if k != 'notes'})
 print('head local bounds', L.min(0).round(4), L.max(0).round(4), 'body z', bv[:, 2].min().round(4), bv[:, 2].max().round(4))
-jaw = N.jaw_line(L, bv, bf, cut['reach'], cut['slope']); print('jaw', jaw)
+jaw = N.measured_jaw(L, bv, bf, cut); print('jaw', jaw)
 h = jaw['height']-cut['clearance']; plane = h+cut['slope']*L[:, 1]; above = L[:, 2]-plane; mv = above < cut['band']
 ha = np.maximum(L[mv, 2], plane[mv]); print('plane h', round(h, 4), 'band height_at', ha.min().round(4), ha.max().round(4))
 i = np.argmax(ha); print('highest band vertex', L[mv][i].round(4))

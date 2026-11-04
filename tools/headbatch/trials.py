@@ -1,11 +1,10 @@
 """Client trial specs and builds: both sexes of one race in one module, on the workspace's base HAKs."""
-import hashlib
-import json
 from pathlib import Path
 import shutil
 import subprocess
 
 import guards
+from head_files import sha, write_json
 import launcher
 from workspace import PYTHON, RACE_DATA, TOOLS, prefix
 
@@ -15,12 +14,7 @@ ALTERNATE_HAIR_ROWS = (65, 5, 21)
 
 
 def pin(path):
-    return {'path': Path(path).as_posix(), 'sha256': hashlib.sha256(Path(path).read_bytes()).hexdigest()}
-
-
-def latest(head, stage):
-    found = guards.attempts(head, stage)
-    return found[-1] if found else None
+    return {'path': Path(path).as_posix(), 'sha256': sha(path)}
 
 
 def rows_with_alternates(chosen, others):
@@ -32,7 +26,7 @@ def head_entry(workspace, name, slot):
     natives = [attempt/'native' for attempt in guards.attempts(head, 'native') if (attempt/'native').is_dir()]
     if not natives:
         return None
-    rows = guards.read(latest(head, 'palette')/'receipt.json')['result']['rows']
+    rows = guards.read(guards.attempts(head, 'palette')[-1]/'receipt.json')['result']['rows']
     # metalRow 0: the game shows stock metal row 0 on heads without armour; palette metal pins only steer previews.
     return {'id': name, 'model': slot, 'native': natives[-1].as_posix(), 'skinRows': rows_with_alternates(rows['0'], ALTERNATE_SKIN_ROWS),
             'hairRows': rows_with_alternates(rows['1'], ALTERNATE_HAIR_ROWS), 'tattoo1Row': rows.get('8', 0), 'tattoo2Row': rows.get('9', 0), 'metalRow': 0, 'helmets': []}
@@ -54,8 +48,7 @@ def write_spec(workspace, race, version):
             'base': {'haks': [pin(workspace.path(hak)) for hak in base['haks']], 'module': pin(workspace.path(base['module'])), 'actorIdentity': base['actorIdentity']},
             'heads': heads}
     out = workspace.root/'specs'/f'trial-{race}-v{version}.json'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(spec, indent=1)+'\n', encoding='utf-8', newline='\n')
+    write_json(out, spec)
     return out, len(heads)
 
 

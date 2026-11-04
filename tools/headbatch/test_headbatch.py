@@ -174,14 +174,14 @@ class Locks(Base):
         path = self.root/'locks/gpu'
         path.mkdir(parents=True)
         waits = []
-        with launcher.lock(path.parent/'other', 'me', 1, waits.append):
+        with launcher.lock(lambda: [path.parent/'other'], 'me', waits.append):
             pass
         self.assertEqual(waits, [])
 
         def free(_):
             waits.append(1)
             path.rmdir()
-        with launcher.lock(path, 'me', 1, free):
+        with launcher.lock(lambda: [path], 'me', free):
             self.assertEqual((path/'owner').read_text(), 'me')
         self.assertEqual(waits, [1])
         self.assertFalse(path.exists())
@@ -331,10 +331,16 @@ class Presets(Base):
         head = self.head()
         self.overrides(head, {})
         self.receipt(head, 'unwrap', 1, {'result': RECEIPT_RESULT})
-        overrides, notes, hold = presets.plan(self.workspace, head.name, uv_only=True)
+        overrides, notes, hold, changed = presets.plan(self.workspace, head.name, uv_only=True)
+        self.assertTrue(changed)
         self.assertEqual(overrides['mesh']['uv']['minimumCoverage'], .29)
         self.assertEqual(hold, [])
         self.assertIn('uv floor', notes[0])
+
+    def test_coverage_reads_both_refusal_messages(self):
+        for text in ('Insufficient useful UV coverage (0.281 at 2K, padding 8)', 'Insufficient useful UV coverage after face priority (0.281 at 2K)'):
+            self.assertEqual(guards.coverage({'error': text}), .281)
+        self.assertIsNone(guards.coverage({'error': 'something else'}))
 
     def test_uv_floor_holds_under_the_minimum(self):
         head = self.head()
@@ -357,7 +363,7 @@ class Presets(Base):
         workspace = self.marks(head)
         self.overrides(head, {'slope': -.2, 'reach': .08})
         results = {.08: {'jaw': .05, 'band': 0, 'top': 1, 'ok': True}, .06: {'jaw': .05, 'band': 0, 'top': 1, 'ok': True}, .04: {'jaw': .03, 'band': 0, 'top': 1, 'ok': True}, .03: {'jaw': .02, 'band': 0, 'top': 1, 'ok': True}}
-        overrides, _, hold = presets.plan(workspace, head.name, scan=self.scan(results))
+        overrides, _, hold, _ = presets.plan(workspace, head.name, scan=self.scan(results))
         self.assertEqual(overrides['mesh']['neck']['cut']['reach'], .04)
         self.assertEqual(hold, [])
 
@@ -382,7 +388,7 @@ class Presets(Base):
 
 class Review(Base):
     def test_every_tool_documents_itself_and_needs_no_batch_names(self):
-        tools = [path for path in (HERE/'review').glob('*.py') if path.stem != '__init__']
+        tools = [path for path in (HERE/'review').glob('*.py') if not path.stem.startswith('_')]
         self.assertGreaterEqual(len(tools), 18)
         for path in tools:
             with self.subTest(path.name):
@@ -531,10 +537,24 @@ class SpoolTests(Base):
         head = self.head(manifest={'mesh': {'neck': {'cut': {'skirt': {'gap': .02}}}}, 'fit': {'matrix': [[1, 0, 0, 0]]}, 'palette': {}})
         self.receipt(head, 'repair', 1, {'result': {}})
         self.finish(stage='repair')
-        self.assertEqual([call[1] for call in self.tools], ['clay', 'skirtzone'])
-        self.assertEqual(self.tools[1][-2:], (.02, .03))
-        self.assertEqual(json.loads(self.tools[0][self.tools[0].index('--matrix')+1].read_text()), [[1, 0, 0, 0]])
+        self.assertEqual([call[0] for call in self.queued], ['clay', 'skirtzone'])
+        self.assertEqual(self.queued[1][-2:], (.02, .03))
+        self.assertEqual(json.loads(self.queued[0][self.queued[0].index('--matrix')+1].read_text()), [[1, 0, 0, 0]])
         self.assertIn('skirt zone', self.spool.state['review']['elf-male-a/repair']['text'])
+
+    def test_skirt_default_gap_is_the_toolkits(self):
+        head = self.head(manifest={'mesh': {'neck': {'cut': {'skirt': {}}}}, 'fit': {'matrix': [[1, 0, 0, 0]]}, 'palette': {}})
+        self.receipt(head, 'repair', 1, {'result': {}})
+        self.finish(stage='repair')
+        self.assertEqual(self.queued[1][-1:], (.03,))
+        self.assertNotIn(.015, self.queued[1])
+
+    def test_a_reused_stage_keeps_its_sheet(self):
+        head = self.head()
+        self.receipt(head, 'repair', 1, {'result': {}})
+        write(self.workspace.spool/'sheets/elf-male-a-repair-attempt-01.png')
+        self.finish('reused', 'repair')
+        self.assertEqual(self.queued, [])
 
     def test_bake_queues_views_and_ownership_draws_its_rules(self):
         head = self.head()
@@ -543,8 +563,8 @@ class SpoolTests(Base):
         self.assertEqual(self.queued, [('bakeviews', 'elf-male-a')])
         self.receipt(head, 'ownership', 1, {'result': {}})
         self.finish(stage='ownership')
-        self.assertEqual(self.tools[-1][:3], ('review', 'own_draft', 'elf-male-a'))
-        self.assertEqual(json.loads(self.tools[-1][3].read_text())['mode'], 'rules')
+        self.assertEqual(self.queued[-1][:2], ('own_draft', 'elf-male-a'))
+        self.assertEqual(json.loads(self.queued[-1][2].read_text())['mode'], 'rules')
 
     def test_palette_draws_the_row_ramps(self):
         head = self.head()
@@ -565,7 +585,7 @@ class SpoolTests(Base):
 
     def test_shell_failure_queues_the_shell_sheet(self):
         head = self.head()
-        self.receipt(head, 'repair', 1, {'error': 'Deleted shells cover too much'})
+        self.receipt(head, 'repair', 1, {'error': 'Master has 3 separate shells', 'attempts': {'shells': {'count': 3}}})
         write(head/'run/repair/attempt-01/master-uncut.glb')
         self.finish('failed', 'repair')
         self.assertEqual(self.queued[0][:2], ('cutshells', 'elf-male-a'))

@@ -4,13 +4,14 @@ Plans per head; apply writes overrides.json with notes and regenerates the manif
 1. Fine relief: workspace repairDefaults {"fineRelief": {...}, "skipRaces": [...]} on heads that do not declare one.
 2. UV floor: when the newest unwrap cleared its floor by under .01, floor = coverage - .011 rounded down to .01, never under .20.
 3. Neck cut jaw: slopescan at the declared slope and reach; if the jaw is above the chin limit, the largest reach of .06/.04/.03 that passes."""
-import json
+import copy
 import math
 from pathlib import Path
 import re
 import subprocess
 
 import guards
+from head_files import write_json
 import head_setup
 from workspace import PYTHON
 
@@ -18,7 +19,6 @@ SLOPESCAN = Path(__file__).with_name('review')/'slopescan.py'
 UV_MINIMUM = .20
 REACHES = (.06, .04, .03)
 SCAN = re.compile(r'jaw z ([-+.\d]+) y ([-+.\d]+) band top ([-+.\d]+) body neck top ([-+.\d]+) (OK|FAIL)')
-REPORT_ONLY = ('jaw OK', 'jaw reviewed', 'no landmarks')
 
 
 def slopescan(workspace, head, slope, reach):
@@ -37,12 +37,8 @@ def uv_floor(head, mesh, uv_only, notes, hold):
         if not (attempt/'receipt.json').exists():
             continue
         receipt = guards.read(attempt/'receipt.json')
-        failed = re.search(r'Insufficient useful UV coverage \(([.\d]+) at 2K', str(receipt.get('error', '')))
-        if receipt.get('result'):
-            coverage = receipt['result']['pixelAudits']['2048']['coverageFraction']
-        elif failed:
-            coverage = float(failed[1])
-        else:
+        coverage = guards.coverage(receipt)
+        if coverage is None:
             continue
         if coverage < floor+guards.UV_MARGIN:
             new = math.floor((coverage-.011)*100)/100
@@ -61,7 +57,7 @@ def jaw_reach(workspace, head, cut, limit, notes, hold, scan):
     if (head/'jaw-reviewed').exists():
         notes.append('jaw reviewed visually')
         return
-    slope, reach = cut.get('slope', -.3), cut.get('reach', .08)
+    slope, reach = cut.get('slope', 0.), cut.get('reach', .04)  # the defaults of headkit neck_policy
     first = scan(workspace, head, slope, reach)
     if first['jaw'] <= limit and first['ok']:
         notes.append(f"jaw OK at reach {reach} (z {first['jaw']*100:.1f} <= {limit*100:.1f} cm)")
@@ -80,10 +76,11 @@ def jaw_reach(workspace, head, cut, limit, notes, hold, scan):
 
 
 def plan(workspace, name, uv_only=False, scan=slopescan):
-    """(overrides, notes, hold). uv_only is the path after an approved repair: fine relief and the cut are repair keys, and changing them stales it (RUNBOOK 106)."""
+    """(overrides, notes, hold, changed). uv_only is the path after an approved repair: fine relief and the cut are repair keys, and changing them stales it (RUNBOOK 106)."""
     head = workspace.head(name)
     overrides = guards.read(head/'overrides.json') if (head/'overrides.json').exists() else {}
     mesh = overrides.setdefault('mesh', {})
+    before = copy.deepcopy(overrides)
     notes, hold = [], []
     defaults = workspace.data.get('repairDefaults', {})
     if not uv_only and defaults.get('fineRelief') and 'fineRelief' not in mesh and name.split('-')[0] not in defaults.get('skipRaces', []):
@@ -91,13 +88,13 @@ def plan(workspace, name, uv_only=False, scan=slopescan):
         notes.append('fineRelief from workspace repairDefaults')
     uv_floor(head, mesh, uv_only, notes, hold)
     cut = None if uv_only else mesh.get('neck', {}).get('cut')
-    landmarks = guards.read(workspace.setting('landmarks')) if workspace.setting('landmarks') else None
+    landmarks = workspace.landmarks()
     limit = guards.jaw_limit(head, landmarks) if cut else None
     if cut and limit is not None:
         jaw_reach(workspace, head, cut, limit, notes, hold, scan)
     elif cut:
         notes.append('no landmarks: jaw not checked (visual review)')
-    return overrides, notes, hold
+    return overrides, notes, hold, overrides != before
 
 
 def summary(name, notes, hold):
@@ -106,9 +103,9 @@ def summary(name, notes, hold):
 
 def apply(workspace, name, uv_only=False, scan=slopescan, check=head_setup.validate):
     """Returns (summary, held). Overrides change only when a policy actually changed something."""
-    overrides, notes, hold = plan(workspace, name, uv_only, scan)
-    if any(not note.startswith(REPORT_ONLY) for note in notes):
+    overrides, notes, hold, changed = plan(workspace, name, uv_only, scan)
+    if changed:
         head = workspace.head(name)
-        (head/'overrides.json').write_text(json.dumps(overrides, indent=1)+'\n', encoding='utf-8', newline='\n')
+        write_json(head/'overrides.json', overrides)
         head_setup.write_manifest(workspace, name, check)
     return summary(name, notes, hold), bool(hold)
