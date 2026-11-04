@@ -15,6 +15,10 @@ class RiggedContractTests(Fixture):
             with self.subTest(family=family), self.assertRaisesRegex(ValueError,'reviewed skinned_native adapter'):
                 runner._execute('export',self.root/'unwritten',parent_results={})
         runner.worker.assert_not_called()
+        runner.family={'family':'shield'}
+        with self.assertRaisesRegex(ValueError,'reviewed shield_native adapter'):
+            runner._execute('export',self.root/'unwritten',parent_results={})
+        runner.worker.assert_not_called()
         self.assertFalse((self.root/'unwritten').exists())
 
     def qualified(self,family):

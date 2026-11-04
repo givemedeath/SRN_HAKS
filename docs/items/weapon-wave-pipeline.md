@@ -33,6 +33,8 @@ table or Human motion overrides into the production packs.
   with their qualified rig, weights and inactive placeholders. The generic
   rigid Runner exporter rejects those families before writing output; it does
   not provide automatic skin-weight transfer or a complete rigged package route.
+  Shields likewise use `shield_native` to retain their separate pane material;
+  the generic rigid exporter rejects that route before writing output.
 - Keep one-handed firearm motion additive and private. Fixture repair retains
   save/reload environment resources, waits for a valid player area and clears
   queued reviewer actions before staging.

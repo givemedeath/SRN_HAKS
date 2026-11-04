@@ -228,6 +228,9 @@ class Runner:
             return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'],
                                texture=parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'])
         if stage == 'export':
+            require(self.family['family'] != 'shield',
+                    'Shield native export requires the reviewed shield_native adapter; '
+                    'the rigid Runner exporter cannot preserve the pane material contract')
             require(self.family['family'] not in ('bow','whip','crossbow'),
                     'Rigged native export requires the reviewed skinned_native adapter and inactive placeholders; '
                     'the rigid Runner exporter cannot preserve skin weights or animation')
