@@ -1,6 +1,7 @@
 """Generation-only objects must not acquire native weapon authority."""
 import unittest
 import os
+from pathlib import Path
 from unittest.mock import patch
 from PIL import Image
 from tools.headkit.common import pin, write, verification_pass
@@ -65,7 +66,7 @@ class CatalogObjectTests(Fixture):
         self.data['inputs']['calibrationReference'] = {'path':image.name,'sha256':pin(image)['sha256']}
         with patch('tools.itemkit.generation.analyze_reference',return_value={'route':'preserve-alpha'}) as analyze:
             self.assertEqual(calibration_background_decision(self.path,self.data), {'route':'preserve-alpha'})
-            self.assertEqual(analyze.call_args.args[0],str(image))
+            self.assertEqual(Path(analyze.call_args.args[0]).resolve(),image.resolve())
         self.assertIn('calibrationReference',contracts.stage_roles('calibrate'))
         self.assertNotIn('calibrationReference',contracts.stage_roles('geometry'))
 

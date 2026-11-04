@@ -97,7 +97,7 @@ class DonorTests(unittest.TestCase):
              patch('tools.itemkit.donor.build',return_value={'baked':True}) as bake:
             self.assertEqual(runner._execute('donor',self.root/'stage'),{'baked':True})
             self.assertEqual(unwrap.call_args.kwargs['topology_policy'],'sampling-surface-v1')
-            self.assertEqual(bake.call_args.args[0],str(self.source))
+            self.assertEqual(Path(bake.call_args.args[0]).resolve(),self.source.resolve())
     def test_transformed_or_reversed_source_cannot_sample_original_field(self):
         for label,vertices,faces in (('translated',self.v+[0,1,0],self.f),('reversed',self.v,self.f[:,::-1])):
             path=self.root/(label+'.glb');write_mesh(path,vertices,faces,self.uv)
