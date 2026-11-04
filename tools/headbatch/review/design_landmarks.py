@@ -111,7 +111,8 @@ if __name__ == '__main__':
     result = json.loads((out/'landmarks.json').read_text()) if (out/'landmarks.json').exists() else {}
     for head in heads:
         rgb, mask, path = design(head); marks = override.get(head) or detect(rgb, mask)
-        if marks is None: result[head] = {'error': 'no pupil pair detected'}; print(head, 'no pupil pair'); continue
+        if marks is None:  # on disk at once: the old marks must not stand in for a failed refresh
+            result[head] = {'error': 'no pupil pair detected'}; print(head, 'no pupil pair'); (out/'landmarks.json').write_text(json.dumps(result, indent=1)); continue
         p = positions(head); fm, depth, span, c = front(p); scale, ox, oy = register(mask, fm)
         if 'front' in marks:  # reviewed on the mesh view: coarse marks refined on the surface, then expressed as design pixels
             refined = marks['front'] if '--no-refine' in args else refine(marks['front'], depth); marks = {k: [v[0]*scale+ox, v[1]*scale+oy] for k, v in refined.items()}

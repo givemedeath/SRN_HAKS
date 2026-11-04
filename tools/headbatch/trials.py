@@ -1,5 +1,5 @@
 """Client trial specs and builds: both sexes of one race in one module, on the workspace's base HAKs."""
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import shutil
 import subprocess
 
@@ -29,12 +29,21 @@ def completed(head, stage):
     return None
 
 
+def consumed(head, attempt, stage):
+    """The attempt of stage that a receipt was built from. By folder name, because a head can be copied away from where it ran; receipts hold Windows paths."""
+    row = guards.read(attempt/'receipt.json')['dependencies'].get(stage)
+    if row is None:
+        raise guards.Refused(f'{head.name}: {attempt.parent.name} {attempt.name} consumed no {stage} stage, so its palette rows are unknown')
+    return head/'run'/stage/PureWindowsPath(row['path']).parent.name
+
+
 def head_entry(workspace, name, slot):
     head = workspace.head(name)
-    native, palette = completed(head, 'native'), completed(head, 'palette')
-    if native is None or palette is None or not (native/'native').is_dir():
+    native = completed(head, 'native')
+    if native is None or not (native/'native').is_dir():
         return None
-    rows = guards.read(palette/'receipt.json')['result']['rows']
+    # The rows of the palette this HAK holds: a palette rerun after this native has other shades (RUNBOOK 195).
+    rows = guards.read(consumed(head, consumed(head, native, 'export'), 'palette')/'receipt.json')['result']['rows']
     # metalRow 0: the game shows stock metal row 0 on heads without armour; palette metal pins only steer previews.
     return {'id': name, 'model': slot, 'native': (native/'native').as_posix(), 'skinRows': rows_with_alternates(rows['0'], ALTERNATE_SKIN_ROWS),
             'hairRows': rows_with_alternates(rows['1'], ALTERNATE_HAIR_ROWS), 'tattoo1Row': rows.get('8', 0), 'tattoo2Row': rows.get('9', 0), 'metalRow': 0, 'helmets': []}

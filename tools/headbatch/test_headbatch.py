@@ -456,10 +456,11 @@ class Trials(Base):
         head = workspace.head('elf-male-a')
         (head/'run/native/attempt-01/native').mkdir(parents=True)
         (head/'run/native/attempt-02/native').mkdir(parents=True)
-        self.receipt(head, 'native', 1, {'state': 'complete'})
+        self.receipt(head, 'native', 1, {'state': 'complete', 'dependencies': {'export': {'path': 'S:\\elsewhere\\run\\export\\attempt-01\\receipt.json'}}})
         self.receipt(head, 'native', 2, {'state': 'failed'})
+        self.receipt(head, 'export', 1, {'state': 'complete', 'dependencies': {'palette': {'path': 'S:\\elsewhere\\run\\palette\\attempt-01\\receipt.json'}}})
         self.receipt(head, 'palette', 1, {'state': 'complete', 'result': {'rows': {'0': 3, '1': 5, '9': 33}}})
-        self.receipt(head, 'palette', 2, {'state': 'failed', 'error': 'no rows'})
+        self.receipt(head, 'palette', 2, {'state': 'complete', 'result': {'rows': {'0': 40, '1': 41}}})  # rerun after the native: not in its HAK
         out, count = trials.write_spec(workspace, 'elf', '2')
         spec = json.loads(out.read_text())
         self.assertEqual(count, 1)
@@ -480,6 +481,14 @@ class Trials(Base):
         spec = json.loads(trials.write_spec(Workspace.load(self.root), 'elf', 1)[0].read_text())
         self.assertEqual(spec['gameRoot'], (self.root/'game').as_posix())
         self.assertEqual(spec['client'], (self.root/'game/client').as_posix())
+
+    def test_a_native_with_no_palette_lineage_is_refused(self):
+        head = self.workspace.head('elf-male-a')
+        (head/'run/native/attempt-01/native').mkdir(parents=True)
+        self.receipt(head, 'native', 1, {'state': 'complete', 'dependencies': {'export': {'path': 'run/export/attempt-01/receipt.json'}}})
+        self.receipt(head, 'export', 1, {'state': 'complete', 'dependencies': {}})
+        with self.assertRaisesRegex(guards.Refused, 'palette rows are unknown'):
+            trials.head_entry(self.workspace, 'elf-male-a', 'pme0_head020')
 
     def test_spec_needs_the_trial_settings(self):
         with self.assertRaisesRegex(guards.Refused, 'trialBase'):
