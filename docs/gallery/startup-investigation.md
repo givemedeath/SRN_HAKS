@@ -34,6 +34,12 @@ and source models remain byte-identical. Imported production SET files are still
 LF in the repository; these sheet tests do not establish that their unmodified
 production metadata loads safely in a consumer module.
 
+**Update 2026-11-04:** all 18 production tileset SET files are now stored as CRLF
+blobs, per SR_NWN decision D414. A server boot on SR_NWN's pinned stack crashed in
+`CResSET::CreateSectionTable`, and the same module loaded server-side after four
+SET files changed from LF to CRLF. That spike did not isolate which of the four
+caused the crash, and it does not establish client, rendering or door behavior.
+
 Operational fixtures, full logs, runtime bindings, and launch receipts remain
 ignored. Compact hashes and observations are recorded in
 `test-modules/srn_gallery/startup-validation.json`. Full visual client inspection,

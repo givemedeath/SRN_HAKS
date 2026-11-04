@@ -135,9 +135,72 @@ class SharedToolsTests(unittest.TestCase):
         register_run(self.repo,inputs=[durable],provenance=[required],complete=True)
         self.assertTrue(retirement_audit(self.repo,self.link)['dependencyClear'])
         required.unlink();self.assertTrue(retirement_audit(self.repo,self.link)['dependencyClear'])
-        durable.unlink();self.assertTrue(retirement_audit(self.repo,self.link)['missingDependencies'])
+        durable.write_bytes(b'unrelated changed bytes')
+        with patch('shared_tools.sha',side_effect=AssertionError('Unrelated changed file was hashed')):
+            self.assertTrue(retirement_audit(self.repo,self.link)['knownDependenciesClear'])
+        durable.unlink()
+        with patch('shared_tools.sha',side_effect=AssertionError('Unrelated file was hashed')):
+            report=retirement_audit(self.repo,self.link)
+        self.assertFalse(report['missingDependencies'])
+        self.assertTrue(report['knownDependenciesClear'])
+        self.assertEqual(report['outsideTargetReferencesNotVerified'],1)
         register_run(self.repo,inputs=[],complete=False)
-        self.assertTrue(retirement_audit(self.repo,self.link)['incompleteConsumers'])
+        report=retirement_audit(self.repo,self.link)
+        self.assertTrue(report['incompleteConsumers'])
+        self.assertTrue(report['dependencyClear'])
+        self.assertFalse(report['safeToRetire'])
+
+    def test_retirement_unregistered_worktree_is_advisory_not_consensus_veto(self):
+        report=retirement_audit(self.repo,self.link)
+        self.assertIn(str(self.repo),report['incompleteConsumers'])
+        self.assertTrue(report['incompleteConsumersAreAdvisory'])
+        self.assertTrue(report['knownDependenciesClear'])
+        self.assertTrue(report['ownerArchiveAndRemovalApprovalRequired'])
+        self.assertFalse(report['safeToRetire'])
+
+    def test_retirement_target_drift_and_missing_still_block_with_fresh_bytes(self):
+        required=self.link/'borrowed';required.write_bytes(b'first')
+        register_run(self.repo,inputs=[required],complete=True)
+        self.assertFalse(retirement_audit(self.repo,self.link)['changedDependencies'])
+        stamp=required.stat();required.write_bytes(b'other')
+        os.utime(required,ns=(stamp.st_atime_ns,stamp.st_mtime_ns))
+        report=retirement_audit(self.repo,self.link)
+        self.assertEqual(len(report['changedDependencies']),1)
+        self.assertFalse(report['knownDependenciesClear'])
+        required.unlink()
+        report=retirement_audit(self.repo,self.link)
+        self.assertEqual(len(report['missingDependencies']),1)
+        self.assertFalse(report['dependencyClear'])
+
+    def test_retirement_hashes_shared_target_once_but_checks_conflicting_pins(self):
+        required=self.link/'borrowed';required.write_bytes(b'input')
+        register_run(self.repo,inputs=[required],complete=True)
+        third=self.base/'third';self.git('worktree','add','--detach',str(third))
+        (third/'tools').mkdir();write_json(third/'tools/shared-tools.lock.json',self.data)
+        register_run(third,inputs=[required],complete=True)
+        identity=hashlib.sha256(os.path.normcase(str(third)).encode()).hexdigest()
+        current=self.bank/'consumers'/identity/'current.json'
+        record=read_json(current);record['references'][0]['sha256']='0'*64;write_json(current,record)
+        with patch('shared_tools.sha',side_effect=sha) as hashing:
+            report=retirement_audit(self.repo,self.link)
+        self.assertEqual(hashing.call_count,1)
+        self.assertEqual(report['distinctTargetFilesHashed'],1)
+        self.assertEqual(len(report['dependencies']),2)
+        self.assertEqual(len(report['changedDependencies']),1)
+
+    def test_retirement_detects_outside_alias_into_target(self):
+        required=self.link/'borrowed';required.write_bytes(b'input')
+        register_run(self.repo,inputs=[required],complete=True)
+        alias=self.repo/'target-alias'
+        if os.name=='nt':
+            subprocess.run(['cmd','/c','mklink','/J',str(alias),str(self.link)],check=True,capture_output=True)
+        else:alias.symlink_to(self.link,target_is_directory=True)
+        identity=hashlib.sha256(os.path.normcase(str(self.repo)).encode()).hexdigest()
+        current=self.bank/'consumers'/identity/'current.json'
+        record=read_json(current);record['references'][0]['path']=str(alias/'borrowed');write_json(current,record)
+        report=retirement_audit(self.repo,self.link)
+        self.assertEqual(len(report['dependencies']),1)
+        self.assertFalse(report['dependencyClear'])
 
     def test_windows_case_or_linux_case_is_platform_correct(self):
         self.assertEqual(inside(self.repo/'first',str(self.repo).upper()),os.name=='nt')
