@@ -9,8 +9,11 @@ from .contracts import all_pins, code_pins, family, manifest, source_version, ev
 from .generation import request_stage, shared_ledger, initialize_trial, set_trial_limit
 
 
+COUGAR_INTAKE_IDS = ('cougar-fineblade-longblade', 'cougar-fineblade-longsword', 'cougar-fineblade-knife')
+
+
 def intake(reference, output, design_id='cougar-fineblade-longblade', family_name='shortsword'):
-    import re
+    import hashlib, re
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', design_id), 'Safe item ID required')
     require(family_name in ('shortsword', 'dagger', 'longsword', 'firearm-sling'), 'Supported intake family required')
     if family_name == 'firearm-sling':
@@ -36,6 +39,11 @@ def intake(reference, output, design_id='cougar-fineblade-longblade', family_nam
             'b':{'visible':1200,'shadow':100},'m':{'visible':2300,'shadow':100},'t':{'visible':8500,'shadow':300}}}
         profile_data['resources'] = {'texturePrefix':'sr_cfs','blueprint':'sr_cfs','hak':'srn_cfs_test',
             'module':'sr_cfs_test','displayName':'Cougar Fineblade Longsword'}
+    if design_id not in COUGAR_INTAKE_IDS:
+        # The Cougar names are shipped identities, never defaults for a new design.
+        stem = 'sr'+hashlib.sha256(design_id.encode()).hexdigest()[:8]
+        profile_data['resources'] = {'texturePrefix':stem,'blueprint':stem,'hak':stem+'h','module':stem+'m',
+                                     'displayName':design_id.replace('-',' ').title()}
     write(output/'family.json', profile_data, fresh=True)
     data = read(Path(__file__).parent/'examples'/'cougar.json')
     data['id'] = design_id
@@ -154,12 +162,13 @@ def main():
     c = commands.add_parser('firearm-inputs'); c.add_argument('--bindings', type=Path, required=True)
     group = c.add_mutually_exclusive_group(required=True)
     group.add_argument('--spec', type=Path); group.add_argument('--prepared', type=Path); group.add_argument('--native', type=Path)
-    c.add_argument('--manifest', type=Path)
+    c.add_argument('--manifest', type=Path); c.add_argument('--compiler', type=Path)
     c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('firearm-prepare'); c.add_argument('--bindings', type=Path, required=True)
     c.add_argument('--spec', type=Path, required=True); c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('firearm-native'); c.add_argument('--bindings', type=Path, required=True)
     c.add_argument('--prepared', type=Path, required=True); c.add_argument('--output', type=Path, required=True)
+    c.add_argument('--compiler', type=Path)
     c = commands.add_parser('firearm-fixture'); c.add_argument('--bindings', type=Path, required=True)
     c.add_argument('--native', type=Path, required=True); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--output', type=Path, required=True)
@@ -216,7 +225,10 @@ def main():
                 pins = specification_inputs(a.spec) if a.spec else prepared_inputs(a.prepared)
             pins += code_pins()+[pin(a.bindings), pin(local['toolchain']), pin(local['migrationReceipt'])]
             pins += python_package_pins(local)+[local['python']]
-            if a.prepared: pins.append(local['client'])
+            require(a.compiler is None or a.prepared, '--compiler is only used with --prepared')
+            if a.prepared:
+                from .native import offline_compiler_inputs
+                pins += offline_compiler_inputs(read(a.compiler))+[pin(a.compiler)] if a.compiler else [local['client']]
             verify(pins)
         write(a.output, sorted({p['path'] for p in pins}), fresh=True)
         result = {'inputs': str(a.output), 'count': len({p['path'] for p in pins})}
@@ -225,7 +237,8 @@ def main():
         result = prepare(a.spec, a.output)
     elif a.command == 'firearm-native':
         from .firearm_package import compile_package
-        result = compile_package(a.prepared, bindings(a.bindings)['client'], a.output)
+        result = compile_package(a.prepared, bindings(a.bindings)['client'], a.output,
+                                 compiler=read(a.compiler) if a.compiler else None)
     elif a.command == 'firearm-fixture':
         from .firearm_package import native_inputs
         from .fixture import build

@@ -52,6 +52,20 @@ class ShadowTests(unittest.TestCase):
             legacy=build_candidates(source,profile,{'shadowProxies':{'m':settings}},root/'legacy')['m']
             self.assertEqual(legacy['policyHash'],digest({'settings':settings,'openingProbes':[],'budget':100}))
 
+    def test_part_scoped_probe_is_not_measured_on_another_part(self):
+        p,f=ring()
+        profile={'family':'shortsword','budgets':{'parts':{'m':{'shadow':100}}}}
+        settings={'method':'projected-silhouette','resolution':128}
+        probe={'name':'blade-wall','points':[[-.05,9,0],[.05,9,0]],'minimum':.08,'maximumSampleError':.002,'parts':['t']}
+        processing={'shadowProxies':{'m':settings},'thicknessProbes':[probe]}
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);source=root/'source.npz';np.savez(source,m_positions=p,m_faces=f)
+            candidate=build_candidates(source,profile,processing,root/'scoped')['m']
+            self.assertEqual(candidate['policyHash'],digest({'settings':settings,'openingProbes':[],'budget':100}))
+            unscoped={**processing,'thicknessProbes':[{k:v for k,v in probe.items() if k!='parts'}]}
+            with self.assertRaisesRegex(ValueError,'thickness'):
+                build_candidates(source,profile,unscoped,root/'rejected')
+
     def test_ring_opening_budget_and_rotated_frame(self):
         p,f=ring();before=p.copy();basis=np.array([[0,-1,0],[1,0,0],[0,0,1]],float);origin=np.array([1,2,3])
         start=np.array([-.2,0,0])@basis.T+origin;end=np.array([.2,0,0])@basis.T+origin

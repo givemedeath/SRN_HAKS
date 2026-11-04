@@ -167,6 +167,9 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
     for part, name in preparation['allocation']['models'].items():
         binary = converted/'resources'/f'{name}.mdl'
         clean, audits[part] = sanitize_and_audit(binary, name, preparation['texture'], preparation['expected'][part])
+        from .firearm_native import mesh_flags
+        require(mesh_flags(clean, name) == {name+'v': {'render': 1, 'shadow': 0},
+                                           name+'s': {'render': 0, 'shadow': 1}}, 'Incorrect native visibility flags')
         binary.write_bytes(clean)
     archive = archive_helpers(); resources = sorted((converted/'resources').iterdir())
     require(all(p.suffix in ('.mdl', '.tga') for p in resources), 'Unexpected package resources')

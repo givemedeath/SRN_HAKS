@@ -52,6 +52,16 @@ class FirearmPackageTests(unittest.TestCase):
             offline.assert_called_once();process.assert_not_called()
         self.assertFalse((self.root/'native/compiler-userdir').exists())
 
+    def test_skinned_package_without_compiler_stops_before_output(self):
+        self.prepare()
+        prepared=read(self.output/'prepared.json')
+        with patch.object(firearm_package,'read',return_value={**prepared,'skin':{'rig':'rig'}}), \
+             patch.object(firearm_package.subprocess,'run') as process:
+            with self.assertRaisesRegex(ValueError,'qualified offline compiler'):
+                firearm_package.compile_package(self.output,pin(self.table),self.root/'native')
+            process.assert_not_called()
+        self.assertFalse((self.root/'native').exists())
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)

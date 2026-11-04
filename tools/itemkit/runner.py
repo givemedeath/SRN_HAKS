@@ -35,6 +35,26 @@ def attempt_snapshot(receipt):
                   | {'inputs': sorted({(str(row['path']), row['sha256']) for row in receipt.get('inputs', [])})})
 
 
+GRIP_BOUND_FAMILIES = ('shortsword', 'dagger', 'longsword', 'greatsword')
+
+
+def run_logged(command, log, timeout, **options):
+    """Run a launcher, retain its output, and stop its whole process tree on timeout."""
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **options)
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        # The launcher runs Blender as its own child, which Popen.kill alone would orphan.
+        if os.name == 'nt':
+            subprocess.run(['taskkill', '/T', '/F', '/PID', str(process.pid)], capture_output=True,
+                           creationflags=subprocess.CREATE_NO_WINDOW)
+        process.kill(); stdout, stderr = process.communicate()
+        log.write_text(stdout+'\n'+stderr, encoding='utf-8')
+        raise
+    log.write_text(stdout+'\n'+stderr, encoding='utf-8')
+    return process.returncode
+
+
 class Runner:
     def __init__(self, manifest_path, bindings_path, run, *, runtime=None, evidence=None):
         self.manifest_path = Path(manifest_path).resolve(); self.bindings_path = Path(bindings_path).resolve()
@@ -151,10 +171,9 @@ class Runner:
                    '--toolchain', self.local['toolchain'], '--migration-receipt', self.local['migrationReceipt'],
                    '--tool', 'blender', '--output', str(folder/'worker-launch'), '--input-manifest', str(inputs),
                    '--', '--python', str(Path(__file__).parent/'blender_worker.py'), '--', '--config', str(target)]
-        result = subprocess.run(command, capture_output=True, text=True, timeout=2700,env=blender_environment(self.local),
+        returncode = run_logged(command, folder/'blender.log', 2700, env=blender_environment(self.local),
                                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-        (folder/'blender.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
-        require(result.returncode == 0, 'Blender worker failed; inspect retained log')
+        require(returncode == 0, 'Blender worker failed; inspect retained log')
         # Worker inputs are stage inputs or this stage's own outputs; execute()'s completion audit rereads them fresh.
         verify(config['inputs']); return read(folder/'worker'/'result.json')
 
@@ -173,8 +192,9 @@ class Runner:
                 require(image.format == 'PNG' and min(image.size) >= 512, 'Use a PNG reference at least 512 pixels on each axis')
                 info = {'size': list(image.size), 'mode': image.mode}
             shutil.copyfile(source, target)
-            return {'reference': pin(target), 'geometryAndAppearanceUseSameReference': True,
-                    'clayReferenceRequired': False, 'image': info, 'cameraReviewPending': True}
+            clay = self.data.get('conditioning', 'detailed-v1') == 'clay-detail-v1'
+            return {'reference': pin(target), 'geometryAndAppearanceUseSameReference': not clay,
+                    'clayReferenceRequired': clay, 'image': info, 'cameraReviewPending': True}
         if stage == 'inspect':
             return self.worker('inspect', folder, source=self.input('geometryRaw'))
         if stage == 'donor':
@@ -190,6 +210,8 @@ class Runner:
             return build(sampling,uv['uvMesh']['path'],field,self.data['processing'].get('sourceFieldPolicy'),folder/'donor')
         if stage == 'fit':
             require(self.family['nativePackaging'] == 'enabled', 'Fitting requires a measured native contract')
+            if self.family['family'] in GRIP_BOUND_FAMILIES or self.data.get('fit', {}).get('sizingAuthority') == 'midpoint-depth-two-hand':
+                require('gripStandard' in self.data['inputs'], 'Bind the approved grip standard before fitting this weapon')
             donor = self.input('texturedDonor'); review = self.data.get('approval', {}).get('texturedDonor', {})
             require(review.get('decision') == 'approved' and review.get('sha256') == pin(donor)['sha256']
                     and review.get('notes', '').strip(), 'Review this exact generated textured donor before fitting')

@@ -3,7 +3,8 @@ import copy
 import unittest
 import tempfile
 from pathlib import Path
-from tools.itemkit.fixture import field, place_review_actors, entry_script, audit_module_payload
+from unittest.mock import patch
+from tools.itemkit.fixture import field, place_review_actors, entry_script, audit_module_payload, require_unshadowed
 
 
 class PlacementTests(unittest.TestCase):
@@ -32,6 +33,17 @@ class PlacementTests(unittest.TestCase):
                         'Race': field('byte', 6), 'Gender': field('byte', gender), 'Appearance_Type': field('word', 15100),
                         'BodyPart': field('byte', 7), 'ScriptHeartbeat': field('resref', 'sr_it_hb')}
                        for tag, gender in (('sr_it_male', 0), ('sr_it_female', 1))]
+
+    def test_bound_hak_cannot_shadow_candidate_resources(self):
+        class Archive:
+            @staticmethod
+            def payload(path):
+                return {'candidate':{('sr_a',2017):'1',('baseitems',2017):'2'},'other':{('baseitems',2017):'3'},
+                        'clean':{('sr_b',2017):'4'}}[path]
+        with patch('tools.itemkit.native.archive_helpers',return_value=Archive):
+            require_unshadowed({'path':'candidate'},{'path':'clean'},'clean')
+            with self.assertRaisesRegex(ValueError,'shadows candidate'):
+                require_unshadowed({'path':'candidate'},{'path':'other'},'other')
 
     def test_both_bodies_embedded_without_mutating_donors(self):
         before = copy.deepcopy(self.actors)

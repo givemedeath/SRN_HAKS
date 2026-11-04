@@ -192,7 +192,7 @@ def build(manifest_path, manifest, native, local, output):
     require(not any(row['Mod_Hak']['value'] == hak_name for row in haks), 'Fixture already has candidate HAK')
     for name, bound in local.get('comparisonHaks', {}).items():
         resref(name); verify([bound]); inputs.append(bound)
-        require(not any(row['Mod_Hak']['value']==name for row in haks), 'Comparison HAK collision')
+        require(name != hak_name and not any(row['Mod_Hak']['value']==name for row in haks), 'Comparison HAK collision')
         haks.append({'__struct_id':8,'Mod_Hak':field('cexostring',name)})
     haks.append({'__struct_id': 8, 'Mod_Hak': field('cexostring', hak_name)})
     ifo['Mod_OnClientEntr'] = field('resref', 'sr_it_enter')
@@ -268,6 +268,7 @@ def build(manifest_path, manifest, native, local, output):
         from .contracts import resref
         name = resref(row['Mod_Hak']['value']); bound = {**local.get('fixtureHaks', {}), **local.get('comparisonHaks', {})}.get(name)
         require(bound is not None, 'Missing bound fixture dependency HAK: '+name); verify([bound]); inputs.append(bound)
+        require_unshadowed(native['hak'], bound, name)
         shutil.copyfile(bound['path'], userdir/'hak'/(name+'.hak'))
     verify(inputs, fresh=True)
     result = {'module': pin(module), 'hak': pin(userdir/'hak'/(hak_name+'.hak')),
@@ -282,6 +283,14 @@ def build(manifest_path, manifest, native, local, output):
         result['variantBlueprints'] = [bound for _, bound in variants]
     write(output/'fixture.json', result, fresh=True)
     return result
+
+
+def require_unshadowed(candidate, other, name):
+    """The candidate HAK is listed last, so any HAK above it wins a shared resource."""
+    from .native import archive_helpers
+    archive = archive_helpers()
+    shared = sorted(set(archive.payload(candidate['path'])) & set(archive.payload(other['path'])))
+    require(not shared, 'Bound HAK '+name+' shadows candidate resources: '+str(shared[:5]))
 
 
 def validate_evidence(path, fixture):

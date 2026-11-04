@@ -23,7 +23,9 @@ def build_candidates(source, profile, processing, output):
             p=data[part+'_positions'];f=data[part+'_faces']
             budget=profile['budgets']['parts'][part]['shadow'];probes=processing.get('openingProbes',[])
             protected={'openingProbes':probes}
-            if processing.get('thicknessProbes'):protected['thicknessProbes']=processing['thicknessProbes']
+            # Probes are measured on the assembly; `parts` scopes one to the parts it touches.
+            thickness=[row for row in processing.get('thicknessProbes',[]) if part in row.get('parts',[part])]
+            if thickness:protected['thicknessProbes']=thickness
             v,t,checks=silhouette_proxy(p,f,protected,budget,policy,diagnostics=root/(part+'-attempts'))
             target=root/(part+'.npz');np.savez_compressed(target,positions=v,faces=t)
             candidates[part]={'arrays':pin(target),'sourceCornerHash':hashlib.sha256(np.asarray(p[f],dtype='<f8').tobytes()).hexdigest(),

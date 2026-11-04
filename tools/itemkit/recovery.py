@@ -38,7 +38,7 @@ def prepare_recovery(proof_path, policy_path, output):
     proof=read(proof_path);policy=read(policy_path)
     inputs=[proof_pin,policy_pin]+recovery_inputs(proof)+code_pins()
     require(policy.get('method')=='nearest-finished-donor' and 0<policy.get('maximumDistance',0)<=.003
-            and 0<policy.get('minimumNormalAlignment',0)<=1, 'Explicit bounded donor correction policy required')
+            and .5<=policy.get('minimumNormalAlignment',0)<=1, 'Explicit bounded donor correction policy required')
     root=Path(output).resolve();root.mkdir(parents=True,exist_ok=False)
     cfg={'stage':'recover-bake','scene':proof['sourceScene']['path'],'recoveryProof':proof_pin['path'],
          'family':proof['family'],'processing':{**proof['processing'],'missCorrection':policy},

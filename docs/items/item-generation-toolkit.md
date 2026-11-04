@@ -60,6 +60,12 @@ to the approved grip JSON. Dagger profiles use the measured installed dagger
 contract, not copied shortsword donor dimensions. Optional family `resources`
 supplies `texturePrefix`, `blueprint`, `hak`, `module` and `displayName`; collision
 checks include both model/icon appearances and explicit texture/blueprint names.
+A design ID other than the three Cougar IDs receives its own hashed `sr<8 hex>`
+resources from intake, never a shipped Cougar identity. Shortsword, dagger,
+longsword and greatsword fitting, and any `midpoint-depth-two-hand` fit, refuse an
+unbound `inputs.gripStandard`. The fixture refuses a comparison HAK named like the
+candidate and any bound HAK sharing a resource with it, because the candidate is
+listed last and would lose that resource.
 Longsword profiles verify BaseItem1 / WSwLs / ModelType2 against the effective
 stack, use separately measured native donors, and start at a recorded12K visible
 budget. Private fixtures accept `inputs.comparisonBlueprint` and additional
@@ -85,7 +91,9 @@ Use `firearm-inputs --spec SPEC --bindings BINDINGS --output INPUTS` before the
 verified launcher invokes `firearm-prepare --spec SPEC --output FRESH`.
 For compilation, use `firearm-inputs --prepared PREPARED --bindings BINDINGS
 --output INPUTS`, then launch `firearm-native --prepared PREPARED --output FRESH`.
-Both mutating commands also require `--bindings BINDINGS`.
+Both mutating commands also require `--bindings BINDINGS`. A skinned crossbow
+needs the qualified offline compiler: pass `--compiler COMPILER_JSON` to both
+`firearm-inputs --prepared` and `firearm-native`.
 For the private fixture, enumerate `firearm-inputs --native NATIVE_JSON --manifest
 ASSET --bindings BINDINGS --output INPUTS`, then launch `firearm-fixture --native
 NATIVE_JSON --manifest ASSET --bindings BINDINGS --output FRESH`. The asset supplies

@@ -704,6 +704,7 @@
       "tools/itemkit/firearm_package.py",
       "tools/itemkit/fixture.py",
       "tools/itemkit/generation.py",
+      "tools/itemkit/native.py",
       "tools/itemkit/profiles/cougar-shortsword.json",
       "tools/itemkit/resize.py",
       "tools/itemkit/runner.py"
@@ -813,6 +814,7 @@
       "tools/headkit/native_reader.py",
       "tools/heads/verify_head_hak.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_native.py",
       "tools/itemkit/geometry.py",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",

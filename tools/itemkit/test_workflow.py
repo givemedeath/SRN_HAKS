@@ -1,6 +1,10 @@
 """Dagger identity, operation-local verification and calibrated grip regressions."""
 from pathlib import Path
+import os
+import subprocess
+import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 import numpy as np
@@ -40,6 +44,23 @@ class VerificationTests(unittest.TestCase):
             p.write_bytes(b'xyz')
             with self.assertRaisesRegex(ValueError,'Stale'):VerificationPass().verify([row])
 
+    def test_caught_stale_pin_does_not_poison_the_current_pin(self):
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/'data';p.write_bytes(b'abc');old=pin(p);p.write_bytes(b'xyz');audit=VerificationPass()
+            with self.assertRaisesRegex(ValueError,'Stale'):audit.verify([old])
+            audit.verify([pin(p)])
+
+    @unittest.skipUnless(os.name=='nt','Windows process tree')
+    def test_timeout_stops_the_launched_child_and_keeps_the_log(self):
+        from tools.itemkit.runner import run_logged
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);marker=root/'marker';log=root/'blender.log'
+            child=f"import pathlib,time;time.sleep(3);pathlib.Path({str(marker)!r}).write_text('late')"
+            parent=f"import subprocess,sys;subprocess.run([sys.executable,'-B','-c',{child!r}])"
+            with self.assertRaises(subprocess.TimeoutExpired):
+                run_logged([sys.executable,'-B','-c',parent],log,1)
+            self.assertTrue(log.exists());time.sleep(3.5);self.assertFalse(marker.exists())
+
     def test_new_pass_rereads_same_size_rewrite_with_restored_timestamp(self):
         import os
         with tempfile.TemporaryDirectory() as folder:
@@ -67,6 +88,16 @@ class VerificationTests(unittest.TestCase):
 
 
 class DaggerTests(Fixture):
+    def test_new_design_never_inherits_a_shipped_cougar_identity(self):
+        for name,family_name in (('other-knife','dagger'),('other-sword','longsword'),('other-blade','shortsword')):
+            intake(self.root/'reference.png',self.root/name,name,family_name)
+            names=read(self.root/name/'family.json')['resources']
+            self.assertEqual(len(set(names.values())),4)
+            self.assertNotIn('Cougar',names['displayName'])
+            self.assertTrue(all(len(value)<=16 for key,value in names.items() if key!='displayName'))
+        kept=self.root/'knife';intake(self.root/'reference.png',kept,'cougar-fineblade-knife','dagger')
+        self.assertEqual(read(kept/'family.json')['resources']['blueprint'],'sr_cfk')
+
     def test_longsword_intake_contract_and_comparison_scope(self):
         intake(self.root/'reference.png',self.root/'long','cougar-fineblade-longsword','longsword')
         profile=read(self.root/'long/family.json')

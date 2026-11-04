@@ -198,7 +198,7 @@ def measure(objects, config, kind='visible'):
     report = protected_checks(v, f, config['processing'])
     report['geometryCornerHash']=hashlib.sha256(np.asarray(v[f],dtype='<f8').tobytes()).hexdigest()
     expected=config['processing'].get('missCorrection',{}).get('unorientedSourcePatch',{}).get('targetCornerHash')
-    if kind!='shadow' and expected:require(report['geometryCornerHash']==expected,'Visible assembly differs from the exact reviewed texture-patch geometry')
+    if kind=='visible' and expected:require(report['geometryCornerHash']==expected,'Visible assembly differs from the exact reviewed texture-patch geometry')
     report['topology'] = reports
     if kind: report['budget'] = assembly_budget(config['family'], counts, kind)
     return report
@@ -304,7 +304,8 @@ def reduce(cfg, out, shadow=False):
             require(candidate['sourceCornerHash']==hashlib.sha256(np.asarray(source_p[source_f],dtype='<f8').tobytes()).hexdigest(), 'Shadow candidate source changed')
             policy={'settings':proxy,'openingProbes':cfg['processing'].get('openingProbes',[]),
                     'budget':cfg['family']['budgets']['parts'][part]['shadow']}
-            if cfg['processing'].get('thicknessProbes'):policy['thicknessProbes']=cfg['processing']['thicknessProbes']
+            thickness=[row for row in cfg['processing'].get('thicknessProbes',[]) if part in row.get('parts',[part])]
+            if thickness:policy['thicknessProbes']=thickness
             require(candidate['policyHash']==digest(policy), 'Shadow candidate policy changed')
             with np.load(candidate['arrays']['path'],allow_pickle=False) as data:proxy_p=data['positions'];proxy_f=data['faces']
             proxy_reports[part]=candidate['checks']
@@ -502,7 +503,7 @@ def transfer_preflight(cfg, out, donor, low):
     dp,df=arrays(donor);tree=BVHTree.FromPolygons([Vector(row) for row in dp],df.tolist(),all_triangles=True)
     policy=cfg['processing'].get('missCorrection',{})
     maximum=policy.get('maximumDistance',.003);alignment=policy.get('minimumNormalAlignment',.5)
-    require(0<maximum<=.003 and 0<alignment<=1, 'Bounded preflight donor policy required')
+    require(0<maximum<=.003 and .5<=alignment<=1, 'Bounded preflight donor policy required')
     patch=policy.get('unorientedSourcePatch');allowed=set()
     if patch:
         allowed=validate_texture_patch(p[f],patch,maximum_distance=min(maximum,policy.get('maximumUnorientedDistance',.0021)))
@@ -673,8 +674,8 @@ def recover_bake(cfg,out):
 def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
     policy=cfg['processing'].get('missCorrection',{})
     require(policy.get('method')=='nearest-finished-donor','Visible bake misses require an explicit bounded donor correction; padding cannot repair them')
-    maximum=policy['maximumDistance'];alignment=policy['minimumNormalAlignment']
-    require(0<maximum<=.003 and 0<alignment<=1,'Bounded outward donor transfer required')
+    maximum=policy.get('maximumDistance',.003);alignment=policy.get('minimumNormalAlignment',.5)
+    require(0<maximum<=.003 and .5<=alignment<=1,'Bounded outward donor transfer required')
     y,x=np.nonzero(misses);ids=owners[y,x];size=len(owners);uv=uv_corners(low)[ids]
     p,f=arrays(low);tri=p[f[ids]];ab=uv[:,1]-uv[:,0];ac=uv[:,2]-uv[:,0];q=np.c_[(x+.5)/size,(y+.5)/size]-uv[:,0]
     det=ab[:,0]*ac[:,1]-ab[:,1]*ac[:,0];u=(q[:,0]*ac[:,1]-q[:,1]*ac[:,0])/det;v=(ab[:,0]*q[:,1]-ab[:,1]*q[:,0])/det
@@ -683,9 +684,7 @@ def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
     dp,df=arrays(donor);bvh=BVHTree.FromPolygons([Vector(row) for row in dp],df.tolist(),all_triangles=True)
     patch=policy.get('unorientedSourcePatch');patch_faces=set()
     if patch:
-        patch_bound=policy.get('maximumUnorientedDistance',.0021)
-        require(patch_bound<=maximum,'Texture patch qualification exceeds this transfer distance')
-        patch_faces=validate_texture_patch(p[f],patch,maximum_distance=patch_bound)
+        patch_faces=validate_texture_patch(p[f],patch,maximum_distance=min(maximum,policy.get('maximumUnorientedDistance',.0021)))
     locations=[];sources=[];distances=[];dots=[];unoriented=[];failed_faces=[]
     for face,point,normal in zip(ids,points,normals):
         candidates=[row for row in bvh.find_nearest_range(Vector(point),maximum) if np.dot(row[1],normal)>=alignment]

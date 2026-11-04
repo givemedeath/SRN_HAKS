@@ -41,6 +41,10 @@ use the maintained atlas lineage or qualify a custom packer's region evidence.
 
 ## General projected shadow route
 
+Thickness probes are measured on the whole assembly, but a shadow proxy measures
+only its own part. On a multipart item add `"parts": ["t"]` to scope a probe; a
+probe without `parts` applies to every proxied part.
+
 Set `processing.shadowProxies` by active native part, for example:
 
 ```json

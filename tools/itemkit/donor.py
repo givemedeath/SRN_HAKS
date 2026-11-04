@@ -180,7 +180,8 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
             require(image.size==(4096,4096),'Original4K baked donor colour required')
             original=np.asarray(image.convert('RGB')).copy()
         pixels=np.flipud(original).copy()
-        colours=sample_image(pixels.astype(float)/255,sample_uv,repeat=False,decode_srgb=True).reshape(-1,3,3)
+        # Raw glTF V runs top-down in the donor PNG; `pixels` is the sampler's bottom-up order.
+        colours=sample_image(pixels.astype(float)/255,sample_uv*[1,-1]+[0,1],repeat=False,decode_srgb=True).reshape(-1,3,3)
         changed=np.zeros((4096,4096),bool);patch_uv=[]
         for k,colour in enumerate(colours):
             x0=4074;y0=32+k*32;side=16
@@ -190,7 +191,7 @@ def add_source_matched_caps(source, texture, target, fit, diagnostic, local, out
             linear=colour[0]+u[:,:,None]*(colour[1]-colour[0])+w[:,:,None]*(colour[2]-colour[0])
             srgb=np.where(linear<=.0031308,12.92*linear,1.055*np.power(linear,1/2.4)-.055)
             pixels[yy,xx]=np.rint(np.clip(srgb,0,1)*255).astype(np.uint8);changed[yy,xx]=True
-            patch_uv.append([[x0/4096,y0/4096],[(x0+side)/4096,y0/4096],[x0/4096,(y0+side)/4096]])
+            patch_uv.append([[x0/4096,1-y0/4096],[(x0+side)/4096,1-y0/4096],[x0/4096,1-(y0+side)/4096]])
         require(np.array_equal(pixels[~changed],np.flipud(original)[~changed]),'Healthy donor RGB changed')
         inverse=np.linalg.inv(matrix);raw=(np.c_[points,np.ones(len(points))]@inverse.T)[:,:3]
         added=np.arange(len(v),len(v)+len(raw)).reshape(-1,3)

@@ -186,6 +186,7 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
         inputs = prepared_inputs(prepared_dir)+(offline_compiler_inputs(compiler) if compiler is not None else [client])
         verify(inputs)
         prepared = read(prepared_dir/'prepared.json')
+        require(compiler is not None or not prepared.get('skin'), 'Skinned crossbows require the qualified offline compiler')
     out = Path(output); out.mkdir(parents=True, exist_ok=False)
     converted = out/'converted'; shutil.copytree(prepared_dir, converted)
     if compiler is not None:
@@ -208,7 +209,6 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
     for variant in allocation['variants']:
         name = variant['models'][allocation['slot']]; target = res/(name+'.mdl')
         if prepared.get('skin'):
-            require(compiler is not None, 'Skinned crossbows require the qualified offline compiler')
             from tools.phenomorpher.phenomorpher.engine import neverblender_mdl
             from .skinned_native import audit as audit_skin
             decoded=out/(name+'-skin-readback.mdl')
