@@ -707,7 +707,8 @@
       "tools/itemkit/native.py",
       "tools/itemkit/profiles/cougar-shortsword.json",
       "tools/itemkit/resize.py",
-      "tools/itemkit/runner.py"
+      "tools/itemkit/runner.py",
+      "tools/itemkit/shield_native.py"
     ],
     "tools/itemkit/atlas.py": [
       "tools/headkit/common.py",
@@ -729,7 +730,9 @@
       "tools/itemkit/transfer.py"
     ],
     "tools/itemkit/client_fixture_repair.py": [
-      "tools/phenotypes/target_fixture.py"
+      "tools/headkit/common.py",
+      "tools/phenotypes/target_fixture.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/conditioning.py": [
       "tools/headkit/common.py",
@@ -807,7 +810,8 @@
       "tools/headkit/common.py"
     ],
     "tools/itemkit/grip.py": [
-      "tools/headkit/common.py"
+      "tools/headkit/common.py",
+      "tools/itemkit/firearm_grip.py"
     ],
     "tools/itemkit/native.py": [
       "tools/headkit/common.py",
@@ -869,6 +873,7 @@
       "tools/itemkit/fixture.py",
       "tools/itemkit/native.py",
       "tools/itemkit/parts.py",
+      "tools/itemkit/reduction.py",
       "tools/itemkit/shadow.py",
       "tools/itemkit/textures.py",
       "tools/itemkit/verification.py",
@@ -997,6 +1002,7 @@
       "docs/items/weapon-grip-standard-v1.json",
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_grip.py",
       "tools/itemkit/firearm_native.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/native.py",
@@ -1009,12 +1015,12 @@
       "tools/itemkit/__main__.py",
       "tools/itemkit/atlas.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/examples/firearm-sling-blocked.json",
       "tools/itemkit/fixture.py",
       "tools/itemkit/generation.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/native.py",
       "tools/itemkit/profiles/cougar-shortsword.json",
-      "tools/itemkit/profiles/firearm-sling.json",
       "tools/itemkit/runner.py",
       "tools/itemkit/textures.py",
       "tools/itemkit/transfer.py"

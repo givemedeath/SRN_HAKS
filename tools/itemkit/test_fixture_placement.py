@@ -4,7 +4,7 @@ import unittest
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
-from tools.itemkit.fixture import field, place_review_actors, entry_script, audit_module_payload, require_unshadowed
+from tools.itemkit.fixture import field, place_review_actors, entry_script, audit_module_payload, require_unshadowed, gff_float
 
 
 class PlacementTests(unittest.TestCase):
@@ -33,6 +33,11 @@ class PlacementTests(unittest.TestCase):
                         'Race': field('byte', 6), 'Gender': field('byte', gender), 'Appearance_Type': field('word', 15100),
                         'BodyPart': field('byte', 7), 'ScriptHeartbeat': field('resref', 'sr_it_hb')}
                        for tag, gender in (('sr_it_male', 0), ('sr_it_female', 1))]
+
+    def test_placement_float_survives_the_native_float32_roundtrip(self):
+        import struct
+        value=gff_float(7.9+1.5)['value']
+        self.assertEqual(struct.unpack('<f',struct.pack('<f',value))[0],value)
 
     def test_bound_hak_cannot_shadow_candidate_resources(self):
         class Archive:

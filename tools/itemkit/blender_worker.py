@@ -204,6 +204,10 @@ def measure(objects, config, kind='visible'):
     return report
 
 
+# The glTF importer maps (x,y,z) to (x,-z,y); fitMatrix acts on the imported coordinates.
+RAW_GLTF_TO_BLENDER = np.array([[1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1]], float)
+
+
 def fit(cfg, out):
     reset(); donor = import_source(cfg['source'], 'donor')
     # Measure the retained working mesh before transformation. Re-importing a
@@ -240,7 +244,13 @@ def fit(cfg, out):
                 raise
         elif two_hand_fit:
             from tools.itemkit.grip import two_hand_uniform
-            matrix,grip_report=two_hand_uniform(mv,mf,matrix,cfg['fit']['gripEndpoints'],cfg['family']['native']['gripOrigin'],standard)
+            from tools.itemkit.firearm_grip import GripDeparture
+            try:
+                matrix,grip_report=two_hand_uniform(mv,mf,matrix,cfg['fit']['gripEndpoints'],cfg['family']['native']['gripOrigin'],
+                                                    standard,cfg['fit'].get('gripDeparture'))
+            except GripDeparture as exc:
+                write(out/'grip-measurement.json',exc.report,fresh=True)
+                raise
         else:
             matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
     donor_fit = apply_fit(donor, matrix, out/'donor-fit-normals.npz')
@@ -265,7 +275,8 @@ def fit(cfg, out):
     donor.hide_render = True; donor.hide_set(True)
     if working != donor: working.hide_render = True; working.hide_set(True)
     report = measure(objects, cfg, kind=None)
-    report.update(fitMatrix=matrix.tolist(), gripLength=length, donorAndTargetTransformIdentical=True)
+    report.update(fitMatrix=matrix.tolist(), gripLength=length, donorAndTargetTransformIdentical=True,
+                  rawToNativeMatrix=(np.asarray(matrix,float)@RAW_GLTF_TO_BLENDER).tolist())
     report['affineApplication'] = {'donor': donor_fit, 'working': working_fit if working != donor else donor_fit}
     if grip_report is not None: report['gripCalibration']=grip_report
     bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'))
@@ -289,7 +300,7 @@ def reduce(cfg, out, shadow=False):
                     'Constrained candidate source or policy changed')
             verify([candidate['arrays']])
             with np.load(candidate['arrays']['path'],allow_pickle=False) as data:cp,cf=data['positions'],data['faces']
-            validate(source_p,cp,cf,budget,cfg['processing'].get('joinY',[]))
+            validate(source_p,source_f,cp,cf,budget,cfg['processing'].get('joinY',[]))
             mesh=bpy.data.meshes.new('constrained-visible-'+part);mesh.from_pydata(cp.tolist(),[],cf.tolist());mesh.update()
             for polygon in mesh.polygons:polygon.use_smooth=True
             mesh.use_auto_smooth=True
@@ -389,6 +400,7 @@ def unwrap(cfg, out):
         require(all(np.array_equal(old,corners(obj)) for old,obj in zip(before,objects)),'Atlas application changed final geometry')
         bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'))
         return {'atlas':pin(cfg['atlas']),'geometryUnchanged':True}
+    # Runner always supplies an atlas; only smoke_blender.py reaches this fallback.
     set_active(objects); bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=cfg['processing']['uvMargin'])
     bpy.ops.uv.pack_islands(rotate=True, margin=cfg['processing']['uvMargin'])

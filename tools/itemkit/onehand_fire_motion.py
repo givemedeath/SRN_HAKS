@@ -140,13 +140,13 @@ def build(stock_path, roots, output, fit_result):
     inputs = [Path(stock_path), *map(Path, roots), female_parent, Path(fit_result), Path(__file__)]
     hashes = {str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}
     weapon_frame = fitted_frame(json.loads(Path(fit_result).read_text()))
-    records = []
+    records = []; errors = []
     for root_path in map(Path, roots):
         original = root_path.read_bytes(); root = load_model(root_path, original)
         assert root['name'] in ('pmh0', 'pfh0') and root['format'] == 'binary'
         name = 'srf7_' + root['name']
         stance = (load_model(female_parent) if root['name'] == 'pfh0' else stock)['clips']['pause1']
-        custom, error = clips(stock, root, stance, weapon_frame)
+        custom, error = clips(stock, root, stance, weapon_frame); errors.append(error)
         geometry = rename(root['nodes'], root['name'], name)
         mapped = {n: {**c, 'nodes': rename(c['nodes'], root['name'], name)} for n, c in custom.items()}
         text = library_text(name, root['parent'], stock['scale'], geometry, mapped)
@@ -171,7 +171,7 @@ def build(stock_path, roots, output, fit_result):
                         'protectedRootBytesExact': True, 'barrelAimMaxDegrees': max(aim_errors),
                         'receiverUpMaxDegrees': max(up_errors)})
     assert all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == h for p, h in hashes.items())
-    result = {'inputs': hashes, 'roots': records, 'maxWristSolveError': error,
+    result = {'inputs': hashes, 'roots': records, 'maxWristSolveError': max(errors),
               'customClips': list(custom), 'hitEvents': custom['srf7fire']['events'],
               'changesBaseitems': False, 'clientValidated': False}
     (output.parent / (output.name + '-result.json')).write_text(json.dumps(result, indent=2))

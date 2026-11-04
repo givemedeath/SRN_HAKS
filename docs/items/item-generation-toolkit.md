@@ -65,7 +65,8 @@ resources from intake, never a shipped Cougar identity. Shortsword, dagger,
 longsword and greatsword fitting, and any `midpoint-depth-two-hand` fit, refuse an
 unbound `inputs.gripStandard`. The fixture refuses a comparison HAK named like the
 candidate and any bound HAK sharing a resource with it, because the candidate is
-listed last and would lose that resource.
+listed last and would lose that resource. A two-hand fit whose midpoint width departs
+over 5% needs a `gripDeparture` review tied to its `measurementDigest`.
 Longsword profiles verify BaseItem1 / WSwLs / ModelType2 against the effective
 stack, use separately measured native donors, and start at a recorded12K visible
 budget. Private fixtures accept `inputs.comparisonBlueprint` and additional
@@ -94,6 +95,12 @@ For compilation, use `firearm-inputs --prepared PREPARED --bindings BINDINGS
 Both mutating commands also require `--bindings BINDINGS`. A skinned crossbow
 needs the qualified offline compiler: pass `--compiler COMPILER_JSON` to both
 `firearm-inputs --prepared` and `firearm-native`.
+Shields use `shield-inputs --spec SPEC --bindings BINDINGS --output INPUTS`, then the
+launcher runs `shield-prepare --spec SPEC --output FRESH`; repeat `shield-inputs` with
+`--prepared PREPARED --compiler COMPILER_JSON` before `shield-native`. The spec holds
+`profile`, `arrays`, `texture`, `icon`, `impacts` and optional `evidence`, `appearance`
+and `alpha`. The 64x96 render is padded to the stock 64x128 canvas. Use
+`preflight --scope generation` with split generation bindings.
 For the private fixture, enumerate `firearm-inputs --native NATIVE_JSON --manifest
 ASSET --bindings BINDINGS --output INPUTS`, then launch `firearm-fixture --native
 NATIVE_JSON --manifest ASSET --bindings BINDINGS --output FRESH`. The asset supplies
@@ -223,7 +230,9 @@ Commands are `init-trial`, `prepare`, `request`, `submit`, `collect`, `reconcile
 Submission/collection commands use bindings and the shared ledger rather than a run.
 Use the same `--output` job directory for `submit` and `collect`: collection reads
 that directory's immutable `submission-intent.json`. A new collection directory
-cannot recover the submission contract. Preserve a failed-validation receipt and
+cannot recover the submission contract. A lost connection during completion is not a verdict: the job stays `submitted`
+and a repeat `collect` resumes from the retained history, even after a Comfy
+restart. Preserve a failed-validation receipt and
 its terminal ledger state; never reset history to retry a collection.
 Include immutable request or job-intent files with `inputs --extra` before dispatch
 or collection. Mutable ledger/state files are operational outputs, not frozen assets.

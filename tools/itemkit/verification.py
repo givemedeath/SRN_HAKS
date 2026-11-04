@@ -7,6 +7,7 @@ class VerificationPass:
     def __init__(self):
         self.hashes = {}
         self.expected = {}
+        self.resolved = {}
         self.results = {}
         self.receipts = {}
         self.code_version = None
@@ -14,7 +15,8 @@ class VerificationPass:
 
     def verify(self, rows):
         for row in rows:
-            path = str(Path(row['path']).resolve())
+            path = self.resolved.get(row['path'])
+            if path is None: path = self.resolved[row['path']] = str(Path(row['path']).resolve())
             expected = row['sha256']
             require(path not in self.expected or self.expected[path] == expected,
                     'Conflicting file pins: '+path)

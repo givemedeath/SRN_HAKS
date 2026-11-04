@@ -43,7 +43,9 @@ def unwrap_source(source,local,output,*,topology_policy='closed-solid-v1'):
     else:
         p=np.asarray(original['positions'],float)[original['faces']]
         areas=np.linalg.norm(np.cross(p[:,1]-p[:,0],p[:,2]-p[:,0]),axis=1)/2
-        bad=areas==0
+        # Later area gates see the stored float32 positions, so a face zero there is degenerate too.
+        single=np.asarray(original['positions'],np.float32)[original['faces']]
+        bad=(areas==0)|(np.linalg.norm(np.cross(single[:,1]-single[:,0],single[:,2]-single[:,0]),axis=1)==0)
         if bad.any():
             require(bad.mean()<.03 and areas.sum()>0,'Degenerate donor surface blocks UV/bake processing')
             keep=np.asarray(original['faces'])[~bad]
@@ -53,7 +55,7 @@ def unwrap_source(source,local,output,*,topology_policy='closed-solid-v1'):
                           normals=normals[used] if normals is not None else None,uv=original['uv'][~bad])
             sampling_source=output/'sampling-source.glb'
             write_mesh(sampling_source,original['positions'],original['faces'],original['uv'],original['normals'])
-            cleanup={'removedZeroAreaFaces':int(bad.sum()),'removedSurfaceArea':0.,'remainingCornersExact':True}
+            cleanup={'removedZeroAreaFaces':int(bad.sum()),'removedSurfaceArea':float(areas[bad].sum()),'remainingCornersExact':True}
     unwrapped,report=unwrap(original,local,output/'atlas')
     path=output/'source-uv.glb'
     write_mesh(path,unwrapped['positions'],unwrapped['faces'],unwrapped['uv'],unwrapped['normals'])

@@ -34,6 +34,8 @@ def family(path, *, validate_native=True):
     parts = ('whole',) if generation_only or shield else PARTS
     require(data.get('materialRoute') == 'diffuse', 'Only diffuse materials are qualified for this pilot')
     require(data.get('runtimeTextureSize') in (512, 1024, 2048), 'Unsupported runtime texture size')
+    if data['family'] in ('firearm-sling', 'firearm-crossbow', 'crossbow'):
+        require(data['runtimeTextureSize'] == 1024, 'The firearm package route is qualified for 1K diffuse only')
     require(data.get('bakeSize') == 4096, 'Source bake must be 4K')
     require(data.get('nativePackaging') in ('pending-contract', 'enabled', 'blocked'), 'Explicit native packaging state required')
     if generation_only:
@@ -243,6 +245,8 @@ def native_contract(path, data):
                 'Review changed Sling inventory dimensions')
     elif not shield:
         require(native['modelType'] == 2, 'Pilot requires a verified composite weapon contract')
+    if data['family'] == 'shortsword':
+        require(native['baseItem'] == 0 and native['itemClass'] == 'wswss', 'Shortsword contract must match native short sword')
     if data['family'] == 'dagger':
         require(native['baseItem'] == 22 and native['itemClass'] == 'wswdg', 'Dagger contract must match native dagger')
     if data['family'] == 'throwing-knife':
@@ -269,6 +273,7 @@ def native_contract(path, data):
                 and set(native.get('iconDonors',{}))==set(PARTS),'Greatsword logical icons and stock canvases required')
         for part in PARTS:
             require(re.fullmatch(r'wswgs_'+part+r'_\d{3}\.mdl',native['donors'][part].lower()),'Wrong Greatsword donor part')
+            require(re.fullmatch(r'iwswgs_'+part+r'_\d{3}\.tga',native['iconDonors'][part].lower()),'Wrong Greatsword icon part')
             icon=resources.get(native['iconDonors'][part].lower());require(icon is not None,'Missing Greatsword icon donor')
             with Image.open(icon['path']) as image:require(image.size==(64,256),'Greatsword stock icon canvas changed')
     if data['family'] == 'staff':

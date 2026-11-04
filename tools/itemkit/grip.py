@@ -46,7 +46,7 @@ def affine_corners(positions,normals,uv,matrix):
     return transformed,normals,np.asarray(uv).copy()
 
 
-def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard):
+def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard,review=None):
     """Measure a length departure while retaining the two-hand reference proportions.
 
     The approved Cougar depth remains the sizing authority. Neither the original
@@ -77,4 +77,12 @@ def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard):
                 'usableLength':float(length)/standard['usableLength']-1},
             'proportionsAndAnglesPreserved':True,'bothBodyVisualReviewRequired':True}
     report['measurementDigest']=digest(report)
+    # Length is the intended departure; width over 5% needs the same bound review as firearms.
+    if abs(report['midpointRelativeDifferences']['visibleFaceWidth'])>.05:
+        from .firearm_grip import GripDeparture
+        review=review or {}
+        if not (review.get('decision')=='approved' and review.get('measurementDigest')==report['measurementDigest']
+                and isinstance(review.get('notes'),str) and review['notes'].strip()):
+            raise GripDeparture(report)
+        report['departureReview']=review
     return m,report

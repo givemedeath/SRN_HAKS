@@ -1,5 +1,6 @@
 """Immutable item stage attempts, dependency reviews, and bounded resumption."""
 from pathlib import Path
+import hashlib
 import os
 import shutil
 import subprocess
@@ -7,8 +8,9 @@ import sys
 import time
 import traceback
 import uuid
+import numpy as np
 from PIL import Image
-from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, python_package_pins
+from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
 from .contracts import all_pins, code_pins, source_version, manifest, family, evidence_pins, stage_roles
 from .verification import VerificationPass
 
@@ -103,7 +105,8 @@ class Runner:
         if stage in self.state['stages']:
             try: return {'reused': True, 'result': self.result(stage, review=False)}
             except (ValueError, OSError): pass
-        package_pins = python_package_pins(self.local, require_imports=True)
+        # Launched CLI startup already proved these imports for this one-stage process.
+        package_pins = python_package_pins(self.local)
         inputs = all_pins(self.manifest_path,roles=stage_roles(stage),native=stage in ('fit','export'))+code_pins()+[pin(self.bindings_path)]+package_pins
         for library in self.local.get('libraries',{}).values():inputs += library['files']
         inputs += [self.runtime[key] for key in ('toolchain', 'migrationReceipt', 'python')]
@@ -141,7 +144,7 @@ class Runner:
             for parent in parents:
                 require(self.state['stages'].get(parent) == parents[parent], 'Dependency changed: '+parent)
                 self.result(parent, _audit=completion_audit)
-            python_package_pins(self.local, require_imports=True)
+            python_package_pins(self.local)
             receipt.update(state='complete', result=result)
         except Exception as exc:
             receipt.update(state='failed', error=str(exc), traceback=traceback.format_exc())
@@ -164,7 +167,8 @@ class Runner:
                   'processing': self.data.get('processing', {}),'render':self.data.get('render',{}), 'output': str(folder/'worker'), **values}
         config['inputs'] = all_pins(self.manifest_path,roles=stage_roles(stage),native=stage=='fit')+code_pins()+[self.local['blender']]
         config['inputs'] += [pin(values[key]) for key in ('source', 'workingSource', 'scene', 'texture', 'reference', 'atlas', 'gripStandard') if key in values]
-        if 'shadowCandidates' in values:config['inputs'] += [row['arrays'] for row in values['shadowCandidates'].values()]
+        for key in ('shadowCandidates', 'visibleCandidates'):
+            if key in values: config['inputs'] += [row['arrays'] for row in values[key].values()]
         target = folder/'worker.json'; write(target, config, fresh=True)
         inputs = folder/'worker-inputs.json'; write(inputs, config['inputs']+[pin(target)], fresh=True)
         command = [sys.executable, str(ROOT/'tools/phenotypes/launch_shared_tool.py'),
@@ -177,14 +181,25 @@ class Runner:
         # Worker inputs are stage inputs or this stage's own outputs; execute()'s completion audit rereads them fresh.
         verify(config['inputs']); return read(folder/'worker'/'result.json')
 
-    def _execute(self, stage, folder, *, parent_results=None):
-        # Only this synchronous stage shares dependency verification. Completion
-        # above uses a new pass, including ancestor bytes and review decisions.
-        dependency_audit = VerificationPass()
-        def parent_result(stage):
-            if parent_results is not None:
-                return parent_results[stage]
-            return self.result(stage, _audit=dependency_audit)
+    def constrained_candidates(self, scene, folder):
+        """Reduce each fitted part outside its seam band; the worker validates these before use."""
+        from .parts import active_parts
+        from .reduction import policy, reduce
+        extracted = self.worker('uv-arrays', folder/'extract', scene=scene)
+        meshlab = library(self.local, 'pymeshlab'); joins = self.data['processing'].get('joinY', [])
+        root = folder/'constrained'; root.mkdir(); candidates = {}
+        with np.load(extracted['arrays']['path'], allow_pickle=False) as data:
+            for part in active_parts(self.family):
+                p, f = data[part+'_positions'], data[part+'_faces']
+                budget = self.family['budgets']['parts'][part]['visible']
+                v, t, _ = reduce(p, f, budget, joins, meshlab)
+                target = root/(part+'.npz'); np.savez_compressed(target, positions=v, faces=t)
+                candidates[part] = {'arrays': pin(target), 'policyHash': policy(budget, joins),
+                                    'sourceCornerHash': hashlib.sha256(np.asarray(p[f], dtype='<f8').tobytes()).hexdigest()}
+        return candidates
+
+    def _execute(self, stage, folder, *, parent_results):
+        parent_result = parent_results.__getitem__
         if stage == 'prepare':
             require(self.data.get('approval', {}).get('referenceDesignReviewed') is True, 'Reference design review required')
             source = Path(self.input('reference')); target = folder/'reference.png'
@@ -230,12 +245,15 @@ class Runner:
             extracted=self.worker('uv-arrays',folder/'extract',scene=parent['scene']['path'])
             from .parts import active_parts
             atlas=unwrap_parts(extracted['arrays']['path'],self.local,folder/'atlas',self.family['runtimeTextureSize'],
-                               packing_paddings=self.data.get('processing',{}).get('uvPackingPaddings'),parts=active_parts(self.family))
+                               packing_paddings=self.data.get('processing',{}).get('uvPackingPaddings'),parts=active_parts(self.family),
+                               coordinate_scale=self.data.get('processing',{}).get('uvCoordinateScale',1.0))
             result=self.worker('unwrap',folder/'apply',scene=parent['scene']['path'],atlas=atlas['atlas']['path'])
             result['validation']=atlas;return result
         if stage in ('reduce', 'finish', 'bake', 'shadow'):
             parent = parent_result(DEPENDENCIES[stage][0]); values = {'scene': parent['scene']['path']}
             if stage == 'finish': values['reference'] = self.input('reference')
+            if stage == 'reduce' and self.data.get('processing',{}).get('constrainedReduction'):
+                values['visibleCandidates'] = self.constrained_candidates(parent['scene']['path'], folder)
             if stage=='shadow' and self.data.get('processing',{}).get('shadowProxies'):
                 values['shadowCandidates']=parent_result('reduce')['shadowPreflight']
             result = self.worker(stage, folder, **values)
@@ -244,7 +262,8 @@ class Runner:
                 result['shadowPreflight']=build_candidates(result['shadowSource']['path'],self.family,self.data['processing'],folder/'shadow-preflight')
             if stage == 'bake':
                 from .textures import finish_bake
-                result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures'))
+                result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures',
+                                               palettes=self.data['processing'].get('materialPalettes',())))
             return result
         if stage == 'render':
             return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'],

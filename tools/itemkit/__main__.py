@@ -129,18 +129,20 @@ def run_receipt_pins(state, stage=None):
     return pins
 
 
-def preflight(manifest_path, bindings_path, probe=False):
+def preflight(manifest_path, bindings_path, probe=False, scope='processing'):
     data = manifest(manifest_path); profile = family(asset(manifest_path, data['familyProfile'])['path'])
     local = read(bindings_path); issues = []
-    for key in ('toolchain', 'migrationReceipt', 'python', 'pythonPackages', 'blender', 'client', 'submissionLedger'):
+    # Generation bindings deliberately omit the processing-only Blender and client.
+    processing = ('blender', 'client') if scope == 'processing' else ()
+    for key in ('toolchain', 'migrationReceipt', 'python', 'pythonPackages', *processing, 'submissionLedger'):
         if not local.get(key): issues.append('Missing runtime binding: '+key)
-    for key in ('python', 'blender', 'client'):
+    for key in ('python', *processing):
         if local.get(key):
             try: verify([local[key]])
             except (OSError, ValueError) as exc: issues.append(str(exc))
     adapter = Path(local.get('comfyCustomNodes', '.'))/'srn_headkit'
     if not (adapter/'source-roots.json').is_file(): issues.append('Pinned headkit Comfy adapter/source snapshot not installed')
-    if profile['nativePackaging'] != 'enabled': issues.append('Measured effective native contract pending')
+    if scope == 'processing' and profile['nativePackaging'] != 'enabled': issues.append('Measured effective native contract pending')
     if not data.get('camera', {}).get('reviewed'): issues.append('Camera calibration/review pending')
     try:
         from .conditioning import require_conditioning_review
@@ -152,7 +154,8 @@ def preflight(manifest_path, bindings_path, probe=False):
             client = comfy.Client(local['comfyUrl']); live = {'idle': client.idle()}
             identity = client.request('/headkit/runtime-identity'); live['runtimeFingerprint'] = identity['fingerprint']
         except Exception as exc: issues.append('Comfy preflight unavailable: '+str(exc))
-    return {'id': data['id'], 'ready': not issues, 'issues': issues, 'comfy': live, 'clayReferenceRequired': False}
+    return {'id': data['id'], 'ready': not issues, 'issues': issues, 'comfy': live,
+            'clayReferenceRequired': data.get('conditioning') == 'clay-detail-v1'}
 
 
 def main():
@@ -169,6 +172,15 @@ def main():
     c = commands.add_parser('firearm-native'); c.add_argument('--bindings', type=Path, required=True)
     c.add_argument('--prepared', type=Path, required=True); c.add_argument('--output', type=Path, required=True)
     c.add_argument('--compiler', type=Path)
+    c = commands.add_parser('shield-inputs'); c.add_argument('--bindings', type=Path, required=True)
+    group = c.add_mutually_exclusive_group(required=True)
+    group.add_argument('--spec', type=Path); group.add_argument('--prepared', type=Path)
+    c.add_argument('--compiler', type=Path); c.add_argument('--output', type=Path, required=True)
+    c = commands.add_parser('shield-prepare'); c.add_argument('--bindings', type=Path, required=True)
+    c.add_argument('--spec', type=Path, required=True); c.add_argument('--output', type=Path, required=True)
+    c = commands.add_parser('shield-native'); c.add_argument('--bindings', type=Path, required=True)
+    c.add_argument('--prepared', type=Path, required=True); c.add_argument('--compiler', type=Path, required=True)
+    c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('firearm-fixture'); c.add_argument('--bindings', type=Path, required=True)
     c.add_argument('--native', type=Path, required=True); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--output', type=Path, required=True)
@@ -187,6 +199,7 @@ def main():
             c.add_argument('--decision', choices=['approved', 'rejected'], required=True); c.add_argument('--notes', required=True)
     c = commands.add_parser('preflight'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--probe', action='store_true')
+    c.add_argument('--scope', choices=['generation', 'processing'], default='processing')
     c = commands.add_parser('inputs'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--run', type=Path)
     c.add_argument('--stage',choices=['calibrate','geometry','appearance','export','prepare','inspect','donor',
@@ -209,7 +222,7 @@ def main():
     if a.command == 'request':
         require(not a.working_shell or a.stage == 'export', 'Working-shell option is export-only')
     with verification_pass('item-cli-startup'):
-        runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'status', 'preflight') else launched(a.bindings)
+        runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'shield-inputs', 'status', 'preflight') else launched(a.bindings)
         if runtime is not None: python_package_pins(bindings(a.bindings), require_imports=True)
     if a.command == 'intake': result = intake(a.reference, a.output, a.id, a.family)
     elif a.command == 'firearm-inputs':
@@ -232,6 +245,23 @@ def main():
             verify(pins)
         write(a.output, sorted({p['path'] for p in pins}), fresh=True)
         result = {'inputs': str(a.output), 'count': len({p['path'] for p in pins})}
+    elif a.command == 'shield-inputs':
+        from .shield_native import specification_inputs, prepared_inputs
+        with verification_pass('shield-consumed-inputs'):
+            local = bindings(a.bindings)
+            require(bool(a.compiler) == bool(a.prepared), '--compiler is required with --prepared and only with it')
+            pins = specification_inputs(a.spec) if a.spec else prepared_inputs(a.prepared, read(a.compiler))+[pin(a.compiler)]
+            pins += code_pins()+[pin(a.bindings), pin(local['toolchain']), pin(local['migrationReceipt'])]
+            pins += python_package_pins(local)+[local['python']]
+            verify(pins)
+        write(a.output, sorted({p['path'] for p in pins}), fresh=True)
+        result = {'inputs': str(a.output), 'count': len({p['path'] for p in pins})}
+    elif a.command == 'shield-prepare':
+        from .shield_native import prepare_specification
+        result = prepare_specification(a.spec, a.output)
+    elif a.command == 'shield-native':
+        from .shield_native import compile_package
+        result = compile_package(a.prepared, read(a.compiler), a.output)
     elif a.command == 'firearm-prepare':
         from .firearm_package import prepare
         result = prepare(a.spec, a.output)
@@ -257,7 +287,7 @@ def main():
     elif a.command == 'set-trial-limit':
         local=bindings(a.bindings)
         result=set_trial_limit(shared_ledger(local), local['itemTrialId'], a.maximum, a.evidence, a.output)
-    elif a.command == 'preflight': result = preflight(a.manifest, a.bindings, a.probe)
+    elif a.command == 'preflight': result = preflight(a.manifest, a.bindings, a.probe, a.scope)
     elif a.command == 'inputs':
         paths = consumed_inputs(a.manifest, a.bindings, a.run, a.extra,a.stage); write(a.output, paths, fresh=True)
         result = {'inputs': str(a.output), 'count': len(paths)}

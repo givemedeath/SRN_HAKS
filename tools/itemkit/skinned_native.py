@@ -20,7 +20,9 @@ def model_text(name,texture,geometry,rig_text,bone_names):
         count=int(re.search(r'(?m)^  verts (\d+)\s*$',block)[1]);require(w.shape==(count,len(bones)) and np.isfinite(w).all() and (w>=0).all() and np.allclose(w.sum(1),1,atol=1e-7),'Invalid exact skin weights')
         rows=['  weights '+str(count)]+['    '+' '.join(b+' '+format(float(v),'.17g') for b,v in zip(bones,row) if v>0) for row in w]
         result.append(block.replace('node trimesh ','node skin ',1).rsplit('endnode',1)[0]+'\n'.join(rows)+'\nendnode')
-    return prefix.replace(old,name)+'\n'.join(result)+'\n'+suffix.replace(old,name)
+    # Whole names only: bones and clips may contain the rig's model name.
+    rename=lambda text:re.sub(r'\b'+re.escape(old)+r'\b',name,text)
+    return rename(prefix)+'\n'.join(result)+'\n'+rename(suffix)
 
 
 def decode_meshes(raw):

@@ -29,12 +29,9 @@ class VerificationTests(unittest.TestCase):
                     'codeVersion':'version','inputs':[],'outputs':[],'dependencies':{k:r.state['stages'][k] for k in parents},'result':result})
                 r.state['stages'][stage]=pin(p);q=root/(stage+'-review.json')
                 write(q,{'stageReceipt':pin(p),'decision':'approved'});r.state['reviews'][stage]=pin(q)
-            with patch('tools.itemkit.runner.source_version',return_value='version') as version, patch.object(r,'worker',return_value={}) as worker:
-                r._execute('render',root)
-                self.assertEqual(version.call_count,1)
-                worker.assert_called_once_with('render',root,scene='scene',texture='texture')
-            with patch.object(r,'result',side_effect=AssertionError('Repeated dependency validation')), patch.object(r,'worker',return_value={}):
+            with patch.object(r,'result',side_effect=AssertionError('Repeated dependency validation')), patch.object(r,'worker',return_value={}) as worker:
                 r._execute('render',root,parent_results={'shadow':{'scene':{'path':'scene'}},'bake':{'maps':{'1024':{'path':'texture'}}}})
+                worker.assert_called_once_with('render',root,scene='scene',texture='texture')
 
     def test_hash_once_conflict_and_fresh_pass(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -43,6 +40,18 @@ class VerificationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Conflicting'):a.verify([{**row,'sha256':'0'*64}])
             p.write_bytes(b'xyz')
             with self.assertRaisesRegex(ValueError,'Stale'):VerificationPass().verify([row])
+
+    def test_constrained_candidates_bind_their_source_and_policy(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);p=np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1]],float);f=np.array([[0,2,1],[0,1,3],[1,2,3],[2,0,3]])
+            arrays=root/'source.npz';np.savez(arrays,whole_positions=p,whole_faces=f)
+            r=Runner.__new__(Runner);r.local={};r.data={'processing':{'joinY':[-1.,2.]}}
+            r.family={'family':'catalog-object','budgets':{'parts':{'whole':{'visible':4}}}}
+            with patch('tools.itemkit.parts.active_parts',return_value=('whole',)), patch('tools.itemkit.runner.library'), \
+                 patch.object(r,'worker',return_value={'arrays':pin(arrays)}):
+                candidate=r.constrained_candidates('scene',root)['whole']
+            self.assertEqual(candidate['policyHash'],digest({'budget':4,'joinY':[-1.,2.],'maximumSourceDistance':.003}))
+            with np.load(candidate['arrays']['path']) as data:np.testing.assert_array_equal(data['faces'],f)
 
     def test_caught_stale_pin_does_not_poison_the_current_pin(self):
         with tempfile.TemporaryDirectory() as folder:

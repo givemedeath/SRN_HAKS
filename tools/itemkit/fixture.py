@@ -4,6 +4,7 @@ import copy
 import re
 import json
 import shutil
+import struct
 import subprocess
 import sys
 from tools.headkit.common import ROOT, asset, pin, read, require, verify, write
@@ -86,6 +87,11 @@ def blueprint(base_item, allocation, identity=None):
     return item
 
 
+def gff_float(value):
+    """GFF floats are 32-bit; store what the native readback will report."""
+    return field('float', struct.unpack('<f', struct.pack('<f', value))[0])
+
+
 def place_review_actors(git, area, ifo, actors):
     """Embed the two bound actors in the entry area, before any client event."""
     require(len(actors) == 2, 'Both Human review actors required')
@@ -106,8 +112,8 @@ def place_review_actors(git, area, ifo, actors):
         px, py = x + 3*dx - side*dy, y + 3*dy + side*dx
         require(1 <= px <= width-1 and 1 <= py <= height-1, 'Review actors fall outside the entry area')
         placed = copy.deepcopy(actor); placed.pop('__data_type', None); placed['__struct_id'] = 4
-        placed.update(XPosition=field('float', px), YPosition=field('float', py), ZPosition=field('float', z),
-                      XOrientation=field('float', -dx), YOrientation=field('float', -dy))
+        placed.update(XPosition=gff_float(px), YPosition=gff_float(py), ZPosition=gff_float(z),
+                      XOrientation=gff_float(-dx), YOrientation=gff_float(-dy))
         rows.append(placed); tags.add(tag)
     return result
 
@@ -173,9 +179,11 @@ def build(manifest_path, manifest, native, local, output):
     variants = packaged_blueprints(native)
     inputs += [bound for _, bound in variants]
 
+    tools = {}
+
     def run(name, args, cwd=None):
-        executable = tool_runtime.tool(name, inputs=[row['path'] for row in inputs])
-        result = subprocess.run([str(executable), *map(str, args)], cwd=cwd, capture_output=True, text=True, timeout=120,
+        if name not in tools: tools[name] = tool_runtime.tool(name, inputs=[row['path'] for row in inputs])
+        result = subprocess.run([str(tools[name]), *map(str, args)], cwd=cwd, capture_output=True, text=True, timeout=120,
                                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         require(result.returncode == 0, name+' failed: '+result.stderr[-2000:])
         return result.stdout
@@ -271,6 +279,8 @@ def build(manifest_path, manifest, native, local, output):
         require_unshadowed(native['hak'], bound, name)
         shutil.copyfile(bound['path'], userdir/'hak'/(name+'.hak'))
     verify(inputs, fresh=True)
+    # Tools resolve once; this records every input the build came to consume.
+    tool_runtime.tool('nwn_erf', inputs=[row['path'] for row in inputs])
     result = {'module': pin(module), 'hak': pin(userdir/'hak'/(hak_name+'.hak')),
               'fixtureHaks': [pin(p) for p in sorted((userdir/'hak').iterdir())],
               'userDirectory': str(userdir), 'clientValidated': False,

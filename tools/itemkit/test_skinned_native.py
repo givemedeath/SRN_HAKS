@@ -21,6 +21,11 @@ class SkinnedNativeTests(unittest.TestCase):
                 ' node dummy limb_l\n  parent original\n  orientationkey 2\n   0 0 1 0 0\n   1 0 1 0 .1\n endnode\n'
                 'doneanim xbowshot original\ndonemodel original\n')
 
+    def test_rename_leaves_bones_and_clips_containing_the_rig_name(self):
+        rig=self.rig().replace('original','xbow').replace('body_bind','xbow_bind')
+        text=model_text('wbwxh_t_016','sr_test',self.geometry(),rig,['xbow_bind','limb_l'])
+        self.assertIn('node dummy xbow_bind',text);self.assertIn('newanim xbowshot wbwxh_t_016',text)
+
     def test_preserves_qualified_clip_and_bone_bind_position(self):
         rig=self.rig();text=model_text('wbwxh_t_016','sr_test',self.geometry(),rig,['body_bind','limb_l'])
         self.assertIn(rig[rig.index('endmodelgeom '):].replace('original','wbwxh_t_016'),text)

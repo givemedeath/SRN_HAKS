@@ -30,5 +30,5 @@
     "capColour": [0.08, 0.08, 0.08]
   },
   "clientCoverage": ["human-male", "human-female"],
-  "notes": "One detailed reference conditions geometry and appearance. No clay reference is required. Fit the grip to the native hand using uniform scale; preserve design proportions. Review untextured generated geometry before appearance."
+  "notes": "Select and review clay/detail conditioning explicitly before generation. Fit the grip to the native hand using uniform scale; preserve design proportions. Review untextured generated geometry before appearance."
 }

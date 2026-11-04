@@ -45,6 +45,12 @@ Thickness probes are measured on the whole assembly, but a shadow proxy measures
 only its own part. On a multipart item add `"parts": ["t"]` to scope a probe; a
 probe without `parts` applies to every proxied part.
 
+`processing.constrainedReduction: true` reduces each part outside its seam band
+before the worker validates the candidate, and repairs the
+`Reduction changed a mating contour` failure inside the Runner.
+`processing.uvCoordinateScale` (default 1) and `processing.materialPalettes` reach
+the atlas and finish steps the same way.
+
 Set `processing.shadowProxies` by active native part, for example:
 
 ```json
