@@ -26,15 +26,9 @@ REPO = Path(__file__).resolve().parents[2]
 
 
 def resolve_mdlcomp() -> Path:
-    try:
-        sys.path.insert(0, str(REPO / "tools"))
-        from shared_tools import resolve_tool
-        return Path(resolve_tool("mdlcomp", REPO)["path"])
-    except Exception:
-        cand = REPO / "tools/vendor/nwnmdlcomp/nwnmdlcomp.exe"
-        if cand.exists():
-            return cand
-        raise
+    sys.path.insert(0, str(REPO / "tools"))
+    from shared_tools import resolve_tool
+    return Path(resolve_tool("mdlcomp", REPO)["path"])
 
 
 def read_mdl_text(path: Path | str) -> str:

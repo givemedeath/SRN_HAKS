@@ -30,7 +30,7 @@ SLOTS = tuple(f'p{g}{r}{b}' for g in 'fm' for r in 'dehog' for b in '02')
 SOURCES = tuple(s for s in SLOTS if s[2] == 'h')
 TARGETS = tuple(s for s in SLOTS if s[2] != 'h')
 MODEL = 2002
-TEXTURES = {3: '.tga', 6: '.plt', 2033: '.dds', 2036: '.mtr'}
+TEXTURES = {3: '.tga', 6: '.plt', 2033: '.dds', 2072: '.mtr'}
 NAME = re.compile(r'^(p[fm][a-z][0-9])_([a-z]+?)(\d{3})$')
 BITMAP = re.compile(r'(?mi)^\s*(?:bitmap|texture\d|materialname)\s+(\S+)\s*$')
 

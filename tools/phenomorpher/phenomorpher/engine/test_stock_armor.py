@@ -49,7 +49,7 @@ class InventoryTests(unittest.TestCase):
             root = Path(tmp); (root/'game/data').mkdir(parents=True)
             bare = [('pfd0', 2002)] + [(f'pfd0_{part}001', 2002) for part in armor.BARE]
             key_file(root/'game/data/nwn_base.key', [('pfd0_chest005', 2002), ('pfd0_belt002', 2002), ('pmh0_chest005', 2002),
-                                                     ('pfd0_chest005', 6), ('pfh0_chest001', 6), ('belt_mat', 2036),
+                                                     ('pfd0_chest005', 6), ('pfh0_chest001', 6), ('belt_mat', 2072),
                                                      ('belt_mat_n', 3), *bare])
             texts = {'pfd0_chest005.mdl': MODEL.format(n='pfd0_chest005', kind='danglymesh', bitmap='pfd0_chest005'),
                      'pfd0_belt002.mdl': MODEL.format(n='pfd0_belt002', kind='trimesh', bitmap='missing_tex').replace(

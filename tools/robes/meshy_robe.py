@@ -80,6 +80,9 @@ def validate_request(request):
                 "Edit references must be pinned and non-empty")
         arguments += ["--ai-model", "nano-banana-pro", "--prompt", payload["prompt"],
                       "--reference-image-urls", ",".join(payload["reference_image_urls"])]
+    # The launcher is an npm .cmd shim: cmd.exe rewrites these and can still exit 0, on a paid call.
+    require(not any(set('\r\n"%&|<>^') & set(value) for value in arguments),
+            "Paid request text cannot contain line breaks or the characters \" % & | < > ^")
     return arguments
 
 

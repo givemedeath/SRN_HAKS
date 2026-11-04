@@ -43,12 +43,13 @@ if ($duplicates.Count -gt 0) { throw "Duplicate area resrefs: $($duplicates.Name
 $registered = Get-Content -LiteralPath (Join-Path $repositoryRoot 'hakbuilder.json') -Raw | ConvertFrom-Json -Depth 32
 $registeredNames = @($registered.HakList.Name)
 $fixtureHakNames = @($fixture.haks)
-$sameHakOrder = $registeredNames.Count -eq $fixtureHakNames.Count
-for ($i = 0; $sameHakOrder -and $i -lt $registeredNames.Count; $i++) {
+# The fixture is MDRNEE-only: its HAKs lead the registry, and packs registered after them stay out of the module.
+$sameHakOrder = $fixtureHakNames.Count -le $registeredNames.Count
+for ($i = 0; $sameHakOrder -and $i -lt $fixtureHakNames.Count; $i++) {
     $sameHakOrder = $registeredNames[$i] -ceq $fixtureHakNames[$i]
 }
 if (-not $sameHakOrder) {
-    throw 'Fixture HAK declarations do not exactly match hakbuilder.json.'
+    throw 'Fixture HAK declarations must be the leading entries of hakbuilder.json, in order.'
 }
 if ([IO.Path]::GetFileNameWithoutExtension([string]$fixture.outputFile) -cne [string]$fixture.moduleResRef) {
     throw 'Fixture outputFile must use moduleResRef as its filename.'

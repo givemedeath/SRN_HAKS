@@ -1,6 +1,6 @@
 """The guide objective must distinguish useful feasible character changes."""
 import unittest
-from .fit_anatomy_stage1_v15a import centered_length_loss
+from .fit_anatomy_stage1_v15a import centered_length_loss,target_stature
 
 def goal(preferred=.2,uncertainty=.13,weight=.35,available=True):
     return {'preferredMeters':preferred,'measurementUncertaintyMeters':uncertainty,'designSlackFraction':.05,'weight':weight,'available':available}
@@ -24,6 +24,12 @@ class CenteredGuideTests(unittest.TestCase):
     def test_huber_tail_symmetric_linear_not_squared(self):
         row=goal();self.assertAlmostEqual(centered_length_loss(.23,row),centered_length_loss(.17,row))
         self.assertAlmostEqual(centered_length_loss(.24,row)-centered_length_loss(.23,row),centered_length_loss(.23,row)-centered_length_loss(.22,row))
+
+    def test_target_stature_must_be_positive_and_finite(self):
+        self.assertEqual(target_stature({'targetStatureMeters':1.75}),1.75)
+        for value in (0,-1.75,float('nan'),float('inf')):
+            with self.subTest(value=value),self.assertRaisesRegex(Exception,'Positive target stature'):
+                target_stature({'targetStatureMeters':value})
 
     def test_unavailable_anatomy_contributes_no_invented_preference(self):
         self.assertEqual(centered_length_loss(.3,goal(available=False)),0)

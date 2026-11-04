@@ -89,7 +89,7 @@
       "module": "fit_anatomy_stage1_v15a",
       "source": "fit_anatomy_stage1_v15a.py",
       "sourceSHA256": "255f63e1898c85688345656aa5ec67ad5becc35252be1facb3b4f37e8e6f1637",
-      "packagedSHA256": "81e2a77a79aee000a99cb78315d69dcf07842323666aae2c0f7d92dc0d6decc0",
+      "packagedSHA256": "015c82aeefc19235d714b7e0ce7e539389dd28d4a681279dc519c62e6b84c8db",
       "modifications": "Package-relative imports and LF encoding; stage-1 stature is normalized, gated and reported on the rest (bind) pose instead of the pause1 standing pose (2026-10-26, race lore sizing)."
     },
     {
@@ -313,7 +313,7 @@
       "module": "test_fit_anatomy_stage1_v15a",
       "source": "test_fit_anatomy_stage1_v15a.py",
       "sourceSHA256": "1f049e2d1facf575c69350dedb8b1ff6133bc7913efcca6527586d6bec8e6ee4",
-      "packagedSHA256": "2558b57e2c647251ebba60cbc5bc9eceed762dc15d3d6b74cab43152ab500ed2",
+      "packagedSHA256": "18c0cb960bb983afbdf130c8b0d9d51cf6ff82761d1d5a0be2515ef5d976e583",
       "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
     },
     {

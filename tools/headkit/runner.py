@@ -595,7 +595,7 @@ class Runner:
             # runner its folder; the reused binary still passes this head's own decode audit.
             previous=self.result('export');prepared=Path(previous['ascii']['path']).parents[1]
             cache=getattr(self,'precompiled',{}).get(str(prepared.resolve())) if mdl else None
-            return compile_and_package(prepared,b['client'],folder/'native',mdl,cache=cache)
+            return compile_and_package(prepared,b.get('client'),folder/'native',mdl,cache=cache)
         if stage=='render':
             require('render' in m,'Stage not configured: the manifest has no render section')
             import subprocess,sys

@@ -173,7 +173,7 @@ def consumed(arguments):
     elif command == 'armor-extract':
         from .engine.neverblender_mdl import declared_files
         files.add(option('resman-extract')); files.update(declared_files(option('blender'), option('neverblender')))
-        files.update(installed_models(option('game-root'), (MODEL_TYPE, 3, 6, 2033, 2036)))
+        files.update(installed_models(option('game-root'), (MODEL_TYPE, 3, 6, 2033, 2072)))
     elif command == 'armor-profiles':
         from .engine.stock_armor import BARE, TARGETS, source_slot
         root = option('root'); manifest = option('manifest'); stock = option('stock'); files.update([manifest, stock])

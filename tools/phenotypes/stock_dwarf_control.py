@@ -19,8 +19,6 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from shared_tools import resolve_tool
 
-MDLCOMP = REPO / "tools/vendor/nwnmdlcomp/nwnmdlcomp.exe"
-
 PARTS = [
     "bicepl", "bicepr", "chest", "footl", "footr", "forel", "forer",
     "handl", "handr", "head", "neck", "legl", "legr", "pelvis",
@@ -97,7 +95,7 @@ def decompile_model(bin_path: Path, ascii_path: Path):
         # Already ASCII
         ascii_path.write_bytes(data)
     else:
-        subprocess.run([str(MDLCOMP), "-d", "-e", str(bin_path), str(ascii_path)], check=True, capture_output=True)
+        subprocess.run([resolve_tool("mdlcomp", REPO)["path"], "-d", "-e", str(bin_path), str(ascii_path)], check=True, capture_output=True)
 
 
 CONTROL_SOURCES = {

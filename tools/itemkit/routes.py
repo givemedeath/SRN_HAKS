@@ -46,6 +46,11 @@ RIGGED_NATIVE_FAMILIES = tuple(name for name, route in ROUTES.items() if route.a
 GRIP_BOUND_FAMILIES = tuple(name for name, route in ROUTES.items() if route.grip_bound)
 
 
+def needs_grip_standard(family, fit):
+    """Grip-bound families and any midpoint-depth two-hand fit size from the approved grip."""
+    return family in GRIP_BOUND_FAMILIES or fit.get('sizingAuthority') == 'midpoint-depth-two-hand'
+
+
 def whole_shield(data):
     return (data.get('family') == 'shield' and data.get('nativePackaging') == 'enabled'
             and data.get('native', {}).get('kind') == 'shield-whole-v1')

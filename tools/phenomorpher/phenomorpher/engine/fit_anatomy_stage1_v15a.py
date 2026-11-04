@@ -214,13 +214,18 @@ def motion_contact_gate(source,source_frames,source_local,baseline,candidate,inv
             return {'samples':rows,'allSelectedPoseGates':False,'evaluationStoppedOnFailedCandidate':True,'IKApplied':False,'motionAcceptance':False}
     return {'samples':rows,'allSelectedPoseGates':True,'evaluationStoppedOnFailedCandidate':False,'IKApplied':False,'motionAcceptance':False,'scope':'Both idle endpoints/midpoints, four exact quarter native phases and largest trajectory-error sample; source-owned standing terminal triangle eligibility'}
 
+def target_stature(packet):
+    height=float(packet['targetStatureMeters'])  # rest-pose stature
+    require(np.isfinite(height) and height>0,'Positive target stature required')
+    return height
+
 def fit_stage1(bind_meshes,bind_frames,baseline,packet,policy=None,preserve=False):
     started=time.monotonic();policy=policy or {};keys=native_keys_hash(baseline);require(set(baseline['clips'])>=set(CLIPS),'All six source-owned native clips required')
     for path,h in baseline.get('inputPins',{}).items():require(sha(path)==h,'Native source pin differs')
     source_local=local_positions_from_world_frames(baseline['skeleton'],bind_frames)
     for n,node in baseline['skeleton'].items():source_local.setdefault(n,np.asarray(node['position']).copy())
     source_frames=evaluate_adjusted(baseline,'pause1',0.,source_local,1.);source=pose_rigid_meshes(bind_meshes,bind_frames,source_frames)
-    measured=measure(bind_meshes,{n:np.asarray(f)[:3,3].tolist() for n,f in bind_frames.items()});height=float(packet['targetStatureMeters'])  # rest-pose stature;require(np.isfinite(height) and height>0,'Positive target stature required')
+    measured=measure(bind_meshes,{n:np.asarray(f)[:3,3].tolist() for n,f in bind_frames.items()});height=target_stature(packet)
     common={'sourceBindFrames':{n:np.asarray(f).copy() for n,f in bind_frames.items()},'sourceStandingMeshes':source,'sourceStandingFrames':source_frames,'sourceLocalPositions':{n:np.asarray(p).tolist() for n,p in source_local.items()}}
     if preserve:
         require(packet.get('slug') in ('human_male_fit','human_female_fit'),'Exact identity restricted to Human Fits')

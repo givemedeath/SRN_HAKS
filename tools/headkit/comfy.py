@@ -294,13 +294,21 @@ def verify_loader_models(client, prepared):
     return result
 
 
-def verify_comfy_runtime(client, prepared):
+def _same_deployment(actual, expected):
+    """The identity without the session id and pid each start issues, or the fingerprint they feed."""
+    def stable(identity):
+        session={key:value for key,value in identity['session'].items() if key not in ('id','pid')}
+        return {**{key:value for key,value in identity.items() if key!='fingerprint'},'session':session}
+    return stable(actual)==stable(expected)
+
+
+def verify_comfy_runtime(client, prepared, restarted=False):
     expected=validate_comfy_runtime(prepared.get('comfyRuntimeIdentity'),
                                     prepared.get('comfySourceInventory',{}).get('roots'),
                                     prepared.get('comfySourceInventory'))
     actual=client.request('/headkit/runtime-identity')
     actual=validate_comfy_runtime(actual,expected['coveredSourceRoots'],prepared.get('comfySourceInventory'))
-    require(actual==expected,
+    require(_same_deployment(actual,expected) if restarted else actual==expected,
             'Running ComfyUI Python/Torch/CUDA runtime differs from the prepared request; prepare again')
     return actual
 
@@ -414,6 +422,10 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
             return result
         require(job['state'] in ('submitted','timed-out'),
                 'Terminal job has no pinned collection; preserve its historical evidence')
+    # A wrong folder says nothing about the job, so it is refused before anything could record a verdict.
+    intent_path=output/'submission-intent.json'
+    require(intent_path.is_file() and read(intent_path).get('job',{}).get('token')==token,
+            'Use the job directory given to submit; this one holds no submission intent for the token')
     samples=[]
     while True:
         if wait:
@@ -423,7 +435,8 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
             except OSError:samples.append({'timestamp':time.time(),'unavailable':True})
         found=client.request('/history/'+job['promptId']).get(job['promptId'])
         # A restarted server forgets history an interrupted collection already retained.
-        if not found and (output/'history.json').is_file():found=read(output/'history.json')
+        retained=not found and (output/'history.json').is_file()
+        if retained:found=read(output/'history.json')
         if found: break
         if time.time()-job['started'] > 2700:
             with locked(ledger):
@@ -482,9 +495,15 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
         with verification_pass('client-completion') as completion:
             verify(intent['prepared']['inputs']);request_sources(intent['prepared']);verify(pins)
             server=CompletionClient(client)
+            completion_runtime=None
             if intent['prepared'].get('runtimeVerification')=='server-owned':
+                if retained:
+                    # The server that ran the job is gone, so its history has to name this job instead.
+                    prompt=found.get('prompt',[])
+                    require(len(prompt)>3 and prompt[1]==job['promptId'] and prompt[3].get('headkitToken')==token,
+                            'Retained Comfy history does not belong to this job')
                 with completion.phase('server-runtime'):
-                    verify_comfy_runtime(server,intent['prepared'])
+                    completion_runtime=verify_comfy_runtime(server,intent['prepared'],restarted=retained)
             model_proof=None
             if intent['prepared'].get('modelVerification') is not None:
                 with completion.phase('server-loader-models'):
@@ -501,6 +520,7 @@ def collect(client, ledger, token, output_root, output, *, wait=False):
             'comfySourceInventory':intent['prepared']['comfySourceInventory'],
             'comfyRuntimeIdentity':intent['prepared']['comfyRuntimeIdentity']}
     result['verification']=[inspection.report(),completion.report()]
+    if retained and completion_runtime:result['completionRuntime']=completion_runtime
     if model_proof is not None:
         result['modelVerification']=intent['prepared']['modelVerification']
         result['modelInputs']=intent['prepared']['modelInputs']

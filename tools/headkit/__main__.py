@@ -155,13 +155,19 @@ def launch_inputs(manifest_path, bindings_path, run=None, stages=None):
         from .runner import Runner;scoped=Runner(manifest_path,bindings_path,run)
         for stage,row in state['stages'].items():
             if closure is not None and stage not in closure:continue
-            receipt=read(row['path'])
-            # A receipt from other code, another manifest or other bindings (a repinned runtime) is rerun, as the runner
-            # does, not consumed; its old pins are not inputs.
-            if (receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage)
-                    or receipt.get('bindingsHash')!=digest(scoped.bindings)):stale.append(stage);continue
-            pins.append(row);pins+=receipt['inputs']+receipt['outputs']
-            if stage in state.get('reviews',{}):pins.append(state['reviews'][stage])
+            # A receipt from other code, another manifest or other bindings (a repinned runtime), or one whose pins
+            # no longer hold, is rerun, as the runner does, not consumed; its old pins are not inputs.
+            try:
+                receipt=read(row['path'])
+                if (receipt.get('codeVersion')!=stage_source_version(stage) or receipt.get('manifestHash')!=scoped.manifest_digest(stage)
+                        or receipt.get('bindingsHash')!=digest(scoped.bindings)):stale.append(stage);continue
+                rows=[row,*receipt['inputs'],*receipt['outputs']];verify(rows)
+            except (KeyError,OSError,ValueError):stale.append(stage);continue
+            pins+=rows
+            # The runner reuses a stage without its review, so a changed review drops only that pin.
+            if stage in state.get('reviews',{}):
+                try:verify([state['reviews'][stage]]);pins.append(state['reviews'][stage])
+                except (OSError,ValueError):pass
     verify(pins);return pins,(stale if run and (run/'state.json').exists() else None)
 
 

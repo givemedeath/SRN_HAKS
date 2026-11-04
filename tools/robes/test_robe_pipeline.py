@@ -323,6 +323,13 @@ class MeshyPolicyTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 validate_request(self.request(folder, texture_resolution="2k"))
 
+    def test_generation_refuses_text_the_cmd_shim_would_rewrite(self):
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertIn("--texture-prompt", validate_request(self.request(folder, texture_prompt="worn linen, 50 percent")))
+            for prompt in ("a\nb", 'robe 5" trim', "a&b", "a|b", "a^b", "%PATH%", "a<b>"):
+                with self.subTest(prompt=prompt), self.assertRaises(ValueError):
+                    validate_request(self.request(folder, texture_prompt=prompt))
+
     def test_remesh_respects_face_budget(self):
         request = {"requestId": "m1", "outfit": "workwear", "operation": "remesh", "estimatedCredits": 5,
                    "inputs": [], "payload": {"input_task_id": "t", "topology": "triangle", "target_polycount": 150000}}

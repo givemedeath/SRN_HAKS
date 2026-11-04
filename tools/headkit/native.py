@@ -120,6 +120,7 @@ def compile_and_package(prepared_dir, client, output, mdl=None, cache=None):
     compilemodel (kept so earlier receipts replay). `cache` (from precompile) supplies a binary compiled by the same
     compiler from identical sources and lookups; Neverblender reuses it only then, and it is audited like a fresh one."""
     tool=client if mdl is None else mdl['blender']
+    require(tool is not None,'Bind the EE client, or add the local Neverblender compiler binding')
     require(mdl is not None or cache is None,'A precompiled cache needs the Neverblender compiler')
     verify([tool]);prepared_dir=Path(prepared_dir);output=Path(output);output.mkdir(parents=True,exist_ok=False)
     from .common import read

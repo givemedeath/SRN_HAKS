@@ -1499,6 +1499,27 @@ class InputInventoryTests(Temporary):
         self.assertNotIn(str((run/'state.json').resolve()),paths)
         self.assertIn('"staleStagesSkipped": [\n    "bake",\n    "repair"\n  ]',shown.call_args.args[0])
 
+    def test_inputs_reruns_a_stage_the_runner_would_rerun(self):
+        from headkit.__main__ import launch_inputs
+        from headkit.common import stage_source_version,digest,manifest,bindings
+        source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
+        write(manifest_path,{'schemaVersion':1,'id':'stale-pins','inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
+        bindings_path=self.root/'bindings.json';write(bindings_path,self.bindings_data())
+        run=self.root/'run';run.mkdir();now=digest(bindings(bindings_path))
+        changed=self.file('changed.glb','old output');old=pin(changed);changed.write_text('output edited since that receipt')
+        kept=self.file('kept.glb','kept output');review=self.file('review.json','reviewed');review_pin=pin(review);review.write_text('edited')
+        rows={}
+        for stage,outputs in (('repair',[old]),('unwrap',[pin(kept)])):
+            path=run/f'{stage}.json';scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
+            write(path,{'codeVersion':stage_source_version(stage),'manifestHash':scoped,'bindingsHash':now,'inputs':[],'outputs':outputs})
+            rows[stage]=pin(path)
+        missing=run/'bake.json';missing.write_text('{}');rows['bake']=pin(missing);missing.unlink()
+        write(run/'state.json',{'schemaVersion':1,'id':'stale-pins','stages':rows,'reviews':{'unwrap':review_pin}})
+        pins,stale=launch_inputs(manifest_path,bindings_path,run)
+        paths={row['path'] for row in pins}
+        self.assertEqual(sorted(stale),['bake','repair']);self.assertIn(str(kept.resolve()),paths)
+        self.assertNotIn(str(changed.resolve()),paths);self.assertNotIn(str(review.resolve()),paths)
+
     def test_inputs_requires_the_declared_installed_snapshot(self):
         adapter,local=self.installed_adapter()
         with self.assertRaises(FileNotFoundError):self.input_paths(local)
@@ -2478,7 +2499,8 @@ class CollectionReceiptTests(Temporary):
             prepared['inputs']=[row for row in prepared['inputs'] if row['path']!=server_file]
         comfy.initialize_ledger(ledger,0,'Reconciled fixture');client=FakeClient();self.submit(client,ledger,prepared,job)
         artifact=output/'headkit'/token/'mesh.glb';artifact.parent.mkdir(parents=True);artifact.write_bytes(b'exported fixture')
-        history={'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'mesh.glb','subfolder':'headkit/'+token,'type':'output'}]}}}
+        history={'status':{'status_str':'success'},'prompt':[0,'prompt-1',{},{'headkitToken':token}],
+                 'outputs':{'1':{'files':[{'filename':'mesh.glb','subfolder':'headkit/'+token,'type':'output'}]}}}
         client.request=lambda route,data=None: (client.server_runtime if route=='/headkit/runtime-identity' else
             {'devices':[]} if route=='/system_stats' else {'prompt-1':history})
         return client,ledger,token,output,job,artifact
@@ -2517,9 +2539,43 @@ class CollectionReceiptTests(Temporary):
                 self.assertEqual(read(ledger)['jobs'][0]['state'],'submitted')
                 self.assertFalse((job/'collection.json').exists())
                 # The restarted server no longer has the prompt; the retained history still resumes it.
-                def restarted(route,data=None):return {} if route.startswith('/history/') else answer(route,data)
+                new=copy.deepcopy(client.server_runtime);new['session'].update(id='b'*32,pid=new['session']['pid']+1)
+                new['fingerprint']=digest({key:value for key,value in new.items() if key!='fingerprint'})
+                def restarted(route,data=None):
+                    return new if route=='/headkit/runtime-identity' else {} if route.startswith('/history/') else answer(route,data)
                 with patch.object(client,'request',restarted):
-                    self.assertEqual(comfy.collect(client,ledger,token,output,job)['state'],'complete')
+                    result=comfy.collect(client,ledger,token,output,job)
+                self.assertEqual(result['state'],'complete');self.assertEqual(result['completionRuntime']['session']['id'],'b'*32)
+    def interrupted_then_restarted(self,change):
+        import urllib.error
+        client,ledger,token,output,job,_=self.fixture(server_owned=True);answer=client.request
+        def unavailable(route,data=None):
+            if route=='/headkit/runtime-identity':raise urllib.error.URLError('refused')
+            return answer(route,data)
+        with patch.object(client,'request',unavailable),self.assertRaises(comfy.CollectionInterrupted):
+            comfy.collect(client,ledger,token,output,job)
+        new=copy.deepcopy(client.server_runtime);change(new,job)
+        new['session'].update(id='b'*32);new['fingerprint']=digest({key:value for key,value in new.items() if key!='fingerprint'})
+        def restarted(route,data=None):
+            return new if route=='/headkit/runtime-identity' else {} if route.startswith('/history/') else answer(route,data)
+        with patch.object(client,'request',restarted):return comfy.collect,(client,ledger,token,output,job),restarted,client
+    def test_restart_with_another_deployment_stays_terminal(self):
+        def change(new,job):
+            path=Path(new['torch']['path']);path.write_bytes(b'changed server dependency');new['torch']['sha256']=pin(path)['sha256']
+            for row in new['files']:
+                if row['path']==str(path):row['sha256']=new['torch']['sha256']
+        collect,arguments,restarted,client=self.interrupted_then_restarted(change)
+        with patch.object(client,'request',restarted),self.assertRaisesRegex(ValueError,'runtime differs'):collect(*arguments)
+        self.assertEqual(read(arguments[1])['jobs'][0]['state'],'failed-validation')
+    def test_retained_history_of_another_job_is_refused(self):
+        collect,arguments,restarted,client=self.interrupted_then_restarted(lambda new,job:None)
+        job=arguments[4];history=read(job/'history.json');history['prompt'][3]['headkitToken']='other-job';(job/'history.json').write_text(json.dumps(history))
+        with patch.object(client,'request',restarted),self.assertRaisesRegex(ValueError,'does not belong to this job'):collect(*arguments)
+    def test_wrong_collection_folder_leaves_the_job_collectable(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True);wrong=job.parent/'mistyped-job'
+        with self.assertRaisesRegex(ValueError,'Use the job directory given to submit'):comfy.collect(client,ledger,token,output,wrong)
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'submitted');self.assertFalse(wrong.exists())
+        self.assertEqual(comfy.collect(client,ledger,token,output,job)['state'],'complete')
     def test_server_answers_at_completion_remain_terminal(self):
         import io,urllib.error
         client,ledger,token,output,job,_=self.fixture(server_owned=True);answer=client.request
@@ -3770,8 +3826,9 @@ class NeverblenderNativeTests(Temporary):
         with patch('headkit.native.neverblender',return_value=nvb),patch('headkit.native.subprocess.run') as client, \
              patch('headkit.native.audit_native',return_value=(b'binary',{'model':'head'})), \
              patch('headkit.native.helpers',return_value=(None,hak,None,None,None)):
-            audit=native.compile_and_package(prepared,{'path':'unused'},self.root/'out',native.mdl_compiler(self.binding()))
+            audit=native.compile_and_package(prepared,None,self.root/'out',native.mdl_compiler(self.binding()))
         client.assert_not_called()
+        with self.assertRaisesRegex(ValueError,'Bind the EE client'):native.compile_and_package(prepared,None,self.root/'no-compiler')
         self.assertEqual(audit['compiler']['mode'],'neverblender-cleanmodels');self.assertEqual(len(audit['compiler']['engine']),3)
 
     def test_a_precompiled_binary_is_reused_and_recorded(self):
