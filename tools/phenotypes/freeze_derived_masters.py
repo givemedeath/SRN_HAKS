@@ -368,17 +368,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--manifest', type=Path, default=REPO / 'docs/phenotypes/human-male-assets.json')
     parser.add_argument('--output-dir', type=Path, default=REPO / 'output/phenotypes/derived-v1/masters')
-    parser.add_argument('--game-root', type=Path, default=Path(r'C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition'))
+    parser.add_argument('--game-root', type=Path, required=True)
     parser.add_argument('--female-ledger', type=Path, default=None, help='Declared Human female selection ledger binding')
     parser.add_argument('--toolchain', type=Path)
     args = parser.parse_args()
+    if not args.game_root.is_dir():
+        parser.error(f'--game-root is not a directory: {args.game_root}')
 
     print("Freezing Human male master...")
     male_receipt = freeze_human_male_master(
         args.manifest,
         args.output_dir / 'human-male-v1',
         toolchain_path=args.toolchain,
-        game_root=args.game_root if args.game_root.is_dir() else None,
+        game_root=args.game_root,
     )
     print(f"Human male master frozen: {male_receipt['resourceCount']} resources, 14 models verified with exact parity.")
 

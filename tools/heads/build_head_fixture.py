@@ -187,8 +187,10 @@ def build(config_path,output):
     output=Path(output);require(not output.exists(),'Fresh isolated fixture required')
     user=output/'userdir';stage=output/'module-resources';sources=output/'hak-sources'
     for path in (stage,sources,user/'hak',user/'modules',user/'override'):path.mkdir(parents=True,exist_ok=True)
+    binaries={}  # each resolve hashes and registers the tool, so once per build
     def run(name,arguments):
-        result=subprocess.run([str(tool(name)),*map(str,arguments)],capture_output=True)
+        if name not in binaries:binaries[name]=str(tool(name))
+        result=subprocess.run([binaries[name],*map(str,arguments)],capture_output=True)
         if result.returncode:
             raise ValueError(name+' failed: '+result.stderr.decode('utf-8',errors='replace')+' '+result.stdout.decode('utf-8',errors='replace'))
         return result.stdout

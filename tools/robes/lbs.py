@@ -35,7 +35,8 @@ class Rig:
         def consume(path):
             data, source = read_pinned(path)
             self.sources.append(source)
-            return data.decode("cp1252")
+            # Match read_text's universal newlines: nwnmdlcomp writes CRLF, and the controller parser needs LF.
+            return data.decode("cp1252").replace("\r\n", "\n").replace("\r", "\n")
 
         text = consume(self.path)
         self.model = mdl_ascii.parse(text)

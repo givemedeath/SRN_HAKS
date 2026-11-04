@@ -29,6 +29,27 @@ class MeshyDispatchTests(unittest.TestCase):
         write_fresh(request,self.request);write_fresh(binding,self.binding)
         return dispatch(self.fixture.session,request,binding,self.root/name)
 
+    def test_a_paid_task_is_recorded_before_a_changed_input_is_refused(self):
+        def swap(command,**kwargs):
+            self.fixture.views[0].write_bytes(b'replaced during upload')
+            kwargs['stdout'].write('{"result":"task-one"}')
+            return SimpleNamespace(returncode=0)
+        with patch('meshy_cli.subprocess.run',side_effect=swap),self.assertRaisesRegex(ValueError,'cannot be attributed'):
+            self.dispatch()
+        event=self.fixture.session.events()[-1]
+        self.assertEqual((event['kind'],event['taskId'],event['inputsUnchanged']),('submitted','task-one',False))
+
+    def test_a_binding_change_during_a_paid_call_still_records_the_task(self):
+        def swap(command,**kwargs):
+            (self.dependencies/'new.js').write_text('appeared during the call')
+            kwargs['stdout'].write('{"result":"task-one"}')
+            return SimpleNamespace(returncode=0)
+        with patch('meshy_cli.subprocess.run',side_effect=swap),self.assertRaisesRegex(ValueError,'cannot be attributed'):
+            self.dispatch()
+        event=self.fixture.session.events()[-1]
+        self.assertEqual((event['kind'],event['inputsUnchanged']),('submitted',False))
+        self.assertIn('complete offline',read(self.root/'operation/operation.json')['launchInputsChanged'])
+
     def test_local_preflight_failures_leave_no_reservation(self):
         cases=('output-exists','payload-exists','retexture-task','missing-remesh-source','invalid-project')
         for case in cases:

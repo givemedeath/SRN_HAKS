@@ -34,7 +34,7 @@ def parse_args():
     parser.add_argument("--masters-dir", type=Path, default=Path("output/phenotypes/derived-v1/masters/human-male-v1"))
     parser.add_argument("--stock-dir", type=Path, default=Path("output/phenotypes/derived-v1/stock-cache"))
     parser.add_argument("--output-dir", type=Path, default=Path("output/phenotypes/derived-v1/previews/cp1-assembly-comparison"))
-    parser.add_argument("--artifact-dir", type=Path, default=Path("C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211"))
+    parser.add_argument("--artifact-dir", type=Path, default=Path("output/phenotypes/review-sheets"))
     parser.add_argument("--threads", type=int, default=4)
     return parser.parse_args(args)
 

@@ -584,10 +584,10 @@ def audit(config_path, output):
                'rigPilotAccepted':target['rig'].get('pilotAccepted',False),'nativeTangentVisualAccepted':False,
                'productionAccepted':False,'clientAccepted':False,
                'limitations':'Detached root with direct identity unskinned one-UV trimeshes only. Ordered transport and finite orthogonal tangent/sign arrays do not prove rendering; per-face tangent direction comparisons are diagnostic and may differ through vertex averaging.'}
-    if effective['materialInputBasis'] in ('replayed-c1-skin-intensity-inputs','replayed-original-source-chart-detail-inputs'):
+    if effective['materialInputBasis'] in ('replayed-c1-skin-intensity-inputs','replayed-original-source-chart-detail-inputs','replayed-source-bound-skin-calibration-inputs'):
         receipt['materialIntensityPixelsEdited'] = effective['materialIntensityPixelsEdited']
         receipt['materialPixelsEdited'] = effective['materialIntensityPixelsEdited']
-        if effective['materialInputBasis'] == 'replayed-original-source-chart-detail-inputs':
+        if effective['materialInputBasis'] != 'replayed-c1-skin-intensity-inputs':
             receipt['materialPixelsEdited'] = bool(effective['materialColorPixelsEdited'] or effective['materialIntensityPixelsEdited'])
     if 'materialExecutionInputs' in stage:
         receipt['materialExecutionInputs'] = stage['materialExecutionInputs']

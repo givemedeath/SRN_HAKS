@@ -30,7 +30,7 @@ SLOTS = tuple(f'p{g}{r}{b}' for g in 'fm' for r in 'dehog' for b in '02')
 SOURCES = tuple(s for s in SLOTS if s[2] == 'h')
 TARGETS = tuple(s for s in SLOTS if s[2] != 'h')
 MODEL = 2002
-TEXTURES = {3: '.tga', 6: '.plt', 2033: '.dds', 2036: '.mtr'}
+TEXTURES = {3: '.tga', 6: '.plt', 2033: '.dds', 2072: '.mtr'}
 NAME = re.compile(r'^(p[fm][a-z][0-9])_([a-z]+?)(\d{3})$')
 BITMAP = re.compile(r'(?mi)^\s*(?:bitmap|texture\d|materialname)\s+(\S+)\s*$')
 
@@ -381,9 +381,14 @@ def armory_values(armory, source, fitted):
     result = subprocess.run([str(armory), '--values', str(source), str(fitted)], capture_output=True, text=True)
     if result.returncode:
         raise ValueError('Armory --values failed: ' + result.stderr.strip())
+    # A non-finite fit can still print max_residual=0, so its mean and its vectors have to be finite too.
+    if re.search(r'(?mi)^(?:(?:scale|rotate|translate)=|; verts fit:).*\b(?:nan|inf)\b', result.stdout):
+        raise ValueError('Armory fit is not finite: ' + str(fitted))
     vector = lambda key: [float(v) for v in re.search(r'(?m)^' + key + r'=\(([^)]*)\)', result.stdout)[1].split(',')]
-    residual = float(re.search(r'verts fit: n=\d+ max_residual=([\d.eE+\-]+)', result.stdout)[1])
-    return vector('scale'), vector('rotate'), vector('translate'), residual, result.stdout
+    fit = re.search(r'verts fit: n=\d+ max_residual=([\d.eE+\-]+)', result.stdout)
+    if fit is None:
+        raise ValueError('Armory reported no vertex fit; degenerate source: ' + str(fitted))
+    return vector('scale'), vector('rotate'), vector('translate'), float(fit[1]), result.stdout
 
 
 def style_set(path):

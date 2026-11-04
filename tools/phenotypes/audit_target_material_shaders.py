@@ -15,6 +15,7 @@ import sys
 import numpy as np
 
 import target_contract as contract
+from tool_runtime import tool as resolved_tool
 
 
 EXPECTED_SHADER_PINS = {
@@ -202,7 +203,7 @@ def freeze(target_path, game_root, userdir, resman_directory, output):
     contract.require(not output.exists(), 'Fresh immutable material preparation required')
     contract.require((userdir/'override').is_dir() and not any((userdir/'override').iterdir()),
                      'Explicit isolated user directory with empty override required')
-    cat = resman_directory/'nwn_resman_cat.exe'; grep = resman_directory/'nwn_resman_grep.exe'
+    cat = resolved_tool('nwn_resman_cat',resman_directory); grep = resolved_tool('nwn_resman_grep',resman_directory)
     common = ['--root', game_root, '--userdirectory', userdir]
     inventory_raw = run([grep, *common, '--no-ovr', '--pattern', '.shd', '--details'])
     effective_inventory = run([grep, *common, '--pattern', '.shd', '--details'])

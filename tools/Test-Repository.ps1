@@ -114,7 +114,7 @@ foreach ($name in $registeredNames) {
         elseif ($file.Length -gt $softLimit -and -not $sizeExceptions.ContainsKey($relativeFile)) {
             Add-ValidationError "Resource '$relativeFile' exceeds 15 MiB without a PROVENANCE.md exception."
         }
-        if (Test-GitLfsPointer -Path $file.FullName) {
+        if ($file.Length -lt 1024 -and (Test-GitLfsPointer -Path $file.FullName)) {
             Add-ValidationError "Git LFS pointer detected at '$relativeFile'; this repository does not use LFS."
         }
         if ($file.Extension -ieq '.set') {
@@ -227,7 +227,7 @@ else {
     $mustBuildAll = $false
     foreach ($changedPath in $changedPaths) {
         $normalized = $changedPath.Replace('\\', '/')
-        if ($normalized -match '^hakbuilder\.json$|^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\.Common)\.|^tools/toolchain\.lock\.json$|^\.github/(workflows/ci\.yml|actions/srn-tools/)') { $mustBuildAll = $true }
+        if ($normalized -match '^hakbuilder\.json$|^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\.Common|SrnTools)\.|^tools/(toolchain|shared-tools)\.lock\.json$|^\.github/(workflows/ci\.yml|actions/srn-tools/)') { $mustBuildAll = $true }
         $firstSegment = $normalized.Split('/')[0]
         if ($packByName.ContainsKey($firstSegment)) { [void]$packsToBuild.Add($firstSegment) }
     }

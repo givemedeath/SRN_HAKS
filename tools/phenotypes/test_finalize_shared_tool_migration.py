@@ -1,7 +1,9 @@
 """Migration evidence drift, cross-configuration reuse and history guards."""
+import builtins
 import copy
 import json
 from pathlib import Path
+import symtable
 import tempfile
 import unittest
 
@@ -70,6 +72,26 @@ class MigrationEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'immutable'):
             finalize(self.config, self.root / 'missing-smokes', output)
         self.assertEqual(output.read_bytes(), b'preserved history')
+
+
+def unbound_names(path):
+    table = symtable.symtable(Path(path).read_text(encoding='utf-8'), str(path), 'exec')
+    known = {row.get_name() for row in table.get_symbols() if row.is_assigned() or row.is_imported() or row.is_namespace()}
+    found, pending = set(), list(table.get_children())
+    while pending:
+        scope = pending.pop(); pending += scope.get_children()
+        found |= {row.get_name() for row in scope.get_symbols() if row.is_global() and row.is_referenced()}
+    return sorted(name for name in found - known - {'__file__'} if not hasattr(builtins, name))
+
+
+class FinalizerNameTests(unittest.TestCase):
+    def test_every_name_a_finalizer_reads_is_bound(self):
+        # A receipt is built last, after real smokes, so no fixture reaches these lines cheaply.
+        tools = Path(__file__).resolve().parents[1]
+        for path in ('phenotypes/finalize_shared_tool_migration.py', 'robes/finalize_robe_migration.py',
+                     'heads/finalize_head_migration.py', 'phenomorpher/finalize_runtime.py'):
+            with self.subTest(path=path):
+                self.assertEqual(unbound_names(tools / path), [])
 
 
 if __name__ == '__main__': unittest.main()

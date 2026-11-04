@@ -45,7 +45,9 @@ def prepare_output(output):
             pass
 
 
-def invoke(binding, arguments, output, *, prepared=False, request_inputs=None):
+def run_cli(binding, arguments, output, *, prepared=False, request_inputs=None):
+    """(exit code, stdout path, what changed during the call or None). The caller decides what a change means,
+    because a paid submission has to be recorded first."""
     command = validate_binding(binding)
     output = Path(output)
     if not prepared:
@@ -63,11 +65,21 @@ def invoke(binding, arguments, output, *, prepared=False, request_inputs=None):
         result = subprocess.run([*command, "--output-schema", "v1", "--format", "json",
                                  "--no-update-check", "--workspace", binding["workspace"], *arguments],
                                 stdout=stdout, stderr=stderr, env=env, check=False)
-    validate_binding(binding)
+    try:
+        validate_binding(binding)
+        changed = None
+    except (OSError, ValueError) as error:
+        changed = str(error)
     write_fresh(output / "operation.json", {"kind": "srn-head-meshy-cli-operation", "exitCode": result.returncode,
                 "cliInputs": binding["inputs"], "stdout": pin(output / "stdout.json"),
-                "stderr": pin(output / "stderr.log")})
-    return result.returncode, output / "stdout.json"
+                "stderr": pin(output / "stderr.log"), "launchInputsChanged": changed})
+    return result.returncode, output / "stdout.json", changed
+
+
+def invoke(binding, arguments, output, **options):
+    code, response, changed = run_cli(binding, arguments, output, **options)
+    require(changed is None, "CLI binding changed during the call: " + str(changed))
+    return code, response
 
 
 def dispatch(session, request_file, binding_file, output):
@@ -118,12 +130,12 @@ def dispatch(session, request_file, binding_file, output):
     request_inputs = [*request['inputs'], *binding['inputs'], pin(request_file), pin(binding_file), payload_pin]
     session.reserve(request["designId"], request["requestId"], request["operation"],
                     request["estimatedCredits"], request_inputs, request["payload"])
-    code, response = invoke(binding, arguments, output, prepared=True, request_inputs=request_inputs)
+    code, response, changed = run_cli(binding, arguments, output, prepared=True, request_inputs=request_inputs)
     if code:
         raise ValueError("Meshy submission is uncertain; reconcile CLI journal and task history before another attempt")
     task_id = task_fields(read(response))["id"]
     require(bool(task_id), "Submission task identity missing; reconcile history")
-    session.record_task(request["requestId"], task_id, request["operation"], response)
+    session.record_task(request["requestId"], task_id, request["operation"], response, launch_problem=changed)
     return task_id
 
 
@@ -143,6 +155,9 @@ def wait(session, request_id, binding_file, output):
 
 
 def collect(session, request_id, binding_file, output):
+    submitted = next((e for e in session.events() if e["kind"] == "submitted" and e["requestId"] == request_id), None)
+    require(submitted is not None and submitted.get("inputsUnchanged", True),
+            "Submission inputs changed during upload; the task cannot be collected as source")
     settled = next((e for e in session.events() if e["kind"] == "settled" and e["requestId"] == request_id), None)
     require(settled is not None and settled["status"] == "SUCCEEDED", "Successful owning task required")
     verify_pins([settled["result"]])

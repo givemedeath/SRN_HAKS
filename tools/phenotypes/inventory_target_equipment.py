@@ -14,6 +14,7 @@ import subprocess
 from audit_geometry import arrays
 from pipeline import digest, save_json
 from retarget import NODE
+from tool_runtime import tool as resolved_tool
 
 PARTS = ('chest', 'pelvis', 'neck', 'belt', 'bicepl', 'bicepr', 'forel',
          'forer', 'handl', 'handr', 'legl', 'legr', 'shinl', 'shinr',
@@ -97,7 +98,7 @@ def freeze(args):
     user = args.user_directory.resolve()
     if not (user / 'override').is_dir() or any((user / 'override').iterdir()):
         raise RuntimeError('Equipment inventory requires an existing empty override directory')
-    grep, cat = (args.tool_directory / ('nwn_resman_' + name + '.exe') for name in ('grep', 'cat'))
+    grep, cat = (resolved_tool('nwn_resman_' + name, args.tool_directory) for name in ('grep', 'cat'))
     tool_pins = {str(path.resolve()): digest(path) for path in (grep, cat, args.decompiler)}
     if prior and prior['toolPins'] != tool_pins:
         raise RuntimeError('Inventory tools differ from the prior extraction')

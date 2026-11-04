@@ -457,17 +457,19 @@ def build(spec_path,output):
         path=Path(item);require(path.suffix[1:].lower() in TYPES,'Unsupported shared resource '+path.name)
         shared.append((path.stem,TYPES[path.suffix[1:].lower()],path.read_bytes()));consumed.append(pin(path))
     planned,dependencies=plan_hak(heads,shared,base)
+    require(planned,'The trial HAK would be empty, and the client refuses to load one: add a shared resource')
     user=output/'userdir';work=output/'work';stage=work/'module'
     for folder in (user/'hak',user/'modules',user/'override',stage):folder.mkdir(parents=True)
-    require(planned,'The trial HAK would be empty, and the client refuses to load one: add a shared resource')
     trial_hak=user/'hak'/(spec['hak']+'.hak');write_hak(trial_hak,planned)
     expected={(name,kind):hashlib.sha256(data).hexdigest() for name,kind,data in planned}
     require(payload(trial_hak)==expected,'Trial HAK payload differs from its plan')
     for item in base_haks:
         destination=user/'hak'/Path(item['path']).name;shutil.copyfile(item['path'],destination)
         require(sha(destination)==item['sha256'],'Base HAK copy differs: '+destination.name)
+    binaries={}  # each resolve hashes and registers the tool, so once per build
     def run(name,arguments):
-        result=subprocess.run([str(tool(name)),*map(str,arguments)],capture_output=True)
+        if name not in binaries:binaries[name]=str(tool(name))
+        result=subprocess.run([binaries[name],*map(str,arguments)],capture_output=True)
         if result.returncode:
             raise ValueError(name+' failed: '+result.stderr.decode('utf-8',errors='replace')+' '+result.stdout.decode('utf-8',errors='replace'))
     def gff(name,document):

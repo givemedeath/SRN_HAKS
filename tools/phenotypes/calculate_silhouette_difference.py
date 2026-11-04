@@ -26,7 +26,7 @@ import os
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 DEFAULT_REFERENCE_ROOT = SCRIPT_DIR / "references" / "concepts"
-ARTIFACT_DIR = Path(os.environ.get("ANTIGRAVITY_ARTIFACT_DIR", "C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211"))
+ARTIFACT_DIR = Path(os.environ.get("ANTIGRAVITY_ARTIFACT_DIR", "output/phenotypes/review-sheets"))
 SCRATCH_DIR = DEFAULT_REFERENCE_ROOT if DEFAULT_REFERENCE_ROOT.exists() else (ARTIFACT_DIR / "scratch")
 
 # Import helper functions

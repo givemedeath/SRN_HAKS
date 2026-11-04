@@ -171,6 +171,23 @@ class RigSourceTests(unittest.TestCase):
             self.assertEqual([Path(s["path"]).name for s in rig.sources], ["probe.mdl", "base.mdl"])
             self.assertEqual(rig.sources[1]["sha256"], hashlib.sha256(base.read_bytes()).hexdigest())
 
+    def test_decompiler_crlf_keeps_clip_controllers(self):
+        clip = ("newanim pause1 probe\n  length 1.0\n  transtime 0.0\n  animroot probe\n  node dummy rootdummy\n"
+                "    parent probe\n    positionkey 2\n      0.0 0 0 0\n      1.0 0 0 2\n    endlist\n  endnode\n"
+                "doneanim pause1 probe\n")
+        text = SKIN_MODEL.replace("donemodel", clip + "donemodel")
+        with tempfile.TemporaryDirectory() as folder:
+            lf, crlf = Path(folder) / "lf.mdl", Path(folder) / "crlf.mdl"
+            lf.write_bytes(text.encode("cp1252"))
+            crlf.write_bytes(text.replace("\n", "\r\n").encode("cp1252"))
+            source = lbs.Rig(lf, ["probe"], folder)
+            expected = source.frames("pause1", 1.0)
+            actual = lbs.Rig(crlf, ["probe"], folder).frames("pause1", 1.0)
+            self.assertEqual(expected.keys(), actual.keys())
+            for name in expected:
+                np.testing.assert_array_equal(actual[name], expected[name])
+            self.assertFalse(np.array_equal(actual["rootdummy"], source.bind["rootdummy"]))
+
 
 
 class ParserGuardTests(unittest.TestCase):

@@ -6,8 +6,10 @@ production approval. Every robe receipt states those flags explicitly.
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
+import tempfile
 
 TOOLS = Path(__file__).resolve().parents[1]
 REPO = TOOLS.parent
@@ -78,9 +80,14 @@ def read(path):
 def write_fresh(path, data):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("x", encoding="utf-8", newline="\n") as stream:
-        json.dump(data, stream, indent=2)
-        stream.write("\n")
+    descriptor, temporary = tempfile.mkstemp(prefix=path.name + ".", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
+            json.dump(data, stream, indent=2)
+            stream.write("\n")
+        os.link(temporary, path)  # whole or not at all, and refuses an existing path
+    finally:
+        os.unlink(temporary)
     return pin(path)
 
 

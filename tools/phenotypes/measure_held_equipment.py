@@ -17,6 +17,7 @@ from audit_geometry import arrays
 from inventory_target_equipment import inspect_model
 from pipeline import digest, save_json
 import target_contract
+from tool_runtime import tool as resolved_tool
 
 
 def table_rows(path):
@@ -99,7 +100,7 @@ def freeze(args):
                          'weaponWield':row.get('weaponwield'),'weaponSize':row.get('weaponsize'),
                          'prefAttackDistance':row.get('prefattackdist'),'installedModels':names,'samples':sorted(chosen)})
         samples.update(chosen)
-    cat=args.tool_directory/'nwn_resman_cat.exe'
+    cat=resolved_tool('nwn_resman_cat',args.tool_directory)
     tools={str(path.resolve()):digest(path) for path in (cat,args.decompiler)}
     base=['--root',inventory['gameRoot'],'--userdirectory',inventory['userDirectory'],'--no-ovr']
     def fetch(name):

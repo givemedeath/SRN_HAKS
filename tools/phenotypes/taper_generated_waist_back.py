@@ -149,9 +149,11 @@ def main():
     old_tri, new_tri = positions[faces], output_attrs['POSITION'][faces].astype(float)
     old_cross = np.cross(old_tri[:, 1] - old_tri[:, 0], old_tri[:, 2] - old_tri[:, 0])
     new_cross = np.cross(new_tri[:, 1] - new_tri[:, 0], new_tri[:, 2] - new_tri[:, 0])
-    area_ratio = np.linalg.norm(new_cross, axis=1) / np.linalg.norm(old_cross, axis=1)
-    winding_dot = np.einsum('ij,ij->i', old_cross, new_cross) / (np.linalg.norm(old_cross, axis=1) * np.linalg.norm(new_cross, axis=1))
-    if area_ratio.min() <= .85 or winding_dot.min() <= .9:
+    old_area, new_area = np.linalg.norm(old_cross, axis=1), np.linalg.norm(new_cross, axis=1)
+    real = old_area > 1e-13  # a zero-area source triangle has no ratio, and one NaN would blind both minima
+    area_ratio = new_area[real] / old_area[real]
+    winding_dot = np.einsum('ij,ij->i', old_cross[real], new_cross[real]) / (old_area[real] * new_area[real])
+    if not (area_ratio.min() > .85 and winding_dot.min() > .9):
         raise RuntimeError('Taper damages actual triangle area or winding')
     binary = bytearray(original_binary)
     indices = {key: append_accessor(document, binary, output_attrs[key].astype('<f4'), key) for key in ['POSITION', 'NORMAL']}

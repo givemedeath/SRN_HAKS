@@ -9,7 +9,6 @@ import sys
 
 REPO = Path(__file__).resolve().parents[2]
 STAGE = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage"
-CLIENT = Path(r"C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition\bin\win32\nwmain.exe")
 
 
 def sha256_file(path: Path | str) -> str:
@@ -49,7 +48,7 @@ def verify_stock_controls(build_receipt: dict, hak_entries: list[str], stage_dir
         require(f"{prefix}.mdl" in hak_entries, f"Missing {prefix}.mdl supermodel in HAK")
 
 
-def run_preflight(stage_dir: Path = STAGE, client_path: Path = CLIENT, output_receipt: Path | None = None, race: str = "dwarf", prefix: str = "pmd0") -> dict:
+def run_preflight(stage_dir: Path, client_path: Path, output_receipt: Path | None = None, race: str = "dwarf", prefix: str = "pmd0") -> dict:
     stage_dir = stage_dir.resolve()
     userdir = stage_dir / "userdir"
     receipt_path = stage_dir / "test-module/receipt.json"
@@ -154,7 +153,7 @@ if __name__ == "__main__":
     prefix = args.prefix or default_prefixes.get(race, "pmd0")
     stage = args.stage or (REPO / f"output/phenotypes/derived-{race}-male-v1/test-stage")
     receipt = args.output_receipt or (REPO / f"output/phenotypes/derived-{race}-male-v1/review/client-preflight-receipt.json")
-    from run_derived_dwarf_client_test import resolve_client
+    from stock_dwarf_control import resolve_client
     client = resolve_client(args.client)
 
     res = run_preflight(stage_dir=stage, client_path=client, output_receipt=receipt, race=race, prefix=prefix)

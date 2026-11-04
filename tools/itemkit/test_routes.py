@@ -3,7 +3,7 @@ import unittest
 from .contracts import PARTS
 from .firearms import SLOTS
 from .parts import active_parts
-from .routes import GRIP_BOUND_FAMILIES, PACKAGED_FIREARMS, RIGGED_NATIVE_FAMILIES, ROUTES, WHOLE_NATIVE_FAMILIES
+from .routes import GRIP_BOUND_FAMILIES, PACKAGED_FIREARMS, RIGGED_NATIVE_FAMILIES, ROUTES, WHOLE_NATIVE_FAMILIES, needs_grip_standard
 
 
 class RouteTableTests(unittest.TestCase):
@@ -12,6 +12,11 @@ class RouteTableTests(unittest.TestCase):
         self.assertEqual(set(PACKAGED_FIREARMS),{'firearm-sling','firearm-crossbow'})
         self.assertEqual(set(RIGGED_NATIVE_FAMILIES),{'bow','whip'})
         self.assertEqual(set(GRIP_BOUND_FAMILIES),{'shortsword','dagger','longsword','greatsword',*WHOLE_NATIVE_FAMILIES})
+
+    def test_two_hand_fit_needs_the_grip_standard_on_every_family(self):
+        self.assertTrue(needs_grip_standard('dagger',{}))
+        self.assertFalse(needs_grip_standard('staff',{}))
+        self.assertTrue(needs_grip_standard('staff',{'sizingAuthority':'midpoint-depth-two-hand'}))
 
     def test_every_route_is_internally_consistent(self):
         for name,route in ROUTES.items():

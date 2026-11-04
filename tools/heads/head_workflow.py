@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import tempfile
 
 import numpy as np
 
@@ -52,9 +53,14 @@ def read(path):
 def write_fresh(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("x", encoding="utf-8", newline="\n") as stream:
-        json.dump(value, stream, indent=2, allow_nan=False)
-        stream.write("\n")
+    descriptor, temporary = tempfile.mkstemp(prefix=path.name + ".", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
+            json.dump(value, stream, indent=2, allow_nan=False)
+            stream.write("\n")
+        os.link(temporary, path)  # whole or not at all, and refuses an existing path
+    finally:
+        os.unlink(temporary)
 
 
 def pin(path):
@@ -524,7 +530,7 @@ class Session:
                         "Retexture image pins must match approved reference review evidence")
             if operation=='remesh' and payload.get('input_task_id'):
                 task=next((e for e in events if e['kind']=='submitted' and e['taskId']==payload['input_task_id']),None)
-                require(task is not None,'Remesh task source is not recorded')
+                require(task is not None and task.get('inputsUnchanged',True),'Remesh task source is not recorded with unchanged inputs')
                 owner=next(e for e in requests if e['requestId']==task['requestId'])
                 require(owner['designId']==identity and any(e['kind']=='settled' and e['requestId']==task['requestId']
                         and e['status']=='SUCCEEDED' for e in events),'Remesh source belongs to another or unfinished design')
@@ -545,7 +551,7 @@ class Session:
             self.append("reserved", designId=identity, requestId=request_id, operation=operation,
                         estimatedCredits=estimated_credits, inputs=inputs, payload=payload)
 
-    def record_task(self, request_id, task_id, resource, result_file):
+    def record_task(self, request_id, task_id, resource, result_file, *, launch_problem=None):
         require(bool(task_id) and bool(resource), "Owning task resource and ID required")
         with self.lock():
             events = self.events()
@@ -555,9 +561,16 @@ class Session:
             require(not any(e["kind"] == "submitted" and e["requestId"] == request_id for e in events),
                     "Submission already recorded")
             require(not any(e["kind"] == "submitted" and e["taskId"] == task_id for e in events), "Task already owned")
-            verify_pins(request["inputs"])
             require(task_fields(read(result_file))["id"] == task_id, "Submission response task differs")
-            self.append("submitted", requestId=request_id, taskId=task_id, resource=resource, result=pin(result_file))
+            problem = launch_problem
+            try:
+                verify_pins(request["inputs"])
+            except (OSError, ValueError) as error:
+                problem = problem or str(error)
+            # The task is paid either way, so the submission is recorded before refusing to attribute it.
+            self.append("submitted", requestId=request_id, taskId=task_id, resource=resource, result=pin(result_file),
+                        inputsUnchanged=problem is None, inputsCheckError=problem)
+            require(problem is None, "Inputs changed during submission; task " + task_id + " cannot be attributed to the pinned request")
 
     def settle(self, request_id, status, credits, result_file):
         require(status in ("SUCCEEDED", "FAILED", "CANCELED"), "Timeout is not a terminal task")

@@ -75,6 +75,16 @@ class NamespaceDependencyTests(unittest.TestCase):
             self.assertIn('tools/kit/test_engine.py',select(['tools/kit/engine.py'],data)['tests'])
 
 
+class CheckoutLocationTests(unittest.TestCase):
+    def test_a_checkout_under_an_excluded_folder_name_is_still_catalogued(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'build'/'repo'
+            write(root,{'tools/core.py':'VALUE=1','tools/test_core.py':'import core','tools/vendor/skip.py':''})
+            data=catalog(root)
+            self.assertEqual(data['tests'],['tools/test_core.py'])
+            self.assertEqual(data['dependencies']['tools/test_core.py'],['tools/core.py'])
+            self.assertNotIn('tools/vendor/skip.py',data['dependencies'])
+
 class PackageDiscoveryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):cls.data=catalog()

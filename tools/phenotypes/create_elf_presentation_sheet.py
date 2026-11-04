@@ -42,7 +42,7 @@ def main():
     parser.add_argument(
         "--artifact-dir",
         type=Path,
-        default=Path("C:/Users/benco/.gemini/antigravity-ide/brain/4adb5468-4771-4ffc-93ea-eda7b809f211"),
+        default=Path("output/phenotypes/review-sheets"),
     )
     args = parser.parse_args()
 
