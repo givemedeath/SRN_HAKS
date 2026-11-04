@@ -112,9 +112,10 @@ def place_review_actors(git, area, ifo, actors):
     return result
 
 
-def entry_script(item_name, comparison=False, previous=''):
+def entry_script(item_name, comparison=False, previous='', *, equipment_slot='right'):
     from .contracts import resref
     resref(item_name)
+    require(equipment_slot in ('right', 'left'), 'Unsupported fixture equipment slot')
     comparisons = ('sr_cougar',) if comparison is True else tuple(comparison or ())
     require(len(set(comparisons)) == len(comparisons) and item_name not in comparisons, 'Comparison blueprint collision')
     for name in comparisons: resref(name)
@@ -151,6 +152,8 @@ void main() {
   PRIOR
   DelayCommand(0.5,StartReview(pc,20));
 }'''
+    if equipment_slot == 'left':
+        script = script.replace('INVENTORY_SLOT_RIGHTHAND', 'INVENTORY_SLOT_LEFTHAND').replace(' right=', ' left=')
     return script.replace('ITEM_RESREF', item_name).replace('COMPARISON',
         '\n  '.join('if(!GetIsObjectValid(GetItemPossessedBy(pc,"'+name+'"))) CreateItemOnObject("'+name+'",pc);' for name in comparisons)).replace('PRIOR',
         'ExecuteScript("'+previous+'",GetModule());' if previous else '')
@@ -233,7 +236,8 @@ def build(manifest_path, manifest, native, local, output):
         shutil.copyfile(bound['path'], resources/(name+'.uti')); comparisons.append(name)
     # The old item fixture's setup script attaches the player's camera. Review
     # actors are now visible at entry; leave the player's camera under their control.
-    script = entry_script(item_name, comparisons, '' if previous == 'sr_it_setup' else previous)
+    script = entry_script(item_name, comparisons, '' if previous == 'sr_it_setup' else previous,
+                          equipment_slot='left' if native.get('kind') == 'shield-native-package' else 'right')
     script_path = resources/'sr_it_enter.nss'; script_path.write_text(script, encoding='ascii')
     include = output/'includes'; include.mkdir()
     shutil.copyfile(inputs[3]['path'], include/'nwscript.nss')
