@@ -40,12 +40,14 @@ def region_gutters(owners, regions):
     return {'regionCount':int(len(np.unique(regions))),'nearbyChartPixelsByRadius':collisions}
 
 
-def unwrap_parts(source, local, output, runtime_size=1024, *, packing_paddings=None, parts=('b','m','t')):
+def unwrap_parts(source, local, output, runtime_size=1024, *, packing_paddings=None, parts=('b','m','t'),coordinate_scale=1.0):
     paddings=(16,32) if packing_paddings is None else packing_paddings
     require(isinstance(paddings,(list,tuple)) and 1<=len(paddings)<=3
             and all(type(n) is int and 8<=n<=32 for n in paddings)
             and list(paddings)==sorted(set(paddings)), 'Ordered unique atlas paddings in 8..32 required')
-    require(tuple(parts) in (('b','m','t'),('b',),('m',),('t',)), 'Explicit native processing parts required')
+    require(tuple(parts) in (('b','m','t'),('b',),('m',),('t',),('whole',)), 'Explicit processing parts required')
+    require(type(coordinate_scale) in (int,float) and np.isfinite(coordinate_scale)
+            and 1<=coordinate_scale<=10000,'Bounded atlas coordinate scale required')
     output=Path(output);output.mkdir();begun=time.monotonic()
     with np.load(source,allow_pickle=False) as archive:
         values={key:archive[key].copy() for key in archive.files}
@@ -63,7 +65,10 @@ def unwrap_parts(source, local, output, runtime_size=1024, *, packing_paddings=N
     areas=np.linalg.norm(np.cross(triangles[:,1]-triangles[:,0],triangles[:,2]-triangles[:,0]),axis=1)*.5
     xatlas=library(local,'xatlas');attempts=[];accepted=None
     for padding in paddings:
-        uv,atlas,count=_pack(xatlas,vertices,faces,groups,padding=padding);uv[:,:,0]*=.94;isolated=set()
+        # Native-unit seam slivers can fall below xatlas's absolute precision.
+        # Scale only its temporary charting coordinates; all output geometry,
+        # area/closure checks and source bindings remain in original units.
+        uv,atlas,count=_pack(xatlas,vertices*coordinate_scale,faces,groups,padding=padding);uv[:,:,0]*=.94;isolated=set()
         original_uv=uv.astype(np.float32).astype(np.float64);original_regions=chart_ids(original_uv)
         for iteration in range(3):
             uv=uv.astype(np.float32).astype(np.float64)
@@ -77,7 +82,19 @@ def unwrap_parts(source, local, output, runtime_size=1024, *, packing_paddings=N
                 bad.update(np.flatnonzero(np.isin(current_charts,missing_charts)))
             if not bad:break
             isolated.update(map(int,bad));ids=np.array(sorted(isolated),int)
-            require(len(ids)<len(faces)*.03 and areas[ids].sum()<areas.sum()*.03,'Final UV repair exceeds bounded local scope')
+            if not (len(ids)<len(faces)*.03 and areas[ids].sum()<areas.sum()*.03):
+                # Retain the expensive pack so a bounded correction can use it
+                # without another atlas generation or a duplicate geometry pass.
+                candidate=output/f'blocked-padding-{padding}.npz'
+                np.savez_compressed(candidate,positions=vertices,faces=faces,uv=uv,
+                                    originalUV=original_uv,originalRegions=original_regions)
+                write(output/'packing-audit.json',{'source':pin(source),'candidate':pin(candidate),
+                    'padding':padding,'badFaces':len(ids),'visibleFaces':len(faces),
+                    'badSurfaceFraction':float(areas[ids].sum()/areas.sum()),
+                    'byResolution':{size:{'overlapFaces':len(a['overlapFaces']),
+                        'degenerateFaces':len(a['degenerateUvFaces'])} for size,a in audits.items()}})
+                raise ValueError(f'Final UV repair exceeds bounded local scope: {len(ids)}/{len(faces)} faces, '
+                                 f'{areas[ids].sum()/areas.sum():.6%} surface')
             columns=4;rows=int(np.ceil(len(ids)/columns));cw=.05/columns;ch=.89/rows;gap=3/runtime_size
             require(min(cw,ch)>2*gap,'Insufficient runtime filtering room for UV repair')
             for k,fi in enumerate(ids):
@@ -114,5 +131,5 @@ def unwrap_parts(source, local, output, runtime_size=1024, *, packing_paddings=N
         values[part+'_uvRegions']=labels
     target=output/'final-atlas.npz';np.savez_compressed(target,**values)
     proof=output/'region-proof.npz';np.savez_compressed(proof,originalUV=original_uv,originalRegions=original_regions,finalVisibleUV=accepted,finalRegions=regions,isolatedFaces=ids)
-    result={'atlas':pin(target),'source':pin(source),'regionProof':pin(proof),'attempts':attempts,'runtimeTextureSize':runtime_size,'geometryUnchanged':True,'explicitHiddenCaps':{p:int(values[p+'_hiddenCaps'].sum()) for p in parts},'intentionalCapPaletteOverlap':True,'capPaletteUV':palette.tolist(),'elapsedSeconds':time.monotonic()-begun}
+    result={'atlas':pin(target),'source':pin(source),'regionProof':pin(proof),'attempts':attempts,'runtimeTextureSize':runtime_size,'coordinateScale':coordinate_scale,'geometryUnchanged':True,'explicitHiddenCaps':{p:int(values[p+'_hiddenCaps'].sum()) for p in parts},'intentionalCapPaletteOverlap':True,'capPaletteUV':palette.tolist(),'elapsedSeconds':time.monotonic()-begun}
     write(output/'atlas.json',result,fresh=True);return result

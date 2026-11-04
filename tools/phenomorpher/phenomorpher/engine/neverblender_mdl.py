@@ -111,7 +111,7 @@ def unresolved_supermodels(rows):
     return sorted(name for name, row in rows.items() if any('supermodel' in w and 'not found' in w for w in row['warnings']))
 
 
-def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600, cache=None, allow_unresolved_supermodel=False):
+def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600, cache=None, allow_unresolved_supermodel=False, expected_identity=None):
     """Compile converted/ascii/*.mdl into converted/resources with a native-compile.json receipt.
 
     Same folder layout and receipt rows as tools/phenotypes/native_compile.py, so armor-publish and
@@ -119,14 +119,17 @@ def compile_folder(blender, addon, converted, resource_dirs=(), timeout=600, cac
     read back. `cache` names an earlier converted folder: its binaries are copied for sources whose
     source, compiler and lookups are unchanged, so a managed launch can pin it as a read-only input.
     A supermodel missing from every lookup folder fails the compile unless explicitly allowed."""
-    return compile_folders(blender, addon, [converted], resource_dirs, timeout, [cache], allow_unresolved_supermodel)[0]
+    return compile_folders(blender, addon, [converted], resource_dirs, timeout, [cache], allow_unresolved_supermodel, expected_identity)[0]
 
 
-def compile_folders(blender, addon, converted, resource_dirs=(), timeout=600, caches=None, allow_unresolved_supermodel=False):
+def compile_folders(blender, addon, converted, resource_dirs=(), timeout=600, caches=None, allow_unresolved_supermodel=False, expected_identity=None):
     """compile_folder for several converted folders in ONE Blender process (a batch pays one start-up). Each folder
     keeps its own lookups (its ascii/, resources/ and resource_dirs), staging and receipt, identical to a
     compile_folder call on it alone. Any failure fails the call and publishes nothing into any folder."""
-    tools = toolchain(blender, addon); caches = list(caches) if caches is not None else [None]*len(converted)
+    tools = toolchain(blender, addon)
+    if expected_identity is not None and tools['sha256'] != expected_identity:
+        raise ValueError('Native compiler differs from its frozen identity')
+    caches = list(caches) if caches is not None else [None]*len(converted)
     if len(caches) != len(converted):
         raise ValueError('One cache entry (or None) per converted folder')
     plans = []

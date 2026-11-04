@@ -39,6 +39,21 @@ def fake_run(binary, warnings=()):
 
 
 class CompileFolderTests(unittest.TestCase):
+    def test_frozen_identity_rejects_changed_addon_before_worker(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);blender,addon=toolchain(root);converted=root/'converted'
+            (converted/'ascii').mkdir(parents=True);(converted/'ascii/m.mdl').write_text(ROOT_AT_ORIGIN)
+            identity=nvb.toolchain(blender,addon)['sha256']
+            run,calls=fake_run(native('m','null',[('m','',{})]))
+            with patch.object(nvb,'run',side_effect=run):
+                nvb.compile_folder(blender,addon,converted,expected_identity=identity)
+            self.assertEqual(calls,[['m.mdl']])
+            (addon/'late.py').write_text('# changed compiler membership\n')
+            with patch.object(nvb,'run') as worker:
+                with self.assertRaisesRegex(ValueError,'frozen identity'):
+                    nvb.compile_folder(blender,addon,converted,expected_identity=identity)
+                worker.assert_not_called()
+
     def test_receipt_caching_and_fresh_compiles(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); blender, addon = toolchain(root); converted = root/'c'; (converted/'ascii').mkdir(parents=True)

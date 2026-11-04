@@ -110,8 +110,8 @@ class ClientTransportTests(unittest.TestCase):
         for route, expected in [('/headkit/runtime-identity', 300),
                                 ('/headkit/verify-loader-models', 300),
                                 ('/queue', 30), ('/prompt', 30)]:
-            with self.subTest(route=route), patch.object(comfy.urllib.request, 'urlopen') as opened, \
-                    patch.object(comfy.json, 'load', return_value={'verified': True}):
+            with self.subTest(route=route), patch.object(comfy.urllib.request, 'urlopen') as opened:
+                opened.return_value.__enter__.return_value.read.return_value = b'{"verified":true}'
                 self.assertEqual(client.request(route), {'verified': True})
                 self.assertEqual(opened.call_args.kwargs['timeout'], expected)
 
@@ -2265,6 +2265,29 @@ class LedgerTests(Temporary):
         self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
         self.assertEqual(client.posts,0)
         self.assertIn('/headkit/runtime-identity',[route for route,_ in client.routes])
+
+    def test_preparation_baseline_cannot_replace_fresh_dispatch_verification(self):
+        from headkit.common import digest
+        ledger=self.root/'baseline-ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')
+        request=self.prepared();request['runtimeVerification']='server-owned'
+        client=FakeClient();_,bindings=self.bind_dispatch(request,client.url)
+        startup=copy.deepcopy(request['comfyRuntimeIdentity'])
+        original=client.request
+        def route(name,data=None):
+            if name=='/headkit/preparation-identity':
+                client.routes.append((name,data))
+                return {'kind':'preparation-baseline-v1','runtimeIdentity':startup,'requiresFreshDispatch':True}
+            return original(name,data)
+        client.request=route
+        self.assertEqual(comfy.preparation_runtime(client,{'comfyPreparationVerification':'dispatch-gated-baseline-v1'}),startup)
+        changed=copy.deepcopy(startup);changed['torch']['version']='changed since startup'
+        changed['fingerprint']=digest({k:v for k,v in changed.items()if k!='fingerprint'})
+        client.server_runtime=changed
+        with self.assertRaisesRegex(ValueError,'runtime differs'):
+            comfy.submit(client,ledger,request,self.root/'baseline-dispatch',runtime_identity=request['runtimeIdentity'],bindings_path=bindings)
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+        self.assertIn('/headkit/runtime-identity',[name for name,_ in client.routes])
 
     def test_server_owned_runtime_is_reverified_under_lock_without_client_file_reads(self):
         ledger=self.root/'server-owned-ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')

@@ -36,6 +36,68 @@ class DonorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'source blocks UV/bake'):
                 unwrap_source(self.source,{},self.root/'invalid-source')
         unwrap.assert_not_called()
+    def test_explicit_sampling_surface_keeps_open_donor_exact_without_native_approval(self):
+        from tools.headkit.gltf import mesh
+        value=mesh(self.unwrapped)
+        with patch('tools.itemkit.source_atlas.unwrap',return_value=(value,{'verified':'fixture'})):
+            result=unwrap_source(self.source,{},self.root/'sampling',topology_policy='sampling-surface-v1')
+        self.assertFalse(result['physicalTopology']['closedWound'])
+        self.assertFalse(result['nativeGeometryApproved'])
+        self.assertEqual(result['frame']['maximumCoordinateDifference'],0)
+        self.assertEqual(result['topologyPolicy'],'sampling-surface-v1')
+        # The opt-in does not change the actual native shadow contract.
+        from tools.itemkit.native import ascii_model
+        normals=np.tile([0,0,1],(1,3,1))
+        with self.assertRaisesRegex(ValueError,'Closed, outward shadow'):
+            ascii_model('wbwxh_t_015','texture',self.v[self.f],normals,self.uv,self.v,self.f)
+    def test_sampling_surface_still_rejects_degenerate_faces_and_frame_changes(self):
+        from tools.headkit.gltf import mesh
+        bad=self.root/'bad.glb';write_mesh(bad,np.zeros_like(self.v),self.f,normals=np.tile([0,0,1],(3,1)))
+        with patch('tools.itemkit.source_atlas.unwrap') as unwrap:
+            with self.assertRaisesRegex(ValueError,'Degenerate donor surface'):
+                unwrap_source(bad,{},self.root/'degenerate',topology_policy='sampling-surface-v1')
+            unwrap.assert_not_called()
+        shifted=self.root/'shifted.glb';write_mesh(shifted,self.v+[0,1,0],self.f,self.uv)
+        with patch('tools.itemkit.source_atlas.unwrap',return_value=(mesh(shifted),{})):
+            with self.assertRaisesRegex(ValueError,'original appearance-field frame'):
+                unwrap_source(self.source,{},self.root/'shifted',topology_policy='sampling-surface-v1')
+        with self.assertRaisesRegex(ValueError,'Unknown donor topology policy'):
+            unwrap_source(self.source,{},self.root/'unknown',topology_policy='skip-checks')
+    def test_sampling_surface_preserves_positive_microtriangles(self):
+        from tools.headkit.gltf import mesh
+        v=self.v*1e-7;source=self.root/'micro.glb';uv=self.root/'micro-uv.glb'
+        write_mesh(source,v,self.f);write_mesh(uv,v,self.f,self.uv)
+        with patch('tools.itemkit.source_atlas.unwrap',return_value=(mesh(uv),{})):
+            result=unwrap_source(source,{},self.root/'micro',topology_policy='sampling-surface-v1')
+        self.assertEqual(result['physicalTopology']['degenerate'],1)
+        self.assertNotIn('samplingCleanup',result)
+        self.assertEqual(result['frame']['maximumCoordinateDifference'],0)
+    def test_sampling_surface_removes_only_bounded_exact_zero_area_faces(self):
+        from tools.headkit.gltf import mesh
+        v=np.r_[self.v,[[0,0,0]]];f=np.r_[np.tile(self.f,(100,1)),[[3,3,3]]]
+        source=self.root/'sliver.glb';uv=self.root/'clean-uv.glb'
+        write_mesh(source,v,f,normals=np.tile([0,0,1],(4,1)))
+        write_mesh(uv,self.v,np.tile(self.f,(100,1)),np.tile(self.uv,(100,1,1)))
+        with patch('tools.itemkit.source_atlas.unwrap',return_value=(mesh(uv),{})):
+            result=unwrap_source(source,{},self.root/'clean',topology_policy='sampling-surface-v1')
+        self.assertEqual(result['samplingCleanup']['removedZeroAreaFaces'],1)
+        self.assertEqual(result['samplingCleanup']['removedSurfaceArea'],0)
+        self.assertEqual(result['frame']['maximumCoordinateDifference'],0)
+        self.assertNotEqual(result['samplingSource'],result['source'])
+    def test_runner_routes_only_explicit_donor_policy_and_uses_its_sampling_source(self):
+        from tools.itemkit.runner import Runner
+        from tools.headkit.common import pin
+        field=self.root/'field.npz';field.write_bytes(b'field fixture')
+        runner=Runner.__new__(Runner);runner.local={}
+        runner.data={'processing':{'sourceDonorTopologyPolicy':'sampling-surface-v1','sourceFieldPolicy':{}},
+                     'approval':{'sourceDonor':{'decision':'approved','geometryDonorSha256':pin(self.source)['sha256'],
+                        'fieldSha256':pin(field)['sha256'],'notes':'Exact source and field reviewed'}}}
+        with patch.object(runner,'input',side_effect=[str(self.source),str(field)]), \
+             patch('tools.itemkit.donor.unwrap_source',return_value={'samplingSource':pin(self.source),'uvMesh':pin(self.unwrapped)}) as unwrap, \
+             patch('tools.itemkit.donor.build',return_value={'baked':True}) as bake:
+            self.assertEqual(runner._execute('donor',self.root/'stage'),{'baked':True})
+            self.assertEqual(unwrap.call_args.kwargs['topology_policy'],'sampling-surface-v1')
+            self.assertEqual(Path(bake.call_args.args[0]).resolve(),self.source.resolve())
     def test_transformed_or_reversed_source_cannot_sample_original_field(self):
         for label,vertices,faces in (('translated',self.v+[0,1,0],self.f),('reversed',self.v,self.f[:,::-1])):
             path=self.root/(label+'.glb');write_mesh(path,vertices,faces,self.uv)

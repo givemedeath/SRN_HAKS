@@ -4,6 +4,8 @@ from .firearms import SLOTS
 from .geometry import check_budgets
 
 FIREARM_VIEWS = ('left','right','muzzle','rear','top','underside','grip','oblique')
+WHOLE_NATIVE_FAMILIES = ('firearm-sling', 'firearm-crossbow', 'crossbow')
+RIGGED_NATIVE_FAMILIES = ('bow', 'whip')
 
 
 def firearm_views(settings):
@@ -24,17 +26,52 @@ def firearm_views(settings):
 
 
 def active_parts(profile):
-    if profile['family'] != 'firearm-sling': return ('b', 'm', 't')
+    from .contracts import whole_shield
+    if whole_shield(profile): return ('whole',)
+    if profile['family'] == 'catalog-object': return ('whole',)
+    if profile['family'] == 'crossbow': return ('t',)
+    if profile['family'] in RIGGED_NATIVE_FAMILIES: return ('m',)
+    if profile['family'] not in ('firearm-sling','firearm-crossbow'): return ('b', 'm', 't')
     subtype = profile.get('firearm', {}).get('subtype')
     require(subtype in SLOTS, 'Declare the whole-firearm native slot before processing')
     return (SLOTS[subtype],)
+
+
+def active_icon_dimensions(profile):
+    dimensions=profile['native'].get('iconDimensions')
+    active=active_parts(profile)
+    require(isinstance(dimensions,dict), 'Measure active-part inventory icon dimensions')
+    if profile['family'] in RIGGED_NATIVE_FAMILIES:
+        require(set(dimensions)=={'b','m','t'}, 'Measure all rigged donor inventory icon dimensions')
+        dimensions={part:dimensions[part] for part in active}
+    require(set(dimensions)==set(active), 'Measure active-part inventory icon dimensions')
+    return dimensions
+
+
+def fitting_parts(profile, joins):
+    """Whole meshes keep both ends; only multipart melee uses cut planes."""
+    import math
+    active=active_parts(profile)
+    if len(active)==1:
+        require(not joins, 'A single-part weapon must not inherit melee part cuts')
+    else:
+        require(len(joins)==2 and all(math.isfinite(y) for y in joins) and joins[0]<joins[1],
+                'Two ordered natural part cuts required')
+    return active
+
+
+def grip_render_part(profile):
+    active=active_parts(profile)
+    part=profile['native'].get('gripPart',active[0] if len(active)==1 else 'm')
+    require(part in active, 'Grip close-up must use an active part')
+    return part
 
 
 def assembly_budget(profile, counts, kind):
     active = active_parts(profile)
     require(set(counts) == set(active), 'Count every active processing part exactly once')
     full = dict(counts)
-    if profile['family'] == 'firearm-sling':
+    if profile['family'] in WHOLE_NATIVE_FAMILIES + RIGGED_NATIVE_FAMILIES:
         require(kind in ('visible', 'shadow'), 'Known budget kind required')
         for part in set(('b','m','t'))-set(active):
             require(profile['budgets']['parts'][part] == {'visible':4, 'shadow':0},

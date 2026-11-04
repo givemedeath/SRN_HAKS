@@ -135,11 +135,46 @@ def closest_surface_point(vertices, faces, point):
     return points[np.argmin(np.linalg.norm(points-point, axis=1))]
 
 
-def hidden_cap_faces(vertices, faces, join_y, tolerance=1e-7):
+def hidden_cap_faces(vertices, faces, join_y, tolerance=1e-7, *, planes=(), quadrics=()):
     triangles = np.asarray(vertices, float)[faces]
     caps = np.zeros(len(faces), bool)
     for plane in join_y:
         caps |= np.all(np.abs(triangles[:, :, 1]-plane) < tolerance, axis=1)
+    require(isinstance(planes,(list,tuple)) and len(planes)<=8, 'Bounded measured cap planes required')
+    for plane in planes:
+        require(isinstance(plane,dict) and set(plane)=={'name','normal','offset','tolerance','bounds'},
+                'Explicit measured cap plane and spatial bounds required')
+        normal=np.asarray(plane['normal'],float);bounds=np.asarray(plane['bounds'],float)
+        offset,epsilon=plane['offset'],plane['tolerance']
+        require(isinstance(plane['name'],str) and plane['name'].strip()
+                and normal.shape==(3,) and np.isfinite(normal).all()
+                and abs(np.linalg.norm(normal)-1)<1e-8
+                and type(offset)in (int,float) and np.isfinite(offset)
+                and type(epsilon)in (int,float) and np.isfinite(epsilon) and 0<epsilon<=.001
+                and bounds.shape==(2,3) and np.isfinite(bounds).all() and np.all(bounds[0]<bounds[1]),
+                'Finite unit cap plane, bounded tolerance and positive spatial bounds required')
+        coplanar=np.max(np.abs(triangles@normal-offset),axis=1)<=epsilon
+        inside=np.all((triangles>=bounds[0])&(triangles<=bounds[1]),axis=(1,2))
+        caps |= coplanar & inside
+    require(isinstance(quadrics,(list,tuple)) and len(quadrics)<=8,'Bounded measured cap quadrics required')
+    for surface in quadrics:
+        require(isinstance(surface,dict) and set(surface)=={'name','matrix','tolerance','bounds'},
+                'Explicit measured cap quadric and spatial bounds required')
+        matrix=np.asarray(surface['matrix'],float);bounds=np.asarray(surface['bounds'],float)
+        epsilon=surface['tolerance']
+        require(isinstance(surface['name'],str) and surface['name'].strip()
+                and matrix.shape==(4,4) and np.isfinite(matrix).all()
+                and np.allclose(matrix,matrix.T,atol=1e-12,rtol=0)
+                and np.linalg.norm(matrix[:3])>1e-12
+                and type(epsilon) in (int,float) and np.isfinite(epsilon) and 0<epsilon<=.001
+                and bounds.shape==(2,3) and np.isfinite(bounds).all() and np.all(bounds[0]<bounds[1]),
+                'Finite symmetric cap quadric, bounded tolerance and positive spatial bounds required')
+        homogeneous=np.concatenate([triangles,np.ones((*triangles.shape[:2],1))],axis=2)
+        value=np.einsum('fvi,ij,fvj->fv',homogeneous,matrix,homogeneous)
+        gradient=2*(homogeneous@matrix)[:,:,:3];length=np.linalg.norm(gradient,axis=2)
+        distance=np.full_like(value,np.inf);np.divide(abs(value),length,out=distance,where=length>1e-12)
+        inside=np.all((triangles>=bounds[0])&(triangles<=bounds[1]),axis=(1,2))
+        caps |= np.all(distance<=epsilon,axis=1)&inside
     return caps
 
 

@@ -17,6 +17,40 @@ TABLE = (b'2DA V2.0\r\n\r\n// keep this byte-for-byte\r\n'
 
 
 class FirearmTests(unittest.TestCase):
+    def test_longarm_raw_addresses_support_eighty_distinct_complete_assemblies(self):
+        occupied={'wbwxh_t_011.mdl','iwbwxh_b_012.dds','sr_ar_013.mtr'}
+        values=[]
+        for i in range(80):
+            a=f.longarm_plan(None,occupied,'sr_ar',f'ar{i}')
+            v=a['variants'][0];values.append(a['appearanceByte'])
+            self.assertEqual(a['baseItem'],6)
+            self.assertEqual(set(v['utiParts'].values()),{a['appearanceByte']})
+            counts={p:{'visible':4,'shadow':0} for p in f.PART_FIELDS};counts['t']={'visible':9992,'shadow':500}
+            self.assertTrue(f.validate_assembly(a,v,counts))
+            self.assertEqual(variant_blueprint(a,v,counts,'AK')['BaseItem']['value'],6)
+            self.assertEqual(len(a['resources']),8)
+            self.assertFalse(set(a['resources'])&occupied)
+            occupied.update(a['resources'])
+        self.assertEqual(len(set(values)),80)
+        self.assertTrue(any(n>100 for n in values))
+
+    def test_longarm_explicit_address_collisions_and_mixed_parts_reject(self):
+        for n in [0,10,20,256,True]:
+            with self.assertRaises(ValueError): f.longarm_plan(n,[],'sr_a','sr_a')
+        for suffix in ['wbwxh_b_015.mdl','iwbwxh_m_015.dds','sr_a_015.txi','sr_a_5.uti']:
+            with self.assertRaisesRegex(ValueError,'collision'): f.longarm_plan(15,[suffix],'sr_a','sr_a')
+        a=f.longarm_plan(15,[],'sr_a','sr_a');v=a['variants'][0]
+        v['models']['b']='wbwxh_b_011'
+        counts={p:{'visible':4,'shadow':0} for p in f.PART_FIELDS}
+        with self.assertRaisesRegex(ValueError,'Mixed'): f.validate_assembly(a,v,counts)
+
+    def test_longarm_effective_identity_and_dimensions_are_verified(self):
+        table=(b'2DA V2.0\n\nlabel ItemClass ModelType MinRange MaxRange InvSlotWidth InvSlotHeight\n'
+               b'6 heavycrossbow WBwXh 2 10 100 2 4\n')
+        self.assertEqual(f.longarm_row(table)[0],'6')
+        for old,new in [(b'WBwXh',b'WBwSl'),(b' 2 10',b' 0 10'),(b'2 4',b'1 2'),(b'6 heavy',b'5 heavy')]:
+            with self.assertRaises(ValueError): f.longarm_row(table.replace(old,new))
+
     def allocation(self, occupied=(), colours=(1, 2), subtype='pistol'):
         return f.plan(subtype, colours, occupied, 'sr_pt', 'sr_pt')
 
