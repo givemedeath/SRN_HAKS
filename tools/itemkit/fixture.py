@@ -6,6 +6,7 @@ import shutil
 import struct
 import subprocess
 from tools.headkit.common import asset, pin, read, require, verify, write
+from .routes import PACKAGED_FIREARMS
 
 CHECKS = ('front-rear-sides', 'idle', 'walk', 'run', 'equip-unequip', 'attacks', 'shadows',
           'gloves-armor', 'shield-offhand')
@@ -305,7 +306,7 @@ def validate_evidence(path, fixture):
             and evidence.get('fixtureHaks') == fixture['fixtureHaks'], 'Client evidence belongs to another package')
     verify([fixture['module'], fixture['hak']]+fixture['fixtureHaks'])
     observations = evidence.get('observations', [])
-    checks = FIREARM_CHECKS if fixture.get('family') in ('firearm-sling','firearm-crossbow') else CHECKS
+    checks = FIREARM_CHECKS if fixture.get('family') in PACKAGED_FIREARMS else CHECKS
     required = {(body, name) for body in ('human-male', 'human-female') for name in checks}
     require(len(observations) == len(required) and {(r['body'], r['check']) for r in observations} == required,
             'Incomplete or duplicate Human client check matrix')

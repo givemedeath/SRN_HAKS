@@ -60,7 +60,9 @@ to the approved grip JSON. Dagger profiles use the measured installed dagger
 contract, not copied shortsword donor dimensions. Optional family `resources`
 supplies `texturePrefix`, `blueprint`, `hak`, `module` and `displayName`; collision
 checks include both model/icon appearances and explicit texture/blueprint names.
-A design ID other than the three Cougar IDs receives its own hashed `sr<8 hex>`
+Each family's parts, native adapter, carrier and grip binding live in one record
+in `tools/itemkit/routes.py`; a new family starts there. A design ID other than
+the three Cougar IDs receives its own hashed `sr<8 hex>`
 resources from intake, never a shipped Cougar identity. Shortsword, dagger,
 longsword and greatsword fitting, and any `midpoint-depth-two-hand` fit, refuse an
 unbound `inputs.gripStandard`. The fixture refuses a comparison HAK named like the

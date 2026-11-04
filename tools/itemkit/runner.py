@@ -12,6 +12,7 @@ from PIL import Image
 from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
 from .contracts import all_pins, code_pins, source_version, manifest, family, evidence_pins, stage_roles
 from .geometry import corner_hash
+from .routes import GRIP_BOUND_FAMILIES, PACKAGED_FIREARMS, ROUTES
 from .verification import VerificationPass
 
 DEPENDENCIES = {'prepare': (), 'inspect': (), 'donor': (), 'fit': (), 'reduce': ('fit',), 'unwrap': ('reduce',),
@@ -223,7 +224,6 @@ class Runner:
             return build(sampling,uv['uvMesh']['path'],field,self.data['processing'].get('sourceFieldPolicy'),folder/'donor')
         if stage == 'fit':
             require(self.family['nativePackaging'] == 'enabled', 'Fitting requires a measured native contract')
-            from .parts import GRIP_BOUND_FAMILIES
             if self.family['family'] in GRIP_BOUND_FAMILIES:
                 require('gripStandard' in self.data['inputs'], 'Bind the approved grip standard before fitting this weapon')
             donor = self.input('texturedDonor'); review = self.data.get('approval', {}).get('texturedDonor', {})
@@ -268,15 +268,16 @@ class Runner:
             return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'],
                                texture=parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'])
         if stage == 'export':
-            require(self.family['family'] != 'shield',
+            adapter = ROUTES[self.family['family']].adapter
+            require(adapter != 'shield',
                     'Shield native export requires the reviewed shield_native adapter; '
                     'the rigid Runner exporter cannot preserve the pane material contract')
-            require(self.family['family'] not in ('bow','whip','crossbow'),
+            require(adapter not in ('rigged', 'whole-skinned'),
                     'Rigged native export requires the reviewed skinned_native adapter and inactive placeholders; '
                     'the rigid Runner exporter cannot preserve skin weights or animation')
             arrays = self.worker('export-arrays', folder, scene=parent_result('shadow')['scene']['path'])
             icons = parent_result('render')['icons']
-            if self.family['family'] in ('firearm-sling','firearm-crossbow'):
+            if self.family['family'] in PACKAGED_FIREARMS:
                 from .parts import active_parts
                 slot, = active_parts(self.family)
                 require(set(arrays['parts']) == set(icons) == {slot}, 'Whole firearm export contains unexpected parts')
@@ -289,7 +290,7 @@ class Runner:
             return {'preparedDirectory': str(folder/'export'), **prepare(self.profile_path, self.family, arrays['parts'],
                 parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'], icons, folder/'export')}
         if stage == 'native':
-            require(self.family['family'] not in ('firearm-sling','firearm-crossbow'),
+            require(self.family['family'] not in PACKAGED_FIREARMS,
                     'Combine reviewed Color exports with firearm-prepare, firearm-native and firearm-fixture')
             from .native import compile_package
             return compile_package(parent_result('export')['preparedDirectory'], self.local['client'], folder/'native')

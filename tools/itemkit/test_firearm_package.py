@@ -65,7 +65,7 @@ class FirearmPackageTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        self.profile = self.root/'profile.json'; write(self.profile, {})
+        self.profile = self.root/'profile.json'; write(self.profile, {'family':'firearm-sling'})
         self.table = self.root/'baseitems.2da'
         self.table.write_text('2DA V2.0\n\nlabel ItemClass ModelType MinRange MaxRange InvSlotWidth InvSlotHeight\n'
                               '61 sling WBwSl 0 0 50 1 2\n')

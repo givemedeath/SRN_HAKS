@@ -21,6 +21,7 @@ from tools.itemkit.geometry import corner_hash, similarity_matrix, transform, to
 from tools.itemkit.transfer import finished_colour,validate_texture_patch
 from tools.itemkit.parts import active_parts, active_icon_dimensions, fitting_parts, grip_render_part, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
 from tools.itemkit.reduction import rims
+from tools.itemkit.routes import ROUTES
 
 def arrays(obj):
     mesh = obj.data; mesh.calc_loop_triangles()
@@ -213,7 +214,7 @@ def fit(cfg, out):
     # Measure the retained working mesh before transformation. Re-importing a
     # dense donor solely to measure it duplicates geometry and image residency.
     working = import_source(cfg['workingSource'], 'working-source') if cfg.get('workingSource') else donor
-    if cfg['family']['family'] == 'crossbow':
+    if ROUTES[cfg['family']['family']].adapter == 'whole-skinned':
         require(pin(cfg.get('workingSource',cfg['source']))['sha256'] == cfg['family']['native']['motion']['working']['sha256'],
                 'Crossbow fit source differs from its qualified moving mesh')
     matrix = similarity_matrix(cfg['fit'], pin(cfg['source'])['sha256'])

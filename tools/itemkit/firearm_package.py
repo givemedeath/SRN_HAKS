@@ -13,6 +13,7 @@ from PIL import Image
 
 from tools.headkit.common import pin, read, require, verify, write, verification_pass
 from .contracts import native_contract, resref, source_version, code_pins, stack_inputs
+from .routes import ROUTES
 from .firearms import plan, longarm_plan, longarm_row, private_override, sling_row, validate_assembly
 from .firearm_native import placeholder_geometry, placeholder_ascii, audit_placeholder, variant_blueprint
 from .native import (EXTRA_RESOURCE_TYPES, ascii_model, archive_helpers, blueprint_roundtrip, compile_offline, compile_with_client,
@@ -47,8 +48,9 @@ def prepare(spec_path, output):
         profile_path = spec['sourceProfile']['path']
         profile = read(profile_path)
         _, resources = native_contract(profile_path, profile)
-        skinned = profile.get('family') == 'crossbow'
-        longarm = skinned or profile.get('family') == 'firearm-crossbow'
+        route = ROUTES[profile['family']]
+        skinned = route.adapter == 'whole-skinned'
+        longarm = route.longarm
         motion = None
         if skinned:
             from .contracts import crossbow_motion_inputs

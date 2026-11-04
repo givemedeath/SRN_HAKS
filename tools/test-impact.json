@@ -727,6 +727,7 @@
       "tools/itemkit/recovery.py",
       "tools/itemkit/reduction.py",
       "tools/itemkit/review.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/transfer.py"
     ],
     "tools/itemkit/client_fixture_repair.py": [
@@ -744,6 +745,7 @@
       "tools/itemkit/firearms.py",
       "tools/itemkit/native_stack.py",
       "tools/itemkit/parts.py",
+      "tools/itemkit/routes.py",
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/rig_native.py"
     ],
@@ -781,6 +783,7 @@
       "tools/itemkit/firearm_native.py",
       "tools/itemkit/firearms.py",
       "tools/itemkit/native.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/skinned_native.py",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
@@ -795,6 +798,7 @@
       "tools/itemkit/contracts.py",
       "tools/itemkit/firearms.py",
       "tools/itemkit/native.py",
+      "tools/itemkit/routes.py",
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/generation.py": [
@@ -833,9 +837,9 @@
     ],
     "tools/itemkit/parts.py": [
       "tools/headkit/common.py",
-      "tools/itemkit/contracts.py",
       "tools/itemkit/firearms.py",
-      "tools/itemkit/geometry.py"
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/routes.py"
     ],
     "tools/itemkit/preflight.py": [
       "tools/headkit/common.py",
@@ -860,6 +864,7 @@
       "tools/headkit/common.py",
       "tools/itemkit/blender_worker.py"
     ],
+    "tools/itemkit/routes.py": [],
     "tools/itemkit/run_itemkit.py": [
       "tools/itemkit/__main__.py"
     ],
@@ -874,6 +879,7 @@
       "tools/itemkit/native.py",
       "tools/itemkit/parts.py",
       "tools/itemkit/reduction.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/shadow.py",
       "tools/itemkit/textures.py",
       "tools/itemkit/verification.py",
@@ -1056,6 +1062,12 @@
       "tools/itemkit/parts.py",
       "tools/itemkit/runner.py",
       "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_routes.py": [
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/routes.py"
     ],
     "tools/itemkit/test_shadow.py": [
       "tools/headkit/common.py",
@@ -4228,6 +4240,7 @@
     "tools/itemkit/test_reduction.py",
     "tools/itemkit/test_review.py",
     "tools/itemkit/test_rigged_contracts.py",
+    "tools/itemkit/test_routes.py",
     "tools/itemkit/test_shadow.py",
     "tools/itemkit/test_shield_native.py",
     "tools/itemkit/test_skinned_native.py",
