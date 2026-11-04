@@ -115,3 +115,22 @@ The first release has no elf and no dwarf male heads. Each head's iris uses tatt
 The same pack update adds the Troll build allowance on the 34 published Troll heads (`troll-build-allowance-r3.json`).
 
 Client check of these exact compiled files: `verify_head_trial` passed in all four race trials, and every head was viewed from the front at 0.9 m ([sheet](evidence/race-heads-publish-12-sheet.jpg)). Motion and helmets were not rechecked for this set. The toolkit's client and acceptance reports were not produced; the user's decision stands in for production acceptance.
+
+## Second publish: 12 heads (2026-11-04)
+
+The user chose to publish the heads that look good enough from the 21 candidates that had never had the face encoding, and to drop the rest. All 12 are compiled to native MDL and PLT from the validation copies.
+
+| Race | Heads |
+|---|---|
+| Elf | `pfe0_head018`, `pfe0_head019`, `pfe0_head020`, `pme0_head020`, `pme0_head021`, `pme0_head022`, `pme0_head023` |
+| Dwarf | `pfd0_head013`, `pfd0_head014` |
+| Orc | `pfo0_head013`, `pfo0_head014` |
+| Human | `pfh0_head029` |
+
+This is the first release of elf heads. Each head's iris uses tattoo1, and orc tusks use tattoo2.
+
+- **Exceptions:** `pfd0_head014` and `pme0_head021` pass by a user-approved `quality.seamStepApproved` after a client view. The shared `seamStep` limit is unchanged.
+- **Known flaws:** `pfh0_head029` has lost its cybereye lens. `pfd0_head014` has one hair colour, so its shaved sides and brows go white where the design has them dark. `pme0_head021` has a hard edge between its stubbled jaw and the neck.
+- **Dropped:** `elf-female-d` and `orc-male-b` passed but looked wrong in the client. `troll-male-a`, `troll-male-b`, `troll-female-b`, `human-male-a`, `human-male-b`, `dwarf-male-a` and `dwarf-male-b` still fail the gate.
+
+Client check of these compiled files: `verify_head_trial` passed in every race trial, and every head was viewed from the front at 0.9 m ([sheet](evidence/race-heads-publish-2-sheet.jpg)). Three-quarter views (except `pfd0_head014` and `pme0_head021`), motion and other looks were not checked. `srn_head.hak` rebuilt with 116 resources and repository validation passed; the rebuilt HAK itself was not loaded in the client.
