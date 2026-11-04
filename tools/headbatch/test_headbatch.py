@@ -10,6 +10,7 @@ import unittest.mock
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import gpu_job  # noqa: E402
 import guards  # noqa: E402
 import head_setup  # noqa: E402
 import launcher  # noqa: E402
@@ -167,6 +168,80 @@ class Guards(Base):
         self.assertTrue(guards.unwrap_gates(receipt)[0])
         receipt['gutters']['1024']['nearbyChartPixelsByRadius']['1'] = 2
         self.assertFalse(guards.unwrap_gates(receipt)[0])
+
+
+class GpuJob(Base):
+    GEOMETRY = {'961:raw.glb': {'path': 'raw.glb'}, '963:shape.pt': {'path': 'shape.pt'}}
+
+    class Comfy:
+        """Runs out of memory once per failure asked for, retrying as Comfy.run does."""
+        def __init__(self, failures):
+            self.failures = failures
+
+        def run(self, graph, out, before_submit):
+            before_submit()
+            if self.failures:
+                self.failures -= 1
+                before_submit()
+                raise SystemExit(f'{out.name} failed: out of memory')
+            return {}, GpuJob.GEOMETRY, 1
+
+    def run_geometry(self, head, ledger, failures=0):
+        with unittest.mock.patch.object(gpu_job, 'compile_graph', return_value={}):
+            return gpu_job.geometry(self.Comfy(failures), head, head/'gpu', ledger, 'prefix', 0)
+
+    def ledger(self, submissions=0):
+        return {'geometrySubmissions': submissions, 'stages': {'calibrate': {'fov': {'detail': 30.0}}, 'appearance': {'files': {}}}}
+
+    def test_every_submission_counts_and_is_saved(self):
+        head = self.head()
+        ledger = self.ledger()
+        self.run_geometry(head, ledger, failures=1)
+        self.assertEqual(ledger['geometrySubmissions'], 3)
+        self.assertEqual(json.loads((head/'gpu/gpu.json').read_text())['geometrySubmissions'], 3)
+
+    def test_a_retry_stops_at_the_cap(self):
+        head = self.head()
+        ledger = self.ledger(4)
+        with self.assertRaisesRegex(SystemExit, 'cap of 5'):
+            self.run_geometry(head, ledger, failures=1)
+        self.assertEqual(ledger['geometrySubmissions'], 5)
+
+    def test_new_geometry_drops_the_appearance_made_from_the_old_shape(self):
+        head = self.head()
+        ledger = self.ledger()
+        self.run_geometry(head, ledger)
+        self.assertNotIn('appearance', ledger['stages'])
+
+    def reused(self, stages):
+        data = json.loads((self.root/'workspace.json').read_text())
+        data['comfy'] = {'url': 'http://127.0.0.1:1', 'root': 'comfy'}
+        write(self.root/'workspace.json', data)
+        workspace = Workspace.load(self.root)
+        return workspace, launcher.reused_gpu_inputs(workspace, workspace.head('elf-male-a'), 'label', stages)
+
+    def test_partial_runs_declare_a_frozen_ledger_and_what_they_reuse(self):
+        head = self.head()
+        write(head/'gpu/gpu.json', {'stages': {'calibrate': {}, 'geometry': {'files': self.GEOMETRY}}})
+        _, (files, extra) = self.reused(['appearance'])
+        self.assertEqual(extra, ['--upstream', head/'launches/gpu-label.json'])
+        self.assertEqual(Path(files[0]), head/'launches/gpu-label.json')
+        self.assertEqual(json.loads(Path(files[0]).read_text())['stages']['geometry']['files'], self.GEOMETRY)
+        self.assertTrue(files[1].endswith('normalized.png'))
+        self.assertEqual(files[2], 'shape.pt')
+        self.assertEqual(len(self.reused(['geometry'])[1][0]), 2)
+        self.assertEqual(len(self.reused(['calibrate', 'appearance'])[1][0]), 2)
+
+    def test_full_runs_reuse_nothing(self):
+        self.head()
+        self.assertEqual(self.reused(['calibrate', 'geometry', 'appearance'])[1], ([], []))
+        self.assertEqual(self.reused(['calibrate'])[1], ([], []))
+
+    def test_a_partial_run_needs_its_earlier_stages(self):
+        head = self.head()
+        write(head/'gpu/gpu.json', {'stages': {}})
+        with self.assertRaisesRegex(guards.Refused, 'must run before'):
+            self.reused(['appearance'])
 
 
 class Locks(Base):

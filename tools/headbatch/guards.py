@@ -2,13 +2,13 @@
 from pathlib import Path
 import re
 
+from gpu_job import GEOMETRY_CAP
 from head_files import attempts, fit_matrix, read  # noqa: F401
 from workspace import TOOLS
 
 UV_MARGIN = 0.01
 UV_DEFAULT_FLOOR = 0.30
 LOOP_BUDGET = {'repair': 3, 'ownership': 2, 'tone': 4, 'palette': 3, 'render': 3}
-GEOMETRY_CAP = 5
 COVERAGE = re.compile(r'Insufficient useful UV coverage(?: after face priority)? \(([.\d]+) at 2K')
 
 

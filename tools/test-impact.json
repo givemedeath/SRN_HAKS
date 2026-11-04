@@ -24,6 +24,7 @@
       "tools/headkit/occiput.py"
     ],
     "tools/headbatch/guards.py": [
+      "tools/headbatch/gpu_job.py",
       "tools/headbatch/head_files.py",
       "tools/headbatch/workspace.py"
     ],
@@ -39,17 +40,7 @@
       "tools/headbatch/guards.py",
       "tools/headbatch/head_files.py",
       "tools/headbatch/workspace.py",
-      "tools/headkit/__main__.py",
-      "tools/headkit/comfy.py",
-      "tools/headkit/comfy_nodes/gltf.py",
-      "tools/headkit/common.py",
-      "tools/headkit/design.py",
-      "tools/headkit/gltf.py",
-      "tools/headkit/occiput.py",
       "tools/headkit/run_headkit.py",
-      "tools/headkit/source_inventory.py",
-      "tools/itemkit/__main__.py",
-      "tools/phenomorpher/phenomorpher/__main__.py",
       "tools/phenotypes/launch_shared_tool.py"
     ],
     "tools/headbatch/presets.py": [
@@ -167,6 +158,7 @@
       "tools/headbatch/workspace.py"
     ],
     "tools/headbatch/test_headbatch.py": [
+      "tools/headbatch/gpu_job.py",
       "tools/headbatch/guards.py",
       "tools/headbatch/head_setup.py",
       "tools/headbatch/launcher.py",
@@ -4274,9 +4266,7 @@
       "tools/test_impact.py"
     ]
   },
-  "unresolved": [
-    "tools/headbatch/launcher.py"
-  ],
+  "unresolved": [],
   "packReferences": {
     "tools/combat_release_manifest.py": [
       "srn_2da",

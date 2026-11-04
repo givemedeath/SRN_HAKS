@@ -16,8 +16,10 @@ from headkit.common import sha  # noqa: E402
 GEOMETRY_NODE = '961:'
 FIELD_NODE = '962:'
 SHAPE_NODE = '963:'
+GEOMETRY_CAP = 5
 POLL_SECONDS = 3
 OOM_RESEED = 1000
+REUSABLE_STAGES = ('calibrate', 'geometry')
 
 
 class Comfy:
@@ -43,12 +45,14 @@ class Comfy:
                 return history[prompt]
             time.sleep(POLL_SECONDS)
 
-    def run(self, graph, out):
+    def run(self, graph, out, before_submit=lambda: None):
         started = time.time()
+        before_submit()
         entry = self.submit(graph)
         if failed(entry) and 'out of memory' in json.dumps(entry['status']):
             print(out.name, 'CUDA OOM: freeing VRAM and retrying once', flush=True)
             time.sleep(10)
+            before_submit()
             entry = self.submit(graph)
         seconds = round(time.time()-started, 1)
         out.mkdir(parents=True, exist_ok=True)
@@ -106,21 +110,36 @@ def calibrate(comfy, head, gpu, ledger, stage_input, prefix):
     return {'seconds': seconds, 'fov': fov, 'files': files}
 
 
+def save_ledger(gpu, ledger):
+    gpu.mkdir(parents=True, exist_ok=True)
+    (gpu/'gpu.json').write_text(json.dumps(ledger, indent=1))
+
+
+def spend_geometry_submission(head, gpu, ledger):
+    """User rule: every submission counts towards the cap, retries and reseeds included, and is on disk before it runs."""
+    count = ledger.get('geometrySubmissions', 0)
+    if count >= GEOMETRY_CAP and not (head/'geometry-cap-override').exists():
+        raise SystemExit(f'{head.name}: {count} geometry submissions reached the cap of {GEOMETRY_CAP}: stop and ask the user')
+    ledger['geometrySubmissions'] = count+1
+    save_ledger(gpu, ledger)
+
+
 def geometry(comfy, head, gpu, ledger, prefix, offset):
     fov = ledger['stages']['calibrate']['fov']['detail']
     graph = compile_graph('geometry', 'pixal-single-v1', {'geometry': f'headkit/{head.name}/normalized.png'}, prefix, fov=fov)
     shift_seeds(graph, offset)
-    ledger['geometrySubmissions'] = ledger.get('geometrySubmissions', 0)+1
+    spend = lambda: spend_geometry_submission(head, gpu, ledger)
+    # An appearance field belongs to one saved shape, and the manifest approves whichever pair the ledger names.
+    ledger['stages'].pop('appearance', None)
     try:
-        entry, files, seconds = comfy.run(graph, gpu/'geometry')
+        entry, files, seconds = comfy.run(graph, gpu/'geometry', spend)
     except SystemExit as error:
         if 'out of memory' not in str(error):
             raise
         print(head.name, 'geometry OOM after a freed retry: reseeding', flush=True)
         offset += OOM_RESEED
         shift_seeds(graph, OOM_RESEED)
-        ledger['geometrySubmissions'] += 1
-        entry, files, seconds = comfy.run(graph, gpu/f'geometry-oom-r{offset}')
+        entry, files, seconds = comfy.run(graph, gpu/f'geometry-oom-r{offset}', spend)
     return {'seconds': seconds, 'fov': fov, 'files': files, 'seedOffset': offset}
 
 
@@ -144,18 +163,21 @@ def main():
     parser.add_argument('--comfy-root', required=True, type=Path)
     parser.add_argument('--stages', default='calibrate,geometry,appearance')
     parser.add_argument('--seed-offset', type=int, default=0)
+    parser.add_argument('--upstream', type=Path, help='frozen ledger holding the earlier stages this run reuses')
     args = parser.parse_args()
     head = args.head.resolve()
     gpu = head/'gpu'
     comfy = Comfy(args.comfy_url, args.comfy_root)
     ledger_path = gpu/'gpu.json'
     ledger = json.loads(ledger_path.read_text()) if ledger_path.exists() else {'head': head.name, 'stages': {}}
+    if args.upstream:
+        frozen = json.loads(args.upstream.read_text())['stages']
+        ledger['stages'].update({stage: frozen[stage] for stage in REUSABLE_STAGES if stage in frozen and stage not in args.stages.split(',')})
     stage_input = args.comfy_root/'input'/'headkit'/head.name
     stage_input.mkdir(parents=True, exist_ok=True)
 
     def save():
-        gpu.mkdir(parents=True, exist_ok=True)
-        ledger_path.write_text(json.dumps(ledger, indent=1))
+        save_ledger(gpu, ledger)
 
     for stage in args.stages.split(','):
         prefix = f'headkit/{head.name}/{stage}'

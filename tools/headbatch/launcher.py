@@ -8,9 +8,10 @@ import subprocess
 import time
 import urllib.request
 
+from gpu_job import SHAPE_NODE, file_from
 import guards
 from head_files import write_json
-from workspace import PYTHON, TOOLS
+from workspace import PYTHON, REPO, TOOLS
 
 HEADKIT = TOOLS/'headkit'
 RUN_HEADKIT = HEADKIT/'run_headkit.py'
@@ -18,8 +19,9 @@ GPU_JOB = Path(__file__).with_name('gpu_job.py')
 FINISHED_STAGES = ('native', 'render')
 LOCK_POLL_SECONDS = 2
 # Only what each job imports: a toolkit edit elsewhere must not invalidate a GPU or design launch in flight (RUNBOOK 40).
-GPU_MODULES = ('__init__.py', 'comfy.py', 'common.py', 'gltf.py', 'occiput.py', 'source_inventory.py')
-DESIGN_MODULES = ('run_headkit.py', '__init__.py', '__main__.py', 'common.py', 'comfy.py', 'design.py', 'source_inventory.py')
+GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'common', 'gltf', 'occiput', 'source_inventory'))
+DESIGN_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('run_headkit', '__init__', '__main__', 'common', 'comfy', 'design', 'source_inventory'))
+DEFAULT_GPU_STAGES = 'calibrate,geometry,appearance'
 
 
 class LaunchFailed(Exception):
@@ -152,6 +154,27 @@ def status(workspace):
     return lines
 
 
+def reused_gpu_inputs(workspace, head, label, stages):
+    """What a partial run takes from earlier stages: a frozen ledger, ComfyUI's normalized image and the saved shape (AGENTS: declare consumed inputs)."""
+    if 'calibrate' in stages and ('geometry' in stages or 'appearance' not in stages):
+        return [], []
+    ledger = head/'gpu'/'gpu.json'
+    data = guards.read(ledger) if ledger.exists() else {'stages': {}}
+    needed = ['geometry'] if 'appearance' in stages and 'geometry' not in stages else []
+    needed += [] if 'calibrate' in stages else ['calibrate']
+    missing = [stage for stage in needed if stage not in data['stages']]
+    if missing:
+        raise guards.Refused(f'{head.name}: {" and ".join(missing)} must run before {",".join(stages)}')
+    frozen = head/'launches'/f'gpu-{label}.json'
+    write_json(frozen, data)
+    files = [str(frozen)]
+    if 'calibrate' not in stages:
+        files.append(str(workspace.path(workspace.data['comfy']['root'])/'input'/'headkit'/head.name/'normalized.png'))
+    if 'geometry' in needed:
+        files.append(file_from(data['stages']['geometry']['files'], SHAPE_NODE)['path'])
+    return files, ['--upstream', frozen]
+
+
 def run_gpu(workspace, name, arguments):
     """Calibrate, geometry with its occiput check, and appearance for one head on the workspace's ComfyUI."""
     head = workspace.head(name)
@@ -165,8 +188,10 @@ def run_gpu(workspace, name, arguments):
         matte = guards.attempts(head, 'prepare')[-1]/'images'/'design-rgba.png'
         templates = sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))
         input_list = head/'launches'/f'inputs-{label}.json'
-        write_json(input_list, [str(HEADKIT/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), str(matte)])
-        job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments]
+        stages = (arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES).split(',')
+        reused, upstream = reused_gpu_inputs(workspace, head, label, stages)
+        write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), str(matte)]+reused)
+        job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream]
         data = launch(workspace, head/'launches'/f'launch-{label}', input_list, job, workspace.python_environment(packages=True))
         timing(workspace, f'gpu {name} {" ".join(arguments)} exit {data["exitCode"]}', started)
     return data
@@ -186,7 +211,7 @@ def run_design(workspace, race, requests):
         spec = folder/'launches'/f'spec-{label}.json'
         spec.write_bytes((folder/f'designs-{race}.json').read_bytes())
         reference = workspace.design_reference(race, head.split('-')[1])
-        files = [PYTHON]+[str(HEADKIT/module) for module in DESIGN_MODULES]+sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))+[str(spec), str(bindings)]
+        files = [PYTHON]+[str(REPO/module) for module in DESIGN_MODULES]+sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))+[str(spec), str(bindings)]
         extra = []
         if reference:
             files.append(str(reference))
