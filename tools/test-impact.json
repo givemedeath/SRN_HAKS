@@ -9,8 +9,8 @@
     "tools/combat_release_manifest.py": [
       "docs/imports/mdrnee_item-manifest.json",
       "docs/imports/mdrnee_item-migration-manifest.json",
+      "docs/items/approved-weapon-waves-release-validation.json",
       "docs/items/approved-weapons-v1.json",
-      "docs/items/approved-weapons-validation.json",
       "docs/items/combat-2a-release-manifest-v1.json",
       "docs/items/combat-2a-release-manifest.md",
       "docs/items/firearm-grip-standard-v1.json",
@@ -4168,7 +4168,10 @@
       "srn_2da"
     ],
     "tools/test_combat_release_manifest.py": [
-      "srn_2da"
+      "srn_2da",
+      "srn_body",
+      "srn_body_tex",
+      "srn_weapon"
     ]
   },
   "tests": [

@@ -1,0 +1,2 @@
+void main(){ SetImmortal(OBJECT_SELF,TRUE); SetIsDestroyable(FALSE,FALSE,TRUE); ClearAllActions(TRUE);
+  SetCommandable(FALSE); ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectHeal(1000),OBJECT_SELF); }

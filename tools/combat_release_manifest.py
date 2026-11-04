@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 JSON_OUT = Path('docs/items/combat-2a-release-manifest-v1.json')
 MD_OUT = Path('docs/items/combat-2a-release-manifest.md')
 PUBLICATION = Path('docs/items/approved-weapons-v1.json')
-VALIDATION = Path('docs/items/approved-weapons-validation.json')
+VALIDATION = Path('docs/items/approved-weapon-waves-release-validation.json')
 FIREARM_GRIP = Path('docs/items/firearm-grip-standard-v1.json')
 BLADE_GRIP = Path('docs/items/weapon-grip-standard-v1.json')
 BASEITEMS = Path('srn_2da/baseitems.2da')
@@ -189,7 +189,7 @@ def blueprint_record(path: Path, data: bytes, rows: dict, tlk_ids: set[int]) -> 
     model_type = row.get('ModelType')
     parts = {k: gff[k] for k in ('ModelPart1', 'ModelPart2', 'ModelPart3') if k in gff}
     lo, hi = (int(row[k]) if row.get(k, '****') != '****' else None for k in ('MinRange', 'MaxRange'))
-    used = sorted(set(parts.values()))
+    used = sorted(set(parts.values())) if model_type != '0' else [parts.get('ModelPart1', 0)]
     name = gff.get('LocalizedName', {'strRef': NO_STRREF, 'strings': {}})
     desc = gff.get('Description', {'strRef': NO_STRREF, 'strings': {}})
     return {
@@ -228,6 +228,9 @@ def expected_resources(bp: dict) -> list[str]:
             n = bp['modelParts'].get(part)
             if n is not None:
                 out += [f'{cls}_{letter}_{n:03d}.mdl', f'i{cls}_{letter}_{n:03d}.tga']
+    elif bp['modelType'] == '0' and 'ModelPart1' in bp['modelParts']:
+        name=f"{cls}_{bp['modelParts']['ModelPart1']:03d}"
+        out += [name+'.mdl','i'+name+'.tga']
     return out
 
 
@@ -301,6 +304,8 @@ def build(check_git: bool = True) -> dict:
             bp['itemClass'] = rows.get(bp['baseItem'], {}).get('ItemClass')
             bps.append(bp)
         closure, missing = set(), []
+        closure.update(item.get('compatibilityResources', []))
+        closure.update(item.get('projectileResources', []))
         for bp in bps:
             closure.add(Path(bp['path']).name)
             for name in expected_resources(bp):
@@ -317,8 +322,11 @@ def build(check_git: bool = True) -> dict:
                               if (n.endswith('.mdl') and by_name.get(n.lower(), {}).get('invisiblePart'))
                               or (n.startswith('i') and by_name.get(n[1:-4].lower() + '.mdl', {}).get('invisiblePart')))
         base_rows = sorted({bp['baseItem'] for bp in bps})
+        changed_rows={publication['displayTable']['baseItem']}|{r['baseItem'] for r in publication.get('additionalDisplayRows',[])}
+        table_required=bool(set(base_rows)&changed_rows)
         items.append({
             'id': item['id'], 'name': item['name'], 'status': item['status'],
+            'family': item.get('family'),
             'sourceArchive': item['sourceArchive'],
             'slingRelevant': SLING_ROW in base_rows,
             'baseItemRows': base_rows,
@@ -329,8 +337,8 @@ def build(check_git: bool = True) -> dict:
             'closureMatchesPublicationOwnership': sorted(closure | set(placeholders)) == sorted(owned),
             'tlkStrings': 'none required; names are embedded CExoLocStrings',
             'tables': [{'resource': rel(BASEITEMS), 'pack': TABLE_PACK, 'rows': base_rows}],
-            'packs': sorted({WEAPON_PACK, TABLE_PACK} if SLING_ROW in base_rows else {WEAPON_PACK}),
-            'stockTableDependency': None if SLING_ROW in base_rows else
+            'packs': sorted({WEAPON_PACK, TABLE_PACK} if table_required else {WEAPON_PACK}),
+            'stockTableDependency': None if table_required else
             'Uses the shipped baseitems.2da row; srn_2da carries it unchanged',
         })
 
@@ -342,11 +350,13 @@ def build(check_git: bool = True) -> dict:
         row = rows[idx]
         rec = {'row': idx, **{c: row.get(c) for c in BASEITEM_COLUMNS if c in columns}}
         rec['strRefs'] = {c: strref_status(row.get(c, '****'), tlk_ids) for c in BASEITEM_STRREF_COLUMNS if c in columns}
-        rec['modifiedFromInstalledGame'] = idx == publication['displayTable']['baseItem']
+        changes={r['baseItem']:r['changes'] for r in publication.get('additionalDisplayRows',[])}
+        changes[publication['displayTable']['baseItem']]=publication['displayTable']['changes']
+        rec['modifiedFromInstalledGame'] = idx in changes
         if rec['modifiedFromInstalledGame']:
-            rec['changes'] = publication['displayTable']['changes']
+            rec['changes'] = changes[idx]
         rec['role'] = ('sling family (Colt L36 host row)' if idx == SLING_ROW else
-                       'sling ammunition (bullets)' if idx in bullet_rows else 'blade host row')
+                       'sling ammunition (bullets)' if idx in bullet_rows else 'weapon family host row')
         table_rows.append(rec)
     baseitems_sha = sha256(read(BASEITEMS))
 
@@ -410,7 +420,7 @@ def build(check_git: bool = True) -> dict:
          'text': 'No sling bullet blueprint, ammunition model/icon, projectile model or ammunitiontypes.2da override '
                  'exists in any SRN_HAKS pack. The bullets row is carried unchanged.'},
         {'id': 'unpriced-blueprints', 'severity': 'gap-for-combat',
-         'text': 'All five blueprints have Cost 0 and no item properties; they are builder templates without '
+         'text': 'Published blueprints retain their reviewed costs and item properties; they are builder templates without '
                  'balance data. Combat stats come only from the base item row.'},
         {'id': 'no-combat-tlk', 'severity': 'info',
          'text': f'No combat.* TLK allocations exist (SR_NWN-owned keys: {len(sr_nwn_keys)}, all phenomorpher race '
@@ -479,7 +489,8 @@ def build(check_git: bool = True) -> dict:
             'registeredInHakbuilder': {p: p in pack_names for p in (WEAPON_PACK, TABLE_PACK)},
             'buildCommand': "./tools/Build-Haks.ps1 -Pack @('srn_weapon', 'srn_2da') -SkipTlk",
             'tlkRequired': False,
-            'note': 'Load srn_weapon with srn_2da for the reviewed Colt L36 multipart contract. HAK archives are '
+            'note': 'Load srn_weapon with srn_2da for F7 multipart carriers and F2 appearance addresses. '
+                    'Production body/firing overlays are excluded; animations belong to PhenoMorpher toolkit. HAK archives are '
                     'ignored build outputs and are not hashed here; resource hashes are the release identity.',
         },
         'items': items,
@@ -502,7 +513,7 @@ def build(check_git: bool = True) -> dict:
         'collisions': {'registeredPacks': pack_collisions, 'stagedMdrneeItemHak': staged_collisions,
                        'stagedMdrneeSlingFamilyResources': len(sling_family_staged),
                        'stagedMdrneeLegacyRow61Blueprints': legacy_row61},
-        'excluded': {'ingram-smartgun-x': 'on hold (smgOnHold)',
+        'excluded': {'production-weapon-motion-overlays': 'itemkit testing only; production animation belongs to PhenoMorpher toolkit',
                      'mdrnee-weapons': f"{migration['status']}; not runtime-ready, not in any pack"},
         'pinnedComparison': pinned,
         'gaps': gaps,

@@ -487,3 +487,40 @@ The user approved every race body, the armour and `pmh2` in game, and approved p
 and per-resource hashes are in `docs/phenomorpher/race-sizing/` (`plan.md`, `release-1.3.0.json`) and
 `docs/phenomorpher/human-bodies-lock-c7.json`. Generated stages, client fixtures and captures stay outside the
 production source packs.
+
+## Approved Waves 1 and 2 private weapon review (2026-11-03)
+
+The source-accurate SR4 catalog references and generated itemkit weapon assets in
+`test-modules/weapon-waves` are the user-reviewed private candidates. Geometry
+and appearance were produced through the retained clay/detail workflow, fitted
+to the shipped Humans and converted to native resources. Katana, Crossbow, Bow,
+Ingram orientation and Human weapon motion include the final reviewed repairs.
+Stock-derived carrier/animation/environment resources require a licensed NWN:EE
+installation. Existing approved comparison assets retain their prior provenance.
+The payload manifest records exact bytes; source books, generation intermediates,
+local bindings, HAK archives and body-pack duplicates are excluded. This publishes
+a reproducible private test fixture, with no production promotion or new rights
+claim over Shadowrun or Neverwinter Nights material.
+
+## Approved weapon waves normal-pack integration (srn_weapon, srn_2da; 2026-11-03)
+
+This supersedes the private layout above. The ten reviewed wave designs and
+separate AK-98 launcher blueprint join the existing Cougar/Colt resources in
+`srn_weapon`; no weapon geometry, material or embedded native animation is
+regenerated. The Cougar long-blade knife moves to F1/row22 with equal-length
+model aliases and fitted inventory icons; its original models/icons remain for
+saved-item compatibility. The other Cougar and Colt assets retain their native
+bytes and are explicitly assigned to the selected family plan. F2's appearance
+picker MaxRange becomes111; other gameplay/table fields are preserved.
+
+Crossbow texture pixels are unchanged under the corrected referenced resource
+name. The Throwing Knife includes its reviewed shared native projectile. Resource
+origins/hashes, routing migration and package validation are recorded in
+`docs/items/approved-weapons-v1.json` and the release guide. The frozen grouping
+plan is retained under `docs/items/weapon-baseitem-plan-v1/`.
+
+The comparison module remains in `test-modules/weapon-waves` and consumes the
+normal packs. Prototype Human motion roots and event hooks stay there exclusively
+for itemkit testing. The production body packs and roots are unchanged;
+production weapon animation belongs to PhenoMorpher toolkit. This PR publishes
+release sources and performs no live deployment or new rights assertion.
