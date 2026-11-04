@@ -1,0 +1,72 @@
+# Approved weapon release packs
+
+Build the normal release through the existing pack builder:
+
+```powershell
+./tools/Build-Haks.ps1 -Pack @('srn_weapon','srn_2da') -SkipTlk
+```
+
+`srn_weapon` contains the approved models, runtime diffuse maps, inventory icons
+and sixteen builder blueprints for fourteen weapon designs. `srn_2da` supplies
+the native carrier table. No custom TLK is required. The inventory and resource
+hashes are in `approved-weapons-v1.json`; the generated combat release manifest
+describes the complete resource closure.
+
+| Family | BaseItem / ItemClass | Released designs |
+|---|---|---|
+| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade |
+| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton |
+| F4 | 13 / WSwGs | Katana |
+| F5 | 50 / WDbQs | Staff |
+| F6 | 111 / WWhip | Whip |
+| F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X |
+| F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow |
+| F9 | 8 / WBwLn | Bow |
+| F11 | 63 / WThAx | Throwing Knife |
+| F12 | 56 / AShLw | Riot Shield |
+
+The plan snapshot is retained in `weapon-baseitem-plan-v1/`. This implements the
+grouping of these released assets, not the entire proposed catalog or its future
+scripted combat rules. Native gameplay fields, ammunition behavior, prices and
+item properties are not rebalanced by this publication.
+
+## Existing Cougar and Colt migration
+
+The approved long-blade knife was previously carried on compatibility row 0.
+Its `sr_cougar` blueprint now uses F1 / row 22 with dagger appearance 81. Three
+equal-length model-name aliases preserve the exact approved position, normal,
+UV, shadow and material bytes. The diffuse is unchanged; the new F1 inventory
+icons fit the original silhouette into a 32x32 canvas. Original short-sword
+model/icon resources and row 0 remain available for existing saved instances.
+Existing inventory instances are not automatically rewritten.
+
+The smaller Knife remains F1 / row 22. The full-sized Cougar Longsword remains
+F2 / row 1. Both Colt finishes already use F7 / row 61; their native blueprints,
+models, textures, appearance addresses and fit remain unchanged. F2's MaxRange
+display field is extended from 100 to 111 so its already-approved 101 and 111
+addresses are selectable. All other table bytes remain unchanged.
+
+The Crossbow diffuse is published under the name its approved compiled model
+actually references (`sr6abe18c_06`); the pixels and model bytes are unchanged.
+The Throwing Knife explicitly includes its approved `wthax_001` projectile.
+That native projectile is shared by the F11 carrier; other throwing profiles
+are not implicitly qualified by this representative.
+
+## Bodies and animation ownership
+
+The shipped body packs, their geometry, rig, proportions, textures and roots are
+unchanged. Approved native weapon geometry and embedded Bow/Crossbow motion data
+are retained. The prototype Human body/firing overlays and their event hooks are
+**itemkit testing only** and are excluded from every normal release pack.
+Production weapon-animation integration belongs to the PhenoMorpher toolkit.
+In particular, this asset release does not claim a production replacement for
+the Sling carrier's stock throwing motion or a firearm ammunition/reload system.
+
+## Separate comparison module
+
+`test-modules/weapon-waves` contains the review module and two fixture-only HAKs.
+It depends on the normal weapon/table packs and existing shipped Human body packs.
+It carries no duplicate released weapon blueprints. The original approval captures
+are retained; grouping migration and test-hook changes have native/package
+validation and are not presented as a new client acceptance. No deployment or
+automatic game-client launch is performed by this PR.

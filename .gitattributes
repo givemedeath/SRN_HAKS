@@ -58,3 +58,6 @@ docs/phenomorpher/runtime-optimization/baseline.json -diff linguist-generated=tr
 # Preserve exact reviewed private weapon payloads, including source scripts.
 test-modules/weapon-waves/module/** -text whitespace=cr-at-eol,-blank-at-eof,-blank-at-eol
 test-modules/weapon-waves/haks/** -text whitespace=cr-at-eol,-blank-at-eof,-blank-at-eol
+# Keep the frozen grouping authority and original approval reports byte-bound.
+docs/items/weapon-baseitem-plan-v1/mapping.json -text whitespace=cr-at-eol
+test-modules/weapon-waves/review/*.json -text whitespace=cr-at-eol

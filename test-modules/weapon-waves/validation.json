@@ -1,116 +1,34 @@
 {
-  "date": "2026-11-03",
-  "resourcesVerified": 202,
-  "modelsDecoded": 51,
-  "imagesDecoded": 62,
-  "rebuiltArchives": [
-    {
-      "archive": "sr_stbaton.hak",
-      "exactPayload": true,
-      "resources": 8
-    },
-    {
-      "archive": "sr2273b8ch.hak",
-      "exactPayload": true,
-      "resources": 9
-    },
-    {
-      "archive": "sr6abe18ch.hak",
-      "exactPayload": true,
-      "resources": 8
-    },
-    {
-      "archive": "sr800e341h.hak",
-      "exactPayload": true,
-      "resources": 4
-    },
-    {
-      "archive": "sra84e4660h.hak",
-      "exactPayload": true,
-      "resources": 8
-    },
-    {
-      "archive": "srak98gl.hak",
-      "exactPayload": true,
-      "resources": 1
-    },
-    {
-      "archive": "srdc4c1668h.hak",
-      "exactPayload": true,
-      "resources": 8
-    },
-    {
-      "archive": "srdd7dc09h.hak",
-      "exactPayload": true,
-      "resources": 8
-    },
-    {
-      "archive": "sre9a211beh.hak",
-      "exactPayload": true,
-      "resources": 11
-    },
-    {
-      "archive": "sreab35fch.hak",
-      "exactPayload": true,
-      "resources": 8
-    },
-    {
-      "archive": "srf7ac8ech.hak",
-      "exactPayload": true,
-      "resources": 8
-    },
-    {
-      "archive": "sw_approved.hak",
-      "exactPayload": true,
-      "resources": 44
-    },
+  "status": "passed",
+  "hakPriorityOrder": [
+    "sw_reviewenv",
+    "sw_f7motion",
+    "srn_weapon",
+    "srn_body_tex",
+    "srn_body",
+    "srn_2da"
+  ],
+  "archives": [
     {
       "archive": "sw_f7motion.hak",
-      "exactPayload": true,
-      "resources": 4
+      "resources": 4,
+      "sha256": "ba5a1852190e6eef7e286d6ef45c00eb9081ee94eb3cb78e6c576b978beec4f2",
+      "exactPayload": true
     },
     {
       "archive": "sw_reviewenv.hak",
-      "exactPayload": true,
-      "resources": 3
-    },
-    {
-      "archive": "sw1_humans.hak",
-      "exactPayload": true,
-      "resources": 1
+      "resources": 3,
+      "sha256": "885aa5a8d0aa9561f7f6feeefc50c0961636e1b9a20fe53b664e30bce7c2b830",
+      "exactPayload": true
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "exactPayload": true,
-      "resources": 69
+      "resources": 53,
+      "sha256": "b337db568c685080a366bb80445ed259966648798dbd1d3f4b737965861705d9",
+      "exactPayload": true
     }
   ],
-  "moduleHakClosure": true,
-  "bodyDependenciesMatchPublishedPayload": true,
-  "humanRootChanges": [
-    {
-      "model": "pmh0",
-      "onlySupermodelPointerChanged": true,
-      "parentBefore": "a_ba",
-      "parentAfter": "srf7_pmh0"
-    },
-    {
-      "model": "pfh0",
-      "onlySupermodelPointerChanged": true,
-      "parentBefore": "srn_fa_h0",
-      "parentAfter": "srf7_pfh0"
-    }
-  ],
-  "clientReview": {
-    "katanaAttacksPerHuman": 12,
-    "crossbowShotsPerHuman": 12,
-    "crossbowBolts": [
-      99,
-      87
-    ],
-    "userApproved": true,
-    "coverage": "Sampled idle/action and retained save/reload review; not exhaustive equipment/race clearance"
-  },
-  "fullRegressionRun": false,
-  "productionPromoted": false
+  "normalReleaseDependencyValidation": "docs/items/approved-weapon-waves-release-validation.json",
+  "motionOverlaysTestingOnly": true,
+  "newClientAcceptanceClaimed": false
 }

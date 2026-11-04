@@ -8,42 +8,91 @@ Consumer: SR_NWN (private), pinned SRN_HAKS `5394878`. Projectile target: sling 
 
 ## Load contract
 
-Packs: `srn_weapon`, `srn_2da` (TLK not required). Build only these with `./tools/Build-Haks.ps1 -Pack @('srn_weapon', 'srn_2da') -SkipTlk`. Load srn_weapon with srn_2da for the reviewed Colt L36 multipart contract. HAK archives are ignored build outputs and are not hashed here; resource hashes are the release identity.
+Packs: `srn_weapon`, `srn_2da` (TLK not required). Build only these with `./tools/Build-Haks.ps1 -Pack @('srn_weapon', 'srn_2da') -SkipTlk`. Load srn_weapon with srn_2da for F7 multipart carriers and F2 appearance addresses. Production body/firing overlays are excluded; animations belong to PhenoMorpher toolkit. HAK archives are ignored build outputs and are not hashed here; resource hashes are the release identity.
 
 ## Items
 
 | Item | Status | Blueprint(s) | Base row | Model parts | Sling | Packs |
 |---|---|---|---|---|---|---|
 | Cougar Fineblade Knife | user-approved | `sr_cfk` | 22 dagger | 71/71/71 | no | srn_weapon |
-| Cougar Fineblade Longsword | user-approved | `sr_cfs` | 1 longsword | 101/101/101 | no | srn_weapon |
-| Cougar Fineblade Longblade (short sword) | user-approved | `sr_cougar` | 0 shortsword | 71/71/71 | no | srn_weapon |
+| Cougar Fineblade Longsword | user-approved | `sr_cfs` | 1 longsword | 101/101/101 | no | srn_2da, srn_weapon |
+| Cougar Fineblade Longblade (short sword) | user-approved | `sr_cougar` | 22 dagger | 81/81/81 | no | srn_weapon |
 | Colt L36 pistol | user-approved | `sr_cl36_1`, `sr_cl36_2` | 61 sling | 51/11/11; 52/12/12 | **yes** | srn_2da, srn_weapon |
+| Throwing Knife | user-approved | `sr2273b8c` | 63 throwingaxe | 61/61/61 | no | srn_weapon |
+| Heavy Crossbow | user-approved | `sr6abe18c_6` | 6 heavycrossbow | 16/16/16 | no | srn_weapon |
+| Riot Shield | user-approved | `sr800e341u` | 56 largeshield | 14/0/0 | no | srn_weapon |
+| Stun Baton | user-approved | `sr_stbaton` | 1 longsword | 111/111/111 | no | srn_2da, srn_weapon |
+| AK-98 | user-approved | `sra84e4660_5`, `sra84e4660gl` | 6 heavycrossbow | 15/15/15; 15/15/15 | no | srn_weapon |
+| Staff | user-approved | `srdc4c1668` | 50 quarterstaff | 61/61/61 | no | srn_weapon |
+| Bow | user-approved | `srdd7dc09` | 8 longbow | 91/91/91 | no | srn_weapon |
+| Ingram Smartgun X | user-approved | `sre9a211be_3` | 61 sling | 13/23/13 | **yes** | srn_2da, srn_weapon |
+| Whip | user-approved | `sreab35fc` | 111 Whip | 21/21/21 | no | srn_weapon |
+| Katana | user-approved | `srf7ac8ec` | 13 greatsword | 61/61/61 | no | srn_weapon |
 
-All blueprints carry embedded names (no TLK StrRef), Cost 0 and no item properties. Model numbers outside their base row MinRange/MaxRange: `sr_cfs` (see Gaps).
+All blueprints carry embedded names (no TLK StrRef), Cost 0 and no item properties. Model numbers outside their base row MinRange/MaxRange: none (see Gaps).
 
-Each item closure (blueprint, part models, icons, diffuse maps) matches the publication ownership: yes. Colt L36 pistol also ships unreferenced hidden-slot placeholders (`iwbwsl_b_011.tga`, `iwbwsl_b_012.tga`, `wbwsl_b_011.mdl`, `wbwsl_b_012.mdl`) so every multipart slot resolves; colors 1/2 use bottom 051/052.
+Each item closure (blueprint, part models, icons, diffuse maps) matches the publication ownership: yes. Colt L36 pistol also ships unreferenced hidden-slot placeholders (`iwbwsl_b_011.tga`, `iwbwsl_b_012.tga`, `wbwsl_b_011.mdl`, `wbwsl_b_012.mdl`) so every multipart slot resolves; colors 1/2 use bottom 051/052. Ingram Smartgun X also ships unreferenced hidden-slot placeholders (`iwbwsl_m_013.tga`, `wbwsl_m_013.mdl`) so every multipart slot resolves; colors 1/2 use bottom 051/052.
 
 ## Resources
 
 | Path | Item | Bytes | SHA-256 | Textures | Pub. match |
 |---|---|---:|---|---|---|
+| `srn_weapon/ashlw_014.mdl` | sr4-riot-shield-800e3413e3 | 335252 | `ad6086c127b55f2dc8e3717151a8ee5f93896d945b920cdc6e3965d41cbea58c` | sr800e341 | yes |
+| `srn_weapon/iashlw_014.tga` | sr4-riot-shield-800e3413e3 | 32812 | `34c8e51b838c4f73ad1a82eeac4840c63e44cfcbe727b74c28d1b333f8f7c47d` |  | yes |
+| `srn_weapon/iwbwln_b_091.tga` | sr4-bow-dd7dc09f67 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwln_m_091.tga` | sr4-bow-dd7dc09f67 | 32812 | `be5f1ab683f482407ea03227c925e6d4b223f445e8fbc509fdd428702869079f` |  | yes |
+| `srn_weapon/iwbwln_t_091.tga` | sr4-bow-dd7dc09f67 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
 | `srn_weapon/iwbwsl_b_011.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_b_012.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_b_013.tga` | ingram-smartgun-x | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_b_051.tga` | colt-l36-pistol | 8236 | `afe99a8cfe0c54efbc9aa1647495c5be07117388baedd7fbcceaa14c151fb445` |  | yes |
 | `srn_weapon/iwbwsl_b_052.tga` | colt-l36-pistol | 8236 | `435b6cdb86ccddaefa78ded748ea3f1aac9dece922f1f08fe44d06db6aaf9203` |  | yes |
 | `srn_weapon/iwbwsl_m_011.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_m_012.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_m_013.tga` | ingram-smartgun-x | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_m_023.tga` | ingram-smartgun-x | 8236 | `6fcc11a1f11a53919a7a7d7c9438ae9a8c9b91a1effb123a9fea841bc765b3e4` |  | yes |
 | `srn_weapon/iwbwsl_t_011.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_t_012.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_t_013.tga` | ingram-smartgun-x | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwxh_b_015.tga` | sr4-ak-98-84e46602ea | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwxh_b_016.tga` | sr4-crossbows-heavy-6abe18c0e6 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwxh_m_015.tga` | sr4-ak-98-84e46602ea | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwxh_m_016.tga` | sr4-crossbows-heavy-6abe18c0e6 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwxh_t_015.tga` | sr4-ak-98-84e46602ea | 32812 | `8f6a3f5d37b718629cbedcb30def573ee8a352d51e88cee7e0f73cebd7f2bcc1` |  | yes |
+| `srn_weapon/iwbwxh_t_016.tga` | sr4-crossbows-heavy-6abe18c0e6 | 32812 | `5b1f3130385ac7734bb7ff3bc038103e8af9fc4ab74ff668efa9e9620480af86` |  | yes |
+| `srn_weapon/iwdbqs_b_061.tga` | sr4-staff-dc4c1668ea | 16428 | `efed297a5a64a38777453ba87b746c204e2bd2ce3ec816f7509f5b43e12ff474` |  | yes |
+| `srn_weapon/iwdbqs_m_061.tga` | sr4-staff-dc4c1668ea | 16428 | `b877aa6db26f90f8cff76c07ead2abf4e309109442dc00bcff08e31e0346db29` |  | yes |
+| `srn_weapon/iwdbqs_t_061.tga` | sr4-staff-dc4c1668ea | 16428 | `891b6f7168315ead516623a995d2e76f336537011a20803f96894809964608c9` |  | yes |
 | `srn_weapon/iwswdg_b_071.tga` | cougar-fineblade-knife | 4140 | `8b9353e70588c333a34a9184378ab60ce5910b61b752724addfb8af5db85be7f` |  | yes |
+| `srn_weapon/iwswdg_b_081.tga` | cougar-fineblade-longblade | 4140 | `921e8c8f3d5c043b5e8c31d29d390ee7a2d664fff51a0714b5098d6ce91cc410` |  | yes |
 | `srn_weapon/iwswdg_m_071.tga` | cougar-fineblade-knife | 4140 | `0b2ffa9b8cab293774b8d1df098db2023c098e4fc752f2e6ad1e84d6e20bc6ba` |  | yes |
+| `srn_weapon/iwswdg_m_081.tga` | cougar-fineblade-longblade | 4140 | `b8e36a1441e2f042f2a0e288f5c9c2a8cb2fc05aac8c16f1b9b674687f305fc1` |  | yes |
 | `srn_weapon/iwswdg_t_071.tga` | cougar-fineblade-knife | 4140 | `67f72b0ac8441f8f015a89d3e82991489534a29e0216e432dcde853615b4876a` |  | yes |
+| `srn_weapon/iwswdg_t_081.tga` | cougar-fineblade-longblade | 4140 | `743b98b85c7cab84770e5f39fdc7e87ec5d28ef14b3266b628316e7f804d0cbf` |  | yes |
+| `srn_weapon/iwswgs_b_061.tga` | sr4-katana-f7ac8ecfb3 | 65580 | `67167e0a3250af483bd89975119e4026769fd6f773f3d19932fb4b1ec1546458` |  | yes |
+| `srn_weapon/iwswgs_m_061.tga` | sr4-katana-f7ac8ecfb3 | 65580 | `79e1dd8bc799a83c53f36a0d0880ab3ae1409c3d7192c1fe877c21d1afed7e52` |  | yes |
+| `srn_weapon/iwswgs_t_061.tga` | sr4-katana-f7ac8ecfb3 | 65580 | `60e99faa62bffddc4f1b2140b036968bfec9f28f41a139c6515d22925a83dfbe` |  | yes |
 | `srn_weapon/iwswls_b_101.tga` | cougar-fineblade-longsword | 16428 | `0b70e8f3ee90685bc29491790991d3cd56e3e7ab438339a81878c2f5f5cf7109` |  | yes |
+| `srn_weapon/iwswls_b_111.tga` | sr4-stun-baton-7f6ac2799c | 16428 | `058264f4fea456be89c601b0169657fb5d6a82ccbeaa264694f5526b8bfc8744` |  | yes |
 | `srn_weapon/iwswls_m_101.tga` | cougar-fineblade-longsword | 16428 | `cac05082db21a1174160ee067f848cd921652da0b39a6f3044f779d8c54f34d7` |  | yes |
+| `srn_weapon/iwswls_m_111.tga` | sr4-stun-baton-7f6ac2799c | 16428 | `72a7c123d91bed126a45f49d8ebbd3983722c6773b735613b617fc05795f6f06` |  | yes |
 | `srn_weapon/iwswls_t_101.tga` | cougar-fineblade-longsword | 16428 | `90448583d7e3911c97b88635e82c9cf50ff55808c8b5f87bf47a453c7db8b4a5` |  | yes |
+| `srn_weapon/iwswls_t_111.tga` | sr4-stun-baton-7f6ac2799c | 16428 | `48b491f70ab4b9fd0598c835b4610e080c20bad4bc3dba37954c5101946f9a1b` |  | yes |
 | `srn_weapon/iwswss_b_071.tga` | cougar-fineblade-longblade | 8236 | `72e464906037657d0fa5a6a1a94222f9600a83afc9dc933ed5f79f047458ca86` |  | yes |
 | `srn_weapon/iwswss_m_071.tga` | cougar-fineblade-longblade | 8236 | `ff1b9e342989eb822069d1b1d467b33c8599a3ecac20f31aeef1a8067aeb2ef5` |  | yes |
 | `srn_weapon/iwswss_t_071.tga` | cougar-fineblade-longblade | 8236 | `68d842bf16fc956f65e33c93677fdae7aae8c68562b2ec4b913a9f8d37c325b2` |  | yes |
+| `srn_weapon/iwthax_b_061.tga` | sr4-throwing-knife-2273b8c3cf | 8236 | `490cdf9647fd4c85a62e212bfeec0ba2876b1ac9c5ecedaefca5ef951a2e4f01` |  | yes |
+| `srn_weapon/iwthax_m_061.tga` | sr4-throwing-knife-2273b8c3cf | 8236 | `4612afc748423ea0993ca045e3dcbdf5214b1ac6a07ac6719ed429944452e5dc` |  | yes |
+| `srn_weapon/iwthax_t_061.tga` | sr4-throwing-knife-2273b8c3cf | 8236 | `405c566e718c4e5fec660ed0cab161dc14edfe2f5f6953031c3a4137e987c0e2` |  | yes |
+| `srn_weapon/iwwhip_b_021.tga` | sr4-whip-eab35fc25c | 16428 | `55e91947026eef4f17d5d0172638f1cddc9cdb1b7e4b2a806ecc4d1d8a65c178` |  | yes |
+| `srn_weapon/iwwhip_m_021.tga` | sr4-whip-eab35fc25c | 16428 | `d9c9d60d021309dd7161f28c656eb8b7120c4b4cc4cd31109059516b0481dcd8` |  | yes |
+| `srn_weapon/iwwhip_t_021.tga` | sr4-whip-eab35fc25c | 16428 | `55e91947026eef4f17d5d0172638f1cddc9cdb1b7e4b2a806ecc4d1d8a65c178` |  | yes |
+| `srn_weapon/sr2273b8c.uti` | sr4-throwing-knife-2273b8c3cf | 738 | `480c6783e092fb182901ef5d8fcef1954ba935a1eb50e58d6addc6f0ab88ff7b` |  | yes |
+| `srn_weapon/sr2273b8c_06.tga` | sr4-throwing-knife-2273b8c3cf | 3145772 | `f41e6862cbb9cd75c5494454b2d74c3916157305cd26cf7bc0539ef1fec3501e` |  | yes |
+| `srn_weapon/sr6abe18c_06.tga` | sr4-crossbows-heavy-6abe18c0e6 | 3145772 | `999d10039b1c99310a0d8f43da0189411f701e14def080466061ccfdc66e1f97` |  | yes |
+| `srn_weapon/sr6abe18c_6.uti` | sr4-crossbows-heavy-6abe18c0e6 | 742 | `5bab67a839d1e104a3dcf37209b5a8915c70a0a84a7cc89f322f5d69f73602fc` |  | yes |
+| `srn_weapon/sr800e341.tga` | sr4-riot-shield-800e3413e3 | 3145772 | `dbe61a942119774ce20400842529080287460c88bd953d524d346f6b4fab85b0` |  | yes |
+| `srn_weapon/sr800e341u.uti` | sr4-riot-shield-800e3413e3 | 737 | `25ad22dfc57f40c85e0141591a6e01038073cde015b2c4329bce249f9e0a9d2e` |  | yes |
 | `srn_weapon/sr_cfk.uti` | cougar-fineblade-knife | 699 | `63fbcdc48cc13393ec693d8b53231e1d0d8c6eaff4f2cf78140ea8e20f58d910` |  | yes |
 | `srn_weapon/sr_cfk_07.tga` | cougar-fineblade-knife | 3145772 | `6cca4cf6232b492e9f18e41799f1a169d920a712e7c9eafd2e3250b9bad7e1c6` |  | yes |
 | `srn_weapon/sr_cfl_07.tga` | cougar-fineblade-longblade | 3145772 | `9522ed973cade7df84a494a447a4265459bc2e9f8e5a3c55fedc8a491e6f3bac` |  | yes |
@@ -53,36 +102,89 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sr_cl36_052.tga` | colt-l36-pistol | 3145772 | `195d9319f1441a08dfebcbc50ec2d84345eaf4636a3cd83bf577c6a23307be0e` |  | yes |
 | `srn_weapon/sr_cl36_1.uti` | colt-l36-pistol | 691 | `c756b97521eb56af7f09a967bf1d54f3bc5a99e1f6afeb87cc5a00cd25ac8f46` |  | yes |
 | `srn_weapon/sr_cl36_2.uti` | colt-l36-pistol | 707 | `23fbd6e1564766748ae825904249edcc95d129a8b48fda39cf30d07c807793fe` |  | yes |
-| `srn_weapon/sr_cougar.uti` | cougar-fineblade-longblade | 709 | `a93f36750e36eacb3db8a28e2daa5bd75025fec941fe223e4c942c3e30c96ccb` |  | yes |
+| `srn_weapon/sr_cougar.uti` | cougar-fineblade-longblade | 709 | `476f89a39e53baf081c8c6836733c8661aa6b05f6bb87c1e23d151efd78a8bdc` |  | yes |
+| `srn_weapon/sr_stbaton.uti` | sr4-stun-baton-7f6ac2799c | 736 | `901e5e4e597df02d77c135ba6ee4cf9c5f98b59822b411d58b6b8236a156e559` |  | yes |
+| `srn_weapon/sr_stbaton_11.tga` | sr4-stun-baton-7f6ac2799c | 3145772 | `d586f88583a31acffbb987a8f5f94d8fc486ce3856b67d281f6cd70b8db8e89a` |  | yes |
+| `srn_weapon/sra84e4660_015.tga` | sr4-ak-98-84e46602ea | 3145772 | `cac55658b3d0e0f5b944fc4b76bf32ec8a5c336431fbe3c690f83da0dc206b04` |  | yes |
+| `srn_weapon/sra84e4660_5.uti` | sr4-ak-98-84e46602ea | 735 | `ad37dc6773448c2bab8b52ac5e06fafb2651bf29cebe1dd3dfb808ca70b9fc7e` |  | yes |
+| `srn_weapon/sra84e4660gl.uti` | sr4-ak-98-84e46602ea | 899 | `58d3aa9b38efebe2753e87c24c177f20ada2e72a29364db1fd7fb2a9dc6ad26d` |  | yes |
+| `srn_weapon/srdc4c1668.uti` | sr4-staff-dc4c1668ea | 731 | `6bb07ba99dc56fe2490c0676fe3b0ba67a82ab63f6c279f8037bb8f259279ead` |  | yes |
+| `srn_weapon/srdc4c1668_06.tga` | sr4-staff-dc4c1668ea | 3145772 | `a4fdabda3e02e6eebea8c5876b959c3a4b75a3dcfeed7bc9262c1d995b4b0d73` |  | yes |
+| `srn_weapon/srdd7dc09.uti` | sr4-bow-dd7dc09f67 | 727 | `f7bee0e0e4f5cc7abec228d439ecf7b291b05026a3cacf5fa238ce9f55ca4556` |  | yes |
+| `srn_weapon/srdd7dc09_09.tga` | sr4-bow-dd7dc09f67 | 3145772 | `8bff19afc75fdea39416f33acaf18d96b4d9372f5dca017a2568d08863c039ba` |  | yes |
+| `srn_weapon/sre9a211be_023.tga` | ingram-smartgun-x | 3145772 | `fa3f2361e6b4f5928c84ce9cdb8e5f1cfc13474960df2a8087ad53064953e7cc` |  | yes |
+| `srn_weapon/sre9a211be_3.uti` | ingram-smartgun-x | 747 | `33587499d6b4c8fa75c1c65afdc8b5fb311c4d8e89ce9f5c65403c4da4d78738` |  | yes |
+| `srn_weapon/sreab35fc.uti` | sr4-whip-eab35fc25c | 728 | `f562c598b61ca6c121095cf0d8c3bc26db583061e58c883ef29d2f52928868fb` |  | yes |
+| `srn_weapon/sreab35fc_02.tga` | sr4-whip-eab35fc25c | 3145772 | `3ef829ce50351de70cd2afe5792bc11987b867cf937108f334a27c920d32cc02` |  | yes |
+| `srn_weapon/srf7ac8ec.uti` | sr4-katana-f7ac8ecfb3 | 730 | `cf0bcf1715b6ae17f463b2fb1f83b046308add5fa47b641bf59556f5734c7678` |  | yes |
+| `srn_weapon/srf7ac8ec_06.tga` | sr4-katana-f7ac8ecfb3 | 3145772 | `700cba0c15292689e44aff6c96381c8153f8934b9ca171cefe9d06c6421014c2` |  | yes |
+| `srn_weapon/wbwln_b_091.mdl` | sr4-bow-dd7dc09f67 | 1588 | `47135fdbc7a7d02ecb2918483950bf7d56e8d2f24e7f31a21ed3992142ff40eb` | (invisible part) | yes |
+| `srn_weapon/wbwln_m_091.mdl` | sr4-bow-dd7dc09f67 | 896828 | `a9c2d5b9fc9fbffa32d8f1bc601a1c5ababd66fb4f355ad869038d6fa47e3ddb` | srdd7dc09_09 | yes |
+| `srn_weapon/wbwln_t_091.mdl` | sr4-bow-dd7dc09f67 | 1588 | `38553aeebb1d135f90cc9eea4e2443632fa346af06a5120995a48e067c535749` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_011.mdl` | colt-l36-pistol | 1588 | `7415be26c8ab59e39b35e7735eb4410fc360ee34652ad4e96e2b3abe361e82d7` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_012.mdl` | colt-l36-pistol | 1588 | `8ba64f5731688011c17bfbb4aabdb942aa19a997ba80e9dffe0a723b96d10d22` | (invisible part) | yes |
+| `srn_weapon/wbwsl_b_013.mdl` | ingram-smartgun-x | 1588 | `6d9c2e1b2a16524af8c4dd139484446c72027dafa7489996a5f8e0f647f9180b` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_051.mdl` | colt-l36-pistol | 839204 | `8d4b57302a6494375b170cda0914f9a4485648d77cbd0c9ccea3362dc8e2622e` | sr_cl36_051 | yes |
 | `srn_weapon/wbwsl_b_052.mdl` | colt-l36-pistol | 839204 | `f290809216aa379e361e97024ed91f1ed22c06f5922a57fef0d9ece754c63df4` | sr_cl36_052 | yes |
 | `srn_weapon/wbwsl_m_011.mdl` | colt-l36-pistol | 1588 | `06d11150f4674c6ddfa315b1bd5ab42a15a797ae8c0406a4cb422e80ac621dad` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_012.mdl` | colt-l36-pistol | 1588 | `b53ef2ae16bdb84bd38318ea67a333ffdf7efa60ae000310b9322e957a1cbe56` | (invisible part) | yes |
+| `srn_weapon/wbwsl_m_013.mdl` | ingram-smartgun-x | 1588 | `2dd90ec38e56ff8815c3acc7c122ccd700492e623d433d80d78b1157c6b39b2c` | (invisible part) | yes |
+| `srn_weapon/wbwsl_m_023.mdl` | ingram-smartgun-x | 702028 | `0fc8a6e1ba8a03d329907c9ad25904419c4df54a9a560ddd310552f91926d251` | sre9a211be_023 | yes |
 | `srn_weapon/wbwsl_t_011.mdl` | colt-l36-pistol | 1588 | `54a71086b1bb6bc873ccb3430f053b7dfe6816e31b2906adc3585cc1a0e31a03` | (invisible part) | yes |
 | `srn_weapon/wbwsl_t_012.mdl` | colt-l36-pistol | 1588 | `a571dcaf41d7e501268e75938956ee1c52d6a23e26019938589a2cf8d0bcda07` | (invisible part) | yes |
+| `srn_weapon/wbwsl_t_013.mdl` | ingram-smartgun-x | 1588 | `a866f7c3e293be58d4d1449fd5d8c9969dbc7193cad2bbf9c3b81cdaf932d832` | (invisible part) | yes |
+| `srn_weapon/wbwxh_b_015.mdl` | sr4-ak-98-84e46602ea | 1588 | `36e0a3892a759703e78f84a93335c19acc19aa99a99e7d7966388adf9e14ac7e` | (invisible part) | yes |
+| `srn_weapon/wbwxh_b_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 1588 | `0565e25b381de360d2e59da5755ed1487bd00a1f823b2d9b08bfb995749fac4e` | (invisible part) | yes |
+| `srn_weapon/wbwxh_m_015.mdl` | sr4-ak-98-84e46602ea | 1588 | `f0387b62866e0751fedf1c551e3fead9ad295bd66bcaec980d3a71bbe03b217e` | (invisible part) | yes |
+| `srn_weapon/wbwxh_m_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 1588 | `e1d14dcd8ede842f7e3c7491042c37f63a593fc0f191bb5523d06c2f794235e1` | (invisible part) | yes |
+| `srn_weapon/wbwxh_t_015.mdl` | sr4-ak-98-84e46602ea | 716060 | `e063d37959ee12d7a6ec20314f4c8f28a079835b0e8a3e12ea0eddd6bfa2bbdb` | sra84e4660_015 | yes |
+| `srn_weapon/wbwxh_t_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 939076 | `d9022597fb7bf7ff23c55acf2f6edf17b375e46e1b94c6505592a88589e3b639` | sr6abe18c_06 | yes |
+| `srn_weapon/wdbqs_b_061.mdl` | sr4-staff-dc4c1668ea | 191108 | `a20fe05a26dc5d318bd6833e371b4ecfa83a726ffbc4786be1ebe1c76b3a3acd` | srdc4c1668_06 | yes |
+| `srn_weapon/wdbqs_m_061.mdl` | sr4-staff-dc4c1668ea | 254076 | `48c426c70f0d7ab42502767adc57b211eed2ff53aabae19b3b497dd40261b7ad` | srdc4c1668_06 | yes |
+| `srn_weapon/wdbqs_t_061.mdl` | sr4-staff-dc4c1668ea | 200628 | `a5b2475bea1bf125cf8dbef8b62075cd99437c8a54872f4c68fc5c7277eae5a0` | srdc4c1668_06 | yes |
 | `srn_weapon/wswdg_b_071.mdl` | cougar-fineblade-knife | 72296 | `c20d4a5256b53fbad4e7781675cc1403bcdd3045cd70f195e1076befac04e032` | sr_cfk_07 | yes |
+| `srn_weapon/wswdg_b_081.mdl` | cougar-fineblade-longblade | 100728 | `320de665165c59235c8c1b56e432c6f27fae13ec60d6340e982b24a74f6585ec` | sr_cfl_07 | yes |
 | `srn_weapon/wswdg_m_071.mdl` | cougar-fineblade-knife | 101572 | `fec4579a4a83ca9a46d66a1cfd9ac7c92fb4cab6d252d0049e7df8b1c7105783` | sr_cfk_07 | yes |
+| `srn_weapon/wswdg_m_081.mdl` | cougar-fineblade-longblade | 111220 | `ecc1b19dccfa68d2b396bcbe5a61bcd73d271ab7394d6dfaf7b3f492ac117478` | sr_cfl_07 | yes |
 | `srn_weapon/wswdg_t_071.mdl` | cougar-fineblade-knife | 214616 | `c208060ff6a6d75f6e81580780856186ac6e08ea6a06eaab2d5720b1ec2f0096` | sr_cfk_07 | yes |
+| `srn_weapon/wswdg_t_081.mdl` | cougar-fineblade-longblade | 206120 | `4a023a89140abc62a6b69ee1b54bf2d9fc8fd17bfa52c93f30c4415a6314d577` | sr_cfl_07 | yes |
+| `srn_weapon/wswgs_b_061.mdl` | sr4-katana-f7ac8ecfb3 | 138708 | `9f6ae848e08443ed48e449aef6bfa3b2a6a91f01afe11ebe674cbaa8465cf2e7` | srf7ac8ec_06 | yes |
+| `srn_weapon/wswgs_m_061.mdl` | sr4-katana-f7ac8ecfb3 | 228868 | `e67e461219205f028bbd4bb89eae0173ba02d54a6151f63cc94ac73ec7e6324a` | srf7ac8ec_06 | yes |
+| `srn_weapon/wswgs_t_061.mdl` | sr4-katana-f7ac8ecfb3 | 360532 | `0b7d6c11ff4d8e06621ebca8ddb01058fdc12ee1043d9baeefb4027458c2929c` | srf7ac8ec_06 | yes |
 | `srn_weapon/wswls_b_101.mdl` | cougar-fineblade-longsword | 53932 | `5dece67aceb4cdedd89d7b7a965619d9e76deb347b171a12850304506875bff4` | sr_cfs_10 | yes |
+| `srn_weapon/wswls_b_111.mdl` | sr4-stun-baton-7f6ac2799c | 128044 | `c1d8dc63db54c85272b6680383c96cb589f0503c3518016ed608f766faac394c` | sr_stbaton_11 | yes |
 | `srn_weapon/wswls_m_101.mdl` | cougar-fineblade-longsword | 114184 | `977f05306071d99293654f356e7b2e0f9ee7e9baf2ae3dcaeecf0be178aa27bb` | sr_cfs_10 | yes |
+| `srn_weapon/wswls_m_111.mdl` | sr4-stun-baton-7f6ac2799c | 164560 | `e7a0d58575d519aaf96e9a663c35984c1be1fd6f145b2bf0d263dbf82c8c4a65` | sr_stbaton_11 | yes |
 | `srn_weapon/wswls_t_101.mdl` | cougar-fineblade-longsword | 571732 | `e7319f5af71d1a3e7e111fd72553f21854bf3fa82655a8dc6865cf9d5e410117` | sr_cfs_10 | yes |
+| `srn_weapon/wswls_t_111.mdl` | sr4-stun-baton-7f6ac2799c | 382108 | `da4bd11eb8161f7b901d4a5cb8c487c82b8169faca0a27823a71bb2c378ce590` | sr_stbaton_11 | yes |
 | `srn_weapon/wswss_b_071.mdl` | cougar-fineblade-longblade | 100728 | `9e36bc4006599d85b31d934d1e283e651794c1435abaa2b2c6d9e670e4a5cb0e` | sr_cfl_07 | yes |
 | `srn_weapon/wswss_m_071.mdl` | cougar-fineblade-longblade | 111220 | `3b8de2d7212d3d5d1d16640352ffcd536cd14bbdec45e37f5d585dde38b6655e` | sr_cfl_07 | yes |
 | `srn_weapon/wswss_t_071.mdl` | cougar-fineblade-longblade | 206120 | `baae4366988bb9fe35b90be6f2505cc3362ffebd8dcdaaa95ff9dd39f4de7c15` | sr_cfl_07 | yes |
+| `srn_weapon/wthax_001.mdl` | sr4-throwing-knife-2273b8c3cf | 697436 | `af253700e21f80774680929a6c6eafded7c48b5d848b5f3e3b28b3bc0f506437` | sr2273b8c_06 | yes |
+| `srn_weapon/wthax_b_061.mdl` | sr4-throwing-knife-2273b8c3cf | 141244 | `d986e887933956d8fa82bd649ac33f981ce007ee4471c8f415906821cef17765` | sr2273b8c_06 | yes |
+| `srn_weapon/wthax_m_061.mdl` | sr4-throwing-knife-2273b8c3cf | 240604 | `3b4b039b8dba5289cd17b00cdd30448ad5dea736b48b37557f891ef0f77ae9ca` | sr2273b8c_06 | yes |
+| `srn_weapon/wthax_t_061.mdl` | sr4-throwing-knife-2273b8c3cf | 313300 | `b7767b9eb4726e9b6b38a175147482f76de980422153d92756e18a523c6bb707` | sr2273b8c_06 | yes |
+| `srn_weapon/wwhip_b_021.mdl` | sr4-whip-eab35fc25c | 1588 | `2aa122f35c589cd654e5456a48742862c0b519c52163d49b4e71158471286bbb` | (invisible part) | yes |
+| `srn_weapon/wwhip_m_021.mdl` | sr4-whip-eab35fc25c | 1064980 | `29f2d803dc8898938c46b3237841983c317af8df7385cb49936ee2e0f1ea2780` | sreab35fc_02 | yes |
+| `srn_weapon/wwhip_t_021.mdl` | sr4-whip-eab35fc25c | 1588 | `eafd6ebfe82183cf3190191d74abbecf8810e3bf82ab324628e391f015f54a94` | (invisible part) | yes |
 
 ## Tables
 
-`srn_2da/baseitems.2da` (srn_2da) SHA-256 `b0ceefe42933aafb6574eff1c634eddd284b88e8c4a043879126ca2e390930fb`; matches the reviewed override: yes.
+`srn_2da/baseitems.2da` (srn_2da) SHA-256 `6eb66129cb38d22697c82fac2909ae26ae2a5e08f3933950f6330ad2a0456266`; matches the reviewed override: yes.
 
 | Row | Label | Role | ModelType | ItemClass | Range | WeaponType | Ranged | Ammo | Dice | Name StrRef | Modified |
 |---:|---|---|---|---|---|---|---|---|---|---|---|
-| 0 | shortsword | blade host row | 2 | WSwSs | 10-100 | 1 | **** | **** | 1d6 | 106 (base-game dialog.tlk) | no |
-| 1 | longsword | blade host row | 2 | WSwLs | 10-100 | 3 | **** | **** | 1d8 | 166 (base-game dialog.tlk) | no |
-| 22 | dagger | blade host row | 2 | WSwDg | 10-100 | 1 | **** | **** | 1d4 | 191 (base-game dialog.tlk) | no |
+| 1 | longsword | weapon family host row | 2 | WSwLs | 10-111 | 3 | **** | **** | 1d8 | 166 (base-game dialog.tlk) | MaxRange 100->111 |
+| 6 | heavycrossbow | weapon family host row | 2 | WBwXh | 10-100 | 1 | 25 | 2 | 1d10 | 173 (base-game dialog.tlk) | no |
+| 8 | longbow | weapon family host row | 2 | WBwLn | 10-200 | 1 | 20 | 1 | 1d8 | 170 (base-game dialog.tlk) | no |
+| 13 | greatsword | weapon family host row | 2 | WSwGs | 10-100 | 3 | **** | **** | 2d6 | 167 (base-game dialog.tlk) | no |
+| 22 | dagger | weapon family host row | 2 | WSwDg | 10-100 | 1 | **** | **** | 1d4 | 191 (base-game dialog.tlk) | no |
 | 27 | bullet | sling ammunition (bullets) | 0 | WAmBu | 0-50 | 0 | **** | **** | ****d**** | 1521 (base-game dialog.tlk) | no |
+| 50 | quarterstaff | weapon family host row | 2 | WDbQs | 10-100 | 2 | **** | **** | 1d6 | 1544 (base-game dialog.tlk) | no |
+| 56 | largeshield | weapon family host row | 0 | AShLw | 10-100 | 0 | **** | **** | ****d**** | 1550 (base-game dialog.tlk) | no |
 | 61 | sling | sling family (Colt L36 host row) | 2 | WBwSl | 0-52 | 2 | 27 | 3 | 1d4 | 1555 (base-game dialog.tlk) | MaxRange 50->52, ModelType 0->2 |
+| 63 | throwingaxe | weapon family host row | 2 | WThAx | 10-100 | 3 | 63 | 6 | 1d6 | 1557 (base-game dialog.tlk) | no |
+| 111 | Whip | weapon family host row | 2 | WWhip | 10-100 | 3 | **** | **** | 1d2 | 83617 (base-game dialog.tlk) | no |
 
 ## TLK
 
@@ -90,11 +192,11 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 
 ## Pinned commit vs HEAD
 
-At `5394878`: `srn_weapon` registered: False; `srn_2da` registered: True; TLK nextId 136. Present there: `srn_tlk/allocations.json`, `srn_tlk/srn.tlk.json`. Absent there: 46 of the slice's paths (every weapon resource, `baseitems.2da` and the publication manifest). The weapon slice exists only after the pinned commit (added in #57).
+At `5394878`: `srn_weapon` registered: False; `srn_2da` registered: True; TLK nextId 136. Present there: `srn_tlk/allocations.json`, `srn_tlk/srn.tlk.json`. Absent there: 132 of the slice's paths (every weapon resource, `baseitems.2da` and the publication manifest). The weapon slice exists only after the pinned commit (added in #57).
 
 ## Collisions
 
-Across registered packs: 0. Staged MDRNEE item HAK resrefs shared with `srn_weapon`: 16 (`iwswdg_m_071.tga`, `iwswls_m_101.tga`, `iwswss_b_071.tga`, `iwswss_m_071.tga`, `iwswss_t_071.tga`, `wbwsl_b_011.mdl`, `wbwsl_b_012.mdl`, `wbwsl_b_051.mdl`, `wbwsl_b_052.mdl`, `wbwsl_m_011.mdl`, `wbwsl_t_011.mdl`, `wswdg_m_071.mdl`, `wswls_m_101.mdl`, `wswss_b_071.mdl`, `wswss_m_071.mdl`, `wswss_t_071.mdl`); none byte-identical: True. Staged MDRNEE multipart sling resources: 57. Staged MDRNEE blueprints on legacy row 61: 10.
+Across registered packs: 0. Staged MDRNEE item HAK resrefs shared with `srn_weapon`: 29 (`iwbwln_m_091.tga`, `iwbwxh_t_015.tga`, `iwswdg_b_081.tga`, `iwswdg_m_071.tga`, `iwswdg_m_081.tga`, `iwswdg_t_081.tga`, `iwswls_m_101.tga`, `iwswss_b_071.tga`, `iwswss_m_071.tga`, `iwswss_t_071.tga`, `wbwln_b_091.mdl`, `wbwln_m_091.mdl`, `wbwln_t_091.mdl`, `wbwsl_b_011.mdl`, `wbwsl_b_012.mdl`, `wbwsl_b_013.mdl`, `wbwsl_b_051.mdl`, `wbwsl_b_052.mdl`, `wbwsl_m_011.mdl`, `wbwsl_t_011.mdl`, `wbwxh_t_015.mdl`, `wswdg_b_081.mdl`, `wswdg_m_071.mdl`, `wswdg_m_081.mdl`, `wswdg_t_081.mdl`, `wswls_m_101.mdl`, `wswss_b_071.mdl`, `wswss_m_071.mdl`, `wswss_t_071.mdl`); none byte-identical: True. Staged MDRNEE multipart sling resources: 57. Staged MDRNEE blueprints on legacy row 61: 10.
 
 ## Rights and provenance
 
@@ -109,17 +211,16 @@ Record: PROVENANCE.md "Approved Cougar blades and Colt L36 (srn_weapon, 2026-10-
 | `baseitems-full-table-override` | integration-decision | srn_2da ships a complete baseitems.2da. Any SR_NWN or other HAK baseitems change requires an intentional row-level merge; load order is not a substitute. |
 | `no-firearm-mechanics` | scope | Colt L36 retains Sling gameplay (damage, range, feats, ammunition). No firearm rules, ammunition items, projectile models or ammunition tables are published; sling projectiles fall back to the installed game. |
 | `no-ammunition-assets` | gap-for-sling-target | No sling bullet blueprint, ammunition model/icon, projectile model or ammunitiontypes.2da override exists in any SRN_HAKS pack. The bullets row is carried unchanged. |
-| `unpriced-blueprints` | gap-for-combat | All five blueprints have Cost 0 and no item properties; they are builder templates without balance data. Combat stats come only from the base item row. |
+| `unpriced-blueprints` | gap-for-combat | Published blueprints retain their reviewed costs and item properties; they are builder templates without balance data. Combat stats come only from the base item row. |
 | `no-combat-tlk` | info | No combat.* TLK allocations exist (SR_NWN-owned keys: 8, all phenomorpher race strings). The weapon blueprints need no TLK entries; any combat UI/feedback strings SR_NWN needs must be allocated with tools/Allocate-StrRef.ps1. |
 | `rights-reference-origin` | rights-review | PROVENANCE.md records operator-supplied references and Pixal3D generation but not the origin/license of the reference images or the generator terms for redistributed outputs. |
 | `rights-trademarks` | rights-review | The Colt L36 and Cougar names/branding are third-party marks; PROVENANCE.md explicitly does not assert ownership. GOVERNANCE.md requires trademark review per batch; no recorded clearance. |
 | `client-qualification-scope` | qualification | User acceptance covers the shipped Human fixture only; individual animation, armor, glove and off-hand cases and other bodies (c7 lock) were not separately client-tested. |
 | `base-game-collision-unchecked` | verify | Weapon resrefs were not compared against an installed NWN:EE key/bif set in this run. |
-| `mdrnee-staged-resref-collision` | id-collision | 16 srn_weapon resrefs also exist with different bytes in the staged (quarantined) MDRNEE item HAK; a future MDRNEE promotion must renumber or drop them. |
+| `mdrnee-staged-resref-collision` | id-collision | 29 srn_weapon resrefs also exist with different bytes in the staged (quarantined) MDRNEE item HAK; a future MDRNEE promotion must renumber or drop them. |
 | `mdrnee-legacy-row61` | id-collision | 10 staged MDRNEE blueprints use legacy BaseItem 61 as a dual-wield handgun; in the EE baseline row 61 is the Sling hosting the Colt L36. |
-| `model-range-sr_cfs` | verify | sr_cfs uses model parts [101] outside baseitems row 1 MinRange/MaxRange 10-100. The toolset part picker cannot select it; the shipped blueprint was client-reviewed as-is. SR_NWN-authored variants must copy the blueprint rather than re-pick parts, or a reviewed MaxRange merge is needed. |
 
 ## Excluded
 
-- `ingram-smartgun-x`: on hold (smgOnHold)
+- `production-weapon-motion-overlays`: itemkit testing only; production animation belongs to PhenoMorpher toolkit
 - `mdrnee-weapons`: candidate-staging-only; not runtime-ready, not in any pack

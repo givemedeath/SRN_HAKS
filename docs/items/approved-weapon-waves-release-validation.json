@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "kind": "normal-weapon-release-validation",
+  "date": "2026-11-03",
+  "weaponDesigns": 14,
+  "blueprints": 16,
+  "weaponResources": 130,
+  "publicationPins": 131,
+  "modelsDecoded": 50,
+  "imagesChecked": 64,
+  "textureDependenciesResolved": true,
+  "normalReleasePacks": [
+    "srn_weapon",
+    "srn_2da"
+  ],
+  "builtArchives": [
+    {
+      "archive": "srn_weapon.hak",
+      "resources": 130,
+      "sha256": "ac779e1809b77e64cf53516f510c64e1cc734012a50b2dfb18c8d8a8491a5c86",
+      "exactPayload": true
+    },
+    {
+      "archive": "srn_2da.hak",
+      "resources": 22,
+      "sha256": "c16f6ba219dee83224d53051d8efcfedb54c92db41a04cc3598917ca3a52341f",
+      "exactPayload": true
+    },
+    {
+      "archive": "sw_f7motion.hak",
+      "resources": 4,
+      "sha256": "ba5a1852190e6eef7e286d6ef45c00eb9081ee94eb3cb78e6c576b978beec4f2",
+      "exactPayload": true
+    },
+    {
+      "archive": "sw_reviewenv.hak",
+      "resources": 3,
+      "sha256": "885aa5a8d0aa9561f7f6feeefc50c0961636e1b9a20fe53b664e30bce7c2b830",
+      "exactPayload": true
+    },
+    {
+      "archive": "sw_weapon_w2.mod",
+      "resources": 53,
+      "sha256": "b337db568c685080a366bb80445ed259966648798dbd1d3f4b737965861705d9",
+      "exactPayload": true
+    }
+  ],
+  "bodyPacksUnchanged": true,
+  "motionOverlaysAndHooks": "itemkit-testing-only",
+  "productionAnimationOwner": "PhenoMorpher toolkit",
+  "legacyAcceptedResourcesPreservedExceptExplicitRouting": true,
+  "longbladeBlueprintChanges": {
+    "ModelPart2": [
+      71,
+      81
+    ],
+    "ModelPart3": [
+      71,
+      81
+    ],
+    "BaseItem": [
+      0,
+      22
+    ],
+    "ModelPart1": [
+      71,
+      81
+    ]
+  },
+  "longbladeModelAliases": {
+    "wswdg_b_081.mdl": {
+      "positionsNormalsUVsShadowExact": true,
+      "modelIdentityOnly": true
+    },
+    "wswdg_m_081.mdl": {
+      "positionsNormalsUVsShadowExact": true,
+      "modelIdentityOnly": true
+    },
+    "wswdg_t_081.mdl": {
+      "positionsNormalsUVsShadowExact": true,
+      "modelIdentityOnly": true
+    }
+  },
+  "baseitemTableChanges": {
+    "1": {
+      "MaxRange": [
+        "100",
+        "111"
+      ]
+    }
+  },
+  "coltAndOtherBladeNativePayloadsUnchanged": true,
+  "crossbowDiffusePixelsAndModelBytesUnchanged": true,
+  "throwKnifeProjectileExplicit": true,
+  "installedNamespaceKeys": [
+    {
+      "name": "nwn_base.key",
+      "sha256": "09cdafb6dbfb9cdb544993154c514c65ef9fd5be4e0c1b8fd971ed05aff90935"
+    },
+    {
+      "name": "nwn_retail.key",
+      "sha256": "dc1a96582a44e614bcd55ce42abf119416848ba47a9ef2a8818b227832c7b37a"
+    }
+  ],
+  "groupingPlan": {
+    "path": "docs/items/weapon-baseitem-plan-v1/mapping.json",
+    "sha256": "5f2f3a3ba91df596fde960653f3dbb9e1e4d9b6fb72546fc1e1dfa1bba98139e",
+    "legacyRow0Retained": true,
+    "gameplayRulesChanged": false,
+    "families": [
+      {
+        "id": "F1",
+        "name": "Knives / light blades",
+        "baseItemId": 22,
+        "itemClass": "WSwDg",
+        "footprint": "1 \u00d7 1"
+      },
+      {
+        "id": "F2",
+        "name": "One-handed melee",
+        "baseItemId": 1,
+        "itemClass": "WSwLs",
+        "footprint": "1 \u00d7 4"
+      },
+      {
+        "id": "F4",
+        "name": "Heavy two-handed melee",
+        "baseItemId": 13,
+        "itemClass": "WSwGs",
+        "footprint": "2 \u00d7 5"
+      },
+      {
+        "id": "F5",
+        "name": "Staffs / polearms",
+        "baseItemId": 50,
+        "itemClass": "WDbQs",
+        "footprint": "1 \u00d7 4"
+      },
+      {
+        "id": "F6",
+        "name": "Whips / flexible weapons",
+        "baseItemId": 111,
+        "itemClass": "WWhip",
+        "footprint": "2 \u00d7 2"
+      },
+      {
+        "id": "F7",
+        "name": "One-handed ranged",
+        "baseItemId": 61,
+        "itemClass": "WBwSl",
+        "footprint": "1 \u00d7 2"
+      },
+      {
+        "id": "F8",
+        "name": "Two-handed ranged",
+        "baseItemId": 6,
+        "itemClass": "WBwXh",
+        "footprint": "2 \u00d7 4"
+      },
+      {
+        "id": "F9",
+        "name": "Bows",
+        "baseItemId": 8,
+        "itemClass": "WBwLn",
+        "footprint": "2 \u00d7 4"
+      },
+      {
+        "id": "F11",
+        "name": "Thrown weapons",
+        "baseItemId": 63,
+        "itemClass": "WThAx",
+        "footprint": "1 \u00d7 2"
+      },
+      {
+        "id": "F12",
+        "name": "Shields",
+        "baseItemId": 56,
+        "itemClass": "AShLw",
+        "footprint": "2 \u00d7 3"
+      }
+    ]
+  },
+  "fixtureManifestSha256": "86ae6eca0ecab094108b39a8aa8cc6e52599b42848310a1da58209e2f6bbe75f",
+  "localFullRegressionRun": false,
+  "clientLaunched": false,
+  "newClientAcceptanceClaimed": false,
+  "productionDeployed": false
+}
