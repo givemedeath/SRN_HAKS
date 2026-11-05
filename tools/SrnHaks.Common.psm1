@@ -41,6 +41,26 @@ function Get-SrnTool {
     return $resolved.path
 }
 
+# NWN 2DA, SET and ASCII MDL files are Windows-1252. PowerShell 7's 'Default' encoding is UTF-8.
+function Read-SrnCp1252Text {
+    param([Parameter(Mandatory)][string]$Path)
+    [IO.File]::ReadAllText($Path, [Text.Encoding]::GetEncoding(1252))
+}
+
+function Read-SrnCp1252Lines {
+    param([Parameter(Mandatory)][string]$Path)
+    [IO.File]::ReadAllLines($Path, [Text.Encoding]::GetEncoding(1252))
+}
+
+# Captured native output is decoded with [Console]::OutputEncoding, which SrnTools.psm1 sets to UTF-8.
+function Invoke-SrnCp1252Native {
+    param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string[]]$Arguments)
+    $previous = [Console]::OutputEncoding
+    [Console]::OutputEncoding = [Text.Encoding]::GetEncoding(1252)
+    try { & $Path @Arguments }
+    finally { [Console]::OutputEncoding = $previous }
+}
+
 function Write-SrnJsonAtomic {
     param(
         [Parameter(Mandatory)][string]$Path,
@@ -124,4 +144,4 @@ function Publish-SrnDirectorySet {
     }
 }
 
-Export-ModuleMember -Function Get-SrnRepositoryRoot, Get-SrnConfiguration, Resolve-SrnRepositoryPath, Get-SrnTool, Write-SrnJsonAtomic, Resolve-SrnQuarantinePath, Publish-SrnDirectorySet
+Export-ModuleMember -Function Get-SrnRepositoryRoot, Get-SrnConfiguration, Resolve-SrnRepositoryPath, Get-SrnTool, Read-SrnCp1252Text, Read-SrnCp1252Lines, Invoke-SrnCp1252Native, Write-SrnJsonAtomic, Resolve-SrnQuarantinePath, Publish-SrnDirectorySet

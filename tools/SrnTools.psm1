@@ -17,7 +17,7 @@ namespace SrnCanonicalPaths {
 }
 function Resolve-SrnRealPath {
     param([Parameter(Mandatory)][string]$Path)
-    $full = [IO.Path]::GetFullPath($Path); $root = [IO.Path]::GetPathRoot($full); $current = $root
+    $full = [IO.Path]::GetFullPath($Path, $PWD.ProviderPath); $root = [IO.Path]::GetPathRoot($full); $current = $root
     foreach ($part in $full.Substring($root.Length).Split([char[]]@('/', '\'), [StringSplitOptions]::RemoveEmptyEntries)) {
         $current = Join-Path $current $part
         if (Test-Path -LiteralPath $current) {

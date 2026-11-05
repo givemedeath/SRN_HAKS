@@ -119,6 +119,6 @@ $report = [ordered]@{
 
 if ($Apply) {
     $json = $report | ConvertTo-Json -Depth 8
-    [IO.File]::WriteAllText([IO.Path]::GetFullPath($ReportPath), $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText([IO.Path]::GetFullPath($ReportPath, $PWD.ProviderPath), $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
 }
 $report | ConvertTo-Json -Depth 8

@@ -17,7 +17,7 @@ Register-SrnToolUse -Tool $resolvedTool -Inputs @($InputTexture)
 $tool = $resolvedTool.path
 
 $inputPath = (Resolve-Path -LiteralPath $InputTexture).Path
-$outputPath = [IO.Path]::GetFullPath($OutputTexture)
+$outputPath = [IO.Path]::GetFullPath($OutputTexture, $PWD.ProviderPath)
 if ([string]::Equals($inputPath, $outputPath, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'InputTexture and OutputTexture must be different paths.'
 }

@@ -18,9 +18,9 @@ $quarantineRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot '.quarantine'))
 
 function Get-GffValue {
     param($Object, [Parameter(Mandatory)][string]$Name, $Default = $null)
-    if ($null -eq $Object -or $Object.PSObject.Properties.Name -notcontains $Name) { return $Default }
+    if ($null -eq $Object -or $null -eq $Object.PSObject.Properties[$Name]) { return $Default }
     $field = $Object.$Name
-    if ($null -eq $field -or $field.PSObject.Properties.Name -notcontains 'value') { return $Default }
+    if ($null -eq $field -or $null -eq $field.PSObject.Properties['value']) { return $Default }
     $field.value
 }
 
@@ -48,7 +48,7 @@ function Get-2daTokens {
 
 function Read-2daRows {
     param([Parameter(Mandatory)][string]$Path)
-    $lines = @(Get-Content -LiteralPath $Path -Encoding Default | Where-Object {
+    $lines = @(Read-SrnCp1252Lines $Path | Where-Object {
         $_.Trim() -and $_ -notmatch '^\s*//'
     })
     $headerIndex = 0

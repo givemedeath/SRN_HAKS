@@ -13,8 +13,8 @@ $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'SrnHaks.Common.psm1') -Force
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$resolvedFixture = [IO.Path]::GetFullPath($FixturePath)
-$resolvedOutput = [IO.Path]::GetFullPath($OutputDirectory)
+$resolvedFixture = [IO.Path]::GetFullPath($FixturePath, $PWD.ProviderPath)
+$resolvedOutput = [IO.Path]::GetFullPath($OutputDirectory, $PWD.ProviderPath)
 $temporaryRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot '.tmp/mdrnee-tileset-test-module'))
 $allowedTemporaryRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot '.tmp'))
 
