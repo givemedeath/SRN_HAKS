@@ -13,12 +13,21 @@ found that runtime reduction dropped the rigid-hand and joint-sharpening correct
 (decimation re-blends weights at collapsed vertices); r2 re-applies them after
 reduction (316 of 9,785 runtime vertices change by more than 0.1). Same row 46 and
 resref `pmh0_robe046`, rebuilt under migration receipt v2, export compare as before
-(only the 8.2e-6 rad rest-rotation precision), offline worst stretch 7.7x (was
-20-24x in melee and raised arms) and walk penetration 7.6 cm (was 16.7 cm),
-client-compiled again and approved by the operator in the client (2026-10-06).
+(only the 8.2e-6 rad rest-rotation precision), client-compiled again and approved by
+the operator in the client (2026-10-06).
 Built from `configurations/package-workwear-r2.json` and the
 `fixture-workwear-final-r2.json` build; the HAK and module are byte-identical to
 the reviewed ones.
+
+**Correction (2026-11-04):** the r2 figures first recorded here (worst stretch 7.7x,
+walk penetration 7.6 cm) were invalid. `lbs.py` lost every animation controller on
+CRLF models for this review and the r2 export compare, so all 76 review samples and
+the export compare's motion samples were the bind pose. Rerun with the fixed reader
+on the archived inputs, offline deformation of the previous build reproduces its
+archived rows exactly, and r2 is not better: worst stretch 26.4x (was 25.9x), walk
+penetration 16.7 cm (unchanged, stock robe004 26.6 cm), bent-arms stretch 19.0x (was
+12.0x), crouch 22.6x (was 14.6x). The operator's visual client approval is unaffected,
+and the r2 export compare has not been rerun.
 
 ### Final pilot package
 
