@@ -653,6 +653,29 @@ class Launches(Base):
             rows = launcher.run_design(workspace, 'elf', ['elf-male-a:1', 'elf-male-b:2', 'elf-male-c:3'])
         return rows, launch, free
 
+    def test_design_profile_controls_reference_arguments_and_input_pins(self):
+        folder=self.root/'design';(folder/'launches').mkdir(parents=True)
+        reference=write(self.root/'species.png','species reference')
+        model=write(self.root/'model.safetensors','model weights')
+        bindings=write(self.root/'design-bindings.json',{'models':{'model.safetensors':{'path':str(model)}}})
+        self.workspace.data['designReferences']={'elf':{'male':str(reference)}}
+        for profile in (None,'flux2-turbo-v1','qwen21-int8-v1'):
+            with self.subTest(profile=profile):
+                spec={'designs':{}}
+                if profile is not None:spec['profile']=profile
+                write(folder/'designs-elf.json',spec)
+                with unittest.mock.patch.object(launcher,'launch',return_value={'exitCode':0,'elapsedSeconds':0}) as launch:
+                    result=launcher.run_one_design(self.workspace,'elf',folder,bindings,'elf-male-a','1','1')
+                self.assertEqual(result['exitCode'],0)
+                inputs=guards.read(launch.call_args.args[2]);command=launch.call_args.args[3]
+                if profile=='qwen21-int8-v1':
+                    self.assertNotIn('--reference',command);self.assertNotIn(str(reference),inputs)
+                    self.assertIn(str(model),inputs)
+                else:
+                    self.assertEqual(command[command.index('--reference')+1],reference)
+                    self.assertIn(str(reference),inputs)
+                    self.assertNotIn(str(model),inputs)
+
     def test_one_bad_design_keeps_the_rest_and_frees_the_card(self):
         good = {'exitCode': 0, 'elapsedSeconds': 1}
         rows, launch, free = self.designs([launcher.LaunchFailed('input changed'), good, good])
@@ -742,6 +765,34 @@ class Launches(Base):
 
 
 class Setup(Base):
+    def test_feature_remapped_bones_keep_auto_row_and_bone_tone(self):
+        for ownership in ({'default':0,'rules':[{'channel':8}]},{'default':8,'rules':[]}):
+            for sex in ('male','female'):
+                with self.subTest(ownership=ownership,sex=sex):
+                    data={'ownership':dict(ownership,mode='rules',featureChannels=True),
+                          'palette':{'rows':{'0':'auto','1':'auto','8':'auto','9':'auto'}}}
+                    head_setup.tone_every_channel(data,'troll',sex,'fixture')
+                    self.assertEqual(data['palette']['rows']['9'],'auto')
+                    self.assertEqual(data['palette']['toneMatch']['9'],{'reference':'head-metal-v1'})
+
+    def test_remapped_bone_defaults_preserve_reviewed_overrides_and_opt_out(self):
+        for opt_out in (False,True):
+            data={'ownership':{'mode':'rules','default':0,'rules':[{'channel':8}],'featureChannels':True},
+                  'palette':{'rows':{'9':'auto' if opt_out else 7},
+                             'toneMatch':{'9':{'reference':'head-tattoo2-v1'}}}}
+            if opt_out:data['palette']['toneMatchOff']=['9']
+            head_setup.tone_every_channel(data,'troll','male','fixture')
+            self.assertEqual(data['palette']['rows']['9'],'auto' if opt_out else 7)
+            if opt_out:self.assertNotIn('9',data['palette']['toneMatch'])
+            else:self.assertEqual(data['palette']['toneMatch']['9'],{'reference':'head-tattoo2-v1'})
+
+    def test_feature_channels_without_legacy_bones_keep_tattoo2_unused(self):
+        data={'ownership':{'mode':'rules','default':0,'rules':[{'channel':1}],'featureChannels':True},
+              'palette':{'rows':{'8':'auto','9':'auto'}}}
+        head_setup.tone_every_channel(data,'troll','male','fixture')
+        self.assertEqual(data['palette']['rows'],{'8':'auto','9':0})
+        self.assertNotIn('9',data['palette']['toneMatch'])
+
     def test_bone_channels_use_accessory_tones_and_preserve_reviewed_overrides(self):
         for race in ('troll', 'orc', 'elf', 'human', 'dwarf'):
             for sex in ('male', 'female'):

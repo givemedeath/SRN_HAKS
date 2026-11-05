@@ -324,9 +324,11 @@ def run_one_design(workspace, race, folder, bindings, head, seed, batch):
     label = f'{stamp()}-{head}-s{seed}'
     spec = folder/'launches'/f'spec-{label}.json'
     spec.write_bytes((folder/f'designs-{race}.json').read_bytes())
-    reference = workspace.design_reference(race, head.split('-')[1])
+    profile = guards.read(spec).get('profile', 'flux2-turbo-v1')
+    # Qwen is text-only: a configured species reference is neither consumed nor passed to its compiler (RUNBOOK 244).
+    reference = None if profile == 'qwen21-int8-v1' else workspace.design_reference(race, head.split('-')[1])
     files = [PYTHON]+[str(REPO/module) for module in DESIGN_MODULES]+sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))+[str(spec), str(bindings)]
-    if guards.read(spec).get('profile') == 'qwen21-int8-v1':
+    if profile == 'qwen21-int8-v1':
         files += [row['path'] for row in guards.read(bindings).get('models', {}).values()]
     extra = []
     if reference:

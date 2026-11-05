@@ -106,6 +106,9 @@ def tone_every_channel(data, race, sex, name):
     """Hair and accents left on nearest-colour shades read flat in other rows (RUNBOOK 83). palette.toneMatchOff is the reviewed opt-out."""
     used = {str(data['ownership'].get('default', 0))} | {str(rule['channel']) for rule in data['ownership'].get('rules', [])}
     if data['ownership'].get('featureChannels'):
+        # Non-iris legacy tattoo1 rules become tattoo2; generated iris texels alone do not (RUNBOOK 243).
+        if '8' in used:
+            used.add('9')
         used.update(('1', '8'))
     tone = data['palette'].setdefault('toneMatch', {})
     off = set(data['palette'].pop('toneMatchOff', []))
