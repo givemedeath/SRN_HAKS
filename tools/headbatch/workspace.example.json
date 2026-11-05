@@ -1,0 +1,26 @@
+{
+  "kind": "srn-head-workspace",
+  "schemaVersion": 1,
+  "toolchain": "runtime/toolchain.json",
+  "migrationReceipt": "runtime/migration.json",
+  "headBindings": "head-bindings.json",
+  "designBindings": "design-bindings.json",
+  "mdlCompiler": "mdl-compiler.json",
+  "palettes": "references/palettes",
+  "fitReferences": "references/heads",
+  "fitReferenceOverrides": {"pmg0": "references/troll/pmg0_head014.mdl", "pfg0": "references/troll/pfg0_head092.mdl"},
+  "bodyNecks": "references/body-necks",
+  "landmarks": "references/landmarks.json",
+  "designReferences": {"troll": {"male": "references/troll/troll_male_large.png", "female": "references/troll/troll_female_large.png"}},
+  "comfy": {"url": "http://127.0.0.1:8190", "root": "comfy"},
+  "game": {"root": "<NWN:EE install folder>", "client": "<NWN:EE install folder>/bin/win32/nwmain.exe"},
+  "clientSettings": "references/settings.tml",
+  "trialBase": {
+    "haks": ["references/haks/srn_head.hak", "references/haks/srn_body.hak", "references/haks/srn_body_tex.hak", "references/haks/srn_2da.hak", "references/haks/sr_h_fixture.hak"],
+    "module": "references/srn_head_pilot.mod",
+    "actorIdentity": {"appearanceRow": 2, "raceId": 2, "visualScale": 1.4285714285714286}
+  },
+  "slots": {"elf-female": [18, 19], "elf-male": [20, 21]},
+  "cpuSlots": 2,
+  "ramGates": {"3": 10, "4": 13, "5": 16, "6": 16}
+}
