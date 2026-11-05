@@ -4,11 +4,13 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import sys
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_geometry import arrays
+from retarget import NODE
 from target_contract import PART_JOINTS, require
 from pose_preview_bridge import pose
 
@@ -28,6 +30,21 @@ MOTION_SAMPLES = [
     {"clip": "run", "time": 0.3, "standing": False, "label": "Running Stride"},
     {"clip": "gutokdf", "time": 0.5, "standing": False, "label": "Knockdown/Crouch Flexion"},
 ]
+
+
+def mesh_vertices(text: str) -> np.ndarray:
+    """Every mesh node's vertices in the part's frame; `arrays` on a whole model stops at the first mesh."""
+    meshes = []
+    for kind, name, body in NODE.findall(text):
+        verts = arrays(body, "verts") if kind.lower() in ("trimesh", "skin", "danglymesh") else None
+        if not verts:
+            continue
+        orientation = re.search(r"(?m)^\s*orientation\s+\S+\s+\S+\s+\S+\s+(\S+)", body)
+        require(orientation is None or float(orientation[1]) == 0, "Connector audit needs unrotated mesh nodes: " + name)
+        position = re.search(r"(?m)^\s*position\s+(\S+)\s+(\S+)\s+(\S+)", body)
+        meshes.append(np.array(verts, dtype=float) + (np.array(position.groups(), dtype=float) if position else 0.0))
+    require(bool(meshes), "Model has no mesh vertices")
+    return np.concatenate(meshes)
 
 
 def connector_vertex_distances(parent: np.ndarray, child: np.ndarray) -> dict:
@@ -70,8 +87,8 @@ def evaluate_connector_motion(
     text_p = parent_path.read_text(encoding="cp1252")
     text_c = child_path.read_text(encoding="cp1252")
 
-    verts_p = np.array(arrays(text_p, "verts"), dtype=float)
-    verts_c = np.array(arrays(text_c, "verts"), dtype=float)
+    verts_p = mesh_vertices(text_p)
+    verts_c = mesh_vertices(text_c)
 
     sample_results = []
     min_axial_overlap = float("inf")

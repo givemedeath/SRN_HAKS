@@ -253,7 +253,7 @@ def prepare(job_path,target_path,output,*,artifact_root=None):
         run([runtime_ini,corrected,runtime_raw],'runtime-batch');require({p.name for p in runtime_raw.iterdir()}=={r['target'] for r in selected},'Armory partial or unexpected runtime batch outputs')
         for row in selected:
             path=runtime_corrected/row['target'];shutil.copyfile(runtime_raw/row['target'],path)
-            row['runtimeProof']=correct_rigid(row['workingPath'],path,runtime_transform);row['runtimePath']=path
+            row['runtimeProof']=correct_rigid(row['workingPath'],path,runtime_transform,normalized=True);row['runtimePath']=path
             row['actorWorldProof']=scale_actor_proof(row['workingPath'].read_text(),path.read_text(),data,row['profile']['data']['attachmentJoint'])
         for path,value in frozen.items():require(digest(Path(path))==value,'Frozen input changed before adoption: '+path)
         for space in ('working','runtime'):

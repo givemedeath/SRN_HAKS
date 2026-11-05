@@ -100,7 +100,7 @@ def freeze(args):
                          'weaponWield':row.get('weaponwield'),'weaponSize':row.get('weaponsize'),
                          'prefAttackDistance':row.get('prefattackdist'),'installedModels':names,'samples':sorted(chosen)})
         samples.update(chosen)
-    cat=resolved_tool('nwn_resman_cat',args.tool_directory)
+    cat=resolved_tool('nwn_resman_cat',args.tool_directory);args.decompiler=resolved_tool('mdlcomp',path=args.decompiler)
     tools={str(path.resolve()):digest(path) for path in (cat,args.decompiler)}
     base=['--root',inventory['gameRoot'],'--userdirectory',inventory['userDirectory'],'--no-ovr']
     def fetch(name):

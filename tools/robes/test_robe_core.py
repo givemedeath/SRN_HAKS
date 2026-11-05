@@ -104,6 +104,15 @@ class AsciiTests(unittest.TestCase):
 
 
 class SkinningTests(unittest.TestCase):
+    def test_motion_samples_refuse_a_rig_missing_a_clip(self):
+        class Rig:
+            clips = {"walk": {"length": 1.0}}
+            times = staticmethod(lambda clip, count: [0.0])
+        matrix = [{"family": "walk", "clip": "walk"}]
+        self.assertEqual(len(lbs.motion_samples(Rig, matrix)), 2)
+        with self.assertRaisesRegex(ValueError, "Motion clip missing.*run"):
+            lbs.motion_samples(Rig, matrix + [{"family": "run", "clip": "run"}])
+
     def setUp(self):
         self.rig = lbs.Rig.__new__(lbs.Rig)
         self.rig.model = mdl_ascii.parse(SKIN_MODEL)

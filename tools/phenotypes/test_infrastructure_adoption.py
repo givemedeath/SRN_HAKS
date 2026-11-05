@@ -6,6 +6,7 @@ import subprocess
 from pathlib import Path
 import tempfile
 import unittest
+from test_shared_toolchain import helper_pins
 
 import phenotype_infrastructure_adoption as adoption
 import target_contract as contract
@@ -73,7 +74,7 @@ class AdoptionTests(unittest.TestCase):
         runtime = self.write(self.out/'runtime.json', {'schemaVersion': 2, 'kind': 'phenotype-shared-toolchain',
             'toolsRoot': str(tool_root), 'requiredTools': ['python'], 'runtimes': {'python': self.pin(runtime_exe)}})
         self.migration = self.write(self.out/'migration.json', {'kind': 'phenotype-shared-tool-migration',
-            'smokeChecksPassed': True, 'toolchain': self.pin(runtime), 'launchHelpers': {}})
+            'smokeChecksPassed': True, 'toolchain': self.pin(runtime), 'launchHelpers': helper_pins()})
         lock = self.write(self.root/'tools'/'shared-tools.lock.json', {'schemaVersion': 1})
         self.proof = {'schemaVersion': 1, 'kind': adoption.KIND, 'operation': adoption.OPERATION, 'adoptionApplications': 1,
             'targetContract': self.pin(self.target_path), 'targetId': self.target['id'], 'rigRevision': self.target['rig']['revision'],

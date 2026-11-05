@@ -96,7 +96,7 @@ def references(text):
 MTR_TEXTURE = re.compile(r'(?mi)^\s*texture\d\s+(\S+)\s*$')
 
 
-def extract(extract_tool, neverblender, game_root, output, slots=SOURCES):
+def extract(extract_tool, neverblender, game_root, output, slots=SOURCES, timeout=600):
     """Fresh folder: raw/ (installed bytes), ascii/ (decompiled), textures/, reference/ (stock rigs and bare
     style-001 parts, native) and stock-armor.json pins. neverblender: (Blender executable, add-on folder)."""
     from . import neverblender_mdl
@@ -119,7 +119,7 @@ def extract(extract_tool, neverblender, game_root, output, slots=SOURCES):
         else:
             (ascii_dir/name).write_bytes(data)
     # One Blender process decompiles every binary part.
-    tools, _ = neverblender_mdl.decompile_files(*neverblender, binaries)
+    tools, _ = neverblender_mdl.decompile_files(*neverblender, binaries, timeout=timeout)
     for name, row in models.items():
         source, target = raw/name, ascii_dir/name; data = source.read_bytes()
         text = target.read_text(encoding='cp1252')
@@ -378,7 +378,7 @@ def unique_mesh_names(text, model):
 
 def armory_values(armory, source, fitted):
     """NWNArmory's own fit between two same-topology models: (scale, rotate, translate, max vertex residual)."""
-    result = subprocess.run([str(armory), '--values', str(source), str(fitted)], capture_output=True, text=True)
+    result = subprocess.run([str(armory), '--values', str(source), str(fitted)], capture_output=True, text=True, errors='replace')
     if result.returncode:
         raise ValueError('Armory --values failed: ' + result.stderr.strip())
     # A non-finite fit can still print max_residual=0, so its mean and its vectors have to be finite too.
@@ -411,7 +411,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
     armory = Path(armory).resolve(); output = Path(output)
     if digest(armory.read_bytes()) != ARMORY_SHA256:
         raise ValueError('Pinned NWNArmory 1.3.4 executable required')
-    version = subprocess.run([str(armory), '--version'], capture_output=True, text=True).stdout.strip()
+    version = subprocess.run([str(armory), '--version'], capture_output=True, text=True, errors='replace').stdout.strip()
     if version != ARMORY_VERSION:
         raise ValueError('Pinned NWNArmory version differs: ' + version)
     if output.exists():
@@ -465,7 +465,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
         for _, _, name, _ in selection:
             (folders['source']/name).write_text(source_text(name), encoding='cp1252', newline='')
         ini = work/'batch.ini'; ini.write_text(armory_ini([(Path(n).stem, profile[p]['transform']) for p, _, n, _ in selection]), encoding='ascii')
-        batch = subprocess.run([str(armory), str(ini), str(folders['source']), str(folders['raw'])], capture_output=True, text=True)
+        batch = subprocess.run([str(armory), str(ini), str(folders['source']), str(folders['raw'])], capture_output=True, text=True, errors='replace')
         (work/'batch.log').write_text(batch.stdout + batch.stderr, encoding='utf-8')
         if batch.returncode or {p.name for p in folders['raw'].iterdir()} != {n for _, _, n, _ in selection}:
             raise ValueError('Armory batch failed or omitted outputs: ' + slot)

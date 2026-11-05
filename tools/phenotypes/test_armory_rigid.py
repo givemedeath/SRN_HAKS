@@ -89,6 +89,16 @@ class ArmoryRigidTests(unittest.TestCase):
             proof = correct_rigid(a, b, transform)
             return b.read_text(), proof
 
+    def test_attachment_dummy_is_refused_until_the_source_is_normalized(self):
+        identity = {'scale': [1, 1, 1], 'rotate': [0, 0, 0], 'translate': [0, 0, 0]}
+        text = SOURCE.replace('node trimesh torso_g', 'node dummy attach\n parent pmh0_chest002\nendnode\nnode trimesh torso_g')
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp)/'source.mdl'; fitted = Path(temp)/'fitted.mdl'
+            source.write_text(text, encoding='ascii'); fitted.write_text(text, encoding='ascii')
+            with self.assertRaisesRegex(RuntimeError, 'Non-root dummy nodes.*attach'):
+                correct_rigid(source, fitted, identity)
+            correct_rigid(source, fitted, identity, normalized=True)
+
     def test_frozen_source_cannot_be_its_own_correction_target(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'source.mdl';path.write_text(SOURCE)

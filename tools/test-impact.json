@@ -295,6 +295,7 @@
       "tools/phenomorpher/phenomorpher/engine/target_contract.py",
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/height_targets.json",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/native_compile.py",
       "tools/phenotypes/pipeline.py",
@@ -1309,7 +1310,8 @@
       "tools/phenotypes/finalize_shared_tool_migration.py",
       "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/launch_shared_tool.py",
-      "tools/phenotypes/shared_toolchain.py"
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/shared_tools.py"
     ],
     "tools/phenomorpher/phenomorpher/__init__.py": [],
     "tools/phenomorpher/phenomorpher/__main__.py": [
@@ -1744,7 +1746,6 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/audit_derived_connectors.py": [
-      "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
       "tools/phenotypes/derived_review_configs.py",
       "tools/phenotypes/target_contract.py"
@@ -2158,6 +2159,7 @@
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
       "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/descendant_mesh_edit.py": [
@@ -2293,7 +2295,8 @@
     "tools/phenotypes/freeze_equipment_supermodels.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/pipeline.py",
-      "tools/phenotypes/retarget.py"
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/freeze_part_references.py": [],
     "tools/phenotypes/freeze_stock_part_inputs.py": [],
@@ -2970,6 +2973,8 @@
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/shared_toolchain.py": [
+      "tools/phenotypes/launch_hash_cache.py",
+      "tools/phenotypes/launch_shared_tool.py",
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py",
       "tools/toolchain.lock.json"
@@ -3424,6 +3429,7 @@
       "tools/phenotypes/target_part_pipeline.py",
       "tools/phenotypes/test_human_female_stock_exact.py",
       "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_shared_toolchain.py",
       "tools/shared-tools.lock.json"
     ],
     "tools/phenotypes/test_fair_target_crease_band.py": [
@@ -3493,6 +3499,7 @@
       "tools/phenotypes/target_contract.py",
       "tools/phenotypes/target_part_pipeline.py",
       "tools/phenotypes/test_human_female_stock_exact.py",
+      "tools/phenotypes/test_shared_toolchain.py",
       "tools/shared-tools.lock.json"
     ],
     "tools/phenotypes/test_inventory_target_equipment.py": [
@@ -3566,7 +3573,9 @@
       "tools/phenotypes/test_execution_adoption.py"
     ],
     "tools/phenotypes/test_native_compiler_input_bridge.py": [
+      "tools/phenotypes/native_compile.py",
       "tools/phenotypes/native_compiler_input_bridge.py",
+      "tools/phenotypes/pipeline.py",
       "tools/phenotypes/target_part_stage.py"
     ],
     "tools/phenotypes/test_native_tangent_descendant.py": [
@@ -3884,6 +3893,7 @@
       "tools/phenotypes/test_target_part_pipeline.py"
     ],
     "tools/phenotypes/test_target_body_launcher.py": [
+      "tools/SrnTools.psm1",
       "tools/heads/roster.json",
       "tools/phenotypes/Launch-TargetBodyClient.ps1",
       "tools/phenotypes/launch_shared_tool.py",

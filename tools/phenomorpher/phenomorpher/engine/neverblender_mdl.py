@@ -82,7 +82,7 @@ def run(tools, jobs, timeout=600):
         env.update(BLENDER_USER_CONFIG=str(scratch/'config'), BLENDER_USER_SCRIPTS=str(scratch/'scripts'))
         result = subprocess.run([tools['blender']['path'], '--background', '--factory-startup', '--offline-mode',
                                  '--disable-autoexec', '--python-exit-code', '3', '--python', str(WORKER), '--', str(request)],
-                                capture_output=True, text=True, timeout=timeout, env=env,
+                                capture_output=True, text=True, errors='replace', timeout=timeout, env=env,
                                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
         if result.returncode or not report.is_file():
             raise RuntimeError('Neverblender worker failed: ' + (result.stderr or result.stdout).strip()[-2000:])

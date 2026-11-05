@@ -128,7 +128,8 @@ def error(actual, expected, label, tolerance=1e-5):
     return value
 
 
-def correct_rigid(source, target, transform):
+def correct_rigid(source, target, transform, normalized=False):
+    """`normalized`: the source is an earlier correction, whose meshes hang from the root and whose absorbed pivots remain."""
     if source.resolve() == target.resolve():
         raise RuntimeError('Equipment correction must not overwrite its frozen source')
     original, text = source.read_text(encoding='ascii'), target.read_text(encoding='ascii')
@@ -149,6 +150,17 @@ def correct_rigid(source, target, transform):
     source_root = re.search(r'(?mi)^newmodel\s+(\S+)', original)[1].lower()
     if source_root not in source_blocks or root.lower() not in target_blocks:
         raise RuntimeError('Rigid equipment requires its declared root node')
+    # Only meshes are baked and proven below. A pivot dummy whose subtree ends in meshes is absorbed into
+    # them; any other dummy (an attachment point) would keep a stale, unfitted frame.
+    children = {}
+    for name, node in source_nodes.items():
+        children.setdefault(node['parent'], []).append(name)
+    def pivot(name):
+        kids = children.get(name, [])
+        return bool(kids) and all(k in source_meshes or pivot(k) for k in kids)
+    others = sorted(k for k in source_blocks if k not in source_meshes and k != source_root and not pivot(k))
+    if others and not normalized:
+        raise RuntimeError('Non-root dummy nodes require a separate placement proof: ' + ', '.join(others))
     preserved = ('bitmap', 'materialname', 'ambient', 'diffuse', 'specular', 'shininess',
                  'render', 'shadow', 'beaming', 'rotatetexture', 'tilefade', 'alpha',
                  'transparencyhint', 'inheritcolor', 'selfillumcolor')
