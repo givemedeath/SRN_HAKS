@@ -20,8 +20,6 @@ PARTS = ('chest', 'pelvis', 'neck', 'belt', 'bicepl', 'bicepr', 'forel',
          'forer', 'handl', 'handr', 'legl', 'legr', 'shinl', 'shinr',
          'footl', 'footr', 'shol', 'shor', 'robe')
 BARE = set(PARTS) - {'belt', 'shol', 'shor', 'robe'}
-MODEL = re.compile(r'^pmh0_(' + '|'.join(PARTS) + r')(\d{3})\.mdl$')
-CLOAK = re.compile(r'^pmh0_cloak_(\d{3})\.mdl$')
 HELM = re.compile(r'^helm_\d{3}\.mdl$')
 SHIELD = re.compile(r'^ash(?:sw|lw|ss|ls|to)_[a-z0-9_]+\.mdl$')
 

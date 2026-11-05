@@ -1,7 +1,6 @@
 """Generate review configs and execute joint review packets for derived dwarf connectors."""
 from __future__ import annotations
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -11,16 +10,8 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_geometry import arrays
 from retarget import NODE
-from target_contract import PART_JOINTS, require
+from target_contract import require
 from pose_preview_bridge import pose
-
-
-def sha256_file(path: Path | str) -> str:
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 MOTION_SAMPLES = [

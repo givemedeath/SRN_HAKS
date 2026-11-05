@@ -6,7 +6,7 @@
     "activeGenderScope": [
       "male"
     ],
-    "femaleBlockReason": "Human female master body paused at checkpoint v24; female master unapproved",
+    "femaleBlockReason": "Derived female targets not started; the Human female master shipped (docs/phenomorpher/human-bodies-lock-c7.md)",
     "supportedPhenotypes": [
       0
     ],
@@ -50,7 +50,7 @@
       "modelPrefix": "pfd0",
       "masterSource": "human-female-v1",
       "status": "blocked-on-source",
-      "blocker": "Human female master body paused at checkpoint v24; female master unapproved",
+      "blocker": "Derived female targets not started; the Human female master shipped (docs/phenomorpher/human-bodies-lock-c7.md)",
       "appearanceRow": 0,
       "racialTypeRow": 0
     },
@@ -76,7 +76,7 @@
       "modelPrefix": "pfe0",
       "masterSource": "human-female-v1",
       "status": "blocked-on-source",
-      "blocker": "Human female master unapproved",
+      "blocker": "Derived female targets not started; the Human female master shipped (docs/phenomorpher/human-bodies-lock-c7.md)",
       "appearanceRow": 1,
       "racialTypeRow": 1
     },
@@ -122,7 +122,7 @@
       "modelPrefix": "pfg0",
       "masterSource": "human-female-v1",
       "status": "blocked-on-source",
-      "blocker": "Human female master unapproved",
+      "blocker": "Derived female targets not started; the Human female master shipped (docs/phenomorpher/human-bodies-lock-c7.md)",
       "appearanceRow": 2,
       "racialTypeRow": 2
     },
@@ -148,7 +148,7 @@
       "modelPrefix": "pfo0",
       "masterSource": "human-female-v1",
       "status": "blocked-on-source",
-      "blocker": "Human female master unapproved",
+      "blocker": "Derived female targets not started; the Human female master shipped (docs/phenomorpher/human-bodies-lock-c7.md)",
       "appearanceRow": 5,
       "racialTypeRow": 5
     },

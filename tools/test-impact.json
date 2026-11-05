@@ -700,7 +700,7 @@
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/native_reader.py": [
-      "tools/heads/head_workflow.py"
+      "tools/headkit/native_reader.py"
     ],
     "tools/heads/prepare_assembly.py": [
       "tools/heads/head_export.py",
@@ -1712,7 +1712,6 @@
     ],
     "tools/phenomorpher/run.py": [
       "tools/phenomorpher/phenomorpher/inputs.py",
-      "tools/phenomorpher/source-lineage.json",
       "tools/phenotypes/launch_shared_tool.py"
     ],
     "tools/phenomorpher/test_finalize_runtime.py": [

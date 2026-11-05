@@ -14,7 +14,7 @@ REPO = HERE.parents[1]
 def consumed(arguments):
     sys.path.insert(0, str(HERE))
     from phenomorpher.inputs import consumed as data_inputs
-    files = set((HERE/'phenomorpher').rglob('*.py')) | {HERE/'run.py', HERE/'source-lineage.json'}
+    files = set((HERE/'phenomorpher').rglob('*.py')) | {HERE/'run.py'}
     files.update((HERE/'phenomorpher').rglob('*.json'))
     return files | data_inputs(arguments)
 
