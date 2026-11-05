@@ -272,16 +272,21 @@ def register_run(repo, root=None, tools=(), inputs=(), provenance=(), *, complet
               'createdUtc': datetime.now(timezone.utc).isoformat(), 'toolsRoot': str(bank),
               'rootOrigin': origin, 'completeDeclaration': complete, 'references': refs,
               'inventorySha256':sha(repo/'tools/shared-tools.lock.json')}
+    # The run's own receipt holds this run's references. The rolling record holds every reference, and a repeat run
+    # that adds nothing leaves it alone: rewriting it costs time in proportion to the worktree's whole history.
     local = repo / '.tmp/tool-dependencies' / (uuid.uuid4().hex + '.json')
+    write_json(local, report, fresh=True)
     with locked(folder / 'registration.lock'):
         current = folder / 'current.json'
-        if current.exists() and not complete:
-            previous = read_json(current)
+        previous = read_json(current) if current.exists() else None
+        rolling = report
+        if previous and not complete:
             all_refs = {(row['role'], row['path']): row for row in previous['references']}
             all_refs.update({(row['role'], row['path']): row for row in refs})
-            report['references'] = list(all_refs.values())
-        write_json(local, report, fresh=True)
-        write_json(current, report)
+            rolling = {**report, 'references': list(all_refs.values())}
+        if not previous or any(previous.get(key) != rolling[key] for key in
+                               ('references', 'toolsRoot', 'rootOrigin', 'completeDeclaration', 'inventorySha256', 'worktree')):
+            write_json(current, rolling)
     return local
 
 

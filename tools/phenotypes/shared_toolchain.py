@@ -6,6 +6,10 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from shared_tools import resolve_tool, resolve_addon, resolve_runtime, tools_root, reject_linked
 
+# Scoped receipts: the tools each one may launch.
+SCOPED_TOOLS={'head-tools':{'python','blender'},'measurement-tools':{'python'},'robe-tools':{'python','blender'}}
+REQUIRED_HELPERS={'launch_shared_tool.py','launch_hash_cache.py','shared_toolchain.py','shared_tools.py'}
+
 
 def sha(path):
     result=hashlib.sha256()
@@ -46,10 +50,8 @@ def load(path, migration=None, required=None):
         _verify_migration(path, migration)
         receipt=json.loads(Path(migration).read_text(encoding='utf-8'))
         requested=set(required or data['tools'])
-        if receipt.get('scope')=='head-tools' and not requested <= set(receipt['allowedTools']):
-            raise ValueError('Head-only migration does not cover this tool; run its full migration')
-        if receipt.get('scope')=='measurement-tools' and not requested <= set(receipt['allowedTools']):
-            raise ValueError('Measurement-only migration does not cover this tool; run its full migration')
+        if receipt.get('scope') in SCOPED_TOOLS and not requested <= set(receipt['allowedTools']):
+            raise ValueError(f"{receipt['scope']} migration does not cover this tool; run its full migration")
     return data
 
 
@@ -64,24 +66,33 @@ def _verify_addons(addons, retiring, repo):
         target=(root/relative).resolve()
         if not target.is_relative_to(root) or sha(target)!=expected:
             raise ValueError('Shared addon bytes changed: '+relative)
+
+
+def _running_helper(name):
+    """The helper of this name in the code that is running, not wherever a receipt was frozen."""
+    here=Path(__file__).resolve()
+    return here.parents[1]/name if name=='shared_tools.py' else here.with_name(name)
+
+
 def _verify_migration(path, migration):
-        receipt=json.loads(Path(migration).read_text(encoding='utf-8'))
-        if receipt.get('kind')!='phenotype-shared-tool-migration' or not receipt.get('smokeChecksPassed'):
-            raise ValueError('Passed shared tool migration receipt required')
-        if Path(receipt['toolchain']['path']).resolve()!=path or receipt['toolchain']['sha256']!=sha(path):
-            raise ValueError('Migration receipt does not bind this toolchain')
-        for helper,expected in receipt.get('launchHelpers',{}).items():
-            if sha(helper)!=expected['sha256']:
-                raise ValueError('Migrated launch helper changed; freeze a new receipt: '+helper)
-        if receipt.get('scope')=='measurement-tools':
-            if receipt.get('allowedTools') != ['python'] or not receipt.get('frozenSmokeFiles'):
-                raise ValueError('Measurement migration needs Python-only scope and frozen smokes')
-            for item in receipt['frozenSmokeFiles']:
-                if sha(item['path']) != item['sha256']:
-                    raise ValueError('Measurement migration smoke changed: '+item['path'])
-        if receipt.get('scope')=='head-tools':
-            if set(receipt.get('allowedTools',[])) != {'python','blender'} or not receipt.get('frozenSmokeFiles'):
-                raise ValueError('Head migration needs explicit bounded scope and frozen smokes')
-            for item in receipt['frozenSmokeFiles']:
-                if sha(item['path']) != item['sha256']:
-                    raise ValueError('Head migration smoke changed: '+item['path'])
+    receipt=json.loads(Path(migration).read_text(encoding='utf-8'))
+    if receipt.get('kind')!='phenotype-shared-tool-migration' or not receipt.get('smokeChecksPassed'):
+        raise ValueError('Passed shared tool migration receipt required')
+    if Path(receipt['toolchain']['path']).resolve()!=path or receipt['toolchain']['sha256']!=sha(path):
+        raise ValueError('Migration receipt does not bind this toolchain')
+    repo=Path(__file__).resolve().parents[2]
+    if receipt.get('activeWorktree') and Path(receipt['activeWorktree']).resolve()!=repo:
+        raise ValueError('Migration receipt belongs to another worktree: '+receipt['activeWorktree'])
+    helpers={Path(helper).name:expected['sha256'] for helper,expected in receipt.get('launchHelpers',{}).items()}
+    if not REQUIRED_HELPERS<=set(helpers):
+        raise ValueError('Migration receipt does not pin every launch helper; freeze a new receipt')
+    for name,expected in helpers.items():
+        if sha(_running_helper(name))!=expected:
+            raise ValueError('Migrated launch helper changed; freeze a new receipt: '+name)
+    scope=receipt.get('scope')
+    if scope in SCOPED_TOOLS:
+        if set(receipt.get('allowedTools',[]))!=SCOPED_TOOLS[scope] or not receipt.get('frozenSmokeFiles'):
+            raise ValueError(f'{scope} migration needs its bounded tools and frozen smokes')
+        for item in receipt['frozenSmokeFiles']:
+            if sha(item['path'])!=item['sha256']:
+                raise ValueError(f"{scope} migration smoke changed: {item['path']}")

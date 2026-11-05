@@ -10,7 +10,9 @@ detected; without the variable every file is hashed in full, as before. Guards:
 - a file modified within `RECENT_SECONDS` of the stat is hashed and never stored, because its timestamp may not yet
   reflect a write still in progress (the racy-timestamp case);
 - a digest is stored only when the stat before and after hashing match;
-- rows are keyed by the resolved path; any stat difference is a miss and the row is replaced.
+- rows are keyed by the resolved path; any stat difference is a miss and the row is replaced;
+- a SQLite failure after the cache opened (locked past the timeout, disk full, corrupt file) drops the cache for the
+  rest of the launch, so every later file is hashed in full and the receipt records the error.
 The cache file is local machine state (never a portable lock or a receipt input). Several launches may share it
 (SQLite WAL, short transactions, retry on lock).
 """
@@ -35,7 +37,7 @@ class HashCache:
 
     def __init__(self, path, *, recent=RECENT_SECONDS, clock=time.time):
         self.path = Path(path).resolve(); self.recent = recent; self.clock = clock
-        self.hits = self.misses = self.recentRefusals = 0; self.pending = []
+        self.hits = self.misses = self.recentRefusals = 0; self.pending = []; self.errors = []
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(str(self.path), timeout=30, isolation_level=None)
         for attempt in range(100):  # first-time setup by concurrent launches: switching to WAL needs an exclusive lock
@@ -48,23 +50,34 @@ class HashCache:
 
     def sha(self, path):
         key = str(Path(path).resolve()); before = os.stat(key); current = stamp(before)
-        row = self.db.execute('SELECT stamp, sha256 FROM digests WHERE path=?', (key,)).fetchone()
+        row = None
+        if self.db is not None:
+            try:row = self.db.execute('SELECT stamp, sha256 FROM digests WHERE path=?', (key,)).fetchone()
+            except sqlite3.Error as error:self._abandon(error)
         if row is not None and row[0] == current:
             self.hits += 1; return row[1]
         self.misses += 1; digest = sha(key)
         if self.clock() - before.st_mtime_ns / 1e9 < self.recent:
             self.recentRefusals += 1; return digest
-        if stamp(os.stat(key)) == current:
+        if self.db is not None and stamp(os.stat(key)) == current:
             self.pending.append((key, current, digest))
         return digest
 
+    def _abandon(self, error):
+        """The child may already have run: a broken cache costs speed, never the launch or its receipt."""
+        self.errors.append(str(error)); self.pending = []; database, self.db = self.db, None
+        try:database.close()
+        except sqlite3.Error:pass
+
     def flush(self):
         """Store this pass's new digests in one transaction (thousands of single-row commits are slow)."""
-        if self.pending:
-            with self.db:
-                self.db.execute('BEGIN IMMEDIATE')
-                self.db.executemany('INSERT OR REPLACE INTO digests VALUES (?, ?, ?)', self.pending)
-            self.pending = []
+        if self.pending and self.db is not None:
+            try:
+                with self.db:
+                    self.db.execute('BEGIN IMMEDIATE')
+                    self.db.executemany('INSERT OR REPLACE INTO digests VALUES (?, ?, ?)', self.pending)
+                self.pending = []
+            except sqlite3.Error as error:self._abandon(error)
 
     def store(self, path, digest):
         """The read-only content-addressed copy of `path` (bytes `digest`) beside the cache, created once and verified
@@ -84,10 +97,15 @@ class HashCache:
 
     def report(self):
         return {'path': str(self.path), 'hits': self.hits, 'misses': self.misses, 'recentRefusals': self.recentRefusals,
-                'recentSeconds': self.recent, 'trusts': 'size, mtime_ns, file index and device unchanged since hashed'}
+                'recentSeconds': self.recent, 'trusts': 'size, mtime_ns, file index and device unchanged since hashed',
+                'databaseErrors': self.errors}
 
     def close(self):
-        self.flush(); self.db.close()
+        self.flush()
+        if self.db is not None:
+            try:self.db.close()
+            except sqlite3.Error as error:self.errors.append(str(error))
+            self.db = None
 
 
 def from_environment():

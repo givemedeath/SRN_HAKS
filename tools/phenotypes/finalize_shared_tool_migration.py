@@ -66,7 +66,7 @@ def verify_launch(folder, tool, config, toolchain):
     return report
 
 
-LAUNCH_HELPERS = {'shared_toolchain.py', 'launch_shared_tool.py', 'launch_hash_cache.py', 'bootstrap_shared_blender_addons.py'}
+LAUNCH_HELPERS = {'shared_toolchain.py', 'shared_tools.py', 'launch_shared_tool.py', 'launch_hash_cache.py', 'bootstrap_shared_blender_addons.py'}
 
 
 def verify_blender_bootstrap(bootstrap, imported, launch, config, toolchain):

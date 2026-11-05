@@ -47,8 +47,8 @@ def finalize(toolchain, smoke, output):
     if Path(result['executable']).resolve()!=Path(tools['tools']['python']['path']).resolve():
         raise ValueError('Smoke interpreter differs from bound runtime')
     helpers={p:{'sha256':h} for p,h in launch['frozenInputs'].items()
-             if Path(p).name in ('launch_shared_tool.py','launch_hash_cache.py','shared_toolchain.py')}
-    if len(helpers)!=3:
+             if Path(p).name in ('launch_shared_tool.py','launch_hash_cache.py','shared_toolchain.py','shared_tools.py')}
+    if len(helpers)!=4:
         raise ValueError('All launch helper pins required')
     receipt={'schemaVersion':1,'kind':'phenotype-shared-tool-migration','scope':'measurement-tools',
         'allowedTools':['python'],'smokeChecksPassed':True,'toolchain':pin(toolchain),
