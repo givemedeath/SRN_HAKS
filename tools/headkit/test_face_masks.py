@@ -6,7 +6,9 @@ import tempfile
 import unittest
 import numpy as np
 from headkit.common import manifest, write, read
-from headkit.face_masks import hair_locks, brow_seed, brow_mask, iris_circles, IRIS, BROW_RING, HAIR, SKIN
+from headkit.face_masks import bilinear, hair_locks, brow_seed, brow_mask, iris_circles, project, FILL, IRIS, BROW_RING, HAIR, SKIN, SEEN_DEPTH, SEEN_FACING
+from scipy.spatial import cKDTree
+from headkit.textures import pad, surface
 from headkit.face_encode import apply_channels, beard_hair, majority, consistent_blocks, treat, TREATMENT
 from headkit.quality import eligible, shade_span_failures, CHECKS, THRESHOLDS
 from headkit.uv import face_region
@@ -72,6 +74,29 @@ class Brows(unittest.TestCase):
         self.assertTrue(seed[48:62, 15:105].all() and seed[48:62, 115:205].all()); self.assertFalse(seed[20:30].any())
 
 
+class Project(unittest.TestCase):
+    def test_shared_gutter_lookup_and_seen_only_sampling_match_each_mask_alone(self):
+        rng = np.random.default_rng(3); S = 32; size = 64
+        value = {'positions': np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], float), 'faces': np.array([[0, 1, 2], [0, 2, 3]]),
+                 'uv': np.array([[[.1, .1], [.9, .1], [.9, .9]], [[.1, .1], [.9, .9], [.1, .9]]])}
+        zbuf = np.zeros((S, S)); zbuf[:, S//2:] = 5  # the right half of the render misses: those texels are filled
+        view = {'hit': np.ones((S, S), bool), 'centre': (.5, .5), 'span': 1.0, 'zbuf': zbuf}
+        soft = {'a': rng.random((S, S), np.float32), 'b': rng.random((S, S), np.float32)}
+        out, report = project(value, view, soft, size)
+        positions, owners, _ = surface(value, size, enforce=False); mapped = owners >= 0; points = positions[mapped].astype(float)
+        u = ((points[:, 0]-.5)+.5)*S; v = (.5-(points[:, 1]-.5))*S
+        inside = (u >= 0) & (u < S-1) & (v >= 0) & (v < S-1); ui = np.clip(u.astype(int), 0, S-1); vi = np.clip(v.astype(int), 0, S-1)
+        seen = inside & (np.abs(zbuf[vi, ui]-points[:, 2]) < SEEN_DEPTH) & (1. > SEEN_FACING)
+        self.assertTrue(0 < seen.sum() < len(seen))
+        distance, index = cKDTree(points[seen]).query(points[~seen], k=1, distance_upper_bound=FILL)
+        found = np.isfinite(distance); weight = np.where(found, 1-np.where(found, distance, 0)/FILL, 0); index = np.where(found, index, 0)
+        uv = np.clip(np.c_[u, v]/S, 0, 1)
+        for name, mask in soft.items():
+            values = np.where(seen, bilinear(mask, uv), 0); values[~seen] = values[seen][index]*weight
+            atlas = np.zeros((size, size, 1), np.float32); atlas[mapped, 0] = np.clip(values, 0, 1)*255
+            self.assertTrue(np.array_equal(out[name], np.rint(pad(atlas, mapped)[..., 0]).astype(np.uint8)))
+
+
 class Beard(unittest.TestCase):
     def test_hair_coloured_beard_stays_hair_below_the_nose(self):
         # RUNBOOK 145: the parser calls beards skin. Grey beard (owned hair) and a skin-coloured patch the hair rule over-took,
@@ -106,6 +131,14 @@ class Channels(unittest.TestCase):
         self.assertTrue((o[1005:1015, 1015:1025] == 8).all()); self.assertTrue((o[1000:1020, 1000:1010] == 0).all())
         self.assertTrue((o[95:105, 100:200] == 1).all()); self.assertTrue((o[105:110, 100:200] == 0).all())
         self.assertTrue((o[3000:3010, 3000:3010] == 1).all()); self.assertEqual(report['hairLockToHair'], 100)
+
+    def test_moved_counts_every_label_pair_once(self):
+        rng = np.random.default_rng(5); labels = rng.integers(0, 10, (4096, 4096)).astype(np.uint8); mapped = rng.random((4096, 4096)) > .3
+        masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock'); masks['iris'][:900] = 1; masks['skin'][900:1800] = 1
+        o, report = apply_channels(labels, masks, mapped)
+        expected = {f'{a}->{b}': int(((labels == a) & (o == b) & mapped).sum()) for a in range(10) for b in range(10)
+                    if a != b and ((labels == a) & (o == b) & mapped).any()}
+        self.assertTrue(expected); self.assertEqual(json.dumps(report['moved']), json.dumps(expected))
 
     def test_tattoo1_holds_only_the_iris(self):
         # rule-owned tattoo1 away from the eye (troll horns, tusks) takes tattoo2; tattoo2 ink stays (user 2026-10-30)

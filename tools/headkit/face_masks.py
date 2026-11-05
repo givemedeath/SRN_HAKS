@@ -12,7 +12,7 @@ from scipy.spatial import cKDTree
 from .common import require, pin, write, library
 from .gltf import mesh
 from .rays import EmbreeScene
-from .textures import surface, pad
+from .textures import surface
 from .colour import lab as to_lab
 
 RENDER = 1024; BACKGROUND = 165.0
@@ -208,11 +208,13 @@ def project(value, view, soft, size=4096):
     require(seen.any(), 'The front render sees no texel of this layout')
     distance, index = cKDTree(points[seen]).query(points[~seen], k=1, distance_upper_bound=FILL*width)
     found = np.isfinite(distance); weight = np.where(found, 1-np.where(found, distance, 0)/(FILL*width), 0); index = np.where(found, index, 0)
-    uv = np.clip(np.c_[u, v]/S, 0, 1); out = {}
+    uv = np.clip(np.c_[u, v]/S, 0, 1)[seen]; out = {}
+    # textures.pad, with its one nearest-texel lookup shared by every mask.
+    gutter = ~mapped; source = tuple(distance_transform_edt(gutter, return_distances=False, return_indices=True)[:, gutter])
     for name, mask in soft.items():
-        values = np.where(seen, bilinear(mask, uv), 0); values[~seen] = values[seen][index]*weight
-        atlas = np.zeros((size, size, 1), np.float32); atlas[mapped, 0] = np.clip(values, 0, 1)*255
-        out[name] = np.rint(pad(atlas, mapped)[..., 0]).astype(np.uint8)
+        sampled = bilinear(mask, uv); values = np.zeros(len(seen), sampled.dtype); values[seen] = sampled; values[~seen] = sampled[index]*weight
+        atlas = np.zeros((size, size), np.float32); atlas[mapped] = np.clip(values, 0, 1)*255; atlas[gutter] = atlas[source]
+        out[name] = np.rint(atlas).astype(np.uint8)
     return out, {'texels': int(mapped.sum()), 'seenFromFront': int(seen.sum()), 'filled': int(found.sum())}
 
 

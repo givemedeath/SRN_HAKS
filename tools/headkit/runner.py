@@ -440,12 +440,15 @@ class Runner:
                 from .face_encode import apply_channels,majority,masks_at,CHANNEL_MASKS
                 from .gltf import mesh
                 from .textures import surface
+                from .uv import raster_audit
                 require(image.size==(4096,4096),'Feature channels need the 4K ownership atlas')
-                positions,owners,_=surface(mesh(source),4096,enforce=False)
+                value=mesh(source)
+                # Only the protected rule reads positions, and rasterising them takes far longer than the ownership map.
+                positions,owners=(surface(value,4096,enforce=False)[:2] if protected is not None else (None,raster_audit(value['uv'],4096)[1]))
                 with Image.open(self._color4k()) as colour:colour=np.asarray(colour.convert('RGB'))
-                # protected is None without an overFaceMasks rule: unchanged moves, and the 4K positions are not kept
+                # protected is None without an overFaceMasks rule: unchanged moves
                 labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0,colour,
-                                                                protected=protected,positions=positions if protected is not None else None)
+                                                                protected=protected,positions=positions)
                 image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
             image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}

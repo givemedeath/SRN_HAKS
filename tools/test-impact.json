@@ -483,6 +483,7 @@
       "tools/headkit/quality.py",
       "tools/headkit/runner.py",
       "tools/headkit/test_headkit.py",
+      "tools/headkit/textures.py",
       "tools/headkit/uv.py"
     ],
     "tools/headkit/test_generation_export.py": [

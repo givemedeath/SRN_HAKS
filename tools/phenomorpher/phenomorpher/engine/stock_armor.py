@@ -236,7 +236,17 @@ def armory_rotate(rotation):
 
 
 def nearest(a, b, chunk=400):
-    return np.concatenate([np.sqrt(((a[i:i+chunk, None, :] - b[None, :, :])**2).sum(-1)).min(1) for i in range(0, len(a), chunk)])
+    """Distance from each point of a to its nearest point of b. A nearest point lies within the distance to any point of
+    b, in x as in every axis, so a coarse sample of b bounds a window of the x-sorted points that must contain it."""
+    ordered = b[np.argsort(b[:, 0], kind='stable')]; xs = ordered[:, 0]; coarse = ordered[::16]
+    result = np.empty(len(a), np.result_type(a, b))
+    for start in range(0, len(a), chunk):
+        points = a[start:start+chunk]
+        bound = np.sqrt(((points[:, None, :] - coarse[None, :, :])**2).sum(-1)).min(1)*(1 + 1e-9) + 1e-12
+        low, high = np.searchsorted(xs, points[:, 0] - bound, 'left'), np.searchsorted(xs, points[:, 0] + bound, 'right')
+        for i, (point, first, last) in enumerate(zip(points, low, high), start):
+            result[i] = np.sqrt(((point - ordered[first:last])**2).sum(-1)).min()
+    return result
 
 
 def fit_part(stock, new, frame_rotation, axis_correction):
