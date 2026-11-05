@@ -369,7 +369,7 @@ class ToneWithFaceTreatment(unittest.TestCase):
                 seen['config'] = set(config); seen['ownership'] = Path(ownership)
                 from PIL import Image
                 Image.open(color).save(output); return {}
-            def fake_treat(rgb, labels, masks, value, settings, outer=None):
+            def fake_treat(rgb, labels, masks, value, settings, outer=None, preserve_skin=None):
                 seen['labels'] = int(labels.max()); return rgb, {}
             with mock.patch('headkit.textures.tone_match', fake_match), mock.patch('headkit.face_encode.treat', fake_treat),                  mock.patch('headkit.face_encode.masks_at', lambda *a: {}), mock.patch('headkit.gltf.mesh', lambda *a: None):
                 result = r._execute('tone', root)

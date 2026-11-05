@@ -30,7 +30,7 @@ SKIRT_GAP = .03  # the default of headkit neck_policy
 READ_BACK_LIMIT = 1e-6
 POLL_SECONDS = 20
 RESTART_GRACE_SECONDS = 60
-NUMERIC_GATES = {'unwrap', 'palette', 'export', 'native'}
+NUMERIC_GATES = {'unwrap', 'palette', 'quality', 'export', 'native'}
 FINISHED = ('ran', 'reused')
 
 
@@ -179,10 +179,33 @@ class Spool:
             sheet = f'ROWRAMPS FAILED: {text[0]}' if code else f'sheet {head}/review-evidence/rowramps-{attempt}.png'
             if code:
                 self.attention(head, stage, sheet)
+                self.review(head, stage, f'{attempt}: exact-attempt palette evidence is incomplete; {sheet}')
+                return
+            if 'quality' in manifest:
+                code, text = self.tool('review', '--slot', 'gamesize', head, attempt)
+                if code:
+                    self.attention(head, stage, f'{attempt}: game-size sheet failed: {text}')
+                    self.review(head, stage, f'{attempt}: exact-attempt palette evidence is incomplete')
+                    return
+                sheet += '; game-size sheet '+str(text)
+                self.review(head, stage, f'{attempt}: rows {rows} | {sheet}; review alternate looks before quality/export')
+                return
             if rows == manifest['palette'].get('rows', {}) and guards.rows_reviewed(self.workspace, head):
-                self.launch('export', head, 'palette', f'{approved} every palette row equals its reviewed pin {rows}', attempt)
+                self.launch('quality' if 'quality' in manifest else 'export', head, 'palette', f'{approved} every palette row equals its reviewed pin {rows}', attempt)
             else:
                 self.review(head, stage, f'{attempt}: rows {rows} | {sheet}')
+        elif stage == 'quality':
+            if result.get('passed') is True and result.get('failed') == []:
+                self.launch('export', head, 'quality', f'{approved} numeric face-quality gates passed; appearance still requires render and client review', attempt)
+            else:
+                self.attention(head, stage, f'{attempt}: face quality did not pass')
+        elif stage == 'render':
+            paths = [row.get('image', {}).get('path') for row in result.get('sheets', [])]
+            self.review(head, stage, f'{attempt}: render sheets {paths}; delivery and client appearance still require review')
+        elif stage in ('paint', 'masks', 'tone'):
+            sheet = self.sheets/f'{head}-{stage}-{attempt}.png'
+            self.draw(sheet, 'texturesheet', head, stage, attempt, sheet)
+            self.review(head, stage, f'{attempt}: texture/mask sheet queued: {sheet}; visual approval required')
         elif stage == 'export':
             matrix = guards.fit_matrix(self.workspace.head(head))
             budget = manifest['mesh'].get('triangleBudget', 20000)

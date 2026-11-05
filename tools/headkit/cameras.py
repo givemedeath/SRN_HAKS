@@ -9,7 +9,8 @@ def review_cameras(points, front_angle_degrees):
     require(type(front_angle_degrees) in (int,float) and math.isfinite(front_angle_degrees),'Reviewed front angle required')
     lower,upper=points.min(0),points.max(0);center=(lower+upper)/2;extent=upper-lower;size=float(np.linalg.norm(extent));require(size>0,'Nonzero head extent required')
     specs=[('front',0,0,False),('left-profile',90,0,False),('right-profile',-90,0,False),
-        ('left-three-quarter',45,0,False),('right-three-quarter',-45,0,False),('back',180,0,False),
+        ('left-three-quarter',45,0,False),('right-three-quarter',-45,0,False),
+        ('left-back-three-quarter',135,0,False),('right-back-three-quarter',-135,0,False),('back',180,0,False),
         ('crown',0,85,False),('jaw-underside',0,-80,False),('face-closeup',0,0,True),
         ('left-ear-closeup',65,0,True),('right-ear-closeup',-65,0,True),('cyberware-closeup',45,0,True)]
     rows=[]

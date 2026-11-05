@@ -204,7 +204,8 @@ class Runner:
             'masks':([] if 'uvMesh' in inputs else ['unwrap'])+(['paint'] if 'paint' in self.data else [] if 'basecolor4k' in inputs else ['bake']),
             'quality':([] if 'uvMesh' in inputs else ['unwrap'])+['masks','palette'],
             'native':['export'], 'render':([] if 'uvMesh' in inputs else ['unwrap'])+list(dict.fromkeys(self.data.get('render',{}).get('mapStages',{}).values()))
-                +(['ownership'] if self.data.get('render',{}).get('ownershipView') else [])}
+                +(['ownership'] if self.data.get('render',{}).get('ownershipView') else [])
+                +(['palette'] if self.data.get('render',{}).get('runtimePalette') else [])}
         self._texture_dependencies(stage,table);dependencies=table[stage]
         if stage=='tone' and (not any(role in inputs for role in ('ownership1k','ownership4k'))
                               or self.data.get('tone',{}).get('faceTreatment') is not None):dependencies.append('ownership')
@@ -222,9 +223,12 @@ class Runner:
 
     def execute(self,stage):
         require(stage in STAGES,'Unknown CPU stage')
+        from .measure import peak_rss_bytes
+        entered=time.monotonic();profile={}
         # Package bytecode and installed modules must remain inside the frozen inventory.
         sys.dont_write_bytecode=True
         package_inputs=python_package_pins(self.bindings,require_imports=self.runtime is not None)
+        profile['packageVerifySeconds']=time.monotonic()-entered
         if stage in self.state['stages']:
             try:return {'reused':True,'result':self.result(stage,require_review=False)}
             except (ValueError,OSError):pass
@@ -247,6 +251,7 @@ class Runner:
             dependency_pins[dependency]=row
             previous=read(row['path']);inputs.append(row);inputs.extend(previous['outputs'])
             inputs.append(self.state['reviews'][dependency])
+        profile['preflightSeconds']=time.monotonic()-entered-profile['packageVerifySeconds']
         folder=parent/f'attempt-{len(list(parent.glob("attempt-*")))+1:02d}';folder.mkdir()
         begun=time.monotonic();receipt={'stage':stage,'manifestHash':self.manifest_digest(stage),'bindingsHash':digest(self.bindings),
             'codeVersion':stage_source_version(stage),'inputs':inputs,'state':'running','outputs':[], 'dependencies':dependency_pins,'runtimeIdentity':self.runtime}
@@ -255,6 +260,8 @@ class Runner:
         self._read=set();common.LIBRARIES_USED=set()
         try:
             result=self._execute(stage,folder);digest(result)
+            profile['processingSeconds']=time.monotonic()-begun
+            verification_started=time.monotonic()
             undeclared=self._read-stage_roles(stage,self.data)
             require(not undeclared,'Stage read undeclared manifest inputs: '+', '.join(sorted(undeclared)))
             undeclared=common.LIBRARIES_USED-stage_libraries(stage,self.data)
@@ -264,6 +271,7 @@ class Runner:
             for name in sorted(common.LIBRARIES_USED):inputs.extend(self.bindings['libraries'][name]['files'])
             python_package_pins(self.bindings,require_imports=self.runtime is not None)
             verify(inputs,fresh=True)
+            profile['postVerifySeconds']=time.monotonic()-verification_started
             receipt.update(state='complete',result=result,outputs=[pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json','receipt.json')])
         except Exception as exc:
             receipt.update(state='failed',error=str(exc),traceback=traceback.format_exc(),
@@ -275,6 +283,9 @@ class Runner:
             raise
         finally:
             self._read=None;common.LIBRARIES_USED=None
+            profile['workerPeakRssBytes']=peak_rss_bytes()
+            profile['totalSeconds']=time.monotonic()-entered
+            receipt['profile']=profile
             receipt['elapsedSeconds']=time.monotonic()-begun;write(folder/'receipt.json',receipt,fresh=True)
             self.state['stages'][stage]=pin(folder/'receipt.json');write(self.state_path,self.state)
         carried=self._carry_review(stage)
@@ -355,6 +366,9 @@ class Runner:
             require(m.get('features') and all(row.get('placementReviewed') is True for row in m['features']),
                     'Explicitly review hair routing and all horn/tusk/cyberware counts and placement')
             if m.get('profile','pixal-single-v1')=='pixal-single-v1':
+                if {'clay','detail'} & set(m['inputs']):
+                    require({'clay','detail'} <= set(m['inputs']), 'Paired conditioning needs both clay and detail; no bootstrap fallback')
+                    return prepare(self.input('clay'),self.input('detail'),m['alignment'],folder/'images')
                 if 'design' in m['inputs']:
                     # Bootstrap route: one front design image is both the geometry and the appearance condition.
                     from .images import matte
@@ -483,7 +497,11 @@ class Runner:
                 keys={op['palette'] for op in m['tone'].get('operations',[]) if 'palette' in op}
                 result=adjust(color,ownership,m['tone'],{key:self.input(m['palette']['inputs'][key]) for key in keys},output)
             else:result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),
-                                   {k:v for k,v in m['tone'].items() if k!='faceTreatment'},output)
+                                   {k:v for k,v in m['tone'].items() if k not in ('faceTreatment','preserveSkinMasks')},output)
+            preserve_names=m['tone'].get('preserveSkinMasks',[])
+            require(isinstance(preserve_names,list) and all(isinstance(k,str) for k in preserve_names)
+                    and len(set(preserve_names))==len(preserve_names), 'preserveSkinMasks must list unique paint mask names')
+            require(not preserve_names or face_treatment is not None, 'Skin preservation needs faceTreatment')
             if face_treatment is not None:
                 # Step 3 on the tone output with the feature-channel ownership; consistent 4x4 blocks before the 1K box filter.
                 from .face_encode import treat,masks_at,TREATMENT_MASKS
@@ -496,7 +514,20 @@ class Runner:
                     from .rays import outer_faces
                     require('embree' in b,'scalpDelight needs the bound Embree runtime')
                     positions=value['positions'].astype(float);outer=outer_faces(b['embree']['path'],positions,value['faces'],float(np.ptp(positions[:,1])))[0]
-                treated,result['faceTreatment']=treat(rgb,labels,masks_at(self.result('masks')['files'],TREATMENT_MASKS),value,face_treatment,outer=outer)
+                preserve=None
+                if preserve_names:
+                    require('paint' in m, 'Skin preservation needs named paint masks')
+                    pins=self.result('paint')['masks']
+                    require(set(preserve_names)<=set(pins), 'Unknown skin preservation mask')
+                    preserve=np.zeros(labels.shape,bool)
+                    for name in preserve_names:
+                        with Image.open(pins[name]['path']) as image:
+                            require(image.mode=='L' and image.size==(4096,4096), 'Preservation needs actual 4K L paint masks')
+                            values=np.asarray(image)
+                            require(np.isin(values,[0,255]).all(), 'Preservation masks must be discrete')
+                            preserve|=values>0
+                    result['preserveSkinMasks']={name:pins[name] for name in preserve_names}
+                treated,result['faceTreatment']=treat(rgb,labels,masks_at(self.result('masks')['files'],TREATMENT_MASKS),value,face_treatment,outer=outer,preserve_skin=preserve)
                 Image.fromarray(np.rint(treated).clip(0,255).astype(np.uint8)).save(output);result['output']=pin(output)
             result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
                           ownershipForTone=pin(ownership),ownershipUpsampling=upsampling)
@@ -625,10 +656,13 @@ class Runner:
                 Image.fromarray(PREVIEW[labels]).save(path);maps['ownership']=str(path)
             cfg.update(mesh=source,output=str(folder/'renders'),maps=maps)
             require('ownership' not in cfg.get('modes',[]) or 'ownership' in maps,'Ownership render mode needs ownershipView')
+            if cfg.get('runtimePalette'):
+                require(not cfg.get('diagnostic') and resolutions(cfg)==[2048,1024], 'Runtime PLT review needs full delivery sizes')
+                cfg['mapsBySize']={'1024':{'basecolor':self.result('palette')['decoded']['path']}}
             render_plan(cfg)
             texture_sets,atlases=atlas_sets(cfg,folder/'renders',resolutions(cfg))
             cfg.update(textureSets={str(size):maps for size,maps in texture_sets.items()},atlases=atlases)
-            cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()],*[row['image'] for row in atlases],*stage_file_pins('render')]
+            cfg['inputs']=[pin(source),*[pin(p) for p in cfg['maps'].values()],*[row['source'] for row in atlases],*[row['image'] for row in atlases],*stage_file_pins('render')]
             write(folder/'render-config.json',cfg,fresh=True)
             write(folder/'render-inputs.json',cfg['inputs']+[pin(folder/'render-config.json')],fresh=True)
             command=[sys.executable,str(ROOT/'tools/phenotypes/launch_shared_tool.py'),'--toolchain',b['toolchain'],
@@ -638,7 +672,13 @@ class Runner:
             execution=subprocess.run(command,capture_output=True,text=True,errors='replace',timeout=1800,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
             (folder/'blender.log').write_text(execution.stdout+'\n'+execution.stderr);require(execution.returncode==0,'CPU render failed; inspect log')
             result=read(folder/'renders'/'renders.json');validate_frames(cfg,result['views'])
-            result.update(sheets(result['views'],folder/'renders',result['triangles']),elapsedWithEvidenceSeconds=time.monotonic()-begun)
+            result.update(sheets(result['views'],folder/'renders',result['triangles'],
+                                 {'1024':'decoded PLT' if cfg.get('runtimePalette') else 'source atlas',
+                                  '2048':'source appearance; not runtime PLT'}),elapsedWithEvidenceSeconds=time.monotonic()-begun)
+            result['delivery']={'diagnostic':cfg.get('diagnostic',False),'sizes':resolutions(cfg),'modes':cfg.get('modes',['clay','color-only','material-lit']),
+                                'views':[row['name'] for row in cfg['cameras']], 'runtimePalette':cfg.get('runtimePalette',False),
+                                'atlasMeaning':{'1024':'decoded PLT' if cfg.get('runtimePalette') else 'source atlas',
+                                                '2048':'source appearance; not runtime PLT'}, 'clientValidated':False}
             write(folder/'renders'/'renders.json',result);return result
         raise ValueError('Stage not implemented')
 

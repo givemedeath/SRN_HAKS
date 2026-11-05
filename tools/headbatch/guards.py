@@ -1,5 +1,6 @@
 """Checks that refuse a launch before it spends CPU. Each one answers a confirmed batch mistake (docs/heads/race-heads-v1-runbook.md)."""
 from contextlib import ExitStack, contextmanager
+import json
 import os
 import re
 import time
@@ -110,8 +111,21 @@ def geometry_cap(head):
 def design_cap(folder, head):
     """User rule: at most 3 designs per head slot, each launch counted, refused ones included. design/design-cap-override-HEAD records the user's exception."""
     count = len(list((folder/'launches').glob(f'launch-*-{head}-s*')))
-    if count >= DESIGN_CAP and not (folder/f'design-cap-override-{head}').exists():
+    if count < DESIGN_CAP:
+        return
+    exception = folder/f'design-cap-override-{head}'
+    if not exception.exists():
         raise Refused(f'{head}: {count} designs reached the cap of {DESIGN_CAP}: stop and ask the user')
+    try:
+        data = json.loads(exception.read_text(encoding='utf-8-sig'))
+    except (OSError, ValueError) as error:
+        raise Refused(f'{head}: design exception must contain an explicit bounded JSON approval') from error
+    limit = data.get('maximumDesigns') if isinstance(data, dict) else None
+    if (not isinstance(data, dict) or data.get('head') != head or type(limit) is not int
+            or limit <= DESIGN_CAP or not isinstance(data.get('approval'), str) or not data['approval'].strip()):
+        raise Refused(f'{head}: invalid bounded design exception')
+    if count >= limit:
+        raise Refused(f'{head}: {count} designs reached the user-authorized cap of {limit}: stop and ask the user')
 
 
 def rows_reviewed(workspace, name):

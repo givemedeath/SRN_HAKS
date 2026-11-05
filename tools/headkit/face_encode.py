@@ -121,7 +121,7 @@ def _surface_mean(points, values, k):
     return (sampled[near]*(w if sampled.ndim == 1 else w[..., None])).sum(1)/(w.sum(1) if sampled.ndim == 1 else w.sum(1)[:, None])
 
 
-def treat(colour, labels, masks, value, settings=None, outer=None):
+def treat(colour, labels, masks, value, settings=None, outer=None, preserve_skin=None):
     """Step 3 on a 4K colour atlas (0..255) with the final 4K ownership: darken-only broad de-light, skin smoothing away from the
     features, lip line and eye-socket darks, iris rim, lid line, brows in the hair mid tones with a darker outer edge and their
     skin fringe refilled from plain skin on the surface; then ownership-consistent blocks. outer (per face, rays.outer_faces) is
@@ -133,6 +133,8 @@ def treat(colour, labels, masks, value, settings=None, outer=None):
     positions, owners, _ = surface(value, 4096, enforce=False); mapped = owners >= 0; fid = np.maximum(owners, 0)
     onface = mapped & face_region(P, F)[0][fid]; c = colour.astype(np.float32).copy(); o = labels; report = {}
     iris = masks['iris'] > .5; eye = masks['eye'] > .5; brow = (masks['brow'] > .5) & mapped; skin = mapped & (o == 0)
+    preserve = skin_preservation(preserve_skin, o, mapped)
+    report['preservedSkinTexels'] = int(preserve.sum())
     def darken(sy, sx, broad, level, power):
         """Darken only, toward a broad luma level, never below 0.6 of the texel; returns the unclipped gain."""
         gain = np.minimum(1.0, (level/np.maximum(broad, 1))**power); c[sy, sx] *= np.clip(gain, .6, 1)[:, None]; return gain
@@ -151,7 +153,7 @@ def treat(colour, labels, masks, value, settings=None, outer=None):
     if s['smooth'] and skin.sum() > 16:
         sy, sx = np.nonzero(skin); col = c[sy, sx]; local = _surface_mean(positions[sy, sx].astype(float), col, 32)
         near = np.clip(gaussian_filter(np.maximum.reduce([masks[k] for k in ('brow', 'eye', 'lips', 'nose')]), 24)*3, 0, 1)
-        c[sy, sx] = local+(col-local)*(1-s['smooth']*(1-near[sy, sx]))[:, None]
+        c[sy, sx] = local+(col-local)*(1-s['smooth']*(1-near[sy, sx])*(~preserve[sy, sx]))[:, None]
     c[skin] *= (1-s['lipDark']*masks['lipline'][skin])[:, None]; c[skin] *= (1-s['socket']*masks['socket'][skin])[:, None]
     c[iris & (gaussian_filter(iris.astype(np.float32), 3) < .8)] *= s['irisRim']
     charts = np.where(mapped, chart_ids(value['uv'], shared='vertex')[fid], -1)
@@ -167,12 +169,21 @@ def treat(colour, labels, masks, value, settings=None, outer=None):
         if len(oy):
             edge = cKDTree(positions[oy, ox]).query(positions[by, bx], k=1)[0] < .006*width; c[by[edge], bx[edge]] *= s['browEdge']
         sy, sx = np.nonzero(mapped & (o == 0) & onface); distance, _ = cKDTree(positions[bm][::4]).query(positions[sy, sx], k=1)
-        plain = (distance > BROW_FRINGE*width) & (distance < 3*BROW_FRINGE*width); ref = luma(c[sy, sx])
+        plain = ~preserve[sy, sx] & (distance > BROW_FRINGE*width) & (distance < 3*BROW_FRINGE*width); ref = luma(c[sy, sx])
         if plain.any():
-            fringe = (distance < BROW_FRINGE*width) & (ref < np.median(ref[plain])-12)   # darker than nearby plain skin: leftover brow colour
+            fringe = ~preserve[sy, sx] & (distance < BROW_FRINGE*width) & (ref < np.median(ref[plain])-12)   # darker than nearby plain skin: leftover brow colour
             if fringe.any():
                 _, nn = cKDTree(positions[sy[plain], sx[plain]]).query(positions[sy[fringe], sx[fringe]], k=min(24, int(plain.sum())))
                 c[sy[fringe], sx[fringe]] = c[sy[plain], sx[plain]][nn.reshape(int(fringe.sum()), -1)].mean(1)
             report['browFringeRefilled'] = int(fringe.sum())
     c, report['mixedBlocksFixed'] = consistent_blocks(np.clip(c, 0, 255), o)
     return pad(c, mapped), dict(report, settings=s)
+
+def skin_preservation(mask, labels, mapped):
+    """Protect authored skin detail from smoothing/refill, never de-light or channel/quality gates."""
+    if mask is None:
+        return np.zeros(labels.shape, bool)
+    mask=np.asarray(mask)
+    require(mask.shape==labels.shape and np.isfinite(mask).all()
+            and np.isin(mask,[0,1,255]).all(), 'Skin preservation must be a discrete atlas-sized mask')
+    return (mask>0)&mapped&(labels==0)

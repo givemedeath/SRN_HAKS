@@ -3575,7 +3575,7 @@ class RenderPlanTests(Temporary):
                 with self.assertRaisesRegex(ValueError,'nonempty'):render_plan(config)
     def test_complete_plan_requires_all_unique_frames(self):
         from headkit.review_images import render_plan,validate_frames
-        config={'cameras':[self.camera()]};expected=render_plan(config);self.assertEqual(len(expected),6)
+        config={'cameras':[self.camera()],'maps':dict.fromkeys(('basecolor','roughness','metallic','opacity'),'fixture')};expected=render_plan(config);self.assertEqual(len(expected),6)
         records=[{'size':s,'mode':m,'view':v} for s,m,v in expected];validate_frames(config,records)
         for bad in ([],records[:-1],records[:-1]+[records[0]]):
             with self.subTest(count=len(bad)):
@@ -3590,7 +3590,7 @@ class RenderPlanTests(Temporary):
         from headkit.review_images import render_plan
         with self.assertRaisesRegex(ValueError,'Single-size render plans'):
             render_plan({'cameras':[self.camera()],'size':768})
-        self.assertEqual(len(render_plan({'cameras':[self.camera()],'size':768,'diagnostic':True})),3)
+        self.assertEqual(len(render_plan({'cameras':[self.camera()],'size':768,'diagnostic':True,'maps':dict.fromkeys(('basecolor','roughness','metallic','opacity'),'fixture')})),3)
 
     def test_textured_render_requires_present_non_degenerate_uvs(self):
         from headkit.gltf import require_textured_uvs
@@ -4382,7 +4382,7 @@ class FakeDesignClient:
         if route=='/prompt':
             if self.reject:return {'error':'invalid prompt','node_errors':{'13':'bad'}}
             graph=data['prompt'];self.images=[];prefix=graph['9']['inputs']['filename_prefix']
-            batch=graph['47']['inputs']['batch_size'] if '47' in graph else graph['205']['inputs']['amount']
+            batch=graph['47']['inputs'].get('batch_size', graph['47']['inputs'].get('amount')) if '47' in graph else graph['205']['inputs']['amount']
             folder,stem=prefix.rsplit('/',1)
             for i in range(batch):
                 path=self.output/(self.subfolder or folder)/f'{stem}_{i+1:05}_.png';path.parent.mkdir(parents=True,exist_ok=True)
@@ -4396,6 +4396,35 @@ class FakeDesignClient:
 
 
 class DesignTests(Temporary):
+    def test_legacy_flux_bindings_may_contain_unrelated_geometry_models(self):
+        from headkit.design import design_model_pins, DEFAULT_PROFILE
+        self.assertEqual(design_model_pins({'models': {'geometry': {'path': 'unused'}}}, DEFAULT_PROFILE), [])
+
+    def test_qwen_text_profile_uses_the_installed_small_stack_and_preserves_receipt(self):
+        from headkit.design import compile_design, generate
+        graph=compile_design('full hair', [], 42, 2, 'headkit-design/t/test', profile='qwen21-int8-v1')
+        self.assertEqual(graph['13']['inputs']['steps'],25)
+        self.assertEqual(graph['13']['inputs']['cfg'],1.0)
+        self.assertEqual(graph['47']['inputs'],{'samples':['6',2],'amount':2})
+        self.assertEqual(graph['12a']['inputs']['device'],'cpu')
+        self.assertNotIn('LoraLoaderModelOnly',[row['class_type'] for row in graph.values()])
+        with self.assertRaisesRegex(ValueError,'text-only'):
+            compile_design('p',['headkit-design/t/ref.png'],42,1,'headkit-design/t/test',profile='qwen21-int8-v1')
+        data=read(self.spec);data['profile']='qwen21-int8-v1';write(self.spec,data)
+        from headkit.design import PROFILES
+        names=[PROFILES['qwen21-int8-v1'][key] for key in ('model','encoder','vae')]
+        self.local['models']={}
+        for name in names:
+            file=self.root/name;file.write_bytes(b'fixture weights')
+            self.local['models'][name]=pin(file)
+        client=FakeDesignClient(self.local['comfyOutput'])
+        result=generate(client,self.local,self.bindings,self.spec,'troll-a',42,2,[],self.root/'qwen-out')
+        receipt=read(result['receipt'])
+        self.assertEqual(receipt['profile'],'qwen21-int8-v1')
+        self.assertEqual(receipt['settings']['encoder'],'qwen3vl_8b_int8_convrot.safetensors')
+        self.assertEqual(len(result['outputs']),2)
+        self.assertEqual(receipt['references'],[])
+
     def setUp(self):
         super().setUp()
         # Every design test must stay offline: any real HTTP attempt fails the test.

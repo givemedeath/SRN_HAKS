@@ -76,6 +76,7 @@ def main(argv=None):
     parser.add_argument('--manifest',type=Path,required=True,help='runtime-manifest.json written by build_head_trial.py')
     parser.add_argument('--log',type=Path,help='client log; default: <manifest dir>/userdir/logs/nwclientLog1.txt')
     parser.add_argument('--output',type=Path,help='optional fresh JSON report')
+    parser.add_argument('--captures',type=Path,help='hash-bound frames and exact log event indices for visual coverage')
     parser.add_argument('--slots-only',action='store_true',help='skip HEAD_FIXTURE_COLORS checks (modules built before colour logging)')
     args=parser.parse_args(argv)
     log=args.log or args.manifest.parent/'userdir'/'logs'/'nwclientLog1.txt'
@@ -86,6 +87,16 @@ def main(argv=None):
     module=args.manifest.parent/'userdir'/'modules'/(manifest['module']+'.mod')
     if module.is_file() and log.stat().st_mtime<module.stat().st_mtime:
         report['problems'].append('Client log predates the trial module build');report['passed']=False
+    if args.captures:
+        from client_capture_review import check_captures
+        coverage=check_captures(args.manifest,log,args.captures,report)
+        report['captureCoverage']=coverage
+        report['problems']+=coverage['problems'];report['passed']=report['passed'] and coverage['passed']
+    elif manifest.get('captureCoverageRequired'):
+        report['problems'].append('This trial requires --captures with four three-quarter views, a motion frame and a second look per head')
+        report['passed']=False
+    report['visualApprovalRequired']=True
+    report['productionAccepted']=False
     for row in report['actors']:
         print(f"{row['status']:<14} {row['tag']:<16} {row['model']:<14} expected={row['expectedSlot']} observed={','.join(row['observedSlots']) or '-'}")
     for problem in report['problems']:print('PROBLEM: '+problem)

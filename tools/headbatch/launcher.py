@@ -9,8 +9,9 @@ import subprocess
 import time
 
 from gpu_job import SHAPE_NODE, Comfy, file_from
+import gpu_contract
 import guards
-from head_files import complete, decision, write_json
+from head_files import complete, decision, write_json, sha
 from headkit.comfy import locked
 from workspace import PYTHON, REPO, TOOLS
 
@@ -20,7 +21,7 @@ GPU_JOB = Path(__file__).with_name('gpu_job.py')
 FINISHED_STAGES = ('export', 'native')  # the spooler or a person takes these on; a render waits for its review (RUNBOOK 63)
 LOCK_POLL_SECONDS = 2
 # Only what each job imports: a toolkit edit elsewhere must not invalidate a GPU or design launch in flight (RUNBOOK 40).
-GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'common', 'gltf', 'occiput', 'source_inventory'))
+GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'common', 'gltf', 'occiput', 'source_inventory', 'diagnostics', 'rays'))
 DESIGN_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('run_headkit', '__init__', '__main__', 'common', 'comfy', 'design', 'source_inventory'))
 DEFAULT_GPU_STAGES = 'calibrate,geometry,appearance'
 
@@ -68,10 +69,10 @@ def free_memory_gb():
     return status.available/2**30
 
 
-def open_slots(workspace, free=free_memory_gb):
+def open_slots(workspace, free=None):
     """The slots a job may take now: the current limit, less those whose free-memory gate is closed. Heavy stages page at about 6 GB free (user 2026-10-28)."""
     numbers, gates = range(1, workspace.cpu_slots()+1), workspace.ram_gates()
-    available = free() if any(number in gates for number in numbers) else 0
+    available = (free or free_memory_gb)()
     return [workspace.locks/f'cpu-{number}' for number in numbers if available >= gates.get(number, 0)]
 
 
@@ -82,7 +83,12 @@ def cpu_slot(workspace):
 
 def gpu_lock(workspace):
     """One GPU job at a time: designs behind Pixal jobs time out or run out of memory."""
-    return lock(lambda: [workspace.locks/'gpu'])
+    from shared_tools import tools_root
+    root,_=tools_root(REPO,workspace.data.get('toolsRoot'))
+    index=workspace.data.get('comfy',{}).get('gpuIndex',0)
+    if type(index) is not int or index<0:
+        raise guards.Refused('GPU index must be a nonnegative integer')
+    return lock(lambda: [root/'locks'/f'gpu-{index}'])
 
 
 def launch(workspace, output, inputs, arguments, environment=None):
@@ -105,6 +111,7 @@ def launch(workspace, output, inputs, arguments, environment=None):
 def run_stages(workspace, name, stages, heads, approve=None, notes=None, attempt=None):
     """Guards, then one launch for all heads (native compiles every eligible head in one Blender run). Returns the per-head stage results.
     attempt is the attempt of approve the approval was given for: checked under the head lock, so no run can replace it before headkit records the approval."""
+    entered=time.monotonic()
     stage_list = stages.split(',')
     dirs = [workspace.head(head) for head in heads]
     bindings = workspace.path(workspace.data['headBindings'])
@@ -127,7 +134,7 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None, attempt
                 guards.jaw(head, landmarks)
         with cpu_slot(workspace):
             guards.clean_stray_bytecode(bindings)  # strays recur, and the wait for a slot can be long (RUNBOOK 92)
-            started = time.time()
+            started = time.time();acquired=time.monotonic()
             head_list = folder/f'heads-{label}.json'
             input_list = folder/f'inputs-{label}.json'
             write_json(head_list, [{'manifest': str(d/'manifest.json'), 'bindings': str(d/'bindings.json'), 'run': str(d/'run')} for d in dirs])
@@ -140,7 +147,12 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None, attempt
             if approve:
                 batch += ['--approve', approve, f"--notes={notes or ''}"]  # joined: a note can start with a dash
             output = folder/f'launch-{label}'
+            ready=time.monotonic()
             data = launch(workspace, output, input_list, batch)
+            ended=time.monotonic()
+            write_json(output/'headbatch-profile.json',{'queueAndGuardsSeconds':acquired-entered,
+                       'inputPreparationSeconds':ready-acquired,'launchWallSeconds':ended-ready,
+                       'childSeconds':data['elapsedSeconds'],'launchOverheadSeconds':max(0,ended-ready-data['elapsedSeconds'])})
             timing(workspace, f'cpu {name} {stages}', started)
     return {'label': label, 'exitCode': data['exitCode'], 'elapsedSeconds': data['elapsedSeconds'], 'heads': results(output/'stdout.log'), 'errors': str(output/'stderr.log')}
 
@@ -162,6 +174,12 @@ def status(workspace):
     if not workspace.heads.is_dir():
         return lines
     for head in sorted(path for path in workspace.heads.iterdir() if (path/'manifest.json').exists() or (path/'run').is_dir()):
+        ledger_path=head/'gpu'/'gpu.json'
+        if ledger_path.exists():
+            ledger=guards.read(ledger_path)
+            if 'geometry' in ledger.get('stages',{}) and 'appearance' not in ledger['stages']:
+                lines.append(f"{head.name} | geometry-{ledger['stages']['geometry'].get('submission',0):04d} | WAITING ON REVIEW/APPEARANCE")
+                continue
         receipts = sorted(head.glob('run/*/attempt-*/receipt.json'), key=lambda path: path.stat().st_mtime)
         if not receipts:
             lines.append(f'{head.name} | no stage yet')
@@ -170,14 +188,22 @@ def status(workspace):
         receipt = guards.read(newest)
         state = 'failed' if receipt.get('error') else 'ran'
         stage = newest.parts[-3]
-        finished = state == 'ran' and (stage in FINISHED_STAGES or (stage == 'render' and decision(head, stage) == 'approved'))
-        note = 'launch queued or running' if guards.head_busy(workspace, head.name) else 'finished' if finished else 'WAITING ON REVIEW'
+        reviewed = stage == 'render' and decision(head, stage) == 'approved'
+        delivery = receipt.get('result', {}).get('delivery', {})
+        full = (delivery.get('diagnostic') is False and delivery.get('sizes') == [2048, 1024]
+                and delivery.get('runtimePalette') is True
+                and set(delivery.get('modes', [])) == {'clay', 'color-only', 'material-lit'}
+                and {'left-three-quarter', 'right-three-quarter', 'left-back-three-quarter', 'right-back-three-quarter'} <= set(delivery.get('views', [])))
+        note = ('launch queued or running' if guards.head_busy(workspace, head.name) else
+                'RENDER REVIEWED; WAITING ON CLIENT TRIAL' if reviewed and full else
+                'DIAGNOSTIC REVIEWED; DELIVERY RENDER REQUIRED' if reviewed else 'WAITING ON REVIEW')
         lines.append(f'{head.name} | {stage} {newest.parts[-2]} {state} | {note}')
     return lines
 
 
 def reused_gpu_inputs(workspace, head, label, stages):
     """What a partial run takes from earlier stages: a frozen ledger, ComfyUI's normalized image and the saved shape (AGENTS: declare consumed inputs)."""
+    gpu_contract.stages(','.join(stages))
     if 'calibrate' in stages and ('geometry' in stages or 'appearance' not in stages):
         return [], []
     ledger = head/'gpu'/'gpu.json'
@@ -191,38 +217,81 @@ def reused_gpu_inputs(workspace, head, label, stages):
     write_json(frozen, data)
     files = [str(frozen)]
     if 'calibrate' not in stages:
-        files.append(str(workspace.path(workspace.data['comfy']['root'])/'input'/'headkit'/head.name/'normalized.png'))
+        conditioning = data['stages']['calibrate'].get('conditioning')
+        if conditioning:
+            for row in conditioning.values():
+                if not Path(row['path']).is_file() or sha(row['path']) != row['sha256']:
+                    raise guards.Refused('Calibrated conditioning changed; rerun prepare/calibrate')
+            files.extend(row['path'] for row in conditioning.values())
+        else:
+            files.append(str(workspace.path(workspace.data['comfy']['root'])/'input'/'headkit'/head.name/'normalized.png'))
     if 'geometry' in needed:
-        files.append(file_from(data['stages']['geometry']['files'], SHAPE_NODE)['path'])
+        gpu_contract.require_geometry_review(head,data)
+        geometry = data['stages']['geometry']
+        files.extend(row['path'] for row in geometry['files'].values())
+        review = data['geometryReview']; evidence = guards.read(review['path'])['evidence']
+        report = guards.read(evidence['path'])
+        files += [review['path'],evidence['path'],report['sheet']['path'],*[p['path'] for p in report['inputs']]]
     return files, ['--upstream', frozen]
+
+
+def freeze_prepared(workspace,head,output):
+    output.parent.mkdir(parents=True,exist_ok=True)
+    done=subprocess.run([PYTHON,'-B',str(GPU_JOB.with_name('gpu_inputs.py')),str(head),str(output)],
+                        env=workspace.python_environment(packages=True,tools=True),capture_output=True,text=True)
+    if done.returncode:
+        raise guards.Refused('Prepared dependency verification failed: '+done.stderr[-1200:])
+    return guards.read(output)
 
 
 def run_gpu(workspace, name, arguments):
     """Calibrate, geometry with its occiput check, and appearance for one head on the workspace's ComfyUI."""
     head = workspace.head(name)
-    stages = (arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES).split(',')
+    stages = gpu_contract.stages(arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES)
     comfy = workspace.data.get('comfy')
     with guards.head_locks(workspace, [name]):
         if 'geometry' in stages:  # appearance reuses the saved shape and spends no submission
             guards.geometry_cap(head)
         if not comfy:
             raise guards.Refused('This step needs "comfy" in workspace.json')
-        matte = []
-        if 'calibrate' in stages:  # the only stage that reads it; a failed attempt can still hold one (RUNBOOK 142)
-            prepare = complete(head, 'prepare')
-            if prepare is None:
-                raise guards.Refused(f'{name}: calibrate needs a complete prepare attempt')
-            matte = [prepare/'images'/'design-rgba.png']
+        if (head/'gpu'/'UNRECONCILED').exists():
+            raise guards.Refused('Previous GPU prompt is unresolved; reconcile its recorded prompt ID before resuming')
+        prepared=[head/'launches'/f'prepared-{stamp()}.json']
+        preparation=freeze_prepared(workspace,head,prepared[0])
+        if 'calibrate' not in stages:
+            ledger=guards.read(head/'gpu'/'gpu.json')
+            expected={'receipt':preparation['receipt'],'images':preparation['images']}
+            if ledger.get('stages',{}).get('calibrate',{}).get('prepared')!=expected:
+                raise guards.Refused('Calibrated inputs differ from the current reviewed prepare; recalibrate')
+            if 'appearance' in stages and 'geometry' not in stages:
+                gpu_contract.require_geometry_review(head,ledger)
         with gpu_lock(workspace):
             started = time.time()
             label = f'{stamp()}-gpu'
             templates = sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))
             input_list = head/'launches'/f'inputs-{label}.json'
             reused, upstream = reused_gpu_inputs(workspace, head, label, stages)
-            write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), *map(str, matte)]+reused)
-            job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream, *(['--matte', *matte] if matte else [])]
+            resources = []
+            reused += [str(head/'bindings.json'),str(GPU_JOB.with_name('gpu_contract.py')),guards.read(head/'bindings.json')['embree']['path']]
+            if 'memoryLimitBytes' in comfy:
+                resource_file = head/'launches'/f'resources-{label}.json'
+                write_json(resource_file, {key:comfy[key] for key in ('memoryLimitBytes','minimumFreeRAMGiB','gpuIndex') if key in comfy})
+                resources = ['--resources', resource_file]
+                reused += [str(resource_file), str(GPU_JOB.with_name('resource_budget.py')), str(GPU_JOB.with_name('head_files.py'))]
+            write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), str(GPU_JOB.with_name('resource_budget.py')), str(GPU_JOB.with_name('head_files.py')), *map(str, prepared), *[p['path'] for p in preparation.get('pins',[])]]+reused)
+            job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream, *resources, *(['--prepared', *prepared] if prepared else [])]
             data = launch(workspace, head/'launches'/f'launch-{label}', input_list, job, workspace.python_environment(packages=True))
             timing(workspace, f'gpu {name} {" ".join(arguments)} exit {data["exitCode"]}', started)
+        if 'geometry' in stages and data['exitCode'] in (0,3):
+            # Release the GPU lease before waiting on RAM for the CPU-only evidence.
+            with cpu_slot(workspace):
+                sheet=subprocess.run([PYTHON,'-B',str(GPU_JOB.parent/'review'/'gpuclay.py'),str(head)],
+                                     env=workspace.python_environment(packages=True,tools=True),capture_output=True,text=True)
+            (head/'launches'/f'launch-{label}'/'geometry-sheet.log').write_text(sheet.stdout+sheet.stderr,encoding='utf-8')
+            if sheet.returncode:
+                data['exitCode']=1
+                print('Raw geometry evidence failed; retry with review --slot gpuclay '+name)
+            else:print(sheet.stdout.strip())
     return {**data, 'errors': head/'launches'/f'launch-{label}'/'stderr.log'}
 
 
@@ -257,6 +326,8 @@ def run_one_design(workspace, race, folder, bindings, head, seed, batch):
     spec.write_bytes((folder/f'designs-{race}.json').read_bytes())
     reference = workspace.design_reference(race, head.split('-')[1])
     files = [PYTHON]+[str(REPO/module) for module in DESIGN_MODULES]+sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))+[str(spec), str(bindings)]
+    if guards.read(spec).get('profile') == 'qwen21-int8-v1':
+        files += [row['path'] for row in guards.read(bindings).get('models', {}).values()]
     extra = []
     if reference:
         files.append(str(reference))
@@ -264,6 +335,8 @@ def run_one_design(workspace, race, folder, bindings, head, seed, batch):
     input_list = folder/'launches'/f'inputs-{label}.json'
     write_json(input_list, files)
     with gpu_lock(workspace):
+        if workspace.data.get('comfy'):
+            Comfy(workspace.data['comfy']['url'],None).ensure_idle()
         guards.design_cap(folder, head)  # here: two commands queued for the lock must not both spend the last design
         started = time.time()
         data = launch(workspace, folder/'launches'/f'launch-{label}', input_list,

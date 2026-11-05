@@ -1,4 +1,4 @@
-"""Flux.2 head design proposals through a DIRECT local ComfyUI dispatch.
+"""Head design proposals through a DIRECT local ComfyUI dispatch.
 
 This route is deliberately unguarded: one POST to the bound local ComfyUI, then /history polling. It has none of the
 `comfy.submit` guarantees (shared ledger, generation count, idle-queue check, server runtime identity, verified model
@@ -18,7 +18,7 @@ from .common import read, write, require, pin, verify, digest, source_version
 TEMPLATES = Path(__file__).parent / 'templates'
 SUBFOLDER = 'headkit-design'
 NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
-SPEC_KEYS = {'common', 'designs', 'neckInpaint', 'neckEdit', 'colourReviewed'}
+SPEC_KEYS = {'common', 'designs', 'neckInpaint', 'neckEdit', 'colourReviewed', 'profile'}
 # Ownership splits a head's texels by their baked colour, while the palette row (not the generated hue) sets the in-game
 # colour and the baked luminance its shade. A feature drawn in its neighbour's colour can only be split by position (race
 # heads v1 dwarf-male-d: black circuit ink on black hair), so a prompt must give each owned feature a hue its neighbours lack.
@@ -39,6 +39,17 @@ MAX_REFERENCES = 4
 MASK_BLUR = 6
 FIXED = {'model': 'flux2_dev_fp8mixed.safetensors', 'turboLora': 'Flux_2-Turbo-LoRA_comfyui.safetensors',
          'steps': 8, 'size': 1024, 'guidance': 4.0, 'sampler': 'euler'}
+DEFAULT_PROFILE = 'flux2-turbo-v1'
+PROFILES = {
+    DEFAULT_PROFILE: FIXED,
+    'qwen21-int8-v1': {
+        'model': 'qwen_image_2.1_int8_convrot.safetensors',
+        'encoder': 'qwen3vl_8b_int8_convrot.safetensors',
+        'vae': 'qwen_image_2.1_vae_bf16.safetensors',
+        'steps': 25, 'size': 1024, 'guidance': 1.0, 'sampler': 'euler',
+        'scheduler': 'simple', 'promptEnhancement': False, 'prefixCacheDevice': 'cpu',
+    },
+}
 DISPATCH = ('direct: one unguarded POST to the bound local ComfyUI plus /history polling; no ledger, idle-queue, '
             'runtime-identity or verified-loader checks (the guarded submit route needs the undeployed managed adapter)')
 
@@ -48,6 +59,7 @@ def load_spec(path):
     require(isinstance(spec, dict) and set(spec) <= SPEC_KEYS and isinstance(spec.get('common'), str)
             and spec['common'].strip() and isinstance(spec.get('designs'), dict) and spec['designs'],
             'Design spec needs common text and named designs (keys: ' + ', '.join(sorted(SPEC_KEYS)) + ')')
+    require(isinstance(spec.get('profile', DEFAULT_PROFILE), str) and spec.get('profile', DEFAULT_PROFILE) in PROFILES, 'Unknown design profile')
     for name, text in spec['designs'].items():
         require(NAME.fullmatch(name) is not None and isinstance(text, str) and text.strip(),
                 'Design names must be safe IDs with prompt text: ' + name)
@@ -83,6 +95,7 @@ def design_prompt(spec, head):
 
 
 def inpaint_prompt(spec, skin):
+    require(spec.get('profile', DEFAULT_PROFILE) == DEFAULT_PROFILE, 'Inpaint currently requires the Flux design profile')
     require(isinstance(spec.get('neckInpaint'), str), 'Spec has no neckInpaint prompt')
     require(isinstance(skin, str) and skin == skin.strip() and 0 < len(skin) <= 80 and '\n' not in skin
             and 'SKIN' not in skin, 'Skin must be one short line of text')
@@ -94,12 +107,16 @@ def _owned(value):
     return len(parts) > 1 and parts[0] == SUBFOLDER and all(parts) and '..' not in parts and '\\' not in value and ':' not in value
 
 
-def _common(graph, prompt, seed, batch, prefix, images):
+def _check_inputs(prompt, seed, batch, prefix, images):
     require(isinstance(prompt, str) and prompt.strip(), 'Prompt text required')
     require(type(seed) is int and 0 <= seed < 2 ** 64, 'Seed must be an integer from 0 to 2^64-1')
     require(type(batch) is int and 1 <= batch <= MAX_BATCH, f'Batch must be 1..{MAX_BATCH}')
     require(_owned(prefix), 'Isolated output prefix under ' + SUBFOLDER + '/ required')
     require(all(_owned(image) for image in images), 'Stage input images under ' + SUBFOLDER + '/')
+
+
+def _common(graph, prompt, seed, batch, prefix, images):
+    _check_inputs(prompt, seed, batch, prefix, images)
     graph['6']['inputs']['text'] = prompt; graph['25']['inputs']['noise_seed'] = seed
     graph['9']['inputs']['filename_prefix'] = prefix
 
@@ -130,8 +147,31 @@ def _validated(graph):
     return graph
 
 
-def compile_design(prompt, references, seed, batch, prefix):
-    """Text plus species reference(s) to a batch of new designs (fixed steps 8, 1024 square, guidance 4.0, turbo LoRA)."""
+def design_model_pins(local, profile):
+    """The new profile requires frozen local weights; existing Flux bindings remain readable."""
+    settings = PROFILES[profile]
+    names = [settings[key] for key in ('model', 'encoder', 'vae') if key in settings]
+    models = local.get('models', {})
+    if profile == DEFAULT_PROFILE:
+        return []
+    require(all(name in models for name in names), 'Bind every selected design model with a path and SHA256')
+    pins = [models[name] for name in names]
+    verify(pins)
+    return pins
+
+
+def compile_design(prompt, references, seed, batch, prefix, *, profile=DEFAULT_PROFILE):
+    """Compile the selected fixed design profile; Flux supports references and Qwen is text-only."""
+    require(profile in PROFILES, 'Unknown design profile')
+    if profile == 'qwen21-int8-v1':
+        require(not references, 'Qwen design profile currently supports text-only proposals')
+        _check_inputs(prompt, seed, batch, prefix, references)
+        graph = read(TEMPLATES / 'qwen21-design.json')
+        graph['6']['inputs']['prompt'] = prompt
+        graph['13']['inputs']['seed'] = seed
+        graph['47']['inputs']['amount'] = batch
+        graph['9']['inputs']['filename_prefix'] = prefix
+        return _validated(graph)
     graph = read(TEMPLATES / 'flux2-design.json')
     _common(graph, prompt, seed, batch, prefix, references)
     graph['47']['inputs']['batch_size'] = batch; _references(graph, references)
@@ -224,9 +264,9 @@ def _execute(client, local, bindings_path, graph, receipt, sources, output, base
             'proposalOnly': True, 'reviewRequired': True}
 
 
-def _receipt(kind, spec_path, prompt, seed, batch, token, prefix):
+def _receipt(kind, spec_path, prompt, seed, batch, token, prefix, *, profile=DEFAULT_PROFILE):
     return {'schemaVersion': 1, 'kind': kind, 'dispatch': DISPATCH, 'proposalOnly': True, 'reviewRequired': True,
-            'spec': pin(spec_path), 'prompt': prompt, 'seed': seed, 'batch': batch, 'settings': dict(FIXED),
+            'spec': pin(spec_path), 'prompt': prompt, 'seed': seed, 'batch': batch, 'profile': profile, 'settings': dict(PROFILES[profile]),
             'token': token, 'outputPrefix': prefix}
 
 
@@ -241,8 +281,11 @@ def generate(client, local, bindings_path, spec_path, head, seed, batch, referen
     references = [_image(path) for path in references]
     base = f'{head}-s{seed}'; _fresh(output, base); token = uuid.uuid4().hex
     names = {f'reference-{i}{path.suffix.lower()}': path for i, path in enumerate(references)}
-    graph = compile_design(prompt, [f'{SUBFOLDER}/{token}/{name}' for name in names], seed, batch, f'{SUBFOLDER}/{token}/{base}')
-    receipt = _receipt('design', spec_path, prompt, seed, batch, token, graph['9']['inputs']['filename_prefix'])
+    profile = spec.get('profile', DEFAULT_PROFILE)
+    model_pins = design_model_pins(local, profile)
+    graph = compile_design(prompt, [f'{SUBFOLDER}/{token}/{name}' for name in names], seed, batch, f'{SUBFOLDER}/{token}/{base}', profile=profile)
+    receipt = _receipt('design', spec_path, prompt, seed, batch, token, graph['9']['inputs']['filename_prefix'], profile=profile)
+    receipt['models'] = model_pins
     receipt.update(head=head, references=[f'{SUBFOLDER}/{token}/{name}' for name in names])
     return _execute(client, local, bindings_path, graph, receipt, names, output, base, batch, runtime, queue)
 
