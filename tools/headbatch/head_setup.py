@@ -300,9 +300,12 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
                'selectedDesign': {'file': design.name, 'sha256': image_sha}, 'featureInventory': features, 'observedDeviations': list(deviations),
                'slotSource': 'docs/heads/slot-catalog.json blocks; workspace slots'}
     write_json(head/'design'/'design-receipt.json', receipt)
-    overrides = {'inputs': {'bodyNeck': {'path': 'inputs/body-neck.json', 'sha256': sha(head/'inputs'/'body-neck.json')}},
-                 'mesh': {'neck': {'$replace': True, 'cut': {'height': 'measured', 'slope': slope, 'band': 0.03, 'reach': reach,
-                          'notes': f'Heads have no neck: plane under the lowest front feature beyond the reach, slope {slope}; stub drawn 3 mm inside the smoothed body neck over 3 cm.'}}}}
+    # Keep replacement directives until write_manifest merges this layer into defaults (RUNBOOK 245).
+    overrides = face_quality_profile() if quality_profile else {}
+    overrides['inputs'] = {'bodyNeck': {'path': 'inputs/body-neck.json', 'sha256': sha(head/'inputs'/'body-neck.json')}}
+    overrides.setdefault('mesh', {})['neck'] = {'$replace': True, 'cut': {
+        'height': 'measured', 'slope': slope, 'band': 0.03, 'reach': reach,
+        'notes': f'Heads have no neck: plane under the lowest front feature beyond the reach, slope {slope}; stub drawn 3 mm inside the smoothed body neck over 3 cm.'}}
     if record:
         shutil.copy2(reference, head/'design'/'reference-record.json')
         receipt['sourceReferenceRecord'] = receipt['referenceRecord']
@@ -322,7 +325,6 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
         target = head/'inputs'/'body-skin.plt'
         shutil.copy2(workspace.path(body), target)
         overrides['inputs']['bodySkin'] = {'path': 'inputs/body-skin.plt', 'sha256': sha(target)}
-        merge(overrides, face_quality_profile())
     if race == 'troll':  # horn curls enclose backdrop that the border flood fill keeps (RUNBOOK 57); review the matte check
         overrides['matte'] = {'enclosedBackgroundMinimumPixels': 400}
     write_json(head/'overrides.json', overrides)

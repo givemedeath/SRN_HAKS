@@ -843,11 +843,45 @@ class Setup(Base):
               'outputs':[{'path':str(image),'sha256':head_setup.sha(image)}]})
         return image
 
+    def test_face_profile_setup_replaces_diagnostics_and_survives_rewrite(self):
+        from headkit.cameras import review_cameras
+        from headkit.review_images import render_plan, resolutions
+
+        design = self.prepare()
+        body = write(self.root/'body-skin.plt', 'body fixture')
+        self.workspace.data['headQualityProfile'] = 'face-v1'
+        self.workspace.data['bodySkinReferences'] = {'elf-male': body.name}
+        path = head_setup.set_up(self.workspace, 'elf-male-a', design, approval='fixture selection', check=lambda *_: None)
+        data = guards.read(path)
+        config = data['render']
+        self.assertTrue(config['runtimePalette'])
+        self.assertEqual(resolutions(config), [2048, 1024])
+        for key in ('$replace', 'diagnostic', 'size', 'ownershipView', 'views'):
+            self.assertNotIn(key, config)
+        self.assertEqual(data['mesh']['uv']['faceDensity'], 3)
+        self.assertIn('cut', data['mesh']['neck'])
+        self.assertNotIn('taper', data['mesh']['neck'])
+        self.assertEqual(data['inputs']['bodySkin']['sha256'], head_setup.sha(body))
+        overrides = guards.read(path.parent/'overrides.json')
+        self.assertTrue(overrides['render']['$replace'])
+        self.assertTrue(overrides['mesh']['neck']['$replace'])
+        head_setup.write_manifest(self.workspace, 'elf-male-a', check=lambda *_: None)
+        self.assertEqual(guards.read(path), data)
+
+        config = dict(config, cameras=review_cameras([[0, 0, 0], [1, 1, 1]], config['frontAngleDegrees']))
+        plan = render_plan(config)
+        self.assertEqual(len(plan), 84)
+        self.assertTrue({'left-three-quarter', 'right-three-quarter', 'left-back-three-quarter',
+                         'right-back-three-quarter'} <= {view for _, _, view in plan})
+
     def test_set_up_writes_a_complete_head(self):
         design = self.prepare()
         path = head_setup.set_up(self.workspace, 'elf-male-a', design, approval='picked by test', check=lambda *_: None)
         data = json.loads(path.read_text())
         self.assertEqual(data['fit']['model'], 'pme0_head020')
+        self.assertTrue(data['render']['diagnostic'])
+        self.assertEqual(data['render']['size'], 1024)
+        self.assertNotIn('sizes', data['render'])
         self.assertEqual({row['name'] for row in data['features']}, {'hair', 'ears', 'neck'})
         self.assertEqual(data['mesh']['neck']['cut']['slope'], -.2)
         self.assertNotIn('taper', data['mesh']['neck'])

@@ -231,8 +231,10 @@
       "tools/headbatch/spool.py",
       "tools/headbatch/trials.py",
       "tools/headbatch/workspace.py",
+      "tools/headkit/cameras.py",
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/review_images.py",
       "tools/headkit/runner.py"
     ],
     "tools/headbatch/test_process_contracts.py": [
