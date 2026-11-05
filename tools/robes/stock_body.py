@@ -21,8 +21,6 @@ ATTACH = {"head": "head_g", "neck": "neck_g", "chest": "torso_g", "pelvis": "pel
           "handl": "lhand_g", "handr": "rhand_g", "shol": "lshoulder_g", "shor": "rshoulder_g",
           "legl": "lthigh_g", "legr": "rthigh_g", "shinl": "lshin_g", "shinr": "rshin_g",
           "footl": "lfoot_g", "footr": "rfoot_g"}
-CHAINS = {"arm_l": ["lbicep_g", "lforearm_g", "lhand_g"], "arm_r": ["rbicep_g", "rforearm_g", "rhand_g"],
-          "leg_l": ["lthigh_g", "lshin_g", "lfoot_g"], "leg_r": ["rthigh_g", "rshin_g", "rfoot_g"]}
 SKIN_BONES = ["rootdummy", "torso_g", "pelvis_g", "neck_g", "head_g", "lbicep_g", "lforearm_g", "lhand_g",
               "rbicep_g", "rforearm_g", "rhand_g", "lthigh_g", "lshin_g", "lfoot_g", "rthigh_g", "rshin_g", "rfoot_g"]
 

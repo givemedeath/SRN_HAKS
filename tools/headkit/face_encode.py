@@ -93,8 +93,8 @@ def apply_channels(labels, masks, mapped, colour=None, protected=None, positions
     off_iris = (o == 8) & ~iris & mapped; report['tattoo1ToTattoo2'] = int(off_iris.sum()); o[off_iris] = 9
     lock = (masks['hairlock'] > .5) & mapped & (o == 0) & ~near_eye; report['hairLockToHair'] = int(lock.sum()); o[lock] = 1
     o = pad(o[..., None], mapped)[..., 0]
-    report['moved'] = {f'{a}->{b}': int(((before == a) & (o == b) & mapped).sum()) for a in range(10) for b in range(10)
-                       if a != b and ((before == a) & (o == b) & mapped).any()}
+    moved = np.bincount(before[mapped].astype(np.int64)*10+o[mapped], minlength=100)
+    report['moved'] = {f'{a}->{b}': int(moved[a*10+b]) for a in range(10) for b in range(10) if a != b and moved[a*10+b]}
     return o, report
 
 

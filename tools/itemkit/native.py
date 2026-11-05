@@ -29,7 +29,7 @@ def write_verified_hak(target, files):
 def compile_with_client(converted, client, output):
     command = [sys.executable, '-B', str(ROOT/'tools/phenotypes/native_compile.py'), '--client', client['path'],
                '--user-directory', str(output/'compiler-userdir'), '--converted', str(converted), '--timeout', '120']
-    result = subprocess.run(command, capture_output=True, text=True, timeout=450,
+    result = subprocess.run(command, capture_output=True, text=True, errors='replace', timeout=450,
                             creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     (output/'compiler.log').write_text(result.stdout+'\n'+result.stderr, encoding='utf-8')
     require(result.returncode == 0, 'Native compilation failed; retain log and reconcile before retry')
@@ -39,7 +39,7 @@ def blueprint_roundtrip(gff, source, binary, readback):
     """Convert JSON to UTI and back, returning the audit of what the tool wrote."""
     from .firearm_native import audit_blueprint_roundtrip
     for first, second in ((source, binary), (binary, readback)):
-        done = subprocess.run([str(gff), '-i', str(first), '-o', str(second)], capture_output=True, text=True, timeout=120,
+        done = subprocess.run([str(gff), '-i', str(first), '-o', str(second)], capture_output=True, text=True, errors='replace', timeout=120,
                               creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         require(done.returncode == 0, 'Blueprint conversion failed: '+done.stderr[-1000:])
     return audit_blueprint_roundtrip(binary, read(readback), read(source))

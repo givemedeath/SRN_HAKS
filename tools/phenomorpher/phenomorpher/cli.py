@@ -144,7 +144,9 @@ def main(argv=None):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--input', type=Path, action='append', required=True, help='Binary model; repeat')
     p.add_argument('--resource-dir', type=Path, action='append', default=[], help='Skeleton folder after the model folder; repeat')
+    p.add_argument('--timeout', type=float, default=600)
     p = sub.add_parser('armor-extract')
+    p.add_argument('--timeout', type=float, default=600, help='Seconds allowed for the one Blender decompile batch')
     for name in ('resman-extract', 'blender', 'neverblender', 'game-root', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--slot', action='append', help='Body slot such as pfd0; repeat (default: all)')
@@ -300,7 +302,7 @@ def main(argv=None):
     if a.command == 'armor-extract':
         from .engine.stock_armor import SOURCES, extract
         declare_consumed(argv)
-        result = extract(a.resman_extract, (a.blender, a.neverblender), a.game_root, a.output, a.slot or SOURCES)
+        result = extract(a.resman_extract, (a.blender, a.neverblender), a.game_root, a.output, a.slot or SOURCES, a.timeout)
         print(json.dumps(result['counts'])); return
     if a.command == 'armor-profiles':
         from .engine.stock_armor import TARGETS, fit_profiles
@@ -335,7 +337,7 @@ def main(argv=None):
         if len(set(names)) != len(names):
             raise ValueError('Decompile inputs must have distinct file names')
         a.output.mkdir(parents=True, exist_ok=False)
-        tools, report = nvb.decompile_files(a.blender, a.neverblender, [(p, a.output/p.name) for p in a.input], a.resource_dir)
+        tools, report = nvb.decompile_files(a.blender, a.neverblender, [(p, a.output/p.name) for p in a.input], a.resource_dir, a.timeout)
         receipt = {'schemaVersion': 1, 'kind': 'PhenoMorpher-mdl-decompile', 'compiler': {k: v for k, v in tools.items() if k != 'files'},
                    'compilerSha256': tools['sha256'], 'blenderVersion': report['blenderVersion'],
                    'models': [{'name': Path(r['input']).name, 'binarySha256': r['sourceSha256'], 'asciiSha256': r['outputSha256'],

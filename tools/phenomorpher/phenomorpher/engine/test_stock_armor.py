@@ -6,6 +6,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+import numpy as np
+
 from . import stock_armor as armor
 
 
@@ -272,6 +274,17 @@ class PackTests(unittest.TestCase):
                 data.pop('clientSha256'); data['compilerSha256'] = 'nvb'; path.write_text(json.dumps(data))
             armor.publish([(conversion, compiled)], body, root, root/'m.json')
             self.assertEqual(json.loads((root/'m.json').read_text())['nativeCompilerSHA256'], 'nvb')
+
+
+class NearestTests(unittest.TestCase):
+    def test_pruned_search_equals_the_full_distance_matrix_exactly(self):
+        rng = np.random.default_rng(11)
+        for a, b in ((rng.normal(size=(900, 3)), rng.normal(size=(700, 3))),
+                     (rng.normal(size=(50, 3)), rng.normal(size=(3, 3))),
+                     (np.zeros((5, 3)), np.c_[np.zeros(40), rng.normal(size=(40, 2))])):  # every x equal, a full window
+            full = np.sqrt(((a[:, None, :] - b[None, :, :])**2).sum(-1)).min(1)
+            self.assertTrue(np.array_equal(armor.nearest(a, b), full))
+            self.assertTrue(np.array_equal(armor.nearest(a, b, chunk=7), full))
 
 
 if __name__ == '__main__':

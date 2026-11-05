@@ -440,12 +440,15 @@ class Runner:
                 from .face_encode import apply_channels,majority,masks_at,CHANNEL_MASKS
                 from .gltf import mesh
                 from .textures import surface
+                from .uv import raster_audit
                 require(image.size==(4096,4096),'Feature channels need the 4K ownership atlas')
-                positions,owners,_=surface(mesh(source),4096,enforce=False)
+                value=mesh(source)
+                # Only the protected rule reads positions, and rasterising them takes far longer than the ownership map.
+                positions,owners=(surface(value,4096,enforce=False)[:2] if protected is not None else (None,raster_audit(value['uv'],4096)[1]))
                 with Image.open(self._color4k()) as colour:colour=np.asarray(colour.convert('RGB'))
-                # protected is None without an overFaceMasks rule: unchanged moves, and the 4K positions are not kept
+                # protected is None without an overFaceMasks rule: unchanged moves
                 labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0,colour,
-                                                                protected=protected,positions=positions if protected is not None else None)
+                                                                protected=protected,positions=positions)
                 image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
             image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
@@ -632,7 +635,7 @@ class Runner:
                 '--migration-receipt',b['migrationReceipt'],'--tool','blender','--output',str(folder/'blender-launch')]
             command+=['--input-manifest',str(folder/'render-inputs.json')]
             command+=['--','--python',str(Path(__file__).parent/'blender_render.py'),'--','--config',str(folder/'render-config.json')]
-            execution=subprocess.run(command,capture_output=True,text=True,timeout=1800,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+            execution=subprocess.run(command,capture_output=True,text=True,errors='replace',timeout=1800,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
             (folder/'blender.log').write_text(execution.stdout+'\n'+execution.stderr);require(execution.returncode==0,'CPU render failed; inspect log')
             result=read(folder/'renders'/'renders.json');validate_frames(cfg,result['views'])
             result.update(sheets(result['views'],folder/'renders',result['triangles']),elapsedWithEvidenceSeconds=time.monotonic()-begun)

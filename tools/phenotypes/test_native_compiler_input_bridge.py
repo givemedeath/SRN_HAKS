@@ -1,6 +1,8 @@
 import unittest,tempfile
 from pathlib import Path
 import numpy as np
+import native_compile
+from pipeline import digest
 from native_compiler_input_bridge import validate_arrays
 from target_part_stage import validate_material_slots,material_resref,write_model
 class NativeCompilerBridgeTests(unittest.TestCase):
@@ -26,4 +28,22 @@ class NativeCompilerBridgeTests(unittest.TestCase):
   with self.assertRaises(ValueError):validate_material_slots({'0':{'role':'garment','atlasKey':'skin1'}})
  def test_resref_limit(self):
   with self.assertRaises(ValueError):material_resref('this_model_name_is_far_too_long','skin1','skin')
+class SupermodelChainTests(unittest.TestCase):
+    def chains(self, root, parent_text):
+        models = {'base.mdl': 'newmodel base\nsetsupermodel base NULL\n' + parent_text,
+                  'CHILD.mdl': 'newmodel child\nsetsupermodel child base\n', 'alone.mdl': 'setsupermodel alone stock\n'}
+        for name, text in models.items():
+            (root/name).write_text(text)
+        sources = sorted(root/name for name in models)
+        return native_compile.supermodel_chains(sources, {path.name: digest(path) for path in sources})
+
+    def test_a_changed_parent_changes_its_child_and_nothing_else(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); first = self.chains(root, ''); second = self.chains(root, '# edited\n')
+            self.assertEqual(first['alone.mdl'], digest(root/'alone.mdl'))
+            self.assertEqual(second['base.mdl'], digest(root/'base.mdl'))
+            self.assertNotEqual(first['CHILD.mdl'], digest(root/'CHILD.mdl'))
+            self.assertNotEqual(first['CHILD.mdl'], second['CHILD.mdl'])
+
+
 if __name__=='__main__':unittest.main()

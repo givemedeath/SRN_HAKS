@@ -225,9 +225,10 @@ else {
     $changedPaths = @(& git -C $repoRoot diff --name-only --no-renames "$ChangedSince...HEAD")
     if ($LASTEXITCODE -ne 0) { throw "Unable to determine changes since '$ChangedSince'." }
     $mustBuildAll = $false
+    $packBuildPatterns = @((Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ci-scope.json') -Raw | ConvertFrom-Json).packBuild)
     foreach ($changedPath in $changedPaths) {
         $normalized = $changedPath.Replace('\\', '/')
-        if ($normalized -match '^hakbuilder\.json$|^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\.Common|SrnTools)\.|^tools/(toolchain|shared-tools)\.lock\.json$|^\.github/(workflows/ci\.yml|actions/srn-tools/)') { $mustBuildAll = $true }
+        if ($packBuildPatterns | Where-Object { $normalized -match $_ }) { $mustBuildAll = $true }
         $firstSegment = $normalized.Split('/')[0]
         if ($packByName.ContainsKey($firstSegment)) { [void]$packsToBuild.Add($firstSegment) }
     }

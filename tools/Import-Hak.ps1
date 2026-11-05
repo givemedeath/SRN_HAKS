@@ -25,7 +25,7 @@ function Add-Relation {
 
 function Read-SetFile {
     param([string]$Path)
-    $text = Get-Content -LiteralPath $Path -Raw -Encoding Default
+    $text = Read-SrnCp1252Text $Path
     $sections = @{}
     $structuralIssues = [Collections.Generic.List[object]]::new()
     $current = $null
@@ -120,7 +120,7 @@ function Read-SetFile {
 
 function Read-ModelTextures {
     param([string]$Path)
-    $text = Get-Content -LiteralPath $Path -Raw -Encoding Default
+    $text = Read-SrnCp1252Text $Path
     @([regex]::Matches($text, '(?im)^\s*(?:bitmap|texture\d*)\s+([^\s]+)') |
         ForEach-Object { $_.Groups[1].Value.ToLowerInvariant() } |
         Where-Object { $_ -notin @('null', 'none', 'default') } | Sort-Object -Unique)
@@ -229,7 +229,7 @@ function Get-Recommendation {
         }
     }
     if ($File.Extension -ieq '.mdl') {
-        $classification = [regex]::Match((Get-Content -LiteralPath $File.FullName -Raw -Encoding Default), '(?im)^classification\s+(\S+)').Groups[1].Value.ToLowerInvariant()
+        $classification = [regex]::Match((Read-SrnCp1252Text $File.FullName), '(?im)^classification\s+(\S+)').Groups[1].Value.ToLowerInvariant()
         if ($classification -eq 'effect') { return 'srn_fx' }
         if ($classification -eq 'door') { return 'srn_door' }
     }
@@ -288,7 +288,7 @@ function Get-Canonical2daMergeBase {
         [Parameter(Mandatory)][string]$UserDirectory,
         [Parameter(Mandatory)][string]$RepositoryRoot
     )
-    $baselineLines = @(& $CatPath --root $GameRoot --userdirectory $UserDirectory --no-ovr $Resource)
+    $baselineLines = @(Invoke-SrnCp1252Native $CatPath '--root', $GameRoot, '--userdirectory', $UserDirectory, '--no-ovr', $Resource)
     if ($LASTEXITCODE -ne 0 -or -not $baselineLines.Count) { throw "Unable to read EE baseline $Resource." }
     $canonicalPath = Join-Path (Join-Path $RepositoryRoot $OutputPack) $Resource
     $lines = if (Test-Path -LiteralPath $canonicalPath -PathType Leaf) {
@@ -448,16 +448,8 @@ if ($Mode -eq 'Analyze') {
         if (($archiveSorted -join "`n") -cne ($extractedSorted -join "`n")) {
             throw 'Extracted inventory does not match the HAK.'
         }
-        if (Test-Path -LiteralPath $rawRoot) {
-            $rawItem = Get-Item -LiteralPath $rawRoot -Force
-            $expectedRawRoot = [IO.Path]::GetFullPath((Join-Path $workspace 'raw'))
-            if ([IO.Path]::GetFullPath($rawItem.FullName) -cne $expectedRawRoot -or
-                ($rawItem.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
-                throw "Refusing to replace unsafe quarantine directory: $($rawItem.FullName)"
-            }
-            Remove-Item -LiteralPath $rawRoot -Recurse -Force
-        }
-        Move-Item -LiteralPath $stagingRoot -Destination $rawRoot
+        # Resolve-SrnQuarantinePath above already refused a reparse point on this path.
+        Publish-SrnDirectorySet -Replacements @([pscustomobject]@{source=$stagingRoot; destination=$rawRoot})
         $rawFiles = @(Get-ChildItem -LiteralPath $rawRoot -File)
     }
     finally {
@@ -482,7 +474,7 @@ if ($Mode -eq 'Analyze') {
         foreach ($model in $result.models) { [void]$models.Add($model) }
         $edgeName = "${code}_edge.2da"
         if ($fileByName.ContainsKey($edgeName)) {
-            $edgeText = Get-Content -LiteralPath $fileByName[$edgeName].FullName -Raw -Encoding Default
+            $edgeText = Read-SrnCp1252Text $fileByName[$edgeName].FullName
             foreach ($match in [regex]::Matches($edgeText, '(?m)^\s*\d+\s+.*?\s([A-Za-z0-9_]+)\s*$')) { [void]$models.Add($match.Groups[1].Value.ToLowerInvariant()) }
         }
         $result | Add-Member -NotePropertyName dependencyModels -NotePropertyValue @($models)
@@ -785,7 +777,7 @@ if ($Mode -eq 'Repair') {
                 foreach ($mapping in @($experiment.tokenRemaps)) {
                     $targetSet = Join-Path $rawRoot "$($experiment.tileset).set"
                     if (-not (Test-Path -LiteralPath $targetSet -PathType Leaf) -or
-                        -not [regex]::IsMatch((Get-Content -LiteralPath $targetSet -Raw -Encoding Default), "(?im)^Name=$([regex]::Escape([string]$mapping.target))\r?$") ) {
+                        -not [regex]::IsMatch((Read-SrnCp1252Text $targetSet), "(?im)^Name=$([regex]::Escape([string]$mapping.target))\r?$") ) {
                         throw "Edge-table remap target is not declared by $($experiment.tileset).set: $($mapping.target)"
                     }
                     $found = 0
@@ -877,7 +869,7 @@ if ($Mode -eq 'Repair') {
     exit 0
 }
 $configPath = Join-Path $repoRoot 'hakbuilder.json'
-$configuration = Get-Content $configPath -Raw | ConvertFrom-Json -Depth 32
+$configuration = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json -Depth 32
 if ($profile.PSObject.Properties.Name -contains 'expectedOverrides') {
     $configuredOverrides = @($configuration.ExpectedOverrides)
     foreach ($requested in @($profile.expectedOverrides)) {
@@ -1336,7 +1328,7 @@ if (@($profile.customDoorRows).Count) {
     if (-not $NwnRoot -or -not $NwnUserDirectory) { throw 'Apply requires NWN root and user directory for the pinned 2DA baseline.' }
     $erf = Get-SrnTool -Name erf
     $cat = Get-SrnTool -Name resman_cat
-    $eeBaselineLines = @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr doortypes.2da)
+    $eeBaselineLines = @(Invoke-SrnCp1252Native $cat '--root', $NwnRoot, '--userdirectory', $NwnUserDirectory, '--no-ovr', 'doortypes.2da')
     $canonicalDoorPath = Join-Path $repoRoot 'srn_2da/doortypes.2da'
     $baseLines = if (Test-Path -LiteralPath $canonicalDoorPath -PathType Leaf) {
         @([IO.File]::ReadAllLines($canonicalDoorPath, [Text.Encoding]::GetEncoding(1252)))
@@ -1469,4 +1461,4 @@ if ($profile.PSObject.Properties.Name -contains 'expectedOverrides') {
     }
     $configuration.ExpectedOverrides = @($overrides | Sort-Object Resource)
 }
-[IO.File]::WriteAllText($configPath, ($configuration | ConvertTo-Json -Depth 32) + "`n", [Text.UTF8Encoding]::new($false)); Write-Host 'Apply complete.'
+Write-SrnJsonAtomic -Path $configPath -Value $configuration; Write-Host 'Apply complete.'

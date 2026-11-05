@@ -90,9 +90,10 @@ def rigid(rig, node, frames):
 def motion_samples(rig, matrix=MOTION, count=9):
     rows = [{"family": "bind", "clip": None, "time": 0.0}]
     for entry in matrix:
-        if entry["clip"] in rig.clips:
-            rows += [{"family": entry["family"], "clip": entry["clip"], "time": t}
-                     for t in rig.times(entry["clip"], count)]
+        # A missing clip must not shrink the review to whatever remains (see the bind-only r2 figures).
+        require(entry["clip"] in rig.clips, "Motion clip missing from the rig: " + entry["clip"])
+        rows += [{"family": entry["family"], "clip": entry["clip"], "time": t}
+                 for t in rig.times(entry["clip"], count)]
     return rows
 
 

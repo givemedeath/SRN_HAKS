@@ -37,8 +37,8 @@ function New-CanonicalEntry {
     return [pscustomobject]$entry
 }
 
-$inputPath = [IO.Path]::GetFullPath($InputTlk)
-$profileFile = [IO.Path]::GetFullPath($ProfilePath)
+$inputPath = [IO.Path]::GetFullPath($InputTlk, $PWD.ProviderPath)
+$profileFile = [IO.Path]::GetFullPath($ProfilePath, $PWD.ProviderPath)
 if (-not (Test-Path -LiteralPath $inputPath -PathType Leaf)) { throw "Input TLK not found: $inputPath" }
 if (-not (Test-Path -LiteralPath $profileFile -PathType Leaf)) { throw "TLK import profile not found: $profileFile" }
 $workspace = Resolve-SrnQuarantinePath $OutputRelativePath

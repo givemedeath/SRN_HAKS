@@ -47,6 +47,16 @@ class HashCacheTests(unittest.TestCase):
         cache = HashCache(self.root / 'cache.sqlite')
         self.assertEqual([cache.sha(p) for p in files], [sha(p) for p in files]); self.assertEqual(cache.hits, 40); cache.close()
 
+    def test_database_failure_falls_back_to_full_hashing_and_is_reported(self):
+        source = self.root / 'input.bin'; source.write_bytes(b'one'); aged(source)
+        cache = HashCache(self.root / 'cache.sqlite'); cache.sha(source)
+        cache.db.close()  # every later statement raises sqlite3.ProgrammingError
+        cache.flush(); self.assertIsNone(cache.db); self.assertEqual(cache.pending, [])
+        self.assertEqual(cache.sha(source), sha(source)); cache.close()
+        self.assertEqual(len(cache.report()['databaseErrors']), 1)
+        broken = HashCache(self.root / 'second.sqlite'); broken.db.close()
+        self.assertEqual(broken.sha(source), sha(source)); self.assertEqual(len(broken.errors), 1); broken.close()
+
     def test_stamp_is_text_so_large_windows_file_ids_fit(self):
         from types import SimpleNamespace
         from launch_hash_cache import stamp

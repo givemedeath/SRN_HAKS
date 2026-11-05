@@ -20,8 +20,6 @@ PARTS = ('chest', 'pelvis', 'neck', 'belt', 'bicepl', 'bicepr', 'forel',
          'forer', 'handl', 'handr', 'legl', 'legr', 'shinl', 'shinr',
          'footl', 'footr', 'shol', 'shor', 'robe')
 BARE = set(PARTS) - {'belt', 'shol', 'shor', 'robe'}
-MODEL = re.compile(r'^pmh0_(' + '|'.join(PARTS) + r')(\d{3})\.mdl$')
-CLOAK = re.compile(r'^pmh0_cloak_(\d{3})\.mdl$')
 HELM = re.compile(r'^helm_\d{3}\.mdl$')
 SHIELD = re.compile(r'^ash(?:sw|lw|ss|ls|to)_[a-z0-9_]+\.mdl$')
 
@@ -99,6 +97,7 @@ def freeze(args):
     if not (user / 'override').is_dir() or any((user / 'override').iterdir()):
         raise RuntimeError('Equipment inventory requires an existing empty override directory')
     grep, cat = (resolved_tool('nwn_resman_' + name, args.tool_directory) for name in ('grep', 'cat'))
+    args.decompiler = resolved_tool('mdlcomp', path=args.decompiler)
     tool_pins = {str(path.resolve()): digest(path) for path in (grep, cat, args.decompiler)}
     if prior and prior['toolPins'] != tool_pins:
         raise RuntimeError('Inventory tools differ from the prior extraction')

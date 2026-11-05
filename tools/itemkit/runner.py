@@ -40,7 +40,7 @@ def attempt_snapshot(receipt):
 
 def run_logged(command, log, timeout, **options):
     """Run a launcher, retain its output, and stop its whole process tree on timeout."""
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **options)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors='replace', **options)
     try:
         stdout, stderr = process.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:

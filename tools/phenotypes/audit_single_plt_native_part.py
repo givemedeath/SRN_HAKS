@@ -23,6 +23,7 @@ from target_part_pipeline import pin
 
 BASIS_TANGENT_MAX_DEGREES = 10.0
 BASIS_TANGENT_OVER_ONE_DEGREE_FRACTION = 0.005
+BASIS_NORMAL_MAX_DIFFERENCE = 2*np.sin(np.radians(BASIS_TANGENT_MAX_DEGREES)/2)  # the same turn as the tangent limit
 
 
 def ascii_corners(text, nodes):
@@ -84,10 +85,12 @@ def basis_comparison(meshes, reference_meshes):
         stats['nodes'][name] = {'corners':int(angle.size),'maxTangentDegrees':round(float(angle.max()),4),
                                 'cornersOver1Degree':int((angle > 1).sum()),'signMismatches':signs}
     contract.require(stats['maxPositionDifference'] <= 1e-6 and stats['signMismatches'] == 0 and
+                     stats['maxNormalDifference'] <= BASIS_NORMAL_MAX_DIFFERENCE and
                      stats['maxTangentDegrees'] <= BASIS_TANGENT_MAX_DEGREES and
                      stats['cornersOver1Degree'] <= BASIS_TANGENT_OVER_ONE_DEGREE_FRACTION*stats['corners'],
                      'Final compiled tangent basis differs from the basis the normal maps were encoded in')
-    stats['limits'] = {'maxPositionDifference':1e-6,'signMismatches':0,'maxTangentDegrees':BASIS_TANGENT_MAX_DEGREES,
+    stats['limits'] = {'maxPositionDifference':1e-6,'signMismatches':0,'maxNormalDifference':float(BASIS_NORMAL_MAX_DIFFERENCE),
+                       'maxTangentDegrees':BASIS_TANGENT_MAX_DEGREES,
                        'cornersOver1DegreeFraction':BASIS_TANGENT_OVER_ONE_DEGREE_FRACTION}
     return stats
 

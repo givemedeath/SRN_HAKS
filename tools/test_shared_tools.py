@@ -229,6 +229,21 @@ class SharedToolsTests(unittest.TestCase):
         self.assertTrue({str(path) for path in [self.exe,*inputs,second]}<=required)
         self.assertFalse(current['completeDeclaration'])
 
+    def test_run_receipt_keeps_own_references_and_repeat_runs_leave_the_rolling_record(self):
+        first,second=self.repo/'one.bin',self.repo/'two.bin';first.write_bytes(b'one');second.write_bytes(b'two')
+        register_run(self.repo,inputs=[first])
+        receipt=read_json(register_run(self.repo,inputs=[second]))
+        self.assertEqual([row['path'] for row in receipt['references']],[str(second)])
+        identity=hashlib.sha256(os.path.normcase(str(self.repo)).encode()).hexdigest()
+        current=self.bank/'consumers'/identity/'current.json'
+        self.assertEqual({row['path'] for row in read_json(current)['references']},{str(first),str(second)})
+        settled=current.read_bytes()
+        register_run(self.repo,inputs=[first]);self.assertEqual(current.read_bytes(),settled)
+        statement=f"$tool=Resolve-SrnTool erf -RepositoryRoot '{self.repo}'; Register-SrnToolUse $tool -Inputs @('{first}') -RepositoryRoot '{self.repo}'; '[]'"
+        self.ps(statement);seen=current.read_bytes();self.assertNotEqual(seen,settled)  # the tool itself is new here
+        self.ps(statement);self.assertEqual(current.read_bytes(),seen)
+        first.write_bytes(b'changed');self.ps(statement);self.assertNotEqual(current.read_bytes(),seen)
+
 class BootstrapTests(unittest.TestCase):
     def setUp(self):
         if not PS:self.skipTest('pwsh unavailable')

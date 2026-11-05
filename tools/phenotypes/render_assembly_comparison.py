@@ -11,7 +11,7 @@ import sys
 import time
 
 import bpy
-from mathutils import Matrix, Vector, Euler
+from mathutils import Vector, Euler
 import numpy as np
 
 # Ensure tools directory is in sys.path
@@ -289,34 +289,6 @@ def render_views(specimens: list[tuple[bpy.types.Object, Vector]], output_dir: P
         obj.location = orig_loc
         
     return rendered_files
-
-
-def create_quadrant_sheet(rendered_files: dict[str, str], output_dir: Path, artifact_dir: Path):
-    """Combine Front, Side, Rear, and Oblique into a single high-resolution comparison sheet."""
-    try:
-        f_img = Image.open(rendered_files["front"])
-        s_img = Image.open(rendered_files["side"])
-        r_img = Image.open(rendered_files["rear"])
-        o_img = Image.open(rendered_files["oblique"])
-        
-        w, h = f_img.size
-        # Half-scale for 2x2 grid
-        thumb_w, thumb_h = w // 2, h // 2
-        
-        grid = Image.new("RGBA", (thumb_w * 2, thumb_h * 2), (18, 20, 26, 255))
-        grid.paste(f_img.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS), (0, 0))
-        grid.paste(s_img.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS), (thumb_w, 0))
-        grid.paste(r_img.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS), (0, thumb_h))
-        grid.paste(o_img.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS), (thumb_w, thumb_h))
-        
-        sheet_out = output_dir / "assembly_comparison_sheet.png"
-        grid.save(sheet_out, format="PNG")
-        
-        art_sheet = artifact_dir / "cp1_assembly_sheet.png"
-        grid.save(art_sheet, format="PNG")
-        print(f"Created composite comparison sheet -> {art_sheet}")
-    except Exception as e:
-        print(f"Warning creating comparison sheet: {e}")
 
 
 def main():

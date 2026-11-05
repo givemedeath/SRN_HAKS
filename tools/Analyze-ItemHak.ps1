@@ -101,7 +101,7 @@ function Get-2daTokens {
 
 function Read-2daTable {
     param([Parameter(Mandatory)][string]$Path)
-    $allLines = @(Get-Content -LiteralPath $Path -Encoding Default)
+    $allLines = @(Read-SrnCp1252Lines $Path)
     $hasHeader = @($allLines | Select-Object -First 4 | Where-Object { $_ -match '^\s*2DA\s+V' }).Count -gt 0
     $lines = @($allLines | Where-Object { $_.Trim() -and $_ -notmatch '^\s*//' })
     $headerIndex = 0
@@ -150,7 +150,6 @@ function Test-Active2daRow {
     return @($Entry.values.Values | Where-Object { $_ -ne '****' }).Count -gt 0
 }
 
-$erf = Get-SrnTool -Name erf
 $gff = Get-SrnTool -Name gff
 $cat = Get-SrnTool -Name resman_cat
 $grep = Get-SrnTool -Name resman_grep
@@ -212,7 +211,7 @@ foreach ($sourceFile in @(Get-ChildItem -LiteralPath $rawRoot -Filter '*.2da' | 
     $baselinePath = Join-Path $baselineRoot $sourceFile.Name
     $baselineAvailable = $false
     if ($NwnRoot -and $NwnUserDirectory -and $sourceTable.validHeader) {
-        $baselineLines = @(& $cat --root $NwnRoot --userdirectory $NwnUserDirectory --no-ovr $sourceFile.Name 2>$null)
+        $baselineLines = @(Invoke-SrnCp1252Native $cat '--root', $NwnRoot, '--userdirectory', $NwnUserDirectory, '--no-ovr', $sourceFile.Name 2>$null)
         if ($LASTEXITCODE -eq 0 -and $baselineLines.Count) {
             [IO.File]::WriteAllLines($baselinePath, $baselineLines, [Text.Encoding]::GetEncoding(1252))
             $baselineAvailable = $true
@@ -282,7 +281,7 @@ $textureReferences = @{}
 $supermodelReferences = @{}
 $classifications = @{}
 foreach ($model in @($allFiles | Where-Object Extension -ieq '.mdl')) {
-    $text = Get-Content -LiteralPath $model.FullName -Raw -Encoding Default
+    $text = Read-SrnCp1252Text $model.FullName
     $match = [regex]::Match($text, '(?im)^\s*classification\s+(\S+)')
     $classification = if ($match.Success) { $match.Groups[1].Value.ToLowerInvariant() } else { 'unknown' }
     if (-not $classifications.ContainsKey($classification)) { $classifications[$classification] = 0 }

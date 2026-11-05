@@ -27,8 +27,6 @@ PROTECTED_NATIVE = {
 }
 STOCK_HEIGHT = 1.9339157
 CORRECTED_PELVIS_PLT = '990aa66b5c642d6c45ab4f1c60ceffd732cd290b53207c9c5021698dc9181690'
-THIGH_ATTACHMENTS = {'pmh0_legl001.mdl': ('legl','lthigh_g'),
-                     'pmh0_legr001.mdl': ('legr','rthigh_g')}
 LIMB_ATTACHMENTS = {'pmh0_' + part + '001.mdl': (part, joint) for part, joint in ATTACHMENTS.items()}
 
 

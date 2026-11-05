@@ -18,6 +18,13 @@
     "^docs/imports/",
     "^srn_item/"
   ],
+  "packBuild": [
+    "^hakbuilder\\.json$",
+    "^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\\.Common|SrnTools)\\.",
+    "^tools/(toolchain|shared-tools)\\.lock\\.json$",
+    "^tools/ci-scope\\.json$",
+    "^\\.github/(workflows/ci\\.yml|actions/srn-tools/)"
+  ],
   "wheel": [
     "^tools/phenomorpher/"
   ],

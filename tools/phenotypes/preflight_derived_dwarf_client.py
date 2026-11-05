@@ -4,11 +4,8 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-import subprocess
-import sys
 
 REPO = Path(__file__).resolve().parents[2]
-STAGE = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage"
 
 
 def sha256_file(path: Path | str) -> str:

@@ -322,7 +322,7 @@ def unwrap(mesh,bindings,policy=None):
             metrics[str(size)],owners[size]=raster_audit(new_uv,size)
             subtexel[str(size)]=subtexel_audit(new_uv,size,metrics[str(size)],owners[size],0.0 if size==4096 else subtexel_fraction,charts)
             bad.update(metrics[str(size)]['overlapFaces']);bad.update(metrics[str(size)]['degenerateUvFaces']);bad.update(subtexel[str(size)]['failingFaces'])
-        gutters={str(size):gutter_audit(new_uv,size,owners[size],charts) for size in (2048,1024)}
+        gutters={'1024':gutter_audit(new_uv,1024,owners[1024],charts)}  # the only one that steers a repack
         effective=[padding*1024/dims[0],padding*1024/dims[1]]
         attempts.append({'round':round_index,'padding':padding,'ownCharts':len(own),'badFaceCount':len(bad),'charts':count,
                          'atlasDimensions':list(dims),'effectivePadding1024':effective,'packSeconds':packed,
@@ -371,6 +371,7 @@ def unwrap(mesh,bindings,policy=None):
         gutters={str(size):gutter_audit(new_uv,size,owners[size],charts) for size in (2048,1024)};dims=(PAGE,PAGE);count=face['charts']
         if gutters['1024']['nearbyChartPixelsByRadius']['1']:raise fail('Face-priority layout has thin 1K gutters')
         if metrics['2048']['coverageFraction']<floor:raise fail(f"Insufficient useful UV coverage after face priority ({metrics['2048']['coverageFraction']:.3f} at 2K)")
+    if '2048' not in gutters:gutters={'2048':gutter_audit(new_uv,2048,owners[2048],charts),**gutters}
     result=dict(mesh,uv=np.asarray(new_uv,np.float64),chart_ids=chart_ids(new_uv),uv_pending_unwrap=False)
     return result,{**({'facePriority':face} if face else {}),'charts':count,'atlasDimensions':list(dims),'pixelAudits':metrics,'gutters':gutters,
                    'geometryUnchanged':True,'preserveAuthoredSeams':preserve_seams,'elapsedSeconds':time.perf_counter()-begun,

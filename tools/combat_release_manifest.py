@@ -335,7 +335,8 @@ def build(check_git: bool = True) -> dict:
             'closureMissing': closure_missing,
             'contractPlaceholders': placeholders,
             'closureMatchesPublicationOwnership': sorted(closure | set(placeholders)) == sorted(owned),
-            'tlkStrings': 'none required; names are embedded CExoLocStrings',
+            'tlkStrings': 'none required; names are embedded CExoLocStrings' if all(bp['tlkDependency'].startswith('none') for bp in bps)
+                          else 'required by ' + ', '.join(bp['resRef'] for bp in bps if not bp['tlkDependency'].startswith('none')),
             'tables': [{'resource': rel(BASEITEMS), 'pack': TABLE_PACK, 'rows': base_rows}],
             'packs': sorted({WEAPON_PACK, TABLE_PACK} if table_required else {WEAPON_PACK}),
             'stockTableDependency': None if table_required else
@@ -500,7 +501,9 @@ def build(check_git: bool = True) -> dict:
                     'installedGameOriginalSha256': publication['displayTable']['originalSha256'],
                     'rows': table_rows}],
         'tlk': {'resource': rel(TLK), 'sha256': sha256(read(TLK)), 'allocationsSha256': sha256(read(ALLOCATIONS)),
-                'nextId': allocations['nextId'], 'weaponEntries': [], 'combatKeys': combat_keys,
+                'nextId': allocations['nextId'],
+                'weaponEntries': sorted({ref['entry'] for row in table_rows for ref in row['strRefs'].values() if ref['source'] == 'srn.tlk'}),
+                'combatKeys': combat_keys,
                 'srNwnOwnedKeys': sr_nwn_keys},
         'rights': {
             'record': 'PROVENANCE.md "Approved Cougar blades and Colt L36 (srn_weapon, 2026-10-24)"',
@@ -537,7 +540,10 @@ def render_md(m: dict) -> str:
         rows = ', '.join(f"{b['baseItem']} {b['baseItemLabel']}" for b in it['blueprints'][:1])
         L.append(f"| {it['name']} | {it['status']} | {bps} | {rows} | {parts} | "
                  f"{'**yes**' if it['slingRelevant'] else 'no'} | {', '.join(it['packs'])} |")
-    L += ['', 'All blueprints carry embedded names (no TLK StrRef), Cost 0 and no item properties. '
+    blueprints = [b for it in m['items'] for b in it['blueprints']]
+    exceptions = sorted(b['resRef'] for b in blueprints if not b['tlkDependency'].startswith('none') or b['cost'] or b['propertyCount'])
+    L += ['', ('All blueprints carry embedded names (no TLK StrRef), Cost 0 and no item properties. ' if not exceptions else
+               'Blueprints with a TLK StrRef, a Cost or item properties: ' + ', '.join(f'`{r}`' for r in exceptions) + '. ') +
           'Model numbers outside their base row MinRange/MaxRange: '
           + (', '.join(f"`{b['resRef']}`" for it in m['items'] for b in it['blueprints'] if not b['modelNumbersInRange'])
              or 'none') + ' (see Gaps).', '',
@@ -566,8 +572,9 @@ def render_md(m: dict) -> str:
                  f"{r.get('AmmunitionType')} | {r['NumDice']}d{r['DieToRoll']} | {name.get('value')} ({name.get('source')}) | {mod} |")
     tl = m['tlk']
     L += ['', '## TLK', '',
-          f"`{tl['resource']}` SHA-256 `{tl['sha256']}`, nextId {tl['nextId']}. Weapon entries: none. "
-          f"`combat.*` keys: {len(tl['combatKeys'])}. All base-row StrRefs resolve to the base-game dialog.tlk.", '',
+          f"`{tl['resource']}` SHA-256 `{tl['sha256']}`, nextId {tl['nextId']}. Weapon entries: {', '.join(map(str, tl['weaponEntries'])) or 'none'}. "
+          f"`combat.*` keys: {len(tl['combatKeys'])}. "
+          + ('Other base-row StrRefs resolve' if tl['weaponEntries'] else 'All base-row StrRefs resolve') + ' to the base-game dialog.tlk.', '',
           '## Pinned commit vs HEAD', '']
     p = m['pinnedComparison']
     if p:

@@ -318,7 +318,7 @@ HELPER_PINS=('tools/heads/head_export.py','tools/heads/head_workflow.py',
         'tools/phenotypes/bootstrap_shared_blender_addons.py',
         'tools/phenotypes/native_compile.py','tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py',
         'tools/phenomorpher/phenomorpher/engine/neverblender_worker.py','tools/phenomorpher/phenomorpher/engine/rig_native.py',
-        'tools/phenotypes/launch_shared_tool.py',
+        'tools/phenotypes/launch_shared_tool.py','tools/phenotypes/launch_hash_cache.py',
         'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')
 
 
@@ -338,7 +338,7 @@ def source_version():
 # tests, the CLI and GPU-side modules are excluded. Shared tooling binds every stage; native helpers bind the stages
 # whose closure reaches native.py.
 SHARED_TOOLING=('tools/shared-tools.lock.json','tools/phenotypes/bootstrap_shared_blender_addons.py','tools/phenotypes/launch_shared_tool.py',
-    'tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')
+    'tools/phenotypes/launch_hash_cache.py','tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')
 NATIVE_HELPERS=tuple(path for path in HELPER_PINS if path not in SHARED_TOOLING)
 STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not imported
 STAGE_DATA={'palette':('stock-shades.json',),'quality':('quality-thresholds.json',)}  # committed measured references the stage reads

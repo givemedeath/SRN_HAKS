@@ -3,7 +3,6 @@ from __future__ import annotations
 import ctypes
 from ctypes import wintypes
 from datetime import datetime, timezone
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -13,8 +12,6 @@ import sys
 import uuid
 
 REPO = Path(__file__).resolve().parents[2]
-STAGE = REPO / "output/phenotypes/derived-dwarf-male-v1/test-stage"
-REVIEW = REPO / "output/phenotypes/derived-dwarf-male-v1/review"
 
 sys.path.insert(0, str(Path(__file__).parent))
 from preflight_derived_dwarf_client import run_preflight, sha256_file
@@ -108,7 +105,7 @@ def scan_log_for_errors(log_path: Path) -> list[str]:
 
 
 def check_no_nwmain():
-    res = subprocess.run(["powershell", "-NoProfile", "-Command", "Get-Process -Name nwmain -ErrorAction SilentlyContinue | Measure-Object | Select-Object -ExpandProperty Count"], capture_output=True, text=True)
+    res = subprocess.run(["powershell", "-NoProfile", "-Command", "Get-Process -Name nwmain -ErrorAction SilentlyContinue | Measure-Object | Select-Object -ExpandProperty Count"], capture_output=True, text=True, check=True)
     count = int(res.stdout.strip() or "0")
     if count > 0:
         raise RuntimeError(f"An existing nwmain process is already running ({count} found); close it before test launch")
@@ -245,7 +242,7 @@ def run_client_test(
                         else:
                             if "PHENOTYPE_TORSO_PHASE phase=" in line:
                                 phase = line.split("phase=")[1].strip()
-                                if phase not in phases_seen:
+                                if "phase=" + phase not in phases_seen:
                                     phases_seen.add("phase=" + phase)
                                     print(f"[{elapsed:5.1f}s] Reached inspection phase: {phase}")
                             if "PHENOTYPE_TORSO_SEQUENCE_COMPLETE" in line:

@@ -129,7 +129,7 @@ def compile_and_package(prepared_dir, client, output, mdl=None, cache=None):
     if mdl is None:
         command=[sys.executable,str(ROOT/'tools/phenotypes/native_compile.py'),'--client',client['path'],
                  '--user-directory',str(output/'isolated-compiler'),'--converted',str(converted),'--timeout','120']
-        result=subprocess.run(command,capture_output=True,text=True,timeout=180,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+        result=subprocess.run(command,capture_output=True,text=True,errors='replace',timeout=180,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
         (output/'compiler.log').write_text(result.stdout+'\n'+result.stderr,encoding='utf-8');require(result.returncode==0,'Native compiler failed; inspect retained log')
         compiler=client
     else:

@@ -6,8 +6,6 @@ and records explicit authority without inferring master status from filenames.
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from pathlib import Path
 import re
 import shutil
@@ -24,12 +22,8 @@ if str(REPO / 'tools') not in sys.path:
 if str(REPO / 'tools/phenotypes') not in sys.path:
     sys.path.insert(0, str(REPO / 'tools/phenotypes'))
 
-from shared_toolchain import sha, load as load_toolchain
+from shared_toolchain import sha
 from shared_tools import read_json, write_json, resolve_tool
-
-
-def digest(path: Path | str) -> str:
-    return sha(path)
 
 
 def decode_node(data: bytes, node_name_bytes: bytes) -> dict:

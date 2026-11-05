@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from .check_connector_surfaces_v15 import closed_owner_triangles
+from .check_connector_surfaces_v15 import closed_owner_triangles, closest_surface, inside_closed, weighted_distribution
 from .check_connector_surfaces_v16 import NECK_LINKS, audit, closed_oriented_triangles, penetration
 from .check_terminal_connectivity_v13 import LINKS
 
@@ -21,6 +21,26 @@ def frame(z):
 
 
 class ConnectorV16Tests(unittest.TestCase):
+    def test_penetration_measures_only_inside_points_with_the_full_measurement_values(self):
+        triangles, report = closed_oriented_triangles([box('a', (0, 0, 0), (1, 1, 1))], 'a')
+        rng = np.random.default_rng(7); source = rng.uniform(-.5, 1.5, (120, 3)); candidate = source + rng.normal(0, .05, source.shape)
+        weights = rng.uniform(.1, 1, len(source))
+        def full(points):
+            distance = closest_surface(points, triangles)[0]; inside = inside_closed(points, triangles) & (distance > 1e-8)
+            return inside, np.where(inside, distance, 0.)
+        for other in (candidate, source):
+            result = penetration(source, other, weights, (triangles, report), (triangles, report), 1.)
+            (si, sd), (ci, cd) = full(source), full(other)
+            self.assertEqual(result['sourceDepthMeters'], weighted_distribution(sd, weights))
+            self.assertEqual(result['candidateDepthMeters'], weighted_distribution(cd, weights))
+            self.assertEqual(result['sourceInsideAreaFraction'], float(weights[si].sum()/weights.sum()))
+            self.assertEqual(result['candidateInsideAreaFraction'], float(weights[ci].sum()/weights.sum()))
+
+    def test_penetration_still_refuses_nonfinite_points_outside_the_surface(self):
+        triangles, report = closed_oriented_triangles([box('a', (0, 0, 0), (1, 1, 1))], 'a')
+        with self.assertRaisesRegex(ValueError, 'Finite surface geometry'):
+            penetration(np.array([[np.nan, 0, 0]]), np.zeros((1, 3)), np.ones(1), (triangles, report), (triangles, report), 1.)
+
     def test_nonmanifold_closed_oriented_surfaces_measure_penetration(self):
         # Two tetrahedra sharing one edge: each edge cancels, but the shared edge has four uses.
         p, f = TETRA; second = (p * [-1, -1, 1]).copy()

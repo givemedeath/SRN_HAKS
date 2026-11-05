@@ -9,11 +9,11 @@ param(
   [switch]$NoLaunch
 )
 $ErrorActionPreference='Stop'
+Import-Module (Join-Path (Split-Path $PSScriptRoot -Parent) 'SrnTools.psm1') -Force
 $taskStage=(Resolve-Path -LiteralPath $Fixture).Path
 $taskTarget=(Resolve-Path -LiteralPath $TargetContract).Path
-$taskPython=(Resolve-Path -LiteralPath $WorkspacePython).Path
-$taskClient=(Resolve-Path -LiteralPath $Client).Path
-if ($taskPython -match '[\\/]WindowsApps[\\/]') { throw 'Use the bundled workspace Python; Windows Store shims are unsupported' }
+$taskPython=(Resolve-SrnRuntime -Name python -Path $WorkspacePython).path
+$taskClient=(Resolve-SrnRuntime -Name nwn -Path $Client).path
 $taskPreflight=Join-Path $taskStage ('client-preflight-'+[guid]::NewGuid().ToString('N')+'.json')
 # Keep helper snapshots short enough for Windows paths. Historical evidence stays intact.
 $taskRepo=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)

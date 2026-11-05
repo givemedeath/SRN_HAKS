@@ -96,7 +96,7 @@ class TargetRigidEquipmentTests(unittest.TestCase):
             root=Path(temp);a,working=normalized(root);runtime=root/'runtime.mdl';text=working.read_text();block=next(n for n in NODE.finditer(text) if arrays(n[3],'verts'))
             body=replace_array(block[3],'verts',np.asarray(arrays(block[3],'verts'))*10/7)
             runtime.write_text(text[:block.start()]+f'node {block[1]} {block[2]}\n{body}endnode'+text[block.end():])
-            correct_rigid(working,runtime,{'scale':[10/7]*3,'translate':[0,0,0]});data=target_fixture()
+            correct_rigid(working,runtime,{'scale':[10/7]*3,'translate':[0,0,0]},normalized=True);data=target_fixture()
             frame=np.eye(4);frame[:3,3]=[.4,-.2,1.2];frame[:3,:3]=[[0,-1,0],[1,0,0],[0,0,1]]
             data['rig']['frames']['working']['torso_g']=frame.tolist();rf=frame.copy();rf[:3,3]*=10/7;data['rig']['frames']['runtime']['torso_g']=rf.tolist()
             proof=stage.scale_actor_proof(working.read_text(),runtime.read_text(),data,'torso_g');self.assertEqual(proof['statureApplications'],1)
