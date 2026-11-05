@@ -14,7 +14,8 @@ if (Test-Path -LiteralPath $target) { throw 'Fresh additive node target required
 $queue=Invoke-RestMethod -Uri "$service/queue"
 if ($queue.queue_running.Count -or $queue.queue_pending.Count) { throw 'ComfyUI queue occupied; do not restart' }
 $stats=Invoke-RestMethod -Uri "$service/system_stats"
-if (($stats.system.argv -join ' ') -notlike '*ComfyUI*main.py*--input-directory $SharedRoot\input*--output-directory $SharedRoot\output*') { throw 'Different service launch; reobserve' }
+$shared=[WildcardPattern]::Escape($SharedRoot.TrimEnd('\','/'))
+if (($stats.system.argv -join ' ') -notlike "*ComfyUI*main.py*--input-directory $shared\input*--output-directory $shared\output*") { throw 'Different service launch; reobserve' }
 $pins=@{
  'comfy/ldm/trellis2/model.py'='BAA8B081DE2EADA84754B867282BD21D498233816326F8842943857FE1D07E0C'
  'comfy_extras/nodes_trellis2.py'='5D99F8FD2D1A1CC252B860D941717FC4E53CFBC48B623730C9FDD9139DD7F98C'
